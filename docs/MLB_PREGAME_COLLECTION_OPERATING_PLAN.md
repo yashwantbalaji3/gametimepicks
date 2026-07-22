@@ -35,8 +35,17 @@ Daily operating plan for the forward-only, internal-only MLB pregame research ar
 
 ## Persistence
 
-- **Default (safe): workflow artifacts.** Each run uploads `data/internal/mlb/pregame-archive/` as a 90‑day artifact — no push, zero risk to `main`/money.
-- **Opt-in (durable): in-repo commit.** Set repo variable `PREGAME_ARCHIVE_COMMIT=true` to enable a path-scoped commit step (`git add data/internal/mlb/pregame-archive/` only, fetch-first, `continue-on-error`). It never touches money/public/settlement files and never blocks anything.
+Two layers, both non-blocking:
+
+- **Large payloads → workflow artifacts.** Every run uploads `data/internal/mlb/pregame-archive/` as a 90‑day artifact, including the large raw/normalized market payloads (`normalized.json` ≈ 1 MB, `raw.json` ≈ 150–340 KB), which are **gitignored** and never committed.
+- **Small metadata → in-repo commit (ENABLED 2026‑07‑22, `PREGAME_ARCHIVE_COMMIT=true`).** A hardened, path-scoped commit step durably accumulates only the small archive metadata so the repo becomes the progress ledger toward the 30-date gate. What it commits: manifests, `status/latest.json` + `status/monitor.json`, per-game StatsAPI snapshots + freezes, and the root summaries (schema / source-registry / settlement-join-plan) — all ≈ 4–6 KB each.
+
+The commit step is **money-safe by construction**:
+- **Path-scoped** — `git add data/internal/mlb/pregame-archive/` only; never `git add -A`/`.`, never money/public/settlement/product paths.
+- **Size-guarded** — a 128 KiB (`MAX_FILE_BYTES=131072`) cap unstages any oversized file (backstop if a large payload ever slipped past `.gitignore`). The cap sits cleanly between metadata (≤ ~6 KB) and market payloads (≥ 148 KB).
+- **Safety-asserted** — before committing, any staged path outside the archive dir (or matching `portfolio|public/data|mr-dub|out/|settled_leans|bank-builder|moonshot|settlement`) aborts the step with nothing committed.
+- **Rebase-safe** — the archive-only commit is rebased onto the latest origin before push (`git pull --rebase --autostash`), so a concurrent money/nightly-settle push is **never reverted**. No force push. `[skip ci]` prevents commit loops.
+- **Non-blocking** — `continue-on-error`, never on `pull_request`; if anything fails the artifact upload still preserves the run.
 
 ## Safety guarantees
 

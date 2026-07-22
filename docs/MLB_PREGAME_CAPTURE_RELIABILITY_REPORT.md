@@ -37,6 +37,7 @@ KEEP CAP 3  +  ENABLE MANIFEST/STATUS COMMITS
 
 1. **Keep cap 3.** The capped paid capture is reliable, cheap (~30 credits/run), and complete (all 9 markets, 83% de-vig, 100% eligible). Only one clean paid run exists so far — accumulate ~7 clean daily runs before scaling. Do **not** move to full slate or cap 5 yet.
 2. **Enable manifest/status commits** (`PREGAME_ARCHIVE_COMMIT=true`). Today the pipeline is artifact-only — each run's data lives in a 90-day artifact and does **not** accumulate across runs into one committed dataset, so the committed `status/latest.json` + `monitor.json` don't reflect CI progress toward the 30-date gate. A path-scoped, non-blocking commit of the small manifests + status would let the archive durably accumulate and make daily progress visible. (Large raw/normalized payloads stay gitignored → artifacts.)
+   - **✅ DONE (2026‑07‑22).** `PREGAME_ARCHIVE_COMMIT=true` set; the commit step was hardened (path-scoped + 128 KiB size guard + money/public/settlement safety-assert + rebase-safe push, no force). Small metadata (manifests, status, snapshots, freezes, summaries) now accumulates in-repo; large market payloads stay gitignored → artifacts. See `MLB_PREGAME_COLLECTION_OPERATING_PLAN.md` → Persistence.
 3. **Do not pause.** Runs are healthy and cheap; there's no reliability reason to stop.
 4. **Optional cadence tune (later):** if evening-UTC scheduled runs contribute little (games started), trim those cron times or point the capture at the next-day slate to lift pregame coverage per run.
 

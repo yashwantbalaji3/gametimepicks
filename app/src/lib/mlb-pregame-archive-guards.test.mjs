@@ -116,10 +116,15 @@ test("10 · the capture workflow is enabled, non-blocking, PR-safe, and money/pu
   assert.match(wf, /concurrency:/, "concurrency-guarded");
   // durable commit is OPT-IN + path-scoped to the internal archive only
   assert.match(wf, /vars\.PREGAME_ARCHIVE_COMMIT == 'true'/, "in-repo commit is opt-in via repo variable");
-  assert.match(wf, /git add data\/internal\/mlb\/pregame-archive\//, "commit is path-scoped to the internal archive");
-  // never ACTS on money / public / settlement files (ignore explanatory comment lines that say it does NOT)
-  const codeLines = wf.split("\n").filter((l) => !l.trim().startsWith("#")).join("\n");
-  assert.ok(!/git add -A|git add \.|portfolio\.json|public\/data\//.test(codeLines), "no workflow step stages money/public files");
+  assert.match(wf, /ARCHIVE_DIR:\s*data\/internal\/mlb\/pregame-archive/, "ARCHIVE_DIR is the internal archive path");
+  // every `git add` command is path-scoped to the archive (check the actual commands, not defensive mentions of
+  // money/public path names in the abort-guard grep).
+  const addLines = wf.split("\n").map((l) => l.trim()).filter((l) => /^git add /.test(l));
+  assert.ok(addLines.length >= 1, "there is a git add");
+  for (const l of addLines) {
+    assert.ok(!/git add\s+(-A|--all|-u|\.)(\s|$)/.test(l), `no blanket add: ${l}`);
+    assert.match(l, /ARCHIVE_DIR|data\/internal\/mlb\/pregame-archive/, `archive-scoped add: ${l}`);
+  }
 });
 
 test("11 · settlement-join is a PLAN only (no execution, no modeling) + research-only", () => {

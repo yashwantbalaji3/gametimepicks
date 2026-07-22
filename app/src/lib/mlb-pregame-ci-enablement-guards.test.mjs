@@ -39,10 +39,16 @@ test("3 · the workflow is non-blocking, never on pull_request, credit-floored",
   assert.match(wf, /ODDS_API_MIN_CREDITS_REMAINING/, "credit floor threaded to the capture steps");
 });
 
-test("4 · workflow never stages money/public files (path-scoped commit only)", () => {
-  const codeLines = wf.split("\n").filter((l) => !l.trim().startsWith("#")).join("\n");
-  assert.ok(!/git add -A|git add \.|portfolio\.json|public\/data\//.test(codeLines), "no money/public staging");
-  assert.match(wf, /git add data\/internal\/mlb\/pregame-archive\//, "commit is path-scoped to the internal archive");
+test("4 · commit stages ONLY the archive dir — path-scoped, no blanket/money/public add", () => {
+  // Check the actual `git add` commands (not mere mentions — the hardened step defensively greps money/public
+  // path names in an abort-guard, which is safe and must not trip this test).
+  const addLines = wf.split("\n").map((l) => l.trim()).filter((l) => /^git add /.test(l));
+  assert.ok(addLines.length >= 1, "there is a git add");
+  for (const l of addLines) {
+    assert.ok(!/git add\s+(-A|--all|-u|\.)(\s|$)/.test(l), `no blanket add: ${l}`);
+    assert.match(l, /ARCHIVE_DIR|data\/internal\/mlb\/pregame-archive/, `archive-scoped add: ${l}`);
+  }
+  assert.match(wf, /ARCHIVE_DIR:\s*data\/internal\/mlb\/pregame-archive/, "ARCHIVE_DIR resolves to the internal archive");
 });
 
 test("5 · the monitor report carries daily status + credit usage + 7-day progress + gate", () => {

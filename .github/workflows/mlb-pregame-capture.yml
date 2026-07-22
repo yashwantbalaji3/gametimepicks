@@ -81,6 +81,9 @@ jobs:
         run: node app/scripts/freeze-mlb-pregame-research.mjs --date "${{ github.event.inputs.date }}"
       - name: Coverage / gate audit
         run: node app/scripts/audit-mlb-pregame-archive.mjs
+      - name: Monitor (daily status + 7-day progress + gate) — regenerate status/monitor.json
+        continue-on-error: true
+        run: node app/scripts/monitor-mlb-pregame-archive.mjs
       - name: Upload archive artifact (safe persistence — no push)
         if: always()
         uses: actions/upload-artifact@v4
@@ -89,16 +92,49 @@ jobs:
           path: data/internal/mlb/pregame-archive/
           retention-days: 90
           if-no-files-found: ignore
-      - name: Durable in-repo persistence (OPT-IN — path-scoped, fetch-first, never blocks)
-        if: vars.PREGAME_ARCHIVE_COMMIT == 'true'
+      - name: Durable in-repo persistence (OPT-IN — path-scoped + size-guarded + rebase-safe, never blocks)
+        if: vars.PREGAME_ARCHIVE_COMMIT == 'true' && github.event_name != 'pull_request'
         continue-on-error: true
+        env:
+          ARCHIVE_DIR: data/internal/mlb/pregame-archive
+          # 128 KiB cap. Small metadata/summaries only (manifests, status, snapshots, freezes ≈ 4–6 KB each);
+          # the large raw/normalized market payloads (≥148 KB) stay workflow artifacts and are gitignored.
+          MAX_FILE_BYTES: "131072"
         run: |
+          set -u
           git config user.name "gtp-pregame-bot"
           git config user.email "noreply@anthropic.com"
-          git fetch origin "${GITHUB_REF_NAME}" || exit 0
-          git reset --soft "origin/${GITHUB_REF_NAME}" || true
-          git add data/internal/mlb/pregame-archive/   # ONLY internal archive paths — never money/public/settlement
-          if git diff --cached --quiet; then echo "no archive changes"; exit 0; fi
-          git commit -m "auto: mlb pregame archive capture [skip ci]"
+
+          # ── PATH-SCOPE: stage ONLY the internal pregame-archive tree. raw.json/normalized.json are gitignored,
+          #    so the large market payloads are never staged. This add stages new/updated small metadata only. ──
+          git add "${ARCHIVE_DIR}/" || true
+
+          # ── SIZE GUARD: unstage any file at/over the cap (backstop if a large payload ever slipped past .gitignore). ──
+          for f in $(git diff --cached --name-only); do
+            sz=$(git cat-file -s ":$f" 2>/dev/null || echo 0)
+            if [ "$sz" -ge "${MAX_FILE_BYTES}" ]; then
+              echo "SIZE GUARD: skipping oversized $f ($sz bytes >= ${MAX_FILE_BYTES})"
+              git restore --staged "$f" 2>/dev/null || git reset -q HEAD -- "$f" || true
+            fi
+          done
+
+          # ── SAFETY ASSERT: everything staged must live under the archive dir, and NEVER money/public/settlement/
+          #    product paths. If anything else slipped in, commit nothing (non-blocking, artifact still uploaded). ──
+          OFF="$(git diff --cached --name-only | grep -vE "^${ARCHIVE_DIR}/" || true)"
+          BAD="$(git diff --cached --name-only | grep -iE 'portfolio|public/data|mr-dub|(^|/)out/|settled_leans|bank-builder|moonshot|settlement' || true)"
+          if [ -n "${OFF}${BAD}" ]; then
+            echo "ABORT: out-of-scope paths staged — committing nothing:"; printf '%s\n' "${OFF}" "${BAD}"
+            git reset -q; exit 0
+          fi
+
+          if git diff --cached --quiet; then echo "no archive metadata changes to persist"; exit 0; fi
+          N="$(git diff --cached --name-only | wc -l | tr -d ' ')"
+          echo "── persisting ${N} archive metadata file(s): ──"
+          git diff --cached --name-only | sed 's/^/  + /'
+          git commit -m "auto: mlb pregame archive metadata (${N} files) [skip ci]"
+
+          # ── REBASE-SAFE PUSH: replay the archive-only commit onto latest origin so a concurrent money/settle push
+          #    is NEVER reverted (the commit's diff is archive-only, so it rebases cleanly on top of any money change). ──
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || { git rebase --abort 2>/dev/null || true; echo "rebase skipped — artifact still uploaded"; exit 0; }
           git push origin "HEAD:${GITHUB_REF_NAME}" || echo "push skipped (non-fast-forward or perms) — artifact still uploaded"
       # This workflow NEVER pushes to public data, deploys, settles, or touches money/portfolio files.
