@@ -58,6 +58,26 @@
     "estimatedDaysTo30DateGate": 28,
     "pathTo500SettledEligibleRows": "settledEligibleObs=0 until a separate settlement-join mission runs; then each settled prop-lean that was captured pregame becomes 1 eligible row. At current per-day capture, a month of daily collection yields ample raw eligible records; the 500 SETTLED-eligible threshold is measurable only after the settlement join + official grading."
   },
+  "settlementJoins": {
+    "settlementJoinDates": [
+      "2026-07-21",
+      "2026-07-22"
+    ],
+    "gamesFinal": 9,
+    "gamesPending": 23,
+    "joinRows": 396,
+    "settledEligibleRows": 0,
+    "marketPendingRows": 396,
+    "ambiguousRows": 0,
+    "unsupportedRows": 0,
+    "joinCoverageByMarket": {},
+    "earliestValidResearchDate": {
+      "dateGate": "2/30 distinct dates · ~28 more daily runs",
+      "settledEligibleGate": "0/500 · INDETERMINATE — 0 settled-eligible rows so far (markets must be captured pregame AND the games final); the daily settled rate is not yet measurable",
+      "bindingConstraint": "settled-eligible rows (no market-capture date has final games yet)",
+      "note": "Not a promise — recomputed each run from observed collection. First settled-eligible rows accrue when the earliest market-capture date's games are final and re-joined."
+    }
+  },
   "researchGate": {
     "minDistinctDates": 30,
     "minSettledEligibleObs": 500,

@@ -88,6 +88,38 @@
       "freezes": 17
     }
   ],
+  "settlementJoins": {
+    "settlementJoinDates": [
+      "2026-07-21",
+      "2026-07-22"
+    ],
+    "settledEligibleDates": [],
+    "gamesFinal": 9,
+    "gamesPending": 23,
+    "joinRows": 396,
+    "settledEligibleRows": 0,
+    "settledPushRows": 0,
+    "marketPendingRows": 396,
+    "unavailableRows": 0,
+    "ambiguousRows": 0,
+    "unsupportedRows": 0,
+    "ineligibleGradedRows": 0,
+    "distinctSettledPlayerMarkets": 0,
+    "joinCoverageByFamily": {
+      "pitcher_status": 18,
+      "environment": 9,
+      "umpire": 4,
+      "confirmed_lineup": 1
+    },
+    "joinCoverageByMarket": {},
+    "progressTo500": "0/500",
+    "earliestValidResearchDate": {
+      "dateGate": "2/30 distinct dates · ~28 more daily runs",
+      "settledEligibleGate": "0/500 · INDETERMINATE — 0 settled-eligible rows so far (markets must be captured pregame AND the games final); the daily settled rate is not yet measurable",
+      "bindingConstraint": "settled-eligible rows (no market-capture date has final games yet)",
+      "note": "Not a promise — recomputed each run from observed collection. First settled-eligible rows accrue when the earliest market-capture date's games are final and re-joined."
+    }
+  },
   "collectionGate": {
     "minDistinctDates": 30,
     "minSettledEligibleObs": 500,
@@ -99,5 +131,5 @@
     "dates 2/30",
     "settled-eligible 0/500"
   ],
-  "note": "settledEligibleObs is populated only by a separate future settlement-join mission; forward collection just started, so the gate is not met — this is expected."
+  "note": "settledEligibleObs is now populated by the settlement-join pipeline (join-mlb-pregame-settlements.mjs). Only pregame-researchEligible market leans with a DECISIVE official outcome (win|loss) count toward the 500-row gate; pushes/pending/ambiguous/unsupported/ineligible + contextual research rows never do. No modeling; official box scores only."
 }

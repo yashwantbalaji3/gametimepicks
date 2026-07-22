@@ -70,10 +70,19 @@ function main() {
     pathTo500SettledEligibleRows: "settledEligibleObs=0 until a separate settlement-join mission runs; then each settled prop-lean that was captured pregame becomes 1 eligible row. At current per-day capture, a month of daily collection yields ample raw eligible records; the 500 SETTLED-eligible threshold is measurable only after the settlement join + official grading.",
   };
 
+  // ── settlement-join progress: read the audit's status/latest.json (the settlement-join authority) so the
+  // monitor's gate reflects real settled-eligible rows without duplicating the join-reading logic. ──
+  const latest = readJson(path.join(ARCH, "status", "latest.json"));
+  const sj = latest?.settlementJoins ?? null;
+  const settledEligibleRows = sj?.settledEligibleRows ?? 0;
+  const gateMet = snapDates.length >= GATE.minDistinctDates && settledEligibleRows >= GATE.minSettledEligibleObs;
+
   const report = {
     public: false, approvedForProduction: false, productEligible: false,
     kind: "mlb-pregame-archive-monitor", collectionStartDate: snapDates[0] ?? null,
-    dailyStatus, progress7d, researchGate: { ...GATE, dates: `${snapDates.length}/${GATE.minDistinctDates}`, settledEligible: `0/${GATE.minSettledEligibleObs}`, met: false },
+    dailyStatus, progress7d,
+    settlementJoins: sj ? { settlementJoinDates: sj.settlementJoinDates, gamesFinal: sj.gamesFinal, gamesPending: sj.gamesPending, joinRows: sj.joinRows, settledEligibleRows: sj.settledEligibleRows, marketPendingRows: sj.marketPendingRows, ambiguousRows: sj.ambiguousRows, unsupportedRows: sj.unsupportedRows, joinCoverageByMarket: sj.joinCoverageByMarket, earliestValidResearchDate: sj.earliestValidResearchDate } : { note: "run audit-mlb-pregame-archive.mjs first — no settlement-join status yet" },
+    researchGate: { ...GATE, dates: `${snapDates.length}/${GATE.minDistinctDates}`, settledEligible: `${settledEligibleRows}/${GATE.minSettledEligibleObs}`, met: gateMet },
   };
   fs.mkdirSync(path.join(ARCH, "status"), { recursive: true });
   fs.writeFileSync(path.join(ARCH, "status", "monitor.json"), JSON.stringify(report, null, 2));

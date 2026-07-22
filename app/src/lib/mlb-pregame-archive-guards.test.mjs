@@ -127,12 +127,14 @@ test("10 · the capture workflow is enabled, non-blocking, PR-safe, and money/pu
   }
 });
 
-test("11 · settlement-join is a PLAN only (no execution, no modeling) + research-only", () => {
+test("11 · settlement-join is research-only (no modeling; execution is official-only + gate-gated)", () => {
   const plan = readJson(path.join(ARCH, "settlement-join-plan.json"));
   if (!plan) { console.log("  (skip — plan not present)"); return; }
   assert.equal(plan.public, false);
   assert.equal(plan.approvedForProduction, false);
-  assert.match(plan.status, /PLAN_ONLY/);
+  // the join is now IMPLEMENTED, but must still assert NO modeling and remain gate-gated (research-only).
+  assert.match(plan.status, /PLAN_ONLY|IMPLEMENTED/);
+  assert.match(plan.status, /no modeling/i, "still explicitly no modeling");
   assert.deepEqual(plan.joinKeys.gameLevel, ["gamePk", "boardDateEt"]);
   assert.ok(plan.gateBeforeModeling.plusFounderApproval, "modeling requires the gate + founder approval");
 });

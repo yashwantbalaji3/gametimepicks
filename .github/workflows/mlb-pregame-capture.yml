@@ -79,6 +79,13 @@ jobs:
         run: node app/scripts/capture-mlb-pregame-player-props.mjs --date "${{ github.event.inputs.date }}" --write --max-events "${{ vars.PREGAME_ARCHIVE_PLAYER_PROP_MAX_EVENTS || '3' }}"
       - name: Final pregame freeze
         run: node app/scripts/freeze-mlb-pregame-research.mjs --date "${{ github.event.inputs.date }}"
+      - name: Settlement join (official StatsAPI box scores → research-join rows — free, non-blocking, idempotent)
+        continue-on-error: true
+        # Joins immutable freezes + carried-forward market-lean KEYS to OFFICIAL box scores. Free StatsAPI (no
+        # Odds credits). A --lookback window re-grades recently-pending dates once their games are final; final
+        # games are terminal (not re-fetched). Writes ONLY internal settlement-joins/; pending stays pending;
+        # never touches money/public/settlement. Non-blocking — capture/audit are unaffected if this fails.
+        run: node app/scripts/join-mlb-pregame-settlements.mjs --today "${{ github.event.inputs.date }}" --lookback 3 --write
       - name: Coverage / gate audit
         run: node app/scripts/audit-mlb-pregame-archive.mjs
       - name: Monitor (daily status + 7-day progress + gate) — regenerate status/monitor.json
