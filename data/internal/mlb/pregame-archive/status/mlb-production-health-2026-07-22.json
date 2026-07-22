@@ -1,0 +1,40 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "kind": "mlb-production-health",
+  "date": "2026-07-22",
+  "artifacts": {
+    "board": {
+      "present": true,
+      "games": 17
+    },
+    "simulation": {
+      "present": false,
+      "games": 0,
+      "picks": 0,
+      "runCount": null,
+      "artifactHash": null
+    },
+    "teamMarkets": {
+      "present": false,
+      "games": 0
+    },
+    "playerProps": {
+      "present": false,
+      "props": 0
+    }
+  },
+  "slateStatus": "SIMULATION_PENDING",
+  "readyToPublish": false,
+  "publicLabel": "Simulation pending",
+  "missingArtifacts": [
+    "simulation",
+    "teamMarkets",
+    "playerProps"
+  ],
+  "credits": {
+    "note": "Odds API credits are reported by the ingest steps in the workflow logs / artifact manifests; this gate does not call the paid API."
+  },
+  "note": "REQUIRED to publish: board + game-simulations. team-markets/player-props are if-available; their absence yields AWAITING_MARKET_DATA, never a fabricated ready state. No fabrication."
+}
