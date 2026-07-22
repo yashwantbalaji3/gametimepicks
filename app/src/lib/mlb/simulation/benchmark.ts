@@ -58,6 +58,20 @@ export const BASELINES = [
 
 export interface BaselineObs { impliedProbability: number | null; noVigProbability: number | null; historicalBaseRate: number | null; playerAverageProb: number | null }
 
+/** Player-average baseline: historical rate at which THIS player cleared the line (needs settled history). */
+export function playerAverageBaseline(exceededLine: number, gamesWithData: number): number | null {
+  return gamesWithData > 0 ? +(exceededLine / gamesWithData).toFixed(4) : null;
+}
+
+/** League-average baseline: rate at which ANY player cleared this market's line (needs settled history). */
+export function leagueAverageBaseline(leagueExceeded: number, leagueGames: number): number | null {
+  return leagueGames > 0 ? +(leagueExceeded / leagueGames).toFixed(4) : null;
+}
+
+/** A baseline is only usable once it has enough settled history; below MIN it is INSUFFICIENT (never guessed). */
+export const BASELINE_MIN_HISTORY = 20;
+export function baselineSufficiency(n: number): "sufficient" | "insufficient" { return n >= BASELINE_MIN_HISTORY ? "sufficient" : "insufficient"; }
+
 export const BENCHMARK_GATE = {
   minSettledEligibleObs: 500, minDistinctDates: 30, plusFounderApproval: true,
   note: "No benchmark is scored until >= 500 settled-eligible observations across >= 30 dates exist AND the founder approves; a model is 'predictive' only if it beats the de-vig market baseline OUT OF SAMPLE.",

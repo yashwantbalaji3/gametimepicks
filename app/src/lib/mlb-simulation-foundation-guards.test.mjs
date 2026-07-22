@@ -13,7 +13,8 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { featureCoverageOf, coverageScore, SIMULATION_CONTRACT_GUARDRAILS } from "./mlb/simulation/simulation-feature-contract.ts";
-import { brierScore, logLoss, accuracy, roiSim, calibrationBins, BASELINES, BENCHMARK_GATE } from "./mlb/simulation/benchmark.ts";
+import { brierScore, logLoss, accuracy, roiSim, calibrationBins, BASELINES, BENCHMARK_GATE, playerAverageBaseline, leagueAverageBaseline, baselineSufficiency } from "./mlb/simulation/benchmark.ts";
+import { validateFeatures, NullSimulationModel, SIMULATION_PIPELINE_STAGES, SIMULATION_PIPELINE_GUARDRAILS } from "./mlb/simulation/simulation-pipeline.ts";
 import { PA_BY_SLOT } from "../../scripts/capture-mlb-pregame-pa-opportunity.mjs";
 import { buildObservation } from "../../scripts/build-mlb-research-observations.mjs";
 
@@ -90,6 +91,32 @@ test("5 · PA_BY_SLOT is a documented reference (descending); on-disk new famili
       }
     }
   }
+});
+
+test("7 · SimulationPipeline: 7 stages, validateFeatures needs market, NullModel produces NO probability", () => {
+  assert.equal(SIMULATION_PIPELINE_STAGES.length, 7);
+  assert.equal(SIMULATION_PIPELINE_STAGES[0], "pregame_snapshot");
+  assert.equal(SIMULATION_PIPELINE_STAGES[6], "market_benchmark_comparison");
+  // no market probability ⇒ cannot validate
+  const noMarket = validateFeatures({ model_inputs_available: { hasPitcherWorkload: true } });
+  assert.equal(noMarket.ok, false);
+  assert.match(noMarket.reason, /no market probability/);
+  const withMarket = validateFeatures({ model_inputs_available: { hasDeVigMarketProbability: true, hasPitcherWorkload: true, hasLineup: true, hasBullpen: true, hasMatchup: true, hasBatterSplits: true, hasBatterForm: true } });
+  assert.equal(withMarket.ok, true);
+  // the null model returns NO prediction values
+  const out = new NullSimulationModel().simulate({ game: {}, pitcher: {}, batter: {}, market: {} }, { market: "hits", line: 1.5, player: "X" });
+  assert.equal(out.probabilityOver, null);
+  assert.equal(out.expectedValue, null);
+  assert.equal(out.internalOnly, true);
+  assert.equal(SIMULATION_PIPELINE_GUARDRAILS.producesPredictions, false);
+});
+
+test("8 · baseline calculators are rate-based + sufficiency-gated (never guessed)", () => {
+  assert.equal(playerAverageBaseline(6, 10), 0.6);
+  assert.equal(playerAverageBaseline(0, 0), null, "no history ⇒ null, never fabricated");
+  assert.equal(leagueAverageBaseline(300, 1000), 0.3);
+  assert.equal(baselineSufficiency(5), "insufficient");
+  assert.equal(baselineSufficiency(50), "sufficient");
 });
 
 test("6 · readiness monitor keeps modeling BLOCKED; artifacts internal; money md5 unchanged", () => {

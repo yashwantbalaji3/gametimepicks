@@ -98,7 +98,7 @@ function buildObservation(date, join, freeze, row, pf, features = {}) {
       hasPitcherContext: pf.eligibleFamilies.includes("pitcher_status"), hasEnvironmentContext: pf.eligibleFamilies.includes("environment"),
       hasPitcherWorkload: !!wl, hasLineup: !!lu, hasBullpen: !!bp, hasMatchup: !!mu, hasParkFactors: !!pk, hasBatterSplits: !!bsp, hasBatterForm: !!bfm, hasBatterVsPitcher: !!bvp, hasPaOpportunity: !!pao,
     },
-    featureCoverage, coverageScore,
+    featureCoverage, coverageScore, missingFeatureList: missingFamilies, captureTimestamp: join.createdAt ?? null,
     actual_outcome: { actual: isNum(row.actual) ? row.actual : null, source: "MLB Stats API (official)", finalStatus: join.gameFinalStatus?.detailedState ?? null, teamOutcome: isTeam ? { homeRuns: join.teamOutcome?.homeRuns ?? null, awayRuns: join.teamOutcome?.awayRuns ?? null } : undefined },
     settlement_result: { status: row.settlementStatus, line: isNum(row.line) ? row.line : null, countsAsSettledEligible: row.countsAsSettledEligible === true },
     provenance: { freezeHash: join.freezeHash ?? null, sourceSnapshotIds: join.sourceSnapshotIds ?? [], officialSource: join.officialSource?.endpoint ?? null, joinCreatedAt: join.createdAt ?? null },
