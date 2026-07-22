@@ -116,6 +116,12 @@ jobs:
       - name: Capture pregame park factors (factual venue attributes — free StatsAPI, non-blocking)
         continue-on-error: true
         run: node app/scripts/capture-mlb-pregame-park-factors.mjs --date "${{ github.event.inputs.date }}" --write
+      - name: Capture pregame batter-vs-pitcher history (career h2h vs opposing SP — free StatsAPI, sample-gated)
+        continue-on-error: true
+        run: node app/scripts/capture-mlb-pregame-batter-vs-pitcher.mjs --date "${{ github.event.inputs.date }}" --write
+      - name: Capture pregame plate-appearance opportunity (derived from form + lineup — no fetch, non-blocking)
+        continue-on-error: true
+        run: node app/scripts/capture-mlb-pregame-pa-opportunity.mjs --date "${{ github.event.inputs.date }}" --write
       - name: Coverage / gate audit
         run: node app/scripts/audit-mlb-pregame-archive.mjs
       - name: Monitor (daily status + 7-day progress + gate) — regenerate status/monitor.json
@@ -129,6 +135,12 @@ jobs:
       - name: Research warehouse — data-quality monitor (duplicates / leakage / impossible stats / stale odds)
         continue-on-error: true
         run: node app/scripts/monitor-mlb-research-quality.mjs
+      - name: Research benchmark (market baselines on settled set — reports INSUFFICIENT until the gate; NO model)
+        continue-on-error: true
+        run: node app/scripts/mlb-research-benchmark.mjs
+      - name: Simulation readiness (gate monitor — dates/settled/coverage %; modeling BLOCKED until gate + approval)
+        continue-on-error: true
+        run: node app/scripts/mlb-simulation-readiness.mjs
       - name: Upload archive artifact (safe persistence — no push)
         if: always()
         uses: actions/upload-artifact@v4

@@ -88,13 +88,13 @@ export function auditQuality(joinDir = JOIN_DIR, freezeDir = FREEZE_DIR, feature
   q.scanned.featureRecords = {};
   const FEAT = featureDir;
   const rateBad = (r, lo, hi) => r != null && Number.isFinite(r) && (r < lo || r > hi);
-  for (const fam of ["pitcher-workload", "bullpen", "matchup", "lineup", "batter-splits", "batter-form", "park-factors"]) {
+  for (const fam of ["pitcher-workload", "bullpen", "matchup", "lineup", "batter-splits", "batter-form", "park-factors", "batter-vs-pitcher", "pa-opportunity"]) {
     const base = path.join(FEAT, fam);
     q.scanned.featureRecords[fam] = 0;
     if (!fs.existsSync(base)) continue;
     // dedup granularity: per-GAME families are 1 record per gamePk; per-PLAYER families 1 per playerId; lineup is
     // append-only (timestamped, many per game) so it is exempt from the duplicate check.
-    const perPlayer = fam === "batter-splits" || fam === "batter-form";
+    const perPlayer = fam === "batter-splits" || fam === "batter-form" || fam === "batter-vs-pitcher" || fam === "pa-opportunity";
     for (const date of fs.readdirSync(base).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))) {
       const seen = {};
       for (const f of fs.readdirSync(path.join(base, date)).filter((x) => x.endsWith(".json"))) {

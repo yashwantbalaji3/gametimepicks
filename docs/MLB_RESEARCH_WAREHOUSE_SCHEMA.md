@@ -21,7 +21,10 @@ Materialized by `app/scripts/build-mlb-research-observations.mjs` → `data/inte
   "market": { "key", "kind": "team|player", "selection": "Over|Under|<team>", "line" },
 
   // LEAKAGE-SAFE pregame inputs — attached only when researchEligible (captured strictly before first pitch).
-  "pregame_features": { "pitcher_status"?, "confirmed_lineup"?, "environment"?, "umpire"?, "pitcher_workload"?, "bullpen_availability"?, "batter_matchup"?, "batter_splits"?, "batter_form"?, "park_factors"? },
+  "pregame_features": { "pitcher_status"?, "confirmed_lineup"?, "environment"?, "umpire"?, "pitcher_workload"?, "bullpen_availability"?, "batter_matchup"?, "batter_splits"?, "batter_form"?, "park_factors"?, "batter_vs_pitcher"?, "plate_appearance_opportunity"? },
+  // NB: game-time weather (temp/condition/wind) is captured via the `environment` family; precip/humidity are not
+  //     provided by StatsAPI (documented gap). Each observation also carries featureCoverage + coverageScore.
+  //     Simulation contract + benchmark + readiness: see MLB_SIMULATION_FOUNDATION.md.
 
   // the captured DE-VIGGED MARKET probability — the benchmark, NOT a model output.
   "market_probability": { "impliedProbability", "noVigProbability", "capturedAt", "researchEligible" },
