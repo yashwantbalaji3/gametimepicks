@@ -125,10 +125,12 @@ jobs:
             fi
           done
 
-          # ── SAFETY ASSERT: everything staged must live under the archive dir, and NEVER money/public/settlement/
-          #    product paths. If anything else slipped in, commit nothing (non-blocking, artifact still uploaded). ──
+          # ── SAFETY ASSERT: everything staged must live under the archive dir, and NEVER money/public/official-
+          #    settlement/product paths. If anything else slipped in, commit nothing (non-blocking, artifact still
+          #    uploaded). NOTE: the token is `settled_leans` (the official settlement file), NOT a bare `settlement`
+          #    — a bare token would false-match the legitimate internal data/.../pregame-archive/settlement-joins/. ──
           OFF="$(git diff --cached --name-only | grep -vE "^${ARCHIVE_DIR}/" || true)"
-          BAD="$(git diff --cached --name-only | grep -iE 'portfolio|public/data|mr-dub|(^|/)out/|settled_leans|bank-builder|moonshot|settlement' || true)"
+          BAD="$(git diff --cached --name-only | grep -iE 'portfolio|public/data|mr-dub|(^|/)out/|settled_leans|bank-builder|moonshot' || true)"
           if [ -n "${OFF}${BAD}" ]; then
             echo "ABORT: out-of-scope paths staged — committing nothing:"; printf '%s\n' "${OFF}" "${BAD}"
             git reset -q; exit 0

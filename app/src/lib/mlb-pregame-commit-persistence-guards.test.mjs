@@ -92,6 +92,24 @@ test("7 · only manifests / status / snapshots / freezes / summaries are committ
   }
 });
 
+test("9 · REGRESSION: the abort-guard allows internal settlement-joins/ but still blocks official settlement/money", () => {
+  // The commit step's BAD-path regex must NOT false-match the legitimate internal settlement-joins/ path (a bare
+  // `settlement` token did — it aborted every CI commit carrying join files, persisting nothing). It MUST still
+  // block the official settlement file (settled_leans) and money/public/product paths.
+  const badLine = commitStep.split("\n").find((l) => /grep -iE '[^']*moonshot/.test(l));
+  assert.ok(badLine, "found the BAD-path detector line");
+  const badRe = new RegExp(badLine.match(/grep -iE '([^']+)'/)[1], "i");
+  // allowed (internal research join artifacts):
+  for (const ok of ["data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/822784.json", "data/internal/mlb/pregame-archive/settlement-joins/2026-07-21/822787.json"]) {
+    assert.ok(!badRe.test(ok), `settlement-joins path must be allowed: ${ok}`);
+  }
+  // still blocked (official settlement + money + public + product):
+  for (const bad of ["app/public/data/mlb/results/settled_leans.jsonl", "app/public/data/mr-dub/portfolio.json", "app/public/data/anything.json", "app/out/index.html", "app/src/lib/bank-builder.ts"]) {
+    assert.ok(badRe.test(bad), `must still block: ${bad}`);
+  }
+  assert.ok(!/\|settlement'|\|settlement\b/.test(badLine), "no bare `settlement` token (would collide with settlement-joins)");
+});
+
 test("8 · out/ never contains archive files; money md5 unchanged", () => {
   const out = path.join(app, "out");
   if (fs.existsSync(out)) {
