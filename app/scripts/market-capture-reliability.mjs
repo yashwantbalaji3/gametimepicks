@@ -47,14 +47,25 @@ function main() {
     const cadenceGap = earliestCapture && earliestStart ? earliestCapture >= earliestStart : null; // captured after the first game already started
     const hasMarkets = marketSnapshots > 0 || marketRows > 0;
     const lostOpportunity = finalGames > 0 && observations === 0; // final slate that produced nothing
+    // Daily research HEALTH score (0..1) — a data-collection health signal, NOT a model score. Components: markets
+    // captured (0.4) · produced observations if the slate is final (0.4) · no cadence gap (0.2). A pending (not-yet-
+    // final) slate is scored on markets + cadence only (the observation component is not yet applicable).
+    const pending = finalGames === 0;
+    const cMarkets = hasMarkets ? 1 : 0;
+    const cObs = pending ? null : (observations > 0 ? 1 : 0);
+    const cCadence = cadenceGap === true ? 0 : 1;
+    const healthScore = pending ? +(0.4 * cMarkets + 0.2 * cCadence + 0.4).toFixed(3) /* obs N/A → not penalized while pending */ : +(0.4 * cMarkets + 0.4 * cObs + 0.2 * cCadence).toFixed(3);
     perDate.push({
       date: d, games, finalGames, marketSnapshots, marketRows, settledEligibleRows: settledEligible, observationsCreated: observations,
-      earliestFirstPitch: earliestStart, earliestCapture, cadenceGap, hasMarkets, lostOpportunity,
+      earliestFirstPitch: earliestStart, earliestCapture, cadenceGap, hasMarkets, lostOpportunity, healthScore,
       reason: lostOpportunity ? (!hasMarkets ? "LOST: final games but no pregame market capture (enable/verify market capture)" : "LOST: final games + markets but 0 observations (captures landed after first pitch — cadence gap)")
         : finalGames === 0 ? "not yet final — pending" : "contributed observations",
     });
   }
   const lostDays = perDate.filter((x) => x.lostOpportunity);
+  const scored = perDate.filter((x) => typeof x.healthScore === "number");
+  const dailyResearchHealthScore = perDate.length ? perDate[perDate.length - 1].healthScore : null; // latest date
+  const averageHealthScore = scored.length ? +(scored.reduce((a, x) => a + x.healthScore, 0) / scored.length).toFixed(3) : null;
   const report = {
     public: false, approvedForProduction: false, productEligible: false, kind: "mlb-market-capture-reliability",
     lastUpdated: new Date().toISOString(),
@@ -64,6 +75,7 @@ function main() {
     datesProducingObservations: perDate.filter((x) => x.observationsCreated > 0).length,
     lostResearchOpportunities: lostDays.length,
     cadenceGapDays: perDate.filter((x) => x.cadenceGap === true).length,
+    dailyResearchHealthScore, averageHealthScore,
     perDate,
     note: "A LOST research opportunity is a final slate that produced 0 observations — either no pregame market capture (like 2026-07-21) or captures that landed after first pitch (cadence gap). Surfaced so an operator can restore coverage; never fabricated.",
   };
@@ -72,7 +84,7 @@ function main() {
 
   console.log(`\n=== MARKET-CAPTURE RELIABILITY ===`);
   for (const x of perDate) console.log(`  ${x.date}: ${x.finalGames}/${x.games} final · snaps ${x.marketSnapshots} · obs ${x.observationsCreated}${x.lostOpportunity ? "  ⚠️ LOST" : ""}${x.cadenceGap ? "  (cadence gap)" : ""}`);
-  console.log(`  lost research opportunities: ${lostDays.length}  ·  cadence-gap days: ${report.cadenceGapDays}`);
+  console.log(`  lost research opportunities: ${lostDays.length}  ·  cadence-gap days: ${report.cadenceGapDays}  ·  daily health score: ${dailyResearchHealthScore ?? "-"} (avg ${averageHealthScore ?? "-"})`);
   console.log(`  → data/internal/mlb/pregame-archive/status/market-capture-reliability.json`);
   process.exit(0);
 }

@@ -67,7 +67,7 @@ function latestEligibleLineup(featDir, date, gamePk) {
 
 // latest pregame-eligible pitcher-workload for a game. Multi-cadence (<gamePk>-<ts>.json) so a late/ineligible
 // capture can't hide an earlier eligible one; falls back to a legacy single-file <gamePk>.json for older archives.
-function latestEligibleWorkload(featDir, date, gamePk) {
+export function latestEligibleWorkload(featDir, date, gamePk) {
   const dir = path.join(featDir, "pitcher-workload", date);
   if (!fs.existsSync(dir)) return null;
   const files = fs.readdirSync(dir).filter((f) => (f.startsWith(`${gamePk}-`) || f === `${gamePk}.json`) && f.endsWith(".json")).sort();
@@ -79,10 +79,12 @@ function latestEligibleWorkload(featDir, date, gamePk) {
 function loadTeamOffensiveForm(featDir, date, gamePk) {
   const dir = path.join(featDir, "team-offensive-form", date);
   if (!fs.existsSync(dir)) return null;
+  // multi-cadence (<gamePk>-<teamId>-<ts>.json) + legacy (<gamePk>-<teamId>.json). Sort ascending so a later read
+  // overwrites an earlier one → the FRESHEST record per side wins; only researchEligible records are attached.
   const out = {};
-  for (const f of fs.readdirSync(dir).filter((x) => x.startsWith(`${gamePk}-`) && x.endsWith(".json"))) {
+  for (const f of fs.readdirSync(dir).filter((x) => x.startsWith(`${gamePk}-`) && x.endsWith(".json")).sort()) {
     const r = readJson(path.join(dir, f));
-    if (r?.side) out[r.side] = r;
+    if (r?.side && r.researchEligible === true) out[r.side] = r;
   }
   return Object.keys(out).length ? out : null;
 }

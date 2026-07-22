@@ -87,7 +87,6 @@ async function main() {
   let wrote = 0, skipped = 0, eligible = 0, fetched = 0;
   for (const t of universe) {
     const key = `${t.gamePk}-${t.teamId}`;
-    if (fs.existsSync(path.join(outDir, `${key}.json`)) && !args.includes("--force")) { skipped++; continue; }
     let splits = null;
     try { const j = await fetchJson(`${HOST}/api/v1/teams/${t.teamId}/stats?stats=gameLog&group=hitting&season=${season}`); splits = j.stats?.[0]?.splits || []; fetched++; } catch { splits = []; }
     const last5 = windowOffense(splits, date, 5);
@@ -106,7 +105,9 @@ async function main() {
     };
     record.recordHash = sha({ ...record, capturedAt: undefined, availableAt: undefined, provenance: undefined, recordHash: undefined });
     if (record.researchEligible) eligible++;
-    if (WRITE && record.researchEligible) { fs.mkdirSync(outDir, { recursive: true }); fs.writeFileSync(path.join(outDir, `${key}.json`), JSON.stringify(record, null, 2)); wrote++; }
+    // Multi-cadence, eligible-only (like pitcher-workload/lineup): key by gamePk+teamId+capturedAt so multiple
+    // pregame captures are preserved and the assembler can pick the FRESHEST eligible one. Only persist eligible.
+    if (WRITE && record.researchEligible) { fs.mkdirSync(outDir, { recursive: true }); fs.writeFileSync(path.join(outDir, `${key}-${capturedAt.replace(/[:.]/g, "-")}.json`), JSON.stringify(record, null, 2)); wrote++; }
   }
   console.log(`[team-offense] ${WRITE ? "WROTE" : "DRY-RUN"} ${date}: ${universe.length} team-slots · fetched ${fetched} · eligible ${eligible} · skipped(existing) ${skipped}${WRITE ? ` · wrote ${wrote}` : ""}`);
   if (!WRITE) console.log(`[team-offense] dry-run — pass --write to persist pregame-features/team-offensive-form/${date}/`);

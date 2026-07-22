@@ -1,0 +1,141 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "kind": "mlb-feature-attachment",
+  "lastUpdated": "2026-07-22T22:08:51.140Z",
+  "totalObservations": 565,
+  "families": [
+    {
+      "family": "pitcherWorkload",
+      "dir": "pitcher-workload",
+      "captureFiles": 26,
+      "eligibleFiles": 18,
+      "attachedObservations": 0,
+      "coveragePct": 0,
+      "failureReason": "eligible captures exist but for other games than the settled ones (cadence for the games that finalized)",
+      "status": "GAP"
+    },
+    {
+      "family": "teamOffensiveForm",
+      "dir": "team-offensive-form",
+      "captureFiles": 18,
+      "eligibleFiles": 18,
+      "attachedObservations": 0,
+      "coveragePct": 0,
+      "failureReason": "eligible captures exist but for other games than the settled ones (cadence for the games that finalized)",
+      "status": "GAP"
+    },
+    {
+      "family": "lineup",
+      "dir": "lineup",
+      "captureFiles": 84,
+      "eligibleFiles": 84,
+      "attachedObservations": 565,
+      "coveragePct": 100,
+      "failureReason": null,
+      "status": "OK"
+    },
+    {
+      "family": "bullpen",
+      "dir": "bullpen",
+      "captureFiles": 17,
+      "eligibleFiles": 17,
+      "attachedObservations": 565,
+      "coveragePct": 100,
+      "failureReason": null,
+      "status": "OK"
+    },
+    {
+      "family": "matchup",
+      "dir": "matchup",
+      "captureFiles": 17,
+      "eligibleFiles": 17,
+      "attachedObservations": 565,
+      "coveragePct": 100,
+      "failureReason": null,
+      "status": "OK"
+    },
+    {
+      "family": "park",
+      "dir": "park-factors",
+      "captureFiles": 17,
+      "eligibleFiles": 17,
+      "attachedObservations": 565,
+      "coveragePct": 100,
+      "failureReason": null,
+      "status": "OK"
+    },
+    {
+      "family": "batterSplits",
+      "dir": "batter-splits",
+      "captureFiles": 156,
+      "eligibleFiles": 156,
+      "attachedObservations": 500,
+      "coveragePct": 88.5,
+      "failureReason": null,
+      "status": "OK"
+    },
+    {
+      "family": "batterForm",
+      "dir": "batter-form",
+      "captureFiles": 156,
+      "eligibleFiles": 156,
+      "attachedObservations": 500,
+      "coveragePct": 88.5,
+      "failureReason": null,
+      "status": "OK"
+    },
+    {
+      "family": "batterVsPitcher",
+      "dir": "batter-vs-pitcher",
+      "captureFiles": 156,
+      "eligibleFiles": 156,
+      "attachedObservations": 500,
+      "coveragePct": 88.5,
+      "failureReason": null,
+      "status": "OK"
+    },
+    {
+      "family": "paOpportunity",
+      "dir": "pa-opportunity",
+      "captureFiles": 156,
+      "eligibleFiles": 156,
+      "attachedObservations": 500,
+      "coveragePct": 88.5,
+      "failureReason": null,
+      "status": "OK"
+    },
+    {
+      "family": "pitcherStatus",
+      "dir": "(snapshots/join)",
+      "captureFiles": null,
+      "eligibleFiles": null,
+      "attachedObservations": 565,
+      "coveragePct": 100,
+      "failureReason": null,
+      "status": "obs-only"
+    },
+    {
+      "family": "environment",
+      "dir": "(snapshots/join)",
+      "captureFiles": null,
+      "eligibleFiles": null,
+      "attachedObservations": 565,
+      "coveragePct": 100,
+      "failureReason": null,
+      "status": "obs-only"
+    },
+    {
+      "family": "market",
+      "dir": "(snapshots/join)",
+      "captureFiles": null,
+      "eligibleFiles": null,
+      "attachedObservations": 453,
+      "coveragePct": 80.2,
+      "failureReason": null,
+      "status": "obs-only"
+    }
+  ],
+  "note": "Coverage % = attached observations / total observations. eligibleFiles=0 while captureFiles>0 ⇒ a cadence gap (captured after first pitch, correctly excluded as leakage), not an attachment bug. No fabrication."
+}
