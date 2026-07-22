@@ -87,19 +87,22 @@ export function auditQuality(joinDir = JOIN_DIR, freezeDir = FREEZE_DIR, feature
   q.duplicateFeatures = [];
   q.scanned.featureRecords = {};
   const FEAT = featureDir;
-  for (const fam of ["pitcher-workload", "bullpen", "matchup", "lineup"]) {
+  const rateBad = (r, lo, hi) => r != null && Number.isFinite(r) && (r < lo || r > hi);
+  for (const fam of ["pitcher-workload", "bullpen", "matchup", "lineup", "batter-splits", "batter-form", "park-factors"]) {
     const base = path.join(FEAT, fam);
     q.scanned.featureRecords[fam] = 0;
     if (!fs.existsSync(base)) continue;
+    // dedup granularity: per-GAME families are 1 record per gamePk; per-PLAYER families 1 per playerId; lineup is
+    // append-only (timestamped, many per game) so it is exempt from the duplicate check.
+    const perPlayer = fam === "batter-splits" || fam === "batter-form";
     for (const date of fs.readdirSync(base).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))) {
-      const perGameCount = {};
+      const seen = {};
       for (const f of fs.readdirSync(path.join(base, date)).filter((x) => x.endsWith(".json"))) {
         const r = readJson(path.join(base, date, f));
         if (!r) { q.joinFailures.push({ date, file: `${fam}/${f}`, reason: "feature record unreadable" }); continue; }
         q.scanned.featureRecords[fam]++;
-        if (!r.capturedAt) q.missingTimestamps.push({ date, family: fam, gamePk: r.gamePk });
-        // lineup snapshots are timestamped/append-only (many per game); other families are 1-per-game.
-        if (fam !== "lineup") { perGameCount[r.gamePk] = (perGameCount[r.gamePk] || 0) + 1; if (perGameCount[r.gamePk] > 1) q.duplicateFeatures.push({ date, family: fam, gamePk: r.gamePk }); }
+        if (!r.capturedAt) q.missingTimestamps.push({ date, family: fam, gamePk: r.gamePk, playerId: r.playerId });
+        if (fam !== "lineup") { const key = perPlayer ? r.playerId : r.gamePk; seen[key] = (seen[key] || 0) + 1; if (seen[key] > 1) q.duplicateFeatures.push({ date, family: fam, key }); }
         if (r.researchEligible !== true) continue;
         const es = r.eventStartTime ? Date.parse(r.eventStartTime) : null;
         if (r.capturedAt && es && Date.parse(r.capturedAt) >= es) q.timestampViolations.push({ date, gamePk: r.gamePk, family: fam, capturedAt: r.capturedAt });
@@ -107,6 +110,10 @@ export function auditQuality(joinDir = JOIN_DIR, freezeDir = FREEZE_DIR, feature
         if (fam === "pitcher-workload") for (const s of ["home", "away"]) { const p = r.pitchers?.[s]; if (p?.lastStartDate && p.lastStartDate >= date) q.timestampViolations.push({ date, gamePk: r.gamePk, family: fam, side: s, reason: "source start not strictly earlier than slate" }); }
         if (fam === "bullpen") for (const wd of r.windowDates || []) if (wd >= date) q.timestampViolations.push({ date, gamePk: r.gamePk, family: fam, windowDate: wd, reason: "bullpen source date not strictly earlier than slate" });
         if (fam === "lineup" && r.window === "postgame") q.timestampViolations.push({ date, gamePk: r.gamePk, family: fam, reason: "postgame lineup marked eligible" });
+        if (fam === "batter-form" && r.last30?.lastDate && r.last30.lastDate >= date) q.timestampViolations.push({ date, playerId: r.playerId, family: fam, lastDate: r.last30.lastDate, reason: "form source game not strictly earlier than slate" });
+        // impossible official-stat guards for the batter families (parse-error catch, not outlier rejection)
+        if (fam === "batter-splits") for (const s of [r.seasonSplits?.vsRHP, r.seasonSplits?.vsLHP]) if (s && (rateBad(s.avg, 0, 1) || rateBad(s.obp, 0, 1) || rateBad(s.slg, 0, 5) || rateBad(s.ops, 0, 6) || rateBad(s.kPct, 0, 100) || rateBad(s.bbPct, 0, 100))) q.impossibleStats.push({ date, playerId: r.playerId, family: fam, split: JSON.stringify(s) });
+        if (fam === "batter-form") for (const w of [r.last7, r.last30]) if (w && (w.h > w.pa || w.tb < w.h || w.h < 0 || w.k > w.pa)) q.impossibleStats.push({ date, playerId: r.playerId, family: fam, window: JSON.stringify(w) });
       }
     }
   }

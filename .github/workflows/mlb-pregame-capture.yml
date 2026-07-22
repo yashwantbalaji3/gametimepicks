@@ -105,6 +105,17 @@ jobs:
         # games are terminal (not re-fetched). Writes ONLY internal settlement-joins/; pending stays pending;
         # never touches money/public/settlement. Non-blocking — capture/audit are unaffected if this fails.
         run: node app/scripts/join-mlb-pregame-settlements.mjs --today "${{ github.event.inputs.date }}" --lookback 3 --write
+      - name: Capture pregame batter splits (vs R/L season+prev — free StatsAPI, leakage-safe, idempotent, non-blocking)
+        continue-on-error: true
+        # Batter universe = batter-market playerIds from the committed join files. Season splits reflect games before
+        # this game (captured pregame). Idempotent per batter+date. Free StatsAPI; internal only; never a prediction.
+        run: node app/scripts/capture-mlb-pregame-batter-splits.mjs --date "${{ github.event.inputs.date }}" --write
+      - name: Capture pregame batter form (last 7/30, strictly-earlier — free StatsAPI, leakage-safe, non-blocking)
+        continue-on-error: true
+        run: node app/scripts/capture-mlb-pregame-batter-form.mjs --date "${{ github.event.inputs.date }}" --write
+      - name: Capture pregame park factors (factual venue attributes — free StatsAPI, non-blocking)
+        continue-on-error: true
+        run: node app/scripts/capture-mlb-pregame-park-factors.mjs --date "${{ github.event.inputs.date }}" --write
       - name: Coverage / gate audit
         run: node app/scripts/audit-mlb-pregame-archive.mjs
       - name: Monitor (daily status + 7-day progress + gate) — regenerate status/monitor.json

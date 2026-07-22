@@ -21,7 +21,7 @@ Materialized by `app/scripts/build-mlb-research-observations.mjs` → `data/inte
   "market": { "key", "kind": "team|player", "selection": "Over|Under|<team>", "line" },
 
   // LEAKAGE-SAFE pregame inputs — attached only when researchEligible (captured strictly before first pitch).
-  "pregame_features": { "pitcher_status"?, "confirmed_lineup"?, "environment"?, "umpire"?, "pitcher_workload"?, "bullpen_availability"?, "batter_matchup"? },
+  "pregame_features": { "pitcher_status"?, "confirmed_lineup"?, "environment"?, "umpire"?, "pitcher_workload"?, "bullpen_availability"?, "batter_matchup"?, "batter_splits"?, "batter_form"?, "park_factors"? },
 
   // the captured DE-VIGGED MARKET probability — the benchmark, NOT a model output.
   "market_probability": { "impliedProbability", "noVigProbability", "capturedAt", "researchEligible" },
@@ -101,6 +101,15 @@ Current per-family game coverage (from `status/latest.json`):
 
 ### `batter_matchup` (new)
 `app/scripts/capture-mlb-pregame-matchup.mjs` → `pregame-features/matchup/<date>/<gamePk>.json`. Probable-starter handedness (captured immediately) + each posted batter's handedness, batting-order slot, and platoon relationship vs the opposing starter (fills in as the lineup posts). Handedness is a static player fact; the lineup is a pregame state. Season vs‑L/vs‑R splits + recent hitting form are the documented next additions (per-batter, best captured once/day after the lineup posts).
+
+### `batter_splits` (new)
+`app/scripts/capture-mlb-pregame-batter-splits.mjs` → `pregame-features/batter-splits/<date>/<playerId>.json`. Season vs RHP / vs LHP + previous season, fields PA/AVG/OBP/SLG/OPS/HR/RBI/K%/BB%. Batter universe = batter-market playerIds from committed join files. **Leakage rule:** season splits are cumulative over games completed before `capturedAt` (captured pregame ⇒ before this game; doubleheader edge noted); previous season is static. Idempotent per batter+date. The assembler attaches it to a batter observation **only when `playerId` matches** the row (never mismatched to another batter).
+
+### `batter_form` (new)
+`app/scripts/capture-mlb-pregame-batter-form.mjs` → `pregame-features/batter-form/<date>/<playerId>.json`. Last 7 + last 30 games (PA/H/TB/HR/RBI/R/K) aggregated from **only game-log games dated < slate** (strictly earlier). Idempotent per batter+date.
+
+### `park_factors` (new)
+`app/scripts/capture-mlb-pregame-park-factors.mjs` → `pregame-features/park-factors/<date>/<gamePk>.json`. **Factual** venue attributes (elevation, roof, turf, city) + a `runEnvironmentSignal` derived from elevation. Numeric `runFactor`/`hrFactor` default to a **neutral 100 baseline** and `handednessEffect` is `null` — these are **NOT fabricated**; the record documents the source + update policy for loading real published park factors later. **Source:** StatsAPI venue endpoint (factual). **Update policy:** static per venue; load numeric factors annually from a published source in a separate internal reference; never fabricate.
 
 ### Recommended next feature-collection priorities (all pregame + timestamp-provable + historically collectible)
 1. **Confirmed lineup at a late cadence** — the single biggest predictive gap for batter props; add a T‑30/T‑15 capture pass so `confirmed_lineup` rises from 3%.

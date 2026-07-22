@@ -73,20 +73,25 @@ function buildObservation(date, join, freeze, row, pf, features = {}) {
   const lu = elig(features.lineup) ? { home: features.lineup.home, away: features.lineup.away, window: features.lineup.window } : null;
   const bp = elig(features.bullpen) ? { home: features.bullpen.home, away: features.bullpen.away } : null;
   const mu = elig(features.matchup) ? { homeStartingPitcher: features.matchup.homeStartingPitcher, awayStartingPitcher: features.matchup.awayStartingPitcher, homeBatters: features.matchup.homeBatters, awayBatters: features.matchup.awayBatters } : null;
-  const missingFamilies = ["pitcher_workload", "confirmed_lineup", "bullpen_availability", "batter_matchup"].filter((f) => ({ pitcher_workload: wl, confirmed_lineup: lu, bullpen_availability: bp, batter_matchup: mu }[f] == null));
+  const pk = elig(features.park) ? { venue: features.park.venue, factors: features.park.factors } : null;
+  // batter families are per-player — attached only for the batter this observation is about (matching playerId).
+  const bsp = elig(features.splits) && features.splits.playerId === row.playerId ? { season: features.splits.seasonSplits, previousSeason: features.splits.previousSeason } : null;
+  const bfm = elig(features.form) && features.form.playerId === row.playerId ? { last7: features.form.last7, last30: features.form.last30 } : null;
+  const allFams = { pitcher_workload: wl, confirmed_lineup: lu, bullpen_availability: bp, batter_matchup: mu, park_factors: pk, batter_splits: bsp, batter_form: bfm };
+  const missingFamilies = Object.keys(allFams).filter((f) => allFams[f] == null);
   return {
     schemaVersion: SCHEMA_VERSION, public: false, approvedForProduction: false, productEligible: false,
     observationId: sha(`${join.gamePk}|${row.playerId ?? row.selection}|${row.market}|${row.selection}|${row.line}`),
     game: { gamePk: join.gamePk, date, homeTeam: join.teamOutcome?.homeTeam ?? null, awayTeam: join.teamOutcome?.awayTeam ?? null, eventStartTime: join.eventStartTime ?? null },
     player: isTeam ? null : { playerId: row.playerId ?? null, name: row.player ?? null },
     market: { key: row.market, kind: isTeam ? "team" : "player", selection: row.selection, line: isNum(row.line) ? row.line : null },
-    pregame_features: { ...pf.feats, ...(wl ? { pitcher_workload: wl } : {}), ...(lu ? { confirmed_lineup: lu } : {}), ...(bp ? { bullpen_availability: bp } : {}), ...(mu ? { batter_matchup: mu } : {}) },
+    pregame_features: { ...pf.feats, ...Object.fromEntries(Object.entries(allFams).filter(([, v]) => v != null)) },
     market_probability: { impliedProbability: null, noVigProbability: isNum(row.noVigProbability) ? row.noVigProbability : null, capturedAt: row.capturedAt ?? null, researchEligible: row.researchEligible === true },
     model_inputs_available: {
-      eligibleFamilies: pf.eligibleFamilies.concat(wl ? ["pitcher_workload"] : [], lu ? ["confirmed_lineup"] : [], bp ? ["bullpen_availability"] : [], mu ? ["batter_matchup"] : []), missingFamilies,
+      eligibleFamilies: pf.eligibleFamilies.concat(Object.keys(allFams).filter((f) => allFams[f] != null)), missingFamilies,
       hasDeVigMarketProbability: isNum(row.noVigProbability),
       hasPitcherContext: pf.eligibleFamilies.includes("pitcher_status"), hasEnvironmentContext: pf.eligibleFamilies.includes("environment"),
-      hasPitcherWorkload: !!wl, hasLineup: !!lu, hasBullpen: !!bp, hasMatchup: !!mu,
+      hasPitcherWorkload: !!wl, hasLineup: !!lu, hasBullpen: !!bp, hasMatchup: !!mu, hasParkFactors: !!pk, hasBatterSplits: !!bsp, hasBatterForm: !!bfm,
     },
     actual_outcome: { actual: isNum(row.actual) ? row.actual : null, source: "MLB Stats API (official)", finalStatus: join.gameFinalStatus?.detailedState ?? null, teamOutcome: isTeam ? { homeRuns: join.teamOutcome?.homeRuns ?? null, awayRuns: join.teamOutcome?.awayRuns ?? null } : undefined },
     settlement_result: { status: row.settlementStatus, line: isNum(row.line) ? row.line : null, countsAsSettledEligible: row.countsAsSettledEligible === true },
@@ -109,6 +114,10 @@ function main() {
   for (const date of dates) {
     const jdir = path.join(JOIN_DIR, date);
     if (!fs.existsSync(jdir)) continue;
+    // per-date per-player batter feature maps (splits/form are one file per playerId)
+    const loadBatterMap = (fam) => { const m = new Map(); const d = path.join(ARCHIVE, "pregame-features", fam, date); if (fs.existsSync(d)) for (const f of fs.readdirSync(d).filter((x) => x.endsWith(".json"))) { const r = readJson(path.join(d, f)); if (r?.playerId != null) m.set(r.playerId, r); } return m; };
+    const splitsMap = loadBatterMap("batter-splits");
+    const formMap = loadBatterMap("batter-form");
     const rows = [];
     for (const jf of fs.readdirSync(jdir).filter((x) => x.endsWith(".json"))) {
       const join = readJson(path.join(jdir, jf));
@@ -122,10 +131,13 @@ function main() {
         bullpen: readJson(path.join(feat, "bullpen", date, `${join.gamePk}.json`)),
         matchup: readJson(path.join(feat, "matchup", date, `${join.gamePk}.json`)),
         lineup: latestEligibleLineup(feat, date, join.gamePk),
+        park: readJson(path.join(feat, "park-factors", date, `${join.gamePk}.json`)),
       };
       for (const row of join.marketRows || []) {
         if (!SETTLED.has(row.settlementStatus)) continue; // only settled leans become observations; pending never
-        const obs = buildObservation(date, join, freeze, row, pf, features);
+        // per-player batter families resolved by the row's playerId
+        const rowFeatures = { ...features, splits: row.playerId != null ? splitsMap.get(row.playerId) : null, form: row.playerId != null ? formMap.get(row.playerId) : null };
+        const obs = buildObservation(date, join, freeze, row, pf, rowFeatures);
         rows.push(obs);
         summary.byMarket[row.market] = (summary.byMarket[row.market] || 0) + 1;
         summary.byOutcome[row.settlementStatus] = (summary.byOutcome[row.settlementStatus] || 0) + 1;
