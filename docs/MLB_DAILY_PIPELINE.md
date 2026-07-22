@@ -54,8 +54,12 @@ StatsAPI schedule + Odds API markets + StatsAPI research captures
 Before: `morning-projections` produced the board, but steps 3–5 (`ingest-mlb-team-markets`, `ingest-mlb-slate`, `generate-mlb-game-simulations`) were **not wired into any daily cron** — the sim step was manual, and the prop ingest lived only in the **dormant** `mlb-daily.yml`. So the slate was board-only → `SIMULATION_PENDING` → the public "today's games" showed "not yet simulated". `mlb-daily-production.yml` now runs all three automatically after the board.
 
 ## Odds API
-- Key comes ONLY from the GitHub Actions secret `ODDS_API_KEY` (never local `.env` in CI; never logged; never written into an artifact). The ingest scripts mask the key in errors.
-- Credit guard: `ODDS_API_MIN_CREDITS_REMAINING` (default **2000**) — the ingests stop before the balance drops under the floor. An invalid key yields a clear failure and an honest no-op (nothing fabricated).
+- Key comes ONLY from the GitHub Actions secret `ODDS_API_KEY` (never local `.env` in CI; never logged; never written into an artifact). The ingest scripts mask the key in errors. Both paid ingests read `process.env.ODDS_API_KEY` first (CI secret), falling back to repo-root `.env` only for local dev.
+- Credit guard (fail-closed, on BOTH paid ingests): a FREE `/v4/sports` probe reads `x-requests-remaining` before any paid call and aborts (honest no-op) below the floor, so daily automation can never silently drain the budget. The floor is threaded under both names the scripts read — `ODDS_API_MIN_CREDITS_REMAINING` (props) and `ODDS_CREDIT_FLOOR` (team-markets) — from one CI var (default **2000**). An invalid/missing key yields a clear failure and an honest no-op (nothing fabricated).
+
+### CI invocation contract (non-obvious, guarded by `mlb-daily-production-guards.test.mjs`)
+- `ingest-mlb-team-markets.mjs` and `ingest-mlb-slate.mjs` **import `.ts`** (e.g. `projection-framework.ts`) → run via **`npx tsx`**, never bare `node` (bare node throws `ERR_UNKNOWN_FILE_EXTENSION`).
+- `ingest-mlb-team-markets.mjs` **requires `--write`** (it refuses to run with only `--date`; `--dry-run` fetches without writing). `ingest-mlb-slate.mjs` writes by default.
 
 ## Completeness / honesty
 `mlb-slate-completeness-gate.mjs` derives the slate status:
