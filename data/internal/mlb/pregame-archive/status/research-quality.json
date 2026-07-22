@@ -6,19 +6,19 @@
   "scanned": {
     "dates": 2,
     "joinFiles": 32,
-    "marketRows": 2501,
-    "settledRows": 0,
-    "contextualRows": 124,
+    "marketRows": 2563,
+    "settledRows": 565,
+    "contextualRows": 135,
     "featureRecords": {
-      "pitcher-workload": 17,
+      "pitcher-workload": 26,
       "bullpen": 17,
       "matchup": 17,
-      "lineup": 75,
-      "batter-splits": 153,
-      "batter-form": 153,
+      "lineup": 84,
+      "batter-splits": 156,
+      "batter-form": 156,
       "park-factors": 17,
-      "batter-vs-pitcher": 153,
-      "pa-opportunity": 153
+      "batter-vs-pitcher": 156,
+      "pa-opportunity": 156
     }
   },
   "checks": {
@@ -31,8 +31,8 @@
       "verdict": "PASS"
     },
     "impossibleStats": {
-      "count": 0,
-      "verdict": "PASS"
+      "count": 3,
+      "verdict": "FAIL"
     },
     "timestampViolations": {
       "count": 258,
@@ -51,15 +51,37 @@
       "verdict": "PASS"
     },
     "duplicateFeatures": {
-      "count": 0,
-      "verdict": "PASS"
+      "count": 9,
+      "verdict": "FAIL"
     }
   },
   "overall": "FAIL",
   "details": {
     "duplicateRows": [],
     "missingOutcomes": [],
-    "impossibleStats": [],
+    "impossibleStats": [
+      {
+        "date": "2026-07-22",
+        "gamePk": 823761,
+        "market": "spreads",
+        "actual": -1,
+        "allowedMax": 60
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 823761,
+        "market": "spreads",
+        "actual": -1,
+        "allowedMax": 60
+      },
+      {
+        "date": "2026-07-22",
+        "gamePk": 824083,
+        "market": "spreads",
+        "actual": -1,
+        "allowedMax": 60
+      }
+    ],
     "timestampViolations": [
       {
         "date": "2026-07-22",
@@ -1873,22 +1895,68 @@
     "scanned": {
       "dates": 2,
       "joinFiles": 32,
-      "marketRows": 2501,
-      "settledRows": 0,
-      "contextualRows": 124,
+      "marketRows": 2563,
+      "settledRows": 565,
+      "contextualRows": 135,
       "featureRecords": {
-        "pitcher-workload": 17,
+        "pitcher-workload": 26,
         "bullpen": 17,
         "matchup": 17,
-        "lineup": 75,
-        "batter-splits": 153,
-        "batter-form": 153,
+        "lineup": 84,
+        "batter-splits": 156,
+        "batter-form": 156,
         "park-factors": 17,
-        "batter-vs-pitcher": 153,
-        "pa-opportunity": 153
+        "batter-vs-pitcher": 156,
+        "pa-opportunity": 156
       }
     },
     "missingTimestamps": [],
-    "duplicateFeatures": []
+    "duplicateFeatures": [
+      {
+        "date": "2026-07-22",
+        "family": "pitcher-workload",
+        "key": 822784
+      },
+      {
+        "date": "2026-07-22",
+        "family": "pitcher-workload",
+        "key": 822873
+      },
+      {
+        "date": "2026-07-22",
+        "family": "pitcher-workload",
+        "key": 823438
+      },
+      {
+        "date": "2026-07-22",
+        "family": "pitcher-workload",
+        "key": 823519
+      },
+      {
+        "date": "2026-07-22",
+        "family": "pitcher-workload",
+        "key": 824166
+      },
+      {
+        "date": "2026-07-22",
+        "family": "pitcher-workload",
+        "key": 824408
+      },
+      {
+        "date": "2026-07-22",
+        "family": "pitcher-workload",
+        "key": 824650
+      },
+      {
+        "date": "2026-07-22",
+        "family": "pitcher-workload",
+        "key": 824732
+      },
+      {
+        "date": "2026-07-22",
+        "family": "pitcher-workload",
+        "key": 824896
+      }
+    ]
   }
 }
