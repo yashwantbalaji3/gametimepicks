@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824004,
+  "date": "2026-07-22",
+  "capturedAt": "2026-07-22T04:57:58.722Z",
+  "availableAt": "2026-07-22T04:57:58.722Z",
+  "eventStartTime": "2026-07-22T20:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 672282,
+      "name": "Reid Detmers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-07-17",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 6,
+        "bbAvg": 2.2,
+        "erAvg": 3.4,
+        "hrAvg": 1,
+        "kPer9": 10.13,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 114.67,
+        "k": 130,
+        "bb": 35,
+        "er": 53,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 690928,
+      "name": "Hunter Dobbins",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 15,
+      "lastStartDate": "2026-07-07",
+      "last5": {
+        "starts": 3,
+        "ipSum": 13.67,
+        "ipAvg": 4.56,
+        "kAvg": 4.33,
+        "bbAvg": 2.67,
+        "erAvg": 3,
+        "hrAvg": 0.67,
+        "kPer9": 8.56,
+        "workloadIpLast5": 13.67
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 13.67,
+        "k": 13,
+        "bb": 8,
+        "er": 9,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-22T04:57:58.722Z"
+  },
+  "recordHash": "af9f9546ac81457fa3d43a5bcf865da63b719f6a471ca56af181ce3450255d96"
+}

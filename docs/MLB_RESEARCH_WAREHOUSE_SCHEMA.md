@@ -21,7 +21,7 @@ Materialized by `app/scripts/build-mlb-research-observations.mjs` → `data/inte
   "market": { "key", "kind": "team|player", "selection": "Over|Under|<team>", "line" },
 
   // LEAKAGE-SAFE pregame inputs — ONLY the freeze-eligible families (captured strictly before first pitch).
-  "pregame_features": { "pitcher_status"?, "confirmed_lineup"?, "environment"?, "umpire"? },
+  "pregame_features": { "pitcher_status"?, "confirmed_lineup"?, "environment"?, "umpire"?, "pitcher_workload"? },
 
   // the captured DE-VIGGED MARKET probability — the benchmark, NOT a model output.
   "market_probability": { "impliedProbability", "noVigProbability", "capturedAt", "researchEligible" },
@@ -74,6 +74,32 @@ coverageByFeatureFamily     : { pitcher_status: 24, environment: 12, umpire: 4, 
 gateMet                     : false   (blockers: dates 2/30, settled-eligible 0/500)
 + founder approval required before ANY modeling
 ```
+
+## Feature-family coverage (2026-07-22) + collection roadmap
+
+Current per-family game coverage (from `status/latest.json`):
+
+| family | coverage | status |
+|---|---|---|
+| pitcher_status | 100% | captured |
+| environment (weather/roof) | 100% | captured |
+| **pitcher_workload** (rest + last-5 starts) | **added this mission** | captured (leakage-safe; strictly-earlier starts only) |
+| umpire | 12.5% | captured, posts late — needs mid/late cadence |
+| confirmed_lineup | 3.1% | captured, posts ~1–3 h out — the **biggest coverage gap** |
+| bullpen | 0% | **not captured** — roadmap |
+| plate_appearance_opportunity | 0% | not captured — derived, roadmap |
+| player-prop / team markets | 4 snapshots each (1,504 prop / 4,280 team records) | captured (paid, capped) |
+
+### `pitcher_workload` (new)
+`app/scripts/capture-mlb-pregame-pitcher-workload.mjs` → `pregame-features/pitcher-workload/<date>/<gamePk>.json`. Per probable starter: `restDays`, `lastStartDate`, `seasonStarts`, `last5` (ipSum/ipAvg/kAvg/bbAvg/erAvg/hrAvg/kPer9/workloadIpLast5), `seasonToDate`. **Leakage rule:** only game-log starts with `date < boardDate` are aggregated (a same-day or later start is excluded); `researchEligible` requires `capturedAt < eventStartTime` AND every source start strictly earlier than the slate. Free StatsAPI; no Odds credits. The assembler attaches it to `pregame_features.pitcher_workload` + sets `model_inputs_available.hasPitcherWorkload` only when the record is eligible.
+
+### Recommended next feature-collection priorities (all pregame + timestamp-provable + historically collectible)
+1. **Confirmed lineup at a late cadence** — the single biggest predictive gap for batter props; add a T‑30/T‑15 capture pass so `confirmed_lineup` rises from 3%.
+2. **Bullpen availability** — relievers used in the prior 1–3 days (from recent official box scores, strictly earlier); predictive for totals + late-game.
+3. **Opposing-pitcher batter context** — the starter's handedness + season vs‑L/vs‑R splits (season-to-date, strictly earlier) attached to batter observations.
+4. **Team offense form** — recent runs/OBP over the last N team games (strictly earlier results).
+5. **Park factors** — static venue run/HR indices (historical, no leakage risk).
+Each must be captured before first pitch with a proven timestamp and derived only from strictly-earlier data — never postgame.
 
 ## What exists today vs. what's needed for SimTheGame-style simulation
 

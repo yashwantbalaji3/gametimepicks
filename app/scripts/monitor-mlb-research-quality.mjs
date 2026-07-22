@@ -80,6 +80,27 @@ export function auditQuality(joinDir = JOIN_DIR, freezeDir = FREEZE_DIR) {
       for (const c of join.contextualRows || []) if (c.researchEligible === true && c.capturedAt && eventStart && Date.parse(c.capturedAt) >= eventStart) q.timestampViolations.push({ date, gamePk: join.gamePk, family: c.family, capturedAt: c.capturedAt });
     }
   }
+  // pitcher_workload family (additive pregame feature): a researchEligible record must be captured before first
+  // pitch AND every source start strictly earlier than the slate date (no postgame/same-day leakage).
+  const WL = path.join(ARCHIVE, "pregame-features", "pitcher-workload");
+  q.scanned.workloadRecords = 0;
+  if (fs.existsSync(WL)) {
+    for (const date of fs.readdirSync(WL).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))) {
+      for (const wf of fs.readdirSync(path.join(WL, date)).filter((x) => x.endsWith(".json"))) {
+        const w = readJson(path.join(WL, date, wf));
+        if (!w) { q.joinFailures.push({ date, file: wf, reason: "workload record unreadable" }); continue; }
+        q.scanned.workloadRecords++;
+        if (w.researchEligible !== true) continue;
+        const es = w.eventStartTime ? Date.parse(w.eventStartTime) : null;
+        if (w.capturedAt && es && Date.parse(w.capturedAt) >= es) q.timestampViolations.push({ date, gamePk: w.gamePk, family: "pitcher_workload", capturedAt: w.capturedAt });
+        for (const side of ["home", "away"]) {
+          const p = w.pitchers?.[side];
+          if (p?.lastStartDate && p.lastStartDate >= date) q.timestampViolations.push({ date, gamePk: w.gamePk, family: "pitcher_workload", side, lastStartDate: p.lastStartDate, reason: "source start not strictly earlier than slate" });
+        }
+      }
+    }
+  }
+
   const verdict = (arr, warnOnly = false) => (arr.length === 0 ? "PASS" : warnOnly ? "WARN" : "FAIL");
   const checks = {
     duplicateRows: { count: q.duplicateRows.length, verdict: verdict(q.duplicateRows) },
@@ -98,7 +119,7 @@ function main() {
   fs.mkdirSync(path.join(ARCHIVE, "status"), { recursive: true });
   fs.writeFileSync(path.join(ARCHIVE, "status", "research-quality.json"), JSON.stringify(report, null, 2));
   console.log(`\n=== MLB research-warehouse DATA QUALITY ===`);
-  console.log(`scanned: ${report.scanned.dates} dates · ${report.scanned.joinFiles} join files · ${report.scanned.marketRows} market rows (${report.scanned.settledRows} settled) · ${report.scanned.contextualRows} contextual`);
+  console.log(`scanned: ${report.scanned.dates} dates · ${report.scanned.joinFiles} join files · ${report.scanned.marketRows} market rows (${report.scanned.settledRows} settled) · ${report.scanned.contextualRows} contextual · ${report.scanned.workloadRecords ?? 0} pitcher-workload`);
   for (const [k, c] of Object.entries(report.checks)) console.log(`  ${c.verdict === "PASS" ? "✓" : c.verdict === "WARN" ? "▲" : "✗"} ${k}: ${c.verdict}${c.count ? ` (${c.count})` : ""}`);
   console.log(`OVERALL: ${report.overall}`);
   console.log(`report → ${path.relative(REPO, path.join(ARCHIVE, "status", "research-quality.json"))}`);

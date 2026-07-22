@@ -56,21 +56,24 @@ function pregameFeatures(date, freeze) {
   return { feats, eligibleFamilies };
 }
 
-function buildObservation(date, join, freeze, row, pf) {
+function buildObservation(date, join, freeze, row, pf, workload) {
   const isTeam = ["h2h", "spreads", "totals"].includes(row.market);
-  const missingFamilies = ALL_FAMILIES.filter((f) => !pf.eligibleFamilies.includes(f));
+  // pitcher_workload is an ADDITIVE leakage-safe family (rest/recent-workload from strictly-earlier starts).
+  const wl = workload && workload.researchEligible === true ? workload.pitchers : null;
+  const missingFamilies = ALL_FAMILIES.filter((f) => !pf.eligibleFamilies.includes(f)).concat(wl ? [] : ["pitcher_workload"]);
   return {
     schemaVersion: SCHEMA_VERSION, public: false, approvedForProduction: false, productEligible: false,
     observationId: sha(`${join.gamePk}|${row.playerId ?? row.selection}|${row.market}|${row.selection}|${row.line}`),
     game: { gamePk: join.gamePk, date, homeTeam: join.teamOutcome?.homeTeam ?? null, awayTeam: join.teamOutcome?.awayTeam ?? null, eventStartTime: join.eventStartTime ?? null },
     player: isTeam ? null : { playerId: row.playerId ?? null, name: row.player ?? null },
     market: { key: row.market, kind: isTeam ? "team" : "player", selection: row.selection, line: isNum(row.line) ? row.line : null },
-    pregame_features: pf.feats,
+    pregame_features: { ...pf.feats, ...(wl ? { pitcher_workload: wl } : {}) },
     market_probability: { impliedProbability: null, noVigProbability: isNum(row.noVigProbability) ? row.noVigProbability : null, capturedAt: row.capturedAt ?? null, researchEligible: row.researchEligible === true },
     model_inputs_available: {
-      eligibleFamilies: pf.eligibleFamilies, missingFamilies,
+      eligibleFamilies: pf.eligibleFamilies.concat(wl ? ["pitcher_workload"] : []), missingFamilies,
       hasDeVigMarketProbability: isNum(row.noVigProbability), hasLineupContext: pf.eligibleFamilies.includes("confirmed_lineup"),
       hasPitcherContext: pf.eligibleFamilies.includes("pitcher_status"), hasEnvironmentContext: pf.eligibleFamilies.includes("environment"),
+      hasPitcherWorkload: !!wl,
     },
     actual_outcome: { actual: isNum(row.actual) ? row.actual : null, source: "MLB Stats API (official)", finalStatus: join.gameFinalStatus?.detailedState ?? null, teamOutcome: isTeam ? { homeRuns: join.teamOutcome?.homeRuns ?? null, awayRuns: join.teamOutcome?.awayRuns ?? null } : undefined },
     settlement_result: { status: row.settlementStatus, line: isNum(row.line) ? row.line : null, countsAsSettledEligible: row.countsAsSettledEligible === true },
@@ -100,9 +103,10 @@ function main() {
       const freeze = readJson(path.join(FREEZE_DIR, date, `${join.gamePk}.json`));
       if (!freeze) continue;
       const pf = pregameFeatures(date, freeze);
+      const workload = readJson(path.join(ARCHIVE, "pregame-features", "pitcher-workload", date, `${join.gamePk}.json`));
       for (const row of join.marketRows || []) {
         if (!SETTLED.has(row.settlementStatus)) continue; // only settled leans become observations; pending never
-        const obs = buildObservation(date, join, freeze, row, pf);
+        const obs = buildObservation(date, join, freeze, row, pf, workload);
         rows.push(obs);
         summary.byMarket[row.market] = (summary.byMarket[row.market] || 0) + 1;
         summary.byOutcome[row.settlementStatus] = (summary.byOutcome[row.settlementStatus] || 0) + 1;

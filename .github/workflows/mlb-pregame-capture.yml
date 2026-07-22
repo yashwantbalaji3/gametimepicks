@@ -54,6 +54,12 @@ jobs:
           node-version: "20"
       - name: Capture pregame snapshots (StatsAPI, free)
         run: node app/scripts/capture-mlb-pregame-research.mjs --date "${{ github.event.inputs.date }}" --reason "${{ github.event.inputs.reason || 'SCHEDULED_REFRESH' }}"
+      - name: Capture pregame pitcher workload (rest + recent workload — free StatsAPI, leakage-safe, non-blocking)
+        continue-on-error: true
+        # Adds the pitcher_workload family (rest days + last-5-starts) derived ONLY from starts strictly earlier
+        # than the slate date. Free StatsAPI game log; no Odds credits; researchEligible requires capturedAt < first
+        # pitch AND every source start earlier than the slate. Internal only; never a prediction.
+        run: node app/scripts/capture-mlb-pregame-pitcher-workload.mjs --date "${{ github.event.inputs.date }}" --write
       - name: Capture pregame MARKET snapshots (paid Odds API — OPT-IN, credit-guarded, non-blocking)
         if: vars.PREGAME_ARCHIVE_MARKETS == 'true'
         continue-on-error: true

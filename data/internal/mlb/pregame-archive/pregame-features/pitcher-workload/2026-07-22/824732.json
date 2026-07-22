@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824732,
+  "date": "2026-07-22",
+  "capturedAt": "2026-07-22T04:57:58.722Z",
+  "availableAt": "2026-07-22T04:57:58.722Z",
+  "eventStartTime": "2026-07-22T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 680694,
+      "name": "Kyle Bradish",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 11,
+      "lastStartDate": "2026-07-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 34,
+        "ipAvg": 6.8,
+        "kAvg": 6.6,
+        "bbAvg": 2.2,
+        "erAvg": 1.6,
+        "hrAvg": 0.2,
+        "kPer9": 8.74,
+        "workloadIpLast5": 34
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 107.33,
+        "k": 106,
+        "bb": 50,
+        "er": 43,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-22T04:57:58.722Z"
+  },
+  "recordHash": "ea142d0e13cf211c2022c60a2398aff8bd75b9f5b31c6558e0fb86ecff48fa49"
+}

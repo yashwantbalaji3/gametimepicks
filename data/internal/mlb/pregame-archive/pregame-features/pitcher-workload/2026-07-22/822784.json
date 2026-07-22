@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822784,
+  "date": "2026-07-22",
+  "capturedAt": "2026-07-22T04:57:58.722Z",
+  "availableAt": "2026-07-22T04:57:58.722Z",
+  "eventStartTime": "2026-07-22T23:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 680755,
+      "name": "Braydon Fisher",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 21,
+      "lastStartDate": "2026-07-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 5.67,
+        "ipAvg": 1.13,
+        "kAvg": 1.6,
+        "bbAvg": 1,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 12.71,
+        "workloadIpLast5": 5.67
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 6.67,
+        "k": 8,
+        "bb": 5,
+        "er": 0,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 643377,
+      "name": "Griffin Jax",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 5,
+      "lastStartDate": "2026-07-17",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 6.2,
+        "bbAvg": 1.6,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 10.73,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 66,
+        "k": 67,
+        "bb": 19,
+        "er": 26,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-22T04:57:58.722Z"
+  },
+  "recordHash": "b75d49c842f520c5b4b32a406432b40e6375e3ef3d9232499562a54e41ece9b3"
+}
