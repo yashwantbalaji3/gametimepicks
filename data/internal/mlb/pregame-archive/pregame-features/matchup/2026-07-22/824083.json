@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824083,
+  "date": "2026-07-22",
+  "capturedAt": "2026-07-22T05:19:55.358Z",
+  "availableAt": "2026-07-22T05:19:55.358Z",
+  "eventStartTime": "2026-07-22T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 607625,
+    "name": "Seth Lugo",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 694738,
+    "name": "Landen Roupp",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-07-22T05:19:55.358Z"
+  },
+  "recordHash": "76770e18ba8633ab2dd8ab0b43bac4316ee4c342f1317aff6104b56bd6ccce95"
+}

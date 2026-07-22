@@ -56,24 +56,37 @@ function pregameFeatures(date, freeze) {
   return { feats, eligibleFamilies };
 }
 
-function buildObservation(date, join, freeze, row, pf, workload) {
+// latest pregame-eligible lineup snapshot for a game (the closest-to-first-pitch confirmed order).
+function latestEligibleLineup(featDir, date, gamePk) {
+  const dir = path.join(featDir, "lineup", date);
+  if (!fs.existsSync(dir)) return null;
+  const files = fs.readdirSync(dir).filter((f) => f.startsWith(`${gamePk}-`) && f.endsWith(".json")).sort();
+  for (let i = files.length - 1; i >= 0; i--) { const r = readJson(path.join(dir, files[i])); if (r && r.researchEligible) return r; }
+  return null;
+}
+
+function buildObservation(date, join, freeze, row, pf, features = {}) {
   const isTeam = ["h2h", "spreads", "totals"].includes(row.market);
-  // pitcher_workload is an ADDITIVE leakage-safe family (rest/recent-workload from strictly-earlier starts).
-  const wl = workload && workload.researchEligible === true ? workload.pitchers : null;
-  const missingFamilies = ALL_FAMILIES.filter((f) => !pf.eligibleFamilies.includes(f)).concat(wl ? [] : ["pitcher_workload"]);
+  // ADDITIVE leakage-safe families — attached ONLY when their record exists AND is researchEligible.
+  const elig = (r) => (r && r.researchEligible === true ? r : null);
+  const wl = elig(features.workload) ? features.workload.pitchers : null;
+  const lu = elig(features.lineup) ? { home: features.lineup.home, away: features.lineup.away, window: features.lineup.window } : null;
+  const bp = elig(features.bullpen) ? { home: features.bullpen.home, away: features.bullpen.away } : null;
+  const mu = elig(features.matchup) ? { homeStartingPitcher: features.matchup.homeStartingPitcher, awayStartingPitcher: features.matchup.awayStartingPitcher, homeBatters: features.matchup.homeBatters, awayBatters: features.matchup.awayBatters } : null;
+  const missingFamilies = ["pitcher_workload", "confirmed_lineup", "bullpen_availability", "batter_matchup"].filter((f) => ({ pitcher_workload: wl, confirmed_lineup: lu, bullpen_availability: bp, batter_matchup: mu }[f] == null));
   return {
     schemaVersion: SCHEMA_VERSION, public: false, approvedForProduction: false, productEligible: false,
     observationId: sha(`${join.gamePk}|${row.playerId ?? row.selection}|${row.market}|${row.selection}|${row.line}`),
     game: { gamePk: join.gamePk, date, homeTeam: join.teamOutcome?.homeTeam ?? null, awayTeam: join.teamOutcome?.awayTeam ?? null, eventStartTime: join.eventStartTime ?? null },
     player: isTeam ? null : { playerId: row.playerId ?? null, name: row.player ?? null },
     market: { key: row.market, kind: isTeam ? "team" : "player", selection: row.selection, line: isNum(row.line) ? row.line : null },
-    pregame_features: { ...pf.feats, ...(wl ? { pitcher_workload: wl } : {}) },
+    pregame_features: { ...pf.feats, ...(wl ? { pitcher_workload: wl } : {}), ...(lu ? { confirmed_lineup: lu } : {}), ...(bp ? { bullpen_availability: bp } : {}), ...(mu ? { batter_matchup: mu } : {}) },
     market_probability: { impliedProbability: null, noVigProbability: isNum(row.noVigProbability) ? row.noVigProbability : null, capturedAt: row.capturedAt ?? null, researchEligible: row.researchEligible === true },
     model_inputs_available: {
-      eligibleFamilies: pf.eligibleFamilies.concat(wl ? ["pitcher_workload"] : []), missingFamilies,
-      hasDeVigMarketProbability: isNum(row.noVigProbability), hasLineupContext: pf.eligibleFamilies.includes("confirmed_lineup"),
+      eligibleFamilies: pf.eligibleFamilies.concat(wl ? ["pitcher_workload"] : [], lu ? ["confirmed_lineup"] : [], bp ? ["bullpen_availability"] : [], mu ? ["batter_matchup"] : []), missingFamilies,
+      hasDeVigMarketProbability: isNum(row.noVigProbability),
       hasPitcherContext: pf.eligibleFamilies.includes("pitcher_status"), hasEnvironmentContext: pf.eligibleFamilies.includes("environment"),
-      hasPitcherWorkload: !!wl,
+      hasPitcherWorkload: !!wl, hasLineup: !!lu, hasBullpen: !!bp, hasMatchup: !!mu,
     },
     actual_outcome: { actual: isNum(row.actual) ? row.actual : null, source: "MLB Stats API (official)", finalStatus: join.gameFinalStatus?.detailedState ?? null, teamOutcome: isTeam ? { homeRuns: join.teamOutcome?.homeRuns ?? null, awayRuns: join.teamOutcome?.awayRuns ?? null } : undefined },
     settlement_result: { status: row.settlementStatus, line: isNum(row.line) ? row.line : null, countsAsSettledEligible: row.countsAsSettledEligible === true },
@@ -103,10 +116,16 @@ function main() {
       const freeze = readJson(path.join(FREEZE_DIR, date, `${join.gamePk}.json`));
       if (!freeze) continue;
       const pf = pregameFeatures(date, freeze);
-      const workload = readJson(path.join(ARCHIVE, "pregame-features", "pitcher-workload", date, `${join.gamePk}.json`));
+      const feat = path.join(ARCHIVE, "pregame-features");
+      const features = {
+        workload: readJson(path.join(feat, "pitcher-workload", date, `${join.gamePk}.json`)),
+        bullpen: readJson(path.join(feat, "bullpen", date, `${join.gamePk}.json`)),
+        matchup: readJson(path.join(feat, "matchup", date, `${join.gamePk}.json`)),
+        lineup: latestEligibleLineup(feat, date, join.gamePk),
+      };
       for (const row of join.marketRows || []) {
         if (!SETTLED.has(row.settlementStatus)) continue; // only settled leans become observations; pending never
-        const obs = buildObservation(date, join, freeze, row, pf, workload);
+        const obs = buildObservation(date, join, freeze, row, pf, features);
         rows.push(obs);
         summary.byMarket[row.market] = (summary.byMarket[row.market] || 0) + 1;
         summary.byOutcome[row.settlementStatus] = (summary.byOutcome[row.settlementStatus] || 0) + 1;

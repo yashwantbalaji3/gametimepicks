@@ -60,6 +60,19 @@ jobs:
         # than the slate date. Free StatsAPI game log; no Odds credits; researchEligible requires capturedAt < first
         # pitch AND every source start earlier than the slate. Internal only; never a prediction.
         run: node app/scripts/capture-mlb-pregame-pitcher-workload.mjs --date "${{ github.event.inputs.date }}" --write
+      - name: Capture pregame lineup (multi-cadence, window-tagged — free StatsAPI, leakage-safe, non-blocking)
+        continue-on-error: true
+        # Timestamped confirmed-lineup snapshots; each run captures whatever window it falls in (T-24h..T-15m).
+        # ONLY pregame-eligible snapshots persist. Free StatsAPI; internal only; never a prediction.
+        run: node app/scripts/capture-mlb-pregame-lineup.mjs --date "${{ github.event.inputs.date }}" --write
+      - name: Capture pregame bullpen availability (last 1/3 days — free StatsAPI, leakage-safe, non-blocking)
+        continue-on-error: true
+        # Reliever usage from ONLY Final games strictly earlier than the slate. Free StatsAPI; internal only.
+        run: node app/scripts/capture-mlb-pregame-bullpen.mjs --date "${{ github.event.inputs.date }}" --write
+      - name: Capture pregame batter matchup (handedness/platoon/batting-order — free StatsAPI, non-blocking)
+        continue-on-error: true
+        # Static handedness + pregame lineup state; fills batters as the lineup posts. Free StatsAPI; internal only.
+        run: node app/scripts/capture-mlb-pregame-matchup.mjs --date "${{ github.event.inputs.date }}" --write
       - name: Capture pregame MARKET snapshots (paid Odds API — OPT-IN, credit-guarded, non-blocking)
         if: vars.PREGAME_ARCHIVE_MARKETS == 'true'
         continue-on-error: true

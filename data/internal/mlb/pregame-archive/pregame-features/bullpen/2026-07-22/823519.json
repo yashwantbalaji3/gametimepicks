@@ -1,0 +1,191 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823519,
+  "date": "2026-07-22",
+  "capturedAt": "2026-07-22T05:18:28.318Z",
+  "availableAt": "2026-07-22T05:18:28.318Z",
+  "eventStartTime": "2026-07-22T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-19",
+    "2026-07-20",
+    "2026-07-21"
+  ],
+  "home": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 12,
+      "pitches": 258,
+      "relievers": [
+        {
+          "id": 683409,
+          "name": "Angel Chivilli",
+          "appearances": 2,
+          "pitches": 35,
+          "outs": 8,
+          "dates": [
+            "2026-07-19",
+            "2026-07-20"
+          ]
+        },
+        {
+          "id": 657612,
+          "name": "Tim Hill",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-07-19",
+            "2026-07-20"
+          ]
+        },
+        {
+          "id": 656234,
+          "name": "Jake Bird",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 1,
+          "dates": [
+            "2026-07-19"
+          ]
+        },
+        {
+          "id": 687396,
+          "name": "Brent Headrick",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 9,
+          "dates": [
+            "2026-07-19",
+            "2026-07-20"
+          ]
+        },
+        {
+          "id": 518585,
+          "name": "Fernando Cruz",
+          "appearances": 2,
+          "pitches": 33,
+          "outs": 5,
+          "dates": [
+            "2026-07-19",
+            "2026-07-20"
+          ]
+        },
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 5,
+          "dates": [
+            "2026-07-19"
+          ]
+        },
+        {
+          "id": 666808,
+          "name": "Camilo Doval",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 5,
+          "dates": [
+            "2026-07-19"
+          ]
+        },
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 7,
+          "dates": [
+            "2026-07-19"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 134,
+    "teamName": "Pittsburgh Pirates",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 108,
+      "relievers": [
+        {
+          "id": 696062,
+          "name": "Wilber Dotel",
+          "appearances": 1,
+          "pitches": 56,
+          "outs": 9,
+          "dates": [
+            "2026-07-20"
+          ]
+        },
+        {
+          "id": 685126,
+          "name": "Brandon Eisert",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-07-20"
+          ]
+        },
+        {
+          "id": 682254,
+          "name": "Mason Montgomery",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-07-19"
+          ]
+        },
+        {
+          "id": 676755,
+          "name": "Isaac Mattson",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-07-19"
+          ]
+        },
+        {
+          "id": 642701,
+          "name": "Dennis Santana",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-07-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-19,2026-07-20,2026-07-21) + feed/live box scores",
+    "capturedAt": "2026-07-22T05:18:28.318Z"
+  },
+  "recordHash": "ac35d412248ba4e30255ce45783adc20c014f96ec21eb870af37a934fa867f69"
+}

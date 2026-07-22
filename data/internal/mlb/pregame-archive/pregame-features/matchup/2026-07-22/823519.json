@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 823519,
+  "date": "2026-07-22",
+  "capturedAt": "2026-07-22T05:19:55.358Z",
+  "availableAt": "2026-07-22T05:19:55.358Z",
+  "eventStartTime": "2026-07-22T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 608331,
+    "name": "Max Fried",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 696149,
+    "name": "Bubba Chandler",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-07-22T05:19:55.358Z"
+  },
+  "recordHash": "69c28b1616c487e4161267834834b6bfdc62969b5d993831694a471d3827aadf"
+}

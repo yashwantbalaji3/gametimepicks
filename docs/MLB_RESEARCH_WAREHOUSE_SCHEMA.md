@@ -20,8 +20,8 @@ Materialized by `app/scripts/build-mlb-research-observations.mjs` → `data/inte
   "player": { "playerId", "name" } | null,          // null for team markets
   "market": { "key", "kind": "team|player", "selection": "Over|Under|<team>", "line" },
 
-  // LEAKAGE-SAFE pregame inputs — ONLY the freeze-eligible families (captured strictly before first pitch).
-  "pregame_features": { "pitcher_status"?, "confirmed_lineup"?, "environment"?, "umpire"?, "pitcher_workload"? },
+  // LEAKAGE-SAFE pregame inputs — attached only when researchEligible (captured strictly before first pitch).
+  "pregame_features": { "pitcher_status"?, "confirmed_lineup"?, "environment"?, "umpire"?, "pitcher_workload"?, "bullpen_availability"?, "batter_matchup"? },
 
   // the captured DE-VIGGED MARKET probability — the benchmark, NOT a model output.
   "market_probability": { "impliedProbability", "noVigProbability", "capturedAt", "researchEligible" },
@@ -92,6 +92,15 @@ Current per-family game coverage (from `status/latest.json`):
 
 ### `pitcher_workload` (new)
 `app/scripts/capture-mlb-pregame-pitcher-workload.mjs` → `pregame-features/pitcher-workload/<date>/<gamePk>.json`. Per probable starter: `restDays`, `lastStartDate`, `seasonStarts`, `last5` (ipSum/ipAvg/kAvg/bbAvg/erAvg/hrAvg/kPer9/workloadIpLast5), `seasonToDate`. **Leakage rule:** only game-log starts with `date < boardDate` are aggregated (a same-day or later start is excluded); `researchEligible` requires `capturedAt < eventStartTime` AND every source start strictly earlier than the slate. Free StatsAPI; no Odds credits. The assembler attaches it to `pregame_features.pitcher_workload` + sets `model_inputs_available.hasPitcherWorkload` only when the record is eligible.
+
+### `confirmed_lineup` — multi-cadence (new)
+`app/scripts/capture-mlb-pregame-lineup.mjs` → `pregame-features/lineup/<date>/<gamePk>-<capturedAt>.json` (immutable, append-only). Each run captures the current batting order + positions + scratches and tags the window it fell in (`T-24h`…`T-15m` via `minutesToFirstPitch`). **Only pregame-eligible snapshots persist** (a postgame/in-progress capture is never stored). Over the 8×/day cron a game accumulates lineup states across the windows; the assembler uses the latest eligible snapshot. Scratches = players in a prior posted snapshot absent from the current one.
+
+### `bullpen_availability` (new)
+`app/scripts/capture-mlb-pregame-bullpen.mjs` → `pregame-features/bullpen/<date>/<gamePk>.json`. Per team: reliever usage over the last 1 and 3 days (appearances, pitches, outs) + a `likelyUnavailable` **research flag** (recent high workload / back-to-back — a signal, not a definitive availability claim). **Leakage rule:** derived ONLY from Final games with `officialDate < slate date` and `gameDate < capturedAt`.
+
+### `batter_matchup` (new)
+`app/scripts/capture-mlb-pregame-matchup.mjs` → `pregame-features/matchup/<date>/<gamePk>.json`. Probable-starter handedness (captured immediately) + each posted batter's handedness, batting-order slot, and platoon relationship vs the opposing starter (fills in as the lineup posts). Handedness is a static player fact; the lineup is a pregame state. Season vs‑L/vs‑R splits + recent hitting form are the documented next additions (per-batter, best captured once/day after the lineup posts).
 
 ### Recommended next feature-collection priorities (all pregame + timestamp-provable + historically collectible)
 1. **Confirmed lineup at a late cadence** — the single biggest predictive gap for batter props; add a T‑30/T‑15 capture pass so `confirmed_lineup` rises from 3%.

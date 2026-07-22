@@ -9,7 +9,12 @@
     "marketRows": 608,
     "settledRows": 0,
     "contextualRows": 100,
-    "workloadRecords": 17
+    "featureRecords": {
+      "pitcher-workload": 17,
+      "bullpen": 17,
+      "matchup": 17,
+      "lineup": 17
+    }
   },
   "checks": {
     "duplicateRows": {
@@ -35,6 +40,14 @@
     "joinFailures": {
       "count": 0,
       "verdict": "PASS"
+    },
+    "missingTimestamps": {
+      "count": 0,
+      "verdict": "PASS"
+    },
+    "duplicateFeatures": {
+      "count": 0,
+      "verdict": "PASS"
     }
   },
   "overall": "PASS",
@@ -51,7 +64,14 @@
       "marketRows": 608,
       "settledRows": 0,
       "contextualRows": 100,
-      "workloadRecords": 17
-    }
+      "featureRecords": {
+        "pitcher-workload": 17,
+        "bullpen": 17,
+        "matchup": 17,
+        "lineup": 17
+      }
+    },
+    "missingTimestamps": [],
+    "duplicateFeatures": []
   }
 }

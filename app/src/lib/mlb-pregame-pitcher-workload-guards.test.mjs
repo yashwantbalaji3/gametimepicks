@@ -49,12 +49,12 @@ test("3 · buildObservation includes pitcher_workload ONLY when the record is re
   const row = { market: "pitcher_strikeouts", gamePk: 1, playerId: 11, player: "P", selection: "Over", line: 6.5, researchEligible: true, noVigProbability: 0.5, capturedAt: "2026-07-22T20:00:00Z", actual: 7, settlementStatus: "win", countsAsSettledEligible: true };
   const pf = { feats: { pitcher_status: {} }, eligibleFamilies: ["pitcher_status"] };
   const wl = { researchEligible: true, pitchers: { home: { id: 11, restDays: 5 }, away: { id: 22, restDays: 4 } } };
-  const withWl = buildObservation("2026-07-22", join, {}, row, pf, wl);
+  const withWl = buildObservation("2026-07-22", join, {}, row, pf, { workload: wl });
   assert.ok(withWl.pregame_features.pitcher_workload, "workload attached");
   assert.equal(withWl.model_inputs_available.hasPitcherWorkload, true);
   assert.ok(withWl.model_inputs_available.eligibleFamilies.includes("pitcher_workload"));
   // ineligible workload ⇒ NOT attached; flagged as a missing family
-  const ineligible = buildObservation("2026-07-22", join, {}, row, pf, { researchEligible: false, pitchers: {} });
+  const ineligible = buildObservation("2026-07-22", join, {}, row, pf, { workload: { researchEligible: false, pitchers: {} } });
   assert.equal(ineligible.pregame_features.pitcher_workload, undefined);
   assert.equal(ineligible.model_inputs_available.hasPitcherWorkload, false);
   assert.ok(ineligible.model_inputs_available.missingFamilies.includes("pitcher_workload"));

@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824732,
+  "date": "2026-07-22",
+  "capturedAt": "2026-07-22T05:18:28.318Z",
+  "availableAt": "2026-07-22T05:18:28.318Z",
+  "eventStartTime": "2026-07-22T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-19",
+    "2026-07-20",
+    "2026-07-21"
+  ],
+  "home": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 98,
+      "relievers": [
+        {
+          "id": 547973,
+          "name": "Aroldis Chapman",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-07-20"
+          ]
+        },
+        {
+          "id": 670245,
+          "name": "Ryan Watson",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-07-19"
+          ]
+        },
+        {
+          "id": 594027,
+          "name": "Tyron Guerrero",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-07-20"
+          ]
+        },
+        {
+          "id": 663558,
+          "name": "Jovani Morán",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-07-19"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-07-19"
+          ]
+        },
+        {
+          "id": 676477,
+          "name": "Garrett Whitlock",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-07-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 110,
+    "teamName": "Baltimore Orioles",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 60,
+      "relievers": [
+        {
+          "id": 669330,
+          "name": "Tyler Wells",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-07-20"
+          ]
+        },
+        {
+          "id": 670329,
+          "name": "Rico Garcia",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-07-19"
+          ]
+        },
+        {
+          "id": 664991,
+          "name": "Grant Wolfram",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-07-19"
+          ]
+        },
+        {
+          "id": 666974,
+          "name": "Yennier Cano",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 2,
+          "dates": [
+            "2026-07-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-19,2026-07-20,2026-07-21) + feed/live box scores",
+    "capturedAt": "2026-07-22T05:18:28.318Z"
+  },
+  "recordHash": "e79e2078a7338d57c04a0220590c246a2c4d7cadfd47c22c3096b060dd437858"
+}

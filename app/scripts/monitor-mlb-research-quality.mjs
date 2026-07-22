@@ -27,7 +27,7 @@ const isNum = (x) => typeof x === "number" && Number.isFinite(x);
 const MAX_BY_MARKET = { pitcher_outs: 60, pitcher_strikeouts: 30, pitcher_earned_runs: 30, batter_hits: 10, batter_total_bases: 20, batter_home_runs: 6, batter_rbis: 15, batter_runs_scored: 8, batter_hits_runs_rbis: 30, totals: 60, spreads: 60, h2h: 60 };
 const STALE_HOURS = 26; // freshest lean captured > this many hours before first pitch ⇒ WARN (never refreshed near game)
 
-export function auditQuality(joinDir = JOIN_DIR, freezeDir = FREEZE_DIR) {
+export function auditQuality(joinDir = JOIN_DIR, freezeDir = FREEZE_DIR, featureDir = path.join(ARCHIVE, "pregame-features")) {
   const dates = fs.existsSync(joinDir) ? fs.readdirSync(joinDir).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort() : [];
   const q = {
     duplicateRows: [], missingOutcomes: [], impossibleStats: [], timestampViolations: [], staleOdds: [], joinFailures: [],
@@ -80,23 +80,33 @@ export function auditQuality(joinDir = JOIN_DIR, freezeDir = FREEZE_DIR) {
       for (const c of join.contextualRows || []) if (c.researchEligible === true && c.capturedAt && eventStart && Date.parse(c.capturedAt) >= eventStart) q.timestampViolations.push({ date, gamePk: join.gamePk, family: c.family, capturedAt: c.capturedAt });
     }
   }
-  // pitcher_workload family (additive pregame feature): a researchEligible record must be captured before first
-  // pitch AND every source start strictly earlier than the slate date (no postgame/same-day leakage).
-  const WL = path.join(ARCHIVE, "pregame-features", "pitcher-workload");
-  q.scanned.workloadRecords = 0;
-  if (fs.existsSync(WL)) {
-    for (const date of fs.readdirSync(WL).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))) {
-      for (const wf of fs.readdirSync(path.join(WL, date)).filter((x) => x.endsWith(".json"))) {
-        const w = readJson(path.join(WL, date, wf));
-        if (!w) { q.joinFailures.push({ date, file: wf, reason: "workload record unreadable" }); continue; }
-        q.scanned.workloadRecords++;
-        if (w.researchEligible !== true) continue;
-        const es = w.eventStartTime ? Date.parse(w.eventStartTime) : null;
-        if (w.capturedAt && es && Date.parse(w.capturedAt) >= es) q.timestampViolations.push({ date, gamePk: w.gamePk, family: "pitcher_workload", capturedAt: w.capturedAt });
-        for (const side of ["home", "away"]) {
-          const p = w.pitchers?.[side];
-          if (p?.lastStartDate && p.lastStartDate >= date) q.timestampViolations.push({ date, gamePk: w.gamePk, family: "pitcher_workload", side, lastStartDate: p.lastStartDate, reason: "source start not strictly earlier than slate" });
-        }
+  // ── pregame-feature families (pitcher_workload / confirmed_lineup / bullpen_availability / batter_matchup):
+  //    every record must carry a capturedAt; a researchEligible record must be captured before first pitch; and
+  //    each family's source data must be strictly earlier than the slate (no postgame/same-day leakage). ──
+  q.missingTimestamps = [];
+  q.duplicateFeatures = [];
+  q.scanned.featureRecords = {};
+  const FEAT = featureDir;
+  for (const fam of ["pitcher-workload", "bullpen", "matchup", "lineup"]) {
+    const base = path.join(FEAT, fam);
+    q.scanned.featureRecords[fam] = 0;
+    if (!fs.existsSync(base)) continue;
+    for (const date of fs.readdirSync(base).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))) {
+      const perGameCount = {};
+      for (const f of fs.readdirSync(path.join(base, date)).filter((x) => x.endsWith(".json"))) {
+        const r = readJson(path.join(base, date, f));
+        if (!r) { q.joinFailures.push({ date, file: `${fam}/${f}`, reason: "feature record unreadable" }); continue; }
+        q.scanned.featureRecords[fam]++;
+        if (!r.capturedAt) q.missingTimestamps.push({ date, family: fam, gamePk: r.gamePk });
+        // lineup snapshots are timestamped/append-only (many per game); other families are 1-per-game.
+        if (fam !== "lineup") { perGameCount[r.gamePk] = (perGameCount[r.gamePk] || 0) + 1; if (perGameCount[r.gamePk] > 1) q.duplicateFeatures.push({ date, family: fam, gamePk: r.gamePk }); }
+        if (r.researchEligible !== true) continue;
+        const es = r.eventStartTime ? Date.parse(r.eventStartTime) : null;
+        if (r.capturedAt && es && Date.parse(r.capturedAt) >= es) q.timestampViolations.push({ date, gamePk: r.gamePk, family: fam, capturedAt: r.capturedAt });
+        // family-specific leakage checks
+        if (fam === "pitcher-workload") for (const s of ["home", "away"]) { const p = r.pitchers?.[s]; if (p?.lastStartDate && p.lastStartDate >= date) q.timestampViolations.push({ date, gamePk: r.gamePk, family: fam, side: s, reason: "source start not strictly earlier than slate" }); }
+        if (fam === "bullpen") for (const wd of r.windowDates || []) if (wd >= date) q.timestampViolations.push({ date, gamePk: r.gamePk, family: fam, windowDate: wd, reason: "bullpen source date not strictly earlier than slate" });
+        if (fam === "lineup" && r.window === "postgame") q.timestampViolations.push({ date, gamePk: r.gamePk, family: fam, reason: "postgame lineup marked eligible" });
       }
     }
   }
@@ -109,6 +119,8 @@ export function auditQuality(joinDir = JOIN_DIR, freezeDir = FREEZE_DIR) {
     timestampViolations: { count: q.timestampViolations.length, verdict: verdict(q.timestampViolations) },
     staleOdds: { count: q.staleOdds.length, verdict: verdict(q.staleOdds, true) },
     joinFailures: { count: q.joinFailures.length, verdict: verdict(q.joinFailures, true) },
+    missingTimestamps: { count: q.missingTimestamps.length, verdict: verdict(q.missingTimestamps) },
+    duplicateFeatures: { count: q.duplicateFeatures.length, verdict: verdict(q.duplicateFeatures) },
   };
   const anyFail = Object.values(checks).some((c) => c.verdict === "FAIL");
   return { public: false, approvedForProduction: false, productEligible: false, kind: "mlb-research-quality", scanned: q.scanned, checks, overall: anyFail ? "FAIL" : "PASS", details: q };
@@ -119,7 +131,7 @@ function main() {
   fs.mkdirSync(path.join(ARCHIVE, "status"), { recursive: true });
   fs.writeFileSync(path.join(ARCHIVE, "status", "research-quality.json"), JSON.stringify(report, null, 2));
   console.log(`\n=== MLB research-warehouse DATA QUALITY ===`);
-  console.log(`scanned: ${report.scanned.dates} dates · ${report.scanned.joinFiles} join files · ${report.scanned.marketRows} market rows (${report.scanned.settledRows} settled) · ${report.scanned.contextualRows} contextual · ${report.scanned.workloadRecords ?? 0} pitcher-workload`);
+  console.log(`scanned: ${report.scanned.dates} dates · ${report.scanned.joinFiles} join files · ${report.scanned.marketRows} market rows (${report.scanned.settledRows} settled) · ${report.scanned.contextualRows} contextual · features ${JSON.stringify(report.scanned.featureRecords || {})}`);
   for (const [k, c] of Object.entries(report.checks)) console.log(`  ${c.verdict === "PASS" ? "✓" : c.verdict === "WARN" ? "▲" : "✗"} ${k}: ${c.verdict}${c.count ? ` (${c.count})` : ""}`);
   console.log(`OVERALL: ${report.overall}`);
   console.log(`report → ${path.relative(REPO, path.join(ARCHIVE, "status", "research-quality.json"))}`);
