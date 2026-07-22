@@ -92,6 +92,12 @@ async function main() {
   remaining = res.headers.get("x-requests-remaining");
   if (res.status !== 200) throw new Error(`Odds API ${res.status}: ${(await res.text()).slice(0, 200)}`);
   console.log(`[team-markets] fetched · this request cost ${cost} credits · ${remaining} remaining`);
+  // Sidecar so the completeness gate can report creditsRemaining (the gate never calls the paid API itself).
+  try {
+    const sd = path.join(REPO, "data/internal/mlb/pregame-archive/status");
+    fs.mkdirSync(sd, { recursive: true });
+    fs.writeFileSync(path.join(sd, "odds-credits.json"), JSON.stringify({ remaining: remaining != null ? Number(remaining) : null, at: new Date().toISOString(), source: "team-markets" }, null, 2) + "\n");
+  } catch { /* sidecar is best-effort; never block the ingest */ }
   const events = await res.json();
 
   const games = {};

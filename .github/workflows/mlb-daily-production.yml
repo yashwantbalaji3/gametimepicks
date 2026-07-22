@@ -97,9 +97,16 @@ jobs:
         if: steps.board.outputs.have_board == 'true'
         run: node app/scripts/mlb-slate-completeness-gate.mjs --date "${{ steps.cfg.outputs.date }}"
       - name: 7) Public build (verification — confirms the completed slate renders)
+        id: build
         if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'
         continue-on-error: true
         run: cd app && npm run build
+      - name: 7b) Finalize health (record buildStatus from the build outcome)
+        if: steps.board.outputs.have_board == 'true'
+        continue-on-error: true
+        env:
+          MLB_BUILD_STATUS: ${{ steps.build.outcome }}
+        run: node app/scripts/mlb-slate-completeness-gate.mjs --date "${{ steps.cfg.outputs.date }}"
       - name: 8) Persist completed slate (PATH-SCOPED to public MLB slate dirs; money-safe; rebase-safe; [skip ci])
         if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'
         continue-on-error: true

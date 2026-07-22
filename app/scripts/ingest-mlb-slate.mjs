@@ -82,7 +82,16 @@ async function main() {
         log(`BLOCKED: Odds API credits ${remaining} below floor ${CREDIT_FLOOR} — refusing paid prop fetch. No artifacts written; nothing fabricated.`);
         process.exit(0); // honest no-op, not a failure
       }
-      if (remaining != null) log(`credits: ${remaining} remaining (floor ${CREDIT_FLOOR})`);
+      if (remaining != null) {
+        log(`credits: ${remaining} remaining (floor ${CREDIT_FLOOR})`);
+        // Sidecar so the completeness gate can report creditsRemaining (props runs last, so this is the freshest post-ingest value).
+        try {
+          const REPO = process.cwd().endsWith("app") ? path.dirname(process.cwd()) : process.cwd();
+          const sd = path.join(REPO, "data/internal/mlb/pregame-archive/status");
+          fs.mkdirSync(sd, { recursive: true });
+          fs.writeFileSync(path.join(sd, "odds-credits.json"), JSON.stringify({ remaining, at: new Date().toISOString(), source: "player-props" }, null, 2) + "\n");
+        } catch { /* best-effort */ }
+      }
     } catch (e) { log(`credit probe failed (${e.message}) — proceeding (the paid call will surface a real error if out of credits).`); }
   }
 

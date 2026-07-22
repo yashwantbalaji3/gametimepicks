@@ -55,16 +55,27 @@ function main() {
   // honest slate status — never a fake ready state
   const { slateStatus, readyToPublish, publicLabel } = deriveSlateStatus({ hasBoard: !!board, boardGames, hasSim: !!sim, hasTeamMarkets: !!teamMarkets, hasPlayerProps: !!playerProps });
 
+  // Runtime facts the gate cannot compute from artifacts alone:
+  //  • creditsRemaining — the paid ingests write it to a sidecar (odds-credits.json); the gate does NOT call the paid API.
+  //  • buildStatus      — the build runs AFTER this gate, so it is "pending" until a post-build finalize pass sets MLB_BUILD_STATUS.
+  const creditsSidecar = readJson(path.join(OUT, "odds-credits.json"));
+  const creditsRemaining = creditsSidecar && Number.isFinite(creditsSidecar.remaining) ? creditsSidecar.remaining : null;
+  const buildStatus = process.env.MLB_BUILD_STATUS || "pending";
+
   const report = {
     public: false, approvedForProduction: false, productEligible: false, kind: "mlb-production-health", date,
+    // Flat daily-monitor fields (the founder's at-a-glance health row):
+    boardGenerated: !!board, teamMarketsGenerated: !!teamMarkets, playerPropsGenerated: !!playerProps, simulationGenerated: !!sim,
+    slateStatus, missingArtifacts: missing, creditsRemaining, buildStatus,
+    readyToPublish, publicLabel,
+    // Detailed per-artifact counts:
     artifacts: {
       board: { present: !!board, games: boardGames },
       simulation: { present: !!sim, games: simGames, picks: simPicks, runCount: sim?.runCount ?? null, artifactHash: sim?.artifactHash ?? null },
       teamMarkets: { present: !!teamMarkets, games: teamMarketGames },
       playerProps: { present: !!playerProps, props: propCount },
     },
-    slateStatus, readyToPublish, publicLabel, missingArtifacts: missing,
-    credits: { note: "Odds API credits are reported by the ingest steps in the workflow logs / artifact manifests; this gate does not call the paid API." },
+    credits: { remaining: creditsRemaining, floor: Number(process.env.ODDS_API_MIN_CREDITS_REMAINING ?? process.env.ODDS_CREDIT_FLOOR ?? 2000), note: "creditsRemaining is read from the ingest sidecar (odds-credits.json); this gate never calls the paid API." },
     note: "REQUIRED to publish: board + game-simulations. team-markets/player-props are if-available; their absence yields AWAITING_MARKET_DATA, never a fabricated ready state. No fabrication.",
   };
   fs.mkdirSync(OUT, { recursive: true });
@@ -77,6 +88,7 @@ function main() {
   console.log(`  team markets: ${present.teamMarkets ? "✓" : "✗"} (${teamMarketGames} games)`);
   console.log(`  player props: ${present.playerProps ? "✓" : "✗"} (${propCount} props)`);
   console.log(`  SLATE STATUS: ${slateStatus}  ·  publishable: ${readyToPublish}  ·  public label: "${publicLabel}"  ·  missing: [${missing.join(",")}]`);
+  console.log(`  credits:      ${creditsRemaining ?? "-"} remaining  ·  build: ${buildStatus}`);
   console.log(`  health → data/internal/mlb/pregame-archive/status/mlb-production-health.json`);
 
   if (FAIL_CLOSED && slateStatus === "NO_BOARD") { console.error("[gate] FAIL-CLOSED: no board — refusing to mark the slate ready."); process.exit(1); }

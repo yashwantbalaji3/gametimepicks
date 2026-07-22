@@ -107,6 +107,24 @@ test("8 · .ts-importing ingest steps run via `npx tsx`, never bare `node` (regr
   assert.match(tmStep, /ingest-mlb-team-markets\.mjs --write /, "team-markets ingest must pass --write (else it errors out and no market data is written)");
 });
 
+test("10 · daily health monitor carries the founder-facing ops fields + buildStatus finalize + credits sidecar", () => {
+  const gate = fs.readFileSync(path.join(app, "scripts/mlb-slate-completeness-gate.mjs"), "utf8");
+  // the gate emits the flat at-a-glance monitor fields the mission requires
+  for (const f of ["boardGenerated", "teamMarketsGenerated", "playerPropsGenerated", "simulationGenerated", "creditsRemaining", "buildStatus", "missingArtifacts", "slateStatus"])
+    assert.match(gate, new RegExp(f), `health report tracks ${f}`);
+  assert.match(gate, /process\.env\.MLB_BUILD_STATUS/, "buildStatus is env-driven (pending until the post-build finalize pass)");
+  assert.match(gate, /odds-credits\.json/, "creditsRemaining is read from the ingest sidecar (the gate never calls the paid API)");
+  // workflow: build step has an id; a post-build finalize pass records the real build outcome
+  assert.match(wf, /id: build/, "build step has an id for outcome reference");
+  assert.match(wf, /MLB_BUILD_STATUS:\s*\$\{\{ steps\.build\.outcome \}\}/, "finalize records the build outcome");
+  // both paid ingests write the credits sidecar the gate reads
+  for (const s of ["ingest-mlb-team-markets.mjs", "ingest-mlb-slate.mjs"])
+    assert.match(fs.readFileSync(path.join(app, "scripts", s), "utf8"), /odds-credits\.json/, `${s} writes the credits sidecar`);
+  // if a live report exists in this checkout, it must carry the flat fields (never a fabricated ready state)
+  const h = readJson(path.join(repo, "data/internal/mlb/pregame-archive/status/mlb-production-health.json"));
+  if (h) for (const f of ["boardGenerated", "simulationGenerated", "slateStatus", "buildStatus", "missingArtifacts"]) assert.ok(f in h, `live report has ${f}`);
+});
+
 test("7 · gate + orchestrator are money-independent; money md5 unchanged", () => {
   // the gate writes only the internal health status; the orchestrator's grep never lets money/public/portfolio through
   assert.ok(!/portfolio\.json|bankroll|crown|openExposure/.test(fs.readFileSync(path.join(app, "scripts/mlb-slate-completeness-gate.mjs"), "utf8").replace(/mr-dub/g, "")), "gate never touches money");

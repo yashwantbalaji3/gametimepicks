@@ -67,5 +67,18 @@ Before: `morning-projections` produced the board, but steps 3–5 (`ingest-mlb-t
 - **IF-AVAILABLE:** team-markets, player-props. Their absence ⇒ `AWAITING_MARKET_DATA` (public "Awaiting market data"), never a fabricated ready state.
 - No games ⇒ `NO_GAMES` (honest empty). No board ⇒ `NO_BOARD` (fail-closed; the CI publish step aborts).
 
+## Daily health monitor
+`data/internal/mlb/pregame-archive/status/mlb-production-health.json` (`public:false`) is the founder's at-a-glance daily row. Flat fields:
+
+| field | source |
+|---|---|
+| `date` | slate date |
+| `boardGenerated` / `teamMarketsGenerated` / `playerPropsGenerated` / `simulationGenerated` | artifact presence on disk |
+| `slateStatus` / `missingArtifacts` / `readyToPublish` / `publicLabel` | completeness gate |
+| `creditsRemaining` | ingest sidecar `odds-credits.json` (props runs last ⇒ freshest post-ingest balance); `null` if not measured |
+| `buildStatus` | `pending` at the gate step, finalized to the build step's `outcome` by the post-build pass |
+
+Detailed per-artifact counts live under `artifacts.*` (games/picks/runCount/props). A per-date copy `mlb-production-health-<date>.json` is also written, and the report is uploaded as a CI diagnostics artifact every run.
+
 ## Research independence
 The research warehouse (step 2 + settlement join + `ResearchObservation` assembler) is **separate** from the public product. Research models remain BLOCKED until 30 dates / 500 settled observations + founder approval. The public 10k sim is the existing approved product; it is not the blocked research model.
