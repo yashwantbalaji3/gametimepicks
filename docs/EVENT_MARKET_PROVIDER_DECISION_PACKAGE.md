@@ -196,5 +196,31 @@ subsystem remains FIXTURE_ONLY.
 
 ---
 
+## Implementation gate (2026-07-23 · fail-closed)
+
+Live adapters remain **DISABLED** in code until, **per provider**, ALL of the following are satisfied — encoded as a
+per-provider `ProviderApproval` in `app/src/lib/event-markets/providers/adapters.ts` (`PROVIDER_APPROVAL`), which ships
+all-false:
+
+| Flag | Meaning |
+|---|---|
+| `enabled` | master switch — one flag per provider, `false` until a deliberate go-live |
+| `founderApproved` | founder sign-off obtained |
+| `tosReviewed` | provider / terms-of-service review completed |
+| `attributionDocumented` | attribution requirements documented |
+| `storagePolicyApproved` | caching / storage policy approved |
+| `geoLimitsUnderstood` | geographic limitations understood |
+| `readOnlyAccepted` | no-trading / read-only boundary accepted |
+
+**Fail-closed by construction:** `assertProviderLiveAllowed(platform)` throws `LiveIntegrationDisabledError` unless
+`isProviderLiveApproved` returns true — which requires `enabled` **and** every precondition above. Flipping `enabled`
+alone is not enough, and every precondition met with `enabled:false` is still not approved. Any future live code path
+must call this gate before touching a transport; with the default registry it always throws. Current status:
+**polymarket = NOT APPROVED, kalshi = NOT APPROVED** (both fully disabled). Guarded by
+`adapters.test.mjs` (tests 7–10: all-disabled, throws by default, partial approval still fails closed, fully-approved
+is satisfiable).
+
+---
+
 *No code, data, money, or provider status was changed by this document. Read-only market data domain only —
 no wallet, no trades, no orders, no balances.*

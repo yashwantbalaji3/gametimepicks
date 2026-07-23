@@ -652,9 +652,32 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       modelVersion={detail.gameLabSimulation?.modelVersion ?? null}
       generatedAt={detail.gameLabSimulation?.generatedAt ?? null}
       marketCapturedAt={detail.gameLabSimulation?.marketCapturedAt ?? null}
+      simStatus={detail.gameLabSimulation?.status ?? null}
+      unavailableModules={detail.gameLabSimulation?.unavailableModules ?? null}
       advanced={mlbAdvanced}
     />
   );
+
+  // ── Game-to-artifact reconciliation gate: if the joined artifacts disagree on which game this is (a
+  // doubleheader mis-join), NEVER render a partially-mismatched report — show a safe, honest state instead.
+  // No internal paths / errors / reasons are exposed to the user. ──
+  if (detail.sport === "mlb" && detail.reconciled && !detail.reconciled.ok) {
+    return (
+      <div className="vault-page-shell px-4 sm:px-8 py-10 overflow-x-hidden">
+        <div className="mb-2">
+          <Link href="/games" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
+        </div>
+        <div className="mx-auto max-w-xl mt-8 rounded-[10px] px-5 py-6" style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.55)" }}>
+          <p className="font-mono uppercase tracking-[0.12em] mb-1" style={{ fontSize: 10, color: "var(--vault-warn)" }}>Unavailable</p>
+          <h1 className="text-[18px] font-semibold mb-1" style={{ color: "var(--vault-text)" }}>Game data could not be reconciled</h1>
+          <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
+            This game&apos;s inputs don&apos;t line up cleanly, so we&apos;re not showing a report rather than risk showing the
+            wrong game. Please pick another game from today&apos;s slate.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // ── Gate: an MLB fixture that carries a simulation shows a CLEAN matchup hero (no prices) + the runner
   // ONLY before the click. The dense report, Model spotlight, and price tabs are gated behind Generate. ──

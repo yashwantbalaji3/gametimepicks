@@ -29,7 +29,7 @@ import type { MlbGameLabView, MlbLeanRow } from "@/lib/game-lab/mlb-report";
 import type { ProductTag } from "@/lib/game-detail-product-tags";
 import { productTagFor } from "@/lib/game-detail-product-tags";
 import { MLB_CALIBRATION_DISCLOSURE, isCalibrationFailed, anyModeledMarketBeatsMarket } from "@/lib/mlb/model-calibration-status";
-import { buildTimestamps, formatEtTime, distributionBand } from "@/lib/mlb/public-provenance";
+import { buildTimestamps, formatEtTime, distributionBand, gameCompleteness, completenessStatus, buildExplanation, COMPLETENESS_META } from "@/lib/mlb/public-provenance";
 import { Section, StatTile, Monogram, AdvancedDisclosure } from "@/components/game/report-v2-shell";
 
 export interface MlbSimulationReportV2Props {
@@ -63,6 +63,10 @@ export interface MlbSimulationReportV2Props {
   generatedAt?: string | null;
   /** ISO timestamp the compared market line/odds were captured (from the sim artifact's freshness). */
   marketCapturedAt?: string | null;
+  /** The sim game's honesty status ("ready"/"stale"/…) — drives the game-level completeness read. */
+  simStatus?: string | null;
+  /** The sim game's honest "not generated" modules — a non-empty list ⇒ PARTIAL_FEATURES completeness. */
+  unavailableModules?: unknown[] | null;
   /** The old dense dashboard, demoted into a collapsed block. */
   advanced?: React.ReactNode;
 }
@@ -148,15 +152,22 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
     home, away, homeCode, awayCode, date, isPreviousSlate, runLabel, resultSummary, hasTeamMarkets,
     playerProps, advanced, picks = [], distributions = null, gameCenter = null, marketSnapshotNode = null,
     productTags, runCount = null, allowsRunCountClaim = false, modelVersion = null, generatedAt = null,
-    marketCapturedAt = null, gameLab = null,
+    marketCapturedAt = null, simStatus = null, unavailableModules = null, gameLab = null,
   } = props;
 
   // Honest provenance timestamps (pure, artifact-backed): when the market line was captured, how long before
   // first pitch, and when the sim was generated. Never labels a post-first-pitch capture as pregame.
-  const provenance = buildTimestamps(
-    { marketSnapshot: { capturedAt: marketCapturedAt }, freshness: { generatedAt } },
-    gameCenter?.firstPitch ?? null,
-  );
+  const simGameLike = {
+    status: simStatus,
+    marketSnapshot: { capturedAt: marketCapturedAt },
+    freshness: { generatedAt },
+    unavailableModules: unavailableModules ?? [],
+  };
+  const provenance = buildTimestamps(simGameLike, gameCenter?.firstPitch ?? null);
+  // Game-level completeness = the honest floor across the game's projections (batter props are lineup-pending,
+  // a missing market is market-pending, a started game is frozen). Never overstates support.
+  const completeness = gameCompleteness(simGameLike, picks, provenance);
+  const completenessMeta = COMPLETENESS_META[completeness];
 
   const pct = (p: number | null | undefined) => (typeof p === "number" ? `${(p * 100).toFixed(0)}%` : "—");
   const num1 = (n: number | null | undefined) => (typeof n === "number" && Number.isFinite(n) ? n.toFixed(1) : "—");
@@ -169,6 +180,11 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
   const boardPicks = [...picks].sort((a, b) => b.edgePct - a.edgePct);
   const watchlist = boardPicks.filter((p) => p.edgePct > 0).slice(0, 5);
   const aboveMarket = picks.filter((p) => p.edgePct > 0).length;
+  // Phase 7 — market-vs-simulation explanation for the single biggest lead. Uses ONLY factors actually attached
+  // to the projection (reasonBullets); neutral "difference" language; shows "Reason unavailable" when the
+  // artifact carries no factor detail. Never says "edge" / calls the market wrong / implies causality.
+  const topLead = watchlist[0] ?? null;
+  const topExplanation = topLead ? buildExplanation(topLead, provenance, completenessStatus(simGameLike, topLead, provenance)) : null;
   const taggedCount = picks.filter((p) => tagFor(p) !== null).length;
   const runsPill = allowsRunCountClaim && runCount ? `${runCount.toLocaleString()}-run` : runLabel;
 
@@ -464,6 +480,29 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
             })}
           </div>
         ) : <p className="text-[12.5px] m-0" style={{ color: "var(--vault-text-mute)" }}>No positive model-vs-market gaps in this game's simulation.</p>}
+        {topExplanation && topLead ? (
+          <div className="mt-3 rounded-[10px] px-3 py-2.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(15,10,7,0.5)" }}>
+            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+              Why this gap? · {topLead.player ?? topLead.team ?? ""} {marketLabel(topLead.market)}
+            </span>
+            <p className="text-[12px] leading-relaxed m-0 mt-1" style={{ color: "var(--vault-text-mute)" }}>
+              The simulation reads <strong style={{ color: "var(--vault-text)" }}>{topExplanation.simulationProbability ?? "—"}%</strong> versus the market&apos;s {topExplanation.marketProbability ?? "—"}% — a {topExplanation.differencePts ?? "—"} pt difference.
+            </p>
+            {topExplanation.strongestAvailableFactors.length > 0 ? (
+              <ul className="mt-1.5 mb-0 pl-4 flex flex-col gap-0.5">
+                {topExplanation.strongestAvailableFactors.map((f, i) => (
+                  <li key={i} className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{f}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[11.5px] m-0 mt-1" style={{ color: "var(--vault-text-faint)" }}>Reason unavailable — the artifact carries no factor detail for this projection.</p>
+            )}
+            {topExplanation.missingFactors.length > 0 ? (
+              <p className="text-[10.5px] m-0 mt-1.5" style={{ color: "var(--vault-warn)" }}>Missing: {topExplanation.missingFactors.join(", ")}.</p>
+            ) : null}
+            <p className="text-[10px] leading-relaxed m-0 mt-1.5" style={{ color: "var(--vault-text-faint)" }}>{topExplanation.limitationText}</p>
+          </div>
+        ) : null}
       </Section>
 
       {/* 6 — Market agreement (a sanity-check score — NOT calibration, NOT a claim to out-perform the market) */}
@@ -636,7 +675,18 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
             relative to first pitch. A post-first-pitch capture is never labelled pregame; a missing time reads
             "unavailable", never a fabricated 0. */}
         <div className="rounded-md px-2.5 py-2 mb-2 flex flex-col gap-1" style={{ border: "1px solid var(--vault-rule)" }}>
-          <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Data freshness</span>
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Data freshness &amp; completeness</span>
+            {/* Honest completeness FLOOR: batter props are lineup-pending, a missing market is market-pending, a
+                started game is frozen. Tooltip states exactly what's available — never implies confirmation. */}
+            <span
+              className="font-mono rounded-full px-2 py-0.5"
+              title={completenessMeta.tooltip}
+              style={{ fontSize: 9, border: "1px solid var(--vault-rule)", color: completenessMeta.tone === "ok" ? "var(--vault-success)" : completenessMeta.tone === "pending" ? "var(--vault-warn)" : "var(--vault-text-mute)" }}
+            >
+              {completenessMeta.label}
+            </span>
+          </div>
           {provenance.generatedLabel ? <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>{provenance.generatedLabel}</span> : null}
           <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>{provenance.captureLabel}</span>
           {provenance.firstPitch ? <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>Scheduled first pitch {formatEtTime(provenance.firstPitch)}</span> : null}

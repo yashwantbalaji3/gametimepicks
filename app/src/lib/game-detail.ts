@@ -45,7 +45,12 @@ import {
 } from "@/lib/normalize";
 
 export interface PublicGameDetail {
+  /** Canonical, UNIQUE public slug for this game (one gameId ↔ one slug). For a doubleheader this carries the
+   *  disambiguating gamePk suffix; for a unique game it equals `baseSlug`. */
   slug: string;
+  /** The team-pair+date base slug (may be shared by a doubleheader). Used to detect ambiguous legacy URLs and to
+   *  render a disambiguation page — never to resolve a single game when the base is shared. */
+  baseSlug: string;
   sport: SportKey;
   sportLabel: string;
   title: string;
@@ -96,6 +101,12 @@ export interface PublicGameDetail {
    * Kept DISTINCT from the player-prop MODEL modules; never fabricated.
    */
   gameCenter?: MlbGameCenter | null;
+  /**
+   * Game-to-artifact reconciliation (MLB). `ok:false` ⇒ the joined artifacts disagree on which game this is
+   * (e.g. a doubleheader mis-join) and the report must NOT render — the page shows a safe "could not be
+   * reconciled" state instead. `ok:true` ⇒ every joined artifact agrees on this fixture's gamePk.
+   */
+  reconciled?: { ok: boolean; reason: string };
 }
 
 const SPORT_LABEL: Record<SportKey, string> = { world_cup: "World Cup", mlb: "MLB", nba: "NBA", ufc: "UFC" };
@@ -179,8 +190,10 @@ function worldCupDetails(): PublicGameDetail[] {
       });
     const cardsForGame = cards.filter((c) => cardBelongsToFixture(c, head.gameLabel));
     const playerMarkets = new Set(playerProps.map((p) => p.marketLabel));
+    const wcSlug = gameSlug(homeTeam ?? "", awayTeam ?? "", head.date);
     out.push({
-      slug: gameSlug(homeTeam ?? "", awayTeam ?? "", head.date),
+      slug: wcSlug,
+      baseSlug: wcSlug,
       sport: "world_cup",
       sportLabel: "World Cup",
       title: head.gameLabel,
@@ -227,14 +240,26 @@ function boardDetails(
 ): PublicGameDetail[] {
   const byGame = new Map<string, PublicProjection[]>();
   for (const p of props) byGame.set(String(p.matchId ?? ""), [...(byGame.get(String(p.matchId ?? "")) ?? []), p]);
+  // First pass: base slug (team-pair + date) + collision counts. A base shared by >1 game (a doubleheader, or
+  // any same-teams-same-date pair) is disambiguated by the stable gamePk/gameId so every game gets exactly ONE
+  // unique public slug (one gameId ↔ one URL). Non-colliding games keep the base slug (zero URL churn).
+  const baseCounts = new Map<string, number>();
+  for (const g of games) {
+    const base = gameSlug(g.awayTeamAbbr ?? "?", g.homeTeamAbbr ?? "?", date);
+    baseCounts.set(base, (baseCounts.get(base) ?? 0) + 1);
+  }
   return games.map((g) => {
     const home = g.homeTeamAbbr ?? "?";
     const away = g.awayTeamAbbr ?? "?";
     const key = String(g.gamePk ?? g.gameId ?? "");
+    const baseSlug = gameSlug(away, home, date);
+    // Disambiguate a shared base with the stable public game id (gamePk/gameId). Never silently collide.
+    const slug = (baseCounts.get(baseSlug) ?? 0) > 1 && key ? `${baseSlug}-${key}` : baseSlug;
     const playerProps = byGame.get(key) ?? [];
     const buildId = gameIdForBuild(g);
     return {
-      slug: gameSlug(away, home, date),
+      slug,
+      baseSlug,
       sport,
       sportLabel: SPORT_LABEL[sport],
       title: `${away} @ ${home}`,
@@ -336,6 +361,32 @@ function mlbSimulationJoiner(date: string, slateDate: string): (matchId: string 
   };
 }
 
+/**
+ * Game-to-artifact reconciliation (MLB). The board fixture's `matchId` (gamePk) is the anchor; every joined
+ * artifact must agree on it. Pure + deterministic so it can be unit-tested. Checks:
+ *   1. A DISAMBIGUATED slug (doubleheader) must carry this exact game's gamePk as its suffix — the URL is
+ *      pinned to one game, never its twin.
+ *   2. A ready/stale SIMULATION must have been built from the same gamePk (not the sibling's).
+ * Returns `{ ok:false, reason }` on any mismatch so the page renders a safe "could not be reconciled" state
+ * instead of a partially-mismatched report. NB: an "unavailable" sim (no artifact) is NOT a mismatch.
+ */
+export function reconcileMlbGame(
+  d: Pick<PublicGameDetail, "slug" | "baseSlug" | "matchId" | "gameLabSimulation">,
+): { ok: boolean; reason: string } {
+  const anchor = d.matchId ?? null;
+  // (1) A disambiguated slug's suffix must equal the anchor gamePk.
+  if (d.slug !== d.baseSlug) {
+    const suffix = d.slug.slice(d.baseSlug.length + 1); // strip "<base>-"
+    if (!anchor || suffix !== anchor) return { ok: false, reason: "slug_gameid_mismatch" };
+  }
+  // (2) A ready/stale simulation must be for the same gamePk.
+  const sim = d.gameLabSimulation ?? null;
+  if (sim && (sim.status === "ready" || sim.status === "stale") && anchor && sim.gamePk != null) {
+    if (String(sim.gamePk) !== anchor) return { ok: false, reason: "sim_gamepk_mismatch" };
+  }
+  return { ok: true, reason: "ok" };
+}
+
 function mlbDetails(): PublicGameDetail[] {
   const date = activeMlbDate() ?? "";
   if (!date) return [];
@@ -363,6 +414,9 @@ function mlbDetails(): PublicGameDetail[] {
       // Null when the game has no de-vigged team markets → the UI shows an honest
       // unavailable state rather than inventing win-prob / total / run-line numbers.
       gameCenter: sim?.gameId ? getMlbGameCenter(date, sim.gameId) : null,
+      // Assert every joined artifact agrees on this fixture's gamePk. On mismatch the page shows a safe
+      // "could not be reconciled" state instead of a partially-mismatched report.
+      reconciled: reconcileMlbGame({ slug: d.slug, baseSlug: d.baseSlug, matchId: d.matchId, gameLabSimulation: sim }),
     };
   });
 }
@@ -397,7 +451,50 @@ export function getGameDetail(sport: string, slug: string): PublicGameDetail | n
 }
 
 export function gameDetailParams(): Array<{ sport: string; gameId: string }> {
-  return buildAllGameDetails().map((d) => ({ sport: urlSport(d.sport), gameId: d.slug }));
+  const all = buildAllGameDetails();
+  const out = all.map((d) => ({ sport: urlSport(d.sport), gameId: d.slug }));
+  // Also statically generate each AMBIGUOUS base slug (a doubleheader's shared team-pair+date) so the legacy
+  // bare URL renders a disambiguation page instead of 404-ing or silently showing one game.
+  const seen = new Set(out.map((p) => `${p.sport}/${p.gameId}`));
+  for (const d of all) {
+    if (d.slug === d.baseSlug) continue;
+    const k = `${urlSport(d.sport)}/${d.baseSlug}`;
+    if (!seen.has(k)) {
+      seen.add(k);
+      out.push({ sport: urlSport(d.sport), gameId: d.baseSlug });
+    }
+  }
+  return out;
+}
+
+/**
+ * When `slug` is an AMBIGUOUS base (a doubleheader's shared team-pair+date), return the real games that share it
+ * so the route can render a disambiguation page. Returns null for a normal unique slug (resolved via
+ * getGameDetail) — we NEVER silently pick one game for an ambiguous base.
+ */
+export function getGameDisambiguation(
+  sport: string,
+  slug: string,
+): { baseSlug: string; options: SiblingGameLink[] } | null {
+  const key = fromUrlSport(sport);
+  const options = buildAllGameDetails()
+    .filter((d) => d.sport === key && d.baseSlug === slug && d.slug !== slug)
+    .map((d) => ({ slug: d.slug, urlSport: urlSport(d.sport), title: d.title, simReady: !!d.gameLabSimulation }));
+  return options.length >= 2 ? { baseSlug: slug, options } : null;
+}
+
+/** Resolve a game by its stable provider id (gamePk/gameId = the detail's matchId) — always UNIQUE, never
+ *  team/date-ambiguous. Preferred over slug/team lookups by any producer that already holds the game id. */
+export function detailByMatchId(sport: SportKey, matchId: string | number | null | undefined): PublicGameDetail | null {
+  if (matchId == null || matchId === "") return null;
+  const id = String(matchId);
+  return buildAllGameDetails().find((d) => d.sport === sport && d.matchId === id) ?? null;
+}
+
+/** Canonical detail-page href for a game by its stable provider id. Null when no detail exists. */
+export function gameHrefByMatchId(sport: SportKey, matchId: string | number | null | undefined): string | null {
+  const d = detailByMatchId(sport, matchId);
+  return d ? `/games/${urlSport(d.sport)}/${d.slug}` : null;
 }
 
 /** One entry in the in-page game selector — a sibling game on the same date + sport. */
@@ -418,14 +515,15 @@ export function siblingGames(sport: SportKey, date: string, currentSlug: string)
     .sort((a, b) => (a.simReady === b.simReady ? a.slug.localeCompare(b.slug) : a.simReady ? -1 : 1));
 }
 
-/** The full fixture detail for a team pair (order/date-independent), or null when none exists. */
+/** The full fixture detail for a team pair (order/date-independent). Returns the match ONLY when it is
+ *  unambiguous — a doubleheader (two games, same teams, same slate) yields >1 match, so this returns null and
+ *  the caller must disambiguate by gameId (detailByMatchId). Never silently picks one game of a pair. */
 export function getDetailForTeams(sport: SportKey, teamA: string, teamB: string): PublicGameDetail | null {
   const key = [slugify(teamA), slugify(teamB)].sort().join("|");
-  return (
-    buildAllGameDetails().find(
-      (x) => x.sport === sport && [slugify(x.homeTeam ?? ""), slugify(x.awayTeam ?? "")].sort().join("|") === key,
-    ) ?? null
+  const matches = buildAllGameDetails().filter(
+    (x) => x.sport === sport && [slugify(x.homeTeam ?? ""), slugify(x.awayTeam ?? "")].sort().join("|") === key,
   );
+  return matches.length === 1 ? matches[0] : null;
 }
 
 /** Detail-page href for a fixture by its two teams (order/date-independent). Used by the sport

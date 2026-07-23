@@ -335,3 +335,22 @@ every estimate `NOT_YET_MODELED`). Activation gates: (1) founder + legal/ToS rev
 the repo); (2) the modelability contract must pass for a specific market family; (3) a validated engine before any
 independent probability is ever emitted. Guards: `snapshot-archive.test.mjs` (fixture-only/immutability) +
 `evidence-pipeline.test.mjs` (no fabricated probability).
+
+## 9. Activation criteria — 2026-07-23 (game identity + completeness UI + NBA contracts + event fail-closed)
+
+Per-product activation status, updated after the game-identity-hardening + public-completeness mission. **No empty
+public tabs**: a sport appears in public nav only when it renders a real, current, reconciled product.
+
+| Product | Status | Activation criteria (what must pass to advance) | Guard |
+|---|---|---|---|
+| **MLB** | **ACTIVE public beta** | To claim "predictive": the model-calibration gate must flip (out-predict market OOS on Brier+logloss) + founder. Copy stays simulation-first. | `game-identity.test.mjs`, `public-provenance.test.mjs`, `model-calibration-status.ts` |
+| **NBA** | **INTERNAL reactivation only** | Current-season pipeline live + per-player game-log source resolved + **a proven ISO tip-off recorded** (0/54 boards have one today → 0 research-eligible dates) + settlement + completeness + public-language gates + founder. Contracts (identity / pregame snapshot / rebounds prototype) exist but status **INSUFFICIENT**. | `identity-contract.test.mjs`, `pregame-snapshot-contract.test.mjs`, `feature-timing-contract.test.mjs` |
+| **UFC** | **SCAFFOLD backlog** | Data-foundation rebuild (point-in-time odds + bout-identity date-safe join) before any backtest. Not public. | `ufc/feature-eligibility.ts` |
+| **Event markets** | **INTERNAL fixture prototype only** | Per-provider `enabled:false` fail-closed gate (`PROVIDER_APPROVAL`): founder + ToS + attribution + storage + geo + read-only all satisfied, AND a real (non-fixture) archive exists, before any live read. | `adapters.test.mjs`, `snapshot-archive.test.mjs` |
+| **World Cup** | **ARCHIVED** | Archive/proof/methodology/negation only — removed from public nav. | `world-cup-closeout.test.mjs` |
+
+**MLB game identity (this mission):** every public MLB/NBA game URL now maps to exactly one game — a doubleheader's
+games get distinct `…-<gamePk>` slugs, the bare team+date slug renders a disambiguation page (never a silent pick),
+and a game-to-artifact reconciliation guard shows a safe "could not be reconciled" state rather than a mismatched
+report. **Public completeness** (`FULLY_SUPPORTED`/`LINEUP_PENDING`/…), the **market-vs-sim explanation**, and the
+**p10–p90 simulated range** are surfaced honestly, driven by the tested `public-provenance.ts` view-model.

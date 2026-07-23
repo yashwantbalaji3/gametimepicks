@@ -21,7 +21,7 @@ import SportSelector, { type SportState, type SportStateTone } from "@/component
 import MatchupIdentity from "@/components/ui/matchup-identity";
 import SectionHeader from "@/components/section-header";
 import FreshnessBadge from "@/components/ui/freshness-badge";
-import { buildAllGameDetails, gameSlug } from "@/lib/game-detail";
+import { buildAllGameDetails, detailByMatchId } from "@/lib/game-detail";
 import Link from "next/link";
 import { loadRoundOf32Board } from "@/lib/world-cup/round-of-32";
 import { gameScriptFromBoard } from "@/lib/world-cup/game-script";
@@ -115,8 +115,8 @@ export default function SimulateLobby() {
   }
   for (const g of mlbBoard.games ?? []) {
     const gid = mlbGameIdByPk.get(String(g.gamePk));
-    const mlbSlug = gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", mlbDate);
-    const mlbDetail = detailMap.get(`mlb/${mlbSlug}`);
+    // Resolve by the stable gamePk (unique) — never by the team+date base slug, which collides on doubleheaders.
+    const mlbDetail = detailByMatchId("mlb", g.gamePk);
     rows.push({
       id: `mlb_${g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`,
       sport: "mlb",
@@ -129,7 +129,7 @@ export default function SimulateLobby() {
       projections: mlbByGame.get(String(g.gamePk)) ?? 0,
       href: "/mlb?tab=games",
       buildHref: gid ? `/build?sport=mlb&game=${encodeURIComponent(gid)}` : "/build?sport=mlb",
-      detailHref: mlbDetail ? `/games/mlb/${mlbSlug}` : undefined,
+      detailHref: mlbDetail ? `/games/mlb/${mlbDetail.slug}` : undefined,
       // A ready deterministic simulation artifact exists for this game → surface a "Simulation Ready" badge
       // (drives the simulate-first lobby). Real status from the game-detail view; never fabricated.
       simReady: mlbDetail?.gameLabSimulation?.status === "ready",
@@ -153,6 +153,7 @@ export default function SimulateLobby() {
   const nbaByGame = countBy(nbaProjs, (l) => l.matchId);
   const nbaPropsByGame = groupByGame(nbaProjs);
   for (const g of nbaBoard?.games ?? []) {
+    const nbaDetail = detailByMatchId("nba", g.gameId);
     rows.push({
       id: `nba_${g.gameId}`,
       sport: "nba",
@@ -163,9 +164,7 @@ export default function SimulateLobby() {
       projections: nbaByGame.get(String(g.gameId)) ?? 0,
       href: "/nba?tab=games",
       buildHref: g.gameId ? `/build?sport=nba&game=${encodeURIComponent(g.gameId)}` : "/build?sport=nba",
-      detailHref: detailMap.has(`nba/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", nbaDate)}`)
-        ? `/games/nba/${gameSlug(g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "", nbaDate)}`
-        : undefined,
+      detailHref: nbaDetail ? `/games/nba/${nbaDetail.slug}` : undefined,
       // The game's single highest MARKET-implied prop (labelled "mkt", never a model claim).
       signal: topPropSignal(nbaPropsByGame.get(String(g.gameId)) ?? []) ?? undefined,
     });

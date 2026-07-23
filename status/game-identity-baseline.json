@@ -1,0 +1,52 @@
+{
+  "kind": "game-identity-baseline",
+  "public": false,
+  "note": "Phase 0 reconcile + verify snapshot for the MLB game-identity-hardening mission. Timestamps from the health-check run (2026-07-23T14:14:52Z); scripts cannot read the wall clock.",
+  "startingHead": "e2946a03",
+  "reconciledHead": "e2946a03",
+  "botDriftCommits": [],
+  "botDriftClassification": "No commits after e2946a03 on any ref. All four refs already aligned at e2946a03 (last mission's push). No bot drift this cycle.",
+  "branchAlignment": {
+    "main": "e2946a03",
+    "june30-reset": "e2946a03",
+    "origin/main": "e2946a03",
+    "origin/june30-reset": "e2946a03",
+    "aligned": true,
+    "workingTreeClean": true
+  },
+  "moneyMd5": "affe6b21071f2b3be96bb2774eb347c3",
+  "officialRecord": "19-14",
+  "bankroll": 19065.4,
+  "crown": 20465.4,
+  "exposure": 0,
+  "productionHealth": { "status": "HEALTHY", "checksPassed": 18, "warnings": 0 },
+  "mlbResearch": {
+    "observationQuality": "PASS",
+    "leakage": 0,
+    "gate": "BLOCKED",
+    "gateMet": false,
+    "qualifyingDates": 1,
+    "datesCollected": 4,
+    "totalObservations": 1994,
+    "settledEligibleObservations": 1988,
+    "featureCoveragePct": 67.8,
+    "gateBlockers": ["dates 4/30", "coverage 77.1%/80% (feature-attachment)", "timestamp-proven 78.1%/90%"],
+    "observationRebuildDeterministic": true,
+    "note": "Two independent monitors agree BLOCKED: research-progress (need 26 more dates) + simulation-readiness (13.3%, binding constraint = distinct dates). Observation regen run twice → byte-identical totals (1994 obs / 1988 settled-eligible), so the build is deterministic."
+  },
+  "validation": {
+    "tsc": "0 errors",
+    "defaultFrontendSuite": "2565 pass / 0 fail / 4 skipped (2569 total)",
+    "integration_RESEARCH_ARCHIVE_INTEGRATION_1": "30 pass / 0 fail / 0 skipped",
+    "productionBuild": "exit 0 (NBA off-season board fallbacks are benign; prune-internal-routes pruned ops/preview + shadow-calibration)",
+    "healthCheck": "HEALTHY — 18 passed, 0 warnings",
+    "researchProgress": "GATE NOT MET · modeling BLOCKED · need 26 more dates",
+    "simulationReadiness": "13.3% · modeling BLOCKED · data quality PASS",
+    "observationRegenTwice": "DETERMINISTIC (identical totals both runs)"
+  },
+  "knownPreExistingIssue": {
+    "doubleheaderSlugCollision": "Two games of a doubleheader share one /games/mlb/<slug> URL (e.g. pit-vs-nyy-2026-07-22 = gameIds 8291188...@17:06Z AND 825819c6...@23:05Z). 2026-07-22 slate has 17 games but only 15 MLB game routes built → ~2 collisions. This is the PRIMARY target of Phases 1-4 this mission."
+  },
+  "invariantsHeld": true,
+  "proceed": true
+}

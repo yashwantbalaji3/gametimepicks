@@ -51,6 +51,9 @@ export interface GameSimulationView {
   date: string;
   /** The game's stable id (matches the artifact game's `gameId`). */
   gameId: string;
+  /** The official provider game id (MLB gamePk) the sim was built from — the anchor for game-to-artifact
+   *  reconciliation (must equal the board fixture's matchId). Null when the artifact carries no gamePk. */
+  gamePk: number | null;
   /** Deterministic slug (home-vs-away-date) — present when a game payload exists. */
   slug: string | null;
   /** Home/away team tokens — present when a game payload exists. */
@@ -135,6 +138,7 @@ export function buildGameSimulationView(
     date: result.date,
     gameId: result.gameId,
     slug: showsGame && game ? game.slug : null,
+    gamePk: showsGame && game ? game.gamePk ?? null : null,
     teams: showsGame && game ? game.teams : null,
 
     modelVersion: meta.modelVersion,
@@ -173,6 +177,7 @@ export function unavailableSimulationView(
     date,
     gameId,
     slug: null,
+    gamePk: null,
     teams: null,
     modelVersion: null,
     simulationVersion: null,

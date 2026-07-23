@@ -70,3 +70,59 @@ export const PROVIDER_ADAPTERS = {
   polymarket: { ctor: PolymarketAdapter, integrationStatus: "LEGAL_REVIEW_REQUIRED", liveEnabled: false },
   kalshi: { ctor: KalshiAdapter, integrationStatus: "LEGAL_REVIEW_REQUIRED", liveEnabled: false },
 } as const;
+
+/**
+ * Per-provider LIVE-ACCESS approval (Phase 15). Live adapters stay DISABLED until EVERY precondition below is met for
+ * a provider. This registry is the single source of truth, it is intentionally ALL-FALSE, and the app FAILS CLOSED:
+ * a live path calls `assertProviderLiveAllowed` and throws unless fully approved — it never silently proceeds.
+ * Flipping `enabled` alone is NOT enough; every legal/operational precondition must also be satisfied.
+ */
+export interface ProviderApproval {
+  /** Master switch — one flag per provider. False until go-live is deliberately, reviewably enabled. */
+  enabled: boolean;
+  founderApproved: boolean;       // founder sign-off obtained
+  tosReviewed: boolean;           // provider / terms-of-service review completed
+  attributionDocumented: boolean; // attribution requirements documented
+  storagePolicyApproved: boolean; // caching / storage policy approved
+  geoLimitsUnderstood: boolean;   // geographic limitations understood
+  readOnlyAccepted: boolean;      // no-trading / read-only boundary accepted
+}
+
+const DISABLED_APPROVAL: ProviderApproval = {
+  enabled: false, founderApproved: false, tosReviewed: false, attributionDocumented: false,
+  storagePolicyApproved: false, geoLimitsUnderstood: false, readOnlyAccepted: false,
+};
+
+/** Every platform ships fully DISABLED. Changing any value here to permit live access is a deliberate, reviewed act. */
+export const PROVIDER_APPROVAL: Record<Platform, ProviderApproval> = {
+  polymarket: { ...DISABLED_APPROVAL },
+  kalshi: { ...DISABLED_APPROVAL },
+  internal_fixture: { ...DISABLED_APPROVAL },
+  other: { ...DISABLED_APPROVAL },
+};
+
+/** True ONLY when a provider is enabled AND every legal/operational precondition is met. Fail-closed by construction. */
+export function isProviderLiveApproved(
+  platform: Platform,
+  approval: Partial<Record<Platform, ProviderApproval>> = PROVIDER_APPROVAL,
+): boolean {
+  const a = approval[platform];
+  return (
+    !!a && a.enabled && a.founderApproved && a.tosReviewed && a.attributionDocumented &&
+    a.storagePolicyApproved && a.geoLimitsUnderstood && a.readOnlyAccepted
+  );
+}
+
+/** Fail-closed gate — throws unless a provider is FULLY approved for live access. Any live code path must call this
+ *  before touching a live transport; with the default (all-false) registry it always throws. */
+export function assertProviderLiveAllowed(
+  platform: Platform,
+  approval: Partial<Record<Platform, ProviderApproval>> = PROVIDER_APPROVAL,
+): void {
+  if (!isProviderLiveApproved(platform, approval)) {
+    throw new LiveIntegrationDisabledError(
+      platform,
+      "not approved for live access — founder + ToS + attribution + storage + geo + read-only preconditions not all satisfied",
+    );
+  }
+}

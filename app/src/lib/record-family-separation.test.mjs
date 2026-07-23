@@ -73,3 +73,20 @@ test("6 · the research families never reach a public source (re-assert the inte
   const leaks = files.filter((f) => research.test(read(f) || ""));
   assert.deepEqual(leaks.map((f) => path.relative(app, f)), [], "no public source reads the internal research families");
 });
+
+test("7 · the public SIM-RESULTS artifact carries its own settlement provenance and is MONEY-FREE (data-level separation)", () => {
+  const dir = path.join(app, "public/data/mlb/results");
+  let files = [];
+  try { files = fs.readdirSync(dir).filter((f) => /^comparison_report_\d{4}-\d{2}-\d{2}\.json$/.test(f)); } catch { /* none */ }
+  if (files.length === 0) return; // no settled sim-results yet ⇒ nothing to assert
+  const money = /\bcrownBankroll\b|\bcurrentBankroll\b|"19-14"|19–14|mr-dub\/portfolio/;
+  for (const f of files.slice(-5)) {
+    const raw = read(path.join(dir, f)) || "";
+    // The sim-accuracy family reports its OWN settlement (generatedAt + wins/losses/pushes) and must NOT embed the
+    // money record — the two families are reported separately and never blended into one figure.
+    assert.ok(!money.test(raw), `${f} (sim-accuracy family) must not embed the money record`);
+    const j = JSON.parse(raw);
+    assert.ok("generatedAt" in j, `${f} carries its own generation provenance`);
+    assert.ok("wins" in j && "losses" in j, `${f} carries its own settlement counts (separate from the paper W–L)`);
+  }
+});

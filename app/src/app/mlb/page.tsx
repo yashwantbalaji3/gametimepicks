@@ -28,7 +28,7 @@ import {
   normalizeOptimizerSlips,
   type PublicProjection,
 } from "@/lib/normalize";
-import { detailHrefForTeams } from "@/lib/game-detail";
+import { gameHrefByMatchId } from "@/lib/game-detail";
 
 import path from "node:path";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
@@ -126,7 +126,7 @@ export default function MlbLandingPage() {
         {games.map((g) => {
           const anchor = `game-${g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`;
           const tileKey = g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`;
-          const detailHref = detailHrefForTeams("mlb", g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "") ?? `/mlb/board#${anchor}`;
+          const detailHref = gameHrefByMatchId("mlb", g.gamePk) ?? `/mlb/board#${anchor}`;
           return (
             <Link
               key={tileKey}

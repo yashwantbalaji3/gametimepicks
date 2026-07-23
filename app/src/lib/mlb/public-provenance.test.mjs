@@ -5,7 +5,7 @@
  */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildTimestamps, completenessStatus, buildExplanation, formatEtTime, humanDuration, COMPLETENESS_LABEL, distributionBand } from "./public-provenance.ts";
+import { buildTimestamps, completenessStatus, buildExplanation, formatEtTime, humanDuration, COMPLETENESS_LABEL, distributionBand, gameCompleteness, COMPLETENESS_META } from "./public-provenance.ts";
 
 const game = (over = {}) => ({ status: "ready", marketSnapshot: { capturedAt: "2026-07-22T15:22:00Z" }, freshness: { generatedAt: "2026-07-22T19:13:00Z" }, unavailableModules: [], ...over });
 const FIRST_PITCH = "2026-07-22T17:06:00Z"; // 1h 44m after capture
@@ -110,4 +110,52 @@ test("13 · distributionBand never fabricates a spread: empty / zero-mass bins �
   // a single-bin spike is a REAL (narrow) distribution, not a missing one
   const spike = distributionBand([{ label: "1", probability: 1 }], 10000);
   assert.deepEqual([spike.p10, spike.median, spike.p90], ["1", "1", "1"]);
+});
+
+test("14 · gameCompleteness is the HONEST FLOOR across a game's projections", () => {
+  const g = game();
+  const ts = buildTimestamps(g, FIRST_PITCH);
+  const pitcher = { market: "pitcher_strikeouts", marketProbability: 0.55 };
+  const batter = { market: "batter_hits", marketProbability: 0.5 };
+  // pitcher-only ⇒ fully supported; add a batter ⇒ floor drops to lineup-pending (never overstates)
+  assert.equal(gameCompleteness(g, [pitcher], ts), "FULLY_SUPPORTED");
+  assert.equal(gameCompleteness(g, [pitcher, batter], ts), "LINEUP_PENDING");
+  // a missing market anywhere is more limiting than a pending lineup
+  assert.equal(gameCompleteness(g, [pitcher, { market: "batter_hits", marketProbability: null }], ts), "MARKET_PENDING");
+  // a started game dominates everything; no picks ⇒ unavailable (never fabricated "complete")
+  assert.equal(gameCompleteness(game({ status: "live" }), [pitcher], ts), "GAME_STARTED");
+  assert.equal(gameCompleteness(g, [], ts), "UNAVAILABLE");
+});
+
+test("15 · COMPLETENESS_META: only FULLY_SUPPORTED may be shared; pending never claims 'confirmed'; all have label+tooltip", () => {
+  for (const [status, m] of Object.entries(COMPLETENESS_META)) {
+    assert.ok(m.label && m.tooltip, `${status} has a label + tooltip`);
+    assert.doesNotMatch(m.tooltip, /\bconfirmed\b/i, `${status} tooltip must not imply confirmation the source can't support`);
+  }
+  assert.equal(COMPLETENESS_META.FULLY_SUPPORTED.canShare, true);
+  for (const s of ["LINEUP_PENDING", "MARKET_PENDING", "PARTIAL_FEATURES", "STALE_INPUTS", "GAME_STARTED", "UNAVAILABLE"]) {
+    assert.equal(COMPLETENESS_META[s].canShare, false, `${s} must NOT be shareable as a final read`);
+  }
+  assert.equal(COMPLETENESS_META.UNAVAILABLE.canShowSimulation, false);
+});
+
+test("16 · distributionBand hardening: skewed, push-heavy, all-one-bin, missing/invalid mass, 10k + non-10k sampleCount", () => {
+  // Skewed right ⇒ median below the long tail; band still ordered p10 ≤ median ≤ p90 (by bin index)
+  const skewed = distributionBand([
+    { label: "0", probability: 0.5 }, { label: "1", probability: 0.3 }, { label: "2", probability: 0.15 }, { label: "3", probability: 0.05 },
+  ], 10000);
+  assert.equal(skewed.median, "0");
+  assert.equal(skewed.p90, "2");
+  // Push-heavy (mass concentrated on the line value) resolves to that value across percentiles
+  const push = distributionBand([{ label: "under", probability: 0.05 }, { label: "push", probability: 0.9 }, { label: "over", probability: 0.05 }]);
+  assert.equal(push.median, "push");
+  // count-only bins (no probability) are honored
+  const byCount = distributionBand([{ label: "lo", count: 100 }, { label: "hi", count: 900 }], 10000);
+  assert.equal(byCount.median, "hi");
+  // sampleCount passthrough: 10k stays 10k; a non-10k value is preserved, not coerced; missing ⇒ null
+  assert.equal(distributionBand([{ label: "x", probability: 1 }], 10000).sampleCount, 10000);
+  assert.equal(distributionBand([{ label: "x", probability: 1 }], 2500).sampleCount, 2500);
+  assert.equal(distributionBand([{ label: "x", probability: 1 }]).sampleCount, null);
+  // NaN / negative mass are ignored; if nothing usable remains ⇒ null (never a fabricated band)
+  assert.equal(distributionBand([{ label: "a", probability: NaN }, { label: "b", probability: -1 }]), null);
 });

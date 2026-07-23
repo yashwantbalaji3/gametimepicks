@@ -130,6 +130,46 @@ export const COMPLETENESS_LABEL: Record<CompletenessStatus, string> = {
   UNAVAILABLE: "Unavailable",
 };
 
+export interface CompletenessMeta {
+  label: string;
+  /** User-facing tooltip — artifact-backed, never implies certainty the source can't support. */
+  tooltip: string;
+  /** May the deterministic simulation still be shown? True for MLB (the sim is a model read, not a confirmed-lineup
+   *  claim); a started game shows it as a FROZEN pregame read. False only when the game is truly UNAVAILABLE. */
+  canShowSimulation: boolean;
+  /** Should public sharing be enabled? Off for pending/started/frozen states — never share an incomplete read as final. */
+  canShare: boolean;
+  tone: "ok" | "pending" | "muted";
+}
+
+/** The single source of truth for how each completeness status is presented + what it permits. */
+export const COMPLETENESS_META: Record<CompletenessStatus, CompletenessMeta> = {
+  FULLY_SUPPORTED: { label: "Fully supported", tooltip: "Market, matchup and pitcher inputs are available for this game.", canShowSimulation: true, canShare: true, tone: "ok" },
+  LINEUP_PENDING: { label: "Lineup pending", tooltip: "Batter lineups aren't posted yet — batter projections are provisional, not final.", canShowSimulation: true, canShare: false, tone: "pending" },
+  MARKET_PENDING: { label: "Market pending", tooltip: "A captured market line isn't available yet for this projection.", canShowSimulation: true, canShare: false, tone: "pending" },
+  PARTIAL_FEATURES: { label: "Partial inputs", tooltip: "Some supporting inputs are unavailable for this game.", canShowSimulation: true, canShare: false, tone: "pending" },
+  STALE_INPUTS: { label: "Stale inputs", tooltip: "The compared inputs were captured long before first pitch and may be stale.", canShowSimulation: true, canShare: false, tone: "muted" },
+  GAME_STARTED: { label: "Game started", tooltip: "This pregame report is frozen — the game has started.", canShowSimulation: true, canShare: false, tone: "muted" },
+  UNAVAILABLE: { label: "Unavailable", tooltip: "This game's data could not be reconciled or is unavailable.", canShowSimulation: false, canShare: false, tone: "muted" },
+};
+
+// Most-limiting first: the game-level floor takes the worst status across the game's projections.
+const COMPLETENESS_SEVERITY: Record<CompletenessStatus, number> = {
+  FULLY_SUPPORTED: 0, LINEUP_PENDING: 1, PARTIAL_FEATURES: 2, STALE_INPUTS: 3, MARKET_PENDING: 4, UNAVAILABLE: 5, GAME_STARTED: 6,
+};
+
+/** Game-level completeness = the HONEST FLOOR: the most-limiting status across the game's projections. A game with
+ *  both fully-supported pitcher props and lineup-pending batter props reads LINEUP_PENDING (never overstates). */
+export function gameCompleteness(game: SimGameLike, picks: PickLike[], ts: ProvenanceTimestamps, opts: { staleMinutes?: number } = {}): CompletenessStatus {
+  if (!Array.isArray(picks) || picks.length === 0) return "UNAVAILABLE";
+  let worst: CompletenessStatus = "FULLY_SUPPORTED";
+  for (const p of picks) {
+    const s = completenessStatus(game, p, ts, opts);
+    if (COMPLETENESS_SEVERITY[s] > COMPLETENESS_SEVERITY[worst]) worst = s;
+  }
+  return worst;
+}
+
 export interface ExplanationView {
   simulationProbability: number | null;
   marketProbability: number | null;

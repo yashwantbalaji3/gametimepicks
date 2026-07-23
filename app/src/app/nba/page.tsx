@@ -36,7 +36,7 @@ import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import { getPlayoffContext } from "@/components/playoff-context";
-import { detailHrefForTeams } from "@/lib/game-detail";
+import { gameHrefByMatchId } from "@/lib/game-detail";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import SuggestedCard from "@/components/ui/suggested-card";
 import ProjectionCard from "@/components/ui/projection-card";
@@ -121,7 +121,7 @@ export default function NbaLandingPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {games.map((g) => {
           const ctx = getPlayoffContext(g.gameId, g.awayTeamAbbr, g.homeTeamAbbr);
-          const detailHref = detailHrefForTeams("nba", g.awayTeamAbbr ?? "", g.homeTeamAbbr ?? "") ?? "/nba/board";
+          const detailHref = gameHrefByMatchId("nba", g.gameId) ?? "/nba/board";
           return (
             <Link
               key={g.gameId}
