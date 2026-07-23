@@ -1,5 +1,30 @@
 # GameTimePicks — Next 30-Day Engineering Backlog
 
+## Overnight update — 2026-07-23 (transparency + NBA/event-market readiness mission)
+
+Ships + reclassifications from this mission (money md5 `affe6b21071f2b3be96bb2774eb347c3` UNCHANGED, gate BLOCKED):
+- **The highest-leverage MLB transparency fix from the prior update is SHIPPED.** `marketSnapshot.capturedAt` →
+  first-pitch is now surfaced on the game report as an honest ET "Data freshness" block ("Market captured 7h 43m
+  before first pitch", "Scheduled first pitch 7:05 PM ET", "Simulation generated at 3:13 PM ET"), plus a p10–p90
+  **simulated-range band** on the outcome histograms — all from `public-provenance.ts` (13 tests). No new modeling.
+  The completeness-status model + market-vs-sim explanation contract are tested libs, ready to surface next.
+- **NBA = HISTORICAL_ONLY** (not SCAFFOLD_ONLY — a real pipeline ran in the playoffs; every current artifact is empty).
+  Four reactivation gates documented (`NBA_REACTIVATION_ARCHITECTURE.md`); first market = **rebounds**, but the model
+  beats the market on NO settleable NBA market (`nba-first-market-recommendation.json`, `publicApproved:false`).
+  Backfill is `FEASIBLE_WITH_CAVEATS` (chronological holdout only). This is the parallel Q4 track.
+- **Event markets: decision package delivered — both providers NOT APPROVED.** Technically FEASIBLE to read, but
+  approval needs founder + legal/ToS review (`EVENT_MARKET_PROVIDER_DECISION_PACKAGE.md`). The fixture-only snapshot
+  archive + evidence pipeline are proven end-to-end (19 tests), still emitting `NOT_YET_MODELED` / no probability.
+
+**Revised sequencing (A–E):** **(A, 24h)** keep the floor green (research integration + health HEALTHY + 4 MLB
+artifacts + gate BLOCKED) — plus the doubleheader-slug-collision fix flagged this mission. **(B, 24h)** two founder
+decisions unchanged: UFC rebuild vs NBA-first; Polymarket/Kalshi ToS review. **(C, 7d)** surface the tested
+completeness-status + explanation libs on the board/report; accumulate qualifying research dates (1/30). **(D, 7d)**
+the winning research track's data foundation. **(E, 30d)** NBA reactivation prep (Oct), first event-market snapshot
+collection only if ToS cleared, MLB trained-model decision only after its gate passes.
+
+---
+
 ## Overnight update — 2026-07-23 (UFC-graduation mission, HEAD eb677182)
 
 New evidence changes the sequencing below:

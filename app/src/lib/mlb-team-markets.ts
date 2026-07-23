@@ -113,6 +113,8 @@ export interface MlbGameCenter {
   source: string;
   homeTeam: string;
   awayTeam: string;
+  /** Scheduled first pitch (ISO, from the board's commenceTime). Null when the feed omitted it. */
+  firstPitch: string | null;
   moneyline: GameCenterMoneyline | null;
   total: GameCenterTotal | null;
   runLine: GameCenterRunLine | null;
@@ -183,6 +185,7 @@ export function buildMlbGameCenter(tm: TeamMarketGame | null): MlbGameCenter | n
     source: `${tm.bookmaker} · de-vigged`,
     homeTeam: tm.homeTeam,
     awayTeam: tm.awayTeam,
+    firstPitch: typeof tm.commenceTime === "string" && tm.commenceTime ? tm.commenceTime : null,
     moneyline,
     total,
     runLine,

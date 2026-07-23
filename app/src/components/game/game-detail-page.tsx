@@ -651,6 +651,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       allowsRunCountClaim={!!detail.gameLabSimulation?.allowsRunCountClaim}
       modelVersion={detail.gameLabSimulation?.modelVersion ?? null}
       generatedAt={detail.gameLabSimulation?.generatedAt ?? null}
+      marketCapturedAt={detail.gameLabSimulation?.marketCapturedAt ?? null}
       advanced={mlbAdvanced}
     />
   );

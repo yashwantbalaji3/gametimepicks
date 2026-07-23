@@ -1,0 +1,38 @@
+{
+  "kind": "transparency-nba-baseline",
+  "public": false,
+  "note": "Phase 0-1 snapshot. Timestamps supplied by the operator (2026-07-23 ~06:15 ET); scripts cannot read the wall clock.",
+  "startingHead": "5dcb5273",
+  "reconciledHead": "55e4a467",
+  "botDriftCommits": [
+    { "sha": "6e686959", "class": "autonomous nightly settle (MLB) — updated Bank Builder DAILY-RUN ledger/summary + settled_leans from official results; portfolio.json md5 UNCHANGED" },
+    { "sha": "af2e0126", "class": "autonomous nightly settle (2nd pass, same day) — same live-run settlement" },
+    { "sha": "55e4a467", "class": "safe archive bot commit — mlb pregame archive metadata (150 files) [skip ci]" }
+  ],
+  "botDriftClassification": "MLB production/research artifacts + autonomous settlement. NONE money-adjacent in the PROTECTED sense: the frozen official record (portfolio.json) md5 is unchanged; the Bank Builder DAILY-RUN summary (a separate live-run record family) advanced by legitimate autonomous settlement of a 2026-07-22 card (loss) — that is the bot's job, not a hand edit.",
+  "branchAlignment": { "main": "55e4a467", "june30-reset": "55e4a467", "origin/main": "55e4a467", "origin/june30-reset": "55e4a467", "aligned": true, "workingTreeClean": true },
+  "moneyMd5": "affe6b21071f2b3be96bb2774eb347c3",
+  "officialRecord": "19-14",
+  "bankroll": 19065.4,
+  "crown": 20465.4,
+  "exposure": 0,
+  "productionHealth": { "status": "HEALTHY", "checksPassed": 18, "warnings": 0 },
+  "mlbResearch": {
+    "observationQuality": "PASS",
+    "leakage": 0,
+    "gate": "BLOCKED",
+    "qualifyingDates": 1,
+    "benchmark": "INSUFFICIENT — 1988/500 settled observations across 1/30 dates",
+    "observationRebuildDeterministic": true
+  },
+  "phase1_automationSurvival": {
+    "botRanFixedPipeline": true,
+    "quarantineDryRunOnBotJoins": "0 leaked rows — the fixed join re-validated eligibility in the bot's autonomous run",
+    "committedObservationQuality": "PASS / leakage 0 (the workflow HARD gate + quarantine safety-net held)",
+    "joinDates": ["2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24"],
+    "conclusion": "The MLB leakage repair SURVIVED another automation cycle without manual correction."
+  },
+  "validation": { "tsc": "0 errors", "defaultSuite": "2525 pass / 0 fail / 4 skipped", "integration": "30 pass / 0 fail / 0 skipped", "build": "exit 0, 246 routes" },
+  "invariantsHeld": true,
+  "proceed": true
+}

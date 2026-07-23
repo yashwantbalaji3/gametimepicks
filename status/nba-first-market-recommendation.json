@@ -1,0 +1,55 @@
+{
+  "kind": "nba-first-market-recommendation",
+  "public": false,
+  "asOfEt": "2026-07-23T09:55:00-04:00",
+  "classification": "HISTORICAL_ONLY",
+  "classificationSource": "docs/NBA_ENGINE_FORENSIC_AUDIT.md",
+  "status": "CANDIDATE_SELECTED_PENDING_VALIDATION",
+  "statusReason": "NBA is HISTORICAL_ONLY: freshest real data 2026-06-13, no current output, machinery intact. This selects the single most defensible market FAMILY to REBUILD a re-validated model around when the season returns (~Oct 2026); it does NOT approve modeling or exposure now.",
+
+  "recommendation": "REB (player rebounds Over/Under)",
+  "publicApproved": false,
+  "reason": "requires OOS validation + founder review — NBA is HISTORICAL_ONLY",
+
+  "evidenceSource": "app/public/data/results/settled_leans.jsonl (4,592 settled rows; 16 slate dates 2026-05-15 -> 2026-06-13; 3,635 decisive). Model vs de-vig market probabilities reconstructed per row: marketProb = no-vig(oddsOver, oddsUnder) for the lean side; modelProb = marketProb + edgePct/100; outcome = 1 if result=='win'. Methodology mirrors app/scripts/audit-mlb-modeled-markets.mjs.",
+  "crossChecks": [
+    "Per-market decisive counts sum to 3,635 = app/public/data/results/lifetime_summary.json.decisive.",
+    "The 903 invalid rows are exactly the four unsettleable prop families (3PM 245 + BLK 172 + PRA 267 + STL 219 = 903).",
+    "Overall reconstructed hit 0.4908 = lifetime_summary.hitRate 0.4907840440165062."
+  ],
+
+  "settledEvidenceByMarket": {
+    "REB": { "total": 1230, "decisive": 1212, "settlementCompletenessPct": 98.5, "win": 661, "loss": 551, "invalid": 0, "statsUnavailable": 18, "hitRate": 0.5454, "brierModel": 0.2503, "brierMarket": 0.2434, "brierGapModelMinusMarket": 0.0069, "loglossModel": 0.6967, "loglossMarket": 0.6799, "avgModelProb": 0.6133, "avgMarketProb": 0.4983, "settleable": true },
+    "PTS": { "total": 1371, "decisive": 1353, "settlementCompletenessPct": 98.7, "win": 640, "loss": 713, "invalid": 0, "statsUnavailable": 18, "hitRate": 0.4730, "brierModel": 0.2847, "brierMarket": 0.2493, "brierGapModelMinusMarket": 0.0354, "loglossModel": 0.7791, "loglossMarket": 0.6918, "avgModelProb": 0.6366, "avgMarketProb": 0.4993, "settleable": true },
+    "AST": { "total": 1088, "decisive": 1070, "settlementCompletenessPct": 98.3, "win": 483, "loss": 587, "invalid": 0, "statsUnavailable": 18, "hitRate": 0.4514, "brierModel": 0.2888, "brierMarket": 0.2487, "brierGapModelMinusMarket": 0.0401, "loglossModel": 0.7866, "loglossMarket": 0.6905, "avgModelProb": 0.6163, "avgMarketProb": 0.5108, "settleable": true },
+    "3PM": { "total": 245, "decisive": 0, "settlementCompletenessPct": 0.0, "invalid": 245, "hitRate": null, "settleable": false, "note": "100% invalid — settlement join never resolved a box-score value" },
+    "PRA": { "total": 267, "decisive": 0, "settlementCompletenessPct": 0.0, "invalid": 267, "hitRate": null, "settleable": false, "note": "100% invalid — composite market never settled" },
+    "STL": { "total": 219, "decisive": 0, "settlementCompletenessPct": 0.0, "invalid": 219, "hitRate": null, "settleable": false, "note": "100% invalid" },
+    "BLK": { "total": 172, "decisive": 0, "settlementCompletenessPct": 0.0, "invalid": 172, "hitRate": null, "settleable": false, "note": "100% invalid" }
+  },
+  "settledEvidenceOverall": { "decisive": 3635, "hitRate": 0.4908, "brierModel": 0.2745, "brierMarket": 0.2472, "brierGapModelMinusMarket": 0.0273 },
+
+  "criteria": ["settleability", "sampleSize", "marketParity_inverseGap", "calibrationHeadroom", "leakageRisk_inverse", "settlementCompleteness", "publicInterpretability"],
+  "families": {
+    "REB": { "scores": { "settleability": 5, "sampleSize": 5, "marketParity_inverseGap": 4, "calibrationHeadroom": 4, "leakageRisk_inverse": 5, "settlementCompleteness": 5, "publicInterpretability": 5 }, "total": 33, "note": "The ONLY settleable market above a coin flip (hit 0.5454) AND the closest to the de-vig market baseline (Brier gap +0.0069, near parity). Rebounds are an unambiguous box-score counting stat -> cleanest settlement + lowest join ambiguity. Best FIRST family to recalibrate around." },
+    "PTS": { "scores": { "settleability": 5, "sampleSize": 5, "marketParity_inverseGap": 2, "calibrationHeadroom": 2, "leakageRisk_inverse": 5, "settlementCompleteness": 5, "publicInterpretability": 5 }, "total": 29, "note": "Largest sample + clean settlement, but the model is decisively WORSE than market (Brier gap +0.0354) and below a coin flip (0.4730). Not a defensible FIRST rebuild target." },
+    "AST": { "scores": { "settleability": 5, "sampleSize": 5, "marketParity_inverseGap": 1, "calibrationHeadroom": 2, "leakageRisk_inverse": 4, "settlementCompleteness": 5, "publicInterpretability": 4 }, "total": 26, "note": "Worst calibrated of the three settleable markets (Brier gap +0.0401, hit 0.4514); assists carry more scorer-discretion / pace noise. Reject as FIRST." },
+    "PRA": { "scores": { "settleability": 1, "sampleSize": 2, "marketParity_inverseGap": 0, "calibrationHeadroom": 0, "leakageRisk_inverse": 3, "settlementCompleteness": 0, "publicInterpretability": 3 }, "total": 9, "note": "Composite; 100% invalid in the historical data — cannot be validated until the settlement join is rebuilt." },
+    "3PM": { "scores": { "settleability": 1, "sampleSize": 2, "marketParity_inverseGap": 0, "calibrationHeadroom": 0, "leakageRisk_inverse": 3, "settlementCompleteness": 0, "publicInterpretability": 4 }, "total": 10, "note": "100% invalid historically; high per-game variance." },
+    "STL": { "scores": { "settleability": 1, "sampleSize": 1, "marketParity_inverseGap": 0, "calibrationHeadroom": 0, "leakageRisk_inverse": 2, "settlementCompleteness": 0, "publicInterpretability": 3 }, "total": 7, "note": "100% invalid; thin + volatile." },
+    "BLK": { "scores": { "settleability": 1, "sampleSize": 1, "marketParity_inverseGap": 0, "calibrationHeadroom": 0, "leakageRisk_inverse": 2, "settlementCompleteness": 0, "publicInterpretability": 3 }, "total": 7, "note": "100% invalid; thin + volatile." }
+  },
+
+  "selectedMarket": "REB",
+  "rationale": "Of the seven prop families the pipeline produced, only three (REB, PTS, AST) were ever decisively settled — the other four (3PM, PRA, STL, BLK) are 100% invalid (0 of 903 rows graded), so they cannot be validated at all until the box-score settlement join is rebuilt. Among the three settleable markets, REB is the only one above a coin flip (0.5454 on 1,212 decisive) AND the only one that is essentially at market parity on Brier (+0.0069) rather than decisively worse (PTS +0.0354, AST +0.0401). Rebounds are also the least ambiguous counting stat to settle. REB therefore has the shortest, most credible path from 'not market-proven' to 'beats the de-vig market' after recalibration.",
+  "honestCaveat": "REB is a CANDIDATE, not an approved model. Even REB does NOT currently beat the de-vig market: its Brier (0.2503) is still worse than the market's (0.2434) and the model is systematically overconfident (avg model prob 0.613 vs 0.545 actual). Selecting REB means 'rebuild and re-validate this family first', not 'this market has an edge'. This mirrors the MLB demoted-markets finding (docs referenced in MEMORY: gtp-modeled-markets-demoted).",
+  "rejectedAlternatives": "PTS/AST rejected as FIRST: settleable and large-sample but the model is decisively worse than the market and below a coin flip. 3PM/PRA/STL/BLK rejected: 100% invalid historically — unsettleable, so unvalidatable, until the settlement join is fixed.",
+
+  "minimumBacktestSample": 800,
+  "minimumSlateDates": 25,
+  "requiredBaseline": "de-vig closing (or pregame-captured) sportsbook probability for REB Over/Under, reconstructable today from oddsOver/oddsUnder on the 21 captured boards.",
+  "requiredFeatures": "see docs/NBA_FEATURE_AND_TIMING_CONTRACT.md — all pregame, boardGeneratedAt<tipoff, trailing form from strictly-prior games only.",
+  "graduationCriteria": "On a strictly chronological out-of-sample split (train early slates, test held-out later slates, calibration refit ONLY on train), the recalibrated REB model must beat the de-vig market baseline on BOTH Brier score and log loss, be probability-calibrated, and carry no unresolved leakage — then founder review. Identical bar to the MLB gate.",
+  "reactivationDependencies": ["stats.nba.com timeout / resilient box-score source (see docs/NBA_REACTIVATION_ARCHITECTURE.md)", "2026-27 season live schedule + odds (~Oct 2026)", "settlement-join repair so 3PM/PRA/STL/BLK stop grading 100% invalid"],
+  "moneyImpact": "none"
+}

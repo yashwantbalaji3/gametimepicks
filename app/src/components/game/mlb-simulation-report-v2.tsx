@@ -29,6 +29,7 @@ import type { MlbGameLabView, MlbLeanRow } from "@/lib/game-lab/mlb-report";
 import type { ProductTag } from "@/lib/game-detail-product-tags";
 import { productTagFor } from "@/lib/game-detail-product-tags";
 import { MLB_CALIBRATION_DISCLOSURE, isCalibrationFailed, anyModeledMarketBeatsMarket } from "@/lib/mlb/model-calibration-status";
+import { buildTimestamps, formatEtTime, distributionBand } from "@/lib/mlb/public-provenance";
 import { Section, StatTile, Monogram, AdvancedDisclosure } from "@/components/game/report-v2-shell";
 
 export interface MlbSimulationReportV2Props {
@@ -60,6 +61,8 @@ export interface MlbSimulationReportV2Props {
   allowsRunCountClaim?: boolean;
   modelVersion?: string | null;
   generatedAt?: string | null;
+  /** ISO timestamp the compared market line/odds were captured (from the sim artifact's freshness). */
+  marketCapturedAt?: string | null;
   /** The old dense dashboard, demoted into a collapsed block. */
   advanced?: React.ReactNode;
 }
@@ -145,8 +148,15 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
     home, away, homeCode, awayCode, date, isPreviousSlate, runLabel, resultSummary, hasTeamMarkets,
     playerProps, advanced, picks = [], distributions = null, gameCenter = null, marketSnapshotNode = null,
     productTags, runCount = null, allowsRunCountClaim = false, modelVersion = null, generatedAt = null,
-    gameLab = null,
+    marketCapturedAt = null, gameLab = null,
   } = props;
+
+  // Honest provenance timestamps (pure, artifact-backed): when the market line was captured, how long before
+  // first pitch, and when the sim was generated. Never labels a post-first-pitch capture as pregame.
+  const provenance = buildTimestamps(
+    { marketSnapshot: { capturedAt: marketCapturedAt }, freshness: { generatedAt } },
+    gameCenter?.firstPitch ?? null,
+  );
 
   const pct = (p: number | null | undefined) => (typeof p === "number" ? `${(p * 100).toFixed(0)}%` : "—");
   const num1 = (n: number | null | undefined) => (typeof n === "number" && Number.isFinite(n) ? n.toFixed(1) : "—");
@@ -506,6 +516,8 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           <div className="flex flex-col gap-3">
             {distEntries.slice(0, 8).map(([key, d]) => {
               const maxP = d.bins.reduce((m, b) => (Number.isFinite(b.probability) ? Math.max(m, b.probability) : m), 0) || 1;
+              // Numeric band from the SAME real mass the histogram draws (median + p10–p90). Null-safe: no band ⇒ no line.
+              const band = distributionBand(d.bins, d.sampleCount ?? null);
               return (
                 <div key={key} className="flex flex-col gap-1.5 rounded-[10px] px-3 py-2.5" style={{ background: "rgba(15,10,7,0.5)", border: "1px solid var(--vault-border)" }}>
                   <span className="text-[12px]" style={{ color: "var(--vault-text)", fontWeight: 600 }}>{d.label}</span>
@@ -514,7 +526,12 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                       <div key={i} className="flex-1" title={`${b.label}: ${pct(b.probability)}`} style={{ height: Math.max(2, Math.round((b.probability / maxP) * 40)), background: "var(--vault-gold-bright)", opacity: 0.7, borderRadius: 2, minWidth: 2 }} />
                     ))}
                   </div>
-                  {d.sampleCount != null ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{d.sampleCount.toLocaleString()} deterministic samples · player-prop outcome, not a game score</span> : null}
+                  {band ? (
+                    <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>
+                      Simulated range · median <strong style={{ color: "var(--vault-text)" }}>{band.median}</strong> · p10–p90 {band.p10}–{band.p90}
+                    </span>
+                  ) : null}
+                  {d.sampleCount != null ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{d.sampleCount.toLocaleString()} deterministic samples · simulated spread, not a validated confidence interval</span> : null}
                 </div>
               );
             })}
@@ -613,8 +630,16 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         <div className="flex flex-wrap gap-1.5 mb-2">
           <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>slate {date}</span>
           {modelVersion ? <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>model {modelVersion}</span> : null}
-          {generatedAt ? <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>generated {generatedAt.slice(0, 10)}</span> : null}
           {isPreviousSlate ? <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-warn)", border: "1px solid rgba(234,88,12,0.35)" }}>previous slate</span> : null}
+        </div>
+        {/* Data freshness — honest ET provenance: sim generated time + when the compared market line was captured
+            relative to first pitch. A post-first-pitch capture is never labelled pregame; a missing time reads
+            "unavailable", never a fabricated 0. */}
+        <div className="rounded-md px-2.5 py-2 mb-2 flex flex-col gap-1" style={{ border: "1px solid var(--vault-rule)" }}>
+          <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Data freshness</span>
+          {provenance.generatedLabel ? <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>{provenance.generatedLabel}</span> : null}
+          <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>{provenance.captureLabel}</span>
+          {provenance.firstPitch ? <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>Scheduled first pitch {formatEtTime(provenance.firstPitch)}</span> : null}
         </div>
         <p className="font-mono text-[10.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
           {runLabel} player-prop Monte Carlo simulation. Full-game markets (moneyline / run line / total) are the

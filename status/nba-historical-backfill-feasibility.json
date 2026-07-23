@@ -1,0 +1,52 @@
+{
+  "kind": "nba-historical-backfill-feasibility",
+  "public": false,
+  "asOfEt": "2026-07-23T09:55:00-04:00",
+  "classification": "HISTORICAL_ONLY",
+  "classificationSource": "docs/NBA_ENGINE_FORENSIC_AUDIT.md",
+  "question": "Can we backfill historical NBA boards to build an OUT-OF-SAMPLE validation set for a re-validated model?",
+
+  "dataThatExists": {
+    "boards": { "totalFiles": 54, "withRealLeans": 21, "emptyScaffolds": 33, "totalLeans": 2204, "dateRange": "2026-05-05 .. 2026-06-13", "source": "app/public/data/boards/*.json (dataMode:Live)" },
+    "settledLeans": { "rows": 4592, "decisive": 3635, "invalid": 903, "statsUnavailable": 54, "dates": 16, "dateRange": "2026-05-15 .. 2026-06-13", "source": "app/public/data/results/settled_leans.jsonl" },
+    "settleableMarkets": { "REB": 1212, "PTS": 1353, "AST": 1070, "note": "only 3 of 7 families ever settled decisively", "source": "settled_leans.jsonl grouped by market" },
+    "unsettleableMarkets": { "3PM": 245, "PRA": 267, "STL": 219, "BLK": 172, "note": "100% invalid (0 decisive of 903) — settlement-join gap, not modeled outcomes" },
+    "marketBaseline": { "reconstructable": true, "how": "de-vig(oddsOver, oddsUnder) per lean side; all 3,635 decisive rows carry oddsOver+oddsUnder+edgePct (0 missing)", "meaning": "a real closing-ish de-vig market probability exists for every settled outcome — the baseline a model must beat" },
+    "lifetimeSummary": { "hitRate": 0.4908, "decisive": 3635, "source": "app/public/data/results/lifetime_summary.json" },
+    "comparisonReports": { "dates": 18, "range": "2026-05-05 .. 2026-06-13", "source": "app/public/data/results/comparison_report_*.json" }
+  },
+
+  "missingForCleanOos": [
+    "A held-out test window that was NOT used to tune the model. The 16 settled dates were the SAME window the dynamic calibration / confidence guardrails were fit on (per session handoffs) — reusing them as 'OOS' leaks calibration. A clean test requires reserving a chronological holdout and refitting calibration ONLY on the train split.",
+    "Point-in-time pregame odds for any date OUTSIDE the 21 captured boards. Historical pregame odds were never retained; The Odds API historical endpoint is paid. New boards for un-captured dates cannot get real pregame odds, and using closing/settled odds instead would be leakage.",
+    "Decisive outcomes for 4 of 7 markets. 3PM/PRA/STL/BLK are 100% invalid — no gradable outcomes until the box-score settlement join is repaired (and box scores re-fetched, currently blocked by the stats.nba.com timeout).",
+    "Representativeness. The data is a single ~1-month PLAYOFF window, ~16 teams, Over-skewed (2,902 Over / 1,690 Under decisive). Any OOS conclusion is playoff-scoped, not a regular-season claim.",
+    "5 dates have real-lean boards but no settlement (2026-05-05, 2026-05-06, 2026-05-12, 2026-05-13, 2026-06-08) — a recoverable gap if box scores can be re-fetched."
+  ],
+
+  "oosPaths": {
+    "A_chronologicalHoldoutOnCapturedBoards": {
+      "verdict": "FEASIBLE_WITH_CAVEATS",
+      "description": "Split the existing captured/settled slates chronologically; refit calibration on the train slates only; score REB (then PTS/AST) on the held-out later slates vs the de-vig market baseline on Brier + log loss.",
+      "candidateSplit": {
+        "train": { "range": "2026-05-15 .. 2026-05-30", "dates": 12, "decisiveAll": 1999, "decisiveREB": 674 },
+        "testHoldout": { "range": "2026-06-03 .. 2026-06-13", "dates": 4, "decisiveAll": 1636, "decisiveREB": 538 },
+        "source": "settled_leans.jsonl per-date decisive counts (real)"
+      },
+      "why": "Fully offline, leakage-safe (uses only already-captured pregame odds + strictly-prior features), and the market baseline already exists for every row.",
+      "caveats": ["small (16 settled dates)", "playoff-only", "REB holdout 538 decisive is a starting sample, below the 800 target in nba-first-market-recommendation.json — enlarge by also settling the 5 unsettled real-lean boards", "calibration MUST be refit on train only"]
+    },
+    "B_freshMultiSeasonBoardBackfill": {
+      "verdict": "INFEASIBLE_NOW",
+      "description": "Reconstruct NEW historical boards for prior seasons / un-captured dates to grow the OOS set.",
+      "blockers": ["pregame odds for those dates were never retained (paid historical-odds endpoint required)", "stats.nba.com game logs / box scores are timing out (see docs/NBA_REACTIVATION_ARCHITECTURE.md)", "any reconstruction from settled/closing data risks leakage"],
+      "becomesFeasibleWhen": ["paid historical pregame-odds ingest is funded", "the game-log source is hardened (proxy / alternate provider)", "the 2026-27 season returns for forward capture"]
+    }
+  },
+
+  "verdict": "FEASIBLE_WITH_CAVEATS",
+  "verdictRationale": "A legitimate out-of-sample test IS possible today via Path A — a strictly chronological holdout on the 21 captured boards (16 settled), scoring the settleable markets against the de-vig market baseline that already exists in the data. It is offline, leakage-safe, and needs no new data. But it is small and playoff-only, and it is only valid if calibration is refit on the train split (the historical window was in-sample for calibration). Path B (growing the set by backfilling new historical boards) is INFEASIBLE now because pregame odds were not retained and the stats.nba.com source is down.",
+
+  "recommendedFirstTest": "Recalibrate REB on the 2026-05-15..2026-05-30 train slates; evaluate on the 2026-06-03..2026-06-13 holdout vs de-vig market on Brier + log loss + a calibration curve. Treat as playoff-scoped evidence toward the graduation gate, not a public claim.",
+  "moneyImpact": "none"
+}

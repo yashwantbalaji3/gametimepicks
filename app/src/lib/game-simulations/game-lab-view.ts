@@ -70,6 +70,8 @@ export interface GameSimulationView {
   allowsRunCountClaim: boolean;
   /** ISO timestamp the artifact was generated. Null when no artifact. */
   generatedAt: string | null;
+  /** ISO timestamp the market line/odds were captured (from freshness.sourceCapturedAt). Null when no artifact/odds. */
+  marketCapturedAt: string | null;
 
   // ── The game payload (only when status is "ready" or "stale") ──
   simulationSummary: SimSummary | null;
@@ -140,6 +142,10 @@ export function buildGameSimulationView(
     runCount: meta.runCount,
     allowsRunCountClaim: allowsRunCountClaim({ runCount: meta.runCount }),
     generatedAt: meta.generatedAt,
+    // Provenance the UI may surface: when the compared market line/odds were captured.
+    // Read from the game's own freshness/snapshot (present only for a real payload).
+    marketCapturedAt:
+      showsGame && game ? game.freshness?.sourceCapturedAt ?? game.marketSnapshot?.capturedAt ?? null : null,
 
     simulationSummary: showsGame && game ? game.simulationSummary : null,
     generatedPicks: showsGame && game ? game.generatedPicks : [],
@@ -173,6 +179,7 @@ export function unavailableSimulationView(
     runCount: null,
     allowsRunCountClaim: false,
     generatedAt: null,
+    marketCapturedAt: null,
     simulationSummary: null,
     generatedPicks: [],
     distributions: null,

@@ -291,3 +291,47 @@ Every non-live surface uses the same honest pattern (already the house style —
   fails loudly (see DOC 2 → P0).
 
 **Every new promotion to PUBLIC_NAV must add or extend one of these guards before it ships.**
+
+## 8. Activation criteria update — 2026-07-23 (transparency + NBA + event-market)
+
+This mission assessed three capabilities and set explicit, artifact-backed activation gates. Nothing was activated;
+these are the conditions under which each COULD move, and the guard that must pass first.
+
+### 8.1 MLB public product — ENHANCED, stays PUBLIC_BETA (gate still BLOCKED)
+
+The public MLB simulation is now more transparent, not more powerful:
+- Provenance surfaced on the game report: market-line capture time, scheduled first pitch, minutes-before-first-pitch,
+  and simulation-generated time — all in ET (`public-provenance.ts` → report §12 "Data freshness"). A post-first-pitch
+  capture is never labelled pregame; a missing time reads "unavailable", never a fabricated 0.
+- Simulation uncertainty exposed: a median + p10–p90 band derived from the real 10k-sample histograms (report §7),
+  framed as "simulated spread, not a validated confidence interval".
+- The completeness-status model (`FULLY_SUPPORTED / LINEUP_PENDING / MARKET_PENDING / …`) and the market-vs-sim
+  explanation contract are tested libs (`public-provenance.ts`), ready to surface.
+
+**Activation criteria to call MLB "predictive" (not just simulation-powered):** the research/model calibration gate
+must flip — a trained model must beat the market out-of-sample on Brier + logloss (today all four modeled markets
+LOSE) **and** founder approval. Until then the copy stays simulation-first / public-beta. Guard: the forbidden-vocab
+scan + `model-calibration-status.ts` (`modelBeatsMarket=false`), unchanged by this mission.
+
+### 8.2 NBA — HISTORICAL_ONLY (see `docs/NBA_ENGINE_FORENSIC_AUDIT.md`)
+
+A real pregame-safe projection+settlement pipeline genuinely ran in the 2026 playoffs (54 boards, 3,635 box-score
+settlements), but every current-season artifact is an empty scaffold and the served board has 0 leans. Freshest real
+data: **2026-06-13**. Reactivation gates (all four required, `docs/NBA_REACTIVATION_ARCHITECTURE.md`):
+1. **Season + schedule live** (~Oct 2026 — ESPN fallback correctly returns 0 games off-season).
+2. **Per-player game-log source resolved** — `stats.nba.com` is timing out from CI; it feeds trailing-form features
+   (box-score settlement is ~94% ESPN-resilient, so the single point of failure is the feature source, not settlement).
+3. **First market re-validated OOS** — `status/nba-first-market-recommendation.json` picks **rebounds (REB)** as the
+   least-bad first candidate (0.545 hit rate, nearest market parity) but the model beats the market on NO settleable
+   NBA market; `publicApproved:false`. Backfill for OOS is `FEASIBLE_WITH_CAVEATS` (chronological holdout on captured
+   boards only; fresh multi-season backfill infeasible — pregame odds were never retained).
+4. **Founder approval.** Guard on any surfacing: `feature-timing-contract.test.mjs` (capture strictly before tipoff).
+
+### 8.3 Event-market data (Polymarket / Kalshi) — FIXTURE_ONLY (see `docs/EVENT_MARKET_PROVIDER_DECISION_PACKAGE.md`)
+
+Both adapters are technically FEASIBLE to read but **NOT APPROVED** — TECHNICALLY POSSIBLE ≠ APPROVED FOR USE. The
+snapshot archive + evidence pipeline are proven end-to-end on FIXTURES only (no network, no fabricated probability;
+every estimate `NOT_YET_MODELED`). Activation gates: (1) founder + legal/ToS review (no legal conclusion is drawn in
+the repo); (2) the modelability contract must pass for a specific market family; (3) a validated engine before any
+independent probability is ever emitted. Guards: `snapshot-archive.test.mjs` (fixture-only/immutability) +
+`evidence-pipeline.test.mjs` (no fabricated probability).
