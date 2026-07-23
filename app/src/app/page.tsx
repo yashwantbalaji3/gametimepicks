@@ -123,7 +123,7 @@ export default function HomePage() {
       href: "/mlb",
       label: "MLB Simulations",
       blurb: "Moneyline / run line / total, plus a 10,000-run player-prop sim where the artifact exists.",
-      status: mlbGames > 0 ? `${mlbLeans} model leans` : "All-Star break · resumes Jul 17",
+      status: mlbGames > 0 ? `${mlbLeans} model leans` : "No MLB slate on the board right now",
       statusSub: "market-anchored · paper-only",
       cta: "Enter",
       accent: "#3b82f6",

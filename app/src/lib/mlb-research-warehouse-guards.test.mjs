@@ -18,6 +18,15 @@ import { auditQuality } from "../../scripts/monitor-mlb-research-quality.mjs";
 
 const app = process.cwd();
 
+// Integration gate — the "REAL local archive" assertions depend on gitignored payloads (research-observations
+// jsonl + market snapshots) being present AND the newest slate's post-first-pitch eligibility being reconciled.
+// On a fresh/partial checkout those payloads are absent/inconsistent, so these run ONLY when explicitly opted in.
+// The MONITOR LOGIC itself is always tested against deterministic synthetic fixtures below.
+const RUN_INTEGRATION = process.env.RESEARCH_ARCHIVE_INTEGRATION === "1";
+const SKIP_REASON =
+  "requires RESEARCH_ARCHIVE_INTEGRATION=1 + a verified-clean local archive (gitignored research-observations/" +
+  "market-snapshot payloads present, newest-slate post-first-pitch eligibility reconciled). See docs/TEST_FIXTURE_AND_INTEGRATION_POLICY.md.";
+
 function synthJoin(over = {}) {
   return {
     gamePk: 100, freezeHash: "abc123", createdAt: "2026-07-22T00:00:00Z", eventStartTime: "2026-07-22T23:00:00Z",
@@ -75,7 +84,11 @@ test("3 · quality monitor PASSES clean settled data (all rows graded on a final
   const clean = synthJoin();
   clean.marketRows = clean.marketRows.filter((r) => r.settlementStatus !== "pending"); // a FINAL game with every row graded
   const { joinDir, freezeDir } = writeArchive(root, clean);
-  const r = auditQuality(joinDir, freezeDir);
+  // ISOLATE the feature scan too: auditQuality's featureDir defaults to the REAL archive, so a truly-synthetic
+  // "clean" check must point it at an isolated (empty) temp feature dir — otherwise real feature families leak in.
+  const featureDir = path.join(root, "pregame-features");
+  fs.mkdirSync(featureDir, { recursive: true });
+  const r = auditQuality(joinDir, freezeDir, featureDir);
   assert.equal(r.overall, "PASS");
   assert.equal(r.checks.duplicateRows.verdict, "PASS");
   assert.equal(r.checks.missingOutcomes.verdict, "PASS");
@@ -107,16 +120,36 @@ test("4 · quality monitor FAILS on injected defects", () => {
   assert.equal(auditQuality(a.joinDir, a.freezeDir).checks.timestampViolations.verdict, "FAIL");
 });
 
-test("5 · the REAL archive passes quality (no FAIL) + gate not force-promoted", () => {
-  const r = auditQuality();
-  assert.notEqual(r.overall, "FAIL", "live archive has no FAIL-level quality defect");
+test("5 · multi-cadence families (lineup / pitcher-workload) dedup by capturedAt, not naively by gamePk", () => {
+  // Fixture proof of the monitor fix: two captures of the SAME game at DIFFERENT capturedAt are distinct windows
+  // (never a duplicate); two at the SAME capturedAt are a true double-write (a duplicate). Isolated temp archive.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "rq-"));
+  const featureDir = path.join(root, "pregame-features", "pitcher-workload", "2026-07-22");
+  fs.mkdirSync(featureDir, { recursive: true });
+  const rec = (capturedAt) => ({ gamePk: 100, capturedAt, eventStartTime: "2026-07-22T23:00:00Z", researchEligible: true, pitchers: {} });
+  fs.writeFileSync(path.join(featureDir, "100.json"), JSON.stringify(rec("2026-07-22T20:00:00Z")));
+  fs.writeFileSync(path.join(featureDir, "100-late.json"), JSON.stringify(rec("2026-07-22T21:30:00Z")));
+  const { joinDir, freezeDir } = writeArchive(root, synthJoin());
+  let r = auditQuality(joinDir, freezeDir, path.join(root, "pregame-features"));
+  assert.equal(r.checks.duplicateFeatures.verdict, "PASS", "distinct capture windows are NOT duplicates");
+  // now inject a true double-write at the same capturedAt → must FAIL
+  fs.writeFileSync(path.join(featureDir, "100-dup.json"), JSON.stringify(rec("2026-07-22T20:00:00Z")));
+  r = auditQuality(joinDir, freezeDir, path.join(root, "pregame-features"));
+  assert.equal(r.checks.duplicateFeatures.verdict, "FAIL", "same-capturedAt double-write IS a duplicate");
+});
+
+test("6 · the research gate is NOT force-promoted (30 dates / 500 obs collection gate intact)", () => {
   const latest = JSON.parse(fs.readFileSync(path.join(app, "..", "data/internal/mlb/pregame-archive/status/latest.json"), "utf8"));
   assert.equal(latest.gateMet, false, "gate is NOT promoted (30 dates / 500 obs not met)");
   assert.equal(latest.collectionGate.minSettledEligibleObs, 500);
   assert.equal(latest.collectionGate.minDistinctDates, 30);
 });
 
-test("6 · warehouse artifacts are internal only (not web-served); money md5 unchanged", () => {
+test("7 · [integration] the REAL local archive has no FAIL-level quality defect", { skip: RUN_INTEGRATION ? false : SKIP_REASON }, () => {
+  assert.notEqual(auditQuality().overall, "FAIL", "live archive has no FAIL-level quality defect");
+});
+
+test("8 · warehouse artifacts are internal only (not web-served); money md5 unchanged", () => {
   const out = path.join(app, "out");
   if (fs.existsSync(out)) {
     const hit = fs.readdirSync(out, { recursive: true }).filter((p) => String(p).includes("research-observations") || String(p).includes("research-quality") || String(p).includes("pregame-archive"));

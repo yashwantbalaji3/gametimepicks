@@ -1,6 +1,19 @@
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import path from "node:path";
 import { getMeta } from "@/lib/data";
+
+export const metadata: Metadata = {
+  title: "Methodology — GameTimePicks",
+  description:
+    "How GameTimePicks builds simulation-powered projections and compares them to the market: no-vig probabilities, the model gap, composite confidence, and official-settlement-only integrity. Paper-only, educational, public beta.",
+  openGraph: {
+    title: "GameTimePicks Methodology — Simulation-Powered Analytics",
+    description:
+      "No-vig probabilities, the model gap, confidence, and official-settlement-only integrity. Paper-only, public beta.",
+    type: "article",
+  },
+};
 import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import DataSourceBadge from "@/components/data-source-badge";
 import FreshnessBadge from "@/components/ui/freshness-badge";
@@ -97,8 +110,8 @@ export default function MethodologyPage() {
               <span style={{ color: "var(--vault-text-mute)" }}>Preview (not yet live):</span> a future 7-step profit-locking
               ladder ($100 → ~$10,380) that would bank part of each win from Step&nbsp;2 (later steps get safer, not richer;
               Step&nbsp;7 is double-chance / draw-no-bet only). It is a methodology preview shown here only — <strong style={{ color: "var(--vault-text-mute)" }}>not
-              settlement-implemented and not on the live product</strong>. It activates for real money only once its
-              partial-cash-out settlement ships and passes every money gate.
+              settlement-implemented and not on the live product</strong>. It stays paper-only; a future live version
+              would first require its partial-cash-out settlement to ship and pass every money gate.
             </p>
           </Block>
 
@@ -117,7 +130,7 @@ export default function MethodologyPage() {
               Rolling 100% of every win compounds fastest but is fragile — one loss high on the ladder gives everything back.
               Banking a slice at each step trades a little upside for durable, realized profit. And when the day&rsquo;s slate
               can&rsquo;t field a strong card, <span style={{ color: "var(--vault-text)" }}>we skip</span> — an honest no-play
-              beats forcing a coin-flip or a negative-edge &ldquo;value&rdquo; card. Cards settle from official results only;
+              beats forcing a coin-flip or a negative-gap card. Cards settle from official results only;
               a pending leg is never counted as a loss.
             </p>
             <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
@@ -179,7 +192,7 @@ export default function MethodologyPage() {
             <ul className="mt-3 space-y-1.5 font-mono text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
               <li><span style={{ color: "var(--vault-text-faint)" }}>watchlist</span> · model-only or thin/contrarian signal</li>
               <li><span style={{ color: "var(--vault-text)" }}>lean → standard → strong</span> · rising composite score on odds-backed legs</li>
-              <li><span style={{ color: "var(--gtp-bank-heat)" }}>high-risk value · longshot</span> · positive-EV but low win probability</li>
+              <li><span style={{ color: "var(--gtp-bank-heat)" }}>high-risk · longshot</span> · large model gap but low win probability</li>
             </ul>
           </Block>
 
@@ -317,10 +330,10 @@ export default function MethodologyPage() {
             stage="odds-backed + recent form"
             inputs="PRICES from The Odds API (soccer_fifa_world_cup): 3-way moneyline, totals, double chance, BTTS, draw-no-bet. STATS from API-Football: recent form (last-5 across all competitions), group/standings, lineups, and settlement (final scores)."
             model="Two providers: The Odds API supplies the odds → de-vigged market-implied probabilities (3-way for moneyline/double chance); API-Football attaches real recent form + group. A full Poisson team-strength model follows once enough WC matches are played (season stats are thin this early)."
-            markets="Odds-backed: match winner (3-way, Draw is a real outcome), totals, double chance (real book odds), BTTS, draw-no-bet. Player props (anytime goalscorer + shots on target) are live — odds-backed, market-implied, limited-data, not parlay/Bank-Builder eligible."
+            markets="Odds-backed: match winner (3-way, Draw is a real outcome), totals, double chance (real book odds), BTTS, draw-no-bet. Player props (anytime goalscorer + shots on target) were live during the tournament — odds-backed, market-implied, limited-data, not parlay/Bank-Builder eligible."
             cards="Favorites only above a probability floor; stale fixtures never shown as active; no card without a live price; honest counts (no padding)."
             settlement="Official final score from API-Football, regulation 90 only (no extra time / penalties)."
-            limits="Recent form is live; per-team WC-season stats and the Poisson model are thin until more group games are played. Player-prop projections (odds + recent form) are the next increment."
+            limits="During the tournament, recent form was live; per-team WC-season stats and the Poisson model stayed thin on limited group games. The World Cup is now archived — proof and methodology only, not an active product."
           />
           <SportCard
             accent="var(--vault-gold)"
@@ -396,7 +409,7 @@ export default function MethodologyPage() {
             <LimitationRow title="Lines move" body="Boards reflect odds at pipeline time. By the time you read them, prices have likely shifted." />
             <LimitationRow title="UFC props need a feed" body="Method / round / distance stay model-only until a real prop-odds feed and a graded model for them exist." />
             <LimitationRow title="MLB context inputs" body="Park factor, weather, bullpen fatigue, and handedness splits are on the roadmap, not yet modeled." />
-            <LimitationRow title="Soccer depth" body="World Cup prices come from The Odds API; recent form, group, lineups, settlement, and player identity/photos from API-Football. Odds-backed player props (anytime goalscorer + shots on target) are live but market-implied only — labelled limited-data and not parlay/Bank-Builder eligible. Per-team WC-season stats and the Poisson model stay thin until more group games are played." />
+            <LimitationRow title="Soccer depth" body="World Cup prices come from The Odds API; recent form, group, lineups, settlement, and player identity/photos from API-Football. Odds-backed player props (anytime goalscorer + shots on target) were live but market-implied only — labelled limited-data and not parlay/Bank-Builder eligible. Per-team WC-season stats and the Poisson model stay thin until more group games are played." />
             <LimitationRow title="Richer feeds + automation" body="Fuller data feeds, a licensed fighter-image source, and detailed fight histories are planned." />
           </ul>
         </div>

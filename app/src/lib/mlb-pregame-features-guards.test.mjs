@@ -20,6 +20,12 @@ import { auditQuality } from "../../scripts/monitor-mlb-research-quality.mjs";
 
 const app = process.cwd();
 const repo = path.dirname(app);
+
+// The real-archive quality assertion depends on gitignored payloads + the newest slate's post-first-pitch
+// eligibility being reconciled; it runs ONLY under RESEARCH_ARCHIVE_INTEGRATION=1. The always-on assertions
+// (money md5, artifacts-internal) and the synthetic quality-monitor fixtures (tests 1–5) run everywhere.
+const RUN_INTEGRATION = process.env.RESEARCH_ARCHIVE_INTEGRATION === "1";
+const SKIP_REASON = "requires RESEARCH_ARCHIVE_INTEGRATION=1 + a verified-clean local archive; see docs/TEST_FIXTURE_AND_INTEGRATION_POLICY.md";
 const FEAT = path.join(repo, "data/internal/mlb/pregame-archive/pregame-features");
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
@@ -98,9 +104,7 @@ test("5 · quality monitor FLAGS injected feature leakage / missing-timestamp / 
   assert.equal(r.checks.duplicateFeatures.verdict, "FAIL");
 });
 
-test("6 · REAL archive feature families pass quality (no FAIL); artifacts internal; money md5 unchanged", () => {
-  const r = auditQuality();
-  assert.notEqual(r.overall, "FAIL");
+test("6 · pregame-feature artifacts are internal only (never web-served); money md5 unchanged", () => {
   const out = path.join(app, "out");
   if (fs.existsSync(out)) {
     const hit = fs.readdirSync(out, { recursive: true }).filter((p) => /pregame-features|bullpen|matchup|lineup\//.test(String(p)) && String(p).includes("internal"));
@@ -108,4 +112,8 @@ test("6 · REAL archive feature families pass quality (no FAIL); artifacts inter
   }
   const md5 = crypto.createHash("md5").update(fs.readFileSync(path.join(app, "public/data/mr-dub/portfolio.json"))).digest("hex");
   assert.equal(md5, "affe6b21071f2b3be96bb2774eb347c3");
+});
+
+test("7 · [integration] REAL archive feature families pass quality (no FAIL)", { skip: RUN_INTEGRATION ? false : SKIP_REASON }, () => {
+  assert.notEqual(auditQuality().overall, "FAIL");
 });

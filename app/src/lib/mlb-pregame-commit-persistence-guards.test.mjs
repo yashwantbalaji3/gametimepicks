@@ -13,9 +13,25 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 
 const app = process.cwd();
 const repo = path.dirname(app);
+
+// The authoritative "is this file committable?" answer is git itself. Gitignored files (the large raw/normalized
+// market payloads AND the derived research-observations/*.jsonl) are never committed, so they are exempt from the
+// committable-size cap. Batches all paths through one `git check-ignore --stdin` and returns the ignored subset.
+function gitIgnored(relPaths) {
+  if (!relPaths.length) return new Set();
+  try {
+    const out = execFileSync("git", ["check-ignore", "--stdin"], { cwd: repo, input: relPaths.join("\n"), encoding: "utf8" });
+    return new Set(out.split("\n").filter(Boolean));
+  } catch (e) {
+    // git check-ignore exits 1 when NONE of the paths are ignored — that is not an error for us.
+    if (e && e.status === 1) return new Set(String(e.stdout || "").split("\n").filter(Boolean));
+    throw e;
+  }
+}
 const wf = fs.readFileSync(path.join(repo, ".github/workflows/mlb-pregame-capture.yml"), "utf8");
 const ARCH = "data/internal/mlb/pregame-archive";
 // isolate the commit step (from its name to end of file)
@@ -72,23 +88,28 @@ test("5 · push is rebase-safe (a concurrent money/settle push is never reverted
   assert.match(commitStep, /\[skip ci\]/, "commit message skips CI to avoid loops");
 });
 
-test("6 · large market payloads are gitignored; every non-payload archive file is under the cap", () => {
+test("6 · large payloads are gitignored; every COMMITTABLE archive file is under the cap", () => {
   const gi = fs.readFileSync(path.join(repo, ".gitignore"), "utf8");
   assert.match(gi, /market-snapshots\/\*\*\/raw\.json/, "raw payloads gitignored");
   assert.match(gi, /market-snapshots\/\*\*\/normalized\.json/, "normalized payloads gitignored");
-  // no on-disk metadata/summary/snapshot/freeze file exceeds the size cap (so the guard never blocks real data)
-  for (const p of walk(path.join(repo, ARCH))) {
-    const base = path.basename(p);
-    if (base === "raw.json" || base === "normalized.json") continue; // the (gitignored) large payloads
-    assert.ok(fs.statSync(p).size < cap, `${path.relative(repo, p)} (${fs.statSync(p).size}B) is under the ${cap}B cap`);
+  assert.match(gi, /research-observations\/\*\.jsonl/, "derived research-observation payloads gitignored");
+  // No COMMITTABLE (git-trackable) metadata/summary/snapshot/freeze file exceeds the cap, so the size guard never
+  // blocks real data. Gitignored payloads are uncommittable and correctly exempt (asserted committable in test 7).
+  const files = walk(path.join(repo, ARCH));
+  const ignored = gitIgnored(files.map((p) => path.relative(repo, p)));
+  for (const p of files) {
+    const rel = path.relative(repo, p);
+    if (ignored.has(rel)) continue; // gitignored → never committed → not subject to the committable-size cap
+    assert.ok(fs.statSync(p).size < cap, `${rel} (${fs.statSync(p).size}B) is under the ${cap}B cap`);
   }
 });
 
-test("7 · only manifests / status / snapshots / freezes / summaries are committable — no payload is", () => {
-  // On-disk, the only files at/over the cap are the gitignored raw/normalized market payloads.
+test("7 · every oversized archive file is gitignored (no payload is committable)", () => {
   const oversized = walk(path.join(repo, ARCH)).filter((p) => fs.statSync(p).size >= cap);
+  const ignored = gitIgnored(oversized.map((p) => path.relative(repo, p)));
   for (const p of oversized) {
-    assert.match(path.basename(p), /^(raw|normalized)\.json$/, `oversized file is a market payload: ${path.relative(repo, p)}`);
+    const rel = path.relative(repo, p);
+    assert.ok(ignored.has(rel), `oversized file must be gitignored (never committable): ${rel} (${fs.statSync(p).size}B)`);
   }
 });
 

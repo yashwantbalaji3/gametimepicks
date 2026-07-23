@@ -64,7 +64,7 @@ function SimCard({ s }: { s: FeaturedSimulation }) {
         {s.runCountLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{s.runCountLabel}</span> : null}
         {s.pickCount > 0 ? (
           <span style={{ color: "var(--vault-text-mute)" }}>
-            top lean <span style={{ color: "var(--vault-gold-bright)", fontWeight: 700 }}>+{s.topEdgePct.toFixed(1)}% edge</span>
+            top lean <span style={{ color: "var(--vault-gold-bright)", fontWeight: 700 }}>+{s.topEdgePct.toFixed(1)}% model gap</span>
           </span>
         ) : null}
       </div>

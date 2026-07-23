@@ -531,7 +531,7 @@ export default function BoardPage() {
                 model&apos;s projection drawn from the player&apos;s last 10
                 games and their matchup. The bar between the two numbers
                 shows how far apart they sit, capped visually so a small gap
-                looks small and a large gap looks large — not so a 200% edge
+                looks small and a large gap looks large — not so a 200% gap
                 feels indistinguishable from 5%.
               </p>
             </section>

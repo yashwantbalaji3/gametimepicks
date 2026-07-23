@@ -1,4 +1,17 @@
+import type { Metadata } from "next";
 import SportOverviewHero from "@/components/sport-overview-hero";
+
+export const metadata: Metadata = {
+  title: "Responsible Use — GameTimePicks",
+  description:
+    "GameTimePicks is a paper-only, educational sports-analytics project — not betting advice and no real money. How to use the simulations responsibly. Public beta.",
+  openGraph: {
+    title: "GameTimePicks — Responsible Use",
+    description:
+      "Paper-only and educational. Not betting advice, no real money. How to use the simulations responsibly.",
+    type: "article",
+  },
+};
 
 export default function ResponsibleUsePage() {
   return (

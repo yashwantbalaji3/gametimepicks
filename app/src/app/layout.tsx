@@ -29,6 +29,21 @@ export const metadata: Metadata = {
     siteName: "GameTimePicks",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/brand/gametime-picks-logo.png",
+        width: 1672,
+        height: 941,
+        alt: "GameTimePicks — simulation-powered sports analytics (public beta)",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "GameTimePicks — Simulation-Powered Sports Analytics",
+    description:
+      "10,000-run game simulations and market comparisons. Explore probabilities — paper-only, educational, public beta.",
+    images: ["/brand/gametime-picks-logo.png"],
   },
   robots: {
     index: true,

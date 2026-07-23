@@ -31,7 +31,7 @@ import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-cand
 import { formatAmerican } from "@/lib/odds-math";
 
 export const metadata = {
-  title: "Parlay Lab · GameTime Picks",
+  title: "Picks Lab · GameTimePicks",
   description:
     "Every suggested paper card in one place — MLB and more, by sport and risk. Enter any stake to see the projected paper return. Educational, paper-only.",
 };

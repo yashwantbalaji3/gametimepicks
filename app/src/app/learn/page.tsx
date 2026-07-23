@@ -30,14 +30,14 @@ const TIERS: Array<{ tier: string; tone: string; note: string }> = [
 ];
 
 const SPORTS: Array<{ name: string; note: string }> = [
-  { name: "World Cup", note: "90-minute regulation only — a Draw is a real third outcome (no extra time/penalties). Double chance, total goals/corners, and player props (labeled lineup-pending until lineups post)." },
-  { name: "MLB", note: "Player-prop projections — pitcher strikeouts, batter hits / total bases — from game logs vs the line, plus optimizer suggested cards." },
-  { name: "NBA", note: "Player-prop projections — points, rebounds, assists and more — for the active slate, with Finals context preserved." },
+  { name: "MLB", note: "The active flagship. Player-prop projections — pitcher strikeouts, batter hits / total bases — from game logs vs the line, plus optimizer suggested cards." },
+  { name: "NBA", note: "Off-season. Player-prop projections — points, rebounds, assists and more — return with the next slate, with Finals context preserved." },
   { name: "UFC", note: "Moneyline only (V1). Win probabilities vs the market price. Suggested cards are model-probability only — no market odds, so no paper payout is shown. No method/distance/round props yet." },
+  { name: "World Cup", note: "Archived. The 2026 tournament ran 90-minute regulation only (a Draw was a real third outcome). Kept for proof and methodology — not an active product." },
 ];
 
 const GATES: Array<{ label: string; note: string }> = [
-  { label: "Edge below card threshold", note: "The model agrees with the market — not enough disagreement to suggest a card. Shown as a projection view." },
+  { label: "Model gap below card threshold", note: "The model agrees with the market — not enough disagreement to suggest a card. Shown as a projection view." },
   { label: "Waiting on lineups", note: "A player prop needs the confirmed starting lineup before it's card-eligible." },
   { label: "Market unavailable", note: "The current odds provider doesn't offer this market for this event yet." },
   { label: "Building a bigger sample", note: "Early-tournament or thin data — confidence is capped until more games are graded." },
@@ -95,7 +95,7 @@ export default function LearnPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Concept term="Model probability">Our model&apos;s estimate of how likely an outcome is — e.g. &ldquo;Model 56%&rdquo; means the model thinks it happens 56 times out of 100.</Concept>
           <Concept term="Market probability">The same chance implied by the sportsbook&apos;s price (the odds), stripped of the book&apos;s margin. It&apos;s the &ldquo;crowd&rsquo;s&rdquo; estimate.</Concept>
-          <Concept term="Edge">The gap between the two: Model − Market. A positive edge means the model rates the pick higher than the market prices it. Small edges are normal; big edges often mean thin data, not a free lunch.</Concept>
+          <Concept term="Model gap">The gap between the two: Model − Market. A positive gap means the model rates the pick higher than the market prices it. Small gaps are normal; big gaps often mean thin data, not a free lunch.</Concept>
           <Concept term="Odds">Shown American-style: −150 means risk 150 (paper) to win 100; +130 means risk 100 to win 130. Combine legs and the odds multiply.</Concept>
         </div>
       </section>
@@ -156,7 +156,7 @@ export default function LearnPage() {
       </section>
 
       <section id="methodology" className="scroll-mt-16 flex flex-col gap-3">
-        <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Methodology, briefly — updated from settled results (June 12)</h2>
+        <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Methodology, briefly — updated from settled results</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
             ["World Cup", "Ensemble model (market prior + team strength + form), 90-minute regulation only — a draw is a real outcome. Bank Builder legs now require BOTH model and market support; the model-disfavored plus-money side lost on June 11 and is downweighted."],
@@ -198,7 +198,7 @@ export default function LearnPage() {
       <section className="rounded-[10px] px-4 py-4" style={{ background: "rgba(26, 16, 11,0.45)", border: "1px solid var(--vault-border)" }}>
         <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>Paper-only</span>
         <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.55 }}>
-          GameTime Picks is an educational analytics project. Nothing here is betting advice or a recommendation to wager. Every &ldquo;stake&rdquo; and &ldquo;payout&rdquo; is hypothetical paper, tracked honestly — wins and losses both. For every term (model %, market %, edge, EV, confidence, no-play, pending) see the <Link href="/market-guide" style={{ color: "var(--vault-gold-bright)" }}>Market Guide</Link>; for the full model write-up see <Link href="/methodology" style={{ color: "var(--vault-gold-bright)" }}>Methodology</Link>; for our stance see <Link href="/responsible-use" style={{ color: "var(--vault-gold-bright)" }}>Responsible use</Link>.
+          GameTime Picks is an educational analytics project. Nothing here is betting advice or a recommendation to wager. Every &ldquo;stake&rdquo; and &ldquo;payout&rdquo; is hypothetical paper, tracked honestly — wins and losses both. For every term (model %, market %, model gap, confidence, no-play, pending) see the <Link href="/market-guide" style={{ color: "var(--vault-gold-bright)" }}>Market Guide</Link>; for the full model write-up see <Link href="/methodology" style={{ color: "var(--vault-gold-bright)" }}>Methodology</Link>; for our stance see <Link href="/responsible-use" style={{ color: "var(--vault-gold-bright)" }}>Responsible use</Link>.
         </p>
       </section>
     </div>

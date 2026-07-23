@@ -101,8 +101,12 @@ test("7 · SimulationPipeline: 7 stages, validateFeatures needs market, NullMode
   const noMarket = validateFeatures({ model_inputs_available: { hasPitcherWorkload: true } });
   assert.equal(noMarket.ok, false);
   assert.match(noMarket.reason, /no market probability/);
-  const withMarket = validateFeatures({ model_inputs_available: { hasDeVigMarketProbability: true, hasPitcherWorkload: true, hasLineup: true, hasBullpen: true, hasMatchup: true, hasBatterSplits: true, hasBatterForm: true } });
+  // A well-covered observation: market (the benchmark) + a majority of the CURRENT feature families. The contract
+  // grew (team-offensive-form / opponent-defense / travel-rest / park / environment were added), so a genuinely
+  // well-covered row now sets those flags too — this clears minCoverage 0.5 without weakening the market/coverage rule.
+  const withMarket = validateFeatures({ model_inputs_available: { hasDeVigMarketProbability: true, hasPitcherContext: true, hasPitcherWorkload: true, hasLineup: true, hasBullpen: true, hasMatchup: true, hasTeamOffensiveForm: true, hasOpponentDefense: true, hasTravelRest: true, hasBatterSplits: true, hasBatterForm: true, hasParkFactors: true, hasEnvironmentContext: true } });
   assert.equal(withMarket.ok, true);
+  assert.ok(withMarket.coverageScore >= 0.5, "well-covered row clears minCoverage");
   // the null model returns NO prediction values
   const out = new NullSimulationModel().simulate({ game: {}, pitcher: {}, batter: {}, market: {} }, { market: "hits", line: 1.5, player: "X" });
   assert.equal(out.probabilityOver, null);

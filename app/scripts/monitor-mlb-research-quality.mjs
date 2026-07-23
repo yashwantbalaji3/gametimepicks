@@ -92,9 +92,13 @@ export function auditQuality(joinDir = JOIN_DIR, freezeDir = FREEZE_DIR, feature
     const base = path.join(FEAT, fam);
     q.scanned.featureRecords[fam] = 0;
     if (!fs.existsSync(base)) continue;
-    // dedup granularity: per-GAME families are 1 record per gamePk; per-PLAYER families 1 per playerId; lineup is
-    // append-only (timestamped, many per game) so it is exempt from the duplicate check.
+    // dedup granularity: per-GAME families are 1 record per gamePk; per-PLAYER families 1 per playerId. lineup AND
+    // pitcher-workload are MULTI-CADENCE (append-only, timestamped, many legitimate captures per game across windows),
+    // so for those a "duplicate" is only two records sharing the SAME capturedAt (a true double-write) — distinct
+    // capture windows are keyed by (key@capturedAt) and are never flagged. (pitcher-workload became multi-cadence in
+    // a later capture-reliability fix; the old naive per-gamePk key false-flagged every second-window capture.)
     const perPlayer = fam === "batter-splits" || fam === "batter-form" || fam === "batter-vs-pitcher" || fam === "pa-opportunity";
+    const multiCadence = fam === "lineup" || fam === "pitcher-workload";
     for (const date of fs.readdirSync(base).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))) {
       const seen = {};
       for (const f of fs.readdirSync(path.join(base, date)).filter((x) => x.endsWith(".json"))) {
@@ -102,7 +106,7 @@ export function auditQuality(joinDir = JOIN_DIR, freezeDir = FREEZE_DIR, feature
         if (!r) { q.joinFailures.push({ date, file: `${fam}/${f}`, reason: "feature record unreadable" }); continue; }
         q.scanned.featureRecords[fam]++;
         if (!r.capturedAt) q.missingTimestamps.push({ date, family: fam, gamePk: r.gamePk, playerId: r.playerId });
-        if (fam !== "lineup") { const key = perPlayer ? r.playerId : r.gamePk; seen[key] = (seen[key] || 0) + 1; if (seen[key] > 1) q.duplicateFeatures.push({ date, family: fam, key }); }
+        { const baseKey = perPlayer ? r.playerId : r.gamePk; const key = multiCadence ? `${baseKey}@${r.capturedAt}` : baseKey; seen[key] = (seen[key] || 0) + 1; if (seen[key] > 1) q.duplicateFeatures.push({ date, family: fam, key }); }
         if (r.researchEligible !== true) continue;
         const es = r.eventStartTime ? Date.parse(r.eventStartTime) : null;
         if (r.capturedAt && es && Date.parse(r.capturedAt) >= es) q.timestampViolations.push({ date, gamePk: r.gamePk, family: fam, capturedAt: r.capturedAt });

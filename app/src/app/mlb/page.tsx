@@ -61,7 +61,6 @@ export const metadata = {
     "Educational MLB player-prop analytics — transparent model leans on pitcher strikeouts and batter markets, plus suggested paper cards. Educational, paper-only.",
 };
 
-const DEFAULT_DATE = "2026-05-16";
 const PROPS_PER_MARKET = 9;
 
 function byEdge(a: PublicProjection, b: PublicProjection) {
@@ -69,7 +68,7 @@ function byEdge(a: PublicProjection, b: PublicProjection) {
 }
 
 export default function MlbLandingPage() {
-  const date = activeMlbDate() ?? DEFAULT_DATE;
+  const date = activeMlbDate() ?? currentEtDate();
   const board = getMlbBoardForDate(date);
   // The flagship sections align to the freshest ingested MODEL BOARD (activeMlbDate → mlb/boards). The old
   // resolver keyed off mlb/home-run-props — the RETIRED Homer Nukes feed — which froze the whole MLB hub on
