@@ -1,5 +1,28 @@
 # GameTimePicks — Next 30-Day Engineering Backlog
 
+## Overnight update — 2026-07-23 (UFC-graduation mission, HEAD eb677182)
+
+New evidence changes the sequencing below:
+- **MLB research repair is now WORKFLOW-enforced** (P0 done): the nightly `mlb-pregame-capture.yml` runs the eligibility
+  quarantine safety-net + a HARD leakage gate that fails the run before commit — the bot can no longer reintroduce
+  leakage. Remaining P0 = keep it + the live-archive integration green; accumulate qualifying dates (1/30 today).
+- **UFC is NOT the next engine.** A forensic audit downgraded it RESEARCH_ONLY → **SCAFFOLD_ONLY** (0 backtestable
+  bouts, no real model, 2 confirmed leakage bugs). P1 changes from "UFC backtest" to a **UFC data-foundation rebuild**
+  (point-in-time pregame odds capture + bout-identity date-safe join + the `UFC_FEATURE_CONTRACT.md` gate) BEFORE any
+  backtest. NBA off-season prep becomes the parallel Q4 track.
+- **Event markets: foundation shipped, live BLOCKED.** All providers are LEGAL_REVIEW_REQUIRED → adapters ship
+  fixture-only. P1 first step is a **founder ToS review for Polymarket's public read-only APIs**, not code.
+- **Highest-leverage MLB transparency fix** (from `MLB_PUBLIC_USEFULNESS_GAP_AUDIT.md`): surface
+  `marketSnapshot.capturedAt` (time-to-first-pitch) across board + report — the data already exists in every sim
+  artifact; it tells users how stale the compared price is, with no new modeling. Do transparency before cosmetics.
+
+**Revised sequencing:** 24h = preserve MLB cleanliness (integration green, health HEALTHY, 4 artifacts, gate BLOCKED) +
+these two founder decisions (UFC rebuild vs NBA-first; Polymarket ToS review). 7d = the winning research track + the
+`capturedAt` transparency fix + evidence-warehouse wiring. 30d = NBA reactivation prep, first event-market snapshot
+collection (if ToS cleared), MLB trained-model decision only after its gate passes.
+
+---
+
 _Date: 2026-07-23. Companion to `docs/GAMETIMEPICKS_PRODUCT_ARCHITECTURE.md`. **Theme: accuracy + provenance over
 feature count.** Nothing in this backlog touches money — `portfolio.json`, Bank Builder, Moonshot, and Mr. Dub are
 frozen. **Money impact is "none" for every item below** (money md5 `affe6b21071f2b3be96bb2774eb347c3` must stay
