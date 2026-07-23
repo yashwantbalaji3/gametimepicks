@@ -1,30 +1,32 @@
-# Daily selection learning — through 2026-07-21
+# Daily selection learning — through 2026-07-22
 
-Training window: **2026-07-14 → 2026-07-21** (8d). Universe legs:
-**72** (baseline 31.9%). Published legs:
-**0**, cards: **0**. noLiveWire=**true**.
+Training window: **2026-07-15 → 2026-07-22** (8d). Universe legs:
+**690** (baseline 40.6%). Published legs:
+**80**, cards: **24**. noLiveWire=**false**.
 
 ## Recommended market status (Wilson-LB driven, fail-closed)
-- **batter_hits** → `insufficient_sample` — 46% (6/13, WLB 23%) shrunk 38%
-- **batter_hits_runs_rbis** → `insufficient_sample` — 69% (9/13, WLB 42%) shrunk 47%
-- **batter_total_bases** → `insufficient_sample` — 50% (5/10, WLB 24%) shrunk 38%
-- **pitcher_strikeouts** → `insufficient_sample` — 50% (3/6, WLB 19%) shrunk 36%
+- **batter_hits** → `restricted` — 52% (116/222, WLB 46%) shrunk 51%
+- **batter_hits_runs_rbis** → `disabled` — 46% (102/222, WLB 40%) shrunk 46%
+- **batter_total_bases** → `disabled` — 38% (44/117, WLB 29%) shrunk 38%
+- **pitcher_strikeouts** → `disabled` — 53% (18/34, WLB 37%) shrunk 48%
 
 ## Calibration
-- Edge inverted at high values: **false** 20+:50% (1/2, WLB 9%) · 10-15:67% (2/3, WLB 21%) · neg:58% (7/12, WLB 32%) · 0-5:50% (8/16, WLB 28%) · 5-10:56% (5/9, WLB 27%)
-- Confidence predictive: **true** (spread 21.6pts) Low:59% (13/22, WLB 39%) · High:58% (7/12, WLB 32%) · Medium:38% (3/8, WLB 14%)
+- Edge inverted at high values: **true** 20+:28% (5/18, WLB 13%) · 10-15:44% (36/82, WLB 34%) · neg:46% (60/130, WLB 38%) · 0-5:52% (93/180, WLB 44%) · 5-10:47% (73/154, WLB 40%) · 15-20:42% (13/31, WLB 26%)
+- Confidence predictive: **true** (spread 6.3pts) Low:50% (121/243, WLB 44%) · High:46% (122/267, WLB 40%) · Medium:44% (37/85, WLB 34%)
 
 ## Published leg hit rate by lane
-
+- low: 55% (6/11, WLB 28%)
+- medium: 75% (12/16, WLB 51%)
+- high: 58% (14/24, WLB 39%)
+- longshot: 62% (18/29, WLB 44%)
 
 ## Card length (parlay-math projection from observed leg rate)
-
+- low: leg 55% → 2-leg ~30%, 3-leg ~16% (rec max 2)
+- medium: leg 75% → 2-leg ~56%, 3-leg ~42% (rec max 3)
+- high: leg 58% → 2-leg ~34%, 3-leg ~20% (rec max 3)
+- longshot: leg 62% → 2-leg ~39%, 3-leg ~24% (rec max 3)
 
 ## Warnings
-- small training universe (72 legs) — policy stays conservative
-- market pitcher_strikeouts: insufficient sample (6)
-- market batter_hits: insufficient sample (13)
-- market batter_total_bases: insufficient sample (10)
-- market batter_hits_runs_rbis: insufficient sample (13)
+- edge signal is INVERTED at high values — edge capped, not used to promote
 
 _Recommendation artifact only — no production logic changed by this script._
