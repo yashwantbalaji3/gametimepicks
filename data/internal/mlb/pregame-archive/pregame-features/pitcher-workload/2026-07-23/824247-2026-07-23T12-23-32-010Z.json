@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824247,
+  "date": "2026-07-23",
+  "capturedAt": "2026-07-23T12:23:32.010Z",
+  "availableAt": "2026-07-23T12:23:32.010Z",
+  "eventStartTime": "2026-07-23T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 675512,
+      "name": "Troy Melton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 6,
+      "lastStartDate": "2026-07-17",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 7.2,
+        "bbAvg": 1.8,
+        "erAvg": 0.6,
+        "hrAvg": 0.4,
+        "kPer9": 11.05,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 55,
+        "k": 50,
+        "bb": 15,
+        "er": 11,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 677976,
+      "name": "Randy Dobnak",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 5,
+      "lastStartDate": "2026-07-18",
+      "last5": {
+        "starts": 1,
+        "ipSum": 4.33,
+        "ipAvg": 4.33,
+        "kAvg": 3,
+        "bbAvg": 4,
+        "erAvg": 1,
+        "hrAvg": 1,
+        "kPer9": 6.23,
+        "workloadIpLast5": 4.33
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 4.33,
+        "k": 3,
+        "bb": 4,
+        "er": 1,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-23T12:23:32.010Z"
+  },
+  "recordHash": "aa49491bb663d00b92e49d2444e46d1d19e54735f41eebe78147175dd15dfdfe"
+}
