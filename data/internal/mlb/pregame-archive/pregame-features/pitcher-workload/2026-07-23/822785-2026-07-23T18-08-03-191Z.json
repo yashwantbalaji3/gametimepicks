@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822785,
+  "date": "2026-07-23",
+  "capturedAt": "2026-07-23T18:08:03.191Z",
+  "availableAt": "2026-07-23T18:08:03.191Z",
+  "eventStartTime": "2026-07-23T19:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669456,
+      "name": "Shane Bieber",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 5,
+      "lastStartDate": "2026-07-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 3.8,
+        "bbAvg": 2.4,
+        "erAvg": 3,
+        "hrAvg": 1.4,
+        "kPer9": 7.23,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 23.67,
+        "k": 19,
+        "bb": 12,
+        "er": 15,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 668984,
+      "name": "Casey Legumina",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 28,
+      "lastStartDate": "2026-06-25",
+      "last5": {
+        "starts": 2,
+        "ipSum": 3,
+        "ipAvg": 1.5,
+        "kAvg": 0.5,
+        "bbAvg": 0,
+        "erAvg": 0.5,
+        "hrAvg": 0,
+        "kPer9": 3,
+        "workloadIpLast5": 3
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 3,
+        "k": 1,
+        "bb": 0,
+        "er": 1,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-23T18:08:03.191Z"
+  },
+  "recordHash": "237a21b1032ebce82a8e5b0f8e41a1b23fbe4a69ebd9fa3d61fab74ff31cdd07"
+}
