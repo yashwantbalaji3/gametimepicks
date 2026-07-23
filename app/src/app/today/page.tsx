@@ -25,6 +25,7 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { buildTop10Board } from "@/lib/top10/top10-picks";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
+import { slateGames } from "@/lib/today/slate-games";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
@@ -36,6 +37,7 @@ import TodayDailySlateHeader from "@/components/today/daily-slate-header";
 import TodayAtAGlance, { type GlanceCard } from "@/components/today/at-a-glance";
 import TodayTopModelPicks from "@/components/today/top-model-picks";
 import TodaySimulationLeans from "@/components/today/simulation-leans";
+import TodayFullSlate from "@/components/today/full-slate";
 import {
   BuildAPickModule,
   BankBuilderStatus,
@@ -74,6 +76,12 @@ export default function TodayPage() {
   // ── Simulation-ready games — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
   const { featured, readyCount } = featuredSimulations(details, serverToday);
+
+  // ── EVERY game on the presented slate — honest per-game action so none is stranded behind the capped
+  //    featured row. Framed on `today` (the presented slate) so it lines up with the header, MLB count,
+  //    and top picks. Reads the same details; fabricates nothing (a game with no artifact still links to
+  //    its report, which shows its own honest unavailable state). ──
+  const { games: slateRows, simReadyCount } = slateGames(details, today);
 
   // ── Top model picks — the canonical cross-sport board; take the strongest ~6 for the compact list ──
   const top10 = buildTop10Board(dataRoot, today, Date.now());
@@ -237,6 +245,9 @@ export default function TodayPage() {
 
       {/* 4 — Simulation-backed games (real ready artifacts only) */}
       <TodaySimulationLeans featured={featured} readyCount={readyCount} />
+
+      {/* 4b — Every game on the slate: one honest per-game action so none is stranded behind the cap */}
+      <TodayFullSlate games={slateRows} simReadyCount={simReadyCount} />
 
       {/* 5 — Build-a-Pick module */}
       <BuildAPickModule

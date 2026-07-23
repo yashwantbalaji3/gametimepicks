@@ -24,11 +24,12 @@ const header = read("src/components/today/daily-slate-header.tsx");
 const glance = read("src/components/today/at-a-glance.tsx");
 const topPicks = read("src/components/today/top-model-picks.tsx");
 const simLeans = read("src/components/today/simulation-leans.tsx");
+const fullSlate = read("src/components/today/full-slate.tsx");
 const statusMods = read("src/components/today/status-modules.tsx");
 
 // Every /today + new-component source, concatenated, for whole-surface copy assertions.
-const TODAY_ALL = [todayPage, header, glance, topPicks, simLeans, statusMods].join("\n");
-const COMPONENTS_ALL = [header, glance, topPicks, simLeans, statusMods].join("\n");
+const TODAY_ALL = [todayPage, header, glance, topPicks, simLeans, fullSlate, statusMods].join("\n");
+const COMPONENTS_ALL = [header, glance, topPicks, simLeans, fullSlate, statusMods].join("\n");
 // Same, with comment lines stripped — used for "no hardcoded literal in CODE" sweeps (an illustrative
 // example inside a JSDoc/`//` comment is not a hardcoded runtime value).
 const stripComments = (s) => s.split("\n").filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join("\n");
@@ -61,6 +62,24 @@ test("3 · sim-ready summary is sourced from featuredSimulations (real artifacts
   assert.match(simLeans, /Simulation Ready/, "sim-ready badge present");
   assert.match(simLeans, /Generate Simulation/, "generate-simulation CTA present");
   assert.match(simLeans, /No simulation-ready games/i, "honest empty state exists");
+});
+
+// 3b — EVERY game on the slate has a clear per-game action (not just the capped featured highlight).
+test("3b · every game on the slate gets a clear per-game action (full-slate board)", () => {
+  // Wired on the hub from the same real details, framed on the presented slate.
+  assert.match(todayPage, /import \{ slateGames \} from "@\/lib\/today\/slate-games"/, "imports the slate-games selector");
+  assert.match(todayPage, /slateGames\(details, today\)/, "invokes it on real details, framed on the presented slate");
+  assert.match(todayPage, /<TodayFullSlate\b/, "renders the every-game board");
+  // The board itself: a heading, a per-game action, and an honest availability chip vocabulary.
+  assert.match(fullSlate, /Every game on the slate/, "board is titled 'Every game on the slate'");
+  assert.match(fullSlate, /href=\{g\.href\}/, "each row links to the canonical per-game report href");
+  assert.match(fullSlate, /\{g\.actionLabel\}/, "each row shows its clear action label");
+  assert.match(fullSlate, /\{g\.statusLabel\}/, "each row shows its honest availability status");
+  assert.match(fullSlate, /if \(games\.length === 0\) return null/, "renders nothing (not a broken empty box) on a no-games day");
+  // Trust: the board links to the explanation so a first-timer can decode the availability chips.
+  assert.match(fullSlate, /href="\/learn"/, "board links to /learn so the availability tiers are explained");
+  // Honest, non-predictive: no fabricated run-count claim and no banned certainty vocabulary in the board.
+  assert.ok(!/1,?000|10,?000|Monte Carlo/i.test(fullSlate), "no fabricated run-count / Monte Carlo claim on the board");
 });
 
 // 4 — top model picks OR honest no-qualified state (uses buildTop10Board).
