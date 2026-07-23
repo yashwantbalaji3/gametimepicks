@@ -47,7 +47,7 @@ export default function UfcFightNightHero({
       <div className="relative flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.14em]" style={{ background: "rgba(46,160,102,0.16)", border: "1px solid rgba(46,160,102,0.42)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>
-            <span aria-hidden>▶</span> Market-implied sims live
+            <span aria-hidden>▶</span> Market-implied preview · not a model
           </span>
           <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>UFC Fight Simulator</span>
         </div>

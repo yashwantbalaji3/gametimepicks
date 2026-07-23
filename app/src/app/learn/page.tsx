@@ -179,7 +179,7 @@ export default function LearnPage() {
           {[
             ["Model probability", "Our model's estimate that an outcome happens, 0–100%."],
             ["Implied / market probability", "The same chance baked into the sportsbook price, margin removed."],
-            ["Edge", "Model probability minus market probability. Positive = the model likes it more than the price."],
+            ["Model gap", "Model probability minus market probability — a difference, not a proven advantage. Positive = the model reads it higher than the price."],
             ["American odds", "−150 = risk 150 to win 100; +130 = risk 100 to win 130."],
             ["Parlay", "Several picks combined into one card — all must hit; the odds multiply."],
             ["Leg", "A single pick inside a parlay card."],

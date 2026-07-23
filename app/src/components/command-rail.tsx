@@ -49,7 +49,7 @@ const ITEMS: RailItem[] = [
   // The 2026 World Cup is complete — no active "World Cup" / "Soccer Specials" rail items. MLB leads Sports.
   { href: "/mlb", label: "MLB", glyph: "⚾", group: "Sports", desc: "Baseball hub" },
   { href: "/nba", label: "NBA", glyph: "🏀", desc: "Basketball hub" },
-  { href: "/ufc", label: "UFC", glyph: "🥊", desc: "Fight simulator · sims live" },
+  { href: "/ufc", label: "UFC", glyph: "🥊", desc: "Scaffold · not live yet" },
   { href: "/learn", label: "How It Works", glyph: "✦", group: "Learn", desc: "Start here" },
   { href: "/methodology", label: "Methodology", glyph: "◳", desc: "The model, in depth" },
   { href: "/about", label: "About", glyph: "ⓘ", desc: "What this is" },

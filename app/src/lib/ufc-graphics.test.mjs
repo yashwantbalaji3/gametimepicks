@@ -24,7 +24,7 @@ const NO_EXTERNAL_IMG = (src, name) => {
 test("1 · the octagon hero is original SVG/CSS — no external/brand images, honest claim", () => {
   assert.match(hero, /<svg/, "renders inline SVG (cage/octagon)");
   assert.match(hero, /polygon/, "octagon polygon present");
-  assert.match(hero, /Market-implied sims live/, "honest live claim");
+  assert.match(hero, /Market-implied preview · not a model/, "honest preview claim — not overclaimed as 'live'");
   assert.doesNotMatch(hero, /model picks? live|best bet|validated/i, "no overclaim");
   NO_EXTERNAL_IMG(hero, "fight-night hero");
 });

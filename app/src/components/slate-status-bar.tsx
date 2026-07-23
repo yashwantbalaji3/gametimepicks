@@ -138,11 +138,13 @@ export default function SlateStatusBar() {
         activeIsSettled={activeIsSettled}
       />
       {portfolio ? (
-        <Chip href="/mr-dub" accent="var(--gtp-bank-heat)">
+        // Lead with WHAT it is (a paper track record), not a headline dollar figure — the dollar is muted so the
+        // strip never reads as a profit claim before the paper/educational context lands. Numbers unchanged.
+        <Chip href="/mr-dub" accent="var(--vault-text-mute)">
           <span aria-hidden>🏦</span>
-          <span style={{ color: "var(--vault-text-faint)" }}>Paper bankroll</span>
-          <span style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>{usd(portfolio.active)}</span>
-          <span>· {portfolio.wins}–{portfolio.losses}</span>
+          <span style={{ color: "var(--vault-text-faint)" }}>Paper record</span>
+          <span style={{ fontWeight: 600 }}>{portfolio.wins}–{portfolio.losses}</span>
+          <span style={{ color: "var(--vault-text-faint)" }}>· {usd(portfolio.active)} paper</span>
         </Chip>
       ) : null}
       {crownAmount != null ? (

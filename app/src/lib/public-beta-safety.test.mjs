@@ -46,6 +46,31 @@ test("4 · the exportable social content is INTERNAL + framed as analytics, not 
   assert.ok(!/edgePct\s*:|"edge"\s*:|bestBet|isLock/.test(script), "no edge/lock/best-bet in the social output shape");
 });
 
+test("4b · the daily social PACK (drafts + share card) is INTERNAL + not-advice, and the built pack has no forbidden vocab", async () => {
+  const script = fs.readFileSync(path.join(app, "scripts/build-mlb-social-pack.mjs"), "utf8");
+  assert.match(script, /data\/internal\/mlb\/social/, "the pack is written INTERNALLY (not served publicly)");
+  assert.match(script, /DRAFTS ONLY|never auto-posted/, "the pack is drafts-only — nothing auto-posted");
+  assert.match(script, /notBettingAdvice:\s*true/, "the pack is flagged not-betting-advice");
+  assert.ok(!/edgePct\s*:|"edge"\s*:|bestBet|isLock/.test(script), "no edge/lock/best-bet in the pack output shape");
+  // build the pack from synthetic inputs and scan the WHOLE thing (drafts + share card + sections) for the
+  // task-forbidden vocabulary — the acquisition loop must never read as a betting recommendation.
+  const { buildSocialContent } = await import("../../scripts/build-mlb-social-content.mjs");
+  const { buildSocialPack } = await import("../../scripts/build-mlb-social-pack.mjs");
+  const g = {
+    gameId: "g1", gamePk: 1, slug: "aa-vs-bb-2026-07-22", teams: { home: "Bb", away: "Aa" }, status: "ready",
+    marketSnapshot: { capturedAt: "2026-07-22T15:00:00Z" }, simulationSummary: { headline: "Close." },
+    distributions: { "pitcher_strikeouts__1__6.5": { label: "Aa Pitcher — Strikeouts (line 6.5)", sampleCount: 100, bins: [{ lowerEdge: 3, probability: 0.5 }, { lowerEdge: 8, probability: 0.5 }] } },
+    generatedPicks: [{ player: "Aa Bat", market: "batter_hits", side: "over", line: 1.5, modelProbability: 0.6, marketProbability: 0.45 }],
+  };
+  const content = buildSocialContent({ runCount: 10000, generatedAt: "2026-07-22T19:00:00Z", games: [g] }, { games: { g1: { commenceTime: "2026-07-22T23:05:00Z" } } }, "2026-07-22");
+  const pack = buildSocialPack(content, { date: "2026-07-21", decisive: 10, wins: 4, losses: 6, hitRate: 0.4 }, "2026-07-22");
+  const { forbiddenTerms, ...scanable } = pack; void forbiddenTerms;
+  const s = JSON.stringify(scanable).toLowerCase();
+  for (const t of ["best bet", "beat the market", "market mistake"]) assert.ok(!s.includes(t), `pack must not contain "${t}"`);
+  for (const t of ["edge", "value", "lock", "profitable", "guaranteed"]) assert.ok(!new RegExp(`\\b${t}\\b`).test(s), `pack must not contain word "${t}"`);
+  assert.equal(pack.public, false); assert.equal(pack.notBettingAdvice, true);
+});
+
 test("5 · the deterministic simulator stays producesPredictions:false (no model shipped)", () => {
   const contract = fs.readFileSync(path.join(app, "src/lib/mlb/simulation/simulation-feature-contract.ts"), "utf8");
   assert.match(contract, /producesPredictions:\s*false/, "producesPredictions stays false until the gate + approval");

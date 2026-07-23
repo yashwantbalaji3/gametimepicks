@@ -35,21 +35,22 @@ const NAV_ITEMS: Array<{
   // LEAD with the multi-sport EXPLORE cluster so every sport gets equal weight (not soccer-first): the
   // Game Lab hub + the sport hubs sit right after Today, ABOVE the flagship products. Game Lab is the core
   // "browse any game → model report" experience; the flagship ladders stay primary but no longer dominate.
-  // PRIMARY — the 3-pillar spine: Simulations (Simulate) + Flagship Picks (Bank Builder, Moonshot) +
-  // Today + Results. Simulations lead; the two flagship products sit next to them; Everything else below.
-  { href: "/simulate", label: "Simulate" },
-  { href: "/bank-builder", label: "Bank Builder" },
-  { href: "/moonshot", label: "Moonshot" },
+  // PRIMARY — the simulation-product spine a first-time visitor scans (Adoption Sprint IA prune; founder-
+  // adjustable): the daily hub, the core action, the honest track record, and how it works. The paper-bankroll
+  // products (Bank Builder / Moonshot) are real + reachable but move to SECONDARY so the sim product leads.
   { href: "/today", label: "Today" },
+  { href: "/simulate", label: "Simulate" },
   { href: "/results", label: "Results" },
-  // SECONDARY — still reachable, de-emphasized after the divider (NO routes removed, none deleted). The
-  // per-sport simulation centers, per-game reports, side products, and the daily track record live here.
-  { href: "/games", label: "Game Reports", beforeDivider: true },
+  { href: "/learn", label: "How It Works" },
+  // SECONDARY — still reachable, de-emphasized after the divider (NO routes removed, none deleted): the
+  // flagship paper products, per-sport centers, per-game reports, and side products.
+  { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
+  { href: "/moonshot", label: "Moonshot" },
+  { href: "/games", label: "Game Reports" },
   { href: "/mlb", label: "MLB" },
   { href: "/picks", label: "Picks Lab" },
   { href: "/mr-dub", label: "Daily Dashboard" },
   { href: "/sports", label: "More Sports" },
-  { href: "/learn", label: "How It Works" },
 ];
 // The 2026 World Cup is complete: it is NOT an active nav destination. It remains reachable only as an
 // archive (from /results / methodology), never a primary nav item or an active sport. /world-cup-specials

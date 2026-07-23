@@ -10,18 +10,19 @@ import path from "node:path";
 const APP = process.cwd(); // app/
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 
-test("primary nav is the 3-pillar spine: Simulate · Bank Builder · Moonshot · Today · Results (in order, before the divider)", () => {
+test("primary nav is the pruned Adoption-Sprint spine: Today · Simulate · Results · How It Works (in order, before the divider); the paper-bankroll products are SECONDARY so the simulation product leads", () => {
   const nav = read("src/components/nav.tsx");
-  const primary = nav.slice(0, nav.indexOf("beforeDivider: true"));
-  const order = ["/simulate", "/bank-builder", "/moonshot", "/today", "/results"];
+  const dividerAt = nav.indexOf("beforeDivider: true");
+  const order = ["/today", "/simulate", "/results", "/learn"];
   let last = -1;
   for (const href of order) {
-    const at = primary.indexOf(`href: "${href}"`);
-    assert.ok(at > last, `${href} is a primary pillar, in order`);
+    const at = nav.indexOf(`href: "${href}"`);
+    assert.ok(at > last && at < dividerAt, `${href} is a primary item before the divider, in order`);
     last = at;
   }
-  // Moonshot is now a primary pillar (was secondary).
-  assert.ok(primary.includes('href: "/moonshot"'), "Moonshot promoted to a primary pillar");
+  // Bank Builder + Moonshot moved to SECONDARY — they come after the primary spine (the sim product leads).
+  assert.ok(nav.indexOf('href: "/bank-builder"') > last, "Bank Builder comes after the primary spine (secondary)");
+  assert.ok(nav.indexOf('href: "/moonshot"') > dividerAt, "Moonshot is secondary (after the divider)");
 });
 
 test("/sports is linked as 'More Sports' (no longer orphaned)", () => {

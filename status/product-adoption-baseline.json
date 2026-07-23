@@ -1,0 +1,55 @@
+{
+  "kind": "product-adoption-baseline",
+  "public": false,
+  "note": "Phase 0 of the Product Adoption Sprint. Timestamps from the health-check run (2026-07-23); scripts cannot read the wall clock. vp/ is canonical; its concurrent Cowork edits were NOT modified.",
+  "startingHead": "155830c0",
+  "reconciledHead": "a33855fd",
+  "botDriftCommits": [
+    { "sha": "ba81f290", "class": "production artifact — morning projections 2026-07-23" },
+    { "sha": "76a48fce", "class": "production artifact — mlb daily production slate 2026-07-23" },
+    { "sha": "a33855fd", "class": "production artifact — mlb daily production slate 2026-07-23" }
+  ],
+  "botDriftClassification": "All 3 are automated MLB daily-production commits that added a full live 2026-07-23 slate (board + game-simulations + team-markets + player-props + schedule + parlays). NONE touch portfolio.json / Bank Builder / Moonshot / vp/ — pure production artifacts. FF-only applied; both refs aligned; vp/ concurrent edits preserved.",
+  "branchAlignment": { "main": "a33855fd", "june30-reset": "a33855fd", "aligned": true, "vpConcurrentEditsPreserved": true },
+  "protectedInvariants": {
+    "moneyMd5": "affe6b21071f2b3be96bb2774eb347c3",
+    "officialRecord": "19-14",
+    "bankroll": 19065.4,
+    "crown": 20465.4,
+    "exposure": 0,
+    "productionHealth": "HEALTHY (18 passed, 0 warnings)",
+    "researchModel": "BLOCKED (gateMet=false; dates 4/30; coverage 77.1%/80%; timestamp-proven 78.1%/90%)",
+    "held": true
+  },
+  "baselineGates": {
+    "tsc": "0 errors",
+    "defaultSuite": "2613 pass / 0 fail / 4 skipped (2617 total)",
+    "integration_RESEARCH_ARCHIVE_INTEGRATION_1": "30 pass / 0 fail",
+    "build": "not re-run at baseline (tree unchanged since last clean build); will build in Phase 11"
+  },
+  "currentSlate": {
+    "date": "2026-07-23",
+    "games": 5,
+    "doubleheaders": 0,
+    "simReadyGames": 5,
+    "runCount": 10000,
+    "note": "Live slate now present (added by the bot). No doubleheaders today, so the DH collision is not visible on the current slate — but the Phase 5 sim-generator fix still matters for historical/future DH days."
+  },
+  "routeInventory": {
+    "totalTopLevelRoutes": 32,
+    "primaryNavItems": 11,
+    "concern": "Route sprawl + concept duplication (matches vp/ roadmap UX audit + Cowork tracker 'Plan 0009 P0')."
+  },
+  "executionPlan": [
+    { "phase": "1-2", "vpDept": "1 Public Product", "vpItem": "Plan 0009 P0 — prune nav ≤7 + classify 32 routes", "deliverable": "docs/PRODUCT_ROUTE_DISPOSITION.md + nav prune + redirects + tests" },
+    { "phase": "3", "vpDept": "1 Public Product", "vpItem": "Plan 0009 P0 — homepage hierarchy + reframe money strip", "deliverable": "dominant CTA + Today state + return hook + claim-safety tests" },
+    { "phase": "4", "vpDept": "2 MLB", "vpItem": "Plan 0009 P0 — same-day slate + canonical daily hub", "deliverable": "canonical Today/MLB hub + availability contract + tests" },
+    { "phase": "5", "vpDept": "2 MLB", "vpItem": "Plan 0009 P0 — doubleheader sim gamePk defect (high, public correctness)", "deliverable": "generator fix + DH fixtures + regression tests" },
+    { "phase": "6", "vpDept": "2 MLB", "vpItem": "return hook — postgame recap", "deliverable": "results recap loop + record-family guards" },
+    { "phase": "7", "vpDept": "4 Social", "vpItem": "Plan 0009 P1 — Daily Social Pack MVP", "deliverable": "hardened pack + platform drafts + canonical share URLs" },
+    { "phase": "8", "vpDept": "1 Public Product", "vpItem": "trust/learn consolidation", "deliverable": "canonical trust IA + stale-copy cleanup + tests" },
+    { "phase": "9", "vpDept": "1/7", "vpItem": "measurement contract", "deliverable": "docs/PRODUCT_ANALYTICS_EVENT_CONTRACT.md (provider-neutral, no PII)" },
+    { "phase": "10-11", "vpDept": "3/5/6/7", "vpItem": "background preserve + validate + handoff", "deliverable": "full validation + commit both refs + Cowork tracker handoff" }
+  ],
+  "proceed": true
+}

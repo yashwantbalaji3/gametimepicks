@@ -26,6 +26,7 @@
 
 import { SeededRng, leanSeed, stableHash } from "./rng";
 import type {
+  GameSimStatus,
   GameSimulationArtifact,
   GameSimulationGame,
   SimDistribution,
@@ -192,6 +193,171 @@ function makeSlug(awayAbbr: string, homeAbbr: string, date: string): string {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
   return `${clean(awayAbbr || "away")}-vs-${clean(homeAbbr || "home")}-${date}`;
+}
+
+// ---------------------------------------------------------------------------
+// Per-game identity resolution — DOUBLEHEADER-SAFE
+// ---------------------------------------------------------------------------
+//
+// THE DEFECT THIS GUARDS AGAINST: a doubleheader is two DISTINCT games with the SAME teams + date but
+// DIFFERENT schedule ids (MLB gamePk). Upstream, the board's PER-LEAN `gamePk` can be stamped by a
+// team/date-only join that collapses BOTH games onto ONE gamePk (last-wins) — the real 2026-07-22 board
+// stamps every PIT@NYY lean with 823519 (823518 appears on NO lean) and every BAL@BOS lean with 824732
+// (824735 dropped). Naively taking `leans[0].gamePk` (the old behaviour) therefore labels both sim games
+// with the SAME id: the twin whose id was dropped resolves to NO simulation downstream and shows
+// "not yet simulated", while its sibling renders.
+//
+// THE FIX: re-derive each game's gamePk from the AUTHORITATIVE schedule (`board.games[]`, which carries
+// the correct DISTINCT gamePks + `gameDate` per game) using a per-game-UNIQUE key (team-pair + a strict
+// commence-time↔gameDate ordering), and FAIL CLOSED when a unique match cannot be proven — leaving the
+// game honestly unavailable (no gamePk emitted) rather than mislabeling it with its twin's identity.
+
+export interface GameGroupIdentity {
+  gameId: string;
+  awayTeamAbbr?: string;
+  homeTeamAbbr?: string;
+  /** ISO commence time carried by the group's leans (odds-API event start). */
+  commenceTime?: string;
+  /** The gamePk stamped on the group's leans — UNRELIABLE for doubleheaders (may be the twin's). */
+  leanGamePk?: number;
+}
+
+export interface ScheduleGame {
+  gamePk: number;
+  awayTeamAbbr?: string;
+  homeTeamAbbr?: string;
+  /** ISO scheduled start from the board schedule (authoritative, distinct per DH game). */
+  gameDate?: string;
+}
+
+export interface ResolvedIdentity {
+  /** The resolved schedule gamePk, or `null` when identity could NOT be proven (fail-closed). */
+  gamePk: number | null;
+  /** True ⇔ a UNIQUE schedule game was proven for this group. */
+  resolved: boolean;
+  /** How the match was made (or why it failed) — provenance for the artifact + tests. */
+  method: string;
+}
+
+/** Normalize a team-pair to a stable comparison key (case/punctuation-insensitive). */
+function teamPairKey(away: string | undefined, home: string | undefined): string {
+  const clean = (s: string | undefined) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  return `${clean(away)}@${clean(home)}`;
+}
+
+/** Parse an ISO timestamp to epoch ms, or `null` when absent/unparseable. */
+function parseIsoMs(iso: string | undefined): number | null {
+  if (typeof iso !== "string" || iso.length === 0) return null;
+  const ms = Date.parse(iso);
+  return Number.isFinite(ms) ? ms : null;
+}
+
+/**
+ * Resolve each lean-group's TRUE gamePk from the schedule — doubleheader-safe. Pure + deterministic.
+ *
+ * Guarantees:
+ *   (a) two groups sharing a team-pair NEVER receive the SAME gamePk (distinct identity or fail-closed);
+ *   (b) a group is `resolved:true` ONLY when a unique schedule game can be proven; otherwise
+ *       `{ gamePk: null, resolved: false }` so the caller leaves it honestly unavailable (fail-closed);
+ *   (c) NO team/date-only first-match fallback — a multi-game (doubleheader) pair is split ONLY by a
+ *       strict, tie-free commence-time↔gameDate ordering, never by "take the first schedule row".
+ *
+ * @param groups        one entry per distinct gameId (first-seen order), from the board's leans
+ * @param scheduleGames the board's `games[]` schedule rows (authoritative gamePk + gameDate)
+ */
+export function resolveGamePks(
+  groups: GameGroupIdentity[],
+  scheduleGames: ScheduleGame[],
+): Map<string, ResolvedIdentity> {
+  const out = new Map<string, ResolvedIdentity>();
+
+  // Bucket groups + schedule rows by normalized team-pair.
+  const groupsByPair = new Map<string, GameGroupIdentity[]>();
+  for (const g of groups) {
+    const k = teamPairKey(g.awayTeamAbbr, g.homeTeamAbbr);
+    const arr = groupsByPair.get(k);
+    if (arr) arr.push(g);
+    else groupsByPair.set(k, [g]);
+  }
+  const schedByPair = new Map<string, ScheduleGame[]>();
+  for (const s of scheduleGames) {
+    const k = teamPairKey(s.awayTeamAbbr, s.homeTeamAbbr);
+    const arr = schedByPair.get(k);
+    if (arr) arr.push(s);
+    else schedByPair.set(k, [s]);
+  }
+
+  for (const [pair, gs] of groupsByPair) {
+    const bg = schedByPair.get(pair) ?? [];
+
+    // ── No schedule rows for this pair at all ──
+    if (bg.length === 0) {
+      if (gs.length === 1 && gs[0].leanGamePk != null) {
+        // Exactly one game identity for the pair ⇒ no doubleheader collision is possible ⇒ trusting the
+        // lean's own gamePk is safe.
+        out.set(gs[0].gameId, { gamePk: gs[0].leanGamePk, resolved: true, method: "lean-single-no-schedule" });
+      } else {
+        for (const g of gs) out.set(g.gameId, { gamePk: null, resolved: false, method: "unresolved-no-schedule" });
+      }
+      continue;
+    }
+
+    // ── Exactly one game identity for this pair ──
+    if (gs.length === 1) {
+      const g = gs[0];
+      if (bg.length === 1) {
+        // Single schedule row ⇒ unambiguous.
+        out.set(g.gameId, { gamePk: bg[0].gamePk, resolved: true, method: "schedule-unique" });
+      } else {
+        // One group but several schedule rows (e.g. only one game of a DH carries props). Match by nearest
+        // scheduled start when both sides have times; else accept the lean gamePk only if it IS one of the
+        // schedule rows; else fail closed.
+        const gMs = parseIsoMs(g.commenceTime);
+        const allDated = bg.every((b) => parseIsoMs(b.gameDate) != null);
+        if (gMs != null && allDated) {
+          let best = bg[0];
+          let bestDelta = Infinity;
+          for (const b of bg) {
+            const delta = Math.abs((parseIsoMs(b.gameDate) as number) - gMs);
+            if (delta < bestDelta) {
+              bestDelta = delta;
+              best = b;
+            }
+          }
+          out.set(g.gameId, { gamePk: best.gamePk, resolved: true, method: "schedule-nearest-time" });
+        } else if (g.leanGamePk != null && bg.some((b) => b.gamePk === g.leanGamePk)) {
+          out.set(g.gameId, { gamePk: g.leanGamePk, resolved: true, method: "lean-matches-schedule" });
+        } else {
+          out.set(g.gameId, { gamePk: null, resolved: false, method: "unresolved-underdetermined" });
+        }
+      }
+      continue;
+    }
+
+    // ── Multiple game identities for this pair: a DOUBLEHEADER ──
+    // Split ONLY by a clean N↔N, strictly-time-ordered bijection. This guarantees DISTINCT gamePks and
+    // never falls back to "first match". Any counts mismatch, missing time, or time TIE ⇒ fail closed.
+    const balanced = gs.length === bg.length;
+    const gsSorted = [...gs].sort(
+      (a, b) => (parseIsoMs(a.commenceTime) ?? Infinity) - (parseIsoMs(b.commenceTime) ?? Infinity) || a.gameId.localeCompare(b.gameId),
+    );
+    const bgSorted = [...bg].sort(
+      (a, b) => (parseIsoMs(a.gameDate) ?? Infinity) - (parseIsoMs(b.gameDate) ?? Infinity) || a.gamePk - b.gamePk,
+    );
+    const gsMs = gsSorted.map((g) => parseIsoMs(g.commenceTime));
+    const bgMs = bgSorted.map((b) => parseIsoMs(b.gameDate));
+    const strictlyIncreasing = (ms: Array<number | null>): boolean =>
+      ms.every((m, i) => m != null && (i === 0 || (ms[i - 1] as number) < m));
+    if (balanced && strictlyIncreasing(gsMs) && strictlyIncreasing(bgMs)) {
+      for (let i = 0; i < gsSorted.length; i += 1) {
+        out.set(gsSorted[i].gameId, { gamePk: bgSorted[i].gamePk, resolved: true, method: "schedule-time-order" });
+      }
+    } else {
+      for (const g of gs) out.set(g.gameId, { gamePk: null, resolved: false, method: "unresolved-ambiguous" });
+    }
+  }
+
+  return out;
 }
 
 // ---------------------------------------------------------------------------
@@ -477,7 +643,8 @@ function buildGame(
   board: MlbBoard,
   date: string,
   gameId: string,
-  gamePk: number,
+  gamePk: number | null,
+  identityResolved: boolean,
   leans: BoardLean[],
   sourceBoardHash: string,
   generatedAt: string,
@@ -509,7 +676,9 @@ function buildGame(
     if (hasInputs) {
       const seed = leanSeed({
         date,
-        gamePk,
+        // Seed off the RESOLVED gamePk when known; fall back to the stable gameId when identity is
+        // unresolved so the stream stays deterministic (the game is marked unavailable regardless).
+        gamePk: isFiniteNum(gamePk) ? gamePk : gameId,
         modelVersion: MODEL_VERSION,
         simulationVersion: SIMULATION_VERSION,
         marketKey: lean.marketKey,
@@ -599,14 +768,33 @@ function buildGame(
     });
   }
 
+  // FAIL-CLOSED identity: when we could NOT prove a unique schedule game (e.g. an unresolvable
+  // doubleheader), declare it honestly and refuse to emit a gamePk — a game with no gamePk cannot be
+  // joined to the twin's board fixture downstream, so it surfaces as "not yet simulated" rather than
+  // rendering under the wrong game's identity.
+  if (!identityResolved) {
+    unavailableModules.push({
+      module: "game_identity",
+      reason: "ambiguous_doubleheader",
+      requiredArtifactField: "gamePk",
+      displayCopy:
+        "This game shares its teams and date with another game (a doubleheader) and could not be matched to a unique schedule id, so no simulation is attached here (shown as not yet available rather than risk labeling it with the other game's result).",
+    });
+  }
+
   const distributionsField: SimDistributions = hasRealDistributions ? distributions : null;
+
+  // Identity gate: a ready game REQUIRES a proven unique gamePk. An unresolved game is always unavailable,
+  // and its gamePk is OMITTED so nothing downstream can mis-join it to its doubleheader twin.
+  const status: GameSimStatus = identityResolved ? (topPicks.length > 0 ? "ready" : "unavailable") : "unavailable";
+  const gamePkField = identityResolved && isFiniteNum(gamePk) ? gamePk : undefined;
 
   const game: GameSimulationGame = {
     gameId,
-    gamePk,
+    gamePk: gamePkField,
     slug: makeSlug(awayAbbr, homeAbbr, date),
     teams: { home: homeName, away: awayName },
-    status: topPicks.length > 0 ? "ready" : "unavailable",
+    status,
     freshness,
     marketSnapshot,
     simulationSummary: summary,
@@ -681,6 +869,29 @@ export function generateMlbGameSimulations(board: MlbBoard, generatedAt: string,
     byGame.get(lean.gameId)!.push(lean);
   }
 
+  // DOUBLEHEADER-SAFE IDENTITY: re-derive each game's gamePk from the AUTHORITATIVE schedule
+  // (`board.games[]`) instead of trusting the per-lean gamePk (which can collapse a doubleheader's twins
+  // onto one id). `resolveGamePks` returns a unique gamePk per game or fails closed (see its doc).
+  const scheduleGames: ScheduleGame[] = (Array.isArray(board.games) ? board.games : []).map((g) => ({
+    gamePk: g.gamePk,
+    awayTeamAbbr: g.awayTeamAbbr,
+    homeTeamAbbr: g.homeTeamAbbr,
+    gameDate: g.gameDate,
+  }));
+  const identities = resolveGamePks(
+    order.map((gid) => {
+      const g0 = byGame.get(gid)![0];
+      return {
+        gameId: gid,
+        awayTeamAbbr: g0.awayTeamAbbr,
+        homeTeamAbbr: g0.homeTeamAbbr,
+        commenceTime: g0.commenceTime,
+        leanGamePk: g0.gamePk,
+      };
+    }),
+    scheduleGames,
+  );
+
   const games: GameSimulationGame[] = [];
   const perGame: GenerateResult["stats"]["perGame"] = [];
   let totalPicks = 0;
@@ -690,8 +901,9 @@ export function generateMlbGameSimulations(board: MlbBoard, generatedAt: string,
 
   for (const gameId of order) {
     const gLeans = byGame.get(gameId)!;
-    const gamePk = gLeans[0].gamePk;
-    const built = buildGame(board, date, gameId, gamePk, gLeans, sourceBoardHash, generatedAt);
+    const identity = identities.get(gameId) ?? { gamePk: null, resolved: false, method: "unresolved-missing" };
+    const gamePk = identity.gamePk;
+    const built = buildGame(board, date, gameId, gamePk, identity.resolved, gLeans, sourceBoardHash, generatedAt);
     games.push(built.game);
     totalPicks += built.pickCount;
     totalDistributions += built.distributionCount;
@@ -699,7 +911,8 @@ export function generateMlbGameSimulations(board: MlbBoard, generatedAt: string,
     if (built.game.status === "ready") readyGames += 1;
     perGame.push({
       gameId,
-      gamePk,
+      // Report the RESOLVED gamePk (0 when identity is unresolved/omitted, so the stats stay numeric).
+      gamePk: gamePk ?? 0,
       away: gLeans[0].awayTeamAbbr || "AWAY",
       home: gLeans[0].homeTeamAbbr || "HOME",
       picks: built.pickCount,

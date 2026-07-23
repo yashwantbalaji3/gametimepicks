@@ -262,7 +262,7 @@ export default function UfcPage() {
     <div className="flex flex-col gap-6">
       {fightNightHero}
       <div className="flex items-center gap-3 flex-wrap rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
-        <StatusChip label={showV1Proj ? "Market-implied sims live" : "Pending"} />
+        <StatusChip label={showV1Proj ? "Market-implied preview" : "Pending"} />
         <span style={{ color: "var(--vault-text)", fontSize: 13 }}>
           {showV1Proj ? `Market-implied fight simulations are live for ${eventName} — de-vigged real sportsbook moneylines. Model-adjusted picks are still validating before public release. Moneyline only; method/distance/round props aren't offered by the current feed.` : "Projections publish once the data gates pass."}
         </span>
@@ -477,7 +477,7 @@ export default function UfcPage() {
         sport="UFC"
         tagline="market-implied fight simulations · model validating"
         statusKind={ufcSettled ? "upcoming" : showV1Proj ? "live" : "upcoming"}
-        statusLabel={ufcSettled ? "Next slate loading soon" : showV1Proj ? "Market-implied sims live" : "Building coverage"}
+        statusLabel={ufcSettled ? "Next slate loading soon" : showV1Proj ? "Market-implied preview" : "Building coverage"}
         statusCaption={ufcSettled ? " · previous event settled" : ` · ${eventName}`}
         matchupLine={ufcSettled ? `Previous event settled · ${settledEventName} → see Results` : ops?.nextCard?.eventDate ? `Next · ${eventName} · ${fmtDate(ops.nextCard.eventDate)}` : `Next · ${eventName}`}
         stats={heroStats}

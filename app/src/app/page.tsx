@@ -29,6 +29,7 @@ import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 
 import LandingHero from "@/components/home/landing-hero";
 import WhatThisIs from "@/components/home/what-this-is";
+import ReturnHook from "@/components/home/return-hook";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
 import { SlateSummary, TrustStrip, HowItWorks, FooterCta } from "@/components/home/home-sections";
@@ -197,6 +198,10 @@ export default function HomePage() {
 
       {/* 1b — Honest three-way separation: what's live · what we're building (gated) · what we don't claim. */}
       <WhatThisIs />
+
+      {/* 1c — Return hook: the honest daily loop (new sims each game day, graded from official box scores). */}
+      <ReturnHook latestSettledLabel={today < serverToday ? dateLabel : null} />
+
 
       {/* 2 — Simulation Hub: the per-sport simulation centers (the core product topic) */}
       <FlagshipCards
