@@ -1,6 +1,12 @@
 {
   "kind": "next-sport-recommendation",
   "public": false,
+  "forensicUpdate_2026_07_23": {
+    "supersedes": "the recommendedSport below (UFC)",
+    "finding": "A forensic UFC audit (docs/UFC_ENGINE_FORENSIC_AUDIT.md) DOWNGRADED UFC from RESEARCH_ONLY to SCAFFOLD_ONLY: 0 backtestable bouts, no real model (moneyline ≈ de-vigged market + ~0 nudge), and 2 confirmed leakage bugs (date-agnostic rematch joins; post-fight career stats).",
+    "revisedRecommendation": "NO sport graduates to a research engine tonight. UFC is NOT buildable now — it needs a data-foundation rebuild FIRST (point-in-time pregame odds capture + a bout-identity date-safe join + the leakage-safe feature contract docs/UFC_FEATURE_CONTRACT.md) before it can even backtest. NBA (HISTORICAL/off-season, highest ceiling) is the Q4 target: prep the leakage-safe pregame capture during the off-season, activate at the ~2026-10 season start. Accuracy before breadth.",
+    "revisedNextEngine": "UFC-data-foundation (not UFC-model) OR NBA-off-season-prep — not a new public sport"
+  },
   "note": "Evidence-based scoring from docs/MULTI_SPORT_CAPABILITY_AUDIT.md. Scores 0-5 (5 = best). 'engineeringEffort' is scored INVERSE (5 = least effort). Recommendation favors highest CONFIDENCE + current-season availability, not preference. No modeling shipped; this is a plan.",
   "asOfEt": "2026-07-23T00:50:00-04:00",
   "criteria": ["repoMaturity", "currentSeasonAvailability", "dataSourceReliability", "marketCoverage", "settlementReliability", "automationReadiness", "researchFeatureFeasibility", "userDemand", "engineeringEffortInverse", "socialContentPotential", "seasonalTiming"],

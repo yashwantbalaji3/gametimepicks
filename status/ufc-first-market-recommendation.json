@@ -1,0 +1,25 @@
+{
+  "kind": "ufc-first-market-recommendation",
+  "public": false,
+  "asOfEt": "2026-07-23T01:05:00-04:00",
+  "status": "INSUFFICIENT",
+  "statusReason": "UFC is SCAFFOLD_ONLY with fullyBacktestableBouts = 0 (status/ufc-graduation-decision.json). No market family can be backtested leakage-safe today; this ranks the families for WHEN the data foundation is rebuilt, it does not select a market to model now.",
+  "criteria": ["dataAvailability", "settlementClarity", "sampleSize", "marketAvailability", "featureFeasibility", "leakageRisk_inverse", "historicalCoverage", "publicInterpretability"],
+  "families": {
+    "moneyline": { "scores": { "dataAvailability": 3, "settlementClarity": 5, "sampleSize": 3, "marketAvailability": 4, "featureFeasibility": 3, "leakageRisk_inverse": 2, "historicalCoverage": 1, "publicInterpretability": 5 }, "total": 26, "note": "Cleanest settlement (win/loss) + best interpretability. But current 'model' ≈ de-vigged market + ~0 nudge, and the join leaks. Best FIRST family once point-in-time odds + a date-safe join exist." },
+    "fight_goes_distance": { "scores": { "dataAvailability": 2, "settlementClarity": 5, "sampleSize": 3, "marketAvailability": 3, "featureFeasibility": 3, "leakageRisk_inverse": 2, "historicalCoverage": 1, "publicInterpretability": 4 }, "total": 24, "note": "Binary + deterministic settlement (did it reach the final bell). Depends on career finish-rate features that must be snapshotted pre-bout." },
+    "method_of_victory": { "scores": { "dataAvailability": 2, "settlementClarity": 4, "sampleSize": 2, "marketAvailability": 3, "featureFeasibility": 2, "leakageRisk_inverse": 2, "historicalCoverage": 1, "publicInterpretability": 3 }, "total": 19, "note": "Multi-outcome (KO/TKO, sub, decision); harder settlement + thinner samples." },
+    "round_totals": { "scores": { "dataAvailability": 2, "settlementClarity": 4, "sampleSize": 2, "marketAvailability": 2, "featureFeasibility": 2, "leakageRisk_inverse": 2, "historicalCoverage": 1, "publicInterpretability": 3 }, "total": 18 },
+    "significant_strikes": { "scores": { "dataAvailability": 2, "settlementClarity": 3, "sampleSize": 2, "marketAvailability": 2, "featureFeasibility": 2, "leakageRisk_inverse": 1, "historicalCoverage": 1, "publicInterpretability": 3 }, "total": 16, "note": "Continuous prop; needs the most feature depth + carries the highest leakage risk." },
+    "takedowns": { "scores": { "dataAvailability": 2, "settlementClarity": 3, "sampleSize": 2, "marketAvailability": 2, "featureFeasibility": 2, "leakageRisk_inverse": 1, "historicalCoverage": 1, "publicInterpretability": 3 }, "total": 16 }
+  },
+  "selectedMarket": "moneyline (WHEN the foundation is rebuilt; NOT now)",
+  "evidence": "Moneyline scores highest on settlement clarity + interpretability. But every family shares historicalCoverage=1 (no backtestable bouts) → INSUFFICIENT overall.",
+  "rejectedAlternatives": "Props (sig strikes, takedowns) rejected as a FIRST market — highest leakage risk + thinnest samples.",
+  "minimumBacktestSample": 300,
+  "minimumEventCount": 40,
+  "requiredFeatures": "see docs/UFC_FEATURE_CONTRACT.md — all point-in-time, boutStart-gated",
+  "requiredBaseline": "de-vig closing market probability (moneyline), point-in-time joined",
+  "graduationCriteria": "beat the de-vig market baseline on Brier + log loss, out-of-sample, chronological split; calibrated; no unresolved leakage — mirrors the MLB gate.",
+  "moneyImpact": "none"
+}

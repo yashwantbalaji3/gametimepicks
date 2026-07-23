@@ -1,0 +1,32 @@
+{
+  "kind": "ufc-graduation-decision",
+  "public": false,
+  "asOfEt": "2026-07-23T01:00:00-04:00",
+  "decision": "DOWNGRADE_TO_SCAFFOLD_ONLY",
+  "priorClassification": "RESEARCH_ONLY",
+  "newClassification": "SCAFFOLD_ONLY",
+  "basis": "docs/UFC_ENGINE_FORENSIC_AUDIT.md + status/ufc-historical-coverage.json (forensic end-to-end trace).",
+  "graduationRequirementsVsReality": {
+    "sufficientHistoricalCoverage": { "required": true, "actual": false, "evidence": "fullyBacktestableBouts = 0; backtest-dataset rowCount 0" },
+    "deterministicSettlement": { "required": true, "actual": false, "evidence": "the only rich settlement is a static generator-less internally-inconsistent fixture; newest card 2026-07-11 never settled" },
+    "preBoutProvenance": { "required": true, "actual": false, "evidence": "no point-in-time pregame odds; features use CURRENT career stats that include the predicted fight" },
+    "noUnresolvedLeakage": { "required": true, "actual": false, "evidence": "date-agnostic name-key join pairs a rematch's pregame line with a PAST fight's result (confirmed collisions: Pereira/Prochazka, Dvalishvili/Cejudo)" },
+    "marketBaseline": { "required": true, "actual": "market line exists but cannot be point-in-time joined leakage-safe", "evidence": "moneyline output ≈ de-vigged market line + a ±4pp nudge shrunk 50% → ≈0 in every committed row (no independent signal)" },
+    "reproducibleFeatureConstruction": { "required": true, "actual": false, "evidence": "no point-in-time feature snapshots; the join is not deterministic across rematches" }
+  },
+  "genuineModel": false,
+  "genuineScoreSystem": false,
+  "modelNote": "Moneyline = de-vigged market + a hand-weighted nudge (±4pp cap, 50% shrink to market). Method/distance/round = an unvalidated deterministic rule blend of career finish shares. The multi-sport adapter states in code: 'UFC has NO independent fight model live.'",
+  "realAssetsThatExist": ["2,695-fighter reference DB", "1,519-bout 3-year results corpus", "a genuinely fail-closed + tested readiness gate", "6 workflow_dispatch workflows (no cron)"],
+  "whyNotResearchOnly": "RESEARCH_ONLY implies a leakage-safe research dataset can accumulate. UFC cannot: it has no point-in-time pregame odds and its backtest join leaks. There is nothing to research until the data foundation is rebuilt.",
+  "prerequisitesToRegrade": [
+    "capture POINT-IN-TIME pregame odds per bout (with capturedAt < bout start) — the same leakage-safe pattern as MLB",
+    "replace the date-agnostic name-key join with a bout-id / (fighters + event date) key so rematches never collide",
+    "snapshot features as of the bout date (no post-fight career stats)",
+    "adopt the canonical eligibility gate (capturedAt < boutStartTime) at every boundary",
+    "then, and only then, build a real backtest with a de-vig market baseline"
+  ],
+  "public": false,
+  "notPublic": "UFC is NOT public and NOT in public navigation. This decision changes no public surface.",
+  "moneyImpact": "none"
+}

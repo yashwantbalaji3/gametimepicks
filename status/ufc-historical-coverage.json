@@ -1,0 +1,74 @@
+{
+  "artifact": "ufc-historical-coverage",
+  "generatedAt": "2026-07-23",
+  "method": "Artifacts opened and inspected; counts derived by re-parsing app/public/data/ufc/*.json and joining odds snapshots to results by normalized bout key. Read-only; no data changed.",
+  "eventsAvailable": {
+    "total": 127,
+    "historicalResultsCorpus": 126,
+    "staticSettledRecap": 1,
+    "detail": "126 real events with official results in results-latest.json (2023-06-10..2026-05-16, Greco1899/ufcstats CSV, GPL-3.0). Plus 1 static hand-authored settlement recap (UFC Freedom 250, 2026-06-15) that is NOT in the corpus and has no generator. The newest scheduled card (UFC 329, 2026-07-11) is an upcoming/near-future card, never settled, and is excluded from this historical count."
+  },
+  "boutsAvailable": {
+    "finalInResultsCorpus": 1519,
+    "totalBoutsInCorpus": 1545,
+    "settledRecapBouts": 7,
+    "detail": "results-latest.json: 1545 bouts, 1519 final (26 no-contest/draw/unknown). Each final carries winner, loser, method, ending round, weightClass. Plus 7 bouts in the static settled recap."
+  },
+  "boutsWithPregameMarkets": {
+    "distinctBoutsWithCapturedPregameLine": 20,
+    "boutLinesTotal": 40,
+    "snapshotFiles": 2,
+    "withMatchingOfficialResultSameBout": 0,
+    "detail": "Two Odds API MMA snapshots (odds-2026-06-09 = futures/hypothetical Pereira permutations; odds-2026-07-10 = the 2026-07-11 card), all pregame:true, h2h only. NONE join to an official result of the SAME fight. The only 2 name-key matches are cross-event rematch collisions (2026-06-14 Pereira/Prochazka futures -> 2023-11-11 result; 2026-07-11 Dvalishvili/Cejudo -> 2024-02-17 result) and are leakage, not valid pregame->result pairs. No historical pregame odds exist (backfill status: not-started, paid-credit-gated)."
+  },
+  "boutsWithPregameFeatures": {
+    "leakageSafe": 0,
+    "featureRowsPresent": 4,
+    "detail": "features-latest.json holds 4 bouts (all flagged 'likely futures/hypothetical'); features-card-latest.json holds the 2026-07-10 card. All features are computed from current/career fighter stats (fighters-latest.json as-of 2026-05-16), which include the bout being predicted -> NOT point-in-time, NOT leakage-safe. Zero leakage-safe pre-fight feature snapshots exist (confirmed by backtest-summary-latest.json)."
+  },
+  "boutsWithPredictions": {
+    "distinctBouts": 16,
+    "moneylineCurrentCard": 9,
+    "expandedSettledRecap": 7,
+    "generatedBeforeBoutStartWithMatchingResult": 0,
+    "detail": "projections-latest.json = 9 moneyline projections for the 2026-07-11 card (never settled). expanded-projections-latest.json = 7 model-only projections for the 2026-06-15 recap event (generatedAt 2026-06-15T00:36Z, i.e. AFTER eventDate 2026-06-15T00:00Z). All predictions are 2026 only. None is provably timestamped before bout start AND paired with an official result."
+  },
+  "boutsWithResults": {
+    "total": 1526,
+    "historicalResultsCorpus": 1519,
+    "settledRecap": 7,
+    "detail": "1519 final bouts in results-latest.json (official winners/method/round from ufcstats CSV) + 7 in the static settled recap (official winners from ESPN MMA; KO-vs-sub not distinguished by that feed)."
+  },
+  "fullyBacktestableBouts": {
+    "count": 0,
+    "criteria": "Requires (pregame market OR leakage-safe pregame features) AND a prediction generated before bout start AND an official result for the SAME bout.",
+    "reasoning": "The 1519 historical finals have official results but NO pregame odds snapshot, NO leakage-safe pregame features, and NO pre-start prediction. The 20 bouts with a captured pregame line have NO matching official result (the 2 name-key hits are rematch collisions to different past fights). The 2026-07-11 card has pregame odds + pre-start projections but was never settled (no result). The 2026-06-15 settled recap has results + picks but no pregame odds snapshot, predictions timestamped after event start, and is a non-reproducible static fixture with internally inconsistent model probabilities. Consistent with backtest-dataset-latest.json rowCount 0 and readiness backtestReady=false."
+  },
+  "coverageByYear": {
+    "2023": { "events": 25, "finalBouts": 289, "boutsWithPregameMarkets": 0, "boutsWithPredictions": 0, "fullyBacktestable": 0 },
+    "2024": { "events": 42, "finalBouts": 513, "boutsWithPregameMarkets": 0, "boutsWithPredictions": 0, "fullyBacktestable": 0 },
+    "2025": { "events": 43, "finalBouts": 515, "boutsWithPregameMarkets": 0, "boutsWithPredictions": 0, "fullyBacktestable": 0 },
+    "2026": { "events": 16, "finalBouts": 202, "boutsWithPregameMarkets": 20, "boutsWithPredictions": 16, "fullyBacktestable": 0, "note": "Pregame markets (2 snapshots) and all predictions exist only for 2026 upcoming/near-future cards (2026-06 futures, 2026-06-15 recap, 2026-07-11 card); none form a complete pregame-input + result pair. Corpus finals end 2026-05-16." }
+  },
+  "missingFields": [
+    "Historical pregame moneyline odds (0 captured before 2026-06; backfill status: not-started, requires paid Odds API credits)",
+    "Point-in-time / pre-fight fighter feature snapshots (only current career aggregates exist -> leak)",
+    "Pre-bout-start prediction outputs paired with results (none)",
+    "Scheduled rounds (3 vs 5) in schedule/results corpus (only inferred via a headliner-position heuristic in build_expanded_projections.py)",
+    "Weight class in schedule-latest.json (all null; present in results corpus only)",
+    "Bout order / card position as data (only implicit array order from ESPN)",
+    "Short-notice replacement status (no field anywhere)",
+    "Weigh-in / make-weight status (no field anywhere)",
+    "Opponent-quality / strength-of-schedule normalization (no Elo/Glicko/SRS)",
+    "Method granularity: KO-vs-submission not distinguished by the ESPN settlement feed (finish-vs-decision only)",
+    "A generator for results-settled-latest.json (static fixture, not reproducible)",
+    "Prop/method/distance/round market odds (provider not connected)"
+  ],
+  "leakageRisks": [
+    "Date-agnostic bout key in build_backtest_dataset.py and grade_moneylines.py: a future rematch's pregame line joins a past fight's result between the same two fighters. Confirmed: 2026-06-14 Pereira/Prochazka futures -> 2023-11-11 result; 2026-07-11 Dvalishvili/Cejudo -> 2024-02-17 result. Re-running the backtest would emit these as 'clean pregame' rows.",
+    "Features derived from current/career stats (fighters-latest.json as-of latest fight) include the bout being predicted; no point-in-time snapshots. Documented in backtest-summary-latest.json ('current stats leak the predicted fight').",
+    "results-settled-latest.json model probabilities are mis-aligned to fighter/odds side (Josh Hokit +320 shown at modelProbability 0.773 vs marketProbability 0.229) and generatedAt post-dates event start; the file is static with no generator, so its 6-1 / 86% headline is not reproducible or verifiable.",
+    "Name/side join fragility across artifacts (schedule 'Kai Kamaka III' vs odds 'Kai Kamaka'); differing boutId strings for the same bout can mis-join model probability to the wrong side."
+  ],
+  "note": "No bout in the repo is fully backtestable (0). The stack holds real reference data (2695-fighter DB; 1519-bout, 3-year results corpus) and real pregame moneyline capture capability, but has never assembled a single leakage-safe pregame-input + prediction-before-start + result triple. There is no genuine probability model (moneyline = de-vigged market passthrough; method/distance/round = unvalidated rule blend). The one 'settlement' is a static, non-reproducible, internally inconsistent recap. Historical backtesting is blocked on pregame odds that do not exist (paid-credit-gated) and on a date-agnostic join that collides rematches. Classification: SCAFFOLD_ONLY."
+}
