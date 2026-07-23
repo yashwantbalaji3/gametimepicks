@@ -83,6 +83,13 @@ export function researchEligibility(x: EligibilityInput): EligibilityResult {
   return { eligible: true, reason: "captured + available before first pitch with a proven timestamp", quality: "COMPLETE" };
 }
 
+/**
+ * Re-validating an INHERITED market-row eligibility against the authoritative event start (used by settlement joins
+ * + the observation assembler, which run under plain `node`) lives in the node-importable canonical module
+ * scripts/lib/research-eligibility.mjs (`revalidateMarketEligibility`). It is the single runtime source of truth for
+ * that boundary; a parity test pins it. This file keeps the family-oriented capture-time gate above.
+ */
+
 /** True only after enough forward-collected, eligible, settled data exists to even consider challenger research. */
 export interface CollectionGate {
   minDistinctDates: number;

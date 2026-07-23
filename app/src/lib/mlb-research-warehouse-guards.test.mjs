@@ -95,6 +95,22 @@ test("3 · quality monitor PASSES clean settled data (all rows graded on a final
   assert.equal(r.scanned.settledRows, 2);
 });
 
+test("4b · impossibleStats treats spreads as a SIGNED margin (negative OK) but flags a negative count market", () => {
+  // a spreads row settling on a negative run margin is legitimate; a negative batter_hits count is impossible.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "rq-"));
+  const j = synthJoin();
+  j.marketRows = [
+    { market: "spreads", gamePk: 100, selection: "Away Nine", line: -1.5, researchEligible: true, noVigProbability: 0.5, capturedAt: "2026-07-22T20:00:00Z", actual: -2, settlementStatus: "loss", countsAsSettledEligible: true },
+    { market: "batter_hits", gamePk: 100, playerId: 22, player: "Bad Row", selection: "Over", line: 1.5, researchEligible: true, noVigProbability: 0.5, capturedAt: "2026-07-22T20:00:00Z", actual: -1, settlementStatus: "loss", countsAsSettledEligible: true },
+  ];
+  const featureDir = path.join(root, "pregame-features"); fs.mkdirSync(featureDir, { recursive: true });
+  const { joinDir, freezeDir } = writeArchive(root, j);
+  const r = auditQuality(joinDir, freezeDir, featureDir);
+  assert.equal(r.checks.impossibleStats.verdict, "FAIL", "the negative batter_hits count IS impossible");
+  assert.equal(r.details.impossibleStats.length, 1, "only ONE impossible row (the count market), NOT the signed spread");
+  assert.equal(r.details.impossibleStats[0].market, "batter_hits");
+});
+
 test("4 · quality monitor FAILS on injected defects", () => {
   // duplicate row
   let root = fs.mkdtempSync(path.join(os.tmpdir(), "rq-"));

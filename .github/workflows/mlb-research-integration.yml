@@ -1,0 +1,82 @@
+# Live-archive research integration — regenerates the DERIVED research observations from the COMMITTED settlement
+# joins and runs the gated integration suite against the real archive. This is the money-safe home for the checks
+# that are skipped in the default suite (they need the gitignored observations payload, which this job rebuilds).
+#
+# It NEVER: writes money/portfolio/Bank Builder/Moonshot, publishes a prediction, or deploys. Read-only research.
+# It MUST fail loudly when the archive quality is BLOCKED/FAIL — it is not allowed to silently pass a dirty dataset.
+name: mlb-research-integration
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "40 12 * * *" # 12:40 UTC daily — after the nightly settle + pregame archive commits land
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mlb-research-integration
+  cancel-in-progress: false
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Install
+        working-directory: app
+        run: npm ci
+
+      # Rebuild the derived observations from the committed joins (deterministic; joins already re-validate eligibility).
+      - name: Regenerate research observations (derived, gitignored)
+        working-directory: app
+        run: node scripts/build-mlb-research-observations.mjs --write
+
+      # Regenerate + HARD-CHECK the quality reports. Fail the job if the dataset is not clean.
+      - name: Observation-quality gate (must be PASS/EMPTY)
+        working-directory: app
+        run: |
+          node scripts/research-observation-quality.mjs
+          node -e '
+            const q = require("../data/internal/mlb/pregame-archive/status/research-observation-quality.json");
+            const leak = Object.values(q.hardViolations || {}).reduce((a, b) => a + b, 0);
+            if (!["PASS", "EMPTY"].includes(q.status) || leak > 0) {
+              console.error(`::error::observation-quality is ${q.status} with ${leak} hard violations — archive is NOT clean`);
+              process.exit(1);
+            }
+            console.log(`observation-quality OK: ${q.status}, 0 hard violations`);
+          '
+
+      - name: Join monitor gate (must not FAIL)
+        working-directory: app
+        run: |
+          node -e '
+            import("./scripts/monitor-mlb-research-quality.mjs").then((m) => {
+              const r = m.auditQuality();
+              if (r.overall === "FAIL") { console.error(`::error::join monitor overall=FAIL`); process.exit(1); }
+              console.log(`join monitor overall=${r.overall}`);
+            });
+          '
+
+      # The gated integration suite now runs for real (not skipped) against the rebuilt archive.
+      - name: Live-archive integration suite
+        working-directory: app
+        env:
+          RESEARCH_ARCHIVE_INTEGRATION: "1"
+        run: >
+          npx tsx --test
+          src/lib/mlb-research-warehouse-guards.test.mjs
+          src/lib/mlb-research-observation-quality.test.mjs
+          src/lib/mlb-pregame-batter-features-guards.test.mjs
+          src/lib/mlb-pregame-features-guards.test.mjs
+
+      # Money invariant guard — this job must never have touched the portfolio.
+      - name: Money md5 unchanged
+        working-directory: app
+        run: |
+          echo "affe6b21071f2b3be96bb2774eb347c3  public/data/mr-dub/portfolio.json" | md5sum -c -

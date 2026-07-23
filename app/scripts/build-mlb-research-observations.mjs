@@ -22,6 +22,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { revalidateMarketEligibility } from "./lib/research-eligibility.mjs";
 
 const APP = process.cwd().endsWith("/app") ? process.cwd() : path.join(process.cwd(), "app");
 const REPO = path.dirname(APP);
@@ -176,6 +177,12 @@ function main() {
       };
       for (const row of join.marketRows || []) {
         if (!SETTLED.has(row.settlementStatus)) continue; // only settled leans become observations; pending never
+        // RE-VALIDATE the inherited eligibility against the authoritative event start (single canonical gate). A row
+        // captured at/after first pitch is NEVER an observation — it is quarantined, not trusted from its flag.
+        if (!revalidateMarketEligibility({ inherited: row.researchEligible, capturedAt: row.capturedAt, availableAt: row.availableAt, eventStartTime: join.eventStartTime }).eligible) {
+          summary.quarantinedLeakageRows = (summary.quarantinedLeakageRows || 0) + 1;
+          continue;
+        }
         // per-player batter families resolved by the row's playerId
         const rowFeatures = { ...features, splits: row.playerId != null ? splitsMap.get(row.playerId) : null, form: row.playerId != null ? formMap.get(row.playerId) : null, vsPitcher: row.playerId != null ? bvpMap.get(row.playerId) : null, paOpp: row.playerId != null ? paoMap.get(row.playerId) : null };
         const obs = buildObservation(date, join, freeze, row, pf, rowFeatures);

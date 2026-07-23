@@ -51,17 +51,22 @@ Tagging convention: the test name is prefixed `[integration]` and passes node:te
 Nothing was loosened: every assertion still runs (as a fixture test or an opt-in integration test), no threshold was
 weakened, and the one genuine code regression (multi-cadence dedup) was fixed in the product monitor, not hidden.
 
-## Known internal data-quality item (not a launch blocker)
+## Research timestamp-leakage item — REPAIRED (2026-07-23)
 
-The 2026-07-22 slate's committed observation-quality report is `BLOCKED` with `leakage: 246`. Cause: the day's final
-market snapshot (~23:32Z) was captured after the earliest first pitches (~23:07Z); those rows are marked
-`researchEligible: true` in the settlement-joins, so they count as post-first-pitch leakage.
+The 2026-07-22 `leakage: 246` incident (final market snapshots captured after some games' first pitches, with an
+inherited `researchEligible=true` surviving the settlement join) is **fixed**. Root cause + full detail:
+[docs/MLB_RESEARCH_TIMESTAMP_INCIDENT.md](MLB_RESEARCH_TIMESTAMP_INCIDENT.md).
 
-This is **internal research data only** (`public: false`): it does not touch the public product, money
-(`portfolio.json` md5 `affe6b21071f2b3be96bb2774eb347c3`), Bank Builder, Moonshot, or the independently-BLOCKED
-modeling gate. The proper root-cause fix — deriving `researchEligible = capturedAt < eventStart` per game's own first
-pitch, then regenerating the joins/observations/report — is tracked as a separate task and intentionally left out of
-the public-beta launch scope (we do not alter research data to make a test pass).
+- A single canonical gate (`app/scripts/lib/research-eligibility.mjs`, `revalidateMarketEligibility`) re-validates
+  inherited eligibility at every boundary (join + observation assembler). Inherited booleans are never trusted.
+- `quarantine-mlb-research-eligibility.mjs` downgraded the 278 post-start rows (timestamps untouched, kept as
+  evidence) and wrote `data/internal/mlb/research-quarantine/2026-07-22.json`. Idempotent + deterministic.
+- After repair: observation-quality **PASS** / leakage 0, join monitor **PASS**, 278 rows quarantined, gate still
+  BLOCKED (1/30 dates). Money md5 `affe6b21071f2b3be96bb2774eb347c3` unchanged.
+- The four `[integration]` tests now pass **29/29** under `RESEARCH_ARCHIVE_INTEGRATION=1` on the clean archive. They
+  stay gated in the DEFAULT suite (they need the gitignored observations payload), but are no longer permanently
+  skipped: the `mlb-research-integration.yml` workflow rebuilds the observations from the committed joins and runs
+  them nightly (money-safe; fails loudly if the dataset is ever BLOCKED/FAIL again).
 
 ## Adding a new guard
 

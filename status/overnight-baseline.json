@@ -1,0 +1,44 @@
+{
+  "kind": "overnight-baseline",
+  "public": false,
+  "note": "Phase 0 reconciliation snapshot. Read-only capture of the protected state + validation battery before any Phase 1+ work. Timestamps in this file are supplied by the operator (2026-07-22T23:58 America/New_York); scripts cannot read the wall clock.",
+  "capturedAtEt": "2026-07-22T23:58:00-04:00",
+  "startingHead": "f8ba5434",
+  "reconciledHead": "f8ba5434",
+  "botDriftCommits": [],
+  "botDriftClassification": "none — no commits after f8ba5434; nightly archive push (c3cb0084) already reconciled in the prior session",
+  "branchAlignment": {
+    "main": "f8ba5434",
+    "june30-reset": "f8ba5434",
+    "origin/main": "f8ba5434",
+    "origin/june30-reset": "f8ba5434",
+    "aligned": true,
+    "workingTreeClean": true
+  },
+  "moneyMd5": "affe6b21071f2b3be96bb2774eb347c3",
+  "officialRecord": "19-14",
+  "bankroll": 19065.4,
+  "crown": 20465.4,
+  "exposure": 0,
+  "productionHealth": { "status": "HEALTHY", "checksPassed": 18, "warnings": 0 },
+  "researchGate": {
+    "modelingStatus": "BLOCKED",
+    "dateTargetMet": false,
+    "qualifyingObservationDates": 1,
+    "requiredObservationDates": 30,
+    "benchmark": "INSUFFICIENT — 1085/500 settled observations across 1/30 dates",
+    "observationQuality": "BLOCKED",
+    "observationQualityLeakage": 246,
+    "simulationReadiness": "BLOCKED"
+  },
+  "testSummary": { "tsc": "0 errors", "default": { "tests": 2466, "pass": 2462, "fail": 0, "skipped": 4 } },
+  "buildSummary": { "exit": 0, "routesEmitted": 245, "researchRouteEmitted": true },
+  "workflows": {
+    "productionEnabled": true,
+    "researchEnabled": true,
+    "scheduled": ["auto-refresh", "daily-lifecycle", "daily-rebuild", "daily-refresh", "morning-projections", "nightly-settle"],
+    "dispatch": ["mlb-daily-production", "mlb-pregame-capture", "mlb-daily", "game-outlook", "lineup-aware-refresh"]
+  },
+  "invariantsHeld": true,
+  "proceed": true
+}

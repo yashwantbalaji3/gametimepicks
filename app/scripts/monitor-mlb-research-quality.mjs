@@ -58,11 +58,15 @@ export function auditQuality(joinDir = JOIN_DIR, freezeDir = FREEZE_DIR, feature
         if (seen.has(key)) q.duplicateRows.push({ date, gamePk: join.gamePk, key }); else seen.add(key);
         // missing outcome: a FINAL game whose market row is still pending
         if (isFinal && r.settlementStatus === "pending") q.missingOutcomes.push({ date, gamePk: join.gamePk, market: r.market, player: r.player ?? r.selection });
-        // impossible official stat (only for settled decisive/push rows that carry an actual)
+        // impossible official stat (only for settled decisive/push rows that carry an actual). spreads (run line)
+        // settle on a SIGNED run margin — a negative actual (the team lost by N) is legitimate — so those are bounded
+        // by magnitude, not floored at 0. All other markets are non-negative counts (K, hits, TB, combined runs…).
         if ((r.settlementStatus === "win" || r.settlementStatus === "loss" || r.settlementStatus === "push") && isNum(r.actual)) {
           q.scanned.settledRows++;
           const max = MAX_BY_MARKET[r.market] ?? 100;
-          if (r.actual < 0 || r.actual > max) q.impossibleStats.push({ date, gamePk: join.gamePk, market: r.market, actual: r.actual, allowedMax: max });
+          const signedMargin = r.market === "spreads"; // signed run-line margin (can be negative)
+          const bad = signedMargin ? Math.abs(r.actual) > max : r.actual < 0 || r.actual > max;
+          if (bad) q.impossibleStats.push({ date, gamePk: join.gamePk, market: r.market, actual: r.actual, allowedMax: max, signedMargin });
         }
         // timestamp violation: a researchEligible lean captured at/after first pitch = leakage
         if (r.researchEligible === true && r.capturedAt && eventStart && Date.parse(r.capturedAt) >= eventStart) {

@@ -30,6 +30,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { revalidateMarketEligibility } from "./lib/research-eligibility.mjs";
 
 const APP = process.cwd().endsWith("/app") ? process.cwd() : path.join(process.cwd(), "app");
 const REPO = path.dirname(APP);
@@ -222,6 +223,7 @@ function slimLean(l) {
     researchEligible: l.researchEligible === true,
     noVigProbability: isNum(l.noVigProbability) ? l.noVigProbability : null,
     capturedAt: l.capturedAt ?? null,
+    availableAt: l.availableAt ?? null, // preserved so eligibility can be re-validated against the authoritative start
   };
 }
 // merge carried-forward (existing) + freshly-captured leans, keeping the LATEST pregame capturedAt per key.
@@ -312,11 +314,20 @@ async function joinGame(date, gamePk, freeze, capturedLeans, existing) {
   const capturedForGame = [...capturedLeans.values()].filter((l) => l.gamePk === gamePk);
   const leanMap = mergeLeanKeys(existing?.marketRows, capturedForGame);
 
+  // The freeze's eventStartTime is the AUTHORITATIVE first pitch. Re-validate every carried/captured row's inherited
+  // researchEligible against it — a provider commence_time can differ from the official start, so a flag captured
+  // "pregame" upstream may actually be post-first-pitch here. Inherited booleans are never trusted without this
+  // re-check; post-start rows are downgraded to researchEligible=false + kept as evidence (never deleted).
+  const authoritativeStart = freeze.eventStartTime ?? null;
   const marketRows = [];
   for (const l of leanMap.values()) {
     const g = gradeLean(l, game);
-    const countsAsSettledEligible = l.researchEligible === true && (g.settlementStatus === "win" || g.settlementStatus === "loss");
-    marketRows.push({ ...l, actual: g.actual ?? null, settlementStatus: g.settlementStatus, settlementReason: g.reason, matchBy: g.matchBy ?? null, teamSide: g.teamSide ?? null, countsAsSettledEligible });
+    const reval = revalidateMarketEligibility({ inherited: l.researchEligible, capturedAt: l.capturedAt, availableAt: l.availableAt, eventStartTime: authoritativeStart });
+    const researchEligible = reval.eligible;
+    const countsAsSettledEligible = researchEligible && (g.settlementStatus === "win" || g.settlementStatus === "loss");
+    // record a SHORT ineligibility code only on downgraded rows (keeps committed join files under the size cap)
+    const extra = researchEligible ? {} : { ineligibleReason: reval.quality };
+    marketRows.push({ ...l, researchEligible, ...extra, actual: g.actual ?? null, settlementStatus: g.settlementStatus, settlementReason: g.reason, matchBy: g.matchBy ?? null, teamSide: g.teamSide ?? null, countsAsSettledEligible });
   }
 
   const values = loadSnapshotValues(date, freeze);

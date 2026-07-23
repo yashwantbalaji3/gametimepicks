@@ -90,6 +90,10 @@ data/internal/mlb/pregame-archive/market-snapshots/**/normalized.json
 # committed settlement-joins (which embed the settled marketRows + noVig probabilities). Persist via workflow
 # ARTIFACTS + committed STATUS summaries (research-progress / research-observation-quality / benchmark), not the raw jsonl.
 data/internal/mlb/pregame-archive/research-observations/*.jsonl
+# Research eligibility QUARANTINE audit — a derived per-date index of rows downgraded by the canonical re-validation
+# gate, deterministically regenerable from the committed settlement-joins (which carry the corrected researchEligible
+# + eligibilityReason as the durable evidence). Large; persisted via the quarantine script, not committed.
+data/internal/mlb/research-quarantine/*.json
 # Public-beta social content: derived daily analytics summaries, deterministically regenerable from the
 # committed game-simulations board via build-mlb-social-content.mjs. INTERNAL (public:false, notBettingAdvice)
 # — the SCRIPT is the deliverable; the dated JSON output is regenerated, not versioned (avoids daily churn).
