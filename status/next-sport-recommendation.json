@@ -1,0 +1,37 @@
+{
+  "kind": "next-sport-recommendation",
+  "public": false,
+  "note": "Evidence-based scoring from docs/MULTI_SPORT_CAPABILITY_AUDIT.md. Scores 0-5 (5 = best). 'engineeringEffort' is scored INVERSE (5 = least effort). Recommendation favors highest CONFIDENCE + current-season availability, not preference. No modeling shipped; this is a plan.",
+  "asOfEt": "2026-07-23T00:50:00-04:00",
+  "criteria": ["repoMaturity", "currentSeasonAvailability", "dataSourceReliability", "marketCoverage", "settlementReliability", "automationReadiness", "researchFeatureFeasibility", "userDemand", "engineeringEffortInverse", "socialContentPotential", "seasonalTiming"],
+  "candidates": {
+    "UFC": {
+      "tierToday": "RESEARCH_ONLY",
+      "scores": { "repoMaturity": 5, "currentSeasonAvailability": 4, "dataSourceReliability": 4, "marketCoverage": 3, "settlementReliability": 5, "automationReadiness": 4, "researchFeatureFeasibility": 4, "userDemand": 3, "engineeringEffortInverse": 4, "socialContentPotential": 4, "seasonalTiming": 4 },
+      "total": 44,
+      "evidence": "Richest non-MLB stack: schedule + odds + 2,695-fighter DB + grading + v1/v2 engine + 8 workflows (docs/MULTI_SPORT_CAPABILITY_AUDIT.md). Fail-closed: readiness-latest.json projectionsReady:false, backtest 0/150. Events run year-round → available NOW.",
+      "blocker": "No historical backtest graded — nothing publishes until the fighter-history backtest fills and beats a market baseline out-of-sample."
+    },
+    "NBA": {
+      "tierToday": "HISTORICAL_ONLY",
+      "scores": { "repoMaturity": 5, "currentSeasonAvailability": 0, "dataSourceReliability": 3, "marketCoverage": 5, "settlementReliability": 5, "automationReadiness": 3, "researchFeatureFeasibility": 5, "userDemand": 5, "engineeringEffortInverse": 3, "socialContentPotential": 5, "seasonalTiming": 1 },
+      "total": 40,
+      "evidence": "Registry level:full + full route scaffold, but OFF-SEASON: boards/ empty (ScheduleUnavailable) since the 2026-06-13 Finals; only dispatch-only nba-market-probe.yml. Highest ceiling (props market + demand) but zero games until ~October.",
+      "blocker": "No games until the ~2026-10 season start; stats.nba.com reliability. Cannot validate a leakage-safe dataset out-of-sample until in-season."
+    },
+    "Soccer": { "tierToday": "SCAFFOLD_ONLY", "scores": { "repoMaturity": 2, "currentSeasonAvailability": 2, "dataSourceReliability": 3, "marketCoverage": 3, "settlementReliability": 3, "automationReadiness": 2, "researchFeatureFeasibility": 3, "userDemand": 4, "engineeringEffortInverse": 2, "socialContentPotential": 4, "seasonalTiming": 3 }, "total": 31, "blocker": "No public soccer projection product; internal engine unvalidated (N too small)." },
+    "NHL": { "tierToday": "SCAFFOLD_ONLY", "scores": { "repoMaturity": 1, "currentSeasonAvailability": 0, "dataSourceReliability": 2, "marketCoverage": 1, "settlementReliability": 3, "automationReadiness": 1, "researchFeatureFeasibility": 3, "userDemand": 3, "engineeringEffortInverse": 2, "socialContentPotential": 3, "seasonalTiming": 1 }, "total": 20, "blocker": "Empty shells; no odds/projection pipeline ever built; off-season." },
+    "IPL": { "tierToday": "SCAFFOLD_ONLY", "scores": { "repoMaturity": 1, "currentSeasonAvailability": 0, "dataSourceReliability": 1, "marketCoverage": 1, "settlementReliability": 2, "automationReadiness": 1, "researchFeatureFeasibility": 2, "userDemand": 2, "engineeringEffortInverse": 2, "socialContentPotential": 3, "seasonalTiming": 0 }, "total": 15, "blocker": "Stale schedule; no per-player stats source; season not running." }
+  },
+  "recommendedSport": "UFC",
+  "recommendedFirstMarkets": ["moneyline (win probability vs market)"],
+  "why": "Highest CONFIDENCE next engine given it is 2026-07 (MLB in season, NBA off-season until ~October). UFC already has the only other dedicated end-to-end stack, reliable official settlement, and year-round events — so a leakage-safe research dataset can actually accumulate NOW. It is one concrete blocker (a graded fighter-history backtest) from research-validity, not a from-scratch build. Start with moneyline only; method/distance/round props are lower-confidence and come after the backtest validates.",
+  "secondaryTarget": "NBA — highest ceiling + user demand, but seasonally blocked. Prep the leakage-safe pregame capture (injury/lineup/rest/pace) during the off-season and activate at the ~2026-10 season start.",
+  "blockers": ["UFC backtest is 0/150 graded historical rows", "UFC workflows are dispatch-only (need a scheduled cadence once validated)", "every new sport must adopt the canonical eligibility gate (capturedAt < eventStart) before any row counts"],
+  "estimatedMilestones": [
+    "M1: grade historical UFC cards into a leakage-safe settled dataset (mirror the MLB pregame-archive + eligibility gate).",
+    "M2: benchmark UFC moneyline projections vs the de-vig market baseline out-of-sample; keep BLOCKED until it beats it.",
+    "M3: if validated, publish UFC moneyline as PUBLIC_BETA (win probability + market comparison, no edge language); else stay RESEARCH_ONLY.",
+    "M4 (parallel): NBA off-season prep — leakage-safe pregame feature capture ready to switch on at season start."
+  ]
+}
