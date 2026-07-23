@@ -105,6 +105,12 @@ jobs:
         # games are terminal (not re-fetched). Writes ONLY internal settlement-joins/; pending stays pending;
         # never touches money/public/settlement. Non-blocking — capture/audit are unaffected if this fails.
         run: node app/scripts/join-mlb-pregame-settlements.mjs --today "${{ github.event.inputs.date }}" --lookback 3 --write
+      - name: Eligibility quarantine safety-net (re-validate joins vs authoritative event start — idempotent, evidence-preserving)
+        continue-on-error: true
+        # Belt-and-suspenders: the join already re-validates researchEligible against freeze.eventStartTime, but this
+        # re-scans the committed joins and downgrades any inherited-eligible row captured at/after first pitch
+        # (timestamps untouched, row kept). Idempotent (0 changes on clean data). The leakage GATE below is the hard stop.
+        run: node app/scripts/quarantine-mlb-research-eligibility.mjs
       - name: Capture pregame batter splits (vs R/L season+prev — free StatsAPI, leakage-safe, idempotent, non-blocking)
         continue-on-error: true
         # Batter universe = batter-market playerIds from the committed join files. Season splits reflect games before
@@ -144,6 +150,23 @@ jobs:
       - name: Research observation quality gate (dedup / pending / missing outcome / future ts / leakage / impossible stats — PASS or BLOCKED)
         continue-on-error: true
         run: node app/scripts/research-observation-quality.mjs
+      - name: HARD leakage gate — fail the run (and SKIP the commit) if any hard violation survives re-validation
+        # NOT continue-on-error. After the join re-validation + quarantine safety-net, the committed observations must
+        # be clean; a surviving leakage/hard-violation is a code regression, so we FAIL rather than commit bad data.
+        # The commit step below requires job success, so a failure here means no leaked artifact is ever committed.
+        run: |
+          node -e '
+            const fs = require("fs");
+            const p = "data/internal/mlb/pregame-archive/status/research-observation-quality.json";
+            if (!fs.existsSync(p)) { console.log("no observation-quality report yet (no settled market date) — OK"); process.exit(0); }
+            const q = JSON.parse(fs.readFileSync(p, "utf8"));
+            const hv = Object.entries(q.hardViolations || {}).filter(([, n]) => n > 0);
+            if (!["PASS", "EMPTY"].includes(q.status) || hv.length) {
+              console.error(`::error::research observation-quality is ${q.status} with hard violations ${JSON.stringify(hv)} — refusing to commit leaked data`);
+              process.exit(1);
+            }
+            console.log(`observation-quality ${q.status}, 0 hard violations — safe to commit`);
+          '
       - name: Research warehouse — data-quality monitor (duplicates / leakage / impossible stats / stale odds)
         continue-on-error: true
         run: node app/scripts/monitor-mlb-research-quality.mjs

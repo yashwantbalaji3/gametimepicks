@@ -82,6 +82,20 @@ test("4 · a SAFETY ASSERT aborts if any non-archive / money / public path is st
   assert.match(commitStep, /ABORT/, "aborts and commits nothing on out-of-scope");
 });
 
+test("4c · the capture workflow re-validates eligibility + HARD-gates leakage before committing (bot can't reintroduce it)", () => {
+  // the join step re-validates researchEligible against the authoritative event start
+  assert.match(wf, /join-mlb-pregame-settlements\.mjs/, "runs the settlement join (which re-validates inherited eligibility)");
+  // a quarantine safety-net downgrades any post-start rows in the committed joins (idempotent)
+  assert.match(wf, /quarantine-mlb-research-eligibility\.mjs/, "runs the eligibility quarantine safety-net after the join");
+  // a HARD gate fails the run (skipping the commit) if any hard violation survives — and it is NOT continue-on-error
+  assert.match(wf, /HARD leakage gate/, "has a hard leakage gate step");
+  assert.match(wf, /refusing to commit leaked data/, "the gate errors out on leakage");
+  const gate = wf.slice(wf.indexOf("HARD leakage gate"), wf.indexOf("HARD leakage gate") + 700);
+  assert.ok(!/continue-on-error:\s*true/.test(gate), "the leakage gate must NOT be continue-on-error (it must fail the job)");
+  // the gate runs BEFORE the durable-persistence commit step
+  assert.ok(wf.indexOf("HARD leakage gate") < wf.indexOf("Durable in-repo persistence"), "the gate precedes the commit step");
+});
+
 test("5 · push is rebase-safe (a concurrent money/settle push is never reverted) — no force push", () => {
   assert.match(commitStep, /git pull --rebase/, "rebases the archive-only commit onto latest origin before push");
   assert.ok(!/push\s+.*(--force|-f\b)/.test(commitStep), "no force push");

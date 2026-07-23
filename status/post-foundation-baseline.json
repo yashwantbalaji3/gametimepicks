@@ -1,0 +1,42 @@
+{
+  "kind": "post-foundation-baseline",
+  "public": false,
+  "note": "Phase 0-2 snapshot. Timestamps supplied by the operator (2026-07-23T00:00 America/New_York); scripts cannot read the wall clock.",
+  "capturedAtEt": "2026-07-23T00:15:00-04:00",
+  "startingHead": "3f20f707",
+  "reconciledHead": "3f20f707",
+  "botDriftCommits": [],
+  "botDriftClassification": "none — no commits after 3f20f707",
+  "branchAlignment": { "main": "3f20f707", "june30-reset": "3f20f707", "origin/main": "3f20f707", "origin/june30-reset": "3f20f707", "aligned": true, "workingTreeClean": true },
+  "moneyMd5": "affe6b21071f2b3be96bb2774eb347c3",
+  "officialRecord": "19-14",
+  "bankroll": 19065.4,
+  "exposure": 0,
+  "mlb": {
+    "observationQuality": "PASS",
+    "leakage": 0,
+    "monitorOverall": "PASS",
+    "benchmark": "INSUFFICIENT — 1988/500 settled observations across 1/30 dates",
+    "researchGate": "BLOCKED",
+    "qualifyingDates": 1,
+    "requiredDates": 30
+  },
+  "phase1_repairSurvivesAutomation": {
+    "quarantineIdempotent": true,
+    "observationRebuildDeterministic": true,
+    "joinRevalidates": true,
+    "assemblerExcludesPostStart": true,
+    "workflowHardened": "mlb-pregame-capture.yml now runs the quarantine safety-net after the join AND a HARD leakage gate (not continue-on-error) that fails the run + skips the commit if any observation-quality hard violation survives — the bot can no longer commit leaked data. Guarded by test 4c.",
+    "conclusion": "The repair is enforced by code (join+assembler re-validate) AND by the workflow gate; no manual artifact correction is required going forward."
+  },
+  "phase2_qualifyingDateAccounting": {
+    "2026-07-21": { "final": 15, "eligibleMarketRows": 0, "settledEligible": 0, "status": "CAPTURED", "reason": "final games but NO eligible paid-market capture (free features only) → does not qualify" },
+    "2026-07-22": { "final": 17, "eligibleMarketRows": 2229, "settledEligible": 1988, "status": "QUALIFYING" },
+    "2026-07-23": { "final": 0, "eligibleMarketRows": 406, "settledEligible": 0, "status": "AWAITING_SETTLEMENT", "reason": "pregame markets captured; games not yet final" },
+    "2026-07-24": { "final": 0, "eligibleMarketRows": 8, "settledEligible": 0, "status": "AWAITING_SETTLEMENT" },
+    "qualifyingDates": 1,
+    "note": "No new date qualifies. A date counts ONLY with a final game + eligible pregame market capture + valid settled observations + observation-quality PASS. No fake completion-date estimate is produced from 1 date of history."
+  },
+  "validation": { "tsc": "0 errors", "defaultSuite": "2490 pass / 0 fail / 4 skipped", "build": "exit 0, 245 routes" },
+  "invariantsHeld": true
+}
