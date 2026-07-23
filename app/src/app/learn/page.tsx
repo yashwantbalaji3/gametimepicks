@@ -1,6 +1,6 @@
 /**
  * /learn — the plain-English education hub. Explains how to read the product (model vs market
- * probability, edge, risk tiers), the three tools (Projections / Suggested Cards / Build), Bank
+ * probability, model gap, risk tiers), the three tools (Projections / Suggested Cards / Build), Bank
  * Builder, why some picks are gated, and the paper-only framing. This is where long explanations
  * live so the action pages (today/games/picks/build/sport hubs) stay scannable. No betting advice.
  */
@@ -10,7 +10,7 @@ import SectionHeader from "@/components/section-header";
 export const metadata = {
   title: "Learn · GameTime Picks",
   description:
-    "How to read GameTime Picks — model vs market probability, edge, risk tiers, suggested cards, Bank Builder, and why some markets are gated. Educational, paper-only.",
+    "How to read GameTime Picks — model vs market probability, model gap, risk tiers, suggested cards, Bank Builder, and why some markets are gated. Educational, paper-only.",
 };
 
 function Concept({ term, children }: { term: string; children: React.ReactNode }) {
@@ -116,7 +116,7 @@ export default function LearnPage() {
       <section id="picks" className="scroll-mt-16 flex flex-col gap-3">
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>The three tools</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Concept term="Projections">Every market the model has a read on — shown with model %, market %, and edge. A &ldquo;projection view&rdquo; is information; not every view is suggested as a card.</Concept>
+          <Concept term="Projections">Every market the model has a read on — shown with model %, market %, and the gap between them. A &ldquo;projection view&rdquo; is information; not every view is suggested as a card.</Concept>
           <Concept term="Suggested cards">The model&apos;s actual paper picks for the day, bundled into cards by risk tier. Enter any stake to see the projected paper return. Browse them all on <Link href="/picks" style={{ color: "var(--vault-gold-bright)" }}>Picks</Link>.</Concept>
           <Concept term="Build">Make your own paper card from eligible legs across sports on <Link href="/build" style={{ color: "var(--vault-gold-bright)" }}>Build</Link> — add legs, set a stake, and see the combined odds + payout live.</Concept>
         </div>
@@ -160,7 +160,7 @@ export default function LearnPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
             ["World Cup", "Ensemble model (market prior + team strength + form), 90-minute regulation only — a draw is a real outcome. Bank Builder legs now require BOTH model and market support; the model-disfavored plus-money side lost on June 11 and is downweighted."],
-            ["MLB", "Player props settled nightly against official box scores (8,800+ decisive leans). Hits Overs are the strongest settled market; total-bases and strikeout Overs under-delivered and are excluded from suggested cards, as are outsized model-vs-market edges."],
+            ["MLB", "Player props settled nightly against official box scores (8,800+ decisive leans). Hits Overs are the strongest settled market; total-bases and strikeout Overs under-delivered and are excluded from suggested cards, as are outsized model-vs-market gaps."],
             ["NBA", "Player props settled against official box scores (3,100+ decisive). REB/PRA were the strongest recent markets — the settled Finals card hit both legs. Season-dependent."],
             ["Bank Builder", "One card per ladder step, full-bankroll stake, official-source settlement, and seven hard gates (real odds, model + market support, low correlation, clear settlement rules, target-fit, no lineup-pending props). No card that clears = no card published."],
           ].map(([t, d]) => (
