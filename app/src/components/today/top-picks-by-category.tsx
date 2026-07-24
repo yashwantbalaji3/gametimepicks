@@ -35,7 +35,7 @@ export default function TodayTopPicksByCategory({ categories }: { categories: Ca
     <section aria-labelledby="top-model-picks" id="top-model-picks" className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>Top model picks by market</h2>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>strongest simulated player predictions</span>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>strongest player predictions · % of 10,000 simulations</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {categories.map((c) => (

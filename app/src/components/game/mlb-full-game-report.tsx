@@ -10,10 +10,13 @@
  */
 
 import { useId, useState, type ReactNode } from "react";
+import PlayerAvatar from "@/components/player-avatar";
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import type { FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
 import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
+
+const int0 = (n: number): string => Math.round(n).toLocaleString();
 
 type TabKey = "overview" | "box" | "players" | "methodology";
 
@@ -153,15 +156,49 @@ function PredictionHero({ p }: { p: GamePredictionDecision }) {
           <span className="font-mono uppercase tracking-[0.12em] block mb-1.5" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Top player predictions</span>
           <div className="flex flex-col gap-1">
             {p.topPlayerPredictions.map((pp, i) => (
-              <div key={`${pp.player}-${pp.market}-${i}`} className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
-                <span className="text-[12px]" style={{ color: "var(--vault-text)" }}>
-                  <strong>{pp.player}</strong> <span style={{ color: "var(--vault-text-mute)" }}>{pp.pick} {pp.line} {pp.marketLabel}</span>
-                </span>
-                <span className="font-mono shrink-0" style={{ color: "var(--vault-gold)", fontSize: 10 }}>{Math.round(pp.simulationProbability * 100)}%</span>
+              <div key={`${pp.player}-${pp.market}-${i}`} className="flex items-center gap-2.5 rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+                <PlayerAvatar playerId={pp.playerId ?? null} playerName={pp.player} team={pp.team} sport="mlb" size="xs" flat />
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="truncate text-[12px]" style={{ color: "var(--vault-text)" }}><strong>{pp.player}</strong> <span style={{ color: "var(--vault-text-mute)" }}>{pp.pick} {pp.line} {pp.marketLabel}</span></span>
+                  <span className="truncate font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{pp.team}{pp.opponent ? ` vs ${pp.opponent}` : ""}</span>
+                </div>
+                <span className="font-mono shrink-0" style={{ color: "var(--vault-gold)", fontSize: 11 }}>{Math.round(pp.simulationProbability * 100)}%</span>
               </div>
             ))}
           </div>
-          <span className="font-mono block mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Direction from simulated probability · legacy prop engine · not a bet</span>
+          <span className="font-mono block mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Direction from simulated probability across 10,000 games · legacy prop engine · not a bet</span>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+/** The SimTheGame-style outcome center: raw simulation counts + the most-common final scores. */
+function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame; awayCode: string; homeCode: string }) {
+  if (!g.winProbability || !g.runCount) return null;
+  const N = g.runCount;
+  const awayWins = g.winProbability.away * N;
+  const homeWins = g.winProbability.home * N;
+  const extras = g.extraInningsProbability != null ? Math.round(g.extraInningsProbability * N) : null;
+  return (
+    <section className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+      <div className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Simulation outcomes · {int0(N)} complete games</div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <StatTile label={`${awayCode} wins`} value={int0(awayWins)} sub={`of ${int0(N)} games`} />
+        <StatTile label={`${homeCode} wins`} value={int0(homeWins)} sub={`of ${int0(N)} games`} />
+        {extras != null ? <StatTile label="Extra innings" value={int0(extras)} sub="past nine" /> : null}
+      </div>
+      {g.finalScores.length ? (
+        <div>
+          <div className="font-mono uppercase tracking-[0.1em] mb-1.5" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Most likely final scores</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+            {g.finalScores.slice(0, 6).map((fs) => (
+              <div key={`${fs.away}-${fs.home}`} className="flex items-center justify-between rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+                <span className="font-mono text-[12px]" style={{ color: "var(--vault-text)" }}>{awayCode} {fs.away} – {fs.home} {homeCode}</span>
+                <span className="font-mono" style={{ color: "var(--vault-gold)", fontSize: 10 }}>{Math.round(fs.probability * 100)}%</span>
+              </div>
+            ))}
+          </div>
         </div>
       ) : null}
     </section>
@@ -188,6 +225,9 @@ function Overview({ g, prediction, awayCode, homeCode }: { g: FullGameSimGame; p
         <div className="font-mono uppercase tracking-[0.12em] mb-2.5" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Win probability · 10,000 simulated games</div>
         <WinBar awayCode={awayCode} homeCode={homeCode} away={g.winProbability.away} home={g.winProbability.home} />
       </section>
+
+      {/* Simulation outcome center — raw counts + most-likely scorelines (SimTheGame-style) */}
+      <SimulationOutcomeCenter g={g} awayCode={awayCode} homeCode={homeCode} />
 
       {/* Expected score + total */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -289,7 +329,13 @@ function BoxScore({ g }: { g: FullGameSimGame }) {
               <tbody>
                 {byTeam(team).map((b) => (
                   <tr key={`${b.playerId}-${b.battingOrder}`} style={{ borderTop: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)" }}>
-                    <td style={{ padding: "3px 6px", color: "var(--vault-text)" }}>{b.battingOrder}. {b.name}</td>
+                    <td style={{ padding: "3px 6px", color: "var(--vault-text)" }}>
+                      <span className="inline-flex items-center gap-1.5">
+                        <span style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{b.battingOrder}.</span>
+                        {b.playerId > 0 ? <PlayerAvatar playerId={b.playerId} playerName={b.name} team={b.team} sport="mlb" size="xs" flat /> : null}
+                        <span>{b.name}</span>
+                      </span>
+                    </td>
                     {[b.plateAppearances, b.hits, b.totalBases, b.homeRuns, b.runs, b.rbi, b.walks, b.strikeouts].map((v, i) => (
                       <td key={i} className="font-mono" style={{ textAlign: "right", padding: "3px 6px" }}>{one(v)}</td>
                     ))}
