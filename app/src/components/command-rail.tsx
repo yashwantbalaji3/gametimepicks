@@ -41,10 +41,10 @@ const ITEMS: RailItem[] = [
   { href: "/today", label: "Today", glyph: "▤", group: "Today", desc: "Tonight's slate at a glance" },
   { href: "/picks", label: "Picks Lab", glyph: "⊞", desc: "Build a paper-only card" },
   { href: "/build", label: "Build", glyph: "✎", desc: "Advanced builder → Picks Lab" },
-  { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Bankroll", desc: "Conservative paper card" },
+  { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Strategy Lab", desc: "Conservative paper card" },
   { href: "/moonshot", label: "Moonshot", glyph: "🌙", desc: "High-risk paper longshots" },
   { href: "/mr-dub", label: "Daily Dashboard", glyph: "✓", desc: "Paper bankroll journey" },
-  { href: "/results", label: "Results", glyph: "≡", desc: "Settled track record" },
+  { href: "/results", label: "Results", glyph: "≡", group: "Track Record", desc: "Settled track record" },
   // The 2026 World Cup is complete — no active "World Cup" / "Soccer Specials" rail items. MLB leads Sports.
   { href: "/mlb", label: "MLB", glyph: "⚾", group: "Sports", desc: "Baseball hub" },
   { href: "/nba", label: "NBA", glyph: "🏀", desc: "Basketball hub" },
@@ -160,12 +160,11 @@ export default function CommandRail() {
         })}
       </nav>
 
-      <div
-        className="px-5 py-4 font-mono"
-        style={{ borderTop: "1px solid var(--vault-rule)", color: "var(--vault-text-faint)", fontSize: 10 }}
-      >
-        Educational analytics · paper only
-      </div>
+      {/* Sprint 012 (R8): the rail no longer repeats the paper-only/educational disclosure. It is already
+          stated ABOVE every page by DisclaimerBanner ("Not betting advice. For modeling and research
+          purposes only.") and again in the Footer — four simultaneous statements before any content trained
+          users to ignore all of them. The required language is unchanged and still on every page; only this
+          fourth duplicate is removed. */}
     </aside>
   );
 }
