@@ -81,6 +81,26 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
             </div>
           ) : null}
 
+          {/* ── Starting pitchers (from the simulated box score — the same games that produced the score) ── */}
+          {g.players?.pitchers?.length ? (
+            <div className="flex items-center gap-3 flex-wrap font-mono" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>
+              <span className="uppercase tracking-[0.1em]">Starters</span>
+              {g.players.pitchers.map((p) => (
+                <span key={p.playerId} style={{ color: "var(--vault-text-mute)" }}>
+                  {p.name} <span style={{ color: "var(--vault-text-faint)" }}>({p.team})</span>
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          {/* ── Win counts — the raw simulated tally behind the probability ── */}
+          <div className="flex items-center justify-between gap-2 rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Win counts</span>
+            <span className="font-mono" style={{ color: "var(--vault-text)", fontSize: 11.5 }}>
+              {g.awayTeam} {Math.round(g.winProbability!.away * g.runCount).toLocaleString()} · {g.homeTeam} {Math.round(g.winProbability!.home * g.runCount).toLocaleString()}
+            </span>
+          </div>
+
           {/* ── Simulation outcomes ── */}
           <div className="grid grid-cols-2 gap-2">
             {g.finalScores.length ? (

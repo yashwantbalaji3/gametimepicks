@@ -8,7 +8,8 @@
  * no fabricated data. Games without a full-game artifact are simply absent (they still have their own
  * honest report action elsewhere); an empty slate renders an honest empty state rather than a fake grid.
  */
-import SimulationCard, { type SimulationCardInput } from "@/components/entity/simulation-card";
+import { type SimulationCardInput } from "@/components/entity/simulation-card";
+import ExplorerControls from "@/components/games/explorer-controls";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
 
@@ -51,11 +52,9 @@ export default function SimulationExplorer() {
           only appear once genuinely produced — never placeholder numbers.
         </p>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          {cards.map((c) => (
-            <SimulationCard key={c.slug} card={c} />
-          ))}
-        </div>
+        /* Filter + sort chrome (Sprint 013). The cards are derived HERE on the server; the client boundary
+           only reorders/narrows them via pure selectors — it never simulates or invents a value. */
+        <ExplorerControls cards={cards} />
       )}
 
       <p className="font-mono m-0" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
