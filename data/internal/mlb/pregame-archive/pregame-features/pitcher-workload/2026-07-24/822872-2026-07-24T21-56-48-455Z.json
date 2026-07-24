@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822872,
+  "date": "2026-07-24",
+  "capturedAt": "2026-07-24T21:56:48.455Z",
+  "availableAt": "2026-07-24T21:56:48.455Z",
+  "eventStartTime": "2026-07-25T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669022,
+      "name": "MacKenzie Gore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-07-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 6,
+        "bbAvg": 1,
+        "erAvg": 4.2,
+        "hrAvg": 1.2,
+        "kPer9": 10.13,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 110.67,
+        "k": 122,
+        "bb": 42,
+        "er": 59,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 682243,
+      "name": "Bryce Miller",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 7,
+      "lastStartDate": "2026-07-17",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 7,
+        "bbAvg": 1,
+        "erAvg": 2,
+        "hrAvg": 1,
+        "kPer9": 11.12,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 58.33,
+        "k": 67,
+        "bb": 10,
+        "er": 14,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-24&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-24T21:56:48.455Z"
+  },
+  "recordHash": "ab7c14ec771aca8572c325bd375a3b115a4ca4bc5be2f7a06140fa0568cd08e4"
+}
