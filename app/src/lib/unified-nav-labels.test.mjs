@@ -24,7 +24,6 @@ const UNIFIED = {
   "/today": "Today",
   "/results": "Results",
   "/bank-builder": "Bank Builder",
-  "/games": "Game Reports",
   "/mlb": "MLB",
   "/world-cup": "World Cup",
   "/picks": "Picks Lab",

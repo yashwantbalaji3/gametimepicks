@@ -15,7 +15,7 @@ const mobileRoute = fs.readFileSync("src/lib/nav-active-route.ts", "utf8");
 // The 2026 World Cup is complete — /world-cup and /world-cup-specials are NOT active rail destinations
 // anymore (archive only, reachable from results/methodology), so they are not key destinations.
 const KEY_DESTINATIONS = [
-  "/today", "/games", "/picks", "/bank-builder", "/moonshot",
+  "/today", "/picks", "/bank-builder", "/moonshot",
   "/mlb", "/mr-dub", "/results",
 ];
 

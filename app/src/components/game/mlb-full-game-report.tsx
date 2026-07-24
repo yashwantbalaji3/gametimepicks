@@ -11,6 +11,7 @@
 
 import { useId, useState, type ReactNode } from "react";
 import PlayerAvatar from "@/components/player-avatar";
+import { PlayerCard } from "@/components/entity";
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import type { FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
 import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
@@ -156,14 +157,18 @@ function PredictionHero({ p }: { p: GamePredictionDecision }) {
           <span className="font-mono uppercase tracking-[0.12em] block mb-1.5" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Top player predictions</span>
           <div className="flex flex-col gap-1">
             {p.topPlayerPredictions.map((pp, i) => (
-              <div key={`${pp.player}-${pp.market}-${i}`} className="flex items-center gap-2.5 rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
-                <PlayerAvatar playerId={pp.playerId ?? null} playerName={pp.player} team={pp.team} sport="mlb" size="xs" flat />
-                <div className="flex flex-col min-w-0 flex-1">
-                  <span className="truncate text-[12px]" style={{ color: "var(--vault-text)" }}><strong>{pp.player}</strong> <span style={{ color: "var(--vault-text-mute)" }}>{pp.pick} {pp.line} {pp.marketLabel}</span></span>
-                  <span className="truncate font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{pp.team}{pp.opponent ? ` vs ${pp.opponent}` : ""}</span>
-                </div>
-                <span className="font-mono shrink-0" style={{ color: "var(--vault-gold)", fontSize: 11 }}>{Math.round(pp.simulationProbability * 100)}%</span>
-              </div>
+              <PlayerCard
+                key={`${pp.player}-${pp.market}-${i}`}
+                playerId={pp.playerId ?? null}
+                name={pp.player}
+                team={pp.team}
+                opponent={pp.opponent}
+                sport="mlb"
+                marketLabel={pp.marketLabel}
+                pick={pp.pick}
+                line={pp.line}
+                probabilityPct={pp.simulationProbability * 100}
+              />
             ))}
           </div>
           <span className="font-mono block mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Direction from simulated probability across 10,000 games · legacy prop engine · not a bet</span>

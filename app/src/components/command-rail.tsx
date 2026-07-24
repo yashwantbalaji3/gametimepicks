@@ -39,7 +39,6 @@ type RailItem = {
 const ITEMS: RailItem[] = [
   { href: "/simulate", label: "Simulate", glyph: "▶", group: "Simulate", desc: "Pick a game, run its report" },
   { href: "/today", label: "Today", glyph: "▤", group: "Today", desc: "Tonight's slate at a glance" },
-  { href: "/games", label: "Game Reports", glyph: "◷", desc: "Per-game model read" },
   { href: "/picks", label: "Picks Lab", glyph: "⊞", desc: "Build a paper-only card" },
   { href: "/build", label: "Build", glyph: "✎", desc: "Advanced builder → Picks Lab" },
   { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Bankroll", desc: "Conservative paper card" },

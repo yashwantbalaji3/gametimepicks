@@ -4,28 +4,24 @@
  * report shows), rendered with an official player portrait (graceful initials fallback), team + matchup, the
  * OVER/UNDER pick, and its simulated probability. Presentational only — the ranking + picks are pre-derived.
  */
-import Link from "next/link";
-import PlayerAvatar from "@/components/player-avatar";
+import { PlayerCard } from "@/components/entity";
 import type { CategoryDashboard } from "@/lib/mlb/prediction/slate";
 
-const pct = (p: number): string => `${Math.round(p * 100)}%`;
-
+/** One ranked pick row — the CANONICAL PlayerCard from the global entity system (Sprint 012). */
 function PickRow({ rank, pick }: { rank: number; pick: CategoryDashboard["picks"][number] }) {
   return (
-    <Link href={pick.href} className="vault-glow-hover flex items-center gap-2.5 rounded-[10px] px-2.5 py-2" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)", textDecoration: "none" }}>
-      <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 10, width: 14, textAlign: "right" }}>{rank}</span>
-      <PlayerAvatar playerId={pick.playerId ?? null} playerName={pick.player} team={pick.team} sport="mlb" size="sm" />
-      <div className="flex flex-col min-w-0 flex-1">
-        <span className="truncate font-semibold" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{pick.player}</span>
-        <span className="truncate font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-          {pick.team}{pick.opponent ? ` vs ${pick.opponent}` : ""}
-        </span>
-      </div>
-      <div className="flex flex-col items-end shrink-0">
-        <span className="font-semibold whitespace-nowrap" style={{ color: "var(--vault-text)", fontSize: 12 }}>{pick.pick} {pick.line}</span>
-        <span className="font-mono" style={{ color: "var(--vault-gold)", fontSize: 11 }}>{pct(pick.simulationProbability)}</span>
-      </div>
-    </Link>
+    <PlayerCard
+      rank={rank}
+      playerId={pick.playerId ?? null}
+      name={pick.player}
+      team={pick.team}
+      opponent={pick.opponent}
+      sport="mlb"
+      pick={pick.pick}
+      line={pick.line}
+      probabilityPct={pick.simulationProbability * 100}
+      href={pick.href}
+    />
   );
 }
 

@@ -30,9 +30,10 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
     assert.ok(i > dividerIdx, `${href} is SECONDARY (de-emphasized, after the divider)`);
   }
   // /games ("Game Reports") carries the divider (first secondary) — demoted below the whole primary spine.
-  assert.ok(idx('href: "/games"') > idx('href: "/bank-builder"'), "/games is demoted below the primary spine");
+  // Sprint 012 (R1): `/games` is a REDIRECT ALIAS to /simulate — it must not occupy its own nav slot.
+  assert.ok(!nav.includes(String.raw`href: "/games"`), "/games (a redirect alias) is not a nav entry");
   // The current active spine is still reachable.
-  for (const href of ["/games", "/mlb", "/bank-builder", "/mr-dub", "/moonshot", "/picks", "/results", "/learn", "/simulate"]) {
+  for (const href of ["/mlb", "/bank-builder", "/mr-dub", "/moonshot", "/picks", "/results", "/learn", "/simulate"]) {
     assert.ok(nav.includes(`href: "${href}"`), `${href} still in the nav`);
   }
   // WORLD CUP CLOSEOUT: the completed 2026 World Cup is NOT an active nav item — neither the "/world-cup"

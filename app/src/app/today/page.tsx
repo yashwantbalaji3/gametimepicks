@@ -240,7 +240,7 @@ export default function TodayPage() {
     { href: "/results", label: "Results", sub: "Receipts" },
     { href: "/bank-builder", label: "Bank Builder", sub: "The ladder" },
     { href: "/picks", label: "Picks Lab", sub: "Daily builder" },
-    { href: "/games", label: "Game Reports", sub: "Model reads" },
+    { href: "/simulate", label: "Game Reports", sub: "Model reads" },
     { href: "/learn", label: "How It Works", sub: "Methodology" },
   ];
 

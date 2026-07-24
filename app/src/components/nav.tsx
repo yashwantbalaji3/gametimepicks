@@ -46,7 +46,6 @@ const NAV_ITEMS: Array<{
   // flagship paper products, per-sport centers, per-game reports, and side products.
   { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
   { href: "/moonshot", label: "Moonshot" },
-  { href: "/games", label: "Game Reports" },
   { href: "/mlb", label: "MLB" },
   { href: "/picks", label: "Picks Lab" },
   { href: "/mr-dub", label: "Daily Dashboard" },
@@ -63,7 +62,7 @@ const SPORT_HREFS = new Set(["/sports"]);
 
 // The mobile bottom nav already carries the 8 core product routes. To keep the mobile TOP strip
 // COMPLEMENTARY (not a duplicate of the bottom bar), it shows only the items the bottom nav lacks —
-// Results · Sports · Learn. Desktop still renders the full NAV_ITEMS spine.
+// Results · Sports · Learn. The full NAV_ITEMS spine renders only in the sm-lg window; the command rail owns lg+.
 const BOTTOM_NAV_HREFS = new Set(MOBILE_NAV_ITEMS.map((i) => i.href));
 const MOBILE_TOP_ITEMS = NAV_ITEMS.filter((i) => !BOTTOM_NAV_HREFS.has(i.href));
 
