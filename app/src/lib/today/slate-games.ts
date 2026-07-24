@@ -24,6 +24,8 @@ import {
 export interface SlateGameDetailInput extends GameAvailabilityInput {
   homeLogo?: string | null;
   awayLogo?: string | null;
+  /** Compact canonical prediction line (Sprint 009), e.g. "SF · UNDER 8.5 · LAA +1.5". Null when none. */
+  predictionLine?: string | null;
 }
 
 /** One rendered board row: the canonical availability + the identity fields needed to draw the matchup. */
@@ -37,6 +39,8 @@ export interface SlateGameRow extends GameAvailability {
   homeLogo: string | null;
   awayLogo: string | null;
   date: string;
+  /** Compact canonical prediction line (Sprint 009) — the SAME decision object the Game Report hero uses. */
+  predictionLine: string | null;
 }
 
 export interface SlateGroup {
@@ -139,6 +143,7 @@ export function slateGames(
       homeLogo: d.homeLogo ?? null,
       awayLogo: d.awayLogo ?? null,
       date: d.date ?? "",
+      predictionLine: d.predictionLine ?? null,
     });
   }
 

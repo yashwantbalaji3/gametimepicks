@@ -29,6 +29,9 @@ import {
 import { getMlbGameCenter, type MlbGameCenter } from "@/lib/mlb-team-markets";
 import { loadFullGameArtifact, type FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
+import { buildGamePredictionDecision, type PlayerPickInput } from "@/lib/mlb/prediction/decision";
+import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
+import { compactPredictionLine } from "@/lib/mlb/prediction/summary";
 import { getWcGameCenter, type WcGameCenter } from "@/lib/wc-game-center";
 import { getWcExpandedMarkets, type WcExpandedMarkets } from "@/lib/wc-expanded-markets";
 import fs from "node:fs";
@@ -105,6 +108,15 @@ export interface PublicGameDetail {
   fullGameSim?: FullGameSimGame | null;
   /** Meta for the full-game artifact (model version, run count, generatedAt) — provenance for the report. */
   fullGameSimMeta?: FullGameArtifactMeta | null;
+  /**
+   * Canonical PREDICTION decision (Sprint 009, MLB only) — the directional answer (winner, projected score,
+   * total O/U, run-line side, team totals, top player predictions) derived deterministically from the
+   * full-game artifact + market snapshot by the ONE decision engine, so every surface agrees. Null when no
+   * full-game sim. Market is a threshold + comparison only, never the direction; no market-beating claim.
+   */
+  prediction?: GamePredictionDecision | null;
+  /** Compact one-line prediction (Sprint 009), e.g. "SF · UNDER 8.5 · LAA +1.5" — for /today & /mlb rows. */
+  predictionLine?: string | null;
   /**
    * Market-implied Game Center (MLB only) — win probability, game total + O/U lean,
    * and run-line lean, derived by de-vigging the sportsbook team markets
@@ -420,12 +432,30 @@ function mlbDetails(): PublicGameDetail[] {
   return details.map((d) => {
     const sim = joinSim(d.matchId, d.slug);
     const fg = d.matchId ? fullGame?.byGamePk.get(String(d.matchId)) ?? null : null;
+    // Canonical prediction (Sprint 009): the ONE decision engine turns the full-game distributions + the
+    // legacy prop picks into directional answers. Player direction is read from the SIMULATED probability
+    // inside the engine (never the model-vs-market gap). Null when there is no full-game artifact.
+    const playerPicks: PlayerPickInput[] = (sim?.generatedPicks ?? [])
+      .filter((p) => p.player != null && p.line != null && typeof p.modelProbability === "number")
+      .map((p) => ({
+        player: String(p.player),
+        team: (p as { team?: string | null }).team ?? null,
+        market: p.market,
+        marketLabel: (p as { marketLabel?: string | null }).marketLabel ?? null,
+        line: Number(p.line),
+        side: p.side === "under" ? "under" : "over",
+        modelProbability: p.modelProbability,
+        marketProbability: p.marketProbability ?? null,
+      }));
+    const prediction = fg ? buildGamePredictionDecision(fg, playerPicks) : null;
     return {
       ...d,
       gameLabMlb: d.matchId ? buildMlbGameLabReport(board, d.matchId) : null,
       gameLabSimulation: sim,
       fullGameSim: fg,
       fullGameSimMeta: fg ? fullGame?.meta ?? null : null,
+      prediction,
+      predictionLine: compactPredictionLine(prediction),
       // Market-implied Game Center, joined by the sim's gameId (== the Odds event id).
       // Null when the game has no de-vigged team markets → the UI shows an honest
       // unavailable state rather than inventing win-prob / total / run-line numbers.

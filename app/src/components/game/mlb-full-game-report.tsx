@@ -12,9 +12,14 @@
 import { useId, useState, type ReactNode } from "react";
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import type { FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
+import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
 
 type TabKey = "overview" | "box" | "players" | "methodology";
+
+/** A short, non-hype rendering of a simulation-strength label. */
+const shortStrength = (s: string | null | undefined): string =>
+  s ? s.replace(" SIMULATION", "") : "";
 
 const pct = (p: number | null | undefined): string => (typeof p === "number" ? `${Math.round(p * 100)}%` : "—");
 const one = (n: number | null | undefined): string => (typeof n === "number" && Number.isFinite(n) ? n.toFixed(1) : "—");
@@ -82,12 +87,102 @@ function StatTile({ label, value, sub }: { label: string; value: ReactNode; sub?
   );
 }
 
-function Overview({ g, awayCode, homeCode }: { g: FullGameSimGame; awayCode: string; homeCode: string }) {
+/** One of the three primary market prediction cards (Moneyline / Total / Run Line). */
+function PredictionCard({ label, pick, prob, strength, unavailable }: { label: string; pick: string; prob: string; strength: string; unavailable?: string }) {
+  return (
+    <div className="rounded-[12px] px-3 py-3 flex flex-col gap-1" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)" }}>
+      <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{label}</span>
+      {unavailable ? (
+        <>
+          <span className="font-display" style={{ color: "var(--vault-text-mute)", fontSize: 15, fontWeight: 700 }}>Unavailable</span>
+          <span style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{unavailable}</span>
+        </>
+      ) : (
+        <>
+          <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 800, lineHeight: 1.1 }}>{pick}</span>
+          <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>{prob}</span>
+          <span className="font-mono uppercase tracking-[0.08em] mt-0.5" style={{ color: "var(--vault-gold)", fontSize: 8.5 }}>{strength}</span>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** The prediction-first hero: the direct answers the simulation gives, before any probability evidence. */
+function PredictionHero({ p }: { p: GamePredictionDecision }) {
+  if (!p.predictedWinner || !p.projectedScore) return null;
+  const winnerName = p.predictedWinner.side === "home" ? p.homeTeamName : p.awayTeamName;
+  const ml = p.moneyline;
+  const total = p.total;
+  const rl = p.runLine;
+  return (
+    <section className="rounded-[16px] px-4 py-4 flex flex-col gap-3" style={{ background: "linear-gradient(180deg, rgba(217,164,65,0.10), rgba(217,164,65,0.03))", border: "1px solid rgba(217,164,65,0.35)" }}>
+      <div className="flex items-baseline justify-between gap-2 flex-wrap">
+        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>GameTimePicks prediction</span>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>from 10,000 simulated games</span>
+      </div>
+      <div className="flex items-end justify-between gap-3 flex-wrap">
+        <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 26, fontWeight: 800, lineHeight: 1.05 }}>{winnerName}</span>
+        <div className="text-right">
+          <div className="font-display" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>
+            {p.homeTeam} {p.projectedScore.home} – {p.awayTeam} {p.projectedScore.away}
+          </div>
+          <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{p.projectedScore.label}</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        <PredictionCard label="Moneyline" pick={ml ? ml.team : "—"} prob={ml ? `${Math.round(ml.simulationProbability * 100)}% simulations` : ""} strength={shortStrength(ml?.strengthLabel)} />
+        {total && total.pick !== "UNAVAILABLE" ? (
+          <PredictionCard
+            label="Total"
+            pick={`${total.pick} ${total.line}`}
+            prob={`${Math.round((total.pick === "OVER" ? total.overProbability ?? 0 : total.underProbability ?? 0) * 100)}% ${total.pick === "OVER" ? "over" : "under"}`}
+            strength={shortStrength(total.strengthLabel)}
+          />
+        ) : (
+          <PredictionCard label="Total" pick="" prob="" strength="" unavailable={total?.unavailableReason ?? "No line"} />
+        )}
+        {rl ? (
+          <PredictionCard label="Run line" pick={rl.pick} prob={`${Math.round(rl.coverProbability * 100)}% cover`} strength={shortStrength(rl.strengthLabel)} />
+        ) : (
+          <PredictionCard label="Run line" pick="" prob="" strength="" unavailable="Unavailable" />
+        )}
+      </div>
+      {p.topPlayerPredictions.length ? (
+        <div>
+          <span className="font-mono uppercase tracking-[0.12em] block mb-1.5" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Top player predictions</span>
+          <div className="flex flex-col gap-1">
+            {p.topPlayerPredictions.map((pp, i) => (
+              <div key={`${pp.player}-${pp.market}-${i}`} className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+                <span className="text-[12px]" style={{ color: "var(--vault-text)" }}>
+                  <strong>{pp.player}</strong> <span style={{ color: "var(--vault-text-mute)" }}>{pp.pick} {pp.line} {pp.marketLabel}</span>
+                </span>
+                <span className="font-mono shrink-0" style={{ color: "var(--vault-gold)", fontSize: 10 }}>{Math.round(pp.simulationProbability * 100)}%</span>
+              </div>
+            ))}
+          </div>
+          <span className="font-mono block mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Direction from simulated probability · legacy prop engine · not a bet</span>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function Overview({ g, prediction, awayCode, homeCode }: { g: FullGameSimGame; prediction: GamePredictionDecision | null; awayCode: string; homeCode: string }) {
   if (!g.winProbability || !g.runs || !g.totalRuns) return null;
   const rl15 = g.runLine.find((r) => r.line === 1.5);
   const favHomeRL = (rl15?.homeCover ?? 0) >= (rl15?.awayCover ?? 0);
   return (
     <div className="flex flex-col gap-4">
+      {/* PREDICTION FIRST — the direct answers, before any probability evidence. */}
+      {prediction ? <PredictionHero p={prediction} /> : null}
+
+      {/* Everything below is EVIDENCE for the prediction above. */}
+      <div className="flex items-center gap-2 mt-1">
+        <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Evidence</span>
+        <div className="flex-1 h-px" style={{ background: "var(--vault-rule)" }} />
+      </div>
+
       {/* Win probability */}
       <section className="rounded-[14px] px-4 py-4" style={{ background: "rgba(217,164,65,0.05)", border: "1px solid rgba(217,164,65,0.25)" }}>
         <div className="font-mono uppercase tracking-[0.12em] mb-2.5" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Win probability · 10,000 simulated games</div>
@@ -155,6 +250,12 @@ function Overview({ g, awayCode, homeCode }: { g: FullGameSimGame; awayCode: str
               </div>
             </div>
           ))}
+          {prediction?.moneyline ? (
+            <div className="px-4 py-2 flex items-center justify-between" style={{ borderTop: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Relationship</span>
+              <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>{prediction.moneyline.marketAgreement}</span>
+            </div>
+          ) : null}
           <p className="font-mono px-4 py-2 m-0" style={{ fontSize: 9.5, color: "var(--vault-text-faint)", borderTop: "1px solid var(--vault-rule)" }}>
             The market column is the de-vigged sportsbook price, shown for comparison. It is never an input to our simulation, and we do not claim to beat it.
           </p>
@@ -260,12 +361,14 @@ function Methodology({ g, meta }: { g: FullGameSimGame; meta: FullGameArtifactMe
 export default function MlbFullGameReport({
   fullGame,
   meta,
+  prediction,
   deepDive,
   awayCode,
   homeCode,
 }: {
   fullGame: FullGameSimGame;
   meta: FullGameArtifactMeta | null;
+  prediction: GamePredictionDecision | null;
   deepDive: ReactNode;
   awayCode: string;
   homeCode: string;
@@ -323,7 +426,7 @@ export default function MlbFullGameReport({
 
       {/* Panels */}
       <div role="tabpanel">
-        {tab === "overview" && (available ? <Overview g={g} awayCode={awayCode} homeCode={homeCode} /> : <UnavailableNote g={g} />)}
+        {tab === "overview" && (available ? <Overview g={g} prediction={prediction} awayCode={awayCode} homeCode={homeCode} /> : <UnavailableNote g={g} />)}
         {tab === "box" && (available ? <BoxScore g={g} /> : <UnavailableNote g={g} />)}
         {tab === "players" && <div>{deepDive}</div>}
         {tab === "methodology" && <Methodology g={g} meta={meta} />}

@@ -56,6 +56,13 @@ function SlateRow({ g }: { g: SlateGameRow }) {
       </div>
       {/* Neutral "why open this game?" line — never a pick or a confidence claim. */}
       <span style={{ color: "var(--vault-text-mute)", fontSize: 10.5, lineHeight: 1.3 }}>{g.explanation}</span>
+      {/* Compact canonical prediction (Sprint 009) — the SAME decision the Game Report hero states. */}
+      {g.predictionLine ? (
+        <span className="font-mono" style={{ color: "var(--vault-gold)", fontSize: 10, letterSpacing: "0.02em" }}>
+          <span style={{ color: "var(--vault-text-faint)" }}>Prediction: </span>
+          {g.predictionLine}
+        </span>
+      ) : null}
     </Link>
   );
 }

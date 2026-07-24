@@ -97,6 +97,10 @@ jobs:
         if: steps.board.outputs.have_board == 'true'
         continue-on-error: true
         run: npx tsx app/scripts/generate-mlb-full-game-simulations.mjs --write --date "${{ steps.cfg.outputs.date }}" --now "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+      - name: 5c) Predictions (FREE, deterministic decision layer over the full-game artifact — no network, no money)
+        if: steps.board.outputs.have_board == 'true'
+        continue-on-error: true
+        run: npx tsx app/scripts/generate-mlb-predictions.mjs --write --date "${{ steps.cfg.outputs.date }}" --now "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
       - name: 6) Verify (completeness gate — honest slate status + production health)
         if: steps.board.outputs.have_board == 'true'
         run: node app/scripts/mlb-slate-completeness-gate.mjs --date "${{ steps.cfg.outputs.date }}"

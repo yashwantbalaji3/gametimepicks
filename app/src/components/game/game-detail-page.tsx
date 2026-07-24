@@ -666,6 +666,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     <MlbFullGameReport
       fullGame={detail.fullGameSim}
       meta={detail.fullGameSimMeta ?? null}
+      prediction={detail.prediction ?? null}
       deepDive={mlbReportDetails}
       awayCode={detail.fullGameSim.awayTeam}
       homeCode={detail.fullGameSim.homeTeam}
