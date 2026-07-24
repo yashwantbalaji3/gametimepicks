@@ -25,7 +25,7 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { buildTop10Board } from "@/lib/top10/top10-picks";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
-import { slateGames } from "@/lib/today/slate-games";
+import { slateGames, slateReadinessNote } from "@/lib/today/slate-games";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
@@ -77,11 +77,13 @@ export default function TodayPage() {
   const details = buildAllGameDetails();
   const { featured, readyCount } = featuredSimulations(details, serverToday);
 
-  // ── EVERY game on the presented slate — honest per-game action so none is stranded behind the capped
-  //    featured row. Framed on `today` (the presented slate) so it lines up with the header, MLB count,
-  //    and top picks. Reads the same details; fabricates nothing (a game with no artifact still links to
-  //    its report, which shows its own honest unavailable state). ──
-  const { games: slateRows, simReadyCount } = slateGames(details, today);
+  // ── EVERY game on the presented slate — honest per-game action so none is stranded, GROUPED by
+  //    readiness (Simulations ready › Model reads › Market context › Reports) via the shared availability
+  //    contract. Framed on `today` (the presented slate); a real clock (Date.now) drives honest start-state.
+  //    Reads the same details; fabricates nothing. ──
+  const slate = slateGames(details, today, { nowMs: Date.now() });
+  // Explicit readiness for a CURRENT slate (ready vs still-filling-in); stale/no-games stay with the banner.
+  const slateReadiness = slateReadinessNote(slate.summary, today >= serverToday);
 
   // ── Top model picks — the canonical cross-sport board; take the strongest ~6 for the compact list ──
   const top10 = buildTop10Board(dataRoot, today, Date.now());
@@ -246,8 +248,8 @@ export default function TodayPage() {
       {/* 4 — Simulation-backed games (real ready artifacts only) */}
       <TodaySimulationLeans featured={featured} readyCount={readyCount} />
 
-      {/* 4b — Every game on the slate: one honest per-game action so none is stranded behind the cap */}
-      <TodayFullSlate games={slateRows} simReadyCount={simReadyCount} />
+      {/* 4b — Every game on the slate: grouped by readiness, one honest per-game action, factual summary */}
+      <TodayFullSlate groups={slate.groups} summary={slate.summary} readinessNote={slateReadiness} />
 
       {/* 5 — Build-a-Pick module */}
       <BuildAPickModule

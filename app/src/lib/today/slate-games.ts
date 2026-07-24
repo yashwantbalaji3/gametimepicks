@@ -1,52 +1,35 @@
 /**
- * SLATE GAMES selector — a PURE, framework-free picker for the /today "every game on the slate" board.
+ * SLATE GAMES assembler — turns the day's game details into the /today "every game on the slate" board.
  *
- * The gap this closes: the featured-simulation row (`featuredSimulations`) is a CAPPED highlight reel (top
- * 5). On a 12-game MLB slate the other games are only reachable through a generic "+N more in the Simulate
- * lobby" link — they have no per-game action on the daily hub. This selector returns EVERY game on the
- * presented slate as an honest, actionable row so nothing is stranded: "every game has a clear action."
+ * It does NOT re-implement availability: every per-game tier/label/explanation/action/href comes from the
+ * ONE canonical `deriveGameAvailability` contract (./availability), so /today and /mlb can never disagree.
+ * This module only assembles the slate: filter to the presented day, drop games that cannot render an
+ * honest matchup, GROUP by readiness tier, sort chronologically within each group, and produce a factual
+ * (non-predictive) summary line.
  *
- * Rules (honest — nothing here fabricates a simulation or a read):
- *   • One row per game on the presented slate (`date === today`), keyed by the canonical, doubleheader-safe
- *     slug — so BOTH ends of a doubleheader appear, each with its own distinct action (the game-identity
- *     invariant reinforced on the hub).
- *   • Availability tier is the HONEST best artifact the game actually has, in strict order:
- *       simulation  — a genuine `gameLabSimulation.status === "ready"` run simulation
- *       model-read  — no ready sim, but the MLB Game Lab has ≥1 model lean vs the market
- *       market-read — no model leans, but a de-vigged market-implied Game Center exists
- *       report      — none of the above; the row still links to the report page, which renders its OWN
- *                     honest unavailable state (a game is NEVER left without a working action).
- *   • The subline is informational and NON-PREDICTIVE — counts + "vs market", never a specific pick
- *     surfaced as a recommendation. The run count is not asserted (unsourced here); the chip carries it.
- *   • A real first-pitch timestamp is passed through when the team markets carry one (honest game status).
- *
- * No React/Next imports so tsx can unit-test it directly and the server component can import it as-is. The
- * input is a structural SUBSET of the real PublicGameDetail, so the hub passes `buildAllGameDetails()` as-is.
+ * The point: on a 12-game slate no game is stranded behind a "+N more" link — every rendered game has a
+ * clear action — AND the board is organized so a user can pick something useful without a fabricated
+ * "top pick". Nothing here invents confidence, ranking, or a simulation.
  */
+import {
+  deriveGameAvailability,
+  AVAILABILITY_ORDER,
+  AVAILABILITY_GROUP_HEADING,
+  type AvailabilityLevel,
+  type GameAvailability,
+  type GameAvailabilityInput,
+} from "./availability";
 
-export type SlateAvailability = "simulation" | "model-read" | "market-read" | "report";
-
-/** The minimal game-detail shape the selector reads (a structural subset of the real detail). */
-export interface SlateGameDetailInput {
-  sport: string;
-  sportLabel?: string | null;
-  slug: string;
-  date?: string | null;
-  homeTeam?: string | null;
-  awayTeam?: string | null;
+/** The slate input = the availability input plus the identity/logo fields the row renders. */
+export interface SlateGameDetailInput extends GameAvailabilityInput {
   homeLogo?: string | null;
   awayLogo?: string | null;
-  /** MLB run-simulation view — only `status: "ready"` counts as a genuine simulation. */
-  gameLabSimulation?: { status: "ready" | "unavailable" | "stale" | "error" } | null;
-  /** MLB Game Lab model report — `leanCount > 0` means the game carries model reads vs the market. */
-  gameLabMlb?: { leanCount?: number | null } | null;
-  /** Market-implied (de-vigged) Game Center — presence means a market read exists; carries first pitch. */
-  gameCenter?: { firstPitch?: string | null } | null;
 }
 
-export interface SlateGameRow {
+/** One rendered board row: the canonical availability + the identity fields needed to draw the matchup. */
+export interface SlateGameRow extends GameAvailability {
   slug: string;
-  /** Canonical, doubleheader-safe report href — the game's clear action target. */
+  /** Non-null canonical report href (rows that resolve to UNAVAILABLE are dropped, never rendered). */
   href: string;
   sport: string;
   sportLabel: string;
@@ -54,109 +37,132 @@ export interface SlateGameRow {
   homeLogo: string | null;
   awayLogo: string | null;
   date: string;
-  /** Real scheduled first pitch (ISO) when the team markets carry it; null otherwise. */
-  firstPitchIso: string | null;
-  availability: SlateAvailability;
-  statusLabel: string;
-  actionLabel: string;
-  /** Informational, NON-PREDICTIVE detail line (counts + framing), or null. */
-  subline: string | null;
-  tone: "success" | "gold" | "mute";
+}
+
+export interface SlateGroup {
+  level: AvailabilityLevel;
+  heading: string;
+  games: SlateGameRow[];
+}
+
+export interface SlateSummary {
+  total: number;
+  counts: Record<AvailabilityLevel, number>;
+  /** Factual, non-predictive count line, e.g. "5 games today · 3 simulations ready · 1 model read". */
+  text: string;
 }
 
 export interface SlateGamesResult {
+  /** Flat rows in board order (group order, then chronological within group). */
   games: SlateGameRow[];
-  /** Total games on the presented slate (rows returned). */
+  /** Non-empty groups only, richest tier first — empty groups never render a blank heading. */
+  groups: SlateGroup[];
+  summary: SlateSummary;
   total: number;
-  /** How many of those carry a genuine ready simulation. */
+  /** How many rendered games carry a genuine ready simulation (kept for back-compat callers). */
   simReadyCount: number;
 }
 
 const SPORT_LABEL: Record<string, string> = { world_cup: "World Cup", mlb: "MLB", nba: "NBA", ufc: "UFC" };
 
-/** The honest availability tier + its copy, derived from the best artifact the game actually has. */
-export function deriveAvailability(d: SlateGameDetailInput): Pick<
-  SlateGameRow,
-  "availability" | "statusLabel" | "actionLabel" | "subline" | "tone"
-> {
-  if (d.gameLabSimulation != null && d.gameLabSimulation.status === "ready") {
-    return {
-      availability: "simulation",
-      statusLabel: "Simulation ready",
-      actionLabel: "Open simulation →",
-      subline: null, // the "Simulation ready" chip + action already carry it; no unsourced run-count claim
-      tone: "success",
-    };
+/**
+ * The explicit fresh-and-complete vs fresh-and-partial readiness line for a CURRENT slate. Stale / no-games
+ * states are deliberately left to `SlateLivenessBanner` (the canonical freshness surface) — this never
+ * double-speaks them: it returns null unless the slate is the current day AND has games. Purely factual;
+ * derived from the availability counts, never a performance claim.
+ */
+export function slateReadinessNote(
+  summary: Pick<SlateSummary, "counts" | "total">,
+  slateIsCurrent: boolean,
+): string | null {
+  if (summary.total === 0) return null; // no board → the liveness banner speaks for a pending/no-games day
+  if (!slateIsCurrent) return null; // stale slate → the liveness banner already frames it as the latest available
+  const awaiting = summary.counts.report;
+  if (awaiting === 0) return "Today's slate is ready — every game has a simulation, model, or market read.";
+  return `Today's slate is still filling in — ${awaiting} game${awaiting === 1 ? "" : "s"} awaiting inputs.`;
+}
+
+/** The factual per-tier phrase for the summary line (singular/plural handled). */
+function summaryPhrase(level: AvailabilityLevel, n: number): string {
+  switch (level) {
+    case "simulation":
+      return `${n} simulation${n === 1 ? "" : "s"} ready`;
+    case "model-read":
+      return `${n} model read${n === 1 ? "" : "s"}`;
+    case "market-read":
+      return `${n} market read${n === 1 ? "" : "s"}`;
+    case "report":
+      return `${n} awaiting inputs`;
+    case "unavailable":
+      return `${n} unavailable`;
   }
-  const leans = d.gameLabMlb?.leanCount ?? 0;
-  if (typeof leans === "number" && leans > 0) {
-    return {
-      availability: "model-read",
-      statusLabel: "Model read",
-      actionLabel: "View game report →",
-      subline: `${leans} model read${leans === 1 ? "" : "s"} vs market`,
-      tone: "gold",
-    };
-  }
-  if (d.gameCenter != null) {
-    return {
-      availability: "market-read",
-      statusLabel: "Market read",
-      actionLabel: "View market read →",
-      subline: "Market-implied read (de-vigged odds)",
-      tone: "gold",
-    };
-  }
-  return {
-    availability: "report",
-    statusLabel: "Report",
-    actionLabel: "Open game page →",
-    subline: null,
-    tone: "mute",
-  };
+}
+
+/** Chronological within a group: soonest first pitch first; unknown times last; slug tiebreak. */
+function byFirstPitch(a: SlateGameRow, b: SlateGameRow): number {
+  const ta = a.firstPitchIso ?? "9999-99-99T99:99Z";
+  const tb = b.firstPitchIso ?? "9999-99-99T99:99Z";
+  return ta.localeCompare(tb) || a.slug.localeCompare(b.slug);
 }
 
 /**
- * Build one honest, actionable row per game on the presented slate.
+ * Assemble the presented slate's board.
  * @param today the presented slate date (YYYY-MM-DD). Only games with `date === today` are returned, so a
- *   stale slate is never rendered as "today's games". When omitted, all games are returned (edge-sorted).
+ *   stale slate is never rendered as today's. Omit to include all games (unfiltered).
+ * @param opts.nowMs real epoch-ms clock, threaded into the availability contract for honest start-state.
  */
-export function slateGames(details: readonly SlateGameDetailInput[], today?: string): SlateGamesResult {
+export function slateGames(
+  details: readonly SlateGameDetailInput[],
+  today?: string,
+  opts?: { nowMs?: number },
+): SlateGamesResult {
   const rows: SlateGameRow[] = [];
   const seen = new Set<string>();
 
   for (const d of details) {
     if (today != null && d.date !== today) continue; // only the presented slate
-    if (!d.homeTeam || !d.awayTeam) continue; // cannot render a matchup honestly without both teams
-    if (!d.slug || seen.has(d.slug)) continue; // slugs are unique; guard against accidental dupes
-    seen.add(d.slug);
+    if (!d.slug || seen.has(d.slug)) continue; // slugs are unique; guard accidental dupes
 
-    const tier = deriveAvailability(d);
+    const availability = deriveGameAvailability(d, { nowMs: opts?.nowMs });
+    // A game that can't offer even a fallback report action, or has no honest matchup, is never a board row.
+    if (availability.level === "unavailable" || availability.canonicalHref == null || !d.homeTeam || !d.awayTeam) {
+      continue;
+    }
+    seen.add(d.slug);
     rows.push({
+      ...availability,
+      href: availability.canonicalHref,
       slug: d.slug,
-      href: `/games/${d.sport}/${d.slug}`,
       sport: d.sport,
-      sportLabel: d.sportLabel ?? SPORT_LABEL[d.sport] ?? d.sport.toUpperCase(),
+      sportLabel: (typeof d.sportLabel === "string" && d.sportLabel) || SPORT_LABEL[d.sport] || d.sport.toUpperCase(),
       teams: { home: d.homeTeam, away: d.awayTeam },
       homeLogo: d.homeLogo ?? null,
       awayLogo: d.awayLogo ?? null,
       date: d.date ?? "",
-      firstPitchIso: typeof d.gameCenter?.firstPitch === "string" && d.gameCenter.firstPitch ? d.gameCenter.firstPitch : null,
-      ...tier,
     });
   }
 
-  // Chronological slate order: soonest first pitch first; games without a known time sort last (stable by
-  // slug). This is the order a fan scans the day in.
-  rows.sort((a, b) => {
-    const ta = a.firstPitchIso ?? "9999-99-99T99:99Z";
-    const tb = b.firstPitchIso ?? "9999-99-99T99:99Z";
-    return ta.localeCompare(tb) || a.slug.localeCompare(b.slug);
-  });
+  // Group by tier (richest first); chronological within each; drop empty groups.
+  const groups: SlateGroup[] = [];
+  const counts = { simulation: 0, "model-read": 0, "market-read": 0, report: 0, unavailable: 0 } as Record<AvailabilityLevel, number>;
+  for (const level of AVAILABILITY_ORDER) {
+    const inTier = rows.filter((r) => r.level === level).sort(byFirstPitch);
+    counts[level] = inTier.length;
+    if (inTier.length > 0) groups.push({ level, heading: AVAILABILITY_GROUP_HEADING[level], games: inTier });
+  }
+
+  const flat = groups.flatMap((g) => g.games);
+  const total = flat.length;
+  const summaryParts = [`${total} game${total === 1 ? "" : "s"} today`];
+  for (const level of AVAILABILITY_ORDER) {
+    if (counts[level] > 0) summaryParts.push(summaryPhrase(level, counts[level]));
+  }
 
   return {
-    games: rows,
-    total: rows.length,
-    simReadyCount: rows.filter((r) => r.availability === "simulation").length,
+    games: flat,
+    groups,
+    summary: { total, counts, text: summaryParts.join(" · ") },
+    total,
+    simReadyCount: counts.simulation,
   };
 }

@@ -339,6 +339,14 @@ export default function ResultsPage() {
             >
               {activeLabel} picks live in Picks Lab until games finish.
             </span>
+            {/* Return loop: yesterday's recap → today's slate (the daily journey's forward step). */}
+            <Link
+              href="/today/"
+              className="font-mono uppercase tracking-[0.12em]"
+              style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
+            >
+              See today&apos;s slate →
+            </Link>
             <Link
               href="/picks/"
               className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full ml-auto"

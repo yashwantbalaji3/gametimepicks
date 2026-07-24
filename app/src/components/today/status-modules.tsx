@@ -127,7 +127,8 @@ export function ResultsReminder({ recordLabel, pendingLine }: { recordLabel: str
     <section aria-label="Results and settlement reminder" className="flex flex-col gap-2 rounded-[14px] px-5 py-4" style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.55)", borderTop: "2px solid var(--vault-success)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>Transparent receipts</span>
-        <Link href="/results" className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10, textDecoration: "none" }}>View Results →</Link>
+        {/* Return loop: the backward step of the daily journey → yesterday's settled recap on /results. */}
+        <Link href="/results" className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10, textDecoration: "none" }}>Review yesterday&rsquo;s recap →</Link>
       </div>
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Track record</span>

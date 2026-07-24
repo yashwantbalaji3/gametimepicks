@@ -28,7 +28,9 @@ import {
   normalizeOptimizerSlips,
   type PublicProjection,
 } from "@/lib/normalize";
-import { gameHrefByMatchId } from "@/lib/game-detail";
+import { gameHrefByMatchId, buildAllGameDetails } from "@/lib/game-detail";
+import { slateGames } from "@/lib/today/slate-games";
+import MlbSlateAvailability from "@/components/mlb/mlb-slate-availability";
 
 import path from "node:path";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
@@ -84,6 +86,11 @@ export default function MlbLandingPage() {
   }));
   const schedule = getMlbScheduleForDate(date);
   const mlbLifetime = getMlbLifetimeSummary();
+
+  // ── Availability parity with /today — SAME shared contract + SAME slate pointer, so the two hubs can
+  //    never disagree on what analysis is available. Compact lens only (the full board lives on /today). ──
+  const mlbSlateDate = currentSlateDate() ?? currentEtDate();
+  const mlbSlate = slateGames(buildAllGameDetails(), mlbSlateDate, { nowMs: Date.now() });
 
   const summary = board.summary;
   const propsAvailable = board.propsAvailable;
@@ -183,6 +190,8 @@ export default function MlbLandingPage() {
         <SectionHeader eyebrow={`Slate · ${date}`} title={games.length === 0 ? "Schedule warming up" : `${games.length} game${games.length === 1 ? "" : "s"} on the slate`} />
         {slateTiles}
       </section>
+      {/* Availability lens — same shared contract as /today, with a bridge to the full daily board. */}
+      <MlbSlateAvailability summary={mlbSlate.summary} games={mlbSlate.games} slateDate={mlbSlateDate} />
     </div>
   );
 

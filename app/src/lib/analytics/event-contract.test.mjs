@@ -88,6 +88,29 @@ const SAMPLES = {
     returning: true,
     cohortBucket: "next_day",
   },
+  slate_filter_changed: {
+    event: "slate_filter_changed",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "daily_hub",
+    sport: "mlb",
+    filter: "simulations",
+  },
+  availability_explanation_opened: {
+    event: "availability_explanation_opened",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "daily_hub",
+    sport: "mlb",
+    availabilityLevel: "model_read",
+  },
+  today_slate_clicked_from_results: {
+    event: "today_slate_clicked_from_results",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "results",
+    sport: "mlb",
+  },
 };
 
 /* ---------------------------------------------------------------- *

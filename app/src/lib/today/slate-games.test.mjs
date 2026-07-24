@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { slateGames, deriveAvailability } from "./slate-games.ts";
+import { slateGames, slateReadinessNote } from "./slate-games.ts";
 
 const TODAY = "2026-07-23";
 
-/** A minimal MLB game detail on today's slate. Overrides tune the available artifacts. */
+/** A minimal MLB game detail on today's slate. Overrides tune the attached artifacts. */
 function game(over = {}) {
   return {
     sport: "mlb",
@@ -19,118 +19,166 @@ function game(over = {}) {
     gameLabSimulation: null,
     gameLabMlb: null,
     gameCenter: null,
+    reconciled: null,
+    dataStatus: null,
     ...over,
   };
 }
+const sim = (o = {}) => ({ gameLabSimulation: { status: "ready" }, reconciled: { ok: true, reason: "ok" }, ...o });
+const model = (o = {}) => ({ gameLabMlb: { leanCount: 3 }, ...o });
+const market = (o = {}) => ({ gameCenter: { firstPitch: "2026-07-23T23:05:00Z" }, ...o });
 
-test("every game on the slate gets a working per-game action (the headline invariant)", () => {
+test("every rendered game gets a working per-game action (the headline invariant)", () => {
   const details = [
-    game({ slug: "a-vs-b-2026-07-23", gameLabSimulation: { status: "ready" } }),
-    game({ slug: "c-vs-d-2026-07-23", gameLabMlb: { leanCount: 4 } }),
-    game({ slug: "e-vs-f-2026-07-23", gameCenter: { firstPitch: "2026-07-23T23:05:00Z" } }),
-    game({ slug: "g-vs-h-2026-07-23" }), // nothing yet — still must get an action
+    game({ slug: "a-2026-07-23", ...sim() }),
+    game({ slug: "c-2026-07-23", ...model() }),
+    game({ slug: "e-2026-07-23", ...market() }),
+    game({ slug: "g-2026-07-23" }), // report only — still actionable
   ];
   const { games, total } = slateGames(details, TODAY);
   assert.equal(total, 4);
-  // NO game is stranded: each row has a canonical report href AND a non-empty action label.
   for (const r of games) {
     assert.ok(r.href.startsWith("/games/mlb/"), `href canonical: ${r.href}`);
     assert.ok(r.actionLabel.length > 0, `action present: ${r.slug}`);
-    assert.ok(r.statusLabel.length > 0, `status present: ${r.slug}`);
+    assert.ok(r.label.length > 0 && r.explanation.length > 0, `label+explanation present: ${r.slug}`);
   }
 });
 
-test("availability tiers derive in strict honest order: simulation > model > market > report", () => {
-  // A ready sim wins even when model + market also present.
-  assert.equal(
-    deriveAvailability(game({ gameLabSimulation: { status: "ready" }, gameLabMlb: { leanCount: 9 }, gameCenter: { firstPitch: "x" } })).availability,
-    "simulation",
-  );
-  // Model read wins over a bare market read.
-  assert.equal(deriveAvailability(game({ gameLabMlb: { leanCount: 3 }, gameCenter: { firstPitch: "x" } })).availability, "model-read");
-  // Market read when only the de-vigged center exists.
-  assert.equal(deriveAvailability(game({ gameCenter: { firstPitch: "x" } })).availability, "market-read");
-  // Bare report when nothing is ready.
-  assert.equal(deriveAvailability(game()).availability, "report");
+test("board is GROUPED by readiness tier, richest first; empty groups omitted", () => {
+  const details = [
+    game({ slug: "sim1-2026-07-23", ...sim(market()) }),
+    game({ slug: "mod1-2026-07-23", ...model() }),
+    game({ slug: "rep1-2026-07-23" }),
+  ];
+  const { groups } = slateGames(details, TODAY);
+  // no market-read group here (the sim game outranks its own market), so 3 non-empty groups in order
+  assert.deepEqual(groups.map((g) => g.level), ["simulation", "model-read", "report"]);
+  assert.equal(groups[0].heading, "Simulations ready");
+  assert.equal(groups[0].games[0].slug, "sim1-2026-07-23");
 });
 
-test("a non-ready simulation is NOT surfaced as a simulation (fail-closed)", () => {
-  for (const status of ["unavailable", "stale", "error"]) {
-    const r = deriveAvailability(game({ gameLabSimulation: { status } }));
-    assert.notEqual(r.availability, "simulation", `status ${status} must not read as ready`);
-  }
+test("factual summary counts each tier, never a performance claim", () => {
+  const details = [
+    game({ slug: "s1-2026-07-23", ...sim() }),
+    game({ slug: "s2-2026-07-23", ...sim() }),
+    game({ slug: "s3-2026-07-23", ...sim() }),
+    game({ slug: "m1-2026-07-23", ...model() }),
+    game({ slug: "r1-2026-07-23" }),
+  ];
+  const { summary } = slateGames(details, TODAY);
+  assert.equal(summary.text, "5 games today · 3 simulations ready · 1 model read · 1 awaiting inputs");
+  assert.equal(summary.counts.simulation, 3);
+  assert.doesNotMatch(summary.text, /\b(edge|best|lock|top|value|confidence)\b/i);
 });
 
-test("model-read subline is a NON-PREDICTIVE count, never a specific pick", () => {
-  const one = deriveAvailability(game({ gameLabMlb: { leanCount: 1 } }));
-  assert.equal(one.subline, "1 model read vs market");
-  const many = deriveAvailability(game({ gameLabMlb: { leanCount: 5 } }));
-  assert.equal(many.subline, "5 model reads vs market");
-  // no forbidden certainty/edge vocabulary leaks into the copy
-  for (const r of [one, many]) {
-    assert.doesNotMatch(r.subline ?? "", /\b(edge|lock|guaranteed|beat the market|profit)\b/i);
-  }
+test("flat games order == group order then chronological within group", () => {
+  const details = [
+    game({ slug: "sim-late-2026-07-23", ...sim(market({ gameCenter: { firstPitch: "2026-07-24T00:40:00Z" } })) }),
+    game({ slug: "sim-early-2026-07-23", ...sim(market({ gameCenter: { firstPitch: "2026-07-23T17:05:00Z" } })) }),
+    game({ slug: "report-2026-07-23" }),
+  ];
+  const { games } = slateGames(details, TODAY);
+  // both sims first (early before late), then the report
+  assert.deepEqual(games.map((g) => g.slug), ["sim-early-2026-07-23", "sim-late-2026-07-23", "report-2026-07-23"]);
 });
 
 test("only the presented slate is returned — stale days are dropped", () => {
   const details = [
-    game({ slug: "today-2026-07-23", date: TODAY }),
-    game({ slug: "stale-2026-07-11", date: "2026-07-11" }),
+    game({ slug: "today-2026-07-23", date: TODAY, ...sim() }),
+    game({ slug: "stale-2026-07-11", date: "2026-07-11", ...sim() }),
   ];
-  const { games, total } = slateGames(details, TODAY);
+  const { total, games } = slateGames(details, TODAY);
   assert.equal(total, 1);
   assert.equal(games[0].slug, "today-2026-07-23");
 });
 
-test("both ends of a doubleheader appear, each with a distinct action", () => {
-  // Same base team-pair+date, disambiguated by gamePk suffix (the game-identity fix).
+test("11 · doubleheader mixed tiers: G1 simulation-ready, G2 model-only — both actionable, distinct", () => {
   const details = [
-    game({ slug: "sox-vs-jays-2026-07-23-777001", gameCenter: { firstPitch: "2026-07-23T21:07:00Z" } }),
-    game({ slug: "sox-vs-jays-2026-07-23-777002", gameCenter: { firstPitch: "2026-07-24T00:37:00Z" } }),
+    game({ slug: "sox-vs-jays-2026-07-23-777001", ...sim(market({ gameCenter: { firstPitch: "2026-07-23T21:07:00Z" } })) }),
+    game({ slug: "sox-vs-jays-2026-07-23-777002", ...model() }),
   ];
-  const { games, total } = slateGames(details, TODAY);
+  const { games, groups, total } = slateGames(details, TODAY);
   assert.equal(total, 2);
-  const hrefs = new Set(games.map((g) => g.href));
-  assert.equal(hrefs.size, 2, "each DH game has its own distinct href");
-  // Earlier first pitch sorts first.
-  assert.equal(games[0].slug, "sox-vs-jays-2026-07-23-777001");
+  assert.equal(new Set(games.map((g) => g.href)).size, 2, "each DH game has its own distinct href");
+  assert.equal(groups.find((x) => x.level === "simulation").games[0].slug, "sox-vs-jays-2026-07-23-777001");
+  assert.equal(groups.find((x) => x.level === "model-read").games[0].slug, "sox-vs-jays-2026-07-23-777002");
 });
 
-test("games are ordered by soonest first pitch; unknown times sort last", () => {
+test("12 · doubleheader both available → two distinct canonical routes, no cross-game fallback", () => {
   const details = [
-    game({ slug: "late-2026-07-23", gameCenter: { firstPitch: "2026-07-24T00:40:00Z" } }),
-    game({ slug: "notime-2026-07-23" }), // no firstPitch
-    game({ slug: "early-2026-07-23", gameCenter: { firstPitch: "2026-07-23T17:05:00Z" } }),
+    game({ slug: "a-vs-b-2026-07-23-1", ...sim() }),
+    game({ slug: "a-vs-b-2026-07-23-2", ...sim() }),
   ];
   const { games } = slateGames(details, TODAY);
-  assert.deepEqual(games.map((g) => g.slug), ["early-2026-07-23", "late-2026-07-23", "notime-2026-07-23"]);
+  assert.deepEqual(games.map((g) => g.href).sort(), ["/games/mlb/a-vs-b-2026-07-23-1", "/games/mlb/a-vs-b-2026-07-23-2"]);
 });
 
-test("simReadyCount counts only genuine ready simulations", () => {
-  const details = [
-    game({ slug: "r1-2026-07-23", gameLabSimulation: { status: "ready" } }),
-    game({ slug: "r2-2026-07-23", gameLabSimulation: { status: "ready" } }),
-    game({ slug: "s1-2026-07-23", gameLabSimulation: { status: "stale" } }),
-    game({ slug: "m1-2026-07-23", gameLabMlb: { leanCount: 2 } }),
-  ];
-  const { simReadyCount, total } = slateGames(details, TODAY);
-  assert.equal(total, 4);
-  assert.equal(simReadyCount, 2);
-});
-
-test("a game missing either team is skipped (cannot render a matchup honestly)", () => {
-  const details = [
-    game({ slug: "ok-2026-07-23" }),
-    game({ slug: "noaway-2026-07-23", awayTeam: null }),
-    game({ slug: "nohome-2026-07-23", homeTeam: "" }),
-  ];
-  const { games, total } = slateGames(details, TODAY);
+test("13 · game with no supported public analysis but a known route → report only (never dropped silently)", () => {
+  const { total, games } = slateGames([game({ slug: "known-2026-07-23" })], TODAY);
   assert.equal(total, 1);
-  assert.equal(games[0].slug, "ok-2026-07-23");
+  assert.equal(games[0].level, "report");
 });
 
-test("real first pitch is passed through; null when absent or non-string", () => {
-  assert.equal(slateGames([game({ gameCenter: { firstPitch: "2026-07-23T23:05:00Z" } })], TODAY).games[0].firstPitchIso, "2026-07-23T23:05:00Z");
-  assert.equal(slateGames([game({ gameCenter: { firstPitch: null } })], TODAY).games[0].firstPitchIso, null);
-  assert.equal(slateGames([game()], TODAY).games[0].firstPitchIso, null);
+test("13b · game with no honest matchup (missing team) is dropped, not rendered without an action", () => {
+  const { total } = slateGames([game({ slug: "noteam-2026-07-23", awayTeam: null, ...sim() })], TODAY);
+  assert.equal(total, 0);
+});
+
+test("14 · no-games day → empty board, honest zero summary, no groups", () => {
+  const r = slateGames([], TODAY);
+  assert.equal(r.total, 0);
+  assert.equal(r.groups.length, 0);
+  assert.equal(r.summary.text, "0 games today");
+});
+
+test("15 · pre-slate generation (today has no matching details) → empty, never shows another day", () => {
+  const details = [game({ slug: "yesterday-2026-07-22", date: "2026-07-22", ...sim() })];
+  const r = slateGames(details, TODAY);
+  assert.equal(r.total, 0);
+  assert.equal(r.groups.length, 0);
+});
+
+test("16 · partial slate: mix of ready + awaiting groups correctly with an honest summary", () => {
+  const details = [
+    game({ slug: "s1-2026-07-23", ...sim() }),
+    game({ slug: "s2-2026-07-23", ...sim() }),
+    game({ slug: "pend-2026-07-23", dataStatus: [{ status: "pending", label: "Player props" }] }),
+  ];
+  const { groups, summary } = slateGames(details, TODAY);
+  assert.deepEqual(groups.map((g) => g.level), ["simulation", "report"]);
+  assert.equal(summary.text, "3 games today · 2 simulations ready · 1 awaiting inputs");
+  assert.match(groups.find((g) => g.level === "report").games[0].explanation, /Awaiting inputs/);
+});
+
+test("started game (clock past first pitch) is not presented as upcoming", () => {
+  const details = [game({ slug: "started-2026-07-23", ...sim(market({ gameCenter: { firstPitch: "2026-07-23T17:05:00Z" } })) })];
+  const nowMs = Date.parse("2026-07-23T20:00:00Z"); // after first pitch
+  const { games } = slateGames(details, TODAY, { nowMs });
+  assert.equal(games[0].startState, "started");
+  assert.equal(games[0].actionLabel, "Review simulation →");
+});
+
+test("slate readiness: fresh+complete vs fresh+partial states are explicit", () => {
+  const complete = slateGames([game({ slug: "s1-2026-07-23", ...sim() }), game({ slug: "s2-2026-07-23", ...model() })], TODAY);
+  assert.match(slateReadinessNote(complete.summary, true), /Today's slate is ready/);
+  const partial = slateGames([game({ slug: "s1-2026-07-23", ...sim() }), game({ slug: "p1-2026-07-23" })], TODAY);
+  assert.equal(slateReadinessNote(partial.summary, true), "Today's slate is still filling in — 1 game awaiting inputs.");
+});
+
+test("slate readiness: stale slate + no-games day defer to the liveness banner (null, no double-speak)", () => {
+  const s = slateGames([game({ slug: "s1-2026-07-23", ...sim() })], TODAY);
+  assert.equal(slateReadinessNote(s.summary, false), null, "stale slate → null (banner speaks)");
+  assert.equal(slateReadinessNote(slateGames([], TODAY).summary, true), null, "no games → null (banner speaks)");
+});
+
+test("simReadyCount (back-compat) counts only genuine ready simulations", () => {
+  const details = [
+    game({ slug: "r1-2026-07-23", ...sim() }),
+    game({ slug: "r2-2026-07-23", ...sim() }),
+    game({ slug: "s1-2026-07-23", gameLabSimulation: { status: "stale" } }),
+    game({ slug: "m1-2026-07-23", ...model() }),
+  ];
+  const r = slateGames(details, TODAY);
+  assert.equal(r.total, 4);
+  assert.equal(r.simReadyCount, 2);
 });

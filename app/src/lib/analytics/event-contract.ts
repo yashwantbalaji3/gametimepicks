@@ -84,6 +84,14 @@ export type TrustSurface = (typeof TRUST_SURFACES)[number];
 export const RETURN_COHORTS = ["first_visit", "same_day", "next_day", "within_week", "later"] as const;
 export type ReturnCohort = (typeof RETURN_COHORTS)[number];
 
+/** Which readiness segment the /today board was filtered/grouped to. Coarse, never a game or a person. */
+export const SLATE_FILTERS = ["all", "simulations", "model_reads", "market_context", "awaiting_inputs"] as const;
+export type SlateFilter = (typeof SLATE_FILTERS)[number];
+
+/** Coarse availability tier from the shared availability contract (snake-cased for the wire). */
+export const AVAILABILITY_LEVELS = ["simulation", "model_read", "market_read", "report", "unavailable"] as const;
+export type AvailabilityLevelBucket = (typeof AVAILABILITY_LEVELS)[number];
+
 /* ------------------------------------------------------------------ *
  * Event discriminated union
  * ------------------------------------------------------------------ */
@@ -97,6 +105,12 @@ export const EVENT_TYPES = [
   "share_action",
   "learn_trust_open",
   "return_visit",
+  // Sprint 003 (Slate Intelligence) — the daily-hub availability interactions. The other adoption events
+  // this sprint names (today_hub_viewed / game_action_clicked / yesterday_recap_clicked / learn_link_clicked)
+  // are already covered by daily_hub_view / game_report_open / results_recap_open / learn_trust_open above.
+  "slate_filter_changed",
+  "availability_explanation_opened",
+  "today_slate_clicked_from_results",
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 
@@ -164,6 +178,29 @@ export interface ReturnVisitEvent extends BaseEvent {
   cohortBucket: ReturnCohort;
 }
 
+/** The /today board was filtered/grouped to a readiness segment. */
+export interface SlateFilterChangedEvent extends BaseEvent {
+  event: "slate_filter_changed";
+  surface: "daily_hub";
+  sport: Sport;
+  filter: SlateFilter;
+}
+
+/** A per-game "why open this?" availability explanation was opened. */
+export interface AvailabilityExplanationOpenedEvent extends BaseEvent {
+  event: "availability_explanation_opened";
+  surface: "daily_hub";
+  sport: Sport;
+  availabilityLevel: AvailabilityLevelBucket;
+}
+
+/** The return loop's forward step: results → today's slate. */
+export interface TodaySlateClickedFromResultsEvent extends BaseEvent {
+  event: "today_slate_clicked_from_results";
+  surface: "results";
+  sport: Sport;
+}
+
 /** The full set of product-adoption events. */
 export type AnalyticsEvent =
   | HomeCtaClickEvent
@@ -172,7 +209,10 @@ export type AnalyticsEvent =
   | ResultsRecapOpenEvent
   | ShareActionEvent
   | LearnTrustOpenEvent
-  | ReturnVisitEvent;
+  | ReturnVisitEvent
+  | SlateFilterChangedEvent
+  | AvailabilityExplanationOpenedEvent
+  | TodaySlateClickedFromResultsEvent;
 
 /**
  * The adoption question each event answers. Typed as an exhaustive record so
@@ -187,6 +227,9 @@ export const ADOPTION_QUESTIONS: Record<EventType, string> = {
   share_action: "Is the content compelling enough that people share it?",
   learn_trust_open: "Are visitors seeking to understand the product (the clarity loop)?",
   return_visit: "Do people come back on later days (daily-use habit / retention)?",
+  slate_filter_changed: "Do users engage with the readiness grouping to find a useful game?",
+  availability_explanation_opened: "Do users seek to understand WHY a game has its availability tier?",
+  today_slate_clicked_from_results: "Does the results→today loop actually route people back to the slate?",
 };
 
 /* ------------------------------------------------------------------ *
@@ -211,6 +254,8 @@ export const ALLOWED_PROPERTY_KEYS = [
   "trustSurface",
   "returning",
   "cohortBucket",
+  "filter",
+  "availabilityLevel",
 ] as const;
 export type AllowedPropertyKey = (typeof ALLOWED_PROPERTY_KEYS)[number];
 
@@ -266,6 +311,8 @@ const SHARE_ORIGIN_SET: ReadonlySet<string> = new Set(SHARE_ORIGINS);
 const LEARN_SURFACE_SET: ReadonlySet<string> = new Set(LEARN_SURFACES);
 const TRUST_SURFACE_SET: ReadonlySet<string> = new Set(TRUST_SURFACES);
 const RETURN_COHORT_SET: ReadonlySet<string> = new Set(RETURN_COHORTS);
+const SLATE_FILTER_SET: ReadonlySet<string> = new Set(SLATE_FILTERS);
+const AVAILABILITY_LEVEL_SET: ReadonlySet<string> = new Set(AVAILABILITY_LEVELS);
 
 /* ------------------------------------------------------------------ *
  * Validation
@@ -349,6 +396,23 @@ export function validateEvent(input: unknown): ValidationResult {
       if (rec.surface !== "app") return err("return_visit.surface must be 'app'");
       if (typeof rec.returning !== "boolean") return err("return_visit.returning must be boolean");
       if (!RETURN_COHORT_SET.has(rec.cohortBucket as string)) return err("return_visit.cohortBucket invalid");
+      return OK;
+
+    case "slate_filter_changed":
+      if (rec.surface !== "daily_hub") return err("slate_filter_changed.surface must be 'daily_hub'");
+      if (!SPORT_SET.has(rec.sport as string)) return err("slate_filter_changed.sport invalid");
+      if (!SLATE_FILTER_SET.has(rec.filter as string)) return err("slate_filter_changed.filter invalid");
+      return OK;
+
+    case "availability_explanation_opened":
+      if (rec.surface !== "daily_hub") return err("availability_explanation_opened.surface must be 'daily_hub'");
+      if (!SPORT_SET.has(rec.sport as string)) return err("availability_explanation_opened.sport invalid");
+      if (!AVAILABILITY_LEVEL_SET.has(rec.availabilityLevel as string)) return err("availability_explanation_opened.availabilityLevel invalid");
+      return OK;
+
+    case "today_slate_clicked_from_results":
+      if (rec.surface !== "results") return err("today_slate_clicked_from_results.surface must be 'results'");
+      if (!SPORT_SET.has(rec.sport as string)) return err("today_slate_clicked_from_results.sport invalid");
       return OK;
 
     default:

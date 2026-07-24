@@ -67,6 +67,12 @@ export function canonicalSlugMap(games) {
 /** Canonical relative game path from a resolved slug (null slug ⇒ null, an honest "no canonical URL"). */
 export const gamePathFor = (slug) => (slug ? `/games/mlb/${slug}` : null);
 
+// Canonical daily-loop destinations (Sprint 003): the morning slate lands on the daily hub, the recap lands
+// on the results page. Absolute URLs use the app's own metadataBase — never an archived/retired route.
+export const DAILY_HUB_PATH = "/today";
+export const RESULTS_RECAP_PATH = "/results";
+export const siteUrl = (p) => `${SITE_BASE}${p}`;
+
 /**
  * p10/p90 of a simulated-outcome distribution. `bins` are integer buckets with a `probability` and a `lowerEdge`
  * (the outcome value). Returns the outcome value at cumulative probability q — deterministic, sorted by outcome.
@@ -187,6 +193,14 @@ export function buildSocialContent(sim, teamMarkets, date) {
         date, generatedAt, marketCapturedAt: g.marketCapturedAt, runCount, line: null, side: null,
         publicBeta: DISCLAIMER, notBettingAdvice: true, public: false,
       })),
+    // Canonical daily-loop destinations — morning slate → /today, settled recap → /results. Absolute so a
+    // future share lands on the correct, current page (never an archived route).
+    canonicalLinks: {
+      morningSlatePath: DAILY_HUB_PATH,
+      morningSlateUrl: siteUrl(DAILY_HUB_PATH),
+      recapPath: RESULTS_RECAP_PATH,
+      recapUrl: siteUrl(RESULTS_RECAP_PATH),
+    },
     disclaimer: DISCLAIMER,
     forbiddenTerms: FORBIDDEN_TERMS,
   };

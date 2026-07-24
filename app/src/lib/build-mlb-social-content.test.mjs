@@ -220,6 +220,19 @@ test("10 · every shared link is a VALID canonical URL, resolved via the site's 
   for (const u of dhUrls) assert.match(u, CANON_URL);
 });
 
+test("10b · the daily-loop canonical links land on /today (morning) + /results (recap), never an archived route", () => {
+  const content = buildSocialContent(sim([pregameGame()]), teamMarkets, "2026-07-22");
+  const links = content.canonicalLinks;
+  assert.equal(links.morningSlatePath, "/today", "morning slate → /today");
+  assert.equal(links.recapPath, "/results", "recap → /results");
+  assert.equal(links.morningSlateUrl, `${SITE_BASE}/today`, "absolute morning URL uses the app's own base");
+  assert.equal(links.recapUrl, `${SITE_BASE}/results`, "absolute recap URL uses the app's own base");
+  // No archived / retired destination is ever emitted.
+  for (const u of [links.morningSlatePath, links.recapPath, links.morningSlateUrl, links.recapUrl]) {
+    assert.doesNotMatch(u, /world-cup|homer-nukes|\/wc\b|parlay-lab|\/board\b/i, `archived route leaked: ${u}`);
+  }
+});
+
 test("11 · the uncertainty spotlight is the p10–p90 simulated-outcome range, with full provenance + a canonical URL", () => {
   assert.equal(percentileFromBins([{ lowerEdge: 0, probability: 0.4 }, { lowerEdge: 1, probability: 0.4 }, { lowerEdge: 2, probability: 0.2 }], 0.1), 0);
   assert.equal(percentileFromBins([{ lowerEdge: 0, probability: 0.4 }, { lowerEdge: 1, probability: 0.4 }, { lowerEdge: 2, probability: 0.2 }], 0.9), 2);
