@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823843,
+  "date": "2026-07-24",
+  "capturedAt": "2026-07-24T04:12:39.285Z",
+  "availableAt": "2026-07-24T04:12:39.285Z",
+  "eventStartTime": "2026-07-24T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 608566,
+      "name": "Germán Márquez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 5,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 2.8,
+        "bbAvg": 2.6,
+        "erAvg": 3.2,
+        "hrAvg": 1.2,
+        "kPer9": 5.48,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 41.67,
+        "k": 29,
+        "bb": 19,
+        "er": 24,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-24&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-24T04:12:39.285Z"
+  },
+  "recordHash": "f140a5dd96f0b2317b7a2c0a5ffe9adcb1a5e72d6abad893b641507d6e6641b3"
+}
