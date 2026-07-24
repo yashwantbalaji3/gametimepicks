@@ -36,13 +36,13 @@ function AttentionRow({ g }: { g: BriefSpotlightGame }) {
           <span className="truncate font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{g.note}</span>
         </div>
       </div>
-      <span className="font-mono uppercase tracking-[0.1em] whitespace-nowrap shrink-0" style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}>Open →</span>
+      <span className="font-mono uppercase tracking-[0.1em] whitespace-nowrap shrink-0" style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}>{g.started ? "Review →" : "Open →"}</span>
     </Link>
   );
 }
 
 export default function TodayMlbBrief({ brief, recapHref }: { brief: DailyBrief; recapHref?: string | null }) {
-  const { overview, spotlight, attention, lastUpdatedIso } = brief;
+  const { overview, spotlight, attention, lastUpdatedIso, gamesInProgress } = brief;
   if (overview.games === 0) return null; // no slate → the slate header / liveness banner already says so
   const updated = formatEtTime(lastUpdatedIso);
   const spotlightRange = spotlight ? rangeLabel(spotlight) : null;
@@ -61,19 +61,31 @@ export default function TodayMlbBrief({ brief, recapHref }: { brief: DailyBrief;
         {overview.games} {overview.games === 1 ? "game" : "games"} · {overview.simulationsReady} {overview.simulationsReady === 1 ? "simulation" : "simulations"} ready · {overview.awaitingInputs} awaiting inputs
       </p>
 
+      {/* During games — make returning to a preserved pregame simulation clear, without implying a live prediction. */}
+      {gamesInProgress > 0 ? (
+        <p style={{ color: "var(--vault-text-mute)", fontSize: 10.5, lineHeight: 1.3 }}>
+          {gamesInProgress} {gamesInProgress === 1 ? "game is" : "games are"} underway — the simulations shown are the preserved pregame reads, not live predictions.
+        </p>
+      ) : null}
+
       {/* Simulation spotlight — the richest-analysis game + its widest simulated range (factual, not a pick). */}
       {spotlight ? (
         <div className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3" style={{ background: "rgba(0,0,0,0.25)", border: "1px solid var(--vault-border)" }}>
-          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}>Simulation spotlight</span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}>Simulation spotlight</span>
+            {spotlight.started ? (
+              <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 8, color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.06)" }}>In progress</span>
+            ) : null}
+          </div>
           <div className="flex items-center justify-between gap-3">
             <MatchupIdentity homeName={spotlight.teams.home} awayName={spotlight.teams.away} homeLogo={spotlight.homeLogo} awayLogo={spotlight.awayLogo} size="md" />
             <Link
               href={spotlight.href}
-              aria-label={`Open the ${spotlight.teams.away} at ${spotlight.teams.home} simulation`}
+              aria-label={`${spotlight.started ? "Review" : "Open"} the ${spotlight.teams.away} at ${spotlight.teams.home} simulation`}
               className="vault-press inline-flex items-center rounded-full px-3.5 whitespace-nowrap"
               style={{ minHeight: 34, fontSize: 10, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", background: "var(--gtp-bank-lava)", color: "#1A0E06" }}
             >
-              Open simulation →
+              {spotlight.actionLabel}
             </Link>
           </div>
           <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{spotlight.teams.away} @ {spotlight.teams.home}</span>

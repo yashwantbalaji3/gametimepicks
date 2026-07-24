@@ -18,6 +18,7 @@
  * PublicGameDetail, so the hub passes `buildAllGameDetails()` rows as-is.
  */
 import { slateGames, type SlateGameDetailInput } from "./slate-games";
+import { deriveStartState } from "./availability";
 
 /** One histogram bin (a structural subset of the real SimDistributionBin). */
 interface BriefBin {
@@ -34,6 +35,8 @@ interface BriefDistribution {
 export interface BriefDetailInput extends SlateGameDetailInput {
   homeLogo?: string | null;
   awayLogo?: string | null;
+  /** Market-implied Game Center — carries the scheduled first pitch used for honest start-state. */
+  gameCenter?: { firstPitch?: string | null } | null;
   gameLabSimulation?:
     | {
         status: "ready" | "unavailable" | "stale" | "error";
@@ -57,6 +60,10 @@ export interface BriefSpotlightGame {
   widestRange: [number, number] | null;
   /** Neutral, factual one-liner — never a prediction. */
   note: string;
+  /** True when the scheduled first pitch has passed (a real clock proved it) — the sim is a preserved pregame read. */
+  started: boolean;
+  /** Start-aware action: "Review simulation →" once a game is underway, else "Open simulation →". */
+  actionLabel: string;
 }
 
 export interface DailyBriefOverview {
@@ -70,6 +77,9 @@ export interface DailyBrief {
   /** Max simulation `generatedAt` across today's ready sims (ISO), or null. */
   lastUpdatedIso: string | null;
   overview: DailyBriefOverview;
+  /** How many spotlight/attention games are already underway (a real clock proved it) — for the honest
+   *  "these are the preserved pregame reads, not live predictions" note during games. */
+  gamesInProgress: number;
   /** The single most information-rich game to explore first, or null on a no-sim day. */
   spotlight: BriefSpotlightGame | null;
   /** The next most information-rich games (deterministic display order), excluding the spotlight. */
@@ -145,17 +155,24 @@ export function buildDailyBrief(
         (a.d.slug as string).localeCompare(b.d.slug as string),
     );
 
-  const toBriefGame = ({ d, sig }: { d: BriefDetailInput; sig: NonNullable<ReturnType<typeof gameSignals>> }): BriefSpotlightGame => ({
-    slug: d.slug as string,
-    href: `/games/${d.sport}/${d.slug}`,
-    teams: { home: d.homeTeam as string, away: d.awayTeam as string },
-    homeLogo: d.homeLogo ?? null,
-    awayLogo: d.awayLogo ?? null,
-    marketsSimulated: sig.marketsSimulated,
-    widestRangeMarket: sig.widestRangeMarket,
-    widestRange: sig.widestRange,
-    note: `${sig.marketsSimulated} player-prop market${sig.marketsSimulated === 1 ? "" : "s"} simulated`,
-  });
+  const toBriefGame = ({ d, sig }: { d: BriefDetailInput; sig: NonNullable<ReturnType<typeof gameSignals>> }): BriefSpotlightGame => {
+    // A real clock + first pitch decides whether the game is underway; the simulation is a PRESERVED pregame
+    // read either way, so the action reframes to "Review" (never implying a live prediction).
+    const started = deriveStartState(typeof d.gameCenter?.firstPitch === "string" ? d.gameCenter.firstPitch : null, opts?.nowMs) === "started";
+    return {
+      slug: d.slug as string,
+      href: `/games/${d.sport}/${d.slug}`,
+      teams: { home: d.homeTeam as string, away: d.awayTeam as string },
+      homeLogo: d.homeLogo ?? null,
+      awayLogo: d.awayLogo ?? null,
+      marketsSimulated: sig.marketsSimulated,
+      widestRangeMarket: sig.widestRangeMarket,
+      widestRange: sig.widestRange,
+      note: `${sig.marketsSimulated} player-prop market${sig.marketsSimulated === 1 ? "" : "s"} simulated`,
+      started,
+      actionLabel: started ? "Review simulation →" : "Open simulation →",
+    };
+  };
 
   // Last updated = the freshest sim generatedAt across today's ready sims.
   let lastUpdatedIso: string | null = null;
@@ -168,11 +185,15 @@ export function buildDailyBrief(
   }
 
   const count = opts?.spotlightCount ?? 3;
+  const spotlight = ranked[0] ? toBriefGame(ranked[0]) : null;
+  const attention = ranked.slice(1, 1 + count).map(toBriefGame);
+  const gamesInProgress = [spotlight, ...attention].filter((g) => g?.started).length;
   return {
     slateDate: today,
     lastUpdatedIso,
     overview,
-    spotlight: ranked[0] ? toBriefGame(ranked[0]) : null,
-    attention: ranked.slice(1, 1 + count).map(toBriefGame),
+    gamesInProgress,
+    spotlight,
+    attention,
   };
 }

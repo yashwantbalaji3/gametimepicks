@@ -118,6 +118,25 @@ test("lastUpdatedIso is the freshest sim generatedAt across today's ready sims",
   assert.equal(b.lastUpdatedIso, "2026-07-23T20:30:00Z");
 });
 
+test("brief is start-aware: a game underway reads 'Review simulation' + counts as in-progress", () => {
+  const details = [simGame({ slug: "s-2026-07-23", markets: 9, firstPitch: "2026-07-23T17:05:00Z" })];
+  const started = buildDailyBrief(details, TODAY, { nowMs: Date.parse("2026-07-23T20:00:00Z") }); // after first pitch
+  assert.equal(started.spotlight.started, true);
+  assert.equal(started.spotlight.actionLabel, "Review simulation →");
+  assert.equal(started.gamesInProgress, 1);
+  const pregame = buildDailyBrief(details, TODAY, { nowMs: Date.parse("2026-07-23T16:00:00Z") }); // before first pitch
+  assert.equal(pregame.spotlight.started, false);
+  assert.equal(pregame.spotlight.actionLabel, "Open simulation →");
+  assert.equal(pregame.gamesInProgress, 0);
+});
+
+test("no clock → the brief never guesses 'started' (honest default, no live prediction implied)", () => {
+  const b = buildDailyBrief([simGame({ slug: "s-2026-07-23", markets: 5 })], TODAY);
+  assert.equal(b.spotlight.started, false);
+  assert.equal(b.spotlight.actionLabel, "Open simulation →");
+  assert.equal(b.gamesInProgress, 0);
+});
+
 test("only the presented slate contributes (stale days ignored)", () => {
   const details = [
     simGame({ slug: "today-2026-07-23", markets: 5 }),

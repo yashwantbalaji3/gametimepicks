@@ -696,6 +696,13 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           de-vigged sportsbook lines — market-anchored, not an independent game simulation. No projected score,
           total-runs, or margin distribution is generated for MLB. Paper-only, educational — not betting advice.
         </p>
+        {/* What's next? — keep the daily loop moving from a finished report (retention, not a prediction). */}
+        <p className="font-mono text-[10.5px] m-0 mt-3">
+          <span style={{ color: "var(--vault-text-faint)" }}>What&rsquo;s next?{" "}</span>
+          <a href="/today" style={{ color: "var(--vault-gold)", textDecoration: "none" }}>See today&rsquo;s other games →</a>
+          <span style={{ color: "var(--vault-text-faint)" }}>{" · "}</span>
+          <a href="/results" style={{ color: "var(--vault-gold)", textDecoration: "none" }}>Yesterday&rsquo;s results →</a>
+        </p>
         {/* Trust cross-link — the honest "how it works + what the research status means" journey from every report. */}
         <p className="font-mono text-[10.5px] m-0 mt-1.5">
           <a href="/learn" style={{ color: "var(--vault-gold)", textDecoration: "none" }}>How this read is built →</a>

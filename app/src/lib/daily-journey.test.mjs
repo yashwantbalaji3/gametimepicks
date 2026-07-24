@@ -23,6 +23,16 @@ test("Today → Game Report: the brief + slate rows link to canonical /games/<sp
   assert.match(read("src/components/today/today-mlb-brief.tsx"), /href=\{spotlight\.href\}/, "brief spotlight links to its report");
 });
 
+test("Report → next: the game report answers 'what's next?' (→ today's other games, → results)", () => {
+  const report = read("src/components/game/mlb-simulation-report-v2.tsx");
+  assert.match(report, /What&rsquo;s next\?|What's next\?/, "report has a what's-next nav");
+  assert.match(report, /See today&rsquo;s other games|See today's other games/, "explicit 'today's other games' action");
+  assert.match(report, /Yesterday&rsquo;s results|Yesterday's results/, "explicit 'yesterday's results' action");
+  // No prediction/betting/performance claim inside the what's-next block.
+  const block = report.match(/What&rsquo;s next[\s\S]{0,320}/)?.[0] ?? "";
+  assert.ok(!/best bet|\bedge\b|guaranteed|\block\b|likely winner|will win|\bprofit/i.test(block), "no prediction/betting claim in the what's-next nav");
+});
+
 test("Today → Results: the hub links to the settled recap", () => {
   assert.match(read("src/components/today/status-modules.tsx"), /href="\/results"/, "today links to /results");
 });
