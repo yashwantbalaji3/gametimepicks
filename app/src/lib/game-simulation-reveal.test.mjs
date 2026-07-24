@@ -282,7 +282,7 @@ test("game-detail-page still builds MlbGameLabReport (gameLabMlb) and wires Game
   // and the whole gated `mlbReportDetails` V2.5 report is the runner's postReveal — never a pre-click sibling
   // and no longer a competing tabbed dashboard. The runner no longer renders its own market snapshot.
   assert.match(DETAIL_PAGE_SRC, /marketSnapshotNode=\{gameCenter\}/, "market snapshot node goes into the V2.5 report (§10), rendered once");
-  assert.match(DETAIL_PAGE_SRC, /postReveal=\{mlbReportDetails\}/, "MLB post-reveal is the gated unified detail");
+  assert.match(DETAIL_PAGE_SRC, /postReveal=\{mlbGameFirstReport\}/, "MLB post-reveal is the gated unified detail");
   // The dense report + spotlight live in a gated collapsed "Advanced report" disclosure, never a pre-click sibling.
   assert.match(DETAIL_PAGE_SRC, /mlbAdvanced = \([\s\S]*?title="Advanced report"[\s\S]*?\{mlbReport\}\{spotlight\}/, "the dense report is inside the gated Advanced report disclosure (demoted into V2's advanced block)");
 });

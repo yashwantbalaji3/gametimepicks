@@ -27,6 +27,8 @@ import {
   type GameSimulationArtifactMeta,
 } from "@/lib/game-simulations/game-lab-view";
 import { getMlbGameCenter, type MlbGameCenter } from "@/lib/mlb-team-markets";
+import { loadFullGameArtifact, type FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
+import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import { getWcGameCenter, type WcGameCenter } from "@/lib/wc-game-center";
 import { getWcExpandedMarkets, type WcExpandedMarkets } from "@/lib/wc-expanded-markets";
 import fs from "node:fs";
@@ -94,6 +96,15 @@ export interface PublicGameDetail {
    * `status: "unavailable"` (well-formed) when no artifact/matching game. Null for non-MLB.
    */
   gameLabSimulation?: GameSimulationView | null;
+  /**
+   * FULL-GAME simulation (Sprint 008, MLB only) — the true PA→base/out→inning Monte Carlo result: win
+   * probability, score/total/run-line distributions, and the simulated box score, all from 10,000 complete
+   * games. Joined by gamePk from public/data/mlb/full-game-simulations/<date>.json. Null when the artifact is
+   * missing (report falls back to its honest "full-game not available" state). NEVER market-derived.
+   */
+  fullGameSim?: FullGameSimGame | null;
+  /** Meta for the full-game artifact (model version, run count, generatedAt) — provenance for the report. */
+  fullGameSimMeta?: FullGameArtifactMeta | null;
   /**
    * Market-implied Game Center (MLB only) — win probability, game total + O/U lean,
    * and run-line lean, derived by de-vigging the sportsbook team markets
@@ -401,15 +412,20 @@ function mlbDetails(): PublicGameDetail[] {
   // judged against the ACTIVE MLB SLATE date (= `date`, from `activeMlbDate()`), not the raw calendar
   // day, so the artifact that matches the active slate is fresh rather than spuriously "stale".
   const joinSim = mlbSimulationJoiner(board.date || date, date);
+  // Full-game simulation artifact (Sprint 008): loaded once, joined by gamePk. Null when not generated yet.
+  const fullGame = loadFullGameArtifact(path.join(process.cwd(), "public", "data"), date);
   // Attach the MLB Game Lab report + the deterministic simulation view per game (both derived from the
   // board / the precomputed artifact; the report is null when no leans, the sim is "unavailable" when
   // no matching artifact game — neither ever fabricates data).
   return details.map((d) => {
     const sim = joinSim(d.matchId, d.slug);
+    const fg = d.matchId ? fullGame?.byGamePk.get(String(d.matchId)) ?? null : null;
     return {
       ...d,
       gameLabMlb: d.matchId ? buildMlbGameLabReport(board, d.matchId) : null,
       gameLabSimulation: sim,
+      fullGameSim: fg,
+      fullGameSimMeta: fg ? fullGame?.meta ?? null : null,
       // Market-implied Game Center, joined by the sim's gameId (== the Odds event id).
       // Null when the game has no de-vigged team markets → the UI shows an honest
       // unavailable state rather than inventing win-prob / total / run-line numbers.

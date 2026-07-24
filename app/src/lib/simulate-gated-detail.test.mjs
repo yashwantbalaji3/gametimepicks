@@ -87,7 +87,7 @@ test("MLB-sim page gates report + spotlight + tabs behind the reveal via postRev
   // The gated detail is handed to the runner via postReveal — now the ONE unified report (mlbReportDetails),
   // not a competing tabbed dashboard; the market snapshot node is threaded into the V2.5 report (its §10).
   assert.match(DETAIL_SRC, /marketSnapshotNode=\{gameCenter\}/, "market snapshot node threaded into the V2.5 report");
-  assert.match(DETAIL_SRC, /postReveal=\{mlbReportDetails\}/, "the unified report detail goes into postReveal (gated)");
+  assert.match(DETAIL_SRC, /postReveal=\{mlbGameFirstReport\}/, "the unified report detail goes into postReveal (gated)");
   // The runner returns EARLY for the MLB-sim path, so the sibling report/spotlight/tabs render below is
   // unreachable for it. Assert the MLB-sim branch does its own return before the default render.
   const isMlbSimIdx = DETAIL_SRC.indexOf("if (isMlbSim) {");

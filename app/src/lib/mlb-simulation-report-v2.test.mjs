@@ -18,7 +18,7 @@ test("MLB report is wired to MlbSimulationReportV2, fed the 10k result summary +
   assert.match(PAGE, /const mlbReportDetails = \(\s*<MlbSimulationReportV2/, "MLB post-reveal is the V2 report");
   assert.match(PAGE, /resultSummary=\{mlbResultSummary\}/, "V2 gets the strongest-lean result summary");
   assert.match(PAGE, /playerProps=\{detail\.playerProps\}/, "V2 gets the fixture props");
-  assert.match(PAGE, /postReveal=\{mlbReportDetails\}/, "gated behind Generate");
+  assert.match(PAGE, /postReveal=\{mlbGameFirstReport\}/, "gated behind Generate");
 });
 
 test("honest scope: player-prop sim + market-anchored full-game snapshot; NO internal full-game numbers", () => {

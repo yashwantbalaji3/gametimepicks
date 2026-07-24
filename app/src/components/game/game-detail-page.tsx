@@ -15,6 +15,7 @@ import GameSimulationRunner from "@/components/game/game-simulation-runner";
 import MlbGameCenter from "@/components/game/mlb-game-center";
 import MlbSimulationResultSummary from "@/components/game/mlb-simulation-result-summary";
 import MlbSimulationReportV2 from "@/components/game/mlb-simulation-report-v2";
+import MlbFullGameReport from "@/components/game/mlb-full-game-report";
 import { loadProductTagMap } from "@/lib/game-detail-product-tags";
 import { currentEtDate } from "@/lib/freshness";
 import WcGameCenter from "@/components/game/wc-game-center";
@@ -658,6 +659,21 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     />
   );
 
+  // Sprint 008 — when a full-game simulation artifact exists, lead with the GAME-FIRST report (Overview +
+  // Box Score + Methodology), and demote the dense player/prop report into its "Players & Props" tab. When
+  // there's no full-game artifact, fall back to the existing player-prop report unchanged.
+  const mlbGameFirstReport = detail.fullGameSim ? (
+    <MlbFullGameReport
+      fullGame={detail.fullGameSim}
+      meta={detail.fullGameSimMeta ?? null}
+      deepDive={mlbReportDetails}
+      awayCode={detail.fullGameSim.awayTeam}
+      homeCode={detail.fullGameSim.homeTeam}
+    />
+  ) : (
+    mlbReportDetails
+  );
+
   // ── Game-to-artifact reconciliation gate: if the joined artifacts disagree on which game this is (a
   // doubleheader mis-join), NEVER render a partially-mismatched report — show a safe, honest state instead.
   // No internal paths / errors / reasons are exposed to the user. ──
@@ -766,7 +782,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           view={sim}
           homeLogo={detail.homeLogo}
           awayLogo={detail.awayLogo}
-          postReveal={mlbReportDetails}
+          postReveal={mlbGameFirstReport}
         />
 
         {/* Persistent disclosure — visible regardless of phase. */}

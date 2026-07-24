@@ -43,7 +43,7 @@ test("1 · the market snapshot renders ONCE, inside the primary V2.5 report — 
 });
 
 test("2 · the report is ONE unified spine — no competing PostRevealTabs dashboard", () => {
-  assert.match(detailPage, /postReveal=\{mlbReportDetails\}/, "MLB detail is the unified postReveal");
+  assert.match(detailPage, /postReveal=\{mlbGameFirstReport\}/, "MLB detail is the unified postReveal");
   assert.match(detailPage, /postReveal=\{wcReport\}/, "WC detail is the unified postReveal");
   assert.doesNotMatch(detailPage, /PostRevealTabs/, "game-detail no longer uses the tabbed dashboard");
   assert.doesNotMatch(detailPage, /mlbDashTabs|wcDashTabs/, "the old tab arrays are gone");
