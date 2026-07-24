@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822707,
+  "date": "2026-07-24",
+  "capturedAt": "2026-07-24T12:18:02.301Z",
+  "availableAt": "2026-07-24T12:18:02.301Z",
+  "eventStartTime": "2026-07-24T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687223,
+      "name": "Carson Palmquist",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 3,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 4,
+        "ipSum": 9,
+        "ipAvg": 2.25,
+        "kAvg": 3,
+        "bbAvg": 0.5,
+        "erAvg": 2.5,
+        "hrAvg": 0.25,
+        "kPer9": 12,
+        "workloadIpLast5": 9
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 9,
+        "k": 12,
+        "bb": 2,
+        "er": 10,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 593958,
+      "name": "Eduardo Rodriguez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 3.4,
+        "bbAvg": 1.2,
+        "erAvg": 2,
+        "hrAvg": 0.6,
+        "kPer9": 5.4,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 116.67,
+        "k": 82,
+        "bb": 41,
+        "er": 34,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-24&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-24T12:18:02.301Z"
+  },
+  "recordHash": "c208b27695b19100a2f871dc4af11d632b9da3d616fa3c15127bb1cf5864d85f"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824733,
+  "date": "2026-07-24",
+  "capturedAt": "2026-07-24T12:18:02.301Z",
+  "availableAt": "2026-07-24T12:18:02.301Z",
+  "eventStartTime": "2026-07-24T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663776,
+      "name": "Patrick Sandoval",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 6,
+      "lastStartDate": "2026-07-18",
+      "last5": {
+        "starts": 2,
+        "ipSum": 9.33,
+        "ipAvg": 4.67,
+        "kAvg": 5,
+        "bbAvg": 1,
+        "erAvg": 2.5,
+        "hrAvg": 0.5,
+        "kPer9": 9.64,
+        "workloadIpLast5": 9.33
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 9.33,
+        "k": 10,
+        "bb": 2,
+        "er": 5,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 702056,
+      "name": "Trey Yesavage",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 5,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 5,
+        "bbAvg": 3.2,
+        "erAvg": 2.2,
+        "hrAvg": 0.6,
+        "kPer9": 8.65,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 81,
+        "k": 78,
+        "bb": 41,
+        "er": 34,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-24&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-24T12:18:02.301Z"
+  },
+  "recordHash": "e9f51ff88271fbb25d2eb0d4b7299d1d57fc4172a92cb5eb7142981f8e855fcd"
+}
