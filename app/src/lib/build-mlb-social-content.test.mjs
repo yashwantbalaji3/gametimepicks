@@ -254,6 +254,29 @@ test("10c · the pack carries a morning brief (→ /today) + Instagram carousel-
   }
 });
 
+test("10d · platform drafts carry the coarse source bucket (X→x, Discord→discord); canonical slug + DH suffix preserved", () => {
+  const content = buildSocialContent(sim([pregameGame()]), teamMarkets, "2026-07-22");
+  const pack = buildSocialPack(content, priorReport, "2026-07-22");
+  // X draft link is source-tagged x; Discord draft links source-tagged discord.
+  assert.match(pack.drafts.x, /\/awy-vs-hom-2026-07-22\?source=x\b/, "X draft carries ?source=x on the canonical game URL");
+  assert.match(pack.drafts.discord, /\?source=discord\b/, "Discord draft carries ?source=discord");
+  // Morning-brief attributed variants; canonical stays valid without a param.
+  assert.match(pack.sections.morningBrief.attributedTodayUrl.x, /\/today\?source=x$/);
+  assert.match(pack.sections.morningBrief.attributedTodayUrl.discord, /\/today\?source=discord$/);
+  assert.match(pack.sections.morningBrief.todayUrl, /\/today$/, "canonical /today URL is unparameterized");
+  // Doubleheader: the exact gamePk-suffixed slug survives source tagging (source is additive only).
+  const dh = [
+    pregameGame({ gameId: "dh1", gamePk: 900010, slug: "dh-vs-xyz-2026-07-22" }),
+    pregameGame({ gameId: "dh2", gamePk: 900011, slug: "dh-vs-xyz-2026-07-22" }),
+  ];
+  const tm2 = { games: { dh1: { commenceTime: "2026-07-22T23:05:00Z" }, dh2: { commenceTime: "2026-07-22T23:05:00Z" } } };
+  const rc = buildSocialPack(buildSocialContent(sim(dh), tm2, "2026-07-22"), null, "2026-07-22");
+  assert.match(rc.drafts.x, /dh-vs-xyz-2026-07-22-90001[01]\?source=x/, "DH gamePk suffix retained before ?source=");
+  // No archived/retired route is ever emitted in any draft.
+  const blob = pack.drafts.x + pack.drafts.discord + pack.drafts.instagramCaption + JSON.stringify(pack.sections.morningBrief);
+  assert.doesNotMatch(blob, /world-cup|homer-nukes|parlay-lab|\/wc\b/i, "no archived route in any draft");
+});
+
 test("11 · the uncertainty spotlight is the p10–p90 simulated-outcome range, with full provenance + a canonical URL", () => {
   assert.equal(percentileFromBins([{ lowerEdge: 0, probability: 0.4 }, { lowerEdge: 1, probability: 0.4 }, { lowerEdge: 2, probability: 0.2 }], 0.1), 0);
   assert.equal(percentileFromBins([{ lowerEdge: 0, probability: 0.4 }, { lowerEdge: 1, probability: 0.4 }, { lowerEdge: 2, probability: 0.2 }], 0.9), 2);

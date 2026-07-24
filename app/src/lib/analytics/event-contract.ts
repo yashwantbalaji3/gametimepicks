@@ -92,6 +92,10 @@ export type SlateFilter = (typeof SLATE_FILTERS)[number];
 export const AVAILABILITY_LEVELS = ["simulation", "model_read", "market_read", "report", "unavailable"] as const;
 export type AvailabilityLevelBucket = (typeof AVAILABILITY_LEVELS)[number];
 
+/** Coarse acquisition source bucket — the ONLY attribution granularity (no campaign micro-ids, no ad ids). */
+export const SOURCE_BUCKETS = ["direct", "x", "discord", "instagram", "tiktok", "organic", "referral"] as const;
+export type SourceBucket = (typeof SOURCE_BUCKETS)[number];
+
 /* ------------------------------------------------------------------ *
  * Event discriminated union
  * ------------------------------------------------------------------ */
@@ -116,6 +120,8 @@ export const EVENT_TYPES = [
   // / results_recap_open above.)
   "daily_brief_view",
   "social_package_generated",
+  // Sprint 006 (Growth + Measurement) — coarse acquisition source of a first-party landing (no user tracking).
+  "source_visit",
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 
@@ -220,6 +226,13 @@ export interface SocialPackageGeneratedEvent extends BaseEvent {
   sport: Sport;
 }
 
+/** A first-party landing bucketed by coarse acquisition source. NO user id, referrer URL, or campaign id. */
+export interface SourceVisitEvent extends BaseEvent {
+  event: "source_visit";
+  surface: "app";
+  source: SourceBucket;
+}
+
 /** The full set of product-adoption events. */
 export type AnalyticsEvent =
   | HomeCtaClickEvent
@@ -233,7 +246,8 @@ export type AnalyticsEvent =
   | AvailabilityExplanationOpenedEvent
   | TodaySlateClickedFromResultsEvent
   | DailyBriefViewEvent
-  | SocialPackageGeneratedEvent;
+  | SocialPackageGeneratedEvent
+  | SourceVisitEvent;
 
 /**
  * The adoption question each event answers. Typed as an exhaustive record so
@@ -253,6 +267,7 @@ export const ADOPTION_QUESTIONS: Record<EventType, string> = {
   today_slate_clicked_from_results: "Does the results→today loop actually route people back to the slate?",
   daily_brief_view: "Are people reaching the daily MLB intelligence brief (the destination hook)?",
   social_package_generated: "Is the internal daily content package being generated (distribution readiness)?",
+  source_visit: "Which coarse channel (X / Discord / …) actually sends real visitors to the site?",
 };
 
 /* ------------------------------------------------------------------ *
@@ -279,6 +294,7 @@ export const ALLOWED_PROPERTY_KEYS = [
   "cohortBucket",
   "filter",
   "availabilityLevel",
+  "source",
 ] as const;
 export type AllowedPropertyKey = (typeof ALLOWED_PROPERTY_KEYS)[number];
 
@@ -336,6 +352,7 @@ const TRUST_SURFACE_SET: ReadonlySet<string> = new Set(TRUST_SURFACES);
 const RETURN_COHORT_SET: ReadonlySet<string> = new Set(RETURN_COHORTS);
 const SLATE_FILTER_SET: ReadonlySet<string> = new Set(SLATE_FILTERS);
 const AVAILABILITY_LEVEL_SET: ReadonlySet<string> = new Set(AVAILABILITY_LEVELS);
+const SOURCE_BUCKET_SET: ReadonlySet<string> = new Set(SOURCE_BUCKETS);
 
 /* ------------------------------------------------------------------ *
  * Validation
@@ -446,6 +463,11 @@ export function validateEvent(input: unknown): ValidationResult {
     case "social_package_generated":
       if (rec.surface !== "internal") return err("social_package_generated.surface must be 'internal'");
       if (!SPORT_SET.has(rec.sport as string)) return err("social_package_generated.sport invalid");
+      return OK;
+
+    case "source_visit":
+      if (rec.surface !== "app") return err("source_visit.surface must be 'app'");
+      if (!SOURCE_BUCKET_SET.has(rec.source as string)) return err("source_visit.source invalid");
       return OK;
 
     default:

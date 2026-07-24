@@ -28,6 +28,10 @@ const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); }
 
 const NOT_ADVICE = "Simulation-powered analytics · paper-only · public beta · NOT betting advice.";
 const shareUrl = (gameUrl) => (gameUrl ? `${SITE_BASE}${gameUrl}` : null);
+// Coarse acquisition source tag (Sprint 006). Idempotent; `direct` stays parameter-free; the canonical URL
+// (incl. a doubleheader's gamePk suffix) is UNTOUCHED — the param is additive only.
+const withSourceAbs = (url, source) =>
+  url && source && source !== "direct" && !/[?&]source=/.test(url) ? `${url}${url.includes("?") ? "&" : "?"}source=${source}` : url;
 const MARKET_LABEL = {
   pitcher_strikeouts: "strikeouts", batter_hits: "hits", batter_total_bases: "total bases",
   batter_hits_runs_rbis: "hits + runs + RBIs", batter_rbis: "RBIs", batter_runs_scored: "runs",
@@ -81,6 +85,8 @@ export function buildSocialPack(content, prior, date) {
     importantMatchups: interestingMatchups.map((m) => ({ game: m.matchup, gameUrl: m.gameUrl, marketsSimulated: m.marketsSimulated })),
     simulationAvailability: { gamesSimulated: overview.gamesSimulated, supportedComparisons: overview.supportedComparisons, runCount: overview.runCount },
     todayUrl,
+    // Coarse source-attributed variants for the launch channels (canonical URL stays valid without them).
+    attributedTodayUrl: { x: withSourceAbs(todayUrl, "x"), discord: withSourceAbs(todayUrl, "discord") },
     notBettingAdvice: true, publicBeta: content.disclaimer,
   };
 
@@ -108,7 +114,7 @@ export function buildSocialPack(content, prior, date) {
 
   const drafts = {
     x: topLine
-      ? `Today's MLB simulations are live: ${overview.gamesSimulated} games, ${overview.runCount.toLocaleString()} runs each. Biggest simulation-vs-market difference — ${gap}. Explore the probabilities yourself: ${topUrl} ${NOT_ADVICE}`
+      ? `Today's MLB simulations are live: ${overview.gamesSimulated} games, ${overview.runCount.toLocaleString()} runs each. Biggest simulation-vs-market difference — ${gap}. Explore the probabilities yourself: ${withSourceAbs(topUrl, "x")} ${NOT_ADVICE}`
       : `MLB simulations for ${date}: ${overview.gamesSimulated} games, ${overview.runCount.toLocaleString()} runs each. Explore the probabilities. ${NOT_ADVICE}`,
     instagramCaption:
       `⚾ MLB simulations — ${date}\n\n${overview.gamesSimulated} games modeled, ${overview.runCount.toLocaleString()} simulated runs each. We compare the simulation's projection to the market line and show the difference — you decide what it means.\n\n` +
@@ -117,7 +123,7 @@ export function buildSocialPack(content, prior, date) {
     discord:
       `**MLB Simulations — ${date}**\n` +
       `• ${overview.gamesSimulated} games · ${overview.runCount.toLocaleString()} runs each\n` +
-      largestDifferences.slice(0, 3).map((d) => `• [${d.game}](${shareUrl(d.gameUrl)}): ${d.player} ${prettyMarket(d.market)} ${d.side} ${d.line} — sim ${d.simulationProbability}% vs market ${d.marketProbability}% (${d.differencePct}-pt gap)`).join("\n") +
+      largestDifferences.slice(0, 3).map((d) => `• [${d.game}](${withSourceAbs(shareUrl(d.gameUrl), "discord")}): ${d.player} ${prettyMarket(d.market)} ${d.side} ${d.line} — sim ${d.simulationProbability}% vs market ${d.marketProbability}% (${d.differencePct}-pt gap)`).join("\n") +
       `\n_${NOT_ADVICE}_`,
     tiktokVoiceoverOutline: [
       `Hook: "We ran every MLB game ${overview.runCount.toLocaleString()} times. Here's where our simulation and the market disagree the most."`,

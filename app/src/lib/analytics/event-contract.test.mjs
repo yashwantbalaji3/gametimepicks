@@ -125,6 +125,13 @@ const SAMPLES = {
     surface: "internal",
     sport: "mlb",
   },
+  source_visit: {
+    event: "source_visit",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "app",
+    source: "x",
+  },
 };
 
 /* ---------------------------------------------------------------- *

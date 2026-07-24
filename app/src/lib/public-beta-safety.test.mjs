@@ -33,9 +33,20 @@ test("2 · the research modeling gate stays BLOCKED (beta cannot silently flip i
 
 test("3 · NO public source reads internal research (observations / benchmark / readiness / attachment)", () => {
   const files = [...walk(path.join(app, "src/app")), ...walk(path.join(app, "src/components"))];
-  const bad = /data\/internal|research-observations|research-progress|forward-attachment|feature-attachment|market-capture-reliability|capture-window-health|simulation-readiness|mlb-research-benchmark/;
-  const leaks = files.filter((f) => bad.test(fs.readFileSync(f, "utf8")));
-  assert.deepEqual(leaks.map((f) => path.relative(app, f)), [], "no public route references internal research artifacts");
+  // Internal RESEARCH artifacts are banned from EVERY src page — including the internal /ops route.
+  const research = /research-observations|research-progress|forward-attachment|feature-attachment|market-capture-reliability|capture-window-health|simulation-readiness|mlb-research-benchmark|pregame-archive/;
+  // The broad `data/internal` read is banned from PUBLIC pages; the /ops route is internal (guardInternalRoute
+  // + pruned from the static export) and may read internal SOCIAL ops artifacts — but NEVER research (above).
+  const internalData = /data\/internal/;
+  const opsPrefix = `src${path.sep}app${path.sep}ops${path.sep}`;
+  const isInternalOps = (f) => path.relative(app, f).startsWith(opsPrefix);
+  const leaks = files.filter((f) => {
+    const src = fs.readFileSync(f, "utf8");
+    if (research.test(src)) return true; // research leak — banned everywhere
+    if (internalData.test(src) && !isInternalOps(f)) return true; // internal-data read from a PUBLIC page
+    return false;
+  });
+  assert.deepEqual(leaks.map((f) => path.relative(app, f)), [], "no public route references internal research/internal artifacts");
 });
 
 test("4 · the exportable social content is INTERNAL + framed as analytics, not betting advice", () => {

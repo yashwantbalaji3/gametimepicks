@@ -6,6 +6,7 @@ import DisclaimerBanner from "@/components/disclaimer-banner";
 import MobileBottomNav from "@/components/mobile-bottom-nav";
 import CommandRail from "@/components/command-rail";
 import SlateStatusBar from "@/components/slate-status-bar";
+import AnalyticsBootstrap from "@/components/analytics-bootstrap";
 // PR `feature/results-ux-restructure` (2026-05-29) — removed the
 // `DesktopSportsRail` import. The rail duplicated the top nav
 // (Home / Parlay Lab / Results) for desktop users and surfaced
@@ -79,6 +80,8 @@ export default function RootLayout({
         </div>
         {/* Mobile bottom nav — fixed bottom, hidden at md+. */}
         <MobileBottomNav />
+        {/* Analytics bootstrap — coarse source + funnel page-views. NO-OP unless a provider is configured. */}
+        <AnalyticsBootstrap />
       </body>
     </html>
   );

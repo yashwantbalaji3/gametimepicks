@@ -6,6 +6,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { guardInternalRoute } from "@/lib/internal-route-guard";
+import { currentEtDate } from "@/lib/freshness";
+import { readSinkConfig } from "@/lib/analytics/sink";
+import { buildGrowthOpsView, NOT_YET_MEASURED } from "@/lib/analytics/growth-ops";
+import { buildSocialOpsBoard } from "@/lib/social/social-ops";
+import { buildAllGameDetails } from "@/lib/game-detail";
 
 export const metadata = {
   title: "Ops · GameTime Picks (internal)",
@@ -51,6 +56,29 @@ const DOCS: Array<[string, string]> = [
 
 function loadStatus(): Status | null {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "admin", "status.json"), "utf8")); } catch { return null; }
+}
+
+// ── Growth-ops readers (internal repo artifacts; /ops is pruned from the public export) ──
+const REPO_ROOT = path.dirname(process.cwd()); // `next build` runs with cwd = app/
+function loadLatestSocialPack(): { pack: unknown; date: string | null } {
+  try {
+    const dir = path.join(REPO_ROOT, "data", "internal", "mlb", "social");
+    const files = fs.readdirSync(dir).filter((f) => /^pack-\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
+    if (!files.length) return { pack: null, date: null };
+    const latest = files[files.length - 1];
+    return { pack: JSON.parse(fs.readFileSync(path.join(dir, latest), "utf8")), date: latest.slice(5, 15) };
+  } catch { return { pack: null, date: null }; }
+}
+function loadApprovals(date: string | null): Record<string, string> {
+  if (!date) return {};
+  try { return JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "data", "internal", "mlb", "social", `ops-approvals-${date}.json`), "utf8")); } catch { return {}; }
+}
+function latestMlbSlateDate(): string | null {
+  try {
+    const dir = path.join(process.cwd(), "public", "data", "mlb", "game-simulations");
+    const dates = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10)).sort();
+    return dates.length ? dates[dates.length - 1] : null;
+  } catch { return null; }
 }
 
 const usd = (n: number | null | undefined) => (n == null ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`);
@@ -99,6 +127,21 @@ export default function OpsPage() {
     );
   }
   const c = s.canonical;
+
+  // ── Growth + Measurement (Sprint 006) — sink state, funnel (NOT YET MEASURED until live), health, social ops ──
+  const growthToday = currentEtDate();
+  const latestSlate = latestMlbSlateDate() ?? s.slate.mlbSlate ?? null;
+  const { pack: socialPack, date: socialPackDate } = loadLatestSocialPack();
+  const growth = buildGrowthOpsView({
+    today: growthToday,
+    latestSlate,
+    latestSocialPack: socialPackDate,
+    nowUtcHour: new Date().getUTCHours(),
+    sinkConfig: readSinkConfig(),
+  });
+  const availableGamePaths = new Set(buildAllGameDetails().filter((d) => d.sport === "mlb" && d.slug).map((d) => `/games/mlb/${d.slug}`));
+  const opsBoard = buildSocialOpsBoard(socialPack as Parameters<typeof buildSocialOpsBoard>[0], { today: growthToday, availableGamePaths, approvals: loadApprovals(socialPackDate) });
+
   return (
     <div className="mx-auto flex max-w-[900px] flex-col gap-4 px-4 py-8 sm:px-6 sm:py-10">
       <header className="flex flex-wrap items-baseline justify-between gap-2">
@@ -205,6 +248,68 @@ export default function OpsPage() {
           </div>
         </Card>
       </div>
+
+      {/* ── GROWTH + MEASUREMENT (Sprint 006) ── */}
+      <Card title={`Production health · slate ${growth.health.slateFreshness.toUpperCase()}`}>
+        {growth.health.incident ? (
+          <div className="mb-2 rounded px-2 py-1.5 text-[11.5px]" style={{ background: "rgba(242,54,69,0.1)", color: "var(--gtp-bank-heat)" }}>⚠ INCIDENT — {growth.health.incident}</div>
+        ) : (
+          <div className="mb-2 text-[11px]" style={{ color: "var(--vault-success)" }}>✓ Daily production within/at expectation.</div>
+        )}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {([["Today (ET)", growth.health.today], ["Latest slate", growth.health.latestSlate ?? "—"], ["Latest brief", growth.health.latestBrief ?? "—"], ["Latest social pack", growth.health.latestSocialPack ?? "none"]] as const).map(([k, v]) => (
+            <div key={k}><div className="font-mono text-[9px] uppercase" style={{ color: "var(--vault-text-faint)" }}>{k}</div><div className="font-mono text-[12px]" style={{ color: "var(--vault-text)" }}>{v}</div></div>
+          ))}
+        </div>
+        <div className="mt-2 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Analytics sink: <span style={{ color: growth.sink.state === "live" ? "var(--vault-success)" : growth.sink.state === "misconfigured" ? "var(--gtp-bank-heat)" : "var(--vault-text-mute)" }}>{growth.sink.state.toUpperCase()}</span> · endpoint {growth.sink.hasEndpoint ? "set" : "none"} · kill-switch {growth.sink.enabled ? "ON" : "OFF"}</div>
+      </Card>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Card title="Growth funnel (measurement)">
+          <div className="flex flex-col gap-1">
+            {growth.funnel.map((r) => (
+              <div key={r.event} className="flex items-baseline justify-between text-[12px]">
+                <span style={{ color: "var(--vault-text-mute)" }}>{r.step}</span>
+                <span className="font-mono text-[10.5px]" style={{ color: r.value === NOT_YET_MEASURED ? "var(--vault-text-faint)" : "var(--vault-text)" }}>{r.value === NOT_YET_MEASURED ? "NOT YET MEASURED" : r.value}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Real counts appear only when a live sink supplies them — never a fabricated zero.</p>
+        </Card>
+        <Card title="Acquisition source mix">
+          <div className="grid grid-cols-2 gap-1">
+            {growth.sourceMix.map((r) => (
+              <div key={r.step} className="flex items-baseline justify-between text-[11.5px]">
+                <span style={{ color: "var(--vault-text-mute)" }}>{r.step}</span>
+                <span className="font-mono text-[10px]" style={{ color: r.value === NOT_YET_MEASURED ? "var(--vault-text-faint)" : "var(--vault-text)" }}>{r.value === NOT_YET_MEASURED ? "—" : r.value}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Coarse buckets only · no cookies · no ad ids. NOT YET MEASURED until the sink is live.</p>
+        </Card>
+      </div>
+
+      <Card title={`Social operations · ${opsBoard.launchable}/${opsBoard.slots.length} launchable · review only (never auto-posted)`}>
+        <div className="flex flex-col gap-2">
+          {opsBoard.slots.map((slot) => (
+            <div key={slot.slot} className="rounded-lg px-3 py-2" style={{ border: `1px solid ${slot.blocked ? "rgba(242,54,69,0.4)" : "var(--vault-rule)"}`, background: slot.blocked ? "rgba(242,54,69,0.05)" : "rgba(255,255,255,0.015)" }}>
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <span className="text-[12px] font-semibold" style={{ color: "var(--vault-text)" }}>{slot.title}</span>
+                <span className="font-mono text-[9px] uppercase tracking-[0.06em]" style={{ color: slot.blocked ? "var(--gtp-bank-heat)" : slot.approvalState === "approved" ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{slot.blocked ? `blocked · ${slot.blocked}` : slot.approvalState}</span>
+              </div>
+              {slot.copy ? <div className="mt-0.5 truncate text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{slot.copy}</div> : null}
+              <div className="mt-1 flex flex-wrap gap-x-3 font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>
+                <span>→ {slot.destinationPath ?? "—"}</span>
+                {slot.attributed.x ? <span>x: {slot.attributed.x}</span> : null}
+                {slot.attributed.discord ? <span>discord: {slot.attributed.discord}</span> : null}
+                <span>slate {slot.slateDate ?? "—"} · {slot.freshnessState}</span>
+              </div>
+              {slot.note ? <div className="mt-1 text-[10px]" style={{ color: "var(--gtp-bank-heat)" }}>{slot.note}</div> : null}
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Approve by editing data/internal/mlb/social/ops-approvals-&lt;date&gt;.json · a human posts by hand · no posting API is wired.</p>
+      </Card>
 
       <Card title="Claude team + playbooks">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

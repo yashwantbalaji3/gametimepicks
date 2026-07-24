@@ -107,3 +107,29 @@ Activation is deliberately a *separate*, reviewable step. It is NOT done by this
 - [ ] **Modify** — approve with changes (note them here): ______________________________
 
 _Signed:_ ______________________  _Date:_ ____________
+
+---
+
+## 8. Activation & kill-switch (implemented Sprint 006 — provider currently OFF)
+
+The provider-agnostic wiring is shipped and tested; **no data leaves the browser until BOTH variables are set
+at build time** (a half-configuration can never send):
+
+| Env var | Meaning | Default |
+|---|---|---|
+| `NEXT_PUBLIC_ANALYTICS_ENABLED` | **Kill switch.** `1` / `true` = on; unset / `0` = hard OFF (no-op). | OFF |
+| `NEXT_PUBLIC_ANALYTICS_ENDPOINT` | The APPROVED first-party (no-cookie) endpoint the beacon posts validated events to. | none |
+
+`resolveSink()` returns the NO-OP unless `enabled === true` AND an endpoint is present. To **disable instantly**,
+unset `NEXT_PUBLIC_ANALYTICS_ENABLED` and redeploy (or flip it to `0`) — no code change.
+
+**Boundary (honest status):** Sprint 006 shipped the sink, source attribution, funnel page-view instrumentation,
+social-ops surface, and the /ops growth/health read — all behind this disabled config. **Measurement is NOT
+live.** The remaining founder/provider action is: stand up an approved no-cookie first-party endpoint, set the
+two env vars, and verify in staging (browser network tab) that only allowlisted, day-bucketed, PII-free events
+are sent. Until then the /ops funnel reads `NOT YET MEASURED`, which is the truth.
+
+**What is emitted (when live):** only the closed-enum events in `event-contract.ts` — `source_visit` (coarse
+bucket), `daily_hub_view`, `daily_brief_view`, `game_report_open`, `results_recap_open`, `return_visit`, and
+the interaction events — each validated before send. **Never** wagering, portfolio, bankroll, identity, full
+referrer URL, ad id, or free-form text.
