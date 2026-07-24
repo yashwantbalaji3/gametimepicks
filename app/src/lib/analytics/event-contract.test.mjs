@@ -111,6 +111,20 @@ const SAMPLES = {
     surface: "results",
     sport: "mlb",
   },
+  daily_brief_view: {
+    event: "daily_brief_view",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "daily_hub",
+    sport: "mlb",
+  },
+  social_package_generated: {
+    event: "social_package_generated",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "internal",
+    sport: "mlb",
+  },
 };
 
 /* ---------------------------------------------------------------- *

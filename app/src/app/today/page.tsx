@@ -26,6 +26,7 @@ import { buildTop10Board } from "@/lib/top10/top10-picks";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { slateGames, slateReadinessNote } from "@/lib/today/slate-games";
+import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
@@ -38,6 +39,7 @@ import TodayAtAGlance, { type GlanceCard } from "@/components/today/at-a-glance"
 import TodayTopModelPicks from "@/components/today/top-model-picks";
 import TodaySimulationLeans from "@/components/today/simulation-leans";
 import TodayFullSlate from "@/components/today/full-slate";
+import TodayMlbBrief from "@/components/today/today-mlb-brief";
 import {
   BuildAPickModule,
   BankBuilderStatus,
@@ -84,6 +86,9 @@ export default function TodayPage() {
   const slate = slateGames(details, today, { nowMs: Date.now() });
   // Explicit readiness for a CURRENT slate (ready vs still-filling-in); stale/no-games stay with the banner.
   const slateReadiness = slateReadinessNote(slate.summary, today >= serverToday);
+  // ── Daily MLB intelligence brief — the executive digest ("what should I know about MLB today?"). Reuses
+  //    the same details; factual signals only (markets simulated + simulated p10–p90 range), never a pick. ──
+  const brief = buildDailyBrief(details, today, { nowMs: Date.now() });
 
   // ── Top model picks — the canonical cross-sport board; take the strongest ~6 for the compact list ──
   const top10 = buildTop10Board(dataRoot, today, Date.now());
@@ -97,6 +102,7 @@ export default function TodayPage() {
   //    closed to null so a figure is only ever shown when it can be sourced canonically. ──
   let recordLabel: string | null = null;
   let pendingLabel: string | null = null;
+  let hasSettledResults = false;
   try {
     const p = JSON.parse(fs.readFileSync(path.join(dataRoot, "mr-dub", "portfolio.json"), "utf8"));
     if (p.record && typeof p.record.wins === "number" && typeof p.record.losses === "number") {
@@ -104,6 +110,7 @@ export default function TodayPage() {
       const settled = p.record.wins + p.record.losses + (p.record.voids ?? 0);
       const pending = p.record.pending ?? 0;
       pendingLabel = `${pending} pending · ${settled} settled`;
+      hasSettledResults = settled > 0; // gate the brief's yesterday link — no recap when nothing has settled
     }
   } catch {
     /* fail closed → the results reminder omits any figure it cannot source canonically */
@@ -238,6 +245,9 @@ export default function TodayPage() {
 
       {/* 1b — Event spotlight (current major event; null when none) */}
       <EventSpotlight event={todaySpotlight} />
+
+      {/* 1c — Daily MLB intelligence brief: the executive digest (overview + spotlight + attention + links) */}
+      <TodayMlbBrief brief={brief} recapHref={hasSettledResults ? "/results" : null} />
 
       {/* 2 — Today at a glance (compact canonical status cards) */}
       <TodayAtAGlance cards={glanceCards} />

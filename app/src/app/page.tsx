@@ -20,6 +20,7 @@ import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
+import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
@@ -30,6 +31,7 @@ import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 import LandingHero from "@/components/home/landing-hero";
 import WhatThisIs from "@/components/home/what-this-is";
 import ReturnHook from "@/components/home/return-hook";
+import HomeTodayMlb from "@/components/home/home-today-mlb";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
 import { SlateSummary, TrustStrip, HowItWorks, FooterCta } from "@/components/home/home-sections";
@@ -78,6 +80,8 @@ export default function HomePage() {
   // ── Featured simulations — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
   const { featured, readyCount } = featuredSimulations(details, currentEtDate());
+  // Daily-MLB destination hook — the SAME brief overview /today leads with (factual counts, no picks).
+  const homeBrief = buildDailyBrief(details, today, { nowMs: Date.now() });
 
   // ── MLB slate — same loader the Today board uses ──
   const mlb = getMlbBoardForDate(today);
@@ -201,6 +205,15 @@ export default function HomePage() {
 
       {/* 1c — Return hook: the honest daily loop (new sims each game day, graded from official box scores). */}
       <ReturnHook latestSettledLabel={today < serverToday ? dateLabel : null} />
+
+      {/* 1d — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}
+      <HomeTodayMlb
+        dateLabel={dateLabel}
+        games={homeBrief.overview.games}
+        simulationsReady={homeBrief.overview.simulationsReady}
+        lastUpdatedIso={homeBrief.lastUpdatedIso}
+        isLiveToday={today >= serverToday && mlbGames > 0}
+      />
 
 
       {/* 2 — Simulation Hub: the per-sport simulation centers (the core product topic) */}

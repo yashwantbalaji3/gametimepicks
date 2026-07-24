@@ -73,6 +73,25 @@ export function buildSocialPack(content, prior, date) {
   const gap = topLine ? `${topLine.player} ${prettyMarket(topLine.market)} ${topLine.side} ${topLine.line}: sim ${topLine.simulationProbability}% vs market ${topLine.marketProbability}% (a ${topLine.differencePct}-pt difference)` : null;
   const spot = highestUncertainty[0];
 
+  // Morning brief — the daily slate message that lands on the /today intelligence brief (canonical URL).
+  // Reuses the honest content; simulation availability + important matchups, never a pick or a prediction.
+  const todayUrl = content.canonicalLinks?.morningSlateUrl ?? `${SITE_BASE}/today`;
+  const morningBrief = {
+    message: `Today's MLB brief — ${overview.gamesSimulated} game${overview.gamesSimulated === 1 ? "" : "s"} simulated, ${overview.runCount.toLocaleString()} runs each. Slate + simulation availability: ${todayUrl}`,
+    importantMatchups: interestingMatchups.map((m) => ({ game: m.matchup, gameUrl: m.gameUrl, marketsSimulated: m.marketsSimulated })),
+    simulationAvailability: { gamesSimulated: overview.gamesSimulated, supportedComparisons: overview.supportedComparisons, runCount: overview.runCount },
+    todayUrl,
+    notBettingAdvice: true, publicBeta: content.disclaimer,
+  };
+
+  // Instagram carousel-ready slides — one factual card per slide, derived from the same enveloped content.
+  const instagramCarousel = [
+    { slide: 1, title: `MLB simulations — ${date}`, body: `${overview.gamesSimulated} game${overview.gamesSimulated === 1 ? "" : "s"} modeled · ${overview.runCount.toLocaleString()} simulated runs each. Deterministic — the same result for every user.` },
+    ...(topLine ? [{ slide: 2, title: "Largest simulation-vs-market difference", body: `${gap}. A neutral comparison — you decide what it means.` }] : []),
+    ...(spot ? [{ title: "Uncertainty spotlight", body: `${spot.player} ${prettyMarket(spot.market)} — simulated outcomes span p10 ${spot.p10} to p90 ${spot.p90} (a range of ${spot.rangeP10P90}).` }] : []),
+    { title: "Explore it yourself", body: `Full daily brief: ${todayUrl}. ${NOT_ADVICE}` },
+  ].map((s, i) => ({ slide: i + 1, title: s.title, body: s.body }));
+
   // ONE game-specific, OG-ready share card — grounded in the top supported comparison, full provenance envelope.
   const shareCard = topLine
     ? {
@@ -106,6 +125,7 @@ export function buildSocialPack(content, prior, date) {
       spot ? `Beat 2: Uncertainty spotlight — ${spot.player} ${prettyMarket(spot.market)}: simulated outcomes span p10 ${spot.p10} to p90 ${spot.p90} (a range of ${spot.rangeP10P90}). Emphasize spread, not a prediction.` : `Beat 2: Emphasize it's a neutral comparison — a difference, not a prediction that the sim is right.`,
       `Close: "It's paper-only, deterministic, public beta. Not betting advice. Explore it yourself."`,
     ],
+    instagramCarousel,
     shareCard,
   };
 
@@ -117,7 +137,7 @@ export function buildSocialPack(content, prior, date) {
       date, generatedAt: content.generatedAt, runCount: content.runCount, notBettingAdvice: true, publicBeta: content.disclaimer,
       canonicalUrls: content.largestSimulationDifferences.map((d) => d.gameUrl).filter((u, i, a) => u && a.indexOf(u) === i),
     },
-    sections: { overview, largestDifferences, highestUncertainty, interestingMatchups, featureCompleteness: feature, resultsRecap },
+    sections: { overview, morningBrief, largestDifferences, highestUncertainty, interestingMatchups, featureCompleteness: feature, resultsRecap },
     drafts, disclaimer: content.disclaimer, forbiddenTerms: FORBIDDEN_TERMS,
     note: "DRAFTS ONLY — internal. Nothing here is posted or exposed automatically.",
   };

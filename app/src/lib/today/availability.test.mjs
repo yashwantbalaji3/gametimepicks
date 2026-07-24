@@ -159,7 +159,9 @@ test("banned-language guard covers every new Sprint-003 availability surface (so
   const files = [
     "src/lib/today/availability.ts",
     "src/lib/today/slate-games.ts",
+    "src/lib/today/daily-brief.ts",
     "src/components/today/full-slate.tsx",
+    "src/components/today/today-mlb-brief.tsx",
     "src/components/mlb/mlb-slate-availability.tsx",
   ];
   for (const rel of files) {

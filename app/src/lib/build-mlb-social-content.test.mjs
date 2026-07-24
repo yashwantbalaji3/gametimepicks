@@ -233,6 +233,27 @@ test("10b · the daily-loop canonical links land on /today (morning) + /results 
   }
 });
 
+test("10c · the pack carries a morning brief (→ /today) + Instagram carousel-ready slides, no betting language", () => {
+  const content = buildSocialContent(sim([pregameGame()]), teamMarkets, "2026-07-22");
+  const pack = buildSocialPack(content, priorReport, "2026-07-22");
+  // Morning brief lands on the canonical /today slate + carries simulation availability + matchups.
+  const mb = pack.sections.morningBrief;
+  assert.match(mb.todayUrl, /\/today$/, "morning brief points at the canonical /today slate");
+  assert.match(mb.message, /Today's MLB brief/, "morning slate message");
+  assert.ok(mb.simulationAvailability && typeof mb.simulationAvailability.gamesSimulated === "number", "simulation availability present");
+  assert.ok(Array.isArray(mb.importantMatchups), "important matchups present");
+  // Instagram carousel is an array of factual slides that ends on the /today explore card.
+  const carousel = pack.drafts.instagramCarousel;
+  assert.ok(Array.isArray(carousel) && carousel.length >= 2, "carousel-ready slides present");
+  carousel.forEach((s, i) => { assert.equal(s.slide, i + 1); assert.ok(s.title && s.body, "each slide has title + body"); });
+  assert.match(carousel[carousel.length - 1].body, /\/today/, "final slide routes to the daily brief");
+  // No betting/certainty vocabulary anywhere in the new surfaces.
+  const blob = JSON.stringify(mb) + JSON.stringify(carousel);
+  for (const w of ["edge", "value play", "lock", "best bet", "guaranteed", "beat the market", "profitable"]) {
+    assert.ok(!blob.toLowerCase().includes(w), `forbidden term "${w}" must not appear`);
+  }
+});
+
 test("11 · the uncertainty spotlight is the p10–p90 simulated-outcome range, with full provenance + a canonical URL", () => {
   assert.equal(percentileFromBins([{ lowerEdge: 0, probability: 0.4 }, { lowerEdge: 1, probability: 0.4 }, { lowerEdge: 2, probability: 0.2 }], 0.1), 0);
   assert.equal(percentileFromBins([{ lowerEdge: 0, probability: 0.4 }, { lowerEdge: 1, probability: 0.4 }, { lowerEdge: 2, probability: 0.2 }], 0.9), 2);

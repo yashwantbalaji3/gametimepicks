@@ -111,6 +111,11 @@ export const EVENT_TYPES = [
   "slate_filter_changed",
   "availability_explanation_opened",
   "today_slate_clicked_from_results",
+  // Sprint 004 (Daily MLB Intelligence) — the daily-brief view + the internal content-package generation.
+  // (homepage→today clicks / game-report opens / recap opens already map to home_cta_click / game_report_open
+  // / results_recap_open above.)
+  "daily_brief_view",
+  "social_package_generated",
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 
@@ -201,6 +206,20 @@ export interface TodaySlateClickedFromResultsEvent extends BaseEvent {
   sport: Sport;
 }
 
+/** The daily MLB intelligence brief (the /today executive digest) was viewed. */
+export interface DailyBriefViewEvent extends BaseEvent {
+  event: "daily_brief_view";
+  surface: "daily_hub";
+  sport: Sport;
+}
+
+/** An internal daily content package was generated (an ops signal — never a user behavior, no PII). */
+export interface SocialPackageGeneratedEvent extends BaseEvent {
+  event: "social_package_generated";
+  surface: "internal";
+  sport: Sport;
+}
+
 /** The full set of product-adoption events. */
 export type AnalyticsEvent =
   | HomeCtaClickEvent
@@ -212,7 +231,9 @@ export type AnalyticsEvent =
   | ReturnVisitEvent
   | SlateFilterChangedEvent
   | AvailabilityExplanationOpenedEvent
-  | TodaySlateClickedFromResultsEvent;
+  | TodaySlateClickedFromResultsEvent
+  | DailyBriefViewEvent
+  | SocialPackageGeneratedEvent;
 
 /**
  * The adoption question each event answers. Typed as an exhaustive record so
@@ -230,6 +251,8 @@ export const ADOPTION_QUESTIONS: Record<EventType, string> = {
   slate_filter_changed: "Do users engage with the readiness grouping to find a useful game?",
   availability_explanation_opened: "Do users seek to understand WHY a game has its availability tier?",
   today_slate_clicked_from_results: "Does the results→today loop actually route people back to the slate?",
+  daily_brief_view: "Are people reaching the daily MLB intelligence brief (the destination hook)?",
+  social_package_generated: "Is the internal daily content package being generated (distribution readiness)?",
 };
 
 /* ------------------------------------------------------------------ *
@@ -413,6 +436,16 @@ export function validateEvent(input: unknown): ValidationResult {
     case "today_slate_clicked_from_results":
       if (rec.surface !== "results") return err("today_slate_clicked_from_results.surface must be 'results'");
       if (!SPORT_SET.has(rec.sport as string)) return err("today_slate_clicked_from_results.sport invalid");
+      return OK;
+
+    case "daily_brief_view":
+      if (rec.surface !== "daily_hub") return err("daily_brief_view.surface must be 'daily_hub'");
+      if (!SPORT_SET.has(rec.sport as string)) return err("daily_brief_view.sport invalid");
+      return OK;
+
+    case "social_package_generated":
+      if (rec.surface !== "internal") return err("social_package_generated.surface must be 'internal'");
+      if (!SPORT_SET.has(rec.sport as string)) return err("social_package_generated.sport invalid");
       return OK;
 
     default:

@@ -25,11 +25,12 @@ const glance = read("src/components/today/at-a-glance.tsx");
 const topPicks = read("src/components/today/top-model-picks.tsx");
 const simLeans = read("src/components/today/simulation-leans.tsx");
 const fullSlate = read("src/components/today/full-slate.tsx");
+const mlbBrief = read("src/components/today/today-mlb-brief.tsx");
 const statusMods = read("src/components/today/status-modules.tsx");
 
 // Every /today + new-component source, concatenated, for whole-surface copy assertions.
-const TODAY_ALL = [todayPage, header, glance, topPicks, simLeans, fullSlate, statusMods].join("\n");
-const COMPONENTS_ALL = [header, glance, topPicks, simLeans, fullSlate, statusMods].join("\n");
+const TODAY_ALL = [todayPage, header, glance, topPicks, simLeans, fullSlate, mlbBrief, statusMods].join("\n");
+const COMPONENTS_ALL = [header, glance, topPicks, simLeans, fullSlate, mlbBrief, statusMods].join("\n");
 // Same, with comment lines stripped — used for "no hardcoded literal in CODE" sweeps (an illustrative
 // example inside a JSDoc/`//` comment is not a hardcoded runtime value).
 const stripComments = (s) => s.split("\n").filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join("\n");
@@ -83,6 +84,20 @@ test("3b · every game gets a clear per-game action, grouped by readiness (full-
   assert.match(fullSlate, /href="\/learn"/, "board links to /learn so the availability tiers are explained");
   // Honest, non-predictive: no fabricated run-count claim and no banned certainty vocabulary in the board.
   assert.ok(!/1,?000|10,?000|Monte Carlo/i.test(fullSlate), "no fabricated run-count / Monte Carlo claim on the board");
+});
+
+// 3c — Daily MLB intelligence brief: the executive digest, factual signals only (Sprint 004).
+test("3c · /today leads with the daily MLB intelligence brief (factual overview + spotlight, no picks)", () => {
+  assert.match(todayPage, /import \{ buildDailyBrief \} from "@\/lib\/today\/daily-brief"/, "imports the brief selector");
+  assert.match(todayPage, /buildDailyBrief\(details, today, \{ nowMs: Date\.now\(\) \}\)/, "builds the brief from real details + a real clock");
+  assert.match(todayPage, /<TodayMlbBrief\b/, "renders the brief");
+  assert.match(mlbBrief, /Today&rsquo;s MLB brief|Today's MLB brief/, "brief is titled");
+  assert.match(mlbBrief, /Simulation spotlight/, "has a simulation spotlight");
+  assert.match(mlbBrief, /Richest analysis on the slate/, "spotlight is framed as richest ANALYSIS (information quality)");
+  assert.match(mlbBrief, /awaiting inputs/, "overview counts games awaiting inputs");
+  assert.match(mlbBrief, /How simulations &amp; uncertainty work/, "trust link explains simulations + uncertainty");
+  // Factual only: no fabricated run count and no predictive/certainty vocabulary in the brief surface.
+  assert.ok(!/best bet|guaranteed|likely winner|lock of|smash/i.test(mlbBrief), "no predictive/certainty vocabulary in the brief");
 });
 
 // 4 — top model picks OR honest no-qualified state (uses buildTop10Board).
