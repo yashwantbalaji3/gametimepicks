@@ -115,6 +115,7 @@ export default function TodayPage() {
       firstPitchIso: d.fullGameSim!.firstPitch ?? null,
       prediction: d.prediction!,
       playerPredictions: d.playerPredictions ?? [],
+      simulationCount: d.fullGameSim!.runCount ?? null,
     }));
   const predictionRows = buildTodayPredictionRows(slatePredictionGames);
   const picksByCategory = buildTopPicksByCategory(slatePredictionGames, { perCategory: 5 });

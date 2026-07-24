@@ -39,6 +39,14 @@ test("it is presentational only — no fetching, no prediction logic", () => {
   assert.match(src, /Already-computed percentage/, "probability is an input, not a derivation");
 });
 
+test("simulation FREQUENCY is a rendering of the canonical probability, not a new number", () => {
+  // "8,400 / 10,000 games" must be probability × runCount — both already computed upstream. The card may
+  // never invent a count, and must render nothing when either input is missing.
+  assert.match(src, /probabilityPct \/ 100\) \* simulationCount/, "frequency = probability × simulations");
+  assert.match(src, /probabilityPct != null && simulationCount != null && simulationCount > 0/, "fails closed when either input is missing");
+  assert.match(src, /frequency \? </, "only rendered when derivable");
+});
+
 test("missing images degrade gracefully (null-safe props throughout)", () => {
   assert.match(src, /logoUrl\?: string \| null/, "logo may be null");
   assert.match(src, /playerId\?: number \| null/, "player id may be null");

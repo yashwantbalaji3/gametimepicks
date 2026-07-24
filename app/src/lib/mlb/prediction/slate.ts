@@ -22,6 +22,8 @@ export interface SlatePredictionGame {
   prediction: GamePredictionDecision;
   /** Enriched canonical player predictions for this game (from game-detail). */
   playerPredictions: PlayerPrediction[];
+  /** Complete games simulated for this matchup (artifact runCount) — display only. */
+  simulationCount?: number | null;
 }
 
 /** One row of the /today Game Predictions table. */
@@ -80,6 +82,8 @@ export function buildTodayPredictionRows(games: SlatePredictionGame[]): GamePred
 
 /** A player pick tagged with its game for a slate-wide category board. */
 export interface CategoryPick extends PlayerPrediction {
+  /** Simulations behind this probability (from the game artifact) — for the honest "N / 10,000 games" line. */
+  simulationCount: number | null;
   matchup: string;
   href: string;
   gamePk: number;
@@ -117,7 +121,7 @@ export function buildTopPicksByCategory(
     const matchup = `${g.awayTeam} @ ${g.homeTeam}`;
     for (const pp of g.playerPredictions) {
       const arr = byMarket.get(pp.market) ?? [];
-      arr.push({ ...pp, matchup, href: g.href, gamePk: g.gamePk });
+      arr.push({ ...pp, simulationCount: g.simulationCount ?? null, matchup, href: g.href, gamePk: g.gamePk });
       byMarket.set(pp.market, arr);
     }
   }

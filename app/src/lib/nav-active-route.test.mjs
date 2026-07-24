@@ -19,12 +19,20 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
   assert.ok(!/label: "Games"/.test(nav) && !/label: "Game Lab"/.test(nav), "the old 'Games'/'Game Lab' primary label is gone");
   const dividerIdx = nav.indexOf("beforeDivider: true");
   const idx = (s) => nav.indexOf(s);
-  // PRIMARY (before the divider): the 4-item simulate-first spine (+ Home = brand mark).
-  for (const [href, label] of [["/simulate", "Simulate"], ["/today", "Today"], ["/results", "Results"], ["/bank-builder", "Bank Builder"]]) {
+  // PRIMARY (before the divider): the simulate-first spine (+ Home = brand mark).
+  // Sprint 012 (R4): `/bank-builder` was ALSO asserted primary here, contradicting
+  // product-reset-phase-a.test.mjs ("Bank Builder comes after the primary spine"). Both only passed because
+  // `/bank-builder` is the item that CARRIES `beforeDivider: true` — its href sits just before that flag on
+  // the same source line, so a naive indexOf read it as "before the divider". It is in truth the FIRST
+  // SECONDARY item (Strategy Lab). The spine is the 3 daily-product entries + How It Works.
+  for (const [href, label] of [["/simulate", "Simulate"], ["/today", "Today"], ["/results", "Results"]]) {
     const i = idx(`href: "${href}", label: "${label}"`);
     assert.ok(i > 0 && i < dividerIdx, `${label} is PRIMARY (before the divider)`);
   }
-  // SECONDARY (after the divider): the sport hubs + daily track record sit after it.
+  // SECONDARY: `/bank-builder` opens the group (it carries the divider flag); the sport hubs + daily track
+  // record follow it. Strategy-lab + sport surfaces are de-emphasized relative to the daily spine.
+  assert.ok(nav.includes(String.raw`href: "/bank-builder", label: "Bank Builder", beforeDivider: true`),
+    "/bank-builder opens the SECONDARY group (carries the divider)");
   for (const href of ["/mlb", "/mr-dub"]) {
     const i = idx(`href: "${href}"`);
     assert.ok(i > dividerIdx, `${href} is SECONDARY (de-emphasized, after the divider)`);

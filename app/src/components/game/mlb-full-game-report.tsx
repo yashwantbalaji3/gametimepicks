@@ -113,7 +113,7 @@ function PredictionCard({ label, pick, prob, strength, unavailable }: { label: s
 }
 
 /** The prediction-first hero: the direct answers the simulation gives, before any probability evidence. */
-function PredictionHero({ p }: { p: GamePredictionDecision }) {
+function PredictionHero({ p, runCount }: { p: GamePredictionDecision; runCount?: number | null }) {
   if (!p.predictedWinner || !p.projectedScore) return null;
   const winnerName = p.predictedWinner.side === "home" ? p.homeTeamName : p.awayTeamName;
   const ml = p.moneyline;
@@ -168,6 +168,7 @@ function PredictionHero({ p }: { p: GamePredictionDecision }) {
                 pick={pp.pick}
                 line={pp.line}
                 probabilityPct={pp.simulationProbability * 100}
+                simulationCount={runCount ?? null}
               />
             ))}
           </div>
@@ -217,7 +218,7 @@ function Overview({ g, prediction, awayCode, homeCode }: { g: FullGameSimGame; p
   return (
     <div className="flex flex-col gap-4">
       {/* PREDICTION FIRST — the direct answers, before any probability evidence. */}
-      {prediction ? <PredictionHero p={prediction} /> : null}
+      {prediction ? <PredictionHero p={prediction} runCount={g.runCount} /> : null}
 
       {/* Everything below is EVIDENCE for the prediction above. */}
       <div className="flex items-center gap-2 mt-1">

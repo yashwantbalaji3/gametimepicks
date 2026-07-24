@@ -20,6 +20,7 @@ function PickRow({ rank, pick }: { rank: number; pick: CategoryDashboard["picks"
       pick={pick.pick}
       line={pick.line}
       probabilityPct={pick.simulationProbability * 100}
+      simulationCount={pick.simulationCount}
       href={pick.href}
     />
   );

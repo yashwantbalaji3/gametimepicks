@@ -102,6 +102,7 @@ export function PlayerCard({
   pick,
   line,
   probabilityPct,
+  simulationCount,
   rank,
   href,
 }: {
@@ -115,9 +116,17 @@ export function PlayerCard({
   line?: number | null;
   /** Already-computed percentage (0–100) from a canonical object. */
   probabilityPct?: number | null;
+  /** Total simulations behind the probability (e.g. 10000) — renders the honest "N / 10,000 games" frequency. */
+  simulationCount?: number | null;
   rank?: number;
   href?: string;
 }) {
+  // Simulation FREQUENCY, not a new number: the canonical probability expressed as the count of simulated
+  // games it came from ("8,400 / 10,000 games"). Pure formatting — nothing is recomputed here.
+  const frequency =
+    probabilityPct != null && simulationCount != null && simulationCount > 0
+      ? `${Math.round((probabilityPct / 100) * simulationCount).toLocaleString()} / ${simulationCount.toLocaleString()} games`
+      : null;
   const body = (
     <>
       {rank != null ? (
@@ -138,6 +147,7 @@ export function PlayerCard({
             </span>
           ) : null}
           {probabilityPct != null ? <span className="font-mono" style={{ color: "var(--vault-gold)", fontSize: 11 }}>{Math.round(probabilityPct)}%</span> : null}
+          {frequency ? <span className="font-mono whitespace-nowrap" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{frequency}</span> : null}
         </div>
       ) : null}
     </>
