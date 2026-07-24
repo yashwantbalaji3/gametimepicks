@@ -78,13 +78,16 @@ function buildGameStory(g: {
   runsHome: DistributionSummary;
   total: DistributionSummary;
   extras: number;
+  runCount: number;
 }): string[] {
   const favTeam = g.winHome >= 0.5 ? g.home : g.away;
   const favProb = Math.round((g.winHome >= 0.5 ? g.winHome : 1 - g.winHome) * 100);
   const story: string[] = [];
+  // The tier words describe how DECIDED this simulation is — never how it compares to a sportsbook.
+  // "edge"/"value" are banned public-copy terms (see public-beta-safety.test.mjs); "lean" is the house term.
   story.push(
-    `Across 10,000 simulated games, ${favTeam} won ${favProb}% of the time — ${
-      favProb >= 60 ? "a clear edge in the simulation" : favProb >= 54 ? "a modest lean" : "essentially a coin flip"
+    `Across ${g.runCount.toLocaleString()} simulated games, ${favTeam} won ${favProb}% of the time — ${
+      favProb >= 60 ? "a clear lean in the simulation" : favProb >= 54 ? "a modest lean" : "essentially a coin flip"
     }.`,
   );
   story.push(
@@ -274,6 +277,7 @@ export function simulateFullGame(input: GameInput, opts: SimulateOptions): FullG
       runsHome,
       total,
       extras,
+      runCount: n, // the SAME count the artifact reports (clamped), never the raw option
     }),
     artifactHash: "",
   };

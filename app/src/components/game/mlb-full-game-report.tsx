@@ -12,6 +12,7 @@
 import { useId, useState, type ReactNode } from "react";
 import PlayerAvatar from "@/components/player-avatar";
 import { PlayerCard } from "@/components/entity";
+import SimulationStory from "@/components/entity/simulation-story";
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import type { FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
 import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
@@ -263,11 +264,11 @@ function Overview({ g, prediction, awayCode, homeCode }: { g: FullGameSimGame; p
         <MiniHistogram bins={g.totalRuns.distribution} label={`Total runs distribution, median ${g.totalRuns.median}`} />
       </section>
 
-      {/* Game story */}
-      <section className="rounded-[12px] px-4 py-3" style={{ background: "rgba(46,160,102,0.06)", border: "1px solid rgba(46,160,102,0.22)" }}>
-        <div className="font-mono uppercase tracking-[0.12em] mb-1.5" style={{ color: "var(--vault-success, #7ee2a8)", fontSize: 9 }}>What the simulation says</div>
-        <p className="text-[12.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>{g.gameStory.join(" ")}</p>
-      </section>
+      {/* Simulation story (Sprint 014 · Phase 4) — the canonical plain-English read. It replaces the raw
+          artifact `gameStory`, whose median-score / percentile / extras facts the cards above already show;
+          this states what the artifact alone cannot: the modal outcome, how often the game stays within one
+          run, and the single biggest player factor. `gameStory` remains the degraded-state explanation. */}
+      <SimulationStory game={g} prediction={prediction ?? null} />
 
       {/* OUR SIMULATION vs MARKET — comparison only, clearly separated */}
       {g.market ? (

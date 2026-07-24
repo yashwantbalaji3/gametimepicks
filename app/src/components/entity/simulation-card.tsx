@@ -16,6 +16,7 @@ import Link from "next/link";
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
 import { GameHeader, PlayerCard } from "@/components/entity";
+import SimulationStory from "@/components/entity/simulation-story";
 
 /** Format a probability + a run count as the honest "N / 10,000 games" frequency. Pure formatting. */
 function frequency(probability: number | null | undefined, runCount: number | null | undefined): string | null {
@@ -125,6 +126,9 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
               </div>
             ) : null}
           </div>
+
+          {/* ── Simulation story — the same canonical sentences the Game Report shows, compact ── */}
+          <SimulationStory game={g} prediction={p} compact />
 
           {/* ── Player impact — portraits + opponent context + each player's own frequency ── */}
           {p?.topPlayerPredictions?.length ? (
