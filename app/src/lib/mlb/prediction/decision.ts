@@ -66,6 +66,40 @@ function overUnderPush(distribution: { value: number; probability: number }[], l
 
 const round3 = (x: number): number => Math.round(x * 1000) / 1000;
 
+/**
+ * Derive ONE canonical player prediction from a legacy prop pick. The direction is the side with the greater
+ * SIMULATED probability (never the model-vs-market gap): if the pick's own side has < 0.5 simulated
+ * probability, the opposite side is the prediction. Shared by the per-game decision AND the /today category
+ * dashboards so a given player shows the SAME pick everywhere. Optional playerId/opponent enrich the display
+ * only (portrait + matchup) and never affect the pick.
+ */
+export function buildPlayerPrediction(
+  p: PlayerPickInput,
+  enrich?: { playerId?: number | null; team?: string | null; opponent?: string | null },
+): PlayerPrediction {
+  const overIsHigher = p.side === "over" ? p.modelProbability >= 0.5 : p.modelProbability < 0.5;
+  const pick: "OVER" | "UNDER" = overIsHigher ? "OVER" : "UNDER";
+  const simProb = p.side === "over"
+    ? overIsHigher ? p.modelProbability : 1 - p.modelProbability
+    : overIsHigher ? 1 - p.modelProbability : p.modelProbability;
+  const mp = p.marketProbability ?? null;
+  const marketForPick = mp == null ? null : pick === (p.side === "over" ? "OVER" : "UNDER") ? mp : 1 - mp;
+  return {
+    player: p.player,
+    team: enrich?.team ?? p.team ?? "",
+    market: p.market,
+    marketLabel: p.marketLabel ?? MARKET_LABELS[p.market] ?? p.market,
+    line: p.line,
+    pick,
+    simulationProbability: round3(simProb),
+    marketImpliedProbability: marketForPick == null ? null : round3(marketForPick),
+    strengthLabel: strengthLabel(simProb),
+    source: "legacy_prop_engine",
+    playerId: enrich?.playerId ?? null,
+    opponent: enrich?.opponent ?? null,
+  };
+}
+
 /** Build the canonical directional prediction for one game. Deterministic; never fabricates an unsupported pick. */
 export function buildGamePredictionDecision(
   game: FullGameSimGame,
@@ -202,28 +236,7 @@ export function buildGamePredictionDecision(
 
   // ── Top player predictions — direction from the SIMULATED probability (never the model-vs-market gap). ──
   const topPlayerPredictions: PlayerPrediction[] = (playerPicks ?? [])
-    .map((p) => {
-      const overIsHigher = p.side === "over" ? p.modelProbability >= 0.5 : p.modelProbability < 0.5;
-      const pick: "OVER" | "UNDER" = overIsHigher ? "OVER" : "UNDER";
-      const simProb = p.side === "over"
-        ? overIsHigher ? p.modelProbability : 1 - p.modelProbability
-        : overIsHigher ? 1 - p.modelProbability : p.modelProbability;
-      // Market prob of the PREDICTED side (flip the pick's market prob if we flipped direction).
-      const mp = p.marketProbability ?? null;
-      const marketForPick = mp == null ? null : pick === (p.side === "over" ? "OVER" : "UNDER") ? mp : 1 - mp;
-      return {
-        player: p.player,
-        team: p.team ?? "",
-        market: p.market,
-        marketLabel: p.marketLabel ?? MARKET_LABELS[p.market] ?? p.market,
-        line: p.line,
-        pick,
-        simulationProbability: round3(simProb),
-        marketImpliedProbability: marketForPick == null ? null : round3(marketForPick),
-        strengthLabel: strengthLabel(simProb),
-        source: "legacy_prop_engine" as const,
-      };
-    })
+    .map((p) => buildPlayerPrediction(p))
     .sort((a, b) => b.simulationProbability - a.simulationProbability)
     .slice(0, maxPlayers);
 

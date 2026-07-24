@@ -29,8 +29,8 @@ import {
 import { getMlbGameCenter, type MlbGameCenter } from "@/lib/mlb-team-markets";
 import { loadFullGameArtifact, type FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
-import { buildGamePredictionDecision, type PlayerPickInput } from "@/lib/mlb/prediction/decision";
-import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
+import { buildGamePredictionDecision, buildPlayerPrediction, type PlayerPickInput } from "@/lib/mlb/prediction/decision";
+import type { GamePredictionDecision, PlayerPrediction } from "@/lib/mlb/prediction/types";
 import { compactPredictionLine } from "@/lib/mlb/prediction/summary";
 import { getWcGameCenter, type WcGameCenter } from "@/lib/wc-game-center";
 import { getWcExpandedMarkets, type WcExpandedMarkets } from "@/lib/wc-expanded-markets";
@@ -117,6 +117,13 @@ export interface PublicGameDetail {
   prediction?: GamePredictionDecision | null;
   /** Compact one-line prediction (Sprint 009), e.g. "SF · UNDER 8.5 · LAA +1.5" — for /today & /mlb rows. */
   predictionLine?: string | null;
+  /**
+   * Enriched canonical player predictions (Sprint 010) — ALL of the game's player picks run through the SAME
+   * buildPlayerPrediction the decision engine uses, joined to the board for playerId (portrait) + opponent.
+   * The /today category dashboards and the report hero both read these, so a player shows the SAME pick
+   * everywhere. Enrichment is display-only; it never changes the pick/probability.
+   */
+  playerPredictions?: PlayerPrediction[];
   /**
    * Market-implied Game Center (MLB only) — win probability, game total + O/U lean,
    * and run-line lean, derived by de-vigging the sportsbook team markets
@@ -448,6 +455,20 @@ function mlbDetails(): PublicGameDetail[] {
         marketProbability: p.marketProbability ?? null,
       }));
     const prediction = fg ? buildGamePredictionDecision(fg, playerPicks) : null;
+    // Enriched canonical player predictions (Sprint 010): join each pick to its board lean for the portrait
+    // id + opponent, then re-use the SAME top-5 in the report hero so it matches /today exactly.
+    const leanByKey = new Map<string, { playerId: number | null; team: string | null; opponent: string | null }>();
+    for (const l of (board.leans ?? []) as Array<{ gamePk?: number | string; playerId?: number; playerName?: string; playerTeamAbbr?: string; opponentAbbr?: string; marketKey?: string; line?: number }>) {
+      if (String(l.gamePk) !== String(d.matchId)) continue;
+      if (l.playerName == null || l.marketKey == null || l.line == null) continue;
+      leanByKey.set(`${l.playerName.toLowerCase()}|${l.marketKey}|${l.line}`, { playerId: l.playerId ?? null, team: l.playerTeamAbbr ?? null, opponent: l.opponentAbbr ?? null });
+    }
+    const playerPredictions: PlayerPrediction[] = fg
+      ? playerPicks
+          .map((p) => buildPlayerPrediction(p, leanByKey.get(`${p.player.toLowerCase()}|${p.market}|${p.line}`)))
+          .sort((a, b) => b.simulationProbability - a.simulationProbability)
+      : [];
+    if (prediction) prediction.topPlayerPredictions = playerPredictions.slice(0, 5);
     return {
       ...d,
       gameLabMlb: d.matchId ? buildMlbGameLabReport(board, d.matchId) : null,
@@ -456,6 +477,7 @@ function mlbDetails(): PublicGameDetail[] {
       fullGameSimMeta: fg ? fullGame?.meta ?? null : null,
       prediction,
       predictionLine: compactPredictionLine(prediction),
+      playerPredictions,
       // Market-implied Game Center, joined by the sim's gameId (== the Odds event id).
       // Null when the game has no de-vigged team markets → the UI shows an honest
       // unavailable state rather than inventing win-prob / total / run-line numbers.

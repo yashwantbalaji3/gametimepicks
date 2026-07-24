@@ -80,6 +80,10 @@ export interface PlayerPrediction {
   strengthLabel: StrengthLabel;
   /** Which engine produced this line-level probability (legacy prop engine until parity migration). */
   source: "unified_full_game" | "legacy_prop_engine";
+  /** Optional display enrichment (Sprint 010) — the official-headshot id + opponent, joined from the board.
+   *  Never changes the pick/probability; a missing id just falls back to an initials avatar. */
+  playerId?: number | null;
+  opponent?: string | null;
 }
 
 export interface GamePredictionDecision {

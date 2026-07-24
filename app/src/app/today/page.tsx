@@ -37,6 +37,9 @@ import { loadHomepageSpotlight } from "@/lib/home/load-spotlight";
 import TodayDailySlateHeader from "@/components/today/daily-slate-header";
 import TodayAtAGlance, { type GlanceCard } from "@/components/today/at-a-glance";
 import TodayTopModelPicks from "@/components/today/top-model-picks";
+import TodayGamePredictions from "@/components/today/game-predictions";
+import TodayTopPicksByCategory from "@/components/today/top-picks-by-category";
+import { buildTodayPredictionRows, buildTopPicksByCategory, type SlatePredictionGame } from "@/lib/mlb/prediction/slate";
 import TodaySimulationLeans from "@/components/today/simulation-leans";
 import TodayFullSlate from "@/components/today/full-slate";
 import TodayMlbBrief from "@/components/today/today-mlb-brief";
@@ -93,6 +96,28 @@ export default function TodayPage() {
   // ── Top model picks — the canonical cross-sport board; take the strongest ~6 for the compact list ──
   const top10 = buildTop10Board(dataRoot, today, Date.now());
   const topPicks = (top10.overall ?? []).slice(0, 6);
+
+  // ── Sprint 010 dashboards — the Game Predictions table + Top Model Picks BY CATEGORY, both derived from
+  //    the SAME canonical prediction objects the game report uses (detail.prediction / detail.playerPredictions).
+  //    No re-derivation, no hardcoding: a game with no full-game artifact simply drops out. ──
+  const slatePredictionGames: SlatePredictionGame[] = details
+    .filter((d) => d.sport === "mlb" && d.prediction && d.fullGameSim)
+    .map((d) => ({
+      gamePk: Number(d.matchId),
+      slug: d.slug,
+      href: `/games/mlb/${d.slug}/`,
+      homeTeam: d.prediction!.homeTeam,
+      awayTeam: d.prediction!.awayTeam,
+      homeTeamName: d.prediction!.homeTeamName,
+      awayTeamName: d.prediction!.awayTeamName,
+      homeLogo: d.homeLogo ?? null,
+      awayLogo: d.awayLogo ?? null,
+      firstPitchIso: d.fullGameSim!.firstPitch ?? null,
+      prediction: d.prediction!,
+      playerPredictions: d.playerPredictions ?? [],
+    }));
+  const predictionRows = buildTodayPredictionRows(slatePredictionGames);
+  const picksByCategory = buildTopPicksByCategory(slatePredictionGames, { perCategory: 5 });
 
   // ── CANONICAL money / exposure — identical sources to Home; never recomputed or hardcoded ──
   const dailyPortfolio = buildDailyPortfolio(dataRoot, new Date().toISOString(), today);
@@ -252,8 +277,11 @@ export default function TodayPage() {
       {/* 2 — Today at a glance (compact canonical status cards) */}
       <TodayAtAGlance cards={glanceCards} />
 
-      {/* 3 — Top model picks (compact ranked list from the canonical Top-10 board) */}
-      <TodayTopModelPicks picks={topPicks} />
+      {/* 2b — Game Predictions table (Sprint 010): the model's answer for every game, canonical + first-glance */}
+      <TodayGamePredictions rows={predictionRows} />
+
+      {/* 3 — Top model picks: BY CATEGORY (Sprint 010) when the MLB slate supports it, else the cross-sport list */}
+      {picksByCategory.length > 0 ? <TodayTopPicksByCategory categories={picksByCategory} /> : <TodayTopModelPicks picks={topPicks} />}
 
       {/* 4 — Simulation-backed games (real ready artifacts only) */}
       <TodaySimulationLeans featured={featured} readyCount={readyCount} />
