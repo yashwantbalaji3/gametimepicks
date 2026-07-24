@@ -332,6 +332,21 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
             <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Projected score / win probability — full-game model still validating</span>
           </div>
         </div>
+        {/* Compact provenance + completeness strip — the run count already sits in "What happened"; this pairs it
+            with WHEN the sim ran and the honest completeness FLOOR, right at the top (the full breakdown repeats in
+            the Data-freshness section below). Pure reuse of the artifact-backed provenance — no new data, no claim. */}
+        <div className="flex items-center gap-x-2.5 gap-y-1 flex-wrap font-mono" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>
+          {provenance.generatedLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{provenance.generatedLabel}</span> : null}
+          {provenance.generatedLabel ? <span aria-hidden>·</span> : null}
+          <span>{provenance.captureLabel}</span>
+          <span aria-hidden>·</span>
+          <span
+            title={completenessMeta.tooltip}
+            style={{ color: completenessMeta.tone === "ok" ? "var(--vault-success)" : completenessMeta.tone === "pending" ? "var(--vault-warn)" : "var(--vault-text-mute)" }}
+          >
+            {completenessMeta.label}
+          </span>
+        </div>
       </section>
 
       {/* Calibration disclosure — the honest, audit-backed truth about the model probabilities. Prominent + high

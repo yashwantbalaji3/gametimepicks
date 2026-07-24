@@ -92,18 +92,33 @@ const addDays = (iso, n) => { const [y, m, d] = (iso ?? "").split("-").map(Numbe
 const nextSettlementDate = dp?.date ?? null;              // today's games settle after they go final
 const nextRefreshDate = addDays(dp?.date, 1);              // the next slate
 
+// ── Slate pointer — MUST follow the newest successful slate board, never lag ─────────────────────
+// The daily-portfolio date (dp.date) is a MONEY-state pointer that legitimately lags when no card is
+// placed; using it for the SLATE date is what let the July-24 incident show a 07-21 slate while the real
+// MLB board was 07-24. Derive the slate date from the newest generated board (MLB or WC), capped at the
+// current ET date so a pre-generated future board can't jump the pointer ahead. Guarded by
+// admin-status-slate-pointer.test.mjs — this pointer can never silently lag behind the real slate again.
+const etToday = new Date(nowIso).toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+const mlbSlateDate = latestMlb ? latestMlb.replace(".json", "") : null;
+const wcSlateDate = typeof wcBoard?.date === "string" ? wcBoard.date : null;
+const slateDate =
+  [mlbSlateDate, wcSlateDate].filter((d) => typeof d === "string" && d <= etToday).sort().at(-1) ??
+  dp?.date ??
+  null;
+
 // ── Missing-data + stale-route warnings (derived) ───────────────────────────────────────────────
-const todayEt = nowIso.slice(0, 10);
 const warnings = [];
 if (!wcGames) warnings.push("World Cup board is empty (dormant or needs a refresh).");
 if (!mlbGames) warnings.push("MLB board is empty (dormant or needs a refresh).");
 if (!moneyGate.dailyTracksCanonical) warnings.push("Daily portfolio activeBankroll ≠ canonical bankroll — roll forward.");
-if (dp?.date && dp.date < todayEt) warnings.push(`Slate (${dp.date}) is behind today (${todayEt}) — refresh/roll forward.`);
+// Slate freshness keys off the real slate pointer (newest board), NOT the daily-portfolio date — a lagging
+// daily portfolio means "no card placed yet" (surfaced in nextAction), not stale slate data.
+if (slateDate && slateDate < etToday) warnings.push(`Slate (${slateDate}) is behind today (${etToday}) — refresh/roll forward.`);
 
 // ── Daily checklist (derived completion — the runbook is the source of truth) ───────────────────
 const dailyChecklist = [
   { step: "Money gate green", done: moneyGate.pass },
-  { step: "Slate is current", done: !!dp?.date && dp.date >= todayEt },
+  { step: "Slate is current", done: !!slateDate && slateDate >= etToday },
   { step: "Products generated (WC or MLB)", done: wcGames > 0 || mlbGames > 0 },
   { step: "Bank Builder card decided (active or no-play)", done: bbActive > 0 || bbLanes.length === 0 },
   { step: "No missing-data warnings", done: warnings.length === 0 },
@@ -121,7 +136,10 @@ const status = {
   canonical,
   moneyGate,
   slate: {
-    date: dp?.date ?? null,
+    date: slateDate,
+    // dailyPortfolioDate is the money-state pointer (the last placed/settled card's date); it can lag the
+    // slate date and that is expected — the settlement heuristics below key off it, not off `date`.
+    dailyPortfolioDate: dp?.date ?? null,
     activeBankroll: round2(dp?.activeBankroll), openExposure: round2(dp?.openExposure),
     worldCupGames: (wcBoard?.games ?? []).length, mlbGames: (mlbBoard?.games ?? []).length, mlbSlate: latestMlb ? latestMlb.replace(".json", "") : null,
   },

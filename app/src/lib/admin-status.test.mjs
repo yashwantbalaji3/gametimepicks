@@ -32,7 +32,14 @@ test("admin/status.json money-gate invariants hold on the committed state", () =
 });
 
 test("admin/status.json slate + products are present and self-consistent", () => {
-  assert.equal(status.slate.date, dp.date, "slate date matches the daily portfolio");
+  // The SLATE pointer follows the newest slate board — NEVER the money-state daily-portfolio date, which can
+  // legitimately lag when no card is placed. (That lag was the July-24 incident: slate.date read 07-21 while the
+  // MLB board was already 07-24.) The daily-portfolio date is carried separately as dailyPortfolioDate.
+  // Enforced end-to-end by admin-status-slate-pointer.test.mjs (runs the generator with a fixed clock).
+  assert.equal(status.slate.dailyPortfolioDate, dp.date, "daily-portfolio (money-state) date is carried verbatim");
+  assert.ok(/^2\d{3}-\d{2}-\d{2}$/.test(status.slate.date), "slate date is a real ISO date");
+  assert.ok(status.slate.date >= dp.date, "slate date never lags behind the money-state daily-portfolio date");
+  if (status.slate.mlbSlate) assert.ok(status.slate.date >= status.slate.mlbSlate, "slate date never lags behind the newest MLB board");
   assert.ok(typeof status.slate.worldCupGames === "number" && status.slate.worldCupGames >= 0);
   assert.ok(status.products.bankBuilder && status.products.moonshot, "both flagship products reported");
   assert.ok(typeof status.nextAction === "string" && status.nextAction.length > 0, "a next action is always suggested");
