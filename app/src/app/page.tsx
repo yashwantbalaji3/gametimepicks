@@ -20,6 +20,7 @@ import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
+import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
@@ -80,6 +81,8 @@ export default function HomePage() {
   // ── Featured simulations — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
   const { featured, readyCount } = featuredSimulations(details, currentEtDate());
+  // Sprint 015 Phase 1: what each featured simulation CONCLUDED — a lookup over the canonical objects.
+  const gameAnswers = buildHomeGameAnswers(details);
   // Daily-MLB destination hook — the SAME brief overview /today leads with (factual counts, no picks).
   const homeBrief = buildDailyBrief(details, today, { nowMs: Date.now() });
 
@@ -233,7 +236,7 @@ export default function HomePage() {
       />
 
       {/* 3 — Featured simulations (real ready artifacts only) */}
-      <FeaturedSimulationsSection featured={featured} readyCount={readyCount} />
+      <FeaturedSimulationsSection featured={featured} readyCount={readyCount} answers={gameAnswers} />
 
       {/* 4 — Compact today's-slate summary (NOT the full board) */}
       <SlateSummary

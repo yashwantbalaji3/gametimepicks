@@ -8,12 +8,19 @@
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
 import type { FeaturedSimulation } from "@/lib/simulate-lobby-featured";
+import type { HomeGameAnswer } from "@/lib/home/game-answers";
 
 export interface FeaturedSimulationsProps {
   /** The capped featured cards from `featuredSimulations()` (already sliced to <=5). */
   featured: FeaturedSimulation[];
   /** Total ready simulations across the slate (>= featured.length). Drives the honest "+N more" line. */
   readyCount: number;
+  /**
+   * Sprint 015 · Phase 1 — what each simulation CONCLUDED, keyed by slug, from `buildHomeGameAnswers`.
+   * Optional: a card with no entry (or with null fields) renders exactly as it did before, so the homepage
+   * degrades to "a simulation exists" rather than inventing an answer.
+   */
+  answers?: Record<string, HomeGameAnswer>;
 }
 
 /** Crest: MLB uses the ESPN-CDN TeamLogo; World Cup uses the real provider logo URL (never fabricated). */
@@ -30,7 +37,7 @@ function Crest({ team, logo, isWc }: { team: string; logo: string | null; isWc: 
   );
 }
 
-function SimCard({ s }: { s: FeaturedSimulation }) {
+function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer }) {
   const away = s.teams?.away?.trim() || "—";
   const home = s.teams?.home?.trim() || "—";
   const isWc = s.sport === "world_cup";
@@ -68,6 +75,28 @@ function SimCard({ s }: { s: FeaturedSimulation }) {
           </span>
         ) : null}
       </div>
+      {/* ── What the simulation concluded (Sprint 015 · Phase 1). Each line renders only when the canonical
+             objects carried it; a card with no answer keeps its original "a simulation exists" shape. ── */}
+      {answer?.prediction || answer?.mostLikelyScore || answer?.story ? (
+        <div className="flex flex-col gap-1 rounded-[9px] px-2.5 py-2"
+          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+          {answer.prediction ? (
+            <span className="text-[12px]" style={{ color: "var(--vault-text)", fontWeight: 700 }}>{answer.prediction}</span>
+          ) : null}
+          {answer.frequency ? (
+            <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{answer.frequency}</span>
+          ) : null}
+          {answer.mostLikelyScore ? (
+            <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+              Most likely: {answer.mostLikelyScore}
+            </span>
+          ) : null}
+          {answer.story ? (
+            <span style={{ color: "var(--vault-text-mute)", fontSize: 10.5, lineHeight: 1.45 }}>{answer.story}</span>
+          ) : null}
+        </div>
+      ) : null}
+
       <span className="mt-auto inline-flex w-fit items-center rounded-full px-3 py-1 font-mono uppercase tracking-[0.1em]"
         style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 9.5, fontWeight: 700 }}>
         Generate Simulation →
@@ -76,7 +105,7 @@ function SimCard({ s }: { s: FeaturedSimulation }) {
   );
 }
 
-export default function FeaturedSimulationsSection({ featured, readyCount }: FeaturedSimulationsProps) {
+export default function FeaturedSimulationsSection({ featured, readyCount, answers }: FeaturedSimulationsProps) {
   const hasFeatured = readyCount > 0 && featured.length > 0;
   return (
     <section aria-label="Featured simulations" className="flex flex-col gap-3">
@@ -93,7 +122,7 @@ export default function FeaturedSimulationsSection({ featured, readyCount }: Fea
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
             {featured.map((s) => (
-              <SimCard key={s.slug} s={s} />
+              <SimCard key={s.slug} s={s} answer={answers?.[s.slug]} />
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
