@@ -82,10 +82,42 @@ const activeProductCount = [bbActive > 0, moonActive > 0, wcGames > 0, mlbGames 
 const pendingApprovalCount = [...bbLanes, ...moonLanes].filter((l) => l.status !== "active").length;
 
 // ── Workflow health (from the ops heartbeat written by ops-notify.mjs; honest "not wired" if absent) ─
+//
+// A heartbeat is a DEAD-MAN'S SWITCH: its value is the freshness of the signal, not the last recorded
+// verdict. This previously copied `ok`/`status` through verbatim, so /ops published `ok: true, status:
+// "pass"` from a heartbeat that had not been written for 17 days — a green dashboard asserting health from
+// a signal that had stopped. Reporting nothing would have been safer than that.
+//
+// Now it fails closed: past STALE_AFTER_HOURS the run is reported as stale and NOT ok, whatever the last
+// recorded verdict said. The last known verdict is kept alongside for context, never as the live one.
+// The daily pipeline runs at least once a day, so a gap beyond 36h means a full cycle was missed.
+const HEARTBEAT_STALE_AFTER_HOURS = 36;
 const heartbeat = readJson("ops/heartbeat.json");
-const workflowHealth = heartbeat
-  ? { lastRunAt: heartbeat.lastRunAt ?? null, ok: heartbeat.ok ?? null, status: heartbeat.status ?? null, phase: heartbeat.phase ?? null }
-  : { note: "not wired — no ops heartbeat found (ops-notify.mjs writes it on a clean automated run)" };
+const heartbeatAgeHours = (() => {
+  const t = Date.parse(heartbeat?.lastRunAt ?? "");
+  if (!Number.isFinite(t)) return null;
+  return Math.round(((Date.parse(nowIso) - t) / 3_600_000) * 10) / 10;
+})();
+const heartbeatStale = heartbeatAgeHours == null || heartbeatAgeHours > HEARTBEAT_STALE_AFTER_HOURS;
+const workflowHealth = !heartbeat
+  ? { note: "not wired — no ops heartbeat found (ops-notify.mjs writes it on a clean automated run)" }
+  : heartbeatStale
+    ? {
+        lastRunAt: heartbeat.lastRunAt ?? null,
+        ageHours: heartbeatAgeHours,
+        ok: false,
+        status: "stale",
+        staleAfterHours: HEARTBEAT_STALE_AFTER_HOURS,
+        lastKnown: { ok: heartbeat.ok ?? null, status: heartbeat.status ?? null, phase: heartbeat.phase ?? null },
+        note: "the heartbeat has stopped — this is the AGE of the last signal, not a live health verdict",
+      }
+    : {
+        lastRunAt: heartbeat.lastRunAt ?? null,
+        ageHours: heartbeatAgeHours,
+        ok: heartbeat.ok ?? null,
+        status: heartbeat.status ?? null,
+        phase: heartbeat.phase ?? null,
+      };
 
 // ── Next dates (derived from the slate) ─────────────────────────────────────────────────────────
 const addDays = (iso, n) => { const [y, m, d] = (iso ?? "").split("-").map(Number); if (!y) return null; const t = Date.UTC(y, m - 1, d) + n * 86400000; const dt = new Date(t); return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`; };
@@ -114,6 +146,14 @@ if (!moneyGate.dailyTracksCanonical) warnings.push("Daily portfolio activeBankro
 // Slate freshness keys off the real slate pointer (newest board), NOT the daily-portfolio date — a lagging
 // daily portfolio means "no card placed yet" (surfaced in nextAction), not stale slate data.
 if (slateDate && slateDate < etToday) warnings.push(`Slate (${slateDate}) is behind today (${etToday}) — refresh/roll forward.`);
+// Surface a stopped heartbeat as a WARNING too, so it appears on /ops rather than only inside a nested field.
+if (heartbeat && heartbeatStale) {
+  warnings.push(
+    heartbeatAgeHours == null
+      ? "Ops heartbeat has no readable lastRunAt — workflow health is unknown, not healthy."
+      : `Ops heartbeat is ${heartbeatAgeHours}h old (>${HEARTBEAT_STALE_AFTER_HOURS}h) — an automated cycle was missed.`,
+  );
+}
 
 // ── Daily checklist (derived completion — the runbook is the source of truth) ───────────────────
 const dailyChecklist = [
