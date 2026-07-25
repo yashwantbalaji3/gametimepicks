@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823841,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T20:06:51.895Z",
+  "availableAt": "2026-07-25T20:06:51.895Z",
+  "eventStartTime": "2026-07-25T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 691587,
+      "name": "Eury Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 6.4,
+        "bbAvg": 1.8,
+        "erAvg": 0.8,
+        "hrAvg": 0.4,
+        "kPer9": 9.93,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 91.67,
+        "k": 104,
+        "bb": 37,
+        "er": 36,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 681190,
+      "name": "Randy Vásquez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 23,
+      "lastStartDate": "2026-07-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.33,
+        "ipAvg": 4.07,
+        "kAvg": 2.4,
+        "bbAvg": 1.8,
+        "erAvg": 3.6,
+        "hrAvg": 0.8,
+        "kPer9": 5.31,
+        "workloadIpLast5": 20.33
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 80.67,
+        "k": 59,
+        "bb": 26,
+        "er": 40,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-25T20:06:51.895Z"
+  },
+  "recordHash": "91b2dbdfa2d2cca9804669b98bf68f1655116a32e3d2fb011604dbeb5fa42572"
+}

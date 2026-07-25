@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823600,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T20:06:51.895Z",
+  "availableAt": "2026-07-25T20:06:51.895Z",
+  "eventStartTime": "2026-07-25T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 690997,
+      "name": "Nolan McLean",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 7.6,
+        "bbAvg": 1.8,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 11.4,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 113.33,
+        "k": 135,
+        "bb": 41,
+        "er": 42,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 808967,
+      "name": "Yoshinobu Yamamoto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 34,
+        "ipAvg": 6.8,
+        "kAvg": 6.6,
+        "bbAvg": 2,
+        "erAvg": 2.6,
+        "hrAvg": 0.6,
+        "kPer9": 8.74,
+        "workloadIpLast5": 34
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 119.67,
+        "k": 113,
+        "bb": 25,
+        "er": 37,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-25T20:06:51.895Z"
+  },
+  "recordHash": "12627052a9e24e72f63ccf4889a7b3cae4a267b4284a35ad710e5b47430d8370"
+}
