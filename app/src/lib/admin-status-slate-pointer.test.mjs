@@ -54,6 +54,62 @@ test("the slate pointer equals the newest MLB board and never lags at the daily-
   }
 });
 
+/**
+ * THREE DATE STATES, ASSERTED UNCONDITIONALLY (Sprint 022 · Phase 0).
+ *
+ * The assertions above are wrapped in `if (...)`, so they pass vacuously whenever the condition is false —
+ * which is exactly how the future-board defect survived. This drives the real builder at three pinned clocks
+ * against the boards actually on disk and asserts the resulting pointer every time:
+ *
+ *   clock AFTER every board   → newest available board   (catch-up / stale-slate day)
+ *   clock ON a board's date   → that board                (normal day)
+ *   clock BEFORE the newest   → the newest board AT OR BEFORE today, never the money date
+ *
+ * The third case is the July-25 regression: build-admin-status.mjs took the newest file and THEN discarded
+ * it if future, so a pre-generated tomorrow-board emptied the candidate list and the pointer collapsed to
+ * the lagging daily-portfolio date — recreating the very incident this file guards.
+ */
+test("the slate pointer is correct for past / present / future boards on disk", () => {
+  const boardsDir = path.join(app, "public", "data", "mlb", "boards");
+  const boards = fs
+    .readdirSync(boardsDir)
+    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .map((f) => f.replace(".json", ""))
+    .sort();
+  assert.ok(boards.length >= 2, "need at least two dated boards to exercise the three states");
+
+  const newest = boards[boards.length - 1];
+  const secondNewest = boards[boards.length - 2];
+  const newestAtOrBefore = (d) => boards.filter((b) => b <= d).sort().at(-1) ?? null;
+
+  // Pin each clock at 18:00Z so the ET calendar date is unambiguous (ET is UTC-4/-5).
+  for (const [label, day] of [
+    ["clock after every board (catch-up day)", "2099-01-01"],
+    ["clock on the newest board's own date", newest],
+    ["clock before the newest board (a FUTURE board sits on disk)", secondNewest],
+  ]) {
+    const now = `${day}T18:00:00Z`;
+    const s = buildStatusAt(now);
+    const today = etDate(now);
+    const expected = newestAtOrBefore(today);
+
+    assert.equal(
+      s.slate.date,
+      expected,
+      `${label}: pointer must be the newest board at or before ${today}, got ${s.slate.date}`,
+    );
+    assert.ok(s.slate.date <= today, `${label}: pointer must never be in the future`);
+    // And it must never silently collapse to the money-state date when a real board is available.
+    if (expected && s.slate.dailyPortfolioDate && s.slate.dailyPortfolioDate < expected) {
+      assert.notEqual(
+        s.slate.date,
+        s.slate.dailyPortfolioDate,
+        `${label}: pointer fell back to the lagging daily-portfolio date`,
+      );
+    }
+  }
+});
+
 test("the slate pointer is never ahead of the current ET date (a future board can't jump it forward)", () => {
   const now = "2026-07-24T20:00:00Z";
   const s = buildStatusAt(now);
