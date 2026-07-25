@@ -1,8 +1,21 @@
 # July-13+ Daily Automation Status (2026-07-12)
 
-Companion to `GH_ACTIONS_SECRETS_SETUP.md`. Blunt status of whether the site keeps itself fresh unattended.
+> ## ⚠️ SUPERSEDED — this snapshot is out of date (checked 2026-07-24)
+>
+> Everything below described the state **before the repo secrets were added**. It is kept for history only.
+> Do not use it to decide whether automation is running — it will tell you "dormant" when the pipeline has in
+> fact been publishing daily for weeks.
+>
+> **Verified live as of 2026-07-24**, by bot commit history on `main`:
+> `morning-projections.yml`, `mlb-daily-production.yml`, `mlb-pregame-capture.yml` (8 runs/day) and
+> `nightly-settle.yml` all run on schedule. `gtp-mlb-production-bot` has committed a slate every day.
+>
+> Genuinely dormant: `daily-lifecycle.yml` (needs `ENABLE_AUTONOMOUS_DEPLOY`), `daily-rebuild.yml` (needs
+> `VERCEL_DEPLOY_HOOK_URL`), `mlb-daily.yml` (superseded by `mlb-daily-production.yml`).
+>
+> **Current source of truth: `docs/MLB_DAILY_PIPELINE.md`.**
 
-## Current status: DORMANT (fail-closed), pipeline is now empty-slate-safe
+## Historical status as of 2026-07-12: DORMANT (fail-closed), pipeline is now empty-slate-safe
 The daily workflows exist but **no-op until the repo secrets are added** (they never run, so nothing is
 half-done or fabricated). The refresh they call is now hardened so a 0-game MLB day (All-Star break) does not
 crash it (Pass 1) and the public UI degrades honestly on a no-games day (Pass 2).
