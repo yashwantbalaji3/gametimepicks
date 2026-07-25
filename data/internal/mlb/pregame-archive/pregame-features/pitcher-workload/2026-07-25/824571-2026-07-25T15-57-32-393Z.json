@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824571,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T15:57:32.393Z",
+  "availableAt": "2026-07-25T15:57:32.393Z",
+  "eventStartTime": "2026-07-25T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 680732,
+      "name": "Sean Burke",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 6,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.33,
+        "ipAvg": 6.27,
+        "kAvg": 7.8,
+        "bbAvg": 1,
+        "erAvg": 1,
+        "hrAvg": 0.6,
+        "kPer9": 11.2,
+        "workloadIpLast5": 31.33
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 87.33,
+        "k": 94,
+        "bb": 28,
+        "er": 35,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 686613,
+      "name": "Hunter Brown",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 6,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 3.8,
+        "bbAvg": 3.8,
+        "erAvg": 3.2,
+        "hrAvg": 1,
+        "kPer9": 7.23,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 40,
+        "k": 43,
+        "bb": 28,
+        "er": 18,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-25T15:57:32.393Z"
+  },
+  "recordHash": "8d5a673db226b5b761b6183b79f64134a10a5055e475b75c8d4a28651339aa17"
+}
