@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823679,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T21:44:26.384Z",
+  "availableAt": "2026-07-25T21:44:26.384Z",
+  "eventStartTime": "2026-07-25T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 702474,
+      "name": "Mike Paredes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 22,
+      "lastStartDate": "2026-07-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22,
+        "ipAvg": 4.4,
+        "kAvg": 2.2,
+        "bbAvg": 1.4,
+        "erAvg": 2.2,
+        "hrAvg": 1,
+        "kPer9": 4.5,
+        "workloadIpLast5": 22
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 22,
+        "k": 11,
+        "bb": 7,
+        "er": 11,
+        "hr": 5
+      }
+    },
+    "away": {
+      "id": 669620,
+      "name": "Brady Basso",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-25T21:44:26.384Z"
+  },
+  "recordHash": "15b5c7a198a4c4b6cea7fd9e62826c9e6ac989bdbcbfcfcfcaa476799534e528"
+}

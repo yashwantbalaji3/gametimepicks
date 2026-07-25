@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823435,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T21:44:26.384Z",
+  "availableAt": "2026-07-25T21:44:26.384Z",
+  "eventStartTime": "2026-07-25T22:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641835,
+      "name": "Tim Mayza",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 28,
+      "lastStartDate": "2026-06-27",
+      "last5": {
+        "starts": 3,
+        "ipSum": 4.33,
+        "ipAvg": 1.44,
+        "kAvg": 1.67,
+        "bbAvg": 0.33,
+        "erAvg": 0.33,
+        "hrAvg": 0,
+        "kPer9": 10.38,
+        "workloadIpLast5": 4.33
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 4.33,
+        "k": 5,
+        "bb": 1,
+        "er": 1,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 677960,
+      "name": "Ryan Weathers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.67,
+        "ipAvg": 4.33,
+        "kAvg": 5.2,
+        "bbAvg": 1.4,
+        "erAvg": 2.6,
+        "hrAvg": 0.2,
+        "kPer9": 10.8,
+        "workloadIpLast5": 21.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 102.33,
+        "k": 115,
+        "bb": 29,
+        "er": 50,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-25T21:44:26.384Z"
+  },
+  "recordHash": "32dd4a8d6762b17ef8fa5cb441ae791f3f9ddeff4d2ec0df18e7e2b9a50f4549"
+}
