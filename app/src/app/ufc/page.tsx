@@ -9,6 +9,8 @@
 import fs from "node:fs";
 import CompetitionBadge from "@/components/ui/competition-badge";
 import { getSportIdentity } from "@/lib/sport-identity";
+import { isEventPast } from "@/lib/home/load-spotlight";
+import { currentEtDate } from "@/lib/freshness";
 import path from "node:path";
 
 import {
@@ -106,6 +108,17 @@ export default function UfcPage() {
   // month's event) must not hide a freshly-ingested UPCOMING card (UFC 329) whose odds just published.
   const ufcSettled = settlement?.status === "final" && (settlement.event ?? "") === (v1Proj?.eventName ?? ops?.nextCard?.eventName ?? "");
 
+  // A card is only "next" if it has not happened yet. The settled-name check above cannot tell us that:
+  // when the newest settled event is a DIFFERENT (older) card, `ufcSettled` is false, so a card whose date
+  // has already passed kept rendering under "Next · <event> · <date>" with its full fight card and market
+  // reads — UFC 329 (2026-07-11) was still shown as upcoming two weeks later. The homepage path never had
+  // this bug because lib/home/ufc-preview.ts also gates on isEventPast(); this page simply never did.
+  // Reuse that same helper rather than adding a second date rule.
+  const cardIsPast = isEventPast(currentEtDate(), sched?.eventDate ?? ops?.nextCard?.eventDate);
+  // Everything that presents the card as UPCOMING must be suppressed in BOTH cases. `ufcSettled` stays
+  // separate below, because only it licenses the specific "previous event settled → see Results" copy.
+  const notUpcoming = ufcSettled || cardIsPast;
+
   const showV1Proj = Boolean(v1Proj?.moneylineV1Ready && v1Proj.projections?.length);
   const v1Validated = Boolean(v1Proj?.moneylineValidated);
   // Model-adjusted UFC output (model probability / edge / model pick / suggested model cards) is GATED from
@@ -127,7 +140,7 @@ export default function UfcPage() {
   const bouts = odds.oddsReady ? odds.bouts : [];
   const pct = ops ? Math.min(100, Math.round((ops.cleanGradedRows / Math.max(1, ops.targetRowsForPublicMoneyline)) * 100)) : 0;
 
-  const heroStats = ufcSettled
+  const heroStats = notUpcoming
     ? [
         { label: "Latest event", value: settledEventName.length > 20 ? settledEventName.slice(0, 20) + "…" : settledEventName, sub: "settled" },
         { label: "Status", value: "Settled", sub: "see Results" },
@@ -166,7 +179,7 @@ export default function UfcPage() {
   // ── Market-implied FreeSim fight reports (the shared MultiSportReportShell). Built from the de-vigged
   //    two-sided moneyline only; model-adjusted picks stay gated while moneylineValidated=false. Skipped
   //    once the card is settled (stale). Nothing fabricated — fights without odds are simply absent. ──
-  const fightReports = ufcSettled ? [] : ufcEventToReports(v1Proj, odds as Parameters<typeof ufcEventToReports>[1]);
+  const fightReports = notUpcoming ? [] : ufcEventToReports(v1Proj, odds as Parameters<typeof ufcEventToReports>[1]);
   // UFC Prediction Engine V1 — one complete read per fight. Moneyline is market-implied (de-vigged real
   // odds); fight type / distance / method are GameTime V1 model reads computed from the real fighter-stats
   // DB where both fighters are present, else "Insufficient data". No fabrication; experimental + gated.
@@ -176,7 +189,7 @@ export default function UfcPage() {
     const names = bt.sides ? bt.sides.map((s) => s.name) : [];
     if (names.length >= 2) oddsIndexV1.set(keyForNames(names[0], names[1]), bt as EngineOddsBout);
   }
-  const engineRows = !ufcSettled && sched?.fights ? buildUfcCardPredictions(sched.fights, oddsIndexV1, buildFighterIndex(fightersDb?.fighters)) : [];
+  const engineRows = !notUpcoming && sched?.fights ? buildUfcCardPredictions(sched.fights, oddsIndexV1, buildFighterIndex(fightersDb?.fighters)) : [];
   const predictionTableSection = engineRows.length > 0 ? (
     <UfcPredictionsV2
       rows={engineRows}
@@ -449,7 +462,7 @@ export default function UfcPage() {
     </div>
   );
 
-  const tabs: ShellTab[] = ufcSettled
+  const tabs: ShellTab[] = notUpcoming
     ? [
         { key: "overview", label: "Overview", content: nextSlateTab },
         { key: "results", label: "Results", badge: null, content: resultsTab },
@@ -476,10 +489,20 @@ export default function UfcPage() {
         eyebrow="UFC Simulation Center · experimental"
         sport="UFC"
         tagline="market-implied fight simulations · model validating"
-        statusKind={ufcSettled ? "upcoming" : showV1Proj ? "live" : "upcoming"}
-        statusLabel={ufcSettled ? "Next slate loading soon" : showV1Proj ? "Market-implied preview" : "Building coverage"}
-        statusCaption={ufcSettled ? " · previous event settled" : ` · ${eventName}`}
-        matchupLine={ufcSettled ? `Previous event settled · ${settledEventName} → see Results` : ops?.nextCard?.eventDate ? `Next · ${eventName} · ${fmtDate(ops.nextCard.eventDate)}` : `Next · ${eventName}`}
+        statusKind={notUpcoming ? "upcoming" : showV1Proj ? "live" : "upcoming"}
+        statusLabel={notUpcoming ? "Next slate loading soon" : showV1Proj ? "Market-implied preview" : "Building coverage"}
+        statusCaption={ufcSettled ? " · previous event settled" : cardIsPast ? " · awaiting official results" : ` · ${eventName}`}
+        // Three honest states, not two. Settled: point at Results. Past-but-unsettled: say the card has
+        // happened and results are pending — NEVER "Next · <event> · <a date two weeks ago>". Upcoming: next.
+        matchupLine={
+          ufcSettled
+            ? `Previous event settled · ${settledEventName} → see Results`
+            : cardIsPast
+              ? `${eventName} has finished — awaiting official results`
+              : ops?.nextCard?.eventDate
+                ? `Next · ${eventName} · ${fmtDate(ops.nextCard.eventDate)}`
+                : `Next · ${eventName}`
+        }
         stats={heroStats}
         accent="ufc"
         ctas={[

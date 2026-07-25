@@ -43,7 +43,12 @@ test("UFC page hides the stale active card once the event is settled, points to 
   const page = read("src/app/ufc/page.tsx");
   assert.match(page, /ufcSettled = settlement\?\.status === "final"/, "settled gate computed");
   assert.match(page, /next slate loading soon/i, "next-slate-loading copy");
-  assert.match(page, /tabs: ShellTab\[\] = ufcSettled/, "stale gate drives the tab set");
+  // The tab set must be driven by the STALE gate. Sprint 018 widened that gate from "settled" to
+  // "not upcoming" (settled OR the card's date has passed), because a name-only check let a two-week-old
+  // card keep rendering as the next slate. Assert the invariant — a gate that covers BOTH conditions —
+  // rather than the old variable name. This is stricter: it now also fails if the date half is dropped.
+  assert.match(page, /tabs: ShellTab\[\] = notUpcoming/, "stale gate drives the tab set");
+  assert.match(page, /const notUpcoming = ufcSettled \|\| cardIsPast/, "the stale gate covers settled AND past");
   assert.match(page, /See settled results/, "Results CTA in the stale state");
   // The settled fight-card/projections tabs are NOT in the settled tab set (only overview/results/methodology).
   const settledBlock = page.slice(page.indexOf("tabs: ShellTab[] = ufcSettled"), page.indexOf(": ["));
