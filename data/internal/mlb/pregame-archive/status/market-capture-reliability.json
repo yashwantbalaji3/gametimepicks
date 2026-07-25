@@ -3,9 +3,9 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-market-capture-reliability",
-  "lastUpdated": "2026-07-24T23:57:14.855Z",
-  "datesTracked": 4,
-  "datesWithMarkets": 3,
+  "lastUpdated": "2026-07-25T04:08:10.963Z",
+  "datesTracked": 5,
+  "datesWithMarkets": 4,
   "datesWithFinalGames": 4,
   "datesProducingObservations": 3,
   "qualifyingDates": 3,
@@ -13,12 +13,13 @@
     "2026-07-21": "LOST_RESEARCH_DATE",
     "2026-07-22": "HEALTHY",
     "2026-07-23": "HEALTHY",
-    "2026-07-24": "PARTIAL_COVERAGE"
+    "2026-07-24": "PARTIAL_COVERAGE",
+    "2026-07-25": "AWAITING_SETTLEMENT"
   },
   "lostResearchOpportunities": 1,
   "cadenceGapDays": 0,
   "dailyResearchHealthScore": 1,
-  "averageHealthScore": 0.8,
+  "averageHealthScore": 0.84,
   "perDate": [
     {
       "date": "2026-07-21",
@@ -77,11 +78,11 @@
     {
       "date": "2026-07-24",
       "games": 15,
-      "finalGames": 1,
+      "finalGames": 14,
       "marketSnapshots": 16,
       "marketRows": 1261,
-      "settledEligibleRows": 235,
-      "observationsCreated": 235,
+      "settledEligibleRows": 1146,
+      "observationsCreated": 1148,
       "earliestFirstPitch": "2026-07-24T20:10:00Z",
       "earliestCapture": "2026-07-22T22:35:36.095Z",
       "cadenceGap": false,
@@ -91,6 +92,24 @@
       "qualifying": true,
       "alert": "PARTIAL_COVERAGE",
       "reason": "contributed observations"
+    },
+    {
+      "date": "2026-07-25",
+      "games": 15,
+      "finalGames": 0,
+      "marketSnapshots": 2,
+      "marketRows": 334,
+      "settledEligibleRows": 0,
+      "observationsCreated": 0,
+      "earliestFirstPitch": "2026-07-25T17:10:00Z",
+      "earliestCapture": "2026-07-25T04:07:43.549Z",
+      "cadenceGap": false,
+      "hasMarkets": true,
+      "lostOpportunity": false,
+      "healthScore": 1,
+      "qualifying": false,
+      "alert": "AWAITING_SETTLEMENT",
+      "reason": "not yet final — pending"
     }
   ],
   "note": "A LOST research opportunity is a final slate that produced 0 observations — either no pregame market capture (like 2026-07-21) or captures that landed after first pitch (cadence gap). Surfaced so an operator can restore coverage; never fabricated."

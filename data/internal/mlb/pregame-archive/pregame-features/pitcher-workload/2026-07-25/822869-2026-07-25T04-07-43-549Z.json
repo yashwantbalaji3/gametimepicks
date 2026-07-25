@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822869,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T04:07:43.549Z",
+  "availableAt": "2026-07-25T04:07:43.549Z",
+  "eventStartTime": "2026-07-25T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 543135,
+      "name": "Nathan Eovaldi",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 7.8,
+        "bbAvg": 1.4,
+        "erAvg": 2.6,
+        "hrAvg": 1,
+        "kPer9": 12.54,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 115.33,
+        "k": 122,
+        "bb": 28,
+        "er": 54,
+        "hr": 22
+      }
+    },
+    "away": {
+      "id": 693433,
+      "name": "Bryan Woo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 7,
+      "lastStartDate": "2026-07-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 6,
+        "bbAvg": 1.4,
+        "erAvg": 2.4,
+        "hrAvg": 0.6,
+        "kPer9": 9.53,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 110.33,
+        "k": 109,
+        "bb": 22,
+        "er": 51,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-25T04:07:43.549Z"
+  },
+  "recordHash": "e29b2f88617006b8d4243e3e08ff7ce53fca7d3a4a899a48fd411181f525980c"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823197,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T04:07:43.549Z",
+  "availableAt": "2026-07-25T04:07:43.549Z",
+  "eventStartTime": "2026-07-25T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 592662,
+      "name": "Robbie Ray",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 4.4,
+        "bbAvg": 3.2,
+        "erAvg": 1,
+        "hrAvg": 0.2,
+        "kPer9": 6.39,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 104.33,
+        "k": 88,
+        "bb": 52,
+        "er": 41,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 696270,
+      "name": "Ryan Johnson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 6,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 4.6,
+        "bbAvg": 1.6,
+        "erAvg": 1.4,
+        "hrAvg": 1,
+        "kPer9": 8.28,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 33.33,
+        "k": 27,
+        "bb": 13,
+        "er": 18,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-25T04:07:43.549Z"
+  },
+  "recordHash": "d70ad0ad5de21bec091cebde59f50fddb443ce3959cd2868a727128bb7a59cba"
+}

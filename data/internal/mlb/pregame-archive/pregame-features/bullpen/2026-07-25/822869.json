@@ -1,0 +1,233 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822869,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T04:07:44.718Z",
+  "availableAt": "2026-07-25T04:07:44.718Z",
+  "eventStartTime": "2026-07-25T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-22",
+    "2026-07-23",
+    "2026-07-24"
+  ],
+  "home": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 5,
+      "pitches": 55,
+      "relievers": [
+        {
+          "id": 656641,
+          "name": "Jacob Latz",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 682608,
+          "name": "Peyton Gray",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 596001,
+          "name": "Jakob Junis",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 668390,
+          "name": "Cole Winn",
+          "appearances": 1,
+          "pitches": 2,
+          "outs": 1,
+          "dates": [
+            "2026-07-24"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 10,
+      "pitches": 172,
+      "relievers": [
+        {
+          "id": 615698,
+          "name": "Cal Quantrill",
+          "appearances": 1,
+          "pitches": 55,
+          "outs": 9,
+          "dates": [
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 656641,
+          "name": "Jacob Latz",
+          "appearances": 2,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-07-22",
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 682608,
+          "name": "Peyton Gray",
+          "appearances": 2,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-07-22",
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 596001,
+          "name": "Jakob Junis",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 6,
+          "dates": [
+            "2026-07-22",
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 695239,
+          "name": "Robby Ahlstrom",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 668390,
+          "name": "Cole Winn",
+          "appearances": 1,
+          "pitches": 2,
+          "outs": 1,
+          "dates": [
+            "2026-07-24"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 136,
+    "teamName": "Seattle Mariners",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 41,
+      "relievers": [
+        {
+          "id": 621074,
+          "name": "Michael Rucker",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 660825,
+          "name": "Eduard Bazardo",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-07-24"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 81,
+      "relievers": [
+        {
+          "id": 660825,
+          "name": "Eduard Bazardo",
+          "appearances": 2,
+          "pitches": 29,
+          "outs": 5,
+          "dates": [
+            "2026-07-22",
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 621074,
+          "name": "Michael Rucker",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 677961,
+          "name": "Cole Wilcox",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-07-22"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-22,2026-07-23,2026-07-24) + feed/live box scores",
+    "capturedAt": "2026-07-25T04:07:44.718Z"
+  },
+  "recordHash": "83e21d4765f290a57ecb5edcbd5721abd576774e1edd71f0b9f7187d352dc09b"
+}

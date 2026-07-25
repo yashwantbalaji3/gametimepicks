@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823197,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T04:07:44.718Z",
+  "availableAt": "2026-07-25T04:07:44.718Z",
+  "eventStartTime": "2026-07-25T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-22",
+    "2026-07-23",
+    "2026-07-24"
+  ],
+  "home": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 37,
+      "relievers": [
+        {
+          "id": 676775,
+          "name": "Keaton Winn",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 669062,
+          "name": "Erik Miller",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 656529,
+          "name": "Sam Hentges",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 1,
+          "dates": [
+            "2026-07-22"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 108,
+    "teamName": "Los Angeles Angels",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 56,
+      "relievers": [
+        {
+          "id": 696519,
+          "name": "Samy Natera Jr.",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 489446,
+          "name": "Kirby Yates",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 815083,
+          "name": "Mitch Farris",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-07-22"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-22,2026-07-23,2026-07-24) + feed/live box scores",
+    "capturedAt": "2026-07-25T04:07:44.718Z"
+  },
+  "recordHash": "5bf70b9b5b99c5fa89a7cf6e058105437211507440fca0a13d0438cc20aeea57"
+}

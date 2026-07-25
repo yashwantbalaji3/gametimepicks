@@ -1,0 +1,225 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823758,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T04:07:44.718Z",
+  "availableAt": "2026-07-25T04:07:44.718Z",
+  "eventStartTime": "2026-07-25T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-22",
+    "2026-07-23",
+    "2026-07-24"
+  ],
+  "home": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 52,
+      "relievers": [
+        {
+          "id": 684974,
+          "name": "Craig Yoho",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 6,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 681982,
+          "name": "Grant Anderson",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 118,
+      "relievers": [
+        {
+          "id": 684974,
+          "name": "Craig Yoho",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 6,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 676879,
+          "name": "Aaron Ashby",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 682842,
+          "name": "Abner Uribe",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 681982,
+          "name": "Grant Anderson",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 656730,
+          "name": "Trevor Megill",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-07-22"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 684974,
+        "name": "Craig Yoho",
+        "reason": "37 pitches yesterday"
+      }
+    ]
+  },
+  "away": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 72,
+      "relievers": [
+        {
+          "id": 680767,
+          "name": "Victor Vodnik",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 5,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 622608,
+          "name": "Antonio Senzatela",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 605447,
+          "name": "Jordan Romano",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 148,
+      "relievers": [
+        {
+          "id": 688642,
+          "name": "Zach Agnos",
+          "appearances": 1,
+          "pitches": 44,
+          "outs": 7,
+          "dates": [
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 680767,
+          "name": "Victor Vodnik",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 5,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 622608,
+          "name": "Antonio Senzatela",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 605447,
+          "name": "Jordan Romano",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 623474,
+          "name": "Jimmy Herget",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 2,
+          "dates": [
+            "2026-07-22"
+          ]
+        },
+        {
+          "id": 657514,
+          "name": "Brennan Bernardino",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-07-22"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-22,2026-07-23,2026-07-24) + feed/live box scores",
+    "capturedAt": "2026-07-25T04:07:44.718Z"
+  },
+  "recordHash": "c3d64c89cb69ea6078cc2658ec4e9b05b46311e938443150b09e77d4affef1ff"
+}
