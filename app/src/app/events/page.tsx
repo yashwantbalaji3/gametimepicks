@@ -36,7 +36,7 @@ import { SPORTS_COVERAGE } from "@/lib/sports-coverage";
 
 const META_TITLE = "Sports & Events · GameTime Picks";
 const META_DESCRIPTION =
-  "What GameTime Picks covers: NBA and MLB projections + parlays, plus schedule-only coverage for NHL, WNBA, UFC and IPL. No odds, projections, or picks for schedule-only leagues.";
+  "What GameTime Picks covers: MLB simulations and projections, plus schedule-only coverage for NBA (off-season), NHL, WNBA, UFC and IPL. No odds, projections, or picks for leagues we do not model.";
 
 export const metadata = {
   title: META_TITLE,
@@ -85,10 +85,12 @@ export default function EventsPage() {
         subMaxWidth={680}
         sub={
           <>
-            Everything GameTime Picks covers, in one place. NBA and MLB have
-            real player-prop projections and model parlays; the other leagues
-            below are schedule-only or not yet modelled. Nothing here implies
-            picks for a league we don&apos;t model.
+            Everything GameTime Picks covers, in one place. MLB is the only
+            league with live simulations and player-prop projections today. NBA
+            is off-season — its settled record stays published, but there are no
+            live NBA projections. Every other league below is schedule-only or
+            not yet modelled. Nothing here implies picks for a league we
+            don&apos;t model.
           </>
         }
       />
