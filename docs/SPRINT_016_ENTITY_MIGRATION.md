@@ -112,18 +112,40 @@ with real headshots and team logos rendering.
 
 ---
 
-## 4. Orphans — delete before migrating (Phase 5)
+## 4. Orphan removal — DONE (8 files), and how it nearly went wrong
 
-Files carrying identity call sites with **no importer anywhere in `src/`**. Deleting these lowers the real
-migration count before anyone starts. Re-confirm each has no importer at the time of deletion.
+`scripts/unreachable-components.mjs` computes **reachability** from the 67 real Next.js entry points
+(page/layout/template/error/route/middleware) and transitively follows every import. A per-file grep is not
+enough: an orphan can be imported by another orphan, keeping a whole dead subtree "alive".
 
-- `awaiting-settlement-table.tsx`, `parlay-lab-experience.tsx`, `parlay-builder-client.tsx`
-- `curated-projections-card.tsx`, `anatomy-callout.tsx`, `nba-finals-cards-section.tsx`
-- `home/game-lab-home-band.tsx`
-- `parlay-lab-builder.tsx` — sole importer of `custom-parlay-builder.tsx` and `custom-parlay-generator.tsx`,
-  so those two die with it (~7 further sites)
-- `homepage-sports-rail.tsx` — sole importer of `tonight-matchup-card.tsx` (2 sites)
-- `mlb/mlb-lean-row.tsx` — verify before treating as dead (reached only via `mlb-board-body.tsx`)
+A file is only reported deletable when it is unreachable **and** unmentioned anywhere in `src/` or
+`scripts/` — including tests.
+
+> **The instrument was wrong first.** Its mention-check originally required a path separator before the
+> basename, so guard tests that enumerate files by bare name were invisible to it:
+> `moonshot-tracker.test.mjs` asserts shared ticket primitives exist via `["odds-pill", …, "team-identity"]`,
+> and `no-run-labels.test.mjs` lists `"dual-bank-builder-teaser.tsx"`. Both files were reported "safe to
+> delete", both were deleted, and **the test suite caught it** (3 failures). Both were restored and the
+> detector fixed to match a basename with or without extension, with or without a leading path. The safe-set
+> then fell from **58 → 37**, i.e. 21 files it would previously have green-lit are in fact referenced.
+>
+> Lesson carried forward: `tsc` passing proves nothing about files referenced by *string* rather than import.
+> Always run the full suite before trusting a deletion.
+
+**Deleted (8, all identity-bearing, −19 non-canonical sites):** `anatomy-callout.tsx`,
+`bank-builder/official-step3-candidate.tsx`, `cricket-board-section.tsx`, `curated-projections-card.tsx`,
+`nba-finals-cards-section.tsx`, `parlay-builder-client.tsx`, `parlay-lab-experience.tsx`, `trends-client.tsx`
+(the last also removed a third rival local `PlayerCard` definition).
+
+**Kept — protected by a guard test, do not delete:** `tickets/team-identity.tsx` (shared-ticket-primitive
+invariant), `bank-builder/dual-bank-builder-teaser.tsx` (Bank Builder copy scan).
+
+**Still dead, still carrying identity sites (next batch):** `cricket-context-cards.tsx`,
+`cricket-player-projections.tsx`, `player-recent-form-panel.tsx` — 6 sites.
+
+**Out of scope, reported only:** 29 further unreachable files carry no identity markup. They are real dead
+code but deleting them belongs in a cleanup change, not an entity-migration diff. Run
+`npx tsx app/scripts/unreachable-components.mjs` for the current list.
 
 ---
 
