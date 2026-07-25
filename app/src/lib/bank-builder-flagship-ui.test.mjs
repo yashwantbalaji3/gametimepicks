@@ -48,7 +48,12 @@ test("the flagship ladder is a VERTICAL climb (spine, crown, bottom→top), not 
 
 test("the vertical ladder renders team flags + real kickoffs per leg (fallbacks, never fabricated)", () => {
   assert.match(vlad, /import FlagBadge from "@\/components\/flag-badge"/, "flags");
-  assert.match(vlad, /import PlayerAvatar from "@\/components\/ui\/player-avatar"/, "player fallback");
+  // The player fallback must render a real PORTRAIT — not a flag, not the ⚽ chip. Pin that INVARIANT rather
+  // than one legacy import path (Sprint 017 entity migration): this is STRICTER than the old check, because
+  // it also fails if the portrait is dropped entirely, and it forces the portrait through the single
+  // canonical entity system instead of any of the rival avatar implementations.
+  assert.match(vlad, /import \{[^}]*PlayerPortrait[^}]*\} from "@\/components\/entity"/, "player fallback uses the canonical portrait");
+  assert.match(vlad, /leg\.player[\s\S]{0,140}<PlayerPortrait/, "a leg WITH a player renders a portrait before any flag fallback");
   assert.match(vlad, /wcTeamCodeFromName/, "derives a flag code from the pick's team");
   assert.match(vlad, /function LegAvatar/, "per-leg avatar primitive");
   assert.match(vlad, /Kickoff \{leg\.kickoff\}/, "renders the leg kickoff");

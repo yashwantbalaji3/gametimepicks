@@ -9,7 +9,7 @@
  */
 import type { ClimbLane, ClimbLeg, ClimbRung } from "./climb-hero";
 import FlagBadge from "@/components/flag-badge";
-import PlayerAvatar from "@/components/ui/player-avatar";
+import { PlayerPortrait } from "@/components/entity";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
 
 const money = (n: number | null | undefined) =>
@@ -41,7 +41,7 @@ function Chip({ label, color }: { label: string; color: string }) {
 
 /** A team flag (or player portrait / ⚽ fallback) for a leg — never a broken or fabricated mark. */
 function LegAvatar({ leg }: { leg: ClimbLeg }) {
-  if (leg.player && String(leg.player).trim()) return <PlayerAvatar name={leg.player} size={22} />;
+  if (leg.player && String(leg.player).trim()) return <PlayerPortrait name={String(leg.player)} size="xs" />;
   const [home, away] = String(leg.game ?? "").split(/\s+vs\s+/i).map((s) => s.trim());
   const sel = String(leg.selection ?? "");
   const named = [home, away].find((t) => t && sel.toLowerCase().includes(t.toLowerCase()));

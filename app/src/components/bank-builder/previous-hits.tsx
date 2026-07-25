@@ -12,8 +12,7 @@
  */
 import { getSportIdentity } from "@/lib/sport-identity";
 import { historyLegVisual } from "@/lib/bank-builder-history-enrichment";
-import PlayerAvatar from "@/components/player-avatar";
-import TeamLogo from "@/components/team-logo";
+import { PlayerPortrait, TeamLogo } from "@/components/entity";
 import FlagBadge from "@/components/flag-badge";
 import type { PublicBuilderEntry } from "@/lib/data-bank-builder";
 
@@ -61,7 +60,7 @@ function HitLeg({ leg }: { leg: Leg }) {
       {/* Portrait / flags */}
       <span className="flex shrink-0 items-center gap-1.5">
         {visual?.kind === "player" ? (
-          <PlayerAvatar playerId={visual.playerId} playerName={name} team={visual.team} sport={visual.sport} size="sm" />
+          <PlayerPortrait playerId={visual.playerId} name={name} team={visual.team} sport={visual.sport} size="sm" />
         ) : visual?.kind === "match" ? (
           <span className="flex items-center gap-1">
             {visual.codes.map((c) => (
@@ -69,10 +68,10 @@ function HitLeg({ leg }: { leg: Leg }) {
             ))}
           </span>
         ) : (
-          <PlayerAvatar playerName={name} size="sm" />
+          <PlayerPortrait name={name} size="sm" />
         )}
         {visual?.kind === "player" && (
-          <TeamLogo team={visual.team} sport={visual.sport} size="sm" ariaLabel={`${visual.team} logo`} />
+          <TeamLogo team={visual.team} sport={visual.sport} size="sm" />
         )}
       </span>
 
