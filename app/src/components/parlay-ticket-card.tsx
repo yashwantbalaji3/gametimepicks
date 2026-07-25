@@ -50,8 +50,7 @@ import {
 import { formatSlateChip } from "@/lib/slate-label";
 import { formatLegGameTime } from "@/lib/leg-game-time";
 import { formatSideLine, humanMarketLabel } from "@/lib/market-label";
-import PlayerAvatar from "./player-avatar";
-import TeamLogo from "./team-logo";
+import { PlayerPortrait, TeamLogo } from "@/components/entity";
 
 interface Props {
   slip: ParlaySlip;
@@ -670,9 +669,9 @@ function TicketLegRow({
         cursor: interactive ? "pointer" : "default",
       }}
     >
-      <PlayerAvatar
+      <PlayerPortrait
         playerId={leg.playerId ?? null}
-        playerName={leg.playerName}
+        name={leg.playerName}
         team={leg.team ?? undefined}
         sport={avatarSport}
         size="sm"

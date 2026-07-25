@@ -22,8 +22,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ParlayLeg } from "@/lib/parlay-suggested";
 import { takeNewestFirst } from "@/lib/recent-form-order";
 import { humanMarketLabel } from "@/lib/market-label";
-import PlayerAvatar from "./player-avatar";
-import TeamLogo from "./team-logo";
+import { PlayerPortrait, TeamLogo } from "@/components/entity";
 import RecentFormSparkline from "./recent-form-sparkline";
 
 interface Props {
@@ -135,9 +134,9 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
           }}
         >
           <div className="flex items-center gap-3 min-w-0">
-            <PlayerAvatar
+            <PlayerPortrait
               playerId={leg.playerId ?? null}
-              playerName={leg.playerName}
+              name={leg.playerName}
               team={leg.team ?? undefined}
               sport={(leg.sport === "mlb" || leg.sport === "nba") ? (leg.sport as "mlb" | "nba") : "nba"}
               size="xl"

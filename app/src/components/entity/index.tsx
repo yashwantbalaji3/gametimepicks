@@ -17,6 +17,7 @@
  */
 import type { ReactNode } from "react";
 import TeamMark from "@/components/ui/team-mark";
+import CdnTeamLogo from "@/components/team-logo";
 import MatchupIdentity from "@/components/ui/matchup-identity";
 import PlayerAvatar from "@/components/player-avatar";
 
@@ -26,17 +27,49 @@ export type EntitySize = "xs" | "sm" | "md" | "lg" | "xl";
 /** Portrait CDNs we actually have. Anything else falls back to initials — never a guessed photo. */
 const PORTRAIT_SPORTS = new Set(["mlb", "nba"]);
 
-/** A team's logo (or its initials when no logo URL exists). */
+/**
+ * A team's visual mark — the ONE import every surface should use.
+ *
+ * Two genuinely different sources of a team logo exist in this product, and they are not interchangeable:
+ *
+ *   • ARTIFACT URL (`logoUrl`) — the provider logo a data artifact already carries (World Cup crests, board
+ *     logos). Server-renderable, falls back to a flag or initials. → `ui/team-mark`.
+ *   • CDN DERIVATION (`team` + `sport`) — no URL exists in the data, so the ESPN CDN path is derived from the
+ *     abbreviation. That needs a runtime `onError` swap to a monogram when a logo 404s, which requires a
+ *     client component. → `components/team-logo`.
+ *
+ * This is a FACADE, not a rewrite: it unifies the import surface so every call site says
+ * `import { TeamLogo } from "@/components/entity"`, while each keeps the behaviour its data can actually
+ * support. Collapsing the two implementations further would mean either losing the 404 fallback on ~37 CDN
+ * call sites or making every artifact-URL logo a client component — a behaviour change, not a cleanup, and
+ * deliberately out of scope here (see docs/SPRINT_016_ENTITY_MIGRATION.md).
+ *
+ * Pass `logoUrl` when the data has one; pass `team` + `sport` when it does not. Passing neither renders
+ * initials — never a broken image, never a guessed logo.
+ */
 export function TeamLogo({
   name,
   logoUrl,
+  team,
+  sport,
   size = "md",
+  highlight,
 }: {
   name?: string | null;
   logoUrl?: string | null;
+  /** Team abbreviation, when the logo must be derived from the CDN rather than read from an artifact. */
+  team?: string | null;
+  /** Required alongside `team` — the CDN is sport-scoped. */
+  sport?: "mlb" | "nba" | "nhl";
   size?: "sm" | "md" | "lg" | "xl";
+  /** CDN path only: gold ring for the favored side. */
+  highlight?: boolean;
 }) {
-  return <TeamMark name={name} logoUrl={logoUrl} size={size} />;
+  // An explicit artifact URL always wins — it is the real provider asset.
+  if (!logoUrl && team && sport) {
+    return <CdnTeamLogo team={team} sport={sport} size={size} highlight={highlight} ariaLabel={name ?? undefined} />;
+  }
+  return <TeamMark name={name ?? team} logoUrl={logoUrl} size={size} />;
 }
 
 /** A player's official portrait, with a safe initials disc when the sport/id can't resolve one. */

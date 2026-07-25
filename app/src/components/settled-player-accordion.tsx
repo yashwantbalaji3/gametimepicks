@@ -29,8 +29,7 @@ import {
   type PlayerResultSummary,
   type SettledPickGroup,
 } from "@/lib/settled-player-summary";
-import PlayerAvatar from "./player-avatar";
-import TeamLogo from "./team-logo";
+import { PlayerPortrait, TeamLogo } from "@/components/entity";
 
 interface Props {
   player: PlayerResultSummary;
@@ -79,9 +78,9 @@ export default function SettledPlayerAccordion({
         style={{ borderRadius: 6 }}
         aria-label={`${player.player} audit — ${player.wins} hit, ${player.losses} miss, ${player.pending} pending`}
       >
-        <PlayerAvatar
+        <PlayerPortrait
           playerId={player.playerId}
-          playerName={player.player}
+          name={player.player}
           team={player.team ?? undefined}
           sport={sport}
           size="sm"

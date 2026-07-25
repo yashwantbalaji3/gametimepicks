@@ -21,8 +21,7 @@
  *     when ESPN/nba_api couldn't resolve a player we omit that row.
  */
 import type { SettledLean } from "@/lib/settlement-data";
-import TeamBadge from "./team-badge";
-import PlayerAvatar from "./player-avatar";
+import { PlayerPortrait, TeamLogo } from "@/components/entity";
 
 interface Props {
   rows: SettledLean[];
@@ -122,7 +121,7 @@ export default function PlayerResultsCards({ rows }: Props) {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {groups.map((g) => (
-          <PlayerCard key={g.playerName} group={g} />
+          <PlayerResultRow key={g.playerName} group={g} />
         ))}
       </div>
       <p
@@ -137,7 +136,7 @@ export default function PlayerResultsCards({ rows }: Props) {
   );
 }
 
-function PlayerCard({ group }: { group: PlayerGroup }) {
+function PlayerResultRow({ group }: { group: PlayerGroup }) {
   const decisive = group.wins + group.losses;
   return (
     <article
@@ -152,9 +151,9 @@ function PlayerCard({ group }: { group: PlayerGroup }) {
       <header className="flex items-center gap-3">
         {/* Official NBA Stats headshot via PlayerAvatar; auto-fallback
             to the gold-ring initials disc if the CDN 404s. */}
-        <PlayerAvatar
+        <PlayerPortrait
           playerId={group.playerId}
-          playerName={group.playerName}
+          name={group.playerName}
           team={group.team ?? undefined}
           sport="nba"
           size="md"
@@ -171,7 +170,7 @@ function PlayerCard({ group }: { group: PlayerGroup }) {
             {group.playerName}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            {group.team && <TeamBadge team={group.team} size="sm" />}
+            {group.team && <TeamLogo team={group.team} sport="nba" size="sm" />}
             <span
               className="font-mono"
               style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
