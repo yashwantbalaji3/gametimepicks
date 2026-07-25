@@ -33,7 +33,7 @@ export interface StoryBeat {
 }
 
 /** Format probability × runCount as the honest simulated frequency ("8,400 / 10,000 simulations"). */
-function frequency(probability: number, runCount: number): string | null {
+export function simulationFrequency(probability: number, runCount: number): string | null {
   if (!Number.isFinite(probability) || !Number.isFinite(runCount) || runCount <= 0) return null;
   return `${Math.round(probability * runCount).toLocaleString()} / ${runCount.toLocaleString()} simulations`;
 }
@@ -70,7 +70,7 @@ function winnerBeat(game: FullGameSimGame): StoryBeat | null {
 function outcomeBeat(game: FullGameSimGame): StoryBeat | null {
   const top = game.finalScores?.[0];
   if (!top) return null;
-  const freq = frequency(top.probability, game.runCount);
+  const freq = simulationFrequency(top.probability, game.runCount);
   const score = `${game.awayTeam} ${top.away} – ${game.homeTeam} ${top.home}`;
   return { kind: "outcome", text: freq ? `Most common outcome: ${score} (${freq}).` : `Most common outcome: ${score}.` };
 }
@@ -88,7 +88,7 @@ function closenessBeat(game: FullGameSimGame): StoryBeat | null {
 function playerBeat(game: FullGameSimGame, prediction: GamePredictionDecision | null): StoryBeat | null {
   const top = prediction?.topPlayerPredictions?.[0];
   if (!top) return null;
-  const freq = frequency(top.simulationProbability, game.runCount);
+  const freq = simulationFrequency(top.simulationProbability, game.runCount);
   const line = `${top.player} ${top.pick} ${top.line} ${top.marketLabel}`;
   return { kind: "player", text: freq ? `Biggest player factor: ${line} — ${freq}.` : `Biggest player factor: ${line}.` };
 }

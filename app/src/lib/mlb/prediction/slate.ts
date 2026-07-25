@@ -6,6 +6,7 @@
  */
 import type { GamePredictionDecision, PlayerPrediction } from "./types";
 import type { StrengthLabel } from "./strength";
+import { simulationFrequency } from "./story";
 
 /** One game's inputs, normalized from a PublicGameDetail by the /today page. */
 export interface SlatePredictionGame {
@@ -133,4 +134,137 @@ export function buildTopPicksByCategory(
     dashboards.push({ market, label, picks: picks.slice(0, perCategory) });
   }
   return dashboards;
+}
+
+// ── SLATE SIMULATION STORIES (Sprint 015 · Phase 2) ──────────────────────────────────────────────
+
+/**
+ * The four slate-wide headlines on /today: which game the simulation is most sure about, which it is least
+ * sure about, which it expects to score most, and which single player outcome it is most confident in.
+ *
+ * These are SUPERLATIVES over the canonical prediction objects — a ranking, never a new calculation. Every
+ * value is read straight off `GamePredictionDecision` (the same object the report and the predictions table
+ * use), so a story can never disagree with the game it points at.
+ */
+export type SlateStoryKind = "most-decisive" | "closest" | "highest-scoring" | "biggest-player-impact";
+
+export interface SlateStory {
+  kind: SlateStoryKind;
+  /** Human label for the category ("Most decisive matchup"). */
+  label: string;
+  gamePk: number;
+  slug: string;
+  href: string;
+  awayTeam: string;
+  homeTeam: string;
+  awayLogo: string | null;
+  homeLogo: string | null;
+  /** The answer, e.g. "TEX wins 69% of simulations". */
+  headline: string;
+  /** The frequency behind it, e.g. "6,890 / 10,000 simulations". Null when the run count is unknown. */
+  detail: string | null;
+  /** Present only on the player story, so the surface can render a portrait with team + opponent context. */
+  player: { name: string; playerId: number | null; team: string; opponent: string | null } | null;
+}
+
+/**
+ * A comparative superlative needs something to compare against. With a single simulated game, "most decisive"
+ * and "closest" would both point at it, which reads as analysis but is just the only row.
+ */
+export const MIN_GAMES_FOR_COMPARISON = 2;
+
+const identity = (g: SlatePredictionGame) => ({
+  gamePk: g.gamePk,
+  slug: g.slug,
+  href: g.href,
+  awayTeam: g.awayTeam,
+  homeTeam: g.homeTeam,
+  awayLogo: g.awayLogo,
+  homeLogo: g.homeLogo,
+});
+
+/**
+ * Rank the slate into its four headline stories. Games missing the value a category needs are excluded from
+ * THAT category (never given a stand-in); a category with no qualifying game is omitted entirely. Ties break
+ * on slug so the output is deterministic.
+ */
+export function buildSlateStories(games: SlatePredictionGame[]): SlateStory[] {
+  const live = games.filter((g) => g.prediction && g.prediction.status !== "unavailable");
+  const stories: SlateStory[] = [];
+
+  // ── Decisiveness pair: the predicted winner's own probability (always >= 0.5 by construction). ──
+  const byDecisiveness = live
+    .filter((g) => g.prediction.moneyline != null)
+    .sort(
+      (a, b) =>
+        b.prediction.moneyline!.simulationProbability - a.prediction.moneyline!.simulationProbability ||
+        a.slug.localeCompare(b.slug),
+    );
+  if (byDecisiveness.length >= MIN_GAMES_FOR_COMPARISON) {
+    const decisive = byDecisiveness[0];
+    const closest = byDecisiveness[byDecisiveness.length - 1];
+    for (const [kind, label, g] of [
+      ["most-decisive", "Most decisive matchup", decisive],
+      ["closest", "Closest simulation", closest],
+    ] as const) {
+      const ml = g.prediction.moneyline!;
+      stories.push({
+        kind,
+        label,
+        ...identity(g),
+        headline: `${ml.team} wins ${Math.round(ml.simulationProbability * 100)}% of simulations`,
+        detail:
+          g.simulationCount != null ? simulationFrequency(ml.simulationProbability, g.simulationCount) : null,
+        player: null,
+      });
+    }
+  }
+
+  // ── Highest scoring: the median simulated total runs (evidence on the total prediction). ──
+  const byTotal = live
+    .filter((g) => g.prediction.total?.simulationMedian != null)
+    .sort(
+      (a, b) =>
+        b.prediction.total!.simulationMedian! - a.prediction.total!.simulationMedian! ||
+        a.slug.localeCompare(b.slug),
+    );
+  if (byTotal.length >= MIN_GAMES_FOR_COMPARISON) {
+    const g = byTotal[0];
+    stories.push({
+      kind: "highest-scoring",
+      label: "Highest scoring simulation",
+      ...identity(g),
+      headline: `${g.prediction.total!.simulationMedian} total runs in the median simulation`,
+      detail: null,
+      player: null,
+    });
+  }
+
+  // ── Biggest player impact: the single most confident player outcome anywhere on the slate. ──
+  let best: { g: SlatePredictionGame; p: PlayerPrediction } | null = null;
+  for (const g of live) {
+    for (const p of g.playerPredictions ?? []) {
+      if (p.simulationProbability == null) continue;
+      if (
+        !best ||
+        p.simulationProbability > best.p.simulationProbability ||
+        (p.simulationProbability === best.p.simulationProbability && g.slug.localeCompare(best.g.slug) < 0)
+      ) {
+        best = { g, p };
+      }
+    }
+  }
+  if (best) {
+    const { g, p } = best;
+    stories.push({
+      kind: "biggest-player-impact",
+      label: "Biggest player impact",
+      ...identity(g),
+      headline: `${p.player} ${p.pick} ${p.line} ${p.marketLabel}`,
+      detail: g.simulationCount != null ? simulationFrequency(p.simulationProbability, g.simulationCount) : null,
+      player: { name: p.player, playerId: p.playerId ?? null, team: p.team, opponent: p.opponent ?? null },
+    });
+  }
+
+  return stories;
 }

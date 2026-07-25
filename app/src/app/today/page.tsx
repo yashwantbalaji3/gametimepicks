@@ -39,7 +39,8 @@ import TodayAtAGlance, { type GlanceCard } from "@/components/today/at-a-glance"
 import TodayTopModelPicks from "@/components/today/top-model-picks";
 import TodayGamePredictions from "@/components/today/game-predictions";
 import TodayTopPicksByCategory from "@/components/today/top-picks-by-category";
-import { buildTodayPredictionRows, buildTopPicksByCategory, type SlatePredictionGame } from "@/lib/mlb/prediction/slate";
+import TodaySimulationStories from "@/components/today/simulation-stories";
+import { buildSlateStories, buildTodayPredictionRows, buildTopPicksByCategory, type SlatePredictionGame } from "@/lib/mlb/prediction/slate";
 import TodaySimulationLeans from "@/components/today/simulation-leans";
 import TodayFullSlate from "@/components/today/full-slate";
 import TodayMlbBrief from "@/components/today/today-mlb-brief";
@@ -119,6 +120,8 @@ export default function TodayPage() {
     }));
   const predictionRows = buildTodayPredictionRows(slatePredictionGames);
   const picksByCategory = buildTopPicksByCategory(slatePredictionGames, { perCategory: 5 });
+  // Sprint 015 Phase 2: the four slate-wide headlines — a RANKING of the same objects, never a new calculation.
+  const slateStories = buildSlateStories(slatePredictionGames);
 
   // ── CANONICAL money / exposure — identical sources to Home; never recomputed or hardcoded ──
   const dailyPortfolio = buildDailyPortfolio(dataRoot, new Date().toISOString(), today);
@@ -279,6 +282,8 @@ export default function TodayPage() {
       <TodayAtAGlance cards={glanceCards} />
 
       {/* 2b — Game Predictions table (Sprint 010): the model's answer for every game, canonical + first-glance */}
+      <TodaySimulationStories stories={slateStories} />
+
       <TodayGamePredictions rows={predictionRows} />
 
       {/* 3 — Top model picks: BY CATEGORY (Sprint 010) when the MLB slate supports it, else the cross-sport list */}
