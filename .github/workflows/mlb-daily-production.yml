@@ -120,6 +120,27 @@ jobs:
         env:
           MLB_BUILD_STATUS: ${{ steps.build.outcome }}
         run: node app/scripts/mlb-slate-completeness-gate.mjs --date "${{ steps.cfg.outputs.date }}"
+      - name: 7c) Ops heartbeat + admin status (dead-man's switch — records FAILURES, never a blanket "pass")
+        if: always()
+        continue-on-error: true
+        run: |
+          set -u
+          # The heartbeat's value is that it stops when the pipeline stops, and tells the truth when the
+          # pipeline runs badly. Derive the status from what actually happened — never hardcode "pass".
+          # build-admin-status.mjs then regenerates admin/status.json, which fails closed on a stale
+          # heartbeat (>36h). Before this step, NOTHING in CI wrote either file: the heartbeat had gone
+          # 409h without an update while /ops kept reporting ok:true from its last recorded verdict.
+          if [ "${{ steps.board.outputs.have_board }}" != "true" ]; then
+            ST=partial; MSG="no board for the date — nothing to produce"
+          elif [ "${{ steps.build.outcome }}" = "success" ]; then
+            ST=pass; MSG="slate generated and built"
+          else
+            ST=fail; MSG="public build ${{ steps.build.outcome }}"
+          fi
+          echo "heartbeat status=$ST ($MSG)"
+          node app/scripts/ops-notify.mjs --status "$ST" --phase "mlb-daily-production" --date "${{ steps.cfg.outputs.date }}" --message "$MSG"
+          npx tsx app/scripts/build-admin-status.mjs || echo "admin status build skipped"
+
       - name: 8) Persist completed slate (PATH-SCOPED to public MLB slate dirs; money-safe; rebase-safe; [skip ci])
         if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'
         continue-on-error: true
@@ -133,7 +154,7 @@ jobs:
           # were produced on every automated run and thrown away, so the autopilot never published the
           # full-game simulation or prediction layers at all — both paths' only commits were manual.
           # Guarded by app/src/lib/daily-production-commit-scope.test.mjs.
-          git add app/public/data/mlb/team-markets/ app/public/data/mlb/player-props/ app/public/data/mlb/home-run-props/ app/public/data/mlb/game-simulations/ app/public/data/mlb/full-game-simulations/ app/public/data/mlb/predictions/ app/public/data/mlb/schedule/ data/internal/mlb/pregame-archive/status/mlb-production-health.json data/internal/mlb/production-history/ 2>/dev/null || true
+          git add app/public/data/mlb/team-markets/ app/public/data/mlb/player-props/ app/public/data/mlb/home-run-props/ app/public/data/mlb/game-simulations/ app/public/data/mlb/full-game-simulations/ app/public/data/mlb/predictions/ app/public/data/mlb/schedule/ app/public/data/ops/ app/public/data/admin/ data/internal/mlb/pregame-archive/status/mlb-production-health.json data/internal/mlb/production-history/ 2>/dev/null || true
           # SAFETY ASSERT: never portfolio / money / official settlement / product cards.
           BAD="$(git diff --cached --name-only | grep -iE 'portfolio|mr-dub|settled_leans|bank-builder|moonshot|/out/' || true)"
           if [ -n "$BAD" ]; then echo "ABORT: forbidden paths staged:"; echo "$BAD"; git reset -q; exit 0; fi

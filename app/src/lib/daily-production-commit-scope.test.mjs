@@ -20,13 +20,16 @@ import path from "node:path";
 const WORKFLOW = path.join(process.cwd(), "..", ".github", "workflows", "mlb-daily-production.yml");
 const yml = fs.readFileSync(WORKFLOW, "utf8");
 
-/** Which public artifact directory each generator script writes. Extend when a generator is added. */
+/** Which public artifact directory each script this workflow runs writes. Extend when one is added. */
 const GENERATOR_OUTPUT = {
   "ingest-mlb-team-markets.mjs": "app/public/data/mlb/team-markets/",
   "ingest-mlb-slate.mjs": "app/public/data/mlb/player-props/",
   "generate-mlb-game-simulations.mjs": "app/public/data/mlb/game-simulations/",
   "generate-mlb-full-game-simulations.mjs": "app/public/data/mlb/full-game-simulations/",
   "generate-mlb-predictions.mjs": "app/public/data/mlb/predictions/",
+  // Ops surfaces — the heartbeat is only a dead-man's switch if CI actually writes AND persists it.
+  "ops-notify.mjs": "app/public/data/ops/",
+  "build-admin-status.mjs": "app/public/data/admin/",
 };
 
 const addLine = yml.split("\n").find((l) => l.trim().startsWith("git add "));
@@ -39,9 +42,9 @@ test("the workflow has a single explicit, path-scoped git add", () => {
 test("every generated artifact directory is inside the commit scope", () => {
   const missing = [];
   for (const [script, dir] of Object.entries(GENERATOR_OUTPUT)) {
-    // Only require staging for generators this workflow actually runs with --write.
-    const runsIt = new RegExp(`${script.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}[^\\n]*--write`).test(yml);
-    if (!runsIt) continue;
+    // If this workflow INVOKES the script at all, its output must be staged. (An earlier version keyed off
+    // `--write`, which would have missed ops-notify/build-admin-status — they write unconditionally.)
+    if (!yml.includes(script)) continue;
     if (!addLine.includes(dir)) missing.push(`${script} writes ${dir} but it is NOT staged — the run discards it`);
   }
   assert.deepEqual(missing, [], missing.join("\n"));
