@@ -133,10 +133,19 @@ const nextRefreshDate = addDays(dp?.date, 1);              // the next slate
 const etToday = new Date(nowIso).toLocaleDateString("en-CA", { timeZone: "America/New_York" });
 const mlbSlateDate = latestMlb ? latestMlb.replace(".json", "") : null;
 const wcSlateDate = typeof wcBoard?.date === "string" ? wcBoard.date : null;
+// Pick the newest NON-FUTURE board, not "the newest board, discarded if future".
+//
+// The earlier form took latestMlb (the newest file on disk) and then filtered it against etToday. Once a
+// board for TOMORROW exists — which happens routinely, the pipeline pre-generates — that filter emptied the
+// list and the pointer fell all the way back to dp.date, the lagging MONEY-state date. That is precisely
+// the July-24 incident this logic exists to prevent, re-created by a future board instead of a stale one.
+// Caught by admin-status-slate-pointer.test.mjs, which pins the clock to 2026-07-24 while a 2026-07-25
+// board sits on disk. Now: consider EVERY dated board and take the newest one at or before today.
+const newestNonFuture = (dates) =>
+  dates.filter((d) => typeof d === "string" && d <= etToday).sort().at(-1) ?? null;
+const mlbBoardDates = listDated("mlb/boards").map((f) => f.replace(".json", ""));
 const slateDate =
-  [mlbSlateDate, wcSlateDate].filter((d) => typeof d === "string" && d <= etToday).sort().at(-1) ??
-  dp?.date ??
-  null;
+  newestNonFuture([...mlbBoardDates, wcSlateDate].filter(Boolean)) ?? dp?.date ?? null;
 
 // ── Missing-data + stale-route warnings (derived) ───────────────────────────────────────────────
 const warnings = [];

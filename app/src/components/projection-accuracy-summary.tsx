@@ -13,6 +13,7 @@
  * shows "not enough settled data" rather than a fake number; the >50% positive
  * state is purely visual and only reflects the real number.
  */
+import { resultsMode } from "@/lib/sport-capability-registry";
 
 export interface ProjAccuracyRecord {
   wins: number;
@@ -45,7 +46,15 @@ export default function ProjectionAccuracySummary({
 }: ProjectionAccuracySummaryProps) {
   const mlbPct = ratePct(mlb);
   const nbaPct = ratePct(nba);
-  const bothAbove50 = mlbPct != null && nbaPct != null && mlbPct > 50 && nbaPct > 50;
+  // A "we are clearing 50% in BOTH sports" claim reads as CURRENT performance. It may therefore only be
+  // made from sports that are actually live: NBA is HISTORICAL_ONLY (frozen since 2026-06-13), so
+  // including it would present six-week-old archive as present-tense form. Dormant today only because
+  // NBA sits at 49.08% — this closes it properly rather than relying on that (Sprint 021 · Phase 2).
+  const bothLive = resultsMode("mlb") === "live" && resultsMode("nba") === "live";
+  const bothAbove50 = bothLive && mlbPct != null && nbaPct != null && mlbPct > 50 && nbaPct > 50;
+  /** Data-mode suffix so a reader can never mistake a frozen archive for a live record. */
+  const modeLabel = (sport: string) =>
+    resultsMode(sport) === "live" ? " · live" : resultsMode(sport) === "archive" ? " · archive" : "";
 
   return (
     <section aria-label="Model projection accuracy" className="flex flex-col gap-3 max-w-5xl">
@@ -71,8 +80,8 @@ export default function ProjectionAccuracySummary({
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <AccuracyCard label="Overall projection hit rate" record={overall} emphasis />
-        <AccuracyCard label="MLB projections" record={mlb} />
-        <AccuracyCard label="NBA projections" record={nba} />
+        <AccuracyCard label={`MLB projections${modeLabel("mlb")}`} record={mlb} />
+        <AccuracyCard label={`NBA projections${modeLabel("nba")}`} record={nba} />
       </div>
 
       {bothAbove50 && (

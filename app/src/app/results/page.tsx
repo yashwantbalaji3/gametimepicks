@@ -40,6 +40,7 @@ import {
   getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
 import { currentEtDate } from "@/lib/freshness";
+import { resultsMode } from "@/lib/sport-capability-registry";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { PUBLIC_PARLAY_RESULTS_START_DATE } from "@/lib/public-parlay-era";
 import { optimizerSlipToParlaySlip } from "@/lib/parlay-optimizer";
@@ -103,20 +104,25 @@ export default function ResultsPage() {
       : null;
   const nbaProj = toProj(nbaLeg);
   const mlbProj = toProj(mlbLeg);
-  const overallProj =
-    nbaProj || mlbProj
-      ? (() => {
-          const wins = (nbaProj?.wins ?? 0) + (mlbProj?.wins ?? 0);
-          const losses = (nbaProj?.losses ?? 0) + (mlbProj?.losses ?? 0);
-          const decisive = (nbaProj?.decisive ?? 0) + (mlbProj?.decisive ?? 0);
-          return {
-            wins,
-            losses,
-            decisive,
-            hitRate: decisive > 0 ? wins / decisive : null,
-          };
-        })()
-      : null;
+  // A COMBINED figure is only meaningful when every sport in it is a comparable LIVE system
+  // (Sprint 021 · Phase 2). NBA is HISTORICAL_ONLY — its record is real but frozen since 2026-06-13 —
+  // so summing it with live MLB produced a headline "overall hit rate" that read as current cross-sport
+  // model performance while being ~53% six-week-old NBA by sample. Prefer NO combined figure over a
+  // misleading one: the per-sport cards below still show both, each labelled with its own data mode.
+  const contributors = [
+    { key: "mlb", proj: mlbProj },
+    { key: "nba", proj: nbaProj },
+  ].filter((c) => c.proj !== null);
+  const allContributorsLive =
+    contributors.length > 0 && contributors.every((c) => resultsMode(c.key) === "live");
+  const overallProj = allContributorsLive
+    ? (() => {
+        const wins = contributors.reduce((a, c) => a + (c.proj?.wins ?? 0), 0);
+        const losses = contributors.reduce((a, c) => a + (c.proj?.losses ?? 0), 0);
+        const decisive = contributors.reduce((a, c) => a + (c.proj?.decisive ?? 0), 0);
+        return { wins, losses, decisive, hitRate: decisive > 0 ? wins / decisive : null };
+      })()
+    : null;
 
   // PR #117: small honest banner above the lifetime summary, only
   // rendered when an audit JSON has been generated for at least one
@@ -227,7 +233,10 @@ export default function ResultsPage() {
       {/* Lead with LEG-LEVEL projection accuracy — the cleaner read on model
          quality than parlay (card) hit rate, which is naturally low because
          every leg must hit. Settled-only, real graded data. */}
-      {overallProj && (
+      {/* Render whenever ANY sport has settled data. Gating this on `overallProj` was wrong once the
+          combined figure became conditional: suppressing the misleading blend also suppressed the honest
+          per-sport cards, so /results showed nothing at all. The combined card inside degrades on its own. */}
+      {(mlbProj || nbaProj) && (
         <div className="mb-6">
           <ProjectionAccuracySummary
             overall={overallProj}
