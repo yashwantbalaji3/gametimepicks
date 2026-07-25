@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823841,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T12:02:04.232Z",
+  "availableAt": "2026-07-25T12:02:04.232Z",
+  "eventStartTime": "2026-07-25T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 691587,
+      "name": "Eury Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 6.4,
+        "bbAvg": 1.8,
+        "erAvg": 0.8,
+        "hrAvg": 0.4,
+        "kPer9": 9.93,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 91.67,
+        "k": 104,
+        "bb": 37,
+        "er": 36,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 676664,
+      "name": "JP Sears",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 5,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4,
+        "bbAvg": 1.6,
+        "erAvg": 2.4,
+        "hrAvg": 1,
+        "kPer9": 7.3,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 24.67,
+        "k": 20,
+        "bb": 8,
+        "er": 12,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-25T12:02:04.232Z"
+  },
+  "recordHash": "ee875db43d463f8b3b8aafeae29050136fa04fdd46f2fbb9475d45f51b40f898"
+}

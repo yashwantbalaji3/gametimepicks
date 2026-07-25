@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823679,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T12:02:04.232Z",
+  "availableAt": "2026-07-25T12:02:04.232Z",
+  "eventStartTime": "2026-07-25T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 686930,
+      "name": "Mason Barnett",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-25T12:02:04.232Z"
+  },
+  "recordHash": "d32a00c0e16de152582189021438adea4415137e0b10631fd5a9ffce3b04f003"
+}
