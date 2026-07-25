@@ -16,6 +16,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { capabilityOf, CAPABILITY_BADGE } from "@/lib/sport-capability-registry";
 import {
   COVERAGE_BADGE,
   type SportCoverage,
@@ -118,7 +119,13 @@ export default function SportsCoverageBoard({
 }
 
 function CoverageCard({ sport, extra }: { sport: SportCoverage; extra?: CoverageExtra }) {
-  const badge = COVERAGE_BADGE[sport.level];
+  // CAPABILITY, not the display level, decides what this badge may promise (Sprint 019 · Phase 1).
+  // `sport.level` is a presentation field; it marked NBA "full", so this card advertised
+  // "Projections + Parlays" for a sport the repo itself classifies HISTORICAL_ONLY with no live data.
+  // The registry is the authority and fails closed, so a sport it does not know shows "Not covered"
+  // rather than inheriting an optimistic label. The level still drives tone/layout below.
+  const capability = capabilityOf(sport.key);
+  const badge = { label: CAPABILITY_BADGE[capability.state], tone: COVERAGE_BADGE[sport.level].tone };
   const dim = sport.level === "coming-soon";
   const next = sport.level === "schedule" ? extra?.nextEvent : undefined;
   const source = sport.level === "schedule" ? extra?.source : undefined;

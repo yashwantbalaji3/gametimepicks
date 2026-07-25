@@ -77,12 +77,14 @@ export const SPORTS_COVERAGE: ReadonlyArray<SportCoverage> = [
     label: "NBA",
     longLabel: "National Basketball Association",
     level: "full",
-    blurb: "Player-prop projections and model parlays on game days, graded after.",
-    links: [
-      { label: "Straight bets", href: "/projections/" },
-      { label: "Parlays", href: "/parlay-lab/#suggested" },
-      { label: "Results", href: "/results/" },
-    ],
+    // BLURB CORRECTED (Sprint 019 · Phase 2). This still said "Player-prop projections and model parlays on
+    // game days" for a sport the capability registry classifies HISTORICAL_ONLY — no live data since
+    // 2026-06-13. The `level` field below remains "full" ONLY because it still feeds the legacy
+    // MODELED_SPORT_KEYS parlay gate; the capability registry, not this field, now drives what the /events
+    // badge is allowed to promise. Untangling the gate is tracked separately (it needs the mixed-sport
+    // parlay rule decided first) — but the words a visitor reads must be true today.
+    blurb: "Off-season — no live NBA projections. The settled NBA record stays published under Results.",
+    links: [{ label: "Results", href: "/results/" }],
   },
   {
     key: "nhl",
