@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823435,
+  "date": "2026-07-25",
+  "capturedAt": "2026-07-25T17:52:03.634Z",
+  "availableAt": "2026-07-25T17:52:03.634Z",
+  "eventStartTime": "2026-07-25T22:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 677960,
+      "name": "Ryan Weathers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.67,
+        "ipAvg": 4.33,
+        "kAvg": 5.2,
+        "bbAvg": 1.4,
+        "erAvg": 2.6,
+        "hrAvg": 0.2,
+        "kPer9": 10.8,
+        "workloadIpLast5": 21.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 102.33,
+        "k": 115,
+        "bb": 29,
+        "er": 50,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-25T17:52:03.634Z"
+  },
+  "recordHash": "af9f1ff92f30f940c2110b85281d92c4ee55f4427f7f1109413d70765fa52e7b"
+}
