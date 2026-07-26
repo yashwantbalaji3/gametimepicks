@@ -1,5 +1,24 @@
 # Capability Registry Migration — worked design, ready to execute
 
+> ## ⚠️ Baseline correction before you start (2026-07-25)
+>
+> **The correct suite baseline is 2876 total / 2872 pass / 0 fail / 4 skip.**
+>
+> Commit `e891e171`'s message claims "suite 2879 (2875 pass)". That is an arithmetic error in the
+> message: it added one test to a 2875-total suite and incremented by 4 instead of 1. No tests were
+> removed — the runner's total (2876) equals the count of static `test()` declarations in `src/`
+> (2876), and `2872 pass + 4 skip = 2876` is internally consistent. Verified at `fcd223f2`.
+>
+> If a handoff charter quotes 2879/2875 as the "verified checkpoint", it inherited the same error.
+> Do not go hunting for three phantom regressions. Re-derive the baseline from a real run:
+>
+> ```bash
+> cd app && find src -name '*.test.mjs' | xargs npx tsx --test 2>&1 | grep -E "^# (tests|pass|fail|skipped)"
+> ```
+>
+> Lesson worth keeping: a number in a commit message is an assertion like any other, and it
+> propagates. Derive counts from the runner, don't do mental arithmetic on them.
+
 Status: **designed and attempted; reverted to green.** The registry itself shipped in `82237a5d`.
 This document is the recipe for the remaining migration, written after doing it once, so the next
 session executes rather than rediscovers.
