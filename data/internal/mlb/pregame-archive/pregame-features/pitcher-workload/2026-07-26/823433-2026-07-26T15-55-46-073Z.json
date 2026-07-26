@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823433,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T15:55:46.073Z",
+  "availableAt": "2026-07-26T15:55:46.073Z",
+  "eventStartTime": "2026-07-26T23:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 650911,
+      "name": "Cristopher Sánchez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 6,
+        "bbAvg": 1,
+        "erAvg": 3.6,
+        "hrAvg": 1,
+        "kPer9": 9.76,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 132.67,
+        "k": 151,
+        "bb": 25,
+        "er": 39,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 701542,
+      "name": "Will Warren",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 14,
+      "lastStartDate": "2026-07-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 4,
+        "bbAvg": 1.8,
+        "erAvg": 3.2,
+        "hrAvg": 1.4,
+        "kPer9": 7.01,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 98.33,
+        "k": 96,
+        "bb": 33,
+        "er": 44,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-26T15:55:46.073Z"
+  },
+  "recordHash": "7dd39b43b9a55371e533d937b74a11c8c75ef758ba9ea7f847dc52b83e95537f"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824810,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T15:55:46.073Z",
+  "availableAt": "2026-07-26T15:55:46.073Z",
+  "eventStartTime": "2026-07-26T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669358,
+      "name": "Shane Baz",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 5.8,
+        "bbAvg": 1.6,
+        "erAvg": 2.6,
+        "hrAvg": 0.2,
+        "kPer9": 9.1,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 117.67,
+        "k": 105,
+        "bb": 42,
+        "er": 53,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 625643,
+      "name": "Reynaldo López",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 5,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 4.2,
+        "bbAvg": 1.4,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 8.46,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 44,
+        "k": 41,
+        "bb": 18,
+        "er": 21,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-26T15:55:46.073Z"
+  },
+  "recordHash": "7c488e91f5c22907fb168879d36ac5efb6b1c865aecf90781306431cd5757d80"
+}

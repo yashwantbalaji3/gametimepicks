@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823755,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T15:55:46.073Z",
+  "availableAt": "2026-07-26T15:55:46.073Z",
+  "eventStartTime": "2026-07-26T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 694819,
+      "name": "Jacob Misiorowski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 8.4,
+        "bbAvg": 1.2,
+        "erAvg": 1.4,
+        "hrAvg": 1,
+        "kPer9": 13.5,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 115,
+        "k": 173,
+        "bb": 28,
+        "er": 20,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 607536,
+      "name": "Kyle Freeland",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.2,
+        "bbAvg": 0.8,
+        "erAvg": 4.4,
+        "hrAvg": 1.2,
+        "kPer9": 8.36,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 94,
+        "k": 83,
+        "bb": 20,
+        "er": 76,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-26T15:55:46.073Z"
+  },
+  "recordHash": "5a5c2023494bba807276992cfabcdddebf4c5d017f34a5bb956f11c25cf70cd7"
+}
