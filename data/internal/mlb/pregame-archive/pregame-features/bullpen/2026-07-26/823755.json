@@ -1,0 +1,221 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823755,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T04:23:51.496Z",
+  "availableAt": "2026-07-26T04:23:51.496Z",
+  "eventStartTime": "2026-07-26T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-23",
+    "2026-07-24",
+    "2026-07-25"
+  ],
+  "home": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 67,
+      "relievers": [
+        {
+          "id": 621121,
+          "name": "Lance McCullers Jr.",
+          "appearances": 1,
+          "pitches": 47,
+          "outs": 5,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 694477,
+          "name": "Chad Patrick",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 656730,
+          "name": "Trevor Megill",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 1,
+          "dates": [
+            "2026-07-25"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 119,
+      "relievers": [
+        {
+          "id": 621121,
+          "name": "Lance McCullers Jr.",
+          "appearances": 1,
+          "pitches": 47,
+          "outs": 5,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 684974,
+          "name": "Craig Yoho",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 6,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 681982,
+          "name": "Grant Anderson",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 694477,
+          "name": "Chad Patrick",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 656730,
+          "name": "Trevor Megill",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 1,
+          "dates": [
+            "2026-07-25"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 621121,
+        "name": "Lance McCullers Jr.",
+        "reason": "47 pitches yesterday"
+      }
+    ]
+  },
+  "away": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 60,
+      "relievers": [
+        {
+          "id": 685299,
+          "name": "Tanner Gordon",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-07-25"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 132,
+      "relievers": [
+        {
+          "id": 685299,
+          "name": "Tanner Gordon",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 680767,
+          "name": "Victor Vodnik",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 5,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 622608,
+          "name": "Antonio Senzatela",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 605447,
+          "name": "Jordan Romano",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 685299,
+        "name": "Tanner Gordon",
+        "reason": "35 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-23,2026-07-24,2026-07-25) + feed/live box scores",
+    "capturedAt": "2026-07-26T04:23:51.496Z"
+  },
+  "recordHash": "71bfd589f6b8ee4d063bad0c75de39860dfbd34ef93c583a503192a3b7e407e3"
+}

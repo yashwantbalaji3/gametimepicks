@@ -1,0 +1,215 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822870,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T04:23:51.496Z",
+  "availableAt": "2026-07-26T04:23:51.496Z",
+  "eventStartTime": "2026-07-26T18:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-23",
+    "2026-07-24",
+    "2026-07-25"
+  ],
+  "home": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 27,
+      "relievers": [
+        {
+          "id": 687239,
+          "name": "Ben Peoples",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 695239,
+          "name": "Robby Ahlstrom",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-07-25"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 82,
+      "relievers": [
+        {
+          "id": 656641,
+          "name": "Jacob Latz",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 682608,
+          "name": "Peyton Gray",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 687239,
+          "name": "Ben Peoples",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 695239,
+          "name": "Robby Ahlstrom",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 596001,
+          "name": "Jakob Junis",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 668390,
+          "name": "Cole Winn",
+          "appearances": 1,
+          "pitches": 2,
+          "outs": 1,
+          "dates": [
+            "2026-07-24"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 136,
+    "teamName": "Seattle Mariners",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 54,
+      "relievers": [
+        {
+          "id": 677961,
+          "name": "Cole Wilcox",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 5,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 689546,
+          "name": "Nick Davila",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-07-25"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 95,
+      "relievers": [
+        {
+          "id": 677961,
+          "name": "Cole Wilcox",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 5,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 621074,
+          "name": "Michael Rucker",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-07-24"
+          ]
+        },
+        {
+          "id": 689546,
+          "name": "Nick Davila",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-07-25"
+          ]
+        },
+        {
+          "id": 660825,
+          "name": "Eduard Bazardo",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-07-24"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 677961,
+        "name": "Cole Wilcox",
+        "reason": "32 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-23,2026-07-24,2026-07-25) + feed/live box scores",
+    "capturedAt": "2026-07-26T04:23:51.496Z"
+  },
+  "recordHash": "73b8beae4facfc5f004e0a83f357204bfde91e4dfa7679b9147c3036311c76fd"
+}

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 822870,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T04:23:53.258Z",
+  "availableAt": "2026-07-26T04:23:53.258Z",
+  "eventStartTime": "2026-07-26T18:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 594798,
+    "name": "Jacob deGrom",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 669302,
+    "name": "Logan Gilbert",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-07-26T04:23:53.258Z"
+  },
+  "recordHash": "5af4f0816b711236c7062c311c4ff13d08dd0ea89755c105fb6951a0509edf35"
+}

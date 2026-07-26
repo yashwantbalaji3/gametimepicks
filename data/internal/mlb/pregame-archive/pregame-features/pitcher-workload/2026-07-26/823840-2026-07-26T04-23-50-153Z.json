@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823840,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T04:23:50.153Z",
+  "availableAt": "2026-07-26T04:23:50.153Z",
+  "eventStartTime": "2026-07-26T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 676083,
+      "name": "Janson Junk",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 6,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 3.6,
+        "bbAvg": 2,
+        "erAvg": 4.6,
+        "hrAvg": 1.4,
+        "kPer9": 6.57,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 69,
+        "k": 51,
+        "bb": 20,
+        "er": 39,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 621111,
+      "name": "Walker Buehler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22,
+        "ipAvg": 4.4,
+        "kAvg": 3.8,
+        "bbAvg": 3.4,
+        "erAvg": 4.6,
+        "hrAvg": 1.4,
+        "kPer9": 7.77,
+        "workloadIpLast5": 22
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 94.67,
+        "k": 84,
+        "bb": 40,
+        "er": 55,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-26T04:23:50.153Z"
+  },
+  "recordHash": "4fcb1d165cbf9b959a8b3aded230210d90ee3ce0b186a5dc129d5557274c368e"
+}
