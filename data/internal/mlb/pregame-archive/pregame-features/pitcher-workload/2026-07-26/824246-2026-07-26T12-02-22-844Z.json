@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824246,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T12:02:22.844Z",
+  "availableAt": "2026-07-26T12:02:22.844Z",
+  "eventStartTime": "2026-07-26T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 664285,
+      "name": "Framber Valdez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4.2,
+        "bbAvg": 1.2,
+        "erAvg": 3.4,
+        "hrAvg": 0.4,
+        "kPer9": 7.66,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 108.33,
+        "k": 88,
+        "bb": 38,
+        "er": 55,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 679883,
+      "name": "Luinder Avila",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 5,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 4.8,
+        "bbAvg": 2.4,
+        "erAvg": 2.2,
+        "hrAvg": 0.4,
+        "kPer9": 8.53,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 44.67,
+        "k": 41,
+        "bb": 26,
+        "er": 27,
+        "hr": 6
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-26T12:02:22.844Z"
+  },
+  "recordHash": "d6b61328e4136a97a8242e071bbd2267e3ce2ab551e30e735e1c87ede498ddbd"
+}

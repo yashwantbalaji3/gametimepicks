@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824730,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T12:02:22.844Z",
+  "availableAt": "2026-07-26T12:02:22.844Z",
+  "eventStartTime": "2026-07-26T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 624133,
+      "name": "Ranger Suarez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 21,
+      "lastStartDate": "2026-07-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 6.8,
+        "bbAvg": 1.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.2,
+        "kPer9": 11.62,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 91.33,
+        "k": 97,
+        "bb": 26,
+        "er": 32,
+        "hr": 5
+      }
+    },
+    "away": {
+      "id": 592332,
+      "name": "Kevin Gausman",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 5.6,
+        "bbAvg": 2.8,
+        "erAvg": 3.6,
+        "hrAvg": 0.8,
+        "kPer9": 9.45,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 115.67,
+        "k": 117,
+        "bb": 34,
+        "er": 58,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-26T12:02:22.844Z"
+  },
+  "recordHash": "bac33ad88b04f164334a36285216df4d476dedfca84d6e752b855b532b35e40a"
+}

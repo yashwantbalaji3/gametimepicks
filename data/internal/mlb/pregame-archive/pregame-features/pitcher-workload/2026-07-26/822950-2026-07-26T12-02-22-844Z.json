@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822950,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T12:02:22.844Z",
+  "availableAt": "2026-07-26T12:02:22.844Z",
+  "eventStartTime": "2026-07-26T16:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656876,
+      "name": "Drew Rasmussen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 3.8,
+        "bbAvg": 1,
+        "erAvg": 3,
+        "hrAvg": 0.6,
+        "kPer9": 7.03,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 104.33,
+        "k": 103,
+        "bb": 18,
+        "er": 38,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 800048,
+      "name": "Parker Messick",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 5,
+        "bbAvg": 1.6,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 7.26,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 117.67,
+        "k": 116,
+        "bb": 36,
+        "er": 35,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-26T12:02:22.844Z"
+  },
+  "recordHash": "9ecfe7c3ea32d4b3fc3997b70a7993fcbd9fd68330ba58381e58a68e9c4544b8"
+}

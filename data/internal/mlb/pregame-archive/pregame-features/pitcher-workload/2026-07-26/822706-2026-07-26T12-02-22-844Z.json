@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822706,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T12:02:22.844Z",
+  "availableAt": "2026-07-26T12:02:22.844Z",
+  "eventStartTime": "2026-07-26T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 571945,
+      "name": "Miles Mikolas",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 20,
+      "lastStartDate": "2026-07-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 2.8,
+        "bbAvg": 1,
+        "erAvg": 3.8,
+        "hrAvg": 1.2,
+        "kPer9": 4.91,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 38,
+        "k": 25,
+        "bb": 12,
+        "er": 36,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 684442,
+      "name": "Kohl Drake",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 5,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 1,
+        "ipSum": 5,
+        "ipAvg": 5,
+        "kAvg": 5,
+        "bbAvg": 2,
+        "erAvg": 1,
+        "hrAvg": 0,
+        "kPer9": 9,
+        "workloadIpLast5": 5
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 5,
+        "k": 5,
+        "bb": 2,
+        "er": 1,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-26T12:02:22.844Z"
+  },
+  "recordHash": "bb186fa9502774410e87f3276b0d44977870abd5da78fa8c53ef2e6859687f24"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823599,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T12:02:22.844Z",
+  "availableAt": "2026-07-26T12:02:22.844Z",
+  "eventStartTime": "2026-07-26T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 642547,
+      "name": "Freddy Peralta",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 5.4,
+        "bbAvg": 2.4,
+        "erAvg": 3,
+        "hrAvg": 1,
+        "kPer9": 10.13,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 109.67,
+        "k": 110,
+        "bb": 46,
+        "er": 61,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 686218,
+      "name": "Emmet Sheehan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 5.4,
+        "bbAvg": 2,
+        "erAvg": 3.2,
+        "hrAvg": 1,
+        "kPer9": 10.41,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 87.67,
+        "k": 99,
+        "bb": 27,
+        "er": 50,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-26T12:02:22.844Z"
+  },
+  "recordHash": "95c9d442ad4bc5e65dad73932851a5699f9a7f7bdcf2e2f377a2c984cd8de337"
+}
