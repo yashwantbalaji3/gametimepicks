@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822870,
+  "date": "2026-07-26",
+  "capturedAt": "2026-07-26T17:55:36.751Z",
+  "availableAt": "2026-07-26T17:55:36.751Z",
+  "eventStartTime": "2026-07-26T18:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 594798,
+      "name": "Jacob deGrom",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 7.8,
+        "bbAvg": 1.8,
+        "erAvg": 3.4,
+        "hrAvg": 0.6,
+        "kPer9": 12.24,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 105.33,
+        "k": 128,
+        "bb": 24,
+        "er": 44,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 669302,
+      "name": "Logan Gilbert",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 7,
+      "lastStartDate": "2026-07-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33.33,
+        "ipAvg": 6.67,
+        "kAvg": 7.4,
+        "bbAvg": 1,
+        "erAvg": 2.4,
+        "hrAvg": 0.4,
+        "kPer9": 9.99,
+        "workloadIpLast5": 33.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 120,
+        "k": 129,
+        "bb": 25,
+        "er": 45,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-26T17:55:36.751Z"
+  },
+  "recordHash": "86baea9860c019aa515a173100240ed6b90f123f706a7e2261f6a4fbf361e72a"
+}
