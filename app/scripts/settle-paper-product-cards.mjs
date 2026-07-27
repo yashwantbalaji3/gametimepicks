@@ -175,9 +175,17 @@ async function main() {
     const entry = await settleCard(card, md5Before);
     const outPath = path.join(OUT_ROOT, "data", "internal", "product-cards", "settlements", { bank_builder: "bank-builder", moonshot: "moonshot", longshot: "longshot" }[card.productType] ?? card.productType, card.slateDate, `${card.cardId}.json`);
     if (WRITE) {
-      // Idempotent: only rewrite when the settled state actually changed.
+      // Idempotent: only rewrite when the settled state actually changed. Comparing just
+      // status+cardResult was too coarse — a LEG that resolved (pending → win) was discarded
+      // whenever the card verdict was unchanged, so leg detail could stay permanently stale
+      // while the card looked correctly settled. The paper track record tallies LEGS, so that
+      // silently understated the leg-level record. Compare the whole settled entry instead;
+      // it carries no wall-clock (settledAt is the slate date, settlementId is content-derived),
+      // so this is exact. moneyGuardMd5AtSettlement is an audit stamp of the environment rather
+      // than of the settlement, so it alone must not trigger a rewrite.
+      const settledContent = ({ moneyGuardMd5AtSettlement: _ignored, ...rest }) => JSON.stringify(rest);
       const prev = fs.existsSync(outPath) ? JSON.parse(fs.readFileSync(outPath, "utf8")) : null;
-      if (prev && prev.status === entry.status && prev.cardResult === entry.cardResult) { skipped += 1; }
+      if (prev && settledContent(prev) === settledContent(entry)) { skipped += 1; }
       else { fs.mkdirSync(path.dirname(outPath), { recursive: true }); fs.writeFileSync(outPath, JSON.stringify(entry, null, 2) + "\n"); wrote += 1; }
     }
     console.log(`[settle-paper] ${card.cardId} · ${entry.cardResult}/${entry.status} · pnl ${entry.paperPnlUnits}u · ${entry.legResults.map((r) => r.status).join(",")}${entry.unsettledReasons.length ? ` · ${entry.unsettledReasons.length} pending` : ""}`);

@@ -195,6 +195,54 @@ jobs:
             echo "::warning::Bank Builder ledger update failed — prior ledger retained"
           fi
 
+      # ---- Paper product-card settlement lifecycle (internal, money-independent) ----
+      # Four deterministic stages that were built and tested but never scheduled, so the internal
+      # ledgers stopped advancing after 2026-07-09 while the pipeline reported healthy:
+      #
+      #   1. fetch-mlb-linescores       free StatsAPI final scores -> data/internal/mlb/linescores/
+      #   2. build-mlb-product-settlement  grades MLB product legs from that committed cache
+      #   3. settle-paper-product-cards    grades FOUNDER-PROMOTED paper cards (no-op if none)
+      #   4. build-paper-track-record      tallies paper units (never dollars, never the 19-14 record)
+      #
+      # Promotion into the paper store stays MANUAL and founder-gated — automation only settles cards
+      # a human already approved, and never writes data/internal/product-cards/{paper,approvals}/.
+      #
+      # Every stage is deterministic (content-derived ids, no wall-clock), so an unchanged night
+      # rewrites byte-identical files and produces no commit. A short backfill window re-runs recent
+      # dates so a failed night self-heals and a leg that was "not settled yet" resolves on a later
+      # pass instead of staying pending forever. Non-fatal: prior ledgers are retained on failure.
+      - name: Settle paper product cards (internal ledgers)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          cd app
+          TARGET="${SETTLE_DATE:-$(TZ=America/New_York date -d 'yesterday' +%F)}"
+          BACKFILL_DAYS=5
+          echo "::notice::paper settlement target=$TARGET (backfill ${BACKFILL_DAYS}d)"
+
+          DATES=""
+          for i in $(seq 0 $((BACKFILL_DAYS - 1))); do
+            DATES="$DATES,$(date -d "$TARGET - $i days" +%F)"
+          done
+          DATES="${DATES#,}"
+
+          # 1) Official final scores (free StatsAPI, no Odds API credits). Re-fetching a final date
+          #    reproduces a byte-identical file, so the window is safe to re-run every night.
+          npx --yes tsx scripts/fetch-mlb-linescores.mjs --dates "$DATES" --write \
+            || echo "::warning::linescore fetch failed — grading falls back to the committed cache"
+
+          # 2) + 3) Grade per date from the committed cache. A game with no final linescore stays
+          #    pending; missing data is 'unavailable'. Never a fabricated loss.
+          for D in $(echo "$DATES" | tr ',' ' '); do
+            npx --yes tsx scripts/build-mlb-product-settlement.mjs --date "$D" --write \
+              || echo "::warning::MLB product settlement failed for $D — prior ledger retained"
+            npx --yes tsx scripts/settle-paper-product-cards.mjs --date "$D" --write \
+              || echo "::warning::paper card settlement failed for $D — prior settlement retained"
+          done
+
+          # 4) Roll the paper hit-rate ledger. Paper units only; officialRecordIncluded:false.
+          npx --yes tsx scripts/build-paper-track-record.mjs --write \
+            || echo "::warning::paper track record failed — prior ledger retained"
+
       - name: Health gate (abort publish on missing/stale/non-reconciling data)
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
@@ -248,6 +296,13 @@ jobs:
           # rolling window. Single JSON file rewritten every run.
           # Pure aggregation, demotion-only, never raises a weight.
           git add app/public/data/audit/policy.json 2>/dev/null || true
+          # Internal paper-settlement lifecycle (NOT web-served, public:false, never money).
+          # Deliberately excludes product-cards/{paper,approvals}/ — those are founder-gated
+          # INPUTS that automation must never author or commit.
+          git add data/internal/mlb/linescores/ 2>/dev/null || true
+          git add data/internal/mlb/product-settlement/ 2>/dev/null || true
+          git add data/internal/product-cards/settlements/ 2>/dev/null || true
+          git add data/internal/product-cards/track-record/ 2>/dev/null || true
 
           if git diff --staged --quiet; then
             echo "No settled-data changes — nothing to commit."

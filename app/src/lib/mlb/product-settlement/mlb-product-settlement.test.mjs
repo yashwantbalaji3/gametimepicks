@@ -11,6 +11,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { settleMlbMoneyline, settleMlbRunLine, settleMlbTotal, settleMlbTeamTotal, settleMlbPitcherStrikeouts } from "./mlb-markets.ts";
 
 const app = process.cwd();
 const repo = path.join(app, "..");
@@ -34,13 +35,42 @@ test("1 · ledger is a SEPARATE preview — not the official money record", () =
   }
 });
 
-test("2 · a non-final slate is all-pending — nothing graded early, no pending→loss", () => {
-  const j = ledger("2026-07-09");
-  if (!j) return;
-  assert.equal(j.mode, "preview-pending");
-  assert.equal(j.counts.win, 0);
-  assert.equal(j.counts.loss, 0);
-  for (const l of j.legs) assert.equal(l.status, "pending", "every leg pending on a non-final slate");
+test("2 · a game with no official result is never graded — no early grade, no fabricated loss", () => {
+  // This used to pin 2026-07-09 as "the non-final slate". That date has since genuinely settled, so
+  // the fixture rotted into a false failure — it was asserting a fact about live data rather than the
+  // invariant. The invariant is at the rule level and cannot rot: no official result ⇒ pending, never
+  // a loss. The postponed case is real: StatsAPI reports a postponed game as abstractGameState
+  // "Final" with no scores, so `gameFinal` can be true while the result is absent.
+  const noResult = [
+    ["moneyline · not final", settleMlbMoneyline({ homeScore: null, awayScore: null, selectedTeam: "home", gameFinal: false })],
+    ["moneyline · postponed (final flag, no score)", settleMlbMoneyline({ selectedTeam: "away", gameFinal: true })],
+    ["run line · not final", settleMlbRunLine({ selectedTeam: "home", line: -1.5, gameFinal: false })],
+    ["run line · postponed", settleMlbRunLine({ selectedTeam: "home", line: -1.5, gameFinal: true })],
+    ["total · not final", settleMlbTotal({ side: "over", line: 8.5, gameFinal: false })],
+    ["total · postponed", settleMlbTotal({ side: "over", line: 8.5, gameFinal: true })],
+    ["team total · not final", settleMlbTeamTotal({ side: "under", line: 4.5, gameFinal: false })],
+    ["pitcher Ks · not final", settleMlbPitcherStrikeouts({ side: "over", line: 5.5, gameFinal: false })],
+  ];
+  for (const [label, o] of noResult) {
+    assert.equal(o.status, "pending", `${label}: must stay pending without an official result`);
+  }
+
+  // Structural half: no committed ledger may carry a decisive grade it could not have earned.
+  if (!fs.existsSync(LEDGER_DIR)) return;
+  for (const f of fs.readdirSync(LEDGER_DIR).filter((x) => x.endsWith(".json"))) {
+    const j = JSON.parse(fs.readFileSync(path.join(LEDGER_DIR, f), "utf8"));
+    if (j.mode === "preview-pending") {
+      assert.equal(j.counts.win, 0, `${f}: a preview-pending ledger has no wins`);
+      assert.equal(j.counts.loss, 0, `${f}: a preview-pending ledger has no losses`);
+      for (const l of j.legs) assert.equal(l.status, "pending", `${f}: every leg pending on a non-final slate`);
+    }
+    // A loss always cites a concrete comparison; "not available" can only ever produce pending.
+    for (const l of j.legs) {
+      if (l.status === "loss") {
+        assert.doesNotMatch(String(l.reason ?? ""), /not available|not final/i, `${f}: ${l.legId} was called a loss without a result`);
+      }
+    }
+  }
 });
 
 test("3 · a final date grades to real outcomes with no leftover 'pending'", () => {

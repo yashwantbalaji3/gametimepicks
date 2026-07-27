@@ -54,10 +54,46 @@ test("5 · committed final-date caches are genuinely final (deterministic, no in
   for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".json"))) {
     const cache = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
     assert.equal(cache.source, "statsapi");
-    assert.equal(cache.finalCount, cache.gameCount, `${f}: every committed game is final (no volatile rows)`);
+    // Every STORED row is a genuine official result — no in-progress row (whose score would still
+    // move) and no resultless row (postponed / suspended). `finalCount` describes the stored rows;
+    // `gameCount` is how many games were SCHEDULED, so a partial slate stays visibly partial rather
+    // than a short cache passing as a complete one.
+    assert.equal(cache.finalCount, cache.games.length, `${f}: finalCount must describe the stored rows`);
+    assert.ok(cache.gameCount >= cache.finalCount, `${f}: cannot have more results than scheduled games`);
     for (const g of cache.games) {
-      assert.equal(g.isFinal, true);
+      assert.equal(g.isFinal, true, `${f}: only final games are stored`);
       assert.ok(typeof g.homeRuns === "number" && typeof g.awayRuns === "number", `${f}: final game has both scores`);
+      assert.ok(!/postpone|suspend|cancel/i.test(g.status ?? ""), `${f}: ${g.status} is not an official result`);
     }
   }
+});
+
+/**
+ * POSTPONED-IS-NOT-FINAL (Sprint 025). StatsAPI reports a postponed game with
+ * abstractGameState "Final" and no team scores. Keying finality off the abstract state alone
+ * admitted a resultless row into the committed cache (PIT/MIL, 2026-07-10). The file header
+ * always said Postponed is not final; the code only excluded "C" (cancelled).
+ */
+test("6 · a postponed / suspended game is never final, even though StatsAPI calls it Final", () => {
+  const mk = (coded, detailed, scores) => ({
+    gamePk: 1, officialDate: "2026-07-10",
+    status: { abstractGameState: "Final", codedGameState: coded, detailedState: detailed },
+    teams: { home: { team: { abbreviation: "PIT" }, ...(scores ? { score: 4 } : {}) },
+             away: { team: { abbreviation: "MIL" }, ...(scores ? { score: 2 } : {}) } },
+  });
+
+  for (const [coded, detailed] of [["D", "Postponed"], ["C", "Cancelled"], ["U", "Suspended"]]) {
+    const r = parseScheduleGame(mk(coded, detailed, false));
+    assert.equal(r.isFinal, false, `${detailed} must not be final`);
+    assert.equal(r.homeRuns, null, `${detailed} must carry no runs`);
+    assert.equal(r.awayRuns, null, `${detailed} must carry no runs`);
+  }
+
+  // Fail-closed backstop: any other resultless "Final" is still refused...
+  assert.equal(parseScheduleGame(mk("F", "Final", false)).isFinal, false, "a Final with no scores is not a result");
+  // ...while a genuinely played game is unaffected.
+  const played = parseScheduleGame(mk("F", "Final", true));
+  assert.equal(played.isFinal, true, "a real final still grades");
+  assert.equal(played.homeRuns, 4);
+  assert.equal(played.awayRuns, 2);
 });

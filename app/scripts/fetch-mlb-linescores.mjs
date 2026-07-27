@@ -57,8 +57,13 @@ async function main() {
       console.error(`[linescores] ${date}: fetch failed (${String(e).slice(0, 80)}) — nothing written`);
       continue;
     }
-    const finals = games.filter((g) => g.isFinal).length;
-    const cache = { date, source: "statsapi", gameCount: games.length, finalCount: finals, games };
+    // The cache is a record of OFFICIAL RESULTS, so only genuinely-final games are stored — a
+    // postponed or in-progress game has no result to grade and must not sit in it wearing an
+    // isFinal flag. gameCount stays the number of SCHEDULED games so a partial slate is visibly
+    // partial (gameCount 15 / finalCount 9) instead of looking complete.
+    const finalGames = games.filter((g) => g.isFinal);
+    const finals = finalGames.length;
+    const cache = { date, source: "statsapi", gameCount: games.length, finalCount: finals, games: finalGames };
     if (WRITE) {
       fs.mkdirSync(OUT_DIR, { recursive: true });
       fs.writeFileSync(path.join(OUT_DIR, `${date}.json`), JSON.stringify(cache, null, 2) + "\n");
