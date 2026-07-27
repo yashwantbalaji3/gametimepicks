@@ -218,6 +218,15 @@ export interface PlayerIntelligenceInput {
   readonly awayTeam: string | null;
   /** Team attribution decided by the resolver, already participant-verified by the caller. */
   readonly teamMapping: MappingStatus;
+  /**
+   * Whether the book posted a row for this market at all. Defaults true.
+   *
+   * Explicit rather than inferred from a null price, because "the book offers no such market" and
+   * "the book offers it but the price is unreadable" are different facts that would otherwise
+   * collapse into the same MARKET_INCOMPLETE gate — and a modeled family the book simply does not
+   * price would be reported as malformed data rather than as absent.
+   */
+  readonly bookRowPresent?: boolean;
   readonly artifact: { readonly date: string | null; readonly generatedAt: string | null };
   readonly todayEt: string;
   readonly nowIso: string;
@@ -248,7 +257,12 @@ export function buildPlayerPropIntelligence(input: PlayerIntelligenceInput): Pla
     sport,
     kind: "player",
     family: input.family,
-    sportsbook: { present: true, americanOdds: overOdds, line, requiresLine: true },
+    sportsbook: {
+      present: input.bookRowPresent ?? true,
+      americanOdds: overOdds,
+      line,
+      requiresLine: true,
+    },
     model: { present: modelPresent, supportsThreshold: modelPresent },
     freshness,
     eventResolved: input.gamePk != null,

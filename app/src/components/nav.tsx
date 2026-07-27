@@ -40,6 +40,7 @@ const NAV_ITEMS: Array<{
   // products (Bank Builder / Moonshot) are real + reachable but move to SECONDARY so the sim product leads.
   { href: "/today", label: "Today" },
   { href: "/simulate", label: "Simulate" },
+  { href: "/markets", label: "Market Center" },
   { href: "/results", label: "Results" },
   { href: "/learn", label: "How It Works" },
   // SECONDARY — still reachable, de-emphasized after the divider (NO routes removed, none deleted): the
