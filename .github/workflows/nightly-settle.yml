@@ -132,6 +132,7 @@ jobs:
           fi
 
       - name: Run nightly settlement orchestrator
+        id: settle
         run: bash scripts/automation_settle.sh
 
       # ---- World Cup / Mr. Dub settlement (PR `automate-soccer-settlement`) ----
@@ -212,6 +213,7 @@ jobs:
       # dates so a failed night self-heals and a leg that was "not settled yet" resolves on a later
       # pass instead of staying pending forever. Non-fatal: prior ledgers are retained on failure.
       - name: Settle paper product cards (internal ledgers)
+        id: paper
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           cd app
@@ -244,12 +246,39 @@ jobs:
             || echo "::warning::paper track record failed — prior ledger retained"
 
       - name: Health gate (abort publish on missing/stale/non-reconciling data)
+        id: health
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           cd app
           # Hard gate: money invariants + $100→bankroll reconciliation + data hygiene + freshness.
           # A non-zero exit FAILS the job, so the commit/push step below never runs on corrupted data.
           npx --yes tsx scripts/health-check.mjs --today "$(TZ=America/New_York date +%F)"
+
+      # ---- Ops heartbeat for the POSTGAME half of the lifecycle ----
+      # mlb-daily-production writes a heartbeat for the pregame half; nothing wrote one here, so after a
+      # nightly settle /ops still reported `phase: mlb-daily-production` from the previous afternoon and
+      # said nothing about settlement at all. It was not lying — the 36h staleness guard had not tripped —
+      # but a whole half of the daily lifecycle was invisible on the one surface meant to show it.
+      #
+      # Status is DERIVED from what actually happened. Never hardcode "pass".
+      - name: Ops heartbeat + admin status (settlement half)
+        if: always()
+        continue-on-error: true
+        run: |
+          set -u
+          TARGET="${SETTLE_DATE:-$(TZ=America/New_York date -d 'yesterday' +%F)}"
+          if [ "${{ steps.settle.outcome }}" != "success" ]; then
+            ST=fail; MSG="settlement orchestrator ${{ steps.settle.outcome }}"
+          elif [ "${{ steps.health.outcome }}" = "failure" ]; then
+            ST=fail; MSG="health gate failed — publish aborted"
+          elif [ "${{ steps.paper.outcome }}" != "success" ]; then
+            ST=partial; MSG="paper settlement lifecycle ${{ steps.paper.outcome }}"
+          else
+            ST=pass; MSG="settled $TARGET + paper lifecycle"
+          fi
+          echo "heartbeat status=$ST ($MSG)"
+          node app/scripts/ops-notify.mjs --status "$ST" --phase "nightly-settle" --date "$TARGET" --message "$MSG"
+          npx --yes tsx app/scripts/build-admin-status.mjs || echo "admin status build skipped"
 
       - name: Show diff stat (informational)
         run: |
@@ -303,6 +332,9 @@ jobs:
           git add data/internal/mlb/product-settlement/ 2>/dev/null || true
           git add data/internal/product-cards/settlements/ 2>/dev/null || true
           git add data/internal/product-cards/track-record/ 2>/dev/null || true
+          # Ops surfaces — the heartbeat is only a dead-man's switch if the run PERSISTS it.
+          git add app/public/data/ops/ 2>/dev/null || true
+          git add app/public/data/admin/ 2>/dev/null || true
 
           if git diff --staged --quiet; then
             echo "No settled-data changes — nothing to commit."

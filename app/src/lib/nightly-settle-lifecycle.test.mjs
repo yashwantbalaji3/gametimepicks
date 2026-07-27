@@ -41,6 +41,11 @@ const STAGE_OUTPUT = {
   "build-mlb-product-settlement.mjs": "data/internal/mlb/product-settlement/",
   "settle-paper-product-cards.mjs": "data/internal/product-cards/settlements/",
   "build-paper-track-record.mjs": "data/internal/product-cards/track-record/",
+  // Ops surfaces. mlb-daily-production writes a heartbeat for the pregame half; until this was
+  // added nothing wrote one here, so /ops reported the previous afternoon's pregame phase and said
+  // nothing about settlement. A heartbeat that is generated and then not staged is worse than none.
+  "ops-notify.mjs": "app/public/data/ops/",
+  "build-admin-status.mjs": "app/public/data/admin/",
 };
 
 test("every paper-settlement lifecycle stage is actually invoked by the nightly workflow", () => {
@@ -102,4 +107,32 @@ test("settlement runs after the orchestrator and before the health gate", () => 
     settlement < healthGate,
     "paper settlement must run before the health gate so a corrupt ledger cannot be pushed",
   );
+});
+
+test("the settlement heartbeat DERIVES its status — it can never report a blanket pass", () => {
+  const step = yml.slice(yml.indexOf("Ops heartbeat + admin status (settlement half)"));
+  const body = step.slice(0, step.indexOf("- name: Show diff stat"));
+  assert.ok(body.includes("ops-notify.mjs"), "the heartbeat step must actually write a heartbeat");
+
+  // It must be able to say something other than "pass", or it is decoration. Each branch below is a
+  // real failure mode of this workflow.
+  for (const [needle, why] of [
+    ["steps.settle.outcome", "must react to the settlement orchestrator failing"],
+    ["steps.health.outcome", "must react to the health gate failing"],
+    ["steps.paper.outcome", "must react to the paper lifecycle failing"],
+    ["ST=fail", "must be able to report failure"],
+    ["ST=partial", "must be able to report a partial run"],
+  ]) {
+    assert.ok(body.includes(needle), `heartbeat ${why} (missing ${needle})`);
+  }
+
+  // ...and the step must run even when an earlier step failed, or failures are never recorded.
+  assert.match(body, /if:\s*always\(\)/, "the heartbeat must run on failure too — that is the point");
+});
+
+test("the heartbeat is written BEFORE the commit step, or it is never persisted", () => {
+  const heartbeat = yml.indexOf("Ops heartbeat + admin status (settlement half)");
+  const commit = yml.indexOf("Commit and push if results changed");
+  assert.ok(heartbeat >= 0 && commit >= 0, "both steps present");
+  assert.ok(heartbeat < commit, "a heartbeat written after the commit step is discarded every run");
 });
