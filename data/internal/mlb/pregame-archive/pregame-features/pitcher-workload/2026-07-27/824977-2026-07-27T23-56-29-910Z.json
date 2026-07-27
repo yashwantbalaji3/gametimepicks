@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824977,
+  "date": "2026-07-27",
+  "capturedAt": "2026-07-27T23:56:29.910Z",
+  "availableAt": "2026-07-27T23:56:29.910Z",
+  "eventStartTime": "2026-07-28T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 678022,
+      "name": "Jack Perkins",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 6,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 6.2,
+        "bbAvg": 2,
+        "erAvg": 3.8,
+        "hrAvg": 1,
+        "kPer9": 11.79,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 31.67,
+        "k": 41,
+        "bb": 15,
+        "er": 27,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 801139,
+      "name": "Payton Tolle",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 7,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 6.8,
+        "bbAvg": 1.6,
+        "erAvg": 2.2,
+        "hrAvg": 0.6,
+        "kPer9": 12.08,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 89.67,
+        "k": 96,
+        "bb": 26,
+        "er": 33,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-27T23:56:29.910Z"
+  },
+  "recordHash": "7d3a0b67a11cddedb7bda9817999ca4aeea101d8f9b967265eec8aa821eeae2b"
+}
