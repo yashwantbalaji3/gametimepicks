@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822868,
+  "date": "2026-07-27",
+  "capturedAt": "2026-07-27T04:35:22.268Z",
+  "availableAt": "2026-07-27T04:35:22.268Z",
+  "eventStartTime": "2026-07-27T18:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 677958,
+      "name": "Kumar Rocker",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 5,
+        "bbAvg": 1.6,
+        "erAvg": 3.2,
+        "hrAvg": 1.2,
+        "kPer9": 8.88,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 83.33,
+        "k": 70,
+        "bb": 33,
+        "er": 42,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 669923,
+      "name": "George Kirby",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 7,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 6,
+        "bbAvg": 0.8,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 8.44,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 116,
+        "k": 104,
+        "bb": 25,
+        "er": 46,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-27T04:35:22.268Z"
+  },
+  "recordHash": "d9cbd1ee2af4fa5223a48bd6ac8cfc540d59052248e52801be937ab670ea2d46"
+}
