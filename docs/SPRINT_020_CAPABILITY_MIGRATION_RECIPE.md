@@ -136,3 +136,44 @@ work is: those helpers currently read module state directly and need the same pr
 - No incorrect NBA content can currently reach a user: the off-season boards are empty, so no NBA leg
   exists for the stale gate to admit. The gate is wrong, not fail-closed — it starts mattering when
   NBA data returns (~October 2026).
+
+---
+
+## ✅ EXECUTED — Sprint 026 · Phase 2
+
+The migration is complete. `SPORT_CAPABILITIES` now applies `applyCapabilityRegistry(...)` on top of
+`capabilitiesForLevel(...)`, so coverage `level` and the evidence-backed registry must BOTH clear a
+sport before it enters a product. NBA (`level: "full"`, registry `HISTORICAL_ONLY`) is now correctly
+refused by suggested parlays and Build Your Own, while keeping `hasGrading` and its `/results`
+archive.
+
+**Blast radius was 8, not 23** — the extraction landed first. `allSportsEligible` plus an optional
+`SportEligibility` predicate threaded through the slip/leg/section helpers absorbed most of the
+conversion before the production flip, so only 8 tests across 4 files had to change.
+
+Two things the original recipe did not anticipate:
+
+1. **`generateCustomParlaysFromPool` was fail-open.** It takes an arbitrary `legs` array and its
+   `multi` mode deliberately keeps every sport, so an unfiltered caller could put an ineligible sport
+   into a generated slip. The UI path was safe (`getLegPool` filters), but the boundary was not.
+   `_filterPool` now applies `filterBuildYourOwnLegs` itself — idempotent for an already-filtered
+   pool, fail-closed for any future caller.
+2. **The UI's sport selector was a separate hardcoded list.** `SPORT_OPTIONS` in
+   `components/custom-parlay-generator.tsx` offered "🏀 NBA" independently of capability, and
+   `buildSportScopeOptions()` — the capability-derived helper that should have driven it — had no UI
+   consumer at all. The selector is now capability-filtered, so an ineligible sport cannot appear as
+   a destination that could only ever return an empty pool.
+
+**Tests are fixture-injected, and that created a real risk worth naming.** Converting the mixed-sport
+families onto synthetic predicates keeps the mechanics covered, but on its own it would leave the
+PRODUCTION path unasserted. `src/lib/capability-product-gating.test.mjs` is the counterweight: every
+test there calls production helpers with NO predicate. It was negative-tested three ways (remove the
+narrowing → 6 fail; widen instead of narrow → 3 fail; drop the generator's pool filter → 1 fail).
+
+`MODELED_SPORT_KEYS` was NOT deleted. It is now *derived* from the post-narrowing capability table,
+so it equals `FULL_MODEL_SPORTS` by construction (asserted in both directions) and is no longer a
+gate that can drift from the registry. Deleting it would be churn, not safety.
+
+Suite 2896 (2892 pass / 0 fail / 4 skip). tsc + production build clean. Money
+`affe6b21071f2b3be96bb2774eb347c3` and Bank Builder locks `cb80473f88f3cb5f67208fa568925295`
+unchanged — this was presentation/eligibility only.

@@ -10,6 +10,7 @@ import {
   BUILD_STATUS_CHIPS,
   buildSportScopeOptions,
 } from "./build-a-parlay-config.ts";
+import { canUseInBuildYourOwn } from "./sport-capabilities.ts";
 
 const BANNED = [
   "lock", "guaranteed", "free money", "risk-free", "can't miss", "cant miss",
@@ -29,22 +30,36 @@ test("status chips state custom / modeled-only / not tracked", () => {
   assert.ok(BUILD_STATUS_CHIPS.includes("Not officially tracked"));
 });
 
-test("sport scope = modeled sports + Mixed; no schedule-only/coming-soon", () => {
+test("sport scope = BYO-eligible sports (+ Mixed only when ≥2); never an ineligible sport", () => {
   const opts = buildSportScopeOptions();
   const keys = opts.map((o) => o.key);
-  // exactly the modeled sports (nba, mlb) plus a mixed scope
-  assert.ok(keys.includes("nba"), "NBA selectable");
-  assert.ok(keys.includes("mlb"), "MLB selectable");
-  assert.ok(keys.includes("mixed"), "Mixed selectable");
-  // schedule-only / coming-soon must NOT be selectable
+  const singles = opts.filter((o) => !o.mixed);
+
+  // Every offered single-sport scope must actually be Build-Your-Own eligible.
+  assert.ok(singles.length > 0, "at least one sport must be selectable");
+  for (const o of singles) {
+    assert.equal(canUseInBuildYourOwn(o.key), true, `${o.key} is offered but is not BYO-eligible`);
+    assert.equal(o.label, o.key.toUpperCase());
+  }
+
+  // No ineligible sport may ever be selectable — including NBA while it is HISTORICAL_ONLY.
   for (const blocked of ["nhl", "wnba", "ufc", "fifa-world-cup", "ipl", "mls", "epl"]) {
     assert.ok(!keys.includes(blocked), `${blocked} must not be a build sport scope`);
   }
-  // mixed is flagged + labeled as cross-sport, others single-sport
+  for (const key of keys) {
+    if (key === "mixed") continue;
+    assert.ok(canUseInBuildYourOwn(key), `${key} must not be offered while ineligible`);
+  }
+
+  // The Mixed scope exists IFF a cross-sport build is actually possible.
   const mixed = opts.find((o) => o.key === "mixed");
-  assert.equal(mixed.mixed, true);
-  assert.match(mixed.label, /Mixed/);
-  assert.ok(opts.filter((o) => !o.mixed).every((o) => /^(NBA|MLB)$/.test(o.label)));
+  if (singles.length >= 2) {
+    assert.ok(mixed, "≥2 eligible sports must offer a Mixed scope");
+    assert.equal(mixed.mixed, true);
+    assert.match(mixed.label, /Mixed/);
+  } else {
+    assert.equal(mixed, undefined, "a Mixed scope must not be offered when only one sport is eligible");
+  }
 });
 
 test("no banned betting copy in build config strings", () => {

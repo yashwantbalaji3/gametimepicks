@@ -47,10 +47,13 @@ export interface BuildSportScopeOption {
 }
 
 /**
- * Sport scopes available to Build a Parlay, derived from the capability
- * registry: each modeled sport (Build-Your-Own eligible) plus a "Mixed"
- * scope when ≥2 modeled sports exist. Schedule-only / coming-soon sports are
- * never returned. Today: NBA, MLB, and Mixed NBA + MLB.
+ * Sport scopes available to Build a Parlay, derived from the capability registry: each
+ * Build-Your-Own-eligible sport, plus a "Mixed" scope when ≥2 such sports exist.
+ * Schedule-only / coming-soon / historical-only sports are never returned.
+ *
+ * Deliberately NOT a hardcoded list. A sport appears here the moment its capability state
+ * says it may enter prediction products, and disappears the moment it may not — the "Mixed"
+ * scope likewise appears on its own once a second sport qualifies.
  */
 export function buildSportScopeOptions(): BuildSportScopeOption[] {
   const modeled = MODELED_SPORT_KEYS.filter(

@@ -14,6 +14,7 @@ import {
   getLegPool,
   CUSTOM_PARLAY_MAX_LEGS,
 } from "./custom-parlay.ts";
+import { MODELED_SPORT_KEYS } from "./sport-capabilities.ts";
 
 function mkLeg(over = {}) {
   return {
@@ -213,35 +214,46 @@ function poolLeg(sport, leanId, side = "Over") {
   return { sport, leanId, side, market: "PTS", line: 1.5, oddsForSide: -110 };
 }
 
-test("getLegPool keeps only modeled-sport Over/Under legs (BYO gate)", () => {
+test("getLegPool keeps only BYO-eligible Over/Under legs (the pool gate)", () => {
+  // Derived, not hardcoded: whatever is eligible today survives, and every ineligible or
+  // unknown sport is dropped. Pinning "nba + mlb" made this assert a capability FACT that
+  // changed when NBA became HISTORICAL_ONLY.
+  const eligibleSports = [...MODELED_SPORT_KEYS];
+  assert.ok(eligibleSports.length > 0, "need at least one eligible sport to exercise the gate");
+
+  const eligibleLegs = eligibleSports.map((s, i) => poolLeg(s, `ok${i}`));
   const snapshot = {
     legPool: {
       legs: [
-        poolLeg("nba", "a"),
-        poolLeg("mlb", "b"),
+        ...eligibleLegs,
         poolLeg("nhl", "c"), // schedule-only — excluded
         poolLeg("wnba", "d"), // schedule-only — excluded
         poolLeg("epl", "e"), // coming-soon — excluded
         poolLeg("cricket", "f"), // unknown — excluded
         poolLeg("", "g"), // missing sport — excluded
-        poolLeg("nba", "h", "Push"), // non-Over/Under — excluded by existing guard
+        poolLeg(eligibleSports[0], "h", "Push"), // non-Over/Under — excluded by existing guard
       ],
     },
   };
-  const pool = getLegPool(snapshot);
   assert.deepEqual(
-    pool.map((l) => l.leanId).sort(),
-    ["a", "b"],
-    "only NBA + MLB Over/Under legs survive the BYO pool gate",
+    getLegPool(snapshot).map((l) => l.leanId).sort(),
+    eligibleLegs.map((l) => l.leanId).sort(),
+    "only eligible-sport Over/Under legs survive the BYO pool gate",
   );
 });
 
-test("getLegPool allows a mixed NBA+MLB pool (mixed BYO is permitted)", () => {
+test("getLegPool keeps EVERY eligible sport present — it never drops one arbitrarily", () => {
+  // The cross-sport MECHANICS (mixed slips of two eligible sports) are covered against a
+  // fixture predicate in sport-capabilities.test.mjs, because they cannot be built from real
+  // keys while only one sport is eligible. What this test can still prove honestly is that
+  // the pool gate is per-sport: it admits every eligible sport it is handed, so it becomes a
+  // real mixed-pool assertion automatically the moment a second sport qualifies.
+  const eligibleSports = [...MODELED_SPORT_KEYS];
   const snapshot = {
-    legPool: { legs: [poolLeg("nba", "x"), poolLeg("mlb", "y")] },
+    legPool: { legs: eligibleSports.map((s, i) => poolLeg(s, `x${i}`)) },
   };
   const sports = new Set(getLegPool(snapshot).map((l) => l.sport));
-  assert.deepEqual([...sports].sort(), ["mlb", "nba"]);
+  assert.deepEqual([...sports].sort(), [...eligibleSports].sort());
 });
 
 test("getLegPool handles a missing/empty legPool", () => {

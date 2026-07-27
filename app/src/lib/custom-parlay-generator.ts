@@ -22,6 +22,7 @@
  *     come from leg metadata only.
  */
 import type { OptimizerLeg } from "./parlay-optimizer";
+import { filterBuildYourOwnLegs, type SportEligibility } from "./sport-capabilities";
 import {
   computeCombinedAmericanOdds,
   evaluateCustomParlay,
@@ -140,6 +141,7 @@ interface FilterResult {
 function _filterPool(
   legs: ReadonlyArray<OptimizerLeg>,
   opts: GenerateOptions,
+  isEligible?: SportEligibility,
 ): FilterResult {
   const risk = opts.risk ?? "balanced";
   const cfg = _RISK_CONFIG[risk];
@@ -157,12 +159,20 @@ function _filterPool(
   );
   const pool: OptimizerLeg[] = [];
   let excludedDnp = 0;
-  for (const leg of legs) {
-    // Sport filter.
+  // Capability gate FIRST, and here rather than only at the caller. The UI path already hands us
+  // a `getLegPool` result (which filters), but this function is exported and takes an arbitrary
+  // array — and "multi" mode deliberately keeps every sport, so an unfiltered caller would let an
+  // ineligible sport into a generated slip. Filtering here is idempotent for an already-filtered
+  // pool and makes the boundary fail-closed regardless of caller.
+  const eligibleLegs = isEligible
+    ? filterBuildYourOwnLegs(legs as OptimizerLeg[], isEligible)
+    : filterBuildYourOwnLegs(legs as OptimizerLeg[]);
+  for (const leg of eligibleLegs) {
+    // View filter. `sport` is the selected VIEW, not a capability — eligibility was settled above.
     if (sport === "nba" || sport === "mlb") {
       if ((leg.sport ?? "").toLowerCase() !== sport) continue;
     } else if (sport === "multi") {
-      // Multi mode keeps every sport in pool; slip-build picks the mix.
+      // Multi mode keeps every ELIGIBLE sport in pool; slip-build picks the mix.
     }
     // Game filter.
     if (opts.gameId && leg.gameId !== opts.gameId) continue;
@@ -305,13 +315,17 @@ function _buildSlips(
 export function generateCustomParlaysFromPool(
   legPool: ReadonlyArray<OptimizerLeg>,
   options: GenerateOptions = {},
+  /** Eligibility gate. Production omits it and gets the real capability gate; tests inject a
+   *  fixture predicate so sport-shaped mechanics (e.g. the NBA DNP guard, which reads different
+   *  leg fields than MLB) stay covered without claiming any sport is currently modeled. */
+  isEligible?: SportEligibility,
 ): GeneratorResult {
   const risk = options.risk ?? "balanced";
   const desired = Math.max(1, Math.min(options.count ?? 5, 10));
   if (!legPool || legPool.length === 0) {
     return { slips: [], reason: "empty-pool", poolSize: 0, excludedDnp: 0 };
   }
-  const { pool, excludedDnp } = _filterPool(legPool, options);
+  const { pool, excludedDnp } = _filterPool(legPool, options, isEligible);
   if (pool.length === 0) {
     return {
       slips: [],

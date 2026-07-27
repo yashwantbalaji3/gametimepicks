@@ -29,6 +29,8 @@ import {
   type GeneratedSlip,
 } from "@/lib/custom-parlay-generator";
 import { americanToDecimal, formatAmerican } from "@/lib/odds-math";
+import { canUseInBuildYourOwn } from "@/lib/sport-capabilities";
+import { buildSportScopeOptions } from "@/lib/build-a-parlay-config";
 
 /** Local helper: convert combined American odds → profit per $100
  *  staked. Same math as `combinedParlayPayoutPer100` but takes the
@@ -54,12 +56,26 @@ const RISK_OPTIONS: Array<{ key: GeneratorRisk; label: string; sub: string }> = 
   { key: "aggressive",   label: "Longshot",     sub: "3–4 legs · higher variance" },
 ];
 
-const SPORT_OPTIONS: Array<{ key: "all" | "nba" | "mlb" | "multi"; label: string }> = [
+const ALL_SPORT_OPTIONS: Array<{ key: "all" | "nba" | "mlb" | "multi"; label: string }> = [
   { key: "all",   label: "All" },
   { key: "nba",   label: "🏀 NBA" },
   { key: "mlb",   label: "⚾ MLB" },
   { key: "multi", label: "🔀 Mixed" },
 ];
+
+/**
+ * Only offer sports that can actually enter Build Your Own.
+ *
+ * The pool gate already refuses ineligible legs, so an ineligible sport's filter could only ever
+ * return an empty pool — a destination that looks like a product and never is. "Mixed" likewise
+ * only makes sense when at least two sports qualify. Derived from the capability layer, so a sport
+ * appears and disappears here on its capability state alone, with nothing to edit by hand.
+ */
+const SPORT_OPTIONS = ALL_SPORT_OPTIONS.filter((o) => {
+  if (o.key === "all") return true;
+  if (o.key === "multi") return buildSportScopeOptions().some((s) => s.mixed);
+  return canUseInBuildYourOwn(o.key);
+});
 
 export default function CustomParlayGenerator({ snapshot }: Props) {
   const pool = useMemo(() => (snapshot ? getLegPool(snapshot) : []), [snapshot]);

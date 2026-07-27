@@ -33,6 +33,11 @@
  * SPORTS_PROJECTIONS_EXPANSION_PLAN doc (PR B / PR C) for that wiring.
  */
 import { SPORTS_COVERAGE, type SportCoverageLevel } from "./sports-coverage";
+import {
+  canEnterPredictionProducts,
+  canShowLiveProjections,
+  resultsMode,
+} from "./sport-capability-registry";
 
 /** Coarse lifecycle status for a sport, derived from its coverage level. */
 export type SportStatus =
@@ -137,10 +142,41 @@ export function normalizeSportKey(sport: string | null | undefined): string {
   return (sport ?? "").toLowerCase().trim();
 }
 
-/** Capability table for every registered sport, derived from the registry. */
+/**
+ * Apply the evidence-backed capability registry on top of the coverage LEVEL.
+ *
+ * `level` in sports-coverage.ts is a DISPLAY/editorial field. The registry
+ * (sport-capability-registry.ts) is the evidence-backed truth about what a sport can
+ * actually do. So the registry may only ever NARROW a capability, never widen one — a sport
+ * has to clear both to enter a product.
+ *
+ * Concretely: NBA is `level: "full"` but the registry has it HISTORICAL_ONLY (frozen since
+ * 2026-06-13). Without this, the legacy level alone would let NBA legs into official suggested
+ * parlays and Build Your Own the moment NBA data returns (~October 2026). Nothing incorrect has
+ * reached a user yet only because the off-season boards are empty — the gate was wrong, not
+ * fail-closed.
+ *
+ * Grading is deliberately NOT a blanket downgrade: a HISTORICAL_ONLY sport keeps a real settled
+ * archive, so grading follows `resultsMode` (live OR archive) and /results keeps NBA's history.
+ */
+function applyCapabilityRegistry(c: SportCapabilities): SportCapabilities {
+  const eligible = canEnterPredictionProducts(c.key);
+  return {
+    ...c,
+    status: c.status === "modeled" && !eligible ? "schedule_only" : c.status,
+    hasProjections: c.hasProjections && canShowLiveProjections(c.key),
+    hasSuggestedParlays: c.hasSuggestedParlays && eligible,
+    hasBuildYourOwn: c.hasBuildYourOwn && eligible,
+    hasGrading: c.hasGrading && resultsMode(c.key) !== "none",
+  };
+}
+
+/** Capability table for every registered sport: coverage level, narrowed by the registry. */
 export const SPORT_CAPABILITIES: ReadonlyArray<SportCapabilities> =
   SPORTS_COVERAGE.map((s) =>
-    capabilitiesForLevel(normalizeSportKey(s.key), s.level),
+    applyCapabilityRegistry(
+      capabilitiesForLevel(normalizeSportKey(s.key), s.level),
+    ),
   );
 
 const _CAPABILITIES_BY_KEY: ReadonlyMap<string, SportCapabilities> = new Map(
@@ -202,36 +238,59 @@ function distinctSportKeys(sports: Iterable<string | null | undefined>): string[
 }
 
 /**
+ * Predicate deciding whether ONE sport key may enter a product. Production always
+ * passes the real capability gate; tests inject a fixture predicate over synthetic
+ * keys so mixed-sport MECHANICS can be exercised without asserting that any
+ * particular real sport is modeled. See docs/SPRINT_020_CAPABILITY_MIGRATION_RECIPE.md.
+ */
+export type SportEligibility = (sport: string) => boolean;
+
+/**
+ * THE RULE, separated from which sports satisfy it today: every distinct sport on
+ * the slip must be eligible, and an empty slip is never a product.
+ *
+ * Deliberately capability-based rather than count-based. It stays correct when only
+ * one sport is eligible, and a second sport becomes eligible automatically the moment
+ * its capability state says so — no rule change, no new branch, no constant to edit.
+ */
+export function allSportsEligible(
+  sports: Iterable<string | null | undefined>,
+  isEligible: SportEligibility,
+): boolean {
+  const keys = distinctSportKeys(sports);
+  if (keys.length === 0) return false; // an empty slip is never a product
+  return keys.every((k) => isEligible(k));
+}
+
+/**
  * Is this set of sports allowed as an OFFICIAL Suggested Parlay?
  *
- * Rule: EVERY distinct sport on the slip must be modeled (eligible for suggested
- * parlays). A single-sport slip of a modeled sport qualifies; a mixed-sport slip
- * qualifies too as long as every sport on it is modeled (it renders in the
- * clearly labeled "Mixed" section). Empty slips, or any slip carrying a
- * non-modeled (schedule-only / coming-soon / unknown) sport, are rejected. The
- * legs are always real generated/model-ranked legs — never fabricated.
+ * Rule: EVERY distinct sport on the slip must be eligible for suggested parlays. A
+ * single-sport slip of an eligible sport qualifies; a mixed-sport slip qualifies too
+ * as long as every sport on it is eligible (it renders in the clearly labeled "Mixed"
+ * section). Empty slips, or any slip carrying an ineligible (schedule-only /
+ * coming-soon / unknown) sport, are rejected. The legs are always real
+ * generated/model-ranked legs — never fabricated.
  */
 export function isOfficialSuggestedParlayAllowed(
   sports: Iterable<string | null | undefined>,
+  isEligible: SportEligibility = canShowSuggestedParlays,
 ): boolean {
-  const keys = distinctSportKeys(sports);
-  if (keys.length === 0) return false; // no empty
-  return keys.every((k) => canShowSuggestedParlays(k)); // mixed-of-modeled allowed
+  return allSportsEligible(sports, isEligible);
 }
 
 /**
  * Is this set of sports allowed in Build Your Own?
  *
- * Rule: Build Your Own may be mixed-sport, but EVERY sport on the slip must
- * itself be modeled (real legs only). A single schedule-only / coming-soon
- * sport anywhere on the slip disqualifies it. Empty slips are not allowed.
+ * Rule: Build Your Own may be mixed-sport, but EVERY sport on the slip must itself be
+ * eligible (real legs only). A single schedule-only / coming-soon sport anywhere on
+ * the slip disqualifies it. Empty slips are not allowed.
  */
 export function isBuildYourOwnParlayAllowed(
   sports: Iterable<string | null | undefined>,
+  isEligible: SportEligibility = canUseInBuildYourOwn,
 ): boolean {
-  const keys = distinctSportKeys(sports);
-  if (keys.length === 0) return false;
-  return keys.every((k) => canUseInBuildYourOwn(k));
+  return allSportsEligible(sports, isEligible);
 }
 
 // ---------------------------------------------------------------------------
@@ -257,8 +316,12 @@ export function getLegSport(
  *  the leg's sport is modeled (NBA/MLB today). Fail-closed for schedule-only,
  *  coming-soon, unknown, or missing-sport legs — no fabrication, never a
  *  schedule-only leg in a custom build. */
-export function canUseLegInBuildYourOwn(leg: LegLike | null | undefined): boolean {
-  return canUseInBuildYourOwn(getLegSport(leg));
+export function canUseLegInBuildYourOwn(
+  leg: LegLike | null | undefined,
+  isEligible: SportEligibility = canUseInBuildYourOwn,
+): boolean {
+  const key = getLegSport(leg);
+  return key ? isEligible(key) : false; // missing sport ⇒ fail closed
 }
 
 /** Drop any leg whose sport is not modeled. This is the Build Your Own
@@ -267,8 +330,9 @@ export function canUseLegInBuildYourOwn(leg: LegLike | null | undefined): boolea
  *  Pure; never mutates. */
 export function filterBuildYourOwnLegs<T extends LegLike>(
   legs: ReadonlyArray<T>,
+  isEligible: SportEligibility = canUseInBuildYourOwn,
 ): T[] {
-  return legs.filter((l) => canUseLegInBuildYourOwn(l));
+  return legs.filter((l) => canUseLegInBuildYourOwn(l, isEligible));
 }
 
 /** Distinct sports actually present on a slip's legs, falling back to the
@@ -284,13 +348,19 @@ export function sportsOnSlip(slip: SlipLike): string[] {
 }
 
 /** May this slip appear as an official Suggested Parlay? (single modeled sport) */
-export function slipAllowedInOfficialSuggested(slip: SlipLike): boolean {
-  return isOfficialSuggestedParlayAllowed(sportsOnSlip(slip));
+export function slipAllowedInOfficialSuggested(
+  slip: SlipLike,
+  isEligible: SportEligibility = canShowSuggestedParlays,
+): boolean {
+  return isOfficialSuggestedParlayAllowed(sportsOnSlip(slip), isEligible);
 }
 
 /** May this slip appear in Build Your Own? (all sports modeled; mixed OK) */
-export function slipAllowedInBuildYourOwn(slip: SlipLike): boolean {
-  return isBuildYourOwnParlayAllowed(sportsOnSlip(slip));
+export function slipAllowedInBuildYourOwn(
+  slip: SlipLike,
+  isEligible: SportEligibility = canUseInBuildYourOwn,
+): boolean {
+  return isBuildYourOwnParlayAllowed(sportsOnSlip(slip), isEligible);
 }
 
 /**
@@ -302,15 +372,17 @@ export function slipAllowedInBuildYourOwn(slip: SlipLike): boolean {
  */
 export function filterOfficialSuggestedSlips<T extends SlipLike>(
   slips: ReadonlyArray<T>,
+  isEligible: SportEligibility = canShowSuggestedParlays,
 ): T[] {
-  return slips.filter((s) => slipAllowedInOfficialSuggested(s));
+  return slips.filter((s) => slipAllowedInOfficialSuggested(s, isEligible));
 }
 
 /** Drop any slip not allowed in Build Your Own. Pure; never mutates. */
 export function filterBuildYourOwnSlips<T extends SlipLike>(
   slips: ReadonlyArray<T>,
+  isEligible: SportEligibility = canUseInBuildYourOwn,
 ): T[] {
-  return slips.filter((s) => slipAllowedInBuildYourOwn(s));
+  return slips.filter((s) => slipAllowedInBuildYourOwn(s, isEligible));
 }
 
 /** True when a slip spans more than one sport (a "mixed" / "multi" slip). */
@@ -331,11 +403,12 @@ export function filterOfficialSuggestedSections<
   T extends SlipLike,
 >(
   sections: Partial<Record<K, ReadonlyArray<T>>> | null | undefined,
+  isEligible: SportEligibility = canShowSuggestedParlays,
 ): Partial<Record<K, T[]>> {
   const out: Partial<Record<K, T[]>> = {};
   if (!sections) return out;
   for (const key of Object.keys(sections) as K[]) {
-    out[key] = filterOfficialSuggestedSlips(sections[key] ?? []);
+    out[key] = filterOfficialSuggestedSlips(sections[key] ?? [], isEligible);
   }
   return out;
 }
@@ -351,17 +424,18 @@ export function unsupportedSportsInOfficialSections(
     | Partial<Record<string, ReadonlyArray<SlipLike>>>
     | null
     | undefined,
+  isEligible: SportEligibility = canShowSuggestedParlays,
 ): string[] {
   if (!sections) return [];
   const offenders = new Set<string>();
   for (const arr of Object.values(sections)) {
     for (const slip of arr ?? []) {
       if (!slip) continue;
-      if (!slipAllowedInOfficialSuggested(slip)) {
-        // Only genuinely non-modeled sports are offenders now. Mixed-of-modeled
+      if (!slipAllowedInOfficialSuggested(slip, isEligible)) {
+        // Only genuinely ineligible sports are offenders now. Mixed-of-eligible
         // slips are allowed as official suggested (labeled "Mixed" section).
         for (const k of sportsOnSlip(slip)) {
-          if (!canShowSuggestedParlays(k)) offenders.add(k);
+          if (!isEligible(k)) offenders.add(k);
         }
       }
     }
@@ -377,13 +451,14 @@ export function unsupportedSportsInOfficialSections(
  */
 export function unsupportedSportsInBuildYourOwn(
   slips: ReadonlyArray<SlipLike> | null | undefined,
+  isEligible: SportEligibility = canUseInBuildYourOwn,
 ): string[] {
   if (!slips) return [];
   const offenders = new Set<string>();
   for (const slip of slips) {
     if (!slip) continue;
     for (const k of sportsOnSlip(slip)) {
-      if (!canUseInBuildYourOwn(k)) offenders.add(k);
+      if (!isEligible(k)) offenders.add(k);
     }
   }
   return [...offenders];

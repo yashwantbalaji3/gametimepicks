@@ -26,7 +26,11 @@ import {
   type SportBuckets,
   type SportView,
 } from "./suggested-parlay-grouping";
-import { filterOfficialSuggestedSlips } from "./sport-capabilities";
+import {
+  filterOfficialSuggestedSlips,
+  canShowSuggestedParlays,
+  type SportEligibility,
+} from "./sport-capabilities";
 import {
   applyVolumeDiscipline,
   capsForSuggestedView,
@@ -47,13 +51,14 @@ function disciplinedForView<T extends { legs?: unknown }>(
   psr: SectionsByRisk<T> | null | undefined,
   view: Exclude<SportView, "all">,
   capsOverride?: VolumeCaps,
+  isEligible: SportEligibility = canShowSuggestedParlays,
 ): DisplaySections<T> {
   if (!psr) return emptySections<T>();
   const official: Partial<Record<RiskSectionKey, T[]>> = {};
   for (const risk of RISK_SECTION_ORDER) {
     const raw = sectionSlipsForSport(psr[risk], view);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    official[risk] = filterOfficialSuggestedSlips(raw as any) as T[];
+    official[risk] = filterOfficialSuggestedSlips(raw as any, isEligible) as T[];
   }
   const caps = capsOverride ?? capsForSuggestedView(view);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -91,14 +96,15 @@ function unionSections<T>(maps: ReadonlyArray<DisplaySections<T>>): DisplaySecti
 export function selectPublishedSections<T extends { legs?: unknown }>(
   psr: SectionsByRisk<T> | null | undefined,
   view: SportView,
+  isEligible: SportEligibility = canShowSuggestedParlays,
 ): DisplaySections<T> {
   if (!psr) return emptySections<T>();
-  if (view !== "all") return disciplinedForView(psr, view);
+  if (view !== "all") return disciplinedForView(psr, view, undefined, isEligible);
   // All = union of the displayed child views (mlb first for stable ordering).
   return unionSections([
-    disciplinedForView(psr, "mlb"),
-    disciplinedForView(psr, "nba"),
-    disciplinedForView(psr, "multi"),
+    disciplinedForView(psr, "mlb", undefined, isEligible),
+    disciplinedForView(psr, "nba", undefined, isEligible),
+    disciplinedForView(psr, "multi", undefined, isEligible),
   ]);
 }
 
@@ -112,10 +118,13 @@ export function countPublishedSections<T>(sections: DisplaySections<T>): number 
 /** Which sport views actually have ≥1 published card (drives which pills show). */
 export function availablePublishedViews<T extends { legs?: unknown }>(
   psr: SectionsByRisk<T> | null | undefined,
+  isEligible: SportEligibility = canShowSuggestedParlays,
 ): Record<SportView, number> {
   const counts: Record<SportView, number> = { all: 0, nba: 0, mlb: 0, multi: 0 };
   if (!psr) return counts;
-  for (const v of SINGLE_VIEWS) counts[v] = countPublishedSections(disciplinedForView(psr, v));
-  counts.all = countPublishedSections(selectPublishedSections(psr, "all"));
+  for (const v of SINGLE_VIEWS) {
+    counts[v] = countPublishedSections(disciplinedForView(psr, v, undefined, isEligible));
+  }
+  counts.all = countPublishedSections(selectPublishedSections(psr, "all", isEligible));
   return counts;
 }

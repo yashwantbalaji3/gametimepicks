@@ -12,6 +12,18 @@ import {
   availablePublishedViews,
 } from "./published-cards.ts";
 
+/**
+ * FIXTURE eligibility gate — two eligible sports.
+ *
+ * This file tests SELECTION/UNION mechanics (single vs mixed views, All ⊇ every child,
+ * dedup, no fabrication), which structurally require two eligible sports. That is a
+ * property of the selection algebra, not a claim about any real sport: NBA is
+ * HISTORICAL_ONLY and is NOT eligible for official products in production. Passing an
+ * explicit fixture predicate keeps the mechanics fully covered while leaving the real
+ * capability gate — asserted in sport-capabilities.test.mjs — untouched.
+ */
+const twoEligibleSports = (sport) => sport === "mlb" || sport === "nba";
+
 let _id = 0;
 function mk(sport, n = 2) {
   // a slip whose legs are all `sport` (single) — distinct ids each call
@@ -53,7 +65,7 @@ function noDupes(sections) {
 
 test("single-sport view returns only that sport, disciplined + no dupes", () => {
   const psr = fixture();
-  const mlb = selectPublishedSections(psr, "mlb");
+  const mlb = selectPublishedSections(psr, "mlb", twoEligibleSports);
   noDupes(mlb);
   // every leg is mlb
   for (const r of RISKS) for (const s of mlb[r]) assert.ok(s.legs.every((l) => l.sport === "mlb"));
@@ -63,7 +75,7 @@ test("single-sport view returns only that sport, disciplined + no dupes", () => 
 
 test("mixed view returns mixed slips even though they share an NBA game", () => {
   const psr = fixture();
-  const mixed = selectPublishedSections(psr, "multi");
+  const mixed = selectPublishedSections(psr, "multi", twoEligibleSports);
   noDupes(mixed);
   const total = countPublishedSections(mixed);
   assert.ok(total >= 10, `mixed should publish a healthy set, got ${total}`);
@@ -76,10 +88,10 @@ test("mixed view returns mixed slips even though they share an NBA game", () => 
 
 test("All = deduped union of displayed children; All ⊇ every child", () => {
   const psr = fixture();
-  const all = selectPublishedSections(psr, "all");
-  const mlb = selectPublishedSections(psr, "mlb");
-  const nba = selectPublishedSections(psr, "nba");
-  const multi = selectPublishedSections(psr, "multi");
+  const all = selectPublishedSections(psr, "all", twoEligibleSports);
+  const mlb = selectPublishedSections(psr, "mlb", twoEligibleSports);
+  const nba = selectPublishedSections(psr, "nba", twoEligibleSports);
+  const multi = selectPublishedSections(psr, "multi", twoEligibleSports);
   noDupes(all);
   for (const r of RISKS) {
     const allKeys = new Set(all[r].map(slipKeyOf));
@@ -97,15 +109,15 @@ test("All = deduped union of displayed children; All ⊇ every child", () => {
 });
 
 test("availablePublishedViews counts each view; all ≥ each child", () => {
-  const counts = availablePublishedViews(fixture());
+  const counts = availablePublishedViews(fixture(), twoEligibleSports);
   assert.ok(counts.mlb > 0 && counts.nba > 0 && counts.multi > 0);
   assert.ok(counts.all >= counts.mlb && counts.all >= counts.nba && counts.all >= counts.multi);
 });
 
 test("no fabrication: empty / null sections → empty output", () => {
-  assert.equal(countPublishedSections(selectPublishedSections(null, "all")), 0);
-  assert.equal(countPublishedSections(selectPublishedSections({}, "mlb")), 0);
+  assert.equal(countPublishedSections(selectPublishedSections(null, "all", twoEligibleSports)), 0);
+  assert.equal(countPublishedSections(selectPublishedSections({}, "mlb", twoEligibleSports)), 0);
   const onlyNba = { low: { nba: [mk("nba")], mlb: [], multi: [], all: [] } };
-  assert.equal(countPublishedSections(selectPublishedSections(onlyNba, "mlb")), 0);
-  assert.equal(countPublishedSections(selectPublishedSections(onlyNba, "nba")), 1);
+  assert.equal(countPublishedSections(selectPublishedSections(onlyNba, "mlb", twoEligibleSports)), 0);
+  assert.equal(countPublishedSections(selectPublishedSections(onlyNba, "nba", twoEligibleSports)), 1);
 });
