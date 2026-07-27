@@ -16,6 +16,7 @@ import MlbGameCenter from "@/components/game/mlb-game-center";
 import MlbSimulationResultSummary from "@/components/game/mlb-simulation-result-summary";
 import MlbSimulationReportV2 from "@/components/game/mlb-simulation-report-v2";
 import MlbFullGameReport from "@/components/game/mlb-full-game-report";
+import ModelMarketComparison from "@/components/game/model-market-comparison";
 import { loadProductTagMap } from "@/lib/game-detail-product-tags";
 import { currentEtDate } from "@/lib/freshness";
 import WcGameCenter from "@/components/game/wc-game-center";
@@ -662,11 +663,17 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   // Sprint 008 — when a full-game simulation artifact exists, lead with the GAME-FIRST report (Overview +
   // Box Score + Methodology), and demote the dense player/prop report into its "Players & Props" tab. When
   // there's no full-game artifact, fall back to the existing player-prop report unchanged.
+  // Canonical model/market comparison — built in game-detail.ts by the SAME function that powers
+  // /markets, so the two surfaces cannot disagree about this event.
+  const marketComparison = detail.marketIntelligence ? (
+    <ModelMarketComparison intel={detail.marketIntelligence} isHistorical={detail.marketIsHistorical} />
+  ) : null;
   const mlbGameFirstReport = detail.fullGameSim ? (
     <MlbFullGameReport
       fullGame={detail.fullGameSim}
       meta={detail.fullGameSimMeta ?? null}
       prediction={detail.prediction ?? null}
+      marketNode={marketComparison}
       deepDive={mlbReportDetails}
       awayCode={detail.fullGameSim.awayTeam}
       homeCode={detail.fullGameSim.homeTeam}

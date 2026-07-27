@@ -104,6 +104,32 @@ export function evaluateArtifactFreshness(
 }
 
 /**
+ * Which date a snapshot's freshness should be judged against.
+ *
+ * A snapshot older than today is a picture of a PAST slate. Judging it against today strips the
+ * sportsbook side from every row, which renders as "the book offers no markets" when the truth is
+ * "today has not been captured yet" — a different false statement, and a worse-looking one.
+ *
+ * So a historical snapshot is judged against its OWN slate date, making it internally coherent, and
+ * the SURFACE is responsible for saying plainly that it is not today's market. The rule that no row
+ * may claim to be current is preserved by the framing, not by blanking the data.
+ *
+ * Exported so every surface shares one definition. Two surfaces disagreeing about which snapshot is
+ * current is exactly the cross-page contradiction this layer exists to prevent.
+ */
+export function resolveFreshnessReference(
+  slateDate: string,
+  todayEt: string,
+): { reference: string; isHistorical: boolean; daysBehind: number } {
+  if (!ISO_DATE.test(slateDate) || !ISO_DATE.test(todayEt)) {
+    return { reference: todayEt, isHistorical: false, daysBehind: 0 };
+  }
+  const daysBehind = Math.max(0, dayDiff(slateDate, todayEt));
+  const isHistorical = daysBehind > 0;
+  return { reference: isHistorical ? slateDate : todayEt, isHistorical, daysBehind };
+}
+
+/**
  * Where an event sits relative to now, from its start time ONLY.
  *
  * Kept separate from artifact freshness on purpose — see the module header.

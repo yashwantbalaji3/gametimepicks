@@ -20,7 +20,7 @@ import { formatEtTime } from "@/lib/mlb/public-provenance";
 
 const int0 = (n: number): string => Math.round(n).toLocaleString();
 
-type TabKey = "overview" | "box" | "players" | "methodology";
+type TabKey = "overview" | "box" | "market" | "players" | "methodology";
 
 /** A short, non-hype rendering of a simulation-strength label. */
 const shortStrength = (s: string | null | undefined): string =>
@@ -416,6 +416,7 @@ export default function MlbFullGameReport({
   meta,
   prediction,
   deepDive,
+  marketNode,
   awayCode,
   homeCode,
 }: {
@@ -423,6 +424,12 @@ export default function MlbFullGameReport({
   meta: FullGameArtifactMeta | null;
   prediction: GamePredictionDecision | null;
   deepDive: ReactNode;
+  /**
+   * Canonical model/market comparison, already built by lib/markets. Passed in as a node so this
+   * component stays agnostic: the report never decides sportsbook eligibility, it only renders what
+   * the pairing layer decided. Null when no sportsbook artifact covers this game.
+   */
+  marketNode?: ReactNode;
   awayCode: string;
   homeCode: string;
 }) {
@@ -434,6 +441,9 @@ export default function MlbFullGameReport({
   const tabs: { key: TabKey; label: string }[] = [
     { key: "overview", label: "Overview" },
     { key: "box", label: "Box Score" },
+    // Only offered when a sportsbook artifact actually covers this game — an empty tab reads as
+    // breakage, and the report must remain a valid simulation report without one.
+    ...(marketNode ? [{ key: "market" as TabKey, label: "Model vs Market" }] : []),
     { key: "players", label: "Players & Props" },
     { key: "methodology", label: "Methodology" },
   ];
@@ -481,6 +491,7 @@ export default function MlbFullGameReport({
       <div role="tabpanel">
         {tab === "overview" && (available ? <Overview g={g} prediction={prediction} awayCode={awayCode} homeCode={homeCode} /> : <UnavailableNote g={g} />)}
         {tab === "box" && (available ? <BoxScore g={g} /> : <UnavailableNote g={g} />)}
+        {tab === "market" && <div>{marketNode}</div>}
         {tab === "players" && <div>{deepDive}</div>}
         {tab === "methodology" && <Methodology g={g} meta={meta} />}
       </div>

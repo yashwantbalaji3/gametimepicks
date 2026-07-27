@@ -26,7 +26,10 @@ import {
   type GameSimulationView,
   type GameSimulationArtifactMeta,
 } from "@/lib/game-simulations/game-lab-view";
-import { getMlbGameCenter, type MlbGameCenter } from "@/lib/mlb-team-markets";
+import { getMlbGameCenter, getTeamMarketGame, getTeamMarketsForDate, type MlbGameCenter } from "@/lib/mlb-team-markets";
+import { buildGameIntelligence, type GameIntelligence } from "@/lib/markets/game-intelligence";
+import { resolveFreshnessReference } from "@/lib/markets/freshness";
+import { currentEtDate } from "@/lib/freshness";
 import { loadFullGameArtifact, type FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import { buildGamePredictionDecision, buildPlayerPrediction, type PlayerPickInput } from "@/lib/mlb/prediction/decision";
@@ -115,6 +118,18 @@ export interface PublicGameDetail {
    * full-game sim. Market is a threshold + comparison only, never the direction; no market-beating claim.
    */
   prediction?: GamePredictionDecision | null;
+  /**
+   * Canonical sportsbook intelligence for this game (Sprint 030), from the SAME builder that powers
+   * /markets. Carries moneyline / signed run line / total with model-vs-market comparison, freshness
+   * and intelligence mode. Null when no sportsbook artifact covers this event.
+   *
+   * The legacy `gameCenter` below is a market-ONLY presenter that predates this layer. Both read the
+   * same de-vigged artifact fields so their market numbers agree; this one adds the model side, the
+   * sign-correct run line and the freshness gate.
+   */
+  marketIntelligence?: GameIntelligence | null;
+  /** True when the sportsbook snapshot backing this report is from an earlier slate. */
+  marketIsHistorical?: boolean;
   /** Compact one-line prediction (Sprint 009), e.g. "SF · UNDER 8.5 · LAA +1.5" — for /today & /mlb rows. */
   predictionLine?: string | null;
   /**
@@ -436,6 +451,10 @@ function mlbDetails(): PublicGameDetail[] {
   // Attach the MLB Game Lab report + the deterministic simulation view per game (both derived from the
   // board / the precomputed artifact; the report is null when no leans, the sim is "unavailable" when
   // no matching artifact game — neither ever fabricates data).
+  // Pinned once for the whole slate: reading the clock per game could straddle a date boundary and
+  // frame two games in the same report set differently.
+  const marketToday = currentEtDate();
+  const marketNow = new Date().toISOString();
   return details.map((d) => {
     const sim = joinSim(d.matchId, d.slug);
     const fg = d.matchId ? fullGame?.byGamePk.get(String(d.matchId)) ?? null : null;
@@ -482,6 +501,25 @@ function mlbDetails(): PublicGameDetail[] {
       // Null when the game has no de-vigged team markets → the UI shows an honest
       // unavailable state rather than inventing win-prob / total / run-line numbers.
       gameCenter: sim?.gameId ? getMlbGameCenter(date, sim.gameId) : null,
+      // Canonical sportsbook intelligence (Sprint 030) — built by the SAME function that powers
+      // /markets, so the two surfaces cannot disagree about this event. Freshness is judged through
+      // the shared reference rule, which is what keeps a stale snapshot framed identically here.
+      marketIntelligence: (() => {
+        if (!sim?.gameId) return null;
+        const book = getTeamMarketGame(date, sim.gameId);
+        if (!book) return null;
+        const artifact = getTeamMarketsForDate(date);
+        const { reference } = resolveFreshnessReference(date, marketToday);
+        return buildGameIntelligence({
+          book: book as never,
+          sim: (fg ?? null) as never,
+          gamePk: d.matchId ? Number(d.matchId) : null,
+          artifact: { date: artifact?.date ?? null, generatedAt: artifact?.generatedAt ?? null },
+          todayEt: reference,
+          nowIso: marketNow,
+        });
+      })(),
+      marketIsHistorical: resolveFreshnessReference(date, marketToday).isHistorical,
       // Assert every joined artifact agrees on this fixture's gamePk. On mismatch the page shows a safe
       // "could not be reconciled" state instead of a partially-mismatched report.
       reconciled: reconcileMlbGame({ slug: d.slug, baseSlug: d.baseSlug, matchId: d.matchId, gameLabSimulation: sim }),

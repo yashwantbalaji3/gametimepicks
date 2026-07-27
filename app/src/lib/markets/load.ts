@@ -22,7 +22,7 @@ import {
   type PlayerPropIntelligence,
 } from "./player-intelligence";
 import { censusPairing, type PairingCensus } from "./pairing";
-import { evaluateArtifactFreshness, type FreshnessReading } from "./freshness";
+import { evaluateArtifactFreshness, resolveFreshnessReference, type FreshnessReading } from "./freshness";
 import { MODEL_KEY_BY_PLAYER_FAMILY, PLAYER_FAMILY_BY_PROVIDER_KEY } from "./types";
 import type { PlayerMarketFamily } from "./types";
 
@@ -133,17 +133,9 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
     {},
   );
 
-  // How far behind today this snapshot is, measured against the real ET calendar. Computed BEFORE
-  // the freshness readings, because it decides which reference date those readings use.
-  const daysBehind = Math.max(
-    0,
-    Math.round((Date.parse(`${todayEt}T00:00:00Z`) - Date.parse(`${date}T00:00:00Z`)) / 86400000) || 0,
-  );
-  const isHistorical = daysBehind > 0;
-  // A historical page is evaluated against its OWN slate date so the snapshot is coherent as a
-  // picture of that day. The page is responsible for saying it is not today's market — see the
-  // `isHistorical` doc comment for why blanking the data instead would mislead.
-  const reference = isHistorical ? date : todayEt;
+  // Which date freshness is judged against. ONE shared rule (./freshness) so this page and the game
+  // report can never disagree about whether the same snapshot is current.
+  const { reference, isHistorical, daysBehind } = resolveFreshnessReference(date, todayEt);
 
   const gameFreshness = evaluateArtifactFreshness(
     { artifactDate: teamMarkets.date ?? null, generatedAt: teamMarkets.generatedAt ?? null },
