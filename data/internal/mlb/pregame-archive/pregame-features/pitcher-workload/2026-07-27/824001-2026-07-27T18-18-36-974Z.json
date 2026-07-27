@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824001,
+  "date": "2026-07-27",
+  "capturedAt": "2026-07-27T18:18:36.974Z",
+  "availableAt": "2026-07-27T18:18:36.974Z",
+  "eventStartTime": "2026-07-28T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 700712,
+      "name": "Walbert Ureña",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 6,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 5,
+        "bbAvg": 2.4,
+        "erAvg": 1.8,
+        "hrAvg": 0,
+        "kPer9": 9,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 85.67,
+        "k": 81,
+        "bb": 44,
+        "er": 27,
+        "hr": 5
+      }
+    },
+    "away": {
+      "id": 837227,
+      "name": "Tatsuya Imai",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 6,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 6.8,
+        "bbAvg": 2.4,
+        "erAvg": 2.2,
+        "hrAvg": 0.8,
+        "kPer9": 13.3,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 58,
+        "k": 71,
+        "bb": 36,
+        "er": 36,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-27T18:18:36.974Z"
+  },
+  "recordHash": "ea82be858cdee27cfbf05c12560782421a091ac4e6dacabd1991c63f0e4c828b"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823353,
+  "date": "2026-07-27",
+  "capturedAt": "2026-07-27T18:18:36.974Z",
+  "availableAt": "2026-07-27T18:18:36.974Z",
+  "eventStartTime": "2026-07-27T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656605,
+      "name": "Mitch Keller",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 3.6,
+        "bbAvg": 1.2,
+        "erAvg": 2.8,
+        "hrAvg": 1.2,
+        "kPer9": 6.23,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 108.33,
+        "k": 83,
+        "bb": 37,
+        "er": 59,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 518876,
+      "name": "Merrill Kelly",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 4.2,
+        "bbAvg": 2,
+        "erAvg": 2.2,
+        "hrAvg": 1.4,
+        "kPer9": 6.75,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 103.67,
+        "k": 65,
+        "bb": 41,
+        "er": 59,
+        "hr": 22
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-27T18:18:36.974Z"
+  },
+  "recordHash": "bf109f334de97bc382de6289c17b0259a2412f3d24c15f194be0e440b9717ed1"
+}
