@@ -15,6 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { toPropRowView, toPropRowViews } from "./view-model.ts";
+import { paginate, PAGE_SIZE } from "../../components/market-center.tsx";
 import { buildPlayerPropIntelligence } from "./player-intelligence.ts";
 import { latestMarketDate, loadMarketCenter } from "./load.ts";
 
@@ -266,4 +267,74 @@ test("the page states the frame whenever it is showing a past slate", () => {
   assert.ok(page.includes("isHistorical"), "the page must branch on the historical frame");
   assert.ok(/Not today&rsquo;s market|Not today's market/.test(page), "and say so plainly");
   assert.ok(page.includes("daysBehind"), "and say how far behind it is");
+});
+
+// ── Pagination (Sprint 030 Phase 4) ─────────────────────────────────────────────────────────────
+
+test("pagination drops no row and duplicates none across the whole set", () => {
+  const rows = Array.from({ length: 1530 }, (_, i) => ({ id: i }));
+  const seen = [];
+  const { pageCount } = paginate(rows, 0);
+  for (let p = 0; p < pageCount; p += 1) seen.push(...paginate(rows, p).items);
+  assert.equal(seen.length, rows.length, "every row must be reachable");
+  assert.equal(new Set(seen.map((r) => r.id)).size, rows.length, "no row may appear twice");
+  assert.deepEqual(seen.map((r) => r.id), rows.map((r) => r.id), "order must be preserved");
+});
+
+test("the reported total is the full matching count, never the page size", () => {
+  const rows = Array.from({ length: 237 }, (_, i) => ({ id: i }));
+  const first = paginate(rows, 0);
+  assert.equal(first.total, 237, "a filter count must describe the dataset, not the visible page");
+  assert.equal(first.items.length, PAGE_SIZE);
+});
+
+test("an out-of-range page clamps to a real page instead of rendering nothing", () => {
+  const rows = Array.from({ length: 60 }, (_, i) => ({ id: i }));
+  const beyond = paginate(rows, 99);
+  assert.equal(beyond.current, 1, "clamped to the last page");
+  assert.ok(beyond.items.length > 0, "a stale page index must not read as 'no results'");
+  const negative = paginate(rows, -5);
+  assert.equal(negative.current, 0);
+});
+
+test("a single page reports one page and no pager is implied", () => {
+  const { pageCount, current, items } = paginate([{ id: 1 }, { id: 2 }], 0);
+  assert.equal(pageCount, 1);
+  assert.equal(current, 0);
+  assert.equal(items.length, 2);
+});
+
+test("an empty set still yields one clamped page rather than dividing by zero", () => {
+  const { pageCount, current, items, total } = paginate([], 0);
+  assert.equal(pageCount, 1);
+  assert.equal(current, 0);
+  assert.equal(items.length, 0);
+  assert.equal(total, 0);
+});
+
+test("the arbitrary 200-row product ceiling is gone", () => {
+  const component = fs.readFileSync(COMPONENT, "utf8");
+  assert.ok(!/const SHOWN = 200/.test(component), "the hard cap must not return");
+  assert.ok(
+    !/Narrow the filters to see the rest/.test(component),
+    "and neither should the copy that admitted rows were unreachable",
+  );
+});
+
+test("changing any filter resets the page", () => {
+  const component = fs.readFileSync(COMPONENT, "utf8");
+  const effect = component.match(/useEffect\(\(\) => \{\s*setPage\(0\);\s*\}, \[([^\]]+)\]\)/);
+  assert.ok(effect, "a reset effect must exist");
+  for (const dep of ["mode", "gameFilter", "family", "query", "sort", "tab"]) {
+    assert.ok(effect[1].includes(dep), `${dep} must reset pagination`);
+  }
+});
+
+test("the counts shown on the mode filters describe the dataset, not the page", () => {
+  const component = fs.readFileSync(COMPONENT, "utf8");
+  // The census loops over `props` (everything loaded), never over the filtered/paged rows.
+  assert.ok(
+    /for \(const p of props\) c\[p\.mode\] \+= 1;/.test(component),
+    "mode counts must be computed over the full dataset",
+  );
 });

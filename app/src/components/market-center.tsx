@@ -12,7 +12,7 @@
  * preferable — sorting by the size of a difference is offered as a way to find disagreement, not as
  * a recommendation, and the copy says so.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
@@ -111,6 +111,14 @@ export default function MarketCenter({
   const [family, setFamily] = useState<string>("ALL");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"start" | "gap" | "agreement" | "player">("start");
+  const [page, setPage] = useState(0);
+
+  // Any change to what is being filtered must return to the first page. Without this a narrowed
+  // result set can leave the reader stranded on a page index that no longer exists, which reads as
+  // "no rows" when rows very much exist.
+  useEffect(() => {
+    setPage(0);
+  }, [mode, gameFilter, family, query, sort, tab]);
 
   const gameOptions = useMemo(
     () =>
@@ -229,7 +237,7 @@ export default function MarketCenter({
             sort={sort}
             setSort={setSort}
           />
-          <PlayerSection rows={visibleProps} total={props.length} />
+          <PlayerSection rows={visibleProps} total={props.length} page={page} setPage={setPage} />
         </>
       )}
     </div>
@@ -487,28 +495,88 @@ function PlayerFilters(p: {
   );
 }
 
-function PlayerSection({ rows, total }: { rows: PropRowView[]; total: number }) {
-  const SHOWN = 200;
+/** Rows per page. Every matching row is reachable — this bounds what is DRAWN, not what exists. */
+export const PAGE_SIZE = 50;
+
+/**
+ * Page a filtered set. Pure and exported so the guards can assert the properties that matter —
+ * no row dropped, none duplicated, and the reported total always the FULL matching count rather
+ * than the size of the current page.
+ */
+export function paginate<T>(rows: ReadonlyArray<T>, page: number, size = PAGE_SIZE) {
+  const pageCount = Math.max(1, Math.ceil(rows.length / size));
+  // Clamp rather than trust the caller: a stale page index after a filter change must land on a
+  // real page instead of rendering an empty list that reads as "no results".
+  const current = Math.min(Math.max(0, page), pageCount - 1);
+  const start = current * size;
+  return { items: rows.slice(start, start + size), pageCount, current, start, total: rows.length };
+}
+
+function PlayerSection({
+  rows,
+  total,
+  page,
+  setPage,
+}: {
+  rows: PropRowView[];
+  total: number;
+  page: number;
+  setPage: (n: number) => void;
+}) {
   if (total === 0) {
     return <Empty title="No player props in this snapshot" body="The sportsbook artifact for this slate has no player markets." />;
   }
   if (rows.length === 0) {
     return <Empty title="No rows match these filters" body="Try clearing the search or choosing a different market." />;
   }
-  const visible = rows.slice(0, SHOWN);
+  const { items, pageCount, current, start } = paginate(rows, page);
   return (
     <>
       <div className="grid gap-2">
-        {visible.map((p, i) => (
-          <PropRow key={`${p.playerName}-${p.marketLabel}-${p.line}-${i}`} p={p} />
+        {items.map((p, i) => (
+          <PropRow key={`${p.playerName}-${p.marketLabel}-${p.line}-${start + i}`} p={p} />
         ))}
       </div>
-      {rows.length > SHOWN ? (
-        <div style={{ fontSize: 12, color: "var(--vault-text-faint)", marginTop: 12 }}>
-          Showing the first {SHOWN} of {rows.length} matching rows. Narrow the filters to see the rest.
-        </div>
-      ) : null}
+
+      <div className="flex flex-wrap items-center justify-between gap-3" style={{ marginTop: 14 }}>
+        <span style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
+          {start + 1}&ndash;{start + items.length} of {rows.length} matching {rows.length === 1 ? "row" : "rows"}
+        </span>
+        {pageCount > 1 ? (
+          <div className="flex items-center gap-2">
+            <PageButton disabled={current === 0} onClick={() => setPage(current - 1)} label="Previous" />
+            <span className="font-mono" style={{ fontSize: 11, color: "var(--vault-text-mute)" }}>
+              Page {current + 1} of {pageCount}
+            </span>
+            <PageButton disabled={current >= pageCount - 1} onClick={() => setPage(current + 1)} label="Next" />
+          </div>
+        ) : null}
+      </div>
     </>
+  );
+}
+
+function PageButton({ disabled, onClick, label }: { disabled: boolean; onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className="font-mono uppercase tracking-[0.12em]"
+      style={{
+        fontSize: 10,
+        padding: "7px 12px",
+        minHeight: 38,
+        borderRadius: 6,
+        border: "1px solid var(--vault-border)",
+        background: "transparent",
+        color: disabled ? "var(--vault-text-faint)" : "var(--vault-text)",
+        cursor: disabled ? "default" : "pointer",
+        opacity: disabled ? 0.5 : 1,
+      }}
+    >
+      {label}
+    </button>
   );
 }
 
