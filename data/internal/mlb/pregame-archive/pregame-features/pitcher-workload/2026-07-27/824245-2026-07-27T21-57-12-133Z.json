@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824245,
+  "date": "2026-07-27",
+  "capturedAt": "2026-07-27T21:57:12.133Z",
+  "availableAt": "2026-07-27T21:57:12.133Z",
+  "eventStartTime": "2026-07-27T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 672456,
+      "name": "Keider Montero",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 5,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.67,
+        "ipAvg": 6.13,
+        "kAvg": 3.8,
+        "bbAvg": 0.6,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 5.58,
+        "workloadIpLast5": 30.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 91.67,
+        "k": 62,
+        "bb": 18,
+        "er": 33,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 680694,
+      "name": "Kyle Bradish",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32.33,
+        "ipAvg": 6.47,
+        "kAvg": 5,
+        "bbAvg": 2,
+        "erAvg": 1.6,
+        "hrAvg": 0.2,
+        "kPer9": 6.96,
+        "workloadIpLast5": 32.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 113.33,
+        "k": 110,
+        "bb": 51,
+        "er": 44,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-27T21:57:12.133Z"
+  },
+  "recordHash": "0d06e155a429fa27f6df6d8ad715fc6d39cdccadd41b70971966d73b6f5b3ede"
+}

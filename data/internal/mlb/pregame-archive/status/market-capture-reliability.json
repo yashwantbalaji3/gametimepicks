@@ -3,12 +3,12 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-market-capture-reliability",
-  "lastUpdated": "2026-07-27T20:14:50.232Z",
+  "lastUpdated": "2026-07-27T21:57:35.534Z",
   "datesTracked": 7,
   "datesWithMarkets": 6,
-  "datesWithFinalGames": 6,
-  "datesProducingObservations": 3,
-  "qualifyingDates": 3,
+  "datesWithFinalGames": 7,
+  "datesProducingObservations": 4,
+  "qualifyingDates": 4,
   "alertsByDate": {
     "2026-07-21": "LOST_RESEARCH_DATE",
     "2026-07-22": "LOST_RESEARCH_DATE",
@@ -16,7 +16,7 @@
     "2026-07-24": "HEALTHY",
     "2026-07-25": "HEALTHY",
     "2026-07-26": "HEALTHY",
-    "2026-07-27": "AWAITING_SETTLEMENT"
+    "2026-07-27": "PARTIAL_COVERAGE"
   },
   "lostResearchOpportunities": 3,
   "cadenceGapDays": 0,
@@ -134,20 +134,20 @@
     {
       "date": "2026-07-27",
       "games": 12,
-      "finalGames": 0,
-      "marketSnapshots": 10,
-      "marketRows": 1245,
-      "settledEligibleRows": 0,
-      "observationsCreated": 0,
+      "finalGames": 1,
+      "marketSnapshots": 12,
+      "marketRows": 1258,
+      "settledEligibleRows": 237,
+      "observationsCreated": 237,
       "earliestFirstPitch": "2026-07-27T18:35:00Z",
       "earliestCapture": "2026-07-27T04:35:22.268Z",
       "cadenceGap": false,
       "hasMarkets": true,
       "lostOpportunity": false,
       "healthScore": 1,
-      "qualifying": false,
-      "alert": "AWAITING_SETTLEMENT",
-      "reason": "not yet final — pending"
+      "qualifying": true,
+      "alert": "PARTIAL_COVERAGE",
+      "reason": "contributed observations"
     }
   ],
   "note": "A LOST research opportunity is a final slate that produced 0 observations — either no pregame market capture (like 2026-07-21) or captures that landed after first pitch (cadence gap). Surfaced so an operator can restore coverage; never fabricated."

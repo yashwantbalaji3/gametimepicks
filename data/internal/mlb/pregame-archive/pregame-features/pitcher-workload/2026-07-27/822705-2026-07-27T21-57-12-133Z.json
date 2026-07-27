@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822705,
+  "date": "2026-07-27",
+  "capturedAt": "2026-07-27T21:57:12.133Z",
+  "availableAt": "2026-07-27T21:57:12.133Z",
+  "eventStartTime": "2026-07-27T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 678868,
+      "name": "Eddy Yean",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 453286,
+      "name": "Max Scherzer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 47,
+      "lastStartDate": "2026-06-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 16,
+        "ipAvg": 3.2,
+        "kAvg": 2,
+        "bbAvg": 2,
+        "erAvg": 4.8,
+        "hrAvg": 1.6,
+        "kPer9": 5.63,
+        "workloadIpLast5": 16
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 22,
+        "k": 14,
+        "bb": 11,
+        "er": 25,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-27T21:57:12.133Z"
+  },
+  "recordHash": "f31d1e3970f5e1840bfa5da3a22df0a827f02960934eb074496a656276c6b978"
+}
