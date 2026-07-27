@@ -283,6 +283,46 @@ cd app && npm run build && python3 -m http.server 4173 --directory out   # brows
 
 ---
 
+## PRODUCTION PROOF — Market Center is live (Sprint 030 Phase 0)
+
+Checked `https://gametimepicks.yashwantbalaji.com/markets/` on 2026-07-27:
+
+- `HTTP 200`, 991,104 bytes
+- Hero copy `Sportsbook prices next to our simulations`
+- `Game markets (12)` · **`Player props (1530)`**
+- `Sportsbook snapshot captured Jul 27 at 12:35 PM ET` · badge `Current snapshot`
+
+**1,530 is the proof.** The pre-`14d47b68` loader had no model-side pass and could only ever produce
+1,251 (sportsbook rows alone). Rendering 1,530 requires the model-only pass, so production is
+serving `14d47b68` or later.
+
+Status: **Market Center — PROVEN IN PRODUCTION.**
+
+Not distinguishable from a live page: whether `6081b9c0`'s historical framing is deployed. That
+branch renders nothing when the snapshot is current, so a current-slate page looks identical either
+way. It stays **LOCALLY VALIDATED** and becomes observable on the first stale day.
+
+### How deployment actually happens — and the gap
+
+`.github/workflows/daily-rebuild.yml` is **DORMANT**. Its most recent run
+(`30266726514`, 2026-07-27T12:38Z, 7s) logged verbatim:
+
+```
+##[notice]VERCEL_DEPLOY_HOOK_URL is not set — daily-rebuild is DORMANT (no-op).
+```
+
+So deploys happen only through Vercel's own Git integration on push to `main` — which is why the
+consumer work is live. What does NOT happen is the **daily rebuild**, and that matters specifically
+for this product: the static export bakes its build clock, so on a day with no push the site's clock
+stops. The stale-snapshot framing shipped in `6081b9c0` is the honest fallback for exactly that
+case, but the intended fix is the daily rebuild.
+
+**DEFERRED FOR FOUNDER:** setting `VERCEL_DEPLOY_HOOK_URL` in repo secrets is a founder action
+(instructions are in that workflow's header). Until then the site only refreshes when something is
+pushed.
+
+---
+
 ## Next phases (not started)
 
 In the order the remaining consumer value falls out:
