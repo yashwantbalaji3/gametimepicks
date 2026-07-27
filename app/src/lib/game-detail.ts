@@ -26,7 +26,8 @@ import {
   type GameSimulationView,
   type GameSimulationArtifactMeta,
 } from "@/lib/game-simulations/game-lab-view";
-import { getMlbGameCenter, getTeamMarketGame, getTeamMarketsForDate, type MlbGameCenter } from "@/lib/mlb-team-markets";
+import { getTeamMarketGame, getTeamMarketsForDate, type MlbGameCenter } from "@/lib/mlb-team-markets";
+import { gameCenterFromIntelligence } from "@/lib/markets/game-center-adapter";
 import { buildGameIntelligence, type GameIntelligence } from "@/lib/markets/game-intelligence";
 import { resolveFreshnessReference } from "@/lib/markets/freshness";
 import { currentEtDate } from "@/lib/freshness";
@@ -488,6 +489,25 @@ function mlbDetails(): PublicGameDetail[] {
           .sort((a, b) => b.simulationProbability - a.simulationProbability)
       : [];
     if (prediction) prediction.topPlayerPredictions = playerPredictions.slice(0, 5);
+
+    // Canonical sportsbook intelligence (Sprint 030) — built by the SAME function that powers
+    // /markets, so the two surfaces cannot disagree about this event. Freshness is judged through
+    // the shared reference rule, which keeps a stale snapshot framed identically on both.
+    const marketIntel = (() => {
+      if (!sim?.gameId) return null;
+      const book = getTeamMarketGame(date, sim.gameId);
+      if (!book) return null;
+      const artifact = getTeamMarketsForDate(date);
+      const { reference } = resolveFreshnessReference(date, marketToday);
+      return buildGameIntelligence({
+        book: book as never,
+        sim: (fg ?? null) as never,
+        gamePk: d.matchId ? Number(d.matchId) : null,
+        artifact: { date: artifact?.date ?? null, generatedAt: artifact?.generatedAt ?? null },
+        todayEt: reference,
+        nowIso: marketNow,
+      });
+    })();
     return {
       ...d,
       gameLabMlb: d.matchId ? buildMlbGameLabReport(board, d.matchId) : null,
@@ -500,25 +520,11 @@ function mlbDetails(): PublicGameDetail[] {
       // Market-implied Game Center, joined by the sim's gameId (== the Odds event id).
       // Null when the game has no de-vigged team markets → the UI shows an honest
       // unavailable state rather than inventing win-prob / total / run-line numbers.
-      gameCenter: sim?.gameId ? getMlbGameCenter(date, sim.gameId) : null,
-      // Canonical sportsbook intelligence (Sprint 030) — built by the SAME function that powers
-      // /markets, so the two surfaces cannot disagree about this event. Freshness is judged through
-      // the shared reference rule, which is what keeps a stale snapshot framed identically here.
-      marketIntelligence: (() => {
-        if (!sim?.gameId) return null;
-        const book = getTeamMarketGame(date, sim.gameId);
-        if (!book) return null;
-        const artifact = getTeamMarketsForDate(date);
-        const { reference } = resolveFreshnessReference(date, marketToday);
-        return buildGameIntelligence({
-          book: book as never,
-          sim: (fg ?? null) as never,
-          gamePk: d.matchId ? Number(d.matchId) : null,
-          artifact: { date: artifact?.date ?? null, generatedAt: artifact?.generatedAt ?? null },
-          todayEt: reference,
-          nowIso: marketNow,
-        });
-      })(),
+      // Legacy Game Center shape, now ADAPTED from the canonical object rather than read straight
+      // from the artifact. `buildMlbGameCenter` enforced no freshness, so it could render an earlier
+      // slate's prices as the current market; deriving it here inherits the canonical gate.
+      gameCenter: gameCenterFromIntelligence(marketIntel, getTeamMarketsForDate(date)?.source ?? null),
+      marketIntelligence: marketIntel,
       marketIsHistorical: resolveFreshnessReference(date, marketToday).isHistorical,
       // Assert every joined artifact agrees on this fixture's gamePk. On mismatch the page shows a safe
       // "could not be reconciled" state instead of a partially-mismatched report.
