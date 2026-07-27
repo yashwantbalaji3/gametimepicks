@@ -147,9 +147,37 @@ const mlbBoardDates = listDated("mlb/boards").map((f) => f.replace(".json", ""))
 const slateDate =
   newestNonFuture([...mlbBoardDates, wcSlateDate].filter(Boolean)) ?? dp?.date ?? null;
 
+
+// ── Sportsbook source freshness (ARTIFACT-level only) ───────────────────────────────────────────
+// The market feed carries no row-level timestamps (measured 0% on every live row), so freshness is
+// a property of the FILE. This mirrors src/lib/markets/freshness.ts rather than importing it: the
+// slate-pointer guard invokes this script with plain `node`, which cannot load TypeScript. A parity
+// test pins the two implementations together so they cannot drift.
+const sportsbookSource = (dir) => {
+  const artifactDate = listDated(dir).map((f) => f.replace(".json", "")).at(-1) ?? null;
+  if (!artifactDate) return { source: dir, state: "MISSING", artifactDate: null, generatedAt: null, ageDays: null };
+  let generatedAt = null;
+  try {
+    generatedAt = JSON.parse(fs.readFileSync(path.join(DATA, dir, `${artifactDate}.json`), "utf8")).generatedAt ?? null;
+  } catch { /* unreadable artifact ⇒ no timestamp claim */ }
+  const ageDays = Math.round((Date.parse(`${etToday}T00:00:00Z`) - Date.parse(`${artifactDate}T00:00:00Z`)) / 86400000);
+  // A future-dated artifact fails closed rather than reading as current.
+  const state = ageDays < 0 ? "ANOMALY" : ageDays === 0 ? "CURRENT" : "STALE";
+  return { source: dir, state, artifactDate, generatedAt, ageDays };
+};
+const sportsbook = {
+  note: "Artifact-level freshness only — the market feed carries no row-level timestamps, so no per-market recency can be claimed.",
+  sources: ["mlb/team-markets", "mlb/player-props"].map(sportsbookSource),
+};
+
 // ── Missing-data + stale-route warnings (derived) ───────────────────────────────────────────────
 const warnings = [];
 if (!wcGames) warnings.push("World Cup board is empty (dormant or needs a refresh).");
+for (const src of sportsbook.sources) {
+  if (src.state !== "CURRENT") {
+    warnings.push(`Sportsbook source ${src.source} is ${src.state}${src.ageDays != null ? ` (${src.ageDays}d old)` : ""}.`);
+  }
+}
 if (!mlbGames) warnings.push("MLB board is empty (dormant or needs a refresh).");
 if (!moneyGate.dailyTracksCanonical) warnings.push("Daily portfolio activeBankroll ≠ canonical bankroll — roll forward.");
 // Slate freshness keys off the real slate pointer (newest board), NOT the daily-portfolio date — a lagging
@@ -192,6 +220,7 @@ const status = {
     activeBankroll: round2(dp?.activeBankroll), openExposure: round2(dp?.openExposure),
     worldCupGames: (wcBoard?.games ?? []).length, mlbGames: (mlbBoard?.games ?? []).length, mlbSlate: latestMlb ? latestMlb.replace(".json", "") : null,
   },
+  sportsbook,
   productReadiness,
   products: {
     bankBuilder: { activeLanes: bbActive, lanes: bbLanes },
