@@ -232,3 +232,38 @@ test("a date with no artifacts reports missing rather than inventing an empty sl
   assert.equal(data.games.length, 0);
   assert.equal(data.props.length, 0);
 });
+
+// ── The stale-slate frame ───────────────────────────────────────────────────────────────────────
+
+test("a snapshot older than today is framed as historical, not blanked", () => {
+  const date = latestMarketDate();
+  const nextDay = new Date(Date.parse(`${date}T00:00:00Z`) + 86400000).toISOString().slice(0, 10);
+  const data = loadMarketCenter(date, nextDay, `${nextDay}T12:00:00Z`);
+
+  assert.equal(data.isHistorical, true);
+  assert.equal(data.daysBehind, 1);
+
+  // The failure this guards against: evaluating yesterday's snapshot against today stripped the
+  // sportsbook side from every row, so the page read as "the book offers nothing" when the truth
+  // was "today has not been captured yet".
+  const withPrice = data.props.filter((p) => p.sportsbook).length;
+  assert.ok(withPrice > 0, "a historical snapshot must still show the prices it captured");
+
+  const modes = new Set(data.props.map((p) => p.intelligence.mode));
+  assert.ok(modes.has("FULL_COMPARISON"), "the historical slate stays internally coherent");
+});
+
+test("the current-day path is unaffected by the historical frame", () => {
+  const date = latestMarketDate();
+  const data = loadMarketCenter(date, date, `${date}T17:00:00Z`);
+  assert.equal(data.isHistorical, false);
+  assert.equal(data.daysBehind, 0);
+  assert.equal(data.gameFreshness.state, "CURRENT");
+});
+
+test("the page states the frame whenever it is showing a past slate", () => {
+  const page = fs.readFileSync(PAGE, "utf8");
+  assert.ok(page.includes("isHistorical"), "the page must branch on the historical frame");
+  assert.ok(/Not today&rsquo;s market|Not today's market/.test(page), "and say so plainly");
+  assert.ok(page.includes("daysBehind"), "and say how far behind it is");
+});

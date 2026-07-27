@@ -73,6 +73,22 @@ export interface MarketCenterData {
   readonly date: string;
   /** True when the requested date had no sportsbook artifacts at all. */
   readonly missing: boolean;
+  /**
+   * True when the newest snapshot is not today's — so the page is showing a PAST slate.
+   *
+   * This distinction exists because the alternative is actively misleading. Evaluating a yesterday
+   * snapshot against today strips the sportsbook side from every row (measured: 1,021 rows to
+   * UNAVAILABLE, 0 prices left), which renders as "the book offers nothing" when the truth is
+   * "we have not captured today yet". Both are wrong to show without saying which one it is.
+   *
+   * So the page declares its frame. When historical, freshness is evaluated against the artifact's
+   * OWN slate date — making the snapshot internally coherent as a picture of that day — and the
+   * surface must say plainly that it is not today's market. The rule that no row may claim to be
+   * current when it is not is preserved by the framing, not by blanking the data.
+   */
+  readonly isHistorical: boolean;
+  /** Whole days between the snapshot's slate and today. 0 when current. */
+  readonly daysBehind: number;
   readonly gameFreshness: FreshnessReading;
   readonly propFreshness: FreshnessReading;
   readonly capturedAt: string | null;
@@ -117,13 +133,25 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
     {},
   );
 
+  // How far behind today this snapshot is, measured against the real ET calendar. Computed BEFORE
+  // the freshness readings, because it decides which reference date those readings use.
+  const daysBehind = Math.max(
+    0,
+    Math.round((Date.parse(`${todayEt}T00:00:00Z`) - Date.parse(`${date}T00:00:00Z`)) / 86400000) || 0,
+  );
+  const isHistorical = daysBehind > 0;
+  // A historical page is evaluated against its OWN slate date so the snapshot is coherent as a
+  // picture of that day. The page is responsible for saying it is not today's market — see the
+  // `isHistorical` doc comment for why blanking the data instead would mislead.
+  const reference = isHistorical ? date : todayEt;
+
   const gameFreshness = evaluateArtifactFreshness(
     { artifactDate: teamMarkets.date ?? null, generatedAt: teamMarkets.generatedAt ?? null },
-    todayEt,
+    reference,
   );
   const propFreshness = evaluateArtifactFreshness(
     { artifactDate: propsFile.date ?? null, generatedAt: propsFile.generatedAt ?? null },
-    todayEt,
+    reference,
   );
 
   const bookGames = Object.values(teamMarkets.games ?? {});
@@ -149,7 +177,7 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
         sim: (gamePk != null ? simByPk.get(gamePk) ?? null : null) as never,
         gamePk,
         artifact: { date: teamMarkets.date ?? null, generatedAt: teamMarkets.generatedAt ?? null },
-        todayEt,
+        todayEt: reference,
         nowIso,
       });
     })
@@ -177,7 +205,7 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
       awayTeam: bg?.awayTeamAbbr ?? null,
       teamMapping: verified ? "RESOLVED_FROM_GAME" : "UNRESOLVED",
       artifact: { date: propsFile.date ?? null, generatedAt: propsFile.generatedAt ?? null },
-      todayEt,
+      todayEt: reference,
       nowIso,
     });
   });
@@ -219,7 +247,7 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
         awayTeam: bg?.awayTeamAbbr ?? null,
         teamMapping: verified ? "RESOLVED_FROM_GAME" : "UNRESOLVED",
         artifact: { date: propsFile.date ?? null, generatedAt: propsFile.generatedAt ?? null },
-        todayEt,
+        todayEt: reference,
         nowIso,
       }),
     );
@@ -228,6 +256,8 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
   return {
     date,
     missing,
+    isHistorical,
+    daysBehind,
     gameFreshness,
     propFreshness,
     capturedAt: teamMarkets.generatedAt ?? propsFile.generatedAt ?? null,

@@ -42,6 +42,34 @@ export default function MarketsPage() {
         sub="Every market is labelled by what we can honestly show for it: both sides, one side, or neither. Probabilities from the sportsbook are converted by GameTimePicks from the posted price — they are not the book's own numbers. Paper and educational only."
       />
 
+      {data.isHistorical ? (
+        <section className="reveal" style={{ marginTop: 20 }}>
+          <div
+            style={{
+              border: "1px solid var(--vault-warn)",
+              borderRadius: 10,
+              padding: 14,
+              background: "rgba(240, 199, 94, 0.06)",
+            }}
+          >
+            <div
+              className="font-mono uppercase tracking-[0.16em]"
+              style={{ fontSize: 10, color: "var(--vault-warn)", marginBottom: 6 }}
+            >
+              Not today&rsquo;s market
+            </div>
+            <div style={{ fontSize: 13, color: "var(--vault-text)", marginBottom: 4 }}>
+              Today&rsquo;s sportsbook snapshot is not available yet. This page shows the latest one we captured:{" "}
+              <strong>{data.date}</strong> ({data.daysBehind === 1 ? "yesterday" : `${data.daysBehind} days ago`}).
+            </div>
+            <div style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
+              Prices below are as they stood on that slate. They are not current, and those games have already been
+              played.
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <section className="reveal" style={{ marginTop: 28 }}>
         <MarketCenter
           games={[...data.games]}
@@ -49,8 +77,13 @@ export default function MarketsPage() {
           capturedAt={data.capturedAt}
           bookmaker={data.bookmaker}
           snapshotLabel={formatSnapshotCapture(data.gameFreshness)}
-          freshnessLabel={freshnessLabel(data.gameFreshness)}
-          isCurrent={data.gameFreshness.isCurrent}
+          // On a historical page the reading is "current" only RELATIVE to its own slate, which
+          // would render a green "Current snapshot" badge directly beside the banner saying this is
+          // not today's market. The badge follows the frame the reader is actually in.
+          freshnessLabel={
+            data.isHistorical ? `Snapshot from ${data.date}` : freshnessLabel(data.gameFreshness)
+          }
+          isCurrent={!data.isHistorical && data.gameFreshness.isCurrent}
         />
       </section>
 
