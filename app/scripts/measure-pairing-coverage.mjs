@@ -61,6 +61,7 @@ const sims = readJson(path.join(DATA, `full-game-simulations/${date}.json`));
 const { getMarketIntelligenceMode, censusPairing, providerKeyFor } = await import(
   path.join(APP, "src/lib/markets/pairing.ts")
 );
+const { buildGameIntelligence } = await import(path.join(APP, "src/lib/markets/game-intelligence.ts"));
 const { PLAYER_FAMILY_BY_PROVIDER_KEY, MODEL_KEY_BY_PLAYER_FAMILY } = await import(
   path.join(APP, "src/lib/markets/types.ts")
 );
@@ -193,28 +194,28 @@ const gameFreshness = evaluateArtifactFreshness(
   { artifactDate: teamMarkets?.date ?? null, generatedAt: teamMarkets?.generatedAt ?? null },
   date,
 );
+// Built through the canonical game-intelligence builder rather than re-deriving the gates here, so
+// the census measures the product's own decisions instead of a second implementation of them.
+const nowIso = new Date(`${date}T17:00:00Z`).toISOString();
+const gameDetail = [];
 for (const g of Object.values(teamMarkets?.games ?? {})) {
   const gamePk = gameIdToPk.get(g.gameId) ?? null;
-  const sim = gamePk != null ? simByGamePk.get(gamePk) : null;
-  const families = [
-    ["MONEYLINE", g.moneyline?.home?.odds ?? null, null, false, true],
-    ["RUN_LINE", g.runLine?.home?.odds ?? null, g.runLine?.line ?? null, true,
-      Boolean(sim?.runLine?.some?.((r) => r.line === g.runLine?.line))],
-    ["TOTAL", g.total?.over?.odds ?? null, g.total?.line ?? null, true,
-      Boolean(sim?.totalRuns?.distribution?.length)],
-  ];
-  for (const [family, odds, line, requiresLine, thresholdOk] of families) {
-    gameResults.push(
-      getMarketIntelligenceMode({
-        sport: "mlb",
-        kind: "game",
-        family,
-        sportsbook: { present: odds != null, americanOdds: odds, line, requiresLine },
-        model: { present: Boolean(sim), supportsThreshold: Boolean(sim) && thresholdOk },
-        freshness: gameFreshness,
-        eventResolved: gamePk != null,
-      }),
-    );
+  const sim = gamePk != null ? simByGamePk.get(gamePk) ?? null : null;
+  const gi = buildGameIntelligence({
+    book: g,
+    sim,
+    gamePk,
+    artifact: { date: teamMarkets?.date ?? null, generatedAt: teamMarkets?.generatedAt ?? null },
+    todayEt: date,
+    nowIso,
+  });
+  for (const fam of [gi.moneyline, gi.runLine, gi.total]) {
+    gameResults.push(fam.intelligence);
+    if (fam.intelligence.mode !== "FULL_COMPARISON") {
+      gameDetail.push(
+        `${gi.awayTeam} @ ${gi.homeTeam} · ${fam.family} · ${fam.intelligence.mode} · ${fam.intelligence.blockedBy.join(",")}`,
+      );
+    }
   }
 }
 
@@ -249,6 +250,10 @@ for (const [fam, r] of [...familyRollup].sort((a, b) => b[1].total - a[1].total)
 console.log(`\n── GAME MARKETS ── ${gameCensus.total} rows (${Object.keys(teamMarkets?.games ?? {}).length} games × 3 families)`);
 for (const [mode, n] of Object.entries(gameCensus.byMode)) {
   console.log(`  ${mode.padEnd(17)} ${String(n).padStart(5)}  ${pct(n, gameCensus.total)}`);
+}
+if (gameDetail.length) {
+  console.log(`\n  game rows that are not FULL_COMPARISON:`);
+  for (const d of gameDetail) console.log(`    `);
 }
 if (Object.keys(gameCensus.byGate).length) {
   console.log(`\n  gates:`);
