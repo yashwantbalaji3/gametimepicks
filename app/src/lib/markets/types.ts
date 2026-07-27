@@ -32,7 +32,17 @@ export type PlayerMarketFamily =
   | "BATTER_TOTAL_BASES"
   | "BATTER_HOME_RUNS"
   | "BATTER_RBIS"
-  | "BATTER_RUNS_SCORED";
+  | "BATTER_RUNS_SCORED"
+  /**
+   * MODEL-SIDE ONLY. GameTimePicks projects hits+runs+RBIs; the book does not post it on this
+   * slate, so it has no provider key and can never arrive from a provider payload.
+   *
+   * It belongs here anyway. Defining the vocabulary purely from what the book sells would make a
+   * modeled family literally unrepresentable, and "unrepresentable" renders as "absent" — the
+   * MODEL_ONLY mode would be structurally unreachable rather than merely empty. A family we model
+   * and nobody prices is a real state worth naming.
+   */
+  | "BATTER_HITS_RUNS_RBIS";
 
 /** Which side of a two-sided market a price belongs to. */
 export type MarketSide = "HOME" | "AWAY" | "OVER" | "UNDER";
@@ -144,13 +154,33 @@ export const PLAYER_FAMILY_BY_PROVIDER_KEY: Readonly<Record<string, PlayerMarket
   batter_runs_scored: "BATTER_RUNS_SCORED",
 };
 
-/** Canonical player family → the provider key it came from (for joins back to model artifacts). */
-export const PROVIDER_KEY_BY_PLAYER_FAMILY: Readonly<Record<PlayerMarketFamily, string>> =
+/**
+ * Canonical player family → the provider key it came from.
+ *
+ * PARTIAL on purpose. A model-side-only family has no provider key, and typing this as total would
+ * be a lie the compiler enforces on everyone else: callers would read `undefined` through a
+ * `string` annotation and pass it into a join, where it matches nothing in a way no test catches.
+ */
+export const PROVIDER_KEY_BY_PLAYER_FAMILY: Readonly<Partial<Record<PlayerMarketFamily, string>>> =
   Object.freeze(
     Object.fromEntries(
       Object.entries(PLAYER_FAMILY_BY_PROVIDER_KEY).map(([k, v]) => [v, k]),
-    ) as Record<PlayerMarketFamily, string>,
+    ) as Partial<Record<PlayerMarketFamily, string>>,
   );
+
+/**
+ * Canonical player family → the key model artifacts and the calibration registry are keyed by.
+ *
+ * A superset of the provider map: identical wherever the book prices a family, plus the modeled
+ * families it does not price. Kept separate because "what the book calls this" and "what our model
+ * artifact calls this" are different questions that happen to share an answer most of the time —
+ * collapsing them would silently break the moment they diverge.
+ */
+export const MODEL_KEY_BY_PLAYER_FAMILY: Readonly<Partial<Record<PlayerMarketFamily, string>>> =
+  Object.freeze({
+    ...PROVIDER_KEY_BY_PLAYER_FAMILY,
+    BATTER_HITS_RUNS_RBIS: "batter_hits_runs_rbis",
+  });
 
 /** True when a canonical market is usable by a consumer surface. */
 export function isUsable(m: SportsbookMarket): boolean {
