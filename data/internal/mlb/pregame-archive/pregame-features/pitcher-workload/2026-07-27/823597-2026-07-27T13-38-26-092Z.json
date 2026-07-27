@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823597,
+  "date": "2026-07-27",
+  "capturedAt": "2026-07-27T13:38:26.092Z",
+  "availableAt": "2026-07-27T13:38:26.092Z",
+  "eventStartTime": "2026-07-27T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 804267,
+      "name": "Zac Thornton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 6,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 4,
+        "ipSum": 23.33,
+        "ipAvg": 5.83,
+        "kAvg": 4.25,
+        "bbAvg": 1.5,
+        "erAvg": 1.25,
+        "hrAvg": 0.25,
+        "kPer9": 6.56,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 23.33,
+        "k": 17,
+        "bb": 6,
+        "er": 5,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 527048,
+      "name": "Martín Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 5,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 2.8,
+        "bbAvg": 3,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 5.4,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 76,
+        "k": 54,
+        "bb": 36,
+        "er": 30,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-27T13:38:26.092Z"
+  },
+  "recordHash": "764bcc64722df243f2f7587e0a6558ebcf706952d6e8d48136d341b52ce34bcd"
+}
