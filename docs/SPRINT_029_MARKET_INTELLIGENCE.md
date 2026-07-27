@@ -162,11 +162,148 @@ Both restored; file confirmed byte-identical to pre-mutation; suite green after 
 
 ---
 
+## Phase 2 — Game-level intelligence · SHIPPED · LOCALLY VALIDATED
+
+`app/src/lib/markets/game-intelligence.ts` — `buildGameIntelligence()` returns one object per game
+covering moneyline, run line and total, for reuse by Market Center, the game report, /today and the
+homepage. Pure: no clock, no filesystem.
+
+### Run-line sign convention — VERIFIED, not assumed
+
+The two sources describe different quantities behind similar-looking numbers:
+
+| Source | Field | Means |
+|---|---|---|
+| simulation | `homeCover(L)` | P(home wins by MORE than L) — home **laying** −L |
+| sportsbook | `home.line` | the home side's **signed** line (−1.5 laying, +1.5 receiving) |
+
+So home receiving +L covers whenever away fails to win by more than L — that is `1 − awayCover(L)`,
+**not** `homeCover(L)`. Matching by line value alone is silently wrong on roughly half the slate.
+
+Both identities were checked against each game's own `runDifferential` histogram before the module
+was written (agreement <0.001 on all 12 games), and the guards **re-derive them from a distribution
+rather than restating constants**, so an inverted convention cannot pass.
+
+Verified on real artifacts in both directions:
+
+- home laying (CLE @ CIN, −1.5): cover 33.6% < win 51.3% ✓
+- home receiving (11 games, +1.5): e.g. cover 74.4% > win 63.1% ✓
+
+This recovered the row Phase 1 refused. **Game markets went 35/36 → 36/36 FULL_COMPARISON.**
+
+### Totals and pushes
+
+An integer total can push, so over/under/push is three-way while the book's two-way de-vig has no
+push term. `overProb`/`underProb`/`pushProb` are reported as simulated, and the COMPARISON uses the
+push-excluded conditional so both sides answer the same question. Measured: a line of 8 carries
+7.9% push mass, shifting over from 43.9% to 47.7%.
+
+23 tests. Mutations (invert the sign; match by magnitude only) verified applied, then caught (4 and
+3 failures respectively).
+
+---
+
+## Phase 3 — Player-prop intelligence · SHIPPED · LOCALLY VALIDATED
+
+`app/src/lib/markets/player-intelligence.ts` — `buildPlayerPropIntelligence()`.
+
+**The most important decision is an omission.** The board lean also carries `lean` ("Over"),
+`edgePct` and a `confidence` grade. None reach the object. All four modeled families are DEMOTED, so
+`lean` is a recommendation the evidence does not support and `edgePct` is a claim the audit
+refutes. A field with no honest rendering should not reach a renderer. Carried instead: projection,
+sigma, sample size, recent form.
+
+The guard asserts on property KEYS, not a JSON substring — the calibration disclosure honestly
+contains the word "confidence". A companion test asserts the fixture still carries the banned fields
+so the guard cannot pass vacuously.
+
+Probability provenance: the board stores only RAW implied for props (they sum >1). No-vig is derived
+here, never back-filled, and requires both prices. Measured: raw 70.1% → no-vig 66.4%; a one-sided
+market correctly yields null.
+
+Leakage safety uses `<`, not `<=` — a game dated the same day as the slate may not have been played
+when the board was built. **Measured across all 1,251 live rows: zero violations.**
+
+Validated on the live slate: 230 FULL_COMPARISON / 1,021 SPORTSBOOK_ONLY (matches the census
+exactly), 0 leakage violations, 0 comparison rows missing a team.
+
+24 tests. Three mutations (relax the leakage comparator; leak the unpublishable team; pass the
+demoted conclusion through) verified applied, then caught.
+
+---
+
+## Phase 4 — Market Center · SHIPPED · LOCALLY VALIDATED
+
+Route `/markets`, loader `lib/markets/load.ts`, surface `components/market-center.tsx`, client
+projection `lib/markets/view-model.ts`. Nav added to `nav.tsx` + `command-rail.tsx`.
+
+**Two defects found by building the surface rather than reasoning about it:**
+
+1. **"Model only (0)".** The loader iterated sportsbook rows only, so a family the book never posts
+   could not appear in its own feed — the tab was structurally empty on a slate with 279 such rows.
+   Added a model-side pass (now 279, led by `batter_hits_runs_rbis`). Those rows also exposed a real
+   distinction: a synthetic row with a null price reported `MARKET_INCOMPLETE`, claiming the book
+   posted a *broken* market when it posted *none*. Added an explicit `bookRowPresent` flag.
+
+2. **A 2.4 MB page.** `calibrationDisclosure` + `methodologyNote` repeated across ~1,250 rows were
+   ~900 KB of identical text. The view model projects rows to rendered fields and hoists the
+   constants. **2.4 MB → 968 KB**, with a test asserting the projection stays materially smaller.
+
+Guarded absent (unbuildable, not unbuilt): opening line, movement, market movers, steam, 24-hour
+change, trend charts, team totals. The guard strips comments first — both files carry a header
+explaining the absence — and a companion test proves the scanner still detects a real addition.
+
+Browser-verified against the **BUILT static export** (`next dev` 500s on `output: export` — use
+`python3 -m http.server --directory app/out`): tabs, filters reading 230/279/1021 exactly as the
+census, real portraits/logos, zero console errors, no horizontal overflow at 375px.
+
+13 tests. All five nav guards pass.
+
+---
+
+## Commands worth keeping
+
+```bash
+cd app && npx tsx --test $(find src -name '*.test.mjs')   # full suite — read "# fail", not $?
+cd app && npx tsc --noEmit
+cd app && npx tsx scripts/measure-pairing-coverage.mjs    # real-artifact census
+cd app && npm run build && python3 -m http.server 4173 --directory out   # browser QA
+```
+
+---
+
 ## Open items
 
-- **Run-line sign convention** — Phase 2. Refused, not guessed, until explicitly modeled and tested.
+- **Run-line sign convention** — RESOLVED in Phase 2 (verified against the differential histogram).
 - **Batter roster tie-break** — `setdefault` in the board generator resolves same-name collisions
   silently. The participant cross-check catches the cross-game case; a same-game collision would
   still resolve to the first roster hit. No occurrence on the measured slate.
 - **No sportsbook snapshot history** — artifact-level freshness only. No opening line, no movement,
   no steam, no 24h change, and no such UI until real prospectively-retained snapshots exist.
+
+---
+
+## Next phases (not started)
+
+In the order the remaining consumer value falls out:
+
+1. **Game Report integration** — reuse `buildGameIntelligence` in the MLB report so the report and
+   Market Center cannot disagree. No report-specific sportsbook math.
+2. **/today** — daily command center; must not label yesterday's slate as today (show "Latest
+   available slate: YYYY-MM-DD" instead of silently carrying prior data forward).
+3. **Homepage** — above the fold answers: what slate, refreshed when, what is modelled, is market
+   context available, most interesting simulation story.
+4. **Prospective snapshot retention** — store FUTURE timestamped captures only. Label
+   `FIRST_CAPTURED`, never `OPENING_LINE` unless provider metadata says so. Do not reconstruct
+   history; do not ship movement UI until enough real prospective observations exist.
+5. **Broader sportsbook-only sport coverage** — the pairing layer already fails closed for
+   non-FULL_MODEL sports (verified: soccer yields SPORTSBOOK_ONLY), so a sportsbook-only sport can
+   receive market context without any prediction surface.
+
+### Known follow-ups in shipped code
+
+- `/markets` renders the first 200 filtered rows with a visible "narrow the filters" note. Honest,
+  but pagination or virtualization would be better UX at 1,530 rows.
+- The page still ships ~968 KB because all 1,530 projected rows are in the client payload for
+  instant filtering. Server-side filtering or chunking would cut it further.
+- `/markets` is not yet in the Playwright `navigation.spec.ts` list.
