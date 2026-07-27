@@ -152,3 +152,81 @@ cd app && npx tsc --noEmit
 cd app && npx tsx scripts/measure-pairing-coverage.mjs
 cd app && npm run build && python3 -m http.server 4173 --directory out   # browser QA
 ```
+
+---
+
+# Sprint 031 — Consumer Journey Convergence
+
+Start `f33e77cc` → end `5bd91172`. Suite 3054 → **3066 total · 3062 pass · 0 fail · 4 skip**.
+Money `affe6b21…` and lock `cb80473f…` unchanged throughout.
+
+## Phase 1 — Legacy game-center convergence · SHIPPED · LOCALLY VALIDATED
+
+`buildMlbGameCenter` enforced NO freshness — on a stale day it rendered an earlier slate's prices as
+the current market. There was exactly **one** production construction site (`game-detail.ts`), which
+made this bounded.
+
+`lib/markets/game-center-adapter.ts` now projects `GameIntelligence` into the legacy
+`MlbGameCenter` shape. The interface is unchanged, so `mlb-game-center.tsx`,
+`mlb-simulation-report-v2` and the simulation runner keep working untouched — but every number comes
+from `buildGameIntelligence` and the freshness gate is inherited.
+
+Guards assert two opposing obligations, because checking only the first would pass with the gate
+deleted:
+
+- **PARITY** — on the live slate the adapter reproduces the legacy builder exactly (moneyline,
+  total, run line, teams, first pitch, disclosure) on every game it rendered.
+- **DIVERGENCE** — on a stale snapshot the adapter returns null where the legacy builder still
+  returns live-looking probabilities.
+
+⚠️ This is a documented **compatibility shim, not a destination**. Three components still consume
+the legacy shape; retiring it means migrating them to `GameIntelligence` directly.
+
+## Phase 4 — Playwright against the built export · SHIPPED
+
+`webServer` now serves the **exported directory** (the same artifact production serves), not
+`next dev` (which 500s under `output: export`).
+
+`python3 -m http.server` was tried first and is **single-threaded** — parallel workers dropped
+requests and produced spurious 404s, so the markets spec passed alone and failed in a full run.
+Replaced with `app/scripts/serve-export.mjs` (also honours `trailingSlash`, serves the exported 404).
+
+```bash
+cd app && npm run e2e:install   # once
+cd app && npm run e2e           # build + serve + test
+cd app && npm run e2e:fast      # reuse existing out/
+```
+
+### The harness immediately found a shipped bug
+
+The Market Center passed team **display names** to `TeamLogo`, so the CDN was asked for
+`arizonadiamondbacks.png`. All **24 logos 404'd** and the `onError` fallback drew initials
+monograms — screenshots looked correct, the logos had simply never loaded. A visual fallback that
+hides a defect is worse than a visible break.
+
+Fixed by carrying `homeTeamAbbr`/`awayTeamAbbr` on `GameIntelligence`, distinct from display names.
+That exposed a second real mismatch: **StatsAPI says `AZ`, ESPN serves `ari`** — now an explicit
+verified alias in `TeamLogo`. **24 console 404s → 0; markets.spec.ts 7/7 executed.**
+
+### ⚠️ 15 pre-existing e2e specs are STALE — newly visible, not new
+
+Full e2e: **31 passed / 15 failed**. The failures are in `navigation`, `newsletter`, `parlay-lab`
+and `admin-copy` specs that rotted silently because the harness never ran. Verified as stale rather
+than broken product: `/parlay-lab/`, `/results/` and `/board/` all return 200 with real headings,
+and `nav exposes all primary routes` expects `/board` and `/parlay-lab` in the primary nav, which an
+earlier IA prune deliberately removed.
+
+**Left failing rather than weakened or deleted.** Deciding what those specs should now assert is a
+separate unit with real intent behind it — the charter forbids making them green by weakening them.
+
+## Not started this sprint
+
+Phases 2 (/today), 3 (homepage), 5 (production proof for the new commits), 6–7 (snapshot retention,
+movement gating), 8–10 (broader sports, graduation, research), 11–12 (Bank Builder, Moonshot),
+13–15 (entities/UX, reliability/ops).
+
+Highest remaining value: **/today**, then **homepage** — both need integration only, since
+`lib/markets/load.ts` and `buildGameIntelligence` already supply everything.
+
+Still **DEFERRED FOR FOUNDER**: `VERCEL_DEPLOY_HOOK_URL` (daily-rebuild remains a no-op; a day with
+no push leaves the static export's clock stale).
