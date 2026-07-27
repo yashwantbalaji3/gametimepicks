@@ -503,6 +503,8 @@ function mlbDetails(): PublicGameDetail[] {
         book: book as never,
         sim: (fg ?? null) as never,
         gamePk: d.matchId ? Number(d.matchId) : null,
+        homeTeamAbbr: fg?.homeTeam ?? null,
+        awayTeamAbbr: fg?.awayTeam ?? null,
         artifact: { date: artifact?.date ?? null, generatedAt: artifact?.generatedAt ?? null },
         todayEt: reference,
         nowIso: marketNow,

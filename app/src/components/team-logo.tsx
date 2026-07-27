@@ -40,14 +40,36 @@ const SIZE_PX: Record<NonNullable<Props["size"]>, number> = {
 };
 
 /**
+ * Source-abbreviation → ESPN-slug aliases, for the teams where the two disagree.
+ *
+ * MLB StatsAPI calls Arizona "AZ"; ESPN's CDN serves it as "ari". The onError monogram hides the
+ * mismatch, so the logo simply never appears and nothing looks broken — which is why this needs an
+ * explicit alias rather than trusting the fallback. Verified against the CDN, not assumed.
+ */
+const ESPN_SLUG_ALIASES: Record<string, Record<string, string>> = {
+  mlb: { az: "ari" },
+};
+
+/**
  * Build the ESPN logo URL. Both 2-letter and 3-letter abbrs resolve on
  * ESPN's CDN for the teams we render today (verified by HEAD probe);
  * we lowercase whatever we receive and hand it off. The onError path
  * catches any 404 or network failure and shows the monogram instead.
+ *
+ * Pass an ABBREVIATION. A full team name normalizes to something like
+ * "arizonadiamondbacks", which 404s and degrades to the monogram — visually fine, so it ships broken
+ * easily. `logo-slug.test.mjs` guards against that.
  */
 function logoUrl(team: string, sport: SportKey): string {
-  const abbr = team.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const raw = team.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const abbr = ESPN_SLUG_ALIASES[sport]?.[raw] ?? raw;
   return `https://a.espncdn.com/i/teamlogos/${sport}/500/${abbr}.png`;
+}
+
+/** Exported for guards: the slug a given team identifier resolves to. */
+export function espnLogoSlug(team: string, sport: SportKey): string {
+  const raw = team.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return ESPN_SLUG_ALIASES[sport]?.[raw] ?? raw;
 }
 
 export default function TeamLogo({

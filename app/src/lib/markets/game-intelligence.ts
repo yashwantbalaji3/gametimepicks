@@ -204,6 +204,15 @@ export interface GameIntelligence {
   readonly gamePk: number | null;
   readonly homeTeam: string;
   readonly awayTeam: string;
+  /**
+   * Team ABBREVIATIONS ("ARI"), distinct from the display names above.
+   *
+   * Carried because the logo CDN is keyed by abbreviation: passing a full team name silently 404s
+   * and falls back to an initials badge, which LOOKS fine and is therefore easy to ship broken.
+   * Null when the board did not supply one — the caller must then fall back rather than guess.
+   */
+  readonly homeTeamAbbr: string | null;
+  readonly awayTeamAbbr: string | null;
   readonly startTime: string | null;
   readonly eventPhase: EventPhase;
   readonly snapshot: SnapshotProvenance;
@@ -299,6 +308,9 @@ export interface GameIntelligenceInput {
   readonly book: BookGameMarkets;
   readonly sim: SimGame | null;
   readonly gamePk: number | null;
+  /** Team abbreviations from the board, for logo lookup. Display names come from the book. */
+  readonly homeTeamAbbr?: string | null;
+  readonly awayTeamAbbr?: string | null;
   /** Slate date of the sportsbook artifact and its generation timestamp. */
   readonly artifact: { readonly date: string | null; readonly generatedAt: string | null };
   /** Today's date in ET — the calendar the slate is keyed on. */
@@ -353,6 +365,8 @@ export function buildGameIntelligence(input: GameIntelligenceInput): GameIntelli
     gamePk: input.gamePk,
     homeTeam: book.homeTeam,
     awayTeam: book.awayTeam,
+    homeTeamAbbr: input.homeTeamAbbr ?? null,
+    awayTeamAbbr: input.awayTeamAbbr ?? null,
     startTime,
     eventPhase: evaluateEventPhase(startTime, input.nowIso),
     snapshot,

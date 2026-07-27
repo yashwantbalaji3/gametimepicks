@@ -164,10 +164,13 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
     .map((g) => {
       const gameId = String((g as { gameId?: string }).gameId ?? "");
       const gamePk = pkByGameId.get(gameId) ?? null;
+      const bg = gamePk != null ? boardGameByPk.get(gamePk) : undefined;
       return buildGameIntelligence({
         book: g as never,
         sim: (gamePk != null ? simByPk.get(gamePk) ?? null : null) as never,
         gamePk,
+        homeTeamAbbr: bg?.homeTeamAbbr ?? null,
+        awayTeamAbbr: bg?.awayTeamAbbr ?? null,
         artifact: { date: teamMarkets.date ?? null, generatedAt: teamMarkets.generatedAt ?? null },
         todayEt: reference,
         nowIso,

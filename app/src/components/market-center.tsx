@@ -256,10 +256,12 @@ function GameSection({ games }: { games: GameIntelligence[] }) {
         <div key={g.gameId} style={{ ...CARD, padding: 16 }}>
           <div className="flex flex-wrap items-center justify-between gap-2" style={{ marginBottom: 12 }}>
             <div className="flex items-center gap-2 min-w-0">
-              <TeamLogo team={g.awayTeam} sport="mlb" size="sm" />
+              {/* The logo CDN is keyed by ABBREVIATION — passing a display name 404s and silently
+                  degrades to an initials badge, which looks fine and is therefore easy to ship broken. */}
+              <TeamLogo team={g.awayTeamAbbr ?? g.awayTeam} sport="mlb" size="sm" />
               <span style={{ fontSize: 14, color: "var(--vault-text)" }}>{g.awayTeam}</span>
               <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>@</span>
-              <TeamLogo team={g.homeTeam} sport="mlb" size="sm" />
+              <TeamLogo team={g.homeTeamAbbr ?? g.homeTeam} sport="mlb" size="sm" />
               <span style={{ fontSize: 14, color: "var(--vault-text)" }}>{g.homeTeam}</span>
             </div>
             <div className="flex items-center gap-2">
