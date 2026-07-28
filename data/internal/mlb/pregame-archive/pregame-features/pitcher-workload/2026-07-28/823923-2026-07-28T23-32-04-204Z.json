@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823923,
+  "date": "2026-07-28",
+  "capturedAt": "2026-07-28T23:32:04.204Z",
+  "availableAt": "2026-07-28T23:32:04.204Z",
+  "eventStartTime": "2026-07-29T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 680736,
+      "name": "Justin Wrobleski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 7,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33.33,
+        "ipAvg": 6.67,
+        "kAvg": 7,
+        "bbAvg": 1,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 9.45,
+        "workloadIpLast5": 33.33
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 102.67,
+        "k": 78,
+        "bb": 20,
+        "er": 28,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 622491,
+      "name": "Luis Castillo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 7,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 3.8,
+        "bbAvg": 1.4,
+        "erAvg": 2.4,
+        "hrAvg": 1.2,
+        "kPer9": 5.76,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 83.33,
+        "k": 73,
+        "bb": 26,
+        "er": 44,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-28T23:32:04.204Z"
+  },
+  "recordHash": "fad333741500126669a6e56072daf1daad28d44490d7f807fe88c6d429c3b4c1"
+}

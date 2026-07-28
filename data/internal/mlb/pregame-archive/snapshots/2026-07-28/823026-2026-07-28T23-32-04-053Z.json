@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823026-178313f3c222d9dce4924e4aa41fbdb0",
+  "snapshotCreatedAt": "2026-07-28T23:32:04.053Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-07-28",
+  "eventId": "823026",
+  "gamePk": 823026,
+  "eventStartTime": "2026-07-28T23:45:00Z",
+  "homeTeam": "STL",
+  "awayTeam": "CHC",
+  "venue": "Busch Stadium",
+  "statusState": "Warmup",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "b7687ff03647d5f2667becfec4da3504",
+  "normalizedPayloadHash": "7d6b3aa3c9f5a8af8da97b0611140c82",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          802139,
+          691023,
+          676475,
+          671056,
+          663457,
+          691026,
+          701675,
+          665877,
+          699625
+        ],
+        "away": [
+          691718,
+          673548,
+          683737,
+          608324,
+          664023,
+          663538,
+          624424,
+          608348,
+          699393
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T23:32:04.053Z",
+      "availableAt": "2026-07-28T23:32:04.053Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T23:32:04.053Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823026/feed/live",
+        "requestedAt": "2026-07-28T23:32:04.053Z",
+        "receivedAt": "2026-07-28T23:32:04.053Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Michael McGreevy",
+        "awayProbable": "Colin Rea",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T23:32:04.053Z",
+      "availableAt": "2026-07-28T23:32:04.053Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T23:32:04.053Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823026/feed/live",
+        "requestedAt": "2026-07-28T23:32:04.053Z",
+        "receivedAt": "2026-07-28T23:32:04.053Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Cloudy",
+        "temp": "90",
+        "wind": "7 mph, In From LF",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T23:32:04.053Z",
+      "availableAt": "2026-07-28T23:32:04.053Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T23:32:04.053Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823026/feed/live",
+        "requestedAt": "2026-07-28T23:32:04.053Z",
+        "receivedAt": "2026-07-28T23:32:04.053Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Adam Hamari",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Todd Tichenor",
+            "type": "First Base"
+          },
+          {
+            "name": "Tyler Jones",
+            "type": "Second Base"
+          },
+          {
+            "name": "Clint Vondrak",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T23:32:04.053Z",
+      "availableAt": "2026-07-28T23:32:04.053Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T23:32:04.053Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823026/feed/live",
+        "requestedAt": "2026-07-28T23:32:04.053Z",
+        "receivedAt": "2026-07-28T23:32:04.053Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
