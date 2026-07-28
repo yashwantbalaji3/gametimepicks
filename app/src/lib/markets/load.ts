@@ -12,6 +12,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { buildAliasIndex } from "@/lib/identity/event-identity";
 import { buildGameIntelligence, type GameIntelligence } from "./game-intelligence";
 import {
   buildPlayerPropIntelligence,
@@ -151,10 +152,14 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
 
   // ── Joins ─────────────────────────────────────────────────────────────────────────────────────
   const leans = board.leans ?? [];
-  const pkByGameId = new Map<string, number>();
-  for (const l of leans) {
-    if (l.gameId && l.gamePk != null) pkByGameId.set(l.gameId, l.gamePk);
-  }
+  // SPRINT 043: resolve provider event ids through the identity contract rather than a bare Map.
+  // A plain `.set()` index is last-write-wins and cannot see a collision in either direction — on
+  // 2026-07-28 two provider events carried the same gamePk, so both games rendered the SAME
+  // simulation as their own. `buildAliasIndex` returns null for any alias touched by a collision,
+  // which surfaces as missing model data instead of another game's numbers.
+  const pkByGameId = buildAliasIndex<number>(
+    leans.flatMap((l) => (l.gameId && l.gamePk != null ? [[l.gameId, l.gamePk] as const] : [])),
+  );
   const boardGameByPk = new Map((board.games ?? []).map((g) => [g.gamePk, g]));
   const simByPk = new Map((sims.games ?? []).map((g) => [g.gamePk as number, g]));
   const leanByKey = new Map(leans.map((l) => [leanJoinKey(l), l]));
@@ -163,7 +168,7 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
   const games: GameIntelligence[] = bookGames
     .map((g) => {
       const gameId = String((g as { gameId?: string }).gameId ?? "");
-      const gamePk = pkByGameId.get(gameId) ?? null;
+      const gamePk = pkByGameId.resolve(gameId);
       const bg = gamePk != null ? boardGameByPk.get(gamePk) : undefined;
       return buildGameIntelligence({
         book: g as never,
@@ -181,7 +186,7 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
   // ── Player props ──────────────────────────────────────────────────────────────────────────────
   const props: PlayerPropIntelligence[] = (propsFile.props ?? []).map((prop) => {
     const lean = leanByKey.get(propJoinKey(prop.player, prop.gameId, prop.market, prop.point)) ?? null;
-    const gamePk = pkByGameId.get(prop.gameId) ?? null;
+    const gamePk = pkByGameId.resolve(prop.gameId);
     const bg = gamePk != null ? boardGameByPk.get(gamePk) : undefined;
 
     // Participant cross-check. The board attributes batters from StatsAPI roster membership with a

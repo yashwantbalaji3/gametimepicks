@@ -136,6 +136,70 @@ def _resolve_team_ctx(
     return min(candidates, key=distance)
 
 
+# ── SPRINT 043 · PUBLICATION SAFETY GATE ────────────────────────────────────────────────────────
+
+
+class IdentityGateError(RuntimeError):
+    """Raised when a board would publish a corrupted event-identity mapping."""
+
+
+def validate_board_identity(leans: list[dict]) -> list[str]:
+    """Return every identity violation in a board's leans. Empty list means publishable.
+
+    SPRINT 043. Sprint 041 fixed the doubleheader resolver, but nothing stopped a corrupted
+    mapping from being WRITTEN — the July 28 defect reached two user-facing surfaces before a
+    cross-surface test noticed. This gate runs at the point of generation, which is the only
+    place the problem is cheap to catch.
+
+    The invariant is injectivity: a provider event id and a StatsAPI gamePk are one-to-one.
+    A gamePk claimed by two gameIds means one game's markets are attached to another game's
+    model output. A gameId claiming two gamePks means the reverse.
+
+    Violations are returned rather than raised so the caller can report all of them at once.
+    """
+    by_pk: dict[object, set[str]] = {}
+    by_gid: dict[str, set[object]] = {}
+    for lean in leans:
+        gid, pk = lean.get("gameId"), lean.get("gamePk")
+        if not gid or pk is None:
+            continue
+        by_pk.setdefault(pk, set()).add(gid)
+        by_gid.setdefault(gid, set()).add(pk)
+
+    violations: list[str] = []
+    for pk, gids in sorted(by_pk.items(), key=lambda kv: str(kv[0])):
+        if len(gids) > 1:
+            violations.append(
+                f"PROVIDER_ID_COLLISION: gamePk {pk} is claimed by {len(gids)} provider events "
+                f"({', '.join(sorted(g[:16] for g in gids))}) — one game's markets would be joined "
+                f"to another game's model output"
+            )
+    for gid, pks in sorted(by_gid.items()):
+        if len(pks) > 1:
+            violations.append(
+                f"AMBIGUOUS_EVENT: provider event {gid[:16]} resolves to {len(pks)} gamePks "
+                f"({', '.join(str(p) for p in sorted(pks, key=str))})"
+            )
+    return violations
+
+
+def assert_board_publishable(leans: list[dict], *, date: str) -> None:
+    """Refuse to publish a board whose event identities are corrupted.
+
+    Raises rather than warning. A warning here would have been ignored on 2026-07-28 exactly as
+    every other silent degradation in this pipeline's history was.
+    """
+    violations = validate_board_identity(leans)
+    if not violations:
+        return
+    detail = "\n".join(f"  {v}" for v in violations)
+    raise IdentityGateError(
+        f"Board {date} failed event-identity validation — refusing to publish:\n{detail}\n\n"
+        f"  A provider identifier is an alias, not an identity. See _resolve_team_ctx in this file "
+        f"and app/src/lib/identity/event-identity.ts."
+    )
+
+
 def _build_lean(
     row: dict,
     team_ctx: dict[str, dict],
@@ -597,6 +661,8 @@ def run(
     }
 
     board_path = _out_dir("boards") / f"{date}.json"
+    # SPRINT 043: the gate runs BEFORE the write. A corrupted identity mapping must never reach disk.
+    assert_board_publishable(leans, date=date)
     board_path.write_text(json.dumps(board_payload, indent=2))
     print(f"[board] wrote {board_path.relative_to(C.ROOT_DIR)} — {len(leans)} leans")
 

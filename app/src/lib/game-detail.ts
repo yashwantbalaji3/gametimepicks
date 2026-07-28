@@ -5,6 +5,7 @@
  * projections + player props already share; MLB/NBA join on the board game id. Slugs are
  * deterministic (sport + teams + date). Today's games only (the /games board).
  */
+import { buildAliasIndex } from "@/lib/identity/event-identity";
 import {
   loadWorldCupProjections,
   loadWorldCupPlayerProjections,
@@ -495,6 +496,18 @@ function mlbDetails(): PublicGameDetail[] {
     // the shared reference rule, which keeps a stale snapshot framed identically on both.
     const marketIntel = (() => {
       if (!sim?.gameId) return null;
+      // SPRINT 043: the Market Center refuses provider events caught in an identity collision, and
+      // the report must refuse the SAME ones or the two surfaces disagree — which is how the
+      // 2026-07-28 doubleheader stayed invisible for two surfaces' worth of rendering. Resolving
+      // through the shared alias index keeps one rule in one place.
+      const boardAliases = buildAliasIndex<number>(
+        (board?.leans ?? []).flatMap((l) =>
+          l.gameId && l.gamePk != null ? [[l.gameId, l.gamePk] as const] : [],
+        ),
+      );
+      if (boardAliases.collidedTargets.length > 0 && boardAliases.resolve(sim.gameId) === null) {
+        return null;
+      }
       const book = getTeamMarketGame(date, sim.gameId);
       if (!book) return null;
       const artifact = getTeamMarketsForDate(date);

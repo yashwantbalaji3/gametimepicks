@@ -125,6 +125,75 @@ export function deriveEventId(input: {
   return [...segments, parts.join("-v-"), when].join(":");
 }
 
+// ── alias resolution ───────────────────────────────────────────────────────────────────────────
+
+/**
+ * A one-way alias index that refuses to resolve a corrupted mapping.
+ *
+ * SPRINT 043. Consumers join artifacts by building `Map<providerId, canonicalId>` with `.set()`,
+ * which is last-write-wins and therefore reproduces the Sprint 041 defect at every read site. On
+ * 2026-07-28 two provider events resolved to the same `gamePk`, so both inherited the same
+ * simulation — a plain Map had no way to notice, in either direction.
+ *
+ * This index tracks both directions and refuses any alias touched by a many-to-one mapping. The
+ * consumer then gets `null` — visibly missing data — instead of another event's model output
+ * presented as this event's. Wrong-but-plausible is the more expensive failure: nobody investigates it.
+ */
+export interface AliasIndex<T> {
+  /** The canonical value for an alias, or null when unknown OR ambiguous. Never guesses. */
+  resolve(alias: string): T | null;
+  /** Aliases suppressed because they mapped to more than one canonical value. */
+  readonly ambiguousAliases: readonly string[];
+  /** Canonical values claimed by more than one alias — the Sprint 041 signature. */
+  readonly collidedTargets: readonly string[];
+  /** True when every alias resolves one-to-one. */
+  readonly isInjective: boolean;
+}
+
+/**
+ * Build an alias index from (alias, canonical) pairs.
+ *
+ * `key` reduces a canonical value to a comparable string, so this serves numeric `gamePk`s, string
+ * fixture ids, or whole identity objects without the index knowing which sport it serves.
+ */
+export function buildAliasIndex<T>(
+  pairs: readonly (readonly [alias: string, target: T])[],
+  key: (target: T) => string = String,
+): AliasIndex<T> {
+  const byAlias = new Map<string, Map<string, T>>();
+  const aliasesByTarget = new Map<string, Set<string>>();
+
+  for (const [alias, target] of pairs) {
+    if (!alias) continue;
+    const k = key(target);
+    if (!byAlias.has(alias)) byAlias.set(alias, new Map());
+    byAlias.get(alias)!.set(k, target);
+    if (!aliasesByTarget.has(k)) aliasesByTarget.set(k, new Set());
+    aliasesByTarget.get(k)!.add(alias);
+  }
+
+  const ambiguousAliases = [...byAlias].filter(([, t]) => t.size > 1).map(([a]) => a).sort();
+  const collidedTargets = [...aliasesByTarget].filter(([, a]) => a.size > 1).map(([t]) => t).sort();
+  // Block BOTH sides: an alias that is itself fine but points at a target another alias also claims
+  // is exactly the 2026-07-28 case, and resolving it would hand back a shared simulation.
+  const blocked = new Set<string>([
+    ...ambiguousAliases,
+    ...collidedTargets.flatMap((t) => [...(aliasesByTarget.get(t) ?? [])]),
+  ]);
+
+  return {
+    resolve(alias: string): T | null {
+      if (blocked.has(alias)) return null;
+      const targets = byAlias.get(alias);
+      if (!targets || targets.size !== 1) return null;
+      return [...targets.values()][0];
+    },
+    ambiguousAliases,
+    collidedTargets,
+    isInjective: ambiguousAliases.length === 0 && collidedTargets.length === 0,
+  };
+}
+
 // ── validation ─────────────────────────────────────────────────────────────────────────────────
 
 export type IdentityViolationCode =

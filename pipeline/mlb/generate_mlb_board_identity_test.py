@@ -19,11 +19,20 @@ from __future__ import annotations
 
 import sys
 
+import hashlib
+import importlib
+import pathlib
+
+import pipeline.mlb.generate_mlb_board as gmb
 from pipeline.mlb.generate_mlb_board import (
     _parse_iso,
     _resolve_team_ctx,
     _team_lookup_from_schedule,
 )
+
+# NOTE: the gate is referenced through `gmb.` rather than imported by name. The mutation test
+# reloads the module, which rebinds IdentityGateError to a new class object — a stale `from`-import
+# would stop matching in `except`, and the gate tests would pass for the wrong reason.
 
 FAILURES: list[str] = []
 
@@ -178,6 +187,116 @@ def test_MUTATION_old_lastwritewins_behaviour_is_caught() -> None:
     check(early == late == 824489, "the old lookup collapses both games onto the LAST gamePk")
     orphaned = {g["gamePk"] for g in games} - {early}
     check(orphaned == {824490}, f"the old lookup orphans 824490, got {orphaned}")
+
+
+# ── SPRINT 043 · publication safety gate ───────────────────────────────────────
+
+def test_gate_passes_a_clean_board() -> None:
+    """A correctly resolved doubleheader must publish without complaint."""
+    leans = [
+        {"gameId": "prov-early", "gamePk": 824490},
+        {"gameId": "prov-early", "gamePk": 824490},  # multiple leans per game is normal
+        {"gameId": "prov-late", "gamePk": 824489},
+    ]
+    check(gmb.validate_board_identity(leans) == [], "a clean board must produce no violations")
+    try:
+        gmb.assert_board_publishable(leans, date="2026-07-28")
+    except gmb.IdentityGateError as exc:  # pragma: no cover - failure path
+        check(False, f"clean board must publish, raised: {exc}")
+
+
+def test_gate_catches_the_july28_collision() -> None:
+    """The exact defect: two provider events collapsed onto one gamePk."""
+    leans = [
+        {"gameId": "prov-early", "gamePk": 824489},
+        {"gameId": "prov-late", "gamePk": 824489},
+    ]
+    violations = gmb.validate_board_identity(leans)
+    check(len(violations) == 1, f"expected exactly 1 violation, got {violations}")
+    check("PROVIDER_ID_COLLISION" in violations[0], f"wrong code: {violations[0]}")
+    check("824489" in violations[0], "the message must name the colliding gamePk")
+
+    raised = False
+    try:
+        gmb.assert_board_publishable(leans, date="2026-07-28")
+    except gmb.IdentityGateError as exc:
+        raised = True
+        check("824489" in str(exc), "the raised error must be actionable")
+    check(raised, "the gate MUST refuse to publish a collision, not warn")
+
+
+def test_gate_catches_ambiguous_provider_event() -> None:
+    """The inverse failure: one provider event claiming two games."""
+    leans = [
+        {"gameId": "prov-early", "gamePk": 824489},
+        {"gameId": "prov-early", "gamePk": 824490},
+    ]
+    violations = gmb.validate_board_identity(leans)
+    check(any("AMBIGUOUS_EVENT" in v for v in violations), f"expected AMBIGUOUS_EVENT, got {violations}")
+
+
+def test_gate_ignores_incomplete_rows_rather_than_inventing_violations() -> None:
+    """Leans without identity fields are someone else's problem — the gate must not fabricate."""
+    leans = [
+        {"gameId": None, "gamePk": 824489},
+        {"gameId": "prov-late", "gamePk": None},
+        {"gameId": "prov-late", "gamePk": 824490},
+    ]
+    check(gmb.validate_board_identity(leans) == [], "rows missing identity must be skipped, not flagged")
+
+
+def test_MUTATION_reverting_the_resolver_trips_the_gate() -> None:
+    """Mutate the REAL source back to last-write-wins, prove the gate catches it, restore byte-exactly.
+
+    A guard that has never been observed failing is not a guard. This mutates the shipped file on
+    disk rather than a copy, so the test proves the gate protects the code that actually runs.
+    """
+    src = pathlib.Path(__file__).with_name("generate_mlb_board.py")
+    original = src.read_bytes()
+    original_digest = hashlib.sha256(original).hexdigest()
+
+    mutated = original.decode().replace(
+        'lookup.setdefault(home["name"], []).append(home)',
+        'lookup[home["name"]] = [home]  # MUTATION: last write wins',
+        1,
+    )
+    check(mutated != original.decode(), "mutation did not apply — the resolver source has changed shape")
+
+    try:
+        src.write_text(mutated)
+        importlib.reload(gmb)
+
+        games = [
+            game(824490, "2026-07-28T17:40:00Z", "Cincinnati Reds", "Cleveland Guardians"),
+            game(824489, "2026-07-28T23:10:00Z", "Cincinnati Reds", "Cleveland Guardians"),
+        ]
+        ctx = gmb._team_lookup_from_schedule(games)
+        leans = [
+            {
+                "gameId": f"prov-{label}",
+                "gamePk": gmb._resolve_team_ctx(ctx, "Cincinnati Reds", t).get("gamePk"),
+            }
+            for label, t in (("early", "2026-07-28T17:41:00Z"), ("late", "2026-07-28T23:10:00Z"))
+        ]
+
+        pks = [l["gamePk"] for l in leans]
+        check(len(set(pks)) == 1, f"the mutation must reproduce the collapse, got {pks}")
+
+        raised = False
+        try:
+            gmb.assert_board_publishable(leans, date="2026-07-28")
+        except gmb.IdentityGateError:
+            raised = True
+        check(raised, "THE GATE FAILED TO CATCH THE REGRESSION IT EXISTS TO CATCH")
+    finally:
+        src.write_bytes(original)
+        importlib.reload(gmb)
+
+    restored = src.read_bytes()
+    check(hashlib.sha256(restored).hexdigest() == original_digest,
+          "the mutated source was NOT restored byte-for-byte")
+    check(gmb.validate_board_identity([{"gameId": "a", "gamePk": 1}]) == [],
+          "the restored module must behave normally")
 
 
 def main() -> int:

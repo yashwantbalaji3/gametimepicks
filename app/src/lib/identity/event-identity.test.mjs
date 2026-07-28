@@ -17,6 +17,7 @@ import {
   validateIdentities,
   validateEventScopedRecords,
   assertPublishable,
+  buildAliasIndex,
 } from "./event-identity.ts";
 import {
   identitiesFromSchedule,
@@ -262,4 +263,55 @@ test("baseball assumptions live in the adapter, and the adapter owns them all", 
   // And the adapter must not re-implement validation — that would let the two drift apart.
   const code = src.replace(/\/\*[\s\S]*?\*\//g, "");
   assert.doesNotMatch(code, /function\s+validate/i, "validation stays in the universal layer");
+});
+
+// ── SPRINT 043 · alias index (the read-path guard) ─────────────────────────────
+
+test("buildAliasIndex resolves a clean one-to-one mapping", () => {
+  const idx = buildAliasIndex([["prov-early", 824490], ["prov-late", 824489]]);
+  assert.equal(idx.resolve("prov-early"), 824490);
+  assert.equal(idx.resolve("prov-late"), 824489);
+  assert.equal(idx.isInjective, true);
+  assert.deepEqual(idx.collidedTargets, []);
+});
+
+test("buildAliasIndex refuses BOTH aliases of the real 2026-07-28 collision", () => {
+  // Two provider events, one gamePk. The old Map handed each of them the same simulation.
+  const idx = buildAliasIndex([
+    ["979a29c09433f74c", 824489],
+    ["c869940458363d7a", 824489],
+  ]);
+  assert.equal(idx.isInjective, false);
+  assert.deepEqual(idx.collidedTargets, ["824489"]);
+  assert.equal(idx.resolve("979a29c09433f74c"), null, "a collided alias must not resolve");
+  assert.equal(idx.resolve("c869940458363d7a"), null, "neither side may resolve — we cannot tell which is which");
+});
+
+test("buildAliasIndex refuses an alias claiming two targets", () => {
+  const idx = buildAliasIndex([["prov-early", 824489], ["prov-early", 824490]]);
+  assert.deepEqual(idx.ambiguousAliases, ["prov-early"]);
+  assert.equal(idx.resolve("prov-early"), null);
+});
+
+test("buildAliasIndex tolerates duplicate identical pairs", () => {
+  // Multiple leans per game is normal and must not read as a collision.
+  const idx = buildAliasIndex([["prov-early", 824490], ["prov-early", 824490], ["prov-late", 824489]]);
+  assert.equal(idx.isInjective, true);
+  assert.equal(idx.resolve("prov-early"), 824490);
+});
+
+test("buildAliasIndex isolates the collision from the rest of the slate", () => {
+  const idx = buildAliasIndex([
+    ["prov-a", 824489], ["prov-b", 824489],       // the doubleheader collision
+    ["prov-c", 824500], ["prov-d", 824501],       // 13 other games that day were fine
+  ]);
+  assert.equal(idx.resolve("prov-a"), null);
+  assert.equal(idx.resolve("prov-c"), 824500, "an unaffected game must still resolve");
+  assert.equal(idx.resolve("prov-d"), 824501);
+});
+
+test("buildAliasIndex returns null for unknown and empty aliases", () => {
+  const idx = buildAliasIndex([["prov-a", 1]]);
+  assert.equal(idx.resolve("nope"), null);
+  assert.equal(idx.resolve(""), null);
 });
