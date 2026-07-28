@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823275,
+  "date": "2026-07-28",
+  "capturedAt": "2026-07-28T18:07:00.157Z",
+  "availableAt": "2026-07-28T18:07:00.157Z",
+  "eventStartTime": "2026-07-29T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 650633,
+      "name": "Michael King",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 5,
+        "bbAvg": 2.8,
+        "erAvg": 1.8,
+        "hrAvg": 0.2,
+        "kPer9": 8.23,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 119.33,
+        "k": 103,
+        "bb": 49,
+        "er": 43,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 547179,
+      "name": "Michael Lorenzen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 7,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 2.6,
+        "bbAvg": 2.6,
+        "erAvg": 2.6,
+        "hrAvg": 0.6,
+        "kPer9": 4.74,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 99.67,
+        "k": 78,
+        "bb": 39,
+        "er": 73,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-28T18:07:00.157Z"
+  },
+  "recordHash": "c4447fa36433cb5d710ed3b609afe7ebe3e17a11b0b464c6e4dc5c7d5153894f"
+}
