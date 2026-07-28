@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824490,
+  "date": "2026-07-28",
+  "capturedAt": "2026-07-28T16:28:53.412Z",
+  "availableAt": "2026-07-28T16:28:53.412Z",
+  "eventStartTime": "2026-07-28T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 695505,
+      "name": "Chase Burns",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 7,
+      "lastStartDate": "2026-07-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 5.8,
+        "bbAvg": 2.6,
+        "erAvg": 2.2,
+        "hrAvg": 0.6,
+        "kPer9": 9.67,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 107.67,
+        "k": 124,
+        "bb": 39,
+        "er": 29,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 677944,
+      "name": "Slade Cecconi",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 3.4,
+        "bbAvg": 1.8,
+        "erAvg": 2.6,
+        "hrAvg": 0.8,
+        "kPer9": 6.04,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 103.67,
+        "k": 82,
+        "bb": 34,
+        "er": 53,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-28T16:28:53.412Z"
+  },
+  "recordHash": "67cdd49ef4a290c01cdae54ca6c0af4b258cc394323e0c1a833960f17c064332"
+}
