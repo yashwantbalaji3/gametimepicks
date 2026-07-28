@@ -48,7 +48,10 @@ test("hot-lava theme end-to-end — no cool-blue 'dusty' panel remnants in src",
   const walk = (dir) => {
     for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
       const p = path.join(dir, ent.name);
-      if (ent.isDirectory()) walk(p);
+      // The /design-lab preview routes are an intentional multi-palette exploration
+      // (e.g. a navy dashboard, a violet app) — they are not the production theme, so the
+      // hot-lava guard skips them.
+      if (ent.isDirectory()) { if (ent.name !== "design-lab") walk(p); }
       else if (/\.tsx$/.test(ent.name)) {
         const s = fs.readFileSync(p, "utf8");
         // cool blue-gray panel tuples (R<25, B≥28) that read as the retired dusty theme
