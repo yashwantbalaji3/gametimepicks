@@ -38,7 +38,10 @@ export default function AchievementBanner() {
           </div>
           <p className="mt-0.5 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
             Two paper Bank Builder ladders run from $100 to ~$10K, each graded leg-by-leg from official results.
-            <span className="ml-1" style={{ color: "var(--vault-text-faint)" }}>Paper-only · educational · not betting advice.</span>
+            <span className="ml-1" style={{ color: "var(--vault-text-faint)" }}>
+              Ten winning legs across two ladders — a small sample, and not evidence the approach repeats.
+              Paper-only · educational · not betting advice.
+            </span>
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">

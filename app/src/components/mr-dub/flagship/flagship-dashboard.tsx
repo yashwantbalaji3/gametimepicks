@@ -36,7 +36,8 @@ export function ExecutiveDashboard({ kpis, journey, todayStatus }: { kpis: Flags
             <div className="mt-1 flex flex-wrap items-end gap-x-3 gap-y-1">
               <span className="font-display tabular tracking-tight gtp-stat-value" style={{ fontSize: 44, fontWeight: 850, color: "var(--vault-text)", lineHeight: 0.95 }}>{usd(kpis.bankroll)}</span>
               <span className="mb-1 rounded-full px-2 py-0.5 font-mono text-[11px] font-bold" style={{ color: "var(--vault-success)", background: "var(--gtp-success-soft, rgba(74,222,128,0.10))", border: "1px solid var(--vault-success-dim)" }}>{signed(kpis.profit)}</span>
-              <span className="mb-1 font-mono text-[12px]" style={{ color: "var(--vault-gold)" }}>{kpis.roiMultiple}× ROI</span>
+              {/* Sprint 035: a return figure never renders without its sample size adjacent. */}
+              <span className="mb-1 font-mono text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{kpis.roiMultiple}× on {kpis.record.wins + kpis.record.losses} settled bets</span>
             </div>
             <div className="mt-1.5 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
               {usd0(kpis.startingBankroll)} on {longDate(kpis.startingDate)} → {usd(kpis.bankroll)} · {kpis.settledDays} settled days
@@ -57,12 +58,12 @@ export function ExecutiveDashboard({ kpis, journey, todayStatus }: { kpis: Flags
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         <Kpi label="Peak bankroll" value={usd(kpis.peak)} sub="all-time high-water mark" accent="var(--vault-gold)" glow />
         <Kpi label="Current drawdown" value={usd(kpis.drawdown)} sub={`${(kpis.drawdownPct * 100).toFixed(2)}% off peak`} accent={kpis.drawdown > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text)"} />
-        <Kpi label="Total ROI" value={`${kpis.roiMultiple}×`} sub={`${kpis.roiPct.toLocaleString("en-US")}% on $${kpis.startingBankroll}`} accent="var(--vault-success)" />
+        <Kpi label="Total ROI" value={`${kpis.roiMultiple}×`} sub={`${kpis.record.wins + kpis.record.losses} settled bets · paper only`} accent="var(--vault-text)" />
         <Kpi label="Win rate" value={`${kpis.winRate}%`} sub={`${kpis.record.wins}W · ${kpis.record.losses}L`} accent="var(--vault-success)" />
         <Kpi label="Largest winning day" value={kpis.largestWinDay ? signed(kpis.largestWinDay.pl) : "—"} sub={kpis.largestWinDay ? longDate(kpis.largestWinDay.date) : undefined} accent="var(--vault-success)" />
         <Kpi label="Largest losing day" value={kpis.largestLossDay ? signed(kpis.largestLossDay.pl) : "—"} sub={kpis.largestLossDay ? longDate(kpis.largestLossDay.date) : undefined} accent="var(--gtp-bank-heat)" />
-        <Kpi label="Longest win streak" value={`${kpis.longestWinStreak}`} sub="consecutive wins" accent="var(--vault-success)" />
-        <Kpi label="Longest losing streak" value={`${kpis.longestLossStreak}`} sub="consecutive losses" accent={kpis.longestLossStreak > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text)"} />
+        <Kpi label="Longest win streak" value={`${kpis.longestWinStreak}`} sub={`consecutive wins of ${kpis.record.wins + kpis.record.losses} settled`} accent="var(--vault-text)" />
+        <Kpi label="Longest losing streak" value={`${kpis.longestLossStreak}`} sub={`consecutive losses of ${kpis.record.wins + kpis.record.losses} settled`} accent={kpis.longestLossStreak > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text)"} />
         <Kpi label="Active ladder" value={activeLabel} sub={activeLane?.kind === "value" ? "value lane" : "survival lane"} accent="var(--vault-gold)" />
         <Kpi label="Pending exposure" value={usd(todayStatus.pendingExposure)} sub={`${todayStatus.products.filter((p) => p.live).length} product(s) live`} accent={todayStatus.pendingExposure > 0 ? "var(--gtp-bank-heat)" : "var(--vault-text)"} />
         <Kpi label="Products active today" value={`${todayStatus.products.filter((p) => p.live).length}`} sub={todayStatus.products.filter((p) => p.live).map((p) => p.glyph).join(" ") || "settlement pending"} />

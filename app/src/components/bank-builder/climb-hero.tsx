@@ -147,6 +147,13 @@ export default function ClimbHero({
           Bank Builder is a paper-only ladder. Each lane starts at $100 and climbs toward $10K in 5 steps. A step only
           advances after every leg wins.
         </p>
+        {/* Sprint 035: the record is stated with its sample size, so a completed ladder is not read as
+            a repeatable method. Two ladders have completed, on ten winning legs in total. */}
+        <p className="mt-2 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 600 }}>
+          This is a historical record of paper ladders, not a strategy shown to work. Two have completed,
+          on ten winning legs in total &mdash; far too small a sample to conclude anything repeats. Most
+          lanes stop before the top, and every stop is published here.
+        </p>
         <p className="mt-1.5 font-mono text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
           paper-only · no real money · each lane independent · a lost step stops that lane · a win rolls the paper return
           into the next step

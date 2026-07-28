@@ -68,7 +68,7 @@ export default function MoonshotPage() {
         counts={record ? { settled: record.wins + record.losses + record.voids, pending: record.pending } : undefined}
         primaryAction={{ label: "Open Bank Builder", href: "/bank-builder" }}
         secondaryAction={{ label: "Mr. Dub", href: "/mr-dub" }}
-        note="Two independent, high-upside longshot cards published daily — maximum upside, not a ladder. Tracked on their own record / ROI / profit, fully separate from the Bank Builder. Paper-only, settlement-supported."
+        note="Two independent longshot cards published daily — not a ladder. Its lifetime paper record is 0–7: every Moonshot card settled so far has lost. It is published as a transparent record of a high-variance approach that has not worked, not as a product to follow. Tracked separately from the Bank Builder. Paper-only, settlement-supported."
       />
 
       {/* The 3-STEP LADDER — now a PROMINENT trajectory visual (was a small inline grid). Rendered from the

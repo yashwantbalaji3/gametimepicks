@@ -1,5 +1,8 @@
 /**
- * /mr-dub — Mr. Dub's flagship paper portfolio. The public proof that the methodology works: an executive
+ * /mr-dub — Mr. Dub's flagship paper portfolio. A COMPLETE, AUDITABLE RECORD of a paper ladder — not
+ * evidence that the methodology works. Sprint 035: the record stands on 33 settled bets, two 5-leg
+ * ladders produced essentially all of the profit, and across all four paper products the record is
+ * 19-39. A 189x return on that sample is a variance outcome, not a demonstrated skill. An executive
  * dashboard (KPIs), today's status, the visual $100 → $19.5K Bank Builder journey, performance analytics,
  * an expandable day-by-day timeline, and every wager attributed to its product.
  *
@@ -58,7 +61,8 @@ export default function MrDubPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
-      {/* 0 — Track-record social proof: 2× $100→$10K completed (factual, from the canonical ledger). */}
+      {/* 0 — Completed ladders, stated factually from the canonical ledger. Not framed as proof of skill:
+          two ladders is a sample of two, and the banner copy says so. */}
       <AchievementBanner />
 
       {/* 1 — Flagship brand header (slim) — the avatar + who Mr. Dub is, then straight into the terminal. */}

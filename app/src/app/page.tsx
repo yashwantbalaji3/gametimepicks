@@ -23,6 +23,7 @@ import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildMarketCoverage } from "@/lib/today/market-coverage";
+import { loadGradingRecord } from "@/lib/home/grading-record";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
@@ -35,6 +36,7 @@ import WhatThisIs from "@/components/home/what-this-is";
 import ReturnHook from "@/components/home/return-hook";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
 import PreSportsbookStrip from "@/components/home/pre-sportsbook-strip";
+import WhatWeHaveNotProven from "@/components/home/what-we-have-not-proven";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
 import { SlateSummary, TrustStrip, HowItWorks, FooterCta } from "@/components/home/home-sections";
@@ -89,6 +91,8 @@ export default function HomePage() {
   const homeBrief = buildDailyBrief(details, today, { nowMs: Date.now() });
   // ── Sprint 032 — the same canonical availability object /today renders, so Home and Today cannot
   //    disagree about what data exists. One derivation, two renderings; no new data path. ──
+  // Sprint 035 — graded-prediction counts for the "what we have not proven" band. Money-independent.
+  const gradingRecord = loadGradingRecord(dataRoot);
   const marketCoverage = buildMarketCoverage(
     details.filter((d) => d.sport === "mlb" && d.date === today),
     today,
@@ -229,6 +233,10 @@ export default function HomePage() {
 
       {/* 1e — Before you open a sportsbook: what data exists for today + when the book was captured.
           The first step from navigation page toward intelligence dashboard. Availability only. */}
+      {/* 1e-a — Sprint 035: lead with the limitation. This is the one claim no sportsbook-owned
+          research arm can make, and it is backed by the committed grading ledger. */}
+      <WhatWeHaveNotProven gradedCount={gradingRecord.gradedCount} gradedDates={gradingRecord.gradedDates} />
+
       <PreSportsbookStrip coverage={marketCoverage} dateLabel={dateLabel} />
 
       {/* 2 — Simulation Hub: the per-sport simulation centers (the core product topic) */}
