@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823838,
+  "date": "2026-07-28",
+  "capturedAt": "2026-07-28T20:11:38.186Z",
+  "availableAt": "2026-07-28T20:11:38.186Z",
+  "eventStartTime": "2026-07-28T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 645261,
+      "name": "Sandy Alcantara",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33.67,
+        "ipAvg": 6.73,
+        "kAvg": 5.8,
+        "bbAvg": 2.2,
+        "erAvg": 3,
+        "hrAvg": 1,
+        "kPer9": 7.75,
+        "workloadIpLast5": 33.67
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 143.67,
+        "k": 110,
+        "bb": 38,
+        "er": 64,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 605400,
+      "name": "Aaron Nola",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 6,
+        "bbAvg": 1.8,
+        "erAvg": 4,
+        "hrAvg": 1.6,
+        "kPer9": 9.76,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 108.33,
+        "k": 112,
+        "bb": 36,
+        "er": 70,
+        "hr": 25
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-28T20:11:38.186Z"
+  },
+  "recordHash": "c3b4066a2c8767897e5a0092bb0dde5a28ce607de95ce6282af2895839ddd21a"
+}
