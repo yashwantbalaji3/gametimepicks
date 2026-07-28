@@ -29,6 +29,14 @@ contract and this audit were derived independently and agree on all five rows.
 
 > **No sport in this repository enforces a per-row capture timestamp against event start.**
 
+> **⚠️ CORRECTED BY SPRINT 044.** The statement above is too broad. Measurement in
+> [`SPRINT_044_HISTORICAL_INTEGRITY_AUDIT.md`](./SPRINT_044_HISTORICAL_INTEGRITY_AUDIT.md) found that
+> MLB's **internal pregame research archive DOES** enforce per-row provenance — 6,438 of 6,438 rows
+> carry `capturedAt` / `availableAt` / `eventStartTime`, minimum capture lead 72 minutes, and an
+> independent re-derivation agrees with the stored flag on every row. What holds is the narrower claim:
+> MLB's **public serving artifacts** (`boards`, `team-markets`, `player-props`) carry only a file-level
+> `generatedAt`, and the other sports are unchanged from the measurements below.
+
 MLB is the only sport with per-row capture provenance at all, and it still shipped an identity collision
 to two user-facing surfaces (Sprint 041). Everywhere else, "this odds line was pregame" rests on a
 file-level `generatedAt`, which describes when the build ran — not when the row was observed. That is not
