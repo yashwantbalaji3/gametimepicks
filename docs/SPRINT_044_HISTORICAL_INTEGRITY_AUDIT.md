@@ -115,17 +115,21 @@ too broad, and measurement here corrects it.**
 
 | | |
 |---|---|
-| Rows evaluated | **6,438** |
-| Research eligible (independently re-derived) | **6,438 — 100%** |
-| Disagreements with the pipeline's stored flag | **0 of 6,438** |
-| Capture lead time before first pitch | min **72 min**, median 279 min, max 1,774 min |
+| Rows evaluated | **9,938** |
+| Research eligible (independently re-derived) | **9,938 — 100%** |
+| Disagreements with the pipeline's stored flag | **0 of 9,938** |
+| Capture lead time before first pitch | min **72 min**, median 274 min, max 1,799 min |
 | Rows captured at or after start | **0** |
+
+The row count grows nightly as new snapshots land — it was 6,438 before this sprint's rebase picked up
+312 more archive files and 9,938 after. The rate, the zero disagreements, and the 72-minute minimum lead
+held across both measurements, which is the part that matters.
 
 The precise, corrected statement:
 
 - **MLB's internal pregame research archive DOES enforce per-row provenance.** Every row carries
   `capturedAt`, `availableAt`, `eventStartTime`, and `sourceLastUpdate`, and an independent
-  re-derivation agrees with the stored flag on all 6,438 rows.
+  re-derivation agrees with the stored flag on all 9,938 rows.
 - **MLB's public serving artifacts do NOT.** `boards`, `team-markets`, and `player-props` carry a single
   file-level `generatedAt` and **zero** per-row `capturedAt` or `eventStartTime`.
 - The other sports remain as Sprint 043 measured them.
@@ -179,7 +183,7 @@ Every ineligible row is stored with its reason. Nothing is deleted.
 
 | Sport | Sprint 043 | Sprint 044 | Change |
 |---|---|---|---|
-| MLB | `HISTORICAL_ONLY` | `HISTORICAL_ONLY` | Unchanged verdict, **stronger evidence** — per-row provenance now measured at 6,438/6,438 |
+| MLB | `HISTORICAL_ONLY` | `HISTORICAL_ONLY` | Unchanged verdict, **stronger evidence** — per-row provenance now measured at 9,938/9,938 |
 | UFC | `SCAFFOLD_ONLY` | `SCAFFOLD_ONLY` | Unchanged |
 | Soccer (World Cup) | `HISTORICAL_ONLY` | `HISTORICAL_ONLY` | Unchanged |
 | Soccer (EPL/UCL/MLS) | `DISABLED` | `DISABLED` | Unchanged |
@@ -234,7 +238,7 @@ false assurance.
 - The corruption is 0.23% of the decisive sample and changes no conclusion.
 - All three collisions are doubleheaders where the late game's `gamePk` survived — one mechanism, three
   instances, not three separate bugs.
-- MLB's internal pregame archive is leakage-safe per row: 6,438/6,438, minimum 72-minute lead, and an
+- MLB's internal pregame archive is leakage-safe per row: 9,938/9,938, minimum 72-minute lead, and an
   independent derivation agrees with the stored flag on every row.
 - MLB's public serving artifacts carry no per-row capture timing at all.
 - Three mutation tests prove the new guards catch what they claim to, verified in child processes.

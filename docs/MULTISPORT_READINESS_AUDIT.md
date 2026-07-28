@@ -31,7 +31,7 @@ contract and this audit were derived independently and agree on all five rows.
 
 > **⚠️ CORRECTED BY SPRINT 044.** The statement above is too broad. Measurement in
 > [`SPRINT_044_HISTORICAL_INTEGRITY_AUDIT.md`](./SPRINT_044_HISTORICAL_INTEGRITY_AUDIT.md) found that
-> MLB's **internal pregame research archive DOES** enforce per-row provenance — 6,438 of 6,438 rows
+> MLB's **internal pregame research archive DOES** enforce per-row provenance — 9,938 of 9,938 rows
 > carry `capturedAt` / `availableAt` / `eventStartTime`, minimum capture lead 72 minutes, and an
 > independent re-derivation agrees with the stored flag on every row. What holds is the narrower claim:
 > MLB's **public serving artifacts** (`boards`, `team-markets`, `player-props`) carry only a file-level
