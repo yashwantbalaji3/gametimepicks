@@ -32,6 +32,13 @@ Whether the host honours that token is not observable from the public site. So t
 answer was "unknown" — and shipping a freshness claim on top of an unknown is exactly what
 this codebase refuses to do.
 
+**Partially resolved 2026-07-28.** A normal (non-`[skip ci]`) push to `main` DID trigger a Vercel
+deploy — confirmed by the marker landing within minutes. What remains unmeasured is whether a
+`[skip ci]` bot commit does the same. That is now **testable rather than speculative**: the marker is
+live, so if tomorrow's automated data commits advance `Build clock` without any human push, Vercel
+ignores the token; if the clock stalls on a bot-only day, it honours it. Either way the answer will
+come from `npm run verify:deployment`, not from reasoning.
+
 ## What Sprint 032 changed
 
 It did not guess. It made the question **measurable**.
@@ -83,9 +90,19 @@ A missing marker never reads as healthy. `classifyBuildClock()` applies the same
 every degenerate input returns `"unknown"`, and `ok` is true **only** for a positively
 measured same-day clock. Pinned by `src/lib/build-clock.test.mjs`.
 
-> **The first `verify:deployment` run against production will report UNKNOWN.** That is
-> correct, not a failure — production has not yet deployed a build carrying the marker. It
-> becomes meaningful from the first post-Sprint-032 deploy onward.
+> **RESOLVED 2026-07-28 (Sprint 037B).** The marker reached production on the first push of the
+> Sprint 032–037 work. `verify:deployment` now reports:
+>
+> ```
+> Deployment status: OK
+> Build clock     2026-07-28        (today)
+> Built at        2026-07-28T14:01:57Z  (0.3h ago)
+> Deployed commit 647e92b0 [vercel]
+> Local HEAD      647e92b0
+> ```
+>
+> Production observability works. It took six sprints to get an answer because the tool could not
+> report on builds that predated it — which was the honest behaviour, not a bug.
 
 ## The founder decision — `VERCEL_DEPLOY_HOOK_URL`
 

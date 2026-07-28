@@ -53,7 +53,9 @@ function resolveCommit() {
   return {
     sha: sha || null,
     shortSha: sha ? sha.slice(0, 8) : null,
-    message: message ? message.slice(0, 200) : null,
+    // First line only. A full commit body carries newlines that wreck any single-line readout —
+    // verify-deployment printed an entire message into its summary table on the first real deploy.
+    message: message ? message.split("\n")[0].slice(0, 200) : null,
     committedAt: committedAt || null,
   };
 }
