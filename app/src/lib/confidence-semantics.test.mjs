@@ -71,15 +71,17 @@ test("every caption states the measured settle rate, so no tier can imply qualit
 });
 
 test("the caption for the worst-performing category does not read as an endorsement", () => {
-  // "High" is the worst performer (.4934). Its caption must not sell it.
+  // Sprint 036: this asserted the literal "49.3%". Hardcoding the rate in BOTH the caption and its
+  // guard is what allowed Category C to drift to 51.0% while the suite stayed green. Structure is
+  // asserted here; the NUMBER is verified against the live ledger by confidence-rate-accuracy.test.mjs.
   const cap = confidenceCaption("High");
-  assert.match(cap, /49\.3%/, "must quote its real settle rate");
+  assert.match(cap, /\d{1,3}\.\d%/, "must quote a real settle rate");
   assert.match(cap, /lowest/i, "must say plainly that it is the lowest of the three");
 });
 
 test("the caption for the best-performing category is not undersold", () => {
   const cap = confidenceCaption("Low");
-  assert.match(cap, /51\.7%/);
+  assert.match(cap, /\d{1,3}\.\d%/, "must quote a real settle rate");
   assert.match(cap, /highest/i, "must say plainly that it is the highest of the three");
 });
 

@@ -70,8 +70,15 @@ export function confidenceLabel(c: RawConfidence | null | undefined): string {
  * One-line explanation suited for tooltip / sub-line text.
  *
  * Each caption states the band a row fell in AND how that band has actually settled, so a reader is
- * never left to infer that an earlier letter is a better one. Rates are measured over 21,192 settled
- * outcomes and are the reason these categories no longer affect ordering.
+ * never left to infer that an earlier letter is a better one. The rates are the reason these categories
+ * no longer affect ordering.
+ *
+ * ⚠️ THESE RATES ARE A HARDCODED SNAPSHOT and the ledger grows every night. Sprint 036 measured the
+ * Category C rate drift from 51.7% to 51.0% after a SINGLE overnight settle, while the Sprint 035 test
+ * kept passing because it asserted the string rather than the data. `confidence-rate-accuracy.test.mjs`
+ * now recomputes all three from the committed ledger and fails when a caption drifts, so a stale public
+ * claim blocks the build instead of aging quietly. Deriving these automatically is the proper fix and is
+ * on the Sprint 036 roadmap; until then the guard is what keeps them honest.
  */
 export function confidenceCaption(c: RawConfidence | null | undefined): string {
   switch (c) {
@@ -80,7 +87,7 @@ export function confidenceCaption(c: RawConfidence | null | undefined): string {
     case "Medium":
       return "Model and market differed by 2.5–5pp. These have settled at 50.6%.";
     case "Low":
-      return "Model and market differed by under 2.5pp, or the row was anomaly-flagged. These have settled at 51.7% — the highest of the three categories.";
+      return "Model and market differed by under 2.5pp, or the row was anomaly-flagged. These have settled at 51.0% — the highest of the three categories.";
     case "insufficient_data":
       return "Recent10 sample is too thin — no projection emitted.";
     case "no_play":
