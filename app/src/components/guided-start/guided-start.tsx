@@ -267,7 +267,7 @@ export default function GuidedStart({
               )}
 
               <div className="flex flex-wrap gap-2 pt-1">
-                <Link href="/parlay-lab/" className="px-3.5 py-2 rounded-full text-[11.5px]" style={{ background: "var(--vault-gold-bright)", color: "var(--vault-bg)" }}>
+                <Link href="/picks/" className="px-3.5 py-2 rounded-full text-[11.5px]" style={{ background: "var(--vault-gold-bright)", color: "var(--vault-bg)" }}>
                   Build your own in Parlay Lab →
                 </Link>
                 <Link href="/bank-builder/" className="px-3.5 py-2 rounded-full text-[11.5px]" style={{ border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)" }}>

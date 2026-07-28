@@ -77,7 +77,7 @@ export default function LearnPage() {
         <div className="rounded-[10px] px-4 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           {[
             { n: "1", t: "Today", d: "What's live now", href: "/today" },
-            { n: "2", t: "Games", d: "Pick a game, any sport", href: "/games" },
+            { n: "2", t: "Simulate", d: "Pick a game, any sport", href: "/simulate" },
             { n: "3", t: "Picks", d: "The model's cards", href: "/picks" },
             { n: "4", t: "Build", d: "Make your own", href: "/build" },
           ].map((s) => (

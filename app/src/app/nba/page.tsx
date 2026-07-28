@@ -249,7 +249,7 @@ export default function NbaLandingPage() {
           { href: "/nba/board", eyebrow: "Latest slate", title: "Model board", sub: propsLoaded ? `${leans.length} projections across ${games.length} game${games.length === 1 ? "" : "s"}.` : "Lines arriving soon — schedule live." },
           { href: "/results/nba", eyebrow: "Results", title: "NBA results", sub: lifetime?.hitRate != null ? `${(lifetime.hitRate * 100).toFixed(1)}% on ${lifetime.decisive} settled.` : "Pending first settlement." },
           { href: "/results/model-audit", eyebrow: "Performance", title: "Model performance", sub: "Per-market, per-edge, per-game dispersion." },
-          { href: "/parlay-lab", eyebrow: "Build", title: "Parlay Lab", sub: "Educational candidate slips. No hit-rate claims." },
+          { href: "/picks", eyebrow: "Build", title: "Picks Lab", sub: "Educational candidate slips. No hit-rate claims." },
         ]}
       />
     </div>

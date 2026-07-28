@@ -689,7 +689,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-10 overflow-x-hidden">
         <div className="mb-2">
-          <Link href="/games" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
+          <Link href="/simulate" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
         </div>
         <div className="mx-auto max-w-xl mt-8 rounded-[10px] px-5 py-6" style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.55)" }}>
           <p className="font-mono uppercase tracking-[0.12em] mb-1" style={{ fontSize: 10, color: "var(--vault-warn)" }}>Unavailable</p>
@@ -712,7 +712,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
         <div className="mb-2">
-          <Link href="/games" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
+          <Link href="/simulate" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
         </div>
         {(() => {
           // In-page game selector — hop between the day's other MLB games without the global nav. Current game
@@ -873,7 +873,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
         <div className="mb-2">
-          <Link href="/games" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
+          <Link href="/simulate" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
         </div>
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
@@ -902,7 +902,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
       <div className="mb-2">
-        <Link href="/games" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
+        <Link href="/simulate" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
       </div>
       {/* Hero / matchup */}
       <section className="relative overflow-hidden rounded-[14px] px-5 py-6 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 150% at 0% 0%, rgba(242, 54, 69,0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(26, 16, 11,0.97) 100%)" }}>

@@ -77,7 +77,7 @@ export default function IplParlaysPlaceholderPage() {
           </div>
           The current{" "}
           <Link
-            href="/nba/parlays"
+            href="/picks"
             style={{ color: "var(--vault-gold-bright)" }}
           >
             NBA Parlay Lab

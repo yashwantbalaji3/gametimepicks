@@ -91,7 +91,7 @@ export default function MlbParlaysPlaceholderPage() {
           </div>
           The current{" "}
           <Link
-            href="/nba/parlays"
+            href="/picks"
             style={{ color: "var(--vault-gold-bright)" }}
           >
             NBA Parlay Lab

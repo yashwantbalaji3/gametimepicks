@@ -488,7 +488,7 @@ function ParlaysPanel({
 
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
-            href="/parlay-lab"
+            href="/picks"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[3px] font-medium text-[14px] tracking-tight transition-colors"
             style={{
               background: "var(--vault-gold)",
@@ -611,7 +611,7 @@ function UpcomingPanel({
           <span aria-hidden>→</span>
         </Link>
         <Link
-          href="/parlay-lab"
+          href="/picks"
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[3px] font-medium text-[14px] tracking-tight transition-colors"
           style={{
             border: "1px solid var(--vault-border)",

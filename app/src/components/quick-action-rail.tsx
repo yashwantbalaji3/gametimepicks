@@ -47,7 +47,7 @@ const DEFAULT_CARDS: QuickActionCard[] = [
     sub: "Every cut of the settled record.",
   },
   {
-    href: "/parlay-lab",
+    href: "/picks",
     eyebrow: "Build",
     title: "Parlay Lab",
     sub: "Lower-correlation educational slips.",

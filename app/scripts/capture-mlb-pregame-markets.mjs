@@ -153,6 +153,14 @@ async function main() {
   fs.writeFileSync(path.join(dir, "raw.json"), JSON.stringify({ public: false, capturedAt, rawHash: hash(res.body), body: res.body }, null, 2));
   fs.writeFileSync(path.join(dir, "normalized.json"), JSON.stringify({ public: false, capturedAt, normalizedHash: hash(records), records }, null, 2));
   summary.wrote = records.length; summary.eligible = records.filter((r) => r.researchEligible).length; summary.creditsUsedApprox = res.used ?? null; summary.rawHash = hash(res.body); summary.normalizedHash = hash(records);
+  // SPRINT 036: stamp the COMMITTED manifest with the capture time.
+  // raw.json and normalized.json both carry `capturedAt`, but both are gitignored (.gitignore:87-88) —
+  // 102 of 104 capture directories are already payload-less, and market-capture-reliability.json flags
+  // four dates as LOST_RESEARCH_DATE. The manifest is the only artifact that survives, and without a
+  // timestamp the surviving record cannot even be ordered in time except by filesystem mtime, which
+  // does not survive a clone. One field turns a pile of unordered manifests into a usable capture
+  // timeline, at zero storage cost and with no odds data committed.
+  summary.capturedAt = capturedAt;
   fs.writeFileSync(path.join(dir, "manifest.json"), JSON.stringify(summary, null, 2));
   console.log(`\n=== MLB pregame MARKET capture (WROTE) ${DATE} ===`);
   console.log(`records ${records.length} (eligible ${summary.eligible}) · credits remaining ${res.remaining} · dir ${path.relative(REPO, dir)}`);
