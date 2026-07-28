@@ -49,23 +49,26 @@ const CONFIDENCE_PILL: Record<
   string,
   { fg: string; bg: string; border: string; label: string }
 > = {
+  // Sprint 035: labels AND colours are neutral. The old palette (gold for High, muted for Low)
+  // encoded the same inverted ranking the words did — on settled data the order runs A .4934,
+  // B .5063, C .5172, so no category may be styled as the desirable one.
   High: {
-    fg: "var(--vault-gold-bright)",
-    bg: "var(--vault-gold-dim)",
-    border: "var(--vault-border-strong)",
-    label: "Stronger signal",
+    fg: "var(--vault-text-mute)",
+    bg: "var(--vault-panel-elevated)",
+    border: "var(--vault-border)",
+    label: "Category A",
   },
   Medium: {
-    fg: "var(--vault-warn)",
-    bg: "var(--vault-warn-dim)",
-    border: "rgba(242, 54, 69, 0.30)",
-    label: "Watch",
+    fg: "var(--vault-text-mute)",
+    bg: "var(--vault-panel-elevated)",
+    border: "var(--vault-border)",
+    label: "Category B",
   },
   Low: {
     fg: "var(--vault-text-mute)",
     bg: "var(--vault-panel-elevated)",
     border: "var(--vault-border)",
-    label: "High-variance",
+    label: "Category C",
   },
   insufficient_data: {
     fg: "var(--vault-text-faint)",
@@ -86,7 +89,7 @@ const MARKET_ORDER: Market[] = ["PTS", "REB", "AST"];
 // Friendlier labels for guardrail-emitted riskFlags. Anything not in
 // this map falls back to underscore-to-space.
 const RISK_FLAG_LABEL: Record<string, string> = {
-  suspicious_edge: "High-variance",
+  suspicious_edge: "Anomaly-flagged",
   news_risk_flag: "News risk",
   news_remove: "Removed by news",
   news_manual_review: "Manual review",

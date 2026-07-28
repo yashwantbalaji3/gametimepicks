@@ -10,16 +10,19 @@
  * find "High / Medium / Low" unhelpful — they read like dashboard
  * jargon and don't communicate what the tier actually means.
  *
- * On product surfaces we instead render:
- *   - "Stronger signal"  for High  — the model has both edge AND
- *                                    sample depth behind the call
- *   - "Watch"            for Medium — edge is present but smaller or
- *                                     the sample is thinner
- *   - "High-variance"    for Low   — anomaly-flagged or thin-sample
- *                                    picks that pass the guardrails
- *                                    but should be treated as noisier
+ * On product surfaces we instead render NEUTRAL CATEGORY NAMES:
+ *   - "Category A" for High   — model and market differed by >= 5pp
+ *   - "Category B" for Medium — differed by 2.5-5pp
+ *   - "Category C" for Low    — differed by < 2.5pp, or anomaly-flagged
  *   - "Sample too small" for insufficient_data — model declined to
  *                                                emit a projection
+ *
+ * Sprint 035: the previous names ("Stronger signal" / "Watch" /
+ * "High-variance") ranked the tiers in the reader's mind in exactly the
+ * wrong order. Measured over 21,192 settled rows the ordering is
+ * INVERTED — A .4934, B .5063, C .5172 — so the labels are now letters
+ * that carry no built-in ranking, and each caption states the measured
+ * settle rate alongside it.
  *
  * The audit/methodology pages can still show the raw tier names; this
  * helper is for the consumer-facing surfaces (matchup cards, results
@@ -34,15 +37,26 @@ export type RawConfidence =
   | "no_play"
   | string;
 
-/** Friendly label suitable for casual reader-facing surfaces. */
+/**
+ * Reader-facing label for a confidence tier.
+ *
+ * SPRINT 035 — these labels used to invert the reader's instruction.
+ * "High" rendered as "Stronger signal" and "Low" as "High-variance", while on 21,192 settled rows
+ * "High" hit .4934 and "Low" hit .5172. The rename was more persuasive than the raw tier: it endorsed
+ * the worst-performing bucket harder and discouraged the best-performing one harder.
+ *
+ * The tier DESCRIBES how a projection was produced — it is a relabelled edge bucket (90.8%
+ * deterministic) and has never been shown to predict outcome. Labels are therefore neutral and
+ * categorical: they name the band a row fell in and imply no ordering of quality.
+ */
 export function confidenceLabel(c: RawConfidence | null | undefined): string {
   switch (c) {
     case "High":
-      return "Stronger signal";
+      return "Category A";
     case "Medium":
-      return "Watch";
+      return "Category B";
     case "Low":
-      return "High-variance";
+      return "Category C";
     case "insufficient_data":
       return "Sample too small";
     case "no_play":
@@ -52,15 +66,21 @@ export function confidenceLabel(c: RawConfidence | null | undefined): string {
   }
 }
 
-/** One-line explanation suited for tooltip / sub-line text. */
+/**
+ * One-line explanation suited for tooltip / sub-line text.
+ *
+ * Each caption states the band a row fell in AND how that band has actually settled, so a reader is
+ * never left to infer that an earlier letter is a better one. Rates are measured over 21,192 settled
+ * outcomes and are the reason these categories no longer affect ordering.
+ */
 export function confidenceCaption(c: RawConfidence | null | undefined): string {
   switch (c) {
     case "High":
-      return "Edge ≥ 5pp and recent10 sample is healthy.";
+      return "Model and market differed by 5pp or more. These have settled at 49.3% — the lowest of the three categories.";
     case "Medium":
-      return "Edge ≥ 2.5pp with adequate sample depth.";
+      return "Model and market differed by 2.5–5pp. These have settled at 50.6%.";
     case "Low":
-      return "Anomaly-flagged or thin sample — treat as noisier.";
+      return "Model and market differed by under 2.5pp, or the row was anomaly-flagged. These have settled at 51.7% — the highest of the three categories.";
     case "insufficient_data":
       return "Recent10 sample is too thin — no projection emitted.";
     case "no_play":

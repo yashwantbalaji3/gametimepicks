@@ -70,16 +70,16 @@ export default function ConfidenceTooltip() {
           className="block font-mono text-[11px] leading-[1.55] space-y-1"
         >
           <span role="listitem" className="block">
-            <span style={{ color: "var(--vault-gold-bright)" }}>High</span>{" "}
-            — strong edge, strong recent log
+            <span style={{ color: "var(--vault-text-mute)" }}>Category A</span>{" "}
+            — model and market differed by 5pp or more · settled 49.3%
           </span>
           <span role="listitem" className="block">
-            <span style={{ color: "var(--vault-warn)" }}>Medium</span> —
-            some edge, mixed evidence
+            <span style={{ color: "var(--vault-text-mute)" }}>Category B</span>{" "}
+            — differed by 2.5–5pp · settled 50.6%
           </span>
           <span role="listitem" className="block">
-            <span style={{ color: "var(--vault-text-mute)" }}>Low</span>{" "}
-            — small edge, soft signal
+            <span style={{ color: "var(--vault-text-mute)" }}>Category C</span>{" "}
+            — differed by under 2.5pp or anomaly-flagged · settled 51.7%
           </span>
           <span role="listitem" className="block">
             <span style={{ color: "var(--vault-text-faint)" }}>no data</span>{" "}

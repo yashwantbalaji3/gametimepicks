@@ -284,7 +284,7 @@ function friendlyConfidence(
 ): { label: string; color: string } | null {
   switch ((c || "").toLowerCase()) {
     case "high":
-      return { label: "Stronger signal", color: "var(--vault-gold-bright)" };
+      return { label: "Category A", color: "var(--vault-text-mute)" };
     case "medium":
       return { label: "Worth a look", color: "var(--vault-warn)" };
     case "low":

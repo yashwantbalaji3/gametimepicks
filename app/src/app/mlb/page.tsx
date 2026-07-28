@@ -121,7 +121,7 @@ export default function MlbLandingPage() {
     { label: "Games today", value: String(gameCount), sub: date },
     { label: "Projections", value: String(summary.leans), sub: propsAvailable ? "real prop lines" : "lines pending" },
     {
-      label: "Stronger signals · high-variance",
+      label: "Category A · Category C",
       value: `${summary.highConfidence} · ${summary.anomalies}`,
       sub: mlbLifetime?.hitRate != null ? `track record ${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive}` : "results pending",
     },

@@ -275,7 +275,7 @@ export default function TonightMatchupCard({
                       marginTop: 2,
                     }}
                   >
-                    Stronger signals
+                    Category A rows
                   </div>
                 </div>
               )}

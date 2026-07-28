@@ -110,7 +110,7 @@ export default function NbaLandingPage() {
     { label: "Games on slate", value: String(games.length), sub: activeDate || "—" },
     { label: "Projections", value: String(leans.length), sub: propsLoaded ? "real prop lines" : "lines pending" },
     {
-      label: "Stronger signals · high-variance",
+      label: "Category A · Category C",
       value: `${highCount} · ${anomalyCount}`,
       sub: lifetime?.hitRate != null ? `track record ${(lifetime.hitRate * 100).toFixed(1)}% on ${lifetime.decisive}` : "track record pending",
     },

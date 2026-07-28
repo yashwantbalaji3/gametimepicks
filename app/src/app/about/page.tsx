@@ -67,29 +67,34 @@ export default function AboutPage() {
           </ul>
         </Section>
 
-        <Section title="What signal strength means">
-          Each projection carries one of three labels. They reflect
-          historical sample-size + edge confidence, not a guarantee.
+        <Section title="What the category labels mean">
+          Each projection falls into one of three categories, based purely on how
+          far the model&rsquo;s number sat from the sportsbook&rsquo;s. The
+          category describes how a row was produced. It does <strong>not</strong>{" "}
+          rank quality, and it does not affect the order anything is shown in.
           <ul className="mt-3 space-y-1 list-disc pl-5">
             <li>
-              <strong style={{ color: "var(--vault-gold-bright)" }}>
-                Stronger signal
-              </strong>{" "}
-              · clean edge backed by stable recent logs.
+              <strong style={{ color: "var(--vault-text-mute)" }}>Category A</strong>{" "}
+              · model and market differed by 5pp or more. Settled at 49.3%.
             </li>
             <li>
-              <strong style={{ color: "var(--vault-warn)" }}>Watch</strong> ·
-              edge is real but smaller; treat it as a watch-list entry.
+              <strong style={{ color: "var(--vault-text-mute)" }}>Category B</strong>{" "}
+              · differed by 2.5&ndash;5pp. Settled at 50.6%.
             </li>
             <li>
-              <strong style={{ color: "var(--vault-text-mute)" }}>
-                High-variance
-              </strong>{" "}
-              · the model sees a big gap, but the sample is thin or the
-              projection moves a lot game-to-game. We label it so readers
-              know to be cautious.
+              <strong style={{ color: "var(--vault-text-mute)" }}>Category C</strong>{" "}
+              · differed by under 2.5pp, or the row was anomaly-flagged. Settled
+              at 51.7%.
             </li>
           </ul>
+          <p className="mt-3 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+            Those rates are measured over 21,192 settled outcomes, and they run in
+            the opposite direction to what the old labels implied. A larger
+            disagreement with the market has historically settled{" "}
+            <em>worse</em>, not better &mdash; which is why these are neutral
+            letters now, and why no category is promoted above another anywhere
+            on the site.
+          </p>
         </Section>
 
         <Section title="Why results matter">
@@ -245,9 +250,10 @@ export default function AboutPage() {
               </Link>{" "}
               every render. When the nightly settle adds more data,
               labels adjust automatically. We fail closed: thin
-              samples stay informational, inverted tiers downgrade,
-              and no tier earns &quot;Stronger signal&quot; without
-              ≥ 100 settled rows and ≥ 57% hit rate.
+              samples stay informational and inverted tiers are flagged.
+              No category is ever promoted above another: on settled data the
+              categories run in the opposite order to what their old names
+              implied, so none of them earns priority.
             </li>
           </ul>
           <p
