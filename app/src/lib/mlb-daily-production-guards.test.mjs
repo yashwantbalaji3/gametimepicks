@@ -89,7 +89,9 @@ test("6 · the persist step is PATH-SCOPED to public MLB slate dirs + money-safe
   assert.ok(!/git add\s+(-A|--all|\.|-u)(\s|$)/.test(addLine), "no blanket add");
   assert.match(addLine, /mlb\/team-markets|mlb\/player-props|mlb\/game-simulations/, "scoped to public MLB slate dirs");
   assert.match(step, /grep -iE 'portfolio\|mr-dub\|settled_leans\|bank-builder\|moonshot/, "safety-assert blocks money/settlement/product");
-  assert.match(step, /ABORT/, "aborts on forbidden paths");
+  // Sprint 035: aborting now fails the job instead of exiting 0.
+  assert.match(step, /::error::forbidden paths staged/, "aborts on forbidden paths");
+  assert.match(step, /forbidden paths staged[\s\S]{0,200}?exit 1/, "and the abort fails the run");
   assert.ok(!/push\s+.*(--force|-f\b)/.test(step), "no force push");
   assert.match(step, /\[skip ci\]/, "skips CI to avoid loops");
 });

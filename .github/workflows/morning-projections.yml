@@ -281,3 +281,23 @@ jobs:
             /tmp/gtp_snapshot_*.log
           retention-days: 7
           if-no-files-found: ignore
+      # SPRINT 035 — failure alerting. OPS_WEBHOOK_URL existed in ops-notify.mjs but was wired into no
+      # workflow, so a failed run was invisible until someone opened the Actions tab. Posts on failure
+      # only. When the secret is unset the step logs an honest skip and does NOT fail the run — the
+      # alerting is additive and must never become a new source of red.
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: morning-projections
+        run: |
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          LINE="GameTimePicks ${PHASE}: workflow FAILED on ${GITHUB_REF_NAME} - ${RUN_URL}"
+          echo "::error::${LINE}"
+          if [ -z "$OPS_WEBHOOK_URL" ]; then
+            echo "::notice::OPS_WEBHOOK_URL unset - failure logged here only. Set the secret to receive alerts."
+            exit 0
+          fi
+          PAYLOAD="$(printf '%s' "$LINE" | python3 -c 'import json,sys;l=sys.stdin.read();print(json.dumps({"text":l,"content":l}))')"
+          curl -sS -X POST -H 'content-type: application/json' --data "$PAYLOAD" "$OPS_WEBHOOK_URL" \
+            || echo "::warning::webhook post failed - the failure is already surfaced above"

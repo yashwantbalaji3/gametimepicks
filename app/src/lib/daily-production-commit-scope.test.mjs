@@ -56,7 +56,10 @@ test("the money/settlement safety assert still guards the staged set", () => {
   for (const token of ["portfolio", "mr-dub", "settled_leans", "bank-builder", "moonshot"]) {
     assert.ok(new RegExp(`grep -iE '[^']*${token}`).test(yml), `forbidden-path assert still covers "${token}"`);
   }
-  assert.match(yml, /ABORT: forbidden paths staged/, "aborts rather than committing when one appears");
+  // Sprint 035: the abort is now a real failure. It previously printed "ABORT:" and `exit 0`, so a
+  // staged money artifact aborted the commit while the run still reported success.
+  assert.match(yml, /::error::forbidden paths staged/, "surfaces a forbidden staged path as a CI error");
+  assert.match(yml, /forbidden paths staged[\s\S]{0,200}?exit 1/, "and fails the job rather than exiting 0");
 });
 
 test("newly staged paths cannot themselves trip the forbidden-path assert", () => {

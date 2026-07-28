@@ -44,8 +44,11 @@ jobs:
     # Never on pull_request (there is no PR trigger; this is belt-and-suspenders).
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    # NON-BLOCKING: research capture is allowed to fail without affecting any official product behavior.
-    continue-on-error: true
+    # SPRINT 035: job-level `continue-on-error: true` was removed.
+    # Research capture genuinely must not block official product behaviour — but that is what the
+    # step-level flags below are for. A job-level flag additionally hid total failure of the capture
+    # itself, so a day with zero snapshots looked identical to a healthy one. Capture-window health has
+    # already recorded a day scoring 0 (15 games, 0 captures) that nobody was told about.
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -244,3 +247,23 @@ jobs:
           git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || { git rebase --abort 2>/dev/null || true; echo "rebase skipped — artifact still uploaded"; exit 0; }
           git push origin "HEAD:${GITHUB_REF_NAME}" || echo "push skipped (non-fast-forward or perms) — artifact still uploaded"
       # This workflow NEVER pushes to public data, deploys, settles, or touches money/portfolio files.
+      # SPRINT 035 — failure alerting. OPS_WEBHOOK_URL existed in ops-notify.mjs but was wired into no
+      # workflow, so a failed run was invisible until someone opened the Actions tab. Posts on failure
+      # only. When the secret is unset the step logs an honest skip and does NOT fail the run — the
+      # alerting is additive and must never become a new source of red.
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: mlb-pregame-capture
+        run: |
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          LINE="GameTimePicks ${PHASE}: workflow FAILED on ${GITHUB_REF_NAME} - ${RUN_URL}"
+          echo "::error::${LINE}"
+          if [ -z "$OPS_WEBHOOK_URL" ]; then
+            echo "::notice::OPS_WEBHOOK_URL unset - failure logged here only. Set the secret to receive alerts."
+            exit 0
+          fi
+          PAYLOAD="$(printf '%s' "$LINE" | python3 -c 'import json,sys;l=sys.stdin.read();print(json.dumps({"text":l,"content":l}))')"
+          curl -sS -X POST -H 'content-type: application/json' --data "$PAYLOAD" "$OPS_WEBHOOK_URL" \
+            || echo "::warning::webhook post failed - the failure is already surfaced above"

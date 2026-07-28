@@ -50,7 +50,11 @@ jobs:
   complete-slate:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # SPRINT 035: job-level `continue-on-error: true` was removed.
+    # With it set, this job reported success no matter what happened inside it — including the case
+    # where the slate was generated, committed locally, and then silently not pushed. Individual steps
+    # that are genuinely optional keep their own step-level continue-on-error; the JOB must be able to
+    # go red, or the green badge means nothing.
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -157,11 +161,31 @@ jobs:
           git add app/public/data/mlb/team-markets/ app/public/data/mlb/player-props/ app/public/data/mlb/home-run-props/ app/public/data/mlb/game-simulations/ app/public/data/mlb/full-game-simulations/ app/public/data/mlb/predictions/ app/public/data/mlb/schedule/ app/public/data/ops/ app/public/data/admin/ data/internal/mlb/pregame-archive/status/mlb-production-health.json data/internal/mlb/production-history/ 2>/dev/null || true
           # SAFETY ASSERT: never portfolio / money / official settlement / product cards.
           BAD="$(git diff --cached --name-only | grep -iE 'portfolio|mr-dub|settled_leans|bank-builder|moonshot|/out/' || true)"
-          if [ -n "$BAD" ]; then echo "ABORT: forbidden paths staged:"; echo "$BAD"; git reset -q; exit 0; fi
+          # A forbidden path staged is a REAL fault, not a no-op: something upstream tried to write a
+          # money artifact. Fail loudly instead of resetting and exiting 0. (Sprint 035)
+          if [ -n "$BAD" ]; then
+            echo "::error::forbidden paths staged — refusing to commit:"; echo "$BAD"; git reset -q; exit 1
+          fi
           if git diff --cached --quiet; then echo "no slate changes to persist"; exit 0; fi
           git commit -m "auto: mlb daily production slate ${{ steps.cfg.outputs.date }} [skip ci]"
-          git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || { git rebase --abort 2>/dev/null || true; echo "rebase skipped"; exit 0; }
-          git push origin "HEAD:${GITHUB_REF_NAME}" || echo "push skipped (non-fast-forward or perms)"
+          # SPRINT 035: rebase/push failures used to `exit 0` or `echo` and vanish, so a fully generated
+          # slate could be committed locally and thrown away with the run still green. Retry for genuine
+          # races with the other bots, then fail — a discarded slate must be visible.
+          pushed=0
+          for attempt in 1 2 3 4 5; do
+            if ! git pull --rebase --autostash origin "${GITHUB_REF_NAME}"; then
+              git rebase --abort 2>/dev/null || true
+              echo "::warning::rebase attempt ${attempt} failed — retrying"
+              sleep $((attempt * 5)); continue
+            fi
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then pushed=1; break; fi
+            echo "::warning::push attempt ${attempt} failed (non-fast-forward or perms) — retrying"
+            sleep $((attempt * 5))
+          done
+          if [ "$pushed" -ne 1 ]; then
+            echo "::error::slate generated and committed locally but never pushed after 5 attempts — the work was discarded"
+            exit 1
+          fi
       - name: 9) Upload diagnostics (health report — always)
         if: always()
         uses: actions/upload-artifact@v4
@@ -171,3 +195,23 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
       # This workflow NEVER touches money/portfolio/official-settlement; it only completes the public MLB slate.
+      # SPRINT 035 — failure alerting. OPS_WEBHOOK_URL existed in ops-notify.mjs but was wired into no
+      # workflow, so a failed run was invisible until someone opened the Actions tab. Posts on failure
+      # only. When the secret is unset the step logs an honest skip and does NOT fail the run — the
+      # alerting is additive and must never become a new source of red.
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: mlb-daily-production
+        run: |
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          LINE="GameTimePicks ${PHASE}: workflow FAILED on ${GITHUB_REF_NAME} - ${RUN_URL}"
+          echo "::error::${LINE}"
+          if [ -z "$OPS_WEBHOOK_URL" ]; then
+            echo "::notice::OPS_WEBHOOK_URL unset - failure logged here only. Set the secret to receive alerts."
+            exit 0
+          fi
+          PAYLOAD="$(printf '%s' "$LINE" | python3 -c 'import json,sys;l=sys.stdin.read();print(json.dumps({"text":l,"content":l}))')"
+          curl -sS -X POST -H 'content-type: application/json' --data "$PAYLOAD" "$OPS_WEBHOOK_URL" \
+            || echo "::warning::webhook post failed - the failure is already surfaced above"
