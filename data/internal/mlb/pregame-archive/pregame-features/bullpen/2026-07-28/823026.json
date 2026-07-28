@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823026,
   "date": "2026-07-28",
-  "capturedAt": "2026-07-28T03:59:14.453Z",
-  "availableAt": "2026-07-28T03:59:14.453Z",
+  "capturedAt": "2026-07-28T12:52:45.531Z",
+  "availableAt": "2026-07-28T12:52:45.531Z",
   "eventStartTime": "2026-07-28T23:45:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,35 @@
     "teamId": 138,
     "teamName": "St. Louis Cardinals",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 85,
+      "relievers": [
+        {
+          "id": 690928,
+          "name": "Hunter Dobbins",
+          "appearances": 1,
+          "pitches": 85,
+          "outs": 16,
+          "dates": [
+            "2026-07-27"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 6,
-      "pitches": 97,
+      "appearances": 7,
+      "pitches": 182,
       "relievers": [
+        {
+          "id": 690928,
+          "name": "Hunter Dobbins",
+          "appearances": 1,
+          "pitches": 85,
+          "outs": 16,
+          "dates": [
+            "2026-07-27"
+          ]
+        },
         {
           "id": 700669,
           "name": "Gordon Graceffo",
@@ -90,20 +111,78 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 690928,
+        "name": "Hunter Dobbins",
+        "reason": "85 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 112,
     "teamName": "Chicago Cubs",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 4,
+      "pitches": 52,
+      "relievers": [
+        {
+          "id": 668970,
+          "name": "Gavin Hollowell",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 1,
+          "dates": [
+            "2026-07-27"
+          ]
+        },
+        {
+          "id": 669020,
+          "name": "Ryan Rolison",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-07-27"
+          ]
+        },
+        {
+          "id": 657097,
+          "name": "Jacob Webb",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-07-27"
+          ]
+        },
+        {
+          "id": 663423,
+          "name": "Trent Thornton",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 4,
+          "dates": [
+            "2026-07-27"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 4,
-      "pitches": 101,
+      "appearances": 8,
+      "pitches": 153,
       "relievers": [
+        {
+          "id": 669020,
+          "name": "Ryan Rolison",
+          "appearances": 2,
+          "pitches": 38,
+          "outs": 5,
+          "dates": [
+            "2026-07-26",
+            "2026-07-27"
+          ]
+        },
         {
           "id": 665871,
           "name": "Javier Assad",
@@ -125,23 +204,34 @@
           ]
         },
         {
-          "id": 669020,
-          "name": "Ryan Rolison",
-          "appearances": 1,
-          "pitches": 23,
-          "outs": 3,
+          "id": 663423,
+          "name": "Trent Thornton",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 7,
           "dates": [
-            "2026-07-26"
+            "2026-07-26",
+            "2026-07-27"
           ]
         },
         {
-          "id": 663423,
-          "name": "Trent Thornton",
+          "id": 668970,
+          "name": "Gavin Hollowell",
           "appearances": 1,
-          "pitches": 19,
+          "pitches": 15,
+          "outs": 1,
+          "dates": [
+            "2026-07-27"
+          ]
+        },
+        {
+          "id": 657097,
+          "name": "Jacob Webb",
+          "appearances": 1,
+          "pitches": 14,
           "outs": 3,
           "dates": [
-            "2026-07-26"
+            "2026-07-27"
           ]
         }
       ]
@@ -151,7 +241,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-07-25,2026-07-26,2026-07-27) + feed/live box scores",
-    "capturedAt": "2026-07-28T03:59:14.453Z"
+    "capturedAt": "2026-07-28T12:52:45.531Z"
   },
-  "recordHash": "8ad749367970edf28d9f58e93808496f201c548879bab2a88d2299c54f1fce02"
+  "recordHash": "de5e527478b30a5535b1fd68fe6e412c3f2ff1421f06f933d8c9f55d667449d1"
 }
