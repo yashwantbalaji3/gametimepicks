@@ -1,7 +1,48 @@
 # Snapshot retention — measured evidence, and the architecture it justifies
 
-Sprint 032, Phase 4. **Design only. Nothing in this document is implemented, and no movement claim
-is shown to users today.**
+Sprint 032, Phase 4. **Design only. No movement claim is shown to users today.**
+
+> ## CORRECTION — 2026-07-27, founder review
+>
+> **Two claims in the original version of this document were wrong.** A deeper audit found that a
+> market snapshot writer already exists and has been running since 2026-07-22.
+>
+> `app/scripts/capture-mlb-pregame-markets.mjs` writes to
+> `data/internal/mlb/pregame-archive/market-snapshots/<date>/<captureId>/` — **16 captures per day**,
+> 102 manifests committed across 6 dates. Each capture writes three files:
+>
+> | File | Contents | Committed? |
+> |---|---|---|
+> | `raw.json` | full provider body + `capturedAt` + `rawHash` | **No — gitignored** (`.gitignore:87`) |
+> | `normalized.json` | de-vigged records + `capturedAt` + `normalizedHash` | **No — gitignored** (`.gitignore:88`) |
+> | `manifest.json` | counts, hashes, credit usage — **no timestamp** | Yes (102 tracked) |
+>
+> **What this corrects:**
+>
+> 1. *"The market layer needs that contract ported, not a new design invented."* — Wrong. It is
+>    already ported and running against odds. Nothing needs porting.
+> 2. *"No row-level timestamps."* — Wrong for the internal capture. Every normalized record carries
+>    per-row `capturedAt`, `availableAt`, `bookmaker`, `noVigProbability`, `deVigStatus`,
+>    `researchEligible`, `eligibilityReason`, and full `provenance`. That is precisely the row-level
+>    timestamping this document said was missing. It remains true of the **public** artifact
+>    (`app/public/data/mlb/team-markets/<date>.json`), which carries one file-level `generatedAt`.
+>
+> **What survives unchanged:** the odds rows are still not durably retained. They are gitignored,
+> and a 128 KiB size guard blocks them from the archive upload, so the payload survives only as a
+> 90-day GitHub Actions artifact before being lost. The constraints below (first capture is not an
+> opening line; two observations are not a trend; a missed window is a named gate, not a flat line)
+> all still hold.
+>
+> **What this changes strategically:** Market Movement Intelligence is far closer than this document
+> estimated. The expensive parts — capture cadence, de-vig normalization, row-level timestamps,
+> leakage-safe eligibility — are **built and running**. The missing piece is a durable store that is
+> not git. Measured payload: ~1.7 MB per team-market capture, ~1.0 MB per props capture, ~16 captures
+> per day ≈ 20–25 MB/day. Committing that to git would add roughly 7 GB/year, so the gitignore is a
+> *correct* decision and "un-ignore it" is the wrong fix. The right fix is deliberate persistence —
+> compact normalized deltas, or object storage outside the repo.
+>
+> There is also a **recoverable window right now**: captures since 2026-07-22 still exist as Actions
+> artifacts until roughly 2026-10-20.
 
 ## What was measured
 
@@ -37,6 +78,9 @@ the artifact layer.** The sprint brief says movement analysis may be allowed "on
 exists." This is that evidence — and it says the *capture* is happening while the *retention* is not.
 
 ## The architecture already exists in-repo
+
+*(See the correction above: this is even more true than originally written — the contract is already
+applied to market captures, not only to StatsAPI features.)*
 
 Do not invent a snapshot design. The pregame research archive already implements a correct one, and
 it is running today — 96 snapshots across 12 games on 2026-07-27, 8 captures per game:
@@ -77,20 +121,35 @@ The brief's constraint is the load-bearing part: **do not invent movement.**
    unobserved, not absent. The gate vocabulary for this already exists — `PairingGate` — and a
    missing interval should read as a named gate, never as a flat line.
 
-## Proposed shape (not built)
+## Proposed shape — REVISED after the correction
+
+The writer exists. What is missing is durable persistence of what it already produces.
 
 ```
-app/public/data/mlb/team-markets/<date>.json                  # unchanged — the current picture
-data/internal/mlb/market-archive/<date>/<ISO>.json            # NEW — retained captures, internal
+data/internal/mlb/pregame-archive/market-snapshots/<date>/<captureId>/
+    raw.json          # EXISTS, gitignored, lost after 90 days   <- persist this
+    normalized.json   # EXISTS, gitignored, lost after 90 days   <- persist this
+    manifest.json     # committed, but carries NO timestamp      <- add capturedAt
 ```
 
-- Written by the existing ingest, additively. The current artifact keeps being regenerated in place;
-  retention is a second write, so nothing downstream changes and no money path is touched.
-- `public: false`, so `prune-internal-routes.mjs` already sweeps it out of the export. Retention
-  starts internal and stays internal until there is enough history to say something true.
+Three changes, in dependency order:
+
+1. **Add `capturedAt` to `manifest.json`.** Cheapest and most valuable single change in this
+   document. Manifests are already committed and already carry `normalizedHash`; adding the capture
+   time makes the *committed* record sufficient to order captures in time and detect a no-op
+   re-capture — without persisting a single odds row. Today ordering is only possible via filesystem
+   mtime, which is metadata, not data, and does not survive a clone.
+2. **Persist `normalized.json` outside git.** ~1 MB/capture, ~16/day. Object storage, or a
+   compacted daily roll-up keeping only rows whose `normalizedHash` changed. Not git.
+3. **Only then** consider a reader. Retention must run unread long enough to characterise the
+   series.
+
 - **Forward-only.** Do not backfill from git history to manufacture a starting corpus. Git happens
-  to hold prior captures, but reconstructing a series from commit archaeology produces a record whose
-  gaps are invisible — which is worse than no record.
+  to hold prior *public artifact* captures, but reconstructing a series from commit archaeology
+  produces a record whose gaps are invisible — which is worse than no record. The one defensible
+  exception is a **one-time rescue** of the Actions artifacts from 2026-07-22 onward, which are real
+  captures with real timestamps and expire around 2026-10-20 — that is recovering a record that was
+  genuinely written, not reconstructing one that was not.
 - Movement analysis remains **unavailable** — not "coming soon" — until the retained series is long
   enough to be characterised. The `NOT_YET_MODELED` posture used by `lib/event-markets/` is the right
   precedent.
