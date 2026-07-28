@@ -4,16 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node scripts/prune-internal-routes.mjs",
+    "build": "node scripts/build-info.mjs --emit && next build && node scripts/prune-internal-routes.mjs && node scripts/build-info.mjs --publish",
     "start": "npx serve@latest out",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "e2e": "next build && node scripts/prune-internal-routes.mjs && playwright test",
+    "e2e": "npm run build && playwright test",
     "e2e:install": "playwright install chromium",
     "e2e:ui": "playwright test --ui",
     "mlb:grade-results": "cd .. && PYTHONPATH=. python3 -m pipeline.mlb.settle_mlb_results",
     "mlb:export-results": "cd .. && PYTHONPATH=. python3 -m pipeline.mlb.export_mlb_results",
-    "e2e:fast": "playwright test"
+    "e2e:fast": "playwright test",
+    "verify:deployment": "node scripts/verify-deployment.mjs"
   },
   "dependencies": {
     "next": "14.2.15",

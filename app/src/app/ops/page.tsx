@@ -11,6 +11,7 @@ import { readSinkConfig } from "@/lib/analytics/sink";
 import { buildGrowthOpsView, NOT_YET_MEASURED } from "@/lib/analytics/growth-ops";
 import { buildSocialOpsBoard } from "@/lib/social/social-ops";
 import { buildAllGameDetails } from "@/lib/game-detail";
+import { BuildClockPanel } from "@/components/build-clock-panel";
 
 export const metadata = {
   title: "Ops · GameTime Picks (internal)",
@@ -235,6 +236,10 @@ export default function OpsPage() {
               <span>Next refresh: <span style={{ color: "var(--vault-text-mute)" }}>{s.nextRefreshDate ?? "—"}</span></span>
             </div>
           </div>
+        </Card>
+
+        <Card title="Deployed build clock">
+          <BuildClockPanel />
         </Card>
 
         <Card title="Daily checklist">
