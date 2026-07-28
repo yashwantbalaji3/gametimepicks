@@ -27,6 +27,7 @@ import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { slateGames, slateReadinessNote } from "@/lib/today/slate-games";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
+import { buildMarketCoverage } from "@/lib/today/market-coverage";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
@@ -44,6 +45,7 @@ import { buildSlateStories, buildTodayPredictionRows, buildTopPicksByCategory, t
 import TodaySimulationLeans from "@/components/today/simulation-leans";
 import TodayFullSlate from "@/components/today/full-slate";
 import TodayMlbBrief from "@/components/today/today-mlb-brief";
+import TodayMarketCoverage from "@/components/today/market-coverage-panel";
 import {
   BuildAPickModule,
   BankBuilderStatus,
@@ -93,6 +95,14 @@ export default function TodayPage() {
   // ── Daily MLB intelligence brief — the executive digest ("what should I know about MLB today?"). Reuses
   //    the same details; factual signals only (markets simulated + simulated p10–p90 range), never a pick. ──
   const brief = buildDailyBrief(details, today, { nowMs: Date.now() });
+  // ── Sprint 032 — sportsbook + model AVAILABILITY for the presented slate. `buildAllGameDetails()` already
+  //    builds canonical GameIntelligence per game; /today simply never read it, so the hub could not say
+  //    whether a line existed, when the book was captured, or why a market was missing. Passes the WHOLE
+  //    MLB slate (not a filtered subset) so the denominator stays honest and every gap is attributed. ──
+  const marketCoverage = buildMarketCoverage(
+    details.filter((d) => d.sport === "mlb" && d.date === today),
+    today,
+  );
 
   // ── Top model picks — the canonical cross-sport board; take the strongest ~6 for the compact list ──
   const top10 = buildTop10Board(dataRoot, today, Date.now());
@@ -277,6 +287,10 @@ export default function TodayPage() {
 
       {/* 1c — Daily MLB intelligence brief: the executive digest (overview + spotlight + attention + links) */}
       <TodayMlbBrief brief={brief} recapHref={hasSettledResults ? "/results" : null} />
+
+      {/* 1d — What we can show today: sportsbook + model availability, capture provenance, and a named
+          reason for every withheld market. Derived from canonical GameIntelligence; availability only. */}
+      <TodayMarketCoverage coverage={marketCoverage} />
 
       {/* 2 — Today at a glance (compact canonical status cards) */}
       <TodayAtAGlance cards={glanceCards} />

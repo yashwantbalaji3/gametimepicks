@@ -22,6 +22,7 @@ import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
+import { buildMarketCoverage } from "@/lib/today/market-coverage";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
@@ -33,6 +34,7 @@ import LandingHero from "@/components/home/landing-hero";
 import WhatThisIs from "@/components/home/what-this-is";
 import ReturnHook from "@/components/home/return-hook";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
+import PreSportsbookStrip from "@/components/home/pre-sportsbook-strip";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
 import { SlateSummary, TrustStrip, HowItWorks, FooterCta } from "@/components/home/home-sections";
@@ -85,6 +87,12 @@ export default function HomePage() {
   const gameAnswers = buildHomeGameAnswers(details);
   // Daily-MLB destination hook — the SAME brief overview /today leads with (factual counts, no picks).
   const homeBrief = buildDailyBrief(details, today, { nowMs: Date.now() });
+  // ── Sprint 032 — the same canonical availability object /today renders, so Home and Today cannot
+  //    disagree about what data exists. One derivation, two renderings; no new data path. ──
+  const marketCoverage = buildMarketCoverage(
+    details.filter((d) => d.sport === "mlb" && d.date === today),
+    today,
+  );
 
   // ── MLB slate — same loader the Today board uses ──
   const mlb = getMlbBoardForDate(today);
@@ -218,6 +226,10 @@ export default function HomePage() {
         isLiveToday={today >= serverToday && mlbGames > 0}
       />
 
+
+      {/* 1e — Before you open a sportsbook: what data exists for today + when the book was captured.
+          The first step from navigation page toward intelligence dashboard. Availability only. */}
+      <PreSportsbookStrip coverage={marketCoverage} dateLabel={dateLabel} />
 
       {/* 2 — Simulation Hub: the per-sport simulation centers (the core product topic) */}
       <FlagshipCards
