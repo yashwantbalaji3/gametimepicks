@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-07-27T16:36:43.713Z",
+  "generatedAt": "2026-07-28T07:58:54.570Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -23,6 +23,25 @@
     "worldCupGames": 0,
     "mlbGames": 12,
     "mlbSlate": "2026-07-27"
+  },
+  "sportsbook": {
+    "note": "Artifact-level freshness only — the market feed carries no row-level timestamps, so no per-market recency can be claimed.",
+    "sources": [
+      {
+        "source": "mlb/team-markets",
+        "state": "STALE",
+        "artifactDate": "2026-07-27",
+        "generatedAt": "2026-07-27T16:35:04.082Z",
+        "ageDays": 1
+      },
+      {
+        "source": "mlb/player-props",
+        "state": "STALE",
+        "artifactDate": "2026-07-27",
+        "generatedAt": "2026-07-27T16:35:04.938Z",
+        "ageDays": 1
+      }
+    ]
   },
   "productReadiness": {
     "bankBuilder": "awaiting approval",
@@ -89,14 +108,17 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-07-27T16:36:42.984Z",
+    "lastRunAt": "2026-07-28T07:58:53.814Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
-    "phase": "mlb-daily-production"
+    "phase": "nightly-settle"
   },
   "warnings": [
-    "World Cup board is empty (dormant or needs a refresh)."
+    "World Cup board is empty (dormant or needs a refresh).",
+    "Sportsbook source mlb/team-markets is STALE (1d old).",
+    "Sportsbook source mlb/player-props is STALE (1d old).",
+    "Slate (2026-07-27) is behind today (2026-07-28) — refresh/roll forward."
   ],
   "dailyChecklist": [
     {
@@ -105,7 +127,7 @@
     },
     {
       "step": "Slate is current",
-      "done": true
+      "done": false
     },
     {
       "step": "Products generated (WC or MLB)",
