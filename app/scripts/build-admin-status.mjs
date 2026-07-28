@@ -207,6 +207,78 @@ if (!moneyGate.pass) nextAction = "⚠ MONEY GATE: daily portfolio is stale or b
 else if (bbLanes.some((l) => l.status === "active")) nextAction = `Monitor the active Bank Builder lane(s); after ${dp?.date ?? "today"}'s games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).`;
 else nextAction = `No active Bank Builder lane for ${dp?.date ?? "today"} — review the daily proposal and approve a card or confirm the no-play.`;
 
+
+// ── SPRINT 037A · TODAY READINESS ────────────────────────────────────────────────────────────────
+// `workflowHealth` answers "did the last workflow finish?", which is a different question from "is
+// today's slate ready?". On 2026-07-28 at 09:28 ET it read {status:"pass", phase:"nightly-settle"}
+// while ZERO artifacts existed for the day — correct on its own terms and useless to a founder asking
+// whether the site is current.
+//
+// This block answers the founder's question directly, and is SCHEDULE-AWARE so it never cries wolf: a
+// missing artifact before its generator is due is `pending`, not `late`. Times are the real crons.
+const READINESS_STAGES = [
+  // VERIFIED against the workflows that actually stage each path, not assumed. An early draft credited
+  // the schedule to mlb-pregame-capture (07:00 ET) and produced a false "late" at 09:30; git history and
+  // the `git add` lines show morning-projections.yml:216 and mlb-daily-production.yml:161 write it.
+  { key: "schedule",    dir: "mlb/schedule",               dueEtHour: 9,  dueEtMinute: 30, by: "morning-projections" },
+  { key: "board",       dir: "mlb/boards",                 dueEtHour: 9,  dueEtMinute: 30, by: "morning-projections" },
+  { key: "teamMarkets", dir: "mlb/team-markets",           dueEtHour: 10, dueEtMinute: 15, by: "mlb-daily-production" },
+  { key: "playerProps", dir: "mlb/player-props",           dueEtHour: 10, dueEtMinute: 15, by: "mlb-daily-production" },
+  { key: "simulations", dir: "mlb/full-game-simulations",  dueEtHour: 10, dueEtMinute: 15, by: "mlb-daily-production" },
+  { key: "predictions", dir: "mlb/predictions",            dueEtHour: 10, dueEtMinute: 15, by: "mlb-daily-production" },
+];
+/** Grace before a missing artifact is called late — a workflow needs time to actually run. */
+const READINESS_GRACE_MINUTES = 45;
+
+function etParts(iso) {
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", hour12: false,
+    year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
+  });
+  const p = Object.fromEntries(fmt.formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
+  return {
+    date: `${p.year}-${p.month}-${p.day}`,
+    minutes: Number(p.hour) * 60 + Number(p.minute),
+  };
+}
+
+const nowEt = etParts(nowIso);
+const todayReadinessStages = READINESS_STAGES.map((st) => {
+  const present = fs.existsSync(path.join(DATA, st.dir, `${nowEt.date}.json`));
+  const dueMinutes = st.dueEtHour * 60 + st.dueEtMinute + READINESS_GRACE_MINUTES;
+  const overdue = nowEt.minutes > dueMinutes;
+  return {
+    stage: st.key,
+    present,
+    // `pending` is an honest third state: absent but not yet due. Reporting it as a failure would
+    // train the reader to ignore this block every morning.
+    state: present ? "ready" : overdue ? "late" : "pending",
+    dueEt: `${String(st.dueEtHour).padStart(2, "0")}:${String(st.dueEtMinute).padStart(2, "0")}`,
+    producedBy: st.by,
+  };
+});
+
+const lateStages = todayReadinessStages.filter((s) => s.state === "late");
+const readyStages = todayReadinessStages.filter((s) => s.state === "ready");
+const todayReadiness = {
+  _note: "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
+  etDate: nowEt.date,
+  etTime: `${String(Math.floor(nowEt.minutes / 60)).padStart(2, "0")}:${String(nowEt.minutes % 60).padStart(2, "0")}`,
+  stages: todayReadinessStages,
+  readyCount: readyStages.length,
+  totalStages: todayReadinessStages.length,
+  lateCount: lateStages.length,
+  // GREEN only when everything due has arrived. RED when something is genuinely overdue. YELLOW while
+  // the day is still filling in — the normal morning state, and not a fault.
+  signal: lateStages.length > 0 ? "RED" : readyStages.length === todayReadinessStages.length ? "GREEN" : "YELLOW",
+  summary:
+    lateStages.length > 0
+      ? `${lateStages.length} stage(s) overdue: ${lateStages.map((s) => `${s.stage} (due ${s.dueEt} ET via ${s.producedBy})`).join(", ")}`
+      : readyStages.length === todayReadinessStages.length
+        ? "every stage for today has been produced"
+        : `${readyStages.length}/${todayReadinessStages.length} produced; the rest are not due yet`,
+};
+
 const status = {
   _note: "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
   generatedAt: nowIso,
@@ -228,6 +300,7 @@ const status = {
   },
   counts: { activeProducts: activeProductCount, pendingApprovals: pendingApprovalCount },
   workflowHealth,
+  todayReadiness,
   warnings,
   dailyChecklist,
   lastSettlement: latestSettlement ? { date: latestSettlementFile.replace(".json", ""), matches: (latestSettlement.matches ?? latestSettlement.games ?? []).length } : null,
