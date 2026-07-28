@@ -11,7 +11,9 @@ import type { Top10Board, Top10Pick } from "@/lib/top10/top10-picks";
 
 const odds = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 const pct = (p: number | null) => (p == null ? "—" : `${Math.round(p * 100)}%`);
-const TABS = [["overall", "Top 10"], ["safe", "Reliable"], ["value", "Value"], ["team", "Team markets"], ["props", "Props"]] as const;
+// Sprint 035: the "Value" tab is gone. It filtered by model-minus-market difference — selecting for the
+// bucket that performed worst on settled results — so no relabelling of it would have been honest.
+const TABS = [["overall", "Top 10"], ["safe", "Reliable"], ["team", "Team markets"], ["props", "Props"]] as const;
 
 function Row({ p, rank }: { p: Top10Pick; rank: number }) {
   const [open, setOpen] = useState(false);

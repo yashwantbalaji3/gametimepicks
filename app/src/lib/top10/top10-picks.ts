@@ -4,8 +4,14 @@
  * Nothing here is fetched or fabricated: every pick carries its source artifact, real odds, and the
  * model/market probabilities those artifacts already hold. Pass leans, completed/started games, and
  * per-game duplicate markets are excluded. Ranking blends settled MARKET RELIABILITY (DC 8-0 …
- * BTTS 1-3 — see lib/methodology/ladder-policy) with the pick's own model probability and edge —
- * NOT raw payout, so a juicy longshot never outranks a reliable read.
+ * BTTS 1-3 — see lib/methodology/ladder-policy) with the pick's own model probability — NOT raw
+ * payout, so a long price never outranks a historically reliable market.
+ *
+ * SPRINT 035: the model-vs-market difference ("edge") was removed from every score in this file. On
+ * the 22,155-row settled ledger that signal is INVERTED — rows claiming 20+pp hit .4317 while rows
+ * under 2.5pp hit .5203 — so ranking by it promoted the weakest rows. The difference is still
+ * computed and displayed; it just no longer decides order. This is a REMOVAL of a harmful factor,
+ * not an improvement: nothing here has been shown to out-predict anything.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -24,7 +30,7 @@ export interface Top10Pick {
   modelProbability: number | null;
   marketProbability: number | null;
   confidence: string;         // artifact's own tier
-  score: number;              // ranking blend (reliability × prob + edge)
+  score: number;              // ranking blend (market reliability × model probability) — no gap term
   reason: string;             // specific, from real signals — never generic fluff
   risk: string;
   source: string;             // artifact provenance
@@ -69,7 +75,10 @@ function wcTeamPicks(root: string, nowMs: number): Top10Pick[] {
       if (pick.americanOdds <= -700) return;                      // ultra-juiced adds no value
       const rel = MARKET_RELIABILITY[marketKey] * (marketKey === "match_total_goals" && draw >= 0.26 ? 0.75 : 1);
       const mkt = impliedProb(pick.americanOdds);
-      const edge = mkt != null ? Math.max(0, pick.modelProbability - mkt) : 0;
+      // Sprint 035: the model-vs-market difference is still COMPUTED and shown on the row, but it no
+      // longer enters `score`. On settled results larger differences performed worse, so ranking by it
+      // steered readers toward the weakest rows. See lib/ranking/decision-ranking.ts.
+      const gap = mkt != null ? Math.max(0, pick.modelProbability - mkt) : 0;
       const riskBits = [
         draw >= 0.26 ? `90' draw ${Math.round(draw * 100)}%` : null,
         marketKey === "btts" ? "BTTS is 1-3 settled" : null,
@@ -85,8 +94,8 @@ function wcTeamPicks(root: string, nowMs: number): Top10Pick[] {
         market: label, selection: pick.pick, odds: pick.americanOdds,
         modelProbability: round3(pick.modelProbability), marketProbability: mkt,
         confidence: g.confidence,
-        score: round3(rel * pick.modelProbability + edge * 0.5),
-        reason: `${Math.round(pick.modelProbability * 100)}% model on a ${label.toLowerCase()} read (${g.confidence.toLowerCase()} game)${marketKey === "double_chance" || marketKey === "draw_no_bet" ? " — draw-protected, the settled 8-0 market family" : ""}${edge > 0.02 && mkt != null ? ` · +${Math.round(edge * 100)}pt edge vs the market` : ""}`,
+        score: round3(rel * pick.modelProbability),
+        reason: `${Math.round(pick.modelProbability * 100)}% model on a ${label.toLowerCase()} read (${g.confidence.toLowerCase()} game)${marketKey === "double_chance" || marketKey === "draw_no_bet" ? " — draw-protected, the settled 8-0 market family" : ""}${gap > 0.02 && mkt != null ? ` · ${Math.round(gap * 100)}pt above the market price (shown for context; not a ranking factor)` : ""}`,
         risk: riskBits.join(" · ") || "standard single-market risk",
         source: "world-cup/round-of-32/board.json",
         startsAt: g.kickoffUtc, status: "pregame",
@@ -124,7 +133,8 @@ function wcPropPicks(root: string, date: string, nowMs: number): Top10Pick[] {
       modelProbability: round3(prob), marketProbability: mkt,
       confidence: r.confidence ?? "Lean",
       // WC props settle ~8% historically — a hard 0.5 reliability haircut keeps them honest vs team markets.
-      score: round3(0.5 * prob + Math.max(0, prob - (mkt ?? prob)) * 0.5),
+      // Sprint 035: model-vs-market difference removed from ordering (see lib/ranking/decision-ranking.ts).
+      score: round3(0.5 * prob),
       reason: `${Math.round(prob * 100)}% model vs ${mkt != null ? Math.round(mkt * 100) + "%" : "—"} market on ${r.player.team}'s ${r.player.position?.toLowerCase() ?? "player"} (${doc?.lineupsPosted ? "lineups posted" : "pre-lineup"})`,
       risk: "player props are the most volatile market family (~8% settled WC hit) — small stakes only",
       source: `world-cup/player-projections/${doc?.date ?? date}.json`,
@@ -156,7 +166,9 @@ function mlbPropPicks(root: string, date: string, nowMs: number): Top10Pick[] {
       odds, modelProbability: round3(prob), marketProbability: typeof mkt === "number" ? round3(mkt) : impliedProb(odds),
       confidence: r.confidence ?? "Lean",
       // MLB leans settle nightly (validated pipeline) — 0.7 reliability vs team markets' 0.85-1.0.
-      score: round3(0.7 * prob + Math.max(0, (r.edgePct ?? 0) / 100) * 0.5),
+      // Sprint 035: `edgePct` no longer contributes. Sample depth replaces it as the secondary term —
+      // a plain property of the projection, not a claim about who is right.
+      score: round3(0.7 * prob + Math.min(Number(r.samples ?? 0), 25) / 25 * 0.04),
       reason: r.reason ?? `${Math.round(prob * 100)}% model ${r.lean} ${r.line} from ${r.samples ?? "recent"} games (${r.projection != null ? "proj " + r.projection : "market-implied"})`,
       risk: (Array.isArray(r.riskFlags) && r.riskFlags.length ? r.riskFlags.join(" · ") : "single-player variance"),
       source: `mlb/boards/${date}.json`,
@@ -256,10 +268,12 @@ export function buildTop10Board(root: string, date: string, nowMs: number): Top1
   const teamRows = wcTeam.length > 0 ? wcTeam : mlbTeamContextRows(root, date, nowMs);
   const props = all.filter((p) => p.kind === "prop");
   const safe = all.filter((p) => (p.modelProbability ?? 0) >= 0.6 && p.odds <= 150);
-  const value = all.filter((p) => {
-    const edge = p.modelProbability != null && p.marketProbability != null ? p.modelProbability - p.marketProbability : 0;
-    return edge > 0.02 && p.odds >= -150;
-  });
+  // Sprint 035: the "Value" tab selected rows by model-minus-market difference, i.e. it selected FOR
+  // the bucket that performed WORST on settled results (20+pp differences hit .4317 vs .5203 under
+  // 2.5pp, n=21,192). There is no honest version of that filter, so it is retired rather than
+  // reworded. The key is retained as an empty array so any consumer reading it degrades to an empty
+  // state instead of throwing; the tab itself is removed from the board UI.
+  const value: Top10Pick[] = [];
 
   return {
     date,

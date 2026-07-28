@@ -1,7 +1,17 @@
 /**
- * Leg quality scoring — SEPARATE from confidence. Quality blends confidence, edge, risk, data
- * quality, sample, freshness, market validity, and the sport's extractor status into 0–100 + a tier.
- * Honesty caps prevent a high-edge/bad-data or high-confidence/no-edge leg from reading "elite".
+ * Leg quality scoring — a DATA-QUALITY score, not a likelihood score. Blends data quality, sample
+ * depth, freshness, market validity, role availability, and risk into 0–100 + a tier.
+ *
+ * SPRINT 035 — confidence and edge no longer contribute.
+ * They previously supplied 50 of the 100 available points (confidence up to 30, edge up to 20), and
+ * both are INVERTED on the 22,155-row settled ledger: "High" confidence hit .4934 vs "Low" .5172,
+ * and 20+pp edge hit .4317 vs .5203 under 2.5pp. Confidence is not an independent signal either —
+ * 90.8% of rows are a deterministic relabelling of the same edge buckets. `glossary.ts` already told
+ * users confidence "does not up-weight a pick until re-validated"; this file is where that promise
+ * was being broken.
+ *
+ * The freed weight went to the terms that describe EVIDENCE rather than predict outcome. This is a
+ * removal of a harmful factor, not a better score — no claim of improvement attaches to it.
  */
 import type { EligibleLeg, LegQualityTier } from "./types";
 
@@ -31,19 +41,21 @@ export function scoreLeg(inp: LegQualityInput): { score: number; tier: LegQualit
     return { score: 0, tier: "ineligible", reasons: ["base-ineligible or No Bet"] };
   }
 
-  const conf = { High: 30, Medium: 18, Low: 8, "No Bet": 0 }[inp.confidenceTier] ?? 0;
+  // The surviving evidence terms keep their ORIGINAL absolute weights, so their ordering relative to
+  // one another is untouched — this change removes two terms, it does not re-tune the rest. Dropping
+  // confidence (30) and edge (20) lowers the maximum from 105 to 55, so the total is renormalised back
+  // onto 0-100 and the tier thresholds keep their meaning. Renormalising rather than hand-picking new
+  // weights avoids smuggling in a fresh, untested opinion about what matters.
   const dq = { A: 20, B: 14, C: 8, D: 3, unavailable: 0 }[inp.dataQualityGrade] ?? 0;
-  const edgeComp = inp.marketAware
-    ? Math.min(15, Math.max(0, inp.edge ?? 0)) / 15 * 20
-    : 10; // no-market: neutral edge credit
   const freshness = inp.staleCritical ? 0 : 10;
   const sample = inp.smallSample ? 3 : 10;
   const marketValidity = inp.hasOdds && !inp.marketScopeUnknown ? 10 : 0;
   const roleOpp = inp.dnpRisk ? 0 : 5;
   const riskPenalty = inp.riskScore * 20;
 
-  let score = conf + dq + edgeComp + freshness + sample + marketValidity + roleOpp - riskPenalty;
-  score = Math.max(0, Math.min(100, Math.round(score)));
+  const MAX_EVIDENCE_POINTS = 20 + 10 + 10 + 10 + 5; // 55
+  const raw = dq + freshness + sample + marketValidity + roleOpp - riskPenalty;
+  let score = Math.max(0, Math.min(100, Math.round((raw / MAX_EVIDENCE_POINTS) * 100)));
 
   let tier: LegQualityTier =
     score >= 78 ? "elite" : score >= 62 ? "strong" : score >= 45 ? "playable" : score >= 25 ? "thin" : "ineligible";
@@ -53,10 +65,8 @@ export function scoreLeg(inp: LegQualityInput): { score: number; tier: LegQualit
     tier = capTier(tier, "playable");
     reasons.push("data quality D/unavailable caps quality at playable");
   }
-  if (inp.marketAware && (inp.edge == null || inp.edge <= 0)) {
-    tier = capTier(tier, "strong");
-    reasons.push("no positive edge caps quality at strong");
-  }
+  // Sprint 035: the cap that penalised a leg for having no model-vs-market difference is removed.
+  // Penalising "no gap" is the same as rewarding "big gap", and big gaps performed worst.
   if (inp.staleCritical) {
     tier = capTier(tier, "playable");
     reasons.push("stale critical input caps quality at playable");

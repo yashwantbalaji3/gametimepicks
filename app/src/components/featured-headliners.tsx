@@ -133,18 +133,19 @@ function pickBestLean(card: PlayerCard): HeadlinerSummary | null {
   }
   if (rows.length === 0) return null;
 
+  // Sprint 035: was |edgePct| tiered by confidence — both inverted on settled results
+  // (High .4934 vs Low .5172; 20+pp .4317 vs .5203 under 2.5pp, n=21,192). Headliners now pick the
+  // highest model probability, and confidence no longer tiers the candidate pool.
   const score = (lean: PropLean): number => {
-    if (typeof lean.edgePct !== "number" || !Number.isFinite(lean.edgePct))
-      return -1;
-    return Math.abs(lean.edgePct);
+    const p = lean.modelProbability;
+    return typeof p === "number" && Number.isFinite(p) && p > 0 ? p : -1;
   };
   const isAnomaly = (lean: PropLean): boolean =>
     (lean.riskFlags ?? []).includes("suspicious_edge");
 
+  // Anomaly rows stay demoted — that exclusion IS backed by settled data (.4342 over n=760).
   const tiers: Array<(lean: PropLean) => boolean> = [
-    (l) => l.confidence === "High" && !isAnomaly(l),
-    (l) => l.confidence === "Medium" && !isAnomaly(l),
-    (l) => l.confidence === "Low" && !isAnomaly(l),
+    (l) => !isAnomaly(l),
     () => true,
   ];
 

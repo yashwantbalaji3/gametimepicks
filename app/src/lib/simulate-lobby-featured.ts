@@ -12,7 +12,8 @@
  *     are featured and stale games are DROPPED — a July-11 slate is never featured as "today's games"
  *     once the ET clock has passed it. Only when there is NO current/upcoming game do we fall back to the
  *     most-recent slate (so the row isn't empty), and `allCurrent` reports which case it is.
- *   • Ordering: current/upcoming by soonest date, then strongest edge; the stale fallback by edge.
+ *   • Ordering: current/upcoming by soonest date, then simulation coverage; the stale fallback by coverage.
+ *     (Sprint 035 removed model-vs-market difference from ordering — it is inverted on settled results.)
  *   • Capped at `FEATURED_CAP` (5). `readyCount` is the total featurable count for honest "+N more" copy.
  *
  * No React/Next imports so tsx can unit-test it directly and the server component can import it as-is.
@@ -151,11 +152,15 @@ export function featuredSimulations(details: readonly FeaturedDetailInput[], tod
 
   pool.sort((a, b) => {
     if (allCurrent) {
-      // soonest kickoff first, then strongest edge, then slug
+      // soonest kickoff first, then simulation coverage, then slug
       const da = (a.date ?? "9999-99-99").localeCompare(b.date ?? "9999-99-99");
       if (da !== 0) return da;
     }
-    return (b.topEdgePct - a.topEdgePct) || a.slug.localeCompare(b.slug);
+    // Sprint 035: was `topEdgePct` — the model-vs-market difference, which is INVERTED on settled
+    // results (20+pp rows hit .4317 vs .5203 under 2.5pp). Featuring by it surfaced the weakest
+    // simulations first. Ordering now uses how many markets the simulation actually covered, which is
+    // a property of the artifact rather than a claim about it — the same basis daily-brief.ts uses.
+    return (b.pickCount - a.pickCount) || a.slug.localeCompare(b.slug);
   });
 
   return { featured: pool.slice(0, FEATURED_CAP), readyCount: pool.length, allCurrent };

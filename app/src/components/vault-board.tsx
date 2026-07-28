@@ -258,13 +258,10 @@ const FEATURED_STAR_PRIORITY: string[] = [
   "Stephon Castle",
 ];
 
-const FEATURED_CONFIDENCE_WEIGHT: Record<string, number> = {
-  High: 3,
-  Medium: 2,
-  Low: 1,
-  insufficient_data: 0,
-  no_play: 0,
-};
+// Sprint 035: confidence weighting removed — the tier is a relabelled edge bucket and is inverted
+// on settled results (High .4934 vs Low .5172, n=21,192). Kept as a neutral constant so the
+// featured score keeps its shape while no tier outranks another.
+const FEATURED_CONFIDENCE_WEIGHT: Record<string, number> = { High: 1, Medium: 1, Low: 1 };
 
 function featuredScore(card: import("@/lib/grouping").PlayerCard): number {
   // Star boost — top of the curated list scores ~1200, last scores ~100.

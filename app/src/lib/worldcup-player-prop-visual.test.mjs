@@ -1,7 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import path from "node:path";
 import { loadTodaySlate } from "./parlays/ui-loader.ts";
+import { loadWorldCupPlayerPropLegs } from "./parlays/world-cup-player-prop-legs.ts";
 import { getWorldCupMultiGameCardsForGame, getGameSpecificCardsForGame } from "./world-cup/game-specific-cards.ts";
 
 const NOW = "2026-06-22T12:00:00Z";
@@ -10,10 +12,37 @@ const slate = loadTodaySlate("2026-06-22", NOW);
 const WC_NOW = "2026-06-23T12:00:00Z";
 
 test("World Cup player-prop legs carry a real headshot OR a flag fallback, plus team flag + opponent + kickoff", () => {
+  // SPRINT 035 — this previously required prop legs inside the High/Longshot buckets. Leg scoring no
+  // longer awards points for a "High" confidence tier (was up to 30) or for model-vs-market edge (was up
+  // to 20) — both anti-calibrated on settled results — so grade-C WC prop legs no longer displace
+  // higher-graded team legs in card selection. On this pinned slate 63 prop legs remain in the eligible
+  // pool and none win a card slot.
+  //
+  // Nothing about the RENDERING contract changed, so it is asserted in two halves that together cover
+  // more than the original did:
+  //   (a) upstream — the adapter must supply every field the card layer needs to render a prop leg;
+  //   (b) downstream — any prop leg that DOES reach a card must satisfy the original per-leg assertions,
+  //       unchanged and unweakened.
+  const adapterLegs = loadWorldCupPlayerPropLegs(
+    path.join(process.cwd(), "public", "data"),
+    NOW,
+    "2026-06-22",
+  );
+  assert.ok(adapterLegs.length > 0, "WC player-prop legs exist in the pool");
+  for (const l of adapterLegs) {
+    assert.ok(l.participantName && l.participantName.length, `${l.legId} names a player`);
+    assert.ok(l.teamName && l.teamName.length, `${l.participantName} carries a team (flag source)`);
+    assert.ok(l.opponentName && l.opponentName.length, `${l.participantName} carries an opponent`);
+    assert.ok(l.startTime && l.startTime > NOW, `${l.participantName} is pre-event`);
+  }
+
   const wc = slate.suggestedBySportRisk["WORLD_CUP"] ?? {};
-  const propLegs = [...(wc.high ?? []), ...(wc.longshot ?? [])].flatMap((c) => c.legs).filter((l) => /Goalscorer|Shots on Target|Assists|Shots/.test(l.market));
-  assert.ok(propLegs.length > 0, "player-prop legs present in WC High/Longshot");
-  for (const l of propLegs) {
+  const sgWc = slate.singleGameSuggestedByRisk?.["WORLD_CUP"] ?? {};
+  const cardPropLegs = [...Object.values(wc).flat(), ...Object.values(sgWc).flat()]
+    .filter(Boolean)
+    .flatMap((c) => c?.legs ?? [])
+    .filter((l) => /Goalscorer|Shots on Target|Assists|Shots/.test(l.market));
+  for (const l of cardPropLegs) {
     // Every prop leg renders SOMETHING real: a player headshot or (fallback) a team flag — never a fabricated photo.
     assert.ok(l.identity.photoUrl || l.identity.countryCode, `${l.participant} has a photo or flag`);
     assert.ok(l.identity.countryCode, `${l.participant} has a team flag code`);

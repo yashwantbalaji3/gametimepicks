@@ -81,19 +81,19 @@ test("Pass side is rejected on every gate", () => {
   }
 });
 
-test("confidence tier gates: Low passes aggressive, fails conservative/balanced", () => {
-  const lowLeg = goodNbaLeg({ confidence: "Low", recent10Count: 3 });
-  assert.equal(
-    evaluateLegQualityGate(lowLeg, PROFILE_LEG_GATES.aggressive).passes,
-    true,
-  );
-  const cons = evaluateLegQualityGate(lowLeg, PROFILE_LEG_GATES.conservative);
-  assert.equal(cons.passes, false);
-  assert.ok(cons.failures.some((f) => f.includes("confidence")));
-  assert.equal(
-    evaluateLegQualityGate(lowLeg, PROFILE_LEG_GATES.balanced).passes,
-    false,
-  );
+test("Sprint 035: a confidence tier never causes a gate failure, on any profile", () => {
+  // Previously "Low" was rejected by conservative/balanced. That gate selected FOR the worst bucket:
+  // on 21,192 settled rows "High" hit .4934 and "Low" .5172. No tier may gate eligibility now.
+  for (const tier of ["High", "Medium", "Low"]) {
+    const leg = goodNbaLeg({ confidence: tier, recent10Count: 10 });
+    for (const profile of ["conservative", "balanced", "aggressive", "star_power"]) {
+      const r = evaluateLegQualityGate(leg, PROFILE_LEG_GATES[profile]);
+      assert.ok(
+        !r.failures.some((f) => f.toLowerCase().includes("confidence")),
+        `${profile}/${tier}: confidence must never appear as a failure reason (got ${JSON.stringify(r.failures)})`,
+      );
+    }
+  }
 });
 
 test("edge floor: 1.5pp fails conservative(3) + balanced(2), passes aggressive(1)", () => {
@@ -112,11 +112,18 @@ test("edge floor: 1.5pp fails conservative(3) + balanced(2), passes aggressive(1
   );
 });
 
-test("null edge is treated as 0 and fails any positive floor", () => {
-  const leg = goodNbaLeg({ edgePct: null });
-  const r = evaluateLegQualityGate(leg, PROFILE_LEG_GATES.aggressive);
-  assert.equal(r.passes, false);
-  assert.ok(r.failures.some((f) => f.includes("edge")));
+test("Sprint 035: a missing or tiny edge never causes a gate failure", () => {
+  // There is no edge floor any more, so a null edge must pass rather than be rejected. Ranking or
+  // gating by the model-vs-market difference promoted the worst-performing rows.
+  for (const edgePct of [null, 0, 0.5, 25]) {
+    for (const profile of ["conservative", "balanced", "aggressive", "star_power"]) {
+      const r = evaluateLegQualityGate(goodNbaLeg({ edgePct }), PROFILE_LEG_GATES[profile]);
+      assert.ok(
+        !r.failures.some((f) => f.toLowerCase().includes("edge")),
+        `${profile}/edge=${edgePct}: edge must never appear as a failure reason (got ${JSON.stringify(r.failures)})`,
+      );
+    }
+  }
 });
 
 test("NBA DNP guard: recent10Count 6 fails conservative(7), passes balanced(5)", () => {
@@ -217,23 +224,28 @@ test("NBA legs ignore the MLB market allowlist", () => {
 });
 
 test("collects MULTIPLE failure reasons rather than short-circuiting", () => {
-  // Low confidence + sub-floor edge + DNP-failing recent10 on conservative.
+  // Sprint 035: confidence and edge no longer fail a leg, so this exercises the DATA gates that
+  // remain — thin recent-10, missing player id, and an anomaly flag on the conservative profile.
   const leg = goodNbaLeg({
-    confidence: "Low",
-    edgePct: 0.5,
     recent10Count: 2,
+    playerId: null,
+    riskFlags: ["suspicious_edge"],
   });
   const r = evaluateLegQualityGate(leg, PROFILE_LEG_GATES.conservative);
   assert.equal(r.passes, false);
-  assert.ok(r.failures.length >= 3, `expected >=3 reasons, got ${r.failures.length}`);
+  assert.ok(r.failures.length >= 2, `expected >=2 data-quality reasons, got ${JSON.stringify(r.failures)}`);
+  assert.ok(
+    !r.failures.some((f) => /confidence|edge/i.test(f)),
+    "the remaining failures must all be data-quality, not signal-quality",
+  );
 });
 
 // ─── Preset in step with Python `ProfileRules` ─────────────────────────
 
 test("conservative preset matches documented Python thresholds", () => {
   const g = PROFILE_LEG_GATES.conservative;
-  assert.deepEqual(g.confidence, ["High"]);
-  assert.equal(g.minEdgePct, 3.0);
+  assert.deepEqual(g.confidence, ["High", "Medium", "Low"], "Sprint 035: confidence must not gate eligibility");
+  assert.equal(g.minEdgePct, 0, "Sprint 035: no profile may set a positive edge floor");
   assert.equal(g.requireRecent10, true);
   assert.equal(g.requireValidPlayerId, true);
   assert.equal(g.excludeAnomalies, true);
@@ -245,8 +257,8 @@ test("conservative preset matches documented Python thresholds", () => {
 
 test("balanced preset matches documented Python thresholds", () => {
   const g = PROFILE_LEG_GATES.balanced;
-  assert.deepEqual(g.confidence, ["High", "Medium"]);
-  assert.equal(g.minEdgePct, 2.0);
+  assert.deepEqual(g.confidence, ["High", "Medium", "Low"], "Sprint 035: confidence must not gate eligibility");
+  assert.equal(g.minEdgePct, 0, "Sprint 035: no profile may set a positive edge floor");
   assert.equal(g.requireRecent10, false);
   assert.equal(g.requireValidPlayerId, true);
   assert.equal(g.excludeAnomalies, true);
@@ -262,8 +274,8 @@ test("balanced preset matches documented Python thresholds", () => {
 
 test("aggressive preset matches documented Python thresholds", () => {
   const g = PROFILE_LEG_GATES.aggressive;
-  assert.deepEqual(g.confidence, ["High", "Medium", "Low"]);
-  assert.equal(g.minEdgePct, 1.0);
+  assert.deepEqual(g.confidence, ["High", "Medium", "Low"], "Sprint 035: confidence must not gate eligibility");
+  assert.equal(g.minEdgePct, 0, "Sprint 035: no profile may set a positive edge floor");
   assert.equal(g.requireRecent10, false);
   assert.equal(g.requireValidPlayerId, false);
   assert.equal(g.excludeAnomalies, false);
@@ -274,8 +286,8 @@ test("aggressive preset matches documented Python thresholds", () => {
 
 test("star_power preset matches documented Python thresholds", () => {
   const g = PROFILE_LEG_GATES.star_power;
-  assert.deepEqual(g.confidence, ["High", "Medium"]);
-  assert.equal(g.minEdgePct, 3.0);
+  assert.deepEqual(g.confidence, ["High", "Medium", "Low"], "Sprint 035: confidence must not gate eligibility");
+  assert.equal(g.minEdgePct, 0, "Sprint 035: no profile may set a positive edge floor");
   assert.equal(g.requireRecent10, true);
   assert.equal(g.requireValidPlayerId, true);
   assert.equal(g.excludeAnomalies, true);

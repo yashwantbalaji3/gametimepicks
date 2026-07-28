@@ -429,7 +429,7 @@ export default function SimulateLobby() {
                       <span style={{ color: "var(--vault-text-mute)" }}>{f.pickCount} generated pick{f.pickCount === 1 ? "" : "s"}</span>
                       {f.pickCount > 0 && f.topEdgePct > 0 ? (
                         <span style={{ color: "var(--vault-text-mute)" }}>
-                          top lean <span style={{ color: "var(--vault-gold-bright)", fontWeight: 700 }}>+{f.topEdgePct.toFixed(1)}% model gap</span>
+                          <span style={{ color: "var(--vault-text-mute)", fontWeight: 600 }}>{f.pickCount} market{f.pickCount === 1 ? "" : "s"} simulated</span>
                         </span>
                       ) : null}
                     </div>

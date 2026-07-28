@@ -70,7 +70,8 @@ export default function PlayerPropsExplorer({ props }: { props: PublicProjection
     // Within a market: edge first, then market-implied likelihood (not arbitrary when edge is 0).
     return scoped
       .filter((p) => p.marketLabel === market)
-      .sort((a, b) => ((b.edgePct ?? 0) - (a.edgePct ?? 0)) || ((b.marketProbability ?? 0) - (a.marketProbability ?? 0)));
+      // Sprint 035: model-vs-market difference removed from ordering (inverted on settled results).
+    .sort((a, b) => ((b.modelProbability ?? 0) - (a.modelProbability ?? 0)) || ((b.marketProbability ?? 0) - (a.marketProbability ?? 0)));
   }, [scoped, market]);
 
   // "By player" view: every market each player has, collapsed into one card per player.

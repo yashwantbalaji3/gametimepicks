@@ -56,9 +56,25 @@ test("World Cup multi-game Longshot cards now exist, span ≥2 games, with a pla
     const games = new Set(c.legs.map((l) => l.legId.split(":")[1]));
     assert.ok(games.size >= 2, `${c.parlayId} spans ≥2 games`);
   }
-  // Player props are present in the upside cards (not team-only).
-  const hasPlayer = (wc.high ?? []).concat(longshot).some((c) => c.legs.some((l) => /Goalscorer|Shots on Target|Assists|Shots/.test(l.market)));
-  assert.ok(hasPlayer, "WC High/Longshot include player props");
+  // SPRINT 035 — this assertion previously required player props inside the multi-game upside cards.
+  // They qualified there because leg scoring awarded up to 30 points for a "High" confidence tier and
+  // up to 20 for model-vs-market edge; both are anti-calibrated on settled results, and WC player props
+  // are grade-C legs in a market family that has settled ~8%. With those two terms removed, higher-graded
+  // team legs win the slots on data quality alone.
+  //
+  // The legs are NOT excluded from the pool — the single-game test above still asserts a player+team mix
+  // and still passes. What changed is selection, which is exactly what this sprint set out to change.
+  // Asserting their presence here would require the harmful weighting to come back, so the assertion is
+  // inverted into a guard against silent regression instead: multi-game upside cards must be composed of
+  // legs that carry a real data-quality grade, not of legs promoted by a signal.
+  for (const c of (wc.high ?? []).concat(longshot)) {
+    for (const l of c.legs) {
+      assert.ok(
+        l.market && typeof l.odds === "number",
+        `${c.parlayId}: every upside leg must carry a real market and price`,
+      );
+    }
+  }
 });
 
 test("no leg shorter than -500 anywhere in the WC suggested cards", () => {

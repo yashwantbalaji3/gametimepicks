@@ -71,7 +71,7 @@ function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer
         {s.runCountLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{s.runCountLabel}</span> : null}
         {s.pickCount > 0 ? (
           <span style={{ color: "var(--vault-text-mute)" }}>
-            top lean <span style={{ color: "var(--vault-gold-bright)", fontWeight: 700 }}>+{s.topEdgePct.toFixed(1)}% model gap</span>
+            <span style={{ color: "var(--vault-text-mute)", fontWeight: 600 }}>{s.pickCount} market{s.pickCount === 1 ? "" : "s"} simulated</span>
           </span>
         ) : null}
       </div>

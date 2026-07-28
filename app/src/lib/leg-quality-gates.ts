@@ -187,12 +187,33 @@ const MLB_ALL_FOUR = [
   "pitcher_strikeouts",
 ] as const;
 
-/** Per-profile leg gates exactly as enforced by `is_eligible` today. */
+/**
+ * Per-profile leg gates.
+ *
+ * SPRINT 035 — confidence and minimum-edge gates are neutralised.
+ * `conservative` previously required `confidence: ["High"]` and `minEdgePct: 3.0`, i.e. the
+ * "safest" profile selected exactly the rows that performed WORST on settled results ("High" .4934
+ * vs "Low" .5172; 20+pp .4317 vs .5203 under 2.5pp, n=21,192). Every profile now admits all
+ * confidence tiers and sets no edge floor.
+ *
+ * What profiles still differ on is DATA QUALITY and AVAILABILITY — recent-10 requirement, valid
+ * player id, anomaly exclusion, DNP thresholds, allowed markets. Those are measurable properties of
+ * the row, not predictions about it.
+ *
+ * `excludeAnomalies` is deliberately KEPT and is now the strictest evidence-backed filter available:
+ * anomaly-flagged rows (>=20pp) hit .4342 over n=760. Excluding them is supported by settled data;
+ * ranking by the same quantity is not.
+ */
+const ALL_CONFIDENCE_TIERS = ["High", "Medium", "Low"] as const;
+
+/** No edge floor. Retained as a field so the gate shape is unchanged for consumers. */
+const NO_EDGE_FLOOR = 0;
+
 export const PROFILE_LEG_GATES: Record<LegGateProfile, LegQualityGate> = {
   conservative: {
     profile: "conservative",
-    confidence: ["High"],
-    minEdgePct: 3.0,
+    confidence: [...ALL_CONFIDENCE_TIERS],
+    minEdgePct: NO_EDGE_FLOOR,
     requireRecent10: true,
     requireValidPlayerId: true,
     excludeAnomalies: true,
@@ -203,8 +224,8 @@ export const PROFILE_LEG_GATES: Record<LegGateProfile, LegQualityGate> = {
   },
   balanced: {
     profile: "balanced",
-    confidence: ["High", "Medium"],
-    minEdgePct: 2.0,
+    confidence: [...ALL_CONFIDENCE_TIERS],
+    minEdgePct: NO_EDGE_FLOOR,
     requireRecent10: false,
     requireValidPlayerId: true,
     excludeAnomalies: true,
@@ -215,8 +236,8 @@ export const PROFILE_LEG_GATES: Record<LegGateProfile, LegQualityGate> = {
   },
   aggressive: {
     profile: "aggressive",
-    confidence: ["High", "Medium", "Low"],
-    minEdgePct: 1.0,
+    confidence: [...ALL_CONFIDENCE_TIERS],
+    minEdgePct: NO_EDGE_FLOOR,
     requireRecent10: false,
     requireValidPlayerId: false,
     excludeAnomalies: false,
@@ -227,8 +248,8 @@ export const PROFILE_LEG_GATES: Record<LegGateProfile, LegQualityGate> = {
   },
   star_power: {
     profile: "star_power",
-    confidence: ["High", "Medium"],
-    minEdgePct: 3.0,
+    confidence: [...ALL_CONFIDENCE_TIERS],
+    minEdgePct: NO_EDGE_FLOOR,
     requireRecent10: true,
     requireValidPlayerId: true,
     excludeAnomalies: true,
@@ -271,7 +292,7 @@ export const PROPOSED_SECTION_LEG_GATES: Record<
   high: {
     ...PROFILE_LEG_GATES.aggressive,
     profile: "high (proposed)",
-    minEdgePct: 1.5,
+    minEdgePct: NO_EDGE_FLOOR,
   },
   longshot: {
     ...PROFILE_LEG_GATES.aggressive,

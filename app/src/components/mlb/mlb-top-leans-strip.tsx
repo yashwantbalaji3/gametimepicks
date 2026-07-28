@@ -33,19 +33,30 @@ interface Props {
   max?: number;
 }
 
-const EDGE_CAP_PP = 15;
+/**
+ * Sprint 035: ordering no longer uses confidence (+100 for "High") or |edgePct|. Both are inverted on
+ * settled results — "High" hit .4934 vs "Low" .5172, and 20+pp hit .4317 vs .5203 under 2.5pp
+ * (n=21,192). The strip now orders by model probability, with recent-form presence and sample depth
+ * as tiebreaks: properties of the row rather than forecasts about it.
+ */
+/** The model probability for the side actually being shown (Over vs Under). */
+function leanProbability(lean: MlbBoardLean): number | null {
+  const p = lean.lean === "Over" ? lean.modelProbOver : lean.lean === "Under" ? lean.modelProbUnder : null;
+  return typeof p === "number" && Number.isFinite(p) ? p : null;
+}
 
 function score(lean: MlbBoardLean): number {
-  const confBoost = lean.confidence === "High" ? 100 : 50;
-  const cappedEdge = Math.min(Math.abs(lean.edgePct ?? 0), EDGE_CAP_PP);
-  const recentBonus = lean.recentSeries && lean.recentSeries.length > 0 ? 1 : 0;
-  return confBoost + cappedEdge + recentBonus;
+  const prob = leanProbability(lean) ?? 0;
+  const recentBonus = lean.recentSeries && lean.recentSeries.length > 0 ? 0.02 : 0;
+  const sampleBonus = Math.min(Number(lean.samples ?? 0), 25) / 25 * 0.03;
+  return prob + recentBonus + sampleBonus;
 }
 
 function isCleanCandidate(lean: MlbBoardLean): boolean {
-  if (lean.confidence !== "High" && lean.confidence !== "Medium") return false;
+  // Confidence no longer gates inclusion — it is a relabelled edge bucket and is anti-calibrated.
+  // The anomaly exclusion below IS kept: anomaly rows hit .4342 over n=760, which settled data supports.
   if (lean.projection === null) return false;
-  if (lean.edgePct === null || !Number.isFinite(lean.edgePct)) return false;
+  if (leanProbability(lean) === null) return false;
   if ((lean.riskFlags || []).includes("r5_model_anomaly")) return false;
   return true;
 }
