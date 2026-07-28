@@ -331,17 +331,19 @@ export default function BoardPage() {
             }}
           >
             <div className="space-y-1 font-mono text-[11px] leading-[1.55]">
+              {/* Sprint 035: neutral categories with their measured settle rates. The old wording
+                  ranked the tiers in the wrong order — on 21,192 settled rows A .4934, B .5063, C .5172. */}
               <div>
-                <span style={{ color: "var(--vault-gold-bright)" }}>High</span>
-                {" "}— strong edge, strong recent log
+                <span style={{ color: "var(--vault-text-mute)" }}>Category A</span>
+                {" "}— model and market differed by 5pp+ · settled 49.3%
               </div>
               <div>
-                <span style={{ color: "var(--vault-warn)" }}>Medium</span>
-                {" "}— some edge, mixed evidence
+                <span style={{ color: "var(--vault-text-mute)" }}>Category B</span>
+                {" "}— differed by 2.5–5pp · settled 50.6%
               </div>
               <div>
-                <span style={{ color: "var(--vault-text-mute)" }}>Low</span>
-                {" "}— small edge, soft signal
+                <span style={{ color: "var(--vault-text-mute)" }}>Category C</span>
+                {" "}— differed by under 2.5pp or anomaly-flagged · settled 51.7%
               </div>
               <div>
                 <span style={{ color: "var(--vault-text-faint)" }}>no data</span>
@@ -545,18 +547,18 @@ export default function BoardPage() {
               </h3>
               <ul className="space-y-1 text-[13px] leading-relaxed">
                 <li>
-                  <span style={{ color: "var(--vault-gold-bright)" }}>
-                    High
+                  <span style={{ color: "var(--vault-text-mute)" }}>
+                    Category A
                   </span>{" "}
-                  — strong edge with strong recent log support.
+                  — model and market differed by 5pp or more. Settled 49.3% — the lowest of the three.
                 </li>
                 <li>
-                  <span style={{ color: "var(--vault-warn)" }}>Medium</span>{" "}
-                  — meaningful edge, mixed evidence.
+                  <span style={{ color: "var(--vault-text-mute)" }}>Category B</span>{" "}
+                  — differed by 2.5–5pp. Settled 50.6%.
                 </li>
                 <li>
-                  <span style={{ color: "var(--vault-text-mute)" }}>Low</span>{" "}
-                  — small edge or thin sample.
+                  <span style={{ color: "var(--vault-text-mute)" }}>Category C</span>{" "}
+                  — differed by under 2.5pp, or anomaly-flagged. Settled 51.7% — the highest of the three.
                 </li>
                 <li>
                   <span style={{ color: "var(--vault-text-faint)" }}>

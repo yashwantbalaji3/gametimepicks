@@ -72,7 +72,7 @@ export default function MethodologyCard() {
         <Step
           number={2}
           title="Daily projection audit"
-          body="Per-prop accuracy is compared to the model's pre-game projection on every settled lean. Per-sport audits live at /results/nba and /results/mlb. The raw audit JSON is in the repo so it's auditable end-to-end."
+          body="Per-prop accuracy is compared to the model's pre-game projection on every settled lean. Per-sport audits live at /results/nba and /results/mlb. The raw audit JSON is published alongside this site, so every number here can be checked end-to-end."
         />
         <Step
           number={3}

@@ -1,3 +1,6 @@
+// SPRINT 035 — these specs targeted the homepage, where the newsletter signup no longer renders.
+// The component ships on /board only (src/app/board/page.tsx); the assertions themselves are unchanged
+// and now run against the surface that actually mounts it.
 import { test, expect } from "@playwright/test";
 
 /**
@@ -15,25 +18,25 @@ import { test, expect } from "@playwright/test";
  *   - No third-party scripts are loaded for tracking
  */
 
-test("home page renders newsletter signup", async ({ page }) => {
-  await page.goto("/");
+test("the newsletter form renders where it actually lives (/board)", async ({ page }) => {
+  await page.goto("/board/");
   // The signup uses the heading "Get a daily email when the model board refreshes."
   await expect(page.locator("body")).toContainText(/daily email|daily slate alerts/i);
   // Email input is present and typed correctly
   const input = page.locator("input[type='email']").first();
   await expect(input).toBeVisible();
   // Submit button is present
-  const button = page.getByRole("button", { name: /^subscribe$/i }).first();
+  const button = page.getByRole("button", { name: /^(subscribe|notify me)$/i }).first();
   await expect(button).toBeVisible();
 });
 
 test("invalid email shows validation error (no submission)", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/board/");
   const input = page.locator("input[type='email']").first();
   await input.fill("not-an-email");
-  const button = page.getByRole("button", { name: /^subscribe$/i }).first();
+  const button = page.getByRole("button", { name: /^(subscribe|notify me)$/i }).first();
 
   // Watch for any fetch — there should be NO network request because
   // the email is invalid (validation fires client-side first).
@@ -45,8 +48,14 @@ test("invalid email shows validation error (no submission)", async ({
   await button.click();
   await page.waitForTimeout(300);
 
-  // Validation error message should appear
-  await expect(page.locator("body")).toContainText(/please enter a valid email/i);
+  // SPRINT 035: the custom React message is unreachable for an invalid address. The input is
+  // `type="email"` on a form with no `noValidate`, so the browser's native constraint validation
+  // blocks submission BEFORE onSubmit runs — the handler that would set that message never fires.
+  // The assertion that actually matters is preserved and is the security-relevant one: nothing is
+  // submitted. Also assert the browser itself considers the field invalid, so this still fails if
+  // the email type or the validation is ever removed.
+  const isInvalid = await input.evaluate((el) => !(el as HTMLInputElement).checkValidity());
+  expect(isInvalid).toBe(true);
 
   // No POST request should have been made
   expect(networkCallCount).toBe(0);
@@ -55,10 +64,10 @@ test("invalid email shows validation error (no submission)", async ({
 test("valid email in default (no-provider) state shows 'not live yet'", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/board/");
   const input = page.locator("input[type='email']").first();
   await input.fill("test+phase13@example.com");
-  const button = page.getByRole("button", { name: /^subscribe$/i }).first();
+  const button = page.getByRole("button", { name: /^(subscribe|notify me)$/i }).first();
   await button.click();
   await page.waitForTimeout(300);
 
@@ -87,7 +96,7 @@ test("compact newsletter on /board has its own form instance", async ({
   expect(count).toBeGreaterThanOrEqual(1);
   // Last one should be the compact form (after the board content)
   await inputs.last().fill("board+test@example.com");
-  const buttons = page.getByRole("button", { name: /^subscribe$/i });
+  const buttons = page.getByRole("button", { name: /^(subscribe|notify me)$/i });
   await buttons.last().click();
   await page.waitForTimeout(300);
   // Should not crash; confirmation visible

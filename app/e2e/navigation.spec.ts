@@ -12,9 +12,12 @@ import { test, expect, type Page } from "@playwright/test";
  */
 
 const PAGES = [
-  { path: "/", heading: /GametimePicks/i },
+  // Sprint 035: the visible brand is "GameTime Picks" (spaced). The one-word form appears only in
+  // meta/URLs, never in rendered text, so the old regex could never match.
+  { path: "/", heading: /GameTime\s*Picks/i },
   { path: "/board/", heading: /model board/i },
-  { path: "/parlay-lab/", heading: /parlay lab/i },
+  // Sprint 035: /parlay-lab is a client redirect to /picks (the suggested-card lobby moved).
+  // Asserted as a redirect below rather than as a page with its own heading.
   { path: "/results/", heading: /results/i },
   { path: "/methodology/", heading: /methodology/i },
   { path: "/responsible-use/", heading: /responsible use/i },
@@ -22,6 +25,11 @@ const PAGES = [
 
 // /trends is a soft-retired route post-Phase 12. It must still respond
 // (we don't want broken external links) but shows the retirement notice.
+// Legacy aliases that must keep working rather than 404 — they client-redirect to their new home.
+const REDIRECTS = [
+  { path: "/parlay-lab/", lands: /\/picks\/?$/ },
+];
+
 const RETIRED = [
   { path: "/trends/", expect: /trends|moved|retired|model board/i },
 ];
@@ -88,13 +96,15 @@ for (const { path, expect: bodyMatch } of RETIRED) {
 
 test("nav exposes all primary routes", async ({ page }) => {
   await page.goto("/");
-  // The nav uses /board, /parlay-lab, /results, /methodology, /responsible-use
+  // Sprint 035: asserted against the PRIMARY group of NAV_ITEMS in src/components/nav.tsx. The old
+  // list (/board, /parlay-lab, /methodology, /responsible-use) predates the sim-led navigation —
+  // /board and /parlay-lab are no longer in any nav surface, and /parlay-lab is now a redirect.
   for (const link of [
-    "/board",
-    "/parlay-lab",
+    "/today",
+    "/simulate",
+    "/markets",
     "/results",
-    "/methodology",
-    "/responsible-use",
+    "/learn",
   ]) {
     await expect(
       page.locator(`a[href="${link}"], a[href="${link}/"]`).first(),
@@ -121,3 +131,13 @@ test("footer shows live mode (not 'demo data') when meta.isDemo is false", async
     await expect(sourcesSection).not.toContainText(/demo data/i);
   }
 });
+
+// Sprint 035: the suggested-card lobby moved to /picks; these aliases must not break old links.
+for (const { path, lands } of REDIRECTS) {
+  test(`${path} redirects to its current home`, async ({ page }) => {
+    const response = await page.goto(path);
+    expect(response?.ok()).toBeTruthy();
+    await page.waitForURL(lands, { timeout: 10_000 });
+    await expect(page.locator("h1").first()).toBeVisible();
+  });
+}
