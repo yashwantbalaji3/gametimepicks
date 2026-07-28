@@ -15,6 +15,7 @@
  *   { raw.json, normalized.json, manifest.json } — new capture = new immutable directory.
  */
 import fs from "node:fs";
+import zlib from "node:zlib";
 import path from "node:path";
 import crypto from "node:crypto";
 
@@ -177,7 +178,27 @@ async function main() {
   const dir = path.join(ARCHIVE, DATE, captureId);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, "raw.json"), JSON.stringify({ public: false, capturedAt: nowIso(), rawHash: summary.rawHash, byEvent: rawByEvent }, null, 2));
-  fs.writeFileSync(path.join(dir, "normalized.json"), JSON.stringify({ public: false, kind: "player-props", capturedAt: nowIso(), normalizedHash: summary.normalizedHash, records }, null, 2));
+  const normalizedJson = JSON.stringify({ public: false, kind: "player-props", capturedAt: nowIso(), normalizedHash: summary.normalizedHash, records }, null, 2);
+  fs.writeFileSync(path.join(dir, "normalized.json"), normalizedJson);
+
+  // ── SPRINT 039: DURABLE RETENTION ──────────────────────────────────────────────────────────────
+  // `normalized.json` holds the richest schema in the repo — per-row capturedAt, availableAt,
+  // bookmaker, noVigProbability, researchEligible, provenance. It is gitignored, so 104 of 106
+  // captures had already lost it and ~16/day kept being discarded. That is the evidence needed to
+  // answer "what information existed before the event?", deleted daily.
+  //
+  // Raw retention was measured at 7.4 GB/year, which is why it kept being deferred. But this payload
+  // is enormously repetitive, and MEASURED gzip on the two survivors is 46-53x (1702KB -> 32KB,
+  // 970KB -> 21KB). At ~26 KB/capture x 16/day that is ~150 MB/YEAR — git-viable, no object storage,
+  // no new infrastructure, no credentials to provision.
+  //
+  // So the durable copy is the gzipped normalized payload. `raw.json` stays ignored: it is the
+  // provider blob, and `normalized` already carries every research field plus provenance and an
+  // integrity hash.
+  const gzPath = path.join(dir, "normalized.json.gz");
+  fs.writeFileSync(gzPath, zlib.gzipSync(Buffer.from(normalizedJson, "utf8"), { level: 9 }));
+  summary.normalizedGzBytes = fs.statSync(gzPath).size;
+
   // SPRINT 036: stamp the COMMITTED manifest with the capture time.
   // raw.json and normalized.json both carry `capturedAt`, but both are gitignored (.gitignore:87-88) —
   // 102 of 104 capture directories are already payload-less, and market-capture-reliability.json flags

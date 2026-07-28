@@ -86,6 +86,11 @@ tmp/
 # Keep only manifest.json in-repo (small, durable provenance + hashes + counts); ignore raw + normalized.
 data/internal/mlb/pregame-archive/market-snapshots/**/raw.json
 data/internal/mlb/pregame-archive/market-snapshots/**/normalized.json
+# SPRINT 039: the GZIPPED normalized payload IS retained — it is the durable research record.
+# Measured 46-53x compression (1702KB -> 32KB), ~26 KB/capture x 16/day = ~150 MB/year, so git is
+# viable and no object storage is needed. raw.json stays ignored (provider blob); normalized carries
+# every research field plus provenance and an integrity hash.
+!data/internal/mlb/pregame-archive/market-snapshots/**/normalized.json.gz
 # ResearchObservations are a DERIVED materialized view (multi-MB/day), deterministically regenerable from the
 # committed settlement-joins (which embed the settled marketRows + noVig probabilities). Persist via workflow
 # ARTIFACTS + committed STATUS summaries (research-progress / research-observation-quality / benchmark), not the raw jsonl.
