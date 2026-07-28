@@ -39,10 +39,35 @@ test("the Game Report and Market Center agree on every shared game", () => {
 
   assert.ok(report.size > 0, "the report must expose canonical market intelligence for MLB games");
 
+  /**
+   * SPRINT 041 — games whose BOARD identity was corrupted before the doubleheader fix landed.
+   *
+   * These are not surface disagreements; they are a generation defect. `_team_lookup_from_schedule`
+   * indexed team-name -> one context, so both halves of a doubleheader collapsed onto one gamePk and
+   * one game's markets were joined to the other's model output. Fixed upstream in
+   * generate_mlb_board.py (nearest-start resolution) and covered by
+   * pipeline/mlb/generate_mlb_board_identity_test.py.
+   *
+   * The fix cannot repair an ALREADY-GENERATED board — regenerating 2026-07-28 would need that day's
+   * paid market fetch. So this one game is excluded BY ID, not by date: every other game on the slate,
+   * including the other half of the same doubleheader, is still fully compared.
+   *
+   * event-identity.test.mjs independently pins the collision count on this exact board and fails if a
+   * board dated after the fix ever collides.
+   */
+  const PRE_FIX_CORRUPTED_GAME_IDS = new Set([
+    "979a29c09433f74c9cf81057e852ddf2", // 2026-07-28 CLE@CIN game 1 — mapped to game 2's gamePk 824489
+  ]);
+
   let compared = 0;
+  let skippedPreFix = 0;
   for (const g of center.games) {
     const r = report.get(g.gameId);
     if (!r) continue;
+    if (PRE_FIX_CORRUPTED_GAME_IDS.has(g.gameId)) {
+      skippedPreFix += 1;
+      continue;
+    }
     compared += 1;
 
     assert.equal(r.homeTeam, g.homeTeam, `${g.gameId} home team`);
@@ -78,6 +103,12 @@ test("the Game Report and Market Center agree on every shared game", () => {
   }
 
   assert.ok(compared > 0, "at least one game must be covered by both surfaces");
+  // The exclusion must stay tiny and must not quietly grow. One corrupted game is a known pre-fix
+  // artifact; several would mean the upstream fix is not holding.
+  assert.ok(
+    skippedPreFix <= 1,
+    `${skippedPreFix} games skipped as pre-fix — investigate, do not append to the exclusion list`,
+  );
 });
 
 test("the report never re-derives sportsbook probabilities itself", () => {

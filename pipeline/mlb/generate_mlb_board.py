@@ -41,14 +41,26 @@ def _out_dir(kind: str) -> Path:
     return p
 
 
-def _team_lookup_from_schedule(games: list[dict]) -> dict[str, dict]:
-    """Index team-name → {abbr, id, opponent_abbr, home_or_away, gamePk}.
+def _team_lookup_from_schedule(games: list[dict]) -> dict[str, list[dict]]:
+    """Index team-name → LIST of that team's games on the date.
 
     The Odds API uses full team names ("Toronto Blue Jays"); MLB-StatsAPI
     uses both names and abbreviations. We build a name-keyed lookup so we
     can attach team context onto each prop row.
+
+    SPRINT 041 — this returned dict[str, dict] and assigned `lookup[name] = ctx`,
+    which silently assumed **a team plays at most one game per date**. That is false
+    for doubleheaders: the second game overwrote the first, so every prop row for
+    that team inherited ONE gamePk.
+
+    Measured on 2026-07-28 (CLE @ CIN twice): both provider events mapped to gamePk
+    824489, leaving gamePk 824490 simulated but orphaned, and the early game's markets
+    joined to the late game's simulation.
+
+    The value is now a LIST, and `_resolve_team_ctx` picks the game whose start time is
+    nearest the prop's own commenceTime. Single-game teams behave exactly as before.
     """
-    lookup: dict[str, dict] = {}
+    lookup: dict[str, list[dict]] = {}
     for g in games:
         home = {
             "name": g.get("homeTeamName"),
@@ -73,10 +85,55 @@ def _team_lookup_from_schedule(games: list[dict]) -> dict[str, dict]:
             "venue": g.get("venue"),
         }
         if home["name"]:
-            lookup[home["name"]] = home
+            lookup.setdefault(home["name"], []).append(home)
         if away["name"]:
-            lookup[away["name"]] = away
+            lookup.setdefault(away["name"], []).append(away)
     return lookup
+
+
+def _parse_iso(value: str | None) -> float | None:
+    """Epoch seconds for an ISO timestamp, or None. Never raises on bad input."""
+    if not value or not isinstance(value, str):
+        return None
+    try:
+        from datetime import datetime
+
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
+    except Exception:
+        return None
+
+
+def _resolve_team_ctx(
+    team_ctx: dict[str, list[dict]], team_name: str | None, commence_time: str | None
+) -> dict:
+    """Pick the ONE scheduled game a market row belongs to.
+
+    With a single game the answer is unambiguous and this behaves exactly as the old
+    last-write-wins lookup did. With a doubleheader it picks the game whose scheduled
+    start is nearest the market's own commenceTime.
+
+    Nearest-start rather than exact-match on purpose: the two sources disagree by up to
+    a minute in practice (2026-07-28 first pitch was 17:40:00Z on StatsAPI and 17:41:00Z
+    from the provider), so an equality join would have failed on exactly the game it
+    most needed to resolve.
+    """
+    candidates = team_ctx.get(team_name or "") or []
+    if not candidates:
+        return {}
+    if len(candidates) == 1:
+        return candidates[0]
+
+    target = _parse_iso(commence_time)
+    if target is None:
+        # No time to disambiguate with. Return the earliest game rather than an arbitrary
+        # one, so the choice is at least deterministic across runs.
+        return min(candidates, key=lambda c: _parse_iso(c.get("gameDate")) or float("inf"))
+
+    def distance(c: dict) -> float:
+        t = _parse_iso(c.get("gameDate"))
+        return abs(t - target) if t is not None else float("inf")
+
+    return min(candidates, key=distance)
 
 
 def _build_lean(
@@ -103,8 +160,11 @@ def _build_lean(
     # will appear in one of them. The Odds API does not tag this, so we mark
     # the team field as "unknown" when we can't resolve it. UI will show the
     # matchup string regardless.
-    home_ctx = team_ctx.get(row.get("homeTeam") or "") or {}
-    away_ctx = team_ctx.get(row.get("awayTeam") or "") or {}
+    # SPRINT 041: resolve by (team, nearest start time) so a doubleheader keeps Game 1
+    # and Game 2 separate. Single-game teams are unaffected.
+    commence = row.get("commenceTime")
+    home_ctx = _resolve_team_ctx(team_ctx, row.get("homeTeam"), commence)
+    away_ctx = _resolve_team_ctx(team_ctx, row.get("awayTeam"), commence)
     market_key = row["marketKey"]
 
     # Build both the legacy `reason` paragraph (kept for back-compat with any
