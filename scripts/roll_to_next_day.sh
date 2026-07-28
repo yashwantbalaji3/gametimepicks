@@ -147,7 +147,21 @@ step "10/11  Money-integrity GATE + tests + build"
 gate
 ok "money reconciles after the roll"
 ( cd app && npx tsx --test $(cd app && find src -name '*.test.mjs') ) >/tmp/roll_tests.log 2>&1 \
-  && ok "full test suite passed" || { tail -5 /tmp/roll_tests.log; die "tests failed — not deploying"; }
+  && ok "full test suite passed" || {
+    # SPRINT 037B: this printed `tail -5`, i.e. only the TAP summary ("# fail 5"). daily-lifecycle
+    # failed on four consecutive days (2026-07-25..28) and the log never once named a failing test,
+    # so nobody could act on it. The same commits pass locally, which means the failure depends on the
+    # state this script itself creates — it settles and generates TODAY's artifacts before testing,
+    # and a local checkout has none of them. That makes this the only canary for "something breaks
+    # once today's data lands", and it was mute.
+    echo "── failing tests ─────────────────────────────────────────────"
+    grep -E '^not ok ' /tmp/roll_tests.log | head -40 || true
+    echo "── failure detail ────────────────────────────────────────────"
+    grep -A 6 -E '^not ok ' /tmp/roll_tests.log | grep -E 'error:|expected:|actual:|AssertionError|code:' | head -40 || true
+    echo "── summary ───────────────────────────────────────────────────"
+    grep -E '^# (tests|pass|fail|skipped)' /tmp/roll_tests.log || tail -5 /tmp/roll_tests.log
+    die "tests failed — not deploying"
+  }
 ( cd app && rm -rf .next && npm run build ) >/tmp/roll_build.log 2>&1 \
   && ok "production build clean" || { tail -5 /tmp/roll_build.log; die "build failed — not deploying"; }
 
