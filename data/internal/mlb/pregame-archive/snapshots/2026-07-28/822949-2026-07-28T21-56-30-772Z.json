@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "822949-ff8191e9ed2b46406588d81493ce1836",
+  "snapshotCreatedAt": "2026-07-28T21:56:30.772Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-07-28",
+  "eventId": "822949",
+  "gamePk": 822949,
+  "eventStartTime": "2026-07-28T22:40:00Z",
+  "homeTeam": "TB",
+  "awayTeam": "TEX",
+  "venue": "Tropicana Field",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "791e447e793c6e2da55971e9ce7eb302",
+  "normalizedPayloadHash": "9e01f997511a3e6ba06467275c7030c5",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          650490,
+          666018,
+          691406,
+          656775,
+          802415,
+          683748,
+          680700,
+          670764,
+          676439
+        ],
+        "away": [
+          592626,
+          694671,
+          677649,
+          607043,
+          694497,
+          669394,
+          670032,
+          669701,
+          642851
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T21:56:30.772Z",
+      "availableAt": "2026-07-28T21:56:30.772Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T21:56:30.772Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822949/feed/live",
+        "requestedAt": "2026-07-28T21:56:30.772Z",
+        "receivedAt": "2026-07-28T21:56:30.772Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Griffin Jax",
+        "awayProbable": "Cal Quantrill",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T21:56:30.772Z",
+      "availableAt": "2026-07-28T21:56:30.772Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T21:56:30.772Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822949/feed/live",
+        "requestedAt": "2026-07-28T21:56:30.772Z",
+        "receivedAt": "2026-07-28T21:56:30.772Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Dome",
+        "temp": "72",
+        "wind": "0 mph, None",
+        "roofType": "Dome",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T21:56:30.772Z",
+      "availableAt": "2026-07-28T21:56:30.772Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T21:56:30.772Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822949/feed/live",
+        "requestedAt": "2026-07-28T21:56:30.772Z",
+        "receivedAt": "2026-07-28T21:56:30.772Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Rob Drake",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Jordan Baker",
+            "type": "First Base"
+          },
+          {
+            "name": "Stu Scheurwater",
+            "type": "Second Base"
+          },
+          {
+            "name": "Junior Valentine",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T21:56:30.772Z",
+      "availableAt": "2026-07-28T21:56:30.772Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T21:56:30.772Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822949/feed/live",
+        "requestedAt": "2026-07-28T21:56:30.772Z",
+        "receivedAt": "2026-07-28T21:56:30.772Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

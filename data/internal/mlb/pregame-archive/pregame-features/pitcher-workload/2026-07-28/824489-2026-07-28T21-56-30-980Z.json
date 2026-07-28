@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824489,
+  "date": "2026-07-28",
+  "capturedAt": "2026-07-28T21:56:30.980Z",
+  "availableAt": "2026-07-28T21:56:30.980Z",
+  "eventStartTime": "2026-07-28T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 657571,
+      "name": "Caleb Ferguson",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 668909,
+      "name": "Gavin Williams",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-07-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 9,
+        "bbAvg": 1.2,
+        "erAvg": 2.4,
+        "hrAvg": 1,
+        "kPer9": 13.65,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 126.33,
+        "k": 156,
+        "bb": 37,
+        "er": 53,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-28T21:56:30.980Z"
+  },
+  "recordHash": "6d2ab2e2b4d73bbd7382ffb3f3b7d8b56a41aeb4b41d0ae7a4a5d9bd9b3325bd"
+}

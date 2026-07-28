@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823676-4c1c1a3a4f7c4bc8ba0ddb153b500072",
+  "snapshotCreatedAt": "2026-07-28T21:56:30.817Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-07-28",
+  "eventId": "823676",
+  "gamePk": 823676,
+  "eventStartTime": "2026-07-28T23:40:00Z",
+  "homeTeam": "MIN",
+  "awayTeam": "KC",
+  "venue": "Target Field",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "5e14ae345ca9f456736c95d1537b32a5",
+  "normalizedPayloadHash": "34886753d1a58f2d86cd22d9e60bab3b",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          663616,
+          621439,
+          680777,
+          665019,
+          605137,
+          605170,
+          807712,
+          686797,
+          668952
+        ],
+        "away": [
+          695600,
+          657041,
+          695506,
+          521692,
+          686469,
+          679845,
+          686681,
+          686555,
+          668942
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T21:56:30.817Z",
+      "availableAt": "2026-07-28T21:56:30.817Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T21:56:30.817Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823676/feed/live",
+        "requestedAt": "2026-07-28T21:56:30.817Z",
+        "receivedAt": "2026-07-28T21:56:30.817Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Taj Bradley",
+        "awayProbable": "Seth Lugo",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T21:56:30.817Z",
+      "availableAt": "2026-07-28T21:56:30.817Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T21:56:30.817Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823676/feed/live",
+        "requestedAt": "2026-07-28T21:56:30.817Z",
+        "receivedAt": "2026-07-28T21:56:30.817Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "89",
+        "wind": "5 mph, Out To CF",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T21:56:30.817Z",
+      "availableAt": "2026-07-28T21:56:30.817Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T21:56:30.817Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823676/feed/live",
+        "requestedAt": "2026-07-28T21:56:30.817Z",
+        "receivedAt": "2026-07-28T21:56:30.817Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Marvin Hudson",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Tripp Gibson",
+            "type": "First Base"
+          },
+          {
+            "name": "Nick Mahrley",
+            "type": "Second Base"
+          },
+          {
+            "name": "Derek Thomas",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-07-28T21:56:30.817Z",
+      "availableAt": "2026-07-28T21:56:30.817Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-07-28T21:56:30.817Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823676/feed/live",
+        "requestedAt": "2026-07-28T21:56:30.817Z",
+        "receivedAt": "2026-07-28T21:56:30.817Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
