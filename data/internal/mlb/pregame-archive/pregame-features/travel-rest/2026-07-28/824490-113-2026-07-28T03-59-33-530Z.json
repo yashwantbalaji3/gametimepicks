@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824490,
+  "teamId": 113,
+  "name": "Cincinnati Reds",
+  "side": "home",
+  "date": "2026-07-28",
+  "capturedAt": "2026-07-28T03:59:33.530Z",
+  "availableAt": "2026-07-28T03:59:33.530Z",
+  "eventStartTime": "2026-07-28T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 2,
+  "gamesLast7": 5,
+  "gamesLast10": 8,
+  "travelDistanceKm": 495.1,
+  "previousGameDate": "2026-07-26",
+  "previousVenueId": 2889,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=113&startDate=2026-07-14&endDate=2026-07-27",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-07-28T03:59:33.530Z"
+  },
+  "recordHash": "16407a0555e7d6b5292eb8960c8dbd2de5aadecbc92b2be8ab66760894a22dfd"
+}

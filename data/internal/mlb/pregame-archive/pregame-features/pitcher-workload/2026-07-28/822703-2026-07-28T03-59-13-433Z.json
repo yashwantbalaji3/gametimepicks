@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822703,
+  "date": "2026-07-28",
+  "capturedAt": "2026-07-28T03:59:13.433Z",
+  "availableAt": "2026-07-28T03:59:13.433Z",
+  "eventStartTime": "2026-07-28T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 676917,
+      "name": "Cade Cavalli",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 7.6,
+        "bbAvg": 1,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 12.51,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 110.67,
+        "k": 127,
+        "bb": 34,
+        "er": 44,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 669456,
+      "name": "Shane Bieber",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 5,
+      "lastStartDate": "2026-07-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 4,
+        "bbAvg": 2.4,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 6.67,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 30.67,
+        "k": 22,
+        "bb": 12,
+        "er": 16,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-28T03:59:13.433Z"
+  },
+  "recordHash": "a312c49e1f6301eb7b303a0cca66cfbe8764f937de43f91bcdb10e3c427fceee"
+}

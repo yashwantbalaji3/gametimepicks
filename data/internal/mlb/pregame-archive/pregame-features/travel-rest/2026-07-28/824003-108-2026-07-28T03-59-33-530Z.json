@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824003,
+  "teamId": 108,
+  "name": "Los Angeles Angels",
+  "side": "home",
+  "date": "2026-07-28",
+  "capturedAt": "2026-07-28T03:59:33.530Z",
+  "availableAt": "2026-07-28T03:59:33.530Z",
+  "eventStartTime": "2026-07-29T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-07-27",
+  "previousVenueId": 1,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=108&startDate=2026-07-14&endDate=2026-07-27",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-07-28T03:59:33.530Z"
+  },
+  "recordHash": "2149fd7b4b2ffa1b754ea980ff3db496687474a0ccaf6e09c9f2effbf30eb567"
+}
