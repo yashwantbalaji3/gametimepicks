@@ -1,0 +1,209 @@
+{
+  "kind": "settlement-and-outcome-audit",
+  "window": {
+    "from": "2026-07-25",
+    "to": "2026-07-27",
+    "generatedAt": "2026-07-29T05:19:45.377Z",
+    "datesWithoutBoards": [],
+    "finalityChecked": true
+  },
+  "perDate": [
+    {
+      "date": "2026-07-25",
+      "buckets": {
+        "generated": 650,
+        "nonGradableMarket": 0,
+        "nonDirectional": 55,
+        "win": 272,
+        "loss": 281,
+        "void": 42,
+        "pending": 0,
+        "unavailable": 0,
+        "unresolved": 0
+      },
+      "gap": 0,
+      "unclassified": []
+    },
+    {
+      "date": "2026-07-26",
+      "buckets": {
+        "generated": 690,
+        "nonGradableMarket": 0,
+        "nonDirectional": 63,
+        "win": 297,
+        "loss": 297,
+        "void": 33,
+        "pending": 0,
+        "unavailable": 0,
+        "unresolved": 0
+      },
+      "gap": 0,
+      "unclassified": []
+    },
+    {
+      "date": "2026-07-27",
+      "buckets": {
+        "generated": 557,
+        "nonGradableMarket": 0,
+        "nonDirectional": 48,
+        "win": 213,
+        "loss": 228,
+        "void": 64,
+        "pending": 2,
+        "unavailable": 2,
+        "unresolved": 0
+      },
+      "gap": 0,
+      "unclassified": []
+    }
+  ],
+  "summary": {
+    "counts": {
+      "generated": 1897,
+      "nonGradableMarket": 0,
+      "nonDirectional": 166,
+      "win": 782,
+      "loss": 806,
+      "void": 139,
+      "pending": 2,
+      "unavailable": 2,
+      "unresolved": 0
+    },
+    "metrics": {
+      "decisiveHitRate": {
+        "numerator": 782,
+        "denominator": 1588,
+        "population": "directional gradable rows with a Win or Loss",
+        "rate": 0.4924433249370277
+      },
+      "terminalCoverage": {
+        "numerator": 1727,
+        "denominator": 1897,
+        "population": "all generated board leans",
+        "rate": 0.9103848181338956
+      },
+      "settlementCompletion": {
+        "numerator": 1727,
+        "denominator": 1731,
+        "population": "directional gradable rows expected to reach a terminal state",
+        "rate": 0.997689196995956
+      }
+    },
+    "byDate": {
+      "2026-07-25": {
+        "numerator": 272,
+        "denominator": 553,
+        "population": "decisive rows on this date",
+        "rate": 0.4918625678119349
+      },
+      "2026-07-26": {
+        "numerator": 297,
+        "denominator": 594,
+        "population": "decisive rows on this date",
+        "rate": 0.5
+      },
+      "2026-07-27": {
+        "numerator": 213,
+        "denominator": 441,
+        "population": "decisive rows on this date",
+        "rate": 0.48299319727891155
+      }
+    },
+    "byMarketFamily": {
+      "batter_hits": {
+        "numerator": 335,
+        "denominator": 622,
+        "population": "decisive rows in this market family",
+        "rate": 0.5385852090032154
+      },
+      "batter_hits_runs_rbis": {
+        "numerator": 300,
+        "denominator": 610,
+        "population": "decisive rows in this market family",
+        "rate": 0.4918032786885246
+      },
+      "batter_total_bases": {
+        "numerator": 116,
+        "denominator": 287,
+        "population": "decisive rows in this market family",
+        "rate": 0.40418118466898956
+      },
+      "pitcher_strikeouts": {
+        "numerator": 31,
+        "denominator": 69,
+        "population": "decisive rows in this market family",
+        "rate": 0.4492753623188406
+      }
+    },
+    "byDescriptiveCategory": {
+      "High": {
+        "numerator": 340,
+        "denominator": 705,
+        "population": "decisive rows in this descriptive grouping (NOT a predictive confidence)",
+        "rate": 0.48226950354609927
+      },
+      "Low": {
+        "numerator": 328,
+        "denominator": 663,
+        "population": "decisive rows in this descriptive grouping (NOT a predictive confidence)",
+        "rate": 0.4947209653092006
+      },
+      "Medium": {
+        "numerator": 114,
+        "denominator": 220,
+        "population": "decisive rows in this descriptive grouping (NOT a predictive confidence)",
+        "rate": 0.5181818181818182
+      }
+    },
+    "modelVsMarket": {
+      "pairedRows": 1588,
+      "excludedNoModelProbability": 0,
+      "excludedNoTwoWayMarket": 0,
+      "model": {
+        "brier": 0.25484442630352677,
+        "logLoss": 0.7046760283900007,
+        "meanPredicted": 0.5910613979848862
+      },
+      "market": {
+        "brier": 0.23983121258469994,
+        "logLoss": 0.6723765648011705,
+        "meanPredicted": 0.5015727687640748
+      },
+      "observedRate": 0.4924433249370277,
+      "brierDifferenceModelMinusMarket": 0.015013213718826829,
+      "logLossDifferenceModelMinusMarket": 0.03229946358883018
+    },
+    "calibrationByPredictedProbability": {
+      "0.3-0.4": {
+        "n": 74,
+        "meanPredicted": 0.3621689189189189,
+        "observedRate": 0.32432432432432434
+      },
+      "0.4-0.5": {
+        "n": 246,
+        "meanPredicted": 0.45817926829268296,
+        "observedRate": 0.4186991869918699
+      },
+      "0.5-0.6": {
+        "n": 524,
+        "meanPredicted": 0.5522553435114506,
+        "observedRate": 0.4484732824427481
+      },
+      "0.6-0.7": {
+        "n": 469,
+        "meanPredicted": 0.6493164179104467,
+        "observedRate": 0.5479744136460555
+      },
+      "0.7-0.8": {
+        "n": 246,
+        "meanPredicted": 0.7373321138211383,
+        "observedRate": 0.5772357723577236
+      },
+      "0.8-0.9": {
+        "n": 29,
+        "meanPredicted": 0.8206206896551727,
+        "observedRate": 0.7241379310344828
+      }
+    }
+  }
+}

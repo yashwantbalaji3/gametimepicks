@@ -343,7 +343,7 @@ export default function BoardPage() {
               </div>
               <div>
                 <span style={{ color: "var(--vault-text-mute)" }}>Category C</span>
-                {" "}— differed by under 2.5pp or anomaly-flagged · settled 51.7%
+                {" "}— differed by under 2.5pp or anomaly-flagged · settled 51.0%
               </div>
               <div>
                 <span style={{ color: "var(--vault-text-faint)" }}>no data</span>
@@ -558,7 +558,7 @@ export default function BoardPage() {
                 </li>
                 <li>
                   <span style={{ color: "var(--vault-text-mute)" }}>Category C</span>{" "}
-                  — differed by under 2.5pp, or anomaly-flagged. Settled 51.7% — the highest of the three.
+                  — differed by under 2.5pp, or anomaly-flagged. Settled 51.0% — the highest of the three.
                 </li>
                 <li>
                   <span style={{ color: "var(--vault-text-faint)" }}>

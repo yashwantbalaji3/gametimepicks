@@ -84,7 +84,7 @@ export default function AboutPage() {
             <li>
               <strong style={{ color: "var(--vault-text-mute)" }}>Category C</strong>{" "}
               · differed by under 2.5pp, or the row was anomaly-flagged. Settled
-              at 51.7%.
+              at 51.0%.
             </li>
           </ul>
           <p className="mt-3 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
@@ -178,8 +178,10 @@ export default function AboutPage() {
                 MLB confidence climbed back into &quot;watch&quot; on
                 the May 22 settlement
               </strong>{" "}
-              — High is now 49.7% on 396 settled rows, Medium 50.4%
-              on 141, Low 53.3% on 435. Low is still the best MLB
+              — as of that date High was 49.7% on 396 settled rows,
+              Medium 50.4% on 141, Low 53.3% on 435. These are the
+              May 22 figures, not current ones; the live rates are in
+              the category captions above. Low is still the best MLB
               cohort, but only ONE rival now beats High by ≥1.5pp
               (was both before May 22). The calibration overlay
               auto-promotes MLB High from a &quot;Needs more
