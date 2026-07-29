@@ -1,0 +1,162 @@
+{
+  "kind": "ufc-integrity-audit",
+  "sprint": "045",
+  "asOf": "2026-07-28",
+  "public": false,
+  "question": "Do UFC's fighter-pair join collisions corrupt graded results or money?",
+  "verdict": {
+    "moneyImpact": "NONE \u2014 proven",
+    "moneyProof": [
+      "zero 'ufc' occurrences in portfolio.json and banked-ladders.json",
+      "zero 'ufc' occurrences in ledger.json and daily-summary.json",
+      "status/ufc-graduation-decision.json records public=false, moneyImpact=none"
+    ],
+    "gradingImpact": "THE JOIN IS UNSOUND; the one decided outcome is correct by coincidence",
+    "gradingDetail": "Both decided graded rows (2 of 2, 100%) sit on a colliding fighter-pair key: Pereira/Prochazka, bouts on 2023-11-11 and 2024-06-29. Pereira won BOTH, so the recorded grade happens to be right \u2014 by coincidence, not by construction. Had the rematch reversed, the grade would have been silently wrong.",
+    "readiness": "SCAFFOLD_ONLY"
+  },
+  "collisions": {
+    "boutRows": 1545,
+    "uniqueFighterPairKeys": 1535,
+    "collidingKeys": 10,
+    "boutsInvolved": 20,
+    "collidingKeyList": [
+      {
+        "key": "alex pereira|jiri prochazka",
+        "dates": [
+          "2023-11-11",
+          "2024-06-29"
+        ],
+        "winners": [
+          "Alex Pereira"
+        ],
+        "sameWinnerBothBouts": true
+      },
+      {
+        "key": "alex pereira|magomed ankalaev",
+        "dates": [
+          "2025-03-08",
+          "2025-10-04"
+        ],
+        "winners": [
+          "Alex Pereira",
+          "Magomed Ankalaev"
+        ],
+        "sameWinnerBothBouts": false
+      },
+      {
+        "key": "alexa grasso|valentina shevchenko",
+        "dates": [
+          "2023-09-16",
+          "2024-09-14"
+        ],
+        "winners": [
+          "Valentina Shevchenko"
+        ],
+        "sameWinnerBothBouts": false
+      },
+      {
+        "key": "alexander volkanovski|diego lopes",
+        "dates": [
+          "2025-04-12",
+          "2026-01-31"
+        ],
+        "winners": [
+          "Alexander Volkanovski"
+        ],
+        "sameWinnerBothBouts": true
+      },
+      {
+        "key": "austen lane|justin tafa",
+        "dates": [
+          "2023-06-24",
+          "2023-09-09"
+        ],
+        "winners": [
+          "Justin Tafa"
+        ],
+        "sameWinnerBothBouts": false
+      },
+      {
+        "key": "daniel lacerda|edgar chairez",
+        "dates": [
+          "2023-09-16",
+          "2024-02-24"
+        ],
+        "winners": [
+          "Edgar Chairez"
+        ],
+        "sameWinnerBothBouts": false
+      },
+      {
+        "key": "dricus du plessis|sean strickland",
+        "dates": [
+          "2024-01-20",
+          "2025-02-08"
+        ],
+        "winners": [
+          "Dricus Du Plessis"
+        ],
+        "sameWinnerBothBouts": true
+      },
+      {
+        "key": "johnny walker|magomed ankalaev",
+        "dates": [
+          "2023-10-21",
+          "2024-01-13"
+        ],
+        "winners": [
+          "Magomed Ankalaev"
+        ],
+        "sameWinnerBothBouts": false
+      },
+      {
+        "key": "joselyne edwards|nora cornolle",
+        "dates": [
+          "2023-09-02",
+          "2026-02-21"
+        ],
+        "winners": [
+          "Joselyne Edwards",
+          "Nora Cornolle"
+        ],
+        "sameWinnerBothBouts": false
+      },
+      {
+        "key": "merab dvalishvili|sean o'malley",
+        "dates": [
+          "2024-09-14",
+          "2025-06-07"
+        ],
+        "winners": [
+          "Merab Dvalishvili"
+        ],
+        "sameWinnerBothBouts": true
+      }
+    ]
+  },
+  "grading": {
+    "gradedCount": 10,
+    "tally": {
+      "win": 1,
+      "loss": 1,
+      "push": 0,
+      "void": 0,
+      "pending": 8,
+      "unknown": 0
+    },
+    "decidedRows": 2,
+    "decidedRowsOnACollidingKey": 2
+  },
+  "rootCause": "pipeline/ufc/grade_moneylines.py::_bout_key = '|'.join(sorted([norm(a), norm(b)])) \u2014 no date, no event, no bout id.",
+  "remediation": "`boutId` ALREADY EXISTS on every results row (e.g. '2023-11-11:a') and is unused by the join. Keying on boutId, or (fighters + event date), resolves all 10 collisions with no new data. Not applied here: UFC is not public, carries no money, and this sprint's scope is audit-only.",
+  "readinessEvidence": {
+    "fullyBacktestableBouts": 0,
+    "backtestRowCount": 0,
+    "pregameOddsMarkets": [
+      "h2h"
+    ],
+    "perRowCaptureProvenance": false,
+    "featureTiming": "career aggregates as of build \u2014 include the fight being predicted"
+  }
+}

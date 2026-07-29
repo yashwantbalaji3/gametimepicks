@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from pipeline.mlb.settlement_lineage import assert_settlement_lineage, derive_event_id
 import sys
 import time
 import urllib.error
@@ -253,6 +254,28 @@ def _is_suspended(status: dict) -> bool:
     return "suspend" in ds or "postpon" in ds
 
 
+
+def _lineage_fields(lean: dict) -> dict:
+    """Canonical lineage for a settled row.
+
+    SPRINT 045. `gameId` (the provider's event id) is an ALIAS, not identity — that inversion is what
+    Sprint 041 got wrong and Sprint 044 measured the cost of. The canonical `eventId` includes the
+    scheduled start to the minute, which is precisely what distinguishes the two halves of a
+    doubleheader; `providerEventId` is retained alongside it so the join stays auditable.
+    """
+    names = [n for n in (lean.get("homeTeamName"), lean.get("awayTeamName")) if n]
+    return {
+        "eventId": derive_event_id(
+            sport="mlb", league="MLB",
+            participant_names=names,
+            scheduled_start=lean.get("commenceTime"),
+        ) if names else None,
+        "providerEventId": lean.get("gameId"),
+        "eventStartTime": lean.get("commenceTime"),
+        "settlementSource": "mlb-statsapi-boxscore",
+    }
+
+
 def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: bool = False) -> dict:
     """Run settlement for `date_iso`. Returns the comparison-report dict.
 
@@ -302,6 +325,7 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
             if side in (None, "Pass", "No Play"):
                 continue
             settled_rows.append({
+                **_lineage_fields(lean),
                 "id": lean.get("id"), "date": date_iso, "gamePk": gpk,
                 "gameId": lean.get("gameId"), "playerId": lean.get("playerId"),
                 "playerName": lean.get("playerName"),
@@ -368,6 +392,7 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
                 no_pa = (pa is None or int(pa) == 0) and (ab is None or int(ab) == 0)
                 if no_pa:
                     settled_rows.append({
+                        **_lineage_fields(lean),
                         "id": lean.get("id"), "date": date_iso, "gamePk": gpk,
                         "gameId": lean.get("gameId"), "playerId": lean.get("playerId"),
                         "playerName": lean.get("playerName"),
@@ -394,6 +419,7 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
         outcome = _grade(side, float(line), float(actual))
         settled_rows.append(
             {
+                **_lineage_fields(lean),
                 "id": lean.get("id"),
                 "date": date_iso,
                 "gamePk": gpk,
@@ -541,6 +567,10 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
     for r in settled_rows:
         if r.get("id"):
             existing[r["id"]] = r
+    # SPRINT 045: fail closed BEFORE the ledger write. Only the rows THIS run produced are gated —
+    # historical rows predate the lineage fields and are preserved untouched, which is deliberate:
+    # rewriting them would destroy the evidence that makes the Sprint 044 corruption provable.
+    assert_settlement_lineage(settled_rows, date=date_iso)
     SETTLED_LEANS_PATH.write_text(
         "\n".join(json.dumps(v) for v in existing.values()) + ("\n" if existing else "")
     )

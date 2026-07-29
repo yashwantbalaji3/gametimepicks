@@ -36,6 +36,16 @@ export interface SettlementLineage {
   readonly eventStart?: string | null;
   /** The provider identifier the settlement actually joined on, when it used one. */
   readonly joinedProviderId?: string | null;
+  /**
+   * The id of the SOURCE RECORD the outcome was read from — an MLB `gamePk`, a fixture id, a bout id.
+   *
+   * Distinct from `joinedProviderId` on purpose, and the distinction is not academic: on the real
+   * 2026-07-22 board the two halves of the doubleheader had correctly distinct canonical eventIds and
+   * distinct odds-provider ids, yet BOTH carried gamePk 823519. Every alias check passed while game
+   * 1's predictions were still being graded against game 2's box score. Only injectivity on the
+   * grading source catches that.
+   */
+  readonly gradedAgainstId?: string | number | null;
 }
 
 export type LineageViolationCode =
@@ -50,7 +60,9 @@ export type LineageViolationCode =
   /** Settled before the event started, or another impossible ordering. */
   | "IMPOSSIBLE_RELATIONSHIP"
   /** The result came from something that is not an official source. */
-  | "UNTRUSTED_SOURCE";
+  | "UNTRUSTED_SOURCE"
+  /** One grading source (box score, fixture) was used to settle two different events. */
+  | "WRONG_EVENT_MAPPING";
 
 export interface LineageViolation {
   readonly code: LineageViolationCode;
@@ -144,7 +156,26 @@ export function validateSettlementLineage(
     });
   }
 
-  // 4 — timing and source.
+  // 4 — the grading source must map to exactly one event. Found by running the Python mirror of this
+  //     validator against the real collided boards rather than a fixture; every other check passed.
+  const eventsBySource = new Map<string, Set<string>>();
+  for (const r of wellFormed) {
+    if (r.gradedAgainstId == null) continue;
+    const key = String(r.gradedAgainstId);
+    if (!eventsBySource.has(key)) eventsBySource.set(key, new Set());
+    eventsBySource.get(key)!.add(r.eventId);
+  }
+  for (const [key, events] of [...eventsBySource].sort(([a], [b]) => a.localeCompare(b))) {
+    if (events.size > 1) {
+      violations.push({
+        code: "WRONG_EVENT_MAPPING",
+        message: `grading source "${key}" is claimed by ${events.size} distinct events (${[...events].sort().join(", ")}) — one event's predictions would be graded against the other's result`,
+        subjects: [key, ...events],
+      });
+    }
+  }
+
+  // 5 — timing and source.
   for (const r of wellFormed) {
     const settledAt = parse(r.settledAt);
     if (settledAt == null) {

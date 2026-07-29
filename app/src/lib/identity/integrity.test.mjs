@@ -147,6 +147,29 @@ test("THE 49-BAD-LEGS CASE — one provider id settled against two events", () =
   assert.match(dup[0].message, /graded against the wrong event/);
 });
 
+test("THE REAL 2026-07-22 SHAPE — distinct events, same grading source", () => {
+  // Both halves had correct, distinct eventIds AND distinct odds-provider ids, yet both carried
+  // gamePk 823519. Every alias check passes; this is the only one that fires.
+  const v = validateSettlementLineage([
+    lineageRow({ predictionId: "g1", eventId: "mlb:nyy-v-pit:20260722t1705", joinedProviderId: "alias-1", gradedAgainstId: 823519 }),
+    lineageRow({ predictionId: "g2", eventId: "mlb:nyy-v-pit:20260722t2305", joinedProviderId: "alias-2", gradedAgainstId: 823519, eventStart: GAME_2 }),
+  ]);
+  const wrong = v.filter((x) => x.code === "WRONG_EVENT_MAPPING");
+  assert.equal(wrong.length, 1, `expected WRONG_EVENT_MAPPING, got ${JSON.stringify(v)}`);
+  assert.match(wrong[0].message, /823519/);
+  assert.ok(!v.some((x) => x.code === "DUPLICATE_MAPPING"), "the alias checks genuinely do NOT fire here");
+});
+
+test("two events legitimately graded from their own sources pass", () => {
+  assert.deepEqual(
+    validateSettlementLineage([
+      lineageRow({ predictionId: "g1", eventId: "e1", joinedProviderId: "alias-1", gradedAgainstId: 823518 }),
+      lineageRow({ predictionId: "g2", eventId: "e2", joinedProviderId: "alias-2", gradedAgainstId: 823519, eventStart: GAME_2 }),
+    ]),
+    [],
+  );
+});
+
 test("each missing link is named individually", () => {
   const v = validateSettlementLineage([
     lineageRow({ predictionId: "pred-x", settlementSource: "", settledAt: "" }),
@@ -196,6 +219,59 @@ test("assertSettlementPublishable throws with actionable detail", () => {
   assert.throws(
     () => assertSettlementPublishable(validateSettlementLineage([lineageRow({ settledAt: "2026-07-22T12:00:00Z" })])),
     /refusing to publish[\s\S]*outcome did not exist yet/,
+  );
+});
+
+// ── cross-sport reuse: the SAME validator must catch the UFC collision ─────────
+
+test("UFC — the real Pereira/Prochazka rematch collision is caught by the same contract", () => {
+  // Measured 2026-07-28: `grade_moneylines.py` joins on sorted(fighter_a, fighter_b) with no date, so
+  // 10 fighter-pair keys map to two bouts each. Both decided graded rows sit on one of them.
+  // This is a different sport, a different pipeline, and a different join bug — and it produces the
+  // SAME shape: one grading source serving two events. That is the evidence for abstracting at all.
+  const v = validateSettlementLineage([
+    lineageRow({
+      predictionId: "ufc-pereira-2023",
+      eventId: "ufc:alex-pereira-v-jiri-prochazka:20231111t0000",
+      marketId: "h2h:alex-pereira",
+      settlementSource: "espn-official-scores",
+      settledAt: "2023-11-12T04:00:00Z",
+      eventStart: "2023-11-11T00:00:00Z",
+      joinedProviderId: "alex pereira|jiri prochazka",
+      gradedAgainstId: "alex pereira|jiri prochazka",
+    }),
+    lineageRow({
+      predictionId: "ufc-pereira-2024",
+      eventId: "ufc:alex-pereira-v-jiri-prochazka:20240629t0000",
+      marketId: "h2h:alex-pereira",
+      settlementSource: "espn-official-scores",
+      settledAt: "2024-06-30T04:00:00Z",
+      eventStart: "2024-06-29T00:00:00Z",
+      joinedProviderId: "alex pereira|jiri prochazka",
+      gradedAgainstId: "alex pereira|jiri prochazka",
+    }),
+  ]);
+  assert.ok(v.some((x) => x.code === "DUPLICATE_MAPPING"), `expected DUPLICATE_MAPPING, got ${JSON.stringify(v)}`);
+  assert.ok(v.some((x) => x.code === "WRONG_EVENT_MAPPING"), "and the grading source is shared too");
+});
+
+test("UFC — including the bout date in the identity resolves the collision", () => {
+  // `boutId` already exists in results-latest.json and is simply unused by the join. Distinct events
+  // with distinct grading sources validate cleanly, which is the whole remediation.
+  assert.deepEqual(
+    validateSettlementLineage([
+      lineageRow({
+        predictionId: "ufc-2023", eventId: "ufc:alex-pereira-v-jiri-prochazka:20231111t0000",
+        settlementSource: "espn-official-scores", settledAt: "2023-11-12T04:00:00Z",
+        eventStart: "2023-11-11T00:00:00Z", joinedProviderId: "2023-11-11:a", gradedAgainstId: "2023-11-11:a",
+      }),
+      lineageRow({
+        predictionId: "ufc-2024", eventId: "ufc:alex-pereira-v-jiri-prochazka:20240629t0000",
+        settlementSource: "espn-official-scores", settledAt: "2024-06-30T04:00:00Z",
+        eventStart: "2024-06-29T00:00:00Z", joinedProviderId: "2024-06-29:a", gradedAgainstId: "2024-06-29:a",
+      }),
+    ]),
+    [],
   );
 });
 
