@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824002,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T23:54:13.465Z",
+  "availableAt": "2026-07-29T23:54:13.465Z",
+  "eventStartTime": "2026-07-30T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 680570,
+      "name": "Grayson Rodriguez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21,
+        "ipAvg": 4.2,
+        "kAvg": 2.6,
+        "bbAvg": 1.6,
+        "erAvg": 3.6,
+        "hrAvg": 0.6,
+        "kPer9": 5.57,
+        "workloadIpLast5": 21
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 39,
+        "k": 30,
+        "bb": 19,
+        "er": 37,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 669713,
+      "name": "Hayden Wesneski",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T23:54:13.465Z"
+  },
+  "recordHash": "1228eb1918ce04fa339c44751ab9102d33125108a6226cadb082e231ddb4526d"
+}
