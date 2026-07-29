@@ -1,0 +1,466 @@
+{
+  "kind": "status-semantics-audit",
+  "sprint": "052",
+  "public": false,
+  "rule": {
+    "settlement": "a property of DECIDED CONTENT, never of a file existing",
+    "freshness": "a property of AUTHORITATIVE TIMESTAMPS plus an expected lifecycle",
+    "readiness": "a property of REQUIRED STAGES completing",
+    "availability": "a property of SUPPORTED DATA, not of a file being on disk"
+  },
+  "method": "Pattern scan over app/src and app/scripts for presence-derived decisions NEAR a state word. A regex cannot distinguish a cache guard from a public claim, so findings start AMBIGUOUS and are promoted only by hand review. `reviewed: false` means nobody has read it yet — not that it is fine.",
+  "counts": {
+    "total": 48,
+    "high": 0,
+    "needsReview": 45,
+    "reviewedClean": 3
+  },
+  "knownFixed": [
+    {
+      "file": "app/src/components/slate-status-bar.tsx",
+      "defect": "reported 'Slate settled · Jul 28' because a graded file existed; the slate held 168 pending legs and 0 decided",
+      "fixedIn": "Sprint 051 (3f22ea60)",
+      "authority": "getOptimizerSettledDates — requires at least one decided leg"
+    }
+  ],
+  "findings": [
+    {
+      "file": "app/src/app/ops/page.tsx",
+      "line": 64,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "function loadLatestSocialPack(): { pack: unknown; date: string | null } {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/src/app/world-cup/page.tsx",
+      "line": 83,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "function newestWcProjectionWithGames(): string | null {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/src/components/slate-status-bar.tsx",
+      "line": 112,
+      "signal": "latest-filename",
+      "note": "newest filename treated as newest valid data",
+      "snippet": "// refused the slate, the snapshot was written with every leg pending, and this bar told every",
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Fixed in Sprint 051. Consumes getOptimizerSettledDates(); a graded file with zero decided legs no longer reads as a settled slate.",
+      "correctAuthority": "getOptimizerSettledDates"
+    },
+    {
+      "file": "app/src/lib/game-simulations/mlb-generator.ts",
+      "line": 786,
+      "signal": "nonempty-implies-valid",
+      "note": "non-empty collection treated as validated",
+      "snippet": "",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/src/lib/markets/freshness.ts",
+      "line": 100,
+      "signal": "generatedAt-implies-fresh",
+      "note": "a build timestamp treated as row-level freshness",
+      "snippet": "return { state: \"ANOMALY\", artifactDate, generatedAt, ageDays, isCurrent: false };",
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Freshness is derived from artifactDate compared against the ET date, with an explicit UNAVAILABLE when the date is unparseable and an ANOMALY state when the artifact is dated in the future. No claim is made from file presence, and `generatedAt` is carried for display only — the scanner flagged it because the word sits near a state word.",
+      "correctAuthority": "artifactDate vs the ET calendar date"
+    },
+    {
+      "file": "app/src/lib/parlays/tracking.ts",
+      "line": 93,
+      "signal": "nonempty-implies-valid",
+      "note": "non-empty collection treated as validated",
+      "snippet": "matched: matched.length,",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/src/lib/parlays/ui-loader.ts",
+      "line": 279,
+      "signal": "exists-implies-state",
+      "note": "file presence used directly in a conditional that yields a state",
+      "snippet": "// fall back to latest when no dated file exists.",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/src/lib/parlays/world-cup-player-prop-legs.ts",
+      "line": 33,
+      "signal": "exists-implies-state",
+      "note": "file presence used directly in a conditional that yields a state",
+      "snippet": "// Date-specific team projections so the fixture join matches the same slate as the player props.",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/src/lib/social/social-ops.ts",
+      "line": 28,
+      "signal": "generatedAt-implies-fresh",
+      "note": "a build timestamp treated as row-level freshness",
+      "snippet": "attributed: { x: string | null; discord: string | null };",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/src/lib/today/daily-brief.ts",
+      "line": 74,
+      "signal": "generatedAt-implies-fresh",
+      "note": "a build timestamp treated as row-level freshness",
+      "snippet": "",
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "`lastUpdatedIso` is the MAX simulation generatedAt across simulations that are actually ready — a reduction over content, not a file timestamp. In-progress games are counted from a real clock. Scanner false positive.",
+      "correctAuthority": "max generatedAt across ready simulations"
+    },
+    {
+      "file": "app/src/lib/world-cup/model-qualified-picks.ts",
+      "line": 91,
+      "signal": "exists-implies-state",
+      "note": "file presence used directly in a conditional that yields a state",
+      "snippet": "try {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/src/lib/world-cup/model-qualified-props.ts",
+      "line": 154,
+      "signal": "exists-implies-state",
+      "note": "file presence used directly in a conditional that yields a state",
+      "snippet": "try {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/src/lib/world-cup/projections.ts",
+      "line": 235,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "const dir = path.join(process.cwd(), \"public\", \"data\", \"world-cup\", \"settlement\");",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/audit-feature-leakage-safety.mjs",
+      "line": 55,
+      "signal": "latest-filename",
+      "note": "newest filename treated as newest valid data",
+      "snippet": "if (d && d >= DATE) futureLeak++;         // target/future game leak",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/audit-hits-misses-research.mjs",
+      "line": 107,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "let cards = 0, lost1 = 0, lostMulti = 0, wonCards = 0;",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/audit-low-risk-methodology.mjs",
+      "line": 46,
+      "signal": "latest-filename",
+      "note": "newest filename treated as newest valid data",
+      "snippet": "function formStale(leg) {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/audit-mlb-pregame-archive.mjs",
+      "line": 24,
+      "signal": "exists-implies-state",
+      "note": "file presence used directly in a conditional that yields a state",
+      "snippet": "// separately and NEVER toward the 500 gate. Contextual rows are research-linked, not graded, not counted. ──",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/audit-mlb-pregame-archive.mjs",
+      "line": 24,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "// separately and NEVER toward the 500 gate. Contextual rows are research-linked, not graded, not counted. ──",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/audit-suggested-parlay-coverage.mjs",
+      "line": 32,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/backtest-mlb-full-game-sim-rolling.mjs",
+      "line": 64,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "function runRatesBefore(date) {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/backtest-mlb-pitcher-outs.mjs",
+      "line": 57,
+      "signal": "exists-implies-state",
+      "note": "file presence used directly in a conditional that yields a state",
+      "snippet": "try { const o = JSON.parse(line); if (o.playerName && o.playerId) map.set(norm(o.playerName), o.playerId); } catch {}",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/backtest-shadow-calibration.mjs",
+      "line": 21,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "const MIN_HISTORY = 10; // graded dates required before the first scored date",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-admin-status.mjs",
+      "line": 35,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "const wcBoard = readJson(\"world-cup/round-of-32/board-latest.json\");",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-bank-builder-ledger.mjs",
+      "line": 18,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "const stepNum = (bk) => { const r = resolveLadderStep(bk); return r ? r.step : CROWN; };",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-founder-review-previews.mjs",
+      "line": 41,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "if (!fs.existsSync(POOL_DIR)) return null;",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-founder-review-previews.mjs",
+      "line": 41,
+      "signal": "latest-filename",
+      "note": "newest filename treated as newest valid data",
+      "snippet": "if (!fs.existsSync(POOL_DIR)) return null;",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-mlb-model-inputs.mjs",
+      "line": 36,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "function latestBoardDate() {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-mlb-model-inputs.mjs",
+      "line": 36,
+      "signal": "latest-filename",
+      "note": "newest filename treated as newest valid data",
+      "snippet": "function latestBoardDate() {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-mlb-product-settlement.mjs",
+      "line": 120,
+      "signal": "exists-implies-state",
+      "note": "file presence used directly in a conditional that yields a state",
+      "snippet": "function main() {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-mlb-research-observations.mjs",
+      "line": 61,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "function latestEligibleLineup(featDir, date, gamePk) {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-mlb-research-progress.mjs",
+      "line": 98,
+      "signal": "latest-filename",
+      "note": "newest filename treated as newest valid data",
+      "snippet": "// missing feature families (0% coverage) + last date that produced a settled observation",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-public-research-contract.mjs",
+      "line": 93,
+      "signal": "nonempty-implies-valid",
+      "note": "non-empty collection treated as validated",
+      "snippet": "brief == null ? \"no brief artifact\" : `newest settled date ${brief.date}`);",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-shadow-calibrated-leans.mjs",
+      "line": 32,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "/** Latest committed board date, or the requested one. */",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-shadow-calibrated-leans.mjs",
+      "line": 33,
+      "signal": "latest-filename",
+      "note": "newest filename treated as newest valid data",
+      "snippet": "function pickDate() {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-shadow-calibration.mjs",
+      "line": 25,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/build-step2-dual-bank-builder.mjs",
+      "line": 91,
+      "signal": "latest-filename",
+      "note": "newest filename treated as newest valid data",
+      "snippet": "const sports = resolveSports(\"all\");",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/capture-mlb-pregame-lineup.mjs",
+      "line": 64,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "// scratches: players present in the latest PRIOR posted snapshot but absent from the current lineup.",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/check-learning-freshness.mjs",
+      "line": 114,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "const boardDir = path.join(APP, \"public/data/mlb/boards\");",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/freeze-mlb-pregame-research.mjs",
+      "line": 22,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "function main() {",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/join-mlb-pregame-settlements.mjs",
+      "line": 396,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/model-learning-audit.mjs",
+      "line": 166,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/project-and-launch-today.mjs",
+      "line": 82,
+      "signal": "latest-filename",
+      "note": "newest filename treated as newest valid data",
+      "snippet": "// \"now\" for the not-started gate: prefer an explicit --now, else the latest board prediction time",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/quarantine-mlb-research-eligibility.mjs",
+      "line": 25,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/run-daily-model-improvement.mjs",
+      "line": 20,
+      "signal": "exists-implies-state",
+      "note": "file presence used directly in a conditional that yields a state",
+      "snippet": "const OUT_DIR = path.join(REPO, \"data\", \"internal\", \"model-improvement\");",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/run-daily-product-ops-summary.mjs",
+      "line": 65,
+      "signal": "listdir-implies-dates",
+      "note": "directory listing converted into a set of valid dates",
+      "snippet": "const dd = path.join(sdir, d);",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/settle-paper-product-cards.mjs",
+      "line": 36,
+      "signal": "exists-implies-state",
+      "note": "file presence used directly in a conditional that yields a state",
+      "snippet": "const moneyMd5 = () => crypto.createHash(\"md5\").update(MONEY_FILES.map((f) => (fs.existsSync(f) ? fs.readFileSync(f) : Buffer.alloc(0))).reduce((a, b) => Buffer",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/update-selection-learning.mjs",
+      "line": 75,
+      "signal": "latest-filename",
+      "note": "newest filename treated as newest valid data",
+      "snippet": "if (!line.trim()) continue;",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    },
+    {
+      "file": "app/scripts/write-run-report.mjs",
+      "line": 31,
+      "signal": "generatedAt-implies-fresh",
+      "note": "a build timestamp treated as row-level freshness",
+      "snippet": "bankBuilder: fresh(dp?.date),",
+      "classification": "AMBIGUOUS",
+      "reviewed": false
+    }
+  ]
+}
