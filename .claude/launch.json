@@ -4,13 +4,20 @@
     {
       "name": "gtp-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "app", "run", "dev"],
+      "runtimeArgs": [
+        "--prefix",
+        "app",
+        "run",
+        "dev"
+      ],
       "port": 3000
     },
     {
       "name": "gtp-static",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "4173", "--directory", "app/out"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "app/scripts/serve-export.mjs"
+      ],
       "port": 4173
     }
   ]

@@ -185,6 +185,36 @@ export function getOptimizerSummary(): OptimizerSummary | null {
  * on disk as an internal archive but excluded from the UI. See
  * `public-parlay-era.ts`.
  */
+/**
+ * Dates whose optimizer snapshot contains at least one DECIDED leg.
+ *
+ * SPRINT 051. `getOptimizerGradedDates()` returns dates for which a graded FILE exists, which is not
+ * the same thing as a settled slate. On 2026-07-28 the settlement-lineage gate correctly refused the
+ * MLB slate (a doubleheader identity collision), so the snapshot was written with 168 legs and every
+ * one of them `pending` — and the global status bar, keying on file existence, told every visitor
+ * "Slate settled · Jul 28".
+ *
+ * Settlement is a property of the CONTENT, not of the filename. A date qualifies here only when
+ * something actually resolved.
+ */
+export function getOptimizerSettledDates(): string[] {
+  const decided = new Set(["win", "loss", "push", "void"]);
+  const hasDecided = (node: unknown): boolean => {
+    if (Array.isArray(node)) return node.some(hasDecided);
+    if (node && typeof node === "object") {
+      const o = node as Record<string, unknown>;
+      if (typeof o.status === "string" && decided.has(o.status.toLowerCase())) return true;
+      if (typeof o.result === "string" && decided.has(o.result.toLowerCase())) return true;
+      return Object.values(o).some(hasDecided);
+    }
+    return false;
+  };
+  return getOptimizerGradedDates().filter((d) => {
+    const payload = getOptimizerGradedForDate(d);
+    return payload ? hasDecided(payload) : false;
+  });
+}
+
 export function getOptimizerGradedDates(): string[] {
   return filterDatesToPublicEra(_listDates(OPTIMIZER_GRADED_DIR))
     .slice()

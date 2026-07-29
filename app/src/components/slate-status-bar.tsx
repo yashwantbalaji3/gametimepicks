@@ -17,7 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
 
-import { getOptimizerGradedDates } from "@/lib/parlay-results";
+import { getOptimizerSettledDates } from "@/lib/parlay-results";
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
@@ -108,7 +108,10 @@ export default function SlateStatusBar() {
   // latest available slate's date labeled "Latest slate" rather than asserting a "Today" with no data.
   const slateDate = currentSlateDate();
   const realToday = currentEtDate();
-  const gradedDates = getOptimizerGradedDates();
+  // SPRINT 051: settled means DECIDED, not "a graded file exists". On 2026-07-28 the settlement gate
+  // refused the slate, the snapshot was written with every leg pending, and this bar told every
+  // visitor "Slate settled · Jul 28". See getOptimizerSettledDates.
+  const gradedDates = getOptimizerSettledDates();
   const latestSettled = gradedDates.length ? [...gradedDates].sort().slice(-1)[0] : null;
   // The current slate is "settled" only when it is on or before the latest officially-graded slate.
   // A freshly-pulled pregame slate (its date is after the last settled date) reads "Pregame slate" —
