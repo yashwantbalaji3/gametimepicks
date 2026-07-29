@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823273,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T12:59:27.625Z",
+  "availableAt": "2026-07-29T12:59:27.625Z",
+  "eventStartTime": "2026-07-29T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 687312,
+      "name": "Gabriel Hughes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 7,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 3,
+        "ipSum": 16.33,
+        "ipAvg": 5.44,
+        "kAvg": 6,
+        "bbAvg": 1.67,
+        "erAvg": 2,
+        "hrAvg": 0,
+        "kPer9": 9.92,
+        "workloadIpLast5": 16.33
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 16.33,
+        "k": 18,
+        "bb": 5,
+        "er": 6,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T12:59:27.625Z"
+  },
+  "recordHash": "d6e0121ebbfce39bf35e7c473c0ca09068a680d698ce75bf613125a4f6563660"
+}

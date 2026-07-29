@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824567,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T12:59:27.625Z",
+  "availableAt": "2026-07-29T12:59:27.625Z",
+  "eventStartTime": "2026-07-29T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663436,
+      "name": "Davis Martin",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 2.6,
+        "bbAvg": 2,
+        "erAvg": 2.4,
+        "hrAvg": 0,
+        "kPer9": 5.01,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 111,
+        "k": 100,
+        "bb": 33,
+        "er": 43,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 693645,
+      "name": "Cam Schlittler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 7.8,
+        "bbAvg": 1,
+        "erAvg": 2.4,
+        "hrAvg": 1.2,
+        "kPer9": 11.57,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 130.33,
+        "k": 157,
+        "bb": 25,
+        "er": 30,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T12:59:27.625Z"
+  },
+  "recordHash": "5e44e207f270b61ecbafb85d07cfbdf1b97a46251bf5d3c6a78a57f1f63af801"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823192,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T12:59:27.625Z",
+  "availableAt": "2026-07-29T12:59:27.625Z",
+  "eventStartTime": "2026-07-29T19:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 657277,
+      "name": "Logan Webb",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 3.8,
+        "bbAvg": 1.8,
+        "erAvg": 3.8,
+        "hrAvg": 0.8,
+        "kPer9": 5.76,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 113,
+        "k": 89,
+        "bb": 29,
+        "er": 50,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 675660,
+      "name": "Shane Drohan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 6,
+        "bbAvg": 1.2,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 9,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 57.33,
+        "k": 56,
+        "bb": 19,
+        "er": 27,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T12:59:27.625Z"
+  },
+  "recordHash": "0544d2f05a99c6c130eda43b9b7f327bd5b4550aac03c157c9dcd592ace187c9"
+}

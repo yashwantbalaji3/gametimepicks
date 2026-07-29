@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823837,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T12:59:27.625Z",
+  "availableAt": "2026-07-29T12:59:27.625Z",
+  "eventStartTime": "2026-07-29T16:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687473,
+      "name": "Ryan Gusto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 18.67,
+        "ipAvg": 3.73,
+        "kAvg": 3.4,
+        "bbAvg": 1.8,
+        "erAvg": 2,
+        "hrAvg": 0.6,
+        "kPer9": 8.2,
+        "workloadIpLast5": 18.67
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 24.67,
+        "k": 22,
+        "bb": 11,
+        "er": 13,
+        "hr": 3
+      }
+    },
+    "away": {
+      "id": 666200,
+      "name": "Jesús Luzardo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 8.4,
+        "bbAvg": 1.6,
+        "erAvg": 0.8,
+        "hrAvg": 0.4,
+        "kPer9": 12.6,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 122.33,
+        "k": 152,
+        "bb": 38,
+        "er": 45,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T12:59:27.625Z"
+  },
+  "recordHash": "aa4839463067fb6426287b8ec469e77ba1a07c59037dc4135ec35fba054c6c59"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822702,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T12:59:27.625Z",
+  "availableAt": "2026-07-29T12:59:27.625Z",
+  "eventStartTime": "2026-07-29T17:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641793,
+      "name": "Zack Littell",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 11,
+      "lastStartDate": "2026-07-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 2.6,
+        "bbAvg": 2,
+        "erAvg": 4,
+        "hrAvg": 1.6,
+        "kPer9": 5.16,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 62.33,
+        "k": 39,
+        "bb": 23,
+        "er": 46,
+        "hr": 20
+      }
+    },
+    "away": {
+      "id": 702056,
+      "name": "Trey Yesavage",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 5.8,
+        "bbAvg": 2.4,
+        "erAvg": 2.6,
+        "hrAvg": 1,
+        "kPer9": 10.73,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 85,
+        "k": 87,
+        "bb": 42,
+        "er": 37,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T12:59:27.625Z"
+  },
+  "recordHash": "f7ad41fd31a3cc54bdd09f41817f8473371eea2c54c867d57ec8af2a4adf5711"
+}
