@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823677,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T23:33:54.772Z",
+  "availableAt": "2026-07-29T23:33:54.772Z",
+  "eventStartTime": "2026-07-29T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 657746,
+      "name": "Joe Ryan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 9,
+      "lastStartDate": "2026-07-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 6.4,
+        "bbAvg": 1.4,
+        "erAvg": 2.8,
+        "hrAvg": 1.6,
+        "kPer9": 10.67,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 114.33,
+        "k": 131,
+        "bb": 25,
+        "er": 43,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 677976,
+      "name": "Randy Dobnak",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 6,
+      "lastStartDate": "2026-07-23",
+      "last5": {
+        "starts": 2,
+        "ipSum": 9.33,
+        "ipAvg": 4.67,
+        "kAvg": 3,
+        "bbAvg": 2.5,
+        "erAvg": 0.5,
+        "hrAvg": 0.5,
+        "kPer9": 5.79,
+        "workloadIpLast5": 9.33
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 9.33,
+        "k": 6,
+        "bb": 5,
+        "er": 1,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T23:33:54.772Z"
+  },
+  "recordHash": "48da1272b6f452f20a5458e9ca0b541ef7922ecf9a758dabdb11b711d514cede"
+}
