@@ -37,6 +37,20 @@
 # =============================================================================
 
 set -e
+# SPRINT 049 — pipefail is load-bearing here, not hygiene.
+#
+# Every step in this script is written as `if $PY -m ... | tee log; then ok; else err; fi`. Without
+# pipefail the `if` tests the exit status of the PIPELINE, which bash defines as the status of the LAST
+# command — `tee`, which always succeeds. So a Python traceback was reported as "completed".
+#
+# That is not hypothetical. On 2026-07-29 the settlement-lineage gate correctly refused to write 641
+# rows for the 2026-07-28 doubleheader collision, the Python process exited non-zero, and this script
+# printed "✓ MLB settlement completed" and exited 0. The workflow went green. A hard integrity gate
+# fired in production and the operator-facing output said everything was fine.
+#
+# With pipefail the pipeline takes the first non-zero status, so `err` and the non-zero exit fire as
+# the code always intended. Covered by scripts/automation_settle_pipefail_test.sh.
+set -o pipefail
 
 GREEN="\033[0;32m"; RED="\033[0;31m"; YELLOW="\033[0;33m"
 BLUE="\033[0;34m"; DIM="\033[2m"; RESET="\033[0m"

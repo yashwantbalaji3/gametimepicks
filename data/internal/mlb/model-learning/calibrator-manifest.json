@@ -1,0 +1,41 @@
+{
+  "kind": "mlb-calibrator-manifest",
+  "public": false,
+  "calibratorVersion": "platt-1",
+  "method": "platt",
+  "modelSchemaVersion": "mlb-board-lean-1",
+  "marketFamilies": [
+    "pitcher_strikeouts",
+    "batter_hits",
+    "batter_total_bases",
+    "batter_hits_runs_rbis"
+  ],
+  "parameters": {
+    "a": 0.5710847015699214,
+    "b": -0.22247426879950416,
+    "trainRows": 14938
+  },
+  "fitWindow": {
+    "from": "2026-05-16",
+    "to": "2026-06-24",
+    "rows": 14938
+  },
+  "heldOutWindow": {
+    "from": "2026-07-01",
+    "to": "2026-07-27",
+    "rows": 6695
+  },
+  "heldOutEvaluation": {
+    "rawModelBrier": 0.25591178901269424,
+    "calibratedBrier": 0.24552525969368053,
+    "marketBrier": 0.24128561899139692,
+    "brierImprovementVsRaw": 0.01038652931901371,
+    "brierGapToMarket": 0.004239640702283609,
+    "stillBehindMarket": true,
+    "observedRate": 0.49843166542195666
+  },
+  "corpusFingerprint": "3f60fbe593c46368",
+  "corpusRows": 21633,
+  "generatedForSettledDate": "2026-07-27",
+  "interpretation": "Calibration makes the stated probability approximately true. Measured on held-out data it does NOT reach the de-vigged market baseline."
+}

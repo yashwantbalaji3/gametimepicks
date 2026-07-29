@@ -1,0 +1,40 @@
+{
+  "kind": "settlement-lineage-live-proof",
+  "sprint": "049",
+  "public": false,
+  "question": "Has the settlement-lineage gate executed during a real production settlement?",
+  "verdict": "PROVEN \u2014 the gate ran live and failed closed on a real board",
+  "evidence": {
+    "workflow": "nightly-settle.yml",
+    "runsObserved": [
+      "2026-07-29T08:02:17Z",
+      "2026-07-29T10:07:41Z"
+    ],
+    "targetDate": "2026-07-28",
+    "gateRaised": true,
+    "rowsRefused": 641,
+    "violation": "WRONG_EVENT_MAPPING: gamePk 824489 is claimed by 2 distinct events (mlb:cincinnati-reds-v-cleveland-guardians:20260728t1741, mlb:cincinnati-reds-v-cleveland-guardians:20260728t2310)",
+    "logExcerpt": "pipeline.mlb.settlement_lineage.SettlementLineageError: Settlement 2026-07-28 failed lineage validation \u2014 refusing to write 641 row(s)",
+    "ledgerUnchanged": true,
+    "ledgerRows": 22660,
+    "duplicateIds": 0,
+    "partialWrite": false
+  },
+  "whyTheBoardIsCorrupt": "The 2026-07-28 board was generated at ~10:15 ET on 2026-07-28 by mlb-daily-production. The publication gate that refuses a collided board landed in commit 1ccddf41 on 2026-07-28 at 21:23 ET \u2014 AFTER the board was written. So this board predates its own guard. Boards generated from 2026-07-29 onward are covered.",
+  "quarantine": {
+    "date": "2026-07-28",
+    "status": "PERMANENTLY UNSETTLED",
+    "rationale": "Settling it would grade game 1's predictions against game 2's box score \u2014 the exact defect that produced 49 wrong outcomes in Sprint 044. Regenerating the board is not a fix either: the publication gate would now refuse to write it. Leaving the date unsettled is the correct outcome, and it is visible rather than silent.",
+    "affectedLeans": 702,
+    "refusedRows": 641,
+    "violations": [
+      "WRONG_EVENT_MAPPING: gamePk 824489 is claimed by 2 distinct events (mlb:cincinnati-reds-v-cleveland-guardians:20260728t1741, mlb:cincinnati-reds-v-cleveland-guardians:20260728t2310) \u2014 one event's predictions would be graded against the other's box score"
+    ]
+  },
+  "secondaryDefectFound": {
+    "what": "scripts/automation_settle.sh reported '\u2713 MLB settlement completed' and exited 0 while the gate was raising.",
+    "cause": "`if $PY -m ... | tee log; then` tests the pipeline's exit status, which bash defines as the status of the LAST command \u2014 `tee`, which always succeeds.",
+    "scope": "10 steps in the script, including both settlements and both exports. Every settlement failure since the script was written has been reported as success.",
+    "fix": "set -o pipefail, proven by scripts/automation_settle_pipefail_test.sh"
+  }
+}

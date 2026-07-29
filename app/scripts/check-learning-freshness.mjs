@@ -104,6 +104,31 @@ export function inspect({ calDir = CAL_DIR, ledger = LEDGER } = {}) {
         `below the ${(MIN_COVERAGE * 100).toFixed(0)}% minimum`,
     );
   }
+  // SPRINT 049 — a BOARD with no settlement is invisible in a ledger-vs-corpus comparison, because
+  // neither side has it. On 2026-07-29 the lineage gate correctly refused to settle 2026-07-28 (a
+  // pre-gate board carrying the CLE@CIN doubleheader collision), and nothing in this check noticed:
+  // the corpus matched the ledger perfectly, because the ledger was missing the date too.
+  //
+  // A refused settlement is the RIGHT outcome and must stay visible. Reported as a warning, not a
+  // problem — the loop's data is internally consistent; a slate is simply quarantined.
+  const boardDir = path.join(APP, "public/data/mlb/boards");
+  if (fs.existsSync(boardDir)) {
+    const boardDates = fs.readdirSync(boardDir)
+      .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10)).sort();
+    // Exclude boards for slates that have not finished yet. Keyed on the ET date rather than "the
+    // newest file": on 2026-07-29 the newest board was 2026-07-28, whose slate WAS complete and whose
+    // settlement had been refused — dropping the last file hid exactly the case this check exists for.
+    const todayEt = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+    const settleable = boardDates.filter((d) => d < todayEt);
+    const unsettled = settleable.filter((d) => !ledgerDates.has(d));
+    if (unsettled.length > 0) {
+      warnings.push(
+        `${unsettled.length} completed slate(s) have a board but no settled rows: ${unsettled.join(", ")} — ` +
+          `check whether the settlement-lineage gate refused them (that is a correct outcome, not an outage)`,
+      );
+    }
+  }
+
   // Growing rows on a shrinking date set, or vice versa, means the exporter partially wrote.
   if (corpusRows > ledgerRows) {
     warnings.push(`the corpus has MORE rows (${corpusRows}) than the ledger (${ledgerRows}) — likely a stale date file`);
