@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823924,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T20:08:15.867Z",
+  "availableAt": "2026-07-29T20:08:15.867Z",
+  "eventStartTime": "2026-07-30T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641778,
+      "name": "Eric Lauer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 7,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 3.8,
+        "bbAvg": 1.4,
+        "erAvg": 2.8,
+        "hrAvg": 1.4,
+        "kPer9": 5.9,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 66,
+        "k": 42,
+        "bb": 22,
+        "er": 35,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 676106,
+      "name": "Emerson Hancock",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 7,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 4.4,
+        "bbAvg": 1.8,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 7.71,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 105.33,
+        "k": 97,
+        "bb": 26,
+        "er": 37,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T20:08:15.867Z"
+  },
+  "recordHash": "55cb9af809c24e4041d614790e0e781529689a04719e4fe9e01e25da3914dbfc"
+}

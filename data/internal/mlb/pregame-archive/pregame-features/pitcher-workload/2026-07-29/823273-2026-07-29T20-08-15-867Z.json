@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823273,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T20:08:15.867Z",
+  "availableAt": "2026-07-29T20:08:15.867Z",
+  "eventStartTime": "2026-07-29T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 606996,
+      "name": "Kyle Hart",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 6,
+      "lastStartDate": "2026-07-23",
+      "last5": {
+        "starts": 2,
+        "ipSum": 3,
+        "ipAvg": 1.5,
+        "kAvg": 1.5,
+        "bbAvg": 0.5,
+        "erAvg": 0.5,
+        "hrAvg": 0,
+        "kPer9": 9,
+        "workloadIpLast5": 3
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 3,
+        "k": 3,
+        "bb": 1,
+        "er": 1,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 687312,
+      "name": "Gabriel Hughes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 7,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 3,
+        "ipSum": 16.33,
+        "ipAvg": 5.44,
+        "kAvg": 6,
+        "bbAvg": 1.67,
+        "erAvg": 2,
+        "hrAvg": 0,
+        "kPer9": 9.92,
+        "workloadIpLast5": 16.33
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 16.33,
+        "k": 18,
+        "bb": 5,
+        "er": 6,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T20:08:15.867Z"
+  },
+  "recordHash": "5ba93c0dfa836ca5af79a5dc67f182f9ca6fcf452186124d35fcf17ee45c0923"
+}

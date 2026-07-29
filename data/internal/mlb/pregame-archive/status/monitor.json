@@ -8,36 +8,39 @@
     "teamMarketCapture": {
       "status": "captured",
       "date": "2026-07-29",
-      "records": 726,
-      "eligible": 726,
-      "creditsSpent": 8898,
-      "creditsRemaining": 11105,
-      "skippedStarted": 10
+      "records": 930,
+      "eligible": 930,
+      "creditsSpent": 8928,
+      "creditsRemaining": 11075,
+      "skippedStarted": 9
     },
     "playerPropCapture": {
       "status": "captured",
       "date": "2026-07-29",
       "mode": "write",
       "eventsCaptured": 3,
-      "eventsOnDate": 13,
+      "eventsOnDate": 7,
       "maxEvents": 3,
       "marketsCaptured": [
+        "pitcher_outs",
         "pitcher_strikeouts",
         "batter_hits",
+        "batter_hits_runs_rbis",
         "batter_total_bases",
-        "pitcher_outs",
-        "batter_home_runs",
-        "pitcher_earned_runs"
+        "batter_rbis",
+        "pitcher_earned_runs",
+        "batter_runs_scored",
+        "batter_home_runs"
       ],
-      "records": 385,
-      "eligibleRecords": 385,
-      "paired": 352,
-      "overOnly": 33,
-      "deVigCoveragePct": 91.4,
+      "records": 1830,
+      "eligibleRecords": 1830,
+      "paired": 1562,
+      "overOnly": 268,
+      "deVigCoveragePct": 85.4,
       "estimatedCredits": 27,
-      "actualCreditsSpent": 12,
-      "creditsRemaining": 11321,
-      "skippedGames": 10,
+      "actualCreditsSpent": 27,
+      "creditsRemaining": 11045,
+      "skippedGames": 4,
       "providerUnavailable": [],
       "stoppedEarly": null
     }
@@ -55,7 +58,7 @@
     "datesCollected": 9,
     "marketDatesCollected": 8,
     "playerPropDatesCollected": 8,
-    "avgEligiblePlayerPropRecordsPerDay": 10293,
+    "avgEligiblePlayerPropRecordsPerDay": 10522,
     "estimatedDaysTo30DateGate": 21,
     "pathTo500SettledEligibleRows": "settledEligibleObs=0 until a separate settlement-join mission runs; then each settled prop-lean that was captured pregame becomes 1 eligible row. At current per-day capture, a month of daily collection yields ample raw eligible records; the 500 SETTLED-eligible threshold is measurable only after the settlement join + official grading."
   },
@@ -71,30 +74,30 @@
       "2026-07-28",
       "2026-07-29"
     ],
-    "gamesFinal": 109,
-    "gamesPending": 17,
-    "joinRows": 13430,
-    "settledEligibleRows": 10440,
-    "marketPendingRows": 1743,
+    "gamesFinal": 113,
+    "gamesPending": 13,
+    "joinRows": 13579,
+    "settledEligibleRows": 10998,
+    "marketPendingRows": 1245,
     "ambiguousRows": 0,
     "unsupportedRows": 0,
     "joinCoverageByMarket": {
-      "totals": 342,
-      "spreads": 182,
-      "h2h": 96,
-      "pitcher_outs": 197,
-      "pitcher_strikeouts": 178,
-      "batter_hits": 1526,
-      "batter_hits_runs_rbis": 1498,
-      "batter_rbis": 1340,
-      "batter_total_bases": 1840,
-      "pitcher_earned_runs": 150,
-      "batter_runs_scored": 1290,
-      "batter_home_runs": 1801
+      "totals": 352,
+      "spreads": 188,
+      "h2h": 102,
+      "pitcher_outs": 210,
+      "pitcher_strikeouts": 190,
+      "batter_hits": 1625,
+      "batter_hits_runs_rbis": 1568,
+      "batter_rbis": 1399,
+      "batter_total_bases": 1947,
+      "pitcher_earned_runs": 164,
+      "batter_runs_scored": 1350,
+      "batter_home_runs": 1903
     },
     "earliestValidResearchDate": {
       "dateGate": "9/30 distinct dates · ~21 more daily runs",
-      "settledEligibleGate": "10440/500 · ~0 market-settled days at the observed 1491 settled-eligible rows/day",
+      "settledEligibleGate": "10998/500 · ~0 market-settled days at the observed 1375 settled-eligible rows/day",
       "bindingConstraint": "whichever of dates / settled-eligible clears last",
       "note": "Not a promise — recomputed each run from observed collection. First settled-eligible rows accrue when the earliest market-capture date's games are final and re-joined."
     }
@@ -103,7 +106,7 @@
     "minDistinctDates": 30,
     "minSettledEligibleObs": 500,
     "dates": "9/30",
-    "settledEligible": "10440/500",
+    "settledEligible": "10998/500",
     "met": false
   }
 }
