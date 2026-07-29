@@ -98,6 +98,50 @@ test("the quarantined date is never in the settled set", () => {
   }
 });
 
+test("no built page announces a settled date the contract calls withheld", () => {
+  // SPRINT 054. The results hero announced "Settled slate: Jul 28" from getOptimizerGradedDates()
+  // while the accounting section on the SAME page reported that date as withheld. The Sprint 051
+  // defect, in a second component. This scans the built output so any future component that
+  // reintroduces it fails here rather than on a user's screen.
+  const OUT = path.join(APP, "out");
+  if (!fs.existsSync(OUT)) return; // nothing built in this environment
+  const quarantined = loadTerminal().quarantines.map((q) => q.date);
+  assert.ok(quarantined.length > 0, "the contract must still report a quarantined date");
+
+  const shortLabels = quarantined.map((d) => {
+    const [, m, day] = d.split("-");
+    const month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][Number(m) - 1];
+    return `${month} ${Number(day)}`;
+  });
+
+  for (const route of ["index.html", "results/index.html", "system-status/index.html"]) {
+    const p = path.join(OUT, route);
+    if (!fs.existsSync(p)) continue;
+    const text = fs.readFileSync(p, "utf8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    for (const label of shortLabels) {
+      assert.ok(
+        !text.includes(`Settled slate: ${label}`),
+        `${route} announces "Settled slate: ${label}" for a date the contract calls withheld`,
+      );
+      assert.ok(
+        !text.includes(`Settled · ${label}`),
+        `${route} announces "Settled · ${label}" for a withheld date`,
+      );
+    }
+  }
+});
+
+test("each built page has exactly one h1", () => {
+  const OUT = path.join(APP, "out");
+  if (!fs.existsSync(OUT)) return;
+  for (const route of ["index.html", "results/index.html", "system-status/index.html", "methodology/index.html"]) {
+    const p = path.join(OUT, route);
+    if (!fs.existsSync(p)) continue;
+    const count = (fs.readFileSync(p, "utf8").match(/<h1[\s>]/g) ?? []).length;
+    assert.equal(count, 1, `${route} has ${count} h1 elements — a screen reader relies on exactly one`);
+  }
+});
+
 test("the newest settled date does not run ahead of the research contract", () => {
   // If the bar's latest settled date were newer than the contract's newest fully settled slate, the
   // two surfaces would again be telling different stories about the same day.

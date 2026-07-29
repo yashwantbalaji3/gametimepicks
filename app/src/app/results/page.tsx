@@ -35,7 +35,7 @@ import { loadRecentAccounting } from "@/lib/research/results-accounting-loader";
 
 import {
   getOptimizerSummary,
-  getOptimizerGradedDates,
+  getOptimizerSettledDates,
   getOptimizerGradedForDate,
   sortGradedSlipsForDisplay,
 } from "@/lib/parlay-results";
@@ -135,7 +135,10 @@ export default function ResultsPage() {
   // line when the file exists; renders nothing otherwise. Never moves
   // the model on its own — that's the next PR.
   const auditPolicy = getDailyAuditPolicy();
-  const dates = getOptimizerGradedDates();
+  // SPRINT 054: settled means DECIDED, not "a graded file exists". This page's own accounting section
+  // reported 2026-07-28 as WITHHELD while the hero above it announced "Settled slate: Jul 28" — the
+  // Sprint 051 header defect, in a second component, contradicting itself on one screen.
+  const dates = getOptimizerSettledDates();
   const calibrationTable = loadCalibrationTable();
 
   // For each date, load the graded payload and prepare display slips.

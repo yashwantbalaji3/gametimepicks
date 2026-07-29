@@ -61,7 +61,9 @@ export default function ResultsHero({
         >
           Results
         </span>
-        <h1
+        {/* SPRINT 054: demoted from h1. The page already carries one, and two h1s break the heading
+            hierarchy a screen reader relies on to navigate. */}
+        <h2
           className="font-display tracking-tight"
           style={{
             color: "var(--vault-text)",
@@ -73,7 +75,7 @@ export default function ResultsHero({
           {settledLabel
             ? `Settled slate: ${settledLabel}`
             : "Tracking the next settled slate"}
-        </h1>
+        </h2>
         <p
           className="text-[12px] leading-snug"
           style={{ color: "var(--vault-text-faint)", maxWidth: 560 }}

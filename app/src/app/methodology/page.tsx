@@ -16,6 +16,8 @@ export const metadata: Metadata = {
 };
 import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import DataSourceBadge from "@/components/data-source-badge";
+import HowToReadThis from "@/components/research/how-to-read-this";
+import { loadTerminal } from "@/lib/research/public-contract-adapter";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { currentEtDate } from "@/lib/freshness";
 import SportOverviewHero from "@/components/sport-overview-hero";
@@ -667,6 +669,10 @@ function WorkflowDiagram() {
       <div className="mt-10">
         <SimulationCoverageMatrix />
       </div>
+
+      {/* SPRINT 054 — the twelve questions, answered from the SAME canonical artifact the rest of the
+         site renders, so an explanation cannot drift from the numbers it explains. */}
+      <HowToReadThis terminal={loadTerminal()} />
     </div>
   );
 }

@@ -14,6 +14,8 @@ import path from "node:path";
 import fs from "node:fs";
 
 import { currentEtDate } from "@/lib/freshness";
+import TerminalSummaryPanel from "@/components/research/terminal-summary-panel";
+import { loadTerminal } from "@/lib/research/public-contract-adapter";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
@@ -200,6 +202,12 @@ export default function HomePage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-9">
+      {/* SPRINT 054 — research-terminal positioning, read from the canonical contract. Leads with what
+         the site compares, states the market comparison result plainly (currently: behind), and links
+         to the status page. A homepage that shows a hit rate while omitting the market comparison is
+         technically silent and practically misleading. */}
+      <TerminalSummaryPanel terminal={loadTerminal()} />
+
       {/* 0 — Slate liveness: on a no-games day this frames the page honestly on the REAL ET clock
           (never presents the most-recent slate as live) and points at the next scheduled focus.
           Renders nothing on a genuinely live day. */}
