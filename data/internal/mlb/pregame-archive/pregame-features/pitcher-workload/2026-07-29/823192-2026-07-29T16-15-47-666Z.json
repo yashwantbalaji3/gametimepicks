@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823192,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T16:15:47.666Z",
+  "availableAt": "2026-07-29T16:15:47.666Z",
+  "eventStartTime": "2026-07-29T19:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 657277,
+      "name": "Logan Webb",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 3.8,
+        "bbAvg": 1.8,
+        "erAvg": 3.8,
+        "hrAvg": 0.8,
+        "kPer9": 5.76,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 113,
+        "k": 89,
+        "bb": 29,
+        "er": 50,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 623381,
+      "name": "Thomas Pannone",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T16:15:47.666Z"
+  },
+  "recordHash": "fbb6996666fb6ed8f27d7ec9b268b9e3510d7406a5d821b53f1f1f541a1decb0"
+}

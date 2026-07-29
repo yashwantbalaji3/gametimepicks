@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823596,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T16:15:47.666Z",
+  "availableAt": "2026-07-29T16:15:47.666Z",
+  "eventStartTime": "2026-07-29T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 640455,
+      "name": "Sean Manaea",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 4.8,
+        "bbAvg": 1.6,
+        "erAvg": 2.4,
+        "hrAvg": 1.2,
+        "kPer9": 7.62,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 42.67,
+        "k": 39,
+        "bb": 11,
+        "er": 19,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 700363,
+      "name": "AJ Smith-Shawver",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T16:15:47.666Z"
+  },
+  "recordHash": "61185d3a50e942f71cb7f5c979bdfcd4a9ab551b4dbcd969469ebfe09e5713ce"
+}
