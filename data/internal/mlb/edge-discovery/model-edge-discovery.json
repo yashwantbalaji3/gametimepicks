@@ -1,0 +1,877 @@
+{
+  "kind": "model-edge-discovery",
+  "public": false,
+  "baseline": {
+    "rows": 21633,
+    "dateRange": [
+      "2026-05-16",
+      "2026-07-27"
+    ],
+    "modelBrier": 0.25557671022789386,
+    "marketBrier": 0.24119836406993417,
+    "hitRate": 0.5016410114177414
+  },
+  "method": {
+    "preregisteredSegments": 12,
+    "temporalSplitAt": "2026-07-01",
+    "minimumHeldOutRows": 200,
+    "bonferroniAlpha": 0.004166666666666667,
+    "note": "Segments were declared before scoring. All are reported, including unfavourable ones."
+  },
+  "segments": [
+    {
+      "id": "residual-large-model-higher",
+      "label": "model ≥10pp above market",
+      "trainRows": 6122,
+      "testRows": 2561,
+      "usable": true,
+      "train": {
+        "n": 6122,
+        "hitRate": 0.48921920940868996,
+        "modelBrier": 0.2736706544609595,
+        "marketBrier": 0.24187060254158788,
+        "modelLogLoss": 0.748223329534778,
+        "marketLogLoss": 0.6766731331205931
+      },
+      "test": {
+        "n": 2561,
+        "hitRate": 0.4810620851229988,
+        "modelBrier": 0.2775708954197575,
+        "marketBrier": 0.24399634374846907,
+        "modelLogLoss": 0.7602664917619201,
+        "marketLogLoss": 0.6814788975053269
+      },
+      "heldOutBrierEdge": -0.03357455167128842,
+      "modelBeatsMarketHeldOut": false,
+      "suggestedByTrain": false,
+      "survivesOutOfSample": false,
+      "significantVsMarketImplied": false
+    },
+    {
+      "id": "residual-large-model-lower",
+      "label": "model ≥10pp below market",
+      "trainRows": 0,
+      "testRows": 0,
+      "usable": false,
+      "train": null,
+      "test": null,
+      "heldOutBrierEdge": null,
+      "modelBeatsMarketHeldOut": false,
+      "suggestedByTrain": false,
+      "survivesOutOfSample": false,
+      "significantVsMarketImplied": false
+    },
+    {
+      "id": "residual-small",
+      "label": "model within 2.5pp of market",
+      "trainRows": 2199,
+      "testRows": 1075,
+      "usable": true,
+      "train": {
+        "n": 2199,
+        "hitRate": 0.483856298317417,
+        "modelBrier": 0.24134279941336967,
+        "marketBrier": 0.24148478734884518,
+        "modelLogLoss": 0.6756517188591823,
+        "marketLogLoss": 0.6759352049345071
+      },
+      "test": {
+        "n": 1075,
+        "hitRate": 0.4930232558139535,
+        "modelBrier": 0.2384831463069768,
+        "marketBrier": 0.23872502130489334,
+        "modelLogLoss": 0.6698403152770123,
+        "marketLogLoss": 0.670343633022352
+      },
+      "heldOutBrierEdge": 0.00024187499791653022,
+      "modelBeatsMarketHeldOut": true,
+      "suggestedByTrain": true,
+      "survivesOutOfSample": true,
+      "significantVsMarketImplied": false
+    },
+    {
+      "id": "market-near-coinflip",
+      "label": "market 45–55%",
+      "trainRows": 4854,
+      "testRows": 2162,
+      "usable": true,
+      "train": {
+        "n": 4854,
+        "hitRate": 0.49505562422744126,
+        "modelBrier": 0.2652268169530291,
+        "marketBrier": 0.2490364409680621,
+        "modelLogLoss": 0.7266216812639105,
+        "marketLogLoss": 0.6912181992067404
+      },
+      "test": {
+        "n": 2162,
+        "hitRate": 0.4838112858464385,
+        "modelBrier": 0.2696589644033303,
+        "marketBrier": 0.250270009720282,
+        "modelLogLoss": 0.7404190711992026,
+        "marketLogLoss": 0.6936901897119373
+      },
+      "heldOutBrierEdge": -0.0193889546830483,
+      "modelBeatsMarketHeldOut": false,
+      "suggestedByTrain": false,
+      "survivesOutOfSample": false,
+      "significantVsMarketImplied": false
+    },
+    {
+      "id": "market-favourite",
+      "label": "market ≥60%",
+      "trainRows": 2524,
+      "testRows": 1137,
+      "usable": true,
+      "train": {
+        "n": 2524,
+        "hitRate": 0.6561014263074485,
+        "modelBrier": 0.2312451458518227,
+        "marketBrier": 0.22497524414863734,
+        "modelLogLoss": 0.6602279825354805,
+        "marketLogLoss": 0.6421360670668989
+      },
+      "test": {
+        "n": 1137,
+        "hitRate": 0.6394019349164468,
+        "modelBrier": 0.23821708432717695,
+        "marketBrier": 0.22925131681798963,
+        "modelLogLoss": 0.6763435293572738,
+        "marketLogLoss": 0.6508859959353521
+      },
+      "heldOutBrierEdge": -0.008965767509187317,
+      "modelBeatsMarketHeldOut": false,
+      "suggestedByTrain": false,
+      "survivesOutOfSample": false,
+      "significantVsMarketImplied": false
+    },
+    {
+      "id": "market-underdog",
+      "label": "market ≤40%",
+      "trainRows": 1963,
+      "testRows": 928,
+      "usable": true,
+      "train": {
+        "n": 1963,
+        "hitRate": 0.3790117167600611,
+        "modelBrier": 0.24478579428935301,
+        "marketBrier": 0.23429287026145243,
+        "modelLogLoss": 0.6827191877357518,
+        "marketLogLoss": 0.6612702274785698
+      },
+      "test": {
+        "n": 928,
+        "hitRate": 0.3545258620689655,
+        "modelBrier": 0.24209979892241384,
+        "marketBrier": 0.23054131496711644,
+        "modelLogLoss": 0.6773825388235998,
+        "marketLogLoss": 0.6553237811322157
+      },
+      "heldOutBrierEdge": -0.011558483955297405,
+      "modelBeatsMarketHeldOut": false,
+      "suggestedByTrain": false,
+      "survivesOutOfSample": false,
+      "significantVsMarketImplied": false
+    },
+    {
+      "id": "model-confident",
+      "label": "model ≥70%",
+      "trainRows": 2877,
+      "testRows": 1223,
+      "usable": true,
+      "train": {
+        "n": 2877,
+        "hitRate": 0.6030587417448732,
+        "modelBrier": 0.26201719527285355,
+        "marketBrier": 0.233933757412785,
+        "modelLogLoss": 0.7312234260318238,
+        "marketLogLoss": 0.6604353133391305
+      },
+      "test": {
+        "n": 1223,
+        "hitRate": 0.5838103025347506,
+        "modelBrier": 0.2711150301635327,
+        "marketBrier": 0.23821037762773797,
+        "modelLogLoss": 0.7580670489160559,
+        "marketLogLoss": 0.6692404634447002
+      },
+      "heldOutBrierEdge": -0.03290465253579475,
+      "modelBeatsMarketHeldOut": false,
+      "suggestedByTrain": false,
+      "survivesOutOfSample": false,
+      "significantVsMarketImplied": false
+    },
+    {
+      "id": "model-unconfident",
+      "label": "model ≤40%",
+      "trainRows": 729,
+      "testRows": 361,
+      "usable": true,
+      "train": {
+        "n": 729,
+        "hitRate": 0.3731138545953361,
+        "modelBrier": 0.23336767805212633,
+        "marketBrier": 0.23345833554579556,
+        "modelLogLoss": 0.6594251420618842,
+        "marketLogLoss": 0.6596246129143831
+      },
+      "test": {
+        "n": 361,
+        "hitRate": 0.3545706371191136,
+        "modelBrier": 0.22823896822714684,
+        "marketBrier": 0.2278266422519222,
+        "modelLogLoss": 0.6494641268647366,
+        "marketLogLoss": 0.6489241917571088
+      },
+      "heldOutBrierEdge": -0.0004123259752246422,
+      "modelBeatsMarketHeldOut": false,
+      "suggestedByTrain": true,
+      "survivesOutOfSample": false,
+      "significantVsMarketImplied": false
+    },
+    {
+      "id": "market-hits",
+      "label": "market batter_hits",
+      "trainRows": 6213,
+      "testRows": 2792,
+      "usable": true,
+      "train": {
+        "n": 6213,
+        "hitRate": 0.5374215354901014,
+        "modelBrier": 0.2436852457492356,
+        "marketBrier": 0.23473799494193587,
+        "modelLogLoss": 0.6828674271908616,
+        "marketLogLoss": 0.6620949410832067
+      },
+      "test": {
+        "n": 2792,
+        "hitRate": 0.539756446991404,
+        "modelBrier": 0.24277933342764937,
+        "marketBrier": 0.23531247212720724,
+        "modelLogLoss": 0.6820157107167931,
+        "marketLogLoss": 0.6635204923144343
+      },
+      "heldOutBrierEdge": -0.007466861300442135,
+      "modelBeatsMarketHeldOut": false,
+      "suggestedByTrain": false,
+      "survivesOutOfSample": false,
+      "significantVsMarketImplied": false
+    },
+    {
+      "id": "market-hrr",
+      "label": "market batter_hits_runs_rbis",
+      "trainRows": 5160,
+      "testRows": 2248,
+      "usable": true,
+      "train": {
+        "n": 5160,
+        "hitRate": 0.49767441860465117,
+        "modelBrier": 0.26371949721899257,
+        "marketBrier": 0.24773762079798445,
+        "modelLogLoss": 0.7238669468194905,
+        "marketLogLoss": 0.6886147542088741
+      },
+      "test": {
+        "n": 2248,
+        "hitRate": 0.4933274021352313,
+        "modelBrier": 0.26393523092526694,
+        "marketBrier": 0.24766644787533382,
+        "modelLogLoss": 0.7261794257107953,
+        "marketLogLoss": 0.6887872663934211
+      },
+      "heldOutBrierEdge": -0.016268783049933122,
+      "modelBeatsMarketHeldOut": false,
+      "suggestedByTrain": false,
+      "survivesOutOfSample": false,
+      "significantVsMarketImplied": false
+    },
+    {
+      "id": "market-tb",
+      "label": "market batter_total_bases",
+      "trainRows": 2824,
+      "testRows": 1296,
+      "usable": true,
+      "train": {
+        "n": 2824,
+        "hitRate": 0.44511331444759206,
+        "modelBrier": 0.26132024957861194,
+        "marketBrier": 0.2429508014164049,
+        "modelLogLoss": 0.7184262015939548,
+        "marketLogLoss": 0.6789609709383319
+      },
+      "test": {
+        "n": 1296,
+        "hitRate": 0.4212962962962963,
+        "modelBrier": 0.2660382709413581,
+        "marketBrier": 0.24180968914331394,
+        "modelLogLoss": 0.7312694213027406,
+        "marketLogLoss": 0.67677745597082
+      },
+      "heldOutBrierEdge": -0.024228581798044185,
+      "modelBeatsMarketHeldOut": false,
+      "suggestedByTrain": false,
+      "survivesOutOfSample": false,
+      "significantVsMarketImplied": false
+    },
+    {
+      "id": "market-k",
+      "label": "market pitcher_strikeouts",
+      "trainRows": 741,
+      "testRows": 359,
+      "usable": true,
+      "train": {
+        "n": 741,
+        "hitRate": 0.47368421052631576,
+        "modelBrier": 0.2736627835627532,
+        "marketBrier": 0.24236253938700555,
+        "modelLogLoss": 0.7514748963550508,
+        "marketLogLoss": 0.6777640488891614
+      },
+      "test": {
+        "n": 359,
+        "hitRate": 0.48746518105849584,
+        "modelBrier": 0.27124660236768783,
+        "marketBrier": 0.24589210310513213,
+        "modelLogLoss": 0.7409451502642488,
+        "marketLogLoss": 0.6848976024403909
+      },
+      "heldOutBrierEdge": -0.025354499262555702,
+      "modelBeatsMarketHeldOut": false,
+      "suggestedByTrain": false,
+      "survivesOutOfSample": false,
+      "significantVsMarketImplied": false
+    }
+  ],
+  "survivingSegments": [
+    "residual-small"
+  ],
+  "simulationQuality": {
+    "curve": [
+      {
+        "band": "0.3-0.4",
+        "n": 1087,
+        "meanPredicted": 0.36518813247470167,
+        "observed": 0.36522539098436063,
+        "errorPp": -0.0037258509658966155,
+        "distanceFromEven": 0.13481186752529833
+      },
+      {
+        "band": "0.4-0.5",
+        "n": 3386,
+        "meanPredicted": 0.45662262256349545,
+        "observed": 0.41287655050206734,
+        "errorPp": 4.3746072061428105,
+        "distanceFromEven": 0.04337737743650455
+      },
+      {
+        "band": "0.5-0.6",
+        "n": 6453,
+        "meanPredicted": 0.5528382302804893,
+        "observed": 0.4718735471873547,
+        "errorPp": 8.09646830931346,
+        "distanceFromEven": 0.052838230280489284
+      },
+      {
+        "band": "0.6-0.7",
+        "n": 6604,
+        "meanPredicted": 0.648851287098731,
+        "observed": 0.5390672319806178,
+        "errorPp": 10.978405511811317,
+        "distanceFromEven": 0.14885128709873097
+      },
+      {
+        "band": "0.7-0.8",
+        "n": 3665,
+        "meanPredicted": 0.7388538335607138,
+        "observed": 0.5989085948158254,
+        "errorPp": 13.99452387448884,
+        "distanceFromEven": 0.23885383356071377
+      },
+      {
+        "band": "0.8-0.9",
+        "n": 400,
+        "meanPredicted": 0.8276875000000007,
+        "observed": 0.59,
+        "errorPp": 23.76875000000007,
+        "distanceFromEven": 0.3276875000000007
+      },
+      {
+        "band": "0.9-1.0",
+        "n": 35,
+        "meanPredicted": 0.941925714285714,
+        "observed": 0.5142857142857142,
+        "errorPp": 42.76399999999998,
+        "distanceFromEven": 0.44192571428571403
+      }
+    ],
+    "meanAbsErrorNearEven": 5.863301719558371,
+    "meanAbsErrorFarFromEven": 26.84242462482963,
+    "errorGrowsWithConfidence": true,
+    "interpretation": "Error grows as the simulation moves away from even money — the signature of understated variance, not a constant offset. A single global scaling factor would not fix this."
+  },
+  "marketForensics": [
+    {
+      "market": "batter_total_bases",
+      "n": 4120,
+      "hitRate": 0.437621359223301,
+      "modelBrier": 0.26280436503640753,
+      "marketBrier": 0.2425918495945783,
+      "meanModel": 0.5534455582524295,
+      "meanMarket": 0.4437193580864897,
+      "observed": 0.437621359223301,
+      "byBand": [
+        {
+          "band": "0.2-0.3",
+          "n": 1,
+          "meanModel": 0.2083,
+          "meanMarket": 0.15791966654035616,
+          "observed": 1,
+          "observed95": {
+            "low": 0.20654329147389294,
+            "high": 1
+          },
+          "modelErrorPp": -79.17,
+          "marketErrorPp": -84.20803334596438
+        },
+        {
+          "band": "0.3-0.4",
+          "n": 34,
+          "meanModel": 0.38986176470588235,
+          "meanMarket": 0.3835662758810693,
+          "observed": 0.5,
+          "observed95": {
+            "low": 0.3406906262804899,
+            "high": 0.6593093737195102
+          },
+          "modelErrorPp": -11.013823529411765,
+          "marketErrorPp": -11.643372411893072
+        },
+        {
+          "band": "0.4-0.5",
+          "n": 1043,
+          "meanModel": 0.4622704697986576,
+          "meanMarket": 0.4101493776559048,
+          "observed": 0.4228187919463087,
+          "observed95": {
+            "low": 0.3931746739178108,
+            "high": 0.4530293745265765
+          },
+          "modelErrorPp": 3.9451677852348874,
+          "marketErrorPp": -1.2669414290403913
+        },
+        {
+          "band": "0.5-0.6",
+          "n": 1939,
+          "meanModel": 0.5486855595667862,
+          "meanMarket": 0.4387177750529735,
+          "observed": 0.42496132026817945,
+          "observed95": {
+            "low": 0.4031275282350911,
+            "high": 0.4470918617553228
+          },
+          "modelErrorPp": 12.372423929860677,
+          "marketErrorPp": 1.3756454784794037
+        },
+        {
+          "band": "0.6-0.7",
+          "n": 939,
+          "meanModel": 0.636753567625133,
+          "meanMarket": 0.48014359594423633,
+          "observed": 0.46112886048988283,
+          "observed95": {
+            "low": 0.429467568698303,
+            "high": 0.4931069125295087
+          },
+          "modelErrorPp": 17.56247071352502,
+          "marketErrorPp": 1.9014735454353504
+        },
+        {
+          "band": "0.7-0.8",
+          "n": 145,
+          "meanModel": 0.7300399999999999,
+          "meanMarket": 0.5149670303303023,
+          "observed": 0.5448275862068965,
+          "observed95": {
+            "low": 0.46365827326027204,
+            "high": 0.6236829001751115
+          },
+          "modelErrorPp": 18.52124137931034,
+          "marketErrorPp": -2.9860555876594197
+        },
+        {
+          "band": "0.8-0.9",
+          "n": 12,
+          "meanModel": 0.84375,
+          "meanMarket": 0.5779484607973716,
+          "observed": 0.4166666666666667,
+          "observed95": {
+            "low": 0.19325746190524656,
+            "high": 0.6804926643446271
+          },
+          "modelErrorPp": 42.70833333333333,
+          "marketErrorPp": 16.12817941307049
+        },
+        {
+          "band": "0.9-1.0",
+          "n": 7,
+          "meanModel": 0.9700428571428572,
+          "meanMarket": 0.5720825754189983,
+          "observed": 0.42857142857142855,
+          "observed95": {
+            "low": 0.1582169222626268,
+            "high": 0.7495457695909742
+          },
+          "modelErrorPp": 54.14714285714286,
+          "marketErrorPp": 14.351114684756977
+        }
+      ],
+      "highSideHitRate": 0.4418145956607495,
+      "highSideN": 3042,
+      "lowSideHitRate": 0.42578849721706863,
+      "lowSideN": 1078,
+      "marketErrorPp": 0.6097998863188736,
+      "modelErrorPp": 11.58241990291285
+    },
+    {
+      "market": "pitcher_strikeouts",
+      "n": 1100,
+      "hitRate": 0.4781818181818182,
+      "modelBrier": 0.2728742298818182,
+      "marketBrier": 0.24351446063683077,
+      "meanModel": 0.6291115454545461,
+      "meanMarket": 0.4994425186683022,
+      "observed": 0.4781818181818182,
+      "byBand": [
+        {
+          "band": "0.4-0.5",
+          "n": 152,
+          "meanModel": 0.4657789473684208,
+          "meanMarket": 0.4325479798208416,
+          "observed": 0.4276315789473684,
+          "observed95": {
+            "low": 0.35171898448628874,
+            "high": 0.5071120336757424
+          },
+          "modelErrorPp": 3.8147368421052374,
+          "marketErrorPp": 0.491640087347317
+        },
+        {
+          "band": "0.5-0.6",
+          "n": 324,
+          "meanModel": 0.5557959876543206,
+          "meanMarket": 0.48068004730009356,
+          "observed": 0.4351851851851852,
+          "observed95": {
+            "low": 0.38227146001361645,
+            "high": 0.4896178914292755
+          },
+          "modelErrorPp": 12.06108024691354,
+          "marketErrorPp": 4.549486211490839
+        },
+        {
+          "band": "0.6-0.7",
+          "n": 330,
+          "meanModel": 0.6459384848484846,
+          "meanMarket": 0.5185433842371966,
+          "observed": 0.48787878787878786,
+          "observed95": {
+            "low": 0.4343979172554837,
+            "high": 0.5416386222291102
+          },
+          "modelErrorPp": 15.805969696969674,
+          "marketErrorPp": 3.0664596358408733
+        },
+        {
+          "band": "0.7-0.8",
+          "n": 205,
+          "meanModel": 0.7439731707317067,
+          "meanMarket": 0.535983369652081,
+          "observed": 0.5317073170731708,
+          "observed95": {
+            "low": 0.4634443248095749,
+            "high": 0.5988038096617182
+          },
+          "modelErrorPp": 21.22658536585359,
+          "marketErrorPp": 0.4276052578910283
+        },
+        {
+          "band": "0.8-0.9",
+          "n": 77,
+          "meanModel": 0.8360961038961038,
+          "meanMarket": 0.5243856766586114,
+          "observed": 0.5584415584415584,
+          "observed95": {
+            "low": 0.4473803679096196,
+            "high": 0.6639484528955104
+          },
+          "modelErrorPp": 27.76545454545454,
+          "marketErrorPp": -3.405588178294705
+        },
+        {
+          "band": "0.9-1.0",
+          "n": 12,
+          "meanModel": 0.9244,
+          "meanMarket": 0.5437947997891106,
+          "observed": 0.5833333333333334,
+          "observed95": {
+            "low": 0.3195073356553728,
+            "high": 0.8067425380947534
+          },
+          "modelErrorPp": 34.10666666666666,
+          "marketErrorPp": -3.9538533544222765
+        }
+      ],
+      "highSideHitRate": 0.48628691983122363,
+      "highSideN": 948,
+      "lowSideHitRate": 0.4276315789473684,
+      "lowSideN": 152,
+      "marketErrorPp": 2.1260700486483985,
+      "modelErrorPp": 15.092972727272786
+    },
+    {
+      "market": "batter_hits",
+      "n": 9005,
+      "hitRate": 0.5381454747362576,
+      "modelBrier": 0.24340436765907922,
+      "marketBrier": 0.2349161115772821,
+      "meanModel": 0.6053401998889544,
+      "meanMarket": 0.5326119364656539,
+      "observed": 0.5381454747362576,
+      "byBand": [
+        {
+          "band": "0.1-0.2",
+          "n": 1,
+          "meanModel": 0.1703,
+          "meanMarket": 0.15791966654035616,
+          "observed": 1,
+          "observed95": {
+            "low": 0.20654329147389294,
+            "high": 1
+          },
+          "modelErrorPp": -82.97,
+          "marketErrorPp": -84.20803334596438
+        },
+        {
+          "band": "0.2-0.3",
+          "n": 1,
+          "meanModel": 0.2908,
+          "meanMarket": 0.29411764705882354,
+          "observed": 1,
+          "observed95": {
+            "low": 0.20654329147389294,
+            "high": 1
+          },
+          "modelErrorPp": -70.92,
+          "marketErrorPp": -70.58823529411764
+        },
+        {
+          "band": "0.3-0.4",
+          "n": 1050,
+          "meanModel": 0.3643140000000008,
+          "meanMarket": 0.3443362494193011,
+          "observed": 0.36095238095238097,
+          "observed95": {
+            "low": 0.3324573649399964,
+            "high": 0.3904611457735682
+          },
+          "modelErrorPp": 0.3361619047619835,
+          "marketErrorPp": -1.6616131533079892
+        },
+        {
+          "band": "0.4-0.5",
+          "n": 1308,
+          "meanModel": 0.4440513761467892,
+          "meanMarket": 0.3949136429858863,
+          "observed": 0.38990825688073394,
+          "observed95": {
+            "low": 0.36383535245466314,
+            "high": 0.41662594714126366
+          },
+          "modelErrorPp": 5.414311926605525,
+          "marketErrorPp": 0.5005386105152387
+        },
+        {
+          "band": "0.5-0.6",
+          "n": 1221,
+          "meanModel": 0.5542540540540543,
+          "meanMarket": 0.4937436579468236,
+          "observed": 0.5094185094185094,
+          "observed95": {
+            "low": 0.4813921115354459,
+            "high": 0.5373858267710258
+          },
+          "modelErrorPp": 4.483554463554484,
+          "marketErrorPp": -1.5674851471685791
+        },
+        {
+          "band": "0.6-0.7",
+          "n": 2722,
+          "meanModel": 0.6578452608376223,
+          "meanMarket": 0.5902369376806318,
+          "observed": 0.5944158706833211,
+          "observed95": {
+            "low": 0.5758495222480856,
+            "high": 0.6127160935969438
+          },
+          "modelErrorPp": 6.342939015430115,
+          "marketErrorPp": -0.41789330026893445
+        },
+        {
+          "band": "0.7-0.8",
+          "n": 2453,
+          "meanModel": 0.7392890746025296,
+          "meanMarket": 0.6312597005052085,
+          "observed": 0.6359559722788423,
+          "observed95": {
+            "low": 0.616715740211666,
+            "high": 0.654771033701638
+          },
+          "modelErrorPp": 10.333310232368731,
+          "marketErrorPp": -0.4696271773633742
+        },
+        {
+          "band": "0.8-0.9",
+          "n": 241,
+          "meanModel": 0.8254493775933609,
+          "meanMarket": 0.6415242736781724,
+          "observed": 0.6265560165975104,
+          "observed95": {
+            "low": 0.5639470802449965,
+            "high": 0.6851935886609409
+          },
+          "modelErrorPp": 19.88933609958505,
+          "marketErrorPp": 1.4968257080662073
+        },
+        {
+          "band": "0.9-1.0",
+          "n": 8,
+          "meanModel": 0.9337625000000002,
+          "meanMarket": 0.630624703547115,
+          "observed": 0.5,
+          "observed95": {
+            "low": 0.2152125268244419,
+            "high": 0.7847874731755581
+          },
+          "modelErrorPp": 43.37625000000001,
+          "marketErrorPp": 13.062470354711497
+        }
+      ],
+      "highSideHitRate": 0.5951843491346878,
+      "highSideN": 6645,
+      "lowSideHitRate": 0.37754237288135595,
+      "lowSideN": 2360,
+      "marketErrorPp": -0.5533538270603766,
+      "modelErrorPp": 6.7194725152696755
+    },
+    {
+      "market": "batter_hits_runs_rbis",
+      "n": 7408,
+      "hitRate": 0.49635529157667385,
+      "modelBrier": 0.2637849628469216,
+      "marketBrier": 0.24771602296724674,
+      "meanModel": 0.6000090307775372,
+      "meanMarket": 0.4964082975426436,
+      "observed": 0.49635529157667385,
+      "byBand": [
+        {
+          "band": "0.3-0.4",
+          "n": 3,
+          "meanModel": 0.3915,
+          "meanMarket": 0.3934216606907804,
+          "observed": 0.3333333333333333,
+          "observed95": {
+            "low": 0.061490315276160515,
+            "high": 0.7923450448735121
+          },
+          "modelErrorPp": 5.81666666666667,
+          "marketErrorPp": 6.008832735744707
+        },
+        {
+          "band": "0.4-0.5",
+          "n": 883,
+          "meanModel": 0.46699716874292213,
+          "meanMarket": 0.43521771660008135,
+          "observed": 0.43261608154020387,
+          "observed95": {
+            "low": 0.40029876322228986,
+            "high": 0.4655171840675079
+          },
+          "modelErrorPp": 3.4381087202718263,
+          "marketErrorPp": 0.2601635059877483
+        },
+        {
+          "band": "0.5-0.6",
+          "n": 2969,
+          "meanModel": 0.5546452340855504,
+          "meanMarket": 0.47998910221096763,
+          "observed": 0.4910744358369821,
+          "observed95": {
+            "low": 0.47311501821451296,
+            "high": 0.5090569212524266
+          },
+          "modelErrorPp": 6.357079824856831,
+          "marketErrorPp": -1.1085333626014493
+        },
+        {
+          "band": "0.6-0.7",
+          "n": 2613,
+          "meanModel": 0.6441973976272473,
+          "meanMarket": 0.5172176728049801,
+          "observed": 0.5158821278224264,
+          "observed95": {
+            "low": 0.49671103037108005,
+            "high": 0.5350065944175202
+          },
+          "modelErrorPp": 12.831526980482089,
+          "marketErrorPp": 0.1335544982553727
+        },
+        {
+          "band": "0.7-0.8",
+          "n": 862,
+          "meanModel": 0.7378803944315548,
+          "meanMarket": 0.5471639385738233,
+          "observed": 0.5185614849187935,
+          "observed95": {
+            "low": 0.48519718387238536,
+            "high": 0.5517610773153423
+          },
+          "modelErrorPp": 21.931890951276134,
+          "marketErrorPp": 2.860245365502978
+        },
+        {
+          "band": "0.8-0.9",
+          "n": 70,
+          "meanModel": 0.8233900000000002,
+          "meanMarket": 0.5641150709496102,
+          "observed": 0.5285714285714286,
+          "observed95": {
+            "low": 0.4132168390581603,
+            "high": 0.6409531680922806
+          },
+          "modelErrorPp": 29.48185714285716,
+          "marketErrorPp": 3.554364237818164
+        },
+        {
+          "band": "0.9-1.0",
+          "n": 8,
+          "meanModel": 0.951775,
+          "meanMarket": 0.5242957418838784,
+          "observed": 0.5,
+          "observed95": {
+            "low": 0.2152125268244419,
+            "high": 0.7847874731755581
+          },
+          "modelErrorPp": 45.1775,
+          "marketErrorPp": 2.4295741883878397
+        }
+      ],
+      "highSideHitRate": 0.5050597976080957,
+      "highSideN": 6522,
+      "lowSideHitRate": 0.4322799097065463,
+      "lowSideN": 886,
+      "marketErrorPp": 0.00530059659697435,
+      "modelErrorPp": 10.365373920086334
+    }
+  ],
+  "verdict": "1 segment(s) survived out-of-sample and warrant a preregistered follow-up experiment."
+}
