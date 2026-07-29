@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822947,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T21:51:32.382Z",
+  "availableAt": "2026-07-29T21:51:32.382Z",
+  "eventStartTime": "2026-07-29T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 668984,
+      "name": "Casey Legumina",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-07-23",
+      "last5": {
+        "starts": 3,
+        "ipSum": 5,
+        "ipAvg": 1.67,
+        "kAvg": 1,
+        "bbAvg": 0.67,
+        "erAvg": 0.67,
+        "hrAvg": 0,
+        "kPer9": 5.4,
+        "workloadIpLast5": 5
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 5,
+        "k": 3,
+        "bb": 2,
+        "er": 2,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 669022,
+      "name": "MacKenzie Gore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 6,
+        "bbAvg": 1.2,
+        "erAvg": 4.2,
+        "hrAvg": 1.2,
+        "kPer9": 10.95,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 115.67,
+        "k": 127,
+        "bb": 44,
+        "er": 62,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T21:51:32.382Z"
+  },
+  "recordHash": "d69cae09654c0ea3b1cdf929ffe2f0efc0d4555d789e38ec8b3d5b0aeca7aefa"
+}

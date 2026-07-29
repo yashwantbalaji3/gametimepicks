@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824002,
+  "teamId": 117,
+  "name": "Houston Astros",
+  "side": "away",
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T21:51:40.926Z",
+  "availableAt": "2026-07-29T21:51:40.926Z",
+  "eventStartTime": "2026-07-30T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-07-28",
+  "previousVenueId": 1,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=117&startDate=2026-07-15&endDate=2026-07-28",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-07-29T21:51:40.926Z"
+  },
+  "recordHash": "86492cebb41ae575fbd371312649f38bc76f08a3eb60e1b3d0ca315230035e07"
+}
