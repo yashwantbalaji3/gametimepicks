@@ -29,6 +29,15 @@ const GRADED = path.join(APP, "public/data/parlays/optimizer-graded");
 
 const DECIDED = new Set(["win", "loss", "push", "void"]);
 
+/** Every public route that now renders the canonical contract. Add a route here when it migrates. */
+const ROUTES = [
+  "index.html",
+  "today/index.html",
+  "results/index.html",
+  "system-status/index.html",
+  "methodology/index.html",
+];
+
 /** Count decided vs pending statuses anywhere in a snapshot. */
 function tally(node, acc = { decided: 0, pending: 0 }) {
   if (Array.isArray(node)) {
@@ -114,7 +123,7 @@ test("no built page announces a settled date the contract calls withheld", () =>
     return `${month} ${Number(day)}`;
   });
 
-  for (const route of ["index.html", "results/index.html", "system-status/index.html"]) {
+  for (const route of ROUTES) {
     const p = path.join(OUT, route);
     if (!fs.existsSync(p)) continue;
     const text = fs.readFileSync(p, "utf8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
@@ -134,11 +143,28 @@ test("no built page announces a settled date the contract calls withheld", () =>
 test("each built page has exactly one h1", () => {
   const OUT = path.join(APP, "out");
   if (!fs.existsSync(OUT)) return;
-  for (const route of ["index.html", "results/index.html", "system-status/index.html", "methodology/index.html"]) {
+  for (const route of ROUTES) {
     const p = path.join(OUT, route);
     if (!fs.existsSync(p)) continue;
     const count = (fs.readFileSync(p, "utf8").match(/<h1[\s>]/g) ?? []).length;
     assert.equal(count, 1, `${route} has ${count} h1 elements — a screen reader relies on exactly one`);
+  }
+});
+
+test("no public route contains prohibited performance language", () => {
+  // Scans the artifact users receive, not the source — a phrase composed at render time from two
+  // separate strings is invisible to a source scan and perfectly visible here.
+  const OUT = path.join(APP, "out");
+  if (!fs.existsSync(OUT)) return;
+  const BANNED = [/market-beating/i, /\bbest bet\b/i, /\bguaranteed\b/i, /75%\s*accurate/i, /\bbeats? the (market|sportsbook)\b/i];
+  for (const route of ROUTES) {
+    const p = path.join(OUT, route);
+    if (!fs.existsSync(p)) continue;
+    const text = fs.readFileSync(p, "utf8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    for (const re of BANNED) {
+      const m = text.match(re);
+      assert.equal(m, null, `${route} contains prohibited phrasing: "${m?.[0]}"`);
+    }
   }
 });
 

@@ -18,6 +18,8 @@ import path from "node:path";
 import fs from "node:fs";
 
 import { currentEtDate } from "@/lib/freshness";
+import ProbabilityLayersSection from "@/components/research/probability-layers-section";
+import { loadProbabilityRows } from "@/lib/research/probability-rows-loader";
 import { currentSlateDate, loadTodaySlate } from "@/lib/parlays/ui-loader";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
@@ -260,6 +262,12 @@ export default function TodayPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-7">
+      {/* SPRINT 055 — the four probability layers, finally rendered. Calibrated first, raw last: the raw
+         number is the largest and the least trustworthy (about nine points hot), so leading with it
+         would give the most prominence to the least defensible figure. Ordered by start time, never by
+         probability — the measured record shows our most confident calls are our worst. */}
+      <ProbabilityLayersSection rows={loadProbabilityRows(today, 12)} slateDate={today} />
+
       {/* 0 — Slate liveness (real ET clock): on a no-games day this says so plainly and points at the next
           scheduled focus, so the most-recent slate is never presented as live. Hidden on a live day. */}
       <SlateLivenessBanner
