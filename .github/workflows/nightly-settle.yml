@@ -245,6 +245,35 @@ jobs:
           npx --yes tsx scripts/build-paper-track-record.mjs --write \
             || echo "::warning::paper track record failed — prior ledger retained"
 
+      # ---- SPRINT 048: the learning loop ----
+      # The prediction-history exporter existed since Sprint 036 and was referenced by NO workflow and
+      # no npm script. It silently froze on 2026-07-08 — 18,227 rows while the ledger held 22,660 — so
+      # every calibration conclusion drawn after that date was computed on a corpus three weeks stale.
+      # Nothing failed; the analysis just quietly stopped seeing new evidence.
+      #
+      # It runs here, immediately after settlement, because that is the only moment the ledger has
+      # newly-graded rows and the corpus does not. The exporter is deterministic over committed inputs,
+      # so a re-run on an unchanged repository is a no-op rather than a churn commit.
+      - name: Refresh prediction history + learning artifacts
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        continue-on-error: true
+        run: |
+          set -u
+          cd app
+          # 1) Prediction history corpus (deterministic; date-partitioned so diffs stay small).
+          npx --yes tsx scripts/export-mlb-calibration-rows.mjs --write \
+            || echo "::warning::calibration export failed — prior corpus retained"
+          # 2) Learning audit: calibration backtest + market registry. Read-only over the corpus.
+          mkdir -p ../data/internal/mlb/model-learning
+          npx --yes tsx scripts/model-learning-audit.mjs \
+            --json ../data/internal/mlb/model-learning/model-learning-audit.json \
+            --markdown ../data/internal/mlb/model-learning/model-learning-audit.md \
+            || echo "::warning::model-learning audit failed — prior artifacts retained"
+          # 3) Freshness + drift monitor. Non-fatal by design: a stale corpus must be VISIBLE on /ops,
+          #    not a reason to abort a settlement that already succeeded.
+          npx --yes tsx scripts/check-learning-freshness.mjs --write \
+            || echo "::warning::learning freshness check reported a problem — see admin status"
+
       - name: Health gate (abort publish on missing/stale/non-reconciling data)
         id: health
         if: ${{ github.event.inputs.dry_run != 'true' }}

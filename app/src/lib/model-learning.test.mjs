@@ -17,6 +17,9 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
 
 import {
   calibrationBacktest,
@@ -181,6 +184,23 @@ test("the real corpus loads with a DE-VIGGED market probability", () => {
     assert.ok(r.q > 0 && r.q < 1, "de-vigged probability out of range");
     assert.ok(r.y === 0 || r.y === 1, "outcome must be binary");
   }
+});
+
+test("rows are dated by the LEDGER, not by the lean's own local date", () => {
+  // The 2026-07-27 board carries 134 settled leans stamped 2026-07-28 — late West-Coast starts whose
+  // local date rolls past midnight. Keying on the lean's date invented a phantom 2026-07-28 whose
+  // per-date figures were really a slice of the 07-27 slate. The ledger's date is authoritative.
+  const rows = loadRows();
+  const ledgerDates = new Set();
+  const fs = require("node:fs");
+  for (const line of fs.readFileSync("public/data/mlb/results/settled_leans.jsonl", "utf8").split("\n")) {
+    if (!line.trim()) continue;
+    const r = JSON.parse(line);
+    const o = String(r.outcome ?? "").toLowerCase();
+    if (o === "win" || o === "loss") ledgerDates.add(r.date);
+  }
+  const phantom = [...new Set(rows.map((r) => r.date))].filter((d) => !ledgerDates.has(d));
+  assert.deepEqual(phantom, [], `dates present in the audit but absent from the ledger: ${phantom}`);
 });
 
 test("outcome casing is normalised — a case mismatch must not silently empty the population", () => {

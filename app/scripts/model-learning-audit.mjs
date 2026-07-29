@@ -70,7 +70,7 @@ export function wilson(wins, n, z = 1.96) {
  * over/under-confidence but nothing shape-dependent. Fitted by plain gradient descent — the dataset
  * is small enough that solver sophistication buys nothing.
  */
-export function fitPlatt(rows, { iterations = 4000, lr = 0.1 } = {}) {
+export function fitPlattParams(rows, { iterations = 4000, lr = 0.1 } = {}) {
   let a = 1;
   let b = 0;
   const xs = rows.map((r) => Math.log(clip(r.p) / (1 - clip(r.p))));
@@ -87,7 +87,16 @@ export function fitPlatt(rows, { iterations = 4000, lr = 0.1 } = {}) {
     a -= (lr * ga) / rows.length;
     b -= (lr * gb) / rows.length;
   }
+  return { a, b, trainRows: rows.length };
+}
+
+/** Apply fitted Platt parameters. Separated from fitting so production applies without refitting. */
+export function plattFromParams({ a, b }) {
   return (p) => 1 / (1 + Math.exp(-(a * Math.log(clip(p) / (1 - clip(p))) + b)));
+}
+
+export function fitPlatt(rows, opts) {
+  return plattFromParams(fitPlattParams(rows, opts));
 }
 
 /**
@@ -141,6 +150,10 @@ export function loadRows() {
   const LEDGER = path.join(APP, "public/data/mlb/results/settled_leans.jsonl");
   if (!fs.existsSync(BOARDS) || !fs.existsSync(LEDGER)) return [];
 
+  // The LEDGER's date is authoritative for settlement. A lean also carries its own `date`, which is
+  // the game's local date and rolls past midnight for late West-Coast starts: the 2026-07-27 board
+  // holds 134 settled leans stamped 2026-07-28. Keying on the lean's date invents a phantom date the
+  // ledger does not have, and every per-date figure for it is a slice of the previous slate.
   const outcomeById = new Map();
   for (const line of fs.readFileSync(LEDGER, "utf8").split("\n")) {
     if (!line.trim()) continue;
@@ -148,15 +161,16 @@ export function loadRows() {
     // The ledger writes "Win"/"Loss"; the calibration export writes "win"/"loss". Normalise, because
     // a case mismatch here silently empties the population rather than erroring.
     const o = String(r.outcome ?? "").toLowerCase();
-    if (o === "win" || o === "loss") outcomeById.set(r.id, o === "win" ? 1 : 0);
+    if (o === "win" || o === "loss") outcomeById.set(r.id, { y: o === "win" ? 1 : 0, date: r.date });
   }
 
   const rows = [];
   for (const f of fs.readdirSync(BOARDS).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort()) {
     const board = JSON.parse(fs.readFileSync(path.join(BOARDS, f), "utf8"));
     for (const lean of board.leans ?? []) {
-      const y = outcomeById.get(lean.id);
-      if (y === undefined) continue;
+      const settled = outcomeById.get(lean.id);
+      if (settled === undefined) continue;
+      const { y } = settled;
       const side = String(lean.lean ?? "").toLowerCase();
       if (side !== "over" && side !== "under") continue;
 
@@ -169,7 +183,7 @@ export function loadRows() {
       const q = (side === "over" ? o : u) / (o + u);   // de-vigged
 
       rows.push({
-        date: lean.date ?? f.slice(0, 10),
+        date: settled.date ?? f.slice(0, 10),
         market: lean.marketKey,
         confidence: lean.confidence,
         p, q, y,
@@ -312,7 +326,8 @@ export function calibrationBacktest(rows, splitFraction = 0.7) {
   const test = rows.filter((r) => r.date >= splitDate);
   if (train.length < 100 || test.length < 100) return { skipped: "split produced too small a side" };
 
-  const platt = fitPlatt(train.map((r) => ({ p: r.p, y: r.y })));
+  const plattParams = fitPlattParams(train.map((r) => ({ p: r.p, y: r.y })));
+  const platt = plattFromParams(plattParams);
   const iso = fitIsotonic(train.map((r) => ({ p: r.p, y: r.y })));
 
   const score = (pick) => ({ brier: brier(test, pick), logLoss: logLoss(test, pick), meanPredicted: mean(test.map(pick)) });
@@ -334,6 +349,9 @@ export function calibrationBacktest(rows, splitFraction = 0.7) {
     testDates: [test[0].date, test[test.length - 1].date],
     observedRateInTest: mean(test.map((r) => r.y)),
     scores: { rawModel, market, platt: plattScore, isotonic: isoScore },
+    // Persisted so production applies these exact parameters rather than refitting — a calibrator that
+    // silently refits on every deploy is a model change nobody reviewed.
+    plattParams,
     bestCalibrator: best[0],
     improvesOnRawModel: improvesOnRaw,
     brierImprovementVsRaw: rawModel.brier - best[1].brier,

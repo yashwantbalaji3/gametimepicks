@@ -279,6 +279,71 @@ const todayReadiness = {
         : `${readyStages.length}/${todayReadinessStages.length} produced; the rest are not due yet`,
 };
 
+// ── SPRINT 048 · learning-loop observability ─────────────────────────────────────────────────────
+//
+// The prediction-history exporter froze on 2026-07-08 and nobody noticed for three weeks. Nothing went
+// red; the corpus simply stopped growing while every downstream calibration conclusion kept being
+// computed on it. Scheduling it (Sprint 048) prevents that instance. This makes the NEXT one visible:
+// /ops now reports whether the learning loop actually has complete data, derived from the artifacts
+// rather than from whether a workflow exited zero.
+//
+// Read-only and fail-soft: a missing artifact reports UNKNOWN, never a fabricated "pass".
+function readLearningLoop() {
+  const base = path.join(APP, "..", "data/internal/mlb/model-learning");
+  const read = (rel) => {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(base, rel), "utf8"));
+    } catch {
+      return null;
+    }
+  };
+
+  const freshness = read("learning-freshness.json");
+  const registry = read("registry.json");
+  const autopsy = read("autopsy/latest.json");
+
+  if (!freshness && !registry) {
+    return {
+      signal: "UNKNOWN",
+      summary: "no learning-loop artifacts on disk — the loop has never run here",
+      freshness: null, registry: null, lastAutopsyDate: null,
+    };
+  }
+
+  const healthy = freshness?.healthy === true;
+  const statuses = registry?.markets
+    ? Object.fromEntries(Object.entries(registry.markets).map(([m, v]) => [m, v.status]))
+    : null;
+  const disabled = statuses ? Object.entries(statuses).filter(([, v]) => v === "DISABLED").map(([m]) => m) : [];
+
+  return {
+    // GREEN only when the corpus genuinely covers the ledger. A stale corpus is YELLOW, not green —
+    // it is not an outage, but every conclusion drawn from it is out of date.
+    signal: freshness == null ? "UNKNOWN" : healthy ? "GREEN" : "YELLOW",
+    summary: freshness == null
+      ? "freshness has not been evaluated"
+      : healthy
+        ? `learning data complete through ${freshness.asOfSettledDate} (${freshness.stats?.corpusRows ?? "?"} rows)`
+        : `learning data INCOMPLETE: ${(freshness.problems ?? []).join("; ")}`,
+    freshness: freshness
+      ? {
+          healthy, asOfSettledDate: freshness.asOfSettledDate,
+          corpusRows: freshness.stats?.corpusRows ?? null,
+          ledgerRows: freshness.stats?.ledgerRows ?? null,
+          lagDays: freshness.stats?.lagDays ?? null,
+          problems: freshness.problems ?? [],
+        }
+      : null,
+    registry: registry
+      ? { asOfSettledDate: registry.asOfSettledDate, totalDecisiveRows: registry.totalDecisiveRows, statuses, disabledMarkets: disabled }
+      : null,
+    lastAutopsyDate: autopsy?.date ?? null,
+    lastAutopsyRecommendation: autopsy?.recommendation ?? null,
+  };
+}
+
+const learningLoop = readLearningLoop();
+
 const status = {
   _note: "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
   generatedAt: nowIso,
@@ -301,6 +366,7 @@ const status = {
   counts: { activeProducts: activeProductCount, pendingApprovals: pendingApprovalCount },
   workflowHealth,
   todayReadiness,
+  learningLoop,
   warnings,
   dailyChecklist,
   lastSettlement: latestSettlement ? { date: latestSettlementFile.replace(".json", ""), matches: (latestSettlement.matches ?? latestSettlement.games ?? []).length } : null,
