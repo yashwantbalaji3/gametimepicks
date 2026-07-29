@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824973,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T04:10:16.468Z",
+  "availableAt": "2026-07-29T04:10:16.468Z",
+  "eventStartTime": "2026-07-30T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 682052,
+      "name": "Jacob Lopez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 16.67,
+        "ipAvg": 3.33,
+        "kAvg": 3.2,
+        "bbAvg": 2.2,
+        "erAvg": 2.6,
+        "hrAvg": 0.2,
+        "kPer9": 8.64,
+        "workloadIpLast5": 16.67
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 56,
+        "k": 45,
+        "bb": 36,
+        "er": 38,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 663776,
+      "name": "Patrick Sandoval",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 3,
+        "ipSum": 14,
+        "ipAvg": 4.67,
+        "kAvg": 4.33,
+        "bbAvg": 1.33,
+        "erAvg": 1.67,
+        "hrAvg": 0.33,
+        "kPer9": 8.36,
+        "workloadIpLast5": 14
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 14,
+        "k": 13,
+        "bb": 4,
+        "er": 5,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T04:10:16.468Z"
+  },
+  "recordHash": "8b9192c4b9b5e10f41fd06868124df432d14ef4b5c4c0ed7f5806fffed642fa2"
+}

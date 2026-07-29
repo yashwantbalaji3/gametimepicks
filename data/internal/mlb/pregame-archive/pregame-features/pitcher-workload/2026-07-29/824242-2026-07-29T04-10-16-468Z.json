@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824242,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T04:10:16.468Z",
+  "availableAt": "2026-07-29T04:10:16.468Z",
+  "eventStartTime": "2026-07-29T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669373,
+      "name": "Tarik Skubal",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 8.8,
+        "bbAvg": 1,
+        "erAvg": 1,
+        "hrAvg": 0.4,
+        "kPer9": 13.05,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 90,
+        "k": 110,
+        "bb": 13,
+        "er": 27,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 669432,
+      "name": "Trevor Rogers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.67,
+        "ipAvg": 6.13,
+        "kAvg": 5.8,
+        "bbAvg": 1.6,
+        "erAvg": 1,
+        "hrAvg": 0.2,
+        "kPer9": 8.51,
+        "workloadIpLast5": 30.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 103.67,
+        "k": 83,
+        "bb": 32,
+        "er": 48,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T04:10:16.468Z"
+  },
+  "recordHash": "9a264337d6a5226ae37de580d25684e110d6e46a8e0478f17d74a2c77a68cc7c"
+}

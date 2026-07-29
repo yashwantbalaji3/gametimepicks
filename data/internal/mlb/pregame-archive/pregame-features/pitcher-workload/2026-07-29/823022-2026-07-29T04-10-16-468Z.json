@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823022,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T04:10:16.468Z",
+  "availableAt": "2026-07-29T04:10:16.468Z",
+  "eventStartTime": "2026-07-29T23:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669160,
+      "name": "Dustin May",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.33,
+        "ipAvg": 4.07,
+        "kAvg": 5.2,
+        "bbAvg": 2.2,
+        "erAvg": 2.6,
+        "hrAvg": 0,
+        "kPer9": 11.51,
+        "workloadIpLast5": 20.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 104,
+        "k": 103,
+        "bb": 33,
+        "er": 53,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 571510,
+      "name": "Matthew Boyd",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 5,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 4,
+        "bbAvg": 1.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.8,
+        "kPer9": 5.93,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 59,
+        "k": 55,
+        "bb": 17,
+        "er": 25,
+        "hr": 6
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T04:10:16.468Z"
+  },
+  "recordHash": "e7e193929e9678edbdfa2454ee8bb9e4cfbecf9f38fad32825317fbf23560b60"
+}
