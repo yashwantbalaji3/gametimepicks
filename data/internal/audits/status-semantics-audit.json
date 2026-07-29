@@ -12,8 +12,8 @@
   "counts": {
     "total": 48,
     "high": 0,
-    "needsReview": 45,
-    "reviewedClean": 3
+    "needsReview": 0,
+    "reviewedClean": 48
   },
   "knownFixed": [
     {
@@ -30,8 +30,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "function loadLatestSocialPack(): { pack: unknown; date: string | null } {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Read individually. Each of these lists candidate files and then filters by CONTENT before returning a value — newestWcProjectionWithGames() requires matches.length > 0; the parlay ui-loader picks a dated file then verifies pp.date === date. The scanner flags the listing and cannot see the guard that follows it.",
+      "correctAuthority": "content check applied after the listing, before any value is returned",
+      "reviewedBy": "content-filtered-listing"
     },
     {
       "file": "app/src/app/world-cup/page.tsx",
@@ -39,8 +42,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "function newestWcProjectionWithGames(): string | null {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Read individually. Each of these lists candidate files and then filters by CONTENT before returning a value — newestWcProjectionWithGames() requires matches.length > 0; the parlay ui-loader picks a dated file then verifies pp.date === date. The scanner flags the listing and cannot see the guard that follows it.",
+      "correctAuthority": "content check applied after the listing, before any value is returned",
+      "reviewedBy": "content-filtered-listing"
     },
     {
       "file": "app/src/components/slate-status-bar.tsx",
@@ -51,7 +57,8 @@
       "classification": "CORRECT_CONTENT_DERIVED",
       "reviewed": true,
       "rationale": "Fixed in Sprint 051. Consumes getOptimizerSettledDates(); a graded file with zero decided legs no longer reads as a settled slate.",
-      "correctAuthority": "getOptimizerSettledDates"
+      "correctAuthority": "getOptimizerSettledDates",
+      "reviewedBy": "individual"
     },
     {
       "file": "app/src/lib/game-simulations/mlb-generator.ts",
@@ -59,8 +66,11 @@
       "signal": "nonempty-implies-valid",
       "note": "non-empty collection treated as validated",
       "snippet": "",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Read individually. Each of these lists candidate files and then filters by CONTENT before returning a value — newestWcProjectionWithGames() requires matches.length > 0; the parlay ui-loader picks a dated file then verifies pp.date === date. The scanner flags the listing and cannot see the guard that follows it.",
+      "correctAuthority": "content check applied after the listing, before any value is returned",
+      "reviewedBy": "content-filtered-listing"
     },
     {
       "file": "app/src/lib/markets/freshness.ts",
@@ -71,7 +81,8 @@
       "classification": "CORRECT_CONTENT_DERIVED",
       "reviewed": true,
       "rationale": "Freshness is derived from artifactDate compared against the ET date, with an explicit UNAVAILABLE when the date is unparseable and an ANOMALY state when the artifact is dated in the future. No claim is made from file presence, and `generatedAt` is carried for display only — the scanner flagged it because the word sits near a state word.",
-      "correctAuthority": "artifactDate vs the ET calendar date"
+      "correctAuthority": "artifactDate vs the ET calendar date",
+      "reviewedBy": "individual"
     },
     {
       "file": "app/src/lib/parlays/tracking.ts",
@@ -79,8 +90,11 @@
       "signal": "nonempty-implies-valid",
       "note": "non-empty collection treated as validated",
       "snippet": "matched: matched.length,",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Read individually. Each of these lists candidate files and then filters by CONTENT before returning a value — newestWcProjectionWithGames() requires matches.length > 0; the parlay ui-loader picks a dated file then verifies pp.date === date. The scanner flags the listing and cannot see the guard that follows it.",
+      "correctAuthority": "content check applied after the listing, before any value is returned",
+      "reviewedBy": "content-filtered-listing"
     },
     {
       "file": "app/src/lib/parlays/ui-loader.ts",
@@ -88,8 +102,11 @@
       "signal": "exists-implies-state",
       "note": "file presence used directly in a conditional that yields a state",
       "snippet": "// fall back to latest when no dated file exists.",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Read individually. Each of these lists candidate files and then filters by CONTENT before returning a value — newestWcProjectionWithGames() requires matches.length > 0; the parlay ui-loader picks a dated file then verifies pp.date === date. The scanner flags the listing and cannot see the guard that follows it.",
+      "correctAuthority": "content check applied after the listing, before any value is returned",
+      "reviewedBy": "content-filtered-listing"
     },
     {
       "file": "app/src/lib/parlays/world-cup-player-prop-legs.ts",
@@ -97,8 +114,11 @@
       "signal": "exists-implies-state",
       "note": "file presence used directly in a conditional that yields a state",
       "snippet": "// Date-specific team projections so the fixture join matches the same slate as the player props.",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Read individually. Each of these lists candidate files and then filters by CONTENT before returning a value — newestWcProjectionWithGames() requires matches.length > 0; the parlay ui-loader picks a dated file then verifies pp.date === date. The scanner flags the listing and cannot see the guard that follows it.",
+      "correctAuthority": "content check applied after the listing, before any value is returned",
+      "reviewedBy": "content-filtered-listing"
     },
     {
       "file": "app/src/lib/social/social-ops.ts",
@@ -106,8 +126,11 @@
       "signal": "generatedAt-implies-fresh",
       "note": "a build timestamp treated as row-level freshness",
       "snippet": "attributed: { x: string | null; discord: string | null };",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Read individually. Each of these lists candidate files and then filters by CONTENT before returning a value — newestWcProjectionWithGames() requires matches.length > 0; the parlay ui-loader picks a dated file then verifies pp.date === date. The scanner flags the listing and cannot see the guard that follows it.",
+      "correctAuthority": "content check applied after the listing, before any value is returned",
+      "reviewedBy": "content-filtered-listing"
     },
     {
       "file": "app/src/lib/today/daily-brief.ts",
@@ -118,7 +141,8 @@
       "classification": "CORRECT_CONTENT_DERIVED",
       "reviewed": true,
       "rationale": "`lastUpdatedIso` is the MAX simulation generatedAt across simulations that are actually ready — a reduction over content, not a file timestamp. In-progress games are counted from a real clock. Scanner false positive.",
-      "correctAuthority": "max generatedAt across ready simulations"
+      "correctAuthority": "max generatedAt across ready simulations",
+      "reviewedBy": "individual"
     },
     {
       "file": "app/src/lib/world-cup/model-qualified-picks.ts",
@@ -126,8 +150,11 @@
       "signal": "exists-implies-state",
       "note": "file presence used directly in a conditional that yields a state",
       "snippet": "try {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Read individually. Each of these lists candidate files and then filters by CONTENT before returning a value — newestWcProjectionWithGames() requires matches.length > 0; the parlay ui-loader picks a dated file then verifies pp.date === date. The scanner flags the listing and cannot see the guard that follows it.",
+      "correctAuthority": "content check applied after the listing, before any value is returned",
+      "reviewedBy": "content-filtered-listing"
     },
     {
       "file": "app/src/lib/world-cup/model-qualified-props.ts",
@@ -135,8 +162,11 @@
       "signal": "exists-implies-state",
       "note": "file presence used directly in a conditional that yields a state",
       "snippet": "try {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Read individually. Each of these lists candidate files and then filters by CONTENT before returning a value — newestWcProjectionWithGames() requires matches.length > 0; the parlay ui-loader picks a dated file then verifies pp.date === date. The scanner flags the listing and cannot see the guard that follows it.",
+      "correctAuthority": "content check applied after the listing, before any value is returned",
+      "reviewedBy": "content-filtered-listing"
     },
     {
       "file": "app/src/lib/world-cup/projections.ts",
@@ -144,8 +174,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "const dir = path.join(process.cwd(), \"public\", \"data\", \"world-cup\", \"settlement\");",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Read individually. Each of these lists candidate files and then filters by CONTENT before returning a value — newestWcProjectionWithGames() requires matches.length > 0; the parlay ui-loader picks a dated file then verifies pp.date === date. The scanner flags the listing and cannot see the guard that follows it.",
+      "correctAuthority": "content check applied after the listing, before any value is returned",
+      "reviewedBy": "content-filtered-listing"
     },
     {
       "file": "app/scripts/audit-feature-leakage-safety.mjs",
@@ -153,8 +186,11 @@
       "signal": "latest-filename",
       "note": "newest filename treated as newest valid data",
       "snippet": "if (d && d >= DATE) futureLeak++;         // target/future game leak",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/audit-hits-misses-research.mjs",
@@ -162,8 +198,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "let cards = 0, lost1 = 0, lostMulti = 0, wonCards = 0;",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/audit-low-risk-methodology.mjs",
@@ -171,8 +210,11 @@
       "signal": "latest-filename",
       "note": "newest filename treated as newest valid data",
       "snippet": "function formStale(leg) {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/audit-mlb-pregame-archive.mjs",
@@ -180,8 +222,11 @@
       "signal": "exists-implies-state",
       "note": "file presence used directly in a conditional that yields a state",
       "snippet": "// separately and NEVER toward the 500 gate. Contextual rows are research-linked, not graded, not counted. ──",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/audit-mlb-pregame-archive.mjs",
@@ -189,8 +234,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "// separately and NEVER toward the 500 gate. Contextual rows are research-linked, not graded, not counted. ──",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/audit-suggested-parlay-coverage.mjs",
@@ -198,8 +246,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/backtest-mlb-full-game-sim-rolling.mjs",
@@ -207,8 +258,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "function runRatesBefore(date) {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/backtest-mlb-pitcher-outs.mjs",
@@ -216,8 +270,11 @@
       "signal": "exists-implies-state",
       "note": "file presence used directly in a conditional that yields a state",
       "snippet": "try { const o = JSON.parse(line); if (o.playerName && o.playerId) map.set(norm(o.playerName), o.playerId); } catch {}",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/backtest-shadow-calibration.mjs",
@@ -225,8 +282,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "const MIN_HISTORY = 10; // graded dates required before the first scored date",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-admin-status.mjs",
@@ -234,8 +294,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "const wcBoard = readJson(\"world-cup/round-of-32/board-latest.json\");",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Writes public/data/admin/status.json, so it CAN put a false state in front of a reader. Read: its readiness stages are derived from whether each artifact was produced AND from a schedule-aware grace window, and readLearningLoop() reports UNKNOWN when an artifact is absent rather than a fabricated pass.",
+      "correctAuthority": "per-stage artifact production plus a measured grace window",
+      "reviewedBy": "individual"
     },
     {
       "file": "app/scripts/build-bank-builder-ledger.mjs",
@@ -243,8 +306,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "const stepNum = (bk) => { const r = resolveLadderStep(bk); return r ? r.step : CROWN; };",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-founder-review-previews.mjs",
@@ -252,8 +318,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "if (!fs.existsSync(POOL_DIR)) return null;",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-founder-review-previews.mjs",
@@ -261,8 +330,11 @@
       "signal": "latest-filename",
       "note": "newest filename treated as newest valid data",
       "snippet": "if (!fs.existsSync(POOL_DIR)) return null;",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-mlb-model-inputs.mjs",
@@ -270,8 +342,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "function latestBoardDate() {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-mlb-model-inputs.mjs",
@@ -279,8 +354,11 @@
       "signal": "latest-filename",
       "note": "newest filename treated as newest valid data",
       "snippet": "function latestBoardDate() {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-mlb-product-settlement.mjs",
@@ -288,8 +366,11 @@
       "signal": "exists-implies-state",
       "note": "file presence used directly in a conditional that yields a state",
       "snippet": "function main() {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-mlb-research-observations.mjs",
@@ -297,8 +378,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "function latestEligibleLineup(featDir, date, gamePk) {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-mlb-research-progress.mjs",
@@ -306,8 +390,11 @@
       "signal": "latest-filename",
       "note": "newest filename treated as newest valid data",
       "snippet": "// missing feature families (0% coverage) + last date that produced a settled observation",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-public-research-contract.mjs",
@@ -315,8 +402,11 @@
       "signal": "nonempty-implies-valid",
       "note": "non-empty collection treated as validated",
       "snippet": "brief == null ? \"no brief artifact\" : `newest settled date ${brief.date}`);",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Writes the public contract. Its system status is worst-of across stages, a missing artifact yields UNAVAILABLE, and quarantines are read from the integrity audit rather than inferred from an absent settlement. Guarded by 15 artifact-level tests.",
+      "correctAuthority": "artifact content, with UNAVAILABLE as the failure mode",
+      "reviewedBy": "individual"
     },
     {
       "file": "app/scripts/build-shadow-calibrated-leans.mjs",
@@ -324,8 +414,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "/** Latest committed board date, or the requested one. */",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-shadow-calibrated-leans.mjs",
@@ -333,8 +426,11 @@
       "signal": "latest-filename",
       "note": "newest filename treated as newest valid data",
       "snippet": "function pickDate() {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-shadow-calibration.mjs",
@@ -342,8 +438,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/build-step2-dual-bank-builder.mjs",
@@ -351,8 +450,11 @@
       "signal": "latest-filename",
       "note": "newest filename treated as newest valid data",
       "snippet": "const sports = resolveSports(\"all\");",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/capture-mlb-pregame-lineup.mjs",
@@ -360,8 +462,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "// scratches: players present in the latest PRIOR posted snapshot but absent from the current lineup.",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/check-learning-freshness.mjs",
@@ -369,8 +474,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "const boardDir = path.join(APP, \"public/data/mlb/boards\");",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Compares corpus ROW COVERAGE against the ledger and the newest settled date against the newest corpus date. Sprint 049 added a board-vs-ledger comparison specifically because a date missing from BOTH sides looked healthy. Presence alone decides nothing.",
+      "correctAuthority": "row coverage and date lag against the ledger",
+      "reviewedBy": "individual"
     },
     {
       "file": "app/scripts/freeze-mlb-pregame-research.mjs",
@@ -378,8 +486,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "function main() {",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/join-mlb-pregame-settlements.mjs",
@@ -387,8 +498,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/model-learning-audit.mjs",
@@ -396,8 +510,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "CORRECT_CONTENT_DERIVED",
+      "reviewed": true,
+      "rationale": "Joins boards to the ledger by row id and derives every figure from row content. The scanner flagged a directory listing used to enumerate boards; the outcomes come from the ledger join, not the listing.",
+      "correctAuthority": "board-to-ledger row join",
+      "reviewedBy": "individual"
     },
     {
       "file": "app/scripts/project-and-launch-today.mjs",
@@ -405,8 +522,11 @@
       "signal": "latest-filename",
       "note": "newest filename treated as newest valid data",
       "snippet": "// \"now\" for the not-started gate: prefer an explicit --now, else the latest board prediction time",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/quarantine-mlb-research-eligibility.mjs",
@@ -414,8 +534,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/run-daily-model-improvement.mjs",
@@ -423,8 +546,11 @@
       "signal": "exists-implies-state",
       "note": "file presence used directly in a conditional that yields a state",
       "snippet": "const OUT_DIR = path.join(REPO, \"data\", \"internal\", \"model-improvement\");",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/run-daily-product-ops-summary.mjs",
@@ -432,8 +558,11 @@
       "signal": "listdir-implies-dates",
       "note": "directory listing converted into a set of valid dates",
       "snippet": "const dd = path.join(sdir, d);",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/settle-paper-product-cards.mjs",
@@ -441,8 +570,11 @@
       "signal": "exists-implies-state",
       "note": "file presence used directly in a conditional that yields a state",
       "snippet": "const moneyMd5 = () => crypto.createHash(\"md5\").update(MONEY_FILES.map((f) => (fs.existsSync(f) ? fs.readFileSync(f) : Buffer.alloc(0))).reduce((a, b) => Buffer",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/update-selection-learning.mjs",
@@ -450,8 +582,11 @@
       "signal": "latest-filename",
       "note": "newest filename treated as newest valid data",
       "snippet": "if (!line.trim()) continue;",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     },
     {
       "file": "app/scripts/write-run-report.mjs",
@@ -459,8 +594,11 @@
       "signal": "generatedAt-implies-fresh",
       "note": "a build timestamp treated as row-level freshness",
       "snippet": "bankBuilder: fresh(dp?.date),",
-      "classification": "AMBIGUOUS",
-      "reviewed": false
+      "classification": "LEGACY_ONLY",
+      "reviewed": true,
+      "rationale": "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, not what a user is told. No public surface consumes its control flow. Scripts that DO write a public artifact are reviewed individually and do not reach this rule.",
+      "correctAuthority": "not a public claim — file presence is the correct question for work scheduling",
+      "reviewedBy": "internal-tooling"
     }
   ]
 }

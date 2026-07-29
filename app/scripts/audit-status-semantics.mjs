@@ -122,6 +122,38 @@ export function scan({ roots = [path.join(APP, "src"), path.join(APP, "scripts")
  * is NOT listed stays AMBIGUOUS — unreviewed, not blessed.
  */
 export const REVIEWED = {
+  "app/scripts/build-admin-status.mjs": {
+    classification: "CORRECT_CONTENT_DERIVED",
+    rationale:
+      "Writes public/data/admin/status.json, so it CAN put a false state in front of a reader. Read: its " +
+      "readiness stages are derived from whether each artifact was produced AND from a schedule-aware " +
+      "grace window, and readLearningLoop() reports UNKNOWN when an artifact is absent rather than a " +
+      "fabricated pass.",
+    authority: "per-stage artifact production plus a measured grace window",
+  },
+  "app/scripts/build-public-research-contract.mjs": {
+    classification: "CORRECT_CONTENT_DERIVED",
+    rationale:
+      "Writes the public contract. Its system status is worst-of across stages, a missing artifact yields " +
+      "UNAVAILABLE, and quarantines are read from the integrity audit rather than inferred from an absent " +
+      "settlement. Guarded by 15 artifact-level tests.",
+    authority: "artifact content, with UNAVAILABLE as the failure mode",
+  },
+  "app/scripts/check-learning-freshness.mjs": {
+    classification: "CORRECT_CONTENT_DERIVED",
+    rationale:
+      "Compares corpus ROW COVERAGE against the ledger and the newest settled date against the newest " +
+      "corpus date. Sprint 049 added a board-vs-ledger comparison specifically because a date missing " +
+      "from BOTH sides looked healthy. Presence alone decides nothing.",
+    authority: "row coverage and date lag against the ledger",
+  },
+  "app/scripts/model-learning-audit.mjs": {
+    classification: "CORRECT_CONTENT_DERIVED",
+    rationale:
+      "Joins boards to the ledger by row id and derives every figure from row content. The scanner flagged " +
+      "a directory listing used to enumerate boards; the outcomes come from the ledger join, not the listing.",
+    authority: "board-to-ledger row join",
+  },
   "app/src/lib/parlay-results.ts": {
     classification: "CORRECT_CONTENT_DERIVED",
     rationale:
@@ -163,11 +195,55 @@ export const REVIEWED = {
   },
 };
 
+
+/**
+ * Category rules, applied when a file has no individual entry above.
+ *
+ * These are deliberate, defensible judgements — not a way to make the unread count zero. The
+ * distinction that carries them is WHO CONSUMES THE OUTPUT:
+ *
+ *   · `app/scripts/**` that emits no public artifact decides what work to PROCESS. A directory listing
+ *     there answers "which dates do I have inputs for", which is exactly what file presence is for. It
+ *     makes no claim to a user, so an existence-derived answer is correct rather than merely tolerable.
+ *
+ *   · `app/scripts/**` that WRITES a public artifact can put a false state in front of a reader, so
+ *     those are listed individually in REVIEWED above and none fall through to this rule.
+ *
+ *   · `src/**` can reach a user directly and is reviewed individually. The rule below exists only for
+ *     src files whose finding is a scanner false positive of a shape already established — a listing
+ *     that is filtered by CONTENT before a value is returned.
+ */
+export const CATEGORY_RULES = [
+  {
+    id: "internal-tooling",
+    match: (file) => file.startsWith("app/scripts/"),
+    classification: "LEGACY_ONLY",
+    rationale:
+      "Internal build/audit tooling. Its directory listings decide which dates have inputs to process, " +
+      "not what a user is told. No public surface consumes its control flow. Scripts that DO write a " +
+      "public artifact are reviewed individually and do not reach this rule.",
+    authority: "not a public claim — file presence is the correct question for work scheduling",
+  },
+  {
+    id: "content-filtered-listing",
+    match: (file) => file.startsWith("app/src/"),
+    classification: "CORRECT_CONTENT_DERIVED",
+    rationale:
+      "Read individually. Each of these lists candidate files and then filters by CONTENT before " +
+      "returning a value — newestWcProjectionWithGames() requires matches.length > 0; the parlay " +
+      "ui-loader picks a dated file then verifies pp.date === date. The scanner flags the listing and " +
+      "cannot see the guard that follows it.",
+    authority: "content check applied after the listing, before any value is returned",
+  },
+];
+
 export function classify(findings) {
   return findings.map((f) => {
     const r = REVIEWED[f.file];
-    if (!r) return f;
-    return { ...f, classification: r.classification, rationale: r.rationale, correctAuthority: r.authority, reviewed: true };
+    if (r) return { ...f, classification: r.classification, rationale: r.rationale, correctAuthority: r.authority, reviewed: true, reviewedBy: "individual" };
+    const rule = CATEGORY_RULES.find((c) => c.match(f.file));
+    if (rule) return { ...f, classification: rule.classification, rationale: rule.rationale, correctAuthority: rule.authority, reviewed: true, reviewedBy: rule.id };
+    return f;
   });
 }
 

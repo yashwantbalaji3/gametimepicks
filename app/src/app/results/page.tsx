@@ -30,6 +30,9 @@
  */
 import Link from "next/link";
 
+import ResultsAccountingSection from "@/components/research/results-accounting-section";
+import { loadRecentAccounting } from "@/lib/research/results-accounting-loader";
+
 import {
   getOptimizerSummary,
   getOptimizerGradedDates,
@@ -197,6 +200,14 @@ export default function ResultsPage() {
          divider is the deeper transparency + optimizer/projection audit,
          retained in full so no trust surface is hidden. */}
       <TrustCenter model={getTrustCenterModel()} />
+
+      {/* SPRINT 053 — canonical outcome accounting.
+         Starts from the GENERATED population rather than the settled ledger, because the ledger is
+         authoritative for what was graded and silent about everything else. Rows that never produced a
+         stat, and slates the integrity gate refused, stay in the count with a reason — dropping them
+         would quietly improve every number beside them. Values come from results-accounting.ts; the
+         component formats and does not compute. */}
+      <ResultsAccountingSection rows={loadRecentAccounting(8)} />
 
       <div className="mt-12 mb-5 flex items-center gap-3">
         <h2
