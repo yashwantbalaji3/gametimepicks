@@ -1,0 +1,1506 @@
+{
+  "kind": "model-learning-audit",
+  "dateRange": [
+    "2026-05-16",
+    "2026-07-28"
+  ],
+  "overall": {
+    "population": "all decisive settled MLB rows with both a model and a market probability",
+    "n": 21633,
+    "wins": 10852,
+    "hitRate": 0.5016410114177414,
+    "hitRate95": {
+      "low": 0.4949783798753796,
+      "high": 0.5083030602401685
+    },
+    "meanModelProbability": 0.5948400036980532,
+    "meanMarketProbability": 0.5015981917404234,
+    "observedRate": 0.5016410114177414,
+    "modelBrier": 0.25557671022789386,
+    "marketBrier": 0.24119836406993417,
+    "modelLogLoss": 0.7078930779132915,
+    "marketLogLoss": 0.6753747401855225,
+    "overconfidencePp": 9.319899228031181
+  },
+  "byMarket": {
+    "batter_hits": {
+      "population": "market batter_hits",
+      "n": 9005,
+      "wins": 4846,
+      "hitRate": 0.5381454747362576,
+      "hitRate95": {
+        "low": 0.5278342503722094,
+        "high": 0.5484241666921997
+      },
+      "meanModelProbability": 0.6053401998889544,
+      "meanMarketProbability": 0.5326119364656539,
+      "observedRate": 0.5381454747362576,
+      "modelBrier": 0.24340436765907922,
+      "marketBrier": 0.2349161115772821,
+      "modelLogLoss": 0.6826033525217147,
+      "marketLogLoss": 0.6625369332028771,
+      "overconfidencePp": 6.7194725152696755
+    },
+    "batter_hits_runs_rbis": {
+      "population": "market batter_hits_runs_rbis",
+      "n": 7408,
+      "wins": 3677,
+      "hitRate": 0.49635529157667385,
+      "hitRate95": {
+        "low": 0.4849743184474516,
+        "high": 0.5077400428524446
+      },
+      "meanModelProbability": 0.6000090307775372,
+      "meanMarketProbability": 0.4964082975426436,
+      "observedRate": 0.49635529157667385,
+      "modelBrier": 0.2637849628469216,
+      "marketBrier": 0.24771602296724674,
+      "modelLogLoss": 0.7245686817746274,
+      "marketLogLoss": 0.6886671040186567,
+      "overconfidencePp": 10.365373920086334
+    },
+    "batter_total_bases": {
+      "population": "market batter_total_bases",
+      "n": 4120,
+      "wins": 1803,
+      "hitRate": 0.437621359223301,
+      "hitRate95": {
+        "low": 0.4225378624100988,
+        "high": 0.45282107475179423
+      },
+      "meanModelProbability": 0.5534455582524295,
+      "meanMarketProbability": 0.4437193580864897,
+      "observedRate": 0.437621359223301,
+      "modelBrier": 0.26280436503640753,
+      "marketBrier": 0.2425918495945783,
+      "modelLogLoss": 0.7224662046868159,
+      "marketLogLoss": 0.6782741176864162,
+      "overconfidencePp": 11.58241990291285
+    },
+    "pitcher_strikeouts": {
+      "population": "market pitcher_strikeouts",
+      "n": 1100,
+      "wins": 526,
+      "hitRate": 0.4781818181818182,
+      "hitRate95": {
+        "low": 0.4487890981943349,
+        "high": 0.5077264018556722
+      },
+      "meanModelProbability": 0.6291115454545461,
+      "meanMarketProbability": 0.4994425186683022,
+      "observedRate": 0.4781818181818182,
+      "modelBrier": 0.2728742298818182,
+      "marketBrier": 0.24351446063683077,
+      "modelLogLoss": 0.7480383701308708,
+      "marketLogLoss": 0.6800921813663348,
+      "overconfidencePp": 15.092972727272786
+    }
+  },
+  "byConfidence": {
+    "High": {
+      "population": "category High",
+      "n": 9672,
+      "wins": 4764,
+      "hitRate": 0.49255583126550867,
+      "hitRate95": {
+        "low": 0.48259708401772256,
+        "high": 0.502520489630858
+      },
+      "meanModelProbability": 0.6347952440033119,
+      "meanMarketProbability": 0.4970533076650853,
+      "observedRate": 0.49255583126550867,
+      "modelBrier": 0.26489698932588945,
+      "marketBrier": 0.242481548051422,
+      "modelLogLoss": 0.7265995914076655,
+      "marketLogLoss": 0.6779105402307901,
+      "overconfidencePp": 14.223941273780321
+    },
+    "Low": {
+      "population": "category Low",
+      "n": 8875,
+      "wins": 4526,
+      "hitRate": 0.5099718309859155,
+      "hitRate95": {
+        "low": 0.4995692349547866,
+        "high": 0.520365798011676
+      },
+      "meanModelProbability": 0.5559749521126783,
+      "meanMarketProbability": 0.5039642816062799,
+      "observedRate": 0.5099718309859155,
+      "modelBrier": 0.24908367805859208,
+      "marketBrier": 0.24035044749457307,
+      "modelLogLoss": 0.6959425968947635,
+      "marketLogLoss": 0.6737171722196348,
+      "overconfidencePp": 4.600312112676286
+    },
+    "Medium": {
+      "population": "category Medium",
+      "n": 3086,
+      "wins": 1562,
+      "hitRate": 0.5061568373298768,
+      "hitRate95": {
+        "low": 0.48852028794867675,
+        "high": 0.5237780771196165
+      },
+      "meanModelProbability": 0.5813857744653265,
+      "meanMarketProbability": 0.5090379426209299,
+      "observedRate": 0.5061568373298768,
+      "modelBrier": 0.2450387714938425,
+      "marketBrier": 0.23961518329788203,
+      "modelLogLoss": 0.6836322614913009,
+      "marketLogLoss": 0.6721941367050197,
+      "overconfidencePp": 7.522893713544965
+    }
+  },
+  "byDate": {
+    "2026-05-16": {
+      "population": "date 2026-05-16",
+      "n": 249,
+      "wins": 132,
+      "hitRate": 0.5301204819277109,
+      "hitRate95": {
+        "low": 0.4681417006343393,
+        "high": 0.5911839799498684
+      },
+      "meanModelProbability": 0.59265140562249,
+      "meanMarketProbability": 0.5048361991670023,
+      "observedRate": 0.5301204819277109,
+      "modelBrier": 0.2416371469076304,
+      "marketBrier": 0.23636583002968234,
+      "modelLogLoss": 0.6769106961681189,
+      "marketLogLoss": 0.6653400204079452,
+      "overconfidencePp": 6.253092369477908
+    },
+    "2026-05-17": {
+      "population": "date 2026-05-17",
+      "n": 23,
+      "wins": 12,
+      "hitRate": 0.5217391304347826,
+      "hitRate95": {
+        "low": 0.32962429864218495,
+        "high": 0.7076313046005428
+      },
+      "meanModelProbability": 0.5520869565217391,
+      "meanMarketProbability": 0.4871905568425429,
+      "observedRate": 0.5217391304347826,
+      "modelBrier": 0.21604817652173913,
+      "marketBrier": 0.20831849382218878,
+      "modelLogLoss": 0.6237813287885063,
+      "marketLogLoss": 0.6073290229485399,
+      "overconfidencePp": 3.034782608695652
+    },
+    "2026-05-18": {
+      "population": "date 2026-05-18",
+      "n": 188,
+      "wins": 91,
+      "hitRate": 0.48404255319148937,
+      "hitRate95": {
+        "low": 0.4136428196214922,
+        "high": 0.5550813778414148
+      },
+      "meanModelProbability": 0.6249446808510639,
+      "meanMarketProbability": 0.4884244708338157,
+      "observedRate": 0.48404255319148937,
+      "modelBrier": 0.26698143085106385,
+      "marketBrier": 0.24034524765256093,
+      "modelLogLoss": 0.7389836251992451,
+      "marketLogLoss": 0.6735791681541347,
+      "overconfidencePp": 14.090212765957455
+    },
+    "2026-05-19": {
+      "population": "date 2026-05-19",
+      "n": 122,
+      "wins": 58,
+      "hitRate": 0.47540983606557374,
+      "hitRate95": {
+        "low": 0.38890272235052964,
+        "high": 0.5634182907325843
+      },
+      "meanModelProbability": 0.581888524590164,
+      "meanMarketProbability": 0.4951799365658928,
+      "observedRate": 0.47540983606557374,
+      "modelBrier": 0.2586824559016393,
+      "marketBrier": 0.24258261876826478,
+      "modelLogLoss": 0.7127727924707968,
+      "marketLogLoss": 0.6779297382437007,
+      "overconfidencePp": 10.64786885245903
+    },
+    "2026-05-21": {
+      "population": "date 2026-05-21",
+      "n": 107,
+      "wins": 52,
+      "hitRate": 0.48598130841121495,
+      "hitRate95": {
+        "low": 0.3934185759175708,
+        "high": 0.5795157736407176
+      },
+      "meanModelProbability": 0.6014841121495329,
+      "meanMarketProbability": 0.5074806031049253,
+      "observedRate": 0.48598130841121495,
+      "modelBrier": 0.2771705577570093,
+      "marketBrier": 0.2500595994465701,
+      "modelLogLoss": 0.7567824871677212,
+      "marketLogLoss": 0.6933569803258818,
+      "overconfidencePp": 11.550280373831795
+    },
+    "2026-05-22": {
+      "population": "date 2026-05-22",
+      "n": 216,
+      "wins": 116,
+      "hitRate": 0.5370370370370371,
+      "hitRate95": {
+        "low": 0.4704728556590334,
+        "high": 0.6023068184335861
+      },
+      "meanModelProbability": 0.6001148148148148,
+      "meanMarketProbability": 0.5232785268371425,
+      "observedRate": 0.5370370370370371,
+      "modelBrier": 0.25064836750000014,
+      "marketBrier": 0.23898498711814736,
+      "modelLogLoss": 0.6961898284243185,
+      "marketLogLoss": 0.6707832848553742,
+      "overconfidencePp": 6.307777777777767
+    },
+    "2026-05-23": {
+      "population": "date 2026-05-23",
+      "n": 282,
+      "wins": 137,
+      "hitRate": 0.4858156028368794,
+      "hitRate95": {
+        "low": 0.4280645825812095,
+        "high": 0.5439478886616046
+      },
+      "meanModelProbability": 0.5741716312056739,
+      "meanMarketProbability": 0.4968817097364984,
+      "observedRate": 0.4858156028368794,
+      "modelBrier": 0.26041517638297873,
+      "marketBrier": 0.24406577450063405,
+      "modelLogLoss": 0.7197725327264319,
+      "marketLogLoss": 0.6815996214740562,
+      "overconfidencePp": 8.835602836879453
+    },
+    "2026-05-24": {
+      "population": "date 2026-05-24",
+      "n": 70,
+      "wins": 41,
+      "hitRate": 0.5857142857142857,
+      "hitRate95": {
+        "low": 0.46881000069946455,
+        "high": 0.6937000207518583
+      },
+      "meanModelProbability": 0.5767442857142857,
+      "meanMarketProbability": 0.49474037210816035,
+      "observedRate": 0.5857142857142857,
+      "modelBrier": 0.24570013299999996,
+      "marketBrier": 0.2505627769146053,
+      "modelLogLoss": 0.6863077282677388,
+      "marketLogLoss": 0.6941009744091778,
+      "overconfidencePp": -0.8970000000000034
+    },
+    "2026-05-25": {
+      "population": "date 2026-05-25",
+      "n": 238,
+      "wins": 122,
+      "hitRate": 0.5126050420168067,
+      "hitRate95": {
+        "low": 0.44940711080345064,
+        "high": 0.5754025166551834
+      },
+      "meanModelProbability": 0.6017096638655461,
+      "meanMarketProbability": 0.5069810914895057,
+      "observedRate": 0.5126050420168067,
+      "modelBrier": 0.25646736953781507,
+      "marketBrier": 0.24369000448457226,
+      "modelLogLoss": 0.7089577284706874,
+      "marketLogLoss": 0.680253506871722,
+      "overconfidencePp": 8.910462184873946
+    },
+    "2026-05-26": {
+      "population": "date 2026-05-26",
+      "n": 55,
+      "wins": 24,
+      "hitRate": 0.43636363636363634,
+      "hitRate95": {
+        "low": 0.31373238636001305,
+        "high": 0.5673041592131869
+      },
+      "meanModelProbability": 0.5695854545454546,
+      "meanMarketProbability": 0.5022803286728653,
+      "observedRate": 0.43636363636363634,
+      "modelBrier": 0.2531555203636364,
+      "marketBrier": 0.2386894050292181,
+      "modelLogLoss": 0.7004435008637263,
+      "marketLogLoss": 0.6701862781736688,
+      "overconfidencePp": 13.322181818181827
+    },
+    "2026-05-27": {
+      "population": "date 2026-05-27",
+      "n": 507,
+      "wins": 251,
+      "hitRate": 0.49506903353057197,
+      "hitRate95": {
+        "low": 0.45174883938754107,
+        "high": 0.5384633907832201
+      },
+      "meanModelProbability": 0.5815124260355025,
+      "meanMarketProbability": 0.4969548147113001,
+      "observedRate": 0.49506903353057197,
+      "modelBrier": 0.25283189412228796,
+      "marketBrier": 0.23888835224871294,
+      "modelLogLoss": 0.7008514418296516,
+      "marketLogLoss": 0.6706968737273393,
+      "overconfidencePp": 8.644339250493049
+    },
+    "2026-05-28": {
+      "population": "date 2026-05-28",
+      "n": 261,
+      "wins": 113,
+      "hitRate": 0.4329501915708812,
+      "hitRate95": {
+        "low": 0.3742398267807112,
+        "high": 0.4936057080597368
+      },
+      "meanModelProbability": 0.601026819923372,
+      "meanMarketProbability": 0.5076591524438486,
+      "observedRate": 0.4329501915708812,
+      "modelBrier": 0.28416183823754787,
+      "marketBrier": 0.2509894920664157,
+      "modelLogLoss": 0.7690223451446258,
+      "marketLogLoss": 0.6951558069512285,
+      "overconfidencePp": 16.807662835249083
+    },
+    "2026-05-29": {
+      "population": "date 2026-05-29",
+      "n": 323,
+      "wins": 169,
+      "hitRate": 0.5232198142414861,
+      "hitRate95": {
+        "low": 0.46879743737380597,
+        "high": 0.5770963533798803
+      },
+      "meanModelProbability": 0.5947489164086687,
+      "meanMarketProbability": 0.5002730468960275,
+      "observedRate": 0.5232198142414861,
+      "modelBrier": 0.24976659749226005,
+      "marketBrier": 0.24084942879937776,
+      "modelLogLoss": 0.6941366831231816,
+      "marketLogLoss": 0.6745763035707961,
+      "overconfidencePp": 7.152910216718256
+    },
+    "2026-05-30": {
+      "population": "date 2026-05-30",
+      "n": 645,
+      "wins": 347,
+      "hitRate": 0.537984496124031,
+      "hitRate95": {
+        "low": 0.49939706186283117,
+        "high": 0.5761221403584814
+      },
+      "meanModelProbability": 0.5979438759689919,
+      "meanMarketProbability": 0.503615525516206,
+      "observedRate": 0.537984496124031,
+      "modelBrier": 0.24365742601550414,
+      "marketBrier": 0.23916906094622453,
+      "modelLogLoss": 0.6820479890079842,
+      "marketLogLoss": 0.6711234118387942,
+      "overconfidencePp": 5.995937984496091
+    },
+    "2026-05-31": {
+      "population": "date 2026-05-31",
+      "n": 166,
+      "wins": 80,
+      "hitRate": 0.4819277108433735,
+      "hitRate95": {
+        "low": 0.40718689714941503,
+        "high": 0.5574860687199595
+      },
+      "meanModelProbability": 0.6066283132530119,
+      "meanMarketProbability": 0.5083202679345914,
+      "observedRate": 0.4819277108433735,
+      "modelBrier": 0.278463893433735,
+      "marketBrier": 0.24325446479330898,
+      "modelLogLoss": 0.7583378514676435,
+      "marketLogLoss": 0.6796865556641297,
+      "overconfidencePp": 12.470060240963843
+    },
+    "2026-06-01": {
+      "population": "date 2026-06-01",
+      "n": 190,
+      "wins": 93,
+      "hitRate": 0.48947368421052634,
+      "hitRate95": {
+        "low": 0.41930894701947724,
+        "high": 0.5600556475773482
+      },
+      "meanModelProbability": 0.5978310526315793,
+      "meanMarketProbability": 0.5014962577305349,
+      "observedRate": 0.48947368421052634,
+      "modelBrier": 0.25915550131578957,
+      "marketBrier": 0.2334779441322284,
+      "modelLogLoss": 0.7170106441773547,
+      "marketLogLoss": 0.659359351367796,
+      "overconfidencePp": 10.835736842105298
+    },
+    "2026-06-02": {
+      "population": "date 2026-06-02",
+      "n": 502,
+      "wins": 256,
+      "hitRate": 0.5099601593625498,
+      "hitRate95": {
+        "low": 0.4663199630475664,
+        "high": 0.5534490713695317
+      },
+      "meanModelProbability": 0.5906011952191239,
+      "meanMarketProbability": 0.4987720811003569,
+      "observedRate": 0.5099601593625498,
+      "modelBrier": 0.2587838485657373,
+      "marketBrier": 0.246121210217847,
+      "modelLogLoss": 0.7130660092419696,
+      "marketLogLoss": 0.6853527830008409,
+      "overconfidencePp": 8.064103585657412
+    },
+    "2026-06-03": {
+      "population": "date 2026-06-03",
+      "n": 606,
+      "wins": 292,
+      "hitRate": 0.48184818481848185,
+      "hitRate95": {
+        "low": 0.44230433107553685,
+        "high": 0.52162072749705
+      },
+      "meanModelProbability": 0.6096018151815181,
+      "meanMarketProbability": 0.5067280584789716,
+      "observedRate": 0.48184818481848185,
+      "modelBrier": 0.2612981565841585,
+      "marketBrier": 0.23858389553700096,
+      "modelLogLoss": 0.7309128116095903,
+      "marketLogLoss": 0.6697596773325876,
+      "overconfidencePp": 12.775363036303627
+    },
+    "2026-06-04": {
+      "population": "date 2026-06-04",
+      "n": 414,
+      "wins": 196,
+      "hitRate": 0.47342995169082125,
+      "hitRate95": {
+        "low": 0.4257988991750111,
+        "high": 0.5215495697184642
+      },
+      "meanModelProbability": 0.5889922705314007,
+      "meanMarketProbability": 0.499427182489961,
+      "observedRate": 0.47342995169082125,
+      "modelBrier": 0.2512505727536232,
+      "marketBrier": 0.241148301284715,
+      "modelLogLoss": 0.6978295595989883,
+      "marketLogLoss": 0.6751174685126844,
+      "overconfidencePp": 11.556231884057944
+    },
+    "2026-06-05": {
+      "population": "date 2026-06-05",
+      "n": 410,
+      "wins": 223,
+      "hitRate": 0.5439024390243903,
+      "hitRate95": {
+        "low": 0.49550564406354314,
+        "high": 0.591484160731335
+      },
+      "meanModelProbability": 0.6015468292682925,
+      "meanMarketProbability": 0.5017596076965412,
+      "observedRate": 0.5439024390243903,
+      "modelBrier": 0.24695539600000013,
+      "marketBrier": 0.23674418817866089,
+      "modelLogLoss": 0.6886254751372711,
+      "marketLogLoss": 0.6662859286011468,
+      "overconfidencePp": 5.764439024390223
+    },
+    "2026-06-06": {
+      "population": "date 2026-06-06",
+      "n": 740,
+      "wins": 347,
+      "hitRate": 0.4689189189189189,
+      "hitRate95": {
+        "low": 0.43321620168707875,
+        "high": 0.5049426751490649
+      },
+      "meanModelProbability": 0.595645,
+      "meanMarketProbability": 0.5020930269606189,
+      "observedRate": 0.4689189189189189,
+      "modelBrier": 0.2672941183918917,
+      "marketBrier": 0.2432385919958527,
+      "modelLogLoss": 0.731110941815468,
+      "marketLogLoss": 0.6794809093275601,
+      "overconfidencePp": 12.672608108108108
+    },
+    "2026-06-07": {
+      "population": "date 2026-06-07",
+      "n": 667,
+      "wins": 316,
+      "hitRate": 0.4737631184407796,
+      "hitRate95": {
+        "low": 0.4361282474203967,
+        "high": 0.5116984824663604
+      },
+      "meanModelProbability": 0.595466566716641,
+      "meanMarketProbability": 0.4984720394583848,
+      "observedRate": 0.4737631184407796,
+      "modelBrier": 0.2683453258170912,
+      "marketBrier": 0.24513996667707652,
+      "modelLogLoss": 0.7335451474889635,
+      "marketLogLoss": 0.683448656522305,
+      "overconfidencePp": 12.170344827586138
+    },
+    "2026-06-08": {
+      "population": "date 2026-06-08",
+      "n": 194,
+      "wins": 85,
+      "hitRate": 0.4381443298969072,
+      "hitRate95": {
+        "low": 0.3701967555827249,
+        "high": 0.5084940758703164
+      },
+      "meanModelProbability": 0.6101175257731959,
+      "meanMarketProbability": 0.5084677996750482,
+      "observedRate": 0.4381443298969072,
+      "modelBrier": 0.2649223141237112,
+      "marketBrier": 0.23997733607285307,
+      "modelLogLoss": 0.7240805906070156,
+      "marketLogLoss": 0.6729918729883536,
+      "overconfidencePp": 17.19731958762887
+    },
+    "2026-06-09": {
+      "population": "date 2026-06-09",
+      "n": 541,
+      "wins": 296,
+      "hitRate": 0.5471349353049908,
+      "hitRate95": {
+        "low": 0.5050035541499434,
+        "high": 0.5886016331191639
+      },
+      "meanModelProbability": 0.5974101663585947,
+      "meanMarketProbability": 0.5026145364414736,
+      "observedRate": 0.5471349353049908,
+      "modelBrier": 0.245592323382625,
+      "marketBrier": 0.24285155131727582,
+      "modelLogLoss": 0.6857315297814118,
+      "marketLogLoss": 0.678735390718151,
+      "overconfidencePp": 5.0275231053603875
+    },
+    "2026-06-10": {
+      "population": "date 2026-06-10",
+      "n": 652,
+      "wins": 363,
+      "hitRate": 0.5567484662576687,
+      "hitRate95": {
+        "low": 0.5183946856975162,
+        "high": 0.5944374371809349
+      },
+      "meanModelProbability": 0.5970496932515337,
+      "meanMarketProbability": 0.5029158578543975,
+      "observedRate": 0.5567484662576687,
+      "modelBrier": 0.23166338843558282,
+      "marketBrier": 0.23571537973071108,
+      "modelLogLoss": 0.6551505225469106,
+      "marketLogLoss": 0.6642021377027509,
+      "overconfidencePp": 4.030122699386496
+    },
+    "2026-06-11": {
+      "population": "date 2026-06-11",
+      "n": 446,
+      "wins": 221,
+      "hitRate": 0.49551569506726456,
+      "hitRate95": {
+        "low": 0.44935005706044295,
+        "high": 0.5417579240600224
+      },
+      "meanModelProbability": 0.5898307174887891,
+      "meanMarketProbability": 0.5059595386258091,
+      "observedRate": 0.49551569506726456,
+      "modelBrier": 0.2572140702914799,
+      "marketBrier": 0.24664566222365664,
+      "modelLogLoss": 0.7094510785834262,
+      "marketLogLoss": 0.6866758301977368,
+      "overconfidencePp": 9.431502242152456
+    },
+    "2026-06-12": {
+      "population": "date 2026-06-12",
+      "n": 398,
+      "wins": 179,
+      "hitRate": 0.44974874371859297,
+      "hitRate95": {
+        "low": 0.40158671011644725,
+        "high": 0.4988715799162422
+      },
+      "meanModelProbability": 0.5915477386934673,
+      "meanMarketProbability": 0.4979951747141436,
+      "observedRate": 0.44974874371859297,
+      "modelBrier": 0.27104479206030163,
+      "marketBrier": 0.2424161118056952,
+      "modelLogLoss": 0.7397753626249224,
+      "marketLogLoss": 0.6775060050469559,
+      "overconfidencePp": 14.179899497487437
+    },
+    "2026-06-13": {
+      "population": "date 2026-06-13",
+      "n": 656,
+      "wins": 332,
+      "hitRate": 0.5060975609756098,
+      "hitRate95": {
+        "low": 0.467913854810456,
+        "high": 0.5442102671000146
+      },
+      "meanModelProbability": 0.5981669207317066,
+      "meanMarketProbability": 0.5034990986364984,
+      "observedRate": 0.5060975609756098,
+      "modelBrier": 0.2523436396189023,
+      "marketBrier": 0.24323726166001933,
+      "modelLogLoss": 0.7005607256586737,
+      "marketLogLoss": 0.6795039655536853,
+      "overconfidencePp": 9.206935975609687
+    },
+    "2026-06-14": {
+      "population": "date 2026-06-14",
+      "n": 664,
+      "wins": 359,
+      "hitRate": 0.5406626506024096,
+      "hitRate95": {
+        "low": 0.502631801685978,
+        "high": 0.5782256950617537
+      },
+      "meanModelProbability": 0.598494578313253,
+      "meanMarketProbability": 0.5029912186550888,
+      "observedRate": 0.5406626506024096,
+      "modelBrier": 0.24854620066265062,
+      "marketBrier": 0.2405814790165049,
+      "modelLogLoss": 0.6914142948810644,
+      "marketLogLoss": 0.6739627921739606,
+      "overconfidencePp": 5.7831927710843445
+    },
+    "2026-06-15": {
+      "population": "date 2026-06-15",
+      "n": 157,
+      "wins": 72,
+      "hitRate": 0.4585987261146497,
+      "hitRate95": {
+        "low": 0.3825737362397287,
+        "high": 0.5366014025303409
+      },
+      "meanModelProbability": 0.592979617834395,
+      "meanMarketProbability": 0.4952533060330641,
+      "observedRate": 0.4585987261146497,
+      "modelBrier": 0.2630665425477706,
+      "marketBrier": 0.24666799258502456,
+      "modelLogLoss": 0.7222689219854513,
+      "marketLogLoss": 0.6866140430127868,
+      "overconfidencePp": 13.438089171974532
+    },
+    "2026-06-16": {
+      "population": "date 2026-06-16",
+      "n": 514,
+      "wins": 245,
+      "hitRate": 0.4766536964980545,
+      "hitRate95": {
+        "low": 0.43380820018132554,
+        "high": 0.5198455812066511
+      },
+      "meanModelProbability": 0.5885208171206221,
+      "meanMarketProbability": 0.4982976017701022,
+      "observedRate": 0.4766536964980545,
+      "modelBrier": 0.2653256099027238,
+      "marketBrier": 0.24216270021861885,
+      "modelLogLoss": 0.727759904438543,
+      "marketLogLoss": 0.6773717947337196,
+      "overconfidencePp": 11.18671206225676
+    },
+    "2026-06-17": {
+      "population": "date 2026-06-17",
+      "n": 701,
+      "wins": 359,
+      "hitRate": 0.5121255349500713,
+      "hitRate95": {
+        "low": 0.4751571617464775,
+        "high": 0.54896173248451
+      },
+      "meanModelProbability": 0.5871553495007129,
+      "meanMarketProbability": 0.4968291298577763,
+      "observedRate": 0.5121255349500713,
+      "modelBrier": 0.2451108499999997,
+      "marketBrier": 0.23428152891225712,
+      "modelLogLoss": 0.6856958004655159,
+      "marketLogLoss": 0.6610273664541964,
+      "overconfidencePp": 7.502981455064162
+    },
+    "2026-06-18": {
+      "population": "date 2026-06-18",
+      "n": 409,
+      "wins": 201,
+      "hitRate": 0.49144254278728605,
+      "hitRate95": {
+        "low": 0.4432972733420045,
+        "high": 0.5397470710263924
+      },
+      "meanModelProbability": 0.5998567237163814,
+      "meanMarketProbability": 0.5054226159914011,
+      "observedRate": 0.49144254278728605,
+      "modelBrier": 0.2591453605378975,
+      "marketBrier": 0.24351324166851424,
+      "modelLogLoss": 0.7138184121359591,
+      "marketLogLoss": 0.6801791248466198,
+      "overconfidencePp": 10.841418092909539
+    },
+    "2026-06-19": {
+      "population": "date 2026-06-19",
+      "n": 236,
+      "wins": 117,
+      "hitRate": 0.4957627118644068,
+      "hitRate95": {
+        "low": 0.43255320377469514,
+        "high": 0.5591079592595741
+      },
+      "meanModelProbability": 0.6136512711864408,
+      "meanMarketProbability": 0.5079823232702486,
+      "observedRate": 0.4957627118644068,
+      "modelBrier": 0.28575260792372886,
+      "marketBrier": 0.25379063073946423,
+      "modelLogLoss": 0.7742415595260175,
+      "marketLogLoss": 0.7011519406723526,
+      "overconfidencePp": 11.7888559322034
+    },
+    "2026-06-20": {
+      "population": "date 2026-06-20",
+      "n": 657,
+      "wins": 384,
+      "hitRate": 0.5844748858447488,
+      "hitRate95": {
+        "low": 0.5464064767059454,
+        "high": 0.6215611572928826
+      },
+      "meanModelProbability": 0.5951863013698628,
+      "meanMarketProbability": 0.5004367125738385,
+      "observedRate": 0.5844748858447488,
+      "modelBrier": 0.23074048791476384,
+      "marketBrier": 0.23416950112513327,
+      "modelLogLoss": 0.6526195137840076,
+      "marketLogLoss": 0.660843885881518,
+      "overconfidencePp": 1.071141552511401
+    },
+    "2026-06-21": {
+      "population": "date 2026-06-21",
+      "n": 688,
+      "wins": 349,
+      "hitRate": 0.5072674418604651,
+      "hitRate95": {
+        "low": 0.4699727271874546,
+        "high": 0.5444814484504372
+      },
+      "meanModelProbability": 0.6027055232558134,
+      "meanMarketProbability": 0.503265957133956,
+      "observedRate": 0.5072674418604651,
+      "modelBrier": 0.2513215016860466,
+      "marketBrier": 0.23828926337886747,
+      "modelLogLoss": 0.6973937949400866,
+      "marketLogLoss": 0.6692773105190896,
+      "overconfidencePp": 9.543808139534827
+    },
+    "2026-06-22": {
+      "population": "date 2026-06-22",
+      "n": 348,
+      "wins": 157,
+      "hitRate": 0.4511494252873563,
+      "hitRate95": {
+        "low": 0.39968408998827704,
+        "high": 0.5036815154432579
+      },
+      "meanModelProbability": 0.5908152298850576,
+      "meanMarketProbability": 0.4993660095280653,
+      "observedRate": 0.4511494252873563,
+      "modelBrier": 0.266294487097701,
+      "marketBrier": 0.24645756039565886,
+      "modelLogLoss": 0.7318980280230043,
+      "marketLogLoss": 0.6861009314812405,
+      "overconfidencePp": 13.966580459770134
+    },
+    "2026-06-23": {
+      "population": "date 2026-06-23",
+      "n": 123,
+      "wins": 57,
+      "hitRate": 0.4634146341463415,
+      "hitRate95": {
+        "low": 0.37773363767576046,
+        "high": 0.5513117228368789
+      },
+      "meanModelProbability": 0.6166691056910569,
+      "meanMarketProbability": 0.5088182219221092,
+      "observedRate": 0.4634146341463415,
+      "modelBrier": 0.271928156504065,
+      "marketBrier": 0.22947714042600453,
+      "modelLogLoss": 0.7427339727091078,
+      "marketLogLoss": 0.651476157742683,
+      "overconfidencePp": 15.325447154471544
+    },
+    "2026-06-24": {
+      "population": "date 2026-06-24",
+      "n": 496,
+      "wins": 246,
+      "hitRate": 0.4959677419354839,
+      "hitRate95": {
+        "low": 0.4521662706703671,
+        "high": 0.5398311941264806
+      },
+      "meanModelProbability": 0.5940881048387096,
+      "meanMarketProbability": 0.501198674021705,
+      "observedRate": 0.4959677419354839,
+      "modelBrier": 0.2563747005443549,
+      "marketBrier": 0.2418134981638717,
+      "modelLogLoss": 0.707847105449214,
+      "marketLogLoss": 0.6764486942081388,
+      "overconfidencePp": 9.812036290322567
+    },
+    "2026-06-25": {
+      "population": "date 2026-06-25",
+      "n": 77,
+      "wins": 25,
+      "hitRate": 0.3246753246753247,
+      "hitRate95": {
+        "low": 0.2305922805932014,
+        "high": 0.4354212569914086
+      },
+      "meanModelProbability": 0.6068129870129874,
+      "meanMarketProbability": 0.5038226449745837,
+      "observedRate": 0.3246753246753247,
+      "modelBrier": 0.31340183506493496,
+      "marketBrier": 0.2611811586719388,
+      "modelLogLoss": 0.8272572155914457,
+      "marketLogLoss": 0.7164909151225383,
+      "overconfidencePp": 28.21376623376627
+    },
+    "2026-07-01": {
+      "population": "date 2026-07-01",
+      "n": 235,
+      "wins": 122,
+      "hitRate": 0.5191489361702127,
+      "hitRate95": {
+        "low": 0.45547476421350447,
+        "high": 0.5822071136503182
+      },
+      "meanModelProbability": 0.6246885106382977,
+      "meanMarketProbability": 0.4772789612954257,
+      "observedRate": 0.5191489361702127,
+      "modelBrier": 0.27925022,
+      "marketBrier": 0.25905733846873624,
+      "modelLogLoss": 0.8201693057085787,
+      "marketLogLoss": 0.7186546818701808,
+      "overconfidencePp": 10.553957446808493
+    },
+    "2026-07-02": {
+      "population": "date 2026-07-02",
+      "n": 452,
+      "wins": 245,
+      "hitRate": 0.5420353982300885,
+      "hitRate95": {
+        "low": 0.49594159414489686,
+        "high": 0.5874206966157534
+      },
+      "meanModelProbability": 0.5791595132743361,
+      "meanMarketProbability": 0.4957976025326288,
+      "observedRate": 0.5420353982300885,
+      "modelBrier": 0.24383840046460173,
+      "marketBrier": 0.23707855724382018,
+      "modelLogLoss": 0.6820101006988266,
+      "marketLogLoss": 0.6667123882171868,
+      "overconfidencePp": 3.712411504424762
+    },
+    "2026-07-03": {
+      "population": "date 2026-07-03",
+      "n": 367,
+      "wins": 201,
+      "hitRate": 0.547683923705722,
+      "hitRate95": {
+        "low": 0.4965295723475207,
+        "high": 0.5978503461945198
+      },
+      "meanModelProbability": 0.5903994550408714,
+      "meanMarketProbability": 0.5027478632124514,
+      "observedRate": 0.547683923705722,
+      "modelBrier": 0.2474963076839237,
+      "marketBrier": 0.24424879973345937,
+      "modelLogLoss": 0.6892222485257924,
+      "marketLogLoss": 0.6815384613804032,
+      "overconfidencePp": 4.271553133514939
+    },
+    "2026-07-04": {
+      "population": "date 2026-07-04",
+      "n": 444,
+      "wins": 221,
+      "hitRate": 0.49774774774774777,
+      "hitRate95": {
+        "low": 0.45145869802218563,
+        "high": 0.5440754372613611
+      },
+      "meanModelProbability": 0.5935905405405398,
+      "meanMarketProbability": 0.5021754571968446,
+      "observedRate": 0.49774774774774777,
+      "modelBrier": 0.25392539581081086,
+      "marketBrier": 0.242332764464074,
+      "modelLogLoss": 0.7034203090547894,
+      "marketLogLoss": 0.6780043878707133,
+      "overconfidencePp": 9.584279279279206
+    },
+    "2026-07-05": {
+      "population": "date 2026-07-05",
+      "n": 131,
+      "wins": 59,
+      "hitRate": 0.45038167938931295,
+      "hitRate95": {
+        "low": 0.36780548101323723,
+        "high": 0.5357851023082302
+      },
+      "meanModelProbability": 0.5861603053435115,
+      "meanMarketProbability": 0.5015015970098007,
+      "observedRate": 0.45038167938931295,
+      "modelBrier": 0.25253810320610703,
+      "marketBrier": 0.23297376050353916,
+      "modelLogLoss": 0.6996009283290258,
+      "marketLogLoss": 0.6584426797780695,
+      "overconfidencePp": 13.577862595419854
+    },
+    "2026-07-06": {
+      "population": "date 2026-07-06",
+      "n": 193,
+      "wins": 93,
+      "hitRate": 0.48186528497409326,
+      "hitRate95": {
+        "low": 0.4124140700302949,
+        "high": 0.5520243413624187
+      },
+      "meanModelProbability": 0.5761062176165802,
+      "meanMarketProbability": 0.49540231769870097,
+      "observedRate": 0.48186528497409326,
+      "modelBrier": 0.25903100854922273,
+      "marketBrier": 0.2452419747551512,
+      "modelLogLoss": 0.7152286991697501,
+      "marketLogLoss": 0.6837489373188497,
+      "overconfidencePp": 9.424093264248695
+    },
+    "2026-07-07": {
+      "population": "date 2026-07-07",
+      "n": 250,
+      "wins": 129,
+      "hitRate": 0.516,
+      "hitRate95": {
+        "low": 0.4542790313566007,
+        "high": 0.5772366855314114
+      },
+      "meanModelProbability": 0.5975723999999996,
+      "meanMarketProbability": 0.5026122851301574,
+      "observedRate": 0.516,
+      "modelBrier": 0.2580198718800001,
+      "marketBrier": 0.24380227091934123,
+      "modelLogLoss": 0.7113221414079751,
+      "marketLogLoss": 0.6805017727341907,
+      "overconfidencePp": 8.157239999999955
+    },
+    "2026-07-08": {
+      "population": "date 2026-07-08",
+      "n": 486,
+      "wins": 231,
+      "hitRate": 0.47530864197530864,
+      "hitRate95": {
+        "low": 0.4312768396825607,
+        "high": 0.5197277299579108
+      },
+      "meanModelProbability": 0.5916956790123462,
+      "meanMarketProbability": 0.5000536776455409,
+      "observedRate": 0.47530864197530864,
+      "modelBrier": 0.25202964187242793,
+      "marketBrier": 0.23576934988088213,
+      "modelLogLoss": 0.6995613213939128,
+      "marketLogLoss": 0.6642572128570733,
+      "overconfidencePp": 11.638703703703756
+    },
+    "2026-07-09": {
+      "population": "date 2026-07-09",
+      "n": 364,
+      "wins": 197,
+      "hitRate": 0.5412087912087912,
+      "hitRate95": {
+        "low": 0.48985341188300285,
+        "high": 0.5917034321498634
+      },
+      "meanModelProbability": 0.5895958791208791,
+      "meanMarketProbability": 0.5013561390533192,
+      "observedRate": 0.5412087912087912,
+      "modelBrier": 0.25238559381868164,
+      "marketBrier": 0.23918146009254357,
+      "modelLogLoss": 0.7009289204304104,
+      "marketLogLoss": 0.671232986748508,
+      "overconfidencePp": 4.83870879120879
+    },
+    "2026-07-10": {
+      "population": "date 2026-07-10",
+      "n": 196,
+      "wins": 118,
+      "hitRate": 0.6020408163265306,
+      "hitRate95": {
+        "low": 0.5321859982700713,
+        "high": 0.667972527282166
+      },
+      "meanModelProbability": 0.5947704081632655,
+      "meanMarketProbability": 0.5117259432895058,
+      "observedRate": 0.6020408163265306,
+      "modelBrier": 0.24474023142857132,
+      "marketBrier": 0.2411313638482265,
+      "modelLogLoss": 0.6860612873756736,
+      "marketLogLoss": 0.6750452147147069,
+      "overconfidencePp": -0.7270408163265074
+    },
+    "2026-07-11": {
+      "population": "date 2026-07-11",
+      "n": 524,
+      "wins": 238,
+      "hitRate": 0.4541984732824427,
+      "hitRate95": {
+        "low": 0.41205442201205716,
+        "high": 0.4970092061673059
+      },
+      "meanModelProbability": 0.5974965648854965,
+      "meanMarketProbability": 0.5038295582788024,
+      "observedRate": 0.4541984732824427,
+      "modelBrier": 0.27000584526717597,
+      "marketBrier": 0.2409665382039563,
+      "modelLogLoss": 0.7365722909101293,
+      "marketLogLoss": 0.6747799395719545,
+      "overconfidencePp": 14.329809160305379
+    },
+    "2026-07-12": {
+      "population": "date 2026-07-12",
+      "n": 79,
+      "wins": 35,
+      "hitRate": 0.4430379746835443,
+      "hitRate95": {
+        "low": 0.33867609150989586,
+        "high": 0.5526828392688432
+      },
+      "meanModelProbability": 0.5826873417721519,
+      "meanMarketProbability": 0.5054339498643097,
+      "observedRate": 0.4430379746835443,
+      "modelBrier": 0.26081555177215193,
+      "marketBrier": 0.2488499597973464,
+      "modelLogLoss": 0.7164332514202078,
+      "marketLogLoss": 0.6906824942470459,
+      "overconfidencePp": 13.964936708860758
+    },
+    "2026-07-21": {
+      "population": "date 2026-07-21",
+      "n": 5,
+      "wins": 2,
+      "hitRate": 0.4,
+      "hitRate95": {
+        "low": 0.11761823115925325,
+        "high": 0.769280067791163
+      },
+      "meanModelProbability": 0.66688,
+      "meanMarketProbability": 0.49954085841453655,
+      "observedRate": 0.4,
+      "modelBrier": 0.27157026,
+      "marketBrier": 0.2655334363142584,
+      "modelLogLoss": 0.7272551993321246,
+      "marketLogLoss": 0.7243271326149421,
+      "overconfidencePp": 26.688000000000002
+    },
+    "2026-07-22": {
+      "population": "date 2026-07-22",
+      "n": 485,
+      "wins": 239,
+      "hitRate": 0.4927835051546392,
+      "hitRate95": {
+        "low": 0.4485204857365638,
+        "high": 0.5371599473526006
+      },
+      "meanModelProbability": 0.5843907216494842,
+      "meanMarketProbability": 0.49899794553949883,
+      "observedRate": 0.4927835051546392,
+      "modelBrier": 0.2524997352371135,
+      "marketBrier": 0.2359542301651423,
+      "modelLogLoss": 0.7009941222812046,
+      "marketLogLoss": 0.664531784553718,
+      "overconfidencePp": 9.160721649484504
+    },
+    "2026-07-23": {
+      "population": "date 2026-07-23",
+      "n": 298,
+      "wins": 134,
+      "hitRate": 0.44966442953020136,
+      "hitRate95": {
+        "low": 0.39418050997761767,
+        "high": 0.5064296113575463
+      },
+      "meanModelProbability": 0.6038979865771815,
+      "meanMarketProbability": 0.5021989029087633,
+      "observedRate": 0.44966442953020136,
+      "modelBrier": 0.2666226528859059,
+      "marketBrier": 0.24208434723832373,
+      "modelLogLoss": 0.730303970480814,
+      "marketLogLoss": 0.67741997442276,
+      "overconfidencePp": 15.423355704698016
+    },
+    "2026-07-24": {
+      "population": "date 2026-07-24",
+      "n": 437,
+      "wins": 204,
+      "hitRate": 0.4668192219679634,
+      "hitRate95": {
+        "low": 0.42053530831763686,
+        "high": 0.5136814262192126
+      },
+      "meanModelProbability": 0.5988709382151032,
+      "meanMarketProbability": 0.5060629346925475,
+      "observedRate": 0.4668192219679634,
+      "modelBrier": 0.2670974074599544,
+      "marketBrier": 0.24733962650899805,
+      "modelLogLoss": 0.7300892334635212,
+      "marketLogLoss": 0.6878857418770371,
+      "overconfidencePp": 13.20517162471398
+    },
+    "2026-07-25": {
+      "population": "date 2026-07-25",
+      "n": 714,
+      "wins": 359,
+      "hitRate": 0.5028011204481793,
+      "hitRate95": {
+        "low": 0.46620939079387747,
+        "high": 0.539362869158736
+      },
+      "meanModelProbability": 0.5922711484593843,
+      "meanMarketProbability": 0.5009261378813455,
+      "observedRate": 0.5028011204481793,
+      "modelBrier": 0.2549576889075633,
+      "marketBrier": 0.2450684582416181,
+      "modelLogLoss": 0.7043165918057169,
+      "marketLogLoss": 0.6832802924534108,
+      "overconfidencePp": 8.947002801120508
+    },
+    "2026-07-26": {
+      "population": "date 2026-07-26",
+      "n": 594,
+      "wins": 297,
+      "hitRate": 0.5,
+      "hitRate95": {
+        "low": 0.45991951114414026,
+        "high": 0.5400804888558597
+      },
+      "meanModelProbability": 0.5889784511784514,
+      "meanMarketProbability": 0.4996234354806822,
+      "observedRate": 0.5,
+      "modelBrier": 0.247157827912458,
+      "marketBrier": 0.2387681963459378,
+      "modelLogLoss": 0.6881273446700735,
+      "marketLogLoss": 0.670078534039897,
+      "overconfidencePp": 8.897845117845138
+    },
+    "2026-07-27": {
+      "population": "date 2026-07-27",
+      "n": 320,
+      "wins": 159,
+      "hitRate": 0.496875,
+      "hitRate95": {
+        "low": 0.44245536364513655,
+        "high": 0.5513687775399365
+      },
+      "meanModelProbability": 0.5889318749999997,
+      "meanMarketProbability": 0.5010252525332752,
+      "observedRate": 0.496875,
+      "modelBrier": 0.2534269586249999,
+      "marketBrier": 0.23275248487496847,
+      "modelLogLoss": 0.70333947745405,
+      "marketLogLoss": 0.6578346139818667,
+      "overconfidencePp": 9.205687499999964
+    },
+    "2026-07-28": {
+      "population": "date 2026-07-28",
+      "n": 121,
+      "wins": 54,
+      "hitRate": 0.4462809917355372,
+      "hitRate95": {
+        "low": 0.3607165818368641,
+        "high": 0.535151462148474
+      },
+      "meanModelProbability": 0.593476859504132,
+      "meanMarketProbability": 0.5154165622645298,
+      "observedRate": 0.4462809917355372,
+      "modelBrier": 0.2643087440495867,
+      "marketBrier": 0.2414630463243003,
+      "modelLogLoss": 0.7225073316156969,
+      "marketLogLoss": 0.6758306766190464,
+      "overconfidencePp": 14.719586776859478
+    }
+  },
+  "registry": {
+    "batter_hits": {
+      "status": "RECALIBRATE",
+      "rationale": "Brier 0.2434 vs market 0.2349; overconfident by 6.7pp",
+      "n": 9005,
+      "wins": 4846,
+      "hitRate": 0.5381454747362576,
+      "hitRate95": {
+        "low": 0.5278342503722094,
+        "high": 0.5484241666921997
+      },
+      "modelBrier": 0.24340436765907922,
+      "marketBrier": 0.2349161115772821,
+      "beatsMarketBrier": false,
+      "overconfidencePp": 6.7194725152696755
+    },
+    "batter_hits_runs_rbis": {
+      "status": "RECALIBRATE",
+      "rationale": "Brier 0.2638 vs market 0.2477; overconfident by 10.4pp",
+      "n": 7408,
+      "wins": 3677,
+      "hitRate": 0.49635529157667385,
+      "hitRate95": {
+        "low": 0.4849743184474516,
+        "high": 0.5077400428524446
+      },
+      "modelBrier": 0.2637849628469216,
+      "marketBrier": 0.24771602296724674,
+      "beatsMarketBrier": false,
+      "overconfidencePp": 10.365373920086334
+    },
+    "batter_total_bases": {
+      "status": "DISABLED",
+      "rationale": "the 95% interval [42.3%, 45.3%] lies entirely below 50% on n=4120",
+      "n": 4120,
+      "wins": 1803,
+      "hitRate": 0.437621359223301,
+      "hitRate95": {
+        "low": 0.4225378624100988,
+        "high": 0.45282107475179423
+      },
+      "modelBrier": 0.26280436503640753,
+      "marketBrier": 0.2425918495945783,
+      "beatsMarketBrier": false,
+      "overconfidencePp": 11.58241990291285
+    },
+    "pitcher_strikeouts": {
+      "status": "RECALIBRATE",
+      "rationale": "Brier 0.2729 vs market 0.2435; overconfident by 15.1pp",
+      "n": 1100,
+      "wins": 526,
+      "hitRate": 0.4781818181818182,
+      "hitRate95": {
+        "low": 0.4487890981943349,
+        "high": 0.5077264018556722
+      },
+      "modelBrier": 0.2728742298818182,
+      "marketBrier": 0.24351446063683077,
+      "beatsMarketBrier": false,
+      "overconfidencePp": 15.092972727272786
+    }
+  },
+  "calibrationCurve": {
+    "0.1-0.2": {
+      "n": 1,
+      "meanPredicted": 0.1703,
+      "observedRate": 1,
+      "observed95": {
+        "low": 0.20654329147389294,
+        "high": 1
+      },
+      "significantlyMiscalibrated": true
+    },
+    "0.2-0.3": {
+      "n": 2,
+      "meanPredicted": 0.24955,
+      "observedRate": 1,
+      "observed95": {
+        "low": 0.3423719528896193,
+        "high": 1
+      },
+      "significantlyMiscalibrated": true
+    },
+    "0.3-0.4": {
+      "n": 1087,
+      "meanPredicted": 0.36518813247470167,
+      "observedRate": 0.36522539098436063,
+      "observed95": {
+        "low": 0.33712244869593094,
+        "high": 0.39427760058711797
+      },
+      "significantlyMiscalibrated": false
+    },
+    "0.4-0.5": {
+      "n": 3386,
+      "meanPredicted": 0.45662262256349545,
+      "observedRate": 0.41287655050206734,
+      "observed95": {
+        "low": 0.39640046186132444,
+        "high": 0.4295501076284122
+      },
+      "significantlyMiscalibrated": true
+    },
+    "0.5-0.6": {
+      "n": 6453,
+      "meanPredicted": 0.5528382302804893,
+      "observedRate": 0.4718735471873547,
+      "observed95": {
+        "low": 0.45971362112877423,
+        "high": 0.48406694180155985
+      },
+      "significantlyMiscalibrated": true
+    },
+    "0.6-0.7": {
+      "n": 6604,
+      "meanPredicted": 0.648851287098731,
+      "observedRate": 0.5390672319806178,
+      "observed95": {
+        "low": 0.527025548300608,
+        "high": 0.5510634906376135
+      },
+      "significantlyMiscalibrated": true
+    },
+    "0.7-0.8": {
+      "n": 3665,
+      "meanPredicted": 0.7388538335607138,
+      "observedRate": 0.5989085948158254,
+      "observed95": {
+        "low": 0.5829450427715933,
+        "high": 0.6146650148553153
+      },
+      "significantlyMiscalibrated": true
+    },
+    "0.8-0.9": {
+      "n": 400,
+      "meanPredicted": 0.8276875000000007,
+      "observedRate": 0.59,
+      "observed95": {
+        "low": 0.5411663599855964,
+        "high": 0.6371213647064611
+      },
+      "significantlyMiscalibrated": true
+    },
+    "0.9-1.0": {
+      "n": 35,
+      "meanPredicted": 0.941925714285714,
+      "observedRate": 0.5142857142857142,
+      "observed95": {
+        "low": 0.35568539626711626,
+        "high": 0.6700601960874725
+      },
+      "significantlyMiscalibrated": true
+    }
+  },
+  "marketCalibrationCurve": {
+    "0.1-0.2": {
+      "n": 11,
+      "meanPredicted": 0.15897483747082328,
+      "observedRate": 0.7272727272727273,
+      "observed95": {
+        "low": 0.4343497069897538,
+        "high": 0.9025411942607853
+      },
+      "significantlyMiscalibrated": true
+    },
+    "0.2-0.3": {
+      "n": 13,
+      "meanPredicted": 0.25530804920211697,
+      "observedRate": 0.38461538461538464,
+      "observed95": {
+        "low": 0.17709446581236818,
+        "high": 0.6447751902773147
+      },
+      "significantlyMiscalibrated": false
+    },
+    "0.3-0.4": {
+      "n": 2867,
+      "meanPredicted": 0.36572235409526743,
+      "observedRate": 0.3697244506452738,
+      "observed95": {
+        "low": 0.35223933785970796,
+        "high": 0.3875582183690997
+      },
+      "significantlyMiscalibrated": false
+    },
+    "0.4-0.5": {
+      "n": 8125,
+      "meanPredicted": 0.44672039710854106,
+      "observedRate": 0.4425846153846154,
+      "observed95": {
+        "low": 0.43181406200085337,
+        "high": 0.4534094365109151
+      },
+      "significantlyMiscalibrated": false
+    },
+    "0.5-0.6": {
+      "n": 6956,
+      "meanPredicted": 0.5497950792516221,
+      "observedRate": 0.5462909718228867,
+      "observed95": {
+        "low": 0.5345688607777994,
+        "high": 0.5579619807287084
+      },
+      "significantlyMiscalibrated": false
+    },
+    "0.6-0.7": {
+      "n": 3656,
+      "meanPredicted": 0.640003348628879,
+      "observedRate": 0.6504376367614879,
+      "observed95": {
+        "low": 0.6348302866736996,
+        "high": 0.6657291692328073
+      },
+      "significantlyMiscalibrated": false
+    },
+    "0.7-0.8": {
+      "n": 5,
+      "meanPredicted": 0.729984901868294,
+      "observedRate": 1,
+      "observed95": {
+        "low": 0.565508505247919,
+        "high": 1
+      },
+      "significantlyMiscalibrated": false
+    }
+  },
+  "calibrationBacktest": {
+    "method": "temporal split, fitted on earlier dates and scored on later dates only",
+    "splitDate": "2026-07-01",
+    "trainRows": 14938,
+    "trainDates": [
+      "2026-05-16",
+      "2026-06-25"
+    ],
+    "testRows": 6695,
+    "testDates": [
+      "2026-07-01",
+      "2026-07-28"
+    ],
+    "observedRateInTest": 0.49843166542195666,
+    "scores": {
+      "rawModel": {
+        "brier": 0.25591178901269424,
+        "logLoss": 0.7095390130354567,
+        "meanPredicted": 0.5923061389096348
+      },
+      "market": {
+        "brier": 0.24128561899139692,
+        "logLoss": 0.6757169248108467,
+        "meanPredicted": 0.5008064820966582
+      },
+      "platt": {
+        "brier": 0.24552525969368053,
+        "logLoss": 0.6846508283949334,
+        "meanPredicted": 0.5008446690557822
+      },
+      "isotonic": {
+        "brier": 0.2456279237822275,
+        "logLoss": 0.6843513561070174,
+        "meanPredicted": 0.5006536373748631
+      }
+    },
+    "bestCalibrator": "platt",
+    "improvesOnRawModel": true,
+    "brierImprovementVsRaw": 0.01038652931901371,
+    "stillLosesToMarket": true,
+    "brierGapToMarket": 0.004239640702283609,
+    "recommendation": "ADOPT platt for honesty of stated probabilities; it improves out-of-sample but still does not out-score the de-vigged market, so it fixes the claim, not the capability"
+  }
+}
