@@ -1,0 +1,257 @@
+{
+  "kind": "public-research-terminal-summary",
+  "schemaVersion": 1,
+  "asOfSettledDate": "2026-07-27",
+  "positioning": {
+    "product": "sports research terminal",
+    "posture": "paper-only, educational, public beta",
+    "whatWeCompare": [
+      "what the sportsbook market says",
+      "what the simulation says",
+      "how historical calibration changes the interpretation",
+      "what actually happened afterward"
+    ]
+  },
+  "modelUniverse": {
+    "label": "model research universe",
+    "decisiveRows": 21633,
+    "wins": 10852,
+    "hitRate": 0.5016410114177414,
+    "dateRange": [
+      "2026-05-16",
+      "2026-07-27"
+    ],
+    "meanStatedProbability": 0.5948400036980532,
+    "overconfidencePp": 9.319899228031181,
+    "separateFromPaperRecord": "The paper-money record is a different product, over different dates, with a different denominator. The two are never combined."
+  },
+  "calibration": {
+    "version": "platt-1",
+    "fitWindow": {
+      "from": "2026-05-16",
+      "to": "2026-06-24",
+      "rows": 14938
+    },
+    "heldOutWindow": {
+      "from": "2026-07-01",
+      "to": "2026-07-27",
+      "rows": 6695
+    },
+    "evaluation": {
+      "rawModelBrier": 0.25591178901269424,
+      "calibratedBrier": 0.24552525969368053,
+      "marketBrier": 0.24128561899139692,
+      "brierImprovementVsRaw": 0.01038652931901371,
+      "brierGapToMarket": 0.004239640702283609,
+      "stillBehindMarket": true,
+      "observedRate": 0.49843166542195666
+    },
+    "plainLanguage": [
+      "The raw simulation is systematically overconfident — it has stated about 59% and won about 50%.",
+      "Calibration maps those stated probabilities onto what actually happened, so the number you see is closer to true.",
+      "Calibration does not create new predictive information. It corrects how confident we sound, not what we know.",
+      "On the same held-out results, the sportsbook's own no-vig price still scored more accurately than ours."
+    ]
+  },
+  "registry": {
+    "counts": {
+      "APPROVED": 0,
+      "MONITOR": 0,
+      "RECALIBRATE": 3,
+      "DISABLED": 1
+    },
+    "noneApproved": true,
+    "statusNote": "Status reflects measured historical evidence, not preference. No MLB market currently meets the APPROVED bar; a market is only DISABLED when a large sample sits entirely below break-even.",
+    "markets": {
+      "batter_hits": {
+        "status": "RECALIBRATE",
+        "n": 9005,
+        "hitRate": 0.5381454747362576,
+        "hitRate95": {
+          "low": 0.5278342503722094,
+          "high": 0.5484241666921997
+        },
+        "overconfidencePp": 6.7194725152696755,
+        "rationale": "Brier 0.2434 vs market 0.2349; overconfident by 6.7pp",
+        "recentTrend": {
+          "recentRows": 500,
+          "priorRows": 8505,
+          "recentHitRate": 0.536,
+          "priorHitRate": 0.5382716049382716,
+          "deltaPp": -0.22716049382716097,
+          "significant": false,
+          "recentDates": [
+            "2026-07-25",
+            "2026-07-27"
+          ]
+        }
+      },
+      "batter_hits_runs_rbis": {
+        "status": "RECALIBRATE",
+        "n": 7408,
+        "hitRate": 0.49635529157667385,
+        "hitRate95": {
+          "low": 0.4849743184474516,
+          "high": 0.5077400428524446
+        },
+        "overconfidencePp": 10.365373920086334,
+        "rationale": "Brier 0.2638 vs market 0.2477; overconfident by 10.4pp",
+        "recentTrend": {
+          "recentRows": 500,
+          "priorRows": 6908,
+          "recentHitRate": 0.482,
+          "priorHitRate": 0.4973943254198031,
+          "deltaPp": -1.5394325419803123,
+          "significant": false,
+          "recentDates": [
+            "2026-07-25",
+            "2026-07-27"
+          ]
+        }
+      },
+      "batter_total_bases": {
+        "status": "DISABLED",
+        "n": 4120,
+        "hitRate": 0.437621359223301,
+        "hitRate95": {
+          "low": 0.4225378624100988,
+          "high": 0.45282107475179423
+        },
+        "overconfidencePp": 11.58241990291285,
+        "rationale": "the 95% interval [42.3%, 45.3%] lies entirely below 50% on n=4120",
+        "recentTrend": {
+          "recentRows": 500,
+          "priorRows": 3620,
+          "recentHitRate": 0.398,
+          "priorHitRate": 0.4430939226519337,
+          "deltaPp": -4.509392265193368,
+          "significant": false,
+          "recentDates": [
+            "2026-07-22",
+            "2026-07-27"
+          ]
+        }
+      },
+      "pitcher_strikeouts": {
+        "status": "RECALIBRATE",
+        "n": 1100,
+        "hitRate": 0.4781818181818182,
+        "hitRate95": {
+          "low": 0.4487890981943349,
+          "high": 0.5077264018556722
+        },
+        "overconfidencePp": 15.092972727272786,
+        "rationale": "Brier 0.2729 vs market 0.2435; overconfident by 15.1pp",
+        "recentTrend": {
+          "recentRows": 500,
+          "priorRows": 600,
+          "recentHitRate": 0.48,
+          "priorHitRate": 0.4766666666666667,
+          "deltaPp": 0.33333333333332993,
+          "significant": false,
+          "recentDates": [
+            "2026-06-17",
+            "2026-07-27"
+          ]
+        }
+      }
+    }
+  },
+  "quarantines": [
+    {
+      "date": "2026-07-28",
+      "status": "QUARANTINED",
+      "refusedRows": 641,
+      "internalReason": "WRONG_EVENT_MAPPING: gamePk 824489 is claimed by 2 distinct events (mlb:cincinnati-reds-v-cleveland-guardians:20260728t1741, mlb:cincinnati-reds-v-cleveland-guardians:20260728t2310) — one event's predictions would be graded against the other's box score",
+      "publicExplanation": "This slate's board was built before a data-integrity guard was in place, and two halves of a doubleheader could not be told apart. Rather than grade predictions against the wrong game, we left the date unsettled. It has no win/loss record and is excluded from every rate on this site."
+    }
+  ],
+  "systemStatus": {
+    "overall": "QUARANTINED",
+    "overallReason": "latestSettlement is QUARANTINED",
+    "stages": [
+      {
+        "stage": "predictionHistory",
+        "state": "READY",
+        "detail": "complete through 2026-07-27 (22660 rows, 0-day lag)"
+      },
+      {
+        "stage": "calibrationArtifact",
+        "state": "READY",
+        "detail": "platt-1, fitted through 2026-06-24, held out on 6,695 rows"
+      },
+      {
+        "stage": "marketRegistry",
+        "state": "READY",
+        "detail": "as of 2026-07-27, 21,633 decisive rows"
+      },
+      {
+        "stage": "dailyResearchBrief",
+        "state": "READY",
+        "detail": "newest settled date 2026-07-27"
+      },
+      {
+        "stage": "latestSettlement",
+        "state": "QUARANTINED",
+        "detail": "2026-07-28 refused by the settlement integrity gate"
+      }
+    ]
+  },
+  "dailyBrief": {
+    "date": "2026-07-27",
+    "decisiveRows": 441,
+    "wins": 213,
+    "decisiveHitRate": 0.48299319727891155,
+    "meanStatedProbability": 0.5901789115646257,
+    "meanMarketProbability": 0.5049738885366355,
+    "calibrationErrorPp": 10.71857142857141,
+    "scoring": {
+      "modelBrier": 0.2564126639229024,
+      "marketBrier": 0.23514245751752888,
+      "rowsScored": 441
+    },
+    "byMarketFamily": [
+      {
+        "market": "pitcher_strikeouts",
+        "n": 17,
+        "hitRate": 0.4117647058823529,
+        "calibrationErrorPp": 21.977058823529415,
+        "sufficientSample": false
+      },
+      {
+        "market": "batter_total_bases",
+        "n": 88,
+        "hitRate": 0.3522727272727273,
+        "calibrationErrorPp": 19.028522727272733,
+        "sufficientSample": false
+      },
+      {
+        "market": "batter_hits_runs_rbis",
+        "n": 168,
+        "hitRate": 0.48214285714285715,
+        "calibrationErrorPp": 11.166726190476234,
+        "sufficientSample": true
+      },
+      {
+        "market": "batter_hits",
+        "n": 168,
+        "hitRate": 0.5595238095238095,
+        "calibrationErrorPp": 4.7783333333333395,
+        "sufficientSample": true
+      }
+    ],
+    "observations": [
+      "Stated 59.0% on average and won 48.3% (213/441) — calibration error +10.7pp.",
+      "The de-vigged market stated 50.5% on the same rows.",
+      "Widest gap: `batter_hits_runs_rbis` at +11.2pp on n=168.",
+      "Closest: `batter_hits` at +4.8pp on n=168.",
+      "Insufficient sample to read: `pitcher_strikeouts` (n=17), `batter_total_bases` (n=88)."
+    ],
+    "whatShouldNotBeConcluded": [
+      "One settled date is not evidence of a change in model quality — day-to-day swings in this corpus are larger than most effects worth chasing.",
+      "A market family with fewer than 100 rows on a date cannot be read at all.",
+      "None of these figures relate to the separate paper-money record, which covers different dates entirely."
+    ],
+    "caveat": "One settled date. Day-to-day swings in this corpus exceed most effects worth chasing; treat as a prompt to look, never as a result."
+  }
+}

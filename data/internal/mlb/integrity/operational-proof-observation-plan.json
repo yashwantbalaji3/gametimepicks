@@ -1,0 +1,42 @@
+{
+  "kind": "operational-proof-observation-plan",
+  "sprint": "050",
+  "public": false,
+  "asOfEt": "2026-07-29T10:57:00-04:00",
+  "openProofs": [
+    {
+      "id": "pipefail-live",
+      "status": "OPEN",
+      "why": "The pipefail fix landed in 013fb3b7 at 2026-07-29T10:11:41-04:00. The most recent nightly-settle run started 2026-07-29T10:07:41Z on sha 9fc71547 \u2014 BEFORE the fix. No scheduled run has yet executed the corrected orchestrator.",
+      "whatWouldProveIt": [
+        "a scheduled nightly-settle run whose headSha contains `set -o pipefail`",
+        "a step within it whose Python command exits non-zero",
+        "the shell step returning non-zero",
+        "GitHub Actions marking the job failed",
+        "the failing command and message visible in the log"
+      ],
+      "doNotForceIt": "Corrupting production data to trigger a failure is not acceptable. The deterministic known-negative in scripts/automation_settle_pipefail_test.sh remains the standing evidence until a real failure occurs.",
+      "nextOpportunity": "the next scheduled run that encounters any failing step"
+    },
+    {
+      "id": "clean-lineage-stamping",
+      "status": "OPEN",
+      "why": "0 of 22,660 ledger rows carry `eventId`. The only slate offered to the gate since it shipped was 2026-07-28, which was correctly REFUSED. The stamping path therefore has not run, through no fault of the code.",
+      "whatWouldProveIt": [
+        "a settled date whose rows carry eventId, providerEventId, eventStartTime and settlementSource",
+        "every generated row reconciling into terminal/pending/unavailable/pass",
+        "no duplicate ids and no partial write",
+        "the prediction-history exporter consuming the new settlement on the same run"
+      ],
+      "nextOpportunity": "the 2026-07-29 board is the first generated UNDER the publication gate; its settlement runs on 2026-07-30 at 05:30/07:30 UTC and is the first clean candidate."
+    }
+  ],
+  "closedThisSprint": [
+    {
+      "id": "lineage-gate-rejection-live",
+      "status": "PROVEN",
+      "evidence": "Sprint 049 \u2014 641 rows refused on 2026-07-28"
+    }
+  ],
+  "note": "Both remaining proofs require a real scheduled run. Neither can be closed by code inspection or unit tests, and neither is being claimed."
+}

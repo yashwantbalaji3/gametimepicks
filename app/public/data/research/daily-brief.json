@@ -1,0 +1,57 @@
+{
+  "date": "2026-07-27",
+  "decisiveRows": 441,
+  "wins": 213,
+  "decisiveHitRate": 0.48299319727891155,
+  "meanStatedProbability": 0.5901789115646257,
+  "meanMarketProbability": 0.5049738885366355,
+  "calibrationErrorPp": 10.71857142857141,
+  "scoring": {
+    "modelBrier": 0.2564126639229024,
+    "marketBrier": 0.23514245751752888,
+    "rowsScored": 441
+  },
+  "byMarketFamily": [
+    {
+      "market": "pitcher_strikeouts",
+      "n": 17,
+      "hitRate": 0.4117647058823529,
+      "calibrationErrorPp": 21.977058823529415,
+      "sufficientSample": false
+    },
+    {
+      "market": "batter_total_bases",
+      "n": 88,
+      "hitRate": 0.3522727272727273,
+      "calibrationErrorPp": 19.028522727272733,
+      "sufficientSample": false
+    },
+    {
+      "market": "batter_hits_runs_rbis",
+      "n": 168,
+      "hitRate": 0.48214285714285715,
+      "calibrationErrorPp": 11.166726190476234,
+      "sufficientSample": true
+    },
+    {
+      "market": "batter_hits",
+      "n": 168,
+      "hitRate": 0.5595238095238095,
+      "calibrationErrorPp": 4.7783333333333395,
+      "sufficientSample": true
+    }
+  ],
+  "observations": [
+    "Stated 59.0% on average and won 48.3% (213/441) — calibration error +10.7pp.",
+    "The de-vigged market stated 50.5% on the same rows.",
+    "Widest gap: `batter_hits_runs_rbis` at +11.2pp on n=168.",
+    "Closest: `batter_hits` at +4.8pp on n=168.",
+    "Insufficient sample to read: `pitcher_strikeouts` (n=17), `batter_total_bases` (n=88)."
+  ],
+  "whatShouldNotBeConcluded": [
+    "One settled date is not evidence of a change in model quality — day-to-day swings in this corpus are larger than most effects worth chasing.",
+    "A market family with fewer than 100 rows on a date cannot be read at all.",
+    "None of these figures relate to the separate paper-money record, which covers different dates entirely."
+  ],
+  "caveat": "One settled date. Day-to-day swings in this corpus exceed most effects worth chasing; treat as a prompt to look, never as a result."
+}

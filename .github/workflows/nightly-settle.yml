@@ -273,6 +273,11 @@ jobs:
           #    not a reason to abort a settlement that already succeeded.
           npx --yes tsx scripts/check-learning-freshness.mjs --write \
             || echo "::warning::learning freshness check reported a problem — see admin status"
+          # 4) SPRINT 050 — the public research contract every user-facing surface reads. Built here so
+          #    a number that appears on two pages comes from one place; deriving it per-surface is how
+          #    /board and /about ended up with a hardcoded 51.7% that drifted from the ledger for weeks.
+          npx --yes tsx scripts/build-public-research-contract.mjs --write \
+            || echo "::warning::public research contract build failed — prior artifacts retained"
 
       - name: Health gate (abort publish on missing/stale/non-reconciling data)
         id: health
