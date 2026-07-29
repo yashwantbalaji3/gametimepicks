@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823598,
+  "date": "2026-07-29",
+  "capturedAt": "2026-07-29T18:01:56.192Z",
+  "availableAt": "2026-07-29T18:01:56.192Z",
+  "eventStartTime": "2026-07-29T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 681035,
+      "name": "Christian Scott",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 7,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 6.2,
+        "bbAvg": 2,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 12.31,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 63.33,
+        "k": 78,
+        "bb": 29,
+        "er": 22,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 519242,
+      "name": "Chris Sale",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-07-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 7,
+        "bbAvg": 1,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 11.67,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 111,
+        "k": 134,
+        "bb": 26,
+        "er": 27,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-07-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-07-29T18:01:56.192Z"
+  },
+  "recordHash": "f5b333810f4a524b48913ba00b404bca59893944dd7158c5ee7db15fe7ccff77"
+}
