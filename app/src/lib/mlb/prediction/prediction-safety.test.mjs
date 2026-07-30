@@ -23,7 +23,10 @@ test("the Game Report leads with the prediction hero, BEFORE the probability evi
   const evidence = overview.indexOf(">Evidence<");
   const winBar = overview.indexOf("<WinBar");
   assert.ok(heroRender > 0 && heroRender < evidence && heroRender < winBar, "the hero renders before the evidence");
-  assert.match(src, /GameTimePicks prediction/i, "direct-answer language is present");
+  // Program 058 reframe: the hero still leads with a direct answer, but frames it as a simulation read —
+  // never "prediction" as a standalone promise — and carries the not-validated disclosure inline.
+  assert.match(src, /GameTimePicks simulation read/i, "direct-answer language is present, simulation-framed");
+  assert.match(src, /not validated to out-predict the market/i, "the hero carries the honesty disclosure inline");
 });
 
 test("no betting-hype or market-beating language in the prediction layer or hero", () => {

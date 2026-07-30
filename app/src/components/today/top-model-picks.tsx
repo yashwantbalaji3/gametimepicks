@@ -61,7 +61,7 @@ export default function TodayTopModelPicks({ picks }: { picks: Top10Pick[] }) {
         </p>
       )}
       <p className="font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>
-        Ranked by settled market reliability × model probability + edge — never by payout. Paper-only research; no bets are placed here.
+        Ordered by settled market reliability × simulated probability — never by payout, and not a claim to out-predict the market. Paper-only research; no bets are placed here.
       </p>
     </section>
   );

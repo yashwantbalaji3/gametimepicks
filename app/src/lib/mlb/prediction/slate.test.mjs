@@ -78,7 +78,11 @@ test("rows sort chronologically by first pitch", () => {
 test("top picks group by MARKET, rank by simulated probability, cap per category, known markets only", () => {
   const cats = buildTopPicksByCategory([slateGame()], { perCategory: 5 });
   const labels = cats.map((c) => c.label);
-  assert.ok(labels.includes("Strikeouts") && labels.includes("Hits") && labels.includes("Total Bases"));
+  assert.ok(labels.includes("Strikeouts") && labels.includes("Hits"));
+  // batter_total_bases is DISABLED FOR PREDICTION (docs/MLB_FINAL_MODEL_DECISION.md): its history stays on
+  // research surfaces, but it must never appear in a ranked recommendation-shaped list.
+  assert.ok(!labels.includes("Total Bases"), "a prediction-disabled market must not produce a category");
+  for (const c of cats) assert.equal(typeof c.calibrationFailed, "boolean", "each category carries its settled-record status");
   for (const c of cats) {
     const probs = c.picks.map((p) => p.simulationProbability);
     assert.deepEqual(probs, [...probs].sort((x, y) => y - x), "sorted within a category");

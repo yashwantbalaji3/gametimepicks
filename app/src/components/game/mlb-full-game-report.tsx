@@ -123,8 +123,8 @@ function PredictionHero({ p, runCount }: { p: GamePredictionDecision; runCount?:
   return (
     <section className="rounded-[16px] px-4 py-4 flex flex-col gap-3" style={{ background: "linear-gradient(180deg, rgba(217,164,65,0.10), rgba(217,164,65,0.03))", border: "1px solid rgba(217,164,65,0.35)" }}>
       <div className="flex items-baseline justify-between gap-2 flex-wrap">
-        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>GameTimePicks prediction</span>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>from 10,000 simulated games</span>
+        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>GameTimePicks simulation read</span>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>from 10,000 simulated games · not validated to out-predict the market</span>
       </div>
       <div className="flex items-end justify-between gap-3 flex-wrap">
         <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 26, fontWeight: 800, lineHeight: 1.05 }}>{winnerName}</span>
@@ -155,7 +155,7 @@ function PredictionHero({ p, runCount }: { p: GamePredictionDecision; runCount?:
       </div>
       {p.topPlayerPredictions.length ? (
         <div>
-          <span className="font-mono uppercase tracking-[0.12em] block mb-1.5" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Top player predictions</span>
+          <span className="font-mono uppercase tracking-[0.12em] block mb-1.5" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Largest simulated player outcomes</span>
           <div className="flex flex-col gap-1">
             {p.topPlayerPredictions.map((pp, i) => (
               <PlayerCard

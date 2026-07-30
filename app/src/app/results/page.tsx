@@ -31,6 +31,8 @@
 import Link from "next/link";
 
 import ResultsAccountingSection from "@/components/research/results-accounting-section";
+import ResultsMarketBenchmark from "@/components/research/results-market-benchmark";
+import { loadTerminal } from "@/lib/research/public-contract-adapter";
 import { loadRecentAccounting } from "@/lib/research/results-accounting-loader";
 
 import {
@@ -237,7 +239,7 @@ export default function ResultsPage() {
           How to read this page
         </summary>
         <ul className="mt-2 pl-4 flex flex-col gap-1 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", listStyle: "disc" }}>
-          <li><strong>Projection accuracy</strong> — how often individual player projections beat the line (the cleanest read on model quality).</li>
+          <li><strong>Projection accuracy</strong> — how often individual player projections cleared their line. Read it against the model-vs-market benchmark above: clearing 50% is not the same as out-predicting the sportsbook.</li>
           <li><strong>Published cards</strong> — the parlays actually shown to users on Suggested Parlays; <strong>all generated cards</strong> is the broader model output tracked internally.</li>
           <li><strong>Only settled outcomes count</strong> toward hit rate — pending games are not counted yet; pushes are listed separately.</li>
           <li>Detailed per-slip rows are tucked under the sections below. Educational analytics — not betting advice.</li>
@@ -250,6 +252,10 @@ export default function ResultsPage() {
       {/* Render whenever ANY sport has settled data. Gating this on `overallProj` was wrong once the
           combined figure became conditional: suppressing the misleading blend also suppressed the honest
           per-sport cards, so /results showed nothing at all. The combined card inside degrades on its own. */}
+      <div className="mb-6">
+        <ResultsMarketBenchmark terminal={loadTerminal()} />
+      </div>
+
       {(mlbProj || nbaProj) && (
         <div className="mb-6">
           <ProjectionAccuracySummary

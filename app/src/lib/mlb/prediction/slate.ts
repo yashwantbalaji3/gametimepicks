@@ -7,6 +7,7 @@
 import type { GamePredictionDecision, PlayerPrediction } from "./types";
 import type { StrengthLabel } from "./strength";
 import { simulationFrequency } from "./story";
+import { isCalibrationFailed, isPredictionDisabled } from "../model-calibration-status";
 
 /** One game's inputs, normalized from a PublicGameDetail by the /today page. */
 export interface SlatePredictionGame {
@@ -93,14 +94,19 @@ export interface CategoryPick extends PlayerPrediction {
 export interface CategoryDashboard {
   market: string;
   label: string;
+  /** True when the settled record shows the model behind the market on this family (research signal, not a pick). */
+  calibrationFailed: boolean;
   picks: CategoryPick[];
 }
 
-/** The category order + labels shown on /today (only non-empty categories render). */
+/**
+ * The category order + labels shown on /today (only non-empty categories render). Markets DISABLED FOR
+ * PREDICTION (docs/MLB_FINAL_MODEL_DECISION.md) are excluded here — a disabled family keeps its history on
+ * research surfaces but never appears in a ranked, recommendation-shaped list.
+ */
 const CATEGORY_ORDER: { market: string; label: string }[] = [
   { market: "pitcher_strikeouts", label: "Strikeouts" },
   { market: "batter_hits", label: "Hits" },
-  { market: "batter_total_bases", label: "Total Bases" },
   { market: "batter_hits_runs_rbis", label: "Hits + Runs + RBIs" },
   { market: "batter_home_runs", label: "Home Runs" },
   { market: "batter_runs_scored", label: "Runs" },
@@ -108,9 +114,10 @@ const CATEGORY_ORDER: { market: string; label: string }[] = [
 ];
 
 /**
- * Group the slate's player predictions BY MARKET into ranked category dashboards. Each category is sorted by
- * simulated probability (strongest first) and capped at `perCategory`. Unknown markets are dropped (never a
- * fabricated category). Deterministic order + ranking.
+ * Group the slate's player predictions BY MARKET into category dashboards. Within a category the rows are
+ * ordered by simulated share — a factual "largest simulated probabilities" ordering, labeled as such in the
+ * UI, never a confidence claim (the settled record shows confidence-ranking would be anti-signal). Capped at
+ * `perCategory`. Unknown and prediction-disabled markets are dropped (never a fabricated category).
  */
 export function buildTopPicksByCategory(
   games: SlatePredictionGame[],
@@ -121,6 +128,7 @@ export function buildTopPicksByCategory(
   for (const g of games) {
     const matchup = `${g.awayTeam} @ ${g.homeTeam}`;
     for (const pp of g.playerPredictions) {
+      if (isPredictionDisabled(pp.market)) continue;
       const arr = byMarket.get(pp.market) ?? [];
       arr.push({ ...pp, simulationCount: g.simulationCount ?? null, matchup, href: g.href, gamePk: g.gamePk });
       byMarket.set(pp.market, arr);
@@ -131,7 +139,7 @@ export function buildTopPicksByCategory(
     const picks = byMarket.get(market);
     if (!picks || picks.length === 0) continue;
     picks.sort((a, b) => b.simulationProbability - a.simulationProbability);
-    dashboards.push({ market, label, picks: picks.slice(0, perCategory) });
+    dashboards.push({ market, label, calibrationFailed: isCalibrationFailed(market), picks: picks.slice(0, perCategory) });
   }
   return dashboards;
 }

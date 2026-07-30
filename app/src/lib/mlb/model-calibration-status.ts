@@ -50,6 +50,16 @@ export function isCalibrationFailed(market: string): boolean {
   return MLB_MARKET_CALIBRATION[market]?.verdict === "DEMOTE_TO_MARKET_CONTEXT";
 }
 
+/**
+ * Markets DISABLED FOR PREDICTION by the final preregistered protocol (docs/MLB_FINAL_MODEL_DECISION.md):
+ * full-corpus hit-rate CI entirely below 50%. History stays visible; no recommendation-style output anywhere.
+ */
+export const PREDICTION_DISABLED_MARKETS: readonly string[] = ["batter_total_bases"];
+
+export function isPredictionDisabled(market: string): boolean {
+  return PREDICTION_DISABLED_MARKETS.includes(market);
+}
+
 /** True when no public-modeled market currently beats the market — drives the report's global disclosure. */
 export function anyModeledMarketBeatsMarket(): boolean {
   return Object.keys(MLB_MARKET_CALIBRATION).some((m) => modelBeatsMarket(m));

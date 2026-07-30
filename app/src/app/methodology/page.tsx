@@ -92,11 +92,11 @@ export default function MethodologyPage() {
         <WorkflowDiagram />
       </Section>
 
-      {/* SECTION 1.5 — The flagship profit-locking ladders (plain English). */}
-      <Section title="The profit-locking ladders">
+      {/* SECTION 1.5 — The paper ladders (plain English). Historical paper products; framing must never imply forward edge. */}
+      <Section title="The paper ladders (banked-progress rules)">
         <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
           Our two flagship products are paper ladders that grow a small seed by stringing together strong,
-          model-qualified picks — and <span style={{ color: "var(--vault-text)" }}>bank profit as they climb</span> so
+          model-qualified picks — and <span style={{ color: "var(--vault-text)" }}>bank paper progress as they climb</span> so
           one bad day can&rsquo;t erase the whole run. Everything here is educational and paper-only; no wagers are placed.
         </p>
         <div className="space-y-5">
@@ -109,7 +109,7 @@ export default function MethodologyPage() {
               this same ladder (same rules + target math) — there are no risk modes.
             </p>
             <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
-              <span style={{ color: "var(--vault-text-mute)" }}>Preview (not yet live):</span> a future 7-step profit-locking
+              <span style={{ color: "var(--vault-text-mute)" }}>Preview (not yet live):</span> a future 7-step banked-progress
               ladder ($100 → ~$10,380) that would bank part of each win from Step&nbsp;2 (later steps get safer, not richer;
               Step&nbsp;7 is double-chance / draw-no-bet only). It is a methodology preview shown here only — <strong style={{ color: "var(--vault-text-mute)" }}>not
               settlement-implemented and not on the live product</strong>. It stays paper-only; a future live version
@@ -176,12 +176,13 @@ export default function MethodologyPage() {
             <Formula>P(over) = 1 − Φ ( (line − projection) / σ )</Formula>
           </Block>
 
-          <Block title="04 · Edge">
+          <Block title="04 · Model–market gap (the legacy pipeline calls this &ldquo;edge&rdquo;)">
             <Formula>edge_pp = ( P_model − P_market_novig ) × 100</Formula>
             <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
-              In percentage points. The lean is the side with positive edge. A
-              large edge is one input, not a verdict — oversized edges often signal
-              overprojection and are capped, not celebrated.
+              In percentage points. This is a <span style={{ color: "var(--vault-text)" }}>disagreement measure, not an
+              advantage</span>: on 21,633 settled rows, large positive gaps were where the model performed
+              <em> worst</em> against the market. The pipeline keeps computing it because disagreement is
+              interesting research context; nothing selects a side because the gap is large.
             </p>
           </Block>
 
@@ -346,7 +347,7 @@ export default function MethodologyPage() {
             markets="Whatever the eligible suggested slip contains (may mix sports)."
             cards="One pending step at a time; honest diagnosis when no eligible slip exists."
             settlement="Official results per leg; the bankroll changes only on settlement."
-            limits={`Proven repeatable: ${crownFull} (run #1 reached ${crownReached}, then a second independent $100→$10K). a fresh card now runs daily when the slate fields a strong one — see Mr. Dub for the full journey.`}
+            limits={`Repeated twice on paper: ${crownFull} (run #1 reached ${crownReached}, then a second independent $100→$10K). a fresh card now runs daily when the slate fields a strong one — see Mr. Dub for the full journey.`}
           />
           <SportCard
             accent="var(--gtp-bank-heat)"
@@ -366,7 +367,7 @@ export default function MethodologyPage() {
       <Section title="UFC first-slate learning (UFC 250, settled)">
         <div className="vault-deluxe-card casino-glow-card p-5 sm:p-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-            <StatChip value="6–1" label="moneyline model" tone="success" />
+            <StatChip value="6–1" label="moneyline record · n=7" tone="muted" />
             <StatChip value="+320" label="Hokit underdog hit" tone="success" />
             <StatChip value="−520" label="Topuria fav missed" tone="heat" />
             <StatChip value="0–4" label="suggested cards" tone="heat" />
@@ -516,8 +517,8 @@ function SportCard({
   );
 }
 
-function StatChip({ value, label, tone }: { value: string; label: string; tone: "success" | "heat" }) {
-  const color = tone === "success" ? "var(--vault-success)" : "var(--gtp-bank-heat)";
+function StatChip({ value, label, tone }: { value: string; label: string; tone: "success" | "heat" | "muted" }) {
+  const color = { success: "var(--vault-success)", heat: "var(--gtp-bank-heat)", muted: "var(--vault-text-faint)" }[tone];
   return (
     <div className="rounded-[8px] px-3 py-2.5 text-center" style={{ background: "rgba(26,16,11,0.45)", border: "1px solid var(--vault-rule)" }}>
       <div className="font-display tabular font-bold" style={{ color, fontSize: 20 }}>{value}</div>
