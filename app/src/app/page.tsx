@@ -142,11 +142,11 @@ export default function HomePage() {
     },
     {
       href: "/ufc",
-      label: "UFC Simulations",
-      blurb: "Market-implied moneyline reads + experimental method insight. Never in a product card.",
-      status: "Experimental · market-implied",
-      statusSub: "moneyline only · paper-only",
-      cta: "Enter",
+      label: "UFC · Settled archive",
+      blurb: "The one settled card's official record, graded from official results. No live coverage and no fight model.",
+      status: "Archived · card settled 2026-06-15",
+      statusSub: "official settlement · paper-only",
+      cta: "View the record",
       accent: "#ef4444",
     },
   ];
@@ -232,7 +232,7 @@ export default function HomePage() {
       <FlagshipCards
         cards={simHubCards}
         heading="Simulation Hub"
-        subtitle="MLB · UFC — pick a sport, run its simulations"
+        subtitle="MLB runs daily · the UFC card is a settled archive"
         ariaLabel="Sport simulation centers"
       />
 

@@ -30,13 +30,11 @@ test("sport methodology panels are honest (no overclaim)", () => {
   assert.doesNotMatch(src, banned, "no forbidden betting claims");
 });
 
-test("each sport center mounts the methodology panel + coverage matrix; WC mounts the bracket", () => {
-  for (const [rel, sport] of [["src/app/mlb/page.tsx", "mlb"], ["src/app/world-cup/page.tsx", "soccer"], ["src/app/ufc/page.tsx", "ufc"]]) {
-    const src = read(rel);
-    assert.match(src, /SportMethodologyPanel sport="[a-z]+"/, `${rel} renders the methodology panel`);
-    assert.match(src, new RegExp(`SimulationCoverageMatrix sport="${sport}"`), `${rel} renders the ${sport} coverage matrix`);
-  }
-  const wc = read("src/app/world-cup/page.tsx");
-  assert.match(wc, /WcBracketContext/, "/world-cup renders the bracket context");
-  assert.match(wc, /sfFixtures/, "/world-cup derives real semifinal fixtures for the bracket");
+test("the surviving sport center mounts the methodology panel + coverage matrix", () => {
+  // This loop once covered three sport centers. /world-cup closed with the tournament (redirect
+  // stub) and /ufc is a settled archive, so /mlb — the one FULL_MODEL sport — is the only page the
+  // sport-center contract still describes.
+  const src = read("src/app/mlb/page.tsx");
+  assert.match(src, /SportMethodologyPanel sport="[a-z]+"/, "mlb renders the methodology panel");
+  assert.match(src, /SimulationCoverageMatrix sport="mlb"/, "mlb renders the mlb coverage matrix");
 });

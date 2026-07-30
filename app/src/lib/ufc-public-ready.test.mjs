@@ -1,7 +1,9 @@
 /**
- * UFC public-ready invariants — the /ufc page is fail-closed and never fabricates:
- * projections render only from real model output, the card is a real ESPN MMA event,
- * and /today features UFC on a UFC day. Source + artifact checks (run pre-build).
+ * UFC public-ready invariants — /ufc is the settled archive (the hub was retired: UFC is
+ * SCAFFOLD_ONLY in the capability registry, so nothing predictive publishes) and the page never
+ * fabricates: the record renders only from the OFFICIAL settlement, the internal pipeline
+ * artifacts stay real (ESPN MMA schedule, model+market-grounded projections, model-only expanded
+ * markets), and no banned copy ships. Source + artifact checks (run pre-build).
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -32,40 +34,26 @@ test("UFC projections are model+market grounded — never fabricated picks", () 
   }
 });
 
-test("UFC page is fail-closed and scoped to moneyline-only (no fabricated prop markets)", () => {
-  // Projections only render when the V1 model is ready with real projections.
-  assert.ok(ufcPage.includes("v1Proj?.moneylineV1Ready"), "projections gate on moneylineV1Ready");
-  // Validation is shown honestly (not claimed validated when it isn't).
-  assert.ok(/validation in progress|moneylineValidated/.test(ufcPage), "validation state surfaced honestly");
-  // No method/round/distance props are invented.
-  assert.ok(/method|distance|round/i.test(ufcPage), "unsupported prop markets are explained, not faked");
-});
-
-test("/ufc features the UFC card; the compact /today hub no longer carries a UFC lead block", () => {
-  // 2026-07-09: the compact /today Daily Model Hub dropped the UFC lead section (a UFC day surfaces on the
-  // /ufc page itself, which reads the real schedule + fight card). Intent preserved on /ufc.
-  assert.ok(ufcPage.includes("schedule-latest.json") || ufcPage.includes("UfcExpandedFightCards"), "/ufc reads the real card + renders the fights");
+test("/ufc renders ONLY the officially settled record; the compact /today hub carries no UFC lead block", () => {
+  // 2026-07-30 cleanup: the hub (Projections / Suggested Cards / Markets tabs) was retired — UFC is
+  // SCAFFOLD_ONLY, so the page's only content is the settled archive, gated on the official settlement.
+  assert.ok(ufcPage.includes("results-settled-latest.json"), "/ufc reads the official settlement artifact");
+  assert.ok(ufcPage.includes("UfcEventResultsRecap"), "/ufc renders the settled recap");
+  assert.ok(!ufcPage.includes("projections-latest.json"), "/ufc no longer reads projections");
   assert.ok(!/featured slate · UFC/.test(todayPage), "no UFC lead block on the compact /today hub");
 });
 
-test("UFC page has a Markets tab that honestly scopes coverage to moneyline-only", () => {
-  assert.ok(ufcPage.includes('label: "Markets"'), "Markets tab present");
-  assert.ok(/moneyline \(h2h\) only/i.test(ufcPage), "expanded markets explained as feed-limited (h2h-only)");
-  // Total rounds / method / distance are listed as markets but only LIVE when real odds exist.
-  assert.ok(/Total rounds/i.test(ufcPage) && /Method of victory/i.test(ufcPage) && /Goes the distance/i.test(ufcPage),
-    "expanded markets are enumerated (shown unavailable, not hidden or faked)");
-  assert.ok(ufcPage.includes("propMarketsAvailable"), "expanded-market live state is gated on real availability flags");
+test("/ufc fabricates no markets: the only market figures are the officially graded moneylines", () => {
+  // The hub's Markets / Expanded Projections tabs are retired with the rest of the predictive shape.
+  for (const banned of ['label: "Markets"', 'label: "Expanded Projections"', "propMarketsAvailable", "Total rounds", "Method of victory", "Goes the distance"]) {
+    assert.ok(!ufcPage.includes(banned), `archive page must not carry "${banned}"`);
+  }
+  // The graded record itself flows through the recap component, sourced from the settlement artifact.
+  assert.ok(ufcPage.includes('settlement.status === "final"'), "record renders only behind the official-final gate");
 });
 
-test("/methodology includes an honest UFC section (sources, coverage, limitations)", () => {
-  const m = fs.readFileSync("src/app/methodology/page.tsx", "utf8");
-  // June 15 rebuild: the UFC section is now a sport card ("UFC / MMA",
-  // "moneyline V1 · validation-stage"). Same honest intents, new wording.
-  assert.ok(/UFC \/ MMA/.test(m) && /moneyline V1/.test(m), "UFC methodology section present");
-  assert.ok(/ESPN MMA/i.test(m) && /Odds API MMA/i.test(m), "UFC data sources documented");
-  assert.ok(/odds unavailable|not in the feed|no feed odds|unavailable/i.test(m), "expanded markets marked unavailable honestly");
-  assert.ok(/validation-stage/i.test(m), "validation status documented");
-});
+// The honest-UFC-methodology guarantee lives in src/app/methodology/methodology-content.test.mjs
+// (that cluster owns the surface): registry SCAFFOLD_ONLY + "market-implied only · no fight model".
 
 test("expanded projections are MODEL-ONLY and never parlay-eligible (no fabricated odds)", () => {
   const e = read("expanded-projections-latest.json");
@@ -100,12 +88,6 @@ test("UFC suggested cards span risk lanes and use only real moneyline legs (no m
     }
   }
   assert.equal(c.marketScope, "h2h_moneyline_only", "cards remain moneyline-only");
-});
-
-test("/ufc has an Expanded Projections tab fed by the model-only artifact", () => {
-  assert.ok(ufcPage.includes('label: "Expanded Projections"'), "Expanded Projections tab present");
-  assert.ok(ufcPage.includes("expanded-projections-latest.json"), "page reads the expanded artifact");
-  assert.ok(ufcPage.includes("UfcExpandedFightCards"), "renders the fight-by-fight component");
 });
 
 test("no banned promotional copy in /ufc or /today", () => {

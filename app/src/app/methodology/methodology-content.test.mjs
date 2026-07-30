@@ -1,9 +1,10 @@
 /**
- * Methodology page content contract (June 15 rebuild). The public /methodology
- * page must explain the FULL multi-sport product, not just NBA — and must carry
- * the UFC 250 learning, the Bank Builder completed result, the odds-backed vs
- * model-only distinction, official-settlement-only integrity, parlay
- * concentration risk, and zero banned copy.
+ * Methodology page content contract (2026-07-30 public cleanup — supersedes the June 15 rebuild
+ * contract). /methodology is the research-terminal explainer: no-vig → model probability → the
+ * model–market DIFFERENCE (never "edge") → calibration, with per-sport coverage stated truthfully
+ * from the capability registry (MLB is the only live model). Product mechanics moved off this page
+ * with the cleanup; the Bank Builder completed-record guarantee migrated to
+ * src/lib/bank-builder/crown-record-visibility.test.mjs.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -13,17 +14,41 @@ const src = fs.readFileSync(
   new URL("./page.tsx", import.meta.url),
   "utf8",
 );
+const registry = fs.readFileSync(
+  new URL("../../lib/sport-capability-registry.ts", import.meta.url),
+  "utf8",
+);
+const registryState = (key) =>
+  new RegExp(`key: "${key}",\\s*label: "[^"]+",\\s*state: "(\\w+)"`).exec(registry)?.[1] ?? null;
 
-test("covers every supported sport/module (not NBA-only)", () => {
-  for (const kw of ["UFC", "MLB", "NBA", "World Cup", "Soccer", "Bank Builder", "Suggested cards"]) {
+test("covers every sport TRUTHFULLY per the capability registry (one live model, the rest labelled honestly)", () => {
+  // The page must still name every sport a reader can meet on the site…
+  for (const kw of ["MLB", "NBA", "UFC", "World Cup"]) {
     assert.ok(src.includes(kw), `methodology must mention ${kw}`);
   }
+  // …but each card's stage must match what the registry says is true TODAY, not celebrate a legacy product.
+  assert.equal(registryState("mlb"), "FULL_MODEL", "registry: MLB is the live model");
+  assert.match(src, /stage="live model[^"]*"/, "MLB card is staged as the live model");
+  assert.equal(registryState("nba"), "HISTORICAL_ONLY", "registry: NBA is history only");
+  assert.match(src, /stage="history only[^"]*"/, "NBA card is staged as history only");
+  assert.equal(registryState("ufc"), "SCAFFOLD_ONLY", "registry: UFC has no model");
+  assert.match(src, /stage="market-implied only · no fight model"/, "UFC card is staged as market-implied, no model");
+  assert.match(src, /stage="closed · archive only"/, "World Cup card is staged as a closed archive");
+  // The one-live-sport statement appears both in the coverage intro and the standing limitations.
+  assert.match(src, /One sport has a live model/, "coverage intro states exactly one live sport");
+  assert.match(src, /MLB is the only sport producing model output/, "limitations repeat it");
 });
 
-test("distinguishes odds-backed vs model-only", () => {
-  assert.ok(/odds-backed/i.test(src), "mentions odds-backed");
-  assert.ok(/model-only/i.test(src), "mentions model-only");
-  assert.ok(/not parlay eligible/i.test(src), "model-only is not parlay eligible");
+test("distinguishes priced vs unpriced markets (the surviving odds-backed / model-only guarantee)", () => {
+  // The June framing was "odds-backed vs model-only"; the terminal framing is Priced vs Unpriced.
+  // Same guarantee: the reader can always tell whether a number has a market price to check it against.
+  assert.match(src, /label="Priced"/, "Priced concept card");
+  assert.match(src, /label="Unpriced"/, "Unpriced concept card");
+  assert.match(src, /No market price in the feed/, "unpriced is defined by the missing feed price");
+  assert.match(src, /nothing to check it against/, "unpriced numbers are flagged as standing alone");
+  // The parlay-eligibility half survives as the missing-odds refusal: no priced slip without every price.
+  assert.match(src, /A combined price is never shown if any leg is missing odds/, "no combined price with a missing leg");
+  assert.match(src, /null if any leg lacks a price/, "paper return is null, never fabricated");
 });
 
 test("states official-settlement-only integrity", () => {
@@ -32,44 +57,41 @@ test("states official-settlement-only integrity", () => {
     "settles from official sources, not screenshots/user reports");
 });
 
-test("includes the universal math (no-vig, edge, confidence, data quality, parlay)", () => {
-  assert.ok(/no-vig|novig/i.test(src), "no-vig");
-  assert.ok(/edge_pp|edge =|edge/i.test(src), "edge");
-  assert.ok(/composite confidence|confidence/i.test(src), "confidence");
-  assert.ok(/data-quality|data quality/i.test(src), "data quality");
-  assert.ok(/parlay/i.test(src), "parlay odds");
+test("includes the universal math (implied, no-vig, model probability, DIFFERENCE, calibration, data quality, parlay)", () => {
+  assert.match(src, /p = 100 \/ \(odds \+ 100\)/, "American → implied probability");
+  assert.match(src, /No-vig \(two-sided\) probability/, "no-vig block");
+  assert.match(src, /p_novig_side = p_raw_side/, "proportional de-vig formula");
+  assert.match(src, /P\(over\) = 1 − Φ/, "model probability from the projection distribution");
+  assert.match(src, /The model–market difference/, "the difference block");
+  assert.match(src, /difference_pp/, "difference in percentage points");
+  assert.match(src, /disagreement measure, not an[\s\S]{0,40}advantage/,
+    "the difference is framed as disagreement, never advantage");
+  assert.match(src, /Calibration/, "calibration block");
+  assert.match(src, /run systematically hot/, "calibration states the honest direction of the correction");
+  assert.match(src, /Data-quality grade/, "data-quality block");
+  assert.match(src, /Parlay odds \+ paper return/, "parlay block");
+  // The OLD framing is retired: the page never reaches for "edge" for the model–market gap.
+  assert.ok(!/\bedge\b/i.test(src), "no 'edge' framing anywhere on the page");
+  assert.ok(!/edge_pp/.test(src), "the old edge_pp formula is gone");
 });
 
-test("includes the UFC 250 first-slate learning + concentration lesson", () => {
-  assert.ok(src.includes("6–1") || src.includes("6-1"), "6–1 moneyline");
-  assert.ok(src.includes("0–4") || src.includes("0-4"), "0–4 cards");
-  assert.ok(/Topuria/i.test(src), "names Topuria miss");
-  assert.ok(/Hokit/i.test(src), "names Hokit +320 hit");
-  assert.ok(/concentration/i.test(src), "concentration risk lesson");
-  assert.ok(/\+320/.test(src), "the +320 underdog price");
+test("carries the first-slate concentration lesson (the lesson, not the celebratory chip row)", () => {
+  // The June contract pinned a chip row (Topuria / Hokit / +320). The cleanup removed the chips —
+  // a four-figure record from one settled event reads as a track record — but the LESSON is
+  // methodology and must survive: individually winning legs still lose together on a shared anchor.
+  assert.match(src, /concentration/i, "names concentration risk");
+  assert.ok(src.includes("6–1") || src.includes("6-1"), "the winning individual-moneyline grade");
+  assert.ok(src.includes("0–4") || src.includes("0-4"), "the losing card grade");
+  assert.match(src, /anchored on the same\s+favourite/, "the shared-anchor cause");
+  for (const chip of [/Topuria/i, /Hokit/i, /\+320/]) {
+    assert.ok(!chip.test(src), `no celebratory chip content: ${chip}`);
+  }
 });
 
-test("preserves the Bank Builder completed result honestly — from the ONE canonical source", async () => {
-  // The page must NOT hardcode the crown figure; it interpolates crownLadderSummary(banked-ladders.json).
-  assert.ok(!src.includes("10,376.17"), "no hardcoded crown literal in the page source");
-  assert.ok(/crownLadderSummary|crownReached/.test(src), "derives the completed result from the canonical crown summary");
-  assert.ok(/completed/i.test(src), "run completed");
-  // The page must reflect the FULL banked picture (2 completed ladders → $20,465.40 crown + an active
-  // daily card), NOT the old understated "run #1 completed · coming soon" framing.
-  assert.ok(/crownFull|runs daily|full journey/i.test(src), "reflects the full repeatable record + active daily card");
-  assert.ok(!/a new ladder is coming soon/i.test(src), "no longer understates the record with 'coming soon'");
-  // The canonical source still yields the real figures (proves the interpolation is correct).
-  const { crownLadderSummary } = await import("../../lib/bank-builder/crown-summary.ts");
-  const path = await import("node:path");
-  const crown = crownLadderSummary(path.join(process.cwd(), "public", "data"));
-  assert.equal(crown.finalLabel, "$10,376.17", "canonical crown final");
-  assert.equal(crown.recordLabel, "5–0", "canonical crown record");
-});
-
-test("explains parlay concentration risk", () => {
-  assert.ok(/concentration score/i.test(src), "cards carry a concentration score");
-  assert.ok(/anchor every card|single anchor|anchor every/i.test(src),
-    "no single anchor across every card");
+test("explains parlay concentration risk inside the parlay math", () => {
+  assert.match(src, /Multiplying legs also multiplies exposure to a shared result/,
+    "the parlay block states the concentration mechanic");
+  assert.match(src, /repeats one anchor across every card/, "warns against one anchor across every card");
 });
 
 test("no banned public copy", () => {

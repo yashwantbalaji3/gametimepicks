@@ -239,14 +239,6 @@ test("UI: production homepage renders the role-screened specials (live snapshot,
   assert.equal(prod.date, proj.date, "production specials snapshot is the live slate");
 });
 
-test("UI: production specials box surfaces a distinct Confirmed starter badge (lineups posted)", () => {
-  const box = fs.readFileSync("src/components/world-cup/world-cup-specials-box.tsx", "utf8");
-  assert.match(box, /roleTier === "confirmed_starter"/, "box has an explicit confirmed_starter branch");
-  assert.match(box, />Confirmed starter</, "box renders a 'Confirmed starter' badge");
-  // confirmed_starter must NOT be collapsed back into the Key attacker badge.
-  assert.ok(!/roleTier === "key_attacker" \|\| leg\.roleTier === "confirmed_starter"/.test(box), "confirmed_starter is not lumped under Key attacker");
-});
-
 test("snapshot: production specials are valid + honestly labeled (confirmed starters when cards exist; team-model fallback when no player props; valid empty when slate over)", () => {
   const prod = JSON.parse(fs.readFileSync("public/data/world-cup/world-cup-specials.json", "utf8"));
   // DATE-AGNOSTIC: pin the specials slate to the live WC projections date (rolls daily).

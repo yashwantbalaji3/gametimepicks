@@ -1,14 +1,15 @@
 /**
- * June-21 premium-UI rendering work:
- *   A) World Cup Specials render per-leg HIT / MISS / PENDING markers + a card-level status pill,
- *      and the section header reads honestly once every card is settled.
+ * June-21 premium-UI rendering work — surviving surfaces only:
  *   B) The Dual Bank Builder active leg row is betting-slip style — matchup + selection + kickoff ET
  *      + settlement source — never a bare market line with no game.
  *   C) Moonshot active leg row shows matchup + selection + kickoff (enriched fields).
- *   D) The Egypt vs New Zealand same-game section exists, is wired into /world-cup + /today, carries
- *      the no-combined-pricing note, and shows individual odds only (no fabricated SGP price).
  *   E) The slate-status bar is a 3-way honest label (settled / in progress / pregame) — it no longer
  *      asserts "Pregame slate" when the slate's kickoffs have largely passed.
+ *
+ * The June-21 World Cup sections (homepage specials box, Egypt/NZ same-game module) are gone with the
+ * 2026 World Cup closeout (world-cup-closeout.test.mjs): the live hub is a redirect stub and those
+ * components were deleted. The settled-specials honesty they asserted lives on in the retired archive
+ * (specials-tracker.test.mjs + the specials-ledger tests in cross-lane-correlation.test.mjs).
  *
  * Source-grep style (the suite runs pre-build), like the other component tests. No banned public copy.
  */
@@ -18,40 +19,14 @@ import fs from "node:fs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 
-const SPECIALS = read("src/components/world-cup/world-cup-specials-box.tsx");
 const DUAL = read("src/components/bank-builder/dual-ladder-board.tsx");
 const MOON = read("src/components/bank-builder/moonshot-lane-card.tsx");
-const SAMEGAME = read("src/components/world-cup/egypt-nz-same-game.tsx");
 const SLATEBAR = read("src/components/slate-status-bar.tsx");
-const WC_PAGE = read("src/app/world-cup/page.tsx");
-const TODAY_PAGE = read("src/app/today/page.tsx");
 
 const BANNED = [/\block\b/i, /\bsafe(st)?\b/i, /guaranteed/i, /guarantee/i, /sure thing/i, /free money/i, /risk-free/i, /can't miss/i];
 function assertNoBanned(label, src) {
   for (const b of BANNED) assert.ok(!b.test(src), `${label} must not contain banned copy ${b}`);
 }
-
-// ── A. World Cup Specials hit/miss/pending ───────────────────────────────────────────────────────
-test("Specials: per-leg HIT / MISS / PENDING badge branches + settlementReason subtext", () => {
-  // All three settlement statuses are handled for the per-leg badge.
-  assert.match(SPECIALS, /settlementStatus/, "reads leg settlementStatus");
-  assert.match(SPECIALS, /hit:\s*\{[^}]*label:\s*"Hit"/, "HIT branch");
-  assert.match(SPECIALS, /miss:\s*\{[^}]*label:\s*"Miss"/, "MISS branch");
-  assert.match(SPECIALS, /pending:\s*\{[^}]*label:\s*"Pending"/, "PENDING branch");
-  // The settlement reason (e.g. "Belgium 0-0 Iran", "not started") is rendered as muted subtext.
-  assert.match(SPECIALS, /leg\.settlementReason/, "renders the settlement reason subtext");
-});
-
-test("Specials: card-level WON / LOST / PENDING status pill + settled-card framing", () => {
-  assert.match(SPECIALS, /card\.cardStatus/, "reads card-level cardStatus");
-  assert.match(SPECIALS, /won:\s*\{[^}]*label:\s*"Won"/, "WON pill");
-  assert.match(SPECIALS, /lost:\s*\{[^}]*label:\s*"Lost"/, "LOST pill");
-  assert.match(SPECIALS, /pending:\s*\{[^}]*label:\s*"Pending"/, "PENDING pill");
-  // Settled cards are framed as a reviewed result, not a pre-event longshot.
-  assert.match(SPECIALS, /official result/i, "settled card carries an official-result note");
-  assert.match(SPECIALS, /\(settled\)/, "all-settled header reads honestly, e.g. 'Specials — Jun 21 (settled)'");
-  assertNoBanned("specials box", SPECIALS);
-});
 
 // ── B. Dual Bank Builder active leg detail ───────────────────────────────────────────────────────
 test("Dual ladder: active leg row is betting-slip style (matchup + selection + kickoff + settlement)", () => {
@@ -81,43 +56,6 @@ test("Moonshot: active leg row shows matchup + selection + kickoff ET (enriched)
   assert.match(MOON, /slateLabel/, "shows the cross-slate slateLabel");
   assert.match(MOON, /High-volatility/, "keeps the high-volatility framing");
   assertNoBanned("moonshot card", MOON);
-});
-
-// ── D. Egypt vs New Zealand same-game ideas ──────────────────────────────────────────────────────
-test("Egypt/NZ same-game: section exists with the explicit no-combined-pricing note", () => {
-  assert.match(SAMEGAME, /Egypt vs New Zealand — Same-Game Ideas/, "section title present");
-  assert.match(
-    SAMEGAME,
-    /Same-game idea only — combined pricing requires sportsbook SGP pricing\./,
-    "explicit no-combined-pricing note",
-  );
-  // Individual odds only — no fabricated combined / SGP price. We assert the component never computes
-  // or renders a combined value: no `combinedOdds` identifier and no decimal-odds multiplication.
-  assert.match(SAMEGAME, /individual/i, "labels odds as individual");
-  assert.ok(!/combinedOdds|combinedAmerican|combinedDecimal/.test(SAMEGAME), "no combined-odds identifier");
-  assert.ok(!/\.reduce\(.*\*|dec\(/.test(SAMEGAME), "no decimal-odds product (no fabricated SGP math)");
-  // Kickoff-gated: archived banner when the match has started.
-  assert.match(SAMEGAME, /This match has started — same-game ideas are archived for review/, "archived banner");
-  assert.match(SAMEGAME, /Pre-event ideas/, "pre-event state");
-  // Settlement-supported framing.
-  assert.match(SAMEGAME, /settlement-supported · official 90-minute result/, "settlement-supported note");
-  // No external image hotlinks (flags via FlagBadge).
-  assert.match(SAMEGAME, /FlagBadge/, "flags via FlagBadge");
-  assert.ok(!/<img|https?:\/\//.test(SAMEGAME), "no external image hotlinks");
-  assertNoBanned("egypt-nz same-game", SAMEGAME);
-});
-
-test("Egypt/NZ same-game: wired into /world-cup", () => {
-  // 2026-07-09: /today is the compact Daily Model Hub — the single-game Egypt/NZ same-game module was
-  // demoted OFF the daily hub (World Cup detail lives on /world-cup + the game pages). The section + its
-  // real-markets-only, no-fabricated-SGP contract are still wired on /world-cup (intent preserved there).
-  for (const [label, page] of [["world-cup", WC_PAGE]]) {
-    assert.match(page, /import EgyptNzSameGame, \{ loadNzEgyptMarkets \} from "@\/components\/world-cup\/egypt-nz-same-game"/, `${label} imports the section + loader`);
-    assert.match(page, /loadNzEgyptMarkets\(today\)/, `${label} loads the matchId-40 markets for the current slate`);
-    assert.match(page, /<EgyptNzSameGame data=\{nzEgyptMarkets\}/, `${label} renders the section`);
-  }
-  // The Daily Model Hub no longer carries the single-game same-game block (demoted, not deleted).
-  assert.ok(!/EgyptNzSameGame/.test(TODAY_PAGE), "the Egypt/NZ block is off the compact /today hub");
 });
 
 // ── E. Slate-freshness badge ─────────────────────────────────────────────────────────────────────

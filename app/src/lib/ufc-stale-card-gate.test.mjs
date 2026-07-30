@@ -1,13 +1,14 @@
 /**
- * UFC STALE-CARD GATE (Sprint 018 · Phase 3 — product honesty).
+ * UFC STALE-CARD GATE (Sprint 018 · Phase 3 — product honesty; re-anchored at the 2026-07-30 cleanup).
  *
- * /ufc decided "is this the next card?" purely by comparing the newest SETTLED event's name to the current
- * card's name. When the newest settled event was a DIFFERENT (older) card, that check said "not settled",
- * and a card whose date had already passed kept rendering as "Next · <event> · <date>" with its full fight
- * card and market reads. UFC 329 (2026-07-11) was still presented as upcoming two weeks later.
+ * The original bug: /ufc decided "is this the next card?" by comparing the newest SETTLED event's name
+ * to the current card's name, so UFC 329 (2026-07-11) was still presented as "Next · upcoming" two
+ * weeks after it happened. The guarantee is that a settled or past card is NEVER presented as upcoming.
  *
- * A name comparison cannot answer a time question. These tests pin that the page also gates on DATE, reusing
- * the same isEventPast() helper the homepage path already used — one rule, not two.
+ * The hub is now retired — /ufc is the settled archive — so the guarantee is enforced structurally:
+ * the page renders nothing as upcoming at all. A newer card that was never officially settled may only
+ * appear as an explicit no-record note (name-mismatch driven), and the shared isEventPast() date rule
+ * that fixed the original bug stays pinned for the loaders that still classify events by date.
  *
  * Run: npx tsx --test src/lib/ufc-stale-card-gate.test.mjs
  */
@@ -19,30 +20,25 @@ import { isEventPast } from "./home/load-spotlight.ts";
 
 const page = fs.readFileSync(path.join(process.cwd(), "src", "app", "ufc", "page.tsx"), "utf8");
 
-test("the page gates on DATE, not only on the settled event's name", () => {
-  assert.match(page, /import \{ isEventPast \} from/, "reuses the shared helper — no second date rule");
-  assert.match(page, /const cardIsPast = isEventPast\(/, "derives a past-card flag");
-  assert.match(page, /const notUpcoming = ufcSettled \|\| cardIsPast/, "either condition means 'not upcoming'");
-});
-
-test("everything that presents the card as UPCOMING is suppressed by notUpcoming, not by ufcSettled alone", () => {
-  // These are the surfaces that render the fight card / engine reads / hero as an active slate.
-  for (const [label, re] of [
-    ["hero stats", /const heroStats = notUpcoming/],
-    ["fight reports", /const fightReports = notUpcoming \?/],
-    ["engine rows", /const engineRows = !notUpcoming/],
-    ["tabs", /const tabs: ShellTab\[\] = notUpcoming/],
-    ["status kind", /statusKind=\{notUpcoming \?/],
-  ]) {
-    assert.match(page, re, `${label} must key off notUpcoming`);
+test("nothing on /ufc is presented as upcoming — the only event content is the OFFICIAL settled record", () => {
+  // Known-positive: the settled record renders behind the official-final gate.
+  assert.match(page, /settlement\.status === "final" \? settlement : null/, "official-final gate present");
+  // Known-negative: none of the upcoming-presentation chrome survives.
+  for (const banned of ["Next ·", "notUpcoming", "heroStats", "fightReports", "engineRows", "ShellTab"]) {
+    assert.ok(!page.includes(banned), `no upcoming-card chrome: "${banned}" must not appear`);
   }
 });
 
-test("the settled-specific COPY still keys off ufcSettled — a past card is not claimed to be settled", () => {
-  // Only a genuinely settled event may say "previous event settled → see Results".
-  assert.match(page, /ufcSettled\s*\n?\s*\?\s*`Previous event settled/, "settled copy stays settled-only");
-  assert.match(page, /cardIsPast\s*\n?\s*\?\s*`\$\{eventName\} has finished — awaiting official results`/,
-    "a past-but-unsettled card says results are pending, never 'Next'");
+test("a newer never-settled card renders ONLY as a no-record note, keyed off a settled-name mismatch", () => {
+  assert.match(page, /sched\.eventName !== settled\.event/, "the note requires a name mismatch with the settled event");
+  assert.match(page, /before the event; no model picks were published/, "the card is framed strictly in the past");
+  assert.match(page, /no official settlement was ingested/, "the missing settlement is stated, never papered over");
+});
+
+test("settled-specific copy keys off the OFFICIAL settlement — a past card is never claimed to be settled", () => {
+  // "Officially settled" copy renders only inside the settled branch; the unsettled branch claims no record.
+  assert.match(page, /Officially settled \{settledOn\}/, "settled date renders in the settled branch only");
+  assert.match(page, /No officially settled UFC record is available/, "the unsettled state claims nothing");
 });
 
 test("isEventPast is the shared rule and behaves correctly at the boundary", () => {

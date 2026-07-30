@@ -39,20 +39,16 @@ test("pipeline requests optional player markets with a fallback (extensible, nev
   assert.match(py, /except Exception:\s*\n\s*odds = _fetch\(MARKETS\)/, "falls back to core markets on rejection");
 });
 
-test("UFC page hides the stale active card once the event is settled, points to Results", () => {
+test("UFC: a settled event is never an active surface — /ufc is the settled archive, cards gated off /picks", () => {
+  // 2026-07-30 cleanup: the hub this test pinned (stale-gate tab wiring) is retired. The guarantee —
+  // a settled card stops presenting as active and the user lands on results — survives structurally:
+  // /ufc IS the settled record now, and /picks gates settled UFC cards out of the live slate
+  // (also pinned in ufc250-settlement.test.mjs; archive shape pinned in ufc-archive.test.mjs).
   const page = read("src/app/ufc/page.tsx");
-  assert.match(page, /ufcSettled = settlement\?\.status === "final"/, "settled gate computed");
-  assert.match(page, /next slate loading soon/i, "next-slate-loading copy");
-  // The tab set must be driven by the STALE gate. Sprint 018 widened that gate from "settled" to
-  // "not upcoming" (settled OR the card's date has passed), because a name-only check let a two-week-old
-  // card keep rendering as the next slate. Assert the invariant — a gate that covers BOTH conditions —
-  // rather than the old variable name. This is stricter: it now also fails if the date half is dropped.
-  assert.match(page, /tabs: ShellTab\[\] = notUpcoming/, "stale gate drives the tab set");
-  assert.match(page, /const notUpcoming = ufcSettled \|\| cardIsPast/, "the stale gate covers settled AND past");
-  assert.match(page, /See settled results/, "Results CTA in the stale state");
-  // The settled fight-card/projections tabs are NOT in the settled tab set (only overview/results/methodology).
-  const settledBlock = page.slice(page.indexOf("tabs: ShellTab[] = ufcSettled"), page.indexOf(": ["));
-  assert.ok(!/fight-card/.test(settledBlock), "no stale fight-card tab when settled");
+  assert.match(page, /settlement\.status === "final" \? settlement : null/, "record renders only from the OFFICIAL final settlement");
+  assert.doesNotMatch(page, /ShellTab|next slate loading soon/, "no active-card tab chrome or next-slate framing remains");
+  const picks = read("src/app/picks/page.tsx");
+  assert.match(picks, /ufcSettled\(\) \? null/, "settled UFC cards stay excluded from the live /picks slate");
 });
 
 test("Picks coverage: slate exposes per-sport suggestedByRisk for every risk tier + mixed", () => {

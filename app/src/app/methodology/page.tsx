@@ -176,6 +176,13 @@ export default function MethodologyPage() {
               A combined price is never shown if any leg is missing odds — the slip
               reads &ldquo;—&rdquo; rather than a fabricated payout.
             </p>
+            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
+              Multiplying legs also multiplies exposure to a shared result — <span style={{ color: "var(--vault-text)" }}>concentration
+              risk</span>. The first settled UFC slate made that concrete: the individual moneylines graded
+              6–1 while every multi-leg card lost, 0–4, because each card was anchored on the same
+              favourite and he was upset. A slip that repeats one anchor across every card stakes all of
+              them on a single outcome, however well the legs grade on their own.
+            </p>
           </Block>
         </div>
       </Section>

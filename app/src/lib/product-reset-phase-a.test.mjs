@@ -1,6 +1,8 @@
 /**
  * Product reset Phase A — the 3-pillar nav + simulation-first framing. Pins the pillar spine, the
- * "Simulation Center" framing per sport, the coverage matrix wiring, and that /sports is no longer orphaned.
+ * "Simulation Center" framing for the one modelled sport, and the coverage matrix wiring. Updated for
+ * the 2026-07-30 public cleanup: /sports, /ufc and /world-cup are retired redirect stubs (the
+ * capability registry — MLB the only FULL_MODEL sport — decides what may present as a live center).
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -25,19 +27,31 @@ test("primary nav is the pruned Adoption-Sprint spine: Today · Simulate · Resu
   assert.ok(nav.indexOf('href: "/moonshot"') > dividerAt, "Moonshot is secondary (after the divider)");
 });
 
-test("/sports is linked as 'More Sports' (no longer orphaned)", () => {
+test("/sports is retired to a redirect and the nav no longer links it", () => {
+  // The 'More Sports' directory listed scaffold sports as equal tiles beside the one FULL_MODEL sport,
+  // which overstated coverage however carefully each tile was gated. The route is a redirect stub now,
+  // so a stub link would be nav noise — and re-linking it would re-open the overstated directory.
   const nav = read("src/components/nav.tsx");
-  assert.match(nav, /href: "\/sports", label: "More Sports"/, "nav links /sports as More Sports");
+  assert.ok(!/href: "\/sports"/.test(nav), "nav carries no /sports item");
+  assert.match(read("src/app/sports/page.tsx"), /ClientRedirect/, "/sports is a redirect stub, not a directory");
 });
 
-test("per-sport pages carry 'Simulation Center' framing", () => {
-  assert.match(read("src/app/mlb/page.tsx"), /MLB Simulation Center/, "/mlb framed as a Simulation Center");
-  assert.match(read("src/app/world-cup/page.tsx"), /World Cup Simulation Center/, "/world-cup framed as a Simulation Center");
-  assert.match(read("src/app/ufc/page.tsx"), /UFC Simulation Center/, "/ufc framed as a Simulation Center");
+test("the ONE modelled sport keeps 'Simulation Center' framing; retired sport routes claim none", () => {
+  assert.match(read("src/app/mlb/page.tsx"), /MLB Simulation Center/, "/mlb framed as a Simulation Center (FULL_MODEL)");
+  // The World Cup is closed — a redirect stub that must not present itself as a simulation center.
+  // /ufc is different: it is a dated ARCHIVE of the one settled card, kept because that record had
+  // no other public surface (accountability outranks minimalism). It must claim no simulation
+  // center either — an archive of outcomes is not a product.
+  const wcSrc = read("src/app/world-cup/page.tsx");
+  assert.match(wcSrc, /ClientRedirect/, "src/app/world-cup/page.tsx is a redirect stub");
+  assert.ok(!/Simulation Center/.test(wcSrc), "world-cup makes no Simulation Center claim");
+  const ufcSrc = read("src/app/ufc/page.tsx");
+  assert.match(ufcSrc, /settled|archive/i, "src/app/ufc/page.tsx reads as a settled archive");
+  assert.ok(!/Simulation Center/.test(ufcSrc), "ufc makes no Simulation Center claim");
 });
 
-test("the coverage matrix is surfaced on the sport pages + methodology + simulate", () => {
-  for (const rel of ["src/app/mlb/page.tsx", "src/app/world-cup/page.tsx", "src/app/methodology/page.tsx", "src/app/simulate/page.tsx"]) {
+test("the coverage matrix is surfaced on the surviving sport page + methodology + simulate", () => {
+  for (const rel of ["src/app/mlb/page.tsx", "src/app/methodology/page.tsx", "src/app/simulate/page.tsx"]) {
     assert.match(read(rel), /SimulationCoverageMatrix/, `${rel} renders the coverage matrix`);
   }
 });

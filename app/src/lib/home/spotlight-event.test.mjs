@@ -3,8 +3,10 @@
  *
  * Proves: a UFC spotlight is built only when there are live sims and the card isn't settled; its copy is
  * MARKET-IMPLIED and carries no forbidden over-claim (model picks live / best bet / lock / edge / EV);
- * the selector returns the first available candidate; the REAL committed artifacts yield a UFC 329
- * spotlight that links to /ufc; and the homepage + Today page are wired to render it.
+ * the selector returns the first available candidate; and the REAL committed artifacts yield a UFC 329
+ * spotlight that links to /ufc. Since the 2026-07-30 public cleanup the spotlight is MOUNTED NOWHERE —
+ * UFC is SCAFFOLD_ONLY and /ufc is a redirect stub — so the lib invariants stay pinned for a future
+ * live event while test 6 guards the unmount.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -67,13 +69,23 @@ test("5 · the REAL committed artifacts yield a UFC 329 spotlight linking to /uf
   assert.equal(spotlightCopyIsHonest(e), true);
 });
 
-test("6 · the Today page renders the spotlight from the shared loader (homepage dropped it, sim-first)", () => {
-  const todayPage = read("src/app/today/page.tsx");
-  assert.match(todayPage, /loadHomepageSpotlight\(serverToday\)/, "Today uses the loader with the real clock");
-  assert.match(todayPage, /<EventSpotlight event=\{todaySpotlight\}/, "Today renders it");
-  // The homepage dropped stale/random event spotlights in the simulation-first reset.
+test("6 · the spotlight is mounted NOWHERE — its only implementation's destination (/ufc) is retired", () => {
+  // The capability registry has UFC as SCAFFOLD_ONLY (publish nothing predictive) and /ufc is a
+  // redirect stub, so no surface may advertise a fight simulator as live coverage. The homepage
+  // dropped the spotlight in the simulation-first reset; /today dropped it with the route retirement.
   const home = read("src/app/page.tsx");
-  assert.ok(!/EventSpotlight/.test(home), "homepage no longer renders the event spotlight");
+  const todayPage = read("src/app/today/page.tsx");
+  assert.ok(!/EventSpotlight|loadHomepageSpotlight/.test(home), "homepage does not render the spotlight");
+  assert.ok(!/EventSpotlight|loadHomepageSpotlight/.test(todayPage), "/today does not render the spotlight");
+  // /ufc was adjudicated a dated settled ARCHIVE, not a redirect — the UFC 250 record had no other
+  // public surface. What matters for the spotlight is unchanged: an archive of outcomes is not a
+  // live event to spotlight, so the destination stays retired for this guard's purposes.
+  const ufc = read("src/app/ufc/page.tsx");
+  assert.match(ufc, /settled|archive/i, "/ufc reads as a settled archive (retired as a live destination)");
+  assert.ok(!/EventSpotlight/.test(ufc), "the archive itself mounts no spotlight");
+  // Scan sanity (known-positive): the same string check DOES find a component both pages really mount.
+  assert.match(home, /SlateLivenessBanner/, "the scan mechanism sees a known mount on home");
+  assert.match(todayPage, /SlateLivenessBanner/, "the scan mechanism sees a known mount on /today");
 });
 
 test("7 · the rendering component hardcodes no forbidden copy and is data-driven to /ufc", () => {

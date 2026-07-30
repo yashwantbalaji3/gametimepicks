@@ -1,9 +1,10 @@
 /**
- * LADDER CONSISTENCY (2026-07-07 — supersedes "visibility"). The LIVE Bank Builder ladder is 5 steps
- * ($100 → $10K); the 7-step profit-locking ladder is a FUTURE methodology (not settlement-implemented),
- * shown ONLY on the Methodology page as a labelled preview — NOT on the live product surfaces, so the
- * product tells one truth. The 3-step Moonshot ladder is its own separate product and stays on /moonshot
- * (+ /today preview). These checks pin that split.
+ * LADDER CONSISTENCY (2026-07-30 — supersedes the 07-07 "methodology preview" split). The LIVE Bank
+ * Builder ladder is 5 steps ($100 → $10K); the 7-step profit-locking ladder is a FUTURE methodology
+ * (not settlement-implemented). The 07-30 public cleanup moved product mechanics off /methodology, so
+ * the 7-step preview is now presented NOWHERE — the component survives only as the labelled spec, and
+ * no route may mount it until settlement implements it. The 3-step Moonshot ladder is its own separate
+ * product and stays on /moonshot (+ /today preview). These checks pin that split.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -42,17 +43,34 @@ test("/bank-builder does NOT render the 7-step preview — the live product show
   assert.ok(!/<details/.test(bbPage), "no collapsed <details> accordion");
 });
 
-test("the 7-step preview lives on the Methodology page (labelled preview, not live)", () => {
-  const methodology = read("src/app/methodology/page.tsx");
-  assert.match(methodology, /live Bank Builder ladder is 5 steps/i, "methodology states the live ladder is 5-step");
-  assert.match(methodology, /settlement-implemented and not on the live product/i, "7-step clearly marked preview/not-live");
+test("the 7-step preview is presented NOWHERE as live — no route or shared component mounts it", () => {
+  // Until the 7-step ladder is settlement-implemented, no surface may present it at all: the component
+  // exists only as the labelled spec (pinned above with its "v2 preview · live settlement runs v1" tag).
+  const files = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(path.join(app, dir), { withFileTypes: true })) {
+      const rel = path.join(dir, e.name);
+      if (e.isDirectory()) walk(rel);
+      else if (/\.tsx$/.test(e.name)) files.push(rel);
+    }
+  };
+  walk("src/app");
+  walk("src/components");
+  const definition = path.join("src/components/bank-builder", "ladder-v2.tsx");
+  const mounts = files.filter((rel) => rel !== definition && read(rel).includes("BankBuilderLadderV2"));
+  assert.deepEqual(mounts, [], "no route or component mounts the 7-step preview");
+  // Scanner sanity (known-positive): the same walk DOES see the Moonshot ladder's legitimate mount.
+  assert.ok(
+    files.some((rel) => rel === path.join("src/app/moonshot", "page.tsx") && read(rel).includes("MoonshotLadderV2")),
+    "the scan mechanism finds a known ladder mount",
+  );
 });
 
 test("/moonshot renders the full 3-step trajectory ladder (separate product)", () => {
   assert.match(moonPage, /<MoonshotLadderV2 /, "renders the trajectory ladder");
 });
 
-test("/today surfaces the Longshot lane status but NOT the Bank Builder 7-step (which is methodology-only)", () => {
+test("/today surfaces the Longshot lane status but NOT the Bank Builder 7-step (mounted nowhere)", () => {
   // The critical consistency invariant is preserved: the 7-step BankBuilderLadderV2 preview never appears
   // on the live /today surface. 2026-07-09 rebuild: the compact Daily Model Hub no longer embeds the
   // Moonshot ladder preview — it surfaces a compact Longshot Lab status card that links to /moonshot

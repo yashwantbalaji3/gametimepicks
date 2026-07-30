@@ -40,13 +40,15 @@ test("1 · page.tsx does NOT import or render the full Today board", () => {
 // 2 — Home leads with the Simulation Hub (sport-sim cards) + Flagship Products (Bank Builder, Moonshot, Results).
 test("2 · Home leads with sport simulation cards + Bank Builder/Moonshot flagship pillars", () => {
   // Sport simulation centers (the core product topic). The 2026 World Cup is complete — it is NOT a
-  // simulation-hub card here (archive only); MLB leads, with UFC as the other active center.
+  // simulation-hub card here (archive only); MLB is the one live center. UFC keeps a card, but as
+  // the settled archive it now is: presenting a SCAFFOLD_ONLY sport as live "Simulations" was
+  // exactly the live-coverage implication the registry forbids.
   for (const href of ["/mlb", "/ufc"]) {
     assert.ok(HOME_ALL.includes(`"${href}"`), `sim-hub href ${href} present`);
   }
-  for (const label of ["MLB Simulations", "UFC Simulations"]) {
-    assert.ok(page.includes(label), `sim card label "${label}" present`);
-  }
+  assert.ok(page.includes("MLB Simulations"), 'sim card label "MLB Simulations" present');
+  assert.ok(page.includes("UFC · Settled archive"), "the UFC card reads as a settled archive");
+  assert.ok(!page.includes("UFC Simulations"), "UFC is not presented as a live simulation center");
   assert.ok(!page.includes("World Cup Simulations"), "no World Cup simulation card (WC is complete/archived)");
   // Flagship products (paper) — Bank Builder + Moonshot + Results.
   for (const href of ["/bank-builder", "/moonshot", "/results"]) {

@@ -4,8 +4,10 @@
  *
  * Proves: every fight report is a VALID market-implied report; it can never claim independent-sim / 10k /
  * EV / edge; win probs are two-sided and in [0,1]; the only lean is a market-implied moneyline favorite
- * (never a model pick, never method/round/distance); provider-needed props stay out of the snapshot's
- * available set; and `/ufc` is wired to render the shell with an honest source badge.
+ * (never a model pick, never method/round/distance); and provider-needed props stay out of the snapshot's
+ * available set. `/ufc` no longer renders these reports — the hub was retired for the settled archive
+ * (2026-07-30 cleanup; ufc-archive.test.mjs pins that the page carries no report shell) — but the adapter
+ * remains the honesty contract for any loader that classifies UFC events.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -108,9 +110,9 @@ test("7 · a synthetic clear favorite yields a market-implied lean; a pick'em yi
   assert.match(pk.mainRead.label, /pick'em/i);
 });
 
-test("8 · /ufc is wired to render the FreeSim shell + honest source badge for fights", () => {
+test("8 · /ufc does NOT render fight reports — the archive carries no report shell or adapter wiring", () => {
+  // Inverse of the old wiring pin: the retired hub rendered these reports; the settled archive must not.
   const page = read("src/app/ufc/page.tsx");
-  assert.match(page, /ufcEventToReports/, "page builds UFC reports via the adapter");
-  assert.match(page, /MultiSportReportShell/, "page renders the shared report shell");
-  assert.match(page, /Market-implied simulation/, "page states the honest source label");
+  assert.doesNotMatch(page, /ufcEventToReports/, "archive page never builds fight reports");
+  assert.doesNotMatch(page, /MultiSportReportShell/, "archive page never renders the report shell");
 });

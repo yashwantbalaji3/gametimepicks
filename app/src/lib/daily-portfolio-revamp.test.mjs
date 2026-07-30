@@ -135,10 +135,10 @@ test("model picks table: grouped by game, has team + total/BTTS + player columns
   }
 });
 
-test("/world-cup leads with a Model Picks tab; /mr-dub shows the daily portfolio", () => {
-  const wc = read("src/app/world-cup/page.tsx");
-  assert.match(wc, /ModelPicksTable/, "world-cup renders the model picks table");
-  assert.match(wc, /key: "model-picks"/, "world-cup registers a model-picks tab");
+test("/mr-dub shows the daily portfolio (the World Cup half of this pin retired with the tournament)", () => {
+  // Originally this also pinned a Model Picks tab on /world-cup. The 2026 tournament is over and
+  // /world-cup is a closed destination, so that half died with the surface; the daily-portfolio
+  // guarantee on /mr-dub is the part that still describes the live product.
   const md = read("src/app/mr-dub/page.tsx");
   assert.match(md, /DailyPortfolioSection/, "mr-dub renders the daily portfolio");
   assert.match(md, /buildDailyPortfolio/, "mr-dub builds the daily portfolio");

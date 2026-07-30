@@ -133,20 +133,25 @@ test("mlb-calendar · break note fires ONLY inside the published window", () => 
 // Every previously-stale public route must mount the honest liveness banner so a
 // no-games day never presents the most-recent slate as live. These are pins on
 // the WIRING, not the data, so they hold regardless of which slate is committed.
-test("wiring · all six formerly-stale routes mount SlateLivenessBanner", () => {
+test("wiring · every SURVIVING formerly-stale route mounts SlateLivenessBanner (retired routes redirect instead)", () => {
   const routes = [
     "src/app/page.tsx",
     "src/app/today/page.tsx",
     "src/app/mlb/page.tsx",
     "src/app/picks/page.tsx",
     "src/app/moonshot/page.tsx",
-    "src/app/world-cup/page.tsx",
   ];
   for (const rel of routes) {
     const src = fs.readFileSync(path.join(APP, rel), "utf8");
     assert.match(src, /import SlateLivenessBanner from "@\/components\/slate-liveness-banner"/, `${rel} imports the banner`);
     assert.match(src, /<SlateLivenessBanner/, `${rel} renders the banner`);
   }
+  // /world-cup was the sixth route. The 2026-07-30 public-route audit retired it to a redirect stub:
+  // a page that renders no slate can misdate no slate, which is the stronger fix (same reasoning as
+  // the /sports safe-fix below).
+  const wc = fs.readFileSync(path.join(APP, "src/app/world-cup/page.tsx"), "utf8");
+  assert.match(wc, /ClientRedirect/, "/world-cup is a redirect stub");
+  assert.doesNotMatch(wc, /Live today|<SlateLivenessBanner/, "the stub makes no liveness claim and needs no banner");
 });
 
 test("wiring · the banner component frames on the REAL ET clock, not the slate date", () => {

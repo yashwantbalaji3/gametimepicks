@@ -1,33 +1,16 @@
 /**
- * June-16 final push: the World Cup "matches today" count reflects games IN FOCUS (odds-backed
- * projections), not the raw schedule count; and the Bank Builder V2 evaluation transparently shows
- * the Argentina-moneyline verdict + an over-correlation blocker when the upcoming slate is thin.
- * Source + data checks (suite runs pre-build).
+ * June-16 final push, surviving guarantees: the archived in-focus-vs-schedule count RELATIONSHIP
+ * (projection matchCount is real and bounded by the scheduled fixtures), and the Bank Builder V2
+ * evaluation transparently showing the Argentina-moneyline verdict. The /world-cup page-rendering
+ * checks ("in focus" headline + hero counts) are gone with the live hub: the 2026 World Cup closed
+ * as a destination (world-cup-closeout.test.mjs) and /world-cup is a redirect stub, so there is no
+ * live count surface left to keep honest. Source + data checks (suite runs pre-build).
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
-
-test("World Cup headline uses the in-focus count, not the misleading schedule count", () => {
-  // 2026-07-09: the daily World Cup focus block was demoted off the compact /today Daily Model Hub; the
-  // in-focus-vs-schedule honesty now lives solely on the World Cup page (which owns the WC board).
-  const page = read("src/app/world-cup/page.tsx");
-  assert.ok(page.includes("inFocusGames"), "computes an in-focus count");
-  assert.ok(/in focus/.test(page), "headline says 'in focus', not the raw schedule count");
-  // /today no longer carries a raw schedule-count World Cup headline (the block moved to /world-cup).
-  const today = read("src/app/today/page.tsx");
-  assert.ok(!/World Cup \$\{games === 1 \? "match" : "matches"\} today/.test(today),
-    "the raw schedule-count headline is not on the /today hub");
-});
-
-test("World Cup page prominent counts use in-focus games", () => {
-  const page = read("src/app/world-cup/page.tsx");
-  assert.ok(page.includes("inFocusGames"), "defines inFocusGames from projection matchCount");
-  assert.ok(page.includes('label: "Games in focus"'), "stat relabeled to in-focus");
-  assert.ok(/games? in focus/i.test(page), "hero caption uses in-focus framing");
-});
 
 test("the in-focus count matches the odds-backed projection matchCount (not the schedule)", () => {
   // The World Cup tournament is COMPLETE — projections/latest.json is now an empty slate (matchCount 0, a

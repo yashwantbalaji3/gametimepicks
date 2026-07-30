@@ -112,14 +112,17 @@ test("4 · World Cup is OMITTED from the lobby when there are no fixtures (2026 
   assert.match(lobby, /Soccer simulations require a soccer simulation artifact/, "the honest soccer-artifact note is present");
 });
 
-test("5 · the all-games list (GamesExperience) is still rendered + the R32 banner is kept", () => {
+test("5 · the all-games list (GamesExperience) is still rendered; no banner links to retired World Cup routes", () => {
   // GamesExperience is rendered inside the selector (filtered by sport); the lobby mounts the selector.
   assert.match(selector, /import GamesExperience.*from "@\/components\/games-experience"/, "the selector imports GamesExperience");
   assert.match(selector, /<GamesExperience games=\{filtered\} \/>/, "GamesExperience renders the (filtered) rows");
   assert.match(lobby, /<SportSelector sports=\{sports\} rows=\{rows\} \/>/, "the lobby mounts the sport selector with the real rows");
-  // The Round-of-32 banner is preserved.
-  assert.match(lobby, /World Cup · Round of 32 Board/, "the R32 banner is kept");
-  assert.match(lobby, /href="\/world-cup\/round-of-32"/, "the R32 banner links to the board");
+  // The Round-of-32 banner used to be pinned here. Its destination route was deleted with the
+  // tournament, so the guarantee inverts: the lobby must not LINK into retired World Cup routes.
+  // The `loadRoundOf32Board` import stays — completed knockout results feed the game-script
+  // signal as data, which is exactly why the assertion targets hrefs and banner copy, not imports.
+  assert.doesNotMatch(lobby, /href="\/world-cup\/round-of-32"/, "no link to the deleted R32 board");
+  assert.doesNotMatch(lobby, /Round of 32 Board/, "no R32 banner copy survives in the lobby");
 });
 
 test("6 · no banned copy in the lobby, the featured lib, or the new components", () => {

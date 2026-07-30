@@ -19,6 +19,10 @@ const NOW = "2026-06-23T10:00:00Z"; // before every June-23 kickoff
 
 const res = loadModelQualifiedProps(root, NOW, DATE);
 
+// The two page-mount assertions that lived here (the /world-cup surface rendering the matrix with
+// live counts) retired with the tournament — /world-cup is a closed destination. The tests below pin
+// the model-qualified POLICY itself, which outlives any one surface: props qualify only through
+// modelQualifies, and raw sportsbook inventory is never presented as a recommendation.
 test("model-qualified filter surfaces a small curated set, NOT raw sportsbook inventory", () => {
   assert.equal(res.evaluatedCount, 168, "all 168 sportsbook prop markets are evaluated");
   assert.ok(res.qualifiedCount > 0, "some props qualify");
@@ -91,27 +95,8 @@ test("/build leg pool defaults to model-qualified WC player legs (raw inventory 
   for (const l of legs) assert.ok(l.americanOdds >= QUALIFY_ODDS_MIN && l.americanOdds <= QUALIFY_ODDS_MAX, `${l.label} ${l.americanOdds} within addable window`);
 });
 
-test("/world-cup page surfaces model-only props + counts, and demotes raw inventory honestly", () => {
-  const page = read("src/app/world-cup/page.tsx");
-  assert.match(page, /Model Player Prop Picks/, "headline names the model-only board");
-  assert.match(page, /ModelPlayerPropsMatrix/, "page renders the matrix");
-  assert.match(page, /Available sportsbook markets — not model recommendations/, "raw inventory is labelled NOT recommendations");
-  const matrix = read("src/components/world-cup/model-player-props-matrix.tsx");
-  assert.match(matrix, /sportsbook prop markets evaluated/, "shows evaluated count");
-  assert.match(matrix, /model-qualified player-prop/, "shows model-qualified pick count");
-  assert.match(matrix, /No model-qualified pick/, "empty cells say No model-qualified pick");
-});
-
 test("/build copy states the pool is model-qualified only", () => {
   assert.match(read("src/app/build/page.tsx"), /model-qualified legs only/, "build note states model-qualified default");
-});
-
-test("Model Player Props are surfaced with real model-qualified counts on the World Cup surface", () => {
-  // 2026-07-09: the compact /today Daily Model Hub dropped the readiness strip; model-qualified player
-  // props now live on the World Cup surface (the ModelPlayerProps matrix), which reads the real counts.
-  const wc = read("src/app/world-cup/page.tsx");
-  assert.match(wc, /loadModelQualifiedProps/, "the WC surface reads model-qualified prop counts");
-  assert.match(wc, /ModelPlayerProps/, "the WC surface renders the model player-props matrix");
 });
 
 test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live lanes are a fresh forward cycle, bankroll + crown reconcile, lanes separate", () => {

@@ -273,26 +273,6 @@ test("committed snapshot exists, is dated, and holds <=5 valid WC-only cards", (
 });
 
 // ── Homepage component + protections ───────────────────────────────────────────────────────────────
-test("homepage box renders title, badges, $10 projection, mix counts, and the disclosure drawer", () => {
-  const src = fs.readFileSync("src/components/world-cup/world-cup-specials-box.tsx", "utf8");
-  assert.match(src, /World Cup Specials/, "renders the title");
-  assert.match(src, /High-volatility/, "high-volatility badge");
-  assert.match(src, /Paper-only/, "paper-only badge");
-  assert.match(src, /Odds-backed/, "odds-backed badge");
-  assert.match(src, /usd\(card\.stakePreview\)\} → \{usd\(card\.projectedReturn\)/, "shows $10 → projected return");
-  assert.match(src, /team \/ \{card\.playerPropCount\} player/, "shows team/player mix");
-  assert.match(src, /correlation:/, "discloses correlation");
-  assert.match(src, /Why this card/, "why this card drawer label");
-  assert.match(src, /No eligible World Cup Specials/, "honest empty state");
-});
-
-test("homepage box stacks vertically and adds no horizontal overflow", () => {
-  const src = fs.readFileSync("src/components/world-cup/world-cup-specials-box.tsx", "utf8");
-  assert.match(src, /flex flex-col gap/, "cards stack in a single column");
-  assert.match(src, /overflow-hidden/, "box clips its own overflow");
-  assert.ok(!/overflow-x-auto|w-\[\d{4}/.test(src), "no wide fixed widths / horizontal scrollers");
-});
-
 test("the World Cup Specials product surfaces on its own page, snapshot-loaded + freshness-gated", () => {
   // 2026-07-09: the compact /today Daily Model Hub dropped the WC Specials box (a full flagship board must
   // not be duplicated on the hub). The product lives on its own /world-cup-specials page, which loads the

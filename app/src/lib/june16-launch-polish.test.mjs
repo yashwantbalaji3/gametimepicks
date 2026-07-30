@@ -30,15 +30,6 @@ test("Bank Builder V2 panel shows per-leg survival score + blockers", () => {
   assert.ok(/Why no launch|blockers/i.test(src), "shows blockers when not launched");
 });
 
-test("World Cup surface surfaces a player prop with a portrait + a game link", () => {
-  // 2026-07-09: the daily WC focus accordion moved off the compact /today Daily Model Hub. Its player-prop
-  // presentation (portrait + per-game link) now lives on the World Cup model-picks table.
-  const table = read("src/components/world-cup/model-picks-table.tsx");
-  assert.ok(table.includes("PlayerAvatar"), "player portrait rendered on the WC model-picks table");
-  const wcPage = read("src/app/world-cup/page.tsx");
-  assert.ok(wcPage.includes("/games/world-cup/") || table.includes("/games/world-cup/"), "per-game link present on a WC surface");
-});
-
 test("V2 evaluation loader contract matches the artifact", () => {
   const evalDoc = JSON.parse(read("public/data/bank-builder/v2-evaluation-latest.json"));
   assert.ok(["launch", "evaluating"].includes(evalDoc.decision));

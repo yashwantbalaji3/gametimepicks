@@ -57,9 +57,3 @@ test("FUNCTIONAL: the committed WC props artifact loads as real provider props (
     }
   }
 });
-
-test("the pilot props board is wired into /world-cup", () => {
-  const src = fs.readFileSync(path.join(process.cwd(), "src/app/world-cup/page.tsx"), "utf8");
-  assert.match(src, /WcPlayerPropsBoard/, "/world-cup renders the player-props board");
-  assert.match(src, /loadWcPlayerProps\(\)/, "/world-cup loads the props");
-});

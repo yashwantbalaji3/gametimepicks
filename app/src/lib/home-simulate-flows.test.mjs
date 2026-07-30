@@ -23,7 +23,8 @@ test("Home's Simulate CTA points to the clean /simulate route", () => {
 
 test("Home also pushes users to Today's Picks (a distinct CTA, not a duplicate of Simulate)", () => {
   assert.match(hero, /href="\/today"/, "the hero has a Today's Picks CTA to /today");
-  assert.match(hero, /See Today.{0,6}s Picks/i, "the hero CTA is 'See Today's Picks'");
+  // {0,10} tolerates the JSX apostrophe entity (&rsquo; is 7 chars), same as the Simulate CTA pin above.
+  assert.match(hero, /See Today.{0,10}s Picks/i, "the hero CTA is 'See Today's Picks'");
 });
 
 test("/today is NOT mislabeled as the simulation lobby (it is the picks/no-play board)", () => {
