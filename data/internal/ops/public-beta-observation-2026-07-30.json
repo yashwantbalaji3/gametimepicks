@@ -7,13 +7,13 @@
   "deployment": {
     "status": "CURRENT",
     "url": "https://gametimepicks.yashwantbalaji.com/data/build-info.json",
-    "sha": "9d0b853c",
+    "sha": "0a7ab5de",
     "buildEtDate": "2026-07-30",
-    "builtAt": "2026-07-30T04:10:33.917Z",
+    "builtAt": "2026-07-30T15:33:49.157Z",
     "environment": "vercel",
     "daysBehind": 0,
-    "localHead": "9d0b853c",
-    "shaInSync": true
+    "localHead": "ab1df7e4",
+    "shaInSync": false
   },
   "mlb": {
     "newestGeneratedBoard": "2026-07-28",
@@ -94,11 +94,12 @@
     },
     {
       "id": "pipefail-live",
-      "status": "WALL_CLOCK_OPEN",
-      "what": "no scheduled run has yet failed naturally under the corrected orchestrator",
-      "observed": "automation_settle.sh declares `set -o pipefail` — the fix is present, its natural proof is not",
+      "status": "PROVEN",
+      "what": "a scheduled run failed naturally under the corrected orchestrator and was reported as a failure",
+      "observed": "nightly-settle exited 2 on 2026-07-30T09:59:20Z — MlbSettleError: board file not found: app/public/data/mlb/boards/2026-07-29.json",
       "standingEvidence": "scripts/automation_settle_pipefail_test.sh (deterministic known-negative: the defect reproduces without pipefail)",
-      "doNotForceIt": "Corrupting production data to trigger a failure is not acceptable. The deterministic known-negative in scripts/automation_settle_pipefail_test.sh remains the standing evidence until a real failure occurs."
+      "provenBy": "data/internal/mlb/integrity/pipefail-live-proof.json",
+      "namedLimitation": "OPS_WEBHOOK_URL is unset, so the alert was written to the run log rather than delivered to an operator. The failure was surfaced; it was not pushed. Setting that secret is a founder action."
     }
   ],
   "wallClockObservations": [
@@ -108,7 +109,8 @@
     "2026-07-28 remains refused by the settlement-lineage gate"
   ],
   "warnings": [
-    "lineage acceptance NOT_YET_STAMPED for 2026-07-27 — 0/505 rows carry the four lineage fields"
+    "lineage acceptance NOT_YET_STAMPED for 2026-07-27 — 0/505 rows carry the four lineage fields",
+    "production is serving 0a7ab5de, local HEAD is ab1df7e4"
   ],
   "failures": []
 }
