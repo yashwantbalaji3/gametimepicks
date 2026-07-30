@@ -16,6 +16,9 @@ import { useEffect, useMemo, useState } from "react";
 
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
+import { marketDisagreementOpenedEvent } from "@/lib/analytics/page-events";
+import { readSinkConfig, resolveSink, track } from "@/lib/analytics/sink";
+import { currentEtDate } from "@/lib/freshness";
 import type { GameIntelligence } from "@/lib/markets/game-intelligence";
 import type { PropRowView } from "@/lib/markets/view-model";
 import type { IntelligenceMode } from "@/lib/markets/pairing";
@@ -112,6 +115,10 @@ export default function MarketCenter({
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"start" | "gap" | "agreement" | "player">("start");
   const [page, setPage] = useState(0);
+
+  // Analytics (v2): resolved ONCE from build-time config — the NO-OP sink unless a provider endpoint
+  // is configured AND the kill-switch is on, so by default nothing leaves the browser.
+  const analyticsSink = useMemo(() => resolveSink(readSinkConfig()), []);
 
   // Any change to what is being filtered must return to the first page. Without this a narrowed
   // result set can leave the reader stranded on a page index that no longer exists, which reads as
@@ -235,7 +242,13 @@ export default function MarketCenter({
             query={query}
             setQuery={setQuery}
             sort={sort}
-            setSort={setSort}
+            setSort={(v) => {
+              // Choosing the "largest difference" sort IS the open-the-disagreement-view interaction
+              // (v2 `market_disagreement_opened`) — a measure of interest in the comparison itself,
+              // never a claim about it. Validated + routed through the resolved (default NO-OP) sink.
+              if (v === "gap" && sort !== "gap") track(marketDisagreementOpenedEvent(currentEtDate()), analyticsSink);
+              setSort(v);
+            }}
           />
           <PlayerSection rows={visibleProps} total={props.length} page={page} setPage={setPage} />
         </>

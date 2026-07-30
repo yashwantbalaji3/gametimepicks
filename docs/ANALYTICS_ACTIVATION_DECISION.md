@@ -3,6 +3,12 @@
 **Status:** DECISION REQUIRED · **Prepared:** Sprint 005 (retention layer) · **Owner:** founder
 **Nothing is activated by this memo.** The analytics contract is schema-only and defaults to a no-op sink.
 
+> **v2 note (Program 058-061):** the event taxonomy referenced below was extended to the public-beta
+> research-terminal contract — see [`PUBLIC_BETA_ANALYTICS_CONTRACT.md`](PUBLIC_BETA_ANALYTICS_CONTRACT.md)
+> (`SCHEMA_VERSION = 2`, program-name mapping, funnel/activation/retention definitions). The decision in
+> Section 7 remains **unsigned** and is unchanged by that program; it is still the one founder action
+> gating any data collection.
+
 ---
 
 ## 1. The decision

@@ -26,14 +26,25 @@
  * Turning on a real (privacy-first, no-cookie, self-hosted) provider is a
  * FOUNDER DECISION documented in the contract doc — not something this module
  * does on its own.
+ *
+ * v2 (Program 058-061, public beta): the canonical research-terminal taxonomy
+ * in `docs/PUBLIC_BETA_ANALYTICS_CONTRACT.md`. Program names whose semantics an
+ * existing v1 event already carried are MAPPED (see `PROGRAM_EVENT_MAP`), not
+ * renamed — a rename would change the wire shape and break every existing guard
+ * for zero information gain. Only the genuinely missing events were added.
  */
 
 /* ------------------------------------------------------------------ *
  * Versioning + coarse dimensions
  * ------------------------------------------------------------------ */
 
-/** Bumped only when the wire shape of an event changes. */
-export const SCHEMA_VERSION = 1 as const;
+/**
+ * Bumped only when the wire shape of an event changes.
+ * v2 = Program 058-061 public-beta taxonomy (new closed-enum events + the
+ * `marketFamily` / `feedbackTopic` property keys). Still provider-neutral,
+ * still NOOP by default, still PII-free.
+ */
+export const SCHEMA_VERSION = 2 as const;
 
 /**
  * A "day bucket" is a coarse ET calendar day, `YYYY-MM-DD` — day granularity
@@ -42,8 +53,13 @@ export const SCHEMA_VERSION = 1 as const;
  */
 export const DAY_BUCKET_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Sports that currently have a live product surface. */
-export const SPORTS = ["mlb", "nba", "nhl", "ipl", "ufc", "multi", "unknown"] as const;
+/**
+ * Sports with a live or candidate product surface. `epl` (v2) is a candidate
+ * only: it exists so `sport_interest_selected` can register demand for a sport
+ * BEFORE any surface ships — the sport-demand signal that gates NBA/UFC/EPL
+ * acceleration (see `docs/PUBLIC_BETA_ANALYTICS_CONTRACT.md`).
+ */
+export const SPORTS = ["mlb", "nba", "nhl", "ipl", "ufc", "epl", "multi", "unknown"] as const;
 export type Sport = (typeof SPORTS)[number];
 
 /** Which homepage CTA was clicked. */
@@ -96,6 +112,38 @@ export type AvailabilityLevelBucket = (typeof AVAILABILITY_LEVELS)[number];
 export const SOURCE_BUCKETS = ["direct", "x", "discord", "instagram", "tiktok", "organic", "referral"] as const;
 export type SourceBucket = (typeof SOURCE_BUCKETS)[number];
 
+/**
+ * Coarse market family a research row belongs to (v2). A FAMILY bucket only —
+ * never a specific line, price, odds payload, or anything a sportsbook sent us.
+ */
+export const MARKET_FAMILIES = [
+  "moneyline",
+  "run_line",
+  "total",
+  "strikeouts",
+  "hits",
+  "total_bases",
+  "hits_runs_rbis",
+  "home_runs",
+  "other",
+] as const;
+export type MarketFamily = (typeof MARKET_FAMILIES)[number];
+
+/**
+ * Closed feedback topic (v2). Deliberately the ONLY dimension feedback carries:
+ * the contract has no free-text field, so feedback content can never ride along
+ * with the count.
+ */
+export const FEEDBACK_TOPICS = ["accuracy", "clarity", "coverage", "usability", "other"] as const;
+export type FeedbackTopic = (typeof FEEDBACK_TOPICS)[number];
+
+/**
+ * Coarse surface a market-research interaction (row open / probability
+ * explainer / disagreement view) happened on (v2). A page bucket, never a URL.
+ */
+export const MARKET_RESEARCH_SURFACES = ["markets", "game_report", "daily_hub", "research"] as const;
+export type MarketResearchSurface = (typeof MARKET_RESEARCH_SURFACES)[number];
+
 /* ------------------------------------------------------------------ *
  * Event discriminated union
  * ------------------------------------------------------------------ */
@@ -122,6 +170,19 @@ export const EVENT_TYPES = [
   "social_package_generated",
   // Sprint 006 (Growth + Measurement) — coarse acquisition source of a first-party landing (no user tracking).
   "source_visit",
+  // v2 (Program 058-061, public beta) — the research-terminal taxonomy. Program names an existing event
+  // already carried are MAPPED in `PROGRAM_EVENT_MAP` (session_started→source_visit, today_viewed→
+  // daily_hub_view, game_report_viewed→game_report_open, results_viewed→results_recap_open,
+  // daily_brief_viewed→daily_brief_view, return_visit→return_visit); only the missing ones are added here.
+  "homepage_viewed",
+  "market_center_view",
+  "market_row_opened",
+  "probability_explainer_opened",
+  "market_disagreement_opened",
+  "methodology_viewed",
+  "status_viewed",
+  "sport_interest_selected",
+  "feedback_submitted",
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 
@@ -233,6 +294,92 @@ export interface SourceVisitEvent extends BaseEvent {
   source: SourceBucket;
 }
 
+/* --- v2 (Program 058-061) events ---------------------------------- */
+
+/**
+ * The homepage rendered (v2). v1 deliberately gave "/" no page-VIEW event
+ * (only the CTA click); the program's funnel starts at Landing, so the view
+ * itself is now the funnel's first step.
+ */
+export interface HomepageViewedEvent extends BaseEvent {
+  event: "homepage_viewed";
+  surface: "homepage";
+}
+
+/** The market-intelligence center (/markets) rendered (v2). The funnel's market-detail entry point. */
+export interface MarketCenterViewEvent extends BaseEvent {
+  event: "market_center_view";
+  surface: "markets";
+  sport: Sport;
+}
+
+/**
+ * A single market research row was expanded/opened (v2) — high-intent research
+ * behavior. Carries the coarse market FAMILY only, never a line, price, or any
+ * raw sportsbook payload.
+ */
+export interface MarketRowOpenedEvent extends BaseEvent {
+  event: "market_row_opened";
+  surface: MarketResearchSurface;
+  sport: Sport;
+  marketFamily: MarketFamily;
+}
+
+/**
+ * A probability explainer (raw vs calibrated vs no-vig market layers) was
+ * opened (v2). The clearest signal that a visitor engages with the transparent
+ * research layer rather than skimming a number.
+ */
+export interface ProbabilityExplainerOpenedEvent extends BaseEvent {
+  event: "probability_explainer_opened";
+  surface: MarketResearchSurface;
+  sport: Sport;
+  marketFamily: MarketFamily;
+}
+
+/**
+ * A model-vs-market disagreement view was opened (v2). Measures interest in the
+ * comparison itself — NEVER a claim that the disagreement is an advantage.
+ */
+export interface MarketDisagreementOpenedEvent extends BaseEvent {
+  event: "market_disagreement_opened";
+  surface: MarketResearchSurface;
+  sport: Sport;
+  marketFamily: MarketFamily;
+}
+
+/** The /methodology page rendered (v2) — the trust/clarity loop for the research terminal. */
+export interface MethodologyViewedEvent extends BaseEvent {
+  event: "methodology_viewed";
+  surface: "methodology";
+}
+
+/** The /system-status page rendered (v2) — do visitors check the honesty/health surface? */
+export interface StatusViewedEvent extends BaseEvent {
+  event: "status_viewed";
+  surface: "system_status";
+}
+
+/**
+ * A visitor expressed interest in a sport (v2) — THE sport-demand signal that
+ * gates NBA/UFC/EPL acceleration. A closed sport bucket, never a person.
+ */
+export interface SportInterestSelectedEvent extends BaseEvent {
+  event: "sport_interest_selected";
+  surface: "app";
+  sport: Sport;
+}
+
+/**
+ * A feedback control was submitted (v2). Carries ONLY the closed topic bucket —
+ * the contract has no free-text field, so feedback content never rides along.
+ */
+export interface FeedbackSubmittedEvent extends BaseEvent {
+  event: "feedback_submitted";
+  surface: "app";
+  feedbackTopic: FeedbackTopic;
+}
+
 /** The full set of product-adoption events. */
 export type AnalyticsEvent =
   | HomeCtaClickEvent
@@ -247,7 +394,70 @@ export type AnalyticsEvent =
   | TodaySlateClickedFromResultsEvent
   | DailyBriefViewEvent
   | SocialPackageGeneratedEvent
-  | SourceVisitEvent;
+  | SourceVisitEvent
+  | HomepageViewedEvent
+  | MarketCenterViewEvent
+  | MarketRowOpenedEvent
+  | ProbabilityExplainerOpenedEvent
+  | MarketDisagreementOpenedEvent
+  | MethodologyViewedEvent
+  | StatusViewedEvent
+  | SportInterestSelectedEvent
+  | FeedbackSubmittedEvent;
+
+/* ------------------------------------------------------------------ *
+ * Program 058-061 name mapping (v2)
+ * ------------------------------------------------------------------ */
+
+/** The canonical program taxonomy names (docs/PUBLIC_BETA_ANALYTICS_CONTRACT.md). */
+export const PROGRAM_EVENT_NAMES = [
+  "session_started",
+  "homepage_viewed",
+  "today_viewed",
+  "market_row_opened",
+  "probability_explainer_opened",
+  "market_disagreement_opened",
+  "game_report_viewed",
+  "results_viewed",
+  "daily_brief_viewed",
+  "methodology_viewed",
+  "status_viewed",
+  "sport_interest_selected",
+  "feedback_submitted",
+  "return_visit",
+] as const;
+export type ProgramEventName = (typeof PROGRAM_EVENT_NAMES)[number];
+
+/**
+ * Program name → contract event. Where a v1 event already carried the program
+ * semantics it is MAPPED, not renamed — a rename would change the wire shape
+ * and break every existing guard for zero information gain. Typed as an
+ * exhaustive record so an unmapped program name fails the TypeScript build.
+ *
+ *   - `session_started` ≡ `source_visit`: the once-per-session first-party
+ *     landing event (coarse source bucket) IS the session-start signal.
+ *   - `today_viewed` ≡ `daily_hub_view` (/today and sport hubs).
+ *   - `game_report_viewed` ≡ `game_report_open`.
+ *   - `results_viewed` ≡ `results_recap_open`.
+ *   - `daily_brief_viewed` ≡ `daily_brief_view`.
+ *   - `return_visit` already existed under its program name.
+ */
+export const PROGRAM_EVENT_MAP: Record<ProgramEventName, EventType> = {
+  session_started: "source_visit",
+  homepage_viewed: "homepage_viewed",
+  today_viewed: "daily_hub_view",
+  market_row_opened: "market_row_opened",
+  probability_explainer_opened: "probability_explainer_opened",
+  market_disagreement_opened: "market_disagreement_opened",
+  game_report_viewed: "game_report_open",
+  results_viewed: "results_recap_open",
+  daily_brief_viewed: "daily_brief_view",
+  methodology_viewed: "methodology_viewed",
+  status_viewed: "status_viewed",
+  sport_interest_selected: "sport_interest_selected",
+  feedback_submitted: "feedback_submitted",
+  return_visit: "return_visit",
+};
 
 /**
  * The adoption question each event answers. Typed as an exhaustive record so
@@ -268,6 +478,15 @@ export const ADOPTION_QUESTIONS: Record<EventType, string> = {
   daily_brief_view: "Are people reaching the daily MLB intelligence brief (the destination hook)?",
   social_package_generated: "Is the internal daily content package being generated (distribution readiness)?",
   source_visit: "Which coarse channel (X / Discord / …) actually sends real visitors to the site?",
+  homepage_viewed: "Do visitors land on the homepage at all (the funnel's first step)?",
+  market_center_view: "Do visitors reach the market-intelligence center (/markets)?",
+  market_row_opened: "Do visitors open individual market rows (high-intent research behavior)?",
+  probability_explainer_opened: "Do visitors engage with the probability layers (raw vs calibrated vs market)?",
+  market_disagreement_opened: "Is the model-vs-market comparison itself interesting enough to open?",
+  methodology_viewed: "Do visitors read HOW the research is produced (the trust loop)?",
+  status_viewed: "Do visitors check the system-status honesty surface?",
+  sport_interest_selected: "Which sport do visitors actually want next (NBA / UFC / EPL demand)?",
+  feedback_submitted: "Are visitors giving feedback, and about what (closed topic only)?",
 };
 
 /* ------------------------------------------------------------------ *
@@ -295,6 +514,9 @@ export const ALLOWED_PROPERTY_KEYS = [
   "filter",
   "availabilityLevel",
   "source",
+  // v2 (Program 058-061) — both are coarse closed-enum buckets, never a raw payload or free text.
+  "marketFamily",
+  "feedbackTopic",
 ] as const;
 export type AllowedPropertyKey = (typeof ALLOWED_PROPERTY_KEYS)[number];
 
@@ -353,6 +575,9 @@ const RETURN_COHORT_SET: ReadonlySet<string> = new Set(RETURN_COHORTS);
 const SLATE_FILTER_SET: ReadonlySet<string> = new Set(SLATE_FILTERS);
 const AVAILABILITY_LEVEL_SET: ReadonlySet<string> = new Set(AVAILABILITY_LEVELS);
 const SOURCE_BUCKET_SET: ReadonlySet<string> = new Set(SOURCE_BUCKETS);
+const MARKET_FAMILY_SET: ReadonlySet<string> = new Set(MARKET_FAMILIES);
+const FEEDBACK_TOPIC_SET: ReadonlySet<string> = new Set(FEEDBACK_TOPICS);
+const MARKET_RESEARCH_SURFACE_SET: ReadonlySet<string> = new Set(MARKET_RESEARCH_SURFACES);
 
 /* ------------------------------------------------------------------ *
  * Validation
@@ -468,6 +693,51 @@ export function validateEvent(input: unknown): ValidationResult {
     case "source_visit":
       if (rec.surface !== "app") return err("source_visit.surface must be 'app'");
       if (!SOURCE_BUCKET_SET.has(rec.source as string)) return err("source_visit.source invalid");
+      return OK;
+
+    case "homepage_viewed":
+      if (rec.surface !== "homepage") return err("homepage_viewed.surface must be 'homepage'");
+      return OK;
+
+    case "market_center_view":
+      if (rec.surface !== "markets") return err("market_center_view.surface must be 'markets'");
+      if (!SPORT_SET.has(rec.sport as string)) return err("market_center_view.sport invalid");
+      return OK;
+
+    case "market_row_opened":
+      if (!MARKET_RESEARCH_SURFACE_SET.has(rec.surface as string)) return err("market_row_opened.surface invalid");
+      if (!SPORT_SET.has(rec.sport as string)) return err("market_row_opened.sport invalid");
+      if (!MARKET_FAMILY_SET.has(rec.marketFamily as string)) return err("market_row_opened.marketFamily invalid");
+      return OK;
+
+    case "probability_explainer_opened":
+      if (!MARKET_RESEARCH_SURFACE_SET.has(rec.surface as string)) return err("probability_explainer_opened.surface invalid");
+      if (!SPORT_SET.has(rec.sport as string)) return err("probability_explainer_opened.sport invalid");
+      if (!MARKET_FAMILY_SET.has(rec.marketFamily as string)) return err("probability_explainer_opened.marketFamily invalid");
+      return OK;
+
+    case "market_disagreement_opened":
+      if (!MARKET_RESEARCH_SURFACE_SET.has(rec.surface as string)) return err("market_disagreement_opened.surface invalid");
+      if (!SPORT_SET.has(rec.sport as string)) return err("market_disagreement_opened.sport invalid");
+      if (!MARKET_FAMILY_SET.has(rec.marketFamily as string)) return err("market_disagreement_opened.marketFamily invalid");
+      return OK;
+
+    case "methodology_viewed":
+      if (rec.surface !== "methodology") return err("methodology_viewed.surface must be 'methodology'");
+      return OK;
+
+    case "status_viewed":
+      if (rec.surface !== "system_status") return err("status_viewed.surface must be 'system_status'");
+      return OK;
+
+    case "sport_interest_selected":
+      if (rec.surface !== "app") return err("sport_interest_selected.surface must be 'app'");
+      if (!SPORT_SET.has(rec.sport as string)) return err("sport_interest_selected.sport invalid");
+      return OK;
+
+    case "feedback_submitted":
+      if (rec.surface !== "app") return err("feedback_submitted.surface must be 'app'");
+      if (!FEEDBACK_TOPIC_SET.has(rec.feedbackTopic as string)) return err("feedback_submitted.feedbackTopic invalid");
       return OK;
 
     default:

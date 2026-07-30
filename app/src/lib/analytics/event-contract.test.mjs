@@ -132,6 +132,70 @@ const SAMPLES = {
     surface: "app",
     source: "x",
   },
+  // v2 (Program 058-061) — the public-beta research-terminal taxonomy.
+  homepage_viewed: {
+    event: "homepage_viewed",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "homepage",
+  },
+  market_center_view: {
+    event: "market_center_view",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "markets",
+    sport: "mlb",
+  },
+  market_row_opened: {
+    event: "market_row_opened",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "markets",
+    sport: "mlb",
+    marketFamily: "moneyline",
+  },
+  probability_explainer_opened: {
+    event: "probability_explainer_opened",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "research",
+    sport: "mlb",
+    marketFamily: "strikeouts",
+  },
+  market_disagreement_opened: {
+    event: "market_disagreement_opened",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "game_report",
+    sport: "mlb",
+    marketFamily: "total",
+  },
+  methodology_viewed: {
+    event: "methodology_viewed",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "methodology",
+  },
+  status_viewed: {
+    event: "status_viewed",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "system_status",
+  },
+  sport_interest_selected: {
+    event: "sport_interest_selected",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "app",
+    sport: "epl",
+  },
+  feedback_submitted: {
+    event: "feedback_submitted",
+    schemaVersion: SCHEMA_VERSION,
+    dayBucket: DAY,
+    surface: "app",
+    feedbackTopic: "clarity",
+  },
 };
 
 /* ---------------------------------------------------------------- *
@@ -182,6 +246,13 @@ test("2 · validateEvent rejects malformed shapes", () => {
   assert.equal(validateEvent({ ...SAMPLES.return_visit, cohortBucket: "someday" }).ok, false);
   // wrong surface for the type
   assert.equal(validateEvent({ ...SAMPLES.return_visit, surface: "homepage" }).ok, false);
+  // v2 events: bad enum values + wrong surfaces are refused too
+  assert.equal(validateEvent({ ...SAMPLES.market_row_opened, marketFamily: "exact_price_-115" }).ok, false);
+  assert.equal(validateEvent({ ...SAMPLES.probability_explainer_opened, surface: "somewhere" }).ok, false);
+  assert.equal(validateEvent({ ...SAMPLES.market_disagreement_opened, sport: "curling" }).ok, false);
+  assert.equal(validateEvent({ ...SAMPLES.feedback_submitted, feedbackTopic: "free text about my day" }).ok, false);
+  assert.equal(validateEvent({ ...SAMPLES.sport_interest_selected, sport: "cricket" }).ok, false);
+  assert.equal(validateEvent({ ...SAMPLES.status_viewed, surface: "app" }).ok, false);
 });
 
 test("2b · validateEvent rejects ANY property key outside the closed allowlist", () => {

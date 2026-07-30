@@ -2,6 +2,10 @@
 
 **Phase 9 · product-adoption sprint · provider-neutral, PII-free measurement plan**
 
+> **Superseded-in-part (v2, Program 058-061):** the taxonomy grew into the public-beta research-terminal
+> contract — [`PUBLIC_BETA_ANALYTICS_CONTRACT.md`](PUBLIC_BETA_ANALYTICS_CONTRACT.md) (`SCHEMA_VERSION = 2`).
+> Every event below still exists unchanged; v2 adds events and maps program names onto the existing ones.
+
 Status: **CONTRACT ONLY — no provider is activated, no instrumentation is wired into pages, no network call is made.** Turning on a real provider is a founder decision (see the last section).
 
 Single source of truth for the typed schema: [`app/src/lib/analytics/event-contract.ts`](../app/src/lib/analytics/event-contract.ts).
