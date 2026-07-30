@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { funnelEventsForPath, marketDisagreementOpenedEvent, sourceVisitEvent } from "./page-events.ts";
+import { ctaDestinationForHref, funnelEventsForPath, homeCtaClickEvent, marketDisagreementOpenedEvent, sourceVisitEvent, todaySlateClickedFromResultsEvent } from "./page-events.ts";
 import { validateEvent } from "./event-contract.ts";
 
 const DAY = "2026-07-24";
@@ -22,9 +22,52 @@ test("v2 (Program 058-061) paths: home, markets, methodology, system-status", ()
   assert.deepEqual(funnelEventsForPath("/system-status", { dayBucket: DAY }).map((e) => e.event), ["status_viewed"]);
 });
 
+test("the existing clarity/trust routes map to learn_trust_open (the page view IS the control)", () => {
+  const trust = (p) => funnelEventsForPath(p, { dayBucket: DAY })[0];
+  assert.equal(trust("/learn").event, "learn_trust_open");
+  assert.equal(trust("/learn").trustSurface, "how_it_works");
+  assert.equal(trust("/market-guide").trustSurface, "market_guide");
+  assert.equal(trust("/responsible-use").surface, "trust");
+  assert.equal(trust("/responsible-use").trustSurface, "responsible_use");
+  for (const p of ["/learn", "/market-guide", "/responsible-use"]) {
+    for (const e of funnelEventsForPath(p, { dayBucket: DAY })) assert.equal(validateEvent(e).ok, true, p);
+  }
+  // Trust pages that already carry their own v2 view event must not ALSO emit learn_trust_open.
+  assert.deepEqual(funnelEventsForPath("/methodology", { dayBucket: DAY }).map((e) => e.event), ["methodology_viewed"]);
+  assert.deepEqual(funnelEventsForPath("/system-status", { dayBucket: DAY }).map((e) => e.event), ["status_viewed"]);
+});
+
 test("unmapped paths emit no page-VIEW event", () => {
   assert.deepEqual(funnelEventsForPath("/simulate", { dayBucket: DAY }), []);
   assert.deepEqual(funnelEventsForPath("/games/mlb", { dayBucket: DAY }), [], "the games index is not a single report");
+  assert.deepEqual(funnelEventsForPath("/about", { dayBucket: DAY }), [], "no event is invented for a page without a defined funnel role");
+});
+
+test("the interaction builders bucket their destination and never carry a URL", () => {
+  const primary = homeCtaClickEvent(DAY, "primary", "/simulate");
+  assert.equal(primary.event, "home_cta_click");
+  assert.equal(primary.cta, "primary");
+  assert.equal(primary.destination, "simulate");
+  assert.equal(validateEvent(primary).ok, true);
+  assert.equal(homeCtaClickEvent(DAY, "secondary", "/today").destination, "today");
+  assert.equal(validateEvent(homeCtaClickEvent(DAY, "secondary", "/today")).ok, true);
+
+  assert.equal(ctaDestinationForHref("/results/mlb"), "results");
+  assert.equal(ctaDestinationForHref("/games/mlb/a-vs-b-2026-07-24"), "games");
+  assert.equal(ctaDestinationForHref("/market-guide"), "learn");
+  assert.equal(ctaDestinationForHref("/today/?source=x#slate"), "today", "query + hash + trailing slash are stripped");
+  assert.equal(ctaDestinationForHref("/bank-builder"), "other", "an unrecognised path is a bucket, never the path");
+
+  const back = todaySlateClickedFromResultsEvent(DAY);
+  assert.equal(back.event, "today_slate_clicked_from_results");
+  assert.equal(back.sport, "mlb");
+  assert.equal(validateEvent(back).ok, true);
+  assert.equal(validateEvent(todaySlateClickedFromResultsEvent(DAY, "nba")).ok, true);
+
+  // No builder may serialise a raw href into the payload.
+  for (const e of [primary, back, homeCtaClickEvent(DAY, "primary", "/bank-builder")]) {
+    assert.ok(!JSON.stringify(e).includes("/"), `no path leaks into ${e.event}`);
+  }
 });
 
 test("trailing slashes + query strings are normalized before matching", () => {

@@ -9,6 +9,8 @@ import { guardInternalRoute } from "@/lib/internal-route-guard";
 import { currentEtDate } from "@/lib/freshness";
 import { readSinkConfig } from "@/lib/analytics/sink";
 import { buildGrowthOpsView, NOT_YET_MEASURED } from "@/lib/analytics/growth-ops";
+import { buildAdoptionReport, parseAdoptionCapture, resolveMeasurementMode } from "@/lib/analytics/adoption";
+import { AdoptionPanel } from "./adoption-panel";
 import { buildSocialOpsBoard } from "@/lib/social/social-ops";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { BuildClockPanel } from "@/components/build-clock-panel";
@@ -74,6 +76,17 @@ function loadApprovals(date: string | null): Record<string, string> {
   if (!date) return {};
   try { return JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "data", "internal", "mlb", "social", `ops-approvals-${date}.json`), "utf8")); } catch { return {}; }
 }
+/**
+ * The adoption capture an activated collector would write. Absent today (production is dark), which is why
+ * the panel reads NOT YET MEASURED rather than zero. Read-only; the file is internal and never exported.
+ */
+function loadAdoptionCapture(): { raw: unknown | null; error: string | null } {
+  try {
+    return { raw: JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "data", "internal", "ops", "analytics-capture", "latest.json"), "utf8")), error: null };
+  } catch {
+    return { raw: null, error: null };
+  }
+}
 function latestMlbSlateDate(): string | null {
   try {
     const dir = path.join(process.cwd(), "public", "data", "mlb", "game-simulations");
@@ -133,13 +146,20 @@ export default function OpsPage() {
   const growthToday = currentEtDate();
   const latestSlate = latestMlbSlateDate() ?? s.slate.mlbSlate ?? null;
   const { pack: socialPack, date: socialPackDate } = loadLatestSocialPack();
+  const sinkConfig = readSinkConfig();
   const growth = buildGrowthOpsView({
     today: growthToday,
     latestSlate,
     latestSocialPack: socialPackDate,
     nowUtcHour: new Date().getUTCHours(),
-    sinkConfig: readSinkConfig(),
+    sinkConfig,
   });
+  // Adoption aggregate (Program 062-065). Mode comes from the sink config, so the panel can never claim
+  // measurement the sink is not doing; with no capture on disk every figure stays NOT YET MEASURED.
+  const captured = loadAdoptionCapture();
+  const parsedCapture = captured.raw == null ? { capture: null, error: captured.error } : parseAdoptionCapture(captured.raw);
+  const adoption = buildAdoptionReport({ capture: parsedCapture.capture, mode: resolveMeasurementMode(sinkConfig), captureError: parsedCapture.error });
+
   const availableGamePaths = new Set(buildAllGameDetails().filter((d) => d.sport === "mlb" && d.slug).map((d) => `/games/mlb/${d.slug}`));
   const opsBoard = buildSocialOpsBoard(socialPack as Parameters<typeof buildSocialOpsBoard>[0], { today: growthToday, availableGamePaths, approvals: loadApprovals(socialPackDate) });
 
@@ -293,6 +313,8 @@ export default function OpsPage() {
           <p className="mt-2 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Coarse buckets only · no cookies · no ad ids. NOT YET MEASURED until the sink is live.</p>
         </Card>
       </div>
+
+      <AdoptionPanel report={adoption} />
 
       <Card title={`Social operations · ${opsBoard.launchable}/${opsBoard.slots.length} launchable · review only (never auto-posted)`}>
         <div className="flex flex-col gap-2">

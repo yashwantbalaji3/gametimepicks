@@ -6,7 +6,29 @@
  *
  * No React/Next imports so tsx can unit-test it directly.
  */
-import { SCHEMA_VERSION, type AnalyticsEvent, type MarketFamily, type Sport, type SourceBucket } from "./event-contract";
+import {
+  SCHEMA_VERSION,
+  type AnalyticsEvent,
+  type CtaDestination,
+  type CtaKind,
+  type MarketFamily,
+  type Sport,
+  type SourceBucket,
+  type TrustSurface,
+} from "./event-contract";
+
+/**
+ * The clarity/trust pages that already exist as routes. A page VIEW is the control here — these are
+ * server-rendered reading surfaces with nothing to click — so the bootstrap's existing page-view path is
+ * the honest instrumentation point. `/methodology` and `/system-status` are deliberately absent: they
+ * carry their own v2 page-view events (`methodology_viewed` / `status_viewed`), and emitting a second
+ * trust event for the same view would double-count the trust loop.
+ */
+const TRUST_ROUTES: Record<string, { surface: "learn" | "trust"; trustSurface: TrustSurface }> = {
+  "/learn": { surface: "learn", trustSurface: "how_it_works" },
+  "/market-guide": { surface: "learn", trustSurface: "market_guide" },
+  "/responsible-use": { surface: "trust", trustSurface: "responsible_use" },
+};
 
 /** Coarse pathname → the funnel event(s) a page VIEW represents. Day bucket + sport supplied by the caller. */
 export function funnelEventsForPath(pathname: string, ctx: { dayBucket: string; sport?: Sport }): AnalyticsEvent[] {
@@ -34,6 +56,9 @@ export function funnelEventsForPath(pathname: string, ctx: { dayBucket: string; 
     events.push({ event: "methodology_viewed", schemaVersion: SCHEMA_VERSION, dayBucket, surface: "methodology" });
   } else if (p === "/system-status") {
     events.push({ event: "status_viewed", schemaVersion: SCHEMA_VERSION, dayBucket, surface: "system_status" });
+  } else if (TRUST_ROUTES[p]) {
+    const t = TRUST_ROUTES[p];
+    events.push({ event: "learn_trust_open", schemaVersion: SCHEMA_VERSION, dayBucket, surface: t.surface, trustSurface: t.trustSurface });
   }
   return events;
 }
@@ -41,6 +66,33 @@ export function funnelEventsForPath(pathname: string, ctx: { dayBucket: string; 
 /** The once-per-session coarse acquisition event. */
 export function sourceVisitEvent(source: SourceBucket, dayBucket: string): AnalyticsEvent {
   return { event: "source_visit", schemaVersion: SCHEMA_VERSION, dayBucket, surface: "app", source };
+}
+
+/**
+ * Map a first-party CTA href to the closed `destination` bucket. A BUCKET, never the URL — an unrecognised
+ * destination is `other` rather than leaking the path. Pure; query/hash/trailing slash are stripped first.
+ */
+export function ctaDestinationForHref(href: string): CtaDestination {
+  const p = (href || "").split(/[?#]/)[0].replace(/\/+$/, "") || "/";
+  if (p === "/simulate") return "simulate";
+  if (p === "/today") return "today";
+  if (p === "/results" || p.startsWith("/results/")) return "results";
+  if (p === "/learn" || p === "/market-guide" || p === "/methodology") return "learn";
+  if (p === "/games" || p.startsWith("/games/")) return "games";
+  return "other";
+}
+
+/**
+ * The homepage hero CTA click. THE public builder for that call site: a component passes the href it
+ * already renders and the coarse bucket is derived here, so no call site can invent a destination value.
+ */
+export function homeCtaClickEvent(dayBucket: string, cta: CtaKind, href: string): AnalyticsEvent {
+  return { event: "home_cta_click", schemaVersion: SCHEMA_VERSION, dayBucket, surface: "homepage", cta, destination: ctaDestinationForHref(href) };
+}
+
+/** The return loop's forward step — a results-surface control that routes back to today's slate. */
+export function todaySlateClickedFromResultsEvent(dayBucket: string, sport: Sport = "mlb"): AnalyticsEvent {
+  return { event: "today_slate_clicked_from_results", schemaVersion: SCHEMA_VERSION, dayBucket, surface: "results", sport };
 }
 
 /**
