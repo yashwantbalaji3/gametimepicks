@@ -15,6 +15,7 @@
     "mlb:export-results": "cd .. && PYTHONPATH=. python3 -m pipeline.mlb.export_mlb_results",
     "e2e:fast": "playwright test",
     "verify:deployment": "node scripts/verify-deployment.mjs",
+    "ops:public-beta-observe": "node scripts/public-beta-observe.mjs",
     "audit:sports": "npx tsx scripts/audit-sports.mjs",
     "test": "npx tsx --test $(find src -name '*.test.mjs')",
     "audit:settlement-and-outcomes": "tsx scripts/audit-settlement-and-outcomes.mjs",

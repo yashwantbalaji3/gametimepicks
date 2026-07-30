@@ -1,0 +1,114 @@
+{
+  "kind": "public-beta-observation",
+  "public": false,
+  "schemaVersion": 1,
+  "observedEtDate": "2026-07-30",
+  "verdict": "WARN",
+  "deployment": {
+    "status": "CURRENT",
+    "url": "https://gametimepicks.yashwantbalaji.com/data/build-info.json",
+    "sha": "9d0b853c",
+    "buildEtDate": "2026-07-30",
+    "builtAt": "2026-07-30T04:10:33.917Z",
+    "environment": "vercel",
+    "daysBehind": 0,
+    "localHead": "9d0b853c",
+    "shaInSync": true
+  },
+  "mlb": {
+    "newestGeneratedBoard": "2026-07-28",
+    "boardCount": 58,
+    "boardAgeDays": 2,
+    "newestSettledDate": "2026-07-27",
+    "settlementLagDays": 3,
+    "settledLedgerRows": 22660,
+    "settledDates": 50,
+    "quarantines": {
+      "settlement": [
+        {
+          "date": "2026-07-28",
+          "status": "PERMANENTLY UNSETTLED",
+          "refusedRows": 641,
+          "source": "settlement-lineage-live-proof.json"
+        }
+      ],
+      "researchEligibility": [
+        "2026-07-22"
+      ]
+    }
+  },
+  "lineage": {
+    "date": "2026-07-27",
+    "rows": 505,
+    "stampedRows": 0,
+    "coverage": 0,
+    "fields": [
+      "eventId",
+      "providerEventId",
+      "eventStartTime",
+      "settlementSource"
+    ],
+    "state": "NOT_YET_STAMPED"
+  },
+  "predictionHistory": {
+    "state": "CURRENT",
+    "asOfSettledDate": "2026-07-27",
+    "newestExportedDate": "2026-07-27",
+    "corpusRows": 22660,
+    "ledgerRows": 22660,
+    "lagDaysBehindLedger": 0,
+    "healthy": true,
+    "problems": [],
+    "warningCount": 1
+  },
+  "analytics": {
+    "mode": "OFF",
+    "enabledFlag": false,
+    "endpointConfigured": false,
+    "sources": [],
+    "note": "no build-time flag and no committed endpoint — the sink resolves to NOOP and nothing leaves the browser",
+    "decisionMemo": "docs/ANALYTICS_ACTIVATION_DECISION.md"
+  },
+  "protectedHashes": [
+    {
+      "file": "app/public/data/mr-dub/portfolio.json",
+      "expected": "affe6b21071f2b3be96bb2774eb347c3",
+      "actual": "affe6b21071f2b3be96bb2774eb347c3",
+      "state": "MATCH"
+    },
+    {
+      "file": "app/public/data/mr-dub/bank-builder-locks.json",
+      "expected": "cb80473f88f3cb5f67208fa568925295",
+      "actual": "cb80473f88f3cb5f67208fa568925295",
+      "state": "MATCH"
+    }
+  ],
+  "limitations": [
+    {
+      "id": "clean-lineage-stamping",
+      "status": "WALL_CLOCK_OPEN",
+      "what": "the first clean post-gate settlement has not been observed",
+      "observed": "the newest settled date stamps 0/505 rows (NOT_YET_STAMPED)",
+      "planNote": "0 of 22,660 ledger rows carry `eventId`. The only slate offered to the gate since it shipped was 2026-07-28, which was correctly REFUSED. The stamping path therefore has not run, through no fault of the code.",
+      "closedBy": "docs/PUBLIC_BETA_OPERATIONAL_PROOF.md §5.1"
+    },
+    {
+      "id": "pipefail-live",
+      "status": "WALL_CLOCK_OPEN",
+      "what": "no scheduled run has yet failed naturally under the corrected orchestrator",
+      "observed": "automation_settle.sh declares `set -o pipefail` — the fix is present, its natural proof is not",
+      "standingEvidence": "scripts/automation_settle_pipefail_test.sh (deterministic known-negative: the defect reproduces without pipefail)",
+      "doNotForceIt": "Corrupting production data to trigger a failure is not acceptable. The deterministic known-negative in scripts/automation_settle_pipefail_test.sh remains the standing evidence until a real failure occurs."
+    }
+  ],
+  "wallClockObservations": [
+    "observed on 2026-07-30 (ET)",
+    "newest generated board 2026-07-28 (2 day(s) old)",
+    "newest settled slate 2026-07-27 (3 day(s) old)",
+    "2026-07-28 remains refused by the settlement-lineage gate"
+  ],
+  "warnings": [
+    "lineage acceptance NOT_YET_STAMPED for 2026-07-27 — 0/505 rows carry the four lineage fields"
+  ],
+  "failures": []
+}
