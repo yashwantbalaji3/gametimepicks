@@ -8,7 +8,7 @@ import { test, expect } from "@playwright/test";
  * footer's freshness state can drift away from the user's actual clock.
  *
  * These tests verify the post-Phase-14 behavior:
- *   - Date-relative labels in the slate tabs reflect the user's real ET
+ *   - The home hero's date-relative labels reflect the user's real ET
  *     clock after hydration, not whatever the pipeline stamped at build
  *   - The footer's freshness pill renders SOMETHING (it's a client
  *     island, so the SSR placeholder gets replaced after hydration)
@@ -21,75 +21,14 @@ import { test, expect } from "@playwright/test";
  * banner won't appear — the test handles both states.
  */
 
-test("board page renders slate tabs that include either real-relative labels or fallback labels", async ({
-  page,
-}) => {
-  await page.goto("/board/");
-  await page.waitForLoadState("networkidle");
-
-  // The slate tabs are <button> elements with day labels. After hydration,
-  // SlateTabs uses the real ET clock to recompute labels. We verify that
-  // at least one of the canonical relative labels appears OR a long-form
-  // date label appears — not the broken state where "Today" is anchored
-  // to a stale primaryDate.
-  const tabs = page.locator(".vault-tabs button");
-  const count = await tabs.count();
-  expect(count).toBeGreaterThanOrEqual(1);
-
-  // Collect all tab labels
-  const labels: string[] = [];
-  for (let i = 0; i < count; i++) {
-    const t = (await tabs.nth(i).textContent()) ?? "";
-    labels.push(t.trim());
-  }
-  const labelText = labels.join(" | ").toLowerCase();
-
-  // After hydration, the slate must show at least one of these states:
-  //   - "Today" tab (current slate exists)
-  //   - "Yesterday" tab (slate is one day old, recoverable)
-  //   - long-form date (slate is older — honest about staleness)
-  // What it MUST NOT do: show "Today" anchored to a stale primaryDate.
-  const hasTodayOrYesterday = /today|yesterday|tomorrow/.test(labelText);
-  const hasLongFormDate = /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(
-    labelText,
-  );
-  expect(
-    hasTodayOrYesterday || hasLongFormDate,
-    `Tabs labels were: ${labels.join(", ")}`,
-  ).toBeTruthy();
-});
-
-test("when slate is stale, today-aware banner surfaces instead of claiming 'today'", async ({
-  page,
-}) => {
-  await page.goto("/board/");
-  await page.waitForLoadState("networkidle");
-
-  const bodyText = (await page.locator("body").innerText()).toLowerCase();
-
-  // Read the slate primary date (rendered in the hero "as of YYYY-MM-DD")
-  // If the page reveals it, we can verify the banner's logic. Otherwise,
-  // we run a softer assertion: the banner should EITHER not be present
-  // (slate is current) OR should say something about staleness.
-  const showsStaleBanner =
-    bodyText.includes("latest available slate") ||
-    bodyText.includes("stale slate") ||
-    bodyText.includes("no current slate");
-
-  // Look for any banner text that contradicts staleness
-  const claimsCurrent = bodyText.match(/today's slate/);
-
-  // Both can coexist (banner says "latest available", but a sub-tab
-  // labelled "Today" is for genuine today). The thing we don't want is
-  // the OLD bug: page says "today" but the date is days old.
-  if (showsStaleBanner) {
-    // If we see the stale banner, that's the post-fix behavior — pass.
-    expect(showsStaleBanner).toBeTruthy();
-  }
-  // Either way the test should not fail when the data is genuinely fresh.
-  // The contract is: pages don't lie about dates.
-});
-
+/*
+ * 2026-07-30 route audit — the first two specs here drove /board, the NBA model board, and read its
+ * SlateTabs strip. That board was retired (its source has been failing since 2026-06-13) and the
+ * SlateTabs component it used is no longer mounted anywhere, so the specs were removed rather than
+ * repointed at a surface that never had those tabs. The date-honesty contract they guarded is still
+ * covered: the footer specs below, and the home-hero spec at the end, both assert that no page
+ * claims "today" for a slate that is older than today.
+ */
 test("footer renders freshness pill and last-refresh stamp", async ({
   page,
 }) => {

@@ -58,8 +58,8 @@ export default function BankBuilderSkippedCard({
 
       <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
         <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Next refresh · next slate&rsquo;s odds</span>
+        {/* The World Cup knockout board this used to link is retired along with the tournament. */}
         <span className="flex items-center gap-3">
-          <Link href="/world-cup/round-of-32" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>Knockout board →</Link>
           <Link href="/bank-builder" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>Track record →</Link>
         </span>
       </div>

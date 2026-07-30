@@ -168,13 +168,11 @@ test("safe-fix · the /today header + /mlb eyebrow read 'latest slate' when the 
   assert.match(mlbPage, /date < currentEtDate\(\) \? "MLB Simulation Center · latest slate"/, "/mlb eyebrow flips to 'latest slate' (Simulation Center framing) when the board is behind today");
 });
 
-test("safe-fix · /sports gates 'live' on the slate date == today (no stale 'Live today')", () => {
+test("safe-fix · the /sports directory can no longer show a stale 'Live today' — it is a redirect", () => {
+  // The original fix date-gated each tile's "live" chip. The public-route audit (2026-07-30) removed the
+  // directory outright: with one FULL_MODEL sport, three equal tiles overstated coverage however
+  // carefully each chip was gated. A stub renders no liveness claim at all, which is the stronger fix.
   const src = fs.readFileSync(path.join(APP, "src/app/sports/page.tsx"), "utf8");
-  // MLB/WC/NBA/UFC liveness must require the slate date to equal the real ET date, not merely content presence.
-  assert.match(src, /mlbDate === today/, "MLB 'live' requires the board date to be today");
-  assert.match(src, /=== today/, "sports liveness is date-gated");
-  assert.match(src, /best === today/, "NBA 'live' requires the board date to be today");
-  assert.match(src, /eventDate === today/, "UFC 'live' requires the event date to be today");
-  // Honest header when nothing is live.
-  assert.match(src, /no live slate today/, "header says 'no live slate today' when 0 are live");
+  assert.match(src, /ClientRedirect/, "/sports is a redirect stub");
+  assert.doesNotMatch(src, /Live today/, "the stub makes no liveness claim");
 });

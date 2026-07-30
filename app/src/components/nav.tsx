@@ -43,27 +43,30 @@ const NAV_ITEMS: Array<{
   { href: "/markets", label: "Market Center" },
   { href: "/results", label: "Results" },
   { href: "/learn", label: "How It Works" },
-  // SECONDARY — still reachable, de-emphasized after the divider (NO routes removed, none deleted): the
-  // flagship paper products, per-sport centers, per-game reports, and side products.
+  // SECONDARY — still reachable, de-emphasized after the divider: the flagship paper products, the one
+  // live sport hub, and the card surfaces.
   { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
   { href: "/moonshot", label: "Moonshot" },
   { href: "/mlb", label: "MLB" },
   { href: "/picks", label: "Picks Lab" },
   { href: "/mr-dub", label: "Daily Dashboard" },
-  { href: "/sports", label: "More Sports" },
 ];
+// The "More Sports" directory is gone. MLB is the only sport with a live model; NBA is a settled
+// archive reachable from Results, and the schedule-only leagues (NHL, IPL, WNBA, MLS) no longer have
+// public destinations at all. Nav lists what the site can actually do today, nothing more.
 // The 2026 World Cup is complete: it is NOT an active nav destination. It remains reachable only as an
 // archive (from /results / methodology), never a primary nav item or an active sport. /world-cup-specials
 // is a retired World-Cup-only product landing, likewise out of nav.
 
-// Sport routes that should light up the "Sports" nav item. World Cup is excluded — it is an archive, not an
-// active sport, so it never activates the Sports spine.
-const SPORT_RE = /^\/(sports|mlb|nba|ufc|nhl|ipl|board|projections|trends|events)(\/|$)/;
-const SPORT_HREFS = new Set(["/sports"]);
+// Routes that light up the MLB nav item. The retired aliases (/board, /projections) redirect into the
+// MLB board, so they highlight the destination they land on rather than flashing no active item.
+const SPORT_RE = /^\/(mlb|board|projections)(\/|$)/;
+const SPORT_HREFS = new Set(["/mlb"]);
 
-// The mobile bottom nav already carries the 8 core product routes. To keep the mobile TOP strip
+// The mobile bottom nav already carries the core product routes. To keep the mobile TOP strip
 // COMPLEMENTARY (not a duplicate of the bottom bar), it shows only the items the bottom nav lacks —
-// Results · Sports · Learn. The full NAV_ITEMS spine renders only in the sm-lg window; the command rail owns lg+.
+// Market Center · Results · How It Works · MLB. The full NAV_ITEMS spine renders only in the sm-lg
+// window; the command rail owns lg+.
 const BOTTOM_NAV_HREFS = new Set(MOBILE_NAV_ITEMS.map((i) => i.href));
 const MOBILE_TOP_ITEMS = NAV_ITEMS.filter((i) => !BOTTOM_NAV_HREFS.has(i.href));
 
@@ -83,8 +86,8 @@ export default function Nav() {
     if (href === "/build") {
       return pathname === "/build" || pathname.startsWith("/build/");
     }
-    // Sports lights up on the directory + every sport hub/board route.
-    if (href === "/sports") return SPORT_RE.test(pathname);
+    // MLB lights up on the hub, its boards, and the retired aliases that redirect into them.
+    if (href === "/mlb") return SPORT_RE.test(pathname);
     // Results, but not the model-audit surface (that lives under Learn).
     if (href === "/results") return pathname === "/results" || (pathname.startsWith("/results/") && !pathname.startsWith("/results/model-audit"));
     // Learn = the education hub + methodology + responsible-use + model audit.

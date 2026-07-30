@@ -1,42 +1,35 @@
 /**
- * /results/model-audit — model audit deep-dive.
+ * /results/model-audit — every cut of the settled record.
  *
- * Reads `app/public/data/audit/model_audit.json` (produced by
- * `python -m pipeline.model_audit` after every settlement) and renders
- * every cut of the settled-data record the audit framework computes:
+ * Renders the settled-data audit: cross-sport and per-sport summaries, per-market and per-side
+ * records, confidence tiers, model–market difference bands and quartiles, per-game dispersion, and
+ * the per-date timeline. Every cell cites its sample size and every percentage comes from settled
+ * rows; nothing here is a projection, a target or a claim about future accuracy.
  *
- *   * cross-sport lifetime + per-sport summaries
- *   * per-market W-L + projection-error stats
- *   * per-side and per-side × per-market W-L
- *   * confidence-tier calibration
- *   * fixed-cutoff edge bands + data-derived edge quartiles
- *   * per-game hit-rate dispersion
- *   * weak / strong named cohorts (sample-size weighted)
- *   * per-date timeline including each date's gameContext
- *
- * The page is intentionally a single scrollable surface — readers
- * looking for an honest answer to "what is the model actually doing"
- * should be able to scan it without clicking through tabs. Every cell
- * cites its sample size; every percentage is computed from real
- * settled rows. No projections, no targets, no future-accuracy claims.
+ * Two framing rules this page has to keep. Nothing is ordered so that a larger disagreement with the
+ * sportsbook reads as a better call — the measured record runs the other way, and the difference
+ * bands below are the evidence. And a market whose predictions have been switched off stays visible
+ * in the per-market record but is never placed in a ranked or recommendation-shaped list, which is
+ * why the old strong/weak cohort columns are gone rather than re-labelled.
  */
 import Link from "next/link";
 
 import { loadModelAudit } from "@/lib/results-audit-notes";
 import type {
   ModelAuditArtifact,
-  ModelAuditCohort,
   ModelAuditMarket,
   ModelAuditQuartile,
   ModelAuditSport,
 } from "@/lib/results-audit-notes";
 import { formatPercent } from "@/lib/format";
+import { isPredictionDisabled } from "@/lib/mlb/model-calibration-status";
+import { loadRecentAccounting } from "@/lib/research/results-accounting-loader";
 import HitRateSparkline from "@/components/hit-rate-sparkline";
 
 export const metadata = {
   title: "Model audit deep-dive · GameTime Picks",
   description:
-    "Settled-data audit of the GameTime Picks projection model. Per-market, per-side, per-confidence, per-edge-band, per-quartile, per-game dispersion — every cut sourced from real settled rows. Educational only.",
+    "Settled-data audit of the GameTime Picks projection model — per-market, per-side, per-confidence, per-difference-band and per-game cuts, every one sourced from real settled rows. Educational only.",
 };
 
 export default function ModelAuditPage() {
@@ -54,9 +47,13 @@ export default function ModelAuditPage() {
           className="mt-4 text-sm"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          The audit artifact has not been generated yet. Run{" "}
-          <code className="font-mono">python -m pipeline.model_audit</code>{" "}
-          after a settlement to populate this page.
+          This audit has not been rebuilt since the last settlement, so there is nothing current to
+          show. Nothing is displayed rather than presenting an older cut as the present record. The
+          settled outcome accounting on{" "}
+          <Link href="/results" style={{ color: "var(--vault-gold)" }}>
+            Results
+          </Link>{" "}
+          is unaffected.
         </p>
       </main>
     );
@@ -250,11 +247,6 @@ function SportBlock({
     >
       <BlockHeader accent={accent} title={`${label} settled audit`} />
 
-      <CohortsRow
-        weak={sport.weakCohorts}
-        strong={sport.strongCohorts}
-      />
-
       <DispersionRow sport={sport} />
 
       <h3 className="mt-8 mb-3 font-mono uppercase tracking-[0.16em]" style={fineHeader}>
@@ -343,103 +335,6 @@ function BlockHeader({
       </h2>
     </div>
   );
-}
-
-// ---------------------------------------------------------------------------
-// Cohort row (weak / strong)
-// ---------------------------------------------------------------------------
-
-function CohortsRow({
-  weak,
-  strong,
-}: {
-  weak: ModelAuditCohort[];
-  strong: ModelAuditCohort[];
-}) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <CohortColumn title="Strong cohorts" cohorts={strong} tone="strong" />
-      <CohortColumn title="Weak cohorts" cohorts={weak} tone="weak" />
-    </div>
-  );
-}
-
-function CohortColumn({
-  title,
-  cohorts,
-  tone,
-}: {
-  title: string;
-  cohorts: ModelAuditCohort[];
-  tone: "strong" | "weak";
-}) {
-  const accent =
-    tone === "strong" ? "var(--vault-success)" : "var(--vault-warn-amber)";
-  return (
-    <article
-      className="rounded-[6px] px-4 py-4 flex flex-col gap-3"
-      style={{
-        background: "rgba(26, 16, 11, 0.55)",
-        border: "1px solid var(--vault-border)",
-      }}
-    >
-      <div className="flex items-center gap-2">
-        <span
-          aria-hidden
-          className="inline-block w-1.5 h-1.5 rounded-full"
-          style={{ background: accent, boxShadow: `0 0 6px ${accent}` }}
-        />
-        <span
-          className="font-mono uppercase tracking-[0.14em]"
-          style={{ color: accent, fontSize: 10 }}
-        >
-          {title}
-        </span>
-      </div>
-      {cohorts.length === 0 ? (
-        <p
-          className="text-[12px] leading-relaxed"
-          style={{ color: "var(--vault-text-mute)" }}
-        >
-          No cohorts cleared the 30-decisive / 5pp deviation threshold yet.
-        </p>
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {cohorts.map((c) => (
-            <li
-              key={c.name}
-              className="flex items-center justify-between gap-3 text-[13px]"
-              style={{ color: "var(--vault-text)" }}
-            >
-              <span className="truncate" title={c.name}>
-                {c.name}
-              </span>
-              <span className="flex items-center gap-2 shrink-0">
-                <span
-                  className="font-mono font-semibold gtp-scoreboard-number"
-                  style={{ fontSize: 14 }}
-                >
-                  {fmtPct(c.hitRate)}
-                </span>
-                <span
-                  className="font-mono uppercase tracking-[0.12em]"
-                  style={{ color: "var(--vault-text-mute)", fontSize: 10 }}
-                >
-                  {c.wins}–{c.losses} · {weightLabel(c.weight)}
-                </span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </article>
-  );
-}
-
-function weightLabel(w: string): string {
-  if (w === "signal") return "signal";
-  if (w === "lean") return "lean";
-  return "small";
 }
 
 // ---------------------------------------------------------------------------

@@ -1,5 +1,9 @@
 /**
- * SPRINT 055 — the four probabilities, side by side, on the slate page.
+ * The probability layers, side by side, on the slate page.
+ *
+ * The intro here is deliberately two sentences. The full walkthrough of what each layer is lives once,
+ * on /learn, and this section links to it — the same explanation used to be written out in full on
+ * four pages, which meant four copies to keep true.
  *
  * The layout puts the calibrated estimate first and the raw estimate last, deliberately. The raw
  * number is the largest and the least trustworthy — it runs about nine points hot — so leading with it
@@ -10,6 +14,8 @@
  * predicted quality, and the measured record says the opposite: the highest-confidence grouping has
  * the worst hit rate.
  */
+import Link from "next/link";
+
 import {
   type ProbabilityRow,
 } from "@/lib/research/probability-rows-loader";
@@ -56,10 +62,13 @@ export default function ProbabilityLayersSection({
         Three estimates for the same question
       </h2>
       <p className="mt-2 max-w-[70ch] text-[14px] leading-relaxed text-[var(--text-mute)]">
-        For each line below you can see what our simulation produced, what that becomes after
-        correcting it against past results, and what the sportsbook&rsquo;s own prices imply once their
-        margin is removed. Listed by start time — never ranked by our own confidence, because the
-        measured record shows our most confident calls are our worst.
+        Our raw simulation, that number corrected against past results, and the sportsbook&rsquo;s own
+        price with its margin removed. Listed by start time — never ranked by our own confidence,
+        because the measured record shows our most confident calls are our worst.{" "}
+        <Link href="/learn#probabilities" className="underline underline-offset-2 text-[var(--text)]">
+          What these three mean
+        </Link>
+        .
       </p>
 
       <ul className="mt-4 space-y-3">

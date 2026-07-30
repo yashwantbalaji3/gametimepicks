@@ -150,7 +150,7 @@ export default function HomepageSportsRail() {
             emoji="🏒"
             sport="NHL"
             line={`${nhlGames.length} game${nhlGames.length === 1 ? "" : "s"} · projection model pending`}
-            href="/nhl/board"
+            href="/today"
           />
         </div>
       )}

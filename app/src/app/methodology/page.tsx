@@ -1,20 +1,19 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import path from "node:path";
+import Link from "next/link";
 import { getMeta } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Methodology — GameTimePicks",
   description:
-    "How GameTimePicks builds simulation-powered projections and compares them to the market: no-vig probabilities, the model gap, composite confidence, and official-settlement-only integrity. Paper-only, educational, public beta.",
+    "How GameTimePicks turns a schedule and a sportsbook price into a probability, how those probabilities are scored against the market, and what we refuse to publish. Paper-only, educational, public beta.",
   openGraph: {
-    title: "GameTimePicks Methodology — Simulation-Powered Analytics",
+    title: "GameTimePicks Methodology",
     description:
-      "No-vig probabilities, the model gap, confidence, and official-settlement-only integrity. Paper-only, public beta.",
+      "No-vig probabilities, the model–market difference, calibration, and official-settlement-only integrity. Paper-only, public beta.",
     type: "article",
   },
 };
-import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import DataSourceBadge from "@/components/data-source-badge";
 import HowToReadThis from "@/components/research/how-to-read-this";
 import { loadTerminal } from "@/lib/research/public-contract-adapter";
@@ -24,36 +23,35 @@ import SportOverviewHero from "@/components/sport-overview-hero";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 
 /**
- * /methodology — the full multi-sport product methodology hub (June 15 rebuild).
+ * /methodology — how a number on this site is produced and how it is judged.
  *
- * Replaces the old NBA-centric page. Explains, honestly and scannably: the daily
- * workflow, the universal math (American→implied, no-vig, model prob, edge,
- * composite confidence, data quality, parlay odds, paper return), each sport's
- * inputs/model/markets/card-rules/settlement/limits, the UFC first-slate learning
- * (6–1 moneyline / 0–4 cards / concentration lesson), data-integrity rules, and
- * the roadmap. Paper-only, educational; uses no outcome-promise language.
+ * It explains the daily workflow, the arithmetic (American → implied → no-vig → model probability →
+ * the model–market difference), what each sport's coverage actually is today, the settlement and
+ * data-integrity rules, and the standing limitations.
+ *
+ * Two things it deliberately does NOT do any more. It does not carry the paper-ladder rules — those
+ * are product mechanics and belong with the product, not in a methodology write-up whose reader is
+ * asking "where does this number come from". And it does not carry a chip row of results from one
+ * settled fight card: a four-figure record from a single event, frozen in the source and never
+ * revised, reads as a track record and is not one.
  */
 export default function MethodologyPage() {
   const meta = getMeta();
-  // Completed-ladder figures come from the ONE canonical source (banked-ladders.json), never hardcoded.
-  const crown = crownLadderSummary(path.join(process.cwd(), "public", "data"));
-  const crownReached = crown ? `${crown.pathLabel}, ${crown.recordLabel}` : "the $100 → $10K crown";
-  const crownFull = crown ? crown.laddersLabel : "multiple completed $100→$10K ladders";
 
   return (
     <div className="mx-auto max-w-[880px] px-4 sm:px-6 py-10">
       <SportOverviewHero
-        eyebrow="Methodology · transparent by design"
-        sport="How GameTimePicks builds projections"
-        tagline="paper-only · odds-backed + model-only · official settlement"
+        eyebrow="Methodology"
+        sport="Where the numbers come from"
+        tagline="paper-only · official settlement · scored against the market"
         statusKind="neutral"
         statusLabel="Reference"
         accent="gold"
         ctas={[
-          { href: "/results/model-audit", label: "Audit deep-dive", primary: true },
-          { href: "/results", label: "Latest results" },
+          { href: "/results", label: "The settled record", primary: true },
+          { href: "/system-status", label: "Service status" },
         ]}
-        framing="Transparency over performance. The models are intentionally explainable — no deep learning, no black boxes — so the reasoning behind every projection is auditable. Every number here is paper-only and educational, never wagering advice."
+        framing="The models are intentionally explainable — no deep learning, no black boxes — so the reasoning behind every projection can be checked. Every number here is paper-only and educational, never wagering advice."
       />
 
       <div className="mt-6 reveal reveal-d1 flex flex-wrap items-center gap-2">
@@ -64,22 +62,23 @@ export default function MethodologyPage() {
         <FreshnessBadge slateDate={(meta?.lastPipelineRun ?? "").slice(0, 10) || null} serverToday={currentEtDate()} noun="legacy pipeline run" />
       </div>
 
-      {/* Honest top-line: what odds-backed vs model-only means + validation-stage */}
+      {/* Three labels the reader will meet on every board. They describe what EXISTS for a market, not
+          how good it is — that judgement is the settled record's job, not a label's. */}
       <section className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 reveal reveal-d2">
         <ConceptCard
           tone="success"
-          label="Odds-backed"
-          body="A real sportsbook price exists. The projection is compared to the de-vigged market and is eligible for suggested cards."
+          label="Priced"
+          body="A real sportsbook price exists on both sides, so our probability can be shown next to the de-vigged market number."
         />
         <ConceptCard
           tone="heat"
-          label="Model-only"
-          body="No market price in the feed (e.g. UFC method/round props). Shown for insight, clearly labeled, and never priced into a parlay."
+          label="Unpriced"
+          body="No market price in the feed for this market. Anything we show for it stands alone, with nothing to check it against."
         />
         <ConceptCard
           tone="muted"
-          label="Validation-stage"
-          body="A new sport stays validation-stage until the model is graded against real settled results with a no-leakage backtest."
+          label="Not enough settled results"
+          body="Too few decided results to judge a market. It is reported and never acted on, and it never leads a page."
         />
       </section>
 
@@ -90,58 +89,6 @@ export default function MethodologyPage() {
           source is missing, the board says so rather than inventing a number.
         </p>
         <WorkflowDiagram />
-      </Section>
-
-      {/* SECTION 1.5 — The paper ladders (plain English). Historical paper products; framing must never imply forward edge. */}
-      <Section title="The paper ladders (banked-progress rules)">
-        <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
-          Our two flagship products are paper ladders that grow a small seed by stringing together strong,
-          model-qualified picks — and <span style={{ color: "var(--vault-text)" }}>bank paper progress as they climb</span> so
-          one bad day can&rsquo;t erase the whole run. Everything here is educational and paper-only; no wagers are placed.
-        </p>
-        <div className="space-y-5">
-          <Block title="Bank Builder · the ladder (live 5-step · 7-step preview)">
-            <p>
-              <strong style={{ color: "var(--vault-text)" }}>The live Bank Builder ladder is 5 steps ($100 → $10,000).</strong>
-              Each step risks the rolled-up stake on one 2–3 leg card of <span style={{ color: "var(--vault-text)" }}>team / game
-              markets only</span> (no player props); a win rolls in full to the next step, and a lost step costs only its $100
-              seed — that discipline built both completed $100→$10K crowns. Lane A and Lane B are two independent attempts at
-              this same ladder (same rules + target math) — there are no risk modes.
-            </p>
-            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
-              <span style={{ color: "var(--vault-text-mute)" }}>Preview (not yet live):</span> a future 7-step banked-progress
-              ladder ($100 → ~$10,380) that would bank part of each win from Step&nbsp;2 (later steps get safer, not richer;
-              Step&nbsp;7 is double-chance / draw-no-bet only). It is a methodology preview shown here only — <strong style={{ color: "var(--vault-text-mute)" }}>not
-              settlement-implemented and not on the live product</strong>. It stays paper-only; a future live version
-              would first require its partial-cash-out settlement to ship and pass every money gate.
-            </p>
-          </Block>
-
-          <Block title="Moonshot · the 3-step ladder ($25 → $1,500)">
-            <p>
-              A separate, high-variance longshot lane: <span style={{ color: "var(--vault-text)" }}>Day 1 $25 → $100</span> (bank
-              $25 — the seed is back), <span style={{ color: "var(--vault-text)" }}>Day 2 $75 → $375</span> (bank $75),
-              <span style={{ color: "var(--vault-text)" }}> Day 3 $300 → $1,500</span>. Legs are grouped by game and prefer
-              team / game markets. It is a longshot by design — one wrong leg ends the day — but a losing day only costs what was
-              still rolling; banked profit stays banked.
-            </p>
-          </Block>
-
-          <Block title="Why bank profit · why a no-play is sometimes the best play">
-            <p>
-              Rolling 100% of every win compounds fastest but is fragile — one loss high on the ladder gives everything back.
-              Banking a slice at each step trades a little upside for durable, realized profit. And when the day&rsquo;s slate
-              can&rsquo;t field a strong card, <span style={{ color: "var(--vault-text)" }}>we skip</span> — an honest no-play
-              beats forcing a coin-flip or a negative-gap card. Cards settle from official results only;
-              a pending leg is never counted as a loss.
-            </p>
-            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
-              Shorthand you&rsquo;ll see on cards: <span style={{ color: "var(--vault-text-mute)" }}>DC</span> (double chance =
-              your team wins or draws), <span style={{ color: "var(--vault-text-mute)" }}>DNB</span> (draw-no-bet = a draw
-              refunds the leg), <span style={{ color: "var(--vault-text-mute)" }}>BTTS</span> (both teams to score).
-            </p>
-          </Block>
-        </div>
       </Section>
 
       {/* SECTION 2 — Universal math */}
@@ -157,9 +104,10 @@ export default function MethodologyPage() {
 
           <Block title="02 · No-vig (two-sided) probability">
             <p>
-              Sportsbook prices include vig. When both sides are known we strip
-              it proportionally so the two probabilities sum to 1 — the fair
-              market baseline a model edge is measured against.
+              Sportsbook prices include the bookmaker&rsquo;s margin. When both sides are known we strip
+              it proportionally so the two probabilities sum to 1. This is the baseline every model
+              number on the site is scored against — and on the settled record it is the better
+              estimate of the two.
             </p>
             <Formula>
               p_novig_side = p_raw_side / (p_raw_side + p_raw_other)
@@ -168,44 +116,53 @@ export default function MethodologyPage() {
 
           <Block title="03 · Model probability">
             <p>
-              Continuous markets (NBA/MLB player stats) model the stat as a normal
-              distribution at the projection; soccer uses Poisson goal expectations;
-              UFC blends the market baseline with a small, capped fighter-stats
-              adjustment.
+              A player-stat market is modelled as a distribution around the projection, and the chance
+              of clearing the line is the area of that distribution above it. The width of the
+              distribution matters as much as its centre: understating it makes every probability look
+              more certain than the evidence supports.
             </p>
             <Formula>P(over) = 1 − Φ ( (line − projection) / σ )</Formula>
+            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
+              This applies to MLB, the only sport currently producing model output. UFC prices are shown
+              as the sportsbook&rsquo;s own de-vigged numbers with no model behind them.
+            </p>
           </Block>
 
-          <Block title="04 · Model–market gap (the legacy pipeline calls this &ldquo;edge&rdquo;)">
-            <Formula>edge_pp = ( P_model − P_market_novig ) × 100</Formula>
+          <Block title="04 · The model–market difference">
+            <Formula>difference_pp = ( P_model − P_market_novig ) × 100</Formula>
             <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
               In percentage points. This is a <span style={{ color: "var(--vault-text)" }}>disagreement measure, not an
-              advantage</span>: on 21,633 settled rows, large positive gaps were where the model performed
-              <em> worst</em> against the market. The pipeline keeps computing it because disagreement is
-              interesting research context; nothing selects a side because the gap is large.
+              advantage</span>: across the settled corpus, the largest positive differences are where the
+              model performed <em>worst</em> against the market. It is computed because a disagreement is
+              worth looking at, and nothing on the site selects a side because the difference is large.
             </p>
           </Block>
 
-          <Block title="05 · Composite confidence">
+          <Block title="05 · Calibration">
             <p>
-              Confidence is <span style={{ color: "var(--vault-text)" }}>not</span> the
-              model probability. It blends edge, data completeness, sample size,
-              source freshness, and market agreement, then buckets the result.
+              A stated probability is only useful if outcomes arrive at roughly the stated frequency.
+              Calibration maps our stated probabilities onto the frequencies actually observed on earlier
+              settled slates — the raw output has run systematically hot, so the corrected number is
+              lower and closer to true.
             </p>
-            <ul className="mt-3 space-y-1.5 font-mono text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-              <li><span style={{ color: "var(--vault-text-faint)" }}>watchlist</span> · model-only or thin/contrarian signal</li>
-              <li><span style={{ color: "var(--vault-text)" }}>lean → standard → strong</span> · rising composite score on odds-backed legs</li>
-              <li><span style={{ color: "var(--gtp-bank-heat)" }}>high-risk · longshot</span> · large model gap but low win probability</li>
-            </ul>
+            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
+              Calibration changes how confident we sound, not what we know. It is fitted on earlier
+              slates and scored on results it never saw, and the raw number is kept alongside it rather
+              than overwritten. Full walkthrough on{" "}
+              <Link href="/learn#probabilities" className="underline" style={{ color: "var(--vault-text)" }}>Learn</Link>.
+            </p>
           </Block>
 
           <Block title="06 · Data-quality grade">
-            <ul className="space-y-1.5 font-mono text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-              <li><span style={{ color: "var(--vault-success)" }}>A</span> — current odds + full stats + confirmed event</li>
-              <li><span style={{ color: "var(--vault-text)" }}>B</span> — current odds + partial stats</li>
-              <li><span style={{ color: "var(--vault-text)" }}>C</span> — model-only / stale-limited but explainable</li>
-              <li><span style={{ color: "var(--gtp-bank-heat)" }}>D</span> — below the paid-card threshold</li>
-              <li><span style={{ color: "var(--vault-text-faint)" }}>unavailable</span> — cannot project; shown as needs-data</li>
+            <p>
+              A per-market grade for how complete the inputs were. It describes the data, not the
+              answer: an A-grade projection is not more likely to be right, it is only better evidenced.
+            </p>
+            <ul className="mt-3 space-y-1.5 font-mono text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+              <li><span style={{ color: "var(--vault-success)" }}>A</span> — current price + full stats + confirmed event</li>
+              <li><span style={{ color: "var(--vault-text)" }}>B</span> — current price + partial stats</li>
+              <li><span style={{ color: "var(--vault-text)" }}>C</span> — no price to read against, or stale-limited but explainable</li>
+              <li><span style={{ color: "var(--vault-text-faint)" }}>unavailable</span> — cannot project; shown as needs-data rather than estimated</li>
             </ul>
           </Block>
 
@@ -223,197 +180,126 @@ export default function MethodologyPage() {
         </div>
       </Section>
 
-      {/* SECTION 2.5 — Prediction framework v1 */}
-      <Section title="Prediction framework (v1)">
+      {/* SECTION 2.5 — What a prediction is allowed to use. Trimmed from a nine-block framework tour
+          that described a cross-sport engine in the present tense and named product surfaces by old
+          labels. What survives is the part a reader needs to judge the numbers: the no-leakage rule
+          and the difference between a probability and our confidence in it. */}
+      <Section title="What a prediction is allowed to use">
         <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
-          A leakage-aware, opportunity-first framework across MLB, NBA, UFC, and soccer. Every
-          feature must be available before the event starts; projections never look more certain than
-          the data supports.
-        </p>
-        <p className="text-[13px] leading-relaxed mb-4" style={{ color: "var(--vault-text-faint)" }}>
-          The engine is live: it extracts each sport into the same pipeline (leakage validation →
-          confidence → risk → eligibility), then builds suggested parlays by sport and risk level on{" "}
-          <a href="/picks" className="underline" style={{ color: "var(--vault-text)" }}>the Parlay Lab</a>.
-          Sports with no qualified candidates say so honestly. The Bank Builder publishes a fresh daily
-          card only when the slate fields a strong one — otherwise it shows a clear no-play, never a forced bet.
+          Every input has to exist before the event starts. That sounds obvious and is the single
+          easiest way for a backtest to flatter itself, so it is enforced rather than assumed.
         </p>
         <div className="space-y-5">
-          <Block title="Feature hierarchy — opportunity first">
-            <p>The same priority order applies to every sport:</p>
-            <Formula>
-              Availability → Opportunity → Role → Matchup → Efficiency → Context → Market → Uncertainty → Validation
-            </Formula>
-            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
-              Opportunity first, role second, matchup third, efficiency fourth, context fifth. Market
-              is optional but powerful. Head-to-head history is last and heavily downweighted by sample size.
-            </p>
-          </Block>
-
-          <Block title="Prediction-time rule (no leakage)">
+          <Block title="The prediction-time rule">
             <Formula>feature_timestamp ≤ prediction_time &lt; event_start_time</Formula>
             <p className="mt-2">
-              Features use only information available before the event. We never use final scores, box
-              scores, an unconfirmed lineup/XI, fight results, rolling averages that include the target
-              event, or closing odds captured after the prediction. Each prediction stores its feature,
-              market, lineup, injury, and weather snapshot times and is validated against this rule.
+              We never use final scores, box scores, an unconfirmed lineup, rolling averages that
+              include the event being predicted, or a price captured after the prediction was made.
+              Each prediction records the timestamps of the data behind it and is checked against this
+              rule; a prediction that fails the check is not published.
             </p>
           </Block>
 
-          <Block title="Confidence ≠ probability · risk score">
+          <Block title="Confidence is not probability">
             <p>
-              Probability is how likely a pick hits. <span style={{ color: "var(--vault-text)" }}>Confidence</span> is
-              how much we trust the projection — driven by data freshness, role certainty, sample size,
-              and model/market agreement (a missing critical input forces No&nbsp;Bet). A separate
-              <span style={{ color: "var(--vault-text)" }}> risk score</span> flags fragility: small sample,
-              stale data, DNP/scratch risk, volatile market, fragile single-player props, and over-correlation.
+              Probability is how likely an outcome is. <span style={{ color: "var(--vault-text)" }}>Confidence</span> is
+              how much the projection can be trusted — driven by data freshness, sample size, and
+              whether a critical input is missing at all. They move independently: a 70% probability
+              built on three games is not the same claim as a 70% probability built on three hundred.
+            </p>
+            <p className="mt-2 text-[13px]" style={{ color: "var(--vault-text-faint)" }}>
+              On the measured record our highest-confidence groupings have not been our most accurate,
+              which is why nothing on the site is ordered by confidence.
             </p>
           </Block>
 
-          <Block title="Missing / stale / sample-size honesty">
+          <Block title="Missing and thin data is shown, not defaulted">
             <p>
-              If a feed is missing, stale, small-sample, or not yet built, we expose it — a flag, a lower
-              confidence, a higher risk — rather than a quiet default. Historical and matchup features carry
-              a sample-size bucket (0 · 1–5 · 6–15 · 16–30 · 31+) and are downweighted accordingly. Each
-              defined feature also carries an implementation status (implemented · partial · planned · not&nbsp;available).
-            </p>
-          </Block>
-
-          <Block title="Bank Builder — reliability over outcome">
-            <p>
-              Bank Builder uses a stricter <span style={{ color: "var(--vault-text)" }}>reliability score</span> than
-              Parlay Lab: only lower-variance, high-data-quality, confirmed-role legs across independent games.
-              It can decline a winning-looking pick — e.g. a moneyline favorite is more fragile than the same
-              team&apos;s double-chance or draw-no-bet, which cover the draw. Reliability is judged before kickoff,
-              not by the result. Suspended/postponed games are no-action (void) for the original slate, and a
-              hitter prop with no plate appearance voids (DNP) — never a loss.
+              If a feed is missing, stale or thin, the page says so rather than quietly substituting a
+              default. Historical features carry their sample size and are weighted down accordingly,
+              and a market with too few settled results is reported without being acted on.
             </p>
           </Block>
         </div>
       </Section>
 
-      {/* SECTION 3 — Sport methodology cards */}
-      <Section title="By sport">
+      {/* SECTION 3 — Sport coverage. These cards state what is TRUE TODAY per sport, which for most of
+          them is "not modelled". They previously described NBA and soccer models in the present tense
+          long after either stopped producing anything. */}
+      <Section title="By sport — what is actually modelled">
+        <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
+          One sport has a live model. The rest are either history we keep readable or a market price
+          shown as a market price. Nothing below is described in the present tense unless it is
+          producing output today.
+        </p>
         <div className="space-y-4">
-          <SportCard
-            accent="var(--gtp-bank-heat)"
-            name="UFC / MMA"
-            stage="moneyline V1 · validation-stage"
-            inputs="Moneyline (h2h) odds from The Odds API MMA; fighter record, recent win rate, finish rate, sig-strikes & takedowns per round, reach, experience from a UFCStats dataset; per-bout data-quality."
-            model="Market-implied baseline + a small, capped fighter-stats adjustment, shrunk toward the market when data is thin. Public eligibility requires a no-leakage backtest and data-quality ≥ B."
-            markets="Odds-backed: moneyline. Model-only (no feed odds): goes-the-distance, total rounds, method — shown for insight, not parlay eligible."
-            cards="Concentration-aware: one favorite cannot anchor every card; longshots must carry a distinct thesis."
-            settlement="Official ESPN MMA finals (status final only); KO/sub method graded only when present in the feed, else needs-review."
-            limits="Small-sample sport; no prop-odds feed; no licensed fighter-image source (initials avatars)."
-          />
           <SportCard
             accent="var(--vault-success)"
             name="MLB"
-            stage="player props + game markets"
-            inputs="Schedule + game logs (MLB Stats API); prop odds (DK/FD via The Odds API): batter hits / total bases, pitcher strikeouts."
-            model="Pitcher K: 0.55·last3 + 0.45·season, σ floored. Batter: 0.5·last10 + 0.5·season. P(over) via normal CDF. Conservative by design; oversized edges are flagged and capped."
-            markets="Odds-backed: batter hits, total bases, pitcher strikeouts. Others default to insufficient-data."
-            cards="Odds-backed legs only; lower-variance vs longshot lanes separated; same-game over-correlation flagged."
-            settlement="Official MLB Stats API boxscores."
-            limits="No park / weather / bullpen-fatigue / handedness-split inputs yet (roadmap)."
+            stage="live model · player props + game markets"
+            inputs="Schedule and game logs from the official MLB Stats API; player-prop and game-market prices captured from the odds provider (batter hits, batter total bases, pitcher strikeouts, moneyline, run line, totals)."
+            model="Each stat is modelled as a distribution around a projection built from recent-form and season windows, then converted to P(over) against the posted line. Simulated game outcomes come from those same projections. Stated probabilities are then calibrated against earlier settled slates."
+            markets="Read side by side with the de-vigged sportsbook price. A market whose own settled record sits below break-even has its predictions switched off and keeps only its history."
+            cards="Only markets with a real two-sided price are placed beside a market comparison; the rest are labelled as having no price to read against."
+            settlement="Official MLB Stats API box scores. If the event mapping fails an integrity check, the whole slate is withheld rather than partially graded."
+            limits="No park, weather, bullpen-fatigue or handedness-split inputs. On the settled record the model does not out-score the de-vigged market price in any market."
           />
           <SportCard
             accent="var(--vault-text)"
             name="NBA"
-            stage="player props"
-            inputs="Player game logs (official source); prop odds; home/away splits; recent-form windows."
-            model="proj = 0.45·last5 + 0.35·last10 + 0.20·season + 0.30·(split − base); P(over) via normal CDF; anomaly guardrails cap implausible edges."
-            markets="Odds-backed: PTS / REB / AST player props."
-            cards="Confidence + edge thresholds per risk profile; max legs per game; anomaly exclusion on lower-variance lanes."
-            settlement="Official boxscore (manual override → league API → ESPN → stats-unavailable)."
-            limits="No minutes / rest / back-to-back adjustment yet. Off-season shows no-slate, never stale finals as active."
-          />
-          <SportCard
-            accent="var(--vault-text)"
-            name="World Cup / Soccer"
-            stage="odds-backed + recent form"
-            inputs="PRICES from The Odds API (soccer_fifa_world_cup): 3-way moneyline, totals, double chance, BTTS, draw-no-bet. STATS from API-Football: recent form (last-5 across all competitions), group/standings, lineups, and settlement (final scores)."
-            model="Two providers: The Odds API supplies the odds → de-vigged market-implied probabilities (3-way for moneyline/double chance); API-Football attaches real recent form + group. A full Poisson team-strength model follows once enough WC matches are played (season stats are thin this early)."
-            markets="Odds-backed: match winner (3-way, Draw is a real outcome), totals, double chance (real book odds), BTTS, draw-no-bet. Player props (anytime goalscorer + shots on target) were live during the tournament — odds-backed, market-implied, limited-data, not parlay/Bank-Builder eligible."
-            cards="Favorites only above a probability floor; stale fixtures never shown as active; no card without a live price; honest counts (no padding)."
-            settlement="Official final score from API-Football, regulation 90 only (no extra time / penalties)."
-            limits="During the tournament, recent form was live; per-team WC-season stats and the Poisson model stayed thin on limited group games. The World Cup is now archived — proof and methodology only, not an active product."
-          />
-          <SportCard
-            accent="var(--vault-gold)"
-            name="Bank Builder"
-            stage={crown ? `paper ladder · ${crown.laddersCompleted}× $100→$10K banked` : "paper ladder"}
-            inputs="Draws only from the official Suggested-parlay pool; selects on combined American price within a target window (not on edge/confidence)."
-            model="A fixed paper stake compounds up a ladder; each step rolls the prior bankroll forward only after the step settles officially."
-            markets="Whatever the eligible suggested slip contains (may mix sports)."
-            cards="One pending step at a time; honest diagnosis when no eligible slip exists."
-            settlement="Official results per leg; the bankroll changes only on settlement."
-            limits={`Repeated twice on paper: ${crownFull} (run #1 reached ${crownReached}, then a second independent $100→$10K). a fresh card now runs daily when the slate fields a strong one — see Mr. Dub for the full journey.`}
+            stage="history only · nothing new is produced"
+            inputs="Player game logs and prop prices captured while the model was running."
+            model="The projection model that produced this history is no longer run. Nothing is being generated, graded or published for NBA."
+            markets="None currently. The archived player-prop record remains readable."
+            cards="None."
+            settlement="The historical record was settled from official box scores at the time."
+            limits="Frozen. A record that stops updating is a record of the past, and it is labelled as one wherever it appears — it says nothing about today."
           />
           <SportCard
             accent="var(--gtp-bank-heat)"
-            name="Suggested cards"
-            stage="conservative → longshot"
-            inputs="Eligible odds-backed legs from the day's boards across sports."
-            model="Greedy build per risk profile (confidence tiers, minimum edge, max legs, recent-form requirement), then a concentration score over the slip."
-            markets="Conservative / balanced / high-risk / longshot lanes; an optional mixed card only when data quality is strong enough."
-            cards="Active-date + odds-backed only; no settled events; no single anchor across every card; longshots must be a different thesis; honest 'not enough current odds-backed legs' state when thin."
-            settlement="Each leg settles on its official result; slip status is win/loss/push/pending/void."
-            limits="Concentration caps are being promoted from shadow to live under a reviewed, gated path (see UFC lesson)."
+            name="UFC / MMA"
+            stage="market-implied only · no fight model"
+            inputs="Moneyline prices from the odds provider."
+            model="There is no fight model. The probability shown is the posted price with the margin removed — the sportsbook's number, presented as theirs."
+            markets="Moneyline only. Method, round and distance markets are not covered at all."
+            cards="None."
+            settlement="Official finals; a bout that cannot be matched to a result is left ungraded rather than guessed."
+            limits="No settled record exists against which any UFC number here could be judged."
+          />
+          <SportCard
+            accent="var(--vault-text)"
+            name="Soccer / World Cup"
+            stage="closed · archive only"
+            inputs="Prices and fixtures captured during the 2026 tournament."
+            model="Match-winner probabilities were de-vigged market prices with recent form attached. Nothing is being produced now."
+            markets="None. The tournament archive stays readable as a record of what was published at the time."
+            cards="None."
+            settlement="Official final score, regulation 90 minutes only — extra time and penalties never counted toward a 90-minute market."
+            limits="Closed as a destination. It is kept for the record, not offered as a product."
           />
         </div>
       </Section>
 
-      {/* SECTION 4 — UFC first-slate learning */}
-      <Section title="UFC first-slate learning (UFC 250, settled)">
-        <div className="vault-deluxe-card casino-glow-card p-5 sm:p-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-            <StatChip value="6–1" label="moneyline record · n=7" tone="muted" />
-            <StatChip value="+320" label="Hokit underdog hit" tone="success" />
-            <StatChip value="−520" label="Topuria fav missed" tone="heat" />
-            <StatChip value="0–4" label="suggested cards" tone="heat" />
-          </div>
-          <p className="text-[14px] sm:text-[15px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-            The straight-pick signal was strong (six of seven moneylines, including
-            a +320 underdog). The suggested cards went 0–4 — and every card failed
-            for the <span style={{ color: "var(--vault-text)" }}>same reason</span>:
-            each one leaned on the same heavy favorite (Topuria, −520), who lost.
-            That is concentration risk, not a model-accuracy problem.
-          </p>
-          <div className="mt-4 rounded-[8px] px-4 py-3" style={{ background: "rgba(242,54,69,0.08)", border: "1px solid var(--vault-rule)" }}>
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] mb-1.5" style={{ color: "var(--gtp-bank-heat)" }}>
-              Card-builder V2 lesson
-            </div>
-            <p className="text-[13.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-              No single leg may anchor every card; heavy-favorite exposure is
-              capped; each card now carries a concentration score; and a stress
-              test asks &ldquo;what if the top favorite loses?&rdquo; before
-              publishing. One slate does not prove a model — the validation-stage
-              label stays on.
-            </p>
-          </div>
-        </div>
-      </Section>
-
-      {/* SECTION 5 — Data integrity */}
+      {/* SECTION 4 — Data integrity */}
       <Section title="Data integrity">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <ModeCard color="lime" label="Official settlement only" description="Results settle from official sources (league APIs / ESPN finals), never from screenshots, web snippets, or user reports." />
-          <ModeCard color="lime" label="Stale-date gating" description="Past slates never show as 'today'. Stale content moves to results/archive; it never sits in active picks." />
-          <ModeCard color="amber" label="Unavailable / needs-data" description="When a source or credential is missing, the page says so. It does not fabricate a formula output." />
-          <ModeCard color="rose" label="No fabrication" description="No invented odds, projections, results, fighter/player images, fight histories, player stats, or injuries. Missing images fall back to initials." />
+          <ModeCard color="lime" label="Official settlement only" description="Results settle from official league sources, never from screenshots, web snippets, or user reports." />
+          <ModeCard color="lime" label="Stale-date gating" description="A past slate is never presented under today's heading. When today's data does not exist, the page says so and names the slate it is actually showing." />
+          <ModeCard color="amber" label="Unavailable / needs-data" description="When a source is missing, the page says so. It does not fabricate a formula output or fall back to an older number." />
+          <ModeCard color="rose" label="Refuse rather than guess" description="A slate whose event mapping fails an integrity check is withheld entirely — no partial grading, no rate, and it stays visible in the accounting with the reason." />
         </div>
       </Section>
 
-      {/* SECTION 6 — Limitations + roadmap */}
-      <Section title="Limitations &amp; roadmap">
+      {/* SECTION 5 — Standing limitations */}
+      <Section title="Standing limitations">
         <div className="vault-deluxe-card p-5 sm:p-6">
           <ul className="space-y-3.5 text-[14px] sm:text-[15px] leading-relaxed list-none">
-            <LimitationRow title="Generation is run on demand" body="Slates are generated on demand, not yet fully automated; freshness reflects the last pipeline run." />
-            <LimitationRow title="Lines move" body="Boards reflect odds at pipeline time. By the time you read them, prices have likely shifted." />
-            <LimitationRow title="UFC props need a feed" body="Method / round / distance stay model-only until a real prop-odds feed and a graded model for them exist." />
-            <LimitationRow title="MLB context inputs" body="Park factor, weather, bullpen fatigue, and handedness splits are on the roadmap, not yet modeled." />
-            <LimitationRow title="Soccer depth" body="World Cup prices come from The Odds API; recent form, group, lineups, settlement, and player identity/photos from API-Football. Odds-backed player props (anytime goalscorer + shots on target) were live but market-implied only — labelled limited-data and not parlay/Bank-Builder eligible. Per-team WC-season stats and the Poisson model stay thin until more group games are played." />
-            <LimitationRow title="Richer feeds + automation" body="Fuller data feeds, a licensed fighter-image source, and detailed fight histories are planned." />
+            <LimitationRow title="The market is still the better estimate" body="Scored on identical settled results, the de-vigged sportsbook price beats our probabilities. Nothing here has been shown to out-predict it, and a disagreement between the two is not evidence that we are right." />
+            <LimitationRow title="One sport is live" body="MLB is the only sport producing model output. NBA is frozen history, UFC is a market price with no model behind it, and soccer is closed." />
+            <LimitationRow title="Lines move" body="Boards reflect prices as captured, with the capture time shown. By the time you read them, prices have likely shifted, and there is no retained snapshot series to chart movement from." />
+            <LimitationRow title="Missing context inputs" body="Park factor, weather, bullpen fatigue and handedness splits are not modelled for MLB." />
+            <LimitationRow title="Some markets are switched off" body="Where a market's own settled record sits entirely below break-even across a large sample, predictions in it are disabled. The history stays visible and is never placed in a ranked or difference-ordered list." />
+            <LimitationRow title="Legacy rows are labelled, not restamped" body="Settled results that predate the current event-identity checks are labelled legacy rather than retroactively stamped with lineage they never had." />
           </ul>
         </div>
       </Section>
@@ -513,16 +399,6 @@ function SportCard({
           </div>
         ))}
       </dl>
-    </div>
-  );
-}
-
-function StatChip({ value, label, tone }: { value: string; label: string; tone: "success" | "heat" | "muted" }) {
-  const color = { success: "var(--vault-success)", heat: "var(--gtp-bank-heat)", muted: "var(--vault-text-faint)" }[tone];
-  return (
-    <div className="rounded-[8px] px-3 py-2.5 text-center" style={{ background: "rgba(26,16,11,0.45)", border: "1px solid var(--vault-rule)" }}>
-      <div className="font-display tabular font-bold" style={{ color, fontSize: 20 }}>{value}</div>
-      <div className="font-mono text-[9.5px] uppercase tracking-[0.08em] mt-0.5" style={{ color: "var(--vault-text-faint)" }}>{label}</div>
     </div>
   );
 }
@@ -671,8 +547,8 @@ function WorkflowDiagram() {
         <SimulationCoverageMatrix />
       </div>
 
-      {/* SPRINT 054 — the twelve questions, answered from the SAME canonical artifact the rest of the
-         site renders, so an explanation cannot drift from the numbers it explains. */}
+      {/* The reader's questions, answered from the SAME canonical artifact the rest of the site
+         renders, so an explanation cannot drift from the numbers it explains. */}
       <HowToReadThis terminal={loadTerminal()} />
     </div>
   );

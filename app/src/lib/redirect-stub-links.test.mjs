@@ -19,21 +19,34 @@ import path from "node:path";
 
 const APP = process.cwd();
 
-/** stub route -> where it actually goes */
+/**
+ * stub route -> where it actually goes.
+ *
+ * The 2026-07-30 public-route audit retired a further ten routes (scaffold-only sports, the NBA live
+ * model surfaces, and legacy aliases) to stubs for the same reason: inbound links we do not control
+ * must keep landing somewhere real, while our own links go straight to the canonical destination.
+ */
 const STUBS = {
   "/parlay-lab": "/picks",
   "/parlays": "/picks",
   "/nba/parlays": "/picks",
   "/games": "/simulate",
+  "/board": "/mlb/board",
+  "/projections": "/mlb/board",
+  "/trends": "/mlb/board",
+  "/events": "/today",
+  "/nhl": "/today",
+  "/ipl": "/today",
+  "/sports": "/mlb",
+  "/nba": "/results/nba",
+  "/mlb/parlays": "/picks",
+  "/homer-nukes": "/results",
 };
 
 /** The stub's own page.tsx is allowed to mention itself; nothing else is. */
-const OWN_PAGE = {
-  "/parlay-lab": "src/app/parlay-lab/page.tsx",
-  "/parlays": "src/app/parlays/page.tsx",
-  "/nba/parlays": "src/app/nba/parlays/page.tsx",
-  "/games": "src/app/games/page.tsx",
-};
+const OWN_PAGE = Object.fromEntries(
+  Object.keys(STUBS).map((stub) => [stub, `src/app${stub}/page.tsx`]),
+);
 
 function walk(dir, out = []) {
   let entries;

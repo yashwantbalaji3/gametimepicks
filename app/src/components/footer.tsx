@@ -66,25 +66,22 @@ export default function Footer() {
               className="vault-quiet-label mb-3"
               style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
             >
-              Sports
+              Coverage
             </div>
-            {/* Active sports lead; off-season leagues stay reachable but are honestly labelled (no links
-                removed — the routes still build + direct URLs work). See docs/LEGACY_ROUTE_CLEANUP_PLAN. */}
+            {/* One live sport, one settled archive — and nothing else. The schedule-only leagues (NHL,
+                IPL, WNBA, MLS) no longer have public destinations, so there is nothing here to label
+                "pending": a link that promises future coverage is still a promise. */}
             <ul className="space-y-2 list-none p-0">
-              <li><Link href="/mlb" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>MLB</Link></li>
               <li>
-                <Link href="/nba" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
-                  NBA <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· off-season</span>
+                <Link href="/mlb" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
+                  MLB <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· live</span>
                 </Link>
               </li>
               <li>
-                <Link href="/nhl" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
-                  NHL <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· provider pending</span>
+                <Link href="/results/nba" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
+                  NBA <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· settled archive</span>
                 </Link>
               </li>
-              {/* PR #113: IPL link removed from the footer. The /ipl
-                  routes still exist for future re-enablement but are
-                  no longer surfaced from any nav. */}
             </ul>
           </div>
           <div>
@@ -117,6 +114,8 @@ export default function Footer() {
             <ul className="space-y-2 list-none p-0">
               <li><Link href="/learn" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>How It Works</Link></li>
               <li><Link href="/methodology" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Methodology</Link></li>
+              <li><Link href="/market-guide" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Market Guide</Link></li>
+              <li><Link href="/system-status" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>System status</Link></li>
               <li><Link href="/research" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Research engine</Link></li>
               <li><Link href="/responsible-use" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Responsible use</Link></li>
             </ul>
@@ -138,7 +137,7 @@ export default function Footer() {
               GameTime Picks is a simulation-first, paper-only sports model. Run
               deterministic game simulations, review today&rsquo;s model slate, and track
               every result against official settlement — the same model output for every
-              user. Multi-sport: MLB and more.
+              user. MLB is the one sport currently modelled; the NBA archive is settled history only.
             </p>
             <p
               className="mt-3 text-[12px]"

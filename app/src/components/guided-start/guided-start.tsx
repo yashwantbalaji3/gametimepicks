@@ -183,7 +183,7 @@ export default function GuidedStart({
             No suggested slips are posted yet — we only show slips saved before games start. The next
             pregame snapshot lands once tonight&apos;s lines and projections are ready.
           </p>
-          <Link href="/projections/" className="self-start font-mono uppercase tracking-[0.12em] text-[11px]" style={{ color: "var(--vault-gold-bright)" }}>
+          <Link href="/mlb/board/" className="self-start font-mono uppercase tracking-[0.12em] text-[11px]" style={{ color: "var(--vault-gold-bright)" }}>
             Browse projections →
           </Link>
         </div>

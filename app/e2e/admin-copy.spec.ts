@@ -21,7 +21,7 @@ import { test, expect } from "@playwright/test";
 
 const PUBLIC_PAGES = [
   "/",
-  "/board/",
+  "/mlb/board/",
   "/parlay-lab/",
   "/results/",
   "/methodology/",

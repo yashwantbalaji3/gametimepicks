@@ -15,7 +15,9 @@ const PAGES = [
   // Sprint 035: the visible brand is "GameTime Picks" (spaced). The one-word form appears only in
   // meta/URLs, never in rendered text, so the old regex could never match.
   { path: "/", heading: /GameTime\s*Picks/i },
-  { path: "/board/", heading: /model board/i },
+  // 2026-07-30 route audit: /board was the NBA model board and is now an alias for the MLB
+  // board (the one sport with a live model). Asserted as a redirect below.
+  { path: "/mlb/board/", heading: /MLB games|model leans|off-day/i },
   // Sprint 035: /parlay-lab is a client redirect to /picks (the suggested-card lobby moved).
   // Asserted as a redirect below rather than as a page with its own heading.
   { path: "/results/", heading: /results/i },
@@ -28,6 +30,9 @@ const PAGES = [
 // Legacy aliases that must keep working rather than 404 — they client-redirect to their new home.
 const REDIRECTS = [
   { path: "/parlay-lab/", lands: /\/picks\/?$/ },
+  { path: "/board/", lands: /\/mlb\/board\/?$/ },
+  { path: "/sports/", lands: /\/mlb\/?$/ },
+  { path: "/nba/", lands: /\/results\/nba\/?$/ },
 ];
 
 const RETIRED = [

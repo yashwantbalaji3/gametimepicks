@@ -1,9 +1,12 @@
 /**
- * Root route `/` — a focused, premium, simulation-first flagship landing page (NOT the dense Today board).
- * It leads a first-time visitor through the 30-second story in seven sections: a simulation-first hero,
- * four flagship product cards, featured (real, ready-artifact) simulations, a COMPACT slate summary, a
- * trust/receipts strip, a "how it works" explainer, and a footer CTA. The full dense board lives only on
- * `/today` (unchanged) — this page intentionally does NOT render it.
+ * Root route `/` — the front door. It answers one question — "what is this, and what is there to look
+ * at today?" — and hands off: the measured comparison against the sportsbook, today's availability, the
+ * simulation centers, the products, real ready simulations, and how it works. The dense daily board
+ * lives only on `/today`; this page intentionally does NOT render it.
+ *
+ * The page states the market comparison ONCE, at the top, from the canonical contract. It used to state
+ * it three times in three voices, which reads as a product insisting on its own honesty rather than
+ * showing the measurement. One statement with the numbers under it is stronger than three without.
  *
  * MONEY INTEGRITY: every money / record / exposure / step figure is READ here (a server component) from
  * the SAME canonical artifacts the Today board already uses, then passed to the presentational home
@@ -25,7 +28,6 @@ import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildMarketCoverage } from "@/lib/today/market-coverage";
-import { loadGradingRecord } from "@/lib/home/grading-record";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
@@ -34,14 +36,11 @@ import { loadTodaySlate } from "@/lib/parlays/ui-loader";
 import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 
 import LandingHero from "@/components/home/landing-hero";
-import WhatThisIs from "@/components/home/what-this-is";
-import ReturnHook from "@/components/home/return-hook";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
 import PreSportsbookStrip from "@/components/home/pre-sportsbook-strip";
-import WhatWeHaveNotProven from "@/components/home/what-we-have-not-proven";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
-import { SlateSummary, TrustStrip, HowItWorks, FooterCta } from "@/components/home/home-sections";
+import { HowItWorks, FooterCta } from "@/components/home/home-sections";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 
 export const metadata = {
@@ -50,7 +49,6 @@ export const metadata = {
     "A simulation-first, paper-only sports model. Run deterministic game simulations, review today's model slate, and follow every result with transparent, official-settlement-only receipts. Free and educational.",
 };
 
-const usd0 = (n: number) => `$${Number(n).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 const usd2 = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default function HomePage() {
@@ -62,10 +60,11 @@ export default function HomePage() {
   const dailyPortfolio = buildDailyPortfolio(dataRoot, new Date().toISOString(), today);
   const crown = crownLadderSummary(dataRoot);
 
-  // Record / peak come from the canonical portfolio.json (the fields AchievementBanner surfaces). Fail
-  // closed to null so a figure is only ever shown when it can be sourced canonically.
+  // Record comes from the canonical portfolio.json. Fail closed to null so a figure is only ever shown
+  // when it can be sourced canonically. The peak/high-water figure is deliberately NOT read here: a
+  // "peak paper bankroll" tile on the front door reads as a profitability claim, and this is a research
+  // terminal. The full paper record, including every losing card, lives on /results.
   let recordLabel: string | null = crown?.recordLabel ?? null;
-  let peakLabel: string | null = null;
   let pendingLabel: string | null = null;
   try {
     const p = JSON.parse(fs.readFileSync(path.join(dataRoot, "mr-dub", "portfolio.json"), "utf8"));
@@ -75,26 +74,21 @@ export default function HomePage() {
       const pending = p.record.pending ?? 0;
       pendingLabel = `${pending} pending · ${settled} settled`;
     }
-    const peak = p.highWaterMark ?? p.peakBankroll ?? p.crownBankroll;
-    if (typeof peak === "number") peakLabel = usd0(peak);
   } catch {
-    /* fail closed → the trust strip omits any figure it cannot source canonically */
+    /* fail closed → the product card omits any figure it cannot source canonically */
   }
 
-  const bankrollLabel = usd2(dailyPortfolio.activeBankroll);
   const openExposureLabel = usd2(dailyPortfolio.openExposure);
 
   // ── Featured simulations — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
   const { featured, readyCount } = featuredSimulations(details, currentEtDate());
-  // Sprint 015 Phase 1: what each featured simulation CONCLUDED — a lookup over the canonical objects.
+  // What each featured simulation CONCLUDED — a lookup over the canonical objects.
   const gameAnswers = buildHomeGameAnswers(details);
   // Daily-MLB destination hook — the SAME brief overview /today leads with (factual counts, no picks).
   const homeBrief = buildDailyBrief(details, today, { nowMs: Date.now() });
-  // ── Sprint 032 — the same canonical availability object /today renders, so Home and Today cannot
-  //    disagree about what data exists. One derivation, two renderings; no new data path. ──
-  // Sprint 035 — graded-prediction counts for the "what we have not proven" band. Money-independent.
-  const gradingRecord = loadGradingRecord(dataRoot);
+  // The same canonical availability object /today renders, so Home and Today cannot disagree about
+  // what data exists. One derivation, two renderings; no new data path.
   const marketCoverage = buildMarketCoverage(
     details.filter((d) => d.sport === "mlb" && d.date === today),
     today,
@@ -129,11 +123,6 @@ export default function HomePage() {
   const bbHasActiveCard = dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active");
   const bbNoPlay = !bbProposal.available && !bbHasActiveCard;
   const bbStepPhrase = awaitingRung != null ? `awaiting Step ${awaitingRung}` : "awaiting next card";
-  const bankBuilderStatus = bbNoPlay
-    ? `No-play · ${bbStepPhrase} · open exposure ${openExposureLabel}`
-    : bbHasActiveCard
-      ? `Active card · ${bbStepPhrase}`
-      : `${bbStepPhrase} · open exposure ${openExposureLabel}`;
 
   // ── Longshot / Moonshot status — no active Moonshot card today ⇒ honest no-play ──
   const moonshotActive = dailyPortfolio.cards.some((c) => c.product === "moonshot" && c.status === "active");
@@ -202,10 +191,10 @@ export default function HomePage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-9">
-      {/* SPRINT 054 — research-terminal positioning, read from the canonical contract. Leads with what
-         the site compares, states the market comparison result plainly (currently: behind), and links
-         to the status page. A homepage that shows a hit rate while omitting the market comparison is
-         technically silent and practically misleading. */}
+      {/* Research-terminal positioning, read from the canonical contract. This is the ONLY place the
+         page states how the model compares to the sportsbook — with the settled counts and the scores
+         under it. A homepage that shows a hit rate while omitting that comparison is technically
+         silent and practically misleading. */}
       <TerminalSummaryPanel terminal={loadTerminal()} />
 
       {/* 0 — Slate liveness: on a no-games day this frames the page honestly on the REAL ET clock
@@ -220,16 +209,12 @@ export default function HomePage() {
         includeMlbNote
       />
 
-      {/* 1 — Simulation-first hero */}
-      <LandingHero bankrollLabel={bankrollLabel} recordLabel={recordLabel} readyCount={readyCount} />
+      {/* 1 — Simulation-first hero. It carries no money figure: a paper bankroll beside a paper record
+          on the front door reads as a return, and the ONE claim above it is that we are behind the
+          market. The record and every settled card live on /results. */}
+      <LandingHero readyCount={readyCount} />
 
-      {/* 1b — Honest three-way separation: what's live · what we're building (gated) · what we don't claim. */}
-      <WhatThisIs />
-
-      {/* 1c — Return hook: the honest daily loop (new sims each game day, graded from official box scores). */}
-      <ReturnHook latestSettledLabel={today < serverToday ? dateLabel : null} />
-
-      {/* 1d — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}
+      {/* 2 — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}
       <HomeTodayMlb
         dateLabel={dateLabel}
         games={homeBrief.overview.games}
@@ -239,15 +224,11 @@ export default function HomePage() {
       />
 
 
-      {/* 1e — Before you open a sportsbook: what data exists for today + when the book was captured.
-          The first step from navigation page toward intelligence dashboard. Availability only. */}
-      {/* 1e-a — Sprint 035: lead with the limitation. This is the one claim no sportsbook-owned
-          research arm can make, and it is backed by the committed grading ledger. */}
-      <WhatWeHaveNotProven gradedCount={gradingRecord.gradedCount} gradedDates={gradingRecord.gradedDates} />
-
+      {/* 3 — Before you open a sportsbook: what data exists for today + when the book was captured.
+          Availability only — counts and capture provenance, never a suggested action. */}
       <PreSportsbookStrip coverage={marketCoverage} dateLabel={dateLabel} />
 
-      {/* 2 — Simulation Hub: the per-sport simulation centers (the core product topic) */}
+      {/* 4 — Simulation Hub: the per-sport simulation centers (the core product topic) */}
       <FlagshipCards
         cards={simHubCards}
         heading="Simulation Hub"
@@ -255,7 +236,8 @@ export default function HomePage() {
         ariaLabel="Sport simulation centers"
       />
 
-      {/* 2b — Flagship products, powered by the simulations */}
+      {/* 5 — Flagship products, powered by the simulations. Each card carries its own current status,
+          which is why the page no longer repeats those statuses in a second slate-summary block. */}
       <FlagshipCards
         cards={productCards}
         heading="Flagship products"
@@ -263,32 +245,13 @@ export default function HomePage() {
         ariaLabel="Flagship products"
       />
 
-      {/* 3 — Featured simulations (real ready artifacts only) */}
+      {/* 6 — Featured simulations (real ready artifacts only) */}
       <FeaturedSimulationsSection featured={featured} readyCount={readyCount} answers={gameAnswers} />
 
-      {/* 4 — Compact today's-slate summary (NOT the full board) */}
-      <SlateSummary
-        dateLabel={dateLabel}
-        mlbGames={mlbGames}
-        mlbLeans={mlbLeans}
-        topPicks={topPicks}
-        bankBuilderStatus={bankBuilderStatus}
-        moonshotStatus={moonshotStatus}
-      />
-
-      {/* 5 — Trust / receipts strip */}
-      <TrustStrip
-        recordLabel={recordLabel}
-        bankrollLabel={bankrollLabel}
-        peakLabel={peakLabel}
-        openExposureLabel={openExposureLabel}
-        pendingLabel={pendingLabel}
-      />
-
-      {/* 6 — How it works */}
+      {/* 7 — How it works */}
       <HowItWorks />
 
-      {/* 7 — Footer CTA */}
+      {/* 8 — Footer CTA */}
       <FooterCta />
     </div>
   );

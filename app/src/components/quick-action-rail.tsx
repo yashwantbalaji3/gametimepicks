@@ -29,10 +29,10 @@ interface Props {
 
 const DEFAULT_CARDS: QuickActionCard[] = [
   {
-    href: "/board",
+    href: "/mlb/board",
     eyebrow: "Today",
     title: "Model board",
-    sub: "Every projection, ranked by edge.",
+    sub: "Every projection on tonight's slate.",
   },
   {
     href: "/results",

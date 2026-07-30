@@ -30,17 +30,17 @@ const TIERS: Array<{ tier: string; tone: string; note: string }> = [
 ];
 
 const SPORTS: Array<{ name: string; note: string }> = [
-  { name: "MLB", note: "The active flagship. Player-prop projections — pitcher strikeouts, batter hits / total bases — from game logs vs the line, plus optimizer suggested cards." },
-  { name: "NBA", note: "Off-season. Player-prop projections — points, rebounds, assists and more — return with the next slate, with Finals context preserved." },
-  { name: "UFC", note: "Moneyline only (V1). Win probabilities vs the market price. Suggested cards are model-probability only — no market odds, so no paper payout is shown. No method/distance/round props yet." },
-  { name: "World Cup", note: "Archived. The 2026 tournament ran 90-minute regulation only (a Draw was a real third outcome). Kept for proof and methodology — not an active product." },
+  { name: "MLB", note: "The only sport with a live model. Player-prop simulations — pitcher strikeouts, batter hits, total bases — run against the posted line, plus game-level market context." },
+  { name: "NBA", note: "History only. The settled record from earlier seasons stays readable, but nothing new is being modelled or published for NBA." },
+  { name: "UFC", note: "Market-implied only. Win probabilities are read from the posted price; there is no fight model behind them, and no method / distance / round markets." },
+  { name: "World Cup", note: "Closed. The 2026 tournament ran 90-minute regulation only (a Draw was a real third outcome). Kept as an archive of what was published at the time." },
 ];
 
 const GATES: Array<{ label: string; note: string }> = [
-  { label: "Model gap below card threshold", note: "The model agrees with the market — not enough disagreement to suggest a card. Shown as a projection view." },
-  { label: "Waiting on lineups", note: "A player prop needs the confirmed starting lineup before it's card-eligible." },
-  { label: "Market unavailable", note: "The current odds provider doesn't offer this market for this event yet." },
-  { label: "Building a bigger sample", note: "Early-tournament or thin data — confidence is capped until more games are graded." },
+  { label: "Predictions switched off for the market", note: "This market's own settled record sits below break-even, so we make no prediction in it. The history stays visible." },
+  { label: "Waiting on lineups", note: "A player prop needs the confirmed starting lineup before it can be shown as a card leg." },
+  { label: "Market unavailable", note: "The odds provider doesn't offer this market for this event, so there is no price to read against." },
+  { label: "Not enough settled results", note: "Too few decided results to say anything yet. It is reported and never acted on." },
 ];
 
 export default function LearnPage() {
@@ -56,7 +56,8 @@ export default function LearnPage() {
       <nav aria-label="Learn sections" className="flex flex-wrap gap-1.5">
         {[
           { href: "#start", label: "Start here" },
-          { href: "#projections", label: "Projections" },
+          { href: "#probabilities", label: "The three probabilities" },
+          { href: "#projections", label: "Reading a card" },
           { href: "#picks", label: "Picks" },
           { href: "#build", label: "Build" },
           { href: "#bank-builder", label: "Bank Builder" },
@@ -90,13 +91,47 @@ export default function LearnPage() {
         </div>
       </section>
 
+      {/* THE canonical explanation of the three probability layers. Every other page that shows those
+          numbers carries a one-line local note and links back to this anchor — one place to keep true
+          instead of four copies drifting apart. */}
+      <section id="probabilities" className="scroll-mt-16 flex flex-col gap-3">
+        <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>The three probabilities</h2>
+        <p style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.55, maxWidth: "70ch" }}>
+          Wherever we show a chance for the same outcome, you may see it three ways. They are not three
+          opinions of equal weight — the third one is the benchmark the other two are measured against.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <Concept term="Raw simulation">
+            What the simulation produced, unmodified. Kept as evidence and never overwritten — and
+            historically about nine points more confident than the settled results justified.
+          </Concept>
+          <Concept term="Calibrated">
+            The raw number corrected against what actually happened on earlier slates. This makes our
+            stated confidence more accurate; it does not add predictive information.
+          </Concept>
+          <Concept term="Sportsbook (no-vig)">
+            Derived from <em>both</em> sides of the posted price with the bookmaker&apos;s margin
+            removed. It is their number, not ours, and on the settled record it is the better estimate.
+          </Concept>
+        </div>
+        <div className="rounded-[10px] px-4 py-4" style={{ background: "rgba(26, 16, 11,0.45)", border: "1px solid var(--vault-border)" }}>
+          <p style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.55 }}>
+            <strong style={{ color: "var(--vault-text)" }}>The difference between our number and theirs is a
+            disagreement, not an advantage.</strong> On the settled record, the largest disagreements have
+            settled <em>worse</em> than the small ones, so nothing on this site is ranked or recommended by
+            the size of that difference. Where a market&apos;s own measured record sits below break-even, we
+            switch its predictions off and keep the history visible.
+          </p>
+        </div>
+      </section>
+
       <section id="projections" className="scroll-mt-16 flex flex-col gap-3">
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>The numbers on a card</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Concept term="Model probability">Our model&apos;s estimate of how likely an outcome is — e.g. &ldquo;Model 56%&rdquo; means the model thinks it happens 56 times out of 100.</Concept>
-          <Concept term="Market probability">The same chance implied by the sportsbook&apos;s price (the odds), stripped of the book&apos;s margin. It&apos;s the &ldquo;crowd&rsquo;s&rdquo; estimate.</Concept>
-          <Concept term="Model gap">The gap between the two: Model − Market. A positive gap means the model rates the pick higher than the market prices it. Small gaps are normal; big gaps often mean thin data, not a free lunch.</Concept>
           <Concept term="Odds">Shown American-style: −150 means risk 150 (paper) to win 100; +130 means risk 100 to win 130. Combine legs and the odds multiply.</Concept>
+          <Concept term="Decided vs pending">A rate only counts results that have been decided. Pending games are not counted yet, and pushes are listed separately rather than folded in.</Concept>
+          <Concept term="Denominator">Every rate on the site is shown with how many decided results it is over and how wide its uncertainty is. A rate over a small sample is mostly noise.</Concept>
+          <Concept term="Withheld vs not produced">A slate we refused to settle after an integrity check reads &ldquo;withheld&rdquo;. A date where no slate was ever built reads &ldquo;not produced&rdquo;. Neither carries a rate, and neither is hidden.</Concept>
         </div>
       </section>
 
@@ -155,14 +190,19 @@ export default function LearnPage() {
         </div>
       </section>
 
+      {/* Per-market claims used to live here as a hand-written summary ("hits Overs are the strongest
+          settled market", "REB/PRA were the strongest recent markets"). They were written from one
+          window of settled data and then never revised, so they aged into confident statements nobody
+          was re-checking. What replaced them is a description of the PROCESS, which does not go stale;
+          the live per-market standing is read from the canonical record on Results. */}
       <section id="methodology" className="scroll-mt-16 flex flex-col gap-3">
-        <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Methodology, briefly — updated from settled results</h2>
+        <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>How a market earns its place</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
-            ["World Cup", "Ensemble model (market prior + team strength + form), 90-minute regulation only — a draw is a real outcome. Bank Builder legs now require BOTH model and market support; the model-disfavored plus-money side lost on June 11 and is downweighted."],
-            ["MLB", "Player props settled nightly against official box scores (8,800+ decisive leans). Hits Overs are the strongest settled market; total-bases and strikeout Overs under-delivered and are excluded from suggested cards, as are outsized model-vs-market gaps."],
-            ["NBA", "Player props settled against official box scores (3,100+ decisive). REB/PRA were the strongest recent markets — the settled Finals card hit both legs. Season-dependent."],
-            ["Bank Builder", "One card per ladder step, full-bankroll stake, official-source settlement, and seven hard gates (real odds, model + market support, low correlation, clear settlement rules, target-fit, no lineup-pending props). No card that clears = no card published."],
+            ["Every market is measured, not assumed", "Each market carries its own settled record. Until it has enough decided results to say anything, it is reported and nothing more — its numbers are never used to lead a page."],
+            ["The benchmark is the sportsbook, not 50%", "A market clearing half its calls proves nothing. It is scored against the de-vigged market price on the identical settled rows, and so far none of ours scores better."],
+            ["A bad record switches predictions off", "When a market's hit-rate interval sits entirely below break-even across a large sample, we stop making predictions in it. The history stays on the site and is never placed in a ranked list."],
+            ["Settlement is official or it does not happen", "Results come from official box scores. If the event mapping fails an integrity check, the whole slate is withheld rather than partially graded."],
           ].map(([t, d]) => (
             <div key={t} className="rounded-[10px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
               <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{t}</span>
@@ -170,7 +210,10 @@ export default function LearnPage() {
             </div>
           ))}
         </div>
-        <Link href="/methodology" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>Full methodology →</Link>
+        <div className="flex flex-wrap gap-4">
+          <Link href="/results" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>The settled record →</Link>
+          <Link href="/methodology" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>Full methodology →</Link>
+        </div>
       </section>
 
       <section id="glossary" className="scroll-mt-16 flex flex-col gap-3">

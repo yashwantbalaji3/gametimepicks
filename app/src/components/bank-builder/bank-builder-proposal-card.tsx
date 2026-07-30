@@ -86,7 +86,9 @@ export default function BankBuilderProposalCard({ proposal }: { proposal: BankBu
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {proposal.lanes.map((l) => <LaneCard key={l.lane} lane={l} />)}
       </div>
-      <Link href="/world-cup/round-of-32" className="self-start font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>See the full knockout board →</Link>
+      {/* The card used to link a World Cup knockout board. That tournament is complete and the board
+          route is gone, so the follow-through now points at the ladder's own history. */}
+      <Link href="/bank-builder" className="self-start font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>See the full ladder history →</Link>
     </div>
   );
 }

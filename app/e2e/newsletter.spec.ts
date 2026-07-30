@@ -1,6 +1,6 @@
-// SPRINT 035 — these specs targeted the homepage, where the newsletter signup no longer renders.
-// The component ships on /board only (src/app/board/page.tsx); the assertions themselves are unchanged
-// and now run against the surface that actually mounts it.
+// The signup follows the board it advertises. It moved from the homepage to /board (Sprint 035), and
+// again to /mlb/board when the stale NBA board was retired (2026-07-30 route audit). The assertions
+// themselves are unchanged and run against the surface that actually mounts it.
 import { test, expect } from "@playwright/test";
 
 /**
@@ -18,8 +18,8 @@ import { test, expect } from "@playwright/test";
  *   - No third-party scripts are loaded for tracking
  */
 
-test("the newsletter form renders where it actually lives (/board)", async ({ page }) => {
-  await page.goto("/board/");
+test("the newsletter form renders where it actually lives (/mlb/board)", async ({ page }) => {
+  await page.goto("/mlb/board/");
   // The signup uses the heading "Get a daily email when the model board refreshes."
   await expect(page.locator("body")).toContainText(/daily email|daily slate alerts/i);
   // Email input is present and typed correctly
@@ -33,7 +33,7 @@ test("the newsletter form renders where it actually lives (/board)", async ({ pa
 test("invalid email shows validation error (no submission)", async ({
   page,
 }) => {
-  await page.goto("/board/");
+  await page.goto("/mlb/board/");
   const input = page.locator("input[type='email']").first();
   await input.fill("not-an-email");
   const button = page.getByRole("button", { name: /^(subscribe|notify me)$/i }).first();
@@ -64,7 +64,7 @@ test("invalid email shows validation error (no submission)", async ({
 test("valid email in default (no-provider) state shows 'not live yet'", async ({
   page,
 }) => {
-  await page.goto("/board/");
+  await page.goto("/mlb/board/");
   const input = page.locator("input[type='email']").first();
   await input.fill("test+phase13@example.com");
   const button = page.getByRole("button", { name: /^(subscribe|notify me)$/i }).first();
@@ -88,7 +88,7 @@ test("valid email in default (no-provider) state shows 'not live yet'", async ({
 test("compact newsletter on /board has its own form instance", async ({
   page,
 }) => {
-  await page.goto("/board/");
+  await page.goto("/mlb/board/");
   // The compact variant on /board uses its own input id but should still
   // be a working form.
   const inputs = page.locator("input[type='email']");

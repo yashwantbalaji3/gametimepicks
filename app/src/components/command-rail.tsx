@@ -46,12 +46,13 @@ const ITEMS: RailItem[] = [
   { href: "/moonshot", label: "Moonshot", glyph: "🌙", desc: "High-risk paper longshots" },
   { href: "/mr-dub", label: "Daily Dashboard", glyph: "✓", desc: "Paper bankroll journey" },
   { href: "/results", label: "Results", glyph: "≡", group: "Track Record", desc: "Settled track record" },
-  // The 2026 World Cup is complete — no active "World Cup" / "Soccer Specials" rail items. MLB leads Sports.
+  // MLB is the only sport with a live model, so it is the only sport in the rail. The 2026 World Cup is
+  // complete, NBA is a settled archive reachable from Results, and UFC is a scaffold that publishes no
+  // predictions — none of them is a destination the rail should offer.
   { href: "/mlb", label: "MLB", glyph: "⚾", group: "Sports", desc: "Baseball hub" },
-  { href: "/nba", label: "NBA", glyph: "🏀", desc: "Basketball hub" },
-  { href: "/ufc", label: "UFC", glyph: "🥊", desc: "Scaffold · not live yet" },
   { href: "/learn", label: "How It Works", glyph: "✦", group: "Learn", desc: "Start here" },
   { href: "/methodology", label: "Methodology", glyph: "◳", desc: "The model, in depth" },
+  { href: "/system-status", label: "System Status", glyph: "◉", desc: "What is running right now" },
   { href: "/about", label: "About", glyph: "ⓘ", desc: "What this is" },
 ];
 
@@ -63,11 +64,11 @@ function useIsActive() {
     const { href } = item;
     if (href === "/simulate") return pathname === "/simulate";
     if (href === "/today") return pathname === "/today" || pathname === "/" || pathname === "";
-    if (href === "/games") {
-      // Games folds in the schedule/board legacy entry points.
+    if (href === "/mlb") {
+      // The retired /board + /projections aliases redirect into the MLB board, so they highlight MLB
+      // rather than leaving no active item during the bounce.
       return (
-        pathname === "/games" || pathname.startsWith("/games/") ||
-        pathname === "/events" || pathname.startsWith("/events/") ||
+        pathname === "/mlb" || pathname.startsWith("/mlb/") ||
         pathname === "/board" || pathname.startsWith("/board/") ||
         pathname === "/projections" || pathname.startsWith("/projections/")
       );

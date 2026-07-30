@@ -109,11 +109,11 @@ export default function ResultsPage() {
       : null;
   const nbaProj = toProj(nbaLeg);
   const mlbProj = toProj(mlbLeg);
-  // A COMBINED figure is only meaningful when every sport in it is a comparable LIVE system
-  // (Sprint 021 · Phase 2). NBA is HISTORICAL_ONLY — its record is real but frozen since 2026-06-13 —
-  // so summing it with live MLB produced a headline "overall hit rate" that read as current cross-sport
-  // model performance while being ~53% six-week-old NBA by sample. Prefer NO combined figure over a
-  // misleading one: the per-sport cards below still show both, each labelled with its own data mode.
+  // A COMBINED figure is only meaningful when every sport in it is a comparable LIVE system. NBA's
+  // record is real but frozen, so summing it with live MLB produced a headline "overall hit rate" that
+  // read as current cross-sport model performance while being mostly stale NBA by sample. Prefer NO
+  // combined figure over a misleading one: the per-sport cards below still show both, each labelled
+  // with its own data mode.
   const contributors = [
     { key: "mlb", proj: mlbProj },
     { key: "nba", proj: nbaProj },
@@ -129,19 +129,19 @@ export default function ResultsPage() {
       })()
     : null;
 
-  // PR #117: small honest banner above the lifetime summary, only
-  // rendered when an audit JSON has been generated for at least one
-  // settled slate. Never fabricates a row.
+  // Small honest banner above the lifetime summary, only rendered when an audit payload exists for at
+  // least one settled slate. Never fabricates a row.
   const latestAudit = getLatestDailyAudit();
-  // PR #118: confirming-days policy. Banner shows a single status
-  // line when the file exists; renders nothing otherwise. Never moves
-  // the model on its own — that's the next PR.
+  // Confirming-days policy. Shows a single status line when the artifact exists; renders nothing
+  // otherwise, and never moves the model on its own.
   const auditPolicy = getDailyAuditPolicy();
-  // SPRINT 054: settled means DECIDED, not "a graded file exists". This page's own accounting section
-  // reported 2026-07-28 as WITHHELD while the hero above it announced "Settled slate: Jul 28" — the
-  // Sprint 051 header defect, in a second component, contradicting itself on one screen.
+  // Settled means DECIDED, not "a graded file exists" — a withheld slate must never be announced as
+  // the newest settled one.
   const dates = getOptimizerSettledDates();
   const calibrationTable = loadCalibrationTable();
+  // The newest date with a real settled outcome. Everything that frames itself as "the latest settled
+  // day" reads from this, never from the calendar.
+  const newestSettledDate = dates[0] ?? null;
 
   // For each date, load the graded payload and prepare display slips.
   const dateSections = dates.map((date) => {
@@ -151,7 +151,7 @@ export default function ResultsPage() {
     const sorted = sortGradedSlipsForDisplay(unique);
     // Convert each OptimizerSlip → ParlaySlip for the ticket card.
     //
-    // PR #111: the graded payload ships with `riskProfile: null` on
+    // The graded payload ships with `riskProfile: null` on
     // every uniqueSlip — the lane is encoded in the slipId
     // (`opt_<date>_<lane>_<hash>`). The V2 results section sub-groups
     // missed slips by lane, so we derive `riskProfile` from the slipId
@@ -193,25 +193,19 @@ export default function ResultsPage() {
   });
 
   return (
-    // PR `feature/professional-design-system` (2026-05-28) — reverted
-    // the .gtp-canvas wrapper. The hybrid cream surface looked
-    // washed out next to the dark shell; the refined-dark theme
-    // reads better for dense parlay data. Cards inherit
-    // `--gtp-card-dark` for elevated charcoal.
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
-      {/* Chunk 6B — Trust Center lead: official record, exposure, settlement
-         status, product cards, Bank Builder settled history, and the
-         money-INDEPENDENT MLB model-performance summary. Everything below the
-         divider is the deeper transparency + optimizer/projection audit,
-         retained in full so no trust surface is hidden. */}
+      {/* Trust Center lead: official record, exposure, settlement status, product cards, Bank Builder
+         settled history, and the money-INDEPENDENT MLB model-performance summary. Everything below the
+         divider is the deeper transparency + projection audit, retained in full so no trust surface is
+         hidden. */}
       <TrustCenter model={getTrustCenterModel()} />
 
-      {/* SPRINT 053 — canonical outcome accounting.
+      {/* Canonical outcome accounting.
          Starts from the GENERATED population rather than the settled ledger, because the ledger is
          authoritative for what was graded and silent about everything else. Rows that never produced a
-         stat, and slates the integrity gate refused, stay in the count with a reason — dropping them
-         would quietly improve every number beside them. Values come from results-accounting.ts; the
-         component formats and does not compute. */}
+         stat, slates the integrity gate refused, and dates where no slate was ever built all stay in
+         the count with a reason — dropping any of them would quietly improve every number beside
+         them. */}
       <ResultsAccountingSection rows={loadRecentAccounting(8)} />
 
       <div className="mt-12 mb-5 flex items-center gap-3">
@@ -224,27 +218,16 @@ export default function ResultsPage() {
         <span className="flex-1 h-px" style={{ background: "var(--vault-rule)" }} />
       </div>
 
-      {/* Latest settled day at a glance — official outcomes only (Bank Builder,
-         World Cup finals + picks, suggested cards, MLB record). */}
-      <div className="mb-5">
-        <YesterdaySummary
-          date={new Date(new Date(`${currentEtDate()}T12:00:00Z`).getTime() - 86400000).toISOString().slice(0, 10)}
-        />
-      </div>
-
-      {/* Plain-English "how to read this page" — collapsed by default so it
-         orients new users without adding clutter. Copy only. */}
-      <details className="mb-4 rounded-[8px] px-4 py-3" style={{ background: "var(--gtp-card)", border: "1px solid var(--vault-rule)" }}>
-        <summary className="cursor-pointer text-[12.5px] font-semibold" style={{ color: "var(--vault-text-mute)" }}>
-          How to read this page
-        </summary>
-        <ul className="mt-2 pl-4 flex flex-col gap-1 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", listStyle: "disc" }}>
-          <li><strong>Projection accuracy</strong> — how often individual player projections cleared their line. Read it against the model-vs-market benchmark above: clearing 50% is not the same as out-predicting the sportsbook.</li>
-          <li><strong>Published cards</strong> — the parlays actually shown to users on Suggested Parlays; <strong>all generated cards</strong> is the broader model output tracked internally.</li>
-          <li><strong>Only settled outcomes count</strong> toward hit rate — pending games are not counted yet; pushes are listed separately.</li>
-          <li>Detailed per-slip rows are tucked under the sections below. Educational analytics — not betting advice.</li>
-        </ul>
-      </details>
+      {/* Latest settled day at a glance — official outcomes only.
+         Framed on the newest date that actually SETTLED, not on the wall clock's "yesterday".
+         Yesterday is frequently the wrong frame here: a slate can be withheld by the integrity gate,
+         or never have been produced at all, and asking a settled-results strip for that date renders
+         an empty box under a heading promising results. */}
+      {newestSettledDate ? (
+        <div className="mb-5">
+          <YesterdaySummary date={newestSettledDate} />
+        </div>
+      ) : null}
 
       {/* Lead with LEG-LEVEL projection accuracy — the cleaner read on model
          quality than parlay (card) hit rate, which is naturally low because
@@ -318,9 +301,7 @@ export default function ResultsPage() {
           </div>
         );
       })()}
-      {/* PR `feature/results-ux-restructure` (2026-05-29) — compact
-         hero shows the settled date + parlay lifetime records (two-record:
-         Published cards / Generated pool). */}
+      {/* Compact hero: the settled date + the two lifetime records (published cards / generated pool). */}
       <ResultsHero
         settledDate={dateSections[0]?.date ?? null}
         lifetime={summary?.lifetime ?? null}
@@ -331,12 +312,8 @@ export default function ResultsPage() {
         }
       />
 
-      {/* PR `fix/today-results-flow-clarity` (2026-05-29; label updated
-         Chunk 6B) — when an optimizer snapshot exists for a date strictly
-         newer than the newest settled date, surface a small chip that tells
-         the user today's picks live in Build-a-Pick and links them there
-         (canonical /picks route). Keeps the user from confusing an "active
-         slate" with "settled results". */}
+      {/* When a snapshot exists for a date strictly newer than the newest settled date, surface a small
+         chip pointing at today's picks — so an active slate is never mistaken for settled results. */}
       {(() => {
         const newestSettled = dateSections[0]?.date ?? null;
         const latest = getLatestOptimizerSnapshot();
@@ -392,8 +369,7 @@ export default function ResultsPage() {
         );
       })()}
 
-      {/* PR `feature/results-details-navigation` (2026-05-29) — pill
-         nav anchored to the section IDs below. Renders only the
+      {/* Pill nav anchored to the section IDs below. Renders only the
          pills whose target sections actually exist on this render
          (no dead anchors). Stays under 60px tall on desktop and
          mobile. */}
@@ -425,20 +401,15 @@ export default function ResultsPage() {
         );
       })()}
 
-      {/* PR `feature/consolidated-results-tab` (2026-05-29) — risk-
-         section and sport-mix breakdowns of the most recent settled
+      {/* Risk-section and sport-mix breakdowns of the most recent settled
          slate. Pulled in above the per-date sections so the user can
          see the Low / Medium / High / Longshot performance + the
          NBA-only / MLB-only / Mixed performance at a glance.
 
-         PR `feature/risk-section-results-data` (2026-05-29) —
-         pipeline now grades `publicRiskSections` slips directly and
-         persists per-section + per-sport-bucket summaries on
-         `optimizer-summary.json`. We prefer those over the
-         loader-side classifier so the numbers match what users
-         actually saw in Suggested mode. Falls back to the
-         loader-side classification of `uniqueSlips` for any date
-         the pipeline hasn't graded section-wise yet. */}
+         The pipeline grades the published sections directly and persists per-section and
+         per-sport-bucket summaries, which is what these tables prefer, so the numbers match what
+         readers actually saw. It falls back to a loader-side classification for any date not yet
+         graded section-wise. */}
       {dateSections.length > 0 && (() => {
         const newest = dateSections[0];
         const label = formatResultsDateLabel(newest.date);
@@ -452,8 +423,7 @@ export default function ResultsPage() {
         const sportBreakdown = pipelineSportBuckets
           ? buildSportBreakdownFromPipeline(pipelineSportBuckets)
           : summarizeBySportBucket(newest.slips);
-        // PR `feature/results-risk-section-drilldown` — pull the
-        // graded payload for the same date so the drilldown can
+        // Pull the graded payload for the same date so the drilldown can
         // expose the actual settled slips under each section.
         const gradedPayload = getOptimizerGradedForDate(newest.date);
         const drilldown = buildRiskSectionDrilldown(gradedPayload ?? null);
@@ -464,9 +434,8 @@ export default function ResultsPage() {
             id="overview"
             style={{ scrollMarginTop: 80 }}
           >
-            {/* PR `fix/results-parlay-final-polish` — single shared
-               eyebrow so the date label isn't repeated on each card.
-               PR `fix/results-simplify-dashboard` — promoted to a real
+            {/* Single shared eyebrow so the date label isn't repeated on each card.
+               promoted to a real
                <h2> so the dashboard has a scannable heading outline
                (one <h1> in the hero, an <h2> per major section) for
                screen readers and skim-readers alike. Visual styling is
@@ -498,8 +467,7 @@ export default function ResultsPage() {
             </div>
             <div id="sport-mix" style={{ scrollMarginTop: 80 }}>
               <SportMixResultsTable breakdown={sportBreakdown} />
-              {/* PR `feature/results-ux-published-vs-generated` (2026-06-05) —
-                  #278 added a Mixed Suggested tab, so Mixed is now a published
+              {/* A Mixed Suggested tab exists, so Mixed is a published
                   card type. The Mixed row reflects published cross-sport
                   (NBA + MLB) cards; it reads zero when none settled on a slate. */}
               <p
@@ -521,10 +489,9 @@ export default function ResultsPage() {
         );
       })()}
 
-      {/* PR `feature/results-ux-restructure` — Daily Audit Banner
-         moved here (below the breakdowns). It's useful detail but it
+      {/* Daily audit banner sits here (below the breakdowns). It's useful detail but it
          was 667px tall up top and shoved everything else down.
-         PR `feature/results-details-navigation` — assigns the
+         assigns the
          `projection-audit` anchor for the in-page nav. */}
       {latestAudit && (
         <div id="projection-audit" className="mt-8" style={{ scrollMarginTop: 80 }}>
@@ -559,8 +526,7 @@ export default function ResultsPage() {
         ) : null}
       </div>
 
-      {/* PR `feature/results-ux-restructure` — kept the legacy
-         per-profile tile row (Conservative / Balanced / Star Power /
+      {/* The legacy per-profile tile row (Conservative / Balanced / Star Power /
          Aggressive) but moved it deep into the page under a
          "By internal profile" eyebrow. The primary frame is now the
          risk-section / sport-mix breakdowns above; this row stays
@@ -587,16 +553,12 @@ export default function ResultsPage() {
         <ParlayResultsSummary summary={summary} />
       </section>
 
-      {/* PR `feature/learning-signal-tables` (2026-05-29) — read-only
-         table of every audit signal the model is watching, sized
+      {/* Read-only table of every audit signal the model is watching, sized
          against the published numeric thresholds. Renders nothing
          when there's no honest data to show (e.g. no summary).
 
-         PR `feature/results-details-navigation` (2026-05-29) — wraps
-         the table in a `<details>` so it stays collapsed by default
-         when there are more than 6 rows. The summary chip carries
-         the headline counts ("1 confirmed · 7 tracking · 11 too
-         small") so the reader gets the gist without expanding. */}
+         It is collapsed by default; the summary chip carries the headline counts so the reader
+         gets the gist without expanding. */}
       {(() => {
         const rawPolicy = getRawAuditPolicy();
         const rows = buildLearningSignalRows(summary, rawPolicy);

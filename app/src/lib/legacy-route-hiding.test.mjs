@@ -1,8 +1,9 @@
 /**
- * LEGACY / OFF-SEASON ROUTE HIDING (UX mission, Phase 3 — clearly-safe only). Active sports lead the
- * footer; off-season leagues stay REACHABLE (no links removed, no routes deleted) but are honestly
- * labelled so they don't read as active products. The primary nav stays a clean simulate-first spine.
- * No money change.
+ * LEGACY / OFF-SEASON ROUTE HIDING. Originally this guard kept off-season leagues reachable from the
+ * footer behind an honest label ("· provider pending"). The public-route audit (2026-07-30) went
+ * further: a link that promises future coverage is still a promise, so the schedule-only leagues no
+ * longer have public destinations at all and the footer lists only what the site can do — MLB live,
+ * NBA as a settled archive. The primary nav stays a clean simulate-first spine. No money change.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -15,30 +16,32 @@ const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
 const footer = read("src/components/footer.tsx");
 const nav = read("src/components/nav.tsx");
 
-test("footer leads with the ACTIVE sport (MLB) before the off-season leagues; the completed World Cup is NOT an active footer sport", () => {
+test("footer leads with the ACTIVE sport (MLB); the completed World Cup is NOT an active footer sport", () => {
   const mlb = footer.indexOf('href="/mlb"');
-  const nba = footer.indexOf('href="/nba"');
-  const nhl = footer.indexOf('href="/nhl"');
-  assert.ok(mlb > 0 && nba > 0, "the sport links exist");
-  assert.ok(mlb < nba, "active MLB comes before off-season NBA");
-  assert.ok(nba < nhl, "NHL (provider pending) stays last");
+  const nbaArchive = footer.indexOf('href="/results/nba"');
+  assert.ok(mlb > 0 && nbaArchive > 0, "the coverage links exist");
+  assert.ok(mlb < nbaArchive, "the live sport comes before the settled archive");
   // The 2026 World Cup is complete — it is archive-only, not an active footer sport link.
   assert.equal(footer.indexOf('href="/world-cup"'), -1, "World Cup is not an active footer sport");
 });
 
-test("off-season leagues are REACHABLE but honestly labelled (no route deleted, no link removed)", () => {
-  assert.match(footer, /href="\/nba"/, "NBA route still linked (reachable)");
-  assert.match(footer, /NBA <span[^>]*>· off-season/, "NBA is labelled off-season");
-  assert.match(footer, /NHL <span[^>]*>· provider pending/, "NHL keeps its honest label");
+test("the footer states coverage honestly: MLB live, NBA archive, and NO schedule-only league", () => {
+  assert.match(footer, /MLB <span[^>]*>· live/, "MLB is labelled live");
+  assert.match(footer, /NBA <span[^>]*>· settled archive/, "NBA is labelled a settled archive, not off-season coverage");
+  // The schedule-only leagues have no public destination at all, so nothing links to them.
+  for (const href of ['href="/nhl"', 'href="/ipl"', 'href="/nba"']) {
+    assert.equal(footer.indexOf(href), -1, `footer does not link ${href}`);
+  }
 });
 
-test("the primary nav stays a clean simulate-first spine (no off-season sport promoted to primary)", () => {
+test("the primary nav stays a clean simulate-first spine (no non-live sport promoted to primary)", () => {
   const dividerIdx = nav.indexOf("beforeDivider: true");
-  // No off-season sport route appears BEFORE the divider (in the primary spine).
-  for (const href of ["/nba", "/nhl", "/ipl", "/ufc"]) {
-    const i = nav.indexOf(`href: "${href}"`);
-    assert.ok(i === -1 || i > dividerIdx, `${href} is not in the primary nav`);
+  // No non-live sport route appears in the nav at all; MLB is the only sport, and it sits AFTER the divider.
+  for (const href of ["/nba", "/nhl", "/ipl", "/ufc", "/sports"]) {
+    assert.equal(nav.indexOf(`href: "${href}"`), -1, `${href} is not a nav destination`);
   }
+  const mlb = nav.indexOf('href: "/mlb"');
+  assert.ok(mlb > dividerIdx, "MLB is secondary, not the primary spine");
   assert.ok(nav.indexOf('href: "/simulate"') > 0 && nav.indexOf('href: "/simulate"') < dividerIdx, "/simulate is primary");
 });
 

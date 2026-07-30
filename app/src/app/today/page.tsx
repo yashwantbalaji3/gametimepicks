@@ -35,8 +35,6 @@ import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
 import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 
-import EventSpotlight from "@/components/home/event-spotlight";
-import { loadHomepageSpotlight } from "@/lib/home/load-spotlight";
 import TodayDailySlateHeader from "@/components/today/daily-slate-header";
 import TodayAtAGlance, { type GlanceCard } from "@/components/today/at-a-glance";
 import TodayTopModelPicks from "@/components/today/top-model-picks";
@@ -72,8 +70,6 @@ export default function TodayPage() {
   // lines up with `/`. Falls back to the wall clock only when no slate exists.
   const today = currentSlateDate() ?? currentEtDate();
   const serverToday = currentEtDate();
-  // Event spotlight (same reusable selector as Home) — real ET clock so "tomorrow/today" is honest.
-  const todaySpotlight = loadHomepageSpotlight(serverToday);
   const dateLabel = new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric",
   });
@@ -97,10 +93,8 @@ export default function TodayPage() {
   // ── Daily MLB intelligence brief — the executive digest ("what should I know about MLB today?"). Reuses
   //    the same details; factual signals only (markets simulated + simulated p10–p90 range), never a pick. ──
   const brief = buildDailyBrief(details, today, { nowMs: Date.now() });
-  // ── Sprint 032 — sportsbook + model AVAILABILITY for the presented slate. `buildAllGameDetails()` already
-  //    builds canonical GameIntelligence per game; /today simply never read it, so the hub could not say
-  //    whether a line existed, when the book was captured, or why a market was missing. Passes the WHOLE
-  //    MLB slate (not a filtered subset) so the denominator stays honest and every gap is attributed. ──
+  // ── Sportsbook + model AVAILABILITY for the presented slate. Passes the WHOLE MLB slate (not a
+  //    filtered subset) so the denominator stays honest and every gap is attributed. ──
   const marketCoverage = buildMarketCoverage(
     details.filter((d) => d.sport === "mlb" && d.date === today),
     today,
@@ -110,9 +104,9 @@ export default function TodayPage() {
   const top10 = buildTop10Board(dataRoot, today, Date.now());
   const topPicks = (top10.overall ?? []).slice(0, 6);
 
-  // ── Sprint 010 dashboards — the Game Predictions table + Top Model Picks BY CATEGORY, both derived from
-  //    the SAME canonical prediction objects the game report uses (detail.prediction / detail.playerPredictions).
-  //    No re-derivation, no hardcoding: a game with no full-game artifact simply drops out. ──
+  // ── The Game Predictions table + Top Model Picks BY CATEGORY, both derived from the SAME canonical
+  //    prediction objects the game report uses (detail.prediction / detail.playerPredictions). No
+  //    re-derivation, no hardcoding: a game with no full-game artifact simply drops out. ──
   const slatePredictionGames: SlatePredictionGame[] = details
     .filter((d) => d.sport === "mlb" && d.prediction && d.fullGameSim)
     .map((d) => ({
@@ -132,7 +126,7 @@ export default function TodayPage() {
     }));
   const predictionRows = buildTodayPredictionRows(slatePredictionGames);
   const picksByCategory = buildTopPicksByCategory(slatePredictionGames, { perCategory: 5 });
-  // Sprint 015 Phase 2: the four slate-wide headlines — a RANKING of the same objects, never a new calculation.
+  // The four slate-wide headlines — a RANKING of the same objects, never a new calculation.
   const slateStories = buildSlateStories(slatePredictionGames);
 
   // ── CANONICAL money / exposure — identical sources to Home; never recomputed or hardcoded ──
@@ -159,7 +153,7 @@ export default function TodayPage() {
 
   // ── Bank Builder status — derived HONESTLY (never a hardcoded "active" card), same pattern as Home.
   //    `available === false` ⇒ no qualified card ⇒ NO-PLAY. The awaiting rung is read from the public
-  //    dual-ladder view (Lane A cleared its earlier rungs, now awaiting the next card); the exposure is
+  //    dual-ladder view (the first lane cleared its earlier rungs, now awaiting the next card); the exposure is
   //    the canonical open exposure ($0 while there is no active card). resolveLadderStep still guards the
   //    crown-ladder step for the copy fallback. A Bank Builder card is "active" ONLY when an approved lane
   //    is placed (status "active") — a proposal / candidate is not a placed card. ──
@@ -247,7 +241,6 @@ export default function TodayPage() {
   if (bbNoPlay) noPlayNotes.push(`Bank Builder is no-play today (${bbStepPhrase}, ${openExposureLabel} open exposure) — the ladder never forces a card to keep a streak alive.`);
   if (!moonshotActive) noPlayNotes.push("Moonshot is no-play — the high-variance lane only plays when a qualified longshot appears, and today none did.");
   if (readyCount === 0) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
-  noPlayNotes.push("There is no soccer game simulation — soccer reads come from real de-vigged market prices, not a fabricated match sim.");
   noPlayNotes.push("Pending is not a loss: a card settles only against the official final, and unsettled cards are never counted against the record.");
 
   // ── Section 10 · Secondary links — compact link cards out (no large widgets duplicated here). ──
@@ -262,10 +255,10 @@ export default function TodayPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-7">
-      {/* SPRINT 055 — the four probability layers, finally rendered. Calibrated first, raw last: the raw
-         number is the largest and the least trustworthy (about nine points hot), so leading with it
-         would give the most prominence to the least defensible figure. Ordered by start time, never by
-         probability — the measured record shows our most confident calls are our worst. */}
+      {/* The probability layers. Calibrated first, raw last: the raw number is the largest and the
+         least trustworthy (about nine points hot), so leading with it would give the most prominence
+         to the least defensible figure. Ordered by start time, never by probability — the measured
+         record shows our most confident calls are our worst. */}
       <ProbabilityLayersSection rows={loadProbabilityRows(today, 12)} slateDate={today} />
 
       {/* 0 — Slate liveness (real ET clock): on a no-games day this says so plainly and points at the next
@@ -290,9 +283,6 @@ export default function TodayPage() {
         mlbLeans={mlbLeans}
       />
 
-      {/* 1b — Event spotlight (current major event; null when none) */}
-      <EventSpotlight event={todaySpotlight} />
-
       {/* 1c — Daily MLB intelligence brief: the executive digest (overview + spotlight + attention + links) */}
       <TodayMlbBrief brief={brief} recapHref={hasSettledResults ? "/results" : null} />
 
@@ -303,12 +293,12 @@ export default function TodayPage() {
       {/* 2 — Today at a glance (compact canonical status cards) */}
       <TodayAtAGlance cards={glanceCards} />
 
-      {/* 2b — Game Predictions table (Sprint 010): the model's answer for every game, canonical + first-glance */}
+      {/* 2b — Game Predictions table: the model's answer for every game, canonical + first-glance */}
       <TodaySimulationStories stories={slateStories} />
 
       <TodayGamePredictions rows={predictionRows} />
 
-      {/* 3 — Top model picks: BY CATEGORY (Sprint 010) when the MLB slate supports it, else the cross-sport list */}
+      {/* 3 — Top model picks: BY CATEGORY when the MLB slate supports it, else the cross-sport list */}
       {picksByCategory.length > 0 ? <TodayTopPicksByCategory categories={picksByCategory} /> : <TodayTopModelPicks picks={topPicks} />}
 
       {/* 4 — Simulation-backed games (real ready artifacts only) */}

@@ -1,17 +1,17 @@
 /**
- * LandingHero — Section 1 of the restructured `/` landing page. A simulation-first front door: a plain
- * headline, a short paper-only/educational + deterministic explainer, and two CTAs (Simulate → /simulate,
- * See Today's Picks → /today). Purely presentational — it receives every figure as a pre-formatted prop
- * and NEVER reads data, recomputes, or hardcodes a dollar value / record. Mobile-first (~390px, ≥44px
- * tap targets), vault design tokens only, no custom animation beyond the reduced-motion-aware utilities.
+ * LandingHero — Section 1 of the `/` landing page. A simulation-first front door: a plain headline, a
+ * short paper-only/educational + deterministic explainer, and two CTAs (Simulate → /simulate, Today →
+ * /today). Purely presentational — it receives every figure as a pre-formatted prop and NEVER reads
+ * data, recomputes, or hardcodes a dollar value / record. Mobile-first (~390px, ≥44px tap targets),
+ * vault design tokens only, no custom animation beyond the reduced-motion-aware utilities.
+ *
+ * It carries NO money and NO win–loss figure by design. A paper bankroll beside a paper record on the
+ * front door reads as a return, and the measured comparison directly above this hero says the market
+ * is the better estimate. Those figures belong on /results, next to the cards that produced them.
  */
 import Link from "next/link";
 
 export interface LandingHeroProps {
-  /** Pre-formatted current paper bankroll (formatted upstream). null when unavailable. */
-  bankrollLabel: string | null;
-  /** Pre-formatted Bank Builder record W–L (formatted upstream). null when unavailable. */
-  recordLabel: string | null;
   /** Count of sim-ready games today (from featuredSimulations.readyCount). */
   readyCount: number;
 }
@@ -33,7 +33,7 @@ function Chip({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function LandingHero({ bankrollLabel, recordLabel, readyCount }: LandingHeroProps) {
+export default function LandingHero({ readyCount }: LandingHeroProps) {
   return (
     <section aria-label="What GameTime Picks is" className="flex flex-col gap-5">
       <div
@@ -95,21 +95,11 @@ export default function LandingHero({ bankrollLabel, recordLabel, readyCount }: 
           </Link>
         </div>
 
-        {/* One honest line of proof — every figure is a canonical paper value passed in as a prop. */}
+        {/* One factual availability line. No money, no win–loss figure — see the file header. */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 font-mono" style={{ fontSize: 11.5 }}>
           {readyCount > 0 ? (
             <span style={{ color: "var(--vault-text-mute)" }}>
               <span style={{ color: "var(--vault-gold-bright)", fontWeight: 700 }}>{readyCount}</span> games simulation-ready today
-            </span>
-          ) : null}
-          {recordLabel ? (
-            <span style={{ color: "var(--vault-text-mute)" }}>
-              paper record <span style={{ color: "var(--vault-text)", fontWeight: 700 }}>{recordLabel}</span>
-            </span>
-          ) : null}
-          {bankrollLabel ? (
-            <span style={{ color: "var(--vault-text-mute)" }}>
-              paper bankroll <span style={{ color: "var(--vault-text)", fontWeight: 700 }}>{bankrollLabel}</span>
             </span>
           ) : null}
           <span style={{ color: "var(--vault-text-faint)" }}>graded from official results only</span>

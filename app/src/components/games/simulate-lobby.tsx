@@ -452,25 +452,9 @@ export default function SimulateLobby() {
         )}
       </section>
 
-      {/* The Round-of-32 banner shows ONLY while the knockout board actually has games. The completed 2026
-          World Cup has 0 games → the banner is hidden (WC is an archive, not a current board on /simulate). */}
-      {r32Board && r32Board.gameCount > 0 ? (
-        <Link
-          href="/world-cup/round-of-32"
-          className="block rounded-[10px] px-4 py-3.5 vault-glow-hover"
-          style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-gold-bright)", borderLeft: "3px solid var(--vault-gold-bright)", textDecoration: "none" }}
-        >
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex flex-col min-w-0">
-              <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>World Cup · Round of 32 Board</span>
-              <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14.5, fontWeight: 700 }}>
-                {r32Board.gameCount} knockout games · model ML / totals / props through {r32Board.horizonEt}
-              </span>
-            </div>
-            <span className="font-mono uppercase tracking-[0.1em] shrink-0" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Open →</span>
-          </div>
-        </Link>
-      ) : null}
+      {/* A Round-of-32 banner used to sit here, gated on the knockout board having games. The 2026 World
+          Cup is complete (0 games) so it could never render again, and the board route it linked is gone.
+          `r32Board` is still loaded above — the completed knockout results feed the game-script signal. */}
 
       {/* SPORT-FIRST SELECTOR + all-games grid. The anchor is the hero CTA's scroll target. This block is
           the secondary "browse everything" surface below the featured picks above. */}

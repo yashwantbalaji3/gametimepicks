@@ -1,16 +1,21 @@
 /**
- * SPRINT 054 — the explainer that answers the twelve questions a first-time visitor has.
+ * The explainer that answers the questions a first-time visitor has about the numbers.
  *
- * Every number on this site now comes from one canonical contract, but a number a reader cannot
- * interpret is not transparency. This component is the interpretation layer, and it is deliberately
- * built from the SAME artifact the pages render — so an explanation cannot drift from the thing it
- * explains, which is exactly how a hardcoded 51.7% survived on two pages for weeks.
+ * Every number on this site comes from one canonical contract, but a number a reader cannot interpret
+ * is not transparency. This component is the interpretation layer, and it is deliberately built from
+ * the SAME artifact the pages render — so an explanation cannot drift from the thing it explains.
+ *
+ * It does NOT restate the three-probability walkthrough. That lives once, on /learn, and every page
+ * that shows those numbers carries a short local note and a link there. Repeating the full version on
+ * four pages meant four copies to keep true.
  *
  * The hardest thing to get right here is tone. The honest answers are unflattering: the model is
  * overconfident, no market is approved, and the sportsbook still scores better. Written defensively
  * that reads as a product apologising for itself; written breezily it reads as a product hiding.
  * The aim is neither — state the measurement, state what it does and does not support, move on.
  */
+import Link from "next/link";
+
 import {
   OUTCOME_LABEL,
   OUTCOME_MEANING,
@@ -52,22 +57,6 @@ export default function HowToReadThis({ terminal }: { terminal: TerminalView }) 
       </p>
 
       <div className="mt-6 space-y-5">
-        <QA q="What are the three probabilities you show?">
-          <p>
-            <strong className="text-[var(--text)]">Raw simulation estimate</strong> — what the model
-            produced, unmodified. It is kept as evidence and never overwritten.
-          </p>
-          <p>
-            <strong className="text-[var(--text)]">Historically calibrated estimate</strong> — the raw
-            number corrected using what actually happened on earlier slates.
-          </p>
-          <p>
-            <strong className="text-[var(--text)]">Sportsbook no-vig estimate</strong> — derived from{" "}
-            <em>both</em> sides of the sportsbook&rsquo;s price, with the bookmaker&rsquo;s margin removed.
-            It is their number, not ours, and we use it as the benchmark.
-          </p>
-        </QA>
-
         <QA q="Why is the calibrated estimate different from the raw one?">
           {mu ? (
             <p>
@@ -81,7 +70,12 @@ export default function HowToReadThis({ terminal }: { terminal: TerminalView }) 
           <p>
             Calibration maps those stated probabilities onto observed frequencies, so the number you see
             is closer to true. <strong className="text-[var(--text)]">It does not create new predictive
-            information.</strong> It changes how confident we sound, not what we know.
+            information.</strong> It changes how confident we sound, not what we know. The three
+            estimates are walked through in full on{" "}
+            <Link href="/learn#probabilities" className="underline underline-offset-2 text-[var(--text)]">
+              Learn
+            </Link>
+            .
           </p>
         </QA>
 
@@ -140,6 +134,13 @@ export default function HowToReadThis({ terminal }: { terminal: TerminalView }) 
               We could have published something for that day. Publishing a result we know was graded
               against the wrong game would be worse than publishing nothing.
             </p>
+            <p>
+              A withheld date is not the same as a missing one. Withheld means we produced predictions
+              and then refused to publish outcomes for them. A date marked{" "}
+              <strong className="text-[var(--text)]">not produced</strong> means no slate was built at
+              all, so there was never anything to grade. Both appear in the accounting on Results; a
+              date is never quietly dropped from the list.
+            </p>
           </QA>
         ) : null}
 
@@ -148,8 +149,8 @@ export default function HowToReadThis({ terminal }: { terminal: TerminalView }) 
             They are two different things over two different date ranges, and we never combine them.
           </p>
           <p>
-            The <strong className="text-[var(--text)]">paper record</strong> is a small set of
-            founder-approved paper selections. The{" "}
+            The <strong className="text-[var(--text)]">paper record</strong> is a small, hand-picked
+            set of paper selections — a few cards a day at most. The{" "}
             <strong className="text-[var(--text)]">model history</strong> is every prediction the model
             generated — {mu ? mu.decisiveRows.toLocaleString() : "tens of thousands of"} settled rows.
             Neither is evidence about the other.

@@ -1,6 +1,7 @@
 import { activeMlbDate, getMlbBoardForDate } from "@/lib/data-mlb";
 import { currentEtDate } from "@/lib/freshness";
 import MlbBoardBody from "@/components/mlb/mlb-board-body";
+import NewsletterSignup from "@/components/newsletter-signup";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 
 export const metadata = {
@@ -17,24 +18,35 @@ const DEFAULT_DATE = "2026-05-16";
  * handles all data states (projections / lines pending / off-day).
  * The liveness banner (real ET clock) is passed only here — the dated
  * archive route intentionally omits it.
+ *
+ * The daily-refresh signup moved here from the retired /board route
+ * (2026-07-30 route audit). It advertises "an email when the model
+ * board refreshes", so it belongs on the board that actually
+ * refreshes; the dated archive route omits it for the same reason it
+ * omits the liveness banner.
  */
 export default function MlbBoardPage() {
   const date = activeMlbDate() ?? DEFAULT_DATE;
   const games = getMlbBoardForDate(date).summary.scheduledGames ?? 0;
   return (
-    <MlbBoardBody
-      date={date}
-      liveness={
-        <SlateLivenessBanner
-          buildTimeToday={currentEtDate()}
-          latestSlate={date}
-          latestSlateHasGames={games > 0}
-          archiveHref="/mlb"
-          archiveLabel="Back to the MLB hub"
-          includeMlbNote
-          includeWcFocus={false}
-        />
-      }
-    />
+    <>
+      <MlbBoardBody
+        date={date}
+        liveness={
+          <SlateLivenessBanner
+            buildTimeToday={currentEtDate()}
+            latestSlate={date}
+            latestSlateHasGames={games > 0}
+            archiveHref="/mlb"
+            archiveLabel="Back to the MLB hub"
+            includeMlbNote
+            includeWcFocus={false}
+          />
+        }
+      />
+      <div className="px-4 sm:px-8 pb-10">
+        <NewsletterSignup />
+      </div>
+    </>
   );
 }
