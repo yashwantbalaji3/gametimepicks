@@ -68,10 +68,11 @@ export default function UfcArchivePage() {
           </span>
         </div>
         <p className="max-w-2xl font-mono text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-          UFC is scaffold-only in the capability registry (downgraded 2026-07-23): the retired V1 moneyline read was a
-          de-vigged market price with a capped nudge, and no bout is cleanly backtestable without point-in-time odds
-          capture. Nothing predictive publishes here. What remains is the settled record below, graded from the
-          official ESPN MMA scoreboard.
+          UFC coverage was retired on 2026-07-23. The numbers it used were sportsbook prices with the
+          bookmaker&rsquo;s margin removed — not a fight model — and without a reliable record of when each
+          price was captured, no bout can be honestly evaluated after the fact. Nothing predictive
+          publishes here. What remains is the settled record below, graded from the official ESPN MMA
+          scoreboard.
         </p>
         <nav className="flex flex-wrap gap-3 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
           <Link href="/today" style={{ color: "var(--gtp-bank-heat)" }}>Live action → Today</Link>
