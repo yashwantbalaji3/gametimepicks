@@ -86,6 +86,11 @@ class Game:
     away_team_abbr: str
     away_team_full: str
     status: str = "Scheduled"         # "Scheduled" | "Live" | "Final"
+    # ISO 8601 tip-off INSTANT, when the provider supplied one. Optional and defaulted so every
+    # existing provider keeps working unchanged. It exists because `tipoff_et` is display text:
+    # `capturedAt < eventStart` is unevaluable against "7:30 PM ET", which is why every NBA board
+    # through 2026-06-13 is research-ineligible. Never reconstructed from the display string.
+    tipoff_iso: str | None = None
 
 
 @dataclass

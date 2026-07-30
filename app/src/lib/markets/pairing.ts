@@ -34,11 +34,8 @@
  * estimate. `modelValidatedAgainstMarket` is carried on every result so a surface can assert that
  * directly rather than assuming it.
  */
-import {
-  MLB_MARKET_CALIBRATION,
-  modelBeatsMarket,
-} from "../mlb/model-calibration-status";
 import { canShowLiveProjections } from "../sport-capability-registry";
+import { MLB_SPORT_KEY, marketConfigFor, type SimulationSportModel } from "./sport-config";
 import { isPublishableTeamMapping } from "./resolve-team";
 import type { FreshnessReading } from "./freshness";
 import type { GameMarketFamily, MappingStatus, PlayerMarketFamily } from "./types";
@@ -139,24 +136,34 @@ export interface PairingInput {
   readonly teamMapping?: MappingStatus | null;
 }
 
-/** Game families GameTimePicks models, via the full-game simulation artifact. */
-const MODELED_GAME_FAMILIES: ReadonlySet<GameMarketFamily> = new Set<GameMarketFamily>([
-  "MONEYLINE",
-  "RUN_LINE",
-  "TOTAL",
-]);
+/**
+ * SEAM 3 — the calibration/model source, read per sport instead of imported from `lib/mlb`.
+ *
+ * Returns null for a sport that models nothing, which is the honest answer for NBA: below coin-flip
+ * historically, `publicApproved:false`, and nothing model-derived surfaces. The gates below can then
+ * only remove capability, so a no-model sport degrades to market context rather than over-claiming.
+ */
+function simulationModelFor(sport: string): SimulationSportModel | null {
+  const model = marketConfigFor(sport)?.model;
+  return model && model.kind === "SIMULATION_AND_PROPS" ? model : null;
+}
 
 /**
- * Does GameTimePicks model this player family?
+ * Does GameTimePicks model this player family, for this sport?
  *
- * Derived from MLB_MARKET_CALIBRATION rather than restated here. That registry already governs how
- * modeled families are described publicly, and a second hand-maintained list would eventually
- * disagree with it — at which point one of the two would be silently wrong.
+ * Still derived from the sport's calibration registry rather than restated — a second
+ * hand-maintained list would eventually disagree with it, at which point one of the two would be
+ * silently wrong. `sport` defaults to MLB so every existing caller keeps its exact behaviour.
  */
-export function modelSupportsPlayerFamily(family: PlayerMarketFamily | null): boolean {
+export function modelSupportsPlayerFamily(
+  family: PlayerMarketFamily | null,
+  sport: string = MLB_SPORT_KEY,
+): boolean {
   if (!family) return false;
+  const model = simulationModelFor(sport);
+  if (!model) return false;
   const modelKey = MODEL_KEY_BY_PLAYER_FAMILY[family];
-  return modelKey !== undefined && modelKey in MLB_MARKET_CALIBRATION;
+  return modelKey !== undefined && model.modeledPlayerFamilyKeys.has(modelKey);
 }
 
 /** The key model artifacts and the calibration registry use for a family. */
@@ -164,9 +171,13 @@ export function modelKeyFor(family: PlayerMarketFamily | null): string | null {
   return family ? MODEL_KEY_BY_PLAYER_FAMILY[family] ?? null : null;
 }
 
-/** Does GameTimePicks model this game family? */
-export function modelSupportsGameFamily(family: GameMarketFamily | null): boolean {
-  return Boolean(family) && MODELED_GAME_FAMILIES.has(family as GameMarketFamily);
+/** Does GameTimePicks model this game family, for this sport? */
+export function modelSupportsGameFamily(
+  family: GameMarketFamily | null,
+  sport: string = MLB_SPORT_KEY,
+): boolean {
+  const model = simulationModelFor(sport);
+  return Boolean(model && family && model.modeledGameFamilies.has(family));
 }
 
 /** Provider key for a canonical family, for joins into model artifacts keyed the provider's way. */
@@ -199,7 +210,8 @@ export function getMarketIntelligenceMode(input: PairingInput): MarketIntelligen
   const playerFamily = isPlayer ? (input.family as PlayerMarketFamily | null) : null;
   const gameFamily = isPlayer ? null : (input.family as GameMarketFamily | null);
 
-  const validated = isPlayer ? modelBeatsMarket(modelKeyFor(playerFamily) ?? "") : false;
+  const model = simulationModelFor(input.sport);
+  const validated = isPlayer ? Boolean(model?.beatsMarket(modelKeyFor(playerFamily) ?? "")) : false;
 
   // ── Identity gates: they disqualify the ROW, not one side of it ──────────────────────────────
   // An unidentified row has no honest presentation at all. A sportsbook line attached to the wrong
@@ -247,8 +259,8 @@ export function getMarketIntelligenceMode(input: PairingInput): MarketIntelligen
   }
   if (hasModel) {
     const familyModeled = isPlayer
-      ? modelSupportsPlayerFamily(playerFamily)
-      : modelSupportsGameFamily(gameFamily);
+      ? modelSupportsPlayerFamily(playerFamily, input.sport)
+      : modelSupportsGameFamily(gameFamily, input.sport);
     if (!familyModeled) {
       blocked.push("NO_MODEL_FAMILY");
       hasModel = false;

@@ -392,6 +392,10 @@ class EspnProvider(NBADataProvider):
                 game_id=str(ev.get("id") or comp.get("id") or ""),
                 date=date,
                 tipoff_et=tipoff_et,
+                # The instant, carried through rather than discarded. `_format_tipoff_et` reduces it
+                # to display text, and until now that was the only thing that survived — which is
+                # what made per-row leakage safety unprovable for NBA (readiness doc, gate G3).
+                tipoff_iso=str(tipoff_iso) if tipoff_iso else None,
                 home_team_abbr=home_abbr,
                 home_team_full=home_full,
                 away_team_abbr=away_abbr,

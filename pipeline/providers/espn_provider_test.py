@@ -132,5 +132,47 @@ class EspnExtendedBoxScoreTests(unittest.TestCase):
         self.assertEqual(logs[0].blk, 0)
 
 
+class EspnScheduleTipoffTests(unittest.TestCase):
+    """The scoreboard parser must carry the tip-off INSTANT, not only its display form.
+
+    `_format_tipoff_et` reduces ESPN's ISO instant to "8:30 PM ET". That string has no date and no
+    zone offset, so `capturedAt < eventStart` is unevaluable against it — which is why every NBA
+    board through 2026-06-13 reports zero research-eligible rows (gate G3). The instant is what the
+    provider must hand on.
+    """
+
+    @staticmethod
+    def _scoreboard(tipoff: str | None) -> dict:
+        event: dict = {
+            "id": "401859967",
+            "competitions": [{
+                "status": {"type": {"name": "STATUS_SCHEDULED"}},
+                "competitors": [
+                    {"homeAway": "home", "team": {"abbreviation": "SA", "displayName": "San Antonio Spurs"}},
+                    {"homeAway": "away", "team": {"abbreviation": "NY", "displayName": "New York Knicks"}},
+                ],
+            }],
+        }
+        if tipoff is not None:
+            event["date"] = tipoff
+        return {"events": [event]}
+
+    def _parse(self, payload: dict):
+        from pipeline.providers.espn_provider import EspnProvider
+        return EspnProvider()._parse(payload, "2026-10-21")
+
+    def test_iso_tipoff_is_carried_through(self):
+        games = self._parse(self._scoreboard("2026-10-22T00:30Z"))
+        self.assertEqual(len(games), 1)
+        self.assertEqual(games[0].tipoff_iso, "2026-10-22T00:30Z")
+        self.assertEqual(games[0].tipoff_et, "8:30 PM ET")
+
+    def test_absent_tipoff_stays_none_rather_than_a_placeholder(self):
+        games = self._parse(self._scoreboard(None))
+        self.assertEqual(len(games), 1)
+        self.assertIsNone(games[0].tipoff_iso)
+        self.assertEqual(games[0].tipoff_et, "TBD")
+
+
 if __name__ == "__main__":
     unittest.main()

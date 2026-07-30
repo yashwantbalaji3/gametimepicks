@@ -476,8 +476,10 @@ def test_espn_source(s: Suite, tmp_dir: Path) -> None:
     )
     s.assert_eq(
         espn.get("shai gilgeous-alexander"),
-        {"PTS": 31.0, "REB": 6.0, "AST": 8.0},
-        "ESPN parser keys by lowercased name and extracts PTS/REB/AST",
+        # Every family the box score answers, not just the three the old whitelist settled. "3-7"
+        # is the combined three-point cell, so 3PM is the MADE side; PRA is the synthesized sum.
+        {"PTS": 31.0, "REB": 6.0, "AST": 8.0, "STL": 2.0, "BLK": 0.0, "3PM": 3.0, "PRA": 45.0},
+        "ESPN parser keys by lowercased name and extracts every settleable family",
     )
     s.assert_eq("inactive guy" not in espn, True, "DNP players are dropped")
 

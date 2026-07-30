@@ -15,8 +15,16 @@
  * surface can render one by accident — the absence is enforced by the domain, not by discipline.
  */
 
-/** Game-level market families the live artifact actually provides. */
-export type GameMarketFamily = "MONEYLINE" | "RUN_LINE" | "TOTAL";
+/**
+ * Game-level market families across the sports this domain can represent.
+ *
+ * `RUN_LINE` is baseball's fixed 1.5 line; `SPREAD` is the variable point spread every other sport
+ * posts. They are separate families rather than one "handicap" because they are not the same market
+ * — a run line does not move, a spread does, and collapsing them would make "the line moved" an
+ * expressible claim about MLB. Which sport OFFERS which family is `sport-config.ts`'s answer, not
+ * this union's: representable and offered are different questions, exactly as they are for props.
+ */
+export type GameMarketFamily = "MONEYLINE" | "RUN_LINE" | "SPREAD" | "TOTAL";
 
 /**
  * Player prop families, normalized from the provider's market strings. Normalization capability is

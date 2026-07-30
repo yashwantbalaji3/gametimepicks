@@ -55,6 +55,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
+from pipeline.nba import settle_results as nba_settle
+
 
 log = logging.getLogger("gtp.settle")
 logging.basicConfig(
@@ -77,7 +79,11 @@ REPORT_DIR = PIPELINE_DIR / "validation"
 # `projection` (which is what shipped for early-May entries).
 BOARDS_DIR = PIPELINE_DIR.parent / "app" / "public" / "data" / "boards"
 
-SUPPORTED_MARKETS = ("PTS", "REB", "AST")
+# The market vocabulary, the box-score field maps and the lineage gate live in `pipeline.nba` so
+# there is one NBA settlement contract rather than a whitelist buried in this file. The expansion is
+# FORWARD-ONLY: `supported_markets_for_date` returns the legacy three for any historical date, so
+# the 903 rows the old short-circuit invalidated stay invalid rather than being restamped.
+SUPPORTED_MARKETS = nba_settle.SUPPORTED_MARKETS
 PICK_SIDES = ("Over", "Under")
 SAMPLE_SIZE_FLOOR = 25  # below this, mark sampleSizeWarning
 
@@ -299,14 +305,12 @@ def fetch_final_stats_via_espn(
         for team_data in boxscore.get("players", []) or []:
             for stat_group in team_data.get("statistics", []) or []:
                 keys = stat_group.get("keys") or []
-                # Build a {market: index_in_stats_array} map for the three
-                # markets we settle. ESPN uses `points`/`rebounds`/`assists`.
-                idx = {
-                    "PTS": keys.index("points") if "points" in keys else None,
-                    "REB": keys.index("rebounds") if "rebounds" in keys else None,
-                    "AST": keys.index("assists") if "assists" in keys else None,
-                }
-                if not any(v is not None for v in idx.values()):
+                # Column readers for every settleable market, from the one field map in
+                # pipeline/nba/settle_results.py. The three-point column is a combined
+                # "made-attempted" cell, so it needs a different reader than the scalars — which is
+                # exactly the detail a per-call-site index dict got wrong by omitting it.
+                readers = nba_settle.espn_stat_readers(keys)
+                if not readers:
                     continue
                 for athlete in stat_group.get("athletes", []) or []:
                     if athlete.get("didNotPlay"):
@@ -319,15 +323,7 @@ def fetch_final_stats_via_espn(
                     if not name:
                         continue
                     stats_arr = athlete.get("stats") or []
-                    stats: dict[str, float] = {}
-                    for market, i in idx.items():
-                        if i is None or i >= len(stats_arr):
-                            continue
-                        raw = stats_arr[i]
-                        try:
-                            stats[market] = float(raw)
-                        except (TypeError, ValueError):
-                            continue
+                    stats = nba_settle.extract_espn_stats(stats_arr, readers)
                     if stats:
                         out[name] = stats
         return out if out else None
@@ -368,16 +364,7 @@ def fetch_final_stats_via_nba_api(game_id: str) -> dict[int, dict[str, float]] |
                 pid = int(row["PLAYER_ID"])
             except (KeyError, ValueError, TypeError):
                 continue
-            stats: dict[str, float] = {}
-            for col, key in [("PTS", "PTS"), ("REB", "REB"), ("AST", "AST")]:
-                v = row.get(col)
-                if v is not None and not (
-                    isinstance(v, float) and v != v  # NaN check
-                ):
-                    try:
-                        stats[key] = float(v)
-                    except (TypeError, ValueError):
-                        pass
+            stats = nba_settle.extract_nba_api_stats(row)
             if stats:
                 out[pid] = stats
         return out if out else None
@@ -539,12 +526,18 @@ def settle_lean(
     lean: dict,
     final_stat: float | None,
     settlement_source: str,
+    game_status: str | None = None,
 ) -> dict | None:
     """
     Settle a single lean.
 
     Returns a settled-row dict, or None if the lean is not settleable
     (e.g. side="No Play"/"Pass" — these are intentionally skipped).
+
+    `game_status`, when the caller knows it, quarantines legs tied to a game the league did not
+    play as scheduled. A postponed game has no final box score for THIS instance and never will;
+    grading it win/loss would be a result read off a game that did not happen, and leaving it
+    pending forever is the silent-omission failure soccer shipped 192 times.
     """
     side = lean.get("lean") or lean.get("side")
     if side not in PICK_SIDES:
@@ -573,7 +566,12 @@ def settle_lean(
     market = lean.get("market")
     line = lean.get("line")
 
-    if market not in SUPPORTED_MARKETS:
+    if nba_settle.is_quarantined_status(game_status):
+        return nba_settle.quarantine_row(base, game_status)
+
+    # Date-gated whitelist. Historical dates resolve to the legacy three, so re-running settlement
+    # over the 2026 corpus reproduces its `invalid` rows byte for byte instead of restamping them.
+    if market not in nba_settle.supported_markets_for_date(lean.get("date")):
         return {
             **base,
             "result": "invalid",
@@ -863,11 +861,17 @@ def settle_for_date(
         final_stat, source = resolve_final_stat(
             lean, overrides, auto_stats_by_game, espn_stats_by_game
         )
-        row = settle_lean(lean, final_stat, source)
+        row = settle_lean(lean, final_stat, source, lean.get("gameStatus"))
         if row is None:
             skipped_no_pick += 1
             continue
         settled_rows.append(row)
+
+    # Fail closed BEFORE anything reaches the ledger, on the validator MLB settlement already runs
+    # (Sprint 045; it refused 641 rows on a real collision in Sprint 049). NBA settlement has never
+    # run through a lineage gate — a dry run over the 2026 corpus refuses it on two shapes, which is
+    # recorded in pipeline/nba/settle_results_test.py rather than repaired by restamping.
+    nba_settle.assert_nba_settlement_lineage(settled_rows, date=date)
 
     decisive_results = {"win", "loss", "push"}
     summary = {
@@ -951,7 +955,7 @@ def _print_source_report(date: str, leans: list[dict]) -> int:
     }
     for lean in leans:
         market = lean.get("market")
-        if market not in ("PTS", "REB", "AST"):
+        if market not in nba_settle.supported_markets_for_date(date):
             buckets["skip_unknown"].append(lean)
             continue
         # Manual override key: (playerName_lower, market)

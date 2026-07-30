@@ -23,6 +23,7 @@ import {
   type PlayerPropIntelligence,
 } from "./player-intelligence";
 import { censusPairing, type PairingCensus } from "./pairing";
+import { MLB_SPORT_KEY, marketConfigFor } from "./sport-config";
 import { evaluateArtifactFreshness, resolveFreshnessReference, type FreshnessReading } from "./freshness";
 import { MODEL_KEY_BY_PLAYER_FAMILY, PLAYER_FAMILY_BY_PROVIDER_KEY } from "./types";
 import type { PlayerMarketFamily } from "./types";
@@ -32,11 +33,23 @@ const MODEL_FAMILY_BY_KEY: Record<string, PlayerMarketFamily> = Object.fromEntri
   Object.entries(MODEL_KEY_BY_PLAYER_FAMILY).map(([family, key]) => [key, family as PlayerMarketFamily]),
 ) as Record<string, PlayerMarketFamily>;
 
-const DATA_DIR = path.join(process.cwd(), "public", "data", "mlb");
+/**
+ * SEAM 2 — the data root, resolved per sport instead of fixed to MLB.
+ *
+ * FAIL-CLOSED: a sport with no config resolves to no directory, so every read returns its fallback
+ * and the surface renders as absent. Defaulting to MLB's directory would be worse than empty — it
+ * would render one sport's markets under another sport's name.
+ */
+function dataDirFor(sport: string): string | null {
+  const config = marketConfigFor(sport);
+  return config ? path.join(process.cwd(), "public", "data", config.dataDir) : null;
+}
 
-function readJson<T>(rel: string, fallback: T): T {
+function readJson<T>(rel: string, fallback: T, sport: string): T {
+  const dir = dataDirFor(sport);
+  if (!dir) return fallback;
   try {
-    const p = path.join(DATA_DIR, rel);
+    const p = path.join(dir, rel);
     if (!fs.existsSync(p)) return fallback;
     return JSON.parse(fs.readFileSync(p, "utf-8")) as T;
   } catch (err) {
@@ -45,10 +58,12 @@ function readJson<T>(rel: string, fallback: T): T {
   }
 }
 
-function availableDates(dir: string): string[] {
+function availableDates(dir: string, sport: string): string[] {
+  const root = dataDirFor(sport);
+  if (!root) return [];
   try {
     return fs
-      .readdirSync(path.join(DATA_DIR, dir))
+      .readdirSync(path.join(root, dir))
       .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
       .map((f) => f.replace(/\.json$/, ""))
       .sort();
@@ -63,9 +78,9 @@ function availableDates(dir: string): string[] {
  * Requiring both is the point: a date with game markets but no props would render a Market Center
  * that silently lost its player section, which reads as breakage rather than as absence.
  */
-export function latestMarketDate(): string | null {
-  const games = new Set(availableDates("team-markets"));
-  const props = availableDates("player-props");
+export function latestMarketDate(sport: string = MLB_SPORT_KEY): string | null {
+  const games = new Set(availableDates("team-markets", sport));
+  const props = availableDates("player-props", sport);
   const both = [...props].filter((d) => games.has(d)).sort();
   return both.length ? both[both.length - 1] : null;
 }
@@ -117,22 +132,34 @@ interface BoardShape {
  * `todayEt` and `nowIso` are injected so a page and its test evaluate freshness at the same instant
  * rather than at two different wall-clock reads.
  */
-export function loadMarketCenter(date: string, todayEt: string, nowIso: string): MarketCenterData {
+export function loadMarketCenter(
+  date: string,
+  todayEt: string,
+  nowIso: string,
+  sport: string = MLB_SPORT_KEY,
+): MarketCenterData {
   const teamMarkets = readJson<{
     date?: string;
     generatedAt?: string;
     bookmaker?: string;
     games?: Record<string, Record<string, unknown>>;
-  }>(`team-markets/${date}.json`, {});
+  }>(`team-markets/${date}.json`, {}, sport);
   const propsFile = readJson<{ date?: string; generatedAt?: string; props?: BookPropRow[] }>(
     `player-props/${date}.json`,
     {},
+    sport,
   );
-  const board = readJson<BoardShape>(`boards/${date}.json`, {});
+  const board = readJson<BoardShape>(`boards/${date}.json`, {}, sport);
   const sims = readJson<{ games?: Array<Record<string, unknown>> }>(
     `full-game-simulations/${date}.json`,
     {},
+    sport,
   );
+
+  // SEAM 1 — the sport's own provider vocabulary. A key this sport's book does not post normalizes
+  // to null, which pairing reports as FAMILY_UNKNOWN rather than borrowing another sport's meaning.
+  const playerFamilyByProviderKey =
+    marketConfigFor(sport)?.playerFamilyByProviderKey ?? PLAYER_FAMILY_BY_PROVIDER_KEY;
 
   // Which date freshness is judged against. ONE shared rule (./freshness) so this page and the game
   // report can never disagree about whether the same snapshot is current.
@@ -171,6 +198,7 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
       const gamePk = pkByGameId.resolve(gameId);
       const bg = gamePk != null ? boardGameByPk.get(gamePk) : undefined;
       return buildGameIntelligence({
+        sport,
         book: g as never,
         sim: (gamePk != null ? simByPk.get(gamePk) ?? null : null) as never,
         gamePk,
@@ -197,9 +225,10 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
       teamAbbr != null && bg != null && (teamAbbr === bg.homeTeamAbbr || teamAbbr === bg.awayTeamAbbr);
 
     return buildPlayerPropIntelligence({
+      sport,
       prop,
       lean,
-      family: PLAYER_FAMILY_BY_PROVIDER_KEY[prop.market] ?? null,
+      family: playerFamilyByProviderKey[prop.market] ?? null,
       gamePk,
       homeTeam: bg?.homeTeamAbbr ?? null,
       awayTeam: bg?.awayTeamAbbr ?? null,
@@ -229,6 +258,7 @@ export function loadMarketCenter(date: string, todayEt: string, nowIso: string):
 
     props.push(
       buildPlayerPropIntelligence({
+        sport,
         // The book posted no row, so the synthetic prop carries the model's line and no price.
         prop: {
           gameId: lean.gameId,

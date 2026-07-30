@@ -63,6 +63,11 @@ from .manual_overrides import (
     SCHEDULE_OVERRIDES_PATH,
 )
 from .validation import LeanLogEntry, append_entries
+from .nba.board_schema import (
+    assert_no_historical_backfill,
+    classify_empty_slate,
+    serialize_game_row,
+)
 
 
 logging.basicConfig(
@@ -390,7 +395,14 @@ def _try_espn_schedule(date: str) -> dict:
 
 
 def _serialize_games(date: str, games) -> list[dict]:
-    """Convert Game dataclass instances to the JSON shape used in board.json."""
+    """Convert Game dataclass instances to the JSON shape used in board.json.
+
+    Row construction lives in `pipeline.nba.board_schema` so the tip-off INSTANT and the derived
+    `researchEligible` flag are emitted here and nowhere else. `capturedAt` is this run's clock: the
+    moment we observed the schedule, which is the only side of `capturedAt < tipoffIso` the pipeline
+    is entitled to state. Boards predating the schema epoch stay ineligible — never backfilled.
+    """
+    captured_at = now_iso()
     out: list[dict] = []
     seen: set[tuple[str, str]] = set()
     for g in games:
@@ -398,16 +410,8 @@ def _serialize_games(date: str, games) -> list[dict]:
         if pair in seen:
             continue
         seen.add(pair)
-        out.append({
-            "gameId": g.game_id,
-            "date": date,
-            "tipoff": g.tipoff_et or "TBD",
-            "homeTeamAbbr": g.home_team_abbr,
-            "homeTeamFull": g.home_team_full,
-            "awayTeamAbbr": g.away_team_abbr,
-            "awayTeamFull": g.away_team_full,
-            "status": g.status,
-        })
+        out.append(serialize_game_row(g, date, captured_at))
+    assert_no_historical_backfill(date, out)
     return out
 
 
@@ -572,6 +576,13 @@ def _build_real_payload(
         "games": games,
         "dataMode": final_data_mode,
         "failureReason": diag["scheduleFailureReason"],
+        # The off-season cron keeps emitting boards. Silencing them would hide provider failures;
+        # leaving them unlabelled makes a stats.nba.com timeout read as a night with no games. This
+        # field names which one it is without removing either signal.
+        "emptySlateClassification": classify_empty_slate(
+            game_count=len(games),
+            schedule_available=data_mode != DATA_MODE_SCHEDULE_UNAVAIL,
+        ),
         # Phase 7B-1.2 schedule diagnostic fields
         "requestedDate": diag["requestedDate"],
         "timezone": diag["timezone"],
