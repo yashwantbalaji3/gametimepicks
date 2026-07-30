@@ -23,6 +23,11 @@ from pathlib import Path
 
 from .. import config as C
 from . import mlb_odds, mlb_stats, mlb_model
+from .settlement_lineage import derive_event_id
+
+# Bumped when the shape of a lean row's provenance block changes. The research-lineage exporter reads
+# this to tell a natively-stamped row from one it had to reconstruct.
+BOARD_ROW_SCHEMA_VERSION = "mlb-board-row-1"
 
 SEASON = 2026
 DEFAULT_DATE = "2026-05-16"
@@ -101,6 +106,20 @@ def _parse_iso(value: str | None) -> float | None:
         return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
     except Exception:
         return None
+
+
+def _captured_before_start(captured_at: str | None, scheduled_start: str | None) -> bool:
+    """True only when the capture provably precedes first pitch.
+
+    Fails closed: a missing or unparseable timestamp on either side is NOT eligible, and equality is
+    not pregame. Research eligibility is a claim about when we looked, so it can only ever be granted
+    by two real instants — never inferred, and never repaired after the fact from the outcome.
+    """
+    a = _parse_iso(captured_at)
+    b = _parse_iso(scheduled_start)
+    if a is None or b is None:
+        return False
+    return a < b
 
 
 def _club_identity(ctxs: list[dict]) -> tuple[int | str, str | None] | None:
@@ -332,6 +351,24 @@ def _build_lean(
         "gameId": row["gameId"],
         "gamePk": (home_ctx.get("gamePk") or away_ctx.get("gamePk")),
         "commenceTime": row["commenceTime"],
+        # ── native provenance ──────────────────────────────────────────────────────────────────
+        # Stamped at generation time so the row carries its own history instead of having one
+        # reconstructed for it later. capturedAt comes from the odds call that produced this row;
+        # scheduledStart is the event's start, not the slate date; eventId uses the same derivation
+        # as settlement, so a board row and the result that grades it agree on which event they mean.
+        # researchEligible is DERIVED here rather than asserted — it is exactly `captured before start`,
+        # and it is false when either timestamp is missing rather than optimistically true.
+        "eventId": derive_event_id(
+            sport="mlb",
+            league="mlb",
+            participant_names=[row.get("awayTeam") or "", row.get("homeTeam") or ""],
+            scheduled_start=row["commenceTime"],
+        ),
+        "scheduledStart": row["commenceTime"],
+        "capturedAt": row.get("capturedAt"),
+        "providerRefs": {"oddsApiEventId": row.get("providerEventId"), "bookmaker": row.get("bookmaker")},
+        "researchEligible": _captured_before_start(row.get("capturedAt"), row["commenceTime"]),
+        "rowSchemaVersion": BOARD_ROW_SCHEMA_VERSION,
         "homeTeamAbbr": home_ctx.get("abbr"),
         "homeTeamName": row.get("homeTeam"),
         "awayTeamAbbr": away_ctx.get("abbr"),
@@ -532,6 +569,16 @@ def run(
             except (TypeError, ValueError):
                 pass
             rows = mlb_odds.parse_event_odds(payload, list(bookmakers))
+            # Stamp the capture instant on the rows THIS call produced, at the moment it returned.
+            # capturedAt is the one provenance field that cannot be recovered afterwards: once the
+            # board is on disk there is no record of when its prices were read, and the file-level
+            # generatedAt describes the whole run, not this event. Substituting it is precisely the
+            # backfill the research-lineage contract refuses, which is why every historical row is
+            # LEGACY_UNSTAMPED. Stamped here, `capturedAt < commenceTime` is a fact about the row.
+            captured_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            for r in rows:
+                r["capturedAt"] = captured_at
+                r["providerEventId"] = eid
             all_rows.extend(rows)
             if rows:
                 summary["eventsWithOdds"] += 1

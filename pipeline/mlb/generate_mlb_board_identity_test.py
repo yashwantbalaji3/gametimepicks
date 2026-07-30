@@ -57,6 +57,76 @@ def game(pk: int, date: str, home: str, away: str) -> dict:
     }
 
 
+# ── forward-only native row stamping ───────────────────────────────────────────
+
+def _stamped_lean(captured_at, commence="2026-07-30T22:40:00Z"):
+    """One lean built through the real code path, with only the capture instant varying."""
+    games = [{**game(830001, commence, "Detroit Tigers", "Baltimore Orioles"),
+              "homeTeamId": 116, "awayTeamId": 110}]
+    row = {
+        "gameId": "BAL@DET", "commenceTime": commence,
+        "homeTeam": "Detroit Tigers", "awayTeam": "Baltimore Orioles",
+        "playerName": "Some Batter", "marketKey": "batter_hits", "line": 0.5,
+        "impliedOver": 0.55, "impliedUnder": 0.50, "oddsOver": -120, "oddsUnder": 100,
+        "bookmaker": "draftkings", "providerEventId": "odds-api-abc123",
+        **({"capturedAt": captured_at} if captured_at is not None else {}),
+    }
+    projection = {"projection": 1.1, "sigma": 0.8, "samples": 20,
+                  "last10Mean": 1.0, "seasonMean": 1.05, "last3Mean": 1.0}
+    return gmb._build_lean(row, _team_lookup_from_schedule(games), projection, False)
+
+
+def test_native_stamps_are_written_at_generation_time() -> None:
+    """A freshly generated row carries its own provenance rather than needing one reconstructed."""
+    lean = _stamped_lean("2026-07-30T15:31:00Z")
+
+    for field in ("eventId", "capturedAt", "scheduledStart", "providerRefs", "rowSchemaVersion"):
+        check(lean.get(field) not in (None, ""), f"a new row must carry {field}")
+
+    check(lean["capturedAt"] == "2026-07-30T15:31:00Z", "capturedAt comes from the odds call that made the row")
+    check(lean["scheduledStart"] == "2026-07-30T22:40:00Z", "scheduledStart is the event start, not the slate date")
+    check(lean["providerRefs"]["oddsApiEventId"] == "odds-api-abc123", "the provider event id is recorded, not inferred")
+    check(lean["researchEligible"] is True, "captured 7h before first pitch must be eligible")
+
+    # The board row and the settlement that grades it must name the SAME event.
+    from pipeline.mlb.settlement_lineage import derive_event_id
+    expected = derive_event_id(sport="mlb", league="mlb",
+                               participant_names=["Baltimore Orioles", "Detroit Tigers"],
+                               scheduled_start="2026-07-30T22:40:00Z")
+    check(lean["eventId"] == expected, "board eventId must use the settlement derivation")
+
+
+def test_MUTATION_removing_capturedAt_forfeits_eligibility() -> None:
+    """Strip the capture instant and the row must NOT be able to claim it was pregame."""
+    lean = _stamped_lean(None)
+    check(lean.get("capturedAt") is None, "the fixture must actually be missing capturedAt")
+    check(lean["researchEligible"] is False,
+          "a row with no capture instant must fail closed, not default to eligible")
+
+
+def test_MUTATION_file_level_generatedAt_cannot_stand_in_for_capturedAt() -> None:
+    """The board's generatedAt describes the RUN. Substituting it is the backfill the contract bans.
+
+    Proven by construction: with capturedAt absent the row is ineligible even though a board-level
+    generatedAt exists in the same run and would have been comfortably pregame. Eligibility has to
+    come from the row's own instant or it is not evidence of anything.
+    """
+    board_generated_at = "2026-07-30T15:31:00Z"          # pregame, and irrelevant to the row
+    lean = _stamped_lean(None, commence="2026-07-30T22:40:00Z")
+    check(_parse_iso(board_generated_at) < _parse_iso("2026-07-30T22:40:00Z"),
+          "the fixture is only meaningful if the board-level stamp WOULD have passed")
+    check(lean["researchEligible"] is False,
+          "a board-level timestamp must never rescue a row that carries no capture instant")
+
+
+def test_capture_after_first_pitch_is_not_pregame() -> None:
+    """Late captures and exact ties are both refused — equality is not 'before'."""
+    check(_stamped_lean("2026-07-30T23:00:00Z")["researchEligible"] is False,
+          "a capture after first pitch must never be research eligible")
+    check(_stamped_lean("2026-07-30T22:40:00Z")["researchEligible"] is False,
+          "a capture exactly at first pitch is not pregame")
+
+
 # ── the roster-lookup regression the list contract caused ──────────────────────
 
 def test_club_identity_consumes_the_list_contract() -> None:
