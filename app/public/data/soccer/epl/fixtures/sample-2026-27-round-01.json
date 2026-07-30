@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "competition": "epl",
+  "season": "2026-27",
+  "dataClass": "FIXTURE_SAMPLE",
+  "generatedAt": "2026-07-30T00:00:00Z",
+  "source": "synthetic",
+  "public": false,
+  "notes": "SAMPLE — not a capture, not the official 2026-27 fixture list, and not a claim about which clubs contest the season. Synthetic rows that pin the artifact schema before the first real ingest. The last two rows are deliberately the same club pair at two kickoffs (a postponed fixture and its replacement) so the identity distinction appears in a committed file.",
+  "rows": [
+    {
+      "eventId": "soccer:epl:arsenal-v-chelsea:20260822t1400",
+      "homeClub": "Arsenal",
+      "awayClub": "Chelsea",
+      "kickoffIso": "2026-08-22T14:00:00Z",
+      "lifecycle": "SCHEDULED",
+      "providerRefs": [{ "provider": "odds-api", "id": "sample-evt-0001", "kind": "event" }],
+      "capturedAt": "2026-07-30T00:00:00Z"
+    },
+    {
+      "eventId": "soccer:epl:liverpool-v-manchester-city:20260822t1630",
+      "homeClub": "Manchester City",
+      "awayClub": "Liverpool",
+      "kickoffIso": "2026-08-22T16:30:00Z",
+      "lifecycle": "SCHEDULED",
+      "providerRefs": [{ "provider": "odds-api", "id": "sample-evt-0002", "kind": "event" }],
+      "capturedAt": "2026-07-30T00:00:00Z"
+    },
+    {
+      "eventId": "soccer:epl:brighton-hove-albion-v-everton:20260823t1300",
+      "homeClub": "Everton",
+      "awayClub": "Brighton & Hove Albion",
+      "kickoffIso": "2026-08-23T13:00:00Z",
+      "lifecycle": "POSTPONED",
+      "providerRefs": [{ "provider": "odds-api", "id": "sample-evt-0003", "kind": "event" }],
+      "capturedAt": "2026-07-30T00:00:00Z"
+    },
+    {
+      "eventId": "soccer:epl:brighton-hove-albion-v-everton:20260909t1845",
+      "homeClub": "Everton",
+      "awayClub": "Brighton & Hove Albion",
+      "kickoffIso": "2026-09-09T18:45:00Z",
+      "lifecycle": "REPLAYED",
+      "providerRefs": [{ "provider": "odds-api", "id": "sample-evt-0004", "kind": "event" }],
+      "capturedAt": "2026-07-30T00:00:00Z"
+    }
+  ]
+}
