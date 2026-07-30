@@ -43,7 +43,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     id: "confidence", term: "Confidence", category: "confidence",
     short: "Which band the model-vs-market difference fell into. Descriptive, not predictive.",
-    long: "Category A / B / C record how far the model's number sat from the sportsbook's (>=5pp, 2.5-5pp, under 2.5pp). ⚠️ On 21,192 settled outcomes the categories are ANTI-PREDICTIVE and run in the opposite order to their old names: A settled 49.3%, B 50.6%, C 51.7%. As of Sprint 035 the category is shown for transparency only — it does not up-weight a pick, does not gate eligibility, and does not affect the order anything appears in.",
+    long: "Category A / B / C record how far the model's number sat from the sportsbook's (>=5pp, 2.5-5pp, under 2.5pp). ⚠️ On 21,192 settled outcomes the categories are ANTI-PREDICTIVE and run in the opposite order to their old names: A settled 49.3%, B 50.6%, C 51.7%. The category is shown for transparency only — it does not up-weight a pick, does not gate eligibility, and does not affect the order anything appears in.",
   },
   {
     id: "reliability", term: "Reliability", category: "confidence",
