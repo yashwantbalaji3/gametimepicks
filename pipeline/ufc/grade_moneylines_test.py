@@ -19,6 +19,21 @@ from pipeline.ufc.grade_moneylines import _bout_key, grade
 REPO_ROOT = Path(__file__).resolve().parents[2]
 COLLISION_AUDIT = REPO_ROOT / "data" / "internal" / "ufc" / "integrity" / "ufc-collision-audit.json"
 RESULTS_LATEST = REPO_ROOT / "app" / "public" / "data" / "ufc" / "results-latest.json"
+ODDS_LATEST = REPO_ROOT / "app" / "public" / "data" / "ufc" / "odds-latest.json"
+
+
+def _legacy_pair_join(fighters, commence_time, by_id, pair_dates):
+    """The pre-repair defect, kept in ONE place so every mutation proof runs the
+    same mutant: ANY result sharing the sorted fighter-pair key decides, date
+    ignored, last write wins. Never imported by production code."""
+    pair = gm._bout_key(fighters[0], fighters[1])
+    picked = None
+    for rows in by_id.values():
+        for r in rows:
+            if gm._bout_key(r.get("fighterA", ""), r.get("fighterB", "")) == pair:
+                picked = r
+    return picked, []
+
 
 EVENTS = [{"EVENT": "UFC X", "URL": "u", "DATE": "May 16, 2026", "LOCATION": "v"}]
 RESULTS = [
@@ -245,6 +260,51 @@ class CommittedArtifactRegressionTests(unittest.TestCase):
                     self.assertTrue(all(v == "push" for v in grades.values()), row["boutId"])
 
 
+class LiveArtifactFutureBoutTests(unittest.TestCase):
+    """The regrade audit's `liveDefectCaughtOnIdenticalInputs` — the committed
+    odds quote bouts dated after the last known result, so a correct grader can
+    decide none of them. Pinned on the REAL inputs; the fixtures above only
+    prove the join on synthetic dates."""
+
+    @classmethod
+    def setUpClass(cls):
+        if not (ODDS_LATEST.exists() and RESULTS_LATEST.exists()):
+            raise unittest.SkipTest("committed UFC artifacts not present")
+        cls.odds = json.loads(ODDS_LATEST.read_text())
+        cls.results = json.loads(RESULTS_LATEST.read_text())
+        cls.last_result_date = cls.results.get("latestEventDate")
+
+    def _future_rows(self, graded):
+        return [r for r in graded if (r.get("boutId") or "")[:10] > self.last_result_date]
+
+    def test_no_bout_after_the_last_known_result_date_is_ever_decided(self):
+        g = grade(self.odds, self.results)
+        future = self._future_rows(g["graded"])
+        self.assertTrue(future, "committed odds quote no bout past the last result date")
+        for r in future:
+            self.assertEqual(r["grade"], "pending", r["boutId"])
+        self.assertEqual(g["tally"]["win"] + g["tally"]["loss"], 0)
+
+    def test_dateless_pair_join_decides_a_future_bout_on_these_exact_inputs(self):
+        """Mutation proof on the committed artifacts: the date guard is
+        load-bearing here, not merely satisfied by fixtures."""
+        src_bytes = Path(gm.__file__).read_bytes()
+        original = gm._match_result
+        gm._match_result = _legacy_pair_join
+        try:
+            mutated = gm.grade(self.odds, self.results)
+        finally:
+            gm._match_result = original
+
+        wrong = [r for r in self._future_rows(mutated["graded"]) if r["grade"] in ("win", "loss")]
+        self.assertTrue(wrong, "mutant decided nothing — the proof would be decorative")
+
+        self.assertIs(gm._match_result, original)
+        self.assertFalse([r for r in self._future_rows(grade(self.odds, self.results)["graded"])
+                          if r["grade"] in ("win", "loss")])
+        self.assertEqual(Path(gm.__file__).read_bytes(), src_bytes)
+
+
 class MutationProofTests(unittest.TestCase):
     """Reintroduce the date-less pair join IN-MEMORY (source untouched) and
     prove the opposite-winner rematch fixture catches it."""
@@ -259,17 +319,6 @@ class MutationProofTests(unittest.TestCase):
         key2 = f"{DATE2}:{_bout_key('Rey Champ', 'Mago Rival')}"
         correct = {(key1, "Rey Champ"): "win", (key1, "Mago Rival"): "loss",
                    (key2, "Rey Champ"): "loss", (key2, "Mago Rival"): "win"}
-
-        def _legacy_pair_join(fighters, commence_time, by_id, pair_dates):
-            # the pre-repair defect: ANY result sharing the sorted fighter-pair
-            # key decides; date ignored; last-write-wins
-            pair = gm._bout_key(fighters[0], fighters[1])
-            picked = None
-            for rows in by_id.values():
-                for r in rows:
-                    if gm._bout_key(r.get("fighterA", ""), r.get("fighterB", "")) == pair:
-                        picked = r
-            return picked, []
 
         original = gm._match_result
         gm._match_result = _legacy_pair_join

@@ -1,0 +1,114 @@
+{
+  "kind": "ufc-capture-cadence-readiness",
+  "program": "062-065 Lane G",
+  "asOf": "2026-07-30",
+  "public": false,
+  "question": "At the observed odds-capture and results-refresh cadence, is UFC accumulating a leakage-safe backtest at all — and if so, how fast?",
+  "verdict": "INSUFFICIENT_DATA",
+  "verdictBasis": "Two odds captures, 30.69 days apart, both triggered by hand, is a sample of one interval. It cannot establish a cadence, a capture rate, or an accrual projection. The one thing it does establish is a hard structural fact, below: zero captured bouts overlap the results corpus, so the accrual rate measured to date is 0 rows.",
+  "sourcesRead": [
+    "app/public/data/ufc/odds-snapshots/ (immutable pregame snapshots, written by pipeline/ufc/build_odds.py:107-115)",
+    "app/public/data/ufc/results-latest.json",
+    "app/public/data/ufc/backtest-dataset-latest.json",
+    "app/public/data/ufc/ops-status-latest.json",
+    ".github/workflows/ufc-*.yml"
+  ],
+  "oddsCapture": {
+    "snapshotCount": 2,
+    "snapshots": [
+      {
+        "file": "odds-2026-06-09T22-17-31+00-00.json",
+        "generatedAt": "2026-06-09T22:17:31+00:00",
+        "sportKey": "mma_mixed_martial_arts",
+        "bouts": 20,
+        "boutDates": ["2026-06-14", "2026-06-15", "2026-06-20", "2026-06-21", "2026-06-27"],
+        "leadTimeHoursMin": 99.7,
+        "leadTimeHoursMax": 423.7,
+        "bookmakers": ["betonlineag", "draftkings"],
+        "bytes": 11762
+      },
+      {
+        "file": "odds-2026-07-10T14-49-59+00-00.json",
+        "generatedAt": "2026-07-10T14:49:59+00:00",
+        "sportKey": "mma_mixed_martial_arts",
+        "bouts": 20,
+        "boutDates": ["2026-07-11", "2026-07-12"],
+        "leadTimeHoursMin": 23.2,
+        "leadTimeHoursMax": 35.4,
+        "bookmakers": ["betonlineag", "draftkings"],
+        "bytes": 11777
+      }
+    ],
+    "intervalsObserved": [30.69],
+    "daysSinceLastCapture": 19.38,
+    "distinctBoutIdsCaptured": 40,
+    "allCapturedPregame": true,
+    "gapsNote": "Cards took place between the two captures (the 2026-06-14 through 2026-06-27 bouts in snapshot 1 are the only ones with a capture at all). No capture exists for any card after 2026-07-12, and the 2026-06-15 UFC Freedom 250 card that WAS settled has no snapshot under its own event date beyond the 2026-06-09 capture.",
+    "leadTimeNote": "Capture 1 ran 4-18 days ahead of its bouts; capture 2 ran ~1 day ahead. Pregame-ness is satisfied in both cases (capturedAt < commenceTime for all 40 bouts), but the two captures are not comparable price points — one is an opener, one is close to closing."
+  },
+  "resultsRefresh": {
+    "artifact": "app/public/data/ufc/results-latest.json",
+    "writes": 1,
+    "lastWrittenAt": "2026-06-09T21:38:21+00:00",
+    "lastWrittenCommit": "81b10a64",
+    "latestEventDate": "2026-05-16",
+    "finalBoutCount": 1519,
+    "provider": "greco1899_ufcstats_csv (GPL-3.0)",
+    "cost": "free",
+    "daysStaleAsOf": 75,
+    "gradingFreshnessGate": "GRADING_FRESH_DAYS = 120 (pipeline/ufc/build_readiness.py:123)",
+    "freshnessExpiresOn": "2026-09-13",
+    "note": "The results corpus has never been refreshed since first ingest. Its freshness gate has not yet tripped, but it trips on 2026-09-13 without a re-run, at which point gradingReady fails closed on staleness in addition to the decisive-grade condition."
+  },
+  "automation": {
+    "ufcWorkflows": [
+      "ufc-fighter-stats-refresh.yml",
+      "ufc-odds-refresh.yml",
+      "ufc-post-card.yml",
+      "ufc-pre-card.yml",
+      "ufc-prop-discovery.yml",
+      "ufc-results-refresh.yml"
+    ],
+    "cronScheduled": 0,
+    "workflowDispatchOnly": 6,
+    "evidence": "grep -n cron .github/workflows/ufc-*.yml returns nothing; every file's `on:` block is workflow_dispatch only.",
+    "consequence": "Capture cadence is exactly equal to founder attention. There is no mechanism that captures a card if nobody remembers to dispatch ufc-pre-card before it, and the pregame window cannot be recovered afterwards."
+  },
+  "backtestAccrual": {
+    "cleanRowsToday": 0,
+    "targetRows": 150,
+    "gate": "BACKTEST_MIN_ROWS = 150 (pipeline/ufc/build_readiness.py:172)",
+    "structuralBlocker": "All 40 captured bouts are dated after 2026-05-16, the last event in the results corpus. Overlap between captured odds and known results is zero, so no bout can produce a row regardless of join quality.",
+    "excludedBreakdown": {"post_commence": 0, "no_result": 38, "non_final": 0, "ambiguous": 0, "unlicensed": 0, "date_mismatched_pair": 2},
+    "bindingConstraintToday": "results refresh, not odds spend. A free re-run of ufc-results-refresh would extend the corpus past 2026-05-16 and could convert already-captured 2026-06/2026-07 bouts into rows. Nothing further can be inferred about how many until that run happens.",
+    "arithmeticIfCadenceWereEstablished": "A card yields ~20 h2h bouts, or ~40 fighter-side rows. 150 rows is therefore roughly 4 cards captured pregame AND subsequently resulted. That is arithmetic, not a forecast: it assumes every captured bout resolves cleanly and is not a projection of when 150 will be reached.",
+    "notAnEdgeClaim": "150 clean rows unlocks a market-baseline Brier computation. It does not imply the model beats that baseline, and no promotion above SCAFFOLD_ONLY follows from row count alone."
+  },
+  "settlementLineage": {
+    "graderJoin": "date-qualified boutId only (pipeline/ufc/grade_moneylines.py:34-77)",
+    "decisiveGradesToday": 0,
+    "gradingReadyDerived": false,
+    "note": "app/public/data/ufc/results-settled-latest.json is a separate one-off ESPN settlement of the 2026-06-15 UFC Freedom 250 test slate (6-1 moneyline). It is not produced by grade_moneylines.py, carries no boutId lineage, and is display/archive only. Its record is NOT lineage-verified under the date-qualified join contract and must not be read as grader output."
+  },
+  "staleDerivedArtifacts": [
+    {
+      "file": "app/public/data/ufc/readiness-latest.json",
+      "records": "gradingReady=true",
+      "recomputesTo": "false",
+      "reason": "written 2026-07-10, before the Lane F regrade removed the two coincidence-decided rows"
+    },
+    {
+      "file": "app/public/data/ufc/ops-status-latest.json",
+      "records": "gradingStatus='ready'",
+      "recomputesTo": "not ready",
+      "reason": "same pre-repair build"
+    }
+  ],
+  "staleArtifactNote": "Both regenerate from the ufc-results-refresh / ufc-pre-card workflows. Regenerating them here would also flip oddsReady false on the 48h odds-staleness rule (ODDS_FRESH_HOURS, build_readiness.py:25) — environmental, and outside this lane's file ownership. They are recorded, not corrected.",
+  "whatWouldMakeThisArtifactSaySomething": [
+    "a results refresh that moves latestEventDate past the captured 2026-06/2026-07 bouts",
+    "three or more captures with recorded intervals, so an interval is a distribution rather than a single number",
+    "a capture policy that fixes the lead time (opener vs close), so captured prices are comparable"
+  ],
+  "moneyImpact": "none — UFC has never written to the official ledger; app/public/data/mr-dub/** untouched by every UFC job."
+}
