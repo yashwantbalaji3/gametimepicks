@@ -120,6 +120,19 @@ if [ "$NO_BUILD" = "0" ]; then
 fi
 cd ..
 
+step "Bash — orchestrator pipefail guards"
+# These prove the automation scripts cannot report a crashed step as success. They existed but were
+# wired into nothing, so when automation_projections.sh reacquired the exact defect Sprint 049 had
+# already fixed in automation_settle.sh, no runner noticed for two days. A drift guard that never
+# runs is not a guard.
+for t in scripts/automation_settle_pipefail_test.sh scripts/automation_projections_pipefail_test.sh; do
+    if [ -f "$t" ]; then
+        bash "$t" > /tmp/gtp_pipefail.log 2>&1 \
+            && ok "$(basename "$t")" \
+            || { cat /tmp/gtp_pipefail.log; err "$(basename "$t") FAILED"; exit 1; }
+    fi
+done
+
 step "Bash — smoke test"
 if [ -f "scripts/smoke_test.sh" ]; then
     bash scripts/smoke_test.sh > /tmp/gtp_smoke.log 2>&1 \

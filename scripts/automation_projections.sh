@@ -39,6 +39,21 @@
 
 set -e
 
+# Every paid step here runs as `<python module> 2>&1 | tee <log>`. Without pipefail the pipeline's
+# status is TEE's, which is 0 whenever the log file is writable — so the `if` sees success no matter
+# how the Python process died, `ok` prints, and the workflow goes green.
+#
+# That is not hypothetical, and it is the same defect Program 049 fixed in automation_settle.sh.
+# From 2026-07-29, `pipeline.mlb.generate_mlb_board` raised AttributeError on every run (the roster
+# loop had not been updated when the team lookup started returning lists). This script printed
+# "✓ MLB board generation completed" each time and exited 0. No board was written for 2026-07-29 or
+# 2026-07-30, nightly-settle then failed with "board file not found", and the first visible symptom
+# was a missing day on the public site — two days after the actual break.
+#
+# With pipefail the pipeline takes the first non-zero status, so `err` and the non-zero exit fire as
+# the code always intended. Covered by scripts/automation_projections_pipefail_test.sh.
+set -o pipefail
+
 GREEN="\033[0;32m"; RED="\033[0;31m"; YELLOW="\033[0;33m"
 BLUE="\033[0;34m"; RESET="\033[0m"
 

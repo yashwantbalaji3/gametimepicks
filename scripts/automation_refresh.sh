@@ -29,6 +29,14 @@
 
 set -e
 
+# Same reason as automation_settle.sh (Sprint 049) and automation_projections.sh (Program 066):
+# every step here is `<python module> 2>&1 | tee <log>`, and a pipeline's status is TEE's, which
+# succeeds whenever the log is writable. Without this line a crashed step takes the `then` branch
+# and the run goes green. Both sibling orchestrators shipped that defect to production; this one
+# is fixed before it can. Covered by scripts/automation_projections_pipefail_test.sh, which fails
+# if ANY automation_*.sh pipes into tee without declaring pipefail.
+set -o pipefail
+
 GREEN="\033[0;32m"; RED="\033[0;31m"; YELLOW="\033[0;33m"
 BLUE="\033[0;34m"; DIM="\033[2m"; GOLD="\033[0;33m"; RESET="\033[0m"
 
