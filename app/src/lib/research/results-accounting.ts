@@ -58,7 +58,7 @@ export interface SettledRow {
 
 export interface DateAccounting {
   readonly date: string;
-  readonly integrity: "CLEAN" | "PARTIAL" | "QUARANTINED" | "UNAVAILABLE";
+  readonly integrity: "CLEAN" | "IN_PROGRESS" | "PARTIAL" | "QUARANTINED" | "UNAVAILABLE";
   readonly generated: number;
   readonly wins: number;
   readonly losses: number;
@@ -174,10 +174,16 @@ export function reconcile(input: ReconcileInput): DateAccounting {
     notes.push(`${pending} row(s) remain unresolved on a completed slate.`);
   }
 
+  // Accounting integrity and slate progress are different questions, and CLEAN used to answer both.
+  // On a slate that has not finished, every row is accounted for AND most of them are still pending —
+  // both true at once. Reporting that as CLEAN put "every generated row reached a final state" next to
+  // "Pending 387" on 2026-07-30, the first day an unplayed slate reached this surface. IN_PROGRESS says
+  // the accounting is sound and the games are still being played, which is the only honest reading.
   const integrity: DateAccounting["integrity"] =
     gap !== 0 ? "PARTIAL"
       : pending > 0 && input.slateComplete ? "PARTIAL"
-        : "CLEAN";
+        : pending > 0 ? "IN_PROGRESS"
+          : "CLEAN";
 
   // Lineage: verified only when every settled row carries it. Anything less is legacy, stated plainly.
   const settledRows = [...settled.values()];

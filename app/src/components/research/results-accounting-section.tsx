@@ -24,6 +24,11 @@ const INTEGRITY_COPY: Record<DateAccounting["integrity"], { label: string; meani
     meaning: "Every generated row reached a final state.",
     tone: "var(--vault-gold)",
   },
+  IN_PROGRESS: {
+    label: "In progress",
+    meaning: "Games are still being played. Rows resolve as they finish; nothing is counted early.",
+    tone: "var(--text-mute)",
+  },
   PARTIAL: {
     label: "Incomplete",
     meaning: "Some rows on this finished slate never resolved. They are counted, not hidden.",

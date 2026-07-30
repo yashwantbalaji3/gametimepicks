@@ -124,8 +124,24 @@ test("a pending row on a live slate is not a defect", () => {
     settled: settledMap([["w", "Win"]]),
     slateComplete: false,
   });
-  assert.equal(r.integrity, "CLEAN");
+  // Still not a defect — that is the point of the case — but not "Complete" either. A slate whose
+  // games are being played has every row accounted for AND most rows unresolved, and CLEAN's public
+  // copy ("every generated row reached a final state") is false while that is true. IN_PROGRESS is
+  // the state that says both things honestly; PARTIAL would wrongly call an unfinished slate broken.
+  assert.equal(r.integrity, "IN_PROGRESS");
+  assert.notEqual(r.integrity, "PARTIAL", "an unfinished slate is not a defect");
   assert.equal(r.pending, 1);
+});
+
+test("a finished slate with everything resolved is Complete, not In progress", () => {
+  const r = reconcile({
+    date: "2026-07-27",
+    generated: [gen("w"), gen("l")],
+    settled: settledMap([["w", "Win"], ["l", "Loss"]]),
+    slateComplete: true,
+  });
+  assert.equal(r.integrity, "CLEAN");
+  assert.equal(r.pending, 0);
 });
 
 // ── quarantine ─────────────────────────────────────────────────────────────────
