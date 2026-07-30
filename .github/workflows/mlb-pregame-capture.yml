@@ -257,13 +257,7 @@ jobs:
           OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
           PHASE: mlb-pregame-capture
         run: |
-          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          LINE="GameTimePicks ${PHASE}: workflow FAILED on ${GITHUB_REF_NAME} - ${RUN_URL}"
-          echo "::error::${LINE}"
-          if [ -z "$OPS_WEBHOOK_URL" ]; then
-            echo "::notice::OPS_WEBHOOK_URL unset - failure logged here only. Set the secret to receive alerts."
-            exit 0
-          fi
-          PAYLOAD="$(printf '%s' "$LINE" | python3 -c 'import json,sys;l=sys.stdin.read();print(json.dumps({"text":l,"content":l}))')"
-          curl -sS -X POST -H 'content-type: application/json' --data "$PAYLOAD" "$OPS_WEBHOOK_URL" \
-            || echo "::warning::webhook post failed - the failure is already surfaced above"
+          # One alert per failed run, built and redacted by scripts/ops_alert.sh so every workflow
+          # reports the same contract (docs/OPS_ALERTING_CONTRACT.md). Never exits non-zero: the
+          # failing step above is what fails the run.
+          EXIT_STATUS="${EXIT_STATUS:-1}" bash scripts/ops_alert.sh

@@ -125,7 +125,7 @@ step "Bash — orchestrator pipefail guards"
 # wired into nothing, so when automation_projections.sh reacquired the exact defect Sprint 049 had
 # already fixed in automation_settle.sh, no runner noticed for two days. A drift guard that never
 # runs is not a guard.
-for t in scripts/automation_settle_pipefail_test.sh scripts/automation_projections_pipefail_test.sh; do
+for t in scripts/automation_settle_pipefail_test.sh scripts/automation_projections_pipefail_test.sh scripts/ops_alert_test.sh; do
     if [ -f "$t" ]; then
         bash "$t" > /tmp/gtp_pipefail.log 2>&1 \
             && ok "$(basename "$t")" \
