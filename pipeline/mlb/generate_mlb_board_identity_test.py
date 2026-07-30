@@ -26,6 +26,7 @@ import pathlib
 import pipeline.mlb.generate_mlb_board as gmb
 from pipeline.mlb.generate_mlb_board import (
     _parse_iso,
+    _club_identity,
     _resolve_team_ctx,
     _team_lookup_from_schedule,
 )
@@ -54,6 +55,42 @@ def game(pk: int, date: str, home: str, away: str) -> dict:
         "awayTeamId": None,
         "venue": None,
     }
+
+
+# ── the roster-lookup regression the list contract caused ──────────────────────
+
+def test_club_identity_consumes_the_list_contract() -> None:
+    """Roster lookup must survive `_team_lookup_from_schedule` returning lists.
+
+    b8c68dee changed the lookup value from a single dict to a LIST so doubleheaders keep
+    distinct gamePks. The roster loop kept calling `.get()` on that value, so from the very
+    next run every board raised `AttributeError: 'list' object has no attribute 'get'` and no
+    board was written — while the orchestrator still printed a success line. 2026-07-29 and
+    2026-07-30 therefore had no board at all, and settlement failed with "board file not found".
+    """
+    games = [
+        {**game(824490, "2026-07-28T17:40:00Z", "Cincinnati Reds", "Cleveland Guardians"),
+         "homeTeamId": 113, "awayTeamId": 114},
+        {**game(824489, "2026-07-28T23:10:00Z", "Cincinnati Reds", "Cleveland Guardians"),
+         "homeTeamId": 113, "awayTeamId": 114},
+    ]
+    ctx = _team_lookup_from_schedule(games)
+
+    # The exact call the roster loop makes, over the exact structure the lookup returns.
+    for team_name, ctxs in ctx.items():
+        check(isinstance(ctxs, list), f"{team_name} must index a LIST, not a dict")
+        club = _club_identity(ctxs)
+        check(club is not None, f"{team_name} must resolve to a club identity")
+
+    # A doubleheader team names ONE club, not one per game.
+    check(_club_identity(ctx["Cincinnati Reds"]) == (113, "CIN"),
+          f"doubleheader must resolve one club, got {_club_identity(ctx['Cincinnati Reds'])}")
+
+    # Fail closed rather than crash when no entry carries an id.
+    check(_club_identity([]) is None, "an empty list must return None, not raise")
+    check(_club_identity([{"abbr": "CIN"}]) is None, "an entry with no id must not identify a club")
+    check(_club_identity([{"abbr": "X"}, {"id": 113, "abbr": "CIN"}]) == (113, "CIN"),
+          "the first entry carrying an id identifies the club")
 
 
 # ── the regression case ────────────────────────────────────────────────────────

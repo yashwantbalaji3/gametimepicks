@@ -103,6 +103,26 @@ def _parse_iso(value: str | None) -> float | None:
         return None
 
 
+def _club_identity(ctxs: list[dict]) -> tuple[int | str, str | None] | None:
+    """The club a team's schedule entries describe, as `(team_id, abbr)`, or None if unidentifiable.
+
+    `_team_lookup_from_schedule` returns a LIST per team so a doubleheader keeps a distinct gamePk
+    per game (b8c68dee). Roster lookup is per CLUB, not per game — every entry for a team names the
+    same club — so it needs exactly one entry, and the first that carries an id is enough.
+
+    This is a function rather than two lines inside the roster loop because it was two lines inside
+    the roster loop that broke: when the lookup started returning lists, the loop kept calling
+    `.get()` on the value and every board raised AttributeError. Board generation printed a success
+    line anyway, so 2026-07-29 and 2026-07-30 silently produced no board at all and settlement had
+    nothing to grade. Inline logic could not be tested; this can.
+    """
+    for ctx in ctxs or []:
+        team_id = ctx.get("id")
+        if team_id:
+            return team_id, ctx.get("abbr")
+    return None
+
+
 def _resolve_team_ctx(
     team_ctx: dict[str, list[dict]], team_name: str | None, commence_time: str | None
 ) -> dict:
@@ -202,7 +222,7 @@ def assert_board_publishable(leans: list[dict], *, date: str) -> None:
 
 def _build_lean(
     row: dict,
-    team_ctx: dict[str, dict],
+    team_ctx: dict[str, list[dict]],
     projection: dict,
     is_pitcher: bool,
     *,
@@ -546,11 +566,11 @@ def run(
     # (Odds API only gives us player names; MLB API gives us names + ids per roster).
     print(f"[stats] fetching rosters for {len(team_ctx)} teams")
     batter_id_by_name: dict[str, int] = {}
-    for team_name, ctx in team_ctx.items():
-        team_id = ctx.get("id")
-        team_abbr = ctx.get("abbr")
-        if not team_id:
+    for team_name, ctxs in team_ctx.items():
+        club = _club_identity(ctxs)
+        if club is None:
             continue
+        team_id, team_abbr = club
         try:
             roster = mlb_stats.fetch_team_roster(int(team_id))
         except mlb_stats.MlbStatsError as err:
