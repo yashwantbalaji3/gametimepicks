@@ -1,0 +1,123 @@
+{
+  "kind": "research-gap-history",
+  "rowSchemaVersion": "research-row-lineage-1",
+  "generatedAt": "2026-07-30T00:00:00Z",
+  "asOfSettledDate": "2026-07-27",
+  "method": "Signed difference in percentage points between the simulation's probability for the side it leaned and the same side's de-vigged sportsbook price, bucketed and scored against the settled outcome. Rows refused by an integrity gate are excluded from every denominator and counted separately.",
+  "totalRows": 21597,
+  "excludedRows": 36,
+  "window": {
+    "from": "2026-05-16",
+    "to": "2026-07-27"
+  },
+  "buckets": [
+    {
+      "id": "lte-neg-2",
+      "label": "2 pp or more below the market",
+      "fromPp": null,
+      "toPp": -2,
+      "n": 0,
+      "wins": 0,
+      "observedRate": null,
+      "brier": null,
+      "interval": null,
+      "window": null,
+      "suppressedReason": "no settled rows in this range yet"
+    },
+    {
+      "id": "neg-2-to-2",
+      "label": "within 2 pp of the market",
+      "fromPp": -2,
+      "toPp": 2,
+      "n": 2606,
+      "wins": 1234,
+      "observedRate": 0.47352264006139677,
+      "brier": 0.24064775493860274,
+      "interval": {
+        "low": 0.45440538046244705,
+        "high": 0.49271784724608514
+      },
+      "window": {
+        "from": "2026-05-16",
+        "to": "2026-07-27"
+      },
+      "suppressedReason": null
+    },
+    {
+      "id": "2-to-5",
+      "label": "2–5 pp above the market",
+      "fromPp": 2,
+      "toPp": 5,
+      "n": 4150,
+      "wins": 2178,
+      "observedRate": 0.5248192771084338,
+      "brier": 0.24035456006264894,
+      "interval": {
+        "low": 0.509609536615047,
+        "high": 0.5399831103457808
+      },
+      "window": {
+        "from": "2026-05-16",
+        "to": "2026-07-27"
+      },
+      "suppressedReason": null
+    },
+    {
+      "id": "5-to-10",
+      "label": "5–10 pp above the market",
+      "fromPp": 5,
+      "toPp": 10,
+      "n": 6175,
+      "wins": 3206,
+      "observedRate": 0.5191902834008097,
+      "brier": 0.24495458061862319,
+      "interval": {
+        "low": 0.5067202285311634,
+        "high": 0.5316364757416894
+      },
+      "window": {
+        "from": "2026-05-16",
+        "to": "2026-07-27"
+      },
+      "suppressedReason": null
+    },
+    {
+      "id": "10-to-20",
+      "label": "10–20 pp above the market",
+      "fromPp": 10,
+      "toPp": 20,
+      "n": 7073,
+      "wins": 3489,
+      "observedRate": 0.49328432065601585,
+      "brier": 0.26604262365191333,
+      "interval": {
+        "low": 0.48163954188569447,
+        "high": 0.5049363905189534
+      },
+      "window": {
+        "from": "2026-05-16",
+        "to": "2026-07-27"
+      },
+      "suppressedReason": null
+    },
+    {
+      "id": "gte-20",
+      "label": "20 pp or more above the market",
+      "fromPp": 20,
+      "toPp": null,
+      "n": 1593,
+      "wins": 734,
+      "observedRate": 0.46076585059635905,
+      "brier": 0.3132034327306971,
+      "interval": {
+        "low": 0.4364114562938402,
+        "high": 0.4853090199262181
+      },
+      "window": {
+        "from": "2026-05-16",
+        "to": "2026-07-27"
+      },
+      "suppressedReason": null
+    }
+  ]
+}

@@ -2,10 +2,20 @@ import type { Metadata } from "next";
 
 import MarketCenter from "@/components/market-center";
 import PageHero from "@/components/page-hero";
+import DisagreementExplorer from "@/components/research/disagreement-explorer";
 import { currentEtDate } from "@/lib/freshness";
 import { latestMarketDate, loadMarketCenter } from "@/lib/markets/load";
 import { freshnessLabel, formatSnapshotCapture } from "@/lib/markets/freshness";
 import { toPropRowViews } from "@/lib/markets/view-model";
+import { loadExplorer } from "@/lib/research/disagreement-explorer-loader";
+import {
+  EXPLORER_ELIGIBILITY_NOTE,
+  EXPLORER_INTRO,
+  EXPLORER_PROBABILITY_NOTE,
+  EXPLORER_TITLE,
+  toExplorerRowViews,
+  toGapBucketViews,
+} from "@/lib/research/disagreement-explorer";
 
 export const metadata: Metadata = {
   title: "Market Center · GameTimePicks",
@@ -33,6 +43,11 @@ export default function MarketsPage() {
   // between them. The client freshness components re-derive the real ET clock on mount.
   const nowIso = new Date().toISOString();
   const data = loadMarketCenter(date, today, nowIso);
+
+  // The explorer runs on SETTLED slates with a per-row provenance record, which is a different date
+  // from the live snapshot above and is meant to be. It is a retrospective section on a live page, so
+  // it states its own date rather than inheriting this one.
+  const explorer = loadExplorer();
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
@@ -85,6 +100,48 @@ export default function MarketsPage() {
           }
           isCurrent={!data.isHistorical && data.gameFreshness.isCurrent}
         />
+      </section>
+
+      <section className="reveal reveal-d2" style={{ marginTop: 40 }}>
+        <div
+          className="font-mono uppercase tracking-[0.16em]"
+          style={{ fontSize: 10, color: "var(--vault-gold)", marginBottom: 8 }}
+        >
+          {EXPLORER_TITLE}
+        </div>
+        <p style={{ fontSize: 12, color: "var(--vault-text-mute)", lineHeight: 1.7, marginBottom: 16 }}>
+          {EXPLORER_INTRO}
+        </p>
+
+        {explorer.available && explorer.date && explorer.table ? (
+          <DisagreementExplorer
+            date={explorer.date}
+            rows={toExplorerRowViews(explorer.rows)}
+            buckets={toGapBucketViews(explorer.table)}
+            historyTotal={explorer.table.totalRows}
+            historyExcluded={explorer.table.excludedRows}
+            historyFrom={explorer.table.window?.from ?? null}
+            historyTo={explorer.table.window?.to ?? null}
+            largestGapCaution={explorer.largestGapCaution}
+            coverageTotal={explorer.coverage?.total ?? explorer.rows.length}
+            coverageListed={explorer.coverage?.listed ?? explorer.rows.length}
+            probabilityNote={EXPLORER_PROBABILITY_NOTE}
+            eligibilityNote={EXPLORER_ELIGIBILITY_NOTE}
+          />
+        ) : (
+          <div
+            style={{
+              border: "1px solid var(--vault-rule)",
+              borderRadius: 10,
+              padding: 16,
+              fontSize: 12,
+              color: "var(--vault-text-mute)",
+              lineHeight: 1.7,
+            }}
+          >
+            {explorer.unavailableReason ?? "This section has nothing to show for the current record."}
+          </div>
+        )}
       </section>
 
       <section className="reveal reveal-d2" style={{ marginTop: 32 }}>
