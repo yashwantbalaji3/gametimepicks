@@ -12,9 +12,20 @@ from pipeline.ufc.backtest_moneyline_model import evaluate
 from pipeline.ufc.build_readiness import backtest_gate, derive_readiness
 
 RESULTS = {"results": [
-    {"boutId": "b1", "eventName": "UFC X", "eventDate": "2026-05-01",
+    {"boutId": "2026-05-01:alex star|bob foe", "eventName": "UFC X", "eventDate": "2026-05-01",
      "fighterA": "Alex Star", "fighterB": "Bob Foe", "winner": "Alex Star",
      "loser": "Bob Foe", "resultStatus": "final"},
+]}
+
+# same pair, two dates, OPPOSITE winners — the rematch shape the date-less
+# pair join silently mis-graded
+REMATCH_RESULTS = {"results": [
+    {"boutId": "2026-03-01:mago rival|rey champ", "eventName": "UFC R1", "eventDate": "2026-03-01",
+     "fighterA": "Rey Champ", "fighterB": "Mago Rival", "winner": "Rey Champ",
+     "loser": "Mago Rival", "resultStatus": "final"},
+    {"boutId": "2026-05-01:mago rival|rey champ", "eventName": "UFC R2", "eventDate": "2026-05-01",
+     "fighterA": "Rey Champ", "fighterB": "Mago Rival", "winner": "Mago Rival",
+     "loser": "Rey Champ", "resultStatus": "final"},
 ]}
 
 
@@ -61,6 +72,35 @@ class BacktestDatasetTests(unittest.TestCase):
         ds = build_ds(self.snap, self.res)
         self.assertEqual(ds["rowCount"], 0)
         self.assertGreaterEqual(ds["excluded"]["unlicensed"], 1)
+
+    def test_rematch_joins_each_bout_to_its_own_date(self):
+        self.res.write_text(json.dumps(REMATCH_RESULTS))
+        _snap(self.snap, "2026-02-28T12:00:00+00:00", "2026-03-01T02:00:00+00:00", ["Rey Champ", "Mago Rival"])
+        _snap(self.snap, "2026-04-30T12:00:00+00:00", "2026-05-01T02:00:00+00:00", ["Rey Champ", "Mago Rival"])
+        ds = build_ds(self.snap, self.res)
+        self.assertEqual(ds["rowCount"], 4)
+        by = {(r["boutId"], r["fighter"]): r["result"] for r in ds["rows"]}
+        self.assertEqual(by[("2026-03-01:mago rival|rey champ", "Rey Champ")], "win")
+        self.assertEqual(by[("2026-03-01:mago rival|rey champ", "Mago Rival")], "loss")
+        self.assertEqual(by[("2026-05-01:mago rival|rey champ", "Rey Champ")], "loss")
+        self.assertEqual(by[("2026-05-01:mago rival|rey champ", "Mago Rival")], "win")
+
+    def test_pair_on_wrong_date_excluded_never_joined(self):
+        self.res.write_text(json.dumps(REMATCH_RESULTS))
+        _snap(self.snap, "2026-06-30T12:00:00+00:00", "2026-07-01T02:00:00+00:00", ["Rey Champ", "Mago Rival"])
+        ds = build_ds(self.snap, self.res)
+        self.assertEqual(ds["rowCount"], 0)
+        self.assertEqual(ds["excluded"]["date_mismatched_pair"], 1)
+
+    def test_result_without_bout_id_fails_closed(self):
+        self.res.write_text(json.dumps({"results": [
+            {"eventName": "UFC X", "eventDate": "2026-05-01", "fighterA": "Alex Star",
+             "fighterB": "Bob Foe", "winner": "Alex Star", "loser": "Bob Foe",
+             "resultStatus": "final"}]}))
+        _snap(self.snap, "2026-04-30T12:00:00+00:00", "2026-05-01T02:00:00+00:00", ["Alex Star", "Bob Foe"])
+        ds = build_ds(self.snap, self.res)
+        self.assertEqual(ds["rowCount"], 0)
+        self.assertGreaterEqual(ds["excluded"]["no_result"], 1)
 
 
 class BacktestModelTests(unittest.TestCase):
