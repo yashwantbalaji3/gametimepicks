@@ -58,20 +58,29 @@ test("every one of these workflows notifies on failure", () => {
     const yml = read(f);
     assert.match(yml, /if:\s*failure\(\)/, `${f}: needs a failure-triggered step`);
     assert.match(yml, /OPS_WEBHOOK_URL/, `${f}: must pass the webhook secret`);
-    assert.match(yml, /::error::/, `${f}: must surface the failure in the run log`);
+    // The `::error::` annotation and the payload now come from scripts/ops_alert.sh. Each workflow
+    // used to carry its own copy of that shell, which is how four notifiers drifted into four
+    // slightly different messages, none of them naming the slate. Asserting the shared caller keeps
+    // them from drifting apart again; the message contract itself is pinned by ops_alert_test.sh.
+    assert.match(yml, /bash scripts\/ops_alert\.sh/, `${f}: must route its alert through the shared alerter`);
   }
 });
 
 test("the failure notifier degrades honestly when the secret is unset", () => {
-  for (const f of MUST_FAIL_LOUDLY) {
-    const yml = read(f);
-    // Alerting is additive; a missing secret must not become a new source of red.
-    assert.match(
-      yml,
-      /OPS_WEBHOOK_URL unset[\s\S]{0,200}?exit 0/,
-      `${f}: an unset webhook must log an honest skip and exit 0`,
-    );
-  }
+  // Alerting is additive; a missing secret must not become a new source of red. That behaviour lives
+  // in the shared script now, so it is asserted once, where it is implemented, rather than by
+  // pattern-matching the same shell in four YAML files.
+  const alerter = fs.readFileSync(path.join(REPO, "scripts/ops_alert.sh"), "utf8");
+  assert.match(
+    alerter,
+    /OPS_WEBHOOK_URL unset/,
+    "an unset webhook must log an honest skip rather than failing silently",
+  );
+  assert.match(
+    alerter,
+    /^exit 0$/m,
+    "the alerter must always exit 0 so delivery can never mask the run failure",
+  );
 });
 
 test("a generated slate can no longer be committed locally and silently discarded", () => {
