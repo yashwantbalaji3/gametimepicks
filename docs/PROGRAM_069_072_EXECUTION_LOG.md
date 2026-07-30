@@ -49,10 +49,36 @@ Commit `db066cb2`. The July 30 outage was surfaced correctly and still went unre
 |---|---|
 | 0 Ground truth + production verification | **COMPLETE** |
 | A July 30 settlement + learning cycle | **WALL_CLOCK_OPEN** — 0/10 final; exact passive instructions above |
-| B July 31 native stamping + concurrency repair | ACTIVE |
+| B July 31 native stamping + concurrency repair | **NOT STARTED** — deprioritised behind cleanup; the stamping code itself shipped in Program 066–068 |
 | C Operations alerting | **COMPLETE** (`db066cb2`) — delivery blocked by founder |
-| D Public route + content cleanup | ACTIVE |
-| E Export privacy + freshness governance | ACTIVE |
-| F Analytics activation | pending — endpoint still unapproved |
-| G NBA/EPL/UFC continuation | pending |
-| H Integration + deployment | pending |
+| D Public route + content cleanup | **NOT LANDED — preserved on branch `program-069-public-cleanup`** (below) |
+| E Export privacy + freshness governance | **NOT LANDED** — same branch; the three audit docs were never written |
+| F Analytics activation | **NO CHANGE** — endpoint still unapproved, production dark |
+| G NBA/EPL/UFC continuation | **NOT STARTED** |
+| H Integration + deployment | **PARTIAL** — Lane C shipped and verified; the cleanup was withheld |
+
+## Lane D/E — public cleanup: substantial, unvalidated, deliberately NOT deployed
+
+Three parallel cleanup agents ran ~90 minutes and then died mid-response (two connection failures, one stall). Their work survived on disk: **20 route deletions** (IPL/NHL `board`/`parlays`/`power`/`results` children, NBA `board`/`power`, World Cup `groups`/`round-of-32`/`schedule`/`team`/`teams`), **44 modified files** including the homepage, methodology, results, today, learn and the export prune script, plus a new `public-route-inventory.test.mjs`.
+
+**It is not on `main`, and that is a decision rather than an omission.**
+
+What I finished: one file an agent left mid-edit — `results/model-audit/page.tsx`, where the ranked strong/weak *cohort* columns were correctly on their way out (a ranked cohort list is recommendation-shaped) but the component outlived its own deleted import. Typecheck is clean on the branch.
+
+What I did not do: resolve the **52 remaining test failures**, concentrated in ~8 legacy World Cup / UFC / methodology test files that pin content the cleanup removed. Each is a separate judgement about whether a specific removal was right. Deleting 52 assertions in bulk to turn a suite green — at the end of a long session, against a live production site — is the exact failure mode this repository keeps getting burned by (the July 30 outage was a green run that was lying). A cleanup that ships with its guards quietly dropped is not a cleanup.
+
+**Preserved at:** branch `program-069-public-cleanup`, commit `8fbcf577`.
+
+**To finish it:** work the failing files one at a time — `methodology-content`, `june16-count-and-run3`, `cross-lane-correlation`, `home-simulate-flows`, `wc-player-props`, `round-of-32-static-params`, `june21-premium-ui`, `ufc-prediction-preview` — deciding per assertion whether the removed surface should be gone (delete the test with its route) or was removed in error (restore the surface). Then write the three documents the lanes never reached: `PUBLIC_WEBSITE_PAGE_AUDIT_2026_07_30.md`, `PUBLIC_DATA_BOUNDARY_AUDIT.md`, `PUBLIC_CONTENT_AND_FRESHNESS_REGISTRY.md`.
+
+The inventory that motivates the work stands: **69 source routes, 256 exported HTML files**, with `nba nhl ipl ufc world-cup sports events board projections trends picks parlays parlay-lab moonshot bank-builder mr-dub homer-nukes world-cup-specials build about research market-guide simulate` all publicly reachable while the capability registry lists MLB as the only live sport.
+
+## Final validation (on the deployed line, after Lane C)
+
+| Check | Result |
+|---|---|
+| JS suite (serial) | **3,573 tests · 3,569 pass · 0 fail · 4 skipped** |
+| Typecheck / build / health | clean · exit 0 · HEALTHY 18/18 |
+| Python `mlb+ufc+nba` | **219 passed** |
+| Money / lock md5 | `affe6b21…` / `cb80473f…` ✅ unchanged |
+| `vp/` | untouched, uncommitted |
