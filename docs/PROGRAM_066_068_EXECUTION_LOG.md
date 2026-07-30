@@ -59,13 +59,30 @@ next_safe_action: none. Do NOT regenerate a 2026-07-29 board now — its games a
 |---|---|
 | 0 Ground truth | **COMPLETE** |
 | 1 July 29 recovery / diagnosis | **COMPLETE — root cause fixed (`7efa491c`), July 29 itself unrecoverable** |
-| 2 July 30 pregame universe | ACTIVE |
-| 3 July 30 generation | ACTIVE (dispatched run 30557120901 at 11:31 ET, pregame with 37 min to first pitch) |
-| 4 Everyday learning | PENDING newest settled date |
-| 5 Forward-only row stamping | PENDING July 30 board |
-| 6 Public contract + routes | PENDING |
-| 7 Paper products | PENDING |
-| 8 Automation repair | **PARTIAL — root cause fixed; green-but-broken orchestrator reporting still to address** |
-| 9 Analytics continuation | PENDING |
-| 10 NBA/EPL/UFC continuation | PENDING |
-| 11 Release QA + deploy | PENDING |
+| 2 July 30 pregame universe | **COMPLETE** — 10 scheduled, 10 with odds, zero unexplained gaps |
+| 3 July 30 generation | **COMPLETE** — 425 leans, board at 11:45 ET (25 min before first pitch); all 5 downstream artifacts published (`fd090114`) |
+| 4 Everyday learning | **COMPLETE (no new evidence)** — the loop stopped at stage 1 because no new finals existed; nothing retrained. Contract written: `DAILY_LEARNING_LOOP_CONTRACT.md` |
+| 5 Forward-only row stamping | **IMPLEMENTED, forward-only** — landed after today's board, so 07-30 stays unstamped and PROVEN_STAMPED remains 0 |
+| 6 Public contract + routes | **COMPLETE** — contract rebuilt; all 6 routes verified on production at `718c8dab` |
+| 7 Paper products | **NO CHANGE** — no card approved, no exposure mutation, no Moonshot activation |
+| 8 Automation repair | **COMPLETE** — pipefail added to projections + refresh, sweep guard added, guards wired into the runner |
+| 9 Analytics continuation | **NO CHANGE** — provider still dark; every metric NOT_YET_MEASURED |
+| 10 NBA/EPL/UFC continuation | **NOT STARTED** — deliberately deprioritised behind the July 30 critical path (§13 of the prompt) |
+| 11 Release QA + deploy | **COMPLETE** — found and fixed the `/results` "Complete vs Pending" defect; production verified |
+
+## Final state
+
+| Check | Result |
+|---|---|
+| Ending SHA | `718c8dab`, deployed and verified serving on production |
+| JS suite (serial) | **3,573 tests · 3,569 pass · 0 fail · 4 skipped** |
+| Typecheck / build / health | clean · exit 0 · HEALTHY 18/18 |
+| Python `mlb+ufc+nba` | **219 passed** |
+| Money / lock md5 | `affe6b21…` / `cb80473f…` ✅ unchanged |
+| `vp/` | untouched, uncommitted |
+| Newest board | **2026-07-30** (425 leans, 10/10 games) |
+| Newest settled | 2026-07-27 — truthful; 07-28 quarantined, 07-29 never generated |
+| `pipefail-live` | **PROVEN** by a real failure |
+| `PROVEN_STAMPED` | 0 — reachable on the next scheduled generation |
+
+Commits: `7efa491c` board fix · `f68e33a2` pipefail hardening · `91e33f01` pipefail proof + observer · `c95ad115` native stamping · `7dfd221c` docs · `718c8dab` /results in-progress fix.
