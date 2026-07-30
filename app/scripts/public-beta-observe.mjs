@@ -90,6 +90,7 @@ const PROOF_PLAN = path.join(REPO, "data/internal/mlb/integrity/operational-proo
 const RESEARCH_QUARANTINE = path.join(REPO, "data/internal/mlb/research-quarantine");
 const SETTLE_ORCHESTRATOR = path.join(REPO, "scripts/automation_settle.sh");
 const PIPEFAIL_TEST = "scripts/automation_settle_pipefail_test.sh";
+const PIPEFAIL_PROOF = path.join(REPO, "data/internal/mlb/integrity/pipefail-live-proof.json");
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 
@@ -425,15 +426,27 @@ function observeLimitations({ lineage }) {
     closedBy: "docs/PUBLIC_BETA_OPERATIONAL_PROOF.md §5.1",
   });
 
+  // A wall-clock proof stops being open once the natural event actually happens. The proof artifact
+  // is the record of that event, so it is read rather than assumed — the same way the lineage gate's
+  // live proof is recorded. Reporting a closed proof as still open is its own kind of dishonesty.
+  const pipefailProof = readJson(PIPEFAIL_PROOF);
+  const pipefailProven = String(pipefailProof?.verdict ?? "").startsWith("PROVEN");
+
   items.push({
     id: "pipefail-live",
-    status: "WALL_CLOCK_OPEN",
-    what: "no scheduled run has yet failed naturally under the corrected orchestrator",
-    observed: pipefailDeclared
-      ? "automation_settle.sh declares `set -o pipefail` — the fix is present, its natural proof is not"
-      : "automation_settle.sh does NOT declare `set -o pipefail` — the Sprint 049 fix is missing",
+    status: pipefailProven ? "PROVEN" : "WALL_CLOCK_OPEN",
+    what: pipefailProven
+      ? "a scheduled run failed naturally under the corrected orchestrator and was reported as a failure"
+      : "no scheduled run has yet failed naturally under the corrected orchestrator",
+    observed: pipefailProven
+      ? `${pipefailProof.evidence?.workflow ?? "a scheduled workflow"} exited ${pipefailProof.evidence?.exitCode ?? "non-zero"} on ${pipefailProof.observedAtEt ?? "an observed run"} — ${pipefailProof.evidence?.underlyingError ?? "a real failure"}`
+      : pipefailDeclared
+        ? "automation_settle.sh declares `set -o pipefail` — the fix is present, its natural proof is not"
+        : "automation_settle.sh does NOT declare `set -o pipefail` — the Sprint 049 fix is missing",
     standingEvidence: `${PIPEFAIL_TEST} (deterministic known-negative: the defect reproduces without pipefail)`,
-    doNotForceIt: byId["pipefail-live"]?.doNotForceIt ?? "corrupting production data to trigger a failure is not acceptable",
+    ...(pipefailProven
+      ? { provenBy: PIPEFAIL_PROOF.replace(`${REPO}/`, ""), namedLimitation: pipefailProof.namedLimitation?.detail ?? null }
+      : { doNotForceIt: byId["pipefail-live"]?.doNotForceIt ?? "corrupting production data to trigger a failure is not acceptable" }),
   });
 
   return items;

@@ -1,0 +1,33 @@
+{
+  "kind": "pipefail-live-proof",
+  "program": "066",
+  "public": false,
+  "question": "Has the corrected orchestrator surfaced a REAL scheduled failure as a failure, rather than reporting it green?",
+  "verdict": "PROVEN — a natural production failure propagated non-zero and alerted. Nothing was forced.",
+  "observedAtEt": "2026-07-30T09:59:20Z",
+  "evidence": {
+    "workflow": "nightly-settle",
+    "runs": [
+      "https://github.com/yashwantbalaji3/gametimepicks/actions/runs/30523914064",
+      "https://github.com/yashwantbalaji3/gametimepicks/actions/runs/30532832145"
+    ],
+    "failingStep": "settle yesterday + export",
+    "underlyingError": "MlbSettleError: board file not found: app/public/data/mlb/boards/2026-07-29.json",
+    "exitCode": 2,
+    "propagation": [
+      "the Python settler raised and exited non-zero",
+      "automation_settle.sh reported '✗ MLB settlement FAILED' and '· mlb step: FAILED' rather than a success line",
+      "the step ended with '##[error]Process completed with exit code 2'",
+      "the health gate aborted publish rather than deploying a broken slate",
+      "the notify step raised '##[error]GameTimePicks nightly-settle: workflow FAILED on main'"
+    ]
+  },
+  "whyThisIsTheProofAndNotAnAccident": "Sprint 049 found automation_settle.sh reporting a hard integrity refusal as success, because a step written as `$PY -m module 2>&1 | tee log` takes its exit status from tee. `set -o pipefail` was added, and the only evidence available was a deterministic known-negative test. This run is the first time the corrected orchestrator met a genuine production failure: the settler could not find a board that did not exist, and every layer above it — script, step, health gate, alert — reported failure. That is exactly the behaviour the fix was written for, observed on a failure nobody manufactured.",
+  "namedLimitation": {
+    "id": "ops-webhook-unset",
+    "detail": "OPS_WEBHOOK_URL is unset, so the alert was written to the run log rather than delivered to an operator. The failure was surfaced; it was not pushed. Setting that secret is a founder action.",
+    "consequence": "a real failure is visible only to whoever opens the Actions tab — which is why this one went unnoticed for two days"
+  },
+  "relatedFinding": "The failure this proves was itself caused by the SAME defect class in a sibling script: automation_projections.sh had no pipefail, so a crashing board generator printed '✓ MLB board generation completed' and went green from 2026-07-29. Fixed in this program, along with automation_refresh.sh, with a guard that sweeps every automation_*.sh.",
+  "closes": "docs/PUBLIC_BETA_OPERATIONAL_PROOF.md — pipefail-live"
+}

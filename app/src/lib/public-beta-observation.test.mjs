@@ -98,10 +98,19 @@ test("2 · the artifact carries the shape a later session reads, is non-public, 
       "settlement quarantine and research-eligibility quarantine stay separate lists");
     assert.equal(o.lineage.fields.length, 4, "lineage acceptance is measured over the four stamped fields");
 
-    // Both named limitations are present and neither is claimed as closed by code.
+    // Both named limitations are present, and none is claimed as closed by CODE. A wall-clock proof
+    // may only reach PROVEN on the strength of a committed evidence artifact naming the real event —
+    // the same rule the settlement-lineage live proof follows. Without the `provenBy` requirement,
+    // "PROVEN" would just be a string a future edit could hardcode.
     const ids = o.limitations.map((l) => l.id).sort();
     assert.deepEqual(ids, ["clean-lineage-stamping", "pipefail-live"]);
-    for (const l of o.limitations) assert.ok(["WALL_CLOCK_OPEN", "OBSERVABLE_NOW"].includes(l.status), `${l.id} is ${l.status}`);
+    for (const l of o.limitations) {
+      assert.ok(["WALL_CLOCK_OPEN", "OBSERVABLE_NOW", "PROVEN"].includes(l.status), `${l.id} is ${l.status}`);
+      if (l.status === "PROVEN") {
+        assert.ok(l.provenBy, `${l.id} is PROVEN but names no evidence artifact`);
+        assert.ok(fs.existsSync(path.join(REPO, l.provenBy)), `${l.id} names a missing evidence artifact: ${l.provenBy}`);
+      }
+    }
 
     // Idempotence: no wall-clock instant in the document, so an unchanged tree produces no diff.
     const second = run(["--offline", "--out-dir", out]);
