@@ -1032,10 +1032,19 @@ def main() -> int:
     args = parser.parse_args()
 
     date = args.date
+    if not LEANS_LOG_PATH.exists():
+        # A missing LOG is a broken pipeline and must stay loud — someone deleted or moved the
+        # working tree the settler depends on.
+        print(f"  Leans log missing at {LEANS_LOG_PATH} — this is a pipeline defect, not an empty slate.")
+        return 1
     leans = read_leans_for_date(date)
     if not leans:
-        print(f"  No leans logged for {date} in {LEANS_LOG_PATH}.")
-        return 1
+        # An empty DATE is an absence, not a failure: the NBA season ended 2026-06-13 and no leans
+        # exist to settle on any off-season date. Exiting non-zero here made the whole nightly run
+        # red once pipefail stopped swallowing it — on 2026-07-31 that aborted the publish of a
+        # fully successful MLB settlement. Nothing-to-do is a truthful success.
+        print(f"  No leans logged for {date} in {LEANS_LOG_PATH} — no slate to settle (off-season or no games). Nothing to do.")
+        return 0
 
     # Phase 19: --source-report is a read-only mode. We don't fetch box
     # scores, don't write files, don't compute hit rates. We just bucket

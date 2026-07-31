@@ -208,6 +208,35 @@ def test_projection_error(s: Suite) -> None:
     s.assert_eq("projectionError" in r, False, "no proj → no projectionError field")
 
 
+def test_offseason_no_leans_is_a_noop_not_a_failure(s: Suite, tmp_dir: Path) -> None:
+    """An empty DATE exits 0; a missing LOG exits 1.
+
+    The NBA season ended 2026-06-13, so every off-season nightly run finds no leans. Exiting
+    non-zero for that made the whole orchestrator red once pipefail stopped swallowing it — on
+    2026-07-31 it aborted the publish of a fully successful MLB settlement. Absence of work is
+    success; absence of the working tree is a defect. The two must never collapse into one code.
+    """
+    import subprocess, sys, os
+    repo = Path(__file__).resolve().parents[1]
+    env = dict(os.environ)
+
+    # Real log, empty date → success with an honest nothing-to-do message.
+    r = subprocess.run([sys.executable, "-m", "pipeline.settle_results", "--date", "2099-01-01"],
+                       capture_output=True, text=True, cwd=repo, env=env)
+    s.assert_eq(r.returncode, 0, "no leans for an off-season date exits 0")
+    s.assert_eq("Nothing to do" in r.stdout, True, "the no-op says so instead of failing silently")
+
+    # Missing log → loud failure (run in a scratch cwd is not enough: the path is absolute, so
+    # simulate by pointing the module at a nonexistent log via a child that monkeypatches it).
+    probe = (
+        "import pipeline.settle_results as SR; from pathlib import Path; import sys; "
+        "SR.LEANS_LOG_PATH = Path(r'%s')/'does-not-exist.jsonl'; "
+        "sys.argv=['settle_results','--date','2099-01-01']; raise SystemExit(SR.main())"
+    ) % tmp_dir
+    r2 = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True, cwd=repo, env=env)
+    s.assert_eq(r2.returncode, 1, "a MISSING leans log is a pipeline defect and stays non-zero")
+
+
 def test_override_loading(s: Suite, tmp_dir: Path) -> None:
     print(f"\n  {BLUE}─── Manual override file parsing ───{RESET}")
 
@@ -683,6 +712,7 @@ def main() -> int:
             test_idempotent_writes(s, tmp)
             test_espn_source(s, tmp)
             test_settle_for_date_end_to_end(s, tmp)
+            test_offseason_no_leans_is_a_noop_not_a_failure(s, tmp)
         finally:
             SR.OVERRIDES_PATH = orig_overrides
             SR.SETTLED_PATH = orig_settled
