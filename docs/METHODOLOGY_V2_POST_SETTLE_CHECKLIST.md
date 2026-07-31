@@ -53,7 +53,7 @@ Only when the report file actually changed (a legitimately-settled new slate).
 cd /Users/yashwantbalaji/Downloads/gametimepicks
 git diff --stat -- docs/audits/methodology-v2-shadow-latest.md
 ```
-- **Changed?** → open a tiny **docs-only** PR (title: `Update methodology v2 shadow report after <date> settlement`) with just the refreshed report (+ a one-line index/memo note if useful). Merge **only** on `Vercel – gametimepicks` green + `mergeStateStatus = CLEAN` (if the duplicate `gametime-picks` project is rate-limited, report transparently before deciding). Sync main.
+- **Changed?** → open a tiny **docs-only** PR (title: `Update methodology v2 shadow report after <date> settlement`) with just the refreshed report (+ a one-line index/memo note if useful). Merge **only** on `Vercel – gametime-picks` green + `mergeStateStatus = CLEAN` (the no-dash `gametimepicks` check is the duplicate — see `VERCEL_CANONICAL_PROJECT.md`; if it appears rate-limited, report transparently before deciding). Sync main.
 - **Unchanged?** → no PR.
 
 ### 5. Keep live v2 blocked until the evidence threshold is met

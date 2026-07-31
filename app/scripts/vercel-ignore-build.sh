@@ -22,6 +22,26 @@
 # skipped docs-only build can never make the site read as stale.
 set -u
 
+# ── Duplicate-project guard (Vercel duplicate investigation, 2026-07-31) ─────────────────────
+# Two Vercel projects deploy this repo. PROVEN canonical: `gametime-picks` (dash) — it serves
+# gametimepicks.yashwantbalaji.com and gametime-picks.vercel.app (byte-identical builtAt
+# fingerprint). The no-dash `gametimepicks` project serves NO public surface (its alias 404s,
+# its deployment URLs are SSO-protected) yet has built every push since 2026-05-04 (~1,370
+# production builds) and caused the June free-tier rate-limit that blocked PR #261.
+# See docs/VERCEL_CANONICAL_PROJECT.md and docs/VERCEL_DUPLICATE_CONSOLIDATION_PLAN.md.
+#
+# This guard skips builds ONLY when Vercel identifies the running project as the known
+# duplicate slug. It fails OPEN (build) when the variable is absent or unrecognized, so the
+# canonical project — or any renamed future project — can never be silently frozen by it.
+# Reversal: delete this block (or disconnect the duplicate in the dashboard, the real fix).
+DUP_HOST="${VERCEL_PROJECT_PRODUCTION_URL:-}"
+case "$DUP_HOST" in
+    gametimepicks.vercel.app|gametimepicks-*.vercel.app)
+        echo "[ignore-build] this is the duplicate 'gametimepicks' project (serves no public surface) — skipping build; canonical is 'gametime-picks'"
+        exit 0
+        ;;
+esac
+
 BASE="${VERCEL_GIT_PREVIOUS_SHA:-}"
 
 if [ -z "$BASE" ]; then

@@ -6,7 +6,7 @@ Redacted screenshots or CSV exports only** (crop/blur account IDs, payment metho
 
 | # | Service | Retrieve | Safe format | Closes which unknown |
 |---|---|---|---|---|
-| 1 | **Vercel** | Plan tier + latest invoice (if any) + Usage page for last 30/90 days (build minutes, bandwidth). **Confirmed during this program: TWO projects (`gametimepicks` and `gametime-picks`) both build every push — decide which is canonical and pause/delete the other** | Redacted screenshot/CSV + a decision | The single largest unknown: $0 vs $240/yr; halves build usage; validates the new ignored-build step's effect |
+| 1 | **Vercel** | Plan tier + latest invoice (if any) + Usage page for last 30/90 days (build minutes, bandwidth). **UPDATE (same day): canonical is now PROVEN = `gametime-picks`; the no-dash `gametimepicks` is the duplicate and is skip-guarded in-repo. Remaining founder steps are F1 (disconnect duplicate's Git integration) and F2 (redacted settings screenshots) in `VERCEL_DUPLICATE_CONSOLIDATION_PLAN.md`** | Redacted screenshot/CSV + ~2-min dashboard action | The single largest unknown: $0 vs $240/yr; June evidence says Hobby; F1 halves deployment-cap use at the source |
 | 2 | **The Odds API** | Subscription page showing tier + monthly price + current-cycle usage | Redacted screenshot | Confirms the inferred $30/20K tier (ledger strongly suggests it) |
 | 3 | **API-Football (api-sports.io)** | Account plan page (free vs paid) + last invoice if paid | Redacted screenshot | Whether idle WC capability is costing money while EPL is undecided |
 | 4 | **balldontlie** | Account plan (free vs paid) | Redacted screenshot | Idle-credential cost (fallback is disabled in code either way) |

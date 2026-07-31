@@ -11,8 +11,8 @@ it shows **schedule-only** information (or an honest "coming soon"), never
 odds/projections/picks.
 
 - **Production URL:** https://gametimepicks.yashwantbalaji.com
-- **Vercel projects:** `gametimepicks` (authoritative deploy gate) +
-  `gametime-picks` (legacy duplicate).
+- **Vercel projects:** `gametime-picks` (canonical — serves the production domain) +
+  `gametimepicks` (duplicate, being retired; see `VERCEL_CANONICAL_PROJECT.md`).
 - **Repo path convention:** `/Users/yashwantbalaji/Downloads/gametimepicks`
 - **Frontend:** Next.js static export (`output: "export"`,
   `trailingSlash: true`) under `app/`.

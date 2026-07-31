@@ -40,8 +40,10 @@ built on transparency.
 - **Scheduled GitHub Actions can be delayed/skipped**; runs may need manual
   dispatch. Static export means stale data persists until the next
   commit+deploy.
-- **Two Vercel projects** (`gametimepicks` gate + `gametime-picks` legacy)
-  can disagree transiently; only the `gametimepicks` check is authoritative.
+- **Two Vercel projects** (`gametime-picks` canonical + `gametimepicks` duplicate)
+  can disagree transiently; only the `gametime-picks` check is authoritative — it
+  serves the production domain (`VERCEL_CANONICAL_PROJECT.md`). The duplicate is
+  build-skipped in-repo and pending dashboard disconnect.
 
 ## Compliance / copy
 

@@ -19,6 +19,7 @@ invented as dollars. UNKNOWN is stated where evidence is absent.
 | 11 | Morning slate generated before evening markets post → live-slate invariant tests red every morning → `daily-lifecycle` gate refusals (item 6) + ~1/3 of pregame-capture runs discarded at the leakage gate | EXCESSIVE_REFRESH_FREQUENCY (timing, not volume) | $0 credits (later ingest fetches the delta); runner minutes + 6 days of red | 2026-07-31 board: 15 games, 10 with odds at 11:52 ET; 11/34 capture runs failed at the HARD leakage gate (gate working as designed) | Medium — touching the invariants risks weakening real guards | Adjudicate sim-orphan invariant via the already-spawned Program 080–083 task; consider generating the full board later or marking evening games PENDING_MARKETS | OPEN |
 | 12 | Dead code with provider references: cricket/IPL pipeline (no workflow at all), OpticOdds + SportsData stubs, 6 `.env.example` placeholder keys | LEGACY / UNKNOWN_PURPOSE | $0 | No caller anywhere | Low | Prune in a cleanup PR (not done this session — code deletion beyond cost scope) | OPEN — 30-day plan |
 | 13 | `THE_ODDS_API_KEY` alias — two names for one credential | Hygiene | $0 | `pipeline/config.py:122`, `lineup-aware-refresh.yml:93` | Low | Standardize on `ODDS_API_KEY` when next touching those files | OPEN |
+| 14 | **Duplicate Vercel project `gametimepicks` (no-dash) built every push since 2026-05-04** — 1,372 wasted production builds; canonical is `gametime-picks` (PROVEN: builtAt fingerprint on the custom domain); duplicate serves nothing (alias 404, SSO-protected URLs); caused the PROVEN June free-tier rate-limit that blocked PR #261; three living docs carried inverted labels for ~2 months | UNNECESSARY_DEPLOYMENTS / DUPLICATE_PROVIDER / UNKNOWN_OWNER_OR_PURPOSE | $0 verified (Hobby evidence) — cost is deployment caps, build minutes, and operator confusion | GitHub env/deployment records + HTTP fingerprint (`VERCEL_DUPLICATE_PROJECT_INVESTIGATION.md`) | Low — skip guard fails open; dashboard disconnect reversible | **FIXED repo-side 2026-07-31**: duplicate skip guard in the shared Ignored Build Step + guard test + `VERCEL_CANONICAL_PROJECT.md`; founder: F1 disconnect duplicate Git, F2 redacted settings capture, Phase-4 deletion only after 7-day quiet + separate approval | ~460 duplicate builds/mo (≈1,400–1,800 build-min/mo est.); halves deployment-cap use |
 
 ## Questions the program required answered
 
@@ -30,12 +31,12 @@ invented as dollars. UNKNOWN is stated where evidence is absent.
 - **Credits spent on slates that later fail?** July-28 style quarantines spend before failing —
   inherent to pregame capture; bounded by the credit floor + caps.
 - **Docs-only commits triggering deploys?** Was yes — item 4, fixed.
-- **Multiple Vercel projects/domains unused?** **YES — confirmed after this register was first
-  drafted**: the GitHub deployments API shows every push deploys to TWO production environments,
-  `Production – gametimepicks` AND `Production – gametime-picks` (two separate Vercel projects
-  building the same repo). Build usage is doubled on every push (~40 builds/day pre-fix). Register
-  item #14: founder decides which is canonical (the custom domain lives on one) and pauses/deletes
-  the other — account-level change, founder-only.
+- **Multiple Vercel projects/domains unused?** **YES — and now adjudicated** (same day, follow-up
+  investigation): canonical = `gametime-picks` (serves the custom domain, PROVEN by builtAt
+  fingerprint); the no-dash `gametimepicks` is an accidental duplicate from a second import on
+  2026-05-04 that served nothing while building every push. Repo-side skip guard shipped + guard
+  test + canonical declaration; dashboard disconnect and eventual deletion remain founder steps
+  (register item #14, `VERCEL_DUPLICATE_CONSOLIDATION_PLAN.md`).
 - **Full test suites duplicated without risk value?** Was 10–11 scheduled full-suite+build runs/day
   via auto-refresh+daily-refresh; now auto-refresh only (its own cadence review = founder, 30-day
   plan).

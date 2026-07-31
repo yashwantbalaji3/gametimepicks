@@ -15,7 +15,7 @@ pipeline/ (Python, run by GitHub Actions)   →  app/public/data/*.json (generat
                                   │
                                   ▼
                          Vercel (static hosting)
-                gametimepicks (gate)  +  gametime-picks (legacy)
+              gametime-picks (canonical) + gametimepicks (duplicate, being retired)
 ```
 
 The frontend is a **static export** — it reads pre-generated JSON from
@@ -98,9 +98,11 @@ require `secrets.ODDS_API_KEY` and are credit-guarded.
 
 ## Deployment
 
-- **Vercel**, two projects: `gametimepicks` (authoritative gate) +
-  `gametime-picks` (legacy duplicate). Each PR builds both.
-- **Merge gate:** real `Vercel – gametimepicks` SUCCESS **and**
+- **Vercel**: canonical production project is **`gametime-picks`** (WITH dash) — it serves
+  `gametimepicks.yashwantbalaji.com` and `gametime-picks.vercel.app`. The no-dash
+  `gametimepicks` project is a duplicate serving no public surface (see
+  `VERCEL_CANONICAL_PROJECT.md`; earlier revisions of this doc had the two inverted).
+- **Merge gate:** real `Vercel – gametime-picks` SUCCESS **and**
   `mergeStateStatus = CLEAN`; squash-merge; sync `main` after every merge.
 - Data commits from `nightly-settle`/`auto-refresh` land directly on `main`
   (`[skip ci]`); they are not PR-gated.
