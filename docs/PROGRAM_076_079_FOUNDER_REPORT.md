@@ -31,3 +31,6 @@ JS 3,556 · 0 fail (from the 073 acceptance; scoped suites re-run green througho
 ## Seven-day operating plan
 
 Run `npm run ops:public-beta-observe` daily against `PUBLIC_BETA_FIRST_OBSERVATION_PLAN.md`. Week-success = seven boards generated/settled/published with zero manual dispatches, `PROVEN_STAMPED` growing daily from Aug 1, and one observed writer-queue overlap with nothing lost. First check: after tonight's scheduled runs, newest settled should read 2026-07-31 with stamped lineage — the first fully-provenanced slate in the corpus.
+
+
+**CORRECTION (2026-07-31 audit):** the settle log's `hit_rate=0.4208` divided wins by settled rows INCLUDING 17 voids. Ledger-authoritative: 385 settled = 162 W + 206 L + 17 Void; decisive = 368; **decisive hit rate = 162/368 = 44.02%**. Accounting: 425 = 162+206+17+2 unavailable+38 no-play. The public site's accounting computes this correctly; the pipeline log line is the defect (register entry filed).

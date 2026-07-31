@@ -29,3 +29,6 @@ Chain worth noticing: pipefail (Program 049/066) surfaced a dormant misclassific
 
 - **Lineage stamping on the settled rows: 0/385 (NOT_YET_STAMPED)** — the July 30 board predates the native-stamping deploy, so this is expected and honest. The first stamped-and-settled slate is July 31, settling August 1.
 - Prediction-history freshness *sentinel* lagged the corpus it describes by one run (the corpus itself was current); the observer now trusts the newer artifact when the two disagree.
+
+
+**CORRECTION (2026-07-31 audit):** the settle log's `hit_rate=0.4208` divided wins by settled rows INCLUDING 17 voids. Ledger-authoritative: 385 settled = 162 W + 206 L + 17 Void; decisive = 368; **decisive hit rate = 162/368 = 44.02%**. Accounting: 425 = 162+206+17+2 unavailable+38 no-play. The public site's accounting computes this correctly; the pipeline log line is the defect (register entry filed).
