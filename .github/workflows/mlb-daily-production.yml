@@ -33,8 +33,12 @@ on:
   schedule:
     - cron: "15 14 * * *"
 
+# One queue for every workflow that writes generated public data to main. Per-workflow groups
+# only serialize a workflow against ITSELF; on 2026-07-30 morning-projections and daily-refresh
+# ran concurrently, both committed, and a valid generated board was discarded in the rebase
+# race. cancel-in-progress stays false: writers queue, they are never killed mid-write.
 concurrency:
-  group: mlb-daily-production
+  group: gtp-generated-artifacts
   cancel-in-progress: false
 
 permissions:

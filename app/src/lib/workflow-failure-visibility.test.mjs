@@ -83,6 +83,22 @@ test("the failure notifier degrades honestly when the secret is unset", () => {
   );
 });
 
+test("every workflow that writes generated public data shares ONE concurrency queue", () => {
+  // Per-workflow concurrency groups serialize a workflow against itself and nothing else. On
+  // 2026-07-30 morning-projections and daily-refresh ran concurrently, both committed generated
+  // JSON, and a valid board was discarded when the loser's rebase conflicted. A shared group with
+  // cancel-in-progress:false makes writers QUEUE — a generated artifact can be late, never lost.
+  const writers = [
+    "morning-projections.yml", "daily-refresh.yml", "mlb-daily-production.yml",
+    "auto-refresh.yml", "daily-rebuild.yml", "daily-lifecycle.yml",
+  ];
+  for (const f of writers) {
+    const yml = read(f);
+    assert.match(yml, /group: gtp-generated-artifacts/, `${f}: must join the shared writer queue`);
+    assert.match(yml, /cancel-in-progress: false/, `${f}: a writer must be queued, never cancelled mid-write`);
+  }
+});
+
 test("a generated slate can no longer be committed locally and silently discarded", () => {
   const yml = read("mlb-daily-production.yml");
   assert.match(yml, /never pushed after 5 attempts/, "an unpushed slate must be reported");
