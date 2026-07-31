@@ -7,13 +7,13 @@
   "deployment": {
     "status": "CURRENT",
     "url": "https://gametimepicks.yashwantbalaji.com/data/build-info.json",
-    "sha": "23e32c1f",
+    "sha": "8df72085",
     "buildEtDate": "2026-07-31",
-    "builtAt": "2026-07-31T16:16:19.613Z",
+    "builtAt": "2026-07-31T17:13:52.985Z",
     "environment": "vercel",
     "daysBehind": 0,
-    "localHead": "23e32c1f",
-    "shaInSync": true
+    "localHead": "9e17733b",
+    "shaInSync": false
   },
   "mlb": {
     "newestGeneratedBoard": "2026-07-31",
@@ -49,7 +49,8 @@
       "nightly-settle.yml",
       "mlb-daily-production.yml",
       "morning-projections.yml",
-      "mlb-pregame-capture.yml"
+      "mlb-pregame-capture.yml",
+      "daily-lifecycle.yml"
     ],
     "notRouted": [],
     "delivery": "UNVERIFIABLE_LOCALLY — the OPS_WEBHOOK_URL secret lives in GitHub Actions; an unset secret degrades to log-only, honestly"
@@ -126,7 +127,8 @@
     "2026-07-28 remains refused by the settlement-lineage gate"
   ],
   "warnings": [
-    "lineage acceptance NOT_YET_STAMPED for 2026-07-30 — 0/385 rows carry the four lineage fields"
+    "lineage acceptance NOT_YET_STAMPED for 2026-07-30 — 0/385 rows carry the four lineage fields",
+    "production is serving 8df72085, local HEAD is 9e17733b"
   ],
   "failures": []
 }
