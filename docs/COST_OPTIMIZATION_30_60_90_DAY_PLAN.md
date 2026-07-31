@@ -55,3 +55,19 @@ scale-readiness**, not for cutting an already-small bill.
 4. **Re-run this audit's baseline** (the inventory/waste docs are structured for diffing): burn
    should read ≈ $30–59/mo with NBA live, every line either verified or founder-confirmed, zero
    UNKNOWN rows left in the vendor inventory.
+
+---
+
+## Update 2026-07-31 (later same day, Program 088-091) — progress against this plan
+
+Completed early: duplicate Vercel project neutralized (skip guard + founder Git disconnect;
+quiet window → Aug 7), deployment email matrix mapped to Vercel's actual native events
+(founder toggles = 3 min), credit budget/anomaly alerting wired into the production slate,
+npm caches added, auto-refresh's SECOND root cause (silent `set -e` grep kill) fixed —
+first-ever green run expected on tonight's schedule.
+
+Adjusted 30-day items: (a) Vercel billing screenshot is now the single remaining dollar
+unknown (Pro badge observed, unverified); (b) NEW decision — afternoon top-up ingest for
+lean-less evening games (+20–60 credits/day, clears the morning invariant reds); (c) verify
+one measured week of ignored-build ratios + auto-refresh greens before the cadence review.
+Trackers: `RESOURCE_EFFICIENCY_SCORECARD.md`, `VERCEL_DUPLICATE_QUIET_WINDOW_LOG.md`.
