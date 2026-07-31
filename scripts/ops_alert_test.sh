@@ -87,6 +87,20 @@ PHASE=t EXIT_STATUS=1 OPS_WEBHOOK_URL="" \
 check "an unconfigured webhook exits 0"            "0"   "$?"
 check "an unconfigured webhook says so explicitly" "yes" "$(contains "OPS_WEBHOOK_URL unset" "${OUT_NOTICE:-}")"
 
+# ── 4b. informational test mode is labeled as a test, never as a failure ───────
+# The delivery-proof workflow sends a real message through the real path; it must be impossible
+# to mistake it for a production failure, and it must still carry the freshness context.
+OUT_TEST="$(OPS_ALERT_TEST=1 OPS_ALERT_PRINT_ONLY=1 \
+    OPS_ALERT_BOARDS_DIR="$FIXTURE/boards" OPS_ALERT_LEDGER="$FIXTURE/ledger.jsonl" \
+    PHASE="ops-webhook-delivery-test" EXIT_STATUS="0" SLATE_DATE="2026-07-30" \
+    GITHUB_SERVER_URL="https://github.com" GITHUB_REPOSITORY="o/r" GITHUB_RUN_ID="123" \
+    GITHUB_RUN_ATTEMPT="1" GITHUB_REF_NAME="main" \
+    bash "$SCRIPT" 2>/dev/null | tail -1)"
+check "test mode says it is a TEST"                 "yes" "$(contains "delivery TEST" "$OUT_TEST")"
+check "test mode says nothing failed"               "yes" "$(contains "nothing failed" "$OUT_TEST")"
+check "test mode never says FAILED"                 "no"  "$(contains "FAILED" "$OUT_TEST")"
+check "test mode still carries freshness context"   "yes" "$(contains '"newestBoard": "2026-07-30"' "$OUT_TEST")"
+
 # ── 5. every workflow that can fail routes through this script ─────────────────
 # Four workflows previously carried their own inline notify block. A new one that hand-rolls a
 # payload would drift straight back out of the contract.

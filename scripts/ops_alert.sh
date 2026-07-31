@@ -82,8 +82,15 @@ s = re.sub(r"(apiKey|api_key|token|secret|password)=\S+", r"\1=<redacted>", s, f
 print(s[:200])
 ')"
 
-SUMMARY="GameTimePicks ${PHASE} FAILED on ${BRANCH} (exit ${EXIT_STATUS})"
-echo "::error::${SUMMARY} - ${RUN_URL}"
+# OPS_ALERT_TEST=1 sends the same payload through the same delivery path, but labeled as an
+# informational delivery test so it can never be mistaken for a production failure.
+if [ "${OPS_ALERT_TEST:-0}" = "1" ]; then
+    SUMMARY="GameTimePicks ops-alert delivery TEST on ${BRANCH} (informational — nothing failed)"
+    echo "::notice::${SUMMARY} - ${RUN_URL}"
+else
+    SUMMARY="GameTimePicks ${PHASE} FAILED on ${BRANCH} (exit ${EXIT_STATUS})"
+    echo "::error::${SUMMARY} - ${RUN_URL}"
+fi
 
 PAYLOAD="$(python3 -c '
 import json, sys

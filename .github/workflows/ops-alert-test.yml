@@ -1,0 +1,37 @@
+# Ops-alert delivery test — manual dispatch only. Sends ONE informational message through the
+# real scripts/ops_alert.sh path (same redaction, same payload contract, same secret) so that
+# delivery can be PROVEN without forcing a production workflow to fail.
+#
+# This never runs on a schedule and never touches data, money, or deploys. The message is
+# explicitly labeled a test (OPS_ALERT_TEST=1) so it cannot be mistaken for a real failure.
+name: ops-alert-test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ops-alert-test
+  cancel-in-progress: false
+
+jobs:
+  send-test-alert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Send one informational test alert
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          OPS_ALERT_TEST: "1"
+          PHASE: ops-webhook-delivery-test
+          EXIT_STATUS: "0"
+          ERROR_LINE: ""
+        run: |
+          if [ -z "${OPS_WEBHOOK_URL}" ]; then
+            echo "::warning::OPS_WEBHOOK_URL is not configured - nothing to test"
+          fi
+          bash scripts/ops_alert.sh
