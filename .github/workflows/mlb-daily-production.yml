@@ -71,6 +71,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          # Program 088-091: lockfile-keyed npm cache — same pattern the other daily
+          # workflows already use; shaves the npm ci in step 7-pre on cache hits.
+          cache: "npm"
+          cache-dependency-path: app/package-lock.json
       - name: Resolve slate date (ET) + dry-run flag
         id: cfg
         run: |
@@ -118,6 +122,13 @@ jobs:
       - name: 6) Verify (completeness gate — honest slate status + production health)
         if: steps.board.outputs.have_board == 'true'
         run: node app/scripts/mlb-slate-completeness-gate.mjs --date "${{ steps.cfg.outputs.date }}"
+      - name: 6b) Odds credit-budget check (observability only — never fails the run)
+        if: always() && steps.board.outputs.have_board == 'true'
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          ODDS_CREDIT_SPEND_WARN: ${{ vars.ODDS_CREDIT_SPEND_WARN || '500' }}
+          ODDS_CREDIT_BALANCE_WARN: ${{ vars.ODDS_CREDIT_BALANCE_WARN || '4000' }}
+        run: node app/scripts/check-odds-credit-budget.mjs
       - name: 7-pre) Install app dependencies (required for the build — the ingests use npx tsx and need no install)
         id: deps
         if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'

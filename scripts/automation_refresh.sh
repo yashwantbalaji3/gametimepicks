@@ -155,8 +155,12 @@ for t in "${TESTS[@]}"; do
         continue
     fi
     if $PY -m pipeline.$t > /tmp/gtp_test_$t.log 2>&1; then
+        # `|| true`: a unittest-style suite (e.g. enrich_board_test prints "Ran 9 tests ... OK")
+        # has no "assertions passed" line — under set -e a no-match grep killed the whole
+        # refresh silently with exit 1. Latent for months behind the step-1 hang; surfaced
+        # 2026-07-31 when the timeout fix let the script get this far.
         last=$(sed -E 's/\x1b\[[0-9;]*m//g' /tmp/gtp_test_$t.log \
-               | grep -oE "all [0-9]+ ?[a-zA-Z0-9]* ?assertions passed" | tail -1)
+               | grep -oE "all [0-9]+ ?[a-zA-Z0-9]* ?assertions passed" | tail -1 || true)
         if [ -n "$last" ]; then
             n=$(echo "$last" | grep -oE "[0-9]+" | head -1)
             TOTAL_PASSED=$((TOTAL_PASSED + n))
@@ -175,8 +179,8 @@ done
 if [ -f "pipeline/diagnostics_test.py" ]; then
     if $PY -m pipeline.diagnostics_test > /tmp/gtp_test_diag.log 2>&1; then
         last=$(sed -E 's/\x1b\[[0-9;]*m//g' /tmp/gtp_test_diag.log \
-               | grep -oE "all [0-9]+ [a-zA-Z0-9]* assertions passed" | tail -1)
-        n=$(echo "$last" | grep -oE "[0-9]+" | head -1)
+               | grep -oE "all [0-9]+ [a-zA-Z0-9]* assertions passed" | tail -1 || true)
+        n=$(echo "$last" | grep -oE "[0-9]+" | head -1 || true)
         [ -n "$n" ] && TOTAL_PASSED=$((TOTAL_PASSED + n))
         ok "pipeline.diagnostics_test: ${last:-passed}"
     else

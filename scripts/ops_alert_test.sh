@@ -101,6 +101,19 @@ check "test mode says nothing failed"               "yes" "$(contains "nothing f
 check "test mode never says FAILED"                 "no"  "$(contains "FAILED" "$OUT_TEST")"
 check "test mode still carries freshness context"   "yes" "$(contains '"newestBoard": "2026-07-30"' "$OUT_TEST")"
 
+# ── 4c. warning kind is labeled a WARNING, not a failure and not a test ────────
+OUT_WARN="$(OPS_ALERT_KIND=warning OPS_ALERT_PRINT_ONLY=1 \
+    OPS_ALERT_BOARDS_DIR="$FIXTURE/boards" OPS_ALERT_LEDGER="$FIXTURE/ledger.jsonl" \
+    PHASE="odds-credit-budget" EXIT_STATUS="0" SLATE_DATE="2026-07-30" \
+    GITHUB_SERVER_URL="https://github.com" GITHUB_REPOSITORY="o/r" GITHUB_RUN_ID="123" \
+    GITHUB_RUN_ATTEMPT="1" GITHUB_REF_NAME="main" \
+    ERROR_LINE="odds-credit-budget: balance 1900 below warning threshold 4000" \
+    bash "$SCRIPT" 2>/dev/null | tail -1)"
+check "warning kind says WARNING"              "yes" "$(contains "WARNING" "$OUT_WARN")"
+check "warning kind never says FAILED"         "no"  "$(contains "FAILED" "$OUT_WARN")"
+check "warning kind never claims to be a TEST" "no"  "$(contains "delivery TEST" "$OUT_WARN")"
+check "warning carries the budget detail"      "yes" "$(contains "below warning threshold" "$OUT_WARN")"
+
 # ── 5. every workflow that can fail routes through this script ─────────────────
 # Four workflows previously carried their own inline notify block. A new one that hand-rolls a
 # payload would drift straight back out of the contract.

@@ -84,9 +84,14 @@ print(s[:200])
 
 # OPS_ALERT_TEST=1 sends the same payload through the same delivery path, but labeled as an
 # informational delivery test so it can never be mistaken for a production failure.
+# OPS_ALERT_KIND=warning labels an operational WARNING (e.g. credit-budget anomaly) — the run
+# did not fail, but an operator should look. Anything else is a failure alert.
 if [ "${OPS_ALERT_TEST:-0}" = "1" ]; then
     SUMMARY="GameTimePicks ops-alert delivery TEST on ${BRANCH} (informational — nothing failed)"
     echo "::notice::${SUMMARY} - ${RUN_URL}"
+elif [ "${OPS_ALERT_KIND:-failure}" = "warning" ]; then
+    SUMMARY="GameTimePicks ${PHASE} WARNING on ${BRANCH} (run succeeded — attention needed)"
+    echo "::warning::${SUMMARY} - ${RUN_URL}"
 else
     SUMMARY="GameTimePicks ${PHASE} FAILED on ${BRANCH} (exit ${EXIT_STATUS})"
     echo "::error::${SUMMARY} - ${RUN_URL}"

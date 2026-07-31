@@ -143,6 +143,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          # Program 088-091: lockfile-keyed npm cache (parity with the second setup-node
+          # in this workflow, which already had it).
+          cache: "npm"
+          cache-dependency-path: app/package-lock.json
       - name: Install app dependencies
         run: cd app && (npm ci --silent || npm install --silent)
       - name: World Cup / Mr. Dub settlement
