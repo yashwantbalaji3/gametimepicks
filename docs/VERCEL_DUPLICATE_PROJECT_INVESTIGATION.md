@@ -98,8 +98,9 @@ Dashboard-side (requires founder — no CLI/token available; **redacted screensh
 4. `VERCEL_CANONICAL_PROJECT.md` (durable declaration), consolidation plan + rollback checklist
    written; waste register updated.
 
-**Caveat, stated honestly:** the in-repo guard depends on Vercel exposing
-`VERCEL_PROJECT_PRODUCTION_URL` to the Ignored Build Step. If it is not exposed there, the
-guard is inert (fails open = duplicate keeps building, exactly as before — nothing breaks) and
-the dashboard disconnect remains the real fix. The observation step below verifies which case
-we are in within a day.
+**Caveat resolved same-day — the guard is PROVEN LIVE.** The first app-touching push after the
+guard landed (`9e17733b`) produced exactly **one** deployment — `Production – gametime-picks`,
+which built and now serves the custom domain — and **zero** deployment records for the
+duplicate. Vercel does expose the project identity to the Ignored Build Step, and duplicate
+builds have stopped entirely, with no dashboard access required. The founder's F1 disconnect
+remains recommended as the authoritative account-level fix (belt over the in-repo braces).
