@@ -30,8 +30,12 @@ invented as dollars. UNKNOWN is stated where evidence is absent.
 - **Credits spent on slates that later fail?** July-28 style quarantines spend before failing —
   inherent to pregame capture; bounded by the credit floor + caps.
 - **Docs-only commits triggering deploys?** Was yes — item 4, fixed.
-- **Multiple Vercel projects/domains unused?** `gametime-picks.vercel.app` is presumed the same
-  project's default domain — founder confirms in the dashboard.
+- **Multiple Vercel projects/domains unused?** **YES — confirmed after this register was first
+  drafted**: the GitHub deployments API shows every push deploys to TWO production environments,
+  `Production – gametimepicks` AND `Production – gametime-picks` (two separate Vercel projects
+  building the same repo). Build usage is doubled on every push (~40 builds/day pre-fix). Register
+  item #14: founder decides which is canonical (the custom domain lives on one) and pauses/deletes
+  the other — account-level change, founder-only.
 - **Full test suites duplicated without risk value?** Was 10–11 scheduled full-suite+build runs/day
   via auto-refresh+daily-refresh; now auto-refresh only (its own cadence review = founder, 30-day
   plan).

@@ -6,7 +6,7 @@ Redacted screenshots or CSV exports only** (crop/blur account IDs, payment metho
 
 | # | Service | Retrieve | Safe format | Closes which unknown |
 |---|---|---|---|---|
-| 1 | **Vercel** | Plan tier + latest invoice (if any) + Usage page for last 30/90 days (build minutes, bandwidth); project list (is `gametime-picks.vercel.app` the same project?) | Redacted screenshot/CSV | The single largest unknown: $0 vs $240/yr; validates the new ignored-build step's effect |
+| 1 | **Vercel** | Plan tier + latest invoice (if any) + Usage page for last 30/90 days (build minutes, bandwidth). **Confirmed during this program: TWO projects (`gametimepicks` and `gametime-picks`) both build every push — decide which is canonical and pause/delete the other** | Redacted screenshot/CSV + a decision | The single largest unknown: $0 vs $240/yr; halves build usage; validates the new ignored-build step's effect |
 | 2 | **The Odds API** | Subscription page showing tier + monthly price + current-cycle usage | Redacted screenshot | Confirms the inferred $30/20K tier (ledger strongly suggests it) |
 | 3 | **API-Football (api-sports.io)** | Account plan page (free vs paid) + last invoice if paid | Redacted screenshot | Whether idle WC capability is costing money while EPL is undecided |
 | 4 | **balldontlie** | Account plan (free vs paid) | Redacted screenshot | Idle-credential cost (fallback is disabled in code either way) |

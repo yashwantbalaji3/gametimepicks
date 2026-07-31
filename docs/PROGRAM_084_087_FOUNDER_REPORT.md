@@ -44,10 +44,13 @@ of odds credits; NBA/EPL/UFC/WC paid paths are all dormant/gated exactly as prom
 claim; there is **no** database, storage, monitoring, or analytics SaaS anywhere.
 
 ## 8. Vercel verdict
-**UNKNOWN plan / right-sized on usage.** Pure static export, no functions, trivial bandwidth.
-Proven defect fixed: it built every push (even docs/scripts-only; `[skip ci]` ignored — measured
-24 s push-to-build on a no-app-change commit). An in-repo Ignored Build Step now skips no-op
-builds, fail-safe toward building. ~600 → ~400–450 builds/mo expected.
+**UNKNOWN plan / right-sized on usage — with one late discovery.** Pure static export, no
+functions, trivial bandwidth. Proven defect fixed: it built every push (even docs/scripts-only;
+`[skip ci]` ignored — measured 24 s push-to-build on a no-app-change commit). An in-repo Ignored
+Build Step now skips no-op builds, fail-safe toward building. **Late discovery via the GitHub
+deployments API: TWO Vercel projects (`gametimepicks` and `gametime-picks`) both build every
+push — your build usage is doubled.** Decide which is canonical and pause the other (account-level
+= yours). Deployment of this program's final SHA was verified serving on the custom domain.
 
 ## 9. GitHub verdict
 **RIGHT_SIZED, $0 verified** (public repo, standard runners). The waste was operational: 83% of
