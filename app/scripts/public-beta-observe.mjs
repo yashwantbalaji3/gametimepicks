@@ -223,6 +223,59 @@ function readBoards(dir) {
 }
 
 /**
+ * Native provenance coverage on the NEWEST board — the forward-only stamping acceptance metric.
+ * Distinct from `lineage` (which measures the settled LEDGER): a board stamps its rows at
+ * generation time, and this is the number that must go from 0 to ~100% on the first board
+ * generated after the stamping code deployed. Rows are counted, never repaired.
+ */
+function readNativeStamping(dir, newest) {
+  if (!newest) return { boardDate: null, rows: 0, stamped: 0, researchEligible: 0, state: "NO_BOARD" };
+  try {
+    const board = JSON.parse(fs.readFileSync(path.join(dir, `${newest}.json`), "utf8"));
+    const leans = Array.isArray(board.leans) ? board.leans : [];
+    let stamped = 0;
+    let eligible = 0;
+    for (const l of leans) {
+      if (l.eventId && l.capturedAt && l.scheduledStart && l.rowSchemaVersion) stamped += 1;
+      if (l.researchEligible === true) eligible += 1;
+    }
+    const state =
+      leans.length === 0 ? "EMPTY_BOARD"
+        : stamped === leans.length ? "FULLY_STAMPED"
+          : stamped === 0 ? "NOT_STAMPED"
+            : "PARTIALLY_STAMPED";
+    return { boardDate: newest, rows: leans.length, stamped, researchEligible: eligible, state };
+  } catch {
+    return { boardDate: newest, rows: 0, stamped: 0, researchEligible: 0, state: "UNREADABLE" };
+  }
+}
+
+/**
+ * Alert configuration, without touching the secret: workflows can only be inspected for whether
+ * they ROUTE through the shared alerter; whether OPS_WEBHOOK_URL is set lives in GitHub and is
+ * reported as UNVERIFIABLE_LOCALLY rather than guessed.
+ */
+function readAlertWiring() {
+  const wfDir = path.join(REPO, ".github", "workflows");
+  const writers = ["nightly-settle.yml", "mlb-daily-production.yml", "morning-projections.yml", "mlb-pregame-capture.yml"];
+  const routed = [];
+  const unrouted = [];
+  for (const f of writers) {
+    try {
+      const yml = fs.readFileSync(path.join(wfDir, f), "utf8");
+      (yml.includes("scripts/ops_alert.sh") ? routed : unrouted).push(f);
+    } catch {
+      unrouted.push(f);
+    }
+  }
+  return {
+    routedThroughSharedAlerter: routed,
+    notRouted: unrouted,
+    delivery: "UNVERIFIABLE_LOCALLY — the OPS_WEBHOOK_URL secret lives in GitHub Actions; an unset secret degrades to log-only, honestly",
+  };
+}
+
+/**
  * One pass over the settled ledger. The LEDGER's own `date` is authoritative for settlement — a lean
  * carries the game's local date, which rolls past midnight for late West-Coast starts and invents a
  * phantom slate if keyed on (the same reason model-learning-audit keys on the ledger date).
@@ -551,6 +604,8 @@ async function observe() {
       settledDates: ledger.dates ?? 0,
       quarantines,
     },
+    nativeStamping: readNativeStamping(BOARDS_DIR, newestBoard),
+    alerting: readAlertWiring(),
     lineage,
     predictionHistory,
     analytics,
@@ -582,6 +637,8 @@ function print(o) {
   line("settlement quarantine", o.mlb.quarantines.settlement.map((q) => `${q.date} ${q.status}`).join(", ") || "none");
   line("research quarantine", o.mlb.quarantines.researchEligibility.join(", ") || "none");
   line("lineage acceptance", `${o.lineage.state} · ${o.lineage.stampedRows}/${o.lineage.rows} rows on ${o.lineage.date ?? "n/a"}`);
+  line("native stamping", `${o.nativeStamping.state} · ${o.nativeStamping.stamped}/${o.nativeStamping.rows} rows native on board ${o.nativeStamping.boardDate ?? "n/a"} (${o.nativeStamping.researchEligible} research-eligible)`);
+  line("alert wiring", `${o.alerting.routedThroughSharedAlerter.length}/4 workflows routed · delivery ${o.alerting.notRouted.length ? `MISSING: ${o.alerting.notRouted.join(",")}` : "wired"}`);
   line("prediction history", `${o.predictionHistory.state}${o.predictionHistory.asOfSettledDate ? ` · through ${o.predictionHistory.asOfSettledDate}` : ""}${o.predictionHistory.corpusRows ? ` · ${o.predictionHistory.corpusRows.toLocaleString()} rows` : ""}`);
   line("analytics", `${o.analytics.mode} · ${o.analytics.note}`);
 
