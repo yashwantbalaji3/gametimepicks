@@ -363,7 +363,12 @@ function observePredictionHistory(newestSettled) {
     return { state: "UNAVAILABLE", detail: "no freshness artifact and no calibration export on disk" };
   }
 
-  const asOf = freshness?.asOfSettledDate ?? index?.asOf ?? newestExport;
+  // The corpus is the ground truth; the freshness sentinel is a REPORT about it, written during the
+  // same run and one step earlier — so on the first observation after a settle it can lag the very
+  // corpus it describes (observed 2026-07-31: index asOf 07-30, sentinel still 07-27). When the two
+  // disagree, the newer artifact wins; the sentinel keeps its job of carrying health problems.
+  const candidates = [freshness?.asOfSettledDate, index?.asOf, newestExport].filter(Boolean).sort();
+  const asOf = candidates.at(-1) ?? null;
   const lagDays = daysBetween(asOf, newestSettled);
 
   let state;
@@ -375,7 +380,7 @@ function observePredictionHistory(newestSettled) {
     state,
     asOfSettledDate: asOf ?? null,
     newestExportedDate: newestExport,
-    corpusRows: freshness?.stats?.corpusRows ?? index?.totals?.rows ?? null,
+    corpusRows: index?.totals?.rows ?? freshness?.stats?.corpusRows ?? null,
     ledgerRows: freshness?.stats?.ledgerRows ?? null,
     lagDaysBehindLedger: lagDays,
     healthy: freshness?.healthy ?? null,
