@@ -26,11 +26,11 @@
 | Lane | Status |
 |---|---|
 | 0 Ground truth | **COMPLETE** |
-| A July 30 settlement + learning cycle | **IN FLIGHT** — monitor armed on the last final; settlement via the canonical workflow after |
-| B July 31 stamping acceptance | PENDING Lane A |
+| A July 30 settlement + learning cycle | **COMPLETE — PROVEN** (`JULY30_FIRST_CLEAN_DAILY_CYCLE.md`): gap-0 accounting (425 = 385 + 0 + 2 + 38), ledger +385 exact, first dispatch failed correctly on the off-season NBA no-op defect (fixed `f8bf3d7d`, 88 settle assertions), retry clean end to end |
+| B July 31 stamping acceptance | **ACCEPTED** (`JULY31_NATIVE_STAMPING_ACCEPTANCE.md`): 227/227 rows natively stamped + eligible, 0 timing violations, observer flipped NOT_STAMPED→FULLY_STAMPED; sidecar PROVEN_STAMPED flips when this slate settles Aug 1 (designed wall-clock step) |
 | C Serialization + alerting | **COMPLETE** (delivery = 1 founder secret) |
 | D Analytics readiness | **COMPLETE (dark)** — one founder action |
 | E Adoption dashboard + observation plan | **COMPLETE** — all metrics honestly NOT_YET_MEASURED / NOT_CONFIGURED |
-| F Production QA under daily data | pending Lane A/B deploys |
+| F Production QA under daily data | verified at final deploy (below) |
 | G NBA/EPL/UFC continuity | **COMPLETE** — guard-verified |
-| H Integration + founder report | pending |
+| H Integration + founder report | **COMPLETE** — final SHA verified serving |
