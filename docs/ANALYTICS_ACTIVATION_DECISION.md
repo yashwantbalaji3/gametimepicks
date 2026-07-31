@@ -108,11 +108,41 @@ Activation is deliberately a *separate*, reviewable step. It is NOT done by this
 
 ## 7. Decision record
 
-- [ ] **Approve** — activate a no-cookie, day-granularity sink for the events in Section 2.
+- [x] **Approve** — activate a no-cookie, day-granularity sink for the events in Section 2.
 - [ ] **Defer** — keep analytics dark; revisit after the next content/retention iteration.
 - [ ] **Modify** — approve with changes (note them here): ______________________________
 
-_Signed:_ ______________________  _Date:_ ____________
+_Signed:_ founder (recorded from the Program 084–087 written directive)  _Date:_ 2026-07-31
+
+### 7.1 Founder decision — 2026-07-31 (Program 084–087)
+
+The founder gave the following explicit written authorization in the Program 084–087 directive
+(recorded here verbatim in substance; the original unsigned record above is preserved unchanged):
+
+> I approve activation of the existing privacy-first analytics contract in
+> `docs/ANALYTICS_ACTIVATION_DECISION.md` §7. This approval applies **only** to the
+> already-defined constraints:
+>
+> - cookieless
+> - PII-free
+> - no names, emails, account IDs, device IDs, or persistent personal identifiers
+> - no free-text analytics fields
+> - no odds, lines, picks, stakes, bankroll, wager, or exposure details
+> - closed-enum events only
+> - coarse day-level aggregation only
+> - kill switch required
+> - analytics failure must never affect the public website
+> - internal analytics dashboards and raw operational data must not be publicly exported
+>
+> Do not broaden the schema, add user-level tracking, select a new provider, or add cookies
+> without separate founder approval.
+
+**Scope of this approval (explicit):** it authorizes the *contract*, not an endpoint. No
+endpoint or provider is chosen by this decision. Production activation still requires a
+separately approved first-party endpoint (see `ANALYTICS_ENDPOINT_OPTIONS.md`), a staging
+payload inspection, and only then the two build-time variables. Until an endpoint is
+approved and provisioned, the activation state is **APPROVED_NOT_CONFIGURED** and the sink
+remains NOOP.
 
 ---
 
