@@ -102,5 +102,17 @@ RIGHT_SIZED at verified $0), `COST_OPTIMIZATION_30_60_90_DAY_PLAN.md`.
 ## Commits this program (main)
 
 `cf5c4186` analytics §7 approval · `7fea87a1` webhook test mode + workflow + observer artifacts ·
-`e9800f59` Lane B/C proof docs · (final) audit docs + Lane H optimizations — see
-`PROGRAM_084_087_FOUNDER_REPORT.md`.
+`e9800f59` Lane B/C proof docs · `613315f7` Lane H no-regret fixes · `8df72085` audit docs ·
+`74e6efc9` two-Vercel-projects addendum — see `PROGRAM_084_087_FOUNDER_REPORT.md`.
+
+## Deployment verification (end of program)
+
+- `8df72085` (touches `app/`) **built and served** on the custom domain (builtAt 17:13:52Z) —
+  the ignore command correctly chose BUILD.
+- `74e6efc9` (docs-only) produced **zero deployments on both Vercel projects** (GitHub deployments
+  API) while production kept serving `8df72085` — the ignore command correctly chose SKIP.
+- **The in-repo Ignored Build Step is therefore PROVEN LIVE in both directions**, on both
+  projects, on day one. Production serves the intended final app-affecting SHA.
+- Late discovery from the same API: every push deploys **two** Vercel projects
+  (`gametimepicks`, `gametime-picks`) — build usage doubled; canonical-project decision added to
+  the founder checklist (register item #14).
