@@ -52,7 +52,13 @@ env:
 
 jobs:
   complete-slate:
-    if: github.event_name != 'pull_request'
+    # Program 084-087: a FAILED morning-projections used to trigger this chain too (workflow_run
+    # fires on any completion), so a broken upstream still spent two paid Odds API ingests and a
+    # full build — and then the 14:15 UTC backstop cron ran the same paid ingests again. The chain
+    # now requires upstream success; the backstop cron and manual dispatch are unaffected.
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     # SPRINT 035: job-level `continue-on-error: true` was removed.
     # With it set, this job reported success no matter what happened inside it — including the case

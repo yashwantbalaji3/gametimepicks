@@ -67,12 +67,23 @@ ok "boards directory: $(ls app/public/data/boards/ 2>/dev/null | wc -l | tr -d '
 # 1 — Hydrate recent10 trend data (free nba_api)
 # ---------------------------------------------------------------------------
 step "1/6  Hydrate recent10 trend data (free nba_api)"
-info "Calling python -m pipeline.attach_recent10 --all --verbose"
-if $PY -m pipeline.attach_recent10 --all --verbose 2>&1 | tee /tmp/gtp_recent10.log; then
+# Program 084-087: this unbounded hydrate hung against the offseason nba_api and made every
+# scheduled auto-refresh run hit the 25-minute job timeout (all downstream steps skipped, zero
+# commits, and the shared gtp-generated-artifacts queue held for the whole window). Same fix
+# morning-projections already carries: a shell-level `timeout` + fail-soft to the stale cache —
+# recent10 is a best-effort enrichment, never worth losing the whole refresh over.
+ATTACH_TIMEOUT="${ATTACH_RECENT10_TIMEOUT:-8m}"
+info "Calling python -m pipeline.attach_recent10 --all --verbose (timeout $ATTACH_TIMEOUT)"
+if timeout "$ATTACH_TIMEOUT" $PY -m pipeline.attach_recent10 --all --verbose 2>&1 | tee /tmp/gtp_recent10.log; then
     ok "recent10 attachment completed"
 else
-    err "recent10 attachment FAILED — see /tmp/gtp_recent10.log"
-    exit 2
+    rc=$?
+    if [ "$rc" -eq 124 ]; then
+        warn "recent10 attachment timed out after $ATTACH_TIMEOUT — continuing with existing cached trend data"
+    else
+        err "recent10 attachment FAILED (exit $rc) — see /tmp/gtp_recent10.log"
+        exit 2
+    fi
 fi
 
 # Show what changed (informational; no commit here)

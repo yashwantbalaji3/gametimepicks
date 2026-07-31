@@ -257,7 +257,7 @@ function readNativeStamping(dir, newest) {
  */
 function readAlertWiring() {
   const wfDir = path.join(REPO, ".github", "workflows");
-  const writers = ["nightly-settle.yml", "mlb-daily-production.yml", "morning-projections.yml", "mlb-pregame-capture.yml"];
+  const writers = ["nightly-settle.yml", "mlb-daily-production.yml", "morning-projections.yml", "mlb-pregame-capture.yml", "daily-lifecycle.yml"];
   const routed = [];
   const unrouted = [];
   for (const f of writers) {
@@ -643,7 +643,7 @@ function print(o) {
   line("research quarantine", o.mlb.quarantines.researchEligibility.join(", ") || "none");
   line("lineage acceptance", `${o.lineage.state} · ${o.lineage.stampedRows}/${o.lineage.rows} rows on ${o.lineage.date ?? "n/a"}`);
   line("native stamping", `${o.nativeStamping.state} · ${o.nativeStamping.stamped}/${o.nativeStamping.rows} rows native on board ${o.nativeStamping.boardDate ?? "n/a"} (${o.nativeStamping.researchEligible} research-eligible)`);
-  line("alert wiring", `${o.alerting.routedThroughSharedAlerter.length}/4 workflows routed · delivery ${o.alerting.notRouted.length ? `MISSING: ${o.alerting.notRouted.join(",")}` : "wired"}`);
+  line("alert wiring", `${o.alerting.routedThroughSharedAlerter.length}/5 workflows routed · delivery ${o.alerting.notRouted.length ? `MISSING: ${o.alerting.notRouted.join(",")}` : "wired"}`);
   line("prediction history", `${o.predictionHistory.state}${o.predictionHistory.asOfSettledDate ? ` · through ${o.predictionHistory.asOfSettledDate}` : ""}${o.predictionHistory.corpusRows ? ` · ${o.predictionHistory.corpusRows.toLocaleString()} rows` : ""}`);
   line("analytics", `${o.analytics.mode} · ${o.analytics.note}`);
 

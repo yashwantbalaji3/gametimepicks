@@ -171,3 +171,14 @@ jobs:
           path: app/public/data/ops/run-reports/
           if-no-files-found: ignore
           retention-days: 30
+
+      # Program 084-087: this workflow failed 6 consecutive days (quality-gate refusals) and was
+      # the one scheduled writer NOT wired to the shared alerter — every failure was visible only
+      # in the Actions tab. Same contract as the other four workflows; never fails the run.
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: daily-lifecycle
+        run: |
+          EXIT_STATUS="${EXIT_STATUS:-1}" bash scripts/ops_alert.sh

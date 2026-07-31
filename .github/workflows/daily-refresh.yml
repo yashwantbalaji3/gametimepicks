@@ -28,11 +28,11 @@
 name: daily-refresh
 
 on:
-  schedule:
-    # 13:00 UTC = 9 AM ET (winter EST) / 8 AM ET (summer EDT).
-    # Runs after the previous night's NBA games have finalized so
-    # recent10 reflects the latest game logs.
-    - cron: "0 13 * * *"
+  # Program 084-087: schedule removed — this workflow runs the identical
+  # `scripts/automation_refresh.sh` that auto-refresh already runs 9x/day (08:00-00:00 ET),
+  # so the 09:00 ET slot added an 11th daily full-suite+build run producing nothing new,
+  # while holding the shared gtp-generated-artifacts queue for up to 25 minutes.
+  # Dispatch remains for manual recovery runs.
   workflow_dispatch:
     inputs:
       skip_build:

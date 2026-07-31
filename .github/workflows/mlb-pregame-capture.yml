@@ -197,7 +197,10 @@ jobs:
         with:
           name: mlb-pregame-archive-${{ github.run_id }}
           path: data/internal/mlb/pregame-archive/
-          retention-days: 90
+          # Program 084-087: was 90 — 7-8 runs/day x ~77 MB x 90d ≈ 48 GB of standing artifact
+          # storage for a tree that is ALSO durably committed to the repo by the step below.
+          # 7 days is ample for debugging a bad capture; the repo remains the durable record.
+          retention-days: 7
           if-no-files-found: ignore
       - name: Durable in-repo persistence (OPT-IN — path-scoped + size-guarded + rebase-safe, never blocks)
         if: vars.PREGAME_ARCHIVE_COMMIT == 'true' && github.event_name != 'pull_request'

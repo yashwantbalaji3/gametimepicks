@@ -24,6 +24,9 @@ const MUST_FAIL_LOUDLY = [
   "mlb-pregame-capture.yml",
   "nightly-settle.yml",
   "morning-projections.yml",
+  // Program 084-087: the lifecycle roll failed 6 consecutive days with nobody told — it was the
+  // one scheduled writer whose failures were visible only in the Actions tab.
+  "daily-lifecycle.yml",
 ];
 
 /**

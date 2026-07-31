@@ -176,7 +176,9 @@ jobs:
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           cd app
-          npm ci --no-audit --no-fund || { echo "npm ci failed — skipping learning update (conservative fallback retained)"; exit 0; }
+          # Deps were already installed by "Install app dependencies" above; reinstalling here
+          # doubled the npm work per run. Verify instead of reinstall; install only if missing.
+          [ -d node_modules ] || npm ci --no-audit --no-fund || { echo "npm ci failed — skipping learning update (conservative fallback retained)"; exit 0; }
           if npx --yes tsx scripts/update-selection-learning.mjs --write-report; then
             echo "::notice::selection-learning policy updated"
           else
