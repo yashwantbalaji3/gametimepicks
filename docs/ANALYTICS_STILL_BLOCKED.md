@@ -1,0 +1,3 @@
+# Analytics — Still Blocked (2026-07-31)
+
+**Classification: NOT_AUTHORIZED.** §7 of `ANALYTICS_ACTIVATION_DECISION.md` unsigned; no endpoint variables in secrets or repo vars (names inspected, values never read). Production is provably NOOP (guards re-run in every suite). All real public controls are instrumented; no fake UI was added; every dashboard metric remains `NOT_YET_MEASURED`. The single activation path is unchanged: sign §7 → provision a no-cookie first-party endpoint (`ANALYTICS_ENDPOINT_OPTIONS.md`) → set the two build-time variables in staging → payload inspection → production. Evidence detail: `ANALYTICS_ACTIVATION_STATUS.md`.
