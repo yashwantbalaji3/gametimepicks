@@ -10,7 +10,7 @@ new duplicate deployments since disconnect · domain health · notification resu
 | # | Date/time (ET) | Canonical latest | Duplicate latest | New dup deploys | Domain health | Notifications | Anomaly / action |
 |---|---|---|---|---|---|---|---|
 | 1 | 2026-07-31 ~5:50 PM | `9e17733b` built 17:13Z, serving custom domain (later docs commits `0f4c7706`/`d81d5987` correctly skip-listed) | 17:16:04Z (`8df72085`) — **pre-disconnect; nothing since** | **0** | `gametimepicks.yashwantbalaji.com` 200, fresh build-info; `gametime-picks.vercel.app` 200 identical | Discord webhook DELIVERY_PROVEN; email toggles pending founder (see email proof doc) | None. Note: even before disconnect, the in-repo skip guard had already produced zero duplicate deployments from `9e17733b` onward — disconnect + guard are now belt-and-braces |
-| 2 | 2026-07-31 evening | watcher armed on next push: records Vercel status contexts + duplicate deployment recency (expected: `Vercel – gametime-picks` only) | — | expect 0 | — | — | entry appended on next bot push |
+| 2 | 2026-07-31 ~6:20 PM | `fa49ddec` (Program 088-091 code+docs) built and serving the custom domain. **Its GitHub deployment environment is plain `Production` — the suffix-free single-project naming has returned**, which is structural proof only one project remains Git-connected | still 17:16:04Z (`8df72085`) | **0** | custom domain 200, fresh build-info | Discord path green; Vercel email toggles pending founder | None — first post-disconnect push is clean. The env-name reversion is the strongest dormancy signal available from GitHub's side |
 
 Daily checks (any session can run; no credentials):
 
