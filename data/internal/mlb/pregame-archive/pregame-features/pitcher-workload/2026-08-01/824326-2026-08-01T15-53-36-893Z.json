@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824326,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T15:53:36.893Z",
+  "availableAt": "2026-08-01T15:53:36.893Z",
+  "eventStartTime": "2026-08-02T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663372,
+      "name": "Ryan Feltner",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 7,
+      "lastStartDate": "2026-07-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 3.8,
+        "bbAvg": 1.8,
+        "erAvg": 4,
+        "hrAvg": 1.6,
+        "kPer9": 7.23,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 70.67,
+        "k": 54,
+        "bb": 29,
+        "er": 45,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 679883,
+      "name": "Luinder Avila",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 6,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4,
+        "bbAvg": 2.4,
+        "erAvg": 2.6,
+        "hrAvg": 0.4,
+        "kPer9": 7.3,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 49,
+        "k": 43,
+        "bb": 30,
+        "er": 30,
+        "hr": 6
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-01T15:53:36.893Z"
+  },
+  "recordHash": "73519fd1ff78026341b055dd704a43aab519c76472f2ed88021c7e6058c202c9"
+}

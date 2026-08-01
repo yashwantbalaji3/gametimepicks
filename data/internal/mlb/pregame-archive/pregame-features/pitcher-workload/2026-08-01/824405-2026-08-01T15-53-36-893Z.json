@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824405,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T15:53:36.893Z",
+  "availableAt": "2026-08-01T15:53:36.893Z",
+  "eventStartTime": "2026-08-01T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 800048,
+      "name": "Parker Messick",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 4.2,
+        "bbAvg": 1.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 6.1,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 125.33,
+        "k": 122,
+        "bb": 36,
+        "er": 36,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 684442,
+      "name": "Kohl Drake",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 6,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 2,
+        "ipSum": 9,
+        "ipAvg": 4.5,
+        "kAvg": 3,
+        "bbAvg": 2,
+        "erAvg": 2.5,
+        "hrAvg": 1,
+        "kPer9": 6,
+        "workloadIpLast5": 9
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 9,
+        "k": 6,
+        "bb": 4,
+        "er": 5,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-01T15:53:36.893Z"
+  },
+  "recordHash": "d564de06bd9e6b4258fea914415e7beef38d169faa82956a2b5d3e06481815e6"
+}

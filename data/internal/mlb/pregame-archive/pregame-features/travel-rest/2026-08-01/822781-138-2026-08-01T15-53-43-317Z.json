@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 822781,
+  "teamId": 138,
+  "name": "St. Louis Cardinals",
+  "side": "away",
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T15:53:43.317Z",
+  "availableAt": "2026-08-01T15:53:43.317Z",
+  "eventStartTime": "2026-08-01T19:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 7,
+  "gamesLast10": 10,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-07-31",
+  "previousVenueId": 14,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=138&startDate=2026-07-18&endDate=2026-07-31",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-01T15:53:43.317Z"
+  },
+  "recordHash": "8e8c1b3f474b7d491234dccef810b1efb53ea58c7b20433b462a0e4c8b68b006"
+}
