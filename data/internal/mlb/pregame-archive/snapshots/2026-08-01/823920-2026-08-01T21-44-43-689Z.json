@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823920-41518a03223b10413a5167373452fc7b",
+  "snapshotCreatedAt": "2026-08-01T21:44:43.689Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-01",
+  "eventId": "823920",
+  "gamePk": 823920,
+  "eventStartTime": "2026-08-02T01:10:00Z",
+  "homeTeam": "LAD",
+  "awayTeam": "BOS",
+  "venue": "UNIQLO Field at Dodger Stadium",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "e186fef7477c7c19b43a852c68fd46c9",
+  "normalizedPayloadHash": "ec10e9889cc5b00493313769d40ba6b4",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          660271,
+          681624,
+          669242,
+          518692,
+          571771,
+          606192,
+          571970,
+          500743,
+          687221
+        ],
+        "away": [
+          678011,
+          678882,
+          677800,
+          702332,
+          807799,
+          686765,
+          655316,
+          680776,
+          657136
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-01T21:44:43.689Z",
+      "availableAt": "2026-08-01T21:44:43.689Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-01T21:44:43.689Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823920/feed/live",
+        "requestedAt": "2026-08-01T21:44:43.689Z",
+        "receivedAt": "2026-08-01T21:44:43.689Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Yoshinobu Yamamoto",
+        "awayProbable": "Payton Tolle",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-01T21:44:43.689Z",
+      "availableAt": "2026-08-01T21:44:43.689Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-01T21:44:43.689Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823920/feed/live",
+        "requestedAt": "2026-08-01T21:44:43.689Z",
+        "receivedAt": "2026-08-01T21:44:43.689Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Clear",
+        "temp": "83",
+        "wind": "8 mph, Out To CF",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-01T21:44:43.689Z",
+      "availableAt": "2026-08-01T21:44:43.689Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-01T21:44:43.689Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823920/feed/live",
+        "requestedAt": "2026-08-01T21:44:43.689Z",
+        "receivedAt": "2026-08-01T21:44:43.689Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Doug Eddings",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Mike Muchlinski",
+            "type": "First Base"
+          },
+          {
+            "name": "Emil Jimenez",
+            "type": "Second Base"
+          },
+          {
+            "name": "Gabe Morales",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-01T21:44:43.689Z",
+      "availableAt": "2026-08-01T21:44:43.689Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-01T21:44:43.689Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823920/feed/live",
+        "requestedAt": "2026-08-01T21:44:43.689Z",
+        "receivedAt": "2026-08-01T21:44:43.689Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

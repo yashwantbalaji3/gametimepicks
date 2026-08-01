@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824649,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T21:44:43.772Z",
+  "availableAt": "2026-08-01T21:44:43.772Z",
+  "eventStartTime": "2026-08-01T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656849,
+      "name": "David Peterson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 5,
+      "lastStartDate": "2026-07-27",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 2.8,
+        "bbAvg": 2,
+        "erAvg": 3,
+        "hrAvg": 0.8,
+        "kPer9": 4.72,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 64,
+        "k": 52,
+        "bb": 31,
+        "er": 47,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 608331,
+      "name": "Max Fried",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 5,
+      "lastStartDate": "2026-07-27",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 4.8,
+        "bbAvg": 2,
+        "erAvg": 2.8,
+        "hrAvg": 0,
+        "kPer9": 9.67,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 69.67,
+        "k": 61,
+        "bb": 22,
+        "er": 25,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-01T21:44:43.772Z"
+  },
+  "recordHash": "9b7c44b92bec85327c123fbe3344031eb8c00b6539265b5a594607e799c1f839"
+}
