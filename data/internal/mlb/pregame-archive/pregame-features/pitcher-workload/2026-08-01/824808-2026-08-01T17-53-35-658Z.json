@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824808,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T17:53:35.658Z",
+  "availableAt": "2026-08-01T17:53:35.658Z",
+  "eventStartTime": "2026-08-01T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669358,
+      "name": "Shane Baz",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.2,
+        "bbAvg": 1.8,
+        "erAvg": 1.8,
+        "hrAvg": 0,
+        "kPer9": 8.36,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 122,
+        "k": 107,
+        "bb": 44,
+        "er": 54,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 650911,
+      "name": "Cristopher Sánchez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 6,
+        "bbAvg": 1.4,
+        "erAvg": 3.2,
+        "hrAvg": 0.8,
+        "kPer9": 9.42,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 138.67,
+        "k": 157,
+        "bb": 28,
+        "er": 42,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-01T17:53:35.658Z"
+  },
+  "recordHash": "657fb1c9776645749b411eac96ad1c3a36b90a18a137983f7edb2b91f2863b17"
+}
