@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824000,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T20:06:13.965Z",
+  "availableAt": "2026-08-01T20:06:13.965Z",
+  "eventStartTime": "2026-08-02T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608718,
+      "name": "Brent Suter",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 82,
+      "lastStartDate": "2026-05-11",
+      "last5": {
+        "starts": 2,
+        "ipSum": 3.67,
+        "ipAvg": 1.83,
+        "kAvg": 1.5,
+        "bbAvg": 1.5,
+        "erAvg": 1.5,
+        "hrAvg": 0.5,
+        "kPer9": 7.36,
+        "workloadIpLast5": 3.67
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 3.67,
+        "k": 3,
+        "bb": 3,
+        "er": 3,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 688107,
+      "name": "Robert Gasser",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 7,
+      "lastStartDate": "2026-07-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 4.2,
+        "bbAvg": 0.4,
+        "erAvg": 3,
+        "hrAvg": 1,
+        "kPer9": 6.91,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 57.33,
+        "k": 52,
+        "bb": 14,
+        "er": 30,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-01T20:06:13.965Z"
+  },
+  "recordHash": "e81019fc89108842707df4d8de6a6f5ab776248b908f7622882c87312025e1ed"
+}
