@@ -1,0 +1,235 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822781,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T04:19:21.272Z",
+  "availableAt": "2026-08-01T04:19:21.272Z",
+  "eventStartTime": "2026-08-01T19:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-29",
+    "2026-07-30",
+    "2026-07-31"
+  ],
+  "home": {
+    "teamId": 141,
+    "teamName": "Toronto Blue Jays",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 42,
+      "relievers": [
+        {
+          "id": 693686,
+          "name": "Spencer Miles",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 686973,
+          "name": "Louis Varland",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 656546,
+          "name": "Jeff Hoffman",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-07-31"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 77,
+      "relievers": [
+        {
+          "id": 686973,
+          "name": "Louis Varland",
+          "appearances": 2,
+          "pitches": 35,
+          "outs": 9,
+          "dates": [
+            "2026-07-29",
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 693686,
+          "name": "Spencer Miles",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 643511,
+          "name": "Tyler Rogers",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 1,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 656546,
+          "name": "Jeff Hoffman",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-07-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 138,
+    "teamName": "St. Louis Cardinals",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 46,
+      "relievers": [
+        {
+          "id": 657265,
+          "name": "Peter Strzelecki",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 677865,
+          "name": "Justin Bruihl",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 1,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 700669,
+          "name": "Gordon Graceffo",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-07-31"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 12,
+      "pitches": 217,
+      "relievers": [
+        {
+          "id": 666277,
+          "name": "George Soriano",
+          "appearances": 2,
+          "pitches": 51,
+          "outs": 5,
+          "dates": [
+            "2026-07-29",
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 592773,
+          "name": "Ryne Stanek",
+          "appearances": 2,
+          "pitches": 40,
+          "outs": 6,
+          "dates": [
+            "2026-07-29",
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 676617,
+          "name": "Riley O'Brien",
+          "appearances": 2,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-07-29",
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 703725,
+          "name": "Luis Gastelum",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-07-29",
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 677865,
+          "name": "Justin Bruihl",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 4,
+          "dates": [
+            "2026-07-29",
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 657265,
+          "name": "Peter Strzelecki",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 700669,
+          "name": "Gordon Graceffo",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-07-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-29,2026-07-30,2026-07-31) + feed/live box scores",
+    "capturedAt": "2026-08-01T04:19:21.272Z"
+  },
+  "recordHash": "5ff354a8fb7480aebfd632e521f7d60f34a4dca46d826598c06956c57403e715"
+}

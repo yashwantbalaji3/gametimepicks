@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824890,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T04:19:20.641Z",
+  "availableAt": "2026-08-01T04:19:20.641Z",
+  "eventStartTime": "2026-08-01T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 625643,
+      "name": "Reynaldo López",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 6,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 5.2,
+        "bbAvg": 1.6,
+        "erAvg": 2.2,
+        "hrAvg": 0.8,
+        "kPer9": 9.36,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 49.67,
+        "k": 47,
+        "bb": 19,
+        "er": 21,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 571945,
+      "name": "Miles Mikolas",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 6,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 2.4,
+        "bbAvg": 1,
+        "erAvg": 3.8,
+        "hrAvg": 1.4,
+        "kPer9": 4.21,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 42,
+        "k": 26,
+        "bb": 13,
+        "er": 39,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-01T04:19:20.641Z"
+  },
+  "recordHash": "4a57f4ebeef540db5b1099eec6166afd1db5eedf69f69a09806a7f648aa0ef83"
+}

@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823269,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T04:19:21.272Z",
+  "availableAt": "2026-08-01T04:19:21.272Z",
+  "eventStartTime": "2026-08-02T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-29",
+    "2026-07-30",
+    "2026-07-31"
+  ],
+  "home": {
+    "teamId": 135,
+    "teamName": "San Diego Padres",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 185,
+      "relievers": [
+        {
+          "id": 681190,
+          "name": "Randy Vásquez",
+          "appearances": 1,
+          "pitches": 65,
+          "outs": 14,
+          "dates": [
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 656288,
+          "name": "Griffin Canning",
+          "appearances": 1,
+          "pitches": 40,
+          "outs": 9,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 593974,
+          "name": "Wandy Peralta",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 4,
+          "dates": [
+            "2026-07-29",
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 669093,
+          "name": "Jeremiah Estrada",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 695243,
+          "name": "Mason Miller",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 699134,
+          "name": "Bradgley Rodriguez",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-07-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 115,
+      "relievers": [
+        {
+          "id": 668873,
+          "name": "Caleb Kilian",
+          "appearances": 2,
+          "pitches": 36,
+          "outs": 6,
+          "dates": [
+            "2026-07-29",
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 681916,
+          "name": "Dylan Smith",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 656529,
+          "name": "Sam Hentges",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 676775,
+          "name": "Keaton Winn",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 669062,
+          "name": "Erik Miller",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-07-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-29,2026-07-30,2026-07-31) + feed/live box scores",
+    "capturedAt": "2026-08-01T04:19:21.272Z"
+  },
+  "recordHash": "2f89bd72e65f13d689c0b6e9bb30f554cab8a44071347c6c29e1d712bf3c2f30"
+}

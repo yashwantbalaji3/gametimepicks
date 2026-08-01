@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823920,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T04:19:21.272Z",
+  "availableAt": "2026-08-01T04:19:21.272Z",
+  "eventStartTime": "2026-08-02T01:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-29",
+    "2026-07-30",
+    "2026-07-31"
+  ],
+  "home": {
+    "teamId": 119,
+    "teamName": "Los Angeles Dodgers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 115,
+      "relievers": [
+        {
+          "id": 656945,
+          "name": "Tanner Scott",
+          "appearances": 2,
+          "pitches": 41,
+          "outs": 6,
+          "dates": [
+            "2026-07-29",
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 621242,
+          "name": "Edwin Díaz",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-07-29",
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 683618,
+          "name": "Edgardo Henriquez",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 1,
+          "dates": [
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 681911,
+          "name": "Alex Vesia",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 676263,
+          "name": "Jack Dreyer",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 4,
+          "dates": [
+            "2026-07-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 93,
+      "relievers": [
+        {
+          "id": 547973,
+          "name": "Aroldis Chapman",
+          "appearances": 2,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-07-29",
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 2,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-07-29",
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 686580,
+          "name": "Justin Slaten",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 676477,
+          "name": "Garrett Whitlock",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 594027,
+          "name": "Tyron Guerrero",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-07-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-29,2026-07-30,2026-07-31) + feed/live box scores",
+    "capturedAt": "2026-08-01T04:19:21.272Z"
+  },
+  "recordHash": "4cb7dbf3e1b634f867475d35edf40ea866c704aafb353c24100174a185ff2e57"
+}

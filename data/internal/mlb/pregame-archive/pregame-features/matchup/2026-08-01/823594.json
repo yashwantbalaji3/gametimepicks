@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 823594,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T04:19:22.076Z",
+  "availableAt": "2026-08-01T04:19:22.076Z",
+  "eventStartTime": "2026-08-01T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 804267,
+    "name": "Zac Thornton",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 663969,
+    "name": "Tyler Phillips",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-01T04:19:22.076Z"
+  },
+  "recordHash": "40cbe14f22b234e6ce1fd10407528f0b8d50c52d3b15ce29a842ec6e8fc6d10e"
+}

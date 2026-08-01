@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824649,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T04:19:22.076Z",
+  "availableAt": "2026-08-01T04:19:22.076Z",
+  "eventStartTime": "2026-08-01T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 656849,
+    "name": "David Peterson",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 608331,
+    "name": "Max Fried",
+    "pitchHand": "L"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-01T04:19:22.076Z"
+  },
+  "recordHash": "73f1d97e4091c638095a8034d00e8472932ba611df2b7298223aaefcb69b277a"
+}

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824000,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T04:19:21.272Z",
+  "availableAt": "2026-08-01T04:19:21.272Z",
+  "eventStartTime": "2026-08-02T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-29",
+    "2026-07-30",
+    "2026-07-31"
+  ],
+  "home": {
+    "teamId": 108,
+    "teamName": "Los Angeles Angels",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 81,
+      "relievers": [
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 815083,
+          "name": "Mitch Farris",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 489446,
+          "name": "Kirby Yates",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-07-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 135,
+      "relievers": [
+        {
+          "id": 694477,
+          "name": "Chad Patrick",
+          "appearances": 1,
+          "pitches": 47,
+          "outs": 6,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 669060,
+          "name": "Bryse Wilson",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 5,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 683734,
+          "name": "Andrew Vaughn",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 3,
+          "dates": [
+            "2026-07-29"
+          ]
+        },
+        {
+          "id": 676879,
+          "name": "Aaron Ashby",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 1,
+          "dates": [
+            "2026-07-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-29,2026-07-30,2026-07-31) + feed/live box scores",
+    "capturedAt": "2026-08-01T04:19:21.272Z"
+  },
+  "recordHash": "491a01b4190366816cdd2d9ba2fe7d7e4443d06909684257ebbc5a38885e317a"
+}
