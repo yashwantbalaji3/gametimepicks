@@ -1,0 +1,72 @@
+# MLB afternoon coverage top-up (Program 092-095 Lane B — founder-approved, conditional).
+#
+# The 11:52-ET production slate generates before evening games' markets post (measured on
+# 2026-07-31: 5 of 15 games lacked odds events at generation; props for those same games were
+# posting by 12:13 ET). This workflow checks mid-afternoon whether any SCHEDULED game with a
+# future first pitch still lacks market coverage, and only then dispatches the NORMAL production
+# slate workflow — which re-enters its own credit floors, cache, completeness gates, credit-budget
+# sentinel, and the shared serialized writer queue. No new capture path, no new provider call
+# site, no cached odds ever restamped.
+#
+# Decision logic: app/scripts/mlb-topup-decision.mjs (mutation-tested: complete coverage → SKIP,
+# post-first-pitch → SKIP, budget breach or UNKNOWN balance → fail closed with warning).
+name: mlb-afternoon-topup
+
+on:
+  schedule:
+    # 19:30 UTC = 15:30 ET — after the measured afternoon posting window opens, ~3h before
+    # typical evening first pitches (18:35-19:15 ET), leaving the 45-min lead margin intact.
+    - cron: "30 19 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: mlb-afternoon-topup
+  cancel-in-progress: false
+
+jobs:
+  decide-and-dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Decide (tested logic — coverage gap, first-pitch cutoff, credit budget)
+        id: decide
+        env:
+          TOPUP_MIN_LEAD_MINUTES: ${{ vars.TOPUP_MIN_LEAD_MINUTES || '45' }}
+          TOPUP_EXPECTED_CREDITS: ${{ vars.TOPUP_EXPECTED_CREDITS || '62' }}
+          ODDS_API_MIN_CREDITS_REMAINING: ${{ vars.ODDS_API_MIN_CREDITS_REMAINING || '2000' }}
+        run: |
+          OUT="$(node app/scripts/mlb-topup-decision.mjs)"
+          echo "$OUT"
+          LAST="$(printf '%s\n' "$OUT" | tail -1)"
+          echo "decision=${LAST%% *}" >> "$GITHUB_OUTPUT"
+          echo "reason=${LAST#* }" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch the board GENERATOR (re-enters all credit guards + writer queue)
+        if: steps.decide.outputs.decision == 'RUN'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # morning-projections, NOT mlb-daily-production: the completion workflow scopes its
+          # paid ingests to the board's EXISTING leans (ingest-mlb-team-markets.mjs derives
+          # slateIds from board.leans), so a lean-less game can never gain coverage from it —
+          # proven live 2026-07-31 (dispatch spent 3 credits, "9/10 slate games", gap unchanged).
+          # Only the generator re-queries the provider event listing, which is where evening
+          # games appear once books post. On success it chains production automatically.
+          gh workflow run morning-projections
+          echo "::notice::afternoon top-up dispatched morning-projections (board regeneration) — ${{ steps.decide.outputs.reason }}"
+
+      - name: Warn if the decision failed closed on credits
+        if: contains(steps.decide.outputs.reason, 'failing closed')
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          OPS_ALERT_KIND: warning
+          PHASE: mlb-afternoon-topup
+          EXIT_STATUS: "0"
+          ERROR_LINE: ${{ steps.decide.outputs.reason }}
+        run: bash scripts/ops_alert.sh

@@ -1,0 +1,65 @@
+# Cron-fallback watchdog (Program 092-095 §6.5) — GitHub crons are best-effort and have skipped
+# real morning runs. This checks, one hour after the morning-projections window, whether the day's
+# primary generation actually happened, and dispatches the NORMAL workflow only when it provably
+# did not. It cannot duplicate paid ingestion: it fires only when no board exists, no primary run
+# happened, and no writer is queued/running — and the dispatched workflow re-enters its own credit
+# guards and the shared writer queue. Decision logic lives in scripts/cron_watchdog.sh (tested).
+name: cron-watchdog
+
+on:
+  schedule:
+    # 14:30 UTC = 10:30 ET — after morning-projections (13:30 UTC) and before/near the
+    # mlb-daily-production backstop (14:15 UTC) has finished queueing.
+    - cron: "30 14 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: cron-watchdog
+  cancel-in-progress: false
+
+jobs:
+  check-and-recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Decide (tested logic, explicit inputs)
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TODAY_ET="$(TZ=America/New_York date +%F)"
+          NEWEST_BOARD="$(ls app/public/data/mlb/boards 2>/dev/null | grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2}\.json$' | sort | tail -1 | sed 's/\.json//')"
+          [ -n "$NEWEST_BOARD" ] || NEWEST_BOARD=none
+          PRIMARY_RUNS_TODAY="$(gh run list --workflow=morning-projections --created "$(date -u +%F)" --json databaseId --jq 'length' || echo 0)"
+          ACTIVE=0
+          for wf in morning-projections mlb-daily-production; do
+            n="$(gh run list --workflow="$wf" --status in_progress --json databaseId --jq 'length' || echo 0)"
+            q="$(gh run list --workflow="$wf" --status queued --json databaseId --jq 'length' || echo 0)"
+            ACTIVE=$((ACTIVE + n + q))
+          done
+          DECISION="$(TODAY_ET="$TODAY_ET" NEWEST_BOARD="$NEWEST_BOARD" \
+                      PRIMARY_RUNS_TODAY="$PRIMARY_RUNS_TODAY" ACTIVE_RUNS="$ACTIVE" \
+                      bash scripts/cron_watchdog.sh)"
+          echo "$DECISION"
+          echo "decision=${DECISION%% *}" >> "$GITHUB_OUTPUT"
+          echo "reason=${DECISION#* }" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch the missed primary and alert
+        if: steps.decide.outputs.decision == 'DISPATCH'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          OPS_ALERT_KIND: warning
+          PHASE: cron-watchdog
+          EXIT_STATUS: "0"
+          ERROR_LINE: ${{ steps.decide.outputs.reason }}
+        run: |
+          gh workflow run morning-projections
+          echo "::notice::cron-watchdog dispatched morning-projections (${{ steps.decide.outputs.reason }})"
+          bash scripts/ops_alert.sh

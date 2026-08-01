@@ -140,6 +140,38 @@ if (dp) {
     C("daily-portfolio:bankroll-drift", `daily activeBankroll ${dp.activeBankroll} ≠ canonical bankroll ${portfolio.currentBankroll} (regenerate the daily portfolio)`);
 }
 
+// ── 8. PUBLIC RESEARCH CONTRACT AGREEMENT (Program 092-095 §6.2) ─────────────────────────────────
+// The contract rebuild in nightly-settle is deliberately non-fatal (a failed build must not abort a
+// settlement that already succeeded) — which means the STALE previous contract could reach publish.
+// This gate closes that hole: whatever contract is on disk must agree with the ledger it claims to
+// summarize. `asOfSettledDate` behind the ledger's newest settled date = a stale public number.
+{
+  const contract = readJson("research/terminal-summary.json");
+  if (contract == null) {
+    C("research-contract:missing", "research/terminal-summary.json missing or unparseable");
+  } else {
+    let newestSettled = "";
+    try {
+      const raw = fs.readFileSync(path.join(ROOT, "mlb/results/settled_leans.jsonl"), "utf8");
+      for (const line of raw.split("\n")) {
+        if (!line.trim()) continue;
+        try {
+          const d = JSON.parse(line)?.date ?? "";
+          if (d > newestSettled) newestSettled = d;
+        } catch { /* single bad line never breaks the gate */ }
+      }
+    } catch { /* ledger absence is caught by other checks */ }
+    if (newestSettled && contract.asOfSettledDate !== newestSettled) {
+      C(
+        "research-contract:stale",
+        `contract asOfSettledDate ${contract.asOfSettledDate} ≠ ledger newest settled ${newestSettled} — rerun build-public-research-contract before publish`,
+      );
+    } else if (newestSettled) {
+      P(`research contract current (asOfSettledDate ${contract.asOfSettledDate} = ledger)`);
+    }
+  }
+}
+
 // ── REPORT (PHASE 8 logging) ─────────────────────────────────────────────────────────────────────
 const stamp = new Date().toISOString?.() ?? "now"; // (CI provides real time; local resume-safe builds tolerate this)
 console.log(`\n=== GameTimePicks HEALTH CHECK · ${stamp} ===`);

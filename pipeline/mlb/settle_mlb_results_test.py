@@ -15,6 +15,7 @@ from .settle_mlb_results import (
     _find_player_in_box,
     _stat_for_market,
     _is_suspended,
+    aggregate_outcomes,
     GRADABLE_MARKETS,
 )
 
@@ -266,9 +267,33 @@ def test_gradable_markets_locked():
     )
 
 
+def test_decisive_denominator_excludes_voids():
+    """REGRESSION (Program 092-095 §6.3) — the July-30 slate: 162 W / 206 L / 17 Void.
+
+    The decisive hit rate is 162/368 = 44.02%. The old top-level computation divided by
+    everything-except-Push (162/385 = 42.08%), silently letting voids dilute the rate.
+    `settled` and `decisive` must stay separate named fields.
+    """
+    rows = (
+        [{"outcome": "Win"}] * 162 + [{"outcome": "Loss"}] * 206 + [{"outcome": "Void"}] * 17
+    )
+    agg = aggregate_outcomes(rows)
+    assert agg["settled"] == 385, agg
+    assert agg["decisive"] == 368, agg
+    assert agg["voids"] == 17, agg
+    assert agg["pushes"] == 0, agg
+    assert round(agg["hitRate"], 4) == 0.4402, agg
+    assert round(agg["hitRate"], 4) != 0.4208, "the void-diluted rate must not come back"
+
+    # Pushes are excluded too, and an all-void day reports None rather than a fake 0%.
+    agg2 = aggregate_outcomes([{"outcome": "Push"}] * 3 + [{"outcome": "Void"}] * 2)
+    assert agg2["decisive"] == 0 and agg2["hitRate"] is None, agg2
+
+
 def main() -> int:
     print("\n=== pipeline.mlb.settle_mlb_results tests ===")
     test_grade_rule()
+    test_decisive_denominator_excludes_voids()
     test_total_bases_computation_from_components()
     test_total_bases_uses_api_field_when_present()
     test_batter_did_not_appear_is_unavailable()

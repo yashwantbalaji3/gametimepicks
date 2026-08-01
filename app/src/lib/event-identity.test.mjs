@@ -20,6 +20,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { classifySim, isHardFailure } from "./live-slate-invariant.mjs";
 
 const APP = process.cwd();
 const BOARDS = path.join(APP, "public/data/mlb/boards");
@@ -98,31 +99,37 @@ test("INVARIANT · no gamePk is claimed by more than one provider event", () => 
   );
 });
 
-test("INVARIANT · no simulated game is orphaned from the board", () => {
-  // A simulation nobody can reach is wasted compute at best and a mis-join at worst — 824490 was
-  // simulated and unreachable while its markets pointed at the other half of the doubleheader.
-  const orphaned = [];
+test("INVARIANT · every simulated game has a safe upstream source (orphans still hard-fail)", () => {
+  // Program 092-095 Lane C. A full-game sim exists for every SCHEDULED game; leans arrive only as
+  // books post odds. "No lean claims this pk" is therefore the normal MORNING state of an evening
+  // game AND the signature of the 07-28 disaster (824490 simulated-but-unreachable beside a
+  // collision). The classifier separates them; every hard state still fails, with its name.
+  const violations = [];
 
   for (const date of boardDates()) {
     const simPath = path.join(SIMS, `${date}.json`);
     if (!fs.existsSync(simPath)) continue;
 
     const sims = JSON.parse(fs.readFileSync(simPath, "utf8"))?.games ?? [];
-    const simPks = new Set(sims.map((g) => g?.gamePk).filter((v) => v != null));
-    if (simPks.size === 0) continue;
-
-    const reachable = new Set(claimsFor(date).keys());
-    const missing = [...simPks].filter((pk) => !reachable.has(pk));
-
-    if (missing.length === 0) continue;
+    if (sims.length === 0) continue;
     if (PRE_FIX_BOARDS.has(date)) continue; // already pinned by the collision test above
-    orphaned.push(`${date}: simulated but unreachable → ${missing.join(", ")}`);
+
+    const byPk = claimsFor(date);
+    const claimedPks = new Set(byPk.keys());
+    const dateHasCollision = [...byPk.values()].some((ids) => ids.size > 1);
+    const doc = JSON.parse(fs.readFileSync(path.join(BOARDS, `${date}.json`), "utf8"));
+    const boardPks = new Set((doc?.games ?? []).map((g) => g?.gamePk).filter((v) => v != null));
+
+    for (const sim of sims) {
+      const state = classifySim(sim, claimedPks, boardPks, dateHasCollision);
+      if (isHardFailure(state)) violations.push(`${date}: gamePk ${sim?.gamePk} → ${state}`);
+    }
   }
 
   assert.deepEqual(
-    orphaned,
+    violations,
     [],
-    `Simulations exist that no market row can reach:\n  ${orphaned.join("\n  ")}`,
+    `Simulations in hard-failure states (mis-join, orphan, unsafe source, or overstated):\n  ${violations.join("\n  ")}`,
   );
 });
 

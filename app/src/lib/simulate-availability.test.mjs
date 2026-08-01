@@ -43,7 +43,16 @@ function latestMlbSim() {
 function realMlbDetail() {
   const { date, payload } = latestMlbSim();
   const games = payload.games ? Object.values(payload.games) : [];
-  const g = games.find((x) => (x.generatedPicks || []).length > 0) ?? games[0];
+  // Prefer a game whose Game Center carries full team markets. On a live evening slate the
+  // artifacts are re-captured mid-day and books delist near first pitch, so the FIRST sim game
+  // can legitimately lack a moneyline — that is an availability state, not a badge defect
+  // (Program 092-095: this exact shape went red after a same-evening re-capture). Falling back
+  // keeps the assertion meaningful: badges must derive from SOME real artifact-backed game.
+  const withMarkets = games.filter((x) => (x.generatedPicks || []).length > 0);
+  const g =
+    withMarkets.find((x) => getMlbGameCenter(date, x.gameId)?.moneyline) ??
+    withMarkets[0] ??
+    games[0];
   const runCount = payload.runCount ?? null;
   return {
     date,

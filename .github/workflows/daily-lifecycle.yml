@@ -46,11 +46,12 @@
 name: daily-lifecycle
 
 on:
-  schedule:
-    # 08:30 UTC = 4:30 AM EDT / 3:30 AM EST. Deliberately AFTER nightly-settle's
-    # 07:30 UTC repair pass so the two never push to main at the same time and
-    # the prior day's NBA/MLB grading is already in before the WC roll begins.
-    - cron: "30 8 * * *"
+  # Program 092-095 Lane E: schedule removed — nightly-settle (05:30 + 07:30 UTC) is THE one
+  # scheduled settlement writer (complete outputs, health gate, alerting, serialized queue).
+  # This workflow duplicated the settle at 08:30 UTC, and with ENABLE_AUTONOMOUS_DEPLOY unset
+  # even a green run stopped before its deploy step — it spent 6 straight days failing a gate
+  # to produce nothing. It remains available as the MANUAL full-roll recovery tool.
+  # Ownership is guard-tested: a second scheduled settlement writer fails the suite.
   workflow_dispatch:
     inputs:
       date:

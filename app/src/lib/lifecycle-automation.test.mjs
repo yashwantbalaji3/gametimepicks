@@ -50,14 +50,18 @@ test("the lifecycle gate runs all three money guards (integrity + forensic + hea
   assert.match(roll, /health-check\.mjs/, "health check in the gate");
 });
 
-test("daily-lifecycle.yml is the ONE scheduled canonical lifecycle, deploy opt-in", () => {
+test("daily-lifecycle.yml is the manual recovery roll — dispatch-only, deploy opt-in", () => {
+  // Program 092-095 Lane E reversed the earlier ownership: nightly-settle is THE one scheduled
+  // settlement writer (see settlement-writer-ownership.test.mjs, which pins that invariant).
+  // The full roll remains available by hand; a silently regained cron is a regression here.
   const wf = readRepo(".github/workflows/daily-lifecycle.yml");
-  assert.match(wf, /schedule:/, "has a schedule");
-  assert.match(wf, /cron:\s*"30 8 \* \* \*"/, "runs after the nightly-settle window");
+  assert.ok(!/^\s*-\s*cron:/m.test(wf), "dispatch-only: the roll must not regain a schedule silently");
+  assert.match(wf, /workflow_dispatch:/, "manual recovery dispatch preserved");
   assert.match(wf, /roll_to_next_day\.sh/, "invokes the canonical lifecycle script");
   assert.match(wf, /ENABLE_AUTONOMOUS_DEPLOY/, "auto-deploy is opt-in via a repo variable (irreversible action gated)");
   // honest-skip: credentials are wired but their absence must not be a hard requirement here.
   assert.match(wf, /ODDS_API_KEY/, "passes the odds key through (honest-skip when unset)");
+  assert.match(wf, /ops_alert\.sh/, "failures route through the shared alerter");
 });
 
 test("overlapping product orchestrators are retired to dispatch-only (no duplicate crons)", () => {

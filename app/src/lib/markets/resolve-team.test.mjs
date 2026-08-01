@@ -132,7 +132,7 @@ test("MEASURED: real resolution rate on the live slate", () => {
   const props = JSON.parse(fs.readFileSync(path.join(PUB, "mlb/player-props", `${date}.json`), "utf8")).props ?? [];
   const board = JSON.parse(fs.readFileSync(path.join(PUB, "mlb/boards", `${date}.json`), "utf8"));
 
-  // gameId -> gamePk + participants comes from the board, the only artifact carrying both ids.
+  // gameId -> gamePk + participants comes from the board leans, the artifact carrying both ids.
   const seen = new Map();
   for (const l of board.leans ?? []) {
     if (l.gameId && !seen.has(l.gameId)) {
@@ -143,6 +143,29 @@ test("MEASURED: real resolution rate on the live slate", () => {
         awayTeam: l.awayTeamName ?? "",
       });
     }
+  }
+
+  // Program 092-095 Lane C: props can legitimately exist for events whose game markets (leans)
+  // haven't posted yet — the morning state of evening games. Those props still carry identity:
+  // `matchup` ("Away Name @ Home Name"). Join it to the board's SCHEDULE, but only when that
+  // team pair maps to exactly ONE scheduled game that date — a doubleheader pair is ambiguous
+  // and must stay unresolved (fail-closed), exactly like the upstream nearest-start resolver.
+  const scheduleByPair = new Map();
+  for (const g of board.games ?? []) {
+    const pair = `${g.awayTeamName ?? ""} @ ${g.homeTeamName ?? ""}`;
+    scheduleByPair.set(pair, [...(scheduleByPair.get(pair) ?? []), g]);
+  }
+  for (const p of props) {
+    if (!p.gameId || seen.has(p.gameId) || typeof p.matchup !== "string") continue;
+    const candidates = scheduleByPair.get(p.matchup) ?? [];
+    if (candidates.length !== 1) continue; // ambiguous or unknown pair → stays unresolved
+    const g = candidates[0];
+    seen.set(p.gameId, {
+      eventId: p.gameId,
+      gamePk: g.gamePk ?? null,
+      homeTeam: g.homeTeamName ?? "",
+      awayTeam: g.awayTeamName ?? "",
+    });
   }
   const games = indexGames([...seen.values()]);
 

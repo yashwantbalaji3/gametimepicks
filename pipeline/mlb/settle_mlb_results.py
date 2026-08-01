@@ -227,6 +227,31 @@ def _grade(side: str, line: float, actual: float) -> str:
     return "Push"
 
 
+def aggregate_outcomes(settled_rows: list[dict]) -> dict:
+    """Outcome accounting with the DECISIVE denominator (Program 092-095 §6.3).
+
+    Decisive = Win + Loss only. Push, Void, and any other non-decisive outcome are counted
+    explicitly and NEVER enter the hit-rate denominator. 2026-07-30 is the canonical example:
+    162 W / 206 L / 17 Void → hit rate 162/368 = 44.02%, not 162/385 = 42.08%. Keeping
+    `settled` and `decisive` as separate named fields makes conflating them a visible bug
+    rather than a silent one.
+    """
+    wins = sum(1 for r in settled_rows if r["outcome"] == "Win")
+    losses = sum(1 for r in settled_rows if r["outcome"] == "Loss")
+    pushes = sum(1 for r in settled_rows if r["outcome"] == "Push")
+    voids = len(settled_rows) - wins - losses - pushes
+    decisive = wins + losses
+    return {
+        "settled": len(settled_rows),
+        "wins": wins,
+        "losses": losses,
+        "pushes": pushes,
+        "voids": voids,
+        "decisive": decisive,
+        "hitRate": (wins / decisive) if decisive > 0 else None,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Core
 # ---------------------------------------------------------------------------
@@ -447,11 +472,10 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
         )
 
     # ---------- Aggregation ----------
-    decisive = [r for r in settled_rows if r["outcome"] != "Push"]
-    wins = sum(1 for r in settled_rows if r["outcome"] == "Win")
-    losses = sum(1 for r in settled_rows if r["outcome"] == "Loss")
-    pushes = sum(1 for r in settled_rows if r["outcome"] == "Push")
-    hit_rate = wins / len(decisive) if decisive else None
+    agg = aggregate_outcomes(settled_rows)
+    wins, losses, pushes, voids = agg["wins"], agg["losses"], agg["pushes"], agg["voids"]
+    decisive_n = agg["decisive"]
+    hit_rate = agg["hitRate"]
 
     def _bucket(by_key):
         buckets: dict[str, dict] = {}
@@ -460,15 +484,19 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
             if k is None:
                 continue
             b = buckets.setdefault(
-                k, {"label": k, "total": 0, "wins": 0, "losses": 0, "pushes": 0, "hitRate": None}
+                k,
+                {"label": k, "total": 0, "wins": 0, "losses": 0, "pushes": 0, "voids": 0, "hitRate": None},
             )
             b["total"] += 1
             if r["outcome"] == "Win":
                 b["wins"] += 1
             elif r["outcome"] == "Loss":
                 b["losses"] += 1
-            else:
+            elif r["outcome"] == "Push":
                 b["pushes"] += 1
+            else:
+                # Void / unavailable — never a push, never decisive.
+                b["voids"] += 1
         for b in buckets.values():
             dec = b["wins"] + b["losses"]
             b["hitRate"] = (b["wins"] / dec) if dec > 0 else None
@@ -530,12 +558,14 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
         "finalGamesSettled": len({r["gamePk"] for r in settled_rows}),
         "pendingGames": len(pending_games),
         "partial": len(pending_games) > 0,
-        "decisive": len(decisive),
+        "settled": agg["settled"],
+        "decisive": decisive_n,
         "wins": wins,
         "losses": losses,
         "pushes": pushes,
+        "voids": voids,
         "hitRate": round(hit_rate, 4) if hit_rate is not None else None,
-        "smallSample": len(decisive) < 25,
+        "smallSample": decisive_n < 25,
         "byMarket": by_market,
         "byConfidence": by_confidence,
         "byGame": by_game,
@@ -585,9 +615,9 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
     report_path.write_text(json.dumps(report, indent=2))
 
     print(
-        f"[settle] decisive={len(decisive)} wins={wins} losses={losses} pushes={pushes} "
-        f"hit_rate={report['hitRate']} pending_games={len(pending_games)} "
-        f"unavailable={len(actual_unavailable)}"
+        f"[settle] settled={agg['settled']} decisive={decisive_n} wins={wins} losses={losses} "
+        f"pushes={pushes} voids={voids} hit_rate={report['hitRate']} "
+        f"pending_games={len(pending_games)} unavailable={len(actual_unavailable)}"
     )
     print(f"[settle] wrote {SETTLED_LEANS_PATH.relative_to(C.ROOT_DIR)} ({len(existing)} rows total)")
     print(f"[settle] wrote {report_path.relative_to(C.ROOT_DIR)}")

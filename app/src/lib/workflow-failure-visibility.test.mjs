@@ -91,9 +91,11 @@ test("every workflow that writes generated public data shares ONE concurrency qu
   // 2026-07-30 morning-projections and daily-refresh ran concurrently, both committed generated
   // JSON, and a valid board was discarded when the loser's rebase conflicted. A shared group with
   // cancel-in-progress:false makes writers QUEUE — a generated artifact can be late, never lost.
+  // daily-rebuild.yml retired 2026-07-31 (Program 092-095): its only job was a deploy-hook curl
+  // behind a secret that was never configured — 100% no-op runs, no unique output. Recover via git.
   const writers = [
     "morning-projections.yml", "daily-refresh.yml", "mlb-daily-production.yml",
-    "auto-refresh.yml", "daily-rebuild.yml", "daily-lifecycle.yml",
+    "auto-refresh.yml", "daily-lifecycle.yml",
   ];
   for (const f of writers) {
     const yml = read(f);
