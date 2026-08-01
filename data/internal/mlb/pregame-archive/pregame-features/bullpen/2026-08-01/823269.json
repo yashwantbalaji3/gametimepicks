@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823269,
   "date": "2026-08-01",
-  "capturedAt": "2026-08-01T04:19:21.272Z",
-  "availableAt": "2026-08-01T04:19:21.272Z",
+  "capturedAt": "2026-08-01T12:01:58.632Z",
+  "availableAt": "2026-08-01T12:01:58.632Z",
   "eventStartTime": "2026-08-02T00:40:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,45 @@
     "teamId": 135,
     "teamName": "San Diego Padres",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 119,
+      "relievers": [
+        {
+          "id": 608566,
+          "name": "Germán Márquez",
+          "appearances": 1,
+          "pitches": 70,
+          "outs": 15,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 673513,
+          "name": "Yuki Matsui",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 9,
+          "dates": [
+            "2026-07-31"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 185,
+      "appearances": 9,
+      "pitches": 304,
       "relievers": [
+        {
+          "id": 608566,
+          "name": "Germán Márquez",
+          "appearances": 1,
+          "pitches": 70,
+          "outs": 15,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
         {
           "id": 681190,
           "name": "Randy Vásquez",
@@ -36,6 +67,16 @@
           "outs": 14,
           "dates": [
             "2026-07-30"
+          ]
+        },
+        {
+          "id": 673513,
+          "name": "Yuki Matsui",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 9,
+          "dates": [
+            "2026-07-31"
           ]
         },
         {
@@ -91,20 +132,52 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 608566,
+        "name": "Germán Márquez",
+        "reason": "70 pitches yesterday"
+      },
+      {
+        "id": 673513,
+        "name": "Yuki Matsui",
+        "reason": "49 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 137,
     "teamName": "San Francisco Giants",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 64,
+      "relievers": [
+        {
+          "id": 605288,
+          "name": "Adrian Houser",
+          "appearances": 1,
+          "pitches": 64,
+          "outs": 14,
+          "dates": [
+            "2026-07-31"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 6,
-      "pitches": 115,
+      "appearances": 7,
+      "pitches": 179,
       "relievers": [
+        {
+          "id": 605288,
+          "name": "Adrian Houser",
+          "appearances": 1,
+          "pitches": 64,
+          "outs": 14,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
         {
           "id": 668873,
           "name": "Caleb Kilian",
@@ -158,12 +231,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 605288,
+        "name": "Adrian Houser",
+        "reason": "64 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-07-29,2026-07-30,2026-07-31) + feed/live box scores",
-    "capturedAt": "2026-08-01T04:19:21.272Z"
+    "capturedAt": "2026-08-01T12:01:58.632Z"
   },
-  "recordHash": "2f89bd72e65f13d689c0b6e9bb30f554cab8a44071347c6c29e1d712bf3c2f30"
+  "recordHash": "f287960b2968831f75822dad385ee431bdd396437ba36a6a9e35ef28f49471cc"
 }

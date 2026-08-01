@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824000,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T12:01:57.748Z",
+  "availableAt": "2026-08-01T12:01:57.748Z",
+  "eventStartTime": "2026-08-02T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 667755,
+      "name": "José Soriano",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5,
+        "bbAvg": 1.8,
+        "erAvg": 2,
+        "hrAvg": 0,
+        "kPer9": 8.04,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 123,
+        "k": 127,
+        "bb": 57,
+        "er": 45,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 688107,
+      "name": "Robert Gasser",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 7,
+      "lastStartDate": "2026-07-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 4.2,
+        "bbAvg": 0.4,
+        "erAvg": 3,
+        "hrAvg": 1,
+        "kPer9": 6.91,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 57.33,
+        "k": 52,
+        "bb": 14,
+        "er": 30,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-01T12:01:57.748Z"
+  },
+  "recordHash": "e16495f2bb08c7708039a214c5d8f27dcd20a8cdd77bfa2154f0896c0331fd57"
+}
