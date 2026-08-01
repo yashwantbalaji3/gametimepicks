@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824972,
+  "date": "2026-08-01",
+  "capturedAt": "2026-08-01T23:49:30.717Z",
+  "availableAt": "2026-08-01T23:49:30.717Z",
+  "eventStartTime": "2026-08-02T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 678022,
+      "name": "Jack Perkins",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 5,
+      "lastStartDate": "2026-07-27",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 5.8,
+        "bbAvg": 2.2,
+        "erAvg": 3.6,
+        "hrAvg": 0.8,
+        "kPer9": 10.73,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 37.33,
+        "k": 45,
+        "bb": 18,
+        "er": 29,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 664285,
+      "name": "Framber Valdez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 3.4,
+        "bbAvg": 1.4,
+        "erAvg": 3.6,
+        "hrAvg": 0.6,
+        "kPer9": 6.46,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 113.33,
+        "k": 92,
+        "bb": 41,
+        "er": 57,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-01T23:49:30.717Z"
+  },
+  "recordHash": "d9d798b852c9b0a5ecffe34952d8c60baa79db09fb41c0cf1b446664dedd920d"
+}
