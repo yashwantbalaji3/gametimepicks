@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824163,
+  "teamId": 140,
+  "name": "Texas Rangers",
+  "side": "away",
+  "date": "2026-08-02",
+  "capturedAt": "2026-08-02T04:21:49.348Z",
+  "availableAt": "2026-08-02T04:21:49.348Z",
+  "eventStartTime": "2026-08-02T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 7,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-01",
+  "previousVenueId": 2392,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=140&startDate=2026-07-19&endDate=2026-08-01",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-02T04:21:49.348Z"
+  },
+  "recordHash": "f540e4ac4d1af17061e867ec0fc1c21a0d87f0c04966cf2dcc64672a17abe06b"
+}

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824971,
+  "date": "2026-08-02",
+  "capturedAt": "2026-08-02T04:21:42.032Z",
+  "availableAt": "2026-08-02T04:21:42.032Z",
+  "eventStartTime": "2026-08-02T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-30",
+    "2026-07-31",
+    "2026-08-01"
+  ],
+  "home": {
+    "teamId": 133,
+    "teamName": "Athletics",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 148,
+      "relievers": [
+        {
+          "id": 806960,
+          "name": "Luis Morales",
+          "appearances": 1,
+          "pitches": 47,
+          "outs": 6,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 669620,
+          "name": "Brady Basso",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 656240,
+          "name": "Scott Blewett",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 6,
+          "dates": [
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 696522,
+          "name": "Hayden Juenger",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 665622,
+          "name": "Luis Medina",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 665660,
+          "name": "Elvis Alvarado",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-07-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 116,
+    "teamName": "Detroit Tigers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 92,
+      "relievers": [
+        {
+          "id": 680744,
+          "name": "Ty Madden",
+          "appearances": 1,
+          "pitches": 56,
+          "outs": 9,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 646241,
+          "name": "Enmanuel De Jesus",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 6,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 805427,
+          "name": "Drew Sommers",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 6,
+          "dates": [
+            "2026-07-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-30,2026-07-31,2026-08-01) + feed/live box scores",
+    "capturedAt": "2026-08-02T04:21:42.032Z"
+  },
+  "recordHash": "687dc4afe83482c4c5bf5c0d41351985217bfce95b1be82f5e4c68bbd43ca451"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824323,
+  "date": "2026-08-02",
+  "capturedAt": "2026-08-02T04:21:41.334Z",
+  "availableAt": "2026-08-02T04:21:41.334Z",
+  "eventStartTime": "2026-08-02T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607536,
+      "name": "Kyle Freeland",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 7,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 4.8,
+        "bbAvg": 0.8,
+        "erAvg": 4.2,
+        "hrAvg": 1,
+        "kPer9": 7.9,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 99.33,
+        "k": 85,
+        "bb": 21,
+        "er": 81,
+        "hr": 21
+      }
+    },
+    "away": {
+      "id": 607625,
+      "name": "Seth Lugo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 5,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 4,
+        "bbAvg": 2,
+        "erAvg": 2.6,
+        "hrAvg": 0.6,
+        "kPer9": 6.59,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 123.67,
+        "k": 96,
+        "bb": 40,
+        "er": 58,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-02T04:21:41.334Z"
+  },
+  "recordHash": "db6e17a94bad59c5b7faca36edea48b17623cff012b8705b3919d73155b8a94e"
+}

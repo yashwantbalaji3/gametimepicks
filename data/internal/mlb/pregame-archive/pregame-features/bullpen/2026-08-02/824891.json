@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824891,
+  "date": "2026-08-02",
+  "capturedAt": "2026-08-02T04:21:42.032Z",
+  "availableAt": "2026-08-02T04:21:42.032Z",
+  "eventStartTime": "2026-08-02T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-30",
+    "2026-07-31",
+    "2026-08-01"
+  ],
+  "home": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 31,
+      "relievers": [
+        {
+          "id": 664849,
+          "name": "Danny Young",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 162,
+      "relievers": [
+        {
+          "id": 622694,
+          "name": "Elieser Hernández",
+          "appearances": 1,
+          "pitches": 62,
+          "outs": 9,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 664849,
+          "name": "Danny Young",
+          "appearances": 2,
+          "pitches": 37,
+          "outs": 6,
+          "dates": [
+            "2026-07-30",
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 2,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-07-30",
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 4,
+          "dates": [
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 628452,
+          "name": "Raisel Iglesias",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-07-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 120,
+    "teamName": "Washington Nationals",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 54,
+      "relievers": [
+        {
+          "id": 683000,
+          "name": "Riley Cornelio",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 2,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 678868,
+          "name": "Eddy Yean",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-08-01"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 156,
+      "relievers": [
+        {
+          "id": 592866,
+          "name": "Trevor Williams",
+          "appearances": 1,
+          "pitches": 63,
+          "outs": 8,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 683000,
+          "name": "Riley Cornelio",
+          "appearances": 2,
+          "pitches": 41,
+          "outs": 5,
+          "dates": [
+            "2026-07-30",
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 687223,
+          "name": "Carson Palmquist",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-07-30"
+          ]
+        },
+        {
+          "id": 678868,
+          "name": "Eddy Yean",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-08-01"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 683000,
+        "name": "Riley Cornelio",
+        "reason": "32 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-30,2026-07-31,2026-08-01) + feed/live box scores",
+    "capturedAt": "2026-08-02T04:21:42.032Z"
+  },
+  "recordHash": "46776b0e54a99d2659e801cb44ceee4ab21aa19bfa73be5a3ef11884c421ba6c"
+}

@@ -1,0 +1,238 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823996,
+  "date": "2026-08-02",
+  "capturedAt": "2026-08-02T04:21:42.032Z",
+  "availableAt": "2026-08-02T04:21:42.032Z",
+  "eventStartTime": "2026-08-02T19:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-30",
+    "2026-07-31",
+    "2026-08-01"
+  ],
+  "home": {
+    "teamId": 108,
+    "teamName": "Los Angeles Angels",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 116,
+      "relievers": [
+        {
+          "id": 695049,
+          "name": "Brett Kerry",
+          "appearances": 1,
+          "pitches": 55,
+          "outs": 12,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 696519,
+          "name": "Samy Natera Jr.",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 6,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 489446,
+          "name": "Kirby Yates",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 202,
+      "relievers": [
+        {
+          "id": 695049,
+          "name": "Brett Kerry",
+          "appearances": 1,
+          "pitches": 55,
+          "outs": 12,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 696519,
+          "name": "Samy Natera Jr.",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 6,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 8,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 684665,
+          "name": "Luke Murphy",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 696147,
+          "name": "Sam Bachman",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 489446,
+          "name": "Kirby Yates",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 695049,
+        "name": "Brett Kerry",
+        "reason": "55 pitches yesterday"
+      },
+      {
+        "id": 696519,
+        "name": "Samy Natera Jr.",
+        "reason": "39 pitches yesterday"
+      }
+    ]
+  },
+  "away": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 53,
+      "relievers": [
+        {
+          "id": 694477,
+          "name": "Chad Patrick",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 682842,
+          "name": "Abner Uribe",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 656730,
+          "name": "Trevor Megill",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 99,
+      "relievers": [
+        {
+          "id": 694477,
+          "name": "Chad Patrick",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 682842,
+          "name": "Abner Uribe",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 5,
+          "dates": [
+            "2026-07-31",
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 681982,
+          "name": "Grant Anderson",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 4,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 656730,
+          "name": "Trevor Megill",
+          "appearances": 2,
+          "pitches": 20,
+          "outs": 6,
+          "dates": [
+            "2026-07-31",
+            "2026-08-01"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 694477,
+        "name": "Chad Patrick",
+        "reason": "32 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-30,2026-07-31,2026-08-01) + feed/live box scores",
+    "capturedAt": "2026-08-02T04:21:42.032Z"
+  },
+  "recordHash": "8d25633107afa9165c6f7ba3e0f4874397d8b8ae9de8a61ba94e0a2d24d32677"
+}
