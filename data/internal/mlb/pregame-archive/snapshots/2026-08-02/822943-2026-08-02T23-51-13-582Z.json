@@ -1,0 +1,184 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "822943-f8a54eb678a7a5f7c74debadebde6ac2",
+  "snapshotCreatedAt": "2026-08-02T23:51:13.582Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-02",
+  "eventId": "822943",
+  "gamePk": 822943,
+  "eventStartTime": "2026-08-02T17:40:00Z",
+  "homeTeam": "TB",
+  "awayTeam": "CWS",
+  "venue": "Tropicana Field",
+  "statusState": "Final",
+  "startedAtCapture": true,
+  "dataQuality": {
+    "anyEligible": false,
+    "eligibleFamilies": []
+  },
+  "rawPayloadHash": "735257c1a536c2d3004423e460bba581",
+  "normalizedPayloadHash": "6a91d47802e80e05350ccd1149f3291c",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": false,
+      "value": {
+        "status": "POST_START"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-02T23:51:13.582Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-02T23:51:13.582Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822943/feed/live",
+        "requestedAt": "2026-08-02T23:51:13.582Z",
+        "receivedAt": "2026-08-02T23:51:13.582Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": false,
+      "value": {
+        "homeProbable": "Griffin Jax",
+        "awayProbable": "Anthony Kay",
+        "status": "POST_START"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-02T23:51:13.582Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-02T23:51:13.582Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822943/feed/live",
+        "requestedAt": "2026-08-02T23:51:13.582Z",
+        "receivedAt": "2026-08-02T23:51:13.582Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": false,
+      "value": {
+        "condition": "Dome",
+        "temp": "72",
+        "wind": "0 mph, None",
+        "roofType": "Dome",
+        "dayNight": "day",
+        "postgameOnly": true
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-02T23:51:13.582Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-02T23:51:13.582Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822943/feed/live",
+        "requestedAt": "2026-08-02T23:51:13.582Z",
+        "receivedAt": "2026-08-02T23:51:13.582Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": false,
+      "value": {
+        "officials": [
+          {
+            "name": "Mike Estabrook",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Dillon Wilson",
+            "type": "First Base"
+          },
+          {
+            "name": "Malachi Moore",
+            "type": "Second Base"
+          },
+          {
+            "name": "Alfonso Márquez",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-02T23:51:13.582Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-02T23:51:13.582Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822943/feed/live",
+        "requestedAt": "2026-08-02T23:51:13.582Z",
+        "receivedAt": "2026-08-02T23:51:13.582Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
