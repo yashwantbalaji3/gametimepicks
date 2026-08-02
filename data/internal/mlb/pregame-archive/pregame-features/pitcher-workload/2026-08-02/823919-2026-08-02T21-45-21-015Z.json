@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823919,
+  "date": "2026-08-02",
+  "capturedAt": "2026-08-02T21:45:21.015Z",
+  "availableAt": "2026-08-02T21:45:21.015Z",
+  "eventStartTime": "2026-08-02T23:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 686218,
+      "name": "Emmet Sheehan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 7,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 5.6,
+        "bbAvg": 1.8,
+        "erAvg": 2.2,
+        "hrAvg": 0.6,
+        "kPer9": 10.08,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 92.67,
+        "k": 104,
+        "bb": 29,
+        "er": 51,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 687562,
+      "name": "Jake Bennett",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 5,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32.67,
+        "ipAvg": 6.53,
+        "kAvg": 4.2,
+        "bbAvg": 0.8,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 5.79,
+        "workloadIpLast5": 32.67
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 65.67,
+        "k": 46,
+        "bb": 11,
+        "er": 20,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-02T21:45:21.015Z"
+  },
+  "recordHash": "7f6c15f61cabf9dfbfa57ea15c10b037a104d697d411a59253632361d96c0168"
+}
