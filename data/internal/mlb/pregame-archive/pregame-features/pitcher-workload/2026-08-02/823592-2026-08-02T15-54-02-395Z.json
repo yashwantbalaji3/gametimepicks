@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823592,
+  "date": "2026-08-02",
+  "capturedAt": "2026-08-02T15:54:02.395Z",
+  "availableAt": "2026-08-02T15:54:02.395Z",
+  "eventStartTime": "2026-08-02T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 476594,
+      "name": "Robert Stock",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 645261,
+      "name": "Sandy Alcantara",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 35,
+        "ipAvg": 7,
+        "kAvg": 6.2,
+        "bbAvg": 1.4,
+        "erAvg": 2,
+        "hrAvg": 1,
+        "kPer9": 7.97,
+        "workloadIpLast5": 35
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 150.67,
+        "k": 115,
+        "bb": 39,
+        "er": 64,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-02T15:54:02.395Z"
+  },
+  "recordHash": "be2d28c8088b259ece97e74034a0ff6526512e4a4f1bec5c916dee5aec925fb3"
+}
