@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824648,
+  "date": "2026-08-02",
+  "capturedAt": "2026-08-02T17:54:19.693Z",
+  "availableAt": "2026-08-02T17:54:19.693Z",
+  "eventStartTime": "2026-08-02T18:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607067,
+      "name": "Colin Rea",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 4,
+        "bbAvg": 1.8,
+        "erAvg": 2.6,
+        "hrAvg": 1,
+        "kPer9": 6.59,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 94.67,
+        "k": 68,
+        "bb": 36,
+        "er": 48,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 543037,
+      "name": "Gerrit Cole",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 5,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 7.8,
+        "bbAvg": 0.8,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 11.57,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 68,
+        "k": 73,
+        "bb": 14,
+        "er": 27,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-02T17:54:19.693Z"
+  },
+  "recordHash": "02f7dac9a39dce0f2521db856e62e5bca1697db8f86fd2a554f4dc9c35cae92d"
+}
