@@ -15,9 +15,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { fileURLToPath } from "node:url";
 import { rowIdentity } from "./board-patches.mjs";
 
-const BOARDS = path.join(process.cwd(), "public/data/mlb/boards");
+// Resolve relative to THIS file (src/lib/mlb → app/public/data), never cwd: the suite is invoked
+// from app/ but guards are also run from the repo root, and a cwd-dependent path silently
+// "passes" by finding nothing.
+const BOARDS = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../public/data/mlb/boards");
 
 /** Frozen bases: date → {rows, identityDigest}. Add a date only at a declared cutover. */
 const FROZEN = new Map([
