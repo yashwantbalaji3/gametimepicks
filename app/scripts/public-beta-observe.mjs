@@ -39,6 +39,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { evaluateDailyFreshness, currentEtHour } from "../src/lib/daily-freshness-slo.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const REPO = path.resolve(APP, "..");
@@ -532,6 +533,20 @@ async function observe() {
   if (boardAgeDays !== null && boardAgeDays > STALE_BOARD_DAYS) {
     warnings.push(`STALE: newest board ${newestBoard} is ${boardAgeDays} days old (> ${STALE_BOARD_DAYS})`);
   }
+
+  // Program 100-103: the incident's exact shape was "automation green, no board for TODAY", and
+  // the old age-based warning above said so for three days without escalating. Past the SLO hour
+  // on a slate day this is a FAILURE, which flips the verdict and reaches the ops webhook.
+  const freshness = evaluateDailyFreshness({
+    todayEt: today,
+    etHour: currentEtHour(),
+    newestBoard,
+    // Unknown schedule (offline/no network) must not manufacture an outage: null means "assume a
+    // slate day" only for the board-currency check, which is what the SLO is about.
+    scheduledGames: null,
+  });
+  if (freshness.severity === "FAIL") failures.push(`FRESHNESS ${freshness.state}: ${freshness.detail}`);
+  else if (freshness.severity === "WARN") warnings.push(`FRESHNESS ${freshness.state}: ${freshness.detail}`);
   if (settlementLagDays !== null && settlementLagDays > STALE_SETTLEMENT_DAYS) {
     warnings.push(`STALE: newest settled date ${newestSettled} is ${settlementLagDays} days old (> ${STALE_SETTLEMENT_DAYS})`);
   }
