@@ -39,10 +39,25 @@ export const PATCH_KINDS = Object.freeze({
  * Doubleheaders stay distinct because eventId (provider event) and gamePk are 1:1 post-Sprint-041.
  */
 export function rowIdentity(row) {
+  // PREFER the pipeline's own canonical row key. Board rows carry
+  // `id = "<gameId>-<Player_Name>-<market>-<line>"`, which is collision-resistant by
+  // construction and already doubleheader-safe (gameId ↔ gamePk is 1:1 post-Sprint-041).
+  //
+  // WHY THIS TAKES PRECEDENCE (found on the real 2026-08-03 board before wiring patches live):
+  // production rows frequently carry `playerId: null` AND `player: null` — the participant lives
+  // only inside `id`. The composite fallback below then degraded to the literal "team" for every
+  // such row, so THREE groups of genuinely different players (Jose Tena vs Nasim Nunez; Herrera
+  // vs Caballero vs Fermin; Pena vs Gimenez vs Sanchez) collapsed onto one identity — 211 rows
+  // producing only 206 identities. Under the patch contract that is not cosmetic: an official
+  // addition for a different player at the same market/line/side would have been refused as a
+  // duplicate, silently dropping a legitimate prediction.
+  if (typeof row?.id === "string" && row.id.length > 0) return row.id;
+
+  const participant = row.playerId ?? row.participantId ?? row.player ?? "team";
   const parts = [
     row.gameId ?? row.eventId ?? "",
     row.marketKey ?? "",
-    row.playerId ?? row.participantId ?? "team",
+    participant,
     row.line ?? row.threshold ?? "",
     row.side ?? row.lean ?? "",
     row.capturePolicyVersion ?? 1,

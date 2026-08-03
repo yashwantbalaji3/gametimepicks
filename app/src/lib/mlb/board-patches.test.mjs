@@ -45,6 +45,28 @@ const patch = (over = {}) => ({
   ...over,
 });
 
+test("IDENTITY · different players with null playerId must not collapse (real 2026-08-03 rows)", () => {
+  // Caught on the live board before wiring patches into production: production rows often carry
+  // playerId: null AND player: null — the participant exists only inside the canonical `id`.
+  // The old composite fell back to the literal "team", collapsing genuinely different players
+  // (211 rows → 206 identities). Under the patch contract that would have refused a legitimate
+  // official addition as a "duplicate identity" and silently dropped a prediction.
+  const realRows = [
+    { id: "d5f05941c82f5ea7de7ee32d879c0d59-Jose_Tena-batter_hits-0.5", gameId: "d5f05941c82f5ea7de7ee32d879c0d59", marketKey: "batter_hits", playerId: null, player: null, line: 0.5, lean: "Pass" },
+    { id: "d5f05941c82f5ea7de7ee32d879c0d59-Nasim_Nunez-batter_hits-0.5", gameId: "d5f05941c82f5ea7de7ee32d879c0d59", marketKey: "batter_hits", playerId: null, player: null, line: 0.5, lean: "Pass" },
+    { id: "74ae10226cb75552e9cb91f8488d161e-Ivan_Herrera-batter_hits-0.5", gameId: "74ae10226cb75552e9cb91f8488d161e", marketKey: "batter_hits", playerId: null, player: null, line: 0.5, lean: "Pass" },
+    { id: "74ae10226cb75552e9cb91f8488d161e-Jose_Caballero-batter_hits-0.5", gameId: "74ae10226cb75552e9cb91f8488d161e", marketKey: "batter_hits", playerId: null, player: null, line: 0.5, lean: "Pass" },
+  ];
+  const ids = realRows.map(rowIdentity);
+  assert.equal(new Set(ids).size, realRows.length, "each distinct player must hold a distinct identity");
+  assert.ok(ids.every((i) => i && !i.includes("|team|")), "the 'team' fallback must not swallow a named participant");
+
+  // And the fallback still works when a row genuinely has no `id`.
+  const noId = { gameId: "evX", marketKey: "batter_hits", player: "Someone", line: 1.5, lean: "Over" };
+  assert.match(rowIdentity(noId), /^evX\|batter_hits\|Someone\|/);
+  assert.equal(rowIdentity({ marketKey: "x" }), null, "identity still requires an event");
+});
+
 test("a valid future-event official addition is accepted and joins the population", () => {
   const m = materialize(baseBoard(), [patch()], NOW);
   assert.equal(m.accepted.length, 1);
