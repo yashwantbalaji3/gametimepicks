@@ -28,6 +28,13 @@ all, and the site froze on the July 31 slate for 62 hours.
 | Duplicate Vercel | dormant since 07-31T17:16Z, zero deployments through the incident |
 | Suite | 3,620 tests, **0 failures** |
 
+> **09:30 ET UPDATE — read `AUG3_MORNING_VERIFICATION.md` first.** The prediction below that
+> nightly-settle would "commit the contract it rebuilds" was **wrong**: both overnight runs
+> failed on `board file not found: …2026-08-02.json` — the writer was crashing on a date we
+> correctly never generated, which also prevented the contract-commit fix from running at all.
+> Fixed in `fe20fd68` (a boardless date is now an honest skip, not a crash). The Aug 3 slate,
+> the site, and protected money were unaffected throughout.
+
 ## What is scheduled to happen without you
 
 - **01:30 / 03:30 ET** — `nightly-settle`. Settles nothing for Aug 1–2 (nothing was published;
