@@ -115,6 +115,7 @@ MLB_TESTS=(
     export_mlb_results_test
     mlb_model_test
     capture_provenance_test
+    event_scope_equivalence_test
 )
 MLB_FAILED=0
 for t in "${MLB_TESTS[@]}"; do

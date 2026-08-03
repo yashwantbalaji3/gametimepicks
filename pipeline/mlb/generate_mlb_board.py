@@ -426,8 +426,16 @@ def run(
     min_credits_remaining: int = 2000,
     max_credits_per_run: int = 75,
     allow_below_floor: bool = False,
+    only_events: list[str] | None = None,
+    rows_out: str | None = None,
 ) -> dict:
-    """Run the full pipeline. Returns a summary dict."""
+    """Run the full pipeline. Returns a summary dict.
+
+    `only_events` narrows which provider events are processed (scope only — see §4.1 note at the
+    filter). `rows_out` diverts the generated rows to a standalone artifact and SUPPRESSES the
+    board write entirely, so an event-scoped run structurally cannot overwrite a frozen base
+    board — the append-only patch writer, not this generator, decides what becomes public.
+    """
     markets = markets or mlb_odds.DEFAULT_MARKETS
     regions = regions or mlb_odds.DEFAULT_REGIONS
     bookmakers = bookmakers or mlb_odds.DEFAULT_BOOKMAKERS
@@ -480,6 +488,26 @@ def run(
 
     events, headers = mlb_odds.list_events_for_date(date)
     summary["creditsBefore"] = headers.get("x-requests-remaining")
+
+    # ── EVENT SCOPING (Program 117-122 §4.1) ──────────────────────────────────────────────────
+    # Scope changes INCLUSION ONLY. The narrowed list flows through the identical cost estimate,
+    # credit guards, fetch loop, stamping and row generation below, so a scoped run and the full
+    # run produce the same official rows for the same event — equivalence by construction rather
+    # than by a parallel code path. Refuses unknown ids rather than silently generating nothing.
+    if only_events:
+        wanted = {str(x) for x in only_events}
+        by_id = {str(e.get("id")): e for e in events}
+        selected = [e for e in events if str(e.get("id")) in wanted]
+        unknown = wanted - set(by_id)
+        if unknown:
+            raise ValueError(
+                f"event scope refers to unknown provider event id(s): {sorted(unknown)}. "
+                f"Refusing rather than generating a partial board silently."
+            )
+        summary["eventScope"] = sorted(wanted)
+        summary["eventScopeMatched"] = len(selected)
+        print(f"[odds] EVENT-SCOPED run — {len(selected)}/{len(events)} event(s): {sorted(wanted)}")
+        events = selected
     # Plan detection (suffix only — never log the key). total quota = used + remaining; a ~500 total is
     # the FREE tier, a 20K total is paid. Paid pipeline runs fail closed on the free key unless overridden.
     key = C.ODDS_API_KEY or ""
@@ -733,9 +761,28 @@ def run(
         },
     }
 
-    board_path = _out_dir("boards") / f"{date}.json"
     # SPRINT 043: the gate runs BEFORE the write. A corrupted identity mapping must never reach disk.
     assert_board_publishable(leans, date=date)
+
+    if rows_out:
+        # Scoped/rows-only mode: emit the rows as a standalone artifact and DO NOT touch the
+        # board. The base board is frozen after cutover; only the append-only patch writer may
+        # add coverage, and it validates these rows before anything becomes public.
+        rows_path = Path(rows_out)
+        rows_path.parent.mkdir(parents=True, exist_ok=True)
+        rows_path.write_text(json.dumps({
+            "kind": "mlb-event-scoped-rows",
+            "date": date,
+            "generatedAt": board_payload.get("generatedAt"),
+            "eventScope": summary.get("eventScope"),
+            "rows": leans,
+            "summary": {k: summary.get(k) for k in ("creditsBefore", "creditsAfter", "creditsSpent", "estimatedCost", "eventScopeMatched")},
+        }, indent=2))
+        print(f"[board] EVENT-SCOPED: wrote {len(leans)} row(s) to {rows_path} — board NOT written (base stays frozen)")
+        summary["rowsOut"] = str(rows_path)
+        return summary
+
+    board_path = _out_dir("boards") / f"{date}.json"
     board_path.write_text(json.dumps(board_payload, indent=2))
     print(f"[board] wrote {board_path.relative_to(C.ROOT_DIR)} — {len(leans)} leans")
 
@@ -845,6 +892,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--date", default=DEFAULT_DATE, help="YYYY-MM-DD (ET)")
     parser.add_argument("--dry-run", action="store_true", help="Skip paid /odds calls")
     parser.add_argument(
+        "--event",
+        action="append",
+        default=None,
+        help="Provider event id to scope this run to (repeatable). Scope changes INCLUSION ONLY — "
+        "the same generator logic runs on a narrower event list. Unknown ids are refused.",
+    )
+    parser.add_argument(
+        "--rows-out",
+        default=None,
+        help="Write generated rows to this path INSTEAD of the board. Required companion to "
+        "--event in production: a scoped run must never overwrite a frozen base board.",
+    )
+    parser.add_argument(
         "--markets",
         default=None,
         help="Comma-separated market keys. Defaults to all 4 MVP markets.",
@@ -875,6 +935,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.markets:
         markets = [m.strip() for m in args.markets.split(",") if m.strip()]
 
+    # A scoped run may not write the board — that is what keeps a frozen base safe from an
+    # event-level top-up. Refuse the combination rather than discovering it after the write.
+    if args.event and not args.rows_out:
+        print("[board] REFUSED: --event requires --rows-out (a scoped run must never overwrite the board)", file=sys.stderr)
+        return 2
+
     summary = run(
         args.date,
         dry_run=args.dry_run,
@@ -882,6 +948,8 @@ def main(argv: list[str] | None = None) -> int:
         min_credits_remaining=args.min_credits_remaining,
         max_credits_per_run=args.max_credits_per_run,
         allow_below_floor=args.allow_below_floor,
+        only_events=args.event,
+        rows_out=args.rows_out,
     )
     print("\n=== summary ===")
     print(json.dumps(summary, indent=2, default=str))
