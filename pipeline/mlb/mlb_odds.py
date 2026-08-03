@@ -48,6 +48,20 @@ def _cache_path(key: str) -> Path:
 
 
 def _cache_get(key: str, ttl_minutes: int) -> Any | None:
+    """Return the cached payload, or None. See `_cache_get_stamped` for provenance-aware reads."""
+    hit = _cache_get_stamped(key, ttl_minutes)
+    return None if hit is None else hit[0]
+
+
+def _cache_get_stamped(key: str, ttl_minutes: int) -> tuple[Any, str] | None:
+    """Cache read that also returns WHEN the payload was actually observed.
+
+    The plain `_cache_get` above discards `cached_at`, which made a cache hit indistinguishable
+    from a live call to the caller. The board generator then stamped `capturedAt = now()` on rows
+    served from cache — re-stamping data observed up to the TTL earlier as a fresh capture. That
+    is exactly the restamped-cache condition the patch validator refuses, so the canonical
+    generator must not do it either.
+    """
     p = _cache_path(key)
     if not p.exists():
         return None
@@ -55,7 +69,7 @@ def _cache_get(key: str, ttl_minutes: int) -> Any | None:
         payload = json.loads(p.read_text())
         cached_at = datetime.fromisoformat(payload["cached_at"])
         if datetime.now(timezone.utc) - cached_at < timedelta(minutes=ttl_minutes):
-            return payload["data"]
+            return payload["data"], cached_at.strftime("%Y-%m-%dT%H:%M:%SZ")
     except Exception:
         return None
     return None
@@ -173,9 +187,16 @@ def fetch_event_odds(
     """
     cache_key = f"event_{event_id}_{'-'.join(sorted(markets))}_{'-'.join(sorted(regions))}"
     if not force_refresh:
-        cached = _cache_get(cache_key, cache_ttl_minutes)
-        if cached is not None:
-            return cached, {"x-requests-last": "0", "x-requests-remaining": "cache"}
+        hit = _cache_get_stamped(cache_key, cache_ttl_minutes)
+        if hit is not None:
+            cached, observed_at = hit
+            # `x-gtp-observed-at` carries the TRUE observation instant so the caller can stamp
+            # provenance honestly instead of claiming the cache hit happened now.
+            return cached, {
+                "x-requests-last": "0",
+                "x-requests-remaining": "cache",
+                "x-gtp-observed-at": observed_at,
+            }
 
     if not C.ODDS_API_KEY:
         raise MlbOddsError("ODDS_API_KEY is not configured")

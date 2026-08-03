@@ -575,7 +575,13 @@ def run(
             # generatedAt describes the whole run, not this event. Substituting it is precisely the
             # backfill the research-lineage contract refuses, which is why every historical row is
             # LEGACY_UNSTAMPED. Stamped here, `capturedAt < commenceTime` is a fact about the row.
-            captured_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            #
+            # PROVENANCE FIX (2026-08-03): this ran for cache hits too, so a 0-credit regeneration
+            # re-stamped rows observed up to the cache TTL earlier as if read just now. Observed
+            # live: the 12:03 ET rebuild spent 0 credits yet moved capturedAt on all 211 rows from
+            # 04:34Z to 16:03Z. `x-gtp-observed-at` carries the real observation instant on a cache
+            # hit; only a genuine network read may claim `now`.
+            captured_at = hdrs.get("x-gtp-observed-at") or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
             for r in rows:
                 r["capturedAt"] = captured_at
                 r["providerEventId"] = eid

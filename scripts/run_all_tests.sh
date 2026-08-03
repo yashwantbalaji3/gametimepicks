@@ -102,6 +102,36 @@ done
 echo ""
 echo -e "  ${DIM}${RAN} suites ran, ${SKIPPED} skipped, ${TOTAL_PASSED} total assertions passed${RESET}"
 
+# ── Python — pipeline/mlb suites ────────────────────────────────────────────
+# These were NEVER wired into any runner or workflow: the loop above only reaches
+# `pipeline.<name>_test`, so every `pipeline/mlb/*_test.py` — settlement grading, board identity,
+# settlement lineage, capture provenance — sat on disk and never ran in CI. Regressions written
+# against them (e.g. the July-30 void-denominator fix) were only ever exercised by hand.
+step "Python — pipeline/mlb test suites"
+MLB_TESTS=(
+    settle_mlb_results_test
+    generate_mlb_board_identity_test
+    settlement_lineage_test
+    export_mlb_results_test
+    mlb_model_test
+    capture_provenance_test
+)
+MLB_FAILED=0
+for t in "${MLB_TESTS[@]}"; do
+    if [ ! -f "pipeline/mlb/${t}.py" ]; then
+        echo -e "  ${YELLOW}–${RESET} pipeline.mlb.${t}: not present (skip)"
+        continue
+    fi
+    if $PY -m pipeline.mlb.$t > /tmp/gtp_mlbtest_$t.log 2>&1; then
+        ok "pipeline.mlb.${t}"
+    else
+        err "pipeline.mlb.${t} FAILED — see /tmp/gtp_mlbtest_$t.log"
+        tail -12 /tmp/gtp_mlbtest_$t.log | sed 's/^/      /'
+        MLB_FAILED=$((MLB_FAILED + 1))
+    fi
+done
+[ "$MLB_FAILED" -eq 0 ] || exit 1
+
 if [ "$PYTHON_ONLY" = "1" ]; then
     step "Done (--python-only)"
     exit 0
