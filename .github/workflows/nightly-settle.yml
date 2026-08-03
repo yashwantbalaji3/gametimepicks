@@ -375,6 +375,14 @@ jobs:
           # Ops surfaces — the heartbeat is only a dead-man's switch if the run PERSISTS it.
           git add app/public/data/ops/ 2>/dev/null || true
           git add app/public/data/admin/ 2>/dev/null || true
+          # Program 100-103 INCIDENT FIX: the public research contract (Sprint 050) is rebuilt
+          # from the settled ledger a few steps above and written to disk — but this allowlist
+          # predates it, so it was NEVER committed. The contract could therefore only ever be
+          # corrected by a hand-made commit, and it silently drifted behind the ledger after
+          # every settle. That latent drift is what the research-contract:stale gate then caught
+          # on 2026-08-01, aborting board generation and freezing the site for three days.
+          # Committing it here is what makes the contract genuinely self-updating.
+          git add app/public/data/research/ 2>/dev/null || true
 
           if git diff --staged --quiet; then
             echo "No settled-data changes — nothing to commit."

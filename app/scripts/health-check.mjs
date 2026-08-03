@@ -24,6 +24,22 @@ const argv = process.argv.slice(2);
 const MAX_STALE_DAYS = (() => { const i = argv.indexOf("--max-staleness-days"); return i >= 0 ? Number(argv[i + 1]) : 3; })();
 const STRICT_FRESH = argv.includes("--strict-fresh"); // promote staleness warnings to critical
 
+/**
+ * PHASE (Program 100-103 incident fix). Default `publish` preserves the strict pre-existing
+ * behavior for every publish caller. `--phase generate` is for callers that are BUILDING today's
+ * artifacts, not publishing the research contract.
+ *
+ * Why this exists: the `research-contract:stale` check added in Program 092-095 is correct as a
+ * PUBLISH gate, but it was also being evaluated inside morning-projections — the board GENERATOR.
+ * On 2026-08-01 a stale contract (a latent condition: `app/public/data/research/` was missing
+ * from nightly-settle's commit allowlist, so the contract could never self-update) therefore
+ * aborted board generation entirely, and the site froze on the 2026-07-31 slate for three days.
+ * A downstream artifact's staleness must never prevent today's board from being built — the new
+ * board is the thing that FIXES the day, and generation publishes no contract.
+ */
+const PHASE = (() => { const i = argv.indexOf("--phase"); return i >= 0 ? String(argv[i + 1]) : "publish"; })();
+const GENERATE_PHASE = PHASE === "generate";
+
 const crit = [];   // critical failures → abort
 const warn = [];   // warnings → log, never abort
 const ok = [];     // passed checks (for the log trail)
@@ -162,9 +178,12 @@ if (dp) {
       }
     } catch { /* ledger absence is caught by other checks */ }
     if (newestSettled && contract.asOfSettledDate !== newestSettled) {
-      C(
+      // CRITICAL when publishing (a stale public number must never ship); a WARNING while
+      // generating (see the PHASE note above — blocking generation freezes the whole product).
+      (GENERATE_PHASE ? W : C)(
         "research-contract:stale",
-        `contract asOfSettledDate ${contract.asOfSettledDate} ≠ ledger newest settled ${newestSettled} — rerun build-public-research-contract before publish`,
+        `contract asOfSettledDate ${contract.asOfSettledDate} ≠ ledger newest settled ${newestSettled} — rerun build-public-research-contract before publish` +
+          (GENERATE_PHASE ? " (non-blocking in generate phase: today's board must still be built)" : ""),
       );
     } else if (newestSettled) {
       P(`research contract current (asOfSettledDate ${contract.asOfSettledDate} = ledger)`);

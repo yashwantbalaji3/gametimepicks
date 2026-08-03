@@ -201,7 +201,11 @@ jobs:
         run: |
           cd app
           npm ci --no-audit --no-fund --silent || npm install --no-audit --no-fund --silent
-          npx --yes tsx scripts/health-check.mjs --today "$(TZ=America/New_York date +%F)"
+          # --phase generate: this is the board GENERATOR. Money invariants, reconciliation and
+          # data hygiene still hard-abort here; a stale downstream research contract does NOT
+          # (it is a publish-phase concern, and blocking generation froze the product for three
+          # days on 2026-08-01 — see docs/AUG3_STALENESS_INCIDENT_ROOT_CAUSE.md).
+          npx --yes tsx scripts/health-check.mjs --today "$(TZ=America/New_York date +%F)" --phase generate
 
       - name: Show diff stat (informational)
         run: |
