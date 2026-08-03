@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823520,
+  "date": "2026-08-03",
+  "capturedAt": "2026-08-03T17:04:55.410Z",
+  "availableAt": "2026-08-03T17:04:55.410Z",
+  "eventStartTime": "2026-08-03T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693645,
+      "name": "Cam Schlittler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32.67,
+        "ipAvg": 6.53,
+        "kAvg": 8.4,
+        "bbAvg": 1,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 11.57,
+        "workloadIpLast5": 32.67
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 136.67,
+        "k": 165,
+        "bb": 26,
+        "er": 31,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 700241,
+      "name": "Michael McGreevy",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 3.8,
+        "bbAvg": 1.6,
+        "erAvg": 3,
+        "hrAvg": 0.6,
+        "kPer9": 6.41,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 116,
+        "k": 76,
+        "bb": 29,
+        "er": 46,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-03T17:04:55.410Z"
+  },
+  "recordHash": "27d548f9beb8b589b34cc25ad7b1da72e2ae80862a72a0a1d3714746608880d9"
+}
