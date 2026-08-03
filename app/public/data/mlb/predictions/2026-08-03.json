@@ -1,0 +1,1326 @@
+{
+  "sport": "mlb",
+  "date": "2026-08-03",
+  "generatedAt": "2026-08-03T04:35:19.000Z",
+  "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+  "sourceArtifact": "full-game-simulations/2026-08-03.json",
+  "notBettingAdvice": true,
+  "settledIntoMoney": false,
+  "predictions": [
+    {
+      "gamePk": 823431,
+      "slateDate": "2026-08-03",
+      "slug": "wsh-vs-phi-2026-08-03",
+      "awayTeam": "WSH",
+      "homeTeam": "PHI",
+      "awayTeamName": "Washington Nationals",
+      "homeTeamName": "Philadelphia Phillies",
+      "artifactHash": "0f08c956c20235dbf64fe21bcd175b821517a86108ca97e723d314666b13b615",
+      "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+      "completeness": {
+        "level": "degraded",
+        "notes": [
+          "WSH lineup padded: 7/9 batters posted pregame (replacement-level fallback for the rest).",
+          "WSH has no posted probable starter — simulated vs a league bullpen aggregate."
+        ],
+        "awayLineupCount": 7,
+        "homeLineupCount": 9,
+        "hasAwayStarter": false,
+        "hasHomeStarter": true,
+        "missingFamilies": [
+          "away_probable_starter",
+          "confirmed_batting_order",
+          "park_run_factors",
+          "weather",
+          "batter_handedness_splits"
+        ]
+      },
+      "market": {
+        "bookmaker": "draftkings",
+        "capturedAt": "2026-08-03T04:35:13.091Z",
+        "moneyline": {
+          "home": 0.5825,
+          "away": 0.4175
+        },
+        "total": {
+          "line": 9,
+          "over": 0.5195
+        },
+        "runLine": {
+          "line": -1.5,
+          "homeCover": 0.4071
+        }
+      },
+      "status": "degraded",
+      "predictedWinner": {
+        "side": "home",
+        "team": "PHI"
+      },
+      "projectedScore": {
+        "away": 4,
+        "home": 4,
+        "label": "Median simulation score"
+      },
+      "moneyline": {
+        "side": "home",
+        "team": "PHI",
+        "simulationProbability": 0.551,
+        "marketImpliedProbability": 0.583,
+        "marketAgreement": "MODEL LOWER",
+        "strengthLabel": "MODERATE SIMULATION"
+      },
+      "total": {
+        "line": 9,
+        "pick": "UNDER",
+        "overProbability": 0.341,
+        "underProbability": 0.562,
+        "pushProbability": 0.097,
+        "simulationMedian": 8,
+        "marketImpliedOver": 0.52,
+        "strengthLabel": "MODERATE SIMULATION"
+      },
+      "runLine": {
+        "favorite": "home",
+        "line": 1.5,
+        "pick": "WSH +1.5",
+        "pickSide": "away",
+        "pickLine": 1.5,
+        "coverProbability": 0.634,
+        "opposingCoverProbability": 0.366,
+        "pushProbability": 0,
+        "strengthLabel": "STRONG SIMULATION"
+      },
+      "teamTotals": [
+        {
+          "team": "WSH",
+          "side": "away",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        },
+        {
+          "team": "PHI",
+          "side": "home",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        }
+      ],
+      "topPlayerPredictions": [
+        {
+          "player": "Bryan De La Cruz",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.771,
+          "marketImpliedProbability": 0.617,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Dylan Crews",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.739,
+          "marketImpliedProbability": 0.689,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "CJ Abrams",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.732,
+          "marketImpliedProbability": 0.684,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Brady House",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.696,
+          "marketImpliedProbability": 0.612,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Trea Turner",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 1.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.661,
+          "marketImpliedProbability": 0.692,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        }
+      ],
+      "unavailableReasons": [
+        "Team totals: no posted market lines (simulated team runs shown as evidence)."
+      ]
+    },
+    {
+      "gamePk": 823520,
+      "slateDate": "2026-08-03",
+      "slug": "stl-vs-nyy-2026-08-03",
+      "awayTeam": "STL",
+      "homeTeam": "NYY",
+      "awayTeamName": "St. Louis Cardinals",
+      "homeTeamName": "New York Yankees",
+      "artifactHash": "b2a2e387a81533b124f5fed80b324973c0427909dbaf02d0e1bf8fbc6e07d4ec",
+      "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+      "completeness": {
+        "level": "degraded",
+        "notes": [
+          "STL lineup padded: 7/9 batters posted pregame (replacement-level fallback for the rest).",
+          "NYY lineup padded: 8/9 batters posted pregame (replacement-level fallback for the rest)."
+        ],
+        "awayLineupCount": 7,
+        "homeLineupCount": 8,
+        "hasAwayStarter": true,
+        "hasHomeStarter": true,
+        "missingFamilies": [
+          "confirmed_batting_order",
+          "park_run_factors",
+          "weather",
+          "batter_handedness_splits"
+        ]
+      },
+      "market": {
+        "bookmaker": "draftkings",
+        "capturedAt": "2026-08-03T04:35:13.091Z",
+        "moneyline": {
+          "home": 0.6364,
+          "away": 0.3636
+        },
+        "total": {
+          "line": 8,
+          "over": 0.4957
+        },
+        "runLine": {
+          "line": -1.5,
+          "homeCover": 0.4596
+        }
+      },
+      "status": "degraded",
+      "predictedWinner": {
+        "side": "away",
+        "team": "STL"
+      },
+      "projectedScore": {
+        "away": 3,
+        "home": 2,
+        "label": "Median simulation score"
+      },
+      "moneyline": {
+        "side": "away",
+        "team": "STL",
+        "simulationProbability": 0.569,
+        "marketImpliedProbability": 0.364,
+        "marketAgreement": "MODEL HIGHER",
+        "strengthLabel": "MODERATE SIMULATION"
+      },
+      "total": {
+        "line": 8,
+        "pick": "UNDER",
+        "overProbability": 0.23,
+        "underProbability": 0.7,
+        "pushProbability": 0.069,
+        "simulationMedian": 6,
+        "marketImpliedOver": 0.496,
+        "strengthLabel": "VERY STRONG SIMULATION"
+      },
+      "runLine": {
+        "favorite": "away",
+        "line": 1.5,
+        "pick": "NYY +1.5",
+        "pickSide": "home",
+        "pickLine": 1.5,
+        "coverProbability": 0.602,
+        "opposingCoverProbability": 0.398,
+        "pushProbability": 0,
+        "strengthLabel": "STRONG SIMULATION"
+      },
+      "teamTotals": [
+        {
+          "team": "STL",
+          "side": "away",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 3,
+          "unavailableReason": "No posted team-total line."
+        },
+        {
+          "team": "NYY",
+          "side": "home",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 2,
+          "unavailableReason": "No posted team-total line."
+        }
+      ],
+      "topPlayerPredictions": [
+        {
+          "player": "Cam Schlittler",
+          "team": "",
+          "market": "pitcher_strikeouts",
+          "marketLabel": "Strikeouts",
+          "line": 6.5,
+          "pick": "OVER",
+          "simulationProbability": 0.796,
+          "marketImpliedProbability": 0.58,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Alec Burleson",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.749,
+          "marketImpliedProbability": 0.654,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Masyn Winn",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.704,
+          "marketImpliedProbability": 0.636,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Michael McGreevy",
+          "team": "",
+          "market": "pitcher_strikeouts",
+          "marketLabel": "Strikeouts",
+          "line": 4.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.697,
+          "marketImpliedProbability": 0.63,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Trent Grisham",
+          "team": "",
+          "market": "batter_total_bases",
+          "marketLabel": "Total bases",
+          "line": 1.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.656,
+          "marketImpliedProbability": 0.595,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        }
+      ],
+      "unavailableReasons": [
+        "Team totals: no posted market lines (simulated team runs shown as evidence)."
+      ]
+    },
+    {
+      "gamePk": 823757,
+      "slateDate": "2026-08-03",
+      "slug": "pit-vs-mil-2026-08-03",
+      "awayTeam": "PIT",
+      "homeTeam": "MIL",
+      "awayTeamName": "Pittsburgh Pirates",
+      "homeTeamName": "Milwaukee Brewers",
+      "artifactHash": "7ce447f1c900b66edbcf67c5cb3b2687ae813851b89411ee6a6bcf7a78f84db0",
+      "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+      "completeness": {
+        "level": "degraded",
+        "notes": [
+          "PIT lineup padded: 8/9 batters posted pregame (replacement-level fallback for the rest)."
+        ],
+        "awayLineupCount": 8,
+        "homeLineupCount": 9,
+        "hasAwayStarter": true,
+        "hasHomeStarter": true,
+        "missingFamilies": [
+          "confirmed_batting_order",
+          "park_run_factors",
+          "weather",
+          "batter_handedness_splits"
+        ]
+      },
+      "market": {
+        "bookmaker": "draftkings",
+        "capturedAt": "2026-08-03T04:35:13.091Z",
+        "moneyline": {
+          "home": 0.5716,
+          "away": 0.4284
+        },
+        "total": {
+          "line": 8.5,
+          "over": 0.4913
+        },
+        "runLine": {
+          "line": -1.5,
+          "homeCover": 0.3932
+        }
+      },
+      "status": "degraded",
+      "predictedWinner": {
+        "side": "home",
+        "team": "MIL"
+      },
+      "projectedScore": {
+        "away": 4,
+        "home": 4,
+        "label": "Median simulation score"
+      },
+      "moneyline": {
+        "side": "home",
+        "team": "MIL",
+        "simulationProbability": 0.545,
+        "marketImpliedProbability": 0.572,
+        "marketAgreement": "ALIGNED",
+        "strengthLabel": "LEAN"
+      },
+      "total": {
+        "line": 8.5,
+        "pick": "UNDER",
+        "overProbability": 0.481,
+        "underProbability": 0.519,
+        "pushProbability": 0,
+        "simulationMedian": 8,
+        "marketImpliedOver": 0.491,
+        "strengthLabel": "LEAN"
+      },
+      "runLine": {
+        "favorite": "home",
+        "line": 1.5,
+        "pick": "PIT +1.5",
+        "pickSide": "away",
+        "pickLine": 1.5,
+        "coverProbability": 0.634,
+        "opposingCoverProbability": 0.366,
+        "pushProbability": 0,
+        "strengthLabel": "STRONG SIMULATION"
+      },
+      "teamTotals": [
+        {
+          "team": "PIT",
+          "side": "away",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        },
+        {
+          "team": "MIL",
+          "side": "home",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        }
+      ],
+      "topPlayerPredictions": [
+        {
+          "player": "Brice Turang",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.802,
+          "marketImpliedProbability": 0.683,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Brandon Lowe",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.785,
+          "marketImpliedProbability": 0.669,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Jake Bauers",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.761,
+          "marketImpliedProbability": 0.606,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Brandon Sproat",
+          "team": "",
+          "market": "pitcher_strikeouts",
+          "marketLabel": "Strikeouts",
+          "line": 5.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.734,
+          "marketImpliedProbability": 0.556,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Cooper Pratt",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.719,
+          "marketImpliedProbability": 0.594,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        }
+      ],
+      "unavailableReasons": [
+        "Team totals: no posted market lines (simulated team runs shown as evidence)."
+      ]
+    },
+    {
+      "gamePk": 824647,
+      "slateDate": "2026-08-03",
+      "slug": "lad-vs-chc-2026-08-03",
+      "awayTeam": "LAD",
+      "homeTeam": "CHC",
+      "awayTeamName": "Los Angeles Dodgers",
+      "homeTeamName": "Chicago Cubs",
+      "artifactHash": "0bff534f3f62bfd0b48cc20c82ed650b5b0821973c824e8019e6ea85497d14b8",
+      "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+      "completeness": {
+        "level": "unavailable",
+        "notes": [
+          "LAD lineup padded: 0/9 batters posted pregame (replacement-level fallback for the rest).",
+          "CHC lineup padded: 0/9 batters posted pregame (replacement-level fallback for the rest).",
+          "LAD has no posted probable starter — simulated vs a league bullpen aggregate.",
+          "CHC starter Matthew Boyd has no strikeout projection — league starter rate used."
+        ],
+        "awayLineupCount": 0,
+        "homeLineupCount": 0,
+        "hasAwayStarter": false,
+        "hasHomeStarter": true,
+        "missingFamilies": [
+          "away_probable_starter",
+          "confirmed_batting_order",
+          "park_run_factors",
+          "weather",
+          "batter_handedness_splits"
+        ]
+      },
+      "market": null,
+      "status": "unavailable",
+      "predictedWinner": null,
+      "projectedScore": null,
+      "moneyline": null,
+      "total": null,
+      "runLine": null,
+      "teamTotals": [],
+      "topPlayerPredictions": [],
+      "unavailableReasons": [
+        "Not enough pregame lineup data to simulate this game (LAD lineup padded: 0/9 batters posted pregame (replacement-level fallback for the rest). CHC lineup padded: 0/9 batters posted pregame (replacement-level fallback for the rest). LAD has no posted probable starter — simulated vs a league bullpen aggregate. CHC starter Matthew Boyd has no strikeout projection — league starter rate used.)."
+      ]
+    },
+    {
+      "gamePk": 822867,
+      "slateDate": "2026-08-03",
+      "slug": "sf-vs-tex-2026-08-03",
+      "awayTeam": "SF",
+      "homeTeam": "TEX",
+      "awayTeamName": "San Francisco Giants",
+      "homeTeamName": "Texas Rangers",
+      "artifactHash": "9ecbe7d0fd4d0fcede9cce38a59cf7223da12ed7d8c3b199fbd58d7d1380335b",
+      "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+      "completeness": {
+        "level": "degraded",
+        "notes": [
+          "SF lineup padded: 8/9 batters posted pregame (replacement-level fallback for the rest).",
+          "SF starter Logan Webb has no strikeout projection — league starter rate used.",
+          "TEX has no posted probable starter — simulated vs a league bullpen aggregate."
+        ],
+        "awayLineupCount": 8,
+        "homeLineupCount": 9,
+        "hasAwayStarter": true,
+        "hasHomeStarter": false,
+        "missingFamilies": [
+          "home_probable_starter",
+          "confirmed_batting_order",
+          "park_run_factors",
+          "weather",
+          "batter_handedness_splits"
+        ]
+      },
+      "market": {
+        "bookmaker": "draftkings",
+        "capturedAt": "2026-08-03T04:35:13.091Z",
+        "moneyline": {
+          "home": 0.4989,
+          "away": 0.5011
+        },
+        "total": {
+          "line": 8,
+          "over": 0.5108
+        },
+        "runLine": {
+          "line": 1.5,
+          "homeCover": 0.622
+        }
+      },
+      "status": "degraded",
+      "predictedWinner": {
+        "side": "home",
+        "team": "TEX"
+      },
+      "projectedScore": {
+        "away": 3,
+        "home": 3,
+        "label": "Median simulation score"
+      },
+      "moneyline": {
+        "side": "home",
+        "team": "TEX",
+        "simulationProbability": 0.556,
+        "marketImpliedProbability": 0.499,
+        "marketAgreement": "MODEL HIGHER",
+        "strengthLabel": "MODERATE SIMULATION"
+      },
+      "total": {
+        "line": 8,
+        "pick": "UNDER",
+        "overProbability": 0.337,
+        "underProbability": 0.582,
+        "pushProbability": 0.081,
+        "simulationMedian": 7,
+        "marketImpliedOver": 0.511,
+        "strengthLabel": "MODERATE SIMULATION"
+      },
+      "runLine": {
+        "favorite": "home",
+        "line": 1.5,
+        "pick": "SF +1.5",
+        "pickSide": "away",
+        "pickLine": 1.5,
+        "coverProbability": 0.636,
+        "opposingCoverProbability": 0.364,
+        "pushProbability": 0,
+        "strengthLabel": "STRONG SIMULATION"
+      },
+      "teamTotals": [
+        {
+          "team": "SF",
+          "side": "away",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 3,
+          "unavailableReason": "No posted team-total line."
+        },
+        {
+          "team": "TEX",
+          "side": "home",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 3,
+          "unavailableReason": "No posted team-total line."
+        }
+      ],
+      "topPlayerPredictions": [
+        {
+          "player": "Grant McCray",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.721,
+          "marketImpliedProbability": 0.63,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Rafael Devers",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.684,
+          "marketImpliedProbability": 0.537,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Ezequiel Duran",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.638,
+          "marketImpliedProbability": 0.453,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Rafael Devers",
+          "team": "",
+          "market": "batter_total_bases",
+          "marketLabel": "Total bases",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.6,
+          "marketImpliedProbability": 0.455,
+          "strengthLabel": "MODERATE SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Wyatt Langford",
+          "team": "",
+          "market": "batter_total_bases",
+          "marketLabel": "Total bases",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.594,
+          "marketImpliedProbability": 0.408,
+          "strengthLabel": "MODERATE SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        }
+      ],
+      "unavailableReasons": [
+        "Team totals: no posted market lines (simulated team runs shown as evidence)."
+      ]
+    },
+    {
+      "gamePk": 824160,
+      "slateDate": "2026-08-03",
+      "slug": "tor-vs-hou-2026-08-03",
+      "awayTeam": "TOR",
+      "homeTeam": "HOU",
+      "awayTeamName": "Toronto Blue Jays",
+      "homeTeamName": "Houston Astros",
+      "artifactHash": "8b8426c2b7f7f7a397bee5ed728f94df18c737a2ca6e2098929eba91b9aaa828",
+      "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+      "completeness": {
+        "level": "degraded",
+        "notes": [
+          "TOR lineup padded: 7/9 batters posted pregame (replacement-level fallback for the rest).",
+          "HOU lineup padded: 8/9 batters posted pregame (replacement-level fallback for the rest)."
+        ],
+        "awayLineupCount": 7,
+        "homeLineupCount": 8,
+        "hasAwayStarter": true,
+        "hasHomeStarter": true,
+        "missingFamilies": [
+          "confirmed_batting_order",
+          "park_run_factors",
+          "weather",
+          "batter_handedness_splits"
+        ]
+      },
+      "market": {
+        "bookmaker": "draftkings",
+        "capturedAt": "2026-08-03T04:35:13.091Z",
+        "moneyline": {
+          "home": 0.5491,
+          "away": 0.4509
+        },
+        "total": {
+          "line": 9,
+          "over": 0.5108
+        },
+        "runLine": {
+          "line": -1.5,
+          "homeCover": 0.3859
+        }
+      },
+      "status": "degraded",
+      "predictedWinner": {
+        "side": "home",
+        "team": "HOU"
+      },
+      "projectedScore": {
+        "away": 4,
+        "home": 4,
+        "label": "Median simulation score"
+      },
+      "moneyline": {
+        "side": "home",
+        "team": "HOU",
+        "simulationProbability": 0.537,
+        "marketImpliedProbability": 0.549,
+        "marketAgreement": "ALIGNED",
+        "strengthLabel": "LEAN"
+      },
+      "total": {
+        "line": 9,
+        "pick": "UNDER",
+        "overProbability": 0.367,
+        "underProbability": 0.528,
+        "pushProbability": 0.104,
+        "simulationMedian": 8,
+        "marketImpliedOver": 0.511,
+        "strengthLabel": "LEAN"
+      },
+      "runLine": {
+        "favorite": "home",
+        "line": 1.5,
+        "pick": "TOR +1.5",
+        "pickSide": "away",
+        "pickLine": 1.5,
+        "coverProbability": 0.633,
+        "opposingCoverProbability": 0.367,
+        "pushProbability": 0,
+        "strengthLabel": "STRONG SIMULATION"
+      },
+      "teamTotals": [
+        {
+          "team": "TOR",
+          "side": "away",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        },
+        {
+          "team": "HOU",
+          "side": "home",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        }
+      ],
+      "topPlayerPredictions": [
+        {
+          "player": "George Springer",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.771,
+          "marketImpliedProbability": 0.65,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Yordan Alvarez",
+          "team": "",
+          "market": "batter_total_bases",
+          "marketLabel": "Total bases",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.629,
+          "marketImpliedProbability": 0.541,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Shane Bieber",
+          "team": "",
+          "market": "pitcher_strikeouts",
+          "marketLabel": "Strikeouts",
+          "line": 3.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.61,
+          "marketImpliedProbability": 0.439,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Christian Walker",
+          "team": "",
+          "market": "batter_total_bases",
+          "marketLabel": "Total bases",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.563,
+          "marketImpliedProbability": 0.427,
+          "strengthLabel": "MODERATE SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Kazuma Okamoto",
+          "team": "",
+          "market": "batter_total_bases",
+          "marketLabel": "Total bases",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.563,
+          "marketImpliedProbability": 0.448,
+          "strengthLabel": "MODERATE SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        }
+      ],
+      "unavailableReasons": [
+        "Team totals: no posted market lines (simulated team runs shown as evidence)."
+      ]
+    },
+    {
+      "gamePk": 824324,
+      "slateDate": "2026-08-03",
+      "slug": "tb-vs-col-2026-08-03",
+      "awayTeam": "TB",
+      "homeTeam": "COL",
+      "awayTeamName": "Tampa Bay Rays",
+      "homeTeamName": "Colorado Rockies",
+      "artifactHash": "09589ff458865252e126061a8db90e8f8e6908dfb0d926d3f96c1a3b02ce3165",
+      "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+      "completeness": {
+        "level": "degraded",
+        "notes": [
+          "TB lineup padded: 8/9 batters posted pregame (replacement-level fallback for the rest)."
+        ],
+        "awayLineupCount": 8,
+        "homeLineupCount": 9,
+        "hasAwayStarter": true,
+        "hasHomeStarter": true,
+        "missingFamilies": [
+          "confirmed_batting_order",
+          "park_run_factors",
+          "weather",
+          "batter_handedness_splits"
+        ]
+      },
+      "market": {
+        "bookmaker": "draftkings",
+        "capturedAt": "2026-08-03T04:35:13.091Z",
+        "moneyline": {
+          "home": 0.4071,
+          "away": 0.5929
+        },
+        "total": {
+          "line": 11.5,
+          "over": 0.4892
+        },
+        "runLine": {
+          "line": 1.5,
+          "homeCover": 0.5055
+        }
+      },
+      "status": "degraded",
+      "predictedWinner": {
+        "side": "home",
+        "team": "COL"
+      },
+      "projectedScore": {
+        "away": 3,
+        "home": 4,
+        "label": "Median simulation score"
+      },
+      "moneyline": {
+        "side": "home",
+        "team": "COL",
+        "simulationProbability": 0.596,
+        "marketImpliedProbability": 0.407,
+        "marketAgreement": "MODEL HIGHER",
+        "strengthLabel": "MODERATE SIMULATION"
+      },
+      "total": {
+        "line": 11.5,
+        "pick": "UNDER",
+        "overProbability": 0.17,
+        "underProbability": 0.83,
+        "pushProbability": 0,
+        "simulationMedian": 7,
+        "marketImpliedOver": 0.489,
+        "strengthLabel": "VERY STRONG SIMULATION"
+      },
+      "runLine": {
+        "favorite": "home",
+        "line": 1.5,
+        "pick": "TB +1.5",
+        "pickSide": "away",
+        "pickLine": 1.5,
+        "coverProbability": 0.59,
+        "opposingCoverProbability": 0.41,
+        "pushProbability": 0,
+        "strengthLabel": "MODERATE SIMULATION"
+      },
+      "teamTotals": [
+        {
+          "team": "TB",
+          "side": "away",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 3,
+          "unavailableReason": "No posted team-total line."
+        },
+        {
+          "team": "COL",
+          "side": "home",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        }
+      ],
+      "topPlayerPredictions": [
+        {
+          "player": "Victor Mesa Jr.",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 1.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.829,
+          "marketImpliedProbability": 0.72,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Cedric Mullins",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 1.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.811,
+          "marketImpliedProbability": 0.68,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Junior Caminero",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 1.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.764,
+          "marketImpliedProbability": 0.606,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Jonathan Aranda",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 1.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.723,
+          "marketImpliedProbability": 0.614,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Richie Palacios",
+          "team": "",
+          "market": "batter_total_bases",
+          "marketLabel": "Total bases",
+          "line": 1.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.708,
+          "marketImpliedProbability": 0.626,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        }
+      ],
+      "unavailableReasons": [
+        "Team totals: no posted market lines (simulated team runs shown as evidence)."
+      ]
+    },
+    {
+      "gamePk": 825095,
+      "slateDate": "2026-08-03",
+      "slug": "sd-vs-az-2026-08-03",
+      "awayTeam": "SD",
+      "homeTeam": "AZ",
+      "awayTeamName": "San Diego Padres",
+      "homeTeamName": "Arizona Diamondbacks",
+      "artifactHash": "05bc508670a70838c39a9be8bc0c62e75d309db996d803e66a134fe27c0103c9",
+      "decisionEngineVersion": "mlb-prediction-2026.08-v1",
+      "completeness": {
+        "level": "ready",
+        "notes": [],
+        "awayLineupCount": 9,
+        "homeLineupCount": 9,
+        "hasAwayStarter": true,
+        "hasHomeStarter": true,
+        "missingFamilies": [
+          "confirmed_batting_order",
+          "park_run_factors",
+          "weather",
+          "batter_handedness_splits"
+        ]
+      },
+      "market": {
+        "bookmaker": "draftkings",
+        "capturedAt": "2026-08-03T04:35:13.091Z",
+        "moneyline": {
+          "home": 0.5022,
+          "away": 0.4978
+        },
+        "total": {
+          "line": 9,
+          "over": 0.4913
+        },
+        "runLine": {
+          "line": 1.5,
+          "homeCover": 0.616
+        }
+      },
+      "status": "ready",
+      "predictedWinner": {
+        "side": "away",
+        "team": "SD"
+      },
+      "projectedScore": {
+        "away": 4,
+        "home": 4,
+        "label": "Median simulation score"
+      },
+      "moneyline": {
+        "side": "away",
+        "team": "SD",
+        "simulationProbability": 0.524,
+        "marketImpliedProbability": 0.498,
+        "marketAgreement": "ALIGNED",
+        "strengthLabel": "LEAN"
+      },
+      "total": {
+        "line": 9,
+        "pick": "UNDER",
+        "overProbability": 0.397,
+        "underProbability": 0.503,
+        "pushProbability": 0.099,
+        "simulationMedian": 8,
+        "marketImpliedOver": 0.491,
+        "strengthLabel": "LEAN"
+      },
+      "runLine": {
+        "favorite": "away",
+        "line": 1.5,
+        "pick": "AZ +1.5",
+        "pickSide": "home",
+        "pickLine": 1.5,
+        "coverProbability": 0.6,
+        "opposingCoverProbability": 0.4,
+        "pushProbability": 0,
+        "strengthLabel": "STRONG SIMULATION"
+      },
+      "teamTotals": [
+        {
+          "team": "SD",
+          "side": "away",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        },
+        {
+          "team": "AZ",
+          "side": "home",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        }
+      ],
+      "topPlayerPredictions": [
+        {
+          "player": "Brandon Pfaadt",
+          "team": "",
+          "market": "pitcher_strikeouts",
+          "marketLabel": "Strikeouts",
+          "line": 4.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.84,
+          "marketImpliedProbability": 0.6,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Ty France",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.8,
+          "marketImpliedProbability": 0.728,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Michael King",
+          "team": "",
+          "market": "pitcher_strikeouts",
+          "marketLabel": "Strikeouts",
+          "line": 4.5,
+          "pick": "OVER",
+          "simulationProbability": 0.689,
+          "marketImpliedProbability": 0.528,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Jackson Merrill",
+          "team": "",
+          "market": "batter_total_bases",
+          "marketLabel": "Total bases",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.574,
+          "marketImpliedProbability": 0.481,
+          "strengthLabel": "MODERATE SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Ty France",
+          "team": "",
+          "market": "batter_total_bases",
+          "marketLabel": "Total bases",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.567,
+          "marketImpliedProbability": 0.472,
+          "strengthLabel": "MODERATE SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        }
+      ],
+      "unavailableReasons": [
+        "Team totals: no posted market lines (simulated team runs shown as evidence)."
+      ]
+    }
+  ]
+}
