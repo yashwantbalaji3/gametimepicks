@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 825095,
+  "teamId": 109,
+  "name": "Arizona Diamondbacks",
+  "side": "home",
+  "date": "2026-08-03",
+  "capturedAt": "2026-08-03T20:20:53.119Z",
+  "availableAt": "2026-08-03T20:20:53.119Z",
+  "eventStartTime": "2026-08-04T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 2809.7,
+  "previousGameDate": "2026-08-02",
+  "previousVenueId": 5,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=109&startDate=2026-07-20&endDate=2026-08-02",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-03T20:20:53.119Z"
+  },
+  "recordHash": "c52b9354b5e00801b062d87737e27ca4f1fbb1be821caa004de280d22d400e55"
+}
