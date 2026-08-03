@@ -640,6 +640,31 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     board_path = Path(args.board) if args.board else None
+
+    # A date with no published board has no prediction population — there is nothing to settle,
+    # and that is an HONEST classification, not a failure.
+    #
+    # WHY THIS IS NOT A CRASH (Program 100-103, second-order incident fix):
+    # On 2026-08-01/02 board generation was blocked, so those dates were correctly recorded
+    # GENERATION_BLOCKED / NOT_MEASURABLE. The nightly writer then tried to settle "yesterday",
+    # hit a missing board, raised, and FAILED THE ENTIRE NIGHTLY RUN — every night, indefinitely.
+    # That took down the rest of the settle chain with it, including the step that commits the
+    # public research contract, which is the very thing that caused the original outage.
+    #
+    # A legitimately missing board is surfaced by the guard whose job that is — the daily
+    # freshness SLO fails when the CURRENT slate has no board past 14:00 ET — not by crashing the
+    # settlement writer for a date that will never have one. Dates that DO have boards still
+    # settle exactly as before; settle() itself is unchanged and still raises for its callers.
+    resolved = board_path or (C.APP_PUBLIC_DATA / "mlb" / "boards" / f"{args.date}.json")
+    if not resolved.exists():
+        print(
+            f"[mlb-settle] SKIP {args.date}: NOT_MEASURABLE — no published board at {resolved}. "
+            f"No prediction population existed for this date, so there is nothing to settle "
+            f"(this is not a settlement failure; board freshness is enforced by the daily "
+            f"freshness SLO, not by this writer)."
+        )
+        return 0
+
     settle(args.date, board_path=board_path, void_suspended=args.void_suspended)
     return 0
 

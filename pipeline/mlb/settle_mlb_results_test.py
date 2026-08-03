@@ -290,10 +290,33 @@ def test_decisive_denominator_excludes_voids():
     assert agg2["decisive"] == 0 and agg2["hitRate"] is None, agg2
 
 
+def test_missing_board_is_a_skip_not_a_crash():
+    """REGRESSION (Program 100-103) — a date with no published board is NOT_MEASURABLE.
+
+    2026-08-01/02 were correctly never generated. The nightly writer then tried to settle
+    "yesterday", hit the missing board, raised, and failed the whole nightly run every night —
+    taking down the contract-commit step that the original outage depended on. The CLI must skip
+    such a date with exit 0 while `settle()` keeps raising for its programmatic callers.
+    """
+    from . import settle_mlb_results as m
+
+    rc = m.main(["--date", "1999-01-01"])  # a date that can never have a board
+    assert rc == 0, f"a missing board must be a skip, not a failure (got exit {rc})"
+
+    try:
+        m.settle("1999-01-01")
+    except m.MlbSettleError:
+        pass  # the library contract is unchanged
+    else:
+        raise AssertionError("settle() must still raise for programmatic callers")
+    print("  \033[0;32m✓\033[0m missing board skips (exit 0) while settle() still raises")
+
+
 def main() -> int:
     print("\n=== pipeline.mlb.settle_mlb_results tests ===")
     test_grade_rule()
     test_decisive_denominator_excludes_voids()
+    test_missing_board_is_a_skip_not_a_crash()
     test_total_bases_computation_from_components()
     test_total_bases_uses_api_field_when_present()
     test_batter_did_not_appear_is_unavailable()
