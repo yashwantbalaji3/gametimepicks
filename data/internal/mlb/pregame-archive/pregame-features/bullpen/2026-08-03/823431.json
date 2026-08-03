@@ -1,0 +1,237 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823431,
+  "date": "2026-08-03",
+  "capturedAt": "2026-08-03T04:28:18.320Z",
+  "availableAt": "2026-08-03T04:28:18.320Z",
+  "eventStartTime": "2026-08-03T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-07-31",
+    "2026-08-01",
+    "2026-08-02"
+  ],
+  "home": {
+    "teamId": 143,
+    "teamName": "Philadelphia Phillies",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 56,
+      "relievers": [
+        {
+          "id": 641835,
+          "name": "Tim Mayza",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 679775,
+          "name": "Kyle Backhus",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 689147,
+          "name": "Orion Kerkering",
+          "appearances": 1,
+          "pitches": 0,
+          "outs": 0,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 157,
+      "relievers": [
+        {
+          "id": 641835,
+          "name": "Tim Mayza",
+          "appearances": 2,
+          "pitches": 42,
+          "outs": 7,
+          "dates": [
+            "2026-07-31",
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 689147,
+          "name": "Orion Kerkering",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 2,
+          "dates": [
+            "2026-07-31",
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 679775,
+          "name": "Kyle Backhus",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 680742,
+          "name": "Jonathan Bowlan",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 621237,
+          "name": "José Alvarado",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 661395,
+          "name": "Jhoan Duran",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 663767,
+          "name": "Chase Shugart",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-07-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 641835,
+        "name": "Tim Mayza",
+        "reason": "30 pitches yesterday"
+      }
+    ]
+  },
+  "away": {
+    "teamId": 120,
+    "teamName": "Washington Nationals",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 22,
+      "relievers": [
+        {
+          "id": 687377,
+          "name": "Orlando Ribalta",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 668820,
+          "name": "Max Kranick",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 139,
+      "relievers": [
+        {
+          "id": 592866,
+          "name": "Trevor Williams",
+          "appearances": 1,
+          "pitches": 63,
+          "outs": 8,
+          "dates": [
+            "2026-07-31"
+          ]
+        },
+        {
+          "id": 683000,
+          "name": "Riley Cornelio",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 2,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 678868,
+          "name": "Eddy Yean",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 687377,
+          "name": "Orlando Ribalta",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 668820,
+          "name": "Max Kranick",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-07-31,2026-08-01,2026-08-02) + feed/live box scores",
+    "capturedAt": "2026-08-03T04:28:18.320Z"
+  },
+  "recordHash": "11760269efcbd278e0acf0096ecde0b8ba1e2cb687bce81d2e2a19f4fb8c0296"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823757,
+  "date": "2026-08-03",
+  "capturedAt": "2026-08-03T04:28:17.836Z",
+  "availableAt": "2026-08-03T04:28:17.836Z",
+  "eventStartTime": "2026-08-03T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687075,
+      "name": "Brandon Sproat",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 7,
+      "lastStartDate": "2026-07-27",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 4.6,
+        "bbAvg": 2.8,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 9,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 85.33,
+        "k": 89,
+        "bb": 40,
+        "er": 47,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 696149,
+      "name": "Bubba Chandler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 4,
+        "bbAvg": 2.2,
+        "erAvg": 2.8,
+        "hrAvg": 0.2,
+        "kPer9": 7.11,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 99.33,
+        "k": 86,
+        "bb": 55,
+        "er": 51,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-03T04:28:17.836Z"
+  },
+  "recordHash": "04b2b6896ad30f5bd32324076d33d70e6314697507877f238e201da6f068f17f"
+}

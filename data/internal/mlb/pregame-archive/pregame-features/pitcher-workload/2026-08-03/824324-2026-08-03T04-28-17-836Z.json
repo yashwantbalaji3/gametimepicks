@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824324,
+  "date": "2026-08-03",
+  "capturedAt": "2026-08-03T04:28:17.836Z",
+  "availableAt": "2026-08-03T04:28:17.836Z",
+  "eventStartTime": "2026-08-04T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 547179,
+      "name": "Michael Lorenzen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 2.8,
+        "bbAvg": 2.8,
+        "erAvg": 2.8,
+        "hrAvg": 0.6,
+        "kPer9": 5.48,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 103.67,
+        "k": 80,
+        "bb": 40,
+        "er": 76,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 693855,
+      "name": "Ian Seymour",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 16,
+      "lastStartDate": "2026-07-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 6.2,
+        "bbAvg": 1.2,
+        "erAvg": 3,
+        "hrAvg": 1.2,
+        "kPer9": 12.31,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 28.67,
+        "k": 38,
+        "bb": 7,
+        "er": 17,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-03T04:28:17.836Z"
+  },
+  "recordHash": "edb59b7dc976dc6f0296066f9dc6c6b6632ee25b0878a8115605148ef168e1c9"
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823431,
+  "date": "2026-08-03",
+  "capturedAt": "2026-08-03T04:28:17.836Z",
+  "availableAt": "2026-08-03T04:28:17.836Z",
+  "eventStartTime": "2026-08-03T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 605400,
+      "name": "Aaron Nola",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 5.8,
+        "bbAvg": 2,
+        "erAvg": 2.8,
+        "hrAvg": 1.4,
+        "kPer9": 9,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 114,
+        "k": 116,
+        "bb": 39,
+        "er": 71,
+        "hr": 26
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-03T04:28:17.836Z"
+  },
+  "recordHash": "15b5cd52d672b1ed31a073d608693227740791314be8ac2211d7978cb179eb71"
+}
