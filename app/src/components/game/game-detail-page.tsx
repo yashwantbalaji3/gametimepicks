@@ -752,9 +752,25 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
             <span className="gtp-sport-orb shrink-0" style={{ width: 26, height: 26, fontSize: 14, ["--orb-grad" as string]: identity.gradient }} role="img" aria-label={identity.ballLabel}>{identity.icon}</span>
             <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
             <CompetitionBadge sport={detail.sport} size="sm" />
-            <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>
-              <span aria-hidden>▶</span> Simulation Ready
-            </span>
+            {/* The badge must reflect the artifact, not the route. It was previously hardcoded, so
+                EVERY game claimed "Simulation Ready" — including a game whose own panel two
+                sections below says "No precomputed model simulation artifact exists for this
+                fixture yet" (LAD @ CHC, 2026-08-03, whose books never posted). Presence of a
+                fixture is not readiness of a simulation. */}
+            {(() => {
+              const sim = detail.gameLabSimulation;
+              const simIsReady =
+                !!sim && sim.status !== "unavailable" && sim.status !== "error" && (sim.generatedPicks?.length ?? 0) > 0;
+              return simIsReady ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>
+                  <span aria-hidden>▶</span> Simulation Ready
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(255,255,255,0.04)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)", fontSize: 9 }}>
+                  Awaiting Simulation
+                </span>
+              );
+            })()}
           </span>
           <div className="relative mt-3.5 flex items-center gap-3.5 sm:gap-4 min-w-0">
             {/* Large away @ home crests — each mark framed on a rounded plate so the logos read instantly. */}
