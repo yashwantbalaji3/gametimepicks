@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-08-03T13:28:24.523Z",
+  "generatedAt": "2026-08-03T16:07:39.927Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -31,14 +31,14 @@
         "source": "mlb/team-markets",
         "state": "CURRENT",
         "artifactDate": "2026-08-03",
-        "generatedAt": "2026-08-03T04:35:13.091Z",
+        "generatedAt": "2026-08-03T16:05:06.551Z",
         "ageDays": 0
       },
       {
         "source": "mlb/player-props",
         "state": "CURRENT",
         "artifactDate": "2026-08-03",
-        "generatedAt": "2026-08-03T04:35:13.956Z",
+        "generatedAt": "2026-08-03T16:05:07.709Z",
         "ageDays": 0
       }
     ]
@@ -108,16 +108,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-08-03T13:28:23.779Z",
+    "lastRunAt": "2026-08-03T16:07:38.933Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
-    "phase": "nightly-settle"
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-08-03",
-    "etTime": "09:28",
+    "etTime": "12:07",
     "stages": [
       {
         "stage": "schedule",
@@ -170,12 +170,12 @@
   },
   "learningLoop": {
     "signal": "GREEN",
-    "summary": "learning data complete through 2026-07-31 (23344 rows)",
+    "summary": "learning data complete through 2026-07-27 (22660 rows)",
     "freshness": {
       "healthy": true,
-      "asOfSettledDate": "2026-07-31",
-      "corpusRows": 23344,
-      "ledgerRows": 23344,
+      "asOfSettledDate": "2026-07-27",
+      "corpusRows": 22660,
+      "ledgerRows": 22660,
       "lagDays": 0,
       "problems": []
     },
