@@ -161,8 +161,21 @@ test("normalizes every live prop row, including families with no model", () => {
 
   assert.equal(markets.length, json.props.length, "no live prop row is dropped");
   assert.ok(markets.every((m) => m.status === "OK"), "every live prop normalizes cleanly");
-  // All eight provider families are represented — normalization is independent of pairability.
-  assert.equal(new Set(markets.map((m) => m.family)).size, 8, "all eight provider families normalize");
+  // Normalization is independent of pairability: EVERY family the provider actually posted must
+  // normalize. Pinning the absolute count (was: exactly 8) made this test a weather report — the
+  // provider posts 7 or 8 families depending on the slate, and on 2026-08-03 it posted 7
+  // (no batter_runs_scored), turning an external-state condition into a red suite. The invariant
+  // that matters is "no family present in the artifact is dropped or unknown", which still fails
+  // loudly if normalization regresses.
+  const KNOWN_FAMILIES = new Set([
+    "batter_hits", "batter_home_runs", "batter_rbis", "batter_runs_scored",
+    "batter_total_bases", "pitcher_earned_runs", "pitcher_outs", "pitcher_strikeouts",
+  ]);
+  const posted = new Set(json.props.map((p) => p.market));
+  const normalized = new Set(markets.map((m) => m.family));
+  assert.equal(normalized.size, posted.size, "every posted provider family normalizes (none dropped)");
+  for (const f of posted) assert.ok(KNOWN_FAMILIES.has(f), `unknown provider family appeared: ${f}`);
+  assert.ok(posted.size >= 5, `only ${posted.size} families posted — that is a coverage collapse, not a slate`);
   // And the measured reality from the coverage matrix still holds through the domain layer.
   assert.ok(markets.every((m) => m.mapping === "UNRESOLVED"), "every live prop is unattributed today");
   assert.ok(markets.every((m) => m.prices[0].impliedProb === null), "props carry no probabilities");
