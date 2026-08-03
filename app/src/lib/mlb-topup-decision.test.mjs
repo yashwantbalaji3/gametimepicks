@@ -7,7 +7,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { decideTopup } from "../../scripts/mlb-topup-decision.mjs";
+import { decideTopup, classifyEvents, EVENT_STATES } from "../../scripts/mlb-topup-decision.mjs";
 
 const NOW = "2026-07-31T19:30:00.000Z"; // 15:30 ET
 const later = (min) => new Date(Date.parse(NOW) + min * 60_000).toISOString();
@@ -89,6 +89,71 @@ test("MUTATION · UNKNOWN balance fails closed (never treated as zero-risk)", ()
 
 test("no board at all → SKIP (generation owns that)", () => {
   assert.equal(decideTopup({ board: null, nowIso: NOW }).decision, "SKIP");
+});
+
+// ── Event-level append-only classification (Program 108-111 §8.2) ───────────────────────────
+// The whole-slate rule above is all-or-nothing. These prove the per-event replacement: a started
+// early game no longer blocks a still-pregame late game from gaining legitimate coverage.
+
+const mixedSlate = () => ({
+  credits: { before: "19455" },
+  games: [
+    { gamePk: 1, awayTeamName: "A", homeTeamName: "B", gameDate: later(-60) }, // STARTED
+    { gamePk: 2, awayTeamName: "C", homeTeamName: "D", gameDate: later(240) }, // pregame, uncovered
+    { gamePk: 3, awayTeamName: "E", homeTeamName: "F", gameDate: later(300) }, // pregame, covered
+  ],
+  leans: [{ gamePk: 3 }],
+});
+
+test("EVENT-LEVEL · a started game does not block a still-pregame game from coverage", () => {
+  const r = classifyEvents({ board: mixedSlate(), nowIso: NOW });
+  const by = Object.fromEntries(r.events.map((e) => [e.gamePk, e.state]));
+  assert.equal(by[1], EVENT_STATES.STARTED, "started event is frozen");
+  assert.equal(by[2], EVENT_STATES.ADD, "…but the pregame uncovered event is still eligible");
+  assert.equal(by[3], EVENT_STATES.COMPLETE);
+  assert.deepEqual(r.fetchTargets, [2], "only the eligible event justifies a paid request");
+});
+
+test("EVENT-LEVEL · MUTATION: push the candidate past first pitch → frozen, no fetch", () => {
+  const b = mixedSlate();
+  b.games[1].gameDate = later(-5);
+  assert.ok(Date.parse(b.games[1].gameDate) < Date.parse(NOW), "mutation must actually apply");
+  const r = classifyEvents({ board: b, nowIso: NOW });
+  assert.equal(r.events.find((e) => e.gamePk === 2).state, EVENT_STATES.STARTED);
+  assert.deepEqual(r.fetchTargets, [], "a started event can never be an official addition");
+});
+
+test("EVENT-LEVEL · MUTATION: credit breach blocks fetch without falsifying coverage", () => {
+  const b = mixedSlate();
+  b.credits.before = "2010";
+  const r = classifyEvents({ board: b, nowIso: NOW });
+  assert.equal(r.events.find((e) => e.gamePk === 2).state, EVENT_STATES.CREDIT_BLOCKED);
+  assert.deepEqual(r.fetchTargets, []);
+  assert.equal(r.blocked, "credit budget");
+});
+
+test("EVENT-LEVEL · MUTATION: UNKNOWN balance fails closed", () => {
+  const b = mixedSlate();
+  delete b.credits;
+  assert.equal(classifyEvents({ board: b, nowIso: NOW }).fetchTargets.length, 0);
+});
+
+test("EVENT-LEVEL · unidentifiable event fails closed, never fetched", () => {
+  const b = mixedSlate();
+  b.games.push({ gamePk: null, awayTeamName: "G", homeTeamName: "H", gameDate: later(200) });
+  b.games.push({ gamePk: 9, awayTeamName: "I", homeTeamName: "J", gameDate: null });
+  const r = classifyEvents({ board: b, nowIso: NOW });
+  const failed = r.events.filter((e) => e.state === EVENT_STATES.FAIL_CLOSED);
+  assert.equal(failed.length, 2, "both a missing gamePk and a missing start fail closed");
+  assert.deepEqual(r.fetchTargets, [2], "neither is ever fetched");
+});
+
+test("EVENT-LEVEL · a fully covered slate requests nothing", () => {
+  const b = mixedSlate();
+  b.leans = [{ gamePk: 1 }, { gamePk: 2 }, { gamePk: 3 }];
+  const r = classifyEvents({ board: b, nowIso: NOW });
+  assert.deepEqual(r.fetchTargets, []);
+  assert.ok(r.events.every((e) => e.state === EVENT_STATES.COMPLETE));
 });
 
 test("unknown start time is never a spend reason", () => {

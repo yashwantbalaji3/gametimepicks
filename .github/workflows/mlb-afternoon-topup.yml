@@ -34,6 +34,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Program 108-111 Lane C: per-event append-only classification. Reports the state of every
+      # scheduled event and the MINIMAL set that would justify a paid request. This is the
+      # evidence layer for the patch path; it spends nothing and never writes.
+      - name: Classify events (append-only, per-event)
+        id: classify
+        run: |
+          node app/scripts/mlb-topup-classify.mjs | tee /tmp/classify.txt
+          echo "targets=$(grep -c 'MARKETS_AVAILABLE_ADD_OFFICIAL_PATCH' /tmp/classify.txt || true)" >> "$GITHUB_OUTPUT"
+
       - name: Decide (tested logic — coverage gap, first-pitch cutoff, credit budget)
         id: decide
         env:

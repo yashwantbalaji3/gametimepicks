@@ -29,7 +29,74 @@ const MIN_LEAD_MINUTES = Number(process.env.TOPUP_MIN_LEAD_MINUTES || 45);
 const EXPECTED_CREDITS = Number(process.env.TOPUP_EXPECTED_CREDITS || 62);
 const CREDIT_FLOOR = Number(process.env.ODDS_API_MIN_CREDITS_REMAINING || 2000);
 
-/** Pure decision — everything the rules need arrives as arguments. */
+/**
+ * Per-event coverage classification for the append-only path (Program 108-111 §8.2).
+ *
+ * This is what replaces whole-slate regeneration. Each scheduled event is classified
+ * independently, so a started early game no longer blocks a still-pregame late game from
+ * gaining legitimate coverage — the limitation that made the 2026-07-31 top-up so blunt.
+ *
+ * Returns { mode, events: [{gamePk, state, ...}], fetchTargets, blocked }.
+ * States (closed set): ALREADY_COMPLETE · MARKETS_AVAILABLE_ADD_OFFICIAL_PATCH (candidate for a
+ * provider query) · NO_ELIGIBLE_MARKETS_YET · EVENT_STARTED_FREEZE_OFFICIAL ·
+ * IDENTITY_OR_SOURCE_ERROR_FAIL_CLOSED · CREDIT_BUDGET_BLOCKED.
+ */
+export const EVENT_STATES = Object.freeze({
+  COMPLETE: "ALREADY_COMPLETE",
+  ADD: "MARKETS_AVAILABLE_ADD_OFFICIAL_PATCH",
+  NO_MARKETS: "NO_ELIGIBLE_MARKETS_YET",
+  STARTED: "EVENT_STARTED_FREEZE_OFFICIAL",
+  FAIL_CLOSED: "IDENTITY_OR_SOURCE_ERROR_FAIL_CLOSED",
+  CREDIT_BLOCKED: "CREDIT_BUDGET_BLOCKED",
+});
+
+export function classifyEvents({ board, nowIso, minLeadMinutes = MIN_LEAD_MINUTES, expectedCredits = EXPECTED_CREDITS, creditFloor = CREDIT_FLOOR }) {
+  if (!board || !Array.isArray(board.games)) {
+    return { mode: "NO_BOARD", events: [], fetchTargets: [], blocked: "no board for today — generation owns that" };
+  }
+  const now = Date.parse(nowIso);
+  const cutoff = now + minLeadMinutes * 60_000;
+  const covered = new Set((board.leans ?? []).map((l) => l.gamePk).filter((v) => v != null));
+
+  // Credit safety is evaluated ONCE for the run; UNKNOWN balance fails closed (never zero-risk).
+  const balance = Number(board?.credits?.before);
+  const creditKnown = Number.isFinite(balance);
+  const creditOk = creditKnown && balance - expectedCredits >= creditFloor;
+
+  const events = board.games.map((g) => {
+    const start = Date.parse(g.gameDate ?? "");
+    const label = `${g.awayTeamName ?? "?"} @ ${g.homeTeamName ?? "?"}`;
+    if (g.gamePk == null || !Number.isFinite(start)) {
+      return { gamePk: g.gamePk ?? null, label, state: EVENT_STATES.FAIL_CLOSED, detail: "missing gamePk or scheduledStart — never spend or patch on an unidentifiable event" };
+    }
+    if (covered.has(g.gamePk)) return { gamePk: g.gamePk, label, state: EVENT_STATES.COMPLETE, detail: "base board already carries market coverage" };
+    // Per-event freeze: an event at/after first pitch can never receive an official addition.
+    if (start <= now) return { gamePk: g.gamePk, label, state: EVENT_STATES.STARTED, detail: "first pitch passed — official population frozen for this event" };
+    if (start <= cutoff) return { gamePk: g.gamePk, label, state: EVENT_STATES.NO_MARKETS, detail: `inside the ${minLeadMinutes}-min lead cutoff — books never posted; stays honestly uncovered` };
+    if (!creditOk) {
+      return {
+        gamePk: g.gamePk, label, state: EVENT_STATES.CREDIT_BLOCKED,
+        detail: creditKnown ? `balance ${balance} - ${expectedCredits} would breach the ${creditFloor} floor` : "balance UNKNOWN — failing closed",
+      };
+    }
+    return { gamePk: g.gamePk, label, state: EVENT_STATES.ADD, detail: `pregame in ${Math.round((start - now) / 60_000)} min — eligible for an official-addition query`, startsInMin: Math.round((start - now) / 60_000) };
+  });
+
+  return {
+    mode: "EVENT_LEVEL_APPEND_ONLY",
+    events,
+    // Only these events justify a paid provider request — the minimal-query plan (§7.3).
+    fetchTargets: events.filter((e) => e.state === EVENT_STATES.ADD).map((e) => e.gamePk),
+    blocked: events.some((e) => e.state === EVENT_STATES.CREDIT_BLOCKED) ? "credit budget" : null,
+  };
+}
+
+/**
+ * Whole-slate fallback decision (pre-patch path).
+ *
+ * PERMITTED ONLY while every event in the slate is still pregame (§1.2) — and, once the patch
+ * path has earned its production proof, not at all. `classifyEvents` above is the replacement.
+ */
 export function decideTopup({ board, nowIso, minLeadMinutes = MIN_LEAD_MINUTES, expectedCredits = EXPECTED_CREDITS, creditFloor = CREDIT_FLOOR }) {
   if (!board || !Array.isArray(board.games)) return { decision: "SKIP", reason: "no board for today — generation (or the watchdog) owns that, not the top-up" };
 

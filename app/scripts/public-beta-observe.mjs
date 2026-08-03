@@ -40,6 +40,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { evaluateDailyFreshness, currentEtHour } from "../src/lib/daily-freshness-slo.mjs";
+import { isBotChallenge } from "../src/lib/deployment-verification.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const REPO = path.resolve(APP, "..");
@@ -153,9 +154,17 @@ async function observeDeployment() {
   let info = null;
   let error = null;
   let httpStatus = null;
+  let challenged = false;
   try {
     const res = await fetch(url, { signal: ctrl.signal, redirect: "follow" });
     httpStatus = res.status;
+    // Program 108-111 Lane F: Vercel bot mitigation answers automated probes with 403 +
+    // `x-vercel-mitigated: challenge`. That is NOT evidence about site health — it is the
+    // absence of evidence — and reporting it as "unreachable" manufactures a false outage.
+    challenged = isBotChallenge({
+      status: res.status,
+      headers: Object.fromEntries(res.headers ?? []),
+    });
     if (!res.ok) error = `HTTP ${res.status}`;
     else {
       const text = await res.text();
@@ -173,8 +182,10 @@ async function observeDeployment() {
 
   if (error) {
     return {
-      status: "UNVERIFIED",
-      reason: httpStatus === 404 ? "marker-not-deployed" : "unreachable",
+      status: challenged ? "BOT_CHALLENGE" : "UNVERIFIED",
+      reason: challenged
+        ? "vercel bot mitigation challenged the automated probe — says nothing about site health; verify via deployment metadata or a real browser"
+        : httpStatus === 404 ? "marker-not-deployed" : "unreachable",
       detail: error,
       url,
       localHead: head,
@@ -601,6 +612,7 @@ async function observe() {
 
   const deployment = await observeDeployment();
   if (deployment.status === "UNVERIFIED") warnings.push(`deployment UNVERIFIED (${deployment.reason}) — this says nothing either way`);
+  else if (deployment.status === "BOT_CHALLENGE") warnings.push(`deployment BOT_CHALLENGE — ${deployment.reason}`);
   else if (deployment.status !== "CURRENT") warnings.push(`deployed build clock is ${deployment.status} (${deployment.buildEtDate})`);
   if (deployment.shaInSync === false) warnings.push(`production is serving ${deployment.sha}, local HEAD is ${deployment.localHead}`);
 
