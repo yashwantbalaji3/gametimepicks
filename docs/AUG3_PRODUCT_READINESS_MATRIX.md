@@ -42,6 +42,21 @@ That is partial-presented-as-complete: presence of a fixture is not readiness of
 `status` and pick count, with an explicit **"Awaiting Simulation"** branch, and pinned by 4
 assertions so it cannot drift back to an unconditional claim.
 
+**Verified LIVE on production (HTTP 200, no challenge) after deployment `3b058fff`:**
+
+| Live page | Badge |
+|---|---|
+| `/games/mlb/lad-vs-chc-2026-08-03/` (no markets) | **Awaiting Simulation** |
+| `/games/mlb/wsh-vs-phi-2026-08-03/` (covered) | **Simulation Ready** |
+
+The page no longer contradicts itself.
+
+**Deployment note (correct-by-design, not a defect):** the docs-only tail commit `37c9c3d5` also
+built. Its ignored-build check spans from the last *completed* deployment, which at queue time
+was still `7749a1ae` — a span containing real `app/` changes. The script is deliberately built to
+fail toward building so a docs commit can never strand an app change; a redundant build is the
+intended cost of that guarantee.
+
 ## Verdict inputs
 
 - All active current-day surfaces: **Aug 3** ✔
