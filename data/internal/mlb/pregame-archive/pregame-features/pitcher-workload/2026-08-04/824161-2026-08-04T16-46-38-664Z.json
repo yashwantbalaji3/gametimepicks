@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824161,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T16:46:38.664Z",
+  "availableAt": "2026-08-04T16:46:38.664Z",
+  "eventStartTime": "2026-08-05T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669713,
+      "name": "Hayden Wesneski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 1,
+        "ipSum": 5.67,
+        "ipAvg": 5.67,
+        "kAvg": 4,
+        "bbAvg": 2,
+        "erAvg": 3,
+        "hrAvg": 0,
+        "kPer9": 6.35,
+        "workloadIpLast5": 5.67
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 5.67,
+        "k": 4,
+        "bb": 2,
+        "er": 3,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 702056,
+      "name": "Trey Yesavage",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 6,
+        "bbAvg": 3,
+        "erAvg": 2.6,
+        "hrAvg": 0.8,
+        "kPer9": 11.1,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 91.67,
+        "k": 91,
+        "bb": 45,
+        "er": 38,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-04T16:46:38.664Z"
+  },
+  "recordHash": "49d5c1764fa6ff4041cac96665f0377cff1100d106d5584f920f4bfd3c3bbab8"
+}

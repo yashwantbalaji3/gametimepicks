@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824484,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T16:46:38.664Z",
+  "availableAt": "2026-08-04T16:46:38.664Z",
+  "eventStartTime": "2026-08-04T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663903,
+      "name": "Brady Singer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 5.2,
+        "bbAvg": 2.2,
+        "erAvg": 2.4,
+        "hrAvg": 0.4,
+        "kPer9": 7.71,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 107.67,
+        "k": 91,
+        "bb": 36,
+        "er": 56,
+        "hr": 21
+      }
+    },
+    "away": {
+      "id": 669372,
+      "name": "J.T. Ginn",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 17,
+      "lastStartDate": "2026-07-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 5.4,
+        "bbAvg": 2.8,
+        "erAvg": 2.8,
+        "hrAvg": 1,
+        "kPer9": 9.11,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 102.33,
+        "k": 96,
+        "bb": 47,
+        "er": 38,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-04T16:46:38.664Z"
+  },
+  "recordHash": "76d343d59042d72befc7d95c0c97ac6e4fa31b2320205311cd73e9ddcc1c4711"
+}
