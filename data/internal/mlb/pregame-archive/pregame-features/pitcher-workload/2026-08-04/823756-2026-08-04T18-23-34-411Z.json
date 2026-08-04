@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823756,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T18:23:34.411Z",
+  "availableAt": "2026-08-04T18:23:34.411Z",
+  "eventStartTime": "2026-08-04T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 701656,
+      "name": "Logan Henderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 7,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 6.2,
+        "bbAvg": 1.2,
+        "erAvg": 1.2,
+        "hrAvg": 0.6,
+        "kPer9": 10.73,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 44,
+        "k": 54,
+        "bb": 9,
+        "er": 13,
+        "hr": 5
+      }
+    },
+    "away": {
+      "id": 683003,
+      "name": "Jared Jones",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 6.6,
+        "bbAvg": 1.2,
+        "erAvg": 1.2,
+        "hrAvg": 0.4,
+        "kPer9": 11,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 52,
+        "k": 58,
+        "bb": 15,
+        "er": 22,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-04T18:23:34.411Z"
+  },
+  "recordHash": "c8e34a396853efcc6f8a8ccadaf974de33de136d7232c2607d25ca4f37aa473b"
+}

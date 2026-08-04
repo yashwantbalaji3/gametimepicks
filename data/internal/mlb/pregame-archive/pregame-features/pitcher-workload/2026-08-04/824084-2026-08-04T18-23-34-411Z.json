@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824084,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T18:23:34.411Z",
+  "availableAt": "2026-08-04T18:23:34.411Z",
+  "eventStartTime": "2026-08-04T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 677976,
+      "name": "Randy Dobnak",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 3,
+        "ipSum": 16.33,
+        "ipAvg": 5.44,
+        "kAvg": 3.33,
+        "bbAvg": 2,
+        "erAvg": 0.33,
+        "hrAvg": 0.33,
+        "kPer9": 5.51,
+        "workloadIpLast5": 16.33
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 16.33,
+        "k": 10,
+        "bb": 6,
+        "er": 1,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 657746,
+      "name": "Joe Ryan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 5.4,
+        "bbAvg": 1.2,
+        "erAvg": 2.8,
+        "hrAvg": 1.6,
+        "kPer9": 9,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 120.33,
+        "k": 135,
+        "bb": 25,
+        "er": 47,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-04T18:23:34.411Z"
+  },
+  "recordHash": "6f1605b784c6aa38cecc0e7b4f390a7dee178afbc73d17d12d42cb57ad1a55aa"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824888,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T18:23:34.411Z",
+  "availableAt": "2026-08-04T18:23:34.411Z",
+  "eventStartTime": "2026-08-04T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656550,
+      "name": "Grant Holmes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-07-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 3.6,
+        "bbAvg": 1.6,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 6.57,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 98,
+        "k": 83,
+        "bb": 45,
+        "er": 44,
+        "hr": 18
+      }
+    },
+    "away": {
+      "id": 687473,
+      "name": "Ryan Gusto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 19,
+        "ipAvg": 3.8,
+        "kAvg": 3.8,
+        "bbAvg": 1.6,
+        "erAvg": 2.2,
+        "hrAvg": 0.4,
+        "kPer9": 9,
+        "workloadIpLast5": 19
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 29.67,
+        "k": 25,
+        "bb": 13,
+        "er": 19,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-04T18:23:34.411Z"
+  },
+  "recordHash": "7b7b9946e66f513fabcfb7395dac05d6007336b7c622aa6cb9be44294a97b88b"
+}
