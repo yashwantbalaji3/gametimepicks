@@ -21,13 +21,53 @@ const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..
 const WRITER = path.join(APP, "scripts/mlb-append-official-coverage.mjs");
 const BOARDS = path.join(APP, "public/data/mlb/boards");
 
-const latestBoardDate = () =>
-  fs.readdirSync(BOARDS).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().at(-1).replace(".json", "");
+// FIXTURE BOARD, not the live one.
+//
+// The first version of this suite read today's real board and picked a genuinely uncovered event.
+// It passed all afternoon and then failed at 23:30 ET with "event already started — append window
+// closed": the validator was right, the TEST was time-dependent. A guard whose result depends on
+// the wall clock relative to live data is not a guard.
+//
+// So the suite writes its own board at a far-future date — real file, real code path, real CLI —
+// whose events can never have started. The date cannot collide with a generated slate, and the
+// fixture is removed in `after()` so the tracked data directory is left byte-identical.
+const DATE = "2099-07-04";
+const FIXTURE_BOARD = path.join(BOARDS, `${DATE}.json`);
+const START_A = "2099-07-04T23:40:00Z";
+const START_B = "2099-07-05T00:10:00Z";
 
-const DATE = latestBoardDate();
-const board = JSON.parse(fs.readFileSync(path.join(BOARDS, `${DATE}.json`), "utf8"));
+const board = {
+  sport: "MLB",
+  date: DATE,
+  generatedAt: "2099-07-04T12:00:00.000000+00:00",
+  credits: { before: "19000", after: "18990", spent: 10, estimated: 10 },
+  games: [
+    { gamePk: 990001, awayTeamName: "Fixture Away", homeTeamName: "Fixture Home", gameDate: START_A },
+    { gamePk: 990002, awayTeamName: "Second Away", homeTeamName: "Second Home", gameDate: START_B },
+  ],
+  leans: [
+    {
+      id: "evCOVERED-Existing_Player-batter_hits-0.5",
+      gameId: "evCOVERED",
+      gamePk: 990001,
+      marketKey: "batter_hits",
+      line: 0.5,
+      lean: "Over",
+      playerId: null,
+      player: null,
+      bookmaker: "draftkings",
+      capturedAt: "2099-07-04T12:00:00Z",
+      commenceTime: START_A,
+    },
+  ],
+};
+
+fs.writeFileSync(FIXTURE_BOARD, JSON.stringify(board, null, 2) + "\n");
+process.on("exit", () => { try { fs.unlinkSync(FIXTURE_BOARD); } catch { /* already gone */ } });
+
 const covered = new Set(board.leans.map((l) => l.gamePk));
-const target = board.games.find((g) => !covered.has(g.gamePk)) ?? board.games.at(-1);
+// 990002 is scheduled and uncovered — the shape an official addition legitimately targets.
+const target = board.games.find((g) => !covered.has(g.gamePk));
 
 /** A production-shaped scoped row for `target`. */
 function scopedRow(over = {}) {

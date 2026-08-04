@@ -152,7 +152,21 @@ test("3 · a settled date newer than the newest generated board is a CONTRADICTI
 
     // A board older than the staleness threshold is a WARNING that rides alongside, not a second failure.
     assert.ok(o.warnings.some((w) => /^STALE: newest board/.test(w)), "the stale-board guard reports on the same run");
-    assert.equal(o.failures.filter((f) => /STALE/.test(f)).length, 0, "staleness never becomes a failure");
+    // The original assertion here was `failures.filter(/STALE/) === 0`. That regex was too broad
+    // once the daily freshness SLO landed: it also matched `FRESHNESS STALE`, which is a
+    // DIFFERENT condition — "there is no board for the CURRENT ET slate date past the SLO hour" —
+    // and which SHOULD fail (a green-automation/no-current-board day is exactly the 62-hour
+    // outage nobody noticed). So this is narrowed to the age-based message it was always about,
+    // and the SLO failure is asserted positively rather than forbidden.
+    assert.equal(
+      o.failures.filter((f) => /^STALE: newest board/.test(f)).length,
+      0,
+      "board AGE alone must never become a failure — it rides as a warning",
+    );
+    assert.ok(
+      o.failures.some((f) => /^FRESHNESS STALE/.test(f)),
+      "…but a fixture with no board for today must still trip the freshness SLO",
+    );
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
   }
