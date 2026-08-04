@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 823756,
+  "teamId": 134,
+  "name": "Pittsburgh Pirates",
+  "side": "away",
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T23:34:36.672Z",
+  "availableAt": "2026-08-04T23:34:36.672Z",
+  "eventStartTime": "2026-08-04T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 7,
+  "gamesLast10": 10,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-03",
+  "previousVenueId": 32,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=134&startDate=2026-07-21&endDate=2026-08-03",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-04T23:34:36.672Z"
+  },
+  "recordHash": "89433d49ee9a8e562cdd472c3c03b0dc9ec7a7cd95bae6f666d063eddd9432b3"
+}

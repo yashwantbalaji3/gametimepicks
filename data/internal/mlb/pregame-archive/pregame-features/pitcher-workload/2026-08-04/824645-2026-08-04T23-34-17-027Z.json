@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824645,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T23:34:17.027Z",
+  "availableAt": "2026-08-04T23:34:17.027Z",
+  "eventStartTime": "2026-08-05T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 665871,
+      "name": "Javier Assad",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 5,
+      "lastStartDate": "2026-07-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 3.6,
+        "bbAvg": 1.2,
+        "erAvg": 1.6,
+        "hrAvg": 1.2,
+        "kPer9": 6.57,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 46.33,
+        "k": 32,
+        "bb": 11,
+        "er": 18,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 669373,
+      "name": "Tarik Skubal",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 8.2,
+        "bbAvg": 1.2,
+        "erAvg": 1.4,
+        "hrAvg": 0.2,
+        "kPer9": 11.9,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 96.67,
+        "k": 116,
+        "bb": 14,
+        "er": 30,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-04T23:34:17.027Z"
+  },
+  "recordHash": "65d2fdd9ffbaa9558f74af932054f81205dc24ee6add3af3ccc4c673eca00a24"
+}
