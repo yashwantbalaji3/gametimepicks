@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823108,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T00:00:15.173Z",
+  "availableAt": "2026-08-04T00:00:15.173Z",
+  "eventStartTime": "2026-08-05T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-01",
+    "2026-08-02",
+    "2026-08-03"
+  ],
+  "home": {
+    "teamId": 136,
+    "teamName": "Seattle Mariners",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 94,
+      "relievers": [
+        {
+          "id": 662253,
+          "name": "Andrés Muñoz",
+          "appearances": 2,
+          "pitches": 43,
+          "outs": 7,
+          "dates": [
+            "2026-08-01",
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 642100,
+          "name": "Gabe Speier",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 660825,
+          "name": "Eduard Bazardo",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 1,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 678606,
+          "name": "José A. Ferrer",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 116,
+    "teamName": "Detroit Tigers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 99,
+      "relievers": [
+        {
+          "id": 623454,
+          "name": "Drew Anderson",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 640448,
+          "name": "Kyle Finnegan",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 1,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 445276,
+          "name": "Kenley Jansen",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 646241,
+          "name": "Enmanuel De Jesus",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 621097,
+          "name": "Jacob Waguespack",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 663947,
+          "name": "Tyler Holton",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-01,2026-08-02,2026-08-03) + feed/live box scores",
+    "capturedAt": "2026-08-04T00:00:15.173Z"
+  },
+  "recordHash": "d1fbd48c6e65b7eac0bd6c6609c4ff1c7a360115e7aa938a2604702a035bde0d"
+}

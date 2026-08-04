@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824484,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T00:00:15.173Z",
+  "availableAt": "2026-08-04T00:00:15.173Z",
+  "eventStartTime": "2026-08-04T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-01",
+    "2026-08-02",
+    "2026-08-03"
+  ],
+  "home": {
+    "teamId": 113,
+    "teamName": "Cincinnati Reds",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 128,
+      "relievers": [
+        {
+          "id": 685112,
+          "name": "Zach McCambley",
+          "appearances": 2,
+          "pitches": 33,
+          "outs": 6,
+          "dates": [
+            "2026-08-01",
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 622088,
+          "name": "Tejay Antone",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 594580,
+          "name": "Sam Moll",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 670062,
+          "name": "Julian Garcia",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 657571,
+          "name": "Caleb Ferguson",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 656271,
+          "name": "Brock Burke",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 133,
+    "teamName": "Athletics",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 208,
+      "relievers": [
+        {
+          "id": 641386,
+          "name": "Ben Bowden",
+          "appearances": 1,
+          "pitches": 40,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 656240,
+          "name": "Scott Blewett",
+          "appearances": 1,
+          "pitches": 38,
+          "outs": 4,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 660761,
+          "name": "José Suarez",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 4,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 665622,
+          "name": "Luis Medina",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 665660,
+          "name": "Elvis Alvarado",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 696522,
+          "name": "Hayden Juenger",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 666126,
+          "name": "Carlos Cortes",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 663687,
+          "name": "Hogan Harris",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-01,2026-08-02,2026-08-03) + feed/live box scores",
+    "capturedAt": "2026-08-04T00:00:15.173Z"
+  },
+  "recordHash": "0d2839d1982d15798884414ea317fa5d50a881785ccc1f0e39886d96ff00963e"
+}

@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 825054,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T00:00:15.173Z",
+  "availableAt": "2026-08-04T00:00:15.173Z",
+  "eventStartTime": "2026-08-05T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-01",
+    "2026-08-02",
+    "2026-08-03"
+  ],
+  "home": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 138,
+      "relievers": [
+        {
+          "id": 672629,
+          "name": "Gerardo Carrillo",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 664199,
+          "name": "Taylor Clarke",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 5,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 642528,
+          "name": "Jonathan Loáisiga",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 623149,
+          "name": "Paul Sewald",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 0,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 657044,
+          "name": "Ryan Thompson",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 4,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 135,
+    "teamName": "San Diego Padres",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 199,
+      "relievers": [
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 2,
+          "pitches": 38,
+          "outs": 8,
+          "dates": [
+            "2026-08-01",
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 656288,
+          "name": "Griffin Canning",
+          "appearances": 1,
+          "pitches": 38,
+          "outs": 6,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 695243,
+          "name": "Mason Miller",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 5,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 676664,
+          "name": "JP Sears",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 669093,
+          "name": "Jeremiah Estrada",
+          "appearances": 2,
+          "pitches": 25,
+          "outs": 4,
+          "dates": [
+            "2026-08-01",
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 699134,
+          "name": "Bradgley Rodriguez",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 2,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 593974,
+          "name": "Wandy Peralta",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 4,
+          "dates": [
+            "2026-08-01"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-01,2026-08-02,2026-08-03) + feed/live box scores",
+    "capturedAt": "2026-08-04T00:00:15.173Z"
+  },
+  "recordHash": "146ffba7c642502739a1155a3d2c64732d2a7e0ae584429d09a0690df3d66e69"
+}

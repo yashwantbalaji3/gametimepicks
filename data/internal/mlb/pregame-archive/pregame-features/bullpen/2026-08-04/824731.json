@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824731,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T00:00:15.173Z",
+  "availableAt": "2026-08-04T00:00:15.173Z",
+  "eventStartTime": "2026-08-04T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-01",
+    "2026-08-02",
+    "2026-08-03"
+  ],
+  "home": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 90,
+      "relievers": [
+        {
+          "id": 594027,
+          "name": "Tyron Guerrero",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-08-01",
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 663558,
+          "name": "Jovani Morán",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 686580,
+          "name": "Justin Slaten",
+          "appearances": 2,
+          "pitches": 13,
+          "outs": 4,
+          "dates": [
+            "2026-08-01",
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 676477,
+          "name": "Garrett Whitlock",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 547973,
+          "name": "Aroldis Chapman",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 134,
+      "relievers": [
+        {
+          "id": 702273,
+          "name": "Noah Schultz",
+          "appearances": 1,
+          "pitches": 67,
+          "outs": 15,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 691799,
+          "name": "Grant Taylor",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 5,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 670950,
+          "name": "Trevor Richards",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 622554,
+          "name": "Seranthony Domínguez",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 701474,
+          "name": "Duncan Davitt",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-01,2026-08-02,2026-08-03) + feed/live box scores",
+    "capturedAt": "2026-08-04T00:00:15.173Z"
+  },
+  "recordHash": "4f8385d18b4757b16af2bfabb5284fb4dd53161ccd5e26a67d2bca4a2891a5e0"
+}

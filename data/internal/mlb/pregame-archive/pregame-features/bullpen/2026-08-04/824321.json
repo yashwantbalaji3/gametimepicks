@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824321,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T00:00:15.173Z",
+  "availableAt": "2026-08-04T00:00:15.173Z",
+  "eventStartTime": "2026-08-05T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-01",
+    "2026-08-02",
+    "2026-08-03"
+  ],
+  "home": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 57,
+      "relievers": [
+        {
+          "id": 623474,
+          "name": "Jimmy Herget",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 680767,
+          "name": "Victor Vodnik",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 114,
+      "relievers": [
+        {
+          "id": 702047,
+          "name": "Alex Cook",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 5,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 518886,
+          "name": "Craig Kimbrel",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 592155,
+          "name": "Cam Booser",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 2,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 687330,
+          "name": "Kevin Kelly",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 664076,
+          "name": "Garrett Cleavinger",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 688297,
+          "name": "Chris Roycroft",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-01,2026-08-02,2026-08-03) + feed/live box scores",
+    "capturedAt": "2026-08-04T00:00:15.173Z"
+  },
+  "recordHash": "4958606aa6d9bd3b3a3e7e96e739341efbc6fd50ca214fc6f46c65df3369bb41"
+}

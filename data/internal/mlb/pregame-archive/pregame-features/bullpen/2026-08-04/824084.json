@@ -1,0 +1,208 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824084,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T00:00:15.173Z",
+  "availableAt": "2026-08-04T00:00:15.173Z",
+  "eventStartTime": "2026-08-04T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-01",
+    "2026-08-02",
+    "2026-08-03"
+  ],
+  "home": {
+    "teamId": 118,
+    "teamName": "Kansas City Royals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 157,
+      "relievers": [
+        {
+          "id": 668834,
+          "name": "Easton McGee",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 4,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 656638,
+          "name": "Alex Lange",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 668674,
+          "name": "Lucas Erceg",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 607481,
+          "name": "Aaron Bummer",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 621381,
+          "name": "Matt Strahm",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 674444,
+          "name": "Steven Cruz",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 663878,
+          "name": "Nate Pearson",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 142,
+    "teamName": "Minnesota Twins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 119,
+      "relievers": [
+        {
+          "id": 696070,
+          "name": "Kendry Rojas",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 621345,
+          "name": "A.J. Minter",
+          "appearances": 2,
+          "pitches": 20,
+          "outs": 4,
+          "dates": [
+            "2026-08-01",
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 672782,
+          "name": "Yoendrys Gómez",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 1,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 667297,
+          "name": "Tommy Nance",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 2,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 573124,
+          "name": "Taylor Rogers",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 702193,
+          "name": "Andrew Morris",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 701519,
+          "name": "Travis Adams",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 1,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 681892,
+          "name": "Kody Funderburk",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-08-01"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-01,2026-08-02,2026-08-03) + feed/live box scores",
+    "capturedAt": "2026-08-04T00:00:15.173Z"
+  },
+  "recordHash": "1b6cc1d826cecd23d0f21abdafeab9538eea043abc0891846bdd712f930f3f43"
+}

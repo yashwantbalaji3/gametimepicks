@@ -7,19 +7,19 @@
   "dailyStatus": {
     "teamMarketCapture": {
       "status": "captured",
-      "date": "2026-08-03",
-      "records": 742,
-      "eligible": 742,
-      "creditsSpent": 719,
-      "creditsRemaining": 19284,
-      "skippedStarted": 0
+      "date": "2026-08-04",
+      "records": 782,
+      "eligible": 782,
+      "creditsSpent": 761,
+      "creditsRemaining": 19242,
+      "skippedStarted": 3
     },
     "playerPropCapture": {
       "status": "captured",
-      "date": "2026-08-03",
+      "date": "2026-08-04",
       "mode": "write",
       "eventsCaptured": 3,
-      "eventsOnDate": 3,
+      "eventsOnDate": 14,
       "maxEvents": 3,
       "marketsCaptured": [
         "pitcher_outs",
@@ -32,34 +32,34 @@
         "batter_runs_scored",
         "batter_home_runs"
       ],
-      "records": 2191,
-      "eligibleRecords": 2191,
-      "paired": 1852,
-      "overOnly": 339,
-      "deVigCoveragePct": 84.5,
+      "records": 2249,
+      "eligibleRecords": 2249,
+      "paired": 1882,
+      "overOnly": 367,
+      "deVigCoveragePct": 83.7,
       "estimatedCredits": 27,
       "actualCreditsSpent": 27,
-      "creditsRemaining": 19284,
-      "skippedGames": 0,
+      "creditsRemaining": 19212,
+      "skippedGames": 11,
       "providerUnavailable": [],
       "stoppedEarly": null
     }
   },
   "progress7d": {
     "windowDates": [
-      "2026-07-26",
       "2026-07-27",
       "2026-07-28",
       "2026-07-29",
       "2026-08-01",
       "2026-08-02",
-      "2026-08-03"
+      "2026-08-03",
+      "2026-08-04"
     ],
-    "datesCollected": 12,
-    "marketDatesCollected": 11,
-    "playerPropDatesCollected": 11,
-    "avgEligiblePlayerPropRecordsPerDay": 10762,
-    "estimatedDaysTo30DateGate": 18,
+    "datesCollected": 13,
+    "marketDatesCollected": 12,
+    "playerPropDatesCollected": 12,
+    "avgEligiblePlayerPropRecordsPerDay": 10052,
+    "estimatedDaysTo30DateGate": 17,
     "pathTo500SettledEligibleRows": "settledEligibleObs=0 until a separate settlement-join mission runs; then each settled prop-lean that was captured pregame becomes 1 eligible row. At current per-day capture, a month of daily collection yields ample raw eligible records; the 500 SETTLED-eligible threshold is measurable only after the settlement join + official grading."
   },
   "settlementJoins": {
@@ -75,13 +75,14 @@
       "2026-07-29",
       "2026-08-01",
       "2026-08-02",
-      "2026-08-03"
+      "2026-08-03",
+      "2026-08-04"
     ],
     "gamesFinal": 155,
-    "gamesPending": 9,
-    "joinRows": 18409,
+    "gamesPending": 24,
+    "joinRows": 18697,
     "settledEligibleRows": 15767,
-    "marketPendingRows": 906,
+    "marketPendingRows": 1194,
     "ambiguousRows": 0,
     "unsupportedRows": 0,
     "joinCoverageByMarket": {
@@ -99,7 +100,7 @@
       "batter_home_runs": 2770
     },
     "earliestValidResearchDate": {
-      "dateGate": "12/30 distinct dates · ~18 more daily runs",
+      "dateGate": "13/30 distinct dates · ~17 more daily runs",
       "settledEligibleGate": "15767/500 · ~0 market-settled days at the observed 1577 settled-eligible rows/day",
       "bindingConstraint": "whichever of dates / settled-eligible clears last",
       "note": "Not a promise — recomputed each run from observed collection. First settled-eligible rows accrue when the earliest market-capture date's games are final and re-joined."
@@ -108,7 +109,7 @@
   "researchGate": {
     "minDistinctDates": 30,
     "minSettledEligibleObs": 500,
-    "dates": "12/30",
+    "dates": "13/30",
     "settledEligible": "15767/500",
     "met": false
   }

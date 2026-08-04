@@ -1,0 +1,208 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824403,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T00:00:15.173Z",
+  "availableAt": "2026-08-04T00:00:15.173Z",
+  "eventStartTime": "2026-08-04T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-01",
+    "2026-08-02",
+    "2026-08-03"
+  ],
+  "home": {
+    "teamId": 114,
+    "teamName": "Cleveland Guardians",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 173,
+      "relievers": [
+        {
+          "id": 683769,
+          "name": "Hunter Gaddis",
+          "appearances": 2,
+          "pitches": 33,
+          "outs": 3,
+          "dates": [
+            "2026-08-01",
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 682120,
+          "name": "Tim Herrin",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 671922,
+          "name": "Cade Smith",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 4,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 670059,
+          "name": "Colin Holderman",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 5,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 680916,
+          "name": "Franco Aleman",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 1,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 670036,
+          "name": "Matt Festa",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 2,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 684974,
+          "name": "Craig Yoho",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 702021,
+          "name": "Will Dion",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 121,
+    "teamName": "New York Mets",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 138,
+      "relievers": [
+        {
+          "id": 702752,
+          "name": "Jonathan Pintaro",
+          "appearances": 1,
+          "pitches": 43,
+          "outs": 6,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 650960,
+          "name": "Daniel Duarte",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 4,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 623211,
+          "name": "Huascar Brazobán",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 642207,
+          "name": "Devin Williams",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 643361,
+          "name": "Kevin Herget",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-01"
+          ]
+        },
+        {
+          "id": 596133,
+          "name": "Luke Weaver",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 548384,
+          "name": "Brooks Raley",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-01,2026-08-02,2026-08-03) + feed/live box scores",
+    "capturedAt": "2026-08-04T00:00:15.173Z"
+  },
+  "recordHash": "83c6102e9e28c83136750c4793357194f59f4b05815017d0f375800379b60425"
+}
