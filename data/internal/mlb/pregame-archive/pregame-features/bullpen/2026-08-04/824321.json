@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824321,
   "date": "2026-08-04",
-  "capturedAt": "2026-08-04T00:00:15.173Z",
-  "availableAt": "2026-08-04T00:00:15.173Z",
+  "capturedAt": "2026-08-04T04:11:34.992Z",
+  "availableAt": "2026-08-04T04:11:34.992Z",
   "eventStartTime": "2026-08-05T00:40:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,35 @@
     "teamId": 115,
     "teamName": "Colorado Rockies",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 58,
+      "relievers": [
+        {
+          "id": 685299,
+          "name": "Tanner Gordon",
+          "appearances": 1,
+          "pitches": 58,
+          "outs": 18,
+          "dates": [
+            "2026-08-03"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 3,
-      "pitches": 57,
+      "appearances": 4,
+      "pitches": 115,
       "relievers": [
+        {
+          "id": 685299,
+          "name": "Tanner Gordon",
+          "appearances": 1,
+          "pitches": 58,
+          "outs": 18,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
         {
           "id": 623474,
           "name": "Jimmy Herget",
@@ -60,19 +81,56 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 685299,
+        "name": "Tanner Gordon",
+        "reason": "58 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 139,
     "teamName": "Tampa Bay Rays",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 52,
+      "relievers": [
+        {
+          "id": 675627,
+          "name": "Michael Grove",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 668984,
+          "name": "Casey Legumina",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 2,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 687330,
+          "name": "Kevin Kelly",
+          "appearances": 1,
+          "pitches": 1,
+          "outs": 1,
+          "dates": [
+            "2026-08-03"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 8,
-      "pitches": 114,
+      "appearances": 11,
+      "pitches": 166,
       "relievers": [
         {
           "id": 702047,
@@ -82,6 +140,26 @@
           "outs": 5,
           "dates": [
             "2026-08-02"
+          ]
+        },
+        {
+          "id": 675627,
+          "name": "Michael Grove",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 668984,
+          "name": "Casey Legumina",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 2,
+          "dates": [
+            "2026-08-03"
           ]
         },
         {
@@ -105,6 +183,17 @@
           ]
         },
         {
+          "id": 687330,
+          "name": "Kevin Kelly",
+          "appearances": 2,
+          "pitches": 13,
+          "outs": 4,
+          "dates": [
+            "2026-08-01",
+            "2026-08-03"
+          ]
+        },
+        {
           "id": 571927,
           "name": "Steven Matz",
           "appearances": 1,
@@ -112,16 +201,6 @@
           "outs": 3,
           "dates": [
             "2026-08-02"
-          ]
-        },
-        {
-          "id": 687330,
-          "name": "Kevin Kelly",
-          "appearances": 1,
-          "pitches": 12,
-          "outs": 3,
-          "dates": [
-            "2026-08-01"
           ]
         },
         {
@@ -161,7 +240,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-01,2026-08-02,2026-08-03) + feed/live box scores",
-    "capturedAt": "2026-08-04T00:00:15.173Z"
+    "capturedAt": "2026-08-04T04:11:34.992Z"
   },
-  "recordHash": "4958606aa6d9bd3b3a3e7e96e739341efbc6fd50ca214fc6f46c65df3369bb41"
+  "recordHash": "f3cf930b6a1509efd14d84cc21b2104e304d71059a758faae27037b32db4e835"
 }

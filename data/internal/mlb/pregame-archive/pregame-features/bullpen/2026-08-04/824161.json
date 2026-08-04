@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824161,
   "date": "2026-08-04",
-  "capturedAt": "2026-08-04T00:00:15.173Z",
-  "availableAt": "2026-08-04T00:00:15.173Z",
+  "capturedAt": "2026-08-04T04:11:34.992Z",
+  "availableAt": "2026-08-04T04:11:34.992Z",
   "eventStartTime": "2026-08-05T00:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,24 @@
     "teamId": 117,
     "teamName": "Houston Astros",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 34,
+      "relievers": [
+        {
+          "id": 837227,
+          "name": "Tatsuya Imai",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 9,
+          "dates": [
+            "2026-08-03"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 9,
-      "pitches": 141,
+      "appearances": 10,
+      "pitches": 175,
       "relievers": [
         {
           "id": 595345,
@@ -37,6 +48,16 @@
           "dates": [
             "2026-08-01",
             "2026-08-02"
+          ]
+        },
+        {
+          "id": 837227,
+          "name": "Tatsuya Imai",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 9,
+          "dates": [
+            "2026-08-03"
           ]
         },
         {
@@ -102,20 +123,68 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 837227,
+        "name": "Tatsuya Imai",
+        "reason": "34 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 141,
     "teamName": "Toronto Blue Jays",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 52,
+      "relievers": [
+        {
+          "id": 663893,
+          "name": "Brendon Little",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 680755,
+          "name": "Braydon Fisher",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 643511,
+          "name": "Tyler Rogers",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-03"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 113,
+      "appearances": 10,
+      "pitches": 165,
       "relievers": [
+        {
+          "id": 680755,
+          "name": "Braydon Fisher",
+          "appearances": 2,
+          "pitches": 37,
+          "outs": 6,
+          "dates": [
+            "2026-08-01",
+            "2026-08-03"
+          ]
+        },
         {
           "id": 686973,
           "name": "Louis Varland",
@@ -124,6 +193,17 @@
           "outs": 2,
           "dates": [
             "2026-08-02"
+          ]
+        },
+        {
+          "id": 643511,
+          "name": "Tyler Rogers",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-01",
+            "2026-08-03"
           ]
         },
         {
@@ -137,13 +217,13 @@
           ]
         },
         {
-          "id": 680755,
-          "name": "Braydon Fisher",
+          "id": 663893,
+          "name": "Brendon Little",
           "appearances": 1,
-          "pitches": 18,
-          "outs": 3,
+          "pitches": 21,
+          "outs": 4,
           "dates": [
-            "2026-08-01"
+            "2026-08-03"
           ]
         },
         {
@@ -151,16 +231,6 @@
           "name": "Jeff Hoffman",
           "appearances": 1,
           "pitches": 18,
-          "outs": 3,
-          "dates": [
-            "2026-08-01"
-          ]
-        },
-        {
-          "id": 643511,
-          "name": "Tyler Rogers",
-          "appearances": 1,
-          "pitches": 12,
           "outs": 3,
           "dates": [
             "2026-08-01"
@@ -184,7 +254,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-01,2026-08-02,2026-08-03) + feed/live box scores",
-    "capturedAt": "2026-08-04T00:00:15.173Z"
+    "capturedAt": "2026-08-04T04:11:34.992Z"
   },
-  "recordHash": "f1d5d573f4cd55b5665c993f28c638708fda468372f4613521501a9a1d9cb367"
+  "recordHash": "087321817205193026f802fd16f6846b7f82defcbcb42daeca6b7341caac76bd"
 }

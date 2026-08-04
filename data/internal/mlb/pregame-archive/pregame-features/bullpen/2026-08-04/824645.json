@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824645,
   "date": "2026-08-04",
-  "capturedAt": "2026-08-04T00:00:15.173Z",
-  "availableAt": "2026-08-04T00:00:15.173Z",
+  "capturedAt": "2026-08-04T04:11:34.992Z",
+  "availableAt": "2026-08-04T04:11:34.992Z",
   "eventStartTime": "2026-08-05T00:05:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,46 @@
     "teamId": 112,
     "teamName": "Chicago Cubs",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 36,
+      "relievers": [
+        {
+          "id": 663423,
+          "name": "Trent Thornton",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 663765,
+          "name": "Jake Woodford",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-03"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 5,
-      "pitches": 95,
+      "appearances": 7,
+      "pitches": 131,
       "relievers": [
+        {
+          "id": 663423,
+          "name": "Trent Thornton",
+          "appearances": 2,
+          "pitches": 39,
+          "outs": 6,
+          "dates": [
+            "2026-08-01",
+            "2026-08-03"
+          ]
+        },
         {
           "id": 669020,
           "name": "Ryan Rolison",
@@ -49,16 +81,6 @@
           ]
         },
         {
-          "id": 663423,
-          "name": "Trent Thornton",
-          "appearances": 1,
-          "pitches": 17,
-          "outs": 2,
-          "dates": [
-            "2026-08-01"
-          ]
-        },
-        {
           "id": 657097,
           "name": "Jacob Webb",
           "appearances": 1,
@@ -66,6 +88,16 @@
           "outs": 3,
           "dates": [
             "2026-08-01"
+          ]
+        },
+        {
+          "id": 663765,
+          "name": "Jake Woodford",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-03"
           ]
         },
         {
@@ -86,13 +118,44 @@
     "teamId": 119,
     "teamName": "Los Angeles Dodgers",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 72,
+      "relievers": [
+        {
+          "id": 683618,
+          "name": "Edgardo Henriquez",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 3,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 642546,
+          "name": "Jonathan Hernández",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 656945,
+          "name": "Tanner Scott",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-08-03"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 5,
-      "pitches": 138,
+      "appearances": 8,
+      "pitches": 210,
       "relievers": [
         {
           "id": 670090,
@@ -115,6 +178,26 @@
           ]
         },
         {
+          "id": 683618,
+          "name": "Edgardo Henriquez",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 3,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 642546,
+          "name": "Jonathan Hernández",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
           "id": 676263,
           "name": "Jack Dreyer",
           "appearances": 1,
@@ -122,6 +205,16 @@
           "outs": 4,
           "dates": [
             "2026-08-02"
+          ]
+        },
+        {
+          "id": 656945,
+          "name": "Tanner Scott",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-08-03"
           ]
         },
         {
@@ -146,12 +239,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 683618,
+        "name": "Edgardo Henriquez",
+        "reason": "30 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-01,2026-08-02,2026-08-03) + feed/live box scores",
-    "capturedAt": "2026-08-04T00:00:15.173Z"
+    "capturedAt": "2026-08-04T04:11:34.992Z"
   },
-  "recordHash": "83d05a77058a9f5278c8f75b66d293549fad2a9c6b48f8be20e37ebaf68bc705"
+  "recordHash": "452ce7da02342eff98c5464205095be235b11976a42f81823ba644f9c03d2149"
 }

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823108,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T04:11:33.756Z",
+  "availableAt": "2026-08-04T04:11:33.756Z",
+  "eventStartTime": "2026-08-05T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 676106,
+      "name": "Emerson Hancock",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 4.2,
+        "bbAvg": 1.6,
+        "erAvg": 1.2,
+        "hrAvg": 0.4,
+        "kPer9": 7.46,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 110.33,
+        "k": 102,
+        "bb": 27,
+        "er": 40,
+        "hr": 14
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-04T04:11:33.756Z"
+  },
+  "recordHash": "36c36be526cdcda6bf6ef3a282e64452a2258e14c17567b05b37867d239e5a8b"
+}
