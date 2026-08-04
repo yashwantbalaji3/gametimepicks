@@ -1,33 +1,33 @@
-# Daily selection learning — through 2026-07-31
+# Daily selection learning — through 2026-08-03
 
-Training window: **2026-07-24 → 2026-07-31** (8d). Universe legs:
-**3055** (baseline 45.2%). Published legs:
-**509**, cards: **168**. noLiveWire=**false**.
+Training window: **2026-07-27 → 2026-08-03** (8d). Universe legs:
+**1379** (baseline 42.9%). Published legs:
+**330**, cards: **120**. noLiveWire=**false**.
 
 ## Recommended market status (Wilson-LB driven, fail-closed)
-- **batter_hits** → `allowed` — 53% (601/1135, WLB 50%) shrunk 53%
-- **batter_hits_runs_rbis** → `restricted` — 49% (497/1020, WLB 46%) shrunk 49%
-- **batter_total_bases** → `disabled` — 41% (221/540, WLB 37%) shrunk 41%
-- **pitcher_strikeouts** → `disabled` — 46% (62/134, WLB 38%) shrunk 46%
+- **batter_hits** → `restricted` — 53% (289/549, WLB 48%) shrunk 52%
+- **batter_hits_runs_rbis** → `disabled` — 46% (167/361, WLB 41%) shrunk 46%
+- **batter_total_bases** → `disabled` — 38% (107/283, WLB 32%) shrunk 38%
+- **pitcher_strikeouts** → `disabled` — 45% (29/64, WLB 34%) shrunk 45%
 
 ## Calibration
-- Edge inverted at high values: **true** 10-15:47% (185/396, WLB 42%) · neg:49% (313/633, WLB 46%) · 0-5:49% (417/855, WLB 45%) · 5-10:51% (358/700, WLB 47%) · 15-20:48% (79/165, WLB 40%) · 20+:36% (29/80, WLB 27%)
-- Confidence predictive: **false** (spread 2.0pts) High:49% (621/1259, WLB 47%) · Low:48% (558/1165, WLB 45%) · Medium:50% (202/405, WLB 45%)
+- Edge inverted at high values: **true** 0-5:48% (196/412, WLB 43%) · 5-10:48% (149/312, WLB 42%) · neg:52% (142/273, WLB 46%) · 10-15:43% (68/160, WLB 35%) · 20+:23% (7/31, WLB 11%) · 15-20:43% (30/69, WLB 32%)
+- Confidence predictive: **false** (spread 3.5pts) Low:49% (258/526, WLB 45%) · High:46% (246/540, WLB 41%) · Medium:46% (88/191, WLB 39%)
 
 ## Published leg hit rate by lane
-- low: 63% (45/71, WLB 52%)
-- medium: 71% (82/116, WLB 62%)
-- high: 66% (95/144, WLB 58%)
-- longshot: 69% (122/178, WLB 61%)
+- low: 58% (28/48, WLB 44%)
+- medium: 63% (48/76, WLB 52%)
+- high: 60% (55/92, WLB 50%)
+- longshot: 61% (69/114, WLB 51%)
 
 ## Card length (parlay-math projection from observed leg rate)
-- low: leg 63% → 2-leg ~40%, 3-leg ~26% (rec max 2)
-- medium: leg 71% → 2-leg ~50%, 3-leg ~35% (rec max 3)
-- high: leg 66% → 2-leg ~44%, 3-leg ~29% (rec max 3)
-- longshot: leg 69% → 2-leg ~47%, 3-leg ~32% (rec max 3)
+- low: leg 58% → 2-leg ~34%, 3-leg ~20% (rec max 2)
+- medium: leg 63% → 2-leg ~40%, 3-leg ~25% (rec max 3)
+- high: leg 60% → 2-leg ~36%, 3-leg ~21% (rec max 3)
+- longshot: leg 61% → 2-leg ~37%, 3-leg ~22% (rec max 3)
 
 ## Warnings
 - edge signal is INVERTED at high values — edge capped, not used to promote
-- confidence non-predictive (spread 2.0pts) — excluded from ranking
+- confidence non-predictive (spread 3.5pts) — excluded from ranking
 
 _Recommendation artifact only — no production logic changed by this script._
