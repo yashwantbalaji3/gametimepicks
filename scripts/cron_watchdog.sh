@@ -28,7 +28,27 @@ if [ "$ACTIVE_RUNS" -gt 0 ]; then
 fi
 
 # Today's board already exists — the work product is present regardless of which run produced it.
+#
+# MISSED-REFRESH RECOVERY (added 2026-08-04, closing a gap this watchdog itself exposed):
+# the original rule stopped here, so a board that existed but had never been REFRESHED was
+# invisible to recovery. On 2026-08-03 the 09:30 cron never fired; the board from 00:34 was
+# present, so the watchdog correctly stayed silent — and nothing else re-checked coverage until
+# the 15:30 top-up, six hours later. A board existing is not the same as a board being current.
+#
+# So: if the board exists but the primary never ran today AND events remain that could still
+# legitimately gain coverage (uncovered and pregame), that is a missed refresh, not a healthy day.
+# Dispatching the normal generator re-enters its own credit guards and the shared writer queue,
+# and it cannot double-spend because it only fires when the primary did not run at all.
 if [ "$NEWEST_BOARD" = "$TODAY_ET" ]; then
+    # Defensive: a caller mis-quoting a `grep -c` can hand us "0\n0" or empty. A malformed count
+    # must never crash the watchdog or be read as "recoverable" — normalise to the first integer,
+    # else 0. Recovery is opt-in on trustworthy input only.
+    RECOVERABLE_EVENTS="$(printf '%s' "${RECOVERABLE_EVENTS:-0}" | tr -dc '0-9\n' | head -1)"
+    [ -n "$RECOVERABLE_EVENTS" ] || RECOVERABLE_EVENTS=0
+    if [ "$PRIMARY_RUNS_TODAY" -eq 0 ] && [ "$RECOVERABLE_EVENTS" -gt 0 ]; then
+        echo "DISPATCH board for ${TODAY_ET} exists but no refresh ran today and ${RECOVERABLE_EVENTS} pregame event(s) still lack coverage — missed refresh"
+        exit 0
+    fi
     echo "SKIP board for ${TODAY_ET} already generated"
     exit 0
 fi

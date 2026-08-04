@@ -43,8 +43,19 @@ jobs:
             q="$(gh run list --workflow="$wf" --status queued --json databaseId --jq 'length' || echo 0)"
             ACTIVE=$((ACTIVE + n + q))
           done
+          # Events that could STILL legitimately gain coverage (uncovered + pregame). The
+          # classifier is free and read-only; its eligible set is exactly what a missed refresh
+          # would have had a chance to fix.
+          # NOTE the idiom: `grep -c` prints 0 AND exits 1 when there are no matches, so the
+          # familiar `|| echo 0` appends a SECOND zero and yields "0\n0" — a malformed integer.
+          # Caught live 2026-08-04. `|| true` keeps the single count under `set -e`.
+          RECOVERABLE_EVENTS="$(node app/scripts/mlb-topup-classify.mjs 2>/dev/null \
+                                 | grep -c 'MARKETS_AVAILABLE_ADD_OFFICIAL_PATCH' || true)"
+          RECOVERABLE_EVENTS="${RECOVERABLE_EVENTS:-0}"
+          echo "recoverable pregame events lacking coverage: $RECOVERABLE_EVENTS"
           DECISION="$(TODAY_ET="$TODAY_ET" NEWEST_BOARD="$NEWEST_BOARD" \
                       PRIMARY_RUNS_TODAY="$PRIMARY_RUNS_TODAY" ACTIVE_RUNS="$ACTIVE" \
+                      RECOVERABLE_EVENTS="$RECOVERABLE_EVENTS" \
                       bash scripts/cron_watchdog.sh)"
           echo "$DECISION"
           echo "decision=${DECISION%% *}" >> "$GITHUB_OUTPUT"
