@@ -1,0 +1,188 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "824645-4a9c237f255673a6570d859a9521132d",
+  "snapshotCreatedAt": "2026-08-04T22:04:42.218Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-04",
+  "eventId": "824645",
+  "gamePk": 824645,
+  "eventStartTime": "2026-08-05T00:05:00Z",
+  "homeTeam": "CHC",
+  "awayTeam": "LAD",
+  "venue": "Wrigley Field",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "04d02e069da4077d9519223d9a715bc6",
+  "normalizedPayloadHash": "0be770c5a77093e6bec479c59bac0e4a",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": false,
+      "value": {
+        "status": "PROJECTED_OR_UNPOSTED"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-04T22:04:42.218Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-04T22:04:42.218Z",
+      "timestampProven": true,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824645/feed/live",
+        "requestedAt": "2026-08-04T22:04:42.218Z",
+        "receivedAt": "2026-08-04T22:04:42.218Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Javier Assad",
+        "awayProbable": "Tarik Skubal",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-04T22:04:42.218Z",
+      "availableAt": "2026-08-04T22:04:42.218Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-04T22:04:42.218Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824645/feed/live",
+        "requestedAt": "2026-08-04T22:04:42.218Z",
+        "receivedAt": "2026-08-04T22:04:42.218Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "75",
+        "wind": "8 mph, Out To LF",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-04T22:04:42.218Z",
+      "availableAt": "2026-08-04T22:04:42.218Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-04T22:04:42.218Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824645/feed/live",
+        "requestedAt": "2026-08-04T22:04:42.218Z",
+        "receivedAt": "2026-08-04T22:04:42.218Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Laz Diaz",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Erich Bacchus",
+            "type": "First Base"
+          },
+          {
+            "name": "Brian O'Nora",
+            "type": "Second Base"
+          },
+          {
+            "name": "Chris Segal",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-04T22:04:42.218Z",
+      "availableAt": "2026-08-04T22:04:42.218Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-04T22:04:42.218Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824645/feed/live",
+        "requestedAt": "2026-08-04T22:04:42.218Z",
+        "receivedAt": "2026-08-04T22:04:42.218Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
