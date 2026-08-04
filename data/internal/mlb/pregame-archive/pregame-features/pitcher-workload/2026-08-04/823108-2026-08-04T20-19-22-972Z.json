@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823108,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T20:19:22.972Z",
+  "availableAt": "2026-08-04T20:19:22.972Z",
+  "eventStartTime": "2026-08-05T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 676106,
+      "name": "Emerson Hancock",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 4.2,
+        "bbAvg": 1.6,
+        "erAvg": 1.2,
+        "hrAvg": 0.4,
+        "kPer9": 7.46,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 110.33,
+        "k": 102,
+        "bb": 27,
+        "er": 40,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 675512,
+      "name": "Troy Melton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 7,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 7,
+        "bbAvg": 2.4,
+        "erAvg": 0.6,
+        "hrAvg": 0.2,
+        "kPer9": 10.74,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 67,
+        "k": 60,
+        "bb": 21,
+        "er": 13,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-04T20:19:22.972Z"
+  },
+  "recordHash": "d36d232cd1293630d680596546c682b8a4ba3ad2acdcde9eee8515ac74423004"
+}
