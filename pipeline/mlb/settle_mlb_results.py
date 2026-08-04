@@ -337,6 +337,9 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
     settled_rows: list[dict] = []
     name_fallback_notes: list[str] = []
     actual_unavailable: list[str] = []
+    # Rows the model declined to take a side on. Not graded, never decisive — but counted, so the
+    # published population reconciles to the settled population with no unexplained remainder.
+    no_play: list[str] = []
 
     for lean in leans:
         market = lean.get("marketKey")
@@ -377,11 +380,22 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
         side = lean.get("lean")
         proj = lean.get("projection")
         conf = lean.get("confidence")
+        # NO-PLAY ACCOUNTING (2026-08-04).
+        # These three branches are the CORRECT grading policy — a "Pass"/insufficient-data row is
+        # the model declining to take a side, and it must never enter the decisive denominator.
+        # But they used to `continue` with no record at all, so the rows vanished from every
+        # count. Measured on the 2026-08-03 slate: the board published 211 rows, the report said
+        # `settled: 190` and `unavailableCount: 6`, and 15 rows were accounted for NOWHERE.
+        # Anyone reconciling "what users saw" against "what we graded" found an unexplained gap.
+        # Grading is unchanged; these rows are now COUNTED as no-play so the population closes.
         if conf == "insufficient_data":
+            no_play.append(f"{lean.get('player') or lean.get('id')} ({lean.get('marketKey')}) — insufficient_data")
             continue
         if side in (None, "Pass", "No Play"):
+            no_play.append(f"{lean.get('player') or lean.get('id')} ({lean.get('marketKey')}) — lean={side!r}")
             continue
         if line is None or proj is None:
+            no_play.append(f"{lean.get('player') or lean.get('id')} ({lean.get('marketKey')}) — missing line/projection")
             continue
 
         box = boxes.get(gpk)
@@ -573,6 +587,18 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
         "biggestMisses": biggest_misses,
         "unavailableCount": len(actual_unavailable),
         "unavailable": actual_unavailable[:40],
+        # ── Population reconciliation (2026-08-04) ────────────────────────────────────────────
+        # `publishedRows` is what users actually saw on the board. The identity below must hold,
+        # and `reconciles` states plainly whether it did — an unexplained remainder is a defect,
+        # not a rounding detail.
+        #   publishedRows == settled + noPlay + unavailable + unresolved
+        "publishedRows": len(leans),
+        "noPlayCount": len(no_play),
+        "noPlay": no_play[:40],
+        "unresolvedCount": max(
+            0, len(leans) - len(settled_rows) - len(no_play) - len(actual_unavailable)
+        ),
+        "reconciles": len(leans) == len(settled_rows) + len(no_play) + len(actual_unavailable),
         "pendingGameList": pending_games,
         "nameFallbackCount": len(name_fallback_notes),
         "nameFallbackNotes": name_fallback_notes[:40],
@@ -617,8 +643,18 @@ def settle(date_iso: str, *, board_path: Path | None = None, void_suspended: boo
     print(
         f"[settle] settled={agg['settled']} decisive={decisive_n} wins={wins} losses={losses} "
         f"pushes={pushes} voids={voids} hit_rate={report['hitRate']} "
-        f"pending_games={len(pending_games)} unavailable={len(actual_unavailable)}"
+        f"pending_games={len(pending_games)} unavailable={len(actual_unavailable)} "
+        f"no_play={len(no_play)} published={len(leans)} "
+        f"reconciles={'YES' if report['reconciles'] else 'NO'}"
     )
+    if not report["reconciles"]:
+        # Loud, but never fatal: an accounting gap must be VISIBLE without refusing to record a
+        # settlement that already graded real outcomes correctly.
+        print(
+            f"[settle] ::warning:: population does not reconcile — published={len(leans)} "
+            f"settled={len(settled_rows)} no_play={len(no_play)} unavailable={len(actual_unavailable)} "
+            f"unresolved={report['unresolvedCount']}"
+        )
     print(f"[settle] wrote {SETTLED_LEANS_PATH.relative_to(C.ROOT_DIR)} ({len(existing)} rows total)")
     print(f"[settle] wrote {report_path.relative_to(C.ROOT_DIR)}")
 

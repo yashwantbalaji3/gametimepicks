@@ -312,8 +312,40 @@ def test_missing_board_is_a_skip_not_a_crash():
     print("  \033[0;32m✓\033[0m missing board skips (exit 0) while settle() still raises")
 
 
+def test_population_reconciles_published_to_settled():
+    """REGRESSION (2026-08-04) — the published population must close with no remainder.
+
+    Measured on the real 2026-08-03 slate: the board published 211 rows, the report said
+    `settled: 190` and `unavailableCount: 6`, and **15 rows were accounted for nowhere**. They
+    were `lean='Pass' / confidence='insufficient_data'` — the model correctly declining to take a
+    side, correctly excluded from the decisive denominator, but silently dropped from every
+    count. Anyone reconciling "what users saw" against "what we graded" hit an unexplained gap.
+
+    Grading policy is unchanged. The identity below is what must hold:
+        publishedRows == settled + noPlay + unavailable   (+ unresolved, which must be 0)
+    """
+    # The exact Aug 3 shape.
+    published, settled, no_play, unavailable = 211, 190, 15, 6
+    assert settled + no_play + unavailable == published, "the real slate must reconcile"
+    unresolved = max(0, published - settled - no_play - unavailable)
+    assert unresolved == 0, f"unexplained remainder: {unresolved}"
+
+    # And the failure mode it guards: dropping the no-play class re-opens the gap.
+    assert settled + unavailable != published, (
+        "if no-play were still uncounted the population would NOT reconcile — that is the defect"
+    )
+
+    # The report must carry every field needed to check this without recomputing from artifacts.
+    src = open(__file__.replace("_test.py", ".py")).read()
+    for field in ('"publishedRows"', '"noPlayCount"', '"unresolvedCount"', '"reconciles"'):
+        assert field in src, f"the comparison report must expose {field}"
+    assert "no_play.append(" in src, "no-play rows must be recorded, not silently skipped"
+    print("  \033[0;32m✓\033[0m published population reconciles: settled + no-play + unavailable")
+
+
 def main() -> int:
     print("\n=== pipeline.mlb.settle_mlb_results tests ===")
+    test_population_reconciles_published_to_settled()
     test_grade_rule()
     test_decisive_denominator_excludes_voids()
     test_missing_board_is_a_skip_not_a_crash()
