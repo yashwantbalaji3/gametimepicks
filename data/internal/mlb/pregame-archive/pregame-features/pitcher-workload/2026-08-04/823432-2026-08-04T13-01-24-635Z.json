@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823432,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T13:01:24.635Z",
+  "availableAt": "2026-08-04T13:01:24.635Z",
+  "eventStartTime": "2026-08-04T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 666200,
+      "name": "Jesús Luzardo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.33,
+        "ipAvg": 6.27,
+        "kAvg": 8.2,
+        "bbAvg": 1.6,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 11.78,
+        "workloadIpLast5": 31.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 128.67,
+        "k": 157,
+        "bb": 41,
+        "er": 51,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 641793,
+      "name": "Zack Littell",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 2.2,
+        "bbAvg": 2.4,
+        "erAvg": 3.8,
+        "hrAvg": 1.6,
+        "kPer9": 4.43,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 67,
+        "k": 41,
+        "bb": 26,
+        "er": 46,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-04T13:01:24.635Z"
+  },
+  "recordHash": "1b41ba967b968274704e506cef7a1f437678bdbbd13840cc2fe4694ea1816951"
+}

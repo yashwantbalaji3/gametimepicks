@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 825054,
   "date": "2026-08-04",
-  "capturedAt": "2026-08-04T04:11:34.992Z",
-  "availableAt": "2026-08-04T04:11:34.992Z",
+  "capturedAt": "2026-08-04T13:01:25.231Z",
+  "availableAt": "2026-08-04T13:01:25.231Z",
   "eventStartTime": "2026-08-05T01:40:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,46 @@
     "teamId": 109,
     "teamName": "Arizona Diamondbacks",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 30,
+      "relievers": [
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 4,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 805299,
+          "name": "Brandyn Garcia",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-03"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 138,
+      "appearances": 9,
+      "pitches": 168,
       "relievers": [
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 7,
+          "dates": [
+            "2026-08-01",
+            "2026-08-03"
+          ]
+        },
         {
           "id": 672629,
           "name": "Gerardo Carrillo",
@@ -79,13 +111,13 @@
           ]
         },
         {
-          "id": 666661,
-          "name": "Juan Morillo",
+          "id": 805299,
+          "name": "Brandyn Garcia",
           "appearances": 1,
-          "pitches": 16,
+          "pitches": 12,
           "outs": 3,
           "dates": [
-            "2026-08-01"
+            "2026-08-03"
           ]
         },
         {
@@ -106,14 +138,56 @@
     "teamId": 135,
     "teamName": "San Diego Padres",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 54,
+      "relievers": [
+        {
+          "id": 593974,
+          "name": "Wandy Peralta",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 673513,
+          "name": "Yuki Matsui",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-08-03"
+          ]
+        },
+        {
+          "id": 669093,
+          "name": "Jeremiah Estrada",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 2,
+          "dates": [
+            "2026-08-03"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 9,
-      "pitches": 199,
+      "appearances": 12,
+      "pitches": 253,
       "relievers": [
+        {
+          "id": 593974,
+          "name": "Wandy Peralta",
+          "appearances": 2,
+          "pitches": 42,
+          "outs": 7,
+          "dates": [
+            "2026-08-01",
+            "2026-08-03"
+          ]
+        },
         {
           "id": 670970,
           "name": "Adrian Morejon",
@@ -133,6 +207,18 @@
           "outs": 6,
           "dates": [
             "2026-08-02"
+          ]
+        },
+        {
+          "id": 669093,
+          "name": "Jeremiah Estrada",
+          "appearances": 3,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-08-01",
+            "2026-08-02",
+            "2026-08-03"
           ]
         },
         {
@@ -156,17 +242,6 @@
           ]
         },
         {
-          "id": 669093,
-          "name": "Jeremiah Estrada",
-          "appearances": 2,
-          "pitches": 25,
-          "outs": 4,
-          "dates": [
-            "2026-08-01",
-            "2026-08-02"
-          ]
-        },
-        {
           "id": 699134,
           "name": "Bradgley Rodriguez",
           "appearances": 1,
@@ -177,23 +252,29 @@
           ]
         },
         {
-          "id": 593974,
-          "name": "Wandy Peralta",
+          "id": 673513,
+          "name": "Yuki Matsui",
           "appearances": 1,
-          "pitches": 17,
+          "pitches": 22,
           "outs": 4,
           "dates": [
-            "2026-08-01"
+            "2026-08-03"
           ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 669093,
+        "name": "Jeremiah Estrada",
+        "reason": "3 appearances in 3 days"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-01,2026-08-02,2026-08-03) + feed/live box scores",
-    "capturedAt": "2026-08-04T04:11:34.992Z"
+    "capturedAt": "2026-08-04T13:01:25.231Z"
   },
-  "recordHash": "146ffba7c642502739a1155a3d2c64732d2a7e0ae584429d09a0690df3d66e69"
+  "recordHash": "a7975caaef7159bf24933aef90280c484553aa0d50e6bae9bfa4a1f810cae885"
 }

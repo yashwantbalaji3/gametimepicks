@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824805,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T13:01:24.635Z",
+  "availableAt": "2026-08-04T13:01:24.635Z",
+  "eventStartTime": "2026-08-04T22:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 680570,
+      "name": "Grayson Rodriguez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.67,
+        "ipAvg": 4.13,
+        "kAvg": 2.6,
+        "bbAvg": 1.6,
+        "erAvg": 3.6,
+        "hrAvg": 1,
+        "kPer9": 5.66,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 44,
+        "k": 36,
+        "bb": 21,
+        "er": 39,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-04T13:01:24.635Z"
+  },
+  "recordHash": "03b8137e50024f30cf4634ac1f483f902b07b235fc595a51cd8ba74d69321168"
+}

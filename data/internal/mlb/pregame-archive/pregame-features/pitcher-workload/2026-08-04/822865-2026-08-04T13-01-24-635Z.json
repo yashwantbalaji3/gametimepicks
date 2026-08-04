@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822865,
+  "date": "2026-08-04",
+  "capturedAt": "2026-08-04T13:01:24.635Z",
+  "availableAt": "2026-08-04T13:01:24.635Z",
+  "eventStartTime": "2026-08-05T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669022,
+      "name": "MacKenzie Gore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 6,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 6.4,
+        "bbAvg": 1,
+        "erAvg": 3.8,
+        "hrAvg": 1.4,
+        "kPer9": 10.8,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 122.67,
+        "k": 136,
+        "bb": 44,
+        "er": 65,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 694918,
+      "name": "Blade Tidwell",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-04T13:01:24.635Z"
+  },
+  "recordHash": "36fd91081d0256dfa782319af3c9502634d73af89d7f3de4a50494ce3e57e4bf"
+}
