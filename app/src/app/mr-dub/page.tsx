@@ -37,7 +37,7 @@ import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 const usd = (n: number | null | undefined) => n == null ? "—" : `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export const metadata = {
-  title: "Mr. Dub · Paper Portfolio · GameTime Picks",
+  title: "Mr. Dub's Portfolio · GameTime Picks",
   description: "Mr. Dub's flagship paper portfolio — the $100 → $19.5K journey in full: executive KPIs, the visual Bank Builder ladder, performance analytics, an expandable day-by-day timeline, and every wager by product. Official results only. Educational, paper-only; not financial advice.",
 };
 

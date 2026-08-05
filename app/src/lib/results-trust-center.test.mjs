@@ -129,10 +129,11 @@ test("8 · /mr-dub route still exists and is reachable", () => {
   assert.ok(fs.existsSync(path.join(app, "src/app/mr-dub/page.tsx")));
 });
 
-// ── 9. /results links to the Daily Dashboard (/mr-dub) ───────────────────
-test("9 · /results links to /mr-dub labelled as the Daily Dashboard", () => {
+// ── 9. /results links to Mr. Dub's Portfolio (/mr-dub) ───────────────────
+test("9 · /results links to /mr-dub labelled as Mr. Dub's Portfolio", () => {
   assert.match(trustCenter, /href="\/mr-dub\/"/);
-  assert.match(trustCenter, /Daily Dashboard/);
+  // Program 139 founder rename: "Daily Dashboard" -> "Mr. Dub's Portfolio" everywhere.
+  assert.match(trustCenter, /Mr\. Dub(&rsquo;|’|')s Portfolio/);
 });
 
 // ── 10. No Parlay Lab residual in the public /results body ───────────────
@@ -141,9 +142,15 @@ test("10 · no 'Parlay Lab' residual in the visible /results body", () => {
   assert.doesNotMatch(TC_CODE, /Parlay Lab/);
 });
 
-// ── 11. No 'Mr. Dub' as a primary public label on /results ───────────────
-test("11 · no 'Mr. Dub' primary label on the trust center", () => {
-  assert.doesNotMatch(TC_CODE, /Mr\.?\s?Dub/i);
+// ── 11. The /mr-dub link uses the full product name, never the bare codename ──
+test("11 · the trust-center link says \"Mr. Dub's Portfolio\", never a bare \"Mr. Dub\"", () => {
+  // This guard used to forbid "Mr. Dub" entirely on /results, to keep an internal codename off a
+  // public surface. Program 139's founder rename makes "Mr. Dub's Portfolio" the product's actual
+  // public name, so the rule narrows rather than disappears: the full name is required, and a bare
+  // "Mr. Dub" with no "'s Portfolio" after it is still a leaked codename.
+  const bare = [...TC_CODE.matchAll(/Mr\.?\s?Dub(?!(&rsquo;|’|')s Portfolio)/gi)].map((m) => m[0]);
+  assert.deepEqual(bare, [], "a bare 'Mr. Dub' label leaked onto the trust center");
+  assert.match(TC_CODE, /Mr\. Dub(&rsquo;|’|')s Portfolio/, "the full product name must be present");
 });
 
 // ── 12. No money md5 change ──────────────────────────────────────────────

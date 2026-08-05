@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 };
 import DataSourceBadge from "@/components/data-source-badge";
 import HowToReadThis from "@/components/research/how-to-read-this";
+import TerminalSummaryPanel from "@/components/research/terminal-summary-panel";
 import { loadTerminal } from "@/lib/research/public-contract-adapter";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { currentEtDate } from "@/lib/freshness";
@@ -83,6 +84,13 @@ export default function MethodologyPage() {
       </section>
 
       {/* SECTION 1 — Daily workflow */}
+      {/* Moved here from the homepage (Program 139). This comparison — how the model scores against
+          the sportsbook on settled results — is true and important, and it belongs where a reader has
+          already chosen to ask "how does this work?". Leading the homepage with "Behind" and
+          "Withheld" told a first-time visitor the product was failing before telling them what it is.
+          The panel is unchanged; only its placement moved, so nothing was softened. */}
+      <TerminalSummaryPanel terminal={loadTerminal()} />
+
       <Section title="The daily workflow">
         <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
           The same loop runs every day, per sport. Each step fails closed — if a

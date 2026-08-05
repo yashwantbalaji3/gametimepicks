@@ -17,7 +17,6 @@ import path from "node:path";
 import fs from "node:fs";
 
 import { currentEtDate } from "@/lib/freshness";
-import TerminalSummaryPanel from "@/components/research/terminal-summary-panel";
 import { loadTerminal } from "@/lib/research/public-contract-adapter";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
@@ -25,6 +24,7 @@ import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
+import { deriveSportState, stateLabel, partitionSports } from "@/lib/home/simulation-hub.mjs";
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildMarketCoverage } from "@/lib/today/market-coverage";
@@ -130,26 +130,56 @@ export default function HomePage() {
 
   // ── SIMULATION HUB — the per-sport simulation centers (the core product topic). The 2026 World Cup is
   //    complete, so it is NOT a simulation-hub card here (archive only); MLB leads. ──
-  const simHubCards: FlagshipCard[] = [
+  const serverToday = currentEtDate();
+
+  // ── SIMULATION HUB — EVENT-DRIVEN (Program 139) ───────────────────────────────────────────────
+  // Sports qualify for the primary hub from today's artifacts, not from a hardcoded list. UFC used
+  // to sit here every day because a settled archive exists, which reads as "UFC is running" when
+  // the card settled 2026-06-15 and there is no fight model. History is not activity.
+  const mlbState = deriveSportState({
+    slateDate: serverToday,
+    artifactDate: today,
+    leans: mlbLeans,
+    inSeason: true,                       // MLB regular season — the daily product runs
+  });
+  const ufcState = deriveSportState({
+    slateDate: serverToday,
+    artifactDate: "2026-06-15",           // the one settled card
+    leans: 0,
+    inSeason: false,                      // no fight model, no live coverage
+  });
+
+  const allSports = [
     {
-      href: "/mlb",
-      label: "MLB Simulations",
-      blurb: "Moneyline / run line / total, plus a 10,000-run player-prop sim where the artifact exists.",
-      status: mlbGames > 0 ? `${mlbLeans} model leans` : "No MLB slate on the board right now",
-      statusSub: "market-anchored · paper-only",
-      cta: "Enter",
-      accent: "#3b82f6",
+      id: "mlb",
+      state: mlbState,
+      card: {
+        href: "/mlb",
+        label: "MLB Simulations",
+        blurb: "Moneyline / run line / total, plus a 10,000-run player-prop sim where the artifact exists.",
+        status: mlbGames > 0 ? `${mlbLeans} model leans` : stateLabel(mlbState),
+        statusSub: "market-anchored · paper-only",
+        cta: "Enter",
+        accent: "var(--gtp-bank-heat)",
+      },
     },
     {
-      href: "/ufc",
-      label: "UFC · Settled archive",
-      blurb: "The one settled card's official record, graded from official results. No live coverage and no fight model.",
-      status: "Archived · card settled 2026-06-15",
-      statusSub: "official settlement · paper-only",
-      cta: "View the record",
-      accent: "#ef4444",
+      id: "ufc",
+      state: ufcState,
+      card: {
+        href: "/ufc",
+        label: "UFC",
+        blurb: "One settled card's official record. No live coverage and no fight model.",
+        status: stateLabel(ufcState, { artifactDate: "2026-06-15" }),
+        statusSub: "official settlement · paper-only",
+        cta: "View the record",
+        accent: "var(--vault-text-mute)",
+      },
     },
   ];
+  const { primary: primarySports, secondary: secondarySports } = partitionSports(allSports);
+  const simHubCards: FlagshipCard[] = primarySports.map((s) => s.card as FlagshipCard);
+  const coverageCards: FlagshipCard[] = secondarySports.map((s) => s.card as FlagshipCard);
   // ── FLAGSHIP PRODUCTS — paper products powered BY the simulations (+ the track record) ──
   const productCards: FlagshipCard[] = [
     {
@@ -187,16 +217,9 @@ export default function HomePage() {
 
   // Real ET clock for the liveness banner (never the slate date). Stale/random event spotlights were
   // removed from the homepage in the simulation-first reset — the sim hub + liveness banner lead instead.
-  const serverToday = currentEtDate();
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-9">
-      {/* Research-terminal positioning, read from the canonical contract. This is the ONLY place the
-         page states how the model compares to the sportsbook — with the settled counts and the scores
-         under it. A homepage that shows a hit rate while omitting that comparison is technically
-         silent and practically misleading. */}
-      <TerminalSummaryPanel terminal={loadTerminal()} />
-
       {/* 0 — Slate liveness: on a no-games day this frames the page honestly on the REAL ET clock
           (never presents the most-recent slate as live) and points at the next scheduled focus.
           Renders nothing on a genuinely live day. */}
@@ -232,9 +255,20 @@ export default function HomePage() {
       <FlagshipCards
         cards={simHubCards}
         heading="Simulation Hub"
-        subtitle="MLB runs daily · the UFC card is a settled archive"
+        subtitle="Sports with activity on today's slate"
         ariaLabel="Sport simulation centers"
       />
+
+      {/* Historical / not-yet-live coverage, kept reachable but clearly secondary. Nothing is hidden —
+          it is simply no longer presented as something running today. */}
+      {coverageCards.length ? (
+        <FlagshipCards
+          cards={coverageCards}
+          heading="Other coverage"
+          subtitle="Archives and sports without a live daily product"
+          ariaLabel="Historical and upcoming sport coverage"
+        />
+      ) : null}
 
       {/* 5 — Flagship products, powered by the simulations. Each card carries its own current status,
           which is why the page no longer repeats those statuses in a second slate-summary block. */}

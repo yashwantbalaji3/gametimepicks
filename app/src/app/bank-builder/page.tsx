@@ -264,8 +264,15 @@ export default function BankBuilderPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
-      {/* Honest slate freshness — client badge re-computes with the real browser clock after hydration,
-          so a stale build reads "Latest slate · N days ago", never a frozen "Live today". */}
+      {/* KNOWN DEFECT (Program 139, not yet fixed — see docs/PRODUCT_READINESS_AUDIT.md P0-4).
+          This badge reads "Live today" because it is fed the MLB SLATE date, which the daily board
+          keeps current. The Bank Builder CARDS below it are a different artifact on a different
+          schedule, and `refresh_daily_products.sh` — the only thing that regenerates them — is not
+          scheduled in any workflow, so the lanes have been unchanged since 2026-07-21.
+          The correct fix is to feed this the newest published CARD date, not the slate date.
+          `bbPreview.date` is NOT that value (it is the slate date passed through), which is why the
+          obvious one-line change does nothing. It needs the bank-builder ledger/summary artifact
+          date, and a fixture test that fails when slate and card dates diverge. */}
       <div className="mb-3 flex justify-end">
         <FreshnessBadge slateDate={today} serverToday={currentEtDate()} noun="card slate" />
       </div>

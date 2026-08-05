@@ -4,7 +4,7 @@
  *   mobile bottom nav (lib/nav-active-route.ts MOBILE_NAV_ITEMS) · footer (components/footer.tsx).
  *
  * Specific fixes locked in: /picks is "Build-a-Pick" everywhere (never "Parlay Lab" in a nav surface);
- * /mr-dub is "Daily Dashboard" (never "Mr. Dub" or "Track Record" in a nav surface); /moonshot is
+ * /mr-dub is "Mr. Dub's Portfolio" (Program 139 founder rename, was "Daily Dashboard"); /moonshot is
  * "Longshot Lab" as a nav label. Money is display-only here and must be untouched.
  */
 import test from "node:test";
@@ -29,7 +29,7 @@ const UNIFIED = {
   "/picks": "Picks Lab",
   "/world-cup-specials": "Soccer Specials",
   "/moonshot": "Moonshot",
-  "/mr-dub": "Daily Dashboard",
+  "/mr-dub": "Mr. Dub's Portfolio",
   "/learn": "How It Works",
 };
 
@@ -71,12 +71,14 @@ test("/picks is 'Picks Lab' on every surface; 'Parlay Lab'/'Build-a-Pick' are no
   }
 });
 
-// ── 5 · /mr-dub is 'Daily Dashboard' publicly; never 'Mr. Dub' or 'Track Record' as a nav label ───
-test("/mr-dub is 'Daily Dashboard' in nav; 'Mr. Dub'/'Track Record' are not nav labels", () => {
-  assert.ok(NAV.includes(`href: "/mr-dub", label: "Daily Dashboard"`), "top nav");
-  assert.ok(RAIL.includes(`href: "/mr-dub", label: "Daily Dashboard"`), "rail");
-  assert.equal(mobileByHref["/mr-dub"], "Daily Dashboard", "mobile");
-  for (const bad of ["Mr. Dub", "Track Record"]) {
+// ── 5 · /mr-dub is "Mr. Dub's Portfolio" everywhere; never 'Track Record' as a nav label ───
+test("/mr-dub is \"Mr. Dub's Portfolio\" in nav; 'Track Record'/'Daily Dashboard' are not nav labels", () => {
+  assert.ok(NAV.includes(`href: "/mr-dub", label: "Mr. Dub's Portfolio"`), "top nav");
+  assert.ok(RAIL.includes(`href: "/mr-dub", label: "Mr. Dub's Portfolio"`), "rail");
+  assert.equal(mobileByHref["/mr-dub"], "Mr. Dub's Portfolio", "mobile");
+  // "Mr. Dub" alone is still forbidden — the label must be the full "Mr. Dub's Portfolio",
+  // never the bare codename. The exact-match regex below distinguishes them.
+  for (const bad of ["Mr. Dub", "Track Record", "Daily Dashboard"]) {
     assert.ok(!new RegExp(`label: "${bad.replace(".", "\\.")}"`).test(NAV), `no '${bad}' label in top nav`);
     assert.ok(!new RegExp(`label: "${bad.replace(".", "\\.")}"`).test(RAIL), `no '${bad}' label in rail`);
     assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.label === bad), `no '${bad}' mobile label`);

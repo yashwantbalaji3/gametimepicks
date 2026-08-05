@@ -44,7 +44,7 @@ const ITEMS: RailItem[] = [
   { href: "/build", label: "Build", glyph: "✎", desc: "Advanced builder → Picks Lab" },
   { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Strategy Lab", desc: "Conservative paper card" },
   { href: "/moonshot", label: "Moonshot", glyph: "🌙", desc: "High-risk paper longshots" },
-  { href: "/mr-dub", label: "Daily Dashboard", glyph: "✓", desc: "Paper bankroll journey" },
+  { href: "/mr-dub", label: "Mr. Dub's Portfolio", glyph: "✓", desc: "Paper bankroll journey" },
   { href: "/results", label: "Results", glyph: "≡", group: "Track Record", desc: "Settled track record" },
   // MLB is the only sport with a live model, so it is the only sport in the rail. The 2026 World Cup is
   // complete, NBA is a settled archive reachable from Results, and UFC is a scaffold that publishes no

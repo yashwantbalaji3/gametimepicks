@@ -65,7 +65,7 @@ test("retired /homer-nukes + removed /diamond-specials both map to no bucket", (
   assert.equal(resolveMobileNavBucket("/diamond-specials"), null, "removed route → no bucket");
 });
 
-test("MOBILE_NAV_ITEMS labels are the UNIFIED product spine (Today/Picks Lab/Build/Bank Builder/Moonshot/Daily Dashboard)", () => {
+test("MOBILE_NAV_ITEMS labels are the UNIFIED product spine (Today/Picks Lab/Build/Bank Builder/Moonshot/Mr. Dub's Portfolio)", () => {
   const byHref = Object.fromEntries(
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
@@ -77,9 +77,9 @@ test("MOBILE_NAV_ITEMS labels are the UNIFIED product spine (Today/Picks Lab/Bui
   assert.equal(byHref["/picks"], "Picks Lab");
   assert.equal(byHref["/build"], "Build");
   assert.equal(byHref["/bank-builder"], "Bank Builder");
-  // /moonshot surfaces as "Moonshot"; /mr-dub as "Daily Dashboard" (never "Mr. Dub" publicly).
+  // /moonshot surfaces as "Moonshot"; /mr-dub as "Mr. Dub's Portfolio" (Program 139 founder rename).
   assert.equal(byHref["/moonshot"], "Moonshot");
-  assert.equal(byHref["/mr-dub"], "Daily Dashboard");
+  assert.equal(byHref["/mr-dub"], "Mr. Dub's Portfolio");
   assert.equal(byHref["/homer-nukes"], undefined, "Homer Nukes retired — no nav tab");
 });
 

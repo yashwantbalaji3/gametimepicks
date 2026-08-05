@@ -136,7 +136,7 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
               lineHeight: 1.1,
             }}
           >
-            Open Daily Dashboard →
+            Open Mr. Dub&rsquo;s Portfolio →
           </Link>
         </div>
       </section>

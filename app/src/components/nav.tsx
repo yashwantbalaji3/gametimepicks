@@ -49,7 +49,7 @@ const NAV_ITEMS: Array<{
   { href: "/moonshot", label: "Moonshot" },
   { href: "/mlb", label: "MLB" },
   { href: "/picks", label: "Picks Lab" },
-  { href: "/mr-dub", label: "Daily Dashboard" },
+  { href: "/mr-dub", label: "Mr. Dub's Portfolio" },
 ];
 // The "More Sports" directory is gone. MLB is the only sport with a live model; NBA is a settled
 // archive reachable from Results, and the schedule-only leagues (NHL, IPL, WNBA, MLS) no longer have

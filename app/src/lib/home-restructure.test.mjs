@@ -47,7 +47,12 @@ test("2 · Home leads with sport simulation cards + Bank Builder/Moonshot flagsh
     assert.ok(HOME_ALL.includes(`"${href}"`), `sim-hub href ${href} present`);
   }
   assert.ok(page.includes("MLB Simulations"), 'sim card label "MLB Simulations" present');
-  assert.ok(page.includes("UFC · Settled archive"), "the UFC card reads as a settled archive");
+  // Program 139: UFC no longer sits in the primary Simulation Hub at all. Its state is DERIVED
+  // (deriveSportState → HISTORICAL_ONLY) and it renders under "Other coverage", because a settled
+  // archive beside live MLB read as "UFC is running". The guard now asserts the derivation is used
+  // rather than a hardcoded archive label.
+  assert.ok(page.includes("partitionSports"), "hub membership is derived, not hardcoded");
+  assert.ok(page.includes("Other coverage"), "historical sports render in a secondary section");
   assert.ok(!page.includes("UFC Simulations"), "UFC is not presented as a live simulation center");
   assert.ok(!page.includes("World Cup Simulations"), "no World Cup simulation card (WC is complete/archived)");
   // Flagship products (paper) — Bank Builder + Moonshot + Results.
