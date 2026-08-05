@@ -38,6 +38,9 @@ const HEALTHY = {
   supportEvidence: { configured: false },
   headSha: "abc1234",
   today: "2026-08-05",
+  // Supplied explicitly: the builder must never read the filesystem, or the same fixture would
+  // report PASS locally (where a build exists) and DEGRADED in CI (where it does not).
+  exportState: { routesExported: 9, moonshotHtml: "<html>Not published today</html>" },
 };
 
 test("a healthy day is PASS and knows which day of the window it is", () => {
@@ -50,7 +53,7 @@ test("a healthy day is PASS and knows which day of the window it is", () => {
 });
 
 test("MISSING EVIDENCE IS UNKNOWN, NEVER PASS — a dead observer must not read as a green day", () => {
-  const d = buildAlphaDay({ ...HEALTHY, obs: { data: null, exit: 1 }, a11y: null });
+  const d = buildAlphaDay({ ...HEALTHY, obs: { data: null, exit: 1 }, a11y: null, exportState: {} });
   const board = d.criteria.find((c) => c.id === "board-freshness");
   const a11y = d.criteria.find((c) => c.id === "accessibility");
   assert.equal(board.result, "UNKNOWN");
@@ -114,4 +117,17 @@ test("IDEMPOTENT · a same-day re-run rewrites the artifact byte-identically", (
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test("PURITY · the builder reads nothing from disk — no export state means UNKNOWN, not PASS", () => {
+  const d = buildAlphaDay({ ...HEALTHY, exportState: {} });
+  assert.equal(d.criteria.find((c) => c.id === "route-health").result, "UNKNOWN");
+  assert.equal(d.criteria.find((c) => c.id === "signature-truth").result, "UNKNOWN");
+  assert.equal(d.verdict, "DEGRADED", "a day with no export to inspect is not a day that passed");
+});
+
+test("a regressed signature state FAILS — the Program 136 bug must stay caught", () => {
+  const d = buildAlphaDay({ ...HEALTHY, exportState: { routesExported: 9, moonshotHtml: "<p>Slate in progress</p>" } });
+  assert.equal(d.criteria.find((c) => c.id === "signature-truth").result, "FAIL");
+  assert.equal(d.verdict, "FAIL");
 });

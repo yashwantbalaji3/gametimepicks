@@ -75,7 +75,13 @@ const sha = () => {
 
 // ---------------------------------------------------------------------------------------------
 
-export function buildAlphaDay({ obs, a11y, admin, launchGates, supportEvidence, headSha, today }) {
+/**
+ * Pure: every input arrives as a parameter. An earlier version read `app/out` directly from inside
+ * this function, which made it silently environment-dependent — it reported PASS on a machine that
+ * happened to have a build lying around and DEGRADED in CI, where the suite runs before the build.
+ * A criterion builder that answers differently depending on leftover local state is not evidence.
+ */
+export function buildAlphaDay({ obs, a11y, admin, launchGates, supportEvidence, headSha, today, exportState = {} }) {
   const c = [];
   const add = (id, name, result, evidence, source, owner, nextCheck) =>
     c.push({ id, name, result, evidence, source, owner, nextCheck });
@@ -129,18 +135,16 @@ export function buildAlphaDay({ obs, a11y, admin, launchGates, supportEvidence, 
       "scripts/audit-accessibility.mjs + e2e/accessibility.spec.ts", "ENGINEERING", "quality-gate CI on next code change");
   }
 
-  // 3. Route health — the export is what production serves.
-  const out = path.join(APP, "out");
-  const routes = fs.existsSync(out)
-    ? (a11y?.routes ?? []).filter((r) => !r.missing).length
-    : 0;
-  add("route-health", "Launch-critical routes present in the export", routes >= 9 ? RESULTS.PASS : RESULTS.UNKNOWN,
-    `${routes}/9 launch-critical routes exported`, "app/out", "ENGINEERING", "next build");
+  // 3. Route health — the export is what production serves. `null` means "no build to inspect",
+  //    which is UNKNOWN, not zero routes.
+  const routes = exportState.routesExported ?? null;
+  add("route-health", "Launch-critical routes present in the export",
+    routes === null ? RESULTS.UNKNOWN : routes >= 9 ? RESULTS.PASS : RESULTS.FAIL,
+    routes === null ? "no export present when this ran" : `${routes}/9 launch-critical routes exported`,
+    "app/out", "ENGINEERING", "next build");
 
   // 4. Public signature truth — the moonshot stale-lane regression must stay fixed.
-  const moonshot = fs.existsSync(path.join(out, "moonshot/index.html"))
-    ? fs.readFileSync(path.join(out, "moonshot/index.html"), "utf8")
-    : null;
+  const moonshot = exportState.moonshotHtml ?? null;
   add("signature-truth", "Public signature state is date-aware",
     moonshot === null ? RESULTS.UNKNOWN : /Slate in progress/.test(moonshot) ? RESULTS.FAIL : RESULTS.PASS,
     moonshot === null ? "no export to inspect"
@@ -222,9 +226,18 @@ async function main() {
     import(path.join(APP, "src/lib/support/support-config.mjs")),
   ]);
 
+  const out = path.join(APP, "out");
+  const moonshotFile = path.join(out, "moonshot/index.html");
+  const a11yData = accessibility();
+  const exportState = {
+    routesExported: fs.existsSync(out) ? (a11yData?.routes ?? []).filter((r) => !r.missing).length : null,
+    moonshotHtml: fs.existsSync(moonshotFile) ? fs.readFileSync(moonshotFile, "utf8") : null,
+  };
+
   const doc = buildAlphaDay({
+    exportState,
     obs: observer(),
-    a11y: accessibility(),
+    a11y: a11yData,
     admin: readJson(path.join(APP, "public/data/admin/status.json")),
     launchGates: lc.buildLaunchGates(),
     supportEvidence: supportGateEvidence(process.env),
