@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 822866,
+  "teamId": 137,
+  "name": "San Francisco Giants",
+  "side": "away",
+  "date": "2026-08-05",
+  "capturedAt": "2026-08-05T18:15:26.556Z",
+  "availableAt": "2026-08-05T18:15:26.556Z",
+  "eventStartTime": "2026-08-05T18:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 7,
+  "gamesLast10": 10,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-04",
+  "previousVenueId": 5325,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=137&startDate=2026-07-22&endDate=2026-08-04",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-05T18:15:26.556Z"
+  },
+  "recordHash": "636070fadc89ffb1b6f3929e082614bf1d30e561ee17bc2132a0f206e3c9864b"
+}
