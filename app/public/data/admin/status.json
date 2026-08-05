@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-08-05T10:08:21.525Z",
+  "generatedAt": "2026-08-05T15:43:55.347Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -16,30 +16,30 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-08-04",
+    "date": "2026-08-05",
     "dailyPortfolioDate": "2026-07-21",
     "activeBankroll": 19065.4,
     "openExposure": 0,
     "worldCupGames": 0,
     "mlbGames": 15,
-    "mlbSlate": "2026-08-04"
+    "mlbSlate": "2026-08-05"
   },
   "sportsbook": {
     "note": "Artifact-level freshness only — the market feed carries no row-level timestamps, so no per-market recency can be claimed.",
     "sources": [
       {
         "source": "mlb/team-markets",
-        "state": "STALE",
-        "artifactDate": "2026-08-04",
-        "generatedAt": "2026-08-04T16:23:39.371Z",
-        "ageDays": 1
+        "state": "CURRENT",
+        "artifactDate": "2026-08-05",
+        "generatedAt": "2026-08-05T15:41:12.592Z",
+        "ageDays": 0
       },
       {
         "source": "mlb/player-props",
-        "state": "STALE",
-        "artifactDate": "2026-08-04",
-        "generatedAt": "2026-08-04T16:23:40.352Z",
-        "ageDays": 1
+        "state": "CURRENT",
+        "artifactDate": "2026-08-05",
+        "generatedAt": "2026-08-05T15:41:13.446Z",
+        "ageDays": 0
       }
     ]
   },
@@ -108,74 +108,74 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-08-05T10:08:20.794Z",
+    "lastRunAt": "2026-08-05T15:43:54.538Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
-    "phase": "nightly-settle"
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-08-05",
-    "etTime": "06:08",
+    "etTime": "11:43",
     "stages": [
       {
         "stage": "schedule",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "09:30",
         "producedBy": "morning-projections"
       },
       {
         "stage": "board",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "09:30",
         "producedBy": "morning-projections"
       },
       {
         "stage": "teamMarkets",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "playerProps",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "simulations",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "predictions",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       }
     ],
-    "readyCount": 0,
+    "readyCount": 6,
     "totalStages": 6,
     "lateCount": 0,
-    "signal": "YELLOW",
-    "summary": "0/6 produced; the rest are not due yet"
+    "signal": "GREEN",
+    "summary": "every stage for today has been produced"
   },
   "learningLoop": {
     "signal": "GREEN",
-    "summary": "learning data complete through 2026-08-04 (24126 rows)",
+    "summary": "learning data complete through 2026-07-27 (22660 rows)",
     "freshness": {
       "healthy": true,
-      "asOfSettledDate": "2026-08-04",
-      "corpusRows": 24126,
-      "ledgerRows": 24126,
+      "asOfSettledDate": "2026-07-27",
+      "corpusRows": 22660,
+      "ledgerRows": 22660,
       "lagDays": 0,
       "problems": []
     },
@@ -196,10 +196,7 @@
     "lastAutopsyRecommendation": "Investigate `batter_hits_runs_rbis` — it carried the widest gap on this date. A single date is NOT evidence; check whether the full-history registry status for it has moved before changing anything."
   },
   "warnings": [
-    "World Cup board is empty (dormant or needs a refresh).",
-    "Sportsbook source mlb/team-markets is STALE (1d old).",
-    "Sportsbook source mlb/player-props is STALE (1d old).",
-    "Slate (2026-08-04) is behind today (2026-08-05) — refresh/roll forward."
+    "World Cup board is empty (dormant or needs a refresh)."
   ],
   "dailyChecklist": [
     {
@@ -208,7 +205,7 @@
     },
     {
       "step": "Slate is current",
-      "done": false
+      "done": true
     },
     {
       "step": "Products generated (WC or MLB)",
