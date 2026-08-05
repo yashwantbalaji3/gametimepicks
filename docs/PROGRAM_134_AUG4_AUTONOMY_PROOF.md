@@ -87,7 +87,16 @@ Duplicate `gametimepicks` remains frozen at `2026-07-31T17:16:04Z`.
 
 ## Phase 4 — two improvements shipped
 
-**User-facing — signature-product state derivation** (`app/src/lib/signature-state.mjs`).
+> **CORRECTION (2026-08-04 21:52 ET):** the item below was reported as a *user-facing*
+> improvement. **It is not.** `grep` for `deriveSignatureState` / `SIGNATURE_STATES` across
+> `app/src` returns **zero consumers** outside the module and its own test — no route, no
+> component, no script renders it. It is **internal infrastructure**: a correct, tested
+> derivation with nothing wired to it. Reclassified accordingly, and the UI connection is an
+> explicit open Program 134 gap (see `PROGRAM_134_CLOSURE_ACCEPTANCE.md`). Wiring was **not**
+> attempted now because all 15 games are in progress and the overnight chain has not run — the
+> program's own rule forbids new UI during a live-data mutation window.
+
+**Internal infrastructure — signature-product state derivation** (`app/src/lib/signature-state.mjs`).
 Uses the repository's existing `product-status.ts` vocabulary rather than inventing one (guard
 asserts every derived key exists there). States resolve in precedence order so a product can
 never advertise a readiness later than its earliest unmet precondition:
