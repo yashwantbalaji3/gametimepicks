@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824322,
+  "date": "2026-08-05",
+  "capturedAt": "2026-08-05T03:58:58.746Z",
+  "availableAt": "2026-08-05T03:58:58.746Z",
+  "eventStartTime": "2026-08-05T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608372,
+      "name": "Tomoyuki Sugano",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 3.4,
+        "bbAvg": 0.4,
+        "erAvg": 2.8,
+        "hrAvg": 1.6,
+        "kPer9": 5.22,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 102.67,
+        "k": 58,
+        "bb": 24,
+        "er": 51,
+        "hr": 21
+      }
+    },
+    "away": {
+      "id": 607259,
+      "name": "Nick Martinez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 2.2,
+        "bbAvg": 0.6,
+        "erAvg": 2,
+        "hrAvg": 1.2,
+        "kPer9": 3.45,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 123.33,
+        "k": 69,
+        "bb": 20,
+        "er": 38,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-05T03:58:58.746Z"
+  },
+  "recordHash": "6a84ef59bf029c988723324fe92bc0ca352a9137fd7b472ab7c65daaef569060"
+}

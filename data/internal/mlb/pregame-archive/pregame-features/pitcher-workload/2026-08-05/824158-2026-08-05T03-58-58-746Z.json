@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824158,
+  "date": "2026-08-05",
+  "capturedAt": "2026-08-05T03:58:58.746Z",
+  "availableAt": "2026-08-05T03:58:58.746Z",
+  "eventStartTime": "2026-08-05T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 686613,
+      "name": "Hunter Brown",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 5,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 4.6,
+        "bbAvg": 3.4,
+        "erAvg": 3,
+        "hrAvg": 0.8,
+        "kPer9": 7.57,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 52.67,
+        "k": 55,
+        "bb": 30,
+        "er": 20,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 592791,
+      "name": "Jameson Taillon",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 10,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.67,
+        "ipAvg": 4.13,
+        "kAvg": 4.2,
+        "bbAvg": 1.8,
+        "erAvg": 3.6,
+        "hrAvg": 1.6,
+        "kPer9": 9.15,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 76,
+        "k": 68,
+        "bb": 27,
+        "er": 50,
+        "hr": 25
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-05T03:58:58.746Z"
+  },
+  "recordHash": "34b4fc7b5ca33025257b963fd1e9fd4e9aefb7fba5fd93d0eb2b2adb4af532e5"
+}

@@ -1,0 +1,206 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824728,
+  "date": "2026-08-05",
+  "capturedAt": "2026-08-05T03:58:59.595Z",
+  "availableAt": "2026-08-05T03:58:59.595Z",
+  "eventStartTime": "2026-08-05T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-02",
+    "2026-08-03",
+    "2026-08-04"
+  ],
+  "home": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 46,
+      "relievers": [
+        {
+          "id": 678394,
+          "name": "Brayan Bello",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 9,
+          "dates": [
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 669062,
+          "name": "Erik Miller",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-08-04"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 106,
+      "relievers": [
+        {
+          "id": 678394,
+          "name": "Brayan Bello",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 9,
+          "dates": [
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 594027,
+          "name": "Tyron Guerrero",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 2,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-02",
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 663558,
+          "name": "Jovani Morán",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 676477,
+          "name": "Garrett Whitlock",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 686580,
+          "name": "Justin Slaten",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 669062,
+          "name": "Erik Miller",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-08-04"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 1,
+      "pitches": 50,
+      "relievers": [
+        {
+          "id": 607200,
+          "name": "Erick Fedde",
+          "appearances": 1,
+          "pitches": 50,
+          "outs": 9,
+          "dates": [
+            "2026-08-04"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 86,
+      "relievers": [
+        {
+          "id": 607200,
+          "name": "Erick Fedde",
+          "appearances": 1,
+          "pitches": 50,
+          "outs": 9,
+          "dates": [
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 691799,
+          "name": "Grant Taylor",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 5,
+          "dates": [
+            "2026-08-02"
+          ]
+        },
+        {
+          "id": 701474,
+          "name": "Duncan Davitt",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 607200,
+        "name": "Erick Fedde",
+        "reason": "50 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-02,2026-08-03,2026-08-04) + feed/live box scores",
+    "capturedAt": "2026-08-05T03:58:59.595Z"
+  },
+  "recordHash": "d79d7d024078c618b41d9d2f9abf2d347a113b6fd4b8556bfdd1a77c3aea2c2b"
+}

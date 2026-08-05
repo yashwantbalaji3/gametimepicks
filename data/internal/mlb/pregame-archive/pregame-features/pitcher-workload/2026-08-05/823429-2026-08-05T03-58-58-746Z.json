@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823429,
+  "date": "2026-08-05",
+  "capturedAt": "2026-08-05T03:58:58.746Z",
+  "availableAt": "2026-08-05T03:58:58.746Z",
+  "eventStartTime": "2026-08-05T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 691725,
+      "name": "Andrew Painter",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 5,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 3.8,
+        "bbAvg": 2,
+        "erAvg": 4,
+        "hrAvg": 1.4,
+        "kPer9": 7.66,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 61,
+        "k": 49,
+        "bb": 23,
+        "er": 47,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 663623,
+      "name": "Jake Irvin",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 6,
+      "lastStartDate": "2026-07-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22,
+        "ipAvg": 4.4,
+        "kAvg": 4,
+        "bbAvg": 1.8,
+        "erAvg": 3.2,
+        "hrAvg": 1,
+        "kPer9": 8.18,
+        "workloadIpLast5": 22
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 56.67,
+        "k": 59,
+        "bb": 24,
+        "er": 35,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-05T03:58:58.746Z"
+  },
+  "recordHash": "9bd706ed707ffe2b06144b701c0d99814297b2e311b3285d17147a63b252e6a4"
+}

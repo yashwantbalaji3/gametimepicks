@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823106,
+  "date": "2026-08-05",
+  "capturedAt": "2026-08-05T03:58:58.746Z",
+  "availableAt": "2026-08-05T03:58:58.746Z",
+  "eventStartTime": "2026-08-06T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693433,
+      "name": "Bryan Woo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-07-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 6,
+        "bbAvg": 1.6,
+        "erAvg": 3.4,
+        "hrAvg": 0.8,
+        "kPer9": 9.88,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 120.33,
+        "k": 122,
+        "bb": 26,
+        "er": 61,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 623454,
+      "name": "Drew Anderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 51,
+      "lastStartDate": "2026-06-15",
+      "last5": {
+        "starts": 2,
+        "ipSum": 7.33,
+        "ipAvg": 3.67,
+        "kAvg": 6,
+        "bbAvg": 2,
+        "erAvg": 0.5,
+        "hrAvg": 0,
+        "kPer9": 14.73,
+        "workloadIpLast5": 7.33
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 7.33,
+        "k": 12,
+        "bb": 4,
+        "er": 1,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-05T03:58:58.746Z"
+  },
+  "recordHash": "7be6ec1a09d3a94bceff373d7ede95d675e169e2af49f0dc16d8cc57b9c71928"
+}
