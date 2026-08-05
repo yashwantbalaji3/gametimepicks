@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "825052-72c57ee65ed9c92367920f022be2dddd",
+  "snapshotCreatedAt": "2026-08-05T23:30:33.976Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-05",
+  "eventId": "825052",
+  "gamePk": 825052,
+  "eventStartTime": "2026-08-06T01:40:00Z",
+  "homeTeam": "AZ",
+  "awayTeam": "SD",
+  "venue": "Chase Field",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "0f37553ff69449c2e692e8746276203a",
+  "normalizedPayloadHash": "8a8c9c608bcacef8d078dfd108cd1495",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          663457,
+          682998,
+          672695,
+          672515,
+          694374,
+          545121,
+          543510,
+          682988,
+          814439
+        ],
+        "away": [
+          665487,
+          650859,
+          592518,
+          664034,
+          701538,
+          593428,
+          669134,
+          630105,
+          687749
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-05T23:30:33.976Z",
+      "availableAt": "2026-08-05T23:30:33.976Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-05T23:30:33.976Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/825052/feed/live",
+        "requestedAt": "2026-08-05T23:30:33.976Z",
+        "receivedAt": "2026-08-05T23:30:33.976Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Mitch Bratt",
+        "awayProbable": "Casey Mize",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-05T23:30:33.976Z",
+      "availableAt": "2026-08-05T23:30:33.976Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-05T23:30:33.976Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/825052/feed/live",
+        "requestedAt": "2026-08-05T23:30:33.976Z",
+        "receivedAt": "2026-08-05T23:30:33.976Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Roof Closed",
+        "temp": "72",
+        "wind": "0 mph, None",
+        "roofType": "Retractable",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-05T23:30:33.976Z",
+      "availableAt": "2026-08-05T23:30:33.976Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-05T23:30:33.976Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/825052/feed/live",
+        "requestedAt": "2026-08-05T23:30:33.976Z",
+        "receivedAt": "2026-08-05T23:30:33.976Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "James Jean",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Quinn Wolcott",
+            "type": "First Base"
+          },
+          {
+            "name": "Ramon De Jesus",
+            "type": "Second Base"
+          },
+          {
+            "name": "Paul Clemons",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-05T23:30:33.976Z",
+      "availableAt": "2026-08-05T23:30:33.976Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-05T23:30:33.976Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/825052/feed/live",
+        "requestedAt": "2026-08-05T23:30:33.976Z",
+        "receivedAt": "2026-08-05T23:30:33.976Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
