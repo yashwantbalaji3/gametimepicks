@@ -1,0 +1,238 @@
+import fs from "node:fs";
+import path from "node:path";
+import { guardInternalRoute } from "@/lib/internal-route-guard";
+import { currentEtDate } from "@/lib/freshness";
+import {
+  buildDepartments,
+  buildSports,
+  buildLaunchGates,
+  recommendation,
+  headlines,
+  SCHEMA_VERSION,
+} from "@/lib/launch/launch-contract.mjs";
+
+export const metadata = { title: "Launch Command Center · GameTimePicks", robots: { index: false, follow: false } };
+
+/**
+ * FOUNDER LAUNCH COMMAND CENTER — internal only.
+ *
+ * SECURITY POSTURE (deliberate, and the reason there is no login here): the site is
+ * `output: "export"`. There is no server, no session, and therefore no place to put real
+ * authentication — a "login" on a static export is decoration. The repository's actual, proven
+ * admin model is exclusion: `guardInternalRoute()` plus `prune-internal-routes.mjs`, which
+ * deletes the route from `out/` so it is never deployed. This page reuses that model rather than
+ * inventing auth it cannot enforce. A secure authenticated admin surface is a roadmap task, not
+ * something to fake here.
+ *
+ * Everything rendered is DERIVED from the scorecard checklist and launch contract. No number on
+ * this page is hand-maintained.
+ */
+export default function LaunchCommandCenter() {
+  guardInternalRoute();
+
+  const etDate = currentEtDate();
+  const h = headlines();
+  const gates = buildLaunchGates();
+  const rec = recommendation(gates);
+  const departments = buildDepartments();
+  const sports = buildSports();
+
+  const APP = process.cwd();
+  const readJson = (rel: string) => {
+    try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data", rel), "utf8")); } catch { return null; }
+  };
+  const board = readJson(`mlb/boards/${etDate}.json`);
+  const covered = board ? new Set(board.leans.map((l: { gamePk: number }) => l.gamePk)).size : null;
+
+  const tasks = departments.flatMap((d) => d.tasks);
+  const engineering = tasks.filter((t) => t.owner_type === "ENGINEERING");
+  const founder = tasks.filter((t) => t.owner_type === "FOUNDER");
+  const rank = { P0: 0, P1: 1, P2: 2, P3: 3 } as Record<string, number>;
+  const byPriority = (a: { priority: string }, b: { priority: string }) => rank[a.priority] - rank[b.priority];
+
+  const tone = (s: string) =>
+    s === "PASS" || s === "HEALTHY" || s === "PRODUCTION_PROVEN" ? "var(--gtp-success-on-dark, #7ee2a8)"
+    : s === "FAIL" || s === "BLOCKED" ? "var(--vault-danger, #f23645)"
+    : s === "PARTIAL" || s === "WATCH" || s === "AT_RISK" ? "var(--vault-gold-bright)"
+    : "var(--vault-text-mute)";
+
+  const Cell = ({ children, mono = false }: { children: React.ReactNode; mono?: boolean }) => (
+    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: mono ? "var(--font-mono, monospace)" : undefined, verticalAlign: "top" }}>{children}</td>
+  );
+  const Head = ({ children, align = "left" }: { children: React.ReactNode; align?: "left" | "right" }) => (
+    <th scope="col" style={{ padding: "7px 10px", textAlign: align, fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)", fontWeight: 600 }}>{children}</th>
+  );
+
+  return (
+    <main style={{ maxWidth: 1180, margin: "0 auto", padding: "28px 20px 72px" }}>
+      <header style={{ marginBottom: 26 }}>
+        <p style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--vault-gold-bright)", marginBottom: 6 }}>
+          Internal · not deployed publicly
+        </p>
+        <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.01em" }}>Launch Command Center</h1>
+        <p style={{ color: "var(--vault-text-mute)", fontSize: 13, marginTop: 6 }}>
+          Slate {etDate} · schema v{SCHEMA_VERSION} · every figure derived from the scorecard checklist and launch gates — nothing here is hand-maintained.
+        </p>
+      </header>
+
+      {/* ── Executive overview: four SEPARATE headlines ─────────────────────────────── */}
+      <section aria-labelledby="exec" style={{ marginBottom: 30 }}>
+        <h2 id="exec" style={{ fontSize: 15, fontWeight: 700, marginBottom: 12 }}>Executive overview</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+          {[
+            ["Platform engineering", h.platformEngineering],
+            ["Live product readiness", h.liveProductReadiness],
+            ["Business / GTM", h.businessGtm],
+            ["Overall company", h.overallCompany],
+          ].map(([label, v]) => {
+            const val = v as { pct: number; basis: string };
+            return (
+              <div key={label as string} style={{ border: "1px solid var(--vault-border)", borderRadius: 12, padding: "14px 16px" }}>
+                <p style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--vault-text-faint)" }}>{label as string}</p>
+                <p style={{ fontSize: 30, fontWeight: 700, lineHeight: 1.1, marginTop: 4 }}>{val.pct}%</p>
+                <p style={{ fontSize: 11, color: "var(--vault-text-mute)", marginTop: 4, lineHeight: 1.45 }}>{val.basis}</p>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 14, border: "1px solid var(--vault-border-strong)", borderRadius: 12, padding: "14px 16px" }}>
+          <p style={{ fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--vault-text-faint)" }}>Launch recommendation</p>
+          <p style={{ fontSize: 20, fontWeight: 700, marginTop: 4, color: tone(rec === "PUBLIC_GO" ? "PASS" : "PARTIAL") }}>{rec.replace(/_/g, " ")}</p>
+          <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginTop: 6, lineHeight: 1.5 }}>
+            Derived from the launch gates below, never from the engineering score. Platform completion of{" "}
+            {h.platformEngineering.pct}% cannot by itself produce a public go — {gates.filter((g) => g.status !== "PASS").length} gates are
+            not passing, and {gates.filter((g) => g.owner === "FOUNDER" && g.status !== "PASS").length} of those are founder-owned.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Today ───────────────────────────────────────────────────────────────────── */}
+      <section aria-labelledby="today" style={{ marginBottom: 30 }}>
+        <h2 id="today" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Today</h2>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <caption className="sr-only">Current slate state for {etDate}</caption>
+          <tbody>
+            {[
+              ["Slate date", etDate],
+              ["Scheduled events", board ? String(board.games.length) : "no board"],
+              ["Events with market coverage", board ? `${covered} of ${board.games.length}` : "—"],
+              ["Official rows", board ? String(board.leans.length) : "—"],
+              ["Board generated", board?.generatedAt ?? "—"],
+              ["Odds credits", board?.credits ? `${board.credits.before} → ${board.credits.after} (spent ${board.credits.spent})` : "—"],
+            ].map(([k, v]) => (
+              <tr key={k}>
+                <Cell>{k}</Cell>
+                <Cell mono>{v}</Cell>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* ── Launch gates ────────────────────────────────────────────────────────────── */}
+      <section aria-labelledby="gates" style={{ marginBottom: 30 }}>
+        <h2 id="gates" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Launch gates</h2>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
+            <caption className="sr-only">Nine public-launch gates with status, owner and blocker</caption>
+            <thead><tr><Head>Gate</Head><Head>Status</Head><Head>Owner</Head><Head>Evidence / blocker</Head></tr></thead>
+            <tbody>
+              {gates.map((g) => (
+                <tr key={g.id}>
+                  <Cell>{g.name}</Cell>
+                  <Cell><span style={{ color: tone(g.status), fontWeight: 700 }}>{g.status}</span></Cell>
+                  <Cell>{g.owner}</Cell>
+                  <Cell>{g.blocker ? <><strong>Blocker:</strong> {g.blocker}<br /></> : null}<span style={{ color: "var(--vault-text-mute)" }}>{g.evidence}</span></Cell>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* ── Departments ─────────────────────────────────────────────────────────────── */}
+      <section aria-labelledby="depts" style={{ marginBottom: 30 }}>
+        <h2 id="depts" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Department readiness</h2>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 780 }}>
+            <caption className="sr-only">All 16 departments with completion, health, proof level and open tasks</caption>
+            <thead><tr><Head>Department</Head><Head align="right">Weight</Head><Head align="right">Complete</Head><Head>Health</Head><Head>Proof</Head><Head>Confidence</Head><Head align="right">Open tasks</Head></tr></thead>
+            <tbody>
+              {departments.map((d) => (
+                <tr key={d.id}>
+                  <Cell>{d.name}</Cell>
+                  <Cell mono>{d.companyWeight}</Cell>
+                  <Cell mono>{d.completionPct}%</Cell>
+                  <Cell><span style={{ color: tone(d.health), fontWeight: 600 }}>{d.health}</span></Cell>
+                  <Cell><span style={{ color: tone(d.proof) }}>{d.proof}</span></Cell>
+                  <Cell>{d.confidence} ({d.evidenceFreshPct}% fresh)</Cell>
+                  <Cell mono>{d.tasks.length}</Cell>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* ── Sports ──────────────────────────────────────────────────────────────────── */}
+      <section aria-labelledby="sports" style={{ marginBottom: 30 }}>
+        <h2 id="sports" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Sport readiness</h2>
+        <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+          Completion and launch state are separate columns on purpose: an archived sport can be 100% complete while its live readiness is N/A.
+        </p>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
+            <caption className="sr-only">Sport completion versus live readiness</caption>
+            <thead><tr><Head>Sport</Head><Head align="right">Complete</Head><Head>Launch state</Head><Head>Live readiness</Head><Head align="right">Gaps</Head><Head>Note</Head></tr></thead>
+            <tbody>
+              {sports.map((s) => (
+                <tr key={s.name}>
+                  <Cell>{s.name}</Cell>
+                  <Cell mono>{s.completionPct === null ? "n/a" : `${s.completionPct}%`}</Cell>
+                  <Cell>{s.launchState}</Cell>
+                  <Cell><span style={{ color: s.liveReadiness === "N_A_ARCHIVED" ? "var(--vault-text-faint)" : tone("PARTIAL") }}>{s.liveReadiness === "N_A_ARCHIVED" ? "N/A (archived)" : s.liveReadiness}</span></Cell>
+                  <Cell mono>{s.gaps.length}</Cell>
+                  <Cell><span style={{ color: "var(--vault-text-mute)" }}>{s.note}</span></Cell>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* ── Queues ──────────────────────────────────────────────────────────────────── */}
+      <section aria-labelledby="queues">
+        <h2 id="queues" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Action queues</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
+          {[["Founder queue", founder], ["Engineering queue", engineering]].map(([label, list]) => {
+            const items = (list as typeof tasks).slice().sort(byPriority);
+            return (
+              <div key={label as string}>
+                <h3 style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--vault-text-faint)", marginBottom: 8 }}>
+                  {label as string} ({items.length})
+                </h3>
+                {items.length === 0 ? (
+                  <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>Nothing outstanding.</p>
+                ) : (
+                  <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
+                    {items.map((t) => (
+                      <li key={t.id} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
+                        <p style={{ fontSize: 12.5, fontWeight: 600 }}>
+                          <span style={{ color: t.priority === "P0" ? "var(--vault-danger, #f23645)" : "var(--vault-text-faint)", fontFamily: "var(--font-mono, monospace)", fontSize: 11 }}>{t.priority}</span>{" "}
+                          {t.title}
+                        </p>
+                        <p style={{ fontSize: 11, color: "var(--vault-text-mute)", marginTop: 3 }}>
+                          {t.department} · {t.status} · evidence {t.evidence_freshness.toLowerCase()}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </main>
+  );
+}

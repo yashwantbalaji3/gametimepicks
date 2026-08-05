@@ -53,13 +53,28 @@ jobs:
                                  | grep -c 'MARKETS_AVAILABLE_ADD_OFFICIAL_PATCH' || true)"
           RECOVERABLE_EVENTS="${RECOVERABLE_EVENTS:-0}"
           echo "recoverable pregame events lacking coverage: $RECOVERABLE_EVENTS"
-          DECISION="$(TODAY_ET="$TODAY_ET" NEWEST_BOARD="$NEWEST_BOARD" \
-                      PRIMARY_RUNS_TODAY="$PRIMARY_RUNS_TODAY" ACTIVE_RUNS="$ACTIVE" \
-                      RECOVERABLE_EVENTS="$RECOVERABLE_EVENTS" \
-                      bash scripts/cron_watchdog.sh)"
-          echo "$DECISION"
-          echo "decision=${DECISION%% *}" >> "$GITHUB_OUTPUT"
-          echo "reason=${DECISION#* }" >> "$GITHUB_OUTPUT"
+          OUT="$(TODAY_ET="$TODAY_ET" NEWEST_BOARD="$NEWEST_BOARD" \
+                 PRIMARY_RUNS_TODAY="$PRIMARY_RUNS_TODAY" ACTIVE_RUNS="$ACTIVE" \
+                 RECOVERABLE_EVENTS="$RECOVERABLE_EVENTS" \
+                 bash scripts/cron_watchdog.sh)"
+          echo "$OUT"
+          # The script emits TWO lines: the human decision, then WATCHDOG_STATE=. Parse them
+          # separately — reading the whole capture as one string pollutes `reason` with the state
+          # line (introduced when the state line was added; caught wiring the consumer).
+          DECISION_LINE="$(printf '%s\n' "$OUT" | head -1)"
+          STATE="$(printf '%s\n' "$OUT" | sed -n 's/^WATCHDOG_STATE=\([A-Z_]*\).*/\1/p')"
+          echo "decision=${DECISION_LINE%% *}" >> "$GITHUB_OUTPUT"
+          echo "reason=${DECISION_LINE#* }" >> "$GITHUB_OUTPUT"
+          echo "state=${STATE:-UNKNOWN}" >> "$GITHUB_OUTPUT"
+          # Machine-readable classification in the run summary — this is the consumer that makes
+          # the six-state taxonomy operational rather than merely emitted.
+          {
+            echo "### Coverage watchdog"
+            echo ""
+            echo "- state: \`${STATE:-UNKNOWN}\`"
+            echo "- decision: \`${DECISION_LINE%% *}\`"
+            echo "- reason: ${DECISION_LINE#* }"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Dispatch the missed primary and alert
         if: steps.decide.outputs.decision == 'DISPATCH'
@@ -69,8 +84,11 @@ jobs:
           OPS_ALERT_KIND: warning
           PHASE: cron-watchdog
           EXIT_STATUS: "0"
-          ERROR_LINE: ${{ steps.decide.outputs.reason }}
+          # The alert now carries the machine state, so an operator can tell a recovered missed
+          # refresh (REFRESH_MISSING) from a never-generated board (BOARD_MISSING) without
+          # reading prose.
+          ERROR_LINE: "[${{ steps.decide.outputs.state }}] ${{ steps.decide.outputs.reason }}"
         run: |
           gh workflow run morning-projections
-          echo "::notice::cron-watchdog dispatched morning-projections (${{ steps.decide.outputs.reason }})"
+          echo "::notice::cron-watchdog [${{ steps.decide.outputs.state }}] dispatched morning-projections"
           bash scripts/ops_alert.sh

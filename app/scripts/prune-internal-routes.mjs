@@ -33,7 +33,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const INTERNAL_ROUTES = ["ops", "preview"];
+const INTERNAL_ROUTES = ["ops", "preview", "launch"];
 
 /**
  * Data files the public site serves even though no page links them. Kept deliberately, not by accident.
