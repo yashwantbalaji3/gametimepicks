@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822866,
+  "date": "2026-08-05",
+  "capturedAt": "2026-08-05T16:26:28.795Z",
+  "availableAt": "2026-08-05T16:26:28.795Z",
+  "eventStartTime": "2026-08-05T18:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 674003,
+      "name": "Cody Bradford",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 687931,
+      "name": "Carson Whisenhunt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 5,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 4,
+        "ipSum": 19,
+        "ipAvg": 4.75,
+        "kAvg": 4,
+        "bbAvg": 3,
+        "erAvg": 3.5,
+        "hrAvg": 1,
+        "kPer9": 7.58,
+        "workloadIpLast5": 19
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 19,
+        "k": 16,
+        "bb": 12,
+        "er": 14,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-05T16:26:28.795Z"
+  },
+  "recordHash": "b758a6a4b6f3be4fdbcf960f7f59b9f7acf5d78477cc2541def294af15b3132b"
+}

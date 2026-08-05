@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824889,
+  "date": "2026-08-05",
+  "capturedAt": "2026-08-05T16:26:28.795Z",
+  "availableAt": "2026-08-05T16:26:28.795Z",
+  "eventStartTime": "2026-08-05T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693821,
+      "name": "Bryce Elder",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 4.4,
+        "bbAvg": 2.2,
+        "erAvg": 2.4,
+        "hrAvg": 1.8,
+        "kPer9": 7.92,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 119.67,
+        "k": 101,
+        "bb": 40,
+        "er": 51,
+        "hr": 19
+      }
+    },
+    "away": {
+      "id": 691587,
+      "name": "Eury Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-07-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 6.2,
+        "bbAvg": 1.6,
+        "erAvg": 1.2,
+        "hrAvg": 0,
+        "kPer9": 8.72,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 104.67,
+        "k": 112,
+        "bb": 40,
+        "er": 40,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-05T16:26:28.795Z"
+  },
+  "recordHash": "4f48ce8084a930bf7b35cf8165dbb5cad0de70fa9731dd746db235c9e5287755"
+}
