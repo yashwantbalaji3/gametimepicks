@@ -30,7 +30,7 @@
   /* Text */
   --text: #F4F4F5;
   --text-mute: #C9BC97; /* warmed to the hot-lava muted tone (was cool-gray #B5B9C4) */
-  --text-faint: #5C6373;
+  --text-faint: #7C8398;   /* was #5C6373 — 3.05:1 as text on /methodology/, under AA */
 
   /* Accents */
   --lime: #A3E635;
@@ -64,7 +64,12 @@
      now crimson so the whole app reads V1 fight-card. --vault-gold stays true gold for the
      Bank Builder crown + focus ring only. */
   --vault-gold: #D4AF37;
-  --vault-gold-bright: #F23645;
+  /* Program 137: was #F23645, which measured 3.21-4.49:1 as TEXT on the dark surfaces —
+     under AA everywhere it was used for a label (293 inline call sites + 17 CSS rules).
+     #FA4A5A is the smallest lightening that clears 4.5:1 on the standard surfaces.
+     The ambient glow is UNAFFECTED: --vault-gold-dim/-glow/--vault-border-active and
+     --gtp-bank-heat-dim are hardcoded rgba(242,54,69,...) and keep the original crimson. */
+  --vault-gold-bright: #FA4A5A;
   --vault-gold-dim: rgba(242, 54, 69, 0.12);
   --vault-gold-glow: rgba(242, 54, 69, 0.20);
 
@@ -73,7 +78,11 @@
      (faint was #6E6447 ≈ 3.3:1 — now ≥ 4.6:1 on the card surfaces). */
   --vault-text: var(--lava-text);
   --vault-text-mute: var(--lava-text-muted);
-  --vault-text-faint: #7E7E88;
+  /* #7E7E88 measured 4.41-4.47:1 as text on the dark surfaces — under AA on ~30 distinct
+     elements across every route (timestamps, source chips, the disclaimer). #838391 cleared the
+     surfaces I had measured at that point but still read 4.02:1 on the darkest cards once the
+     probe composited gradient alpha correctly; #8E8E9C clears 4.5:1 on all of them. */
+  --vault-text-faint: #8E8E9C;
 
   --vault-success: #6EE7A8;
   --vault-success-dim: rgba(110, 231, 168, 0.12);
@@ -103,7 +112,7 @@
      distinct from the risk system. All = brand gold (neutral). Implies SPORT,
      never likelihood of winning. */
   --sport-all: #F0C75E;       /* gold (neutral / all) */
-  --sport-mlb: #56C2F0;       /* sky blue — diamond */
+  --sport-mlb: #63C8F2;       /* sky blue — diamond (was #56C2F0: 4.3:1 on the tinted chip) */
   --sport-nba: #FB7185;       /* rose */
   --sport-mixed: #2DD4BF;     /* teal — cross-sport */
   /* Identity-system additions (sport-identity.ts). Established hues above
@@ -117,9 +126,16 @@
      gets magma energy — heat for chips/pulses, lava for progress fills. */
   /* V1 immersive revamp (crimson-black fight-card system): the primary "heat" accent is now
      crimson; gold stays only for the Bank Builder crown via --vault-gold / --lava-gold. */
-  --gtp-bank-heat: #F23645;
+  --gtp-bank-heat: #FA4A5A;              /* text-safe crimson — see --vault-gold-bright */
   --gtp-bank-heat-dim: rgba(242, 54, 69, 0.16);
   --gtp-bank-lava: linear-gradient(90deg, #9B1B16 0%, #E11D2A 45%, #FF5A3C 80%, #F0C75E 100%);
+  /* Text-safe lava (Program 137). --gtp-bank-lava spans relative luminance 0.078 (#9B1B16) to
+     0.602 (#F0C75E) — an 8x range — so NO single label colour clears AA across it: near-black
+     hits 2.31:1 on the blood-red end, white hits 1.61:1 on the gold end. Buttons that carry a
+     label therefore use this ramp instead, whose darkest stop is bright enough that the #1A0E06
+     label clears 4.5:1 at every stop (worst 5.05:1 at #FF2A20). The full-range ramp above is
+     still correct for DECORATIVE fills with no text on them. */
+  --gtp-bank-lava-cta: linear-gradient(90deg, #FF2A20 0%, #FF5A3C 45%, #FF8A3C 75%, #F0C75E 100%);
 
   /* ================================================================
      Hot-lava casino design system — the canonical sitewide palette.
@@ -133,7 +149,7 @@
   --lava-card-2: #1F1F23;         /* elevated card */
   --lava-border: rgba(225, 29, 42, 0.20);
   --lava-border-strong: rgba(225, 29, 42, 0.40);
-  --lava-heat: #F23645;           /* crimson accent */
+  --lava-heat: #FA4A5A;           /* crimson accent (text-safe — see --vault-gold-bright) */
   --lava-ember: #E11D2A;          /* deep crimson */
   --lava-magma: #9B1B16;          /* blood red */
   --lava-glow: radial-gradient(60% 100% at 50% 0%, rgba(225, 29, 42, 0.16) 0%, transparent 70%);
@@ -268,6 +284,42 @@
   box-shadow: var(--vault-focus-ring);
   border-radius: 2px;
 }
+
+/* Skip link (WCAG 2.4.1 Bypass Blocks). Off-screen until keyboard focus, then it
+   drops into the top-left corner. Deliberately NOT `display:none`/`visibility:hidden`
+   — either would remove it from the tab order and defeat the entire purpose. */
+.gtp-skip-link {
+  position: absolute;
+  top: -200px;
+  left: 8px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  background: var(--vault-bg, #120b07);
+  color: var(--vault-text, #f6e9d8);
+  border: 2px solid var(--vault-gold, #d8a94a);
+  transition: top 120ms ease-in-out;
+}
+.gtp-skip-link:focus {
+  top: 8px;
+}
+/* The <main> target takes tabIndex={-1} so activating the link moves real focus
+   there, not just the scroll position; it must never paint a ring for that. */
+#main-content:focus {
+  outline: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-skip-link { transition: none; }
+}
+
+/* Command-rail links. The active-state glow arrives as --rail-shadow so that the
+   :focus-visible ring below can actually win — an inline box-shadow could not be
+   overridden by any stylesheet rule, which is what silently disabled the focus ring
+   on the whole desktop navigation. */
+.gtp-rail-link { box-shadow: var(--rail-shadow, none); }
+.gtp-rail-link:focus-visible { box-shadow: var(--vault-focus-ring); }
 
 /* Global keyboard-focus fallback — every interactive control shows the vault
    focus ring on KEYBOARD focus (focus-visible only; pointer focus stays clean),
@@ -3940,7 +3992,10 @@ body {
    hover. Replaces the previous flat-outlined look. */
 .gtp-btn-ghost {
   position: relative;
-  background: rgba(240, 199, 94, 0.04);
+  /* Neutral dark fill, not the old gold tint. The gold wash lifted the surface luminance
+     while the label had already moved to crimson, leaving 3.21:1 — the worst contrast on the
+     site. Darkening the surface fixes it without touching the accent. */
+  background: rgba(8, 5, 4, 0.45);
   color: var(--vault-gold-bright);
   font-weight: 500;
   letter-spacing: 0.14em;
@@ -4546,10 +4601,13 @@ body {
 .gtp-heat-pulse { animation: gtp-heat-pulse 2.8s ease-in-out infinite; }
 
 /* Lava primary CTA — the global "action" treatment (casino final rebuild): magma
-   gradient with dark, high-contrast text. Use for the single primary action on a
-   surface; secondary actions stay ghost/outline. */
+   gradient with dark text. Use for the single primary action on a surface;
+   secondary actions stay ghost/outline.
+   The gradient is the TEXT-SAFE ramp: on the full --gtp-bank-lava the #1A0E06 label
+   measured 2.31:1 over the blood-red stop, so "high-contrast text" was an assumption,
+   not a measurement. --gtp-bank-lava-cta clears 4.5:1 at every stop. */
 .gtp-cta-lava {
-  background: var(--gtp-bank-lava);
+  background: var(--gtp-bank-lava-cta);
   color: #1A0E06;
   border: none;
   box-shadow: 0 1px 0 rgba(255,177,60,0.4), 0 6px 18px -6px rgba(255,106,42,0.55);

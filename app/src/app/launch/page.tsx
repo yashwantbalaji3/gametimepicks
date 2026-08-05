@@ -42,6 +42,12 @@ export default function LaunchCommandCenter() {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data", rel), "utf8")); } catch { return null; }
   };
   const board = readJson(`mlb/boards/${etDate}.json`);
+  // Internal Alpha progress. Read from the artifact the generator commits — this page renders it,
+  // it never recomputes it, so /launch and ops/internal-alpha can never disagree.
+  const alpha = (() => {
+    try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "ops/internal-alpha/latest.json"), "utf8")); }
+    catch { return null; }
+  })();
   const covered = board ? new Set(board.leans.map((l: { gamePk: number }) => l.gamePk)).size : null;
 
   const tasks = departments.flatMap((d) => d.tasks);
@@ -74,6 +80,44 @@ export default function LaunchCommandCenter() {
           Slate {etDate} · schema v{SCHEMA_VERSION} · every figure derived from the scorecard checklist and launch gates — nothing here is hand-maintained.
         </p>
       </header>
+
+      {/* ── Internal Alpha window ───────────────────────────────────────────────────── */}
+      <section aria-labelledby="alpha" style={{ marginBottom: 30 }}>
+        <h2 id="alpha" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Internal Alpha</h2>
+        {alpha ? (
+          <>
+            <p style={{ color: "var(--vault-text-mute)", fontSize: 12.5, marginBottom: 10 }}>
+              Day <strong style={{ color: "var(--vault-text)" }}>{alpha.day}</strong> of 7 · window {alpha.window?.start} → {alpha.window?.end} ·
+              sha <span style={{ fontFamily: "var(--font-mono, monospace)" }}>{alpha.sourceSha}</span> ·
+              verdict <strong style={{ color: tone(alpha.verdict === "PASS" ? "PASS" : alpha.verdict === "FAIL" ? "FAIL" : "PARTIAL") }}>{alpha.verdict}</strong>
+              {" · "}
+              {alpha.tally?.PASS ?? 0} pass · {alpha.tally?.FAIL ?? 0} fail · {alpha.tally?.BLOCKED ?? 0} blocked · {alpha.tally?.UNKNOWN ?? 0} unknown
+            </p>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <caption style={{ captionSide: "top", textAlign: "left", fontSize: 11, color: "var(--vault-text-faint)", paddingBottom: 6 }}>
+                Day {alpha.day} criteria. Blocked items are founder-owned and do not fail the day.
+              </caption>
+              <thead><tr><Head>Criterion</Head><Head>Result</Head><Head>Evidence</Head><Head>Owner</Head><Head>Next check</Head></tr></thead>
+              <tbody>
+                {(alpha.criteria ?? []).map((x: { id: string; name: string; result: string; evidence: string; owner: string; nextCheck: string }) => (
+                  <tr key={x.id}>
+                    <Cell>{x.name}</Cell>
+                    <Cell><span style={{ color: tone(x.result === "BLOCKED" ? "PARTIAL" : x.result) }}>{x.result}</span></Cell>
+                    <Cell>{x.evidence}</Cell>
+                    <Cell mono>{x.owner}</Cell>
+                    <Cell>{x.nextCheck}</Cell>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        ) : (
+          <p style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
+            No alpha artifact yet — run <code>node scripts/internal-alpha-day.mjs</code>. This says
+            &ldquo;not generated&rdquo;, never &ldquo;day 1 passing&rdquo;.
+          </p>
+        )}
+      </section>
 
       {/* ── Executive overview: four SEPARATE headlines ─────────────────────────────── */}
       <section aria-labelledby="exec" style={{ marginBottom: 30 }}>

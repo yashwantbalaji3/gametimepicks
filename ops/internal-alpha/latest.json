@@ -1,0 +1,188 @@
+{
+  "kind": "internal-alpha-day",
+  "public": false,
+  "schemaVersion": 1,
+  "window": {
+    "start": "2026-08-05",
+    "end": "2026-08-11",
+    "label": "Internal Alpha"
+  },
+  "day": 1,
+  "observedEtDate": "2026-08-05",
+  "sourceSha": "ec1c8f59",
+  "verdict": "PASS",
+  "tally": {
+    "PASS": 9,
+    "FAIL": 0,
+    "BLOCKED": 6,
+    "UNKNOWN": 0
+  },
+  "criteria": [
+    {
+      "id": "board-freshness",
+      "name": "Board freshness",
+      "result": "PASS",
+      "evidence": "newest generated board 2026-08-05; newest settled 2026-08-04",
+      "source": "scripts/public-beta-observe.mjs",
+      "owner": "AUTOMATION",
+      "nextCheck": "next morning generation"
+    },
+    {
+      "id": "settlement-state",
+      "name": "Settlement state",
+      "result": "PASS",
+      "evidence": "settled through 2026-08-04; quarantines s=1 r=1",
+      "source": "scripts/public-beta-observe.mjs",
+      "owner": "AUTOMATION",
+      "nextCheck": "nightly-settle"
+    },
+    {
+      "id": "lineage",
+      "name": "Settlement lineage stamping",
+      "result": "PASS",
+      "evidence": "lineage measured over 4 stamped fields",
+      "source": "scripts/public-beta-observe.mjs",
+      "owner": "AUTOMATION",
+      "nextCheck": "nightly-settle"
+    },
+    {
+      "id": "deployment",
+      "name": "Deployment fingerprint",
+      "result": "PASS",
+      "evidence": "offline run — deployment reachability not probed this cycle; local HEAD ec1c8f59",
+      "source": "scripts/public-beta-observe.mjs",
+      "owner": "ENGINEERING",
+      "nextCheck": "post-deploy check"
+    },
+    {
+      "id": "protected-money",
+      "name": "Protected money artifacts unchanged",
+      "result": "PASS",
+      "evidence": "2/2 match pinned md5",
+      "source": "scripts/public-beta-observe.mjs",
+      "owner": "ENGINEERING",
+      "nextCheck": "every run"
+    },
+    {
+      "id": "analytics",
+      "name": "Production measurement",
+      "result": "BLOCKED",
+      "evidence": "analytics mode OFF — collector staging-proven, production NOOP",
+      "source": "scripts/public-beta-observe.mjs",
+      "owner": "FOUNDER",
+      "nextCheck": "when founder provisions Blob + env vars"
+    },
+    {
+      "id": "accessibility",
+      "name": "Accessibility matrix",
+      "result": "PASS",
+      "evidence": "9 launch-critical routes, 0 structural finding(s), 0 serious; browser matrix (contrast/keyboard/focus/reflow) in e2e/accessibility.spec.ts",
+      "source": "scripts/audit-accessibility.mjs + e2e/accessibility.spec.ts",
+      "owner": "ENGINEERING",
+      "nextCheck": "quality-gate CI on next code change"
+    },
+    {
+      "id": "route-health",
+      "name": "Launch-critical routes present in the export",
+      "result": "PASS",
+      "evidence": "9/9 launch-critical routes exported",
+      "source": "app/out",
+      "owner": "ENGINEERING",
+      "nextCheck": "next build"
+    },
+    {
+      "id": "signature-truth",
+      "name": "Public signature state is date-aware",
+      "result": "PASS",
+      "evidence": "/moonshot does not render a stale lane as in-progress (Program 136 regression)",
+      "source": "app/out/moonshot/index.html",
+      "owner": "ENGINEERING",
+      "nextCheck": "every build"
+    },
+    {
+      "id": "support-channel",
+      "name": "User-reachable support channel",
+      "result": "BLOCKED",
+      "evidence": "no destination/owner/response configured — fail-closed contract ships no support UI",
+      "source": "src/lib/support/support-config.mjs + docs/SUPPORT_READINESS.md",
+      "owner": "FOUNDER",
+      "nextCheck": "when founder provides a destination"
+    },
+    {
+      "id": "gate:measurement",
+      "name": "Privacy-safe production analytics",
+      "result": "BLOCKED",
+      "evidence": "launch gate BLOCKED — Blob store + 3 env vars (founder-owned)",
+      "source": "src/lib/launch/launch-contract.mjs",
+      "owner": "FOUNDER",
+      "nextCheck": "founder action"
+    },
+    {
+      "id": "gate:operations-support",
+      "name": "Incident response, alerting, rollback, support channel",
+      "result": "BLOCKED",
+      "evidence": "launch gate PARTIAL — no real support destination exists: GTP_SUPPORT_DESTINATION/OWNER/RESPONSE are unset everywhere. Founder must provide a monitored address + owner + response wording; configuration alone is not delivery",
+      "source": "src/lib/launch/launch-contract.mjs",
+      "owner": "FOUNDER",
+      "nextCheck": "founder action"
+    },
+    {
+      "id": "gate:business-legal",
+      "name": "Terms, privacy, jurisdiction, risk acceptance",
+      "result": "BLOCKED",
+      "evidence": "launch gate FAIL — legal/counsel decision required",
+      "source": "src/lib/launch/launch-contract.mjs",
+      "owner": "FOUNDER",
+      "nextCheck": "founder action"
+    },
+    {
+      "id": "gate:user-validation",
+      "name": "Beta cohort, feedback loop, adoption baseline",
+      "result": "BLOCKED",
+      "evidence": "launch gate FAIL — depends on measurement gate",
+      "source": "src/lib/launch/launch-contract.mjs",
+      "owner": "FOUNDER",
+      "nextCheck": "founder action"
+    },
+    {
+      "id": "api-cost",
+      "name": "API credit spend",
+      "result": "PASS",
+      "evidence": "no paid Odds API request(s) recorded for this cycle; accessibility and alpha evidence use no paid provider",
+      "source": "app/public/data/admin/status.json",
+      "owner": "ENGINEERING",
+      "nextCheck": "daily"
+    }
+  ],
+  "incidentPolicy": {
+    "severities": [
+      {
+        "level": "SEV1",
+        "meaning": "public site serves wrong money, wrong settlement, or a stale slate as current",
+        "action": "roll back the deployment immediately; the proof window RESETS to Day 1",
+        "owner": "ENGINEERING"
+      },
+      {
+        "level": "SEV2",
+        "meaning": "a daily automation chain fails and does not self-recover within one cycle",
+        "action": "repair and re-run; the window EXTENDS by the number of days without a clean cycle",
+        "owner": "ENGINEERING"
+      },
+      {
+        "level": "SEV3",
+        "meaning": "a cosmetic or single-route defect with no effect on published numbers",
+        "action": "fix in the normal flow; the window continues",
+        "owner": "ENGINEERING"
+      }
+    ],
+    "resetCondition": "any SEV1 resets the window to Day 1; any SEV2 extends it by the affected days",
+    "rollback": {
+      "owner": "ENGINEERING",
+      "mechanism": "redeploy the last known-good SHA through the canonical gametime-picks project"
+    },
+    "communication": {
+      "internal": "ops webhook (OPS_WEBHOOK_URL)",
+      "external": "none — no support channel exists yet (docs/SUPPORT_READINESS.md)"
+    }
+  }
+}

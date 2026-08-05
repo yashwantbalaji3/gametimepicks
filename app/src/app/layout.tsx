@@ -61,6 +61,12 @@ export default function RootLayout({
     <html lang="en">
       <body className="vault-shell">
         <span aria-hidden className="gtp-floor-lights" />
+        {/* Bypass Blocks (WCAG 2.4.1). Before this, a keyboard user landing on any route had to tab
+            through the whole command rail / nav on EVERY navigation to reach the content. Visually
+            hidden until focused, then it appears — see `.gtp-skip-link` in globals.css. */}
+        <a href="#main-content" className="gtp-skip-link">
+          Skip to main content
+        </a>
         {/* Command Center shell: a persistent left rail on desktop (lg+);
             the horizontal top Nav is kept for mobile only. Everything
             except the rail lives in a column offset past it on desktop so
@@ -72,7 +78,7 @@ export default function RootLayout({
           <div className="lg:hidden">
             <Nav />
           </div>
-          <main className="relative z-10 pb-[88px] md:pb-0">
+          <main id="main-content" tabIndex={-1} className="relative z-10 pb-[88px] md:pb-0">
             <SlateStatusBar />
             {children}
           </main>

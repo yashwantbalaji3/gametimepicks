@@ -140,9 +140,12 @@ export default function ClimbHero({
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <Chip label="Paper-only · educational" color="var(--vault-gold-bright)" />
         </div>
-        <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.4vw, 30px)", fontWeight: 800, lineHeight: 1.06 }}>
+        {/* h1: this is /bank-builder's primary page heading. It was an h2, so the page had no h1
+            and its outline started at level 2 — a screen-reader user pressing "1" found nothing.
+            Level only; styling and copy are unchanged. */}
+        <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.4vw, 30px)", fontWeight: 800, lineHeight: 1.06 }}>
           Watch the ladder climb toward $10K
-        </h2>
+        </h1>
         <p className="mt-2 text-[13.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 600 }}>
           Bank Builder is a paper-only ladder. Each lane starts at $100 and climbs toward $10K in 5 steps. A step only
           advances after every leg wins.

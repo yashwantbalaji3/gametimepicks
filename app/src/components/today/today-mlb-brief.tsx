@@ -83,7 +83,7 @@ export default function TodayMlbBrief({ brief, recapHref }: { brief: DailyBrief;
               href={spotlight.href}
               aria-label={`${spotlight.started ? "Review" : "Open"} the ${spotlight.teams.away} at ${spotlight.teams.home} simulation`}
               className="vault-press inline-flex items-center rounded-full px-3.5 whitespace-nowrap"
-              style={{ minHeight: 34, fontSize: 10, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", background: "var(--gtp-bank-lava)", color: "#1A0E06" }}
+              style={{ minHeight: 34, fontSize: 10, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", background: "var(--gtp-bank-lava-cta)", color: "#1A0E06" }}
             >
               {spotlight.actionLabel}
             </Link>

@@ -47,6 +47,7 @@ export default function LearnPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-9">
       <SectionHeader
+        as="h1"
         eyebrow="Learn"
         title="How to read GameTime Picks"
         sub="A 2-minute guide for everyone — no betting background needed. Everything here is educational and paper-only: there are no real wagers, just hypothetical paper tracked honestly."

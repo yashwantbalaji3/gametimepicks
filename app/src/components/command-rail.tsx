@@ -137,14 +137,20 @@ export default function CommandRail() {
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className="group flex items-center gap-3 px-3 py-2 rounded-[7px] transition-all"
+                className="gtp-rail-link group flex items-center gap-3 px-3 py-2 rounded-[7px] transition-all"
                 style={{
                   color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
                   background: active ? "var(--vault-gold-dim)" : "transparent",
                   borderLeft: active
                     ? "2px solid var(--vault-gold-bright)"
                     : "2px solid transparent",
-                  boxShadow: active ? "inset 0 0 0 1px var(--vault-border), 0 0 14px var(--vault-gold-glow)" : "none",
+                  // Handed to CSS as a custom property rather than set as an inline `boxShadow`.
+                  // An inline box-shadow BEATS the global `a:focus-visible` ring, so writing it
+                  // here directly left all 14 rail links — the primary desktop navigation — with
+                  // no visible keyboard focus at all. See .gtp-rail-link in globals.css.
+                  ["--rail-shadow" as string]: active
+                    ? "inset 0 0 0 1px var(--vault-border), 0 0 14px var(--vault-gold-glow)"
+                    : "none",
                 }}
               >
                 <span aria-hidden style={{ width: 18, textAlign: "center", fontSize: 13, alignSelf: "flex-start", marginTop: 1 }}>

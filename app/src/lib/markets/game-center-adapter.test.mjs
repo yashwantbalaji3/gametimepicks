@@ -85,7 +85,14 @@ test("the adapter REFUSES a stale snapshot where the legacy builder did not", ()
   const book = games[0];
 
   // Judged against a later date, the snapshot is no longer current for that frame.
-  const nextWeek = "2026-08-05";
+  // DERIVED from the artifact's own date, never hardcoded. This was pinned to "2026-08-05",
+  // which stopped being "a later date" the moment the calendar reached 2026-08-05 — the test
+  // then asserted staleness about a snapshot that was current, and failed for a reason that
+  // had nothing to do with the adapter. A fixture that expires is a fixture that lies.
+  const later = new Date(`${DATE}T00:00:00Z`);
+  later.setUTCDate(later.getUTCDate() + 7);
+  const nextWeek = later.toISOString().slice(0, 10);
+  assert.ok(nextWeek > DATE, "the comparison date must actually be later than the snapshot");
   const stale = intelFor(book, nextWeek);
   assert.equal(stale.moneyline.intelligence.hasSportsbook, false, "the canonical layer withholds it");
 

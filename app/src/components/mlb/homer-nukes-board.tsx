@@ -108,7 +108,7 @@ export default function HomerNukesBoard({ board }: { board: HomerNukesResult }) 
         <p className="mx-auto mt-1.5 max-w-md text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{board.note}</p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           <Link href="/mlb" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>MLB board</Link>
-          <Link href="/mr-dub" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>Mr. Dub portfolio →</Link>
+          <Link href="/mr-dub" className="vault-press inline-flex rounded-full px-4 py-2 font-mono uppercase tracking-[0.12em]" style={{ background: "var(--gtp-bank-lava-cta)", color: "#1A0E06", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>Mr. Dub portfolio →</Link>
         </div>
       </div>
     );

@@ -125,7 +125,7 @@ function GameCard({ g, slateDate }: { g: CuratedGame; slateDate: string }) {
             head date), NOT the kickoff date — a combined-window kickoff can roll into the next day and 404. */}
         <Link href={`/games/world-cup/${gameSlug(g.homeTeam, g.awayTeam, slateDate)}`}
           className="vault-press inline-flex rounded-full px-3 py-1 font-mono uppercase tracking-[0.1em]"
-          style={{ background: "var(--gtp-bank-lava)", color: "#1A0E06", fontSize: 9.5, fontWeight: 700, textDecoration: "none" }}>
+          style={{ background: "var(--gtp-bank-lava-cta)", color: "#1A0E06", fontSize: 9.5, fontWeight: 700, textDecoration: "none" }}>
           View full game →
         </Link>
         <Link href={`/build?sport=world_cup&game=${encodeURIComponent(g.gameId)}`}

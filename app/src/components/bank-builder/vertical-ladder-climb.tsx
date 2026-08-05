@@ -177,7 +177,9 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
         boxShadow: showsCard ? `0 0 0 1px ${tone}22, 0 10px 34px -20px ${tone}` : "none",
       }}>
       <div className="mb-1 flex items-center justify-between gap-2">
-        <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{lane.label}</h3>
+        {/* h2, not h3: these lane cards sit directly under the page's h1 with no intervening
+            section heading, so h3 skipped a level (h1 -> h3). Level only; size is set by style. */}
+        <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{lane.label}</h2>
         <Chip label={lane.statusLabel} color={tone} />
       </div>
       <p className="mb-3 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>

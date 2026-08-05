@@ -115,7 +115,7 @@ export function buildSports() {
  */
 export function buildLaunchGates() {
   const depts = Object.fromEntries(buildDepartments().map((d) => [d.id, d]));
-  const g = (id, name, status, evidence, owner, blocker = null) => ({ id, name, status, evidence, owner, blocker });
+  const g = (id, name, status, evidence, owner, blocker = null, limitations = []) => ({ id, name, status, evidence, owner, blocker, limitations });
   return [
     g("product-truth", "Current product truth reconciles", "PASS",
       "Aug 4: 15/15 covered, 678/678 native stamps, all downstream artifacts current; public routes agree", "ENGINEERING"),
@@ -123,15 +123,27 @@ export function buildLaunchGates() {
       "Aug 4 ran fully autonomously: settle 03:59/06:11, generation 11:51, production 11:54/12:25", "ENGINEERING"),
     g("security-privacy", "Public/private boundary and secrets", "PASS",
       "deny-by-default export prune; internal routes excluded; secrets never printed", "ENGINEERING"),
-    g("product-quality", "Responsive UX, a11y, error/empty states", "PARTIAL",
-      "empty/partial states truthful and paper-only framing live; accessibility and cross-browser never formally audited", "ENGINEERING",
-      "no accessibility audit; e2e specs exist but are not run in CI"),
+    g("product-quality", "Responsive UX, a11y, error/empty states", "PASS",
+      "Program 137: 9 launch-critical routes audited structurally (0 findings) and in-browser on Chromium/Firefox/WebKit — " +
+      "contrast at 390/768/1440 (0 failures), keyboard traversal, focus visibility, no traps, disclosure widgets, " +
+      "reflow at WCAG-1.4.10 320px. Fixed: missing skip link, invisible focus ring across the whole desktop nav, " +
+      "h1->h3 heading skip, 4 sub-AA colour tokens, a 2.31:1 primary CTA. Wired into run_all_tests.sh + " +
+      "the quality-gate CI workflow, so it re-runs on every code change", "ENGINEERING",
+      null,
+      // Named limits. They are not gate blockers — none is a critical/serious violation and none is
+      // in the gate's acceptance contract — but a PASS that hides them would be an inflated PASS.
+      ["no assistive-technology pass (VoiceOver/NVDA) has been performed",
+       "keyboard traversal proven on Chromium + Firefox only: WebKit omits links from Tab order by default (Safari Full Keyboard Access), which no markup change affects",
+       "reflow verified by viewport narrowing to 320px, the standard equivalent of 400% zoom, not by driving true browser zoom"]),
     g("measurement", "Privacy-safe production analytics", "BLOCKED",
       "collector staging-proven; production NOOP — observer reports analytics OFF", "FOUNDER",
       "Blob store + 3 env vars (founder-owned)"),
     g("operations-support", "Incident response, alerting, rollback, support channel", "PARTIAL",
-      "5/5 workflow alert routing + ops webhook proven; no user-facing support channel or known-issues process", "ENGINEERING",
-      "no support channel; launch-day ownership undefined"),
+      "5/5 workflow alert routing + ops webhook proven; Program 137 added a fail-closed support configuration " +
+      "contract (lib/support/support-config.mjs, 8 guards) that refuses placeholder/plaintext/partial config and " +
+      "ships NO support UI while unconfigured — see docs/SUPPORT_READINESS.md", "FOUNDER",
+      "no real support destination exists: GTP_SUPPORT_DESTINATION/OWNER/RESPONSE are unset everywhere. " +
+      "Founder must provide a monitored address + owner + response wording; configuration alone is not delivery"),
     g("business-legal", "Terms, privacy, jurisdiction, risk acceptance", "FAIL",
       "no ToS or privacy policy route in the public export; no jurisdiction/age posture", "FOUNDER",
       "legal/counsel decision required"),

@@ -10,6 +10,13 @@ interface Props {
   rightSlot?: React.ReactNode;
   /** Tighten vertical spacing when used inside a card. */
   compact?: boolean;
+  /**
+   * Heading level. Defaults to h2 because this component is usually a SECTION header inside a
+   * page that already has an h1. When it carries the page's primary title (e.g. /learn), pass
+   * "h1" — otherwise the document outline starts at level 2 and a screen-reader user pressing
+   * "1" finds nothing to jump to.
+   */
+  as?: "h1" | "h2";
 }
 
 export default function SectionHeader({
@@ -18,6 +25,7 @@ export default function SectionHeader({
   sub,
   rightSlot,
   compact,
+  as: Heading = "h2",
 }: Props) {
   return (
     <div className={compact ? "mb-3" : "mb-6"}>
@@ -39,7 +47,7 @@ export default function SectionHeader({
               {eyebrow}
             </span>
           </div>
-          <h2
+          <Heading
             className="font-display tracking-tight"
             style={{
               color: "var(--vault-text)",
@@ -52,7 +60,7 @@ export default function SectionHeader({
             }}
           >
             {title}
-          </h2>
+          </Heading>
           {sub && (
             <p
               className="mt-2 text-[12.5px] leading-relaxed max-w-2xl"

@@ -29,7 +29,11 @@ test("legacy --vault-* tokens reference the lava system (lava is the source of t
 test("universal section rule + shell border are crimson (V1 sitewide), gold kept only as crown", () => {
   assert.ok(css.includes("--vault-rule: rgba(225, 29, 42, 0.12);"), "section rule is crimson");
   assert.ok(css.includes("--gtp-shell-border:    rgba(225, 29, 42, 0.20);"), "shell border is crimson");
-  assert.ok(css.includes("--vault-gold-bright: #F23645;"), "site accent flipped to V1 crimson");
+  // Program 137 lightened this crimson #F23645 -> #FA4A5A: as a TEXT colour the original
+  // measured 3.21-4.49:1 on the dark surfaces, under WCAG AA everywhere it labelled
+  // something. The guard still asserts what it always meant — the site accent is CRIMSON,
+  // not the legacy gold — against the value that is now actually shipped.
+  assert.ok(css.includes("--vault-gold-bright: #FA4A5A;"), "site accent is V1 crimson");
   assert.ok(css.includes("--vault-gold: #D4AF37;"), "true gold preserved for the Bank Builder crown");
 });
 

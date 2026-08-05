@@ -149,6 +149,26 @@ if [ "$NO_BUILD" = "0" ]; then
     npm run build > /tmp/gtp_build.log 2>&1 \
         && ok "build" \
         || { tail -40 /tmp/gtp_build.log; err "build FAILED"; cd ..; exit 1; }
+
+    # Accessibility. The product-quality launch gate was PARTIAL on exactly this: an audit existed
+    # nowhere and the e2e specs were wired into no runner. A measurement taken once is a snapshot,
+    # not a gate — the skipped heading level, the invisible focus ring on the whole desktop nav, and
+    # four sub-AA colour tokens were all introduced by ordinary changes that no check would catch.
+    step "Frontend — accessibility (structural)"
+    node scripts/audit-accessibility.mjs > /tmp/gtp_a11y.log 2>&1 \
+        && ok "structural a11y (9 routes)" \
+        || { cat /tmp/gtp_a11y.log; err "structural a11y FAILED"; cd ..; exit 1; }
+
+    # Contrast/keyboard/reflow need a real engine. Skipped with a LOUD notice when browsers are
+    # absent rather than silently passing — an absent browser must never read as a green gate.
+    step "Frontend — accessibility (browser: contrast · keyboard · reflow)"
+    if npx playwright install --dry-run chromium > /dev/null 2>&1 && [ -d "$HOME/Library/Caches/ms-playwright" -o -d "$HOME/.cache/ms-playwright" ]; then
+        npx playwright test e2e/accessibility.spec.ts > /tmp/gtp_a11y_browser.log 2>&1 \
+            && ok "browser a11y ($(grep -oE '[0-9]+ passed' /tmp/gtp_a11y_browser.log | tail -1))" \
+            || { tail -30 /tmp/gtp_a11y_browser.log; err "browser a11y FAILED"; cd ..; exit 1; }
+    else
+        echo -e "  ${YELLOW}!${RESET} playwright browsers not installed — browser a11y NOT RUN (run: cd app && npm run e2e:install)"
+    fi
 fi
 cd ..
 
