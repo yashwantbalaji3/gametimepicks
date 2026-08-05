@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824082,
+  "date": "2026-08-05",
+  "capturedAt": "2026-08-05T12:50:50.811Z",
+  "availableAt": "2026-08-05T12:50:50.811Z",
+  "eventStartTime": "2026-08-05T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 702070,
+      "name": "Noah Cameron",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-07-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 4.8,
+        "bbAvg": 2.8,
+        "erAvg": 3.8,
+        "hrAvg": 1.2,
+        "kPer9": 7.53,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 108.67,
+        "k": 99,
+        "bb": 36,
+        "er": 59,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 665152,
+      "name": "Dean Kremer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 8,
+      "lastStartDate": "2026-07-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 4.4,
+        "bbAvg": 1.8,
+        "erAvg": 4.2,
+        "hrAvg": 1.6,
+        "kPer9": 7.92,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 36,
+        "k": 38,
+        "bb": 11,
+        "er": 26,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-05T12:50:50.811Z"
+  },
+  "recordHash": "5e2125a89059fc59bf031182e5101c705813661a97fccb28b4b127b0dcb56508"
+}
