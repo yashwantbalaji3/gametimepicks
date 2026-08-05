@@ -3,6 +3,7 @@ import { getMeta } from "@/lib/data";
 import { formatTimestamp } from "@/lib/format";
 import FooterFreshness from "./footer-freshness";
 import BrandMark from "./brand-mark";
+import SupportEntry from "./support-entry";
 
 export default function Footer() {
   const meta = getMeta();
@@ -118,6 +119,9 @@ export default function Footer() {
               <li><Link href="/system-status" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>System status</Link></li>
               <li><Link href="/research" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Research engine</Link></li>
               <li><Link href="/responsible-use" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Responsible use</Link></li>
+              {/* Renders nothing unless a real support destination is configured — see SupportEntry.
+                  A dead "Contact support" link is worse than none, so there is no placeholder here. */}
+              <li><SupportEntry compact /></li>
             </ul>
           </div>
         </nav>

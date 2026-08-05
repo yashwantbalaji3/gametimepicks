@@ -110,3 +110,36 @@ test("PRODUCTION TRUTH · the repository ships no support destination, so no sup
   walk(out);
   assert.deepEqual(offenders, [], `exported HTML contains mailto: links with no support contract behind them:\n${offenders.join("\n")}`);
 });
+
+test("the footer entry point consults the contract and ships no placeholder", () => {
+  const entry = fs.readFileSync(path.join(APP, "src/components/support-entry.tsx"), "utf8");
+  assert.match(entry, /resolveSupportConfig/, "the entry point must ask the contract, not read env itself");
+  assert.match(entry, /if \(!support\.enabled\) return null/, "unconfigured must render NOTHING");
+  // A disabled/greyed control is the failure mode the contract exists to prevent. Comments are
+  // stripped first: this asserts about shipped MARKUP, and the component's own comment explains
+  // why it renders no disabled control — which the naive regex flagged as a violation.
+  const code = entry.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  assert.doesNotMatch(code, /coming soon|aria-disabled|disabled=/i, "no dead support affordance may ship");
+
+  const footer = fs.readFileSync(path.join(APP, "src/components/footer.tsx"), "utf8");
+  assert.match(footer, /<SupportEntry/, "the entry point is wired into the footer");
+  const footerCode = footer.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.doesNotMatch(footerCode, /Contact support/, "the footer must not hardcode the label — the component owns it");
+});
+
+test("PRODUCTION TRUTH · no support affordance appears in the export while unconfigured", () => {
+  const out = path.join(APP, "out");
+  if (!fs.existsSync(out)) return;
+  const offenders = [];
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else if (e.name.endsWith(".html") && /Contact support/i.test(fs.readFileSync(p, "utf8"))) {
+        offenders.push(path.relative(out, p));
+      }
+    }
+  };
+  walk(out);
+  assert.deepEqual(offenders.slice(0, 5), [], "a support control reached the export with no destination behind it");
+});

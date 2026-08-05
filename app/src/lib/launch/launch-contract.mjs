@@ -136,20 +136,31 @@ export function buildLaunchGates() {
        "keyboard traversal proven on Chromium + Firefox only: WebKit omits links from Tab order by default (Safari Full Keyboard Access), which no markup change affects",
        "reflow verified by viewport narrowing to 320px, the standard equivalent of 400% zoom, not by driving true browser zoom"]),
     g("measurement", "Privacy-safe production analytics", "BLOCKED",
-      "collector staging-proven; production NOOP — observer reports analytics OFF", "FOUNDER",
-      "Blob store + 3 env vars (founder-owned)"),
+      "§7 privacy approval SIGNED 2026-07-31; first-party collector built (api/collect.mjs) with kill switch, " +
+      "2KB cap, origin gate, no IP/UA/cookies; Program 138 added `npm run analytics:check` — ladder state " +
+      "APPROVED_NOT_CONFIGURED, all 9 offline contract checks pass. Preparation is complete; nothing is collected", "FOUNDER",
+      "founder must pick an endpoint option (docs/ANALYTICS_ENDPOINT_OPTIONS.md, recommended Option A, $0) and set " +
+      "NEXT_PUBLIC_ANALYTICS_ENABLED + NEXT_PUBLIC_ANALYTICS_ENDPOINT (build) and ANALYTICS_COLLECTOR_ENABLED (server)"),
     g("operations-support", "Incident response, alerting, rollback, support channel", "PARTIAL",
       "5/5 workflow alert routing + ops webhook proven; Program 137 added a fail-closed support configuration " +
       "contract (lib/support/support-config.mjs, 8 guards) that refuses placeholder/plaintext/partial config and " +
       "ships NO support UI while unconfigured — see docs/SUPPORT_READINESS.md", "FOUNDER",
       "no real support destination exists: GTP_SUPPORT_DESTINATION/OWNER/RESPONSE are unset everywhere. " +
-      "Founder must provide a monitored address + owner + response wording; configuration alone is not delivery"),
+      "Founder must provide a monitored address + owner + response wording; configuration alone is not delivery. " +
+      "Program 138 built and PROVED the activation path: a build with the three values renders the footer entry " +
+      "point with the destination and verbatim wording; the clean rebuild ships nothing"),
     g("business-legal", "Terms, privacy, jurisdiction, risk acceptance", "FAIL",
-      "no ToS or privacy policy route in the public export; no jurisdiction/age posture", "FOUNDER",
-      "legal/counsel decision required"),
+      "no ToS or privacy policy route in the public export; no jurisdiction/age posture. Program 138 prepared " +
+      "docs/LEGAL_CONTENT_MAP.md: repository facts a adviser can rely on, 5 founder business decisions, " +
+      "6 adviser questions, route map, and acceptance evidence. No legal text was invented or published", "FOUNDER",
+      "founder answers entity/jurisdiction/geography/age/audience (~30 min, free), then one adviser consultation. " +
+      "Longest lead time of the four gates — start this first"),
     g("user-validation", "Beta cohort, feedback loop, adoption baseline", "FAIL",
-      "measurement never live → no observed audience of any size; no beta cohort defined", "FOUNDER",
-      "depends on measurement gate"),
+      "measurement never live → no observed audience of any size. Program 138 prepared " +
+      "docs/PRIVATE_BETA_COHORT_CONTRACT.md: access model (static export cannot authenticate — an unlisted URL " +
+      "is NOT private access), 8-tester/14-day proposal, consent, metrics, stop conditions, go/no-go", "FOUNDER",
+      "founder approves the cohort; hard-depends on the support channel existing first — a tester who finds a " +
+      "problem must have somewhere to report it"),
     g("cost-capacity", "API budget, platform limits, usage alerts", "PASS",
       "Odds credits ~19.1k of 20k with sentinel + floors; duplicate builds eliminated", "ENGINEERING"),
   ];

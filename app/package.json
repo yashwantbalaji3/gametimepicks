@@ -12,6 +12,7 @@
     "e2e:install": "playwright install chromium webkit firefox",
     "a11y": "node scripts/audit-accessibility.mjs && playwright test e2e/accessibility.spec.ts",
     "a11y:contrast": "node scripts/measure-contrast.mjs",
+    "analytics:check": "npx tsx scripts/analytics-activation-check.mjs",
     "e2e:ui": "playwright test --ui",
     "mlb:grade-results": "cd .. && PYTHONPATH=. python3 -m pipeline.mlb.settle_mlb_results",
     "mlb:export-results": "cd .. && PYTHONPATH=. python3 -m pipeline.mlb.export_mlb_results",
