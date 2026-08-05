@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824482,
+  "date": "2026-08-05",
+  "capturedAt": "2026-08-05T20:21:13.140Z",
+  "availableAt": "2026-08-05T20:21:13.140Z",
+  "eventStartTime": "2026-08-05T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 695076,
+      "name": "Rhett Lowder",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 6,
+      "lastStartDate": "2026-07-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 5,
+        "bbAvg": 0.8,
+        "erAvg": 4.2,
+        "hrAvg": 0.8,
+        "kPer9": 9.51,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 76,
+        "k": 67,
+        "bb": 32,
+        "er": 49,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 682052,
+      "name": "Jacob Lopez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 7,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 18.33,
+        "ipAvg": 3.67,
+        "kAvg": 4.4,
+        "bbAvg": 2,
+        "erAvg": 2,
+        "hrAvg": 0.2,
+        "kPer9": 10.8,
+        "workloadIpLast5": 18.33
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 61.33,
+        "k": 53,
+        "bb": 38,
+        "er": 39,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-05T20:21:13.140Z"
+  },
+  "recordHash": "5d5cdacc424f2be8af3913612b96230ad2969353cc772e43810e1d89bf0f27c5"
+}
