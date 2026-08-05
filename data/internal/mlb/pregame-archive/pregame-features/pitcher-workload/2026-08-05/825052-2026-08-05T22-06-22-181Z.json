@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 825052,
+  "date": "2026-08-05",
+  "capturedAt": "2026-08-05T22:06:22.181Z",
+  "availableAt": "2026-08-05T22:06:22.181Z",
+  "eventStartTime": "2026-08-06T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 683352,
+      "name": "Mitch Bratt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 5,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.67,
+        "ipAvg": 4.13,
+        "kAvg": 2.4,
+        "bbAvg": 3,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 5.23,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 20.67,
+        "k": 12,
+        "bb": 15,
+        "er": 12,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 663554,
+      "name": "Casey Mize",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 11,
+      "lastStartDate": "2026-07-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 5.4,
+        "bbAvg": 1,
+        "erAvg": 1.4,
+        "hrAvg": 0.2,
+        "kPer9": 8.48,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 86.67,
+        "k": 85,
+        "bb": 19,
+        "er": 26,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-05T22:06:22.181Z"
+  },
+  "recordHash": "97c5aeeb04baab46ab5bfccefdc152979c82e9cc52842182fb88ff24d323ec4c"
+}

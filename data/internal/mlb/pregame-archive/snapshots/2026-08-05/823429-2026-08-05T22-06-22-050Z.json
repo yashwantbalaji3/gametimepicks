@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823429-e5ace0b3cf0ecf2d6f913671a492869b",
+  "snapshotCreatedAt": "2026-08-05T22:06:22.050Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-05",
+  "eventId": "823429",
+  "gamePk": 823429,
+  "eventStartTime": "2026-08-05T22:40:00Z",
+  "homeTeam": "PHI",
+  "awayTeam": "WSH",
+  "venue": "Citizens Bank Park",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "7e27e090eaa58d26f0c5aa09009161f0",
+  "normalizedPayloadHash": "6fdacd62d2ca38ce44334f03a570d9d8",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          656941,
+          607208,
+          547180,
+          650333,
+          664761,
+          669016,
+          592663,
+          681082,
+          702222
+        ],
+        "away": [
+          682928,
+          694673,
+          686611,
+          695734,
+          660688,
+          677588,
+          683083,
+          678391,
+          696285
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-05T22:06:22.050Z",
+      "availableAt": "2026-08-05T22:06:22.050Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-05T22:06:22.050Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823429/feed/live",
+        "requestedAt": "2026-08-05T22:06:22.050Z",
+        "receivedAt": "2026-08-05T22:06:22.050Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Andrew Painter",
+        "awayProbable": "Jake Irvin",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-05T22:06:22.050Z",
+      "availableAt": "2026-08-05T22:06:22.050Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-05T22:06:22.050Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823429/feed/live",
+        "requestedAt": "2026-08-05T22:06:22.050Z",
+        "receivedAt": "2026-08-05T22:06:22.050Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Overcast",
+        "temp": "80",
+        "wind": "7 mph, Out To LF",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-05T22:06:22.050Z",
+      "availableAt": "2026-08-05T22:06:22.050Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-05T22:06:22.050Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823429/feed/live",
+        "requestedAt": "2026-08-05T22:06:22.050Z",
+        "receivedAt": "2026-08-05T22:06:22.050Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Ron Kulpa",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Scott Barry",
+            "type": "First Base"
+          },
+          {
+            "name": "Manny Gonzalez",
+            "type": "Second Base"
+          },
+          {
+            "name": "Tom Hanahan",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-05T22:06:22.050Z",
+      "availableAt": "2026-08-05T22:06:22.050Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-05T22:06:22.050Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823429/feed/live",
+        "requestedAt": "2026-08-05T22:06:22.050Z",
+        "receivedAt": "2026-08-05T22:06:22.050Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
