@@ -163,10 +163,12 @@ test("3 · a settled date newer than the newest generated board is a CONTRADICTI
       0,
       "board AGE alone must never become a failure — it rides as a warning",
     );
-    assert.ok(
-      o.failures.some((f) => /^FRESHNESS STALE/.test(f)),
-      "…but a fixture with no board for today must still trip the freshness SLO",
-    );
+    // NOTE — deliberately NOT asserting the freshness-SLO message here. The SLO's severity is
+    // hour-dependent by design (silent before 11:00 ET, WARN after, FAIL after 14:00), so any
+    // assertion about it in this fixture-driven integration test is really an assertion about
+    // the wall clock: an earlier version demanded a FAIL and passed only in the afternoon, then
+    // went red at 08:2x the next morning. The escalation thresholds are proven properly in
+    // daily-freshness-slo.test.mjs, which injects the hour explicitly.
   } finally {
     fs.rmSync(fixture, { recursive: true, force: true });
   }

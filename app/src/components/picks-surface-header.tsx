@@ -30,6 +30,10 @@ export interface PicksSurfaceHeaderProps {
   primaryAction?: { label: string; href: string };
   secondaryAction?: { label: string; href: string };
   note?: string;
+  /** Override the status pill's label while keeping its tone. Used when a derived signature
+   *  state carries a more specific truth than the generic status word — e.g. a stale lane is
+   *  "Not published today", which says more than "Data pending". */
+  statusLabel?: string;
 }
 
 const STATUS_META: Record<PicksSurfaceStatus, { label: string; color: string; bg: string }> = {
@@ -61,7 +65,7 @@ function fmtSlate(iso?: string): string | null {
 }
 
 export default function PicksSurfaceHeader({
-  title, eyebrow, slateDate, status = "pregame", counts, primaryAction, secondaryAction, note,
+  title, eyebrow, slateDate, status = "pregame", counts, primaryAction, secondaryAction, note, statusLabel,
 }: PicksSurfaceHeaderProps) {
   const s = STATUS_META[status];
   const slateLabel = fmtSlate(slateDate);
@@ -89,7 +93,7 @@ export default function PicksSurfaceHeader({
           style={{ color: s.color, background: s.bg, border: `1px solid ${s.color}`, fontSize: 9.5 }}
         >
           <span aria-hidden style={{ width: 5, height: 5, borderRadius: 999, background: s.color }} />
-          {s.label}
+          {statusLabel ?? s.label}
         </span>
       </div>
 

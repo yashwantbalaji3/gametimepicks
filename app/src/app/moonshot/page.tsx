@@ -14,6 +14,7 @@ import { buildStructuredMoonshot } from "@/lib/world-cup/structured-moonshot";
 import MoonshotLadderV2 from "@/components/moonshot/ladder-v2";
 import StructuredMoonshotSection from "@/components/world-cup/structured-moonshot-section";
 import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-surface-header";
+import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { currentEtDate } from "@/lib/freshness";
@@ -42,7 +43,21 @@ const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFrac
 export default function MoonshotPage() {
   const lane = loadMoonshotLane();
   const { record, exposure } = loadMoonshotPortfolio();
-  const status: PicksSurfaceStatus = lane?.status === "stopped" ? "settled" : lane?.status === "active" ? "live" : "data_pending";
+  // Today's ET slate is resolved below; the lane's own date comes from the artifact so a stale
+  // file can never borrow today's date.
+  const etToday = currentEtDate();
+  const laneDate = typeof lane?.generatedAt === "string" ? lane.generatedAt.slice(0, 10) : null;
+
+  // Availability comes from the shared signature-state derivation — NOT from the lane's
+  // self-declared status. The previous inline ternary read `lane.status` alone, so a lane
+  // generated 2026-07-21 with status "active" rendered as "Slate in progress" fifteen days later.
+  // Freshness outranks a file's opinion of itself.
+  const signature = presentFromArtifact({
+    slateDate: etToday,
+    artifactDate: laneDate,
+    artifactStatus: lane?.status ?? null,
+  });
+  const status = signature.surfaceStatus as PicksSurfaceStatus;
 
   // Today's daily portfolio — the activated Moonshot A/B lanes render as the lead ladder.
   const today = currentSlateDate() ?? currentEtDate();
@@ -65,6 +80,7 @@ export default function MoonshotPage() {
         eyebrow="Moonshot Lane"
         title="Moonshot Lane"
         status={status}
+        statusLabel={signature.label}
         counts={record ? { settled: record.wins + record.losses + record.voids, pending: record.pending } : undefined}
         primaryAction={{ label: "Open Bank Builder", href: "/bank-builder" }}
         secondaryAction={{ label: "Mr. Dub", href: "/mr-dub" }}
