@@ -5,7 +5,37 @@ CURRENT) → `origin/main` was **7 bot commits ahead**, fast-forwarded to `d98b9
 queued writer. Dirty tree is `vp/` only — cowork-owned, and Program 134 staged/committed **zero**
 `vp/` paths.
 
-## Classification: `PROGRAM_134_OPEN_PENDING_OVERNIGHT`
+> ## ✅ GAP 1 CLOSED — overnight acceptance PASSED (2026-08-05 04:00 ET, run `30987160294`)
+>
+> ```
+> settled=592 decisive=566 wins=292 losses=274 pushes=0 voids=26
+> hit_rate=0.5159 pending_games=0 unavailable=4 no_play=82 published=678 reconciles=YES
+> ```
+>
+> **The acceptance identity banked before the run holds exactly:**
+> `592 settled + 82 no-play + 4 unavailable = 678 published`, `unresolvedCount: 0`,
+> `reconciles: true`. The pre-settlement prediction written at 21:52 ET — *"82 no-play → expect
+> settled + unavailable = 596"* — was exactly right (592 + 4 = 596).
+>
+> This is the **production proof for the reconciliation accounting shipped in Program 134**: the
+> deployed code path emitted explicit `no_play` and `reconciles=YES` on a real slate, so the
+> silent-drop defect found on Aug 3 cannot recur unnoticed.
+>
+> - Ledger: 592 rows, **592 unique ids** (no double grading), 292 W / 274 L / 26 Void.
+> - Base board **byte-identical**: `a638a49bf838dfee26fa4579ad1ecc634e214a0d42e1deaff4eebb831fa6e750`.
+> - **Third** automated research-contract persistence (`dd7ed566`) with real diffs to
+>   `terminal-summary` (84), `daily-brief` (66), `system-status` (4); contract
+>   `asOfSettledDate = 2026-08-04` = ledger newest settled.
+> - Protected money unchanged: `affe6b21…` / `cb80473f…`, **19–14 · $19,065.40**.
+>
+> **On the 51.59% hit rate: this is one day, and it is not evidence of beating the market.** The
+> standing conclusion (model adds nothing beyond the de-vigged market) is unchanged and was not
+> re-examined here.
+>
+> Remaining Program 134 gaps: signature-state UI consumption (open) and `WATCHDOG_STATE`
+> consumption (**closed in Program 135**, `a36958d5`).
+
+## Classification: `PROGRAM_134_OPEN_PENDING_OVERNIGHT` → **1 of 3 gaps now closed**
 
 Not closed. The completion gate requires the **Aug 4 population to reconcile through the deployed
 code path**, and the authoritative settlement owner (`nightly-settle`, 01:30/03:30 ET) has not run
