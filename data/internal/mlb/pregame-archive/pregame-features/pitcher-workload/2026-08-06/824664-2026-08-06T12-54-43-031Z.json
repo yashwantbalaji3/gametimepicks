@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824664,
+  "date": "2026-08-06",
+  "capturedAt": "2026-08-06T12:54:43.031Z",
+  "availableAt": "2026-08-06T12:54:43.031Z",
+  "eventStartTime": "2026-08-06T18:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656849,
+      "name": "David Peterson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 5,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 4,
+        "bbAvg": 2,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 6.59,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 70.33,
+        "k": 60,
+        "bb": 31,
+        "er": 48,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 656302,
+      "name": "Dylan Cease",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 36,
+        "ipAvg": 7.2,
+        "kAvg": 9.2,
+        "bbAvg": 2.2,
+        "erAvg": 0.8,
+        "hrAvg": 0.4,
+        "kPer9": 11.5,
+        "workloadIpLast5": 36
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 119.33,
+        "k": 174,
+        "bb": 51,
+        "er": 32,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-06&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-06T12:54:43.031Z"
+  },
+  "recordHash": "39a2871a7a4175971bca13dd06cd7febe25333f5d843b49f567156282ec01b3f"
+}

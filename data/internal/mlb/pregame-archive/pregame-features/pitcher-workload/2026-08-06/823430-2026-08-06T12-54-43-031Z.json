@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823430,
+  "date": "2026-08-06",
+  "capturedAt": "2026-08-06T12:54:43.031Z",
+  "availableAt": "2026-08-06T12:54:43.031Z",
+  "eventStartTime": "2026-08-06T22:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 650911,
+      "name": "Cristopher Sánchez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 6.4,
+        "bbAvg": 2,
+        "erAvg": 3.2,
+        "hrAvg": 0.8,
+        "kPer9": 10.41,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 144.67,
+        "k": 168,
+        "bb": 33,
+        "er": 42,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 571945,
+      "name": "Miles Mikolas",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 5,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 2.4,
+        "bbAvg": 1.2,
+        "erAvg": 4.2,
+        "hrAvg": 1.8,
+        "kPer9": 4.1,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 48,
+        "k": 29,
+        "bb": 14,
+        "er": 43,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-06&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-06T12:54:43.031Z"
+  },
+  "recordHash": "537b2eb6277db3b2ce8d2095d7b2c4c94d3629ee45e202ee386f1dd90cbcb4bc"
+}

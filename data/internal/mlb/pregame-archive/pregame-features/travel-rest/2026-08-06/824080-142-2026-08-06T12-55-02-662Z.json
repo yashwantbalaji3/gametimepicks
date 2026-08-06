@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824080,
+  "teamId": 142,
+  "name": "Minnesota Twins",
+  "side": "away",
+  "date": "2026-08-06",
+  "capturedAt": "2026-08-06T12:55:02.662Z",
+  "availableAt": "2026-08-06T12:55:02.662Z",
+  "eventStartTime": "2026-08-06T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 8,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-05",
+  "previousVenueId": 7,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=142&startDate=2026-07-23&endDate=2026-08-05",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-06T12:55:02.662Z"
+  },
+  "recordHash": "e84e3b79cc931a5495adc98019ecf83397afca0fd5f8f5dafa419a585f79bffd"
+}

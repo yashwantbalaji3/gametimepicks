@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824481,
+  "date": "2026-08-06",
+  "capturedAt": "2026-08-06T12:54:43.031Z",
+  "availableAt": "2026-08-06T12:54:43.031Z",
+  "eventStartTime": "2026-08-06T16:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 671096,
+      "name": "Andrew Abbott",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 4.4,
+        "bbAvg": 2.8,
+        "erAvg": 2.4,
+        "hrAvg": 0.4,
+        "kPer9": 7.33,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 122,
+        "k": 95,
+        "bb": 59,
+        "er": 53,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 686930,
+      "name": "Mason Barnett",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 7,
+      "lastStartDate": "2026-07-30",
+      "last5": {
+        "starts": 1,
+        "ipSum": 5,
+        "ipAvg": 5,
+        "kAvg": 6,
+        "bbAvg": 1,
+        "erAvg": 3,
+        "hrAvg": 0,
+        "kPer9": 10.8,
+        "workloadIpLast5": 5
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 5,
+        "k": 6,
+        "bb": 1,
+        "er": 3,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-06&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-06T12:54:43.031Z"
+  },
+  "recordHash": "0d19850cee54e2fdcf091beb924d9921007f4bcf69916d7b039f07cd3c61e621"
+}
