@@ -15,6 +15,7 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import FreshnessBadge from "@/components/ui/freshness-badge";
+import { deriveProductState, productStateLabel, productStateExplanation, isLive } from "@/lib/products/product-state.mjs";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import ClimbHero, { type ClimbLane, type ClimbRung, type ClimbClearedDetail } from "@/components/bank-builder/climb-hero";
 import { readLaneReviewCard } from "@/lib/bank-builder/review-card";
@@ -175,6 +176,29 @@ export default function BankBuilderPage() {
   // Today's daily portfolio — feeds the ClimbHero (current/peak bankroll, open exposure, lane cards).
   const today = currentSlateDate() ?? currentEtDate();
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+
+  // ── PRODUCT STATE (Program 140) ───────────────────────────────────────────────────────────────
+  // Read from THIS PRODUCT'S OWN artifact, never the MLB slate. The two diverge exactly when the
+  // card generator has not run — which is the fifteen-day window in which this page said
+  // "Live today" over 2026-07-21 cards.
+  const bbArtifact = ((): { date: string | null; cards: number } => {
+    try {
+      const j = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "daily-portfolio.json"), "utf8"));
+      const cards = Array.isArray(j.lanes)
+        ? j.lanes.filter((l: { product?: string; status?: string }) => l.product === "bank-builder" && l.status === "active").length
+        : 0;
+      return { date: typeof j.date === "string" ? j.date : null, cards };
+    } catch {
+      return { date: null, cards: 0 };
+    }
+  })();
+  const bbProductState = deriveProductState({
+    productDate: currentEtDate(),
+    artifactDate: bbArtifact.date,
+    publishedCards: bbArtifact.cards,
+  });
+  const bbStateLabel = productStateLabel(bbProductState, { artifactDate: bbArtifact.date, productDate: currentEtDate() });
+  const bbStateExplanation = productStateExplanation(bbProductState);
   const bbProposal = buildBankBuilderProposal(path.join(process.cwd(), "public", "data"), today);
 
   // ── ClimbHero props — built ONLY from data already loaded above (dailyPortfolio + bbPreview +
@@ -264,17 +288,29 @@ export default function BankBuilderPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
-      {/* KNOWN DEFECT (Program 139, not yet fixed — see docs/PRODUCT_READINESS_AUDIT.md P0-4).
-          This badge reads "Live today" because it is fed the MLB SLATE date, which the daily board
-          keeps current. The Bank Builder CARDS below it are a different artifact on a different
-          schedule, and `refresh_daily_products.sh` — the only thing that regenerates them — is not
-          scheduled in any workflow, so the lanes have been unchanged since 2026-07-21.
-          The correct fix is to feed this the newest published CARD date, not the slate date.
-          `bbPreview.date` is NOT that value (it is the slate date passed through), which is why the
-          obvious one-line change does nothing. It needs the bank-builder ledger/summary artifact
-          date, and a fixture test that fails when slate and card dates diverge. */}
-      <div className="mb-3 flex justify-end">
-        <FreshnessBadge slateDate={today} serverToday={currentEtDate()} noun="card slate" />
+      {/* Operating state from THIS product's own artifact (Program 140). The badge previously took
+          the MLB slate date, which the daily board keeps current, so a fifteen-day-old set of cards
+          rendered under "Live today". `deriveProductState` cannot produce a live label without a
+          card published for the current date, and it distinguishes "we ran and nothing qualified"
+          from "we never ran" — those rendered identically before. */}
+      <div className="mb-3 flex flex-col items-end gap-1">
+        {/* The freshness badge answers "is the artifact current?" and says "Live today" when it is.
+            That is true of the ARTIFACT but contradicts the product state directly beneath it when
+            today's honest answer is a no-play — two labels, one saying live, one saying no card.
+            It renders only when a card is actually running; otherwise the state label below is both
+            more precise and the only claim on screen. */}
+        {isLive(bbProductState) ? (
+          <FreshnessBadge slateDate={bbArtifact.date ?? today} serverToday={currentEtDate()} noun="card slate" />
+        ) : null}
+        <span
+          className="font-mono uppercase tracking-[0.1em]"
+          style={{ color: isLive(bbProductState) ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 10 }}
+        >
+          {bbStateLabel}
+        </span>
+        <span style={{ color: "var(--vault-text-faint)", fontSize: 11, maxWidth: "52ch", textAlign: "right" }}>
+          {bbStateExplanation}
+        </span>
       </div>
 
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
