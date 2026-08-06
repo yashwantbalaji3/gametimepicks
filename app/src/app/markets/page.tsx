@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import MarketCenter from "@/components/market-center";
 import HowToReadMarkets from "@/components/markets/how-to-read-markets";
+import ModelRankedList from "@/components/markets/model-ranked-list";
+import { buildTop10Board } from "@/lib/top10/top10-picks";
 import PageHero from "@/components/page-hero";
 import DisagreementExplorer from "@/components/research/disagreement-explorer";
 import { currentEtDate } from "@/lib/freshness";
@@ -90,6 +92,15 @@ export default function MarketsPage() {
           and native <details> so it is keyboard-operable and works on touch — a tooltip would not. */}
       <section className="reveal" style={{ marginTop: 24 }}>
         <HowToReadMarkets />
+      </section>
+
+      {/* Model-ranked picks (Program 142, Train 1 step 3B). This is the destination for the full
+          ranked board that currently only exists on /picks — it has to be live BEFORE /picks can be
+          retired, or the merge would delete the capability again. Collapsed and placed BELOW the
+          beginner comparison view: the founder's complaint about this page was that it opened with a
+          wall of numbers, and a second wall above the reading key would undo the Program 141 fix. */}
+      <section className="reveal" style={{ marginTop: 24 }}>
+        <ModelRankedList board={buildTop10Board(`${process.cwd()}/public/data`, today, Date.now())} />
       </section>
 
       <section className="reveal" style={{ marginTop: 28 }}>
