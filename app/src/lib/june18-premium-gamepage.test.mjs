@@ -47,8 +47,11 @@ test("UFC: a settled event is never an active surface — /ufc is the settled ar
   const page = read("src/app/ufc/page.tsx");
   assert.match(page, /settlement\.status === "final" \? settlement : null/, "record renders only from the OFFICIAL final settlement");
   assert.doesNotMatch(page, /ShellTab|next slate loading soon/, "no active-card tab chrome or next-slate framing remains");
-  const picks = read("src/app/picks/page.tsx");
-  assert.match(picks, /ufcSettled\(\) \? null/, "settled UFC cards stay excluded from the live /picks slate");
+  // The exclusion moved with the card composition into lib/picks/suggested-cards.ts (Program 142
+  // step 3C) so Build reuses it rather than cloning it. The rule is identical; only its owner moved,
+  // and it now protects EVERY surface that shows suggested cards instead of just /picks.
+  const loader = read("src/lib/picks/suggested-cards.ts");
+  assert.match(loader, /ufcSettled\(\) \? null/, "settled UFC cards stay excluded from every live suggested-card slate");
 });
 
 test("Picks coverage: slate exposes per-sport suggestedByRisk for every risk tier + mixed", () => {

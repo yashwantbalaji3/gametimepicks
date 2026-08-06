@@ -43,10 +43,16 @@ test("expanded model-only props are graded for learning, never as priced P&L", (
   assert.ok(s.expandedModelOnly.goesDistance.graded > 0, "goes-distance graded for calibration");
 });
 
-test("settled UFC cards are gated out of active /picks", () => {
+test("settled UFC cards are gated out of every active suggested-card slate", () => {
+  // The gate moved from /picks into lib/picks/suggested-cards.ts (Program 142 step 3C) so Build's
+  // Suggested Cards mode reuses it rather than cloning it. Same rule, wider protection — checking
+  // the page would now pass on a page that had stopped applying it.
+  const loader = fs.readFileSync("src/lib/picks/suggested-cards.ts", "utf8");
+  assert.ok(loader.includes("ufcSettled()"), "the shared loader checks UFC settlement");
+  assert.ok(/ufcSettled\(\) \? null/.test(loader), "settled → UFC cards excluded from the live slate");
+  // And every consumer must go through it rather than composing its own list.
   const picks = fs.readFileSync("src/app/picks/page.tsx", "utf8");
-  assert.ok(picks.includes("ufcSettled()"), "/picks checks UFC settlement");
-  assert.ok(/ufcSettled\(\) \? null/.test(picks), "settled → UFC cards excluded from the live slate");
+  assert.ok(picks.includes("loadSuggestedCards("), "/picks consumes the shared loader");
 });
 
 test("Bank Builder remains the completed crown (untouched by UFC settlement)", () => {

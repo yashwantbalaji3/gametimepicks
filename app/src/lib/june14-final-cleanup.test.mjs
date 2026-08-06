@@ -15,10 +15,16 @@ test("loadDailyMixedCards date-gates a stale slate (no stale cards as active pic
   const src = read("src/lib/normalize.ts");
   assert.ok(/loadDailyMixedCards\(today\?: string\)/.test(src), "accepts a today gate");
   assert.ok(src.includes('if (today && d.date && d.date !== today) return []'), "stale (non-today) slate returns []");
-  // /picks passes today + gates the World Cup artifact to today.
+  // The composition moved out of /picks into lib/picks/suggested-cards.ts (Program 142 step 3C) so
+  // Build could reuse it instead of cloning it. The gate is unchanged — only its owner moved, so
+  // this now checks the module that actually applies it rather than the page that used to.
+  const loader = read("src/lib/picks/suggested-cards.ts");
+  assert.ok(loader.includes("loadDailyMixedCards(today)"), "the shared loader passes the today gate");
+  assert.ok(loader.includes("wcParlays.date === today"), "the shared loader gates the World Cup artifact to today");
+  // And /picks must consume that loader rather than rebuilding the list inline.
   const picks = read("src/app/picks/page.tsx");
-  assert.ok(picks.includes("loadDailyMixedCards(today)"), "/picks passes the today gate");
-  assert.ok(/wcParlays\.date === today/.test(picks), "/picks gates World Cup cards to today");
+  assert.ok(picks.includes("loadSuggestedCards(today)"), "/picks consumes the shared loader");
+  // (The World Cup gate is asserted on the shared loader above — it no longer lives in the page.)
 });
 
 test("Bank Builder shows the LIVE Dual Bank Builder (no stale Coming Soon teaser)", () => {

@@ -17,6 +17,7 @@ import {
   type PublicSuggestedCard,
 } from "@/lib/normalize";
 import PicksExperience from "@/components/picks-experience";
+import { loadSuggestedCards } from "@/lib/picks/suggested-cards";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
 import HowToRead from "@/components/how-to-read";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
@@ -36,26 +37,6 @@ export const metadata = {
     "Every suggested paper card in one place — MLB and more, by sport and risk. Enter any stake to see the projected paper return. Educational, paper-only.",
 };
 
-function loadUfc(): unknown {
-  try {
-    return JSON.parse(
-      fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", "suggested-parlays-latest.json"), "utf8"),
-    );
-  } catch {
-    return null;
-  }
-}
-
-/** True once the UFC event has been officially settled — its cards are then a result, not an
- *  active pick, so /picks must stop showing them in the live slate. */
-function ufcSettled(): boolean {
-  try {
-    const s = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", "results-settled-latest.json"), "utf8"));
-    return s?.status === "final";
-  } catch {
-    return false;
-  }
-}
 
 export default function PicksPage() {
   // Frame on the latest generated slate (equals the wall clock once an overnight slate exists).
@@ -64,16 +45,7 @@ export default function PicksPage() {
   // Only TODAY's slate is an active pick. Stale daily-mixed + World Cup artifacts (last
   // generated on an earlier date) are date-gated out so /picks never leads with old cards.
   // Order = tonight's focus first: UFC, then MLB, then any still-current WC/mixed.
-  const wcParlays = loadWorldCupParlays();
-  const freshWcParlays = wcParlays && wcParlays.date === today ? wcParlays : null;
-  // Settled UFC cards are a result, not an active pick — gate them out of the live slate.
-  const ufcCardsForToday = ufcSettled() ? null : (loadUfc() as Parameters<typeof normalizeUfcCards>[0]);
-  const cards: PublicSuggestedCard[] = [
-    ...normalizeUfcCards(ufcCardsForToday, today),
-    ...normalizeOptimizerSlips(getSuggestedParlaysForDate(today)?.slips ?? null, { date: today }),
-    ...normalizeWcCards(freshWcParlays),
-    ...loadDailyMixedCards(today),
-  ];
+  const cards: PublicSuggestedCard[] = loadSuggestedCards(today);
 
   // Bank Builder final step leads the Picks lobby when an official candidate is published.
   const step5 = loadOfficialPublishedCandidate();
