@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-08-06T10:10:13.760Z",
+  "generatedAt": "2026-08-06T14:39:16.852Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -17,7 +17,7 @@
   },
   "slate": {
     "date": "2026-08-05",
-    "dailyPortfolioDate": "2026-08-05",
+    "dailyPortfolioDate": "2026-08-06",
     "activeBankroll": 19065.4,
     "openExposure": 0,
     "worldCupGames": 0,
@@ -109,7 +109,7 @@
   },
   "workflowHealth": {
     "lastRunAt": "2026-08-06T10:10:12.958Z",
-    "ageHours": 0,
+    "ageHours": 4.5,
     "ok": true,
     "status": "pass",
     "phase": "nightly-settle"
@@ -117,19 +117,19 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-08-06",
-    "etTime": "06:10",
+    "etTime": "10:39",
     "stages": [
       {
         "stage": "schedule",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "09:30",
         "producedBy": "morning-projections"
       },
       {
         "stage": "board",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "09:30",
         "producedBy": "morning-projections"
       },
@@ -164,18 +164,18 @@
     ],
     "readyCount": 0,
     "totalStages": 6,
-    "lateCount": 0,
-    "signal": "YELLOW",
-    "summary": "0/6 produced; the rest are not due yet"
+    "lateCount": 2,
+    "signal": "RED",
+    "summary": "2 stage(s) overdue: schedule (due 09:30 ET via morning-projections), board (due 09:30 ET via morning-projections)"
   },
   "learningLoop": {
     "signal": "GREEN",
-    "summary": "learning data complete through 2026-08-05 (24754 rows)",
+    "summary": "learning data complete through 2026-07-27 (22660 rows)",
     "freshness": {
       "healthy": true,
-      "asOfSettledDate": "2026-08-05",
-      "corpusRows": 24754,
-      "ledgerRows": 24754,
+      "asOfSettledDate": "2026-07-27",
+      "corpusRows": 22660,
+      "ledgerRows": 22660,
       "lagDays": 0,
       "problems": []
     },
@@ -227,9 +227,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-08-05",
-  "nextRefreshDate": "2026-08-06",
-  "nextAction": "No active Bank Builder lane for 2026-08-05 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-08-06",
+  "nextRefreshDate": "2026-08-07",
+  "nextAction": "No active Bank Builder lane for 2026-08-06 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
