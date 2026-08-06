@@ -23,7 +23,7 @@ function Gap({ points }: { points: number }) {
   return (
     <span className="font-mono" style={{ fontSize: 11, color: Math.abs(points) < 1 ? "var(--vault-text-mute)" : "var(--vault-text)" }}>
       {points > 0 ? "+" : ""}
-      {points.toFixed(1)} pts
+      {points.toFixed(1)} pp
     </span>
   );
 }

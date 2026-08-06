@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import MarketCenter from "@/components/market-center";
+import HowToReadMarkets from "@/components/markets/how-to-read-markets";
 import PageHero from "@/components/page-hero";
 import DisagreementExplorer from "@/components/research/disagreement-explorer";
 import { currentEtDate } from "@/lib/freshness";
@@ -84,6 +85,12 @@ export default function MarketsPage() {
           </div>
         </section>
       ) : null}
+
+      {/* Reading key (Program 141). Collapsed by default, so it costs a returning reader nothing,
+          and native <details> so it is keyboard-operable and works on touch — a tooltip would not. */}
+      <section className="reveal" style={{ marginTop: 24 }}>
+        <HowToReadMarkets />
+      </section>
 
       <section className="reveal" style={{ marginTop: 28 }}>
         <MarketCenter

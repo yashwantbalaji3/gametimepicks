@@ -53,14 +53,25 @@ const pct = (p: number | null | undefined, digits = 1) =>
 const odds = (o: number | null | undefined) =>
   typeof o === "number" && Number.isFinite(o) && o !== 0 ? (o > 0 ? `+${o}` : `${o}`) : "—";
 
-/** Signed percentage-point gap. Neutral by construction — the sign carries no verdict. */
+/**
+ * Signed percentage-point gap. Neutral by construction — the sign carries no verdict.
+ *
+ * The unit is "pp", not "pts". This site uses "pts" elsewhere for actual SCORING points (the NBA
+ * points prop, projected team points), so labelling a probability difference "pts" collided with a
+ * real quantity: "-8.0 pts" read as eight points of scoring rather than eight percentage points of
+ * probability. `title` carries the expansion for anyone who does not know the abbreviation.
+ */
 function Gap({ points }: { points: number }) {
   const magnitude = Math.abs(points);
   const tone = magnitude < 1 ? "var(--vault-text-mute)" : "var(--vault-text)";
   return (
-    <span className="font-mono" style={{ color: tone, fontSize: 12 }}>
+    <span
+      className="font-mono"
+      style={{ color: tone, fontSize: 12 }}
+      title={`${points > 0 ? "+" : ""}${points.toFixed(1)} percentage points — the model estimate minus the market's implied probability`}
+    >
       {points > 0 ? "+" : ""}
-      {points.toFixed(1)} pts
+      {points.toFixed(1)} pp
     </span>
   );
 }
