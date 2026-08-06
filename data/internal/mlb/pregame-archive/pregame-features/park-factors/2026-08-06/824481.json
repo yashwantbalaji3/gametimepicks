@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "mlb-pregame-park-factors-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "park_factors",
+  "gamePk": 824481,
+  "date": "2026-08-06",
+  "capturedAt": "2026-08-06T04:10:15.707Z",
+  "availableAt": "2026-08-06T04:10:15.707Z",
+  "eventStartTime": "2026-08-06T16:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "static venue facts, captured pregame",
+  "venue": {
+    "id": 2602,
+    "name": "Great American Ball Park",
+    "city": "Cincinnati",
+    "elevation": 535,
+    "roofType": "Open",
+    "turfType": "Grass"
+  },
+  "factors": {
+    "runFactor": 100,
+    "hrFactor": 100,
+    "handednessEffect": null,
+    "runEnvironmentSignal": "sea-level-ish (535 ft)"
+  },
+  "source": "StatsAPI venue endpoint (FACTUAL: elevation/roof/turf/city). Numeric run/HR/handedness park factors are NOT loaded from any published source — runFactor/hrFactor default to a NEUTRAL 100 baseline; treat as neutral until a real source is loaded. Only runEnvironmentSignal is derived (from factual elevation).",
+  "updatePolicy": "Static per venue. Refresh factual attributes if a venue changes. Load numeric park factors annually from a published source (e.g. Statcast/FanGraphs park factors) in a SEPARATE internal reference; never fabricate.",
+  "leakageRule": "venue attributes are static/pregame; capturedAt recorded for provenance",
+  "recordHash": "26fc013fa9db48a9436f532abecb137c1221cc42b81b3d685c0f830db5f3f0f9"
+}

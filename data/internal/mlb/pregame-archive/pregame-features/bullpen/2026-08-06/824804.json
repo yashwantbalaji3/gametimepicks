@@ -1,0 +1,212 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824804,
+  "date": "2026-08-06",
+  "capturedAt": "2026-08-06T04:10:03.935Z",
+  "availableAt": "2026-08-06T04:10:03.935Z",
+  "eventStartTime": "2026-08-06T16:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-03",
+    "2026-08-04",
+    "2026-08-05"
+  ],
+  "home": {
+    "teamId": 110,
+    "teamName": "Baltimore Orioles",
+    "last1Day": {
+      "appearances": 4,
+      "pitches": 42,
+      "relievers": [
+        {
+          "id": 666974,
+          "name": "Yennier Cano",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 695380,
+          "name": "Alex Hoppe",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 670329,
+          "name": "Rico Garcia",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 1,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 552640,
+          "name": "Andrew Kittredge",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 98,
+      "relievers": [
+        {
+          "id": 666974,
+          "name": "Yennier Cano",
+          "appearances": 2,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-08-04",
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 670329,
+          "name": "Rico Garcia",
+          "appearances": 2,
+          "pitches": 29,
+          "outs": 4,
+          "dates": [
+            "2026-08-04",
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 552640,
+          "name": "Andrew Kittredge",
+          "appearances": 2,
+          "pitches": 21,
+          "outs": 6,
+          "dates": [
+            "2026-08-04",
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 695380,
+          "name": "Alex Hoppe",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-08-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 108,
+    "teamName": "Los Angeles Angels",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 69,
+      "relievers": [
+        {
+          "id": 641312,
+          "name": "Shaun Anderson",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 6,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 690829,
+          "name": "Ben Joyce",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 91,
+      "relievers": [
+        {
+          "id": 641312,
+          "name": "Shaun Anderson",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 6,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 815083,
+          "name": "Mitch Farris",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 690829,
+          "name": "Ben Joyce",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-03,2026-08-04,2026-08-05) + feed/live box scores",
+    "capturedAt": "2026-08-06T04:10:03.935Z"
+  },
+  "recordHash": "998ba862c7342aa74142fc1a91f4519951334ef607f20e196c7df382cfa71e9d"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824804,
+  "date": "2026-08-06",
+  "capturedAt": "2026-08-06T04:10:03.387Z",
+  "availableAt": "2026-08-06T04:10:03.387Z",
+  "eventStartTime": "2026-08-06T16:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687064,
+      "name": "Brandon Young",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 5.6,
+        "bbAvg": 1.8,
+        "erAvg": 2.6,
+        "hrAvg": 0.8,
+        "kPer9": 8.13,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 103.33,
+        "k": 85,
+        "bb": 36,
+        "er": 38,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 696270,
+      "name": "Ryan Johnson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 6,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.67,
+        "ipAvg": 4.33,
+        "kAvg": 3.8,
+        "bbAvg": 2.2,
+        "erAvg": 3.8,
+        "hrAvg": 1.2,
+        "kPer9": 7.89,
+        "workloadIpLast5": 21.67
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 41,
+        "k": 34,
+        "bb": 17,
+        "er": 31,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-06&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-06T04:10:03.387Z"
+  },
+  "recordHash": "08a1645b562e38bc0067015222e87786b96ba1802689066417256bca263ce4d6"
+}

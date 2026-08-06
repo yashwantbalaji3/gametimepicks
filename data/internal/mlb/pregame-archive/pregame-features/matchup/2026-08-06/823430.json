@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 823430,
+  "date": "2026-08-06",
+  "capturedAt": "2026-08-06T04:10:04.652Z",
+  "availableAt": "2026-08-06T04:10:04.652Z",
+  "eventStartTime": "2026-08-06T22:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 650911,
+    "name": "Cristopher Sánchez",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 571945,
+    "name": "Miles Mikolas",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-06T04:10:04.652Z"
+  },
+  "recordHash": "31d6f0aef5191befaf329122a90a2f4a41c0193e3ad285b6a77d1176babe2ee1"
+}

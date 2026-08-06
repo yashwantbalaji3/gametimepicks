@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 825053,
+  "date": "2026-08-06",
+  "capturedAt": "2026-08-06T04:10:04.652Z",
+  "availableAt": "2026-08-06T04:10:04.652Z",
+  "eventStartTime": "2026-08-07T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 684442,
+    "name": "Kohl Drake",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 621111,
+    "name": "Walker Buehler",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-06T04:10:04.652Z"
+  },
+  "recordHash": "e39a49b5008821a7770f61c779fe5170b262df2e4ddddef8c1f8f7ce4b993223"
+}
