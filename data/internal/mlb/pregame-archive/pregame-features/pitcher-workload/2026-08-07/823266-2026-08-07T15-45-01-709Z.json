@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823266,
+  "date": "2026-08-07",
+  "capturedAt": "2026-08-07T15:45:01.709Z",
+  "availableAt": "2026-08-07T15:45:01.709Z",
+  "eventStartTime": "2026-08-08T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 592662,
+      "name": "Robbie Ray",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 8,
+      "lastStartDate": "2026-07-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 5,
+        "bbAvg": 2.8,
+        "erAvg": 1.2,
+        "hrAvg": 0.2,
+        "kPer9": 8.33,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 116.33,
+        "k": 99,
+        "bb": 55,
+        "er": 42,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 669854,
+      "name": "Ronel Blanco",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 3,
+        "ipSum": 14.67,
+        "ipAvg": 4.89,
+        "kAvg": 5.33,
+        "bbAvg": 2.67,
+        "erAvg": 4,
+        "hrAvg": 1.67,
+        "kPer9": 9.82,
+        "workloadIpLast5": 14.67
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 14.67,
+        "k": 16,
+        "bb": 8,
+        "er": 12,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-07T15:45:01.709Z"
+  },
+  "recordHash": "e393f0a6fb3940554ea457cca0e1fd174576d6c832f462942a579b2a12cf60a8"
+}
