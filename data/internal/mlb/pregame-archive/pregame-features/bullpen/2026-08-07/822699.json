@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 822699,
   "date": "2026-08-07",
-  "capturedAt": "2026-08-07T00:36:21.635Z",
-  "availableAt": "2026-08-07T00:36:21.635Z",
+  "capturedAt": "2026-08-07T01:37:23.200Z",
+  "availableAt": "2026-08-07T01:37:23.200Z",
   "eventStartTime": "2026-08-07T22:45:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,34 @@
     "teamId": 120,
     "teamName": "Washington Nationals",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 46,
+      "relievers": [
+        {
+          "id": 668820,
+          "name": "Max Kranick",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 592866,
+          "name": "Trevor Williams",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-06"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 8,
-      "pitches": 206,
+      "appearances": 10,
+      "pitches": 252,
       "relievers": [
         {
           "id": 641793,
@@ -39,6 +60,27 @@
           ]
         },
         {
+          "id": 592866,
+          "name": "Trevor Williams",
+          "appearances": 2,
+          "pitches": 36,
+          "outs": 6,
+          "dates": [
+            "2026-08-04",
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 668820,
+          "name": "Max Kranick",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
           "id": 672442,
           "name": "Yovanny Cruz",
           "appearances": 1,
@@ -46,16 +88,6 @@
           "outs": 1,
           "dates": [
             "2026-08-05"
-          ]
-        },
-        {
-          "id": 592866,
-          "name": "Trevor Williams",
-          "appearances": 1,
-          "pitches": 21,
-          "outs": 3,
-          "dates": [
-            "2026-08-04"
           ]
         },
         {
@@ -110,7 +142,13 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 668820,
+        "name": "Max Kranick",
+        "reason": "31 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 113,
@@ -225,7 +263,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-04,2026-08-05,2026-08-06) + feed/live box scores",
-    "capturedAt": "2026-08-07T00:36:21.635Z"
+    "capturedAt": "2026-08-07T01:37:23.200Z"
   },
-  "recordHash": "59867f6e3d8fdef956d2abdf1b383c50bf62ba65927a2455b7c9983afc7bb397"
+  "recordHash": "d2d4c2f7dda428928db124cd67d0ccacac65555c52181d20359d2c70d66e1738"
 }
