@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823349,
+  "date": "2026-08-07",
+  "capturedAt": "2026-08-07T19:44:51.350Z",
+  "availableAt": "2026-08-07T19:44:51.350Z",
+  "eventStartTime": "2026-08-07T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669387,
+      "name": "Carmen Mlodzinski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 74,
+      "lastStartDate": "2026-05-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 3.6,
+        "bbAvg": 1.4,
+        "erAvg": 2.4,
+        "hrAvg": 0.6,
+        "kPer9": 6.39,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 44,
+        "k": 39,
+        "bb": 15,
+        "er": 21,
+        "hr": 3
+      }
+    },
+    "away": {
+      "id": 804267,
+      "name": "Zac Thornton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 6,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 4.2,
+        "bbAvg": 1.6,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 6.3,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 34.33,
+        "k": 24,
+        "bb": 10,
+        "er": 11,
+        "hr": 3
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-07T19:44:51.350Z"
+  },
+  "recordHash": "e091617108f31bd33d9b061314a3f4e195d5ea4fff55fa5181e5572864d8c248"
+}

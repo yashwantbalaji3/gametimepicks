@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823191,
+  "date": "2026-08-07",
+  "capturedAt": "2026-08-07T19:44:51.350Z",
+  "availableAt": "2026-08-07T19:44:51.350Z",
+  "eventStartTime": "2026-08-08T02:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 664141,
+      "name": "JT Brubaker",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 672456,
+      "name": "Keider Montero",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 3.4,
+        "bbAvg": 0.8,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 5.16,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 102,
+        "k": 65,
+        "bb": 21,
+        "er": 37,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-07T19:44:51.350Z"
+  },
+  "recordHash": "edd15f31cbd7ceb2f468d7c45fee4a6a4a7ce51f3b1932e29673f5107bf0a322"
+}
