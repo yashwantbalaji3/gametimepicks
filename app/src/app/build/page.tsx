@@ -8,6 +8,11 @@ import { buildEngineLegs, buildWcPlayerLegs, type BuildLeg } from "@/lib/build-l
 import { loadTodaySlate } from "@/lib/parlays/ui-loader";
 import { loadWorldCupProjections, loadWorldCupPlayerProjections } from "@/lib/world-cup/projections";
 import BuildExperience from "@/components/build-experience";
+import PicksExperience from "@/components/picks-experience";
+import Link from "next/link";
+import { loadSuggestedCards } from "@/lib/picks/suggested-cards";
+import { currentSlateDate } from "@/lib/parlays/ui-loader";
+import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 
 export const metadata = {
@@ -27,6 +32,9 @@ export default function BuildPage() {
   const seen = new Set(enginePool.map((l) => l.id));
   const pool: BuildLeg[] = [...enginePool, ...wcPlayerLegs.filter((l) => !seen.has(l.id))];
 
+  // Same slate framing /picks uses, so both surfaces agree on which day is current.
+  const suggestedCards = loadSuggestedCards(currentSlateDate() ?? currentEtDate());
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <PicksSurfaceHeader
@@ -34,7 +42,7 @@ export default function BuildPage() {
         title="Advanced Builder"
         status={pool.length > 0 ? "pregame" : "data_pending"}
         counts={{ eligibleLegs: pool.length }}
-        primaryAction={{ label: "Open Picks Lab", href: "/picks" }}
+        primaryAction={{ label: "Suggested cards", href: "#suggested-cards" }}
         secondaryAction={{ label: "How it works", href: "/methodology" }}
         note="The advanced, full-leg builder — start with Picks Lab for the model's top picks, or use this to add legs across sports to a paper card and see the projected paper return — model-qualified legs only (odds-backed, pre-event, role-quality screened); raw sportsbook inventory and research-only views are intentionally excluded. Paper-only."
       />
@@ -48,6 +56,45 @@ export default function BuildPage() {
           </p>
         </div>
       )}
+
+      {/* ── SUGGESTED CARDS (Program 142, Train 1 step 3C · Deployment A) ────────────────────────
+          The prebuilt-card job that until now existed only on /picks. It calls the SHARED
+          loadSuggestedCards loader and reuses PicksExperience directly — no second composition, no
+          cloned gating, no third stake implementation. Retiring /picks requires this to exist first;
+          this deployment is purely additive and /picks stays live and unchanged.
+
+          Manual Builder above remains the default: /build's job is card construction, and a reader
+          who came here to assemble one should not land in a browsing list. This section is
+          addressable at /build#suggested-cards for a shareable, refresh-stable link that needs no
+          client-side routing state. */}
+      <section id="suggested-cards" aria-labelledby="suggested-cards-heading" className="flex flex-col gap-3 scroll-mt-6">
+        <div>
+          <h2
+            id="suggested-cards-heading"
+            className="font-semibold"
+            style={{ color: "var(--vault-text)", fontSize: 17 }}
+          >
+            Suggested cards
+          </h2>
+          <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6, maxWidth: "72ch" }}>
+            Cards the model already assembled for today, by sport and risk tier. Enter any stake to see
+            the projected paper return. Paper-only and educational — nothing here is placed, and a
+            projected return is arithmetic on the odds, not an expectation of profit.
+          </p>
+        </div>
+        {suggestedCards.length > 0 ? (
+          <PicksExperience cards={suggestedCards} />
+        ) : (
+          <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+            <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No suggested cards for today</p>
+            <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
+              The slate was assessed and nothing cleared the card gates. That is the model&rsquo;s answer for
+              today, not a missing update — build your own above, or see the ranked markets on{" "}
+              <Link href="/markets" style={{ color: "var(--vault-gold-bright)" }}>Market Center</Link>.
+            </p>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
