@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824081,
+  "date": "2026-08-07",
+  "capturedAt": "2026-08-07T23:25:29.355Z",
+  "availableAt": "2026-08-07T23:25:29.355Z",
+  "eventStartTime": "2026-08-08T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663738,
+      "name": "Daniel Lynch IV",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 592332,
+      "name": "Kevin Gausman",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 6,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 5.4,
+        "bbAvg": 2.4,
+        "erAvg": 3,
+        "hrAvg": 0,
+        "kPer9": 9.23,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 127.33,
+        "k": 127,
+        "bb": 36,
+        "er": 62,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-07T23:25:29.355Z"
+  },
+  "recordHash": "31a38e90c40ed1c89952add850fd6c7b2fd70848e252757adc45594989f3ba1d"
+}
