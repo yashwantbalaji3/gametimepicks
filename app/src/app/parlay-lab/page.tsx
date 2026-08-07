@@ -1,5 +1,5 @@
 /**
- * /parlay-lab → /picks. The suggested-card lobby is now /picks and the custom builder is /build; this
+ * /parlay-lab → /build#suggested-cards. The suggested-card lobby is now /picks and the custom builder is /build; this
  * legacy alias client-redirects (static-export-safe; server redirect() emits an error shell under
  * output:export) so old links never break.
  */
@@ -11,5 +11,5 @@ export const metadata = {
 };
 
 export default function ParlayLabRedirect() {
-  return <ClientRedirect to="/picks/" label="Picks Lab" />;
+  return <ClientRedirect to="/build#suggested-cards" label="Suggested cards" />;
 }

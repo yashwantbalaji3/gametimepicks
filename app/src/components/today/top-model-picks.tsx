@@ -49,7 +49,7 @@ export default function TodayTopModelPicks({ picks }: { picks: Top10Pick[] }) {
     <section id="top-model-picks" aria-label="Top model picks" className="flex flex-col gap-2.5 scroll-mt-20">
       <div className="flex items-baseline justify-between">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Top model picks</h2>
-        <Link href="/picks" className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>All picks →</Link>
+        <Link href="/markets/" className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>All picks →</Link>
       </div>
       {picks.length > 0 ? (
         <div className="flex flex-col gap-1">

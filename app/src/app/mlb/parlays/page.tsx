@@ -1,5 +1,5 @@
 /**
- * /mlb/parlays → /picks. This route was a placeholder that existed only so MLB matched the old
+ * /mlb/parlays → /build#suggested-cards. This route was a placeholder that existed only so MLB matched the old
  * five-tab sport layout; it published nothing and promised parlay candidates "pending snapshots".
  * The real, current suggested-card lobby is /picks. Client-redirect stub (static-export-safe; server
  * redirect() emits an error shell under output:export).
@@ -12,5 +12,5 @@ export const metadata = {
 };
 
 export default function MlbParlaysRedirect() {
-  return <ClientRedirect to="/picks/" label="Picks Lab" />;
+  return <ClientRedirect to="/build#suggested-cards" label="Suggested cards" />;
 }

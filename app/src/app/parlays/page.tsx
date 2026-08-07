@@ -1,5 +1,5 @@
 /**
- * /parlays → /picks. One canonical suggested-parlay surface — the Parlay Lab at /picks. This legacy
+ * /parlays → /build#suggested-cards. One canonical suggested-parlay surface — the Parlay Lab at /picks. This legacy
  * alias client-redirects (static-export-safe; server redirect() emits an error shell under output:export)
  * so old links never break and there is a single source of truth.
  */
@@ -11,5 +11,5 @@ export const metadata = {
 };
 
 export default function ParlaysRedirect() {
-  return <ClientRedirect to="/picks/" label="Picks Lab" />;
+  return <ClientRedirect to="/build#suggested-cards" label="Suggested cards" />;
 }

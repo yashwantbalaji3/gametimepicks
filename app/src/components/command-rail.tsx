@@ -40,8 +40,7 @@ const ITEMS: RailItem[] = [
   { href: "/simulate", label: "Simulate", glyph: "▶", group: "Simulate", desc: "Pick a game, run its report" },
   { href: "/today", label: "Today", glyph: "▤", group: "Today", desc: "Tonight's slate at a glance" },
   { href: "/markets", label: "Market Center", glyph: "◈", desc: "Sportsbook prices vs our sims" },
-  { href: "/picks", label: "Picks Lab", glyph: "⊞", desc: "Build a paper-only card" },
-  { href: "/build", label: "Build", glyph: "✎", desc: "Advanced builder → Picks Lab" },
+  { href: "/build", label: "Build", glyph: "✎", desc: "Build a card, or browse suggested ones" },
   { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Strategy Lab", desc: "Conservative paper card" },
   { href: "/moonshot", label: "Moonshot", glyph: "🌙", desc: "High-risk paper longshots" },
   { href: "/mr-dub", label: "Mr. Dub's Portfolio", glyph: "✓", desc: "Paper bankroll journey" },
@@ -73,16 +72,15 @@ function useIsActive() {
         pathname === "/projections" || pathname.startsWith("/projections/")
       );
     }
-    if (href === "/picks") {
-      // The canonical Parlay Lab; /parlays + /parlay-lab redirect here, so they highlight it too.
+    if (href === "/build") {
+      // /build now owns the suggested-card lobby, so the retired Parlay Lab aliases highlight HERE.
+      // Without this they would bounce to /build with no active nav item during the redirect.
       return (
+        pathname === "/build" || pathname.startsWith("/build/") ||
         pathname === "/picks" || pathname.startsWith("/picks/") ||
         pathname === "/parlays" || pathname.startsWith("/parlays/") ||
         pathname === "/parlay-lab" || pathname.startsWith("/parlay-lab/")
       );
-    }
-    if (href === "/build") {
-      return pathname === "/build" || pathname.startsWith("/build/");
     }
     if (href === "/results") {
       return pathname === "/results" || (pathname.startsWith("/results/") && !pathname.startsWith("/results/model-audit"));

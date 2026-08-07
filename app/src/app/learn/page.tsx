@@ -153,7 +153,7 @@ export default function LearnPage() {
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>The three tools</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Concept term="Projections">Every market the model has a read on — shown with model %, market %, and the gap between them. A &ldquo;projection view&rdquo; is information; not every view is suggested as a card.</Concept>
-          <Concept term="Suggested cards">The model&apos;s actual paper picks for the day, bundled into cards by risk tier. Enter any stake to see the projected paper return. Browse them all on <Link href="/picks" style={{ color: "var(--vault-gold-bright)" }}>Picks</Link>.</Concept>
+          <Concept term="Suggested cards">The model&apos;s actual paper picks for the day, bundled into cards by risk tier. Enter any stake to see the projected paper return. Browse them all on <Link href="/build#suggested-cards" style={{ color: "var(--vault-gold-bright)" }}>Picks</Link>.</Concept>
           <Concept term="Build">Make your own paper card from eligible legs across sports on <Link href="/build" style={{ color: "var(--vault-gold-bright)" }}>Build</Link> — add legs, set a stake, and see the combined odds + payout live.</Concept>
         </div>
       </section>

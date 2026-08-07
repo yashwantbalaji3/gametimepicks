@@ -105,7 +105,7 @@ export default function TodaysParlays({ cards, dateLabel }: { cards: PublicSugge
       )}
 
       <div className="mt-3">
-        <Link href="/picks" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
+        <Link href="/build#suggested-cards" className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>
           All suggested parlays in Parlay Lab →
         </Link>
       </div>

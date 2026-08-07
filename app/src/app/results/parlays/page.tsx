@@ -226,7 +226,7 @@ export default function ResultsParlaysPage() {
             scores land. We refuse to backfill historical slips.
           </p>
           <Link
-            href="/picks"
+            href="/build#suggested-cards"
             className="mt-4 inline-flex font-mono uppercase tracking-[0.16em]"
             style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
           >

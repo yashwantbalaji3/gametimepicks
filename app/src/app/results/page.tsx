@@ -354,7 +354,7 @@ export default function ResultsPage() {
               See today&apos;s slate →
             </Link>
             <Link
-              href="/picks/"
+              href="/markets/"
               className="font-mono uppercase tracking-[0.12em] px-2.5 py-1 rounded-full ml-auto"
               style={{
                 color: "var(--vault-gold-bright)",

@@ -1,5 +1,5 @@
 /**
- * /nba/parlays → /picks. Sport-namespaced legacy alias for the cross-sport Parlay Lab (now /picks).
+ * /nba/parlays → /build#suggested-cards. Sport-namespaced legacy alias for the cross-sport Parlay Lab (now /picks).
  * Client-redirects (static-export-safe; server redirect() emits an error shell under output:export).
  */
 import ClientRedirect from "@/components/client-redirect";
@@ -10,5 +10,5 @@ export const metadata = {
 };
 
 export default function NbaParlaysRedirect() {
-  return <ClientRedirect to="/picks/" label="Picks Lab" />;
+  return <ClientRedirect to="/build#suggested-cards" label="Suggested cards" />;
 }

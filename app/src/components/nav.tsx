@@ -48,7 +48,6 @@ const NAV_ITEMS: Array<{
   { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
   { href: "/moonshot", label: "Moonshot" },
   { href: "/mlb", label: "MLB" },
-  { href: "/picks", label: "Picks Lab" },
   { href: "/mr-dub", label: "Mr. Dub's Portfolio" },
 ];
 // The "More Sports" directory is gone. MLB is the only sport with a live model; NBA is a settled
@@ -77,14 +76,16 @@ export default function Nav() {
     // Today owns the root/home as the default landing experience.
     if (href === "/today") return pathname === "/today" || pathname === "/" || pathname === "";
     // Parlay Lab is the canonical /picks; /parlays + /parlay-lab redirect there, so they highlight it.
-    if (href === "/picks") {
-      return pathname === "/picks" || pathname.startsWith("/picks/") ||
-        pathname === "/parlays" || pathname.startsWith("/parlays/") ||
-        pathname === "/parlay-lab" || pathname.startsWith("/parlay-lab/");
-    }
     // Build = the custom paper-card builder only.
     if (href === "/build") {
-      return pathname === "/build" || pathname.startsWith("/build/");
+      // /build now owns the suggested-card lobby, so the retired Parlay Lab aliases highlight HERE.
+      // Without this they would bounce to /build with no active nav item during the redirect.
+      return (
+        pathname === "/build" || pathname.startsWith("/build/") ||
+        pathname === "/picks" || pathname.startsWith("/picks/") ||
+        pathname === "/parlays" || pathname.startsWith("/parlays/") ||
+        pathname === "/parlay-lab" || pathname.startsWith("/parlay-lab/")
+      );
     }
     // MLB lights up on the hub, its boards, and the retired aliases that redirect into them.
     if (href === "/mlb") return SPORT_RE.test(pathname);
