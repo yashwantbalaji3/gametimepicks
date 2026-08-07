@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823428,
+  "date": "2026-08-07",
+  "capturedAt": "2026-08-07T17:41:02.483Z",
+  "availableAt": "2026-08-07T17:41:02.483Z",
+  "eventStartTime": "2026-08-07T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 554430,
+      "name": "Zack Wheeler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 8.4,
+        "bbAvg": 0.6,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 15.12,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 105,
+        "k": 126,
+        "bb": 23,
+        "er": 29,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 667755,
+      "name": "José Soriano",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 12,
+      "lastStartDate": "2026-07-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5,
+        "bbAvg": 1.8,
+        "erAvg": 2,
+        "hrAvg": 0,
+        "kPer9": 8.04,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 123,
+        "k": 127,
+        "bb": 57,
+        "er": 45,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-07T17:41:02.483Z"
+  },
+  "recordHash": "447b4b8c9db8b2b27a245ee8b5c40eacada8e8d17ea3cc10338da0e6b6739c9a"
+}

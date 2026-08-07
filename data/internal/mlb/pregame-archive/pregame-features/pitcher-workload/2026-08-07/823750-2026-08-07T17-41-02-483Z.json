@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823750,
+  "date": "2026-08-07",
+  "capturedAt": "2026-08-07T17:41:02.483Z",
+  "availableAt": "2026-08-07T17:41:02.483Z",
+  "eventStartTime": "2026-08-07T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 675660,
+      "name": "Shane Drohan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 7,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 6,
+        "bbAvg": 1.2,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 8.9,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 63.33,
+        "k": 63,
+        "bb": 20,
+        "er": 29,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 805673,
+      "name": "Zebby Matthews",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 7,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4.6,
+        "bbAvg": 2.8,
+        "erAvg": 4.2,
+        "hrAvg": 1,
+        "kPer9": 8.39,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 81,
+        "k": 69,
+        "bb": 26,
+        "er": 47,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-07T17:41:02.483Z"
+  },
+  "recordHash": "920e63232ef78913c35219d1442a9fbe809803832f9abc2f4bd667abef0428a9"
+}
