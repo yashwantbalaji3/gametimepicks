@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-08-07T08:35:21.828Z",
+  "generatedAt": "2026-08-07T13:35:50.558Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -17,7 +17,7 @@
   },
   "slate": {
     "date": "2026-08-06",
-    "dailyPortfolioDate": "2026-08-06",
+    "dailyPortfolioDate": "2026-08-07",
     "activeBankroll": 19065.4,
     "openExposure": 0,
     "worldCupGames": 0,
@@ -109,7 +109,7 @@
   },
   "workflowHealth": {
     "lastRunAt": "2026-08-07T08:35:21.229Z",
-    "ageHours": 0,
+    "ageHours": 5,
     "ok": true,
     "status": "pass",
     "phase": "nightly-settle"
@@ -117,7 +117,7 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-08-07",
-    "etTime": "04:35",
+    "etTime": "09:35",
     "stages": [
       {
         "stage": "schedule",
@@ -170,12 +170,12 @@
   },
   "learningLoop": {
     "signal": "GREEN",
-    "summary": "learning data complete through 2026-08-06 (25196 rows)",
+    "summary": "learning data complete through 2026-07-27 (22660 rows)",
     "freshness": {
       "healthy": true,
-      "asOfSettledDate": "2026-08-06",
-      "corpusRows": 25196,
-      "ledgerRows": 25196,
+      "asOfSettledDate": "2026-07-27",
+      "corpusRows": 22660,
+      "ledgerRows": 22660,
       "lagDays": 0,
       "problems": []
     },
@@ -227,9 +227,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-08-06",
-  "nextRefreshDate": "2026-08-07",
-  "nextAction": "No active Bank Builder lane for 2026-08-06 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-08-07",
+  "nextRefreshDate": "2026-08-08",
+  "nextAction": "No active Bank Builder lane for 2026-08-07 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
