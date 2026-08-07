@@ -1,0 +1,220 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824081,
+  "date": "2026-08-07",
+  "capturedAt": "2026-08-07T00:36:21.635Z",
+  "availableAt": "2026-08-07T00:36:21.635Z",
+  "eventStartTime": "2026-08-08T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-04",
+    "2026-08-05",
+    "2026-08-06"
+  ],
+  "home": {
+    "teamId": 118,
+    "teamName": "Kansas City Royals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 72,
+      "relievers": [
+        {
+          "id": 674444,
+          "name": "Steven Cruz",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-08-04",
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 670167,
+          "name": "John Schreiber",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 663738,
+          "name": "Daniel Lynch IV",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 663878,
+          "name": "Nate Pearson",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-04"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 112,
+    "teamName": "Chicago Cubs",
+    "last1Day": {
+      "appearances": 4,
+      "pitches": 83,
+      "relievers": [
+        {
+          "id": 650644,
+          "name": "Aaron Civale",
+          "appearances": 1,
+          "pitches": 45,
+          "outs": 9,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 669020,
+          "name": "Ryan Rolison",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 573204,
+          "name": "Caleb Thielbar",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 663423,
+          "name": "Trent Thornton",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-06"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 12,
+      "pitches": 193,
+      "relievers": [
+        {
+          "id": 650644,
+          "name": "Aaron Civale",
+          "appearances": 1,
+          "pitches": 45,
+          "outs": 9,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 621053,
+          "name": "Tyler Ferguson",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 7,
+          "dates": [
+            "2026-08-04",
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 573204,
+          "name": "Caleb Thielbar",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 4,
+          "dates": [
+            "2026-08-05",
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 669020,
+          "name": "Ryan Rolison",
+          "appearances": 2,
+          "pitches": 28,
+          "outs": 6,
+          "dates": [
+            "2026-08-04",
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 666171,
+          "name": "Ryan Zeferjahn",
+          "appearances": 2,
+          "pitches": 23,
+          "outs": 5,
+          "dates": [
+            "2026-08-04",
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 657097,
+          "name": "Jacob Webb",
+          "appearances": 2,
+          "pitches": 23,
+          "outs": 6,
+          "dates": [
+            "2026-08-04",
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 663423,
+          "name": "Trent Thornton",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-06"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 650644,
+        "name": "Aaron Civale",
+        "reason": "45 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-04,2026-08-05,2026-08-06) + feed/live box scores",
+    "capturedAt": "2026-08-07T00:36:21.635Z"
+  },
+  "recordHash": "5f95ca8ad2e47cd1d62c0296ef19324d6dd93c1fba3cb1b5f770775a2e8b703c"
+}

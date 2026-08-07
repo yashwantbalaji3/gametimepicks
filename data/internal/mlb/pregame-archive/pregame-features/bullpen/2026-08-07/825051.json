@@ -1,0 +1,190 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 825051,
+  "date": "2026-08-07",
+  "capturedAt": "2026-08-07T00:36:21.635Z",
+  "availableAt": "2026-08-07T00:36:21.635Z",
+  "eventStartTime": "2026-08-08T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-04",
+    "2026-08-05",
+    "2026-08-06"
+  ],
+  "home": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 115,
+      "relievers": [
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 2,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 657044,
+          "name": "Ryan Thompson",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 1,
+          "dates": [
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 623149,
+          "name": "Paul Sewald",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 4,
+          "dates": [
+            "2026-08-04",
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 664199,
+          "name": "Taylor Clarke",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 672629,
+          "name": "Gerardo Carrillo",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 642528,
+          "name": "Jonathan Loáisiga",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-04"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 119,
+    "teamName": "Los Angeles Dodgers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 104,
+      "relievers": [
+        {
+          "id": 621242,
+          "name": "Edwin Díaz",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 2,
+          "dates": [
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 669165,
+          "name": "Kyle Hurt",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 4,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 683618,
+          "name": "Edgardo Henriquez",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 623465,
+          "name": "Evan Phillips",
+          "appearances": 2,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-04",
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 681911,
+          "name": "Alex Vesia",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-08-04"
+          ]
+        },
+        {
+          "id": 676263,
+          "name": "Jack Dreyer",
+          "appearances": 2,
+          "pitches": 6,
+          "outs": 2,
+          "dates": [
+            "2026-08-04",
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 642546,
+          "name": "Jonathan Hernández",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 2,
+          "dates": [
+            "2026-08-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-04,2026-08-05,2026-08-06) + feed/live box scores",
+    "capturedAt": "2026-08-07T00:36:21.635Z"
+  },
+  "recordHash": "f1fff1959fd0419d5ac76d3c80053ca5fded83b0bb6778e552691345435cdfee"
+}
