@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823836,
+  "date": "2026-08-07",
+  "capturedAt": "2026-08-07T03:48:51.877Z",
+  "availableAt": "2026-08-07T03:48:51.877Z",
+  "eventStartTime": "2026-08-07T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663969,
+      "name": "Tyler Phillips",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 6,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.33,
+        "ipAvg": 4.07,
+        "kAvg": 2.8,
+        "bbAvg": 1.2,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 6.2,
+        "workloadIpLast5": 20.33
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 54.67,
+        "k": 36,
+        "bb": 19,
+        "er": 28,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 691946,
+      "name": "George Klassen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 118,
+      "lastStartDate": "2026-04-11",
+      "last5": {
+        "starts": 2,
+        "ipSum": 4.67,
+        "ipAvg": 2.33,
+        "kAvg": 3,
+        "bbAvg": 5,
+        "erAvg": 3,
+        "hrAvg": 0.5,
+        "kPer9": 11.57,
+        "workloadIpLast5": 4.67
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 4.67,
+        "k": 6,
+        "bb": 10,
+        "er": 6,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-07T03:48:51.877Z"
+  },
+  "recordHash": "982b6377edf9a066277d99629550a2965b64fe2e0268614a21eae28e60babe7c"
+}

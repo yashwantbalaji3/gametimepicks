@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822699,
+  "date": "2026-08-07",
+  "capturedAt": "2026-08-07T03:48:51.877Z",
+  "availableAt": "2026-08-07T03:48:51.877Z",
+  "eventStartTime": "2026-08-07T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 676917,
+      "name": "Cade Cavalli",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 5.6,
+        "bbAvg": 1.2,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 8.4,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 122.67,
+        "k": 133,
+        "bb": 37,
+        "er": 48,
+        "hr": 12
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-07T03:48:51.877Z"
+  },
+  "recordHash": "d36b7e45d42fbe1f101bde8aac5e0750c7643f53f24c4d0a490c4ce9dc563515"
+}
