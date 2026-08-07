@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823515,
+  "date": "2026-08-07",
+  "capturedAt": "2026-08-07T21:29:34.118Z",
+  "availableAt": "2026-08-07T21:29:34.118Z",
+  "eventStartTime": "2026-08-07T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608331,
+      "name": "Max Fried",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 6,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 5,
+        "bbAvg": 1.6,
+        "erAvg": 2.4,
+        "hrAvg": 0,
+        "kPer9": 10.07,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 75,
+        "k": 68,
+        "bb": 23,
+        "er": 26,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 641816,
+      "name": "Tyler Mahle",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5,
+        "bbAvg": 1.6,
+        "erAvg": 2.4,
+        "hrAvg": 0.4,
+        "kPer9": 8.04,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 94.67,
+        "k": 89,
+        "bb": 37,
+        "er": 54,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-07T21:29:34.118Z"
+  },
+  "recordHash": "f4ad1601c1e58495fa2cb6baf7c0616c9b9a1c1921803272b054ef57f4539369"
+}
