@@ -54,7 +54,7 @@ export const SPORT_ASSESSMENTS = {
     stages: {
       markets: { status: "PARTIAL", evidence: "EPL odds side landed (Program 062-065); settlement-gated, never published" },
       model: { status: "PARTIAL", evidence: "internal FIFA-Poisson soccer engine exists (N=5, not public, not validated for EPL)" },
-      settlement: { status: "UNPROVEN", blocker: "no official-results grading path for EPL fixtures" },
+      settlement: { status: "PARTIAL", evidence: "grading CONTRACT designed + guard-tested (lib/sports/epl/settlement-contract.mjs v1, Program 146): FT-only, StatsAPI-lesson quarantines, decisive=W+L, zero-gap reconciliation — source integration still unbuilt" },
     },
   },
 
