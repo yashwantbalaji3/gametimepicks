@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823267,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T19:22:12.897Z",
+  "availableAt": "2026-08-08T19:22:12.897Z",
+  "eventStartTime": "2026-08-08T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 650633,
+      "name": "Michael King",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-08-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.2,
+        "bbAvg": 2.6,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 8.36,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 130.33,
+        "k": 114,
+        "bb": 54,
+        "er": 50,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 663567,
+      "name": "Peter Lambert",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 6.8,
+        "bbAvg": 1.8,
+        "erAvg": 1.6,
+        "hrAvg": 0.2,
+        "kPer9": 10.67,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 108.67,
+        "k": 108,
+        "bb": 41,
+        "er": 37,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-08T19:22:12.897Z"
+  },
+  "recordHash": "8d785fbaa52d53c444e0b957e423325070d40acab7233f5e21adf2a282fb9656"
+}

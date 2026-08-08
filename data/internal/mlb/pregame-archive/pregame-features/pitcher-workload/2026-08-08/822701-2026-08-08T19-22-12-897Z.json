@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822701,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T19:22:12.897Z",
+  "availableAt": "2026-08-08T19:22:12.897Z",
+  "eventStartTime": "2026-08-08T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 674841,
+      "name": "Andrew Alvarez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 5,
+      "lastStartDate": "2026-08-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4.2,
+        "bbAvg": 2.8,
+        "erAvg": 2.6,
+        "hrAvg": 0,
+        "kPer9": 7.66,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 37.33,
+        "k": 35,
+        "bb": 21,
+        "er": 17,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 695505,
+      "name": "Chase Burns",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 5,
+        "bbAvg": 2.8,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 8.33,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 118.67,
+        "k": 137,
+        "bb": 43,
+        "er": 31,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-08T19:22:12.897Z"
+  },
+  "recordHash": "0c2c894a4719a91699a9b0fb4e53d32b28a6b2f0a9e03d833c6411ae829aec36"
+}
