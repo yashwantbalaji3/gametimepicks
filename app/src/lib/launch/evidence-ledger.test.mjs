@@ -30,8 +30,14 @@ const HEALTHY_ALPHA = {
 const BOARDS = ["2026-08-05", "2026-08-06", "2026-08-07"];
 const SIMS = ["2026-08-05", "2026-08-07"]; // Aug-6 is the real, documented permanent gap
 
+// v2 fixture assessments: UFC historical-archive only (→ OFF_SEASON), NFL empty (→ PLANNED).
+const FIXTURE_SPORTS = {
+  ufc: { inSeason: false, historicalArchive: true, stages: {} },
+  nfl: { inSeason: false, historicalArchive: false, stages: {} },
+};
+
 const build = (over = {}) =>
-  buildEvidenceLedger({ adminStatus: HEALTHY_ADMIN, alphaDay: HEALTHY_ALPHA, gates: [], boardDates: BOARDS, simDates: SIMS, now: NOW, ...over });
+  buildEvidenceLedger({ adminStatus: HEALTHY_ADMIN, alphaDay: HEALTHY_ALPHA, gates: [], boardDates: BOARDS, simDates: SIMS, sportAssessments: FIXTURE_SPORTS, now: NOW, ...over });
 
 test("PURITY · `now` is required — the ledger never reads the clock", () => {
   assert.throws(() => buildEvidenceLedger({ adminStatus: HEALTHY_ADMIN }), /now.*required/);
@@ -96,8 +102,10 @@ test("a healthy tree yields zero contradictions and no INCIDENT — except the n
 test("NO_PLAY and OFF_SEASON are real states — never failures, never hidden", () => {
   const l = build();
   assert.equal(l.entries.find((e) => e.id === "bank-builder").state, "NO_PLAY", "0 active lanes under unchanged policy is a no-play");
-  assert.equal(l.entries.find((e) => e.id === "sport:ufc").state, "OFF_SEASON", "a settled archive with no live event is off-season, not broken");
+  // v2: these derive from the twelve-stage gate rather than a hand-written list.
+  assert.equal(l.entries.find((e) => e.id === "sport:ufc").state, "OFF_SEASON", "an archive-only sport is off-season, not broken");
   assert.equal(l.entries.find((e) => e.id === "sport:nfl").state, "PLANNED");
+  assert.match(l.entries.find((e) => e.id === "sport:nfl").evidence, /0\/12 gate stages proven/, "the evidence counts gate stages");
 });
 
 test("founder gates are BLOCKED_EXTERNAL, never repository incidents", () => {
@@ -125,6 +133,6 @@ test("entries sort INCIDENT-first and the counts cover every state exactly once"
 test("the artifact is internal, versioned, and idempotent for a fixed `now`", () => {
   const a = build(), b = build();
   assert.equal(a.public, false, "the ledger must never be served publicly");
-  assert.equal(a.schemaVersion, 1);
+  assert.equal(a.schemaVersion, 2);
   assert.deepEqual(a, b, "same inputs + same now ⇒ byte-identical ledger");
 });

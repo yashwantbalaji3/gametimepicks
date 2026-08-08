@@ -19,6 +19,7 @@ import { fileURLToPath } from "node:url";
 
 import { buildEvidenceLedger } from "../src/lib/launch/evidence-ledger.mjs";
 import { buildLaunchGates } from "../src/lib/launch/launch-contract.mjs";
+import { SPORT_ASSESSMENTS } from "../src/lib/sports/sport-assessments.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const REPO = path.resolve(APP, "..");
@@ -39,6 +40,7 @@ const ledger = buildEvidenceLedger({
   adminStatus: readJson(path.join(APP, "public/data/admin/status.json")),
   alphaDay: readJson(path.join(REPO, "ops/internal-alpha/latest.json")),
   gates: buildLaunchGates(),
+  sportAssessments: SPORT_ASSESSMENTS,
   boardDates: datesIn(path.join(APP, "public/data/mlb/boards")),
   simDates: datesIn(path.join(APP, "public/data/mlb/game-simulations")),
   now,

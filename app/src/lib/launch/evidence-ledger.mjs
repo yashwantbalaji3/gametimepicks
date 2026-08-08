@@ -16,7 +16,10 @@
  * verdict. The generator script does the file reading.
  */
 
-export const LEDGER_SCHEMA_VERSION = 1;
+import { deriveSportMaturity, remainingPath, GATE_STAGES } from "../sports/sport-gate.mjs";
+
+export const LEDGER_SCHEMA_VERSION = 2;   // v2: sport entries derive from the twelve-stage gate
+const GATE_STAGE_COUNT = GATE_STAGES.length;
 
 /**
  * The full state vocabulary. Current health and historical exception are DIFFERENT AXES — a product
@@ -136,7 +139,7 @@ function detectContradictions({ adminStatus, alphaDay, boardDates, simDates, now
  * @param {string[]}    o.simDates      dates with a game-simulations artifact
  * @param {string}      o.now           ISO instant the generator ran
  */
-export function buildEvidenceLedger({ adminStatus = null, alphaDay = null, gates = [], boardDates = [], simDates = [], now }) {
+export function buildEvidenceLedger({ adminStatus = null, alphaDay = null, gates = [], boardDates = [], simDates = [], sportAssessments = {}, now }) {
   if (!now) throw new Error("evidence-ledger: `now` is required — the ledger never reads the clock itself");
   const entries = [];
 
@@ -208,15 +211,23 @@ export function buildEvidenceLedger({ adminStatus = null, alphaDay = null, gates
     }));
   }
 
-  // ── Future sports: PLANNED is a real state, not a gap ──────────────────────────────────────
-  for (const sport of ["nfl", "nba", "epl", "ufc"]) {
+  // ── Sports: DERIVED from the twelve-stage gate, never hand-written (Release H/I). The maturity
+  //    maps into ledger states: NOT_STARTED/SCAFFOLDED → PLANNED (absence is expected, work is
+  //    known), SEASONAL_READY → OFF_SEASON, HISTORICAL_ONLY → OFF_SEASON, LIVE_ELIGIBLE for a
+  //    non-live sport → BLOCKED_EXTERNAL on founder activation. MLB's live chain is covered by its
+  //    own operational entries above, so it takes no sport row here.
+  for (const [sport, a] of Object.entries(sportAssessments)) {
+    if (sport === "mlb") continue;
+    const maturity = deriveSportMaturity(a.stages, a);
+    const gaps = remainingPath(a.stages);
     entries.push(entry({
-      id: `sport:${sport}`, subject: sport.toUpperCase(), department: "multi-sport", sport,
-      state: sport === "ufc" ? STATE.OFF_SEASON : STATE.PLANNED,
-      evidence: sport === "ufc"
-        ? "settled archive only (one card, 2026-06-15); no fight model — absence of activity is correct"
-        : "no public product; internal readiness gates not yet passed",
-      source: "repository route/artifact inventory", asOf: null, now, owner: "ENGINEERING",
+      id: `sport:${sport}`, subject: `${sport.toUpperCase()} · ${maturity}`, department: "multi-sport", sport,
+      state: maturity === "LIVE_ELIGIBLE" ? STATE.BLOCKED_EXTERNAL
+        : maturity === "SEASONAL_READY" || maturity === "HISTORICAL_ONLY" ? STATE.OFF_SEASON
+        : STATE.PLANNED,
+      evidence: `${GATE_STAGE_COUNT - gaps.length}/${GATE_STAGE_COUNT} gate stages proven · next: ${gaps[0]?.name ?? "founder activation"}`,
+      source: "lib/sports/sport-gate assessments", asOf: null, now, owner: "ENGINEERING",
+      blocker: gaps.find((g) => g.blocker)?.blocker ?? null,
     }));
   }
 
