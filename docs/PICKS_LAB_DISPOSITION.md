@@ -69,3 +69,49 @@ The migration above touches 12 inbound links across 6 files plus nav, metadata a
 is a coherent slice in its own right, and a half-applied version would leave links pointing at a page
 whose content had moved. It is the next executable slice, not a deferred question: the decision is
 made and the steps are specified.
+
+---
+
+## Deployment B — attempted 2026-08-07, REVERTED before push
+
+The retirement was written and then backed out. Production never saw it; `/picks` stayed live
+throughout. The work is preserved on branch `deployment-b-wip` (`8a5cc5e3`).
+
+**What went wrong: I retired the route before migrating everything on it — the exact failure this
+document was written to prevent, made a second time.**
+
+Deployment A migrated `PicksExperience`. Market Center already covered the ranked list. I treated
+that as parity and retired the route. A guard (`june19-coverage-matrix`) then failed because it
+asserts the coverage matrix is built on `/picks`, and checking what the page actually rendered
+showed two capabilities with no destination at all:
+
+| Component on `/picks` | Destination |
+|---|---|
+| `Top10BoardSection` | covered — Market Center renders the same `buildTop10Board` data |
+| `PicksExperience` | migrated to `/build#suggested-cards` (Deployment A) |
+| `HowToRead` | covered — Market Center has its own reading key |
+| **`ParlaysExplorer`** | **none — browse published parlays is unmigrated** |
+| **`buildCoverageMatrix`** | **none — the coverage matrix is unmigrated** |
+
+Both were listed as "unique to /picks" at the top of this document. I read that table, migrated one
+of the two, and retired anyway.
+
+**The lesson, stated so it is checkable rather than remembered:** parity is a property of the
+RENDERED COMPONENT LIST, not of the headline capability. Program 141 asserted overlap from an import
+list; Program 142 asserted parity from the one component it happened to migrate. Both times the
+mistake was reasoning about a page from something other than what the page renders.
+
+### Before Deployment B is retried
+
+1. Migrate `ParlaysExplorer` to a destination and prove it renders there.
+2. Migrate `buildCoverageMatrix` and move the `june19-coverage-matrix` assertions with it — that
+   guard is the only coverage of the matrix, so it must be repointed, never deleted with the route.
+3. Diff the rendered component list of `/picks` against the destinations and require it to be empty:
+   `git show <sha>:app/src/app/picks/page.tsx | grep -oE '<[A-Z][A-Za-z0-9]+' | sort -u`
+4. Only then repoint links, retire the route, and repoint the remaining guards.
+
+The link-intent map from the reverted attempt is correct and worth reusing: "Open Parlay Lab" /
+"Browse them all" → `/build#suggested-cards` (7 links); "View today's picks" / "All picks" →
+`/markets` (2); "Build your own in Parlay Lab" → `/build` (1). The four legacy aliases
+(`/parlays`, `/parlay-lab`, `/mlb/parlays`, `/nba/parlays`) point at `/picks` today and must be
+repointed at the final target in the same change, or they become two-hop chains.
