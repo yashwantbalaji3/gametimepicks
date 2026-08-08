@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824726,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T15:20:39.436Z",
+  "availableAt": "2026-08-08T15:20:39.436Z",
+  "eventStartTime": "2026-08-08T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687562,
+      "name": "Jake Bennett",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 6,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.67,
+        "ipAvg": 6.13,
+        "kAvg": 3.8,
+        "bbAvg": 1.2,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 5.58,
+        "workloadIpLast5": 30.67
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 71.33,
+        "k": 50,
+        "bb": 13,
+        "er": 23,
+        "hr": 5
+      }
+    },
+    "away": {
+      "id": 695611,
+      "name": "Gage Jump",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 6,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 6.4,
+        "bbAvg": 3.6,
+        "erAvg": 3.2,
+        "hrAvg": 0.6,
+        "kPer9": 12.17,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 66.67,
+        "k": 73,
+        "bb": 31,
+        "er": 34,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-08T15:20:39.436Z"
+  },
+  "recordHash": "334a640355be21d6f01d9834a4d3a03d89091362067a2bd377c7d7b523d4e731"
+}

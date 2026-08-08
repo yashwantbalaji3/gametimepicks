@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823348,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T15:20:39.436Z",
+  "availableAt": "2026-08-08T15:20:39.436Z",
+  "eventStartTime": "2026-08-08T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 696149,
+      "name": "Bubba Chandler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-08-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 3.8,
+        "bbAvg": 2.6,
+        "erAvg": 2.2,
+        "hrAvg": 0.2,
+        "kPer9": 6.93,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 105,
+        "k": 91,
+        "bb": 59,
+        "er": 53,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 476594,
+      "name": "Robert Stock",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 6,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 1,
+        "ipSum": 5,
+        "ipAvg": 5,
+        "kAvg": 4,
+        "bbAvg": 0,
+        "erAvg": 1,
+        "hrAvg": 1,
+        "kPer9": 7.2,
+        "workloadIpLast5": 5
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 5,
+        "k": 4,
+        "bb": 0,
+        "er": 1,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-08T15:20:39.436Z"
+  },
+  "recordHash": "6100387cea1aa0a3e5d1473b076c7ec19ba478a6b80ec28bc5b3080d5e045ded"
+}

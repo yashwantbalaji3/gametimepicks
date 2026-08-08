@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823514,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T15:20:39.436Z",
+  "availableAt": "2026-08-08T15:20:39.436Z",
+  "eventStartTime": "2026-08-08T19:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 543037,
+      "name": "Gerrit Cole",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 6,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 7.4,
+        "bbAvg": 1.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 10.74,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 73.67,
+        "k": 78,
+        "bb": 17,
+        "er": 28,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 519242,
+      "name": "Chris Sale",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 10,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 6.8,
+        "bbAvg": 0.8,
+        "erAvg": 1.2,
+        "hrAvg": 0.4,
+        "kPer9": 11.33,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 117,
+        "k": 143,
+        "bb": 26,
+        "er": 27,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-08T15:20:39.436Z"
+  },
+  "recordHash": "e336d0e3be9b995c0ef6d0200951ffc7a541b8122d9bfcabcfbd21997aa23eed"
+}
