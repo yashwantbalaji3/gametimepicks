@@ -29,6 +29,9 @@ export interface BuildLeg {
    *  render absence — never a derived stand-in from odds. This is the field whose absence blocked
    *  honest grading (Program 144 Release F); it is display-truth first, rubric later. */
   modelProbability?: number | null;
+  /** The slate date the leg's source artifact was generated for. Freshness for grading: a leg from
+   *  an older slate is never grade-eligible, whatever its model probability says. */
+  sourceDate?: string | null;
   photo?: string | null;
   prelineup: boolean;
   regulationOnly: boolean;
@@ -146,7 +149,7 @@ export function buildOptimizerLegs(slips: OptSlip[] | null | undefined): BuildLe
  * leakage-safe, odds-backed, current slate (no stale/started games). Covers MLB pitcher/hitter props,
  * World Cup team markets, and World Cup player props. Pure adapter — never fabricates.
  */
-export function buildEngineLegs(eligible: import("@/lib/parlays/ui-loader").ParlayLegDisplay[]): BuildLeg[] {
+export function buildEngineLegs(eligible: import("@/lib/parlays/ui-loader").ParlayLegDisplay[], sourceDate: string | null = null): BuildLeg[] {
   const out: BuildLeg[] = [];
   const seen = new Set<string>();
   // Strongest-survival first so the (capped) Build list leads with the most robust legs.
@@ -175,6 +178,7 @@ export function buildEngineLegs(eligible: import("@/lib/parlays/ui-loader").Parl
       riskTier: tierFromOdds(l.odds as number),
       americanOdds: l.odds as number,
       modelProbability: l.modelProbability ?? null,
+      sourceDate,
       photo,
       prelineup: sport === "world_cup" && l.identity.kind === "player",
       regulationOnly: sport === "world_cup",

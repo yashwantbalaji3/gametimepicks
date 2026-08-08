@@ -12,6 +12,7 @@ import StakePayoutInput from "@/components/ui/stake-payout-input";
 import StatusChip from "@/components/ui/status-chip";
 import PlayerAvatar from "@/components/player-avatar";
 import { classifyAgainstSelection, cardHealth } from "@/lib/build/compatibility.mjs";
+import { gradeLeg } from "@/lib/build/grade.mjs";
 import { getSportIdentity } from "@/lib/sport-identity";
 
 // The 2026 World Cup is complete — not a selectable build sport (archive only). The SPORT_LABEL map below
@@ -36,7 +37,7 @@ function Pill({ on, onClick, children }: { on: boolean; onClick: () => void; chi
   );
 }
 
-export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
+export default function BuildExperience({ pool, productDate = null }: { pool: BuildLeg[]; productDate?: string | null }) {
   const [sport, setSport] = useState<string>("All");
   const [risk, setRisk] = useState<string>("All");
   const [q, setQ] = useState("");
@@ -247,11 +248,17 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
                   {formatAmerican(l.americanOdds)}
                   {/* The model's own estimate, shown ONLY where the source provides one — absence
                       renders nothing rather than an odds-derived stand-in (the grade rule). */}
-                  {typeof l.modelProbability === "number" ? (
-                    <span className="block" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }} title="The model's probability for this leg — an estimate, not a prediction of profit">
-                      model {(l.modelProbability * 100).toFixed(1)}%
-                    </span>
-                  ) : null}
+                  {typeof l.modelProbability === "number" ? (() => {
+                    // Confidence grade (Program 146): eligible only on fresh, complete, genuinely
+                    // modelled legs; the title carries the full explanation with its caveat.
+                    const g = productDate ? gradeLeg(l, { productDate }) : null;
+                    return (
+                      <span className="block" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }} title={g?.explanation ?? "The model's probability for this leg — an estimate, not a prediction of profit"}>
+                        model {(l.modelProbability * 100).toFixed(1)}%
+                        {g?.eligible ? ` · conf ${g.grade}` : ""}
+                      </span>
+                    );
+                  })() : null}
                 </span>
                 <button type="button" onClick={() => (on ? remove(l.id) : add(l))}
                   disabled={blocked}

@@ -27,7 +27,8 @@ export const metadata = {
 export default function BuildPage() {
   // Canonical methodology engine — the SAME gated, not-started, leakage-safe eligible-leg pool that
   // /today, /picks and /parlays use (World Cup team markets + MLB pitcher/hitter props). No stale source.
-  const enginePool = buildEngineLegs(loadTodaySlate().eligibleLegs);
+  const engineSlateForLegs = loadTodaySlate();
+  const enginePool = buildEngineLegs(engineSlateForLegs.eligibleLegs, engineSlateForLegs.date || null);
   // World Cup PLAYER props (anytime goalscorer / shots on target): the engine leakage-rejects them for
   // lack of a per-record kickoff, but they ARE fixture-joined + odds-backed + pre-event (gated by team
   // kickoff here) and limited-data/market-implied — so they're surfaced from the WC artifact instead.
@@ -38,7 +39,7 @@ export default function BuildPage() {
   // Same slate framing /picks uses, so both surfaces agree on which day is current.
   const suggestedCards = loadSuggestedCards(currentSlateDate() ?? currentEtDate());
   // Same canonical slate the optimizer marketplace read on /picks — one loader, not a rebuild.
-  const engineSlate = loadTodaySlate();
+  const engineSlate = engineSlateForLegs;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
@@ -52,7 +53,7 @@ export default function BuildPage() {
         note="The advanced, full-leg builder — start with Picks Lab for the model's top picks, or use this to add legs across sports to a paper card and see the projected paper return — model-qualified legs only (odds-backed, pre-event, role-quality screened); raw sportsbook inventory and research-only views are intentionally excluded. Paper-only."
       />
       {pool.length > 0 ? (
-        <BuildExperience pool={pool} />
+        <BuildExperience pool={pool} productDate={currentEtDate()} />
       ) : (
         <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No eligible legs right now</p>
