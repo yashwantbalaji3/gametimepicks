@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 823021,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T02:53:12.863Z",
+  "availableAt": "2026-08-08T02:53:12.863Z",
+  "eventStartTime": "2026-08-08T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 669461,
+    "name": "Matthew Liberatore",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 607536,
+    "name": "Kyle Freeland",
+    "pitchHand": "L"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-08T02:53:12.863Z"
+  },
+  "recordHash": "f161f7b8c9311449c4508ec4ee5e2c31da8960f406dddbf673ac88102a2e4318"
+}

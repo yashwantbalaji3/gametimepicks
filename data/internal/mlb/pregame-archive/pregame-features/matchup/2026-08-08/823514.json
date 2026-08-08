@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 823514,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T02:53:12.863Z",
+  "availableAt": "2026-08-08T02:53:12.863Z",
+  "eventStartTime": "2026-08-08T19:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 543037,
+    "name": "Gerrit Cole",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 519242,
+    "name": "Chris Sale",
+    "pitchHand": "L"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-08T02:53:12.863Z"
+  },
+  "recordHash": "7c98063563f4ae3b1afa6db0d984ec82b9544ff1feb0b628f94abd3b4418c23d"
+}

@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823514,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T02:53:11.556Z",
+  "availableAt": "2026-08-08T02:53:11.556Z",
+  "eventStartTime": "2026-08-08T19:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-05",
+    "2026-08-06",
+    "2026-08-07"
+  ],
+  "home": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 66,
+      "relievers": [
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 5,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 665645,
+          "name": "Kervin Castro",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 657612,
+          "name": "Tim Hill",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 142,
+      "relievers": [
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 6,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 664849,
+          "name": "Danny Young",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 2,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 800311,
+          "name": "Didier Fuentes",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 641755,
+          "name": "Tyler Kinley",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 689266,
+          "name": "Dylan Dodd",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 1,
+          "pitches": 2,
+          "outs": 1,
+          "dates": [
+            "2026-08-06"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-05,2026-08-06,2026-08-07) + feed/live box scores",
+    "capturedAt": "2026-08-08T02:53:11.556Z"
+  },
+  "recordHash": "a29944aa5ad7948e9d1244f90f3c09acd958c7904e0f71910dcc5759c116d295"
+}

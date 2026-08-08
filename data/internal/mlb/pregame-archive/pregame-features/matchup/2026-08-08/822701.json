@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 822701,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T02:53:12.863Z",
+  "availableAt": "2026-08-08T02:53:12.863Z",
+  "eventStartTime": "2026-08-08T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 674841,
+    "name": "Andrew Alvarez",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 695505,
+    "name": "Chase Burns",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-08T02:53:12.863Z"
+  },
+  "recordHash": "1f137fa8da7aecd02585c48cb2b35b85976fe285bcbfb0d206341c57e48811dd"
+}

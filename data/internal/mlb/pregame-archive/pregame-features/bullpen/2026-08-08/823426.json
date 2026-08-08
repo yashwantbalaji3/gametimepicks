@@ -1,0 +1,213 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823426,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T02:53:11.556Z",
+  "availableAt": "2026-08-08T02:53:11.556Z",
+  "eventStartTime": "2026-08-08T22:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-05",
+    "2026-08-06",
+    "2026-08-07"
+  ],
+  "home": {
+    "teamId": 143,
+    "teamName": "Philadelphia Phillies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 12,
+      "pitches": 199,
+      "relievers": [
+        {
+          "id": 689147,
+          "name": "Orion Kerkering",
+          "appearances": 2,
+          "pitches": 39,
+          "outs": 6,
+          "dates": [
+            "2026-08-05",
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 621237,
+          "name": "José Alvarado",
+          "appearances": 2,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-08-05",
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 661395,
+          "name": "Jhoan Duran",
+          "appearances": 2,
+          "pitches": 29,
+          "outs": 6,
+          "dates": [
+            "2026-08-05",
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 680742,
+          "name": "Jonathan Bowlan",
+          "appearances": 2,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-08-05",
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 548384,
+          "name": "Brooks Raley",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 668873,
+          "name": "Caleb Kilian",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 1,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 663767,
+          "name": "Chase Shugart",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 641835,
+          "name": "Tim Mayza",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 141,
+    "teamName": "Toronto Blue Jays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 137,
+      "relievers": [
+        {
+          "id": 693686,
+          "name": "Spencer Miles",
+          "appearances": 1,
+          "pitches": 40,
+          "outs": 6,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 686973,
+          "name": "Louis Varland",
+          "appearances": 2,
+          "pitches": 38,
+          "outs": 6,
+          "dates": [
+            "2026-08-05",
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 695445,
+          "name": "Chase Lee",
+          "appearances": 2,
+          "pitches": 15,
+          "outs": 6,
+          "dates": [
+            "2026-08-05",
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 680755,
+          "name": "Braydon Fisher",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 689254,
+          "name": "Mason Fluharty",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 643511,
+          "name": "Tyler Rogers",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 663893,
+          "name": "Brendon Little",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 1,
+          "dates": [
+            "2026-08-06"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-05,2026-08-06,2026-08-07) + feed/live box scores",
+    "capturedAt": "2026-08-08T02:53:11.556Z"
+  },
+  "recordHash": "e07e23060e80ae042f893fdb71f835e5ed68dd85cf7f50ba76dad0dd0e257d1e"
+}

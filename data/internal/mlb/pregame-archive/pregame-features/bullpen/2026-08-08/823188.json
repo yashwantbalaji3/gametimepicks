@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823188,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T02:53:11.556Z",
+  "availableAt": "2026-08-08T02:53:11.556Z",
+  "eventStartTime": "2026-08-08T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-05",
+    "2026-08-06",
+    "2026-08-07"
+  ],
+  "home": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 74,
+      "relievers": [
+        {
+          "id": 693313,
+          "name": "Carson Seymour",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 8,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 663941,
+          "name": "Tristan Beck",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 671345,
+          "name": "Jason Foley",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 116,
+    "teamName": "Detroit Tigers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 78,
+      "relievers": [
+        {
+          "id": 646241,
+          "name": "Enmanuel De Jesus",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 6,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 663947,
+          "name": "Tyler Holton",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 6,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 669724,
+          "name": "Brenan Hanifee",
+          "appearances": 2,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-05",
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 640448,
+          "name": "Kyle Finnegan",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 3,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 805427,
+          "name": "Drew Sommers",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-08-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-05,2026-08-06,2026-08-07) + feed/live box scores",
+    "capturedAt": "2026-08-08T02:53:11.556Z"
+  },
+  "recordHash": "667e3c21a81c67bcfbe440083e85f3de6f2b7ef04123eaf8ebcd6ae412fd8f68"
+}

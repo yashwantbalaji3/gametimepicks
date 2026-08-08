@@ -1,0 +1,216 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822864,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T02:53:11.556Z",
+  "availableAt": "2026-08-08T02:53:11.556Z",
+  "eventStartTime": "2026-08-08T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-05",
+    "2026-08-06",
+    "2026-08-07"
+  ],
+  "home": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 53,
+      "relievers": [
+        {
+          "id": 656641,
+          "name": "Jacob Latz",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-08-07"
+          ]
+        },
+        {
+          "id": 695239,
+          "name": "Robby Ahlstrom",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-07"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-08-07"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 121,
+      "relievers": [
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 2,
+          "pitches": 35,
+          "outs": 7,
+          "dates": [
+            "2026-08-05",
+            "2026-08-07"
+          ]
+        },
+        {
+          "id": 656641,
+          "name": "Jacob Latz",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-08-07"
+          ]
+        },
+        {
+          "id": 695239,
+          "name": "Robby Ahlstrom",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 6,
+          "dates": [
+            "2026-08-05",
+            "2026-08-07"
+          ]
+        },
+        {
+          "id": 681217,
+          "name": "Chase Silseth",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 668390,
+          "name": "Cole Winn",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 656641,
+        "name": "Jacob Latz",
+        "reason": "32 pitches yesterday"
+      }
+    ]
+  },
+  "away": {
+    "teamId": 110,
+    "teamName": "Baltimore Orioles",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 106,
+      "relievers": [
+        {
+          "id": 544150,
+          "name": "Albert Suárez",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 682274,
+          "name": "Yaramil Hiraldo",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 677020,
+          "name": "Josh Walker",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 5,
+          "dates": [
+            "2026-08-06"
+          ]
+        },
+        {
+          "id": 666974,
+          "name": "Yennier Cano",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 695380,
+          "name": "Alex Hoppe",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 670329,
+          "name": "Rico Garcia",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 1,
+          "dates": [
+            "2026-08-05"
+          ]
+        },
+        {
+          "id": 552640,
+          "name": "Andrew Kittredge",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-08-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-05,2026-08-06,2026-08-07) + feed/live box scores",
+    "capturedAt": "2026-08-08T02:53:11.556Z"
+  },
+  "recordHash": "b2f662690880bb1410dc4de7f24783414d7c4f99c1d2cb2079bda16ef6e82a9a"
+}
