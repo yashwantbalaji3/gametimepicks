@@ -127,8 +127,8 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
     padding: density === "scan" ? "8px 12px" : "14px 16px",
     border: `1px solid ${meta.rim}`,
     background: isInsufficient
-      ? "linear-gradient(180deg, rgba(14, 21, 48, 0.30) 0%, rgba(26, 16, 11, 0.38) 100%)"
-      : "linear-gradient(180deg, rgba(14, 21, 48, 0.55) 0%, rgba(26, 16, 11, 0.62) 100%)",
+      ? "linear-gradient(180deg, rgba(10, 6, 4, 0.30) 0%, rgba(26, 16, 11, 0.38) 100%)"
+      : "linear-gradient(180deg, rgba(10, 6, 4, 0.55) 0%, rgba(26, 16, 11, 0.62) 100%)",
     minWidth: 0,
     maxWidth: "100%",
     opacity: isInsufficient ? 0.78 : 1,

@@ -19,7 +19,7 @@ export default function Footer() {
       style={{
         borderTop: "1px solid var(--vault-border)",
         background:
-          "linear-gradient(180deg, rgba(26, 16, 11, 0) 0%, rgba(14, 21, 48, 0.55) 100%)",
+          "linear-gradient(180deg, rgba(26, 16, 11, 0) 0%, rgba(10, 6, 4, 0.55) 100%)",
       }}
     >
       {/* PR #114: replaced the running-dots "Vegas marquee" with a
@@ -65,7 +65,7 @@ export default function Footer() {
           <div>
             <div
               className="vault-quiet-label mb-3"
-              style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
+              style={{ color: "var(--vault-text-faint)", letterSpacing: "0.06em" }}
             >
               Coverage
             </div>
@@ -88,7 +88,7 @@ export default function Footer() {
           <div>
             <div
               className="vault-quiet-label mb-3"
-              style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
+              style={{ color: "var(--vault-text-faint)", letterSpacing: "0.06em" }}
             >
               Products
             </div>
@@ -107,7 +107,7 @@ export default function Footer() {
           <div>
             <div
               className="vault-quiet-label mb-3"
-              style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
+              style={{ color: "var(--vault-text-faint)", letterSpacing: "0.06em" }}
             >
               Explore &amp; learn
             </div>
@@ -132,7 +132,7 @@ export default function Footer() {
           <div>
             <div
               className="vault-quiet-label mb-3"
-              style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
+              style={{ color: "var(--vault-text-faint)", letterSpacing: "0.06em" }}
             >
               About
             </div>
@@ -153,7 +153,7 @@ export default function Footer() {
           <div>
             <div
               className="vault-quiet-label mb-3"
-              style={{ color: "var(--vault-gold)", letterSpacing: "0.06em" }}
+              style={{ color: "var(--vault-text-faint)", letterSpacing: "0.06em" }}
             >
               Data sources
             </div>

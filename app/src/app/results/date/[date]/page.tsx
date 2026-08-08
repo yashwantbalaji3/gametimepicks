@@ -319,7 +319,7 @@ function AtAGlanceCard({
         className="rounded-[6px] px-5 py-5 sm:px-6 sm:py-6"
         style={{
           background:
-            "linear-gradient(180deg, rgba(14,21,48,0.55) 0%, rgba(26, 16, 11,0.55) 100%)",
+            "linear-gradient(180deg, rgba(10, 6, 4,0.55) 0%, rgba(26, 16, 11,0.55) 100%)",
           border: "1px solid var(--vault-border)",
         }}
       >

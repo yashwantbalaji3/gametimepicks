@@ -23,7 +23,7 @@ export default function MlbResultsSummary({ report }: Props) {
       className="reveal vault-data-orbit relative overflow-hidden -mx-4 sm:-mx-6 px-4 sm:px-6 pt-6 pb-4 rounded-[8px]"
       style={{
         background:
-          "linear-gradient(180deg, rgba(14, 21, 48, 0.55) 0%, rgba(26, 16, 11, 0.62) 100%)",
+          "linear-gradient(180deg, rgba(10, 6, 4, 0.55) 0%, rgba(26, 16, 11, 0.62) 100%)",
         border: "1px solid var(--vault-border)",
       }}
     >

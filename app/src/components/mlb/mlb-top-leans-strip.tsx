@@ -134,7 +134,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
                     : "rgba(242, 54, 69, 0.25)"
                 }`,
                 background:
-                  "linear-gradient(180deg, rgba(14, 21, 48, 0.55) 0%, rgba(26, 16, 11, 0.62) 100%)",
+                  "linear-gradient(180deg, rgba(10, 6, 4, 0.55) 0%, rgba(26, 16, 11, 0.62) 100%)",
                 scrollMarginTop: 80,
               }}
               aria-label={`Jump to ${lean.playerName} ${mlbMarketLabel(lean.marketKey)} ${lean.lean} ${lean.line}`}
