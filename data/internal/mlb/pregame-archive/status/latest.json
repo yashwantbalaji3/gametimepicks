@@ -4,29 +4,29 @@
   "productEligible": false,
   "collectionStartDate": "2026-07-21",
   "datesCollected": 17,
-  "totalSnapshots": 1757,
+  "totalSnapshots": 1772,
   "totalGames": 235,
-  "snapshotsBeforeFirstPitch": 1342,
-  "postStartRejected": 415,
+  "snapshotsBeforeFirstPitch": 1345,
+  "postStartRejected": 427,
   "totalFreezes": 235,
   "freezeCompletenessPct": 100,
   "familyPresent": {
-    "confirmed_lineup": 377,
-    "pitcher_status": 1336,
+    "confirmed_lineup": 380,
+    "pitcher_status": 1339,
     "bullpen": 0,
     "plate_appearance_opportunity": 0,
     "markets": 0,
-    "environment": 1342,
-    "umpire": 440
+    "environment": 1345,
+    "umpire": 443
   },
   "familyEligibleSnapshots": {
-    "confirmed_lineup": 360,
-    "pitcher_status": 1316,
+    "confirmed_lineup": 362,
+    "pitcher_status": 1318,
     "bullpen": 0,
     "plate_appearance_opportunity": 0,
     "markets": 0,
-    "environment": 1322,
-    "umpire": 423
+    "environment": 1324,
+    "umpire": 425
   },
   "coverageByFamilyPct": {
     "confirmed_lineup": 87.2,
@@ -58,11 +58,11 @@
     "2026-08-07",
     "2026-08-08"
   ],
-  "marketSnapshots": 125,
-  "marketRecords": 113700,
-  "marketRecordsEligible": 113700,
+  "marketSnapshots": 126,
+  "marketRecords": 114182,
+  "marketRecordsEligible": 114182,
   "marketCreditStatus": "team-markets captured",
-  "playerPropMarketSnapshots": 125,
+  "playerPropMarketSnapshots": 126,
   "playerPropRecords": 176702,
   "playerPropRecordsEligible": 176702,
   "playerPropCoverageByMarket": {
@@ -231,10 +231,10 @@
     {
       "date": "2026-08-08",
       "games": 15,
-      "snapshots": 105,
-      "snapshotsBeforeFirstPitch": 95,
-      "postStartRejected": 10,
-      "snapshotsWithEligibleFamily": 95,
+      "snapshots": 120,
+      "snapshotsBeforeFirstPitch": 98,
+      "postStartRejected": 22,
+      "snapshotsWithEligibleFamily": 97,
       "freezes": 15
     }
   ],
@@ -276,41 +276,41 @@
       "2026-08-07",
       "2026-08-08"
     ],
-    "gamesFinal": 221,
-    "gamesPending": 14,
+    "gamesFinal": 222,
+    "gamesPending": 13,
     "joinRows": 27820,
-    "settledEligibleRows": 23204,
+    "settledEligibleRows": 23435,
     "settledPushRows": 44,
-    "marketPendingRows": 1926,
-    "unavailableRows": 1583,
+    "marketPendingRows": 1653,
+    "unavailableRows": 1625,
     "ambiguousRows": 0,
     "unsupportedRows": 0,
     "ineligibleGradedRows": 1063,
-    "distinctSettledPlayerMarkets": 18348,
+    "distinctSettledPlayerMarkets": 18526,
     "joinCoverageByFamily": {
-      "pitcher_status": 442,
-      "environment": 221,
-      "umpire": 197,
-      "confirmed_lineup": 192
+      "pitcher_status": 444,
+      "environment": 222,
+      "umpire": 198,
+      "confirmed_lineup": 193
     },
     "joinCoverageByMarket": {
-      "totals": 778,
-      "spreads": 396,
-      "h2h": 242,
-      "pitcher_outs": 409,
-      "pitcher_strikeouts": 396,
-      "batter_hits": 3321,
-      "batter_hits_runs_rbis": 3286,
-      "batter_rbis": 2962,
-      "batter_total_bases": 4104,
-      "pitcher_earned_runs": 350,
-      "batter_runs_scored": 2914,
-      "batter_home_runs": 4046
+      "totals": 782,
+      "spreads": 398,
+      "h2h": 244,
+      "pitcher_outs": 415,
+      "pitcher_strikeouts": 402,
+      "batter_hits": 3359,
+      "batter_hits_runs_rbis": 3316,
+      "batter_rbis": 2992,
+      "batter_total_bases": 4141,
+      "pitcher_earned_runs": 358,
+      "batter_runs_scored": 2944,
+      "batter_home_runs": 4084
     },
-    "progressTo500": "23204/500",
+    "progressTo500": "23435/500",
     "earliestValidResearchDate": {
       "dateGate": "17/30 distinct dates · ~13 more daily runs",
-      "settledEligibleGate": "23204/500 · ~0 market-settled days at the observed 1450 settled-eligible rows/day",
+      "settledEligibleGate": "23435/500 · ~0 market-settled days at the observed 1465 settled-eligible rows/day",
       "bindingConstraint": "whichever of dates / settled-eligible clears last",
       "note": "Not a promise — recomputed each run from observed collection. First settled-eligible rows accrue when the earliest market-capture date's games are final and re-joined."
     }
@@ -324,8 +324,8 @@
   "gateMet": false,
   "gateBlockers": [
     "dates 17/30",
-    "coverage 74.9%/80%",
-    "timestamp-proven 75.2%/90%"
+    "coverage 74.4%/80%",
+    "timestamp-proven 74.7%/90%"
   ],
   "note": "settledEligibleObs is now populated by the settlement-join pipeline (join-mlb-pregame-settlements.mjs). Only pregame-researchEligible market leans with a DECISIVE official outcome (win|loss) count toward the 500-row gate; pushes/pending/ambiguous/unsupported/ineligible + contextual research rows never do. No modeling; official box scores only."
 }
