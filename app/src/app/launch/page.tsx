@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { guardInternalRoute } from "@/lib/internal-route-guard";
 import { currentEtDate } from "@/lib/freshness";
+import { buildCompletionMatrix, ROADMAP_30D } from "@/lib/launch/completion-matrix.mjs";
+import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
 import {
   buildDepartments,
   buildSports,
@@ -129,6 +131,70 @@ export default function LaunchCommandCenter() {
             No ledger artifact — run <code>npm run admin:ledger</code>. This says &ldquo;not generated&rdquo;, never &ldquo;all healthy&rdquo;.
           </p>
         )}
+      </section>
+
+      {/* ── Department × Sport completion matrix — derived from the twelve-stage gate ── */}
+      <section aria-labelledby="matrix" style={{ marginBottom: 30 }}>
+        <h2 id="matrix" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Department × Sport completion</h2>
+        {(() => {
+          const m = buildCompletionMatrix(SPORT_ASSESSMENTS);
+          return (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <caption style={{ captionSide: "top", textAlign: "left", fontSize: 11, color: "var(--vault-text-faint)", paddingBottom: 6 }}>
+                Every percentage is proven-stages / total-stages from the sport gate — no cell is hand-set. Hover a cell for its stage receipts on the artifact.
+              </caption>
+              <thead>
+                <tr>
+                  <Head>Department</Head>
+                  {m.sports.map((sp) => <Head key={sp}>{sp.toUpperCase()}</Head>)}
+                </tr>
+              </thead>
+              <tbody>
+                {m.buckets.map((b) => (
+                  <tr key={b.id}>
+                    <Cell>{b.name}</Cell>
+                    {m.sports.map((sp) => {
+                      const cell = m.matrix[sp][b.id];
+                      const blocked = cell.stages.find((st: { status: string; blocker: string | null }) => st.status === "BLOCKED_EXTERNAL");
+                      return (
+                        <Cell key={sp} mono>
+                          <span style={{ color: cell.pct === 100 ? tone("PASS") : cell.pct === 0 ? "var(--vault-text-faint)" : tone("PARTIAL") }}>
+                            {cell.pct == null ? "N/A" : `${cell.pct}%`}
+                          </span>
+                          <span style={{ color: "var(--vault-text-faint)", fontSize: 10 }}> {cell.proven}/{cell.total}</span>
+                          {blocked ? <span style={{ display: "block", color: "var(--vault-text-faint)", fontSize: 10 }}>blocked: founder</span> : null}
+                        </Cell>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          );
+        })()}
+      </section>
+
+      {/* ── 30-day roadmap — committed data, horizons with acceptance tests ─────────── */}
+      <section aria-labelledby="roadmap" style={{ marginBottom: 30 }}>
+        <h2 id="roadmap" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>30-day roadmap</h2>
+        {ROADMAP_30D.map((h) => (
+          <div key={h.horizon} style={{ marginBottom: 14 }}>
+            <h3 style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--vault-text-faint)", marginBottom: 6 }}>{h.horizon.replace(/_/g, " ")}</h3>
+            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
+              {h.items.map((i) => (
+                <li key={i.outcome} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "8px 12px" }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 600 }}>
+                    <span style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 10, color: i.owner === "FOUNDER" ? tone("PARTIAL") : "var(--vault-text-faint)" }}>{i.owner}</span>{" "}
+                    {i.outcome}
+                  </p>
+                  <p style={{ fontSize: 11, color: "var(--vault-text-mute)", marginTop: 2 }}>
+                    {i.department} · {i.sport}{i.dependency ? ` · needs: ${i.dependency}` : ""} · accept: {i.acceptance}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </section>
 
       {/* ── Internal Alpha window ───────────────────────────────────────────────────── */}
