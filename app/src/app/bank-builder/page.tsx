@@ -16,6 +16,7 @@ import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { deriveProductState, productStateLabel, productStateExplanation, isLive } from "@/lib/products/product-state.mjs";
+import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import ClimbHero, { type ClimbLane, type ClimbRung, type ClimbClearedDetail } from "@/components/bank-builder/climb-hero";
 import { readLaneReviewCard } from "@/lib/bank-builder/review-card";
@@ -197,7 +198,10 @@ export default function BankBuilderPage() {
     artifactDate: bbArtifact.date,
     publishedCards: bbArtifact.cards,
   });
-  const bbStateLabel = productStateLabel(bbProductState, { artifactDate: bbArtifact.date, productDate: currentEtDate() });
+  // The real ET hour lets the label distinguish "the morning generator has not run YET" (expected
+  // overnight) from "it missed its window" (alarming) — same NOT_RUN state, honest framing.
+  // currentEtHour carries the %24 guard for Intl's midnight "24" quirk.
+  const bbStateLabel = productStateLabel(bbProductState, { artifactDate: bbArtifact.date, productDate: currentEtDate(), etHour: currentEtHour() });
   const bbStateExplanation = productStateExplanation(bbProductState);
   const bbProposal = buildBankBuilderProposal(path.join(process.cwd(), "public", "data"), today);
 

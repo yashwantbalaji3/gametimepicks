@@ -103,3 +103,16 @@ test("no state is communicated by colour alone — every label carries its meani
     assert.ok(productStateExplanation(state).length > 20, `${state} needs an explanation`);
   }
 });
+
+test("overnight NOT_RUN framing: before the generation window a 1-day-old card is expected, not alarming", () => {
+  const opts = { artifactDate: "2026-08-07", productDate: "2026-08-08" };
+  // 00:45 ET, generator runs at ~08:10 → calm framing.
+  assert.match(productStateLabel(PRODUCT_STATES.NOT_RUN, { ...opts, etHour: 0 }), /assessed each morning/);
+  // 10:00 ET, window passed with no run → the alarming truth returns.
+  assert.match(productStateLabel(PRODUCT_STATES.NOT_RUN, { ...opts, etHour: 10 }), /Not updated today/);
+  // A FIFTEEN-day-old artifact is never softened, whatever the hour — that was the original bug.
+  assert.match(productStateLabel(PRODUCT_STATES.NOT_RUN, { artifactDate: "2026-07-21", productDate: "2026-08-05", etHour: 0 }), /15 days ago/);
+  // No etHour supplied → conservative alarming default (a caller that cannot say what time it is
+  // must not get the calm framing).
+  assert.match(productStateLabel(PRODUCT_STATES.NOT_RUN, opts), /Not updated today/);
+});

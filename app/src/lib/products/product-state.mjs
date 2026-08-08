@@ -94,9 +94,9 @@ export function deriveProductState({
  */
 /**
  * @param {string} state
- * @param {{artifactDate?: string|null, productDate?: string|null}} [opts]
+ * @param {{artifactDate?: string|null, productDate?: string|null, etHour?: number|null, generationHourEt?: number}} [opts]
  */
-export function productStateLabel(state, { artifactDate = null, productDate = null } = {}) {
+export function productStateLabel(state, { artifactDate = null, productDate = null, etHour = null, generationHourEt = 9 } = {}) {
   switch (state) {
     case PRODUCT_STATES.CARD_PUBLISHED: return "Live today";
     case PRODUCT_STATES.AWAITING_SETTLEMENT: return "Awaiting settlement";
@@ -110,6 +110,13 @@ export function productStateLabel(state, { artifactDate = null, productDate = nu
       // Deliberately NOT "no qualified card": we do not know that, because nothing ran.
       if (artifactDate && productDate && artifactDate < productDate) {
         const days = Math.round((Date.parse(`${productDate}T00:00:00Z`) - Date.parse(`${artifactDate}T00:00:00Z`)) / 86_400_000);
+        // Before the day's generation window, a one-day-old artifact is the EXPECTED overnight
+        // state — the generator simply has not run yet. Saying "Not updated today" at 00:45 ET
+        // reads as an outage when nothing is late. Same state, honest framing, and it flips back
+        // to the alarming wording the moment the window passes without a run.
+        if (days === 1 && typeof etHour === "number" && etHour < generationHourEt) {
+          return `Today's card is assessed each morning · last card ${artifactDate}`;
+        }
         return `Not updated today · last card ${artifactDate}${days > 1 ? ` (${days} days ago)` : ""}`;
       }
       return "Not updated today";

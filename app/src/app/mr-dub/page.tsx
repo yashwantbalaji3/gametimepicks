@@ -20,6 +20,8 @@ import AchievementBanner from "@/components/achievement-banner";
 import { buildFlagship } from "@/lib/mr-dub/flagship";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
+import { deriveProductState, productStateLabel, isLive } from "@/lib/products/product-state.mjs";
+import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { ExecutiveDashboard, TodayStatusStrip } from "@/components/mr-dub/flagship/flagship-dashboard";
 import BankBuilderJourneySection from "@/components/mr-dub/flagship/bank-builder-journey";
@@ -74,6 +76,26 @@ export default function MrDubPage() {
             {/* Honest settlement age — client badge re-computes with the real browser clock, so a stale
                 build reads "Latest settlement · N days ago" instead of a frozen date. */}
             <FreshnessBadge slateDate={f.todayStatus.lastSettledDate} serverToday={currentEtDate()} noun="settlement" />
+            {/* Current-operations state (Program 144 · Release G). The settlement badge above is the
+                PROTECTED history — the last official grading, 30+ days ago, correct and untouched.
+                Without this second marker the page read as abandoned: historical truth needs
+                today's run status beside it, from the product's OWN artifact per the Program 140
+                rule. */}
+            {(() => {
+              try {
+                const dp = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mr-dub", "daily-portfolio.json"), "utf8")) as { date?: string; lanes?: Array<{ status?: string }> };
+                const st = deriveProductState({
+                  productDate: currentEtDate(),
+                  artifactDate: typeof dp.date === "string" ? dp.date : null,
+                  publishedCards: (dp.lanes ?? []).filter((l) => l.status === "active").length,
+                });
+                return (
+                  <span className="font-mono uppercase tracking-[0.1em]" style={{ color: isLive(st) ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 10 }}>
+                    {productStateLabel(st, { artifactDate: dp.date ?? null, productDate: currentEtDate(), etHour: currentEtHour() })}
+                  </span>
+                );
+              } catch { return null; }
+            })()}
           </span>
           <p className="mt-0.5 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
             <span className="mr-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em] text-[9px]" style={{ color: "var(--vault-gold)", background: "rgba(217,164,65,0.12)", border: "1px solid rgba(217,164,65,0.35)" }}><span aria-hidden>⚗</span> Paper Portfolio Scientist</span>
