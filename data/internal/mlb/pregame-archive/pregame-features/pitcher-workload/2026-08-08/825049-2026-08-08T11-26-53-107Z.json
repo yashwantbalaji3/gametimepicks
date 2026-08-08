@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 825049,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T11:26:53.107Z",
+  "availableAt": "2026-08-08T11:26:53.107Z",
+  "eventStartTime": "2026-08-09T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 694297,
+      "name": "Brandon Pfaadt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 5,
+      "lastStartDate": "2026-08-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 2.6,
+        "bbAvg": 0.8,
+        "erAvg": 1.2,
+        "hrAvg": 0,
+        "kPer9": 3.86,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 57.33,
+        "k": 32,
+        "bb": 11,
+        "er": 18,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 808967,
+      "name": "Yoshinobu Yamamoto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 7,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 36,
+        "ipAvg": 7.2,
+        "kAvg": 6.2,
+        "bbAvg": 2,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 7.75,
+        "workloadIpLast5": 36
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 133.67,
+        "k": 121,
+        "bb": 29,
+        "er": 41,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-08T11:26:53.107Z"
+  },
+  "recordHash": "8eb6f1f0d1e0786d0ecada2353f5221207c0432afbab74e8ac5777bb80925aa5"
+}

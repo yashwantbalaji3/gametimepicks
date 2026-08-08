@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823188,
   "date": "2026-08-08",
-  "capturedAt": "2026-08-08T02:53:11.556Z",
-  "availableAt": "2026-08-08T02:53:11.556Z",
+  "capturedAt": "2026-08-08T11:26:54.933Z",
+  "availableAt": "2026-08-08T11:26:54.933Z",
   "eventStartTime": "2026-08-08T23:15:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,65 @@
     "teamId": 137,
     "teamName": "San Francisco Giants",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 4,
+      "pitches": 140,
+      "relievers": [
+        {
+          "id": 605288,
+          "name": "Adrian Houser",
+          "appearances": 1,
+          "pitches": 86,
+          "outs": 15,
+          "dates": [
+            "2026-08-07"
+          ]
+        },
+        {
+          "id": 656529,
+          "name": "Sam Hentges",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 4,
+          "dates": [
+            "2026-08-07"
+          ]
+        },
+        {
+          "id": 681916,
+          "name": "Dylan Smith",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-07"
+          ]
+        },
+        {
+          "id": 676775,
+          "name": "Keaton Winn",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-08-07"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 3,
-      "pitches": 74,
+      "appearances": 7,
+      "pitches": 214,
       "relievers": [
+        {
+          "id": 605288,
+          "name": "Adrian Houser",
+          "appearances": 1,
+          "pitches": 86,
+          "outs": 15,
+          "dates": [
+            "2026-08-07"
+          ]
+        },
         {
           "id": 693313,
           "name": "Carson Seymour",
@@ -36,6 +87,16 @@
           "outs": 8,
           "dates": [
             "2026-08-05"
+          ]
+        },
+        {
+          "id": 656529,
+          "name": "Sam Hentges",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 4,
+          "dates": [
+            "2026-08-07"
           ]
         },
         {
@@ -49,6 +110,16 @@
           ]
         },
         {
+          "id": 681916,
+          "name": "Dylan Smith",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-07"
+          ]
+        },
+        {
           "id": 671345,
           "name": "Jason Foley",
           "appearances": 1,
@@ -57,31 +128,69 @@
           "dates": [
             "2026-08-05"
           ]
+        },
+        {
+          "id": 676775,
+          "name": "Keaton Winn",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-08-07"
+          ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 605288,
+        "name": "Adrian Houser",
+        "reason": "86 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 116,
     "teamName": "Detroit Tigers",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
-      "appearances": 6,
-      "pitches": 78,
+      "appearances": 2,
+      "pitches": 26,
       "relievers": [
+        {
+          "id": 805427,
+          "name": "Drew Sommers",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-07"
+          ]
+        },
         {
           "id": 646241,
           "name": "Enmanuel De Jesus",
           "appearances": 1,
-          "pitches": 29,
-          "outs": 6,
+          "pitches": 12,
+          "outs": 3,
           "dates": [
-            "2026-08-05"
+            "2026-08-07"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 104,
+      "relievers": [
+        {
+          "id": 646241,
+          "name": "Enmanuel De Jesus",
+          "appearances": 2,
+          "pitches": 41,
+          "outs": 9,
+          "dates": [
+            "2026-08-05",
+            "2026-08-07"
           ]
         },
         {
@@ -92,6 +201,17 @@
           "outs": 6,
           "dates": [
             "2026-08-05"
+          ]
+        },
+        {
+          "id": 805427,
+          "name": "Drew Sommers",
+          "appearances": 2,
+          "pitches": 18,
+          "outs": 4,
+          "dates": [
+            "2026-08-05",
+            "2026-08-07"
           ]
         },
         {
@@ -114,16 +234,6 @@
           "dates": [
             "2026-08-06"
           ]
-        },
-        {
-          "id": 805427,
-          "name": "Drew Sommers",
-          "appearances": 1,
-          "pitches": 4,
-          "outs": 1,
-          "dates": [
-            "2026-08-05"
-          ]
         }
       ]
     },
@@ -132,7 +242,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-05,2026-08-06,2026-08-07) + feed/live box scores",
-    "capturedAt": "2026-08-08T02:53:11.556Z"
+    "capturedAt": "2026-08-08T11:26:54.933Z"
   },
-  "recordHash": "667e3c21a81c67bcfbe440083e85f3de6f2b7ef04123eaf8ebcd6ae412fd8f68"
+  "recordHash": "1309f1a6aef2090bea0d8340c5df8896ca45ab8aac5a562814628514bdb32d9e"
 }
