@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824079,
+  "date": "2026-08-08",
+  "capturedAt": "2026-08-08T17:21:37.802Z",
+  "availableAt": "2026-08-08T17:21:37.802Z",
+  "eventStartTime": "2026-08-08T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607625,
+      "name": "Seth Lugo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 6,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 3.8,
+        "bbAvg": 2.6,
+        "erAvg": 2.4,
+        "hrAvg": 0.2,
+        "kPer9": 6.11,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 128.67,
+        "k": 99,
+        "bb": 45,
+        "er": 63,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 605280,
+      "name": "Clay Holmes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 85,
+      "lastStartDate": "2026-05-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 5.8,
+        "bbAvg": 1.8,
+        "erAvg": 1.8,
+        "hrAvg": 0.2,
+        "kPer9": 8.8,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 52.67,
+        "k": 45,
+        "bb": 18,
+        "er": 14,
+        "hr": 3
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-08T17:21:37.802Z"
+  },
+  "recordHash": "66f6679f77d0a3ed696198282ec8411d9f924b952e6b8b472b527345054e4f53"
+}
