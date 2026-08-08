@@ -91,6 +91,10 @@ jobs:
           npx tsx app/scripts/activate-daily-portfolio.mjs --date "$DATE" --apply
           npx tsx app/scripts/build-master-ledger.mjs
           npx tsx app/scripts/build-admin-status.mjs
+          # Evidence ledger (Program 144): joins admin status + alpha + gates with freshness and
+          # contradiction detection. Network-free like everything else in this workflow. Exit 1 on
+          # a NEW contradiction stops the commit — a contradictory dashboard must not publish.
+          node app/scripts/build-evidence-ledger.mjs
 
       - name: Protected money must be byte-identical
         # A DISPLAY refresh that moved the bankroll would be a serious defect. The orchestrator has
