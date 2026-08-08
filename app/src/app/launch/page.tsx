@@ -42,6 +42,14 @@ export default function LaunchCommandCenter() {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data", rel), "utf8")); } catch { return null; }
   };
   const board = readJson(`mlb/boards/${etDate}.json`);
+  // Evidence ledger (Program 144 · Release B). Rendered, never recomputed — the ledger generator
+  // owns classification and contradiction detection; this page shows its output verbatim so the
+  // command center and the artifact can never disagree.
+  const ledger = (() => {
+    try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data/admin/evidence-ledger.json"), "utf8")); }
+    catch { return null; }
+  })();
+
   // Internal Alpha progress. Read from the artifact the generator commits — this page renders it,
   // it never recomputes it, so /launch and ops/internal-alpha can never disagree.
   const alpha = (() => {
@@ -80,6 +88,48 @@ export default function LaunchCommandCenter() {
           Slate {etDate} · schema v{SCHEMA_VERSION} · every figure derived from the scorecard checklist and launch gates — nothing here is hand-maintained.
         </p>
       </header>
+
+      {/* ── Evidence ledger: states, freshness, contradictions ─────────────────────── */}
+      <section aria-labelledby="ledger" style={{ marginBottom: 30 }}>
+        <h2 id="ledger" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Evidence ledger</h2>
+        {ledger ? (
+          <>
+            <p style={{ color: "var(--vault-text-mute)", fontSize: 12.5, marginBottom: 10 }}>
+              {ledger.entries.length} entries · {ledger.contradictionCount} contradiction(s) · generated {ledger.now}
+              {" · "}
+              {Object.entries(ledger.counts as Record<string, number>).filter(([, n]) => n > 0).map(([st, n]) => `${st} ${n}`).join(" · ")}
+            </p>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <caption style={{ captionSide: "top", textAlign: "left", fontSize: 11, color: "var(--vault-text-faint)", paddingBottom: 6 }}>
+                Severity-first: incidents and unknowns lead. NO_PLAY and OFF_SEASON are answers, not failures.
+              </caption>
+              <thead><tr><Head>State</Head><Head>Subject</Head><Head>Evidence</Head><Head>Age</Head><Head>Owner</Head></tr></thead>
+              <tbody>
+                {(ledger.entries as Array<{ id: string; state: string; subject: string; evidence: string; ageHours: number | null; owner: string; remediation: string | null }>).map((e) => (
+                  <tr key={e.id}>
+                    <Cell mono>
+                      <span style={{ color: tone(e.state === "HEALTHY" ? "PASS" : e.state === "INCIDENT" ? "FAIL" : e.state === "UNKNOWN" || e.state === "STALE" ? "PARTIAL" : "NA") }}>
+                        {e.state}
+                      </span>
+                    </Cell>
+                    <Cell>{e.subject}</Cell>
+                    <Cell>
+                      {e.evidence}
+                      {e.remediation ? <span style={{ display: "block", color: "var(--vault-text-faint)", fontSize: 11 }}>→ {e.remediation}</span> : null}
+                    </Cell>
+                    <Cell mono>{e.ageHours != null ? `${e.ageHours}h` : "—"}</Cell>
+                    <Cell mono>{e.owner}</Cell>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        ) : (
+          <p style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
+            No ledger artifact — run <code>npm run admin:ledger</code>. This says &ldquo;not generated&rdquo;, never &ldquo;all healthy&rdquo;.
+          </p>
+        )}
+      </section>
 
       {/* ── Internal Alpha window ───────────────────────────────────────────────────── */}
       <section aria-labelledby="alpha" style={{ marginBottom: 30 }}>
