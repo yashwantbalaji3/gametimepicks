@@ -138,7 +138,9 @@ test("wiring · every SURVIVING formerly-stale route mounts SlateLivenessBanner 
     "src/app/page.tsx",
     "src/app/today/page.tsx",
     "src/app/mlb/page.tsx",
-    "src/app/picks/page.tsx",
+    // /picks retired to a redirect (Program 143) — the guard's own parenthetical already covers
+    // this: "retired routes redirect instead". /build carries the surviving suggested-card surface
+    // but has its own liveness framing via PicksSurfaceHeader status, not the banner.
     "src/app/moonshot/page.tsx",
   ];
   for (const rel of routes) {

@@ -26,7 +26,6 @@ const UNIFIED = {
   "/bank-builder": "Bank Builder",
   "/mlb": "MLB",
   "/world-cup": "World Cup",
-  "/picks": "Picks Lab",
   "/world-cup-specials": "Soccer Specials",
   "/moonshot": "Moonshot",
   "/mr-dub": "Mr. Dub's Portfolio",
@@ -57,14 +56,17 @@ test("mobile bottom nav (MOBILE_NAV_ITEMS) uses the unified labels", () => {
   }
 });
 
-// ── 4 · /picks has ONE label ("Build-a-Pick") on every surface; "Parlay Lab" is not a nav label ───
-test("/picks is 'Picks Lab' on every surface; 'Parlay Lab'/'Build-a-Pick' are not nav labels", () => {
-  assert.ok(NAV.includes(`href: "/picks", label: "Picks Lab"`), "top nav");
-  assert.ok(RAIL.includes(`href: "/picks", label: "Picks Lab"`), "rail");
-  assert.equal(mobileByHref["/picks"], "Picks Lab", "mobile");
-  assert.ok(/href="\/picks"[^>]*>Picks Lab</.test(FOOTER), "footer links /picks as Picks Lab");
-  // No nav surface labels a link "Parlay Lab" or the old "Build-a-Pick" any more.
-  for (const bad of ["Parlay Lab", "Build-a-Pick"]) {
+// ── 4 · Picks Lab is RETIRED (Program 143) — no nav surface may link or label it ───
+test("Picks Lab is retired: no nav surface links /picks, and its old labels stay dead", () => {
+  // The inversion of the original guard: it used to require the label everywhere; now the same
+  // canonical-label principle requires its ABSENCE everywhere, so a nav item pointing at a
+  // redirect stub cannot quietly come back.
+  assert.ok(!NAV.includes(`href: "/picks"`), "top nav must not link the retired route");
+  assert.ok(!RAIL.includes(`href: "/picks"`), "rail must not link the retired route");
+  assert.equal(mobileByHref["/picks"], undefined, "mobile must not link the retired route");
+  assert.ok(!/href="\/picks"/.test(FOOTER), "footer must not link the retired route");
+  // No nav surface resurrects any of its labels.
+  for (const bad of ["Parlay Lab", "Build-a-Pick", "Picks Lab"]) {
     assert.ok(!new RegExp(`label: "${bad}"`).test(NAV) && !new RegExp(`label: "${bad}"`).test(RAIL), `no '${bad}' nav label`);
     assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.label === bad), `no '${bad}' mobile label`);
     assert.ok(!new RegExp(`>${bad}<`).test(FOOTER), `footer no longer links '${bad}'`);

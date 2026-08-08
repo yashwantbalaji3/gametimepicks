@@ -41,7 +41,8 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
   // Sprint 012 (R1): `/games` is a REDIRECT ALIAS to /simulate — it must not occupy its own nav slot.
   assert.ok(!nav.includes(String.raw`href: "/games"`), "/games (a redirect alias) is not a nav entry");
   // The current active spine is still reachable.
-  for (const href of ["/mlb", "/bank-builder", "/mr-dub", "/moonshot", "/picks", "/results", "/learn", "/simulate"]) {
+  // Program 143: /picks retired to a redirect — no longer a nav destination.
+  for (const href of ["/mlb", "/bank-builder", "/mr-dub", "/moonshot", "/results", "/learn", "/simulate"]) {
     assert.ok(nav.includes(`href: "${href}"`), `${href} still in the nav`);
   }
   // WORLD CUP CLOSEOUT: the completed 2026 World Cup is NOT an active nav item — neither the "/world-cup"
@@ -50,11 +51,13 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
   assert.ok(!nav.includes('href: "/world-cup-specials"'), "Soccer Specials is NOT in the active nav");
 });
 
-test("MOBILE_NAV_ITEMS has 7 items in the product-spine order (Homer Nukes retired; Diamond Specials removed)", () => {
-  assert.equal(MOBILE_NAV_ITEMS.length, 7);
+test("MOBILE_NAV_ITEMS has 6 items in the product-spine order (Picks Lab retired into Build)", () => {
+  // Program 143: the "picks" slot is gone — Suggested Cards lives inside Build, so the spine is
+  // one item shorter rather than carrying a slot whose destination is a redirect.
+  assert.equal(MOBILE_NAV_ITEMS.length, 6);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "games", "picks", "lab", "bank", "moonshot", "mrdub"],
+    ["home", "games", "lab", "bank", "moonshot", "mrdub"],
   );
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/diamond-specials"), "no Diamond Specials nav item");
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/homer-nukes"), "no retired Homer Nukes nav item");
@@ -73,8 +76,9 @@ test("MOBILE_NAV_ITEMS labels are the UNIFIED product spine (Today/Picks Lab/Bui
   assert.equal(byHref["/today"], "Today");
   // The cross-sport bucket leads with the simulate-first lobby (/simulate).
   assert.equal(byHref["/simulate"], "Simulate");
-  // /picks is "Picks Lab" on every surface (route stays /picks for back-compat).
-  assert.equal(byHref["/picks"], "Picks Lab");
+  // Picks Lab is retired (Program 143); /picks redirects to /build#suggested-cards and carries
+  // no mobile slot. Build owns the job.
+  assert.equal(byHref["/picks"], undefined, "no retired route in the mobile spine");
   assert.equal(byHref["/build"], "Build");
   assert.equal(byHref["/bank-builder"], "Bank Builder");
   // /moonshot surfaces as "Moonshot"; /mr-dub as "Mr. Dub's Portfolio" (Program 139 founder rename).
@@ -107,14 +111,15 @@ test("home (Today): '/', '/today' resolve to home", () => {
   assert.equal(resolveMobileNavBucket(""), null); // empty is treated as null input
 });
 
-test("picks (Parlay Lab): /picks + legacy /parlays + /parlay-lab aliases all highlight Parlay Lab", () => {
-  assert.equal(resolveMobileNavBucket("/picks"), "picks");
-  assert.equal(resolveMobileNavBucket("/picks/"), "picks");
-  assert.equal(resolveMobileNavBucket("/picks/low"), "picks");
+test("retired /picks + legacy /parlays + /parlay-lab aliases all highlight Build (lab)", () => {
+  // Mid-redirect these must light a REAL nav item; the "picks" bucket has none since Program 143.
+  assert.equal(resolveMobileNavBucket("/picks"), "lab");
+  assert.equal(resolveMobileNavBucket("/picks/"), "lab");
+  assert.equal(resolveMobileNavBucket("/picks/low"), "lab");
   // /parlays + /parlay-lab redirect to the canonical Parlay Lab → same bucket.
-  assert.equal(resolveMobileNavBucket("/parlays"), "picks");
-  assert.equal(resolveMobileNavBucket("/parlay-lab"), "picks");
-  assert.equal(resolveMobileNavBucket("/parlay-lab/builder"), "picks");
+  assert.equal(resolveMobileNavBucket("/parlays"), "lab");
+  assert.equal(resolveMobileNavBucket("/parlay-lab"), "lab");
+  assert.equal(resolveMobileNavBucket("/parlay-lab/builder"), "lab");
 });
 
 test("lab (Build): /build only (the custom paper-card builder)", () => {

@@ -24,21 +24,22 @@ const BUILD = "src/app/build/page.tsx";
 const PICKS = "src/app/picks/page.tsx";
 const LOADER = "src/lib/picks/suggested-cards.ts";
 
-test("THE PARITY GATE · both surfaces derive cards from the one shared loader", () => {
-  for (const page of [BUILD, PICKS]) {
-    const src = read(page);
-    assert.match(src, /loadSuggestedCards\(/, `${page} must call the shared loader`);
-    // Neither page may rebuild the list itself — that is how the two would silently diverge.
-    assert.doesNotMatch(src, /normalizeOptimizerSlips\(/, `${page} must not compose cards inline`);
-    assert.doesNotMatch(src, /normalizeUfcCards\(/, `${page} must not compose cards inline`);
-  }
+test("THE PARITY GATE · /build derives cards from the one shared loader; /picks is a redirect", () => {
+  // Deployment B shipped: /picks is a ClientRedirect stub, so /build is the sole consumer. The
+  // rule these guards protect is unchanged — ONE composition, ONE renderer — only the surface
+  // count moved from two to one.
+  const src = read(BUILD);
+  assert.match(src, /loadSuggestedCards\(/, "/build must call the shared loader");
+  assert.doesNotMatch(src, /normalizeOptimizerSlips\(/, "/build must not compose cards inline");
+  assert.doesNotMatch(src, /normalizeUfcCards\(/, "/build must not compose cards inline");
+
+  const picks = read(PICKS);
+  assert.match(picks, /ClientRedirect/, "/picks must be a redirect stub, not a page");
+  assert.doesNotMatch(picks, /loadSuggestedCards|PicksExperience/, "/picks must not render cards any more");
 });
 
-test("both surfaces render the SAME card component — no third implementation", () => {
-  for (const page of [BUILD, PICKS]) {
-    assert.match(read(page), /<PicksExperience cards=/, `${page} must reuse PicksExperience`);
-  }
-  // And the stake/return maths lives in that one component, nowhere else.
+test("/build renders the ONE card component — no third implementation", () => {
+  assert.match(read(BUILD), /<PicksExperience cards=/, "/build must reuse PicksExperience");
   const build = read(BUILD);
   assert.doesNotMatch(build, /projectedReturn|payout\s*=|stake\s*\*/, "Build must not reimplement stake maths");
 });
@@ -83,9 +84,9 @@ test("PRODUCTION TRUTH · the built /build carries the section and /picks still 
   assert.match(html, /id="suggested-cards"/, "the section must be in the export");
   assert.match(html, /Suggested cards/, "its heading must render");
 
-  // /picks must remain fully intact during Deployment A — this is additive only.
+  // Deployment B: /picks exports as a redirect stub — present, small, and pointing at Build.
   const picksOut = path.join(APP, "out/picks/index.html");
   if (fs.existsSync(picksOut)) {
-    assert.ok(fs.readFileSync(picksOut, "utf8").length > 1000, "/picks must still render during Deployment A");
+    assert.match(fs.readFileSync(picksOut, "utf8"), /build#suggested-cards/, "/picks must redirect to Build");
   }
 });

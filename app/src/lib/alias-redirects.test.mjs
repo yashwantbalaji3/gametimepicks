@@ -11,11 +11,16 @@ import path from "node:path";
 const APP = process.cwd(); // app/
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 
+// Program 143 retired /picks: it and every parlay-era alias now point at the FINAL destination,
+// /build#suggested-cards, in ONE hop. Pointing the old aliases through /picks would have made
+// them two-hop chains — a second thing to break.
 const ALIASES = [
   { route: "games", target: "/simulate/" },
-  { route: "parlays", target: "/picks/" },
-  { route: "parlay-lab", target: "/picks/" },
-  { route: "nba/parlays", target: "/picks/" },
+  { route: "picks", target: "/build#suggested-cards" },
+  { route: "parlays", target: "/build#suggested-cards" },
+  { route: "parlay-lab", target: "/build#suggested-cards" },
+  { route: "nba/parlays", target: "/build#suggested-cards" },
+  { route: "mlb/parlays", target: "/build#suggested-cards" },
 ];
 
 test("every alias route uses the client-safe ClientRedirect (never server redirect())", () => {

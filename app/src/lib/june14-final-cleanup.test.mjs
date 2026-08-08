@@ -21,9 +21,9 @@ test("loadDailyMixedCards date-gates a stale slate (no stale cards as active pic
   const loader = read("src/lib/picks/suggested-cards.ts");
   assert.ok(loader.includes("loadDailyMixedCards(today)"), "the shared loader passes the today gate");
   assert.ok(loader.includes("wcParlays.date === today"), "the shared loader gates the World Cup artifact to today");
-  // And /picks must consume that loader rather than rebuilding the list inline.
-  const picks = read("src/app/picks/page.tsx");
-  assert.ok(picks.includes("loadSuggestedCards(today)"), "/picks consumes the shared loader");
+  // /picks retired (Program 143): /build is now the consumer of the shared loader.
+  const build = read("src/app/build/page.tsx");
+  assert.ok(build.includes("loadSuggestedCards("), "/build consumes the shared loader");
   // (The World Cup gate is asserted on the shared loader above — it no longer lives in the page.)
 });
 

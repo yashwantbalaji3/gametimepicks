@@ -51,8 +51,8 @@ test("settled UFC cards are gated out of every active suggested-card slate", () 
   assert.ok(loader.includes("ufcSettled()"), "the shared loader checks UFC settlement");
   assert.ok(/ufcSettled\(\) \? null/.test(loader), "settled → UFC cards excluded from the live slate");
   // And every consumer must go through it rather than composing its own list.
-  const picks = fs.readFileSync("src/app/picks/page.tsx", "utf8");
-  assert.ok(picks.includes("loadSuggestedCards("), "/picks consumes the shared loader");
+  const build = fs.readFileSync("src/app/build/page.tsx", "utf8");
+  assert.ok(build.includes("loadSuggestedCards("), "/build (the surviving surface) consumes the shared loader");
 });
 
 test("Bank Builder remains the completed crown (untouched by UFC settlement)", () => {

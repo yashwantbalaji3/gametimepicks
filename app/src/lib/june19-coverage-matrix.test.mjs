@@ -86,11 +86,14 @@ test("Parlay Lab UI renders the full matrix (totals footer, Moonshot + Bank Buil
   assert.match(src, /Why are some buckets empty/, "empty-reason drawer");
   // Built on the server (node:fs) and passed in — never imported into the client bundle. The canonical
   // suggested-parlay surface is now the Parlay Lab at /picks (/parlays + /parlay-lab redirect to it).
-  const page = fs.readFileSync("src/app/picks/page.tsx", "utf8");
-  assert.match(page, /buildCoverageMatrix\(\w+, loadMoonshotLane\(\)/, "matrix built server-side in the canonical Parlay Lab (/picks)");
+  // Program 143 moved the marketplace to /build (capability-parity release 1dd394c4). The
+  // assertions MOVE with it — this guard is the matrix's only coverage, and it is what caught the
+  // first Deployment B attempt deleting the capability outright.
+  const page = fs.readFileSync("src/app/build/page.tsx", "utf8");
+  assert.match(page, /buildCoverageMatrix\(\w+, loadMoonshotLane\(\)/, "matrix built server-side on /build");
   // The legacy /parlays route is a thin CLIENT redirect to the canonical lobby — not a competing page.
   // (Server redirect() emits an error shell under output:export, so it uses ClientRedirect.)
   const legacy = fs.readFileSync("src/app/parlays/page.tsx", "utf8");
   assert.match(legacy, /ClientRedirect/, "/parlays uses ClientRedirect");
-  assert.match(legacy, /to="\/picks\/"/, "/parlays redirects to the canonical /picks");
+  assert.match(legacy, /to="\/build#suggested-cards"/, "/parlays redirects to the final destination in one hop");
 });

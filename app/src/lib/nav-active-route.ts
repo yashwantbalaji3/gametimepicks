@@ -90,15 +90,15 @@ export function resolveMobileNavBucket(
     : pathname;
   // Today owns the root/home as the default landing experience.
   if (p === "" || p === "/" || p === "/today" || p.startsWith("/today/")) return "home";
-  // The canonical Parlay Lab is /picks; /parlays + /parlay-lab are legacy aliases that redirect there,
-  // so all three highlight the Parlay Lab (picks) bucket.
+  // Picks Lab is retired (Program 143): /picks and the older /parlays + /parlay-lab aliases all
+  // redirect to /build#suggested-cards, so they highlight the Build (lab) bucket mid-redirect
+  // rather than leaving no active item. The "picks" bucket no longer has a nav item.
   if (
+    p === "/build" || p.startsWith("/build/") ||
     p === "/picks" || p.startsWith("/picks/") ||
     p === "/parlays" || p.startsWith("/parlays/") ||
     p === "/parlay-lab" || p.startsWith("/parlay-lab/")
-  ) return "picks";
-  // Build is the custom paper-card builder (distinct from the Parlay Lab lobby).
-  if (p === "/build" || p.startsWith("/build/")) return "lab";
+  ) return "lab";
   // Bank Builder and Moonshot are sibling paper products, each with its own bottom-nav slot. (Homer
   // Nukes was retired 2026-06-30 — /homer-nukes no longer maps to a bucket; it falls through to null.)
   if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
