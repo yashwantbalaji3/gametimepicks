@@ -243,7 +243,16 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
                     </span>
                   ) : null}
                 </div>
-                <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(l.americanOdds)}</span>
+                <span className="font-mono shrink-0 text-right" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
+                  {formatAmerican(l.americanOdds)}
+                  {/* The model's own estimate, shown ONLY where the source provides one — absence
+                      renders nothing rather than an odds-derived stand-in (the grade rule). */}
+                  {typeof l.modelProbability === "number" ? (
+                    <span className="block" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }} title="The model's probability for this leg — an estimate, not a prediction of profit">
+                      model {(l.modelProbability * 100).toFixed(1)}%
+                    </span>
+                  ) : null}
+                </span>
                 <button type="button" onClick={() => (on ? remove(l.id) : add(l))}
                   disabled={blocked}
                   className="rounded-full shrink-0 flex items-center justify-center"

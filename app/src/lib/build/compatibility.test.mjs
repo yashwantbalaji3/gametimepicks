@@ -95,3 +95,15 @@ test("the module documents WHY there is no grade — the blocker is the missing 
   assert.match(src, /WHY THERE IS NO GRADE/, "the blocker must be documented in the module");
   assert.match(src, /grading from odds alone is grading by\s+\* payout attractiveness/i);
 });
+
+test("BuildLeg model-probability threading: shown where sourced, never derived from odds", () => {
+  const src = fs.readFileSync(new URL("../build-legs.ts", import.meta.url), "utf8");
+  assert.match(src, /modelProbability\?: number \| null/, "BuildLeg carries the optional field");
+  assert.match(src, /modelProbability: l\.modelProbability \?\? null/, "engine legs thread it through");
+  assert.match(src, /modelProbability: p\.modelProbability \?\? null/, "WC props thread it through");
+
+  const ui = fs.readFileSync(new URL("../../components/build-experience.tsx", import.meta.url), "utf8");
+  assert.match(ui, /typeof l\.modelProbability === "number"/, "the UI gates on real presence");
+  // The display must not fabricate a probability from odds anywhere in the row rendering.
+  assert.doesNotMatch(ui, /americanToDecimal\([^)]*\)\s*[^;]{0,40}modelProbability/, "no odds-derived stand-in");
+});

@@ -24,6 +24,11 @@ export interface BuildLeg {
   marketLabel: string;
   riskTier: RiskTier;
   americanOdds: number;
+  /** The model's own probability for this leg, where the SOURCE provides one (engine slate legs and
+   *  WC props carry it; some legacy sources do not). Null means "not modelled", and the UI must
+   *  render absence — never a derived stand-in from odds. This is the field whose absence blocked
+   *  honest grading (Program 144 Release F); it is display-truth first, rubric later. */
+  modelProbability?: number | null;
   photo?: string | null;
   prelineup: boolean;
   regulationOnly: boolean;
@@ -169,6 +174,7 @@ export function buildEngineLegs(eligible: import("@/lib/parlays/ui-loader").Parl
       marketLabel: l.market,
       riskTier: tierFromOdds(l.odds as number),
       americanOdds: l.odds as number,
+      modelProbability: l.modelProbability ?? null,
       photo,
       prelineup: sport === "world_cup" && l.identity.kind === "player",
       regulationOnly: sport === "world_cup",
@@ -224,7 +230,7 @@ export function buildWcPlayerLegs(projections: WcProjections | null, players: Wc
       gameLabel: p.player.team,
       label: `${p.player.name} · ${p.pickLabel}`, sublabel: `${p.player.team} · ${p.marketLabel} · limited-data`,
       market: p.market, marketLabel: p.marketLabel, riskTier: p.riskTier ?? "High",
-      americanOdds: p.americanOdds, photo: p.player.photo ?? null, prelineup: true, regulationOnly: true,
+      americanOdds: p.americanOdds, modelProbability: p.modelProbability ?? null, photo: p.player.photo ?? null, prelineup: true, regulationOnly: true,
       bankBuilderEligible: false,
       searchKey: `${p.player.name} ${p.player.team} ${p.marketLabel}`.toLowerCase(),
     });
