@@ -4775,3 +4775,27 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .gtp-chart-draw { animation: none; stroke-dasharray: none; }
 }
+
+/* ================================================================
+   GLOBAL REDUCED-MOTION PARITY (Program 145 · Release D closure).
+   The audit found 38 keyframe animations of which ~30 had no reduce
+   override — per-animation blocks drift the moment someone adds a new
+   effect. This is the standard blanket rule: under reduced motion,
+   EVERY animation and transition (present and future, including inline
+   styles, via !important) completes in 0.01ms — decorative pulses stop,
+   entrance reveals jump to their final state, and nothing on this site
+   conveys meaning through motion alone, so no information is lost.
+   The earlier per-animation reduce blocks remain and are now redundant
+   but harmless. Do NOT add exceptions here: an animation that must
+   survive reduced motion is a design bug, not an override candidate.
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

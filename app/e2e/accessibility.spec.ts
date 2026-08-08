@@ -208,6 +208,36 @@ test.describe("keyboard", () => {
   }
 });
 
+test.describe("reduced motion", () => {
+  // Release D closure (Program 145): the audit found ~30 of 38 keyframe animations with no reduce
+  // override, so a global kill-switch now neutralises everything. This proves it in a real engine
+  // rather than trusting the stylesheet: under prefers-reduced-motion every computed animation and
+  // transition duration must be ~0 on the animation-heavy routes.
+  for (const route of ["/", "/bank-builder/", "/moonshot/"]) {
+    test(`${route} — every animation collapses under prefers-reduced-motion`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto(route, { waitUntil: "domcontentloaded" });
+      const offenders = await page.evaluate(() => {
+        const bad: string[] = [];
+        for (const el of document.querySelectorAll<HTMLElement>("*")) {
+          const cs = getComputedStyle(el);
+          const durs = [cs.animationDuration, cs.transitionDuration].join(",").split(",");
+          for (const d of durs) {
+            const ms = d.trim().endsWith("ms") ? parseFloat(d) : parseFloat(d) * 1000;
+            if (Number.isFinite(ms) && ms > 10) {
+              bad.push(`${el.tagName.toLowerCase()}.${String(el.className).split(/\s+/)[0] ?? ""} ${d.trim()}`);
+              break;
+            }
+          }
+          if (bad.length > 5) break;
+        }
+        return bad;
+      });
+      expect(offenders, `animations surviving reduced motion on ${route}`).toEqual([]);
+    });
+  }
+});
+
 test.describe("disclosure widgets", () => {
   // /results/ carries 18 native <details> and /bank-builder/ one. No route in the launch-critical
   // set has role="dialog" or aria-modal, so there is no modal focus-trapping to verify — that
