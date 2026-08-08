@@ -11,6 +11,7 @@ import { americanToDecimal, decimalToAmerican, formatAmerican } from "@/lib/odds
 import StakePayoutInput from "@/components/ui/stake-payout-input";
 import StatusChip from "@/components/ui/status-chip";
 import PlayerAvatar from "@/components/player-avatar";
+import { classifyAgainstSelection, cardHealth } from "@/lib/build/compatibility.mjs";
 import { getSportIdentity } from "@/lib/sport-identity";
 
 // The 2026 World Cup is complete — not a selectable build sport (archive only). The SPORT_LABEL map below
@@ -91,6 +92,17 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>3 · Your card &amp; paper stake</span>
         <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{selected.length} leg{selected.length === 1 ? "" : "s"}</span>
       </div>
+      {/* Card health (Release F): structural facts only — games, concentration, unvalidated
+          same-game pairs. Never a quality score; the engine has no model inputs to score with. */}
+      {selected.length >= 2 ? (() => {
+        const h = cardHealth(selected);
+        return (
+          <p aria-live="polite" style={{ color: h.concentrated ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)", fontSize: 11, lineHeight: 1.5 }}>
+            {h.legs} legs across {h.games} game{h.games === 1 ? "" : "s"}
+            {h.concentrated ? ` · ${h.maxLegsInOneGame} in one game — outcomes there can move together (correlation not validated)` : " · all different games"}
+          </p>
+        );
+      })() : null}
       {selected.length === 0 ? (
         <div className="flex flex-col gap-2">
           <p style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>Build a paper card in three steps:</p>
@@ -204,6 +216,11 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
         <div className="flex flex-col gap-1.5 max-h-[60vh] overflow-y-auto pr-1">
           {filtered.map((l) => {
             const on = selectedIds.has(l.id);
+            // Provable-only compatibility (Program 144 Release F): a hard conflict disables the
+            // add control WITH its reason beside it; an unvalidated same-game overlap is disclosed
+            // but never blocked. classifyAgainstSelection never runs for legs already on the card.
+            const compat = on ? null : classifyAgainstSelection(l, selected);
+            const blocked = compat?.hardDisable === true;
             return (
               <div key={l.id} className="flex items-center gap-2.5 rounded-[7px] px-3 py-2 min-w-0"
                 style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
@@ -220,12 +237,20 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
                   <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                     {l.sportLabel} · {l.sublabel}{l.prelineup ? " · lineup pending" : ""}
                   </span>
+                  {compat?.reason ? (
+                    <span style={{ color: blocked ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)", fontSize: 10, lineHeight: 1.4 }}>
+                      {compat.reason}
+                    </span>
+                  ) : null}
                 </div>
                 <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{formatAmerican(l.americanOdds)}</span>
                 <button type="button" onClick={() => (on ? remove(l.id) : add(l))}
+                  disabled={blocked}
                   className="rounded-full shrink-0 flex items-center justify-center"
-                  style={{ width: 24, height: 24, background: on ? "var(--vault-gold-bright)" : "transparent", border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`, color: on ? "#170f0a" : "var(--vault-text-mute)", fontSize: 15, fontWeight: 700, lineHeight: 1 }}
-                  aria-label={on ? "Remove leg" : "Add leg"}>
+                  style={{ width: 24, height: 24, background: on ? "var(--vault-gold-bright)" : "transparent", border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`, color: on ? "#170f0a" : blocked ? "var(--vault-text-faint)" : "var(--vault-text-mute)", fontSize: 15, fontWeight: 700, lineHeight: 1, opacity: blocked ? 0.55 : 1, cursor: blocked ? "not-allowed" : undefined }}
+                  aria-label={on ? "Remove leg" : blocked ? `Cannot add: ${compat?.reason ?? "conflicts with the card"}` : "Add leg"}
+                  aria-disabled={blocked || undefined}
+                  title={blocked ? compat?.reason ?? undefined : undefined}>
                   {on ? "−" : "+"}
                 </button>
               </div>
