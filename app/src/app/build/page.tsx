@@ -9,6 +9,9 @@ import { loadTodaySlate } from "@/lib/parlays/ui-loader";
 import { loadWorldCupProjections, loadWorldCupPlayerProjections } from "@/lib/world-cup/projections";
 import BuildExperience from "@/components/build-experience";
 import PicksExperience from "@/components/picks-experience";
+import ParlaysExplorer from "@/components/parlays/parlays-explorer";
+import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
+import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import Link from "next/link";
 import { loadSuggestedCards } from "@/lib/picks/suggested-cards";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
@@ -34,6 +37,8 @@ export default function BuildPage() {
 
   // Same slate framing /picks uses, so both surfaces agree on which day is current.
   const suggestedCards = loadSuggestedCards(currentSlateDate() ?? currentEtDate());
+  // Same canonical slate the optimizer marketplace read on /picks — one loader, not a rebuild.
+  const engineSlate = loadTodaySlate();
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
@@ -94,6 +99,27 @@ export default function BuildPage() {
             </p>
           </div>
         )}
+      </section>
+
+      {/* ── OPTIMIZER COVERAGE & ELIGIBLE-LEG MARKETPLACE (Program 143 · capability parity) ───────
+          Migrated verbatim from /picks. These two — ParlaysExplorer and buildCoverageMatrix — were
+          the capabilities the first Deployment B attempt would have deleted: they rendered ONLY on
+          /picks, and retiring the route without a destination would have removed them from the
+          product with nothing pointing at a replacement.
+
+          Same components, same loaders, same collapsed-by-default disclosure, so this is a move
+          rather than a rebuild. It sits last on /build because it is the deepest research surface:
+          build a card, browse the model's cards, then inspect the raw eligible-leg inventory. */}
+      <section id="optimizer-coverage" aria-labelledby="optimizer-coverage-heading" className="scroll-mt-6">
+        <h2 id="optimizer-coverage-heading" className="sr-only">Optimizer coverage and eligible-leg marketplace</h2>
+        <details className="rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
+          <summary className="cursor-pointer select-none px-4 py-3 text-[13px]" style={{ color: "var(--vault-text-mute)", minHeight: 44 }}>
+            Advanced — optimizer coverage &amp; the full eligible-leg marketplace (by risk). Tap to expand.
+          </summary>
+          <div className="px-1 pb-2 pt-1">
+            <ParlaysExplorer slate={engineSlate} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} />
+          </div>
+        </details>
       </section>
     </div>
   );
