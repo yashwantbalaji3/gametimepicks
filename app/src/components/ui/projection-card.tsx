@@ -4,6 +4,7 @@
 import type { PublicProjection } from "@/lib/normalize";
 import { formatAmerican } from "@/lib/odds-math";
 import StatusChip from "@/components/ui/status-chip";
+import PlayerAvatar from "@/components/player-avatar";
 
 function pct(p?: number | null) { return p == null ? "—" : `${Math.round(p * 100)}%`; }
 
@@ -20,9 +21,9 @@ export default function ProjectionCard({ p, hideModel = false }: { p: PublicProj
       </div>
       <div className="flex items-center gap-2 min-w-0">
         {p.player?.photo ? (
-          // Real league-CDN headshot (see lib/player-headshots.ts) — never a faked image.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={p.player.photo} alt={p.player.name} width={30} height={30} loading="lazy" className="rounded-full shrink-0" style={{ objectFit: "cover", border: "1px solid var(--vault-rule)" }} />
+          // Real league-CDN headshot (see lib/player-headshots.ts) — never a faked image. Routed
+          // through PlayerAvatar so a dead URL falls to initials, never the broken-image icon.
+          <PlayerAvatar photoUrl={p.player.photo} playerName={p.player.name} size="sm" flat />
         ) : null}
         <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>{p.gameLabel}</span>
       </div>

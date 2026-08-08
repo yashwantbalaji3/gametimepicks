@@ -10,6 +10,7 @@ import type { BuildLeg } from "@/lib/build-legs";
 import { americanToDecimal, decimalToAmerican, formatAmerican } from "@/lib/odds-math";
 import StakePayoutInput from "@/components/ui/stake-payout-input";
 import StatusChip from "@/components/ui/status-chip";
+import PlayerAvatar from "@/components/player-avatar";
 import { getSportIdentity } from "@/lib/sport-identity";
 
 // The 2026 World Cup is complete — not a selectable build sport (archive only). The SPORT_LABEL map below
@@ -212,8 +213,7 @@ export default function BuildExperience({ pool }: { pool: BuildLeg[] }) {
                   </span>
                 ) : null}
                 {l.photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={l.photo} alt="" width={28} height={28} className="rounded-full shrink-0" style={{ objectFit: "cover" }} />
+                  <PlayerAvatar photoUrl={l.photo} playerName={l.label} size="xs" flat />
                 ) : null}
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{l.label}</span>

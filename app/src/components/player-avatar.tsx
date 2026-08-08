@@ -26,6 +26,10 @@ interface Props {
    *  When missing or the photo fails to load, the fallback initials
    *  disc renders. */
   playerId?: number | null;
+  /** Explicit photo URL from an artifact (WC/optimizer legs carry these). When present it wins
+   *  over the id-derived CDN URL; on error it falls through to the SAME initials disc, so a dead
+   *  artifact URL can never render the browser broken-image icon. */
+  photoUrl?: string | null;
   playerName: string;
   /** 3-letter team abbreviation for the corner chip. */
   team?: string;
@@ -55,6 +59,7 @@ function initialsFor(name: string): string {
 
 export default function PlayerAvatar({
   playerId,
+  photoUrl,
   playerName,
   team,
   sport = "nba",
@@ -72,7 +77,7 @@ export default function PlayerAvatar({
   // Start in the photo state when we have a playerId; otherwise jump
   // straight to fallback.
   const [errored, setErrored] = useState(false);
-  const hasPhoto = !!playerId && playerId > 0;
+  const hasPhoto = !!photoUrl || (!!playerId && playerId > 0);
   const showFallback = !hasPhoto || errored;
 
   const initials = initialsFor(playerName);
@@ -84,11 +89,15 @@ export default function PlayerAvatar({
   //    silhouette (HTTP 200) for ESPN ids, which is why real faces were missing.
   //    ESPN's CDN returns the real photo for valid ESPN ids and a clean 404 for
   //    unknown ids, so `onError` falls through to the initials disc.
-  const photoUrl = hasPhoto
-    ? sport === "mlb"
-      ? `https://midfield.mlbstatic.com/v1/people/${playerId}/spots/120`
-      : `https://a.espncdn.com/i/headshots/nba/players/full/${playerId}.png`
-    : null;
+  // The explicit artifact URL wins; ids derive a CDN URL otherwise. Either way a load failure
+  // lands on the same initials disc below.
+  const resolvedUrl = photoUrl
+    ? photoUrl
+    : hasPhoto
+      ? sport === "mlb"
+        ? `https://midfield.mlbstatic.com/v1/people/${playerId}/spots/120`
+        : `https://a.espncdn.com/i/headshots/nba/players/full/${playerId}.png`
+      : null;
 
   const wrapperClass = `gtp-player-avatar${flat ? " gtp-player-avatar-flat" : ""}`;
 
@@ -105,9 +114,9 @@ export default function PlayerAvatar({
       role="img"
       aria-label={playerName}
     >
-      {!showFallback && photoUrl && (
+      {!showFallback && resolvedUrl && (
         <img
-          src={photoUrl}
+          src={resolvedUrl ?? undefined}
           alt={playerName}
           width={px}
           height={px}

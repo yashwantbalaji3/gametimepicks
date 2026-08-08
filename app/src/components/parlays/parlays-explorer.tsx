@@ -38,8 +38,9 @@ function LegIdentity({ leg, size = "sm" }: { leg: ParlayLegDisplay; size?: "xs" 
     return <PlayerAvatar playerId={id.playerId} playerName={leg.participant} team={id.teamAbbr ?? undefined} sport={id.avatarSport} size={size} flat />;
   }
   if (id.kind === "player" && id.photoUrl) {
-    // World Cup photo (API-Football) — plain img with graceful fallback to a flag/initial.
-    return <img src={id.photoUrl} alt={leg.participant} width={size === "md" ? 44 : 32} height={size === "md" ? 44 : 32} loading="lazy" className="rounded-full object-cover" style={{ width: size === "md" ? 44 : 32, height: size === "md" ? 44 : 32 }} />;
+    // World Cup photo (API-Football) via PlayerAvatar's explicit-URL path: a dead artifact URL now
+    // lands on the initials disc instead of the browser broken-image icon (Program 144 Release E).
+    return <PlayerAvatar photoUrl={id.photoUrl} playerName={leg.participant} size={size} flat />;
   }
   if (leg.sport === "WORLD_CUP" && id.countryCode) {
     return <FlagBadge code={id.countryCode} size={size === "md" ? "lg" : "md"} ariaLabel={leg.participant} />;
