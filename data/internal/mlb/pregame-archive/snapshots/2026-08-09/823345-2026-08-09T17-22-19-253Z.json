@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823345-71252b41db8ff29a0cb5888d2d3a3d07",
+  "snapshotCreatedAt": "2026-08-09T17:22:19.253Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-09",
+  "eventId": "823345",
+  "gamePk": 823345,
+  "eventStartTime": "2026-08-09T17:35:00Z",
+  "homeTeam": "PIT",
+  "awayTeam": "NYM",
+  "venue": "PNC Park",
+  "statusState": "Warmup",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "b9d87f544a120dd0f053263708d76fe9",
+  "normalizedPayloadHash": "c264ce9f90a2b55e0e2355bcf145fb62",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          663968,
+          682927,
+          668804,
+          693304,
+          699013,
+          664040,
+          804668,
+          669707,
+          680779
+        ],
+        "away": [
+          805999,
+          596019,
+          666182,
+          701807,
+          673357,
+          676724,
+          543760,
+          683146,
+          682626
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-09T17:22:19.253Z",
+      "availableAt": "2026-08-09T17:22:19.253Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-09T17:22:19.253Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823345/feed/live",
+        "requestedAt": "2026-08-09T17:22:19.253Z",
+        "receivedAt": "2026-08-09T17:22:19.253Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Jared Jones",
+        "awayProbable": "Sean Manaea",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-09T17:22:19.253Z",
+      "availableAt": "2026-08-09T17:22:19.253Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-09T17:22:19.253Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823345/feed/live",
+        "requestedAt": "2026-08-09T17:22:19.253Z",
+        "receivedAt": "2026-08-09T17:22:19.253Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Sunny",
+        "temp": "83",
+        "wind": "7 mph, Calm",
+        "roofType": "Open",
+        "dayNight": "day",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-09T17:22:19.253Z",
+      "availableAt": "2026-08-09T17:22:19.253Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-09T17:22:19.253Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823345/feed/live",
+        "requestedAt": "2026-08-09T17:22:19.253Z",
+        "receivedAt": "2026-08-09T17:22:19.253Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Clint Vondrak",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Adam Hamari",
+            "type": "First Base"
+          },
+          {
+            "name": "Todd Tichenor",
+            "type": "Second Base"
+          },
+          {
+            "name": "Tyler Jones",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-09T17:22:19.253Z",
+      "availableAt": "2026-08-09T17:22:19.253Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-09T17:22:19.253Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823345/feed/live",
+        "requestedAt": "2026-08-09T17:22:19.253Z",
+        "receivedAt": "2026-08-09T17:22:19.253Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
