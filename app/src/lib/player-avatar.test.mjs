@@ -12,7 +12,9 @@ const src = fs.readFileSync("src/components/ui/player-avatar.tsx", "utf8");
 
 test("renders <img> only inside the `if (photo)` branch", () => {
   const imgAt = src.indexOf("<img");
-  const guardAt = src.indexOf("if (photo)");
+  // Program 147: the gate gained the errored state, so a DEAD photo URL also falls to the
+  // monogram instead of the browser broken-image icon. Same honesty rule, wider coverage.
+  const guardAt = src.indexOf("if (photo && !errored)");
   assert.ok(guardAt > 0 && imgAt > guardAt, "the <img> is gated behind a real photo URL");
   assert.ok(src.includes("alt={name}"), "image carries alt text");
 });

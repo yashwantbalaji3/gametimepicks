@@ -67,10 +67,11 @@ test("identity images always carry explicit dimensions — no layout shift", () 
  * NEW raw <img> anywhere fails this test — new imagery must go through the identity components.
  */
 const KNOWN_LEGACY_RAW_IMG = [
-  // Sibling avatar implementations predating the canonical player-avatar.tsx. Each has its own
-  // internal monogram fallback (verified — no broken-icon risk), but three implementations of one
-  // idea is drift waiting to happen; consolidation is tracked as a follow-up. They stay in the
-  // ratchet so they cannot multiply.
+  // ui/player-avatar is now a deliberate PLAIN VARIANT (Program 147): different look by design,
+  // same fallback policy as the canonical — its missing onError was found and fixed during
+  // consolidation. (An earlier comment here claimed "no broken-icon risk" for the siblings; that
+  // was wrong for this one's photo path — a dead URL showed the broken icon. Corrected, and the
+  // guard below now enforces the handler.) It stays in this list only because it renders an <img>.
   "src/components/ui/player-avatar.tsx",
   "src/components/bank-builder/moonshot-lane-card.tsx",
   "src/components/awaiting-settlement-table.tsx",
@@ -104,6 +105,12 @@ test("RATCHET · no new raw <img> outside the identity components; the legacy li
   // And the list itself must stay honest: entries that no longer have a raw <img> must be removed.
   const stale = KNOWN_LEGACY_RAW_IMG.filter((f) => !current.includes(f));
   assert.deepEqual(stale, [], `these files no longer carry a raw <img> — remove them from KNOWN_LEGACY_RAW_IMG so the ratchet tightens:\n${stale.join("\n")}`);
+});
+
+test("the plain variant carries the fallback policy — onError can never regress again", () => {
+  const plain = read("src/components/ui/player-avatar.tsx");
+  assert.match(plain, /onError=\{\(\) => setErrored\(true\)\}/, "a dead photo URL must fall to the monogram");
+  assert.match(plain, /photo && !errored/, "the errored state must gate the img");
 });
 
 test("the three migrated surfaces route through PlayerAvatar", () => {
