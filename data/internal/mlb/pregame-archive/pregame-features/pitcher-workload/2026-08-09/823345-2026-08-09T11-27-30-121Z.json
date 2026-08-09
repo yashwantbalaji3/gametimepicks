@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823345,
+  "date": "2026-08-09",
+  "capturedAt": "2026-08-09T11:27:30.121Z",
+  "availableAt": "2026-08-09T11:27:30.121Z",
+  "eventStartTime": "2026-08-09T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 683003,
+      "name": "Jared Jones",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 5,
+      "lastStartDate": "2026-08-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 6.2,
+        "bbAvg": 1,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 10.33,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 56,
+        "k": 62,
+        "bb": 16,
+        "er": 25,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 640455,
+      "name": "Sean Manaea",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 5,
+      "lastStartDate": "2026-08-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 5.4,
+        "bbAvg": 2.4,
+        "erAvg": 2.2,
+        "hrAvg": 1,
+        "kPer9": 8.19,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 54.67,
+        "k": 50,
+        "bb": 18,
+        "er": 23,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-09T11:27:30.121Z"
+  },
+  "recordHash": "592a2a9666c0790cbc17b8abb786976546f0f0bec2f32c25ffaa8d34bcdcb9ac"
+}

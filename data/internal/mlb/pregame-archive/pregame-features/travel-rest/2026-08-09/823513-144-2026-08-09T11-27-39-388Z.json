@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 823513,
+  "teamId": 144,
+  "name": "Atlanta Braves",
+  "side": "away",
+  "date": "2026-08-09",
+  "capturedAt": "2026-08-09T11:27:39.388Z",
+  "availableAt": "2026-08-09T11:27:39.388Z",
+  "eventStartTime": "2026-08-09T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-08",
+  "previousVenueId": 3313,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=144&startDate=2026-07-26&endDate=2026-08-08",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-09T11:27:39.388Z"
+  },
+  "recordHash": "a2ea2294c2368291e29a18d999a62302070dee26aaa32e0623038a0082216028"
+}

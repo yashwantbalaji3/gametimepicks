@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823020,
+  "date": "2026-08-09",
+  "capturedAt": "2026-08-09T11:27:30.121Z",
+  "availableAt": "2026-08-09T11:27:30.121Z",
+  "eventStartTime": "2026-08-09T18:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 700241,
+      "name": "Michael McGreevy",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 4.2,
+        "bbAvg": 1.6,
+        "erAvg": 3,
+        "hrAvg": 0.6,
+        "kPer9": 7.56,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 120.33,
+        "k": 81,
+        "bb": 30,
+        "er": 48,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 547179,
+      "name": "Michael Lorenzen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 6,
+      "lastStartDate": "2026-08-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.67,
+        "ipAvg": 4.33,
+        "kAvg": 2.6,
+        "bbAvg": 2.2,
+        "erAvg": 3.8,
+        "hrAvg": 0.8,
+        "kPer9": 5.4,
+        "workloadIpLast5": 21.67
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 106.67,
+        "k": 80,
+        "bb": 43,
+        "er": 83,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-09T11:27:30.121Z"
+  },
+  "recordHash": "d02212520e37920ce2ac5cc36c54b483d8ac4150bc655b527a8c6686d26cc161"
+}
