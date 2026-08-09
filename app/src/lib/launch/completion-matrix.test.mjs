@@ -64,8 +64,14 @@ test("the roadmap: five horizons, and every item carries owner + acceptance", ()
   }
 });
 
-test("the roadmap's NOW horizon carries the Release-D closure and the ledger correction", () => {
-  const now = ROADMAP_30D.find((h) => h.horizon === "NOW");
-  assert.ok(now.items.some((i) => /Release D/.test(i.outcome)), "D is open work, on the plan");
-  assert.ok(now.items.some((i) => /ledger corrected/i.test(i.outcome)), "the record correction is itself tracked");
+test("the roadmap prunes completed work — no done item may linger as decoration", () => {
+  // The contract: completed items are REMOVED, not struck through. These outcomes shipped
+  // (D-closure f3d3e19c, ledger correction 2fff046b, grade rubric 52efb85a, avatar consolidation
+  // 9372103a/8f5850cb, EPL contract 20134c21) and must therefore be absent.
+  const all = ROADMAP_30D.flatMap((h) => h.items.map((i) => i.outcome)).join(" | ");
+  for (const done of [/Release D closed/, /ledger corrected/i, /BuildLeg carries modelProbability/, /consolidated onto the canonical PlayerAvatar/, /settlement grading path designed/]) {
+    assert.doesNotMatch(all, done, `completed item still on the roadmap: ${done}`);
+  }
+  // And NOW is never empty while engineering work remains.
+  assert.ok(ROADMAP_30D.find((h) => h.horizon === "NOW").items.length > 0);
 });

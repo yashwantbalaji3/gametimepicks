@@ -72,37 +72,33 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "Release D closed: motion inventory has full prefers-reduced-motion parity and consistent selection feedback", department: "product-experience", sport: "shared", owner: "ENGINEERING", dependency: null, effort: "S", acceptance: "reduced-motion browser pass on the a11y suite; every @keyframes has a reduce override" },
-      { outcome: "Release ledger corrected — D recorded as open, not shipped", department: "operations", sport: "shared", owner: "ENGINEERING", dependency: null, effort: "XS", acceptance: "docs + memory show A,B,C,E,F,G,H,I shipped; D open" },
+      { outcome: "EPL official-results source integration: evaluate free sources, document rights/provenance/point-in-time behaviour, build the adapter against the settlement contract", department: "settlement", sport: "epl", owner: "ENGINEERING", dependency: "settlement contract v1 (shipped 20134c21)", effort: "M", acceptance: "adapter + committed fixtures satisfy the contract guards; source decision doc records rights; settlement stage stays PARTIAL until a real slate grades" },
     ],
   },
   {
     horizon: "DAYS_3_7",
     items: [
-      { outcome: "BuildLeg carries modelProbability + freshness where sources provide them; honest tier detail shown", department: "model-validation", sport: "mlb", owner: "ENGINEERING", dependency: "board artifact join in buildEngineLegs", effort: "M", acceptance: "legs with model inputs render model% alongside odds; legs without stay tier-only; guards forbid odds-derived grades" },
-      { outcome: "Avatar implementations consolidated onto the canonical PlayerAvatar", department: "identity-assets", sport: "shared", owner: "ENGINEERING", dependency: null, effort: "S", acceptance: "KNOWN_LEGACY_RAW_IMG shrinks by 2; consumers render identically" },
       { outcome: "Support channel live end-to-end", department: "operations", sport: "shared", owner: "FOUNDER", dependency: "GTP_SUPPORT_* values in Vercel", effort: "XS-founder", acceptance: "real message sent from the footer entry and received; gate PARTIAL→PASS" },
+      { outcome: "Analytics activated for the beta cohort", department: "operations", sport: "shared", owner: "FOUNDER", dependency: "NEXT_PUBLIC_ANALYTICS_* + collector flag (privacy already signed §7)", effort: "S-founder", acceptance: "staging network-payload inspection then PRODUCTION_ENABLED on the activation ladder" },
     ],
   },
   {
     horizon: "WEEK_2",
     items: [
-      { outcome: "Analytics activated for the beta cohort", department: "operations", sport: "shared", owner: "FOUNDER", dependency: "NEXT_PUBLIC_ANALYTICS_* + collector flag (privacy already signed §7)", effort: "S-founder", acceptance: "staging network-payload inspection then PRODUCTION_ENABLED on the activation ladder" },
       { outcome: "Legal §3 business decisions answered; adviser consultation booked", department: "business-legal", sport: "shared", owner: "FOUNDER", dependency: null, effort: "S-founder", acceptance: "entity/jurisdiction/geography/age/audience recorded in LEGAL_CONTENT_MAP" },
+      { outcome: "NFL first gate (schedule adapter + fixtures) — now unblocked: EPL proved the second-sport adapter pattern", department: "data-ingestion", sport: "nfl", owner: "ENGINEERING", dependency: "EPL adapter receipt", effort: "M", acceptance: "sport-gate schedule stage PARTIAL with committed fixtures; no paid calls" },
     ],
   },
   {
     horizon: "WEEKS_3_4",
     items: [
       { outcome: "Private beta runs per the cohort contract", department: "user-validation", sport: "shared", owner: "FOUNDER", dependency: "support live + legal disclosed", effort: "M-founder", acceptance: "go/no-go checklist signed; 8 testers; stop conditions armed" },
-      { outcome: "EPL settlement grading path designed against official sources", department: "settlement", sport: "epl", owner: "ENGINEERING", dependency: "no cost approval needed for design", effort: "M", acceptance: "sport-gate settlement stage PARTIAL with a receipt" },
     ],
   },
   {
     horizon: "LATER",
     items: [
       { outcome: "NBA model investment decision", department: "model-validation", sport: "nba", owner: "FOUNDER", dependency: "the MLB stopping rule applies to new models", effort: "decision", acceptance: "BLOCKED_EXTERNAL cleared or the sport formally parked" },
-      { outcome: "NFL foundations begin only after the shared factory carries a second sport", department: "data-ingestion", sport: "nfl", owner: "ENGINEERING", dependency: "EPL or NBA proving the adapter pattern", effort: "L", acceptance: "sport-gate schedule stage PROVEN" },
     ],
   },
 ]);
