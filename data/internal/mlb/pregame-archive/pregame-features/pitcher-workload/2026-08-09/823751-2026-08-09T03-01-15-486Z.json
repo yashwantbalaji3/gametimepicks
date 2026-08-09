@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823751,
+  "date": "2026-08-09",
+  "capturedAt": "2026-08-09T03:01:15.486Z",
+  "availableAt": "2026-08-09T03:01:15.486Z",
+  "eventStartTime": "2026-08-09T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 694819,
+      "name": "Jacob Misiorowski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 7,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 9.8,
+        "bbAvg": 0.4,
+        "erAvg": 1.4,
+        "hrAvg": 1.2,
+        "kPer9": 15.75,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 127,
+        "k": 195,
+        "bb": 29,
+        "er": 23,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 687570,
+      "name": "Connor Prielipp",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 8,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 6,
+        "bbAvg": 2,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 9.64,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 77.67,
+        "k": 81,
+        "bb": 30,
+        "er": 41,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-09T03:01:15.486Z"
+  },
+  "recordHash": "5136d143ff8f8e26d93c72b42b579340b271024273a48363d244ab1414dbc3a7"
+}

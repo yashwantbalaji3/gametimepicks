@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 823425,
+  "date": "2026-08-09",
+  "capturedAt": "2026-08-09T03:01:18.649Z",
+  "availableAt": "2026-08-09T03:01:18.649Z",
+  "eventStartTime": "2026-08-09T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 666200,
+    "name": "Jesús Luzardo",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 669456,
+    "name": "Shane Bieber",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-09T03:01:18.649Z"
+  },
+  "recordHash": "2419123fc12fc234a32f6d0d9a7c9bb3402df35ca38f145e92538c96282df862"
+}

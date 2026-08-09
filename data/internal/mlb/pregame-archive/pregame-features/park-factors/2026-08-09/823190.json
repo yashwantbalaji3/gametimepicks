@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "mlb-pregame-park-factors-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "park_factors",
+  "gamePk": 823190,
+  "date": "2026-08-09",
+  "capturedAt": "2026-08-09T03:01:35.784Z",
+  "availableAt": "2026-08-09T03:01:35.784Z",
+  "eventStartTime": "2026-08-09T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "static venue facts, captured pregame",
+  "venue": {
+    "id": 2395,
+    "name": "Oracle Park",
+    "city": "San Francisco",
+    "elevation": 0,
+    "roofType": "Open",
+    "turfType": "Grass"
+  },
+  "factors": {
+    "runFactor": 100,
+    "hrFactor": 100,
+    "handednessEffect": null,
+    "runEnvironmentSignal": "sea-level-ish (0 ft)"
+  },
+  "source": "StatsAPI venue endpoint (FACTUAL: elevation/roof/turf/city). Numeric run/HR/handedness park factors are NOT loaded from any published source — runFactor/hrFactor default to a NEUTRAL 100 baseline; treat as neutral until a real source is loaded. Only runEnvironmentSignal is derived (from factual elevation).",
+  "updatePolicy": "Static per venue. Refresh factual attributes if a venue changes. Load numeric park factors annually from a published source (e.g. Statcast/FanGraphs park factors) in a SEPARATE internal reference; never fabricate.",
+  "leakageRule": "venue attributes are static/pregame; capturedAt recorded for provenance",
+  "recordHash": "c8af72475283ce37a6e01308695daecf0934b9a169eb0559cf99974f5b7cc65d"
+}

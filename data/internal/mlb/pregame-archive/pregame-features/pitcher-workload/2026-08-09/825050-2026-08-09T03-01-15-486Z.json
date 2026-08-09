@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 825050,
+  "date": "2026-08-09",
+  "capturedAt": "2026-08-09T03:01:15.486Z",
+  "availableAt": "2026-08-09T03:01:15.486Z",
+  "eventStartTime": "2026-08-09T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 593958,
+      "name": "Eduardo Rodriguez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-08-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 3.6,
+        "bbAvg": 1.4,
+        "erAvg": 2.8,
+        "hrAvg": 0.6,
+        "kPer9": 5.72,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 136.33,
+        "k": 92,
+        "bb": 45,
+        "er": 41,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 680736,
+      "name": "Justin Wrobleski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-08-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.67,
+        "ipAvg": 6.13,
+        "kAvg": 7.6,
+        "bbAvg": 1.2,
+        "erAvg": 3.4,
+        "hrAvg": 1.8,
+        "kPer9": 11.15,
+        "workloadIpLast5": 30.67
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 113,
+        "k": 89,
+        "bb": 23,
+        "er": 40,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-09T03:01:15.486Z"
+  },
+  "recordHash": "495c549e627551a37e02e1c2fbb1e1fe07946b789b5e7599ead877a91b58260d"
+}
