@@ -72,7 +72,6 @@ const KNOWN_LEGACY_RAW_IMG = [
   // idea is drift waiting to happen; consolidation is tracked as a follow-up. They stay in the
   // ratchet so they cannot multiply.
   "src/components/ui/player-avatar.tsx",
-  "src/components/mlb/mlb-player-avatar.tsx",
   "src/components/bank-builder/moonshot-lane-card.tsx",
   "src/components/awaiting-settlement-table.tsx",
   "src/components/ui/team-mark.tsx",

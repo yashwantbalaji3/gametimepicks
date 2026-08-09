@@ -4,7 +4,7 @@ import {
   formatEdgePct,
   mlbMarketLabel,
 } from "@/lib/format-mlb";
-import MlbPlayerAvatar from "./mlb-player-avatar";
+import PlayerAvatar from "@/components/player-avatar";
 import MlbProjectionGap from "./mlb-projection-gap";
 import VaultSparkline from "../vault-sparkline";
 
@@ -150,7 +150,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
       >
         {/* Identity row — always visible */}
         <div className="flex items-center gap-2 min-w-0 sm:flex-1">
-          <MlbPlayerAvatar
+          <PlayerAvatar sport="mlb"
             playerId={lean.playerId}
             playerName={lean.playerName}
             team={lean.playerTeamAbbr}
@@ -313,7 +313,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
       {/* Row 1 — identity cluster + confidence chip */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <MlbPlayerAvatar
+          <PlayerAvatar sport="mlb"
             playerId={lean.playerId}
             playerName={lean.playerName}
             team={lean.playerTeamAbbr}

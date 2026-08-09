@@ -32,12 +32,16 @@ interface Props {
   photoUrl?: string | null;
   playerName: string;
   /** 3-letter team abbreviation for the corner chip. */
-  team?: string;
+  team?: string | null;
   /** Which CDN to fetch the headshot from. Defaults to "nba" so existing
    *  callers keep working. MLB players resolve via the official MLB
    *  Stats people CDN, which is the same source mlb.com itself uses. */
   sport?: "nba" | "mlb";
   size?: "xs" | "sm" | "md" | "lg" | "xl";
+  /** P (pitcher) / batter role ring — the one render feature the MLB sibling had that this
+   *  component lacked (consolidated Program 147). Communicated by rim colour; the row text
+   *  carries the role in words, so the ring is decoration, not the only signal. */
+  role?: "pitcher" | "batter" | null;
   /** When true, no border/glow — for tight contexts like leg rows. */
   flat?: boolean;
 }
@@ -64,6 +68,7 @@ export default function PlayerAvatar({
   team,
   sport = "nba",
   size = "md",
+  role,
   flat,
 }: Props) {
   const px = SIZE_PX[size];
@@ -107,6 +112,9 @@ export default function PlayerAvatar({
       style={{
         width: px,
         height: px,
+        boxShadow: role
+          ? `inset 0 0 0 1px ${role === "pitcher" ? "rgba(242, 54, 69, 0.40)" : "rgba(111, 230, 255, 0.30)"}`
+          : undefined,
         // Provide the team abbreviation as a CSS custom prop so the
         // fallback ::after can render it without extra DOM.
         ["--gtp-pa-team" as string]: team ? `"${team}"` : '""',

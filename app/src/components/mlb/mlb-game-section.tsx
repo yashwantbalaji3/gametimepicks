@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { MlbBoardLean, MlbScheduleGame } from "@/lib/types-mlb";
 import { formatTipoffEt } from "@/lib/format-mlb";
 import MlbLeanRow from "./mlb-lean-row";
-import MlbPlayerAvatar from "./mlb-player-avatar";
+import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "../team-logo";
 
 /**
@@ -252,7 +252,7 @@ export default function MlbGameSection({
                 overflow: "hidden",
               }}
             >
-              <MlbPlayerAvatar
+              <PlayerAvatar sport="mlb"
                 playerId={p.id ?? null}
                 playerName={p.name ?? "TBD"}
                 team={p.teamAbbr}

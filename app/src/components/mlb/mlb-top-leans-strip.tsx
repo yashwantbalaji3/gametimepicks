@@ -5,7 +5,7 @@ import {
   formatEdgePct,
   mlbMarketLabel,
 } from "@/lib/format-mlb";
-import MlbPlayerAvatar from "./mlb-player-avatar";
+import PlayerAvatar from "@/components/player-avatar";
 
 /**
  * MlbTopLeansStrip — sibling to NBA's Featured Headliners rail.
@@ -140,7 +140,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
               aria-label={`Jump to ${lean.playerName} ${mlbMarketLabel(lean.marketKey)} ${lean.lean} ${lean.line}`}
             >
               <div className="flex items-center gap-2.5">
-                <MlbPlayerAvatar
+                <PlayerAvatar sport="mlb"
                   playerId={lean.playerId}
                   playerName={lean.playerName}
                   team={lean.playerTeamAbbr}
