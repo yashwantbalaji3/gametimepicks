@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823190,
+  "date": "2026-08-09",
+  "capturedAt": "2026-08-09T19:25:39.669Z",
+  "availableAt": "2026-08-09T19:25:39.669Z",
+  "eventStartTime": "2026-08-09T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 657277,
+      "name": "Logan Webb",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-08-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.67,
+        "ipAvg": 6.33,
+        "kAvg": 4.6,
+        "bbAvg": 1.4,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 6.54,
+        "workloadIpLast5": 31.67
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 125,
+        "k": 101,
+        "bb": 31,
+        "er": 52,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 675512,
+      "name": "Troy Melton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 5,
+      "lastStartDate": "2026-08-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 6.4,
+        "bbAvg": 2.6,
+        "erAvg": 0.6,
+        "hrAvg": 0.2,
+        "kPer9": 9.6,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 74,
+        "k": 64,
+        "bb": 23,
+        "er": 13,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-09&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-09T19:25:39.669Z"
+  },
+  "recordHash": "fcd024d1993daca0f18c64b86aa75d35d604b37a5ca86b93b85a67f7bb3b0070"
+}
