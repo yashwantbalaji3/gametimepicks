@@ -1,0 +1,184 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823020-32d3bf5528b6920acd07984c0c51085d",
+  "snapshotCreatedAt": "2026-08-09T23:01:38.507Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-09",
+  "eventId": "823020",
+  "gamePk": 823020,
+  "eventStartTime": "2026-08-09T18:15:00Z",
+  "homeTeam": "STL",
+  "awayTeam": "COL",
+  "venue": "Busch Stadium",
+  "statusState": "Final",
+  "startedAtCapture": true,
+  "dataQuality": {
+    "anyEligible": false,
+    "eligibleFamilies": []
+  },
+  "rawPayloadHash": "cb9d6370568a37b8b003f94760cf8041",
+  "normalizedPayloadHash": "3b811c8870745736e3bb488f39961556",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": false,
+      "value": {
+        "status": "POST_START"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-09T23:01:38.507Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-09T23:01:38.507Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823020/feed/live",
+        "requestedAt": "2026-08-09T23:01:38.507Z",
+        "receivedAt": "2026-08-09T23:01:38.507Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": false,
+      "value": {
+        "homeProbable": "Michael McGreevy",
+        "awayProbable": "Michael Lorenzen",
+        "status": "POST_START"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-09T23:01:38.507Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-09T23:01:38.507Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823020/feed/live",
+        "requestedAt": "2026-08-09T23:01:38.507Z",
+        "receivedAt": "2026-08-09T23:01:38.507Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": false,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "90",
+        "wind": "10 mph, Out To LF",
+        "roofType": "Open",
+        "dayNight": "day",
+        "postgameOnly": true
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-09T23:01:38.507Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-09T23:01:38.507Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823020/feed/live",
+        "requestedAt": "2026-08-09T23:01:38.507Z",
+        "receivedAt": "2026-08-09T23:01:38.507Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": false,
+      "value": {
+        "officials": [
+          {
+            "name": "Chris Guccione",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Charlie Ramos",
+            "type": "First Base"
+          },
+          {
+            "name": "Jansen Visconti",
+            "type": "Second Base"
+          },
+          {
+            "name": "Willie Traynor",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-09T23:01:38.507Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-09T23:01:38.507Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823020/feed/live",
+        "requestedAt": "2026-08-09T23:01:38.507Z",
+        "receivedAt": "2026-08-09T23:01:38.507Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
