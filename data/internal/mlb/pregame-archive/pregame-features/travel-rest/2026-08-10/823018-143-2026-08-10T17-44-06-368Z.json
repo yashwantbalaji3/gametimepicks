@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 823018,
+  "teamId": 143,
+  "name": "Philadelphia Phillies",
+  "side": "away",
+  "date": "2026-08-10",
+  "capturedAt": "2026-08-10T17:44:06.368Z",
+  "availableAt": "2026-08-10T17:44:06.368Z",
+  "eventStartTime": "2026-08-10T23:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 7,
+  "gamesLast10": 10,
+  "travelDistanceKm": 1299.9,
+  "previousGameDate": "2026-08-09",
+  "previousVenueId": 2681,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=143&startDate=2026-07-27&endDate=2026-08-09",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-10T17:44:06.368Z"
+  },
+  "recordHash": "049f3fd3ab93635838d8f862ed8eaa7810e07dcec3fe0750407721d12ada1d9d"
+}
