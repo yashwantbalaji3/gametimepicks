@@ -1,0 +1,320 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-baseline-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-10T03:05:00Z",
+ "corpus": {
+  "file": "corpus-v1.json",
+  "gamesConsidered": 855,
+  "warmupSeason": 2023,
+  "evaluatedDecisive": 569,
+  "tiesExcludedFromWinnerMetrics": 1,
+  "preseasonPolicy": "phase 1 never fit, never evaluated"
+ },
+ "leakageRule": "state from strictly earlier dates; warm-up season fit-only; season boundary regresses Elo 1/3 to mean",
+ "tiePolicy": "ties excluded from winner metrics (counted above), included in margin/total errors, half-credit in Elo updates",
+ "winner": {
+  "elo": {
+   "overall": {
+    "n": 569,
+    "logLoss": 0.6415,
+    "brier": 0.2252,
+    "accuracy": 0.645
+   },
+   "bySeason": {
+    "2024": {
+     "n": 285,
+     "logLoss": 0.6352,
+     "brier": 0.2222,
+     "accuracy": 0.6667
+    },
+    "2025": {
+     "n": 284,
+     "logLoss": 0.6479,
+     "brier": 0.2283,
+     "accuracy": 0.6232
+    }
+   },
+   "byPhase": {
+    "regular": {
+     "n": 543,
+     "logLoss": 0.6425,
+     "brier": 0.2258,
+     "accuracy": 0.639
+    },
+    "postseason": {
+     "n": 26,
+     "logLoss": 0.6206,
+     "brier": 0.2142,
+     "accuracy": 0.7692
+    }
+   },
+   "calibration": [
+    {
+     "bin": "0-10%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "10-20%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "20-30%",
+     "n": 2,
+     "predicted": 0.2836,
+     "observed": 0.5
+    },
+    {
+     "bin": "30-40%",
+     "n": 36,
+     "predicted": 0.3662,
+     "observed": 0.2778
+    },
+    {
+     "bin": "40-50%",
+     "n": 111,
+     "predicted": 0.4632,
+     "observed": 0.3063
+    },
+    {
+     "bin": "50-60%",
+     "n": 204,
+     "predicted": 0.5497,
+     "observed": 0.5343
+    },
+    {
+     "bin": "60-70%",
+     "n": 166,
+     "predicted": 0.6462,
+     "observed": 0.6807
+    },
+    {
+     "bin": "70-80%",
+     "n": 46,
+     "predicted": 0.7413,
+     "observed": 0.8043
+    },
+    {
+     "bin": "80-90%",
+     "n": 4,
+     "predicted": 0.806,
+     "observed": 1
+    },
+    {
+     "bin": "90-100%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    }
+   ]
+  },
+  "homerate": {
+   "overall": {
+    "n": 569,
+    "logLoss": 0.6911,
+    "brier": 0.249,
+    "accuracy": 0.5413
+   },
+   "bySeason": {
+    "2024": {
+     "n": 285,
+     "logLoss": 0.6901,
+     "brier": 0.2485,
+     "accuracy": 0.5474
+    },
+    "2025": {
+     "n": 284,
+     "logLoss": 0.692,
+     "brier": 0.2494,
+     "accuracy": 0.5352
+    }
+   },
+   "byPhase": {
+    "regular": {
+     "n": 543,
+     "logLoss": 0.6923,
+     "brier": 0.2495,
+     "accuracy": 0.5359
+    },
+    "postseason": {
+     "n": 26,
+     "logLoss": 0.6664,
+     "brier": 0.2367,
+     "accuracy": 0.6538
+    }
+   },
+   "calibration": [
+    {
+     "bin": "0-10%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "10-20%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "20-30%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "30-40%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "40-50%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "50-60%",
+     "n": 569,
+     "predicted": 0.5534,
+     "observed": 0.5413
+    },
+    {
+     "bin": "60-70%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "70-80%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "80-90%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "90-100%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    }
+   ]
+  },
+  "coin": {
+   "overall": {
+    "n": 569,
+    "logLoss": 0.6931,
+    "brier": 0.25,
+    "accuracy": 0.5413
+   },
+   "bySeason": {
+    "2024": {
+     "n": 285,
+     "logLoss": 0.6931,
+     "brier": 0.25,
+     "accuracy": 0.5474
+    },
+    "2025": {
+     "n": 284,
+     "logLoss": 0.6931,
+     "brier": 0.25,
+     "accuracy": 0.5352
+    }
+   },
+   "byPhase": {
+    "regular": {
+     "n": 543,
+     "logLoss": 0.6931,
+     "brier": 0.25,
+     "accuracy": 0.5359
+    },
+    "postseason": {
+     "n": 26,
+     "logLoss": 0.6931,
+     "brier": 0.25,
+     "accuracy": 0.6538
+    }
+   },
+   "calibration": [
+    {
+     "bin": "0-10%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "10-20%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "20-30%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "30-40%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "40-50%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "50-60%",
+     "n": 569,
+     "predicted": 0.5,
+     "observed": 0.5413
+    },
+    {
+     "bin": "60-70%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "70-80%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "80-90%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "90-100%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    }
+   ]
+  }
+ },
+ "score": {
+  "n": 570,
+  "marginMAE": 11.01,
+  "marginRMSE": 14.09,
+  "totalMAE": 10.38,
+  "totalRMSE": 13.25
+ },
+ "marketComparison": "unavailable — no authorized historical NFL odds capture exists; never reconstructed from memory"
+}

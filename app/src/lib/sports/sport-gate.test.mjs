@@ -69,9 +69,12 @@ test("THE COMMITTED ASSESSMENTS · maturity derives to the honest current pictur
   // Release B (Program 148) gave NFL its first real artifact — the contract-satisfying schedule
   // adapter + honest /sports destination — so NOT_STARTED would now be FALSE modesty, which is as
   // dishonest as overclaiming. SCAFFOLDED, with the schedule stage as the only evidence-bearer.
-  assert.equal(m.nfl, "SCAFFOLDED", "one PARTIAL stage exists (schedule); the gate must say exactly that much");
-  assert.equal(SPORT_ASSESSMENTS.nfl.stages.schedule?.status, "PARTIAL", "NFL's sole evidence is the Release B schedule adapter");
-  assert.equal(Object.keys(SPORT_ASSESSMENTS.nfl.stages).length, 1, "no other NFL stage may claim evidence yet");
+  assert.equal(m.nfl, "SCAFFOLDED", "PARTIAL stages exist; the gate must say exactly that much");
+  // The receipted set grew P148→P151: schedule capture, then the research corpus (data) and
+  // evaluated baselines + shared-harness replay (model). Exactly these three, nothing else.
+  assert.deepEqual(Object.keys(SPORT_ASSESSMENTS.nfl.stages).sort(), ["data", "model", "schedule"],
+    "NFL evidence = schedule + data + model, each with its P148/P151 receipt");
+  for (const st of Object.values(SPORT_ASSESSMENTS.nfl.stages)) assert.equal(st.status, "PARTIAL");
   assert.equal(m.nba, "SCAFFOLDED");
   assert.equal(m.epl, "SCAFFOLDED");
   assert.equal(m.ufc, "SCAFFOLDED", "internal maturity — the PUBLIC display state stays HISTORICAL_ONLY via simulation-hub");

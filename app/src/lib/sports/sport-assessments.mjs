@@ -33,8 +33,9 @@ export const SPORT_ASSESSMENTS = {
     inSeason: false,
     historicalArchive: false,
     stages: {
-      // First stage with any evidence (Release B). Everything else UNPROVEN.
       schedule: { status: "PARTIAL", evidence: "Program 148: FIRST REAL CAPTURE — 16 preseason events from the ESPN public scoreboard (espn_scoreboard registry entry, scripts/nfl/capture-nfl-schedule.mjs), rendered on /sports through the Release A contract with zero quarantine (guard: lib/sports/upcoming/adapters.test.mjs). PARTIAL not PROVEN: one manual capture is not a daily cadence" },
+      data: { status: "PARTIAL", evidence: "Program 151: private research corpus — 1,001 finals across 2023-2025 (272×3 regular-season exact, 7 ties preserved, Pro Bowls quarantined, 21 counted keyless requests, manifest claims retrieval only; guard: lib/sports/research/nfl-research.test.mjs). PARTIAL: historical corpus, not live daily inputs" },
+      model: { status: "PARTIAL", evidence: "Program 151: chronological baselines over 569 decisive games — Elo log loss 0.6415 / 64.5% vs coin ln(2)=0.6931 anchor; margin MAE 11.0; 2025 postseason HISTORICAL_REPLAY through the shared harness (10/13, byte-deterministic, evaluationEligible). The BAR a future NFL model must beat, not a model claim; market comparison unavailable and stated" },
     },
   },
 

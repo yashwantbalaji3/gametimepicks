@@ -29,17 +29,21 @@ test("percentages derive from stages — MLB all-proven is 100 everywhere, empty
     assert.equal(mlb[b.id].pct, 100, `mlb.${b.id}`);
     assert.equal(mlb[b.id].proven, mlb[b.id].total);
   }
-  // NFL gained its FIRST evidence in Release B (Program 148): a contract-satisfying schedule
-  // adapter + honest public destination — PARTIAL, not PROVEN, so every percentage stays 0
-  // (only PROVEN counts) while the schedule stage now carries a receipt instead of nothing.
+  // NFL's evidence-bearing set grew release by release with receipts: schedule (P148 capture),
+  // then data + model (P151 research vertical). Every percentage stays 0 — PARTIAL earns
+  // receipts, never percentage — and any stage OUTSIDE this receipted set claiming evidence
+  // is still a defect this guard catches.
+  const NFL_EVIDENCE_STAGES = ["schedule", "data", "model"];
   const nfl = sportColumn(SPORT_ASSESSMENTS.nfl);
   for (const b of DEPARTMENT_BUCKETS) {
     assert.equal(nfl[b.id].pct, 0, `nfl.${b.id} — PARTIAL earns receipts, never percentage`);
-    assert.ok(nfl[b.id].stages.every((s) => s.status === "UNPROVEN" || s.id === "schedule"),
-      `nfl.${b.id} — only the schedule stage may carry non-UNPROVEN evidence today`);
+    assert.ok(nfl[b.id].stages.every((s) => s.status === "UNPROVEN" || NFL_EVIDENCE_STAGES.includes(s.id)),
+      `nfl.${b.id} — only receipted stages may carry non-UNPROVEN evidence`);
   }
-  const nflSchedule = DEPARTMENT_BUCKETS.flatMap((b) => nfl[b.id].stages).find((s) => s.id === "schedule");
-  assert.equal(nflSchedule.status, "PARTIAL", "the Release B adapter is evidence, not proof — PARTIAL exactly");
+  for (const id of NFL_EVIDENCE_STAGES) {
+    const st = DEPARTMENT_BUCKETS.flatMap((b) => nfl[b.id].stages).find((s) => s.id === id);
+    assert.equal(st.status, "PARTIAL", `nfl.${id} is evidence, not proof — PARTIAL exactly`);
+  }
 });
 
 test("a bucket with no applicable stages is N_A (null), never 0% or 100%", () => {
