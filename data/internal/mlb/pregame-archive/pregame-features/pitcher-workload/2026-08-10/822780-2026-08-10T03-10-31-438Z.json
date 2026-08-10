@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822780,
+  "date": "2026-08-10",
+  "capturedAt": "2026-08-10T03:10:31.438Z",
+  "availableAt": "2026-08-10T03:10:31.438Z",
+  "eventStartTime": "2026-08-10T23:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 592791,
+      "name": "Jameson Taillon",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 5,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 19.67,
+        "ipAvg": 3.93,
+        "kAvg": 4.2,
+        "bbAvg": 1.8,
+        "erAvg": 3.4,
+        "hrAvg": 1.4,
+        "kPer9": 9.61,
+        "workloadIpLast5": 19.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 80,
+        "k": 72,
+        "bb": 29,
+        "er": 53,
+        "hr": 26
+      }
+    },
+    "away": {
+      "id": 543243,
+      "name": "Sonny Gray",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 4.8,
+        "bbAvg": 1.8,
+        "erAvg": 2.2,
+        "hrAvg": 0.4,
+        "kPer9": 7.2,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 119.67,
+        "k": 106,
+        "bb": 32,
+        "er": 37,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-10&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-10T03:10:31.438Z"
+  },
+  "recordHash": "d5116edfde390c25a46afd1b76eec1a7b7608c613005c58e1385edffca75d7a9"
+}
