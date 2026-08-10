@@ -1,0 +1,48 @@
+{
+ "capturedAt": "2026-08-10T00:49:33Z",
+ "files": [
+  {
+   "file": "api-football-fixtures-2022.json",
+   "url": "https://v3.football.api-sports.io/fixtures?league=39&season=2022",
+   "source": "api_football (founder free plan, 100 req/day; plan verified via /status this capture)",
+   "license": "api-sports licence; free-tier seasons 2022-2024 only (2026 refused: 'Free plans do not have access to this season')"
+  },
+  {
+   "file": "api-football-fixtures-2023.json",
+   "url": "https://v3.football.api-sports.io/fixtures?league=39&season=2023",
+   "source": "api_football",
+   "license": "as above"
+  },
+  {
+   "file": "api-football-fixtures-2024.json",
+   "url": "https://v3.football.api-sports.io/fixtures?league=39&season=2024",
+   "source": "api_football",
+   "license": "as above"
+  },
+  {
+   "file": "openfootball-2025-26-en1.json",
+   "url": "https://raw.githubusercontent.com/openfootball/football.json/master/2025-26/en.1.json",
+   "source": "openfootball/football.json",
+   "license": "public domain (free to use) per openfootball project",
+   "note": "INCOMPLETE: 27/380 matches missing score.ft — retained as evidence, superseded by the england-repo txt"
+  },
+  {
+   "file": "openfootball-2026-27-premierleague.txt",
+   "url": "https://raw.githubusercontent.com/openfootball/england/master/2026-27/1-premierleague.txt",
+   "source": "openfootball/england",
+   "license": "public domain (free to use) per openfootball project",
+   "note": "NOT ingested to display: names Coventry City FC + Hull City AFC, outside the committed club membership table — quarantined pending membership verification against an authoritative source"
+  },
+  {
+   "file": "openfootball-2025-26-premierleague.txt",
+   "url": "https://raw.githubusercontent.com/openfootball/england/master/2025-26/1-premierleague.txt",
+   "source": "openfootball/england",
+   "license": "public domain (free to use) per openfootball project",
+   "note": "COMPLETE 380/380 with FT+HT scores — replaces the json mirror for 2025-26, which is missing 27 results (receipt: corpus builder refusal)"
+  }
+ ],
+ "requestsSpent": {
+  "api_football": 5,
+  "note": "2 verification calls (/status + season-2026 refusal probe) + 3 season fetches, of 100/day free"
+ }
+}

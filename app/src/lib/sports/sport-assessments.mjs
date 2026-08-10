@@ -55,7 +55,7 @@ export const SPORT_ASSESSMENTS = {
     stages: {
       schedule: { status: "PARTIAL", evidence: "Release B (Program 148): adapter reads the documented soccer/epl fixture schema through the Release A contract with per-row quarantine (guard: lib/sports/upcoming/adapters.test.mjs); fixtures dir holds the schema sample only — the first real capture is Release C" },
       markets: { status: "PARTIAL", evidence: "EPL odds side landed (Program 062-065); settlement-gated, never published" },
-      model: { status: "PARTIAL", evidence: "internal FIFA-Poisson soccer engine exists (N=5, not public, not validated for EPL)" },
+      model: { status: "PARTIAL", evidence: "Release C (Program 148): private 4-season research corpus (1,520 matches, 0 quarantined) + three chronologically-evaluated baselines — Elo log loss 0.9991 vs uniform 1.0986 over 1,140 leakage-free predictions (data/internal/research/epl/, guard: epl-research.test.mjs in the soccer lane). These are the BAR a future model must beat, not a model claim; no-vig comparison absent until a real odds capture exists" },
       settlement: { status: "PARTIAL", evidence: "grading CONTRACT designed + guard-tested (lib/sports/epl/settlement-contract.mjs v1, Program 146): FT-only, StatsAPI-lesson quarantines, decisive=W+L, zero-gap reconciliation — source integration still unbuilt" },
     },
   },

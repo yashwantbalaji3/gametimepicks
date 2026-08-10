@@ -72,7 +72,7 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "EPL official-results source integration: evaluate free sources, document rights/provenance/point-in-time behaviour, build the adapter against the settlement contract", department: "settlement", sport: "epl", owner: "ENGINEERING", dependency: "settlement contract v1 (shipped 20134c21)", effort: "M", acceptance: "adapter + committed fixtures satisfy the contract guards; source decision doc records rights; settlement stage stays PARTIAL until a real slate grades" },
+      { outcome: "EPL 2026-27 club-membership verification + first real fixture capture: confirm promoted clubs against an authoritative source, extend EPL_CLUB_ALIASES deliberately, run the capture the corpus work left blocked (docs/EPL_SOURCE_DECISION.md)", department: "data-ingestion", sport: "epl", owner: "ENGINEERING", dependency: "membership source (paid api-football tier = FOUNDER; a second free authoritative source = ENGINEERING)", effort: "S", acceptance: "capture validates via validateFixtureArtifact with 20/20 clubs resolving; /sports EPL section renders real fixtures with source + capture time; quarantine receipt closed" },
     ],
   },
   {

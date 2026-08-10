@@ -110,6 +110,8 @@ test("the source registry records rights + authorization for every source, and b
 });
 
 test("no source is invented — the registry covers exactly the providers this repo already touches", () => {
+  // openfootball joined in Release C (Program 148): public-domain EPL fixtures/results, first
+  // exercised for the research corpus. Every addition to this list must name its first real use.
   assert.deepEqual(Object.keys(SOURCES).sort(),
-    ["api_football", "balldontlie", "espn_cdn", "mlb_midfield", "mlb_statsapi", "odds_api"]);
+    ["api_football", "balldontlie", "espn_cdn", "mlb_midfield", "mlb_statsapi", "odds_api", "openfootball"]);
 });

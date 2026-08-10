@@ -1,0 +1,376 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-baseline-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-09T21:40:00Z",
+ "corpus": {
+  "file": "corpus-v1.json",
+  "totalMatches": 1520,
+  "warmupSeason": "2022-23",
+  "evaluated": 1140
+ },
+ "leakageRule": "parameters fit on strictly earlier-dated matches only; intra-day slates share one pregame state; warm-up season never scored",
+ "coldStartRule": "unseen clubs enter at Elo 1500 and Poisson multipliers 1.0 (league average)",
+ "models": {
+  "empirical": {
+   "overall": {
+    "n": 1140,
+    "logLoss": 1.075,
+    "brier": 0.6509,
+    "accuracy": 0.4316
+   },
+   "bySeason": {
+    "2023-24": {
+     "n": 380,
+     "logLoss": 1.0566,
+     "brier": 0.6388,
+     "accuracy": 0.4605
+    },
+    "2024-25": {
+     "n": 380,
+     "logLoss": 1.0843,
+     "brier": 0.6581,
+     "accuracy": 0.4079
+    },
+    "2025-26": {
+     "n": 380,
+     "logLoss": 1.0839,
+     "brier": 0.656,
+     "accuracy": 0.4263
+    }
+   },
+   "calibration": [
+    {
+     "bin": "0-10%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "10-20%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "20-30%",
+     "n": 1248,
+     "predicted": 0.2346,
+     "observed": 0.2596
+    },
+    {
+     "bin": "30-40%",
+     "n": 1032,
+     "predicted": 0.3111,
+     "observed": 0.314
+    },
+    {
+     "bin": "40-50%",
+     "n": 1140,
+     "predicted": 0.4616,
+     "observed": 0.4316
+    },
+    {
+     "bin": "50-60%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "60-70%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "70-80%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "80-90%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "90-100%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    }
+   ]
+  },
+  "elo": {
+   "overall": {
+    "n": 1140,
+    "logLoss": 0.9991,
+    "brier": 0.5962,
+    "accuracy": 0.5254
+   },
+   "bySeason": {
+    "2023-24": {
+     "n": 380,
+     "logLoss": 0.9744,
+     "brier": 0.5775,
+     "accuracy": 0.5553
+    },
+    "2024-25": {
+     "n": 380,
+     "logLoss": 0.9968,
+     "brier": 0.5956,
+     "accuracy": 0.5237
+    },
+    "2025-26": {
+     "n": 380,
+     "logLoss": 1.026,
+     "brier": 0.6155,
+     "accuracy": 0.4974
+    }
+   },
+   "calibration": [
+    {
+     "bin": "0-10%",
+     "n": 18,
+     "predicted": 0.0827,
+     "observed": 0
+    },
+    {
+     "bin": "10-20%",
+     "n": 213,
+     "predicted": 0.159,
+     "observed": 0.1362
+    },
+    {
+     "bin": "20-30%",
+     "n": 1585,
+     "predicted": 0.236,
+     "observed": 0.2315
+    },
+    {
+     "bin": "30-40%",
+     "n": 549,
+     "predicted": 0.3513,
+     "observed": 0.3315
+    },
+    {
+     "bin": "40-50%",
+     "n": 531,
+     "predicted": 0.4499,
+     "observed": 0.4313
+    },
+    {
+     "bin": "50-60%",
+     "n": 376,
+     "predicted": 0.5443,
+     "observed": 0.5957
+    },
+    {
+     "bin": "60-70%",
+     "n": 145,
+     "predicted": 0.6346,
+     "observed": 0.731
+    },
+    {
+     "bin": "70-80%",
+     "n": 3,
+     "predicted": 0.721,
+     "observed": 1
+    },
+    {
+     "bin": "80-90%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "90-100%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    }
+   ]
+  },
+  "poisson": {
+   "overall": {
+    "n": 1140,
+    "logLoss": 1.0017,
+    "brier": 0.5968,
+    "accuracy": 0.5158
+   },
+   "bySeason": {
+    "2023-24": {
+     "n": 380,
+     "logLoss": 0.9601,
+     "brier": 0.5663,
+     "accuracy": 0.5684
+    },
+    "2024-25": {
+     "n": 380,
+     "logLoss": 0.9999,
+     "brier": 0.597,
+     "accuracy": 0.5184
+    },
+    "2025-26": {
+     "n": 380,
+     "logLoss": 1.045,
+     "brier": 0.627,
+     "accuracy": 0.4605
+    }
+   },
+   "calibration": [
+    {
+     "bin": "0-10%",
+     "n": 194,
+     "predicted": 0.069,
+     "observed": 0.1134
+    },
+    {
+     "bin": "10-20%",
+     "n": 634,
+     "predicted": 0.1575,
+     "observed": 0.1814
+    },
+    {
+     "bin": "20-30%",
+     "n": 1125,
+     "predicted": 0.2451,
+     "observed": 0.2702
+    },
+    {
+     "bin": "30-40%",
+     "n": 438,
+     "predicted": 0.3443,
+     "observed": 0.3562
+    },
+    {
+     "bin": "40-50%",
+     "n": 330,
+     "predicted": 0.4449,
+     "observed": 0.4061
+    },
+    {
+     "bin": "50-60%",
+     "n": 281,
+     "predicted": 0.5483,
+     "observed": 0.484
+    },
+    {
+     "bin": "60-70%",
+     "n": 213,
+     "predicted": 0.6494,
+     "observed": 0.5962
+    },
+    {
+     "bin": "70-80%",
+     "n": 134,
+     "predicted": 0.7492,
+     "observed": 0.6642
+    },
+    {
+     "bin": "80-90%",
+     "n": 62,
+     "predicted": 0.8418,
+     "observed": 0.7903
+    },
+    {
+     "bin": "90-100%",
+     "n": 9,
+     "predicted": 0.9345,
+     "observed": 0.8889
+    }
+   ]
+  },
+  "uniform": {
+   "overall": {
+    "n": 1140,
+    "logLoss": 1.0986,
+    "brier": 0.6667,
+    "accuracy": 0.4316
+   },
+   "bySeason": {
+    "2023-24": {
+     "n": 380,
+     "logLoss": 1.0986,
+     "brier": 0.6667,
+     "accuracy": 0.4605
+    },
+    "2024-25": {
+     "n": 380,
+     "logLoss": 1.0986,
+     "brier": 0.6667,
+     "accuracy": 0.4079
+    },
+    "2025-26": {
+     "n": 380,
+     "logLoss": 1.0986,
+     "brier": 0.6667,
+     "accuracy": 0.4263
+    }
+   },
+   "calibration": [
+    {
+     "bin": "0-10%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "10-20%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "20-30%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "30-40%",
+     "n": 3420,
+     "predicted": 0.3333,
+     "observed": 0.3333
+    },
+    {
+     "bin": "40-50%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "50-60%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "60-70%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "70-80%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "80-90%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    },
+    {
+     "bin": "90-100%",
+     "n": 0,
+     "predicted": null,
+     "observed": null
+    }
+   ]
+  }
+ }
+}
