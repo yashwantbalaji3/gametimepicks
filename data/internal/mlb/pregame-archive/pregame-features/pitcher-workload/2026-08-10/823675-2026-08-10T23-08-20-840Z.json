@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823675,
+  "date": "2026-08-10",
+  "capturedAt": "2026-08-10T23:08:20.840Z",
+  "availableAt": "2026-08-10T23:08:20.840Z",
+  "eventStartTime": "2026-08-10T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 665152,
+      "name": "Dean Kremer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 5,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4,
+        "bbAvg": 2,
+        "erAvg": 4.2,
+        "hrAvg": 1.4,
+        "kPer9": 7.5,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 41,
+        "k": 40,
+        "bb": 13,
+        "er": 27,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 669432,
+      "name": "Trevor Rogers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.33,
+        "ipAvg": 6.27,
+        "kAvg": 6.6,
+        "bbAvg": 0.6,
+        "erAvg": 2,
+        "hrAvg": 0.4,
+        "kPer9": 9.48,
+        "workloadIpLast5": 31.33
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 115.67,
+        "k": 98,
+        "bb": 32,
+        "er": 54,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-10&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-10T23:08:20.840Z"
+  },
+  "recordHash": "2e99df784f0742b2f422a90618d48c72cb4be38242419c41547bbf37cfa49371"
+}
