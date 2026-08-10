@@ -1,0 +1,169 @@
+{
+ "schemaVersion": 1,
+ "artifact": "ufc-baseline-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-10T19:45:00Z",
+ "corpus": {
+  "file": "corpus-v1.json",
+  "totalFinalBouts": 1716,
+  "warmupBoundary": "2024-08-03T19:00Z",
+  "eligibleDecisive": 1127,
+  "drawNcSkipped": 12
+ },
+ "abstention": {
+  "rules": "either fighter <3 prior decisive bouts OR idle >540d",
+  "abstained": 838,
+  "coverage": 0.2564,
+  "note": "coverage is a headline metric — exclusions shape the denominator and are counted here"
+ },
+ "baseline": {
+  "definition": "fighter Elo K=32 start 1500, decisive-only updates, no corner advantage (corners are listing order)",
+  "evaluated": 289
+ },
+ "metrics": {
+  "elo": {
+   "n": 289,
+   "logLoss": 0.6791,
+   "brier": 0.243,
+   "accuracy": 0.5571
+  },
+  "redRatePrior": {
+   "logLoss": 0.6906
+  },
+  "coinAnchor": {
+   "logLoss": 0.6931,
+   "note": "exactly ln 2"
+  }
+ },
+ "byWeightClass": {
+  "Bantamweight": {
+   "n": 29,
+   "logLoss": 0.6669,
+   "accuracy": 0.6552
+  },
+  "Catch Weight": {
+   "n": 2,
+   "note": "sample too small to report"
+  },
+  "Catchweight": {
+   "n": 1,
+   "note": "sample too small to report"
+  },
+  "Featherweight": {
+   "n": 33,
+   "logLoss": 0.7048,
+   "accuracy": 0.5152
+  },
+  "Flyweight": {
+   "n": 23,
+   "logLoss": 0.6871,
+   "accuracy": 0.6087
+  },
+  "Heavyweight": {
+   "n": 21,
+   "logLoss": 0.6711,
+   "accuracy": 0.619
+  },
+  "Light Heavyweight": {
+   "n": 24,
+   "logLoss": 0.6682,
+   "accuracy": 0.5417
+  },
+  "Lightweight": {
+   "n": 35,
+   "logLoss": 0.701,
+   "accuracy": 0.4
+  },
+  "Middleweight": {
+   "n": 46,
+   "logLoss": 0.6834,
+   "accuracy": 0.5
+  },
+  "W Bantamweight": {
+   "n": 8,
+   "note": "sample too small to report"
+  },
+  "W Flyweight": {
+   "n": 13,
+   "note": "sample too small to report"
+  },
+  "W Strawweight": {
+   "n": 22,
+   "logLoss": 0.6567,
+   "accuracy": 0.6818
+  },
+  "Welterweight": {
+   "n": 32,
+   "logLoss": 0.6599,
+   "accuracy": 0.5625
+  }
+ },
+ "calibration": [
+  {
+   "bin": "0-10%",
+   "n": 0,
+   "predicted": null,
+   "observed": null
+  },
+  {
+   "bin": "10-20%",
+   "n": 0,
+   "predicted": null,
+   "observed": null
+  },
+  {
+   "bin": "20-30%",
+   "n": 0,
+   "predicted": null,
+   "observed": null
+  },
+  {
+   "bin": "30-40%",
+   "n": 20,
+   "predicted": 0.3806,
+   "observed": 0.35
+  },
+  {
+   "bin": "40-50%",
+   "n": 174,
+   "predicted": 0.455,
+   "observed": 0.4368
+  },
+  {
+   "bin": "50-60%",
+   "n": 92,
+   "predicted": 0.5334,
+   "observed": 0.5217
+  },
+  {
+   "bin": "60-70%",
+   "n": 3,
+   "predicted": 0.6063,
+   "observed": 0.6667
+  },
+  {
+   "bin": "70-80%",
+   "n": 0,
+   "predicted": null,
+   "observed": null
+  },
+  {
+   "bin": "80-90%",
+   "n": 0,
+   "predicted": null,
+   "observed": null
+  },
+  {
+   "bin": "90-100%",
+   "n": 0,
+   "predicted": null,
+   "observed": null
+  }
+ ],
+ "limitations": [
+  "in-corpus history only — a veteran's pre-2023 record is invisible, so early sparse-history abstentions overshoot",
+  "no reach/age/stance/method features; no rankings; no odds",
+  "corner order carries no venue meaning; red-rate prior is a listing-order artifact, reported for honesty not signal"
+ ],
+ "marketComparison": "unavailable — no authorized historical UFC odds capture exists"
+}

@@ -1,0 +1,174 @@
+{
+ "schemaVersion": 1,
+ "artifact": "ufc-replay-bout_winner",
+ "sport": "ufc",
+ "mode": "HISTORICAL_REPLAY",
+ "targetMarket": "bout_winner",
+ "generatedAt": "2026-08-10T19:50:00Z",
+ "sourceCutoffIso": "2026-08-08T00:00:00Z",
+ "inputsAsOfIso": "2026-08-01T17:00Z",
+ "deterministicId": "9f52966a94800cb4",
+ "trainingCount": 1704,
+ "excludedAtOrAfterCutoffCount": 0,
+ "quarantinedCount": 0,
+ "quarantined": [],
+ "predictions": [
+  {
+   "eventKey": "401897976",
+   "dateUtc": "2026-08-08T21:00Z",
+   "probs": {
+    "R": 0.4825590827619446,
+    "B": 0.5174409172380554
+   },
+   "elo": {
+    "red": 1488,
+    "blue": 1500
+   }
+  },
+  {
+   "eventKey": "401902680",
+   "dateUtc": "2026-08-08T21:00Z",
+   "probs": {
+    "R": 0.544960875715074,
+    "B": 0.455039124284926
+   },
+   "elo": {
+    "red": 1485,
+    "blue": 1453
+   }
+  },
+  {
+   "eventKey": "401886039",
+   "dateUtc": "2026-08-09T00:00Z",
+   "probs": {
+    "R": 0.4177309266948752,
+    "B": 0.5822690733051248
+   },
+   "elo": {
+    "red": 1530,
+    "blue": 1588
+   }
+  },
+  {
+   "eventKey": "401887661",
+   "dateUtc": "2026-08-09T00:00Z",
+   "probs": {
+    "R": 0.3799442052179213,
+    "B": 0.6200557947820786
+   },
+   "elo": {
+    "red": 1475,
+    "blue": 1560
+   }
+  },
+  {
+   "eventKey": "401902723",
+   "dateUtc": "2026-08-09T00:00Z",
+   "probs": {
+    "R": 0.4810634803024843,
+    "B": 0.5189365196975158
+   },
+   "elo": {
+    "red": 1515,
+    "blue": 1528
+   }
+  }
+ ],
+ "evaluationEligible": true,
+ "provenance": "replay-runner v1 over ufc adapter; fit on 1704 rows strictly before 2026-08-08T00:00:00Z",
+ "card": {
+  "providerCardId": "600060621",
+  "name": "UFC Fight Night: Gamrot vs Salkilld"
+ },
+ "coverage": {
+  "slateBouts": 12,
+  "covered": 5,
+  "abstained": 7,
+  "rate": 0.4167
+ },
+ "abstentions": [
+  {
+   "boutId": "401897978",
+   "matchup": "Louie Sutherland vs José Montanha",
+   "reasons": [
+    "blue José Montanha: 0 prior decisive bouts in-corpus"
+   ]
+  },
+  {
+   "boutId": "401897979",
+   "matchup": "Steven Asplund vs Guilherme Pat",
+   "reasons": [
+    "blue Guilherme Pat: 2 prior decisive bouts in-corpus"
+   ]
+  },
+  {
+   "boutId": "401903508",
+   "matchup": "Manoel Sousa vs Richie Miranda",
+   "reasons": [
+    "red Manoel Sousa: 2 prior decisive bouts in-corpus",
+    "blue Richie Miranda: 0 prior decisive bouts in-corpus"
+   ]
+  },
+  {
+   "boutId": "401905693",
+   "matchup": "Gigi Canuto vs Carol Foro",
+   "reasons": [
+    "red Gigi Canuto: 0 prior decisive bouts in-corpus",
+    "blue Carol Foro: 1 prior decisive bouts in-corpus"
+   ]
+  },
+  {
+   "boutId": "401906585",
+   "matchup": "Miles Johns vs Gianni Vazquez",
+   "reasons": [
+    "blue Gianni Vazquez: 1 prior decisive bouts in-corpus"
+   ]
+  },
+  {
+   "boutId": "401897977",
+   "matchup": "Diego Ferreira vs Billy Quarantillo",
+   "reasons": [
+    "blue idle >540d"
+   ]
+  },
+  {
+   "boutId": "401902681",
+   "matchup": "Billy Ray Goff vs Ty Miller",
+   "reasons": [
+    "blue Ty Miller: 2 prior decisive bouts in-corpus"
+   ]
+  }
+ ],
+ "validation": [
+  {
+   "eventKey": "401897976",
+   "matchup": "Bruno Lopes vs Diyar Nurgozhay",
+   "actualOutcome": "B",
+   "modelProbOfActual": 0.5174
+  },
+  {
+   "eventKey": "401902680",
+   "matchup": "Juliana Miller vs Ravena Oliveira",
+   "actualOutcome": "R",
+   "modelProbOfActual": 0.545
+  },
+  {
+   "eventKey": "401886039",
+   "matchup": "Mateusz Gamrot vs Quillan Salkilld",
+   "actualOutcome": "B",
+   "modelProbOfActual": 0.5823
+  },
+  {
+   "eventKey": "401887661",
+   "matchup": "Amanda Lemos vs Alexia Thainara",
+   "actualOutcome": "B",
+   "modelProbOfActual": 0.6201
+  },
+  {
+   "eventKey": "401902723",
+   "matchup": "Darren Elkins vs Yadier del Valle",
+   "actualOutcome": "B",
+   "modelProbOfActual": 0.5189
+  }
+ ]
+}

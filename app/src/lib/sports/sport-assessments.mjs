@@ -68,9 +68,10 @@ export const SPORT_ASSESSMENTS = {
     historicalArchive: true,
     stages: {
       schedule: { status: "PARTIAL", evidence: "Program 150: FIRST FORWARD CAPTURE — 16 cards / 82 named bouts (ESPN MMA scoreboard), bouts rendered through the contract red/blue scheme with card context; settled archive stays a separate store, guard-blocked from rendering as upcoming (lib/sports/upcoming/adapters.test.mjs). PARTIAL: no cadence, replacement/cancellation lineage unexercised" },
-      identity: { status: "PARTIAL", evidence: "boutId join made rematch-safe (Program 058-061) after the unsound join finding" },
+      identity: { status: "PARTIAL", evidence: "boutId join made rematch-safe (Program 058-061); Program 153 corpus proves id-based fighter identity end-to-end (1,046 fighters, zero name-joins, self-matchup refusal)" },
       settlement: { status: "PARTIAL", evidence: "ONE card settled from official results (2026-06-15); not a repeatable pipeline" },
-      model: { status: "UNPROVEN", blocker: "no fight model exists; UFC has never published a prediction" },
+      data: { status: "PARTIAL", evidence: "Program 153: private corpus — 1,716 final bouts on 160 cards (Aug 2023–Aug 2026), 25 draw/NC preserved, 0 quarantined; rate-limit receipt in the manifest (burst→400, resumable fetcher at 15s spacing); winner-only field limitation stated (guard: lib/sports/research/ufc-research.test.mjs). PARTIAL: historical, not live" },
+      model: { status: "PARTIAL", evidence: "Program 153: abstaining Elo baseline — coverage 25.6% BY DESIGN (in-corpus history only, stated), Elo 0.6791 vs listing-order prior 0.6906 vs coin ln(2) over 289 covered bouts; last-card replay through the shared harness (5/12 covered, abstentions with reasons ON the artifact); model-card-v1 names the weak signal as the finding. The BAR a future fight model must beat; activation OFF" },
     },
   },
 };

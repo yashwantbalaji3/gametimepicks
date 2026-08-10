@@ -1,0 +1,12 @@
+{
+  "capturedAt": "2026-08-10T19:17:59Z",
+  "source": {
+    "id": "espn_scoreboard",
+    "name": "ESPN MMA public scoreboard (site.api.espn.com), keyless",
+    "rights": "public JSON endpoint, no key, no credits; point-in-time snapshots with attribution — registered source",
+    "requestCount": "~120 total including the burst the endpoint refused (mechanical receipt: 74-request burst → HTTP 400 'Failed to get events endpoint' on every window; singles fine) — final corpus from 37 windows via the resumable fetcher at 15s spacing + retries",
+    "windows": "monthly Aug 2023 – Aug 2026 (Aug-2026 window ends 08-08: the 08-09 end-date variant is refused by the endpoint; no event occurred on Aug 9, verified against the forward schedule whose next card is Aug 11)"
+  },
+  "rawEventTotal": 160,
+  "completenessClaim": "raw monthly scoreboard responses for three years of UFC cards; bout-level winner flags present; method/round fields NOT captured in this shape (winner-only corpus — stated in the model card); normalization + refusals happen in the corpus builder"
+}

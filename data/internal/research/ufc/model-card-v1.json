@@ -1,0 +1,29 @@
+{
+ "schemaVersion": 1,
+ "artifact": "ufc-model-card",
+ "dataClass": "PRIVATE_RESEARCH",
+ "version": "v1",
+ "generatedAt": "2026-08-10T19:55:00Z",
+ "objective": "abstaining bout-winner baseline (research bar, not a product model)",
+ "supportedOutputs": ["P(red wins) binary on COVERED bouts only", "ABSTAIN with reasons (first-class output)"],
+ "corpus": {"range": "Aug 2023 – Aug 2026", "cards": 160, "finalBouts": 1716, "decisive": 1691, "drawOrNc": 25, "fighters": 1046, "weightClasses": 14, "source": "espn_scoreboard MMA (keyless, registered)", "manifest": "raw/CAPTURE_MANIFEST.json"},
+ "featureCutoff": "prior decisive in-corpus bouts only; winner flags are the only outcome field captured (method/round not in this shape)",
+ "baseline": "fighter Elo K=32 start 1500, decisive-only updates, no corner advantage (corners are listing order)",
+ "abstention": {"rules": "either fighter <3 prior decisive in-corpus bouts OR idle >540 days", "coverage": 0.2564, "note": "in-corpus-only history makes veterans with pre-2023 records look like debutants — coverage understates true knowability and is reported, not hidden"},
+ "metrics": {
+  "elo": {"logLoss": 0.6791, "brier": 0.243, "accuracy": 0.5571, "n": 289},
+  "redRatePrior": {"logLoss": 0.6906, "n": 289},
+  "coinAnchor": {"logLoss": 0.6931, "note": "exactly ln 2"},
+  "lastCardReplay": {"covered": "5/12", "topClass": "5/5", "note": "abstentions listed on the artifact with reasons"}
+ },
+ "evaluation": {"split": "chronological; first third of bouts warm-up (fit-only); walk-forward thereafter", "calibration": "10-bin table in reports/baseline-evaluation-v1.json", "byWeightClass": "reported where n>=20"},
+ "marketComparison": "unavailable — no authorized historical UFC odds capture exists",
+ "limitations": [
+  "in-corpus history only: no pre-Aug-2023 records, no method/round data, no reach/age/stance",
+  "weak signal is the honest finding: 0.679 vs 0.691 prior over 289 covered bouts — a real but small edge over listing-order priors, nowhere near a usable fight model",
+  "draw/no-contest never predicted; replacements/late changes not modeled"
+ ],
+ "lastEvaluatedCommit": "P153-A",
+ "evaluationEligible": true,
+ "publicActivation": "OFF — founder decision; research readiness is not product activation"
+}
