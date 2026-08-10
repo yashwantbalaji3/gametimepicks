@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824887,
+  "date": "2026-08-10",
+  "capturedAt": "2026-08-10T21:32:57.034Z",
+  "availableAt": "2026-08-10T21:32:57.034Z",
+  "eventStartTime": "2026-08-10T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693821,
+      "name": "Bryce Elder",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 5,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 4.2,
+        "bbAvg": 2.4,
+        "erAvg": 1.6,
+        "hrAvg": 1.4,
+        "kPer9": 6.75,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 126.67,
+        "k": 104,
+        "bb": 42,
+        "er": 52,
+        "hr": 19
+      }
+    },
+    "away": {
+      "id": 681035,
+      "name": "Christian Scott",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 5,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 6.4,
+        "bbAvg": 1.4,
+        "erAvg": 1.4,
+        "hrAvg": 0,
+        "kPer9": 11.37,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 74.33,
+        "k": 92,
+        "bb": 32,
+        "er": 26,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-10&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-10T21:32:57.034Z"
+  },
+  "recordHash": "7523f58dcf50b1500315c397fa3b91212823fc0170ecebbf12b6005b4d310168"
+}
