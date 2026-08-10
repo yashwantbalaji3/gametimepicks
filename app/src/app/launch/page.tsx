@@ -3,6 +3,7 @@ import path from "node:path";
 import { guardInternalRoute } from "@/lib/internal-route-guard";
 import { currentEtDate } from "@/lib/freshness";
 import { buildCompletionMatrix, ROADMAP_30D } from "@/lib/launch/completion-matrix.mjs";
+import { buildWorkBoard } from "@/lib/launch/work-board.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
 import {
   buildDepartments,
@@ -38,6 +39,7 @@ export default function LaunchCommandCenter() {
   const rec = recommendation(gates);
   const departments = buildDepartments();
   const sports = buildSports();
+  const workBoard = buildWorkBoard();
 
   const APP = process.cwd();
   const readJson = (rel: string) => {
@@ -131,6 +133,61 @@ export default function LaunchCommandCenter() {
             No ledger artifact — run <code>npm run admin:ledger</code>. This says &ldquo;not generated&rdquo;, never &ldquo;all healthy&rdquo;.
           </p>
         )}
+      </section>
+
+      {/* ── Work board — tickets DERIVED from receipts; closing happens only when the receipt
+             lands in committed truth and the generator re-runs (Program 153 · Release E) ──── */}
+      <section aria-labelledby="board" style={{ marginBottom: 30 }}>
+        <h2 id="board" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Work board</h2>
+        <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+          {workBoard.counts.engineering} engineering cards · {workBoard.founderQueue.length} founder-owned · {workBoard.counts.blocked} blocked.
+          Cards are generated from gate assessments and the roadmap — there is no checkbox; a card closes when its receipt
+          changes the committed truth. Today&apos;s P0s: {workBoard.sprints.today.map((t) => t.id).join(", ") || "none"}.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
+          {(["IN_PROGRESS", "READY", "NEW", "BLOCKED"] as const).map((state) => (
+            <div key={state} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
+              <h3 style={{ fontSize: 11.5, textTransform: "uppercase", letterSpacing: "0.08em", color: state === "BLOCKED" ? "var(--vault-danger)" : "var(--vault-text-mute)", margin: "0 0 8px" }}>
+                {state.replace("_", " ")} · {workBoard.columns[state].length}
+              </h3>
+              {workBoard.columns[state].length === 0 ? (
+                <p style={{ fontSize: 12, color: "var(--vault-text-faint)", margin: 0 }}>empty — nothing hidden, nothing pending here</p>
+              ) : (
+                <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
+                  {workBoard.columns[state].map((t) => (
+                    <li key={t.id} style={{ borderTop: "1px solid var(--vault-rule)", paddingTop: 8 }}>
+                      <details>
+                        <summary style={{ cursor: "pointer", fontSize: 12.5 }}>
+                          <span style={{ color: t.priority === "P0" ? "var(--vault-danger)" : "var(--vault-text-mute)", fontFamily: "monospace", fontSize: 11 }}>{t.priority}</span>{" "}
+                          {t.title}
+                        </summary>
+                        <div style={{ fontSize: 11.5, color: "var(--vault-text-mute)", marginTop: 6, display: "grid", gap: 3 }}>
+                          <span style={{ fontFamily: "monospace", color: "var(--vault-text-faint)" }}>{t.id}{t.sinceProgram ? ` · since P${t.sinceProgram}` : ""}</span>
+                          {t.blocker ? <span>Blocker: {t.blocker}</span> : null}
+                          <span>Next: {t.nextAction}</span>
+                          <span>Accept: {t.acceptance}</span>
+                        </div>
+                      </details>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+        <details style={{ marginTop: 12 }}>
+          <summary style={{ cursor: "pointer", fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+            Founder queue ({workBoard.founderQueue.length}) — separated, engineering never stalls on these
+          </summary>
+          <ul style={{ listStyle: "none", margin: "8px 0 0", padding: 0, display: "grid", gap: 6 }}>
+            {workBoard.founderQueue.map((t) => (
+              <li key={t.id} style={{ fontSize: 12.5, borderTop: "1px solid var(--vault-rule)", paddingTop: 6 }}>
+                <span style={{ fontFamily: "monospace", fontSize: 11, color: "var(--vault-text-faint)" }}>{t.priority} {t.id}</span> · {t.title}
+                <div style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>Accept: {t.acceptance}</div>
+              </li>
+            ))}
+          </ul>
+        </details>
       </section>
 
       {/* ── Department × Sport completion matrix — derived from the twelve-stage gate ── */}
