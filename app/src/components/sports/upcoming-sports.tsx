@@ -43,7 +43,9 @@ const SOURCE_DISPLAY: Record<string, string> = {
   odds_api: "The Odds API",
   mlb_statsapi: "MLB StatsAPI",
   espn_cdn: "ESPN public data",
+  espn_scoreboard: "ESPN public scoreboard",
   api_football: "API-Football",
+  openfootball: "openfootball (public domain)",
   "committed-fixture-capture": "committed fixture capture",
 };
 

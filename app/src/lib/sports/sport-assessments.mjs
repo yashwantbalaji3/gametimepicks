@@ -34,7 +34,7 @@ export const SPORT_ASSESSMENTS = {
     historicalArchive: false,
     stages: {
       // First stage with any evidence (Release B). Everything else UNPROVEN.
-      schedule: { status: "PARTIAL", evidence: "Release B (Program 148): contract-satisfying adapter + public /sports destination rendering the honest no-source state (guard: lib/sports/upcoming/adapters.test.mjs); no approved NFL source configured yet — sequenced after EPL" },
+      schedule: { status: "PARTIAL", evidence: "Program 148: FIRST REAL CAPTURE — 16 preseason events from the ESPN public scoreboard (espn_scoreboard registry entry, scripts/nfl/capture-nfl-schedule.mjs), rendered on /sports through the Release A contract with zero quarantine (guard: lib/sports/upcoming/adapters.test.mjs). PARTIAL not PROVEN: one manual capture is not a daily cadence" },
     },
   },
 

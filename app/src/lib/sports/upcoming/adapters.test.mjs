@@ -58,11 +58,25 @@ test("EPL disk truth today: sample-only fixtures dir → unconfigured verdict wi
   assert.equal(out.events.length, 0);
 });
 
-test("NFL: no source configured — the blocker is the receipt, not an empty calendar", () => {
-  const out = nflUpcoming();
+test("NFL without a capture: the blocker is the receipt, not an empty calendar", () => {
+  const out = nflUpcoming({ nowIso: NOW, capture: { rows: [] } });
   assert.equal(out.sourceVerdict.configured, false);
-  assert.match(out.sourceVerdict.blocker, /No NFL schedule source is configured/);
+  assert.match(out.sourceVerdict.blocker, /No NFL schedule capture exists/);
   assert.equal(out.events.length, 0);
+});
+
+test("NFL disk truth: the committed ESPN capture flows through the contract — real events, zero quarantine", () => {
+  const out = nflUpcoming({ nowIso: "2026-08-09T22:15:00Z" });
+  assert.equal(out.sourceVerdict.configured, true);
+  assert.equal(out.sourceVerdict.sourceId, "espn_scoreboard");
+  assert.ok(out.events.length >= 10, `expected the preseason window's events, got ${out.events.length}`);
+  assert.equal(out.quarantined.length, 0, JSON.stringify(out.quarantined.slice(0, 2)));
+  for (const e of out.events) {
+    assert.equal(validateEvent(e).ok, true);
+    assert.equal(e.status, "SCHEDULED", "ESPN STATUS_SCHEDULED must normalize through the closed taxonomy");
+    assert.match(e.canonicalEventId, /^nfl:nfl:\d{4}-\d{2}-\d{2}:\d+$/, "identity carries ESPN's own event id");
+  }
+  assert.match(out.seasonContext, /preseason/, "seasonType 1 must label itself preseason, never imply the regular season");
 });
 
 test("NBA: past probe events are filtered, future ones validate, staleness is stated", () => {

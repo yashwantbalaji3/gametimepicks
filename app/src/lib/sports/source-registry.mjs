@@ -66,6 +66,16 @@ export const SOURCES = Object.freeze({
     roles: ["identity-assets", "schedule-candidate", "results-history"],
     failureBehavior: "rate-limited free tier; adapters must treat empty responses as SOURCE_STALE, never as an empty slate; season-window refusals are PLAN blockers, not outages",
   },
+  espn_scoreboard: {
+    owner: "AUTOMATION",
+    cost: "free",
+    credentials: "none",
+    terms: "site.api.espn.com public scoreboard JSON, no key; point-in-time snapshots with attribution — the same usage class as the retired event hub's hand-verified ESPN snapshots. First capture: NFL preseason week, Program 148 (16 events, scripts/nfl/capture-nfl-schedule.mjs)",
+    authorization: "PUBLIC_DISPLAY",
+    sports: ["nfl"],
+    roles: ["schedule-candidate", "results-candidate"],
+    failureBehavior: "capture script refuses zero-event windows (an empty capture would render as an empty slate); adapter treats a missing capture as NO SOURCE, a stale one as STALE — never as no games",
+  },
   openfootball: {
     owner: "AUTOMATION",
     cost: "free",

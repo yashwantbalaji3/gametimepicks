@@ -106,16 +106,53 @@ export function eplUpcoming({ nowIso, artifact }) {
   };
 }
 
-/** NFL — nothing exists, and the page says exactly that. */
-export function nflUpcoming() {
+/**
+ * NFL — ESPN public-scoreboard captures (scripts/nfl/capture-nfl-schedule.mjs). A missing capture
+ * renders the honest no-source state; a stale one says it is stale. `capture` injects for tests.
+ */
+export function nflUpcoming({ nowIso, capture: captureOverride } = {}) {
+  const capture = captureOverride ?? readJson("nfl", "schedule", "latest.json");
+  if (!capture?.rows?.length) {
+    return {
+      sport: "nfl", competitionLabel: "NFL", seasonContext: "2026 preseason window",
+      coverage: "SCHEDULE_ONLY",
+      sourceVerdict: {
+        sourceId: null, configured: false, fetchedAt: null, freshness: "UNKNOWN",
+        blocker: "No NFL schedule capture exists. The capture script (ESPN public scoreboard, no key) is the receipt path; run it to publish the window.",
+      },
+      events: [], quarantined: [],
+    };
+  }
+  const quarantined = [];
+  const seasonLabel = { 1: "2026 preseason", 2: "2026 regular season", 3: "2026-27 postseason" };
+  const events = capture.rows
+    .filter((r) => Date.parse(r.dateUtc) > Date.parse(nowIso))
+    .map((r) => toEvent(() => ({
+      schemaVersion: SCHEDULE_CONTRACT_VERSION,
+      sport: "nfl", competition: "nfl", season: "2026",
+      providerEventId: String(r.providerEventId),
+      canonicalEventId: canonicalEventId({ sport: "nfl", competition: "nfl", dateEt: dateEtOf(r.dateUtc), providerEventId: String(r.providerEventId) }),
+      scheduledStartUtc: r.dateUtc,
+      // ESPN's "STATUS_SCHEDULED" style → the closed taxonomy via the nfl map; unmapped → UNKNOWN.
+      status: normalizeEventStatus("nfl", String(r.statusRaw ?? "").replace(/^status_/i, "").toLowerCase()),
+      competitors: { home: { id: r.home?.abbr ?? r.home?.name, name: r.home?.name }, away: { id: r.away?.abbr ?? r.away?.name, name: r.away?.name } },
+      venue: r.venue ?? null,
+      fetchedAt: capture.generatedAt, sourceAsOf: capture.generatedAt,
+      provenance: `nfl/schedule/latest.json (${capture.source?.name ?? "committed capture"})`,
+    }), quarantined))
+    .filter(Boolean)
+    .filter((e) => e.status !== "UNKNOWN");
+  const types = [...new Set(capture.rows.map((r) => r.seasonType))];
   return {
-    sport: "nfl", competitionLabel: "NFL", seasonContext: "2026 preseason window",
+    sport: "nfl", competitionLabel: "NFL",
+    seasonContext: types.length === 1 ? (seasonLabel[types[0]] ?? "2026 season") : "2026 season",
     coverage: "SCHEDULE_ONLY",
     sourceVerdict: {
-      sourceId: null, configured: false, fetchedAt: null, freshness: "UNKNOWN",
-      blocker: "No NFL schedule source is configured — no artifact of any kind exists. The schedule adapter is contract-ready; ingesting an approved free source is the first NFL receipt (sequenced after EPL per the roadmap).",
+      sourceId: "espn_scoreboard", configured: true, fetchedAt: capture.generatedAt,
+      freshness: classifySnapshotFreshness({ fetchedAt: capture.generatedAt, nowIso, freshWindowHours: 7 * 24 }),
+      blocker: null,
     },
-    events: [], quarantined: [],
+    events, quarantined,
   };
 }
 
@@ -165,5 +202,5 @@ export function ufcUpcoming() {
 
 /** All four, in display order — the single entry point the page and the discovery strip use. */
 export function allUpcoming({ nowIso }) {
-  return [eplUpcoming({ nowIso }), nflUpcoming(), nbaUpcoming({ nowIso }), ufcUpcoming()];
+  return [eplUpcoming({ nowIso }), nflUpcoming({ nowIso }), nbaUpcoming({ nowIso }), ufcUpcoming()];
 }
