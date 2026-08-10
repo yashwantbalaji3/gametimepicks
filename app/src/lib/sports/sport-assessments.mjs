@@ -42,7 +42,7 @@ export const SPORT_ASSESSMENTS = {
     inSeason: false,
     historicalArchive: true,
     stages: {
-      schedule: { status: "PARTIAL", evidence: "Program 062-065 adapter is HISTORICAL_ONLY (balldontlie tests fail pre-existing); Release B (Program 148) adds the contract-satisfying upcoming adapter + /sports destination that renders the June probe as STALE + off-season in words" },
+      schedule: { status: "PARTIAL", evidence: "Program 150: FRESH capture of the 42 confirmed 2026-27 events (preseason, 3 neutral-site) from the ESPN public scoreboard, rendered on /sports as a stated partial calendar — never the season (guard: lib/sports/upcoming/adapters.test.mjs). The stale June probe is display-retired. PARTIAL: no cadence yet, full-season publication pending" },
       identity: { status: "PARTIAL", evidence: "ESPN athlete ids resolve through PlayerAvatar; team coverage unverified for a full slate" },
       settlement: { status: "PARTIAL", evidence: "the settled archive was graded from official results; no repeatable forward pipeline" },
       calibration: { status: "BLOCKED_EXTERNAL", blocker: "MLB stopping rule (Program 058-061): model R&D suspended after w=0 three times — a new sport model needs the same preregistered bar and a founder decision to invest" },
@@ -61,10 +61,10 @@ export const SPORT_ASSESSMENTS = {
   },
 
   ufc: {
-    inSeason: false,             // no covered event scheduled
+    inSeason: true,              // forward cards captured (P150) — next event Aug 11
     historicalArchive: true,
     stages: {
-      schedule: { status: "PARTIAL", evidence: "Release B (Program 148): /sports destination renders the honest no-forward-source state; the settled archive is guard-blocked from ever rendering as an upcoming event (lib/sports/upcoming/adapters.test.mjs)" },
+      schedule: { status: "PARTIAL", evidence: "Program 150: FIRST FORWARD CAPTURE — 16 cards / 82 named bouts (ESPN MMA scoreboard), bouts rendered through the contract red/blue scheme with card context; settled archive stays a separate store, guard-blocked from rendering as upcoming (lib/sports/upcoming/adapters.test.mjs). PARTIAL: no cadence, replacement/cancellation lineage unexercised" },
       identity: { status: "PARTIAL", evidence: "boutId join made rematch-safe (Program 058-061) after the unsound join finding" },
       settlement: { status: "PARTIAL", evidence: "ONE card settled from official results (2026-06-15); not a repeatable pipeline" },
       model: { status: "UNPROVEN", blocker: "no fight model exists; UFC has never published a prediction" },

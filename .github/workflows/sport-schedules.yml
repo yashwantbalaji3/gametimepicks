@@ -42,6 +42,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      # tsx is needed ONLY by the EPL capture (it imports the lane's TypeScript identity/validation
+      # modules directly — the design that keeps captures from drifting from enforcement).
+      - name: Install dev toolchain for the EPL capture
+        working-directory: app
+        run: npm ci
 
       - name: Capture NFL schedule window (ESPN public scoreboard, no key, no credits)
         id: nfl
@@ -62,29 +70,117 @@ jobs:
           fi
           echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
 
-      - name: Commit if the schedule itself changed
-        if: github.event.inputs.dry_run != 'true' && steps.nfl.outputs.state == 'CAPTURED'
+      - name: Capture NBA confirmed events (same source class, no key, no credits)
+        id: nba
+        working-directory: app
+        run: |
+          set -uo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          OUT=$(node scripts/nba/capture-nba-schedule.mjs --now "$NOW" --days 70 2>&1) && CODE=0 || CODE=$?
+          echo "$OUT"
+          if [ "$CODE" -ne 0 ]; then
+            if echo "$OUT" | grep -q "zero usable events"; then
+              echo "state=NO_EVENTS" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"; exit "$CODE"
+          fi
+          echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+
+      - name: Capture UFC forward cards and bouts (same source class, no key, no credits)
+        id: ufc
+        working-directory: app
+        run: |
+          set -uo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          OUT=$(node scripts/ufc/capture-ufc-events.mjs --now "$NOW" --days 60 2>&1) && CODE=0 || CODE=$?
+          echo "$OUT"
+          if [ "$CODE" -ne 0 ]; then
+            if echo "$OUT" | grep -q "zero usable events"; then
+              echo "state=NO_EVENTS" >> "$GITHUB_OUTPUT"; exit 0
+            fi
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"; exit "$CODE"
+          fi
+          echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+
+      - name: Capture EPL fixtures (openfootball public domain; snapshot-per-capture semantics)
+        id: epl
+        working-directory: app
+        run: |
+          set -uo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          TXT="$(mktemp)"
+          if ! curl -sf --max-time 60 "https://raw.githubusercontent.com/openfootball/england/master/2026-27/1-premierleague.txt" -o "$TXT"; then
+            echo "state=SOURCE_UNAVAILABLE" >> "$GITHUB_OUTPUT"
+            echo "openfootball fetch failed — SOURCE_STALE, not an empty slate; the committed capture stands"
+            exit 0
+          fi
+          OUT=$(npx tsx scripts/epl/capture-epl-fixtures.mjs --now "$NOW" --from "$TXT" 2>&1) && CODE=0 || CODE=$?
+          echo "$OUT"
+          if [ "$CODE" -ne 0 ]; then
+            # A refusal (partial parse, unresolved club, wrong count) means the SOURCE moved under
+            # us — surface it as a failure so the run is red and the reason is in the log.
+            echo "state=REFUSED" >> "$GITHUB_OUTPUT"
+            exit "$CODE"
+          fi
+          # Snapshot-per-capture: the script wrote a new dated file. Keep it ONLY if the fixture
+          # content differs from the newest committed capture (stamps stripped); otherwise delete
+          # it — an identical snapshot adds no information and the dir rule is one file per REAL
+          # capture, not one per cron firing.
+          node -e "
+            const fs = require('fs'), path = require('path');
+            const dir = 'public/data/soccer/epl/fixtures';
+            const caps = fs.readdirSync(dir).filter(f => f.startsWith('capture-')).sort();
+            if (caps.length < 2) process.exit(0);
+            const strip = (f) => { const o = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+              delete o.generatedAt; delete o.sourceAsOf;
+              if (o.membershipVerification) delete o.membershipVerification.verifiedAt;
+              o.rows = o.rows.map(r => { const { capturedAt, ...rest } = r; return rest; });
+              return JSON.stringify(o); };
+            const [prev, curr] = caps.slice(-2);
+            if (strip(prev) === strip(curr)) { fs.unlinkSync(path.join(dir, curr)); console.log('unchanged — new snapshot discarded'); }
+            else console.log('fixture content changed — new snapshot kept: ' + curr);
+          "
+          echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+
+      - name: Commit whichever schedules actually changed
+        if: github.event.inputs.dry_run != 'true'
         run: |
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add app/public/data/nfl/schedule/
+          # Per-sport content-idempotency: strip run stamps; keep a sport's files staged only when
+          # its schedule content moved. Dated capture files ride along with their latest.json.
+          KEEP=""
+          for SPORT in nfl nba ufc; do
+            DIR="app/public/data/$SPORT/schedule"
+            [ -f "$DIR/latest.json" ] || continue
+            if node -e "
+              const { execSync } = require('child_process');
+              const strip = (j) => { const o = JSON.parse(j); delete o.generatedAt; delete o.windowDays;
+                for (const k of ['rows','events','bouts']) if (o[k]) o[k] = o[k].map(r => { const { capturedAt, ...rest } = r; return rest; });
+                if (o.source) delete o.source.url; return JSON.stringify(o); };
+              const f = '$DIR/latest.json';
+              let head; try { head = execSync('git show HEAD:' + f, { encoding: 'utf8' }); } catch { process.exit(1); }
+              process.exit(strip(head) === strip(require('fs').readFileSync(f, 'utf8')) ? 0 : 1);
+            "; then
+              echo "$SPORT: only capture stamps moved — unchanged"
+              git checkout -q -- "$DIR" 2>/dev/null || true
+              git clean -q -f "$DIR" 2>/dev/null || true
+            else
+              git add "$DIR"
+              KEEP="$KEEP $SPORT"
+            fi
+          done
+          # EPL uses snapshot-per-capture semantics: its step already deleted an unchanged
+          # snapshot, so anything still untracked here is a REAL new capture.
+          git add app/public/data/soccer/epl/fixtures/ 2>/dev/null || true
+          if ! git diff --cached --quiet -- app/public/data/soccer/epl/fixtures/ 2>/dev/null; then
+            KEEP="$KEEP epl"
+          fi
           if git diff --cached --quiet; then
-            echo "no change"
+            echo "no schedule content changed — nothing to publish"
             exit 0
           fi
-          # Content-idempotent: strip the run stamps; commit only when events/statuses moved.
-          if node -e "
-            const { execSync } = require('child_process');
-            const strip = (j) => { const o = JSON.parse(j); delete o.generatedAt; o.rows = (o.rows||[]).map(r => { const { capturedAt, ...rest } = r; return rest; }); return JSON.stringify(o); };
-            const f = 'app/public/data/nfl/schedule/latest.json';
-            let head; try { head = execSync('git show HEAD:' + f, { encoding: 'utf8' }); } catch { process.exit(1); }
-            process.exit(strip(head) === strip(require('fs').readFileSync(f, 'utf8')) ? 0 : 1);
-          "; then
-            echo "only capture stamps moved — the schedule is unchanged, nothing to publish"
-            git reset
-            exit 0
-          fi
-          git commit -m "auto: nfl schedule capture [skip ci]"
+          git commit -m "auto: schedule capture:$KEEP [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main

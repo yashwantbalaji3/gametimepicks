@@ -164,51 +164,118 @@ export function nflUpcoming({ nowIso, capture: captureOverride } = {}) {
   };
 }
 
-/** NBA — one authorized market probe exists (2026-06-10); it is stale and the league is off-season. */
-export function nbaUpcoming({ nowIso, probe: probeOverride }) {
-  const probe = probeOverride ?? readJson("nba", "market-probe-latest.json");
+/**
+ * NBA — ESPN public-scoreboard captures (scripts/nba/capture-nba-schedule.mjs). Only genuinely
+ * published events exist in the artifact, and the section says so: a partial official calendar
+ * renders as partial, never as the season. The stale June market probe stopped being a display
+ * source 2026-08-09 (the probe file stays on disk as research history).
+ */
+export function nbaUpcoming({ nowIso, capture: captureOverride } = {}) {
+  const capture = captureOverride ?? readJson("nba", "schedule", "latest.json");
+  if (!capture?.rows?.length) {
+    return {
+      sport: "nba", competitionLabel: "NBA", seasonContext: "off-season — 2026-27 schedule not yet published",
+      coverage: "OFF_SEASON",
+      sourceVerdict: {
+        sourceId: null, configured: false, fetchedAt: null, freshness: "UNKNOWN",
+        blocker: "No NBA schedule capture exists. The capture script (ESPN public scoreboard, no key) publishes confirmed events as the league releases them.",
+      },
+      events: [], quarantined: [],
+    };
+  }
   const quarantined = [];
-  const stale = probe ? classifySnapshotFreshness({ fetchedAt: probe.generatedAt, nowIso, freshWindowHours: 48 }) : "UNKNOWN";
-  const upcoming = (probe?.events ?? [])
-    .filter((e) => Date.parse(e.commence) > Date.parse(nowIso))
-    .map((e) => toEvent(() => ({
+  const events = capture.rows
+    .filter((r) => Date.parse(r.dateUtc) > Date.parse(nowIso))
+    .map((r) => toEvent(() => ({
       schemaVersion: SCHEDULE_CONTRACT_VERSION,
       sport: "nba", competition: "nba", season: "2026-27",
-      providerEventId: String(e.id),
-      canonicalEventId: canonicalEventId({ sport: "nba", competition: "nba", dateEt: dateEtOf(e.commence), providerEventId: String(e.id) }),
-      scheduledStartUtc: e.commence,
-      status: "SCHEDULED",
-      competitors: { home: { id: e.home, name: e.home }, away: { id: e.away, name: e.away } },
-      fetchedAt: probe.generatedAt, sourceAsOf: probe.generatedAt,
-      provenance: "nba/market-probe-latest.json (Odds API probe — authorized source, probe cadence only)",
-    }), quarantined)).filter(Boolean);
-
+      providerEventId: String(r.providerEventId),
+      canonicalEventId: canonicalEventId({ sport: "nba", competition: "nba", dateEt: dateEtOf(r.dateUtc), providerEventId: String(r.providerEventId) }),
+      scheduledStartUtc: r.dateUtc,
+      status: normalizeEventStatus("nba", String(r.statusRaw ?? "").replace(/^status_/i, "").toLowerCase()),
+      competitors: { home: { id: r.home?.abbr ?? r.home?.name, name: r.home?.name }, away: { id: r.away?.abbr ?? r.away?.name, name: r.away?.name } },
+      venue: r.neutralSite && r.venue ? `${r.venue} (neutral site)` : r.venue ?? null,
+      fetchedAt: capture.generatedAt, sourceAsOf: capture.generatedAt,
+      provenance: `nba/schedule/latest.json (${capture.source?.name ?? "committed capture"})`,
+    }), quarantined))
+    .filter(Boolean)
+    .filter((e) => e.status !== "UNKNOWN")
+    .sort((a, b) => a.scheduledStartUtc.localeCompare(b.scheduledStartUtc));
+  const DISPLAY_CAP = 12;
+  const firstDate = events[0] ? dateEtOf(events[0].scheduledStartUtc) : null;
   return {
-    sport: "nba", competitionLabel: "NBA", seasonContext: "off-season — 2026-27 schedule not yet published",
-    coverage: "OFF_SEASON",
+    sport: "nba", competitionLabel: "NBA",
+    seasonContext: `2026-27 — confirmed events only (full schedule not yet published)${firstDate ? `; first game ${firstDate}` : ""}`,
+    coverage: "SCHEDULE_ONLY",
     sourceVerdict: {
-      sourceId: "odds_api", configured: true, fetchedAt: probe?.generatedAt ?? null, freshness: stale,
-      blocker: stale === "FRESH" ? null : "The only NBA capture is a June market probe — stale by design during the off-season; a schedule cadence starts with the 2026-27 schedule publication.",
+      sourceId: "espn_scoreboard", configured: true, fetchedAt: capture.generatedAt,
+      freshness: classifySnapshotFreshness({ fetchedAt: capture.generatedAt, nowIso, freshWindowHours: 7 * 24 }),
+      blocker: null,
     },
-    events: upcoming, quarantined,
+    events: events.slice(0, DISPLAY_CAP),
+    totals: { captured: capture.rows.length, upcoming: events.length, shown: Math.min(DISPLAY_CAP, events.length) },
+    quarantined,
   };
 }
 
-/** UFC — forward pipeline: the settled archive is a RESULT and never renders as upcoming. */
-export function ufcUpcoming() {
-  const archive = readJson("ufc", "expanded-projections-latest.json");
+/**
+ * UFC — forward cards + bouts from the ESPN MMA capture (scripts/ufc/capture-ufc-events.mjs).
+ * Contract events are BOUTS (red/blue is the contract's own UFC scheme); each carries its parent
+ * card's name as display context. The settled archive remains a separate RESULT store and is
+ * never rendered as upcoming — that separation is guard-pinned.
+ */
+export function ufcUpcoming({ nowIso, capture: captureOverride } = {}) {
+  const capture = captureOverride ?? readJson("ufc", "schedule", "latest.json");
+  if (!capture?.bouts?.length) {
+    const archive = readJson("ufc", "expanded-projections-latest.json");
+    return {
+      sport: "ufc", competitionLabel: "UFC", seasonContext: "next event not yet in our data",
+      coverage: "SCHEDULE_ONLY",
+      sourceVerdict: {
+        sourceId: null, configured: false, fetchedAt: null, freshness: "UNKNOWN",
+        blocker: `No forward UFC capture exists. The settled archive (${archive?.eventName ?? "one card"}, ${String(archive?.eventDate ?? "").slice(0, 10)}) is preserved separately as a result and is deliberately NOT shown here as an upcoming event.`,
+      },
+      events: [], quarantined: [],
+    };
+  }
+  const quarantined = [];
+  const cardName = Object.fromEntries((capture.events ?? []).map((e) => [e.providerEventId, e.name]));
+  const cardVenue = Object.fromEntries((capture.events ?? []).map((e) => [e.providerEventId, e.venue]));
+  const events = capture.bouts
+    .filter((b) => Date.parse(b.dateUtc) > Date.parse(nowIso))
+    .map((b) => toEvent(() => ({
+      schemaVersion: SCHEDULE_CONTRACT_VERSION,
+      sport: "ufc", competition: "ufc", season: "2026",
+      providerEventId: String(b.providerBoutId),
+      canonicalEventId: canonicalEventId({ sport: "ufc", competition: "ufc", dateEt: dateEtOf(b.dateUtc), providerEventId: String(b.providerBoutId) }),
+      scheduledStartUtc: b.dateUtc,
+      status: normalizeEventStatus("ufc", String(b.statusRaw ?? "").replace(/^status_/i, "").toLowerCase()),
+      competitors: { red: { id: b.redProviderId ?? b.red, name: b.red }, blue: { id: b.blueProviderId ?? b.blue, name: b.blue } },
+      venue: cardVenue[b.eventProviderId] ?? null,
+      context: [cardName[b.eventProviderId], b.weightClass].filter(Boolean).join(" · ") || null,
+      fetchedAt: capture.generatedAt, sourceAsOf: capture.generatedAt,
+      provenance: `ufc/schedule/latest.json (${capture.source?.name ?? "committed capture"})`,
+    }), quarantined))
+    .filter(Boolean)
+    .filter((e) => e.status !== "UNKNOWN")
+    .sort((a, b) => a.scheduledStartUtc.localeCompare(b.scheduledStartUtc));
+  const DISPLAY_CAP = 12;
   return {
-    sport: "ufc", competitionLabel: "UFC", seasonContext: "next event not yet in our data",
+    sport: "ufc", competitionLabel: "UFC",
+    seasonContext: `${(capture.events ?? []).length} cards captured in the ${capture.windowDays}-day window`,
     coverage: "SCHEDULE_ONLY",
     sourceVerdict: {
-      sourceId: null, configured: false, fetchedAt: null, freshness: "UNKNOWN",
-      blocker: `No forward UFC event source is configured. The settled archive (${archive?.eventName ?? "one card"}, ${String(archive?.eventDate ?? "").slice(0, 10)}) is preserved separately as a result and is deliberately NOT shown here as an upcoming event.`,
+      sourceId: "espn_scoreboard", configured: true, fetchedAt: capture.generatedAt,
+      freshness: classifySnapshotFreshness({ fetchedAt: capture.generatedAt, nowIso, freshWindowHours: 7 * 24 }),
+      blocker: null,
     },
-    events: [], quarantined: [],
+    events: events.slice(0, DISPLAY_CAP),
+    totals: { captured: capture.bouts.length, upcoming: events.length, shown: Math.min(DISPLAY_CAP, events.length) },
+    quarantined,
   };
 }
 
 /** All four, in display order — the single entry point the page and the discovery strip use. */
 export function allUpcoming({ nowIso }) {
-  return [eplUpcoming({ nowIso }), nflUpcoming({ nowIso }), nbaUpcoming({ nowIso }), ufcUpcoming()];
+  return [eplUpcoming({ nowIso }), nflUpcoming({ nowIso }), nbaUpcoming({ nowIso }), ufcUpcoming({ nowIso })];
 }

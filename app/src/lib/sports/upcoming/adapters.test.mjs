@@ -85,27 +85,48 @@ test("NFL disk truth: the committed ESPN capture flows through the contract — 
   assert.match(out.seasonContext, /preseason/, "seasonType 1 must label itself preseason, never imply the regular season");
 });
 
-test("NBA: past probe events are filtered, future ones validate, staleness is stated", () => {
-  const probe = {
-    generatedAt: "2026-06-10T00:00:00Z",
-    events: [
-      { id: "ev-past", home: "Celtics", away: "Knicks", commence: "2026-06-12T23:00:00Z" },
-      { id: "ev-future", home: "Celtics", away: "Knicks", commence: "2026-10-20T23:00:00Z" },
-    ],
-  };
-  const out = nbaUpcoming({ nowIso: NOW, probe });
-  assert.equal(out.events.length, 1, "June games are in the past at an August build — only the future event remains");
-  assert.equal(validateEvent(out.events[0]).ok, true);
-  assert.equal(out.sourceVerdict.freshness, "STALE");
-  assert.match(out.sourceVerdict.blocker, /stale/i, "a stale probe says so in words");
-  assert.equal(out.coverage, "OFF_SEASON");
+test("NBA disk truth: confirmed 2026-27 events render as PARTIAL-calendar truth, never as the season", () => {
+  const out = nbaUpcoming({ nowIso: NOW });
+  assert.equal(out.sourceVerdict.configured, true);
+  assert.equal(out.sourceVerdict.sourceId, "espn_scoreboard");
+  assert.equal(out.coverage, "SCHEDULE_ONLY");
+  assert.match(out.seasonContext, /confirmed events only/, "a partial official calendar must say it is partial");
+  assert.ok(out.totals.captured >= 40, `expected the confirmed preseason slate, got ${out.totals.captured}`);
+  assert.ok(out.events.length > 0 && out.events.length <= 12);
+  assert.equal(out.quarantined.length, 0, JSON.stringify(out.quarantined.slice(0, 2)));
+  for (const e of out.events) {
+    assert.equal(validateEvent(e).ok, true);
+    assert.equal(e.status, "SCHEDULED");
+  }
 });
 
-test("UFC: the settled archive NEVER renders as an upcoming event", () => {
-  const out = ufcUpcoming();
+test("NBA without a capture: honest off-season state, no stale-probe resurrection", () => {
+  const out = nbaUpcoming({ nowIso: NOW, capture: { rows: [] } });
+  assert.equal(out.sourceVerdict.configured, false);
+  assert.equal(out.coverage, "OFF_SEASON");
+  assert.match(out.sourceVerdict.blocker, /No NBA schedule capture exists/);
+  assert.equal(out.events.length, 0);
+});
+
+test("UFC disk truth: forward BOUTS validate through the red/blue scheme with their card as context", () => {
+  const out = ufcUpcoming({ nowIso: NOW });
+  assert.equal(out.sourceVerdict.configured, true);
+  assert.equal(out.sourceVerdict.sourceId, "espn_scoreboard");
+  assert.ok(out.totals.captured >= 50, `expected the forward bout list, got ${out.totals.captured}`);
+  assert.ok(out.events.length > 0 && out.events.length <= 12);
+  assert.equal(out.quarantined.length, 0, JSON.stringify(out.quarantined.slice(0, 2)));
+  for (const e of out.events) {
+    assert.equal(validateEvent(e).ok, true);
+    assert.ok(e.competitors.red?.name && e.competitors.blue?.name, "bouts use the contract's red/blue scheme");
+    assert.ok(e.context, "every bout names its parent card");
+  }
+});
+
+test("UFC without a capture: the settled archive NEVER renders as an upcoming event", () => {
+  const out = ufcUpcoming({ nowIso: NOW, capture: { bouts: [] } });
   assert.equal(out.events.length, 0);
   assert.match(out.sourceVerdict.blocker, /NOT shown here as an upcoming event/);
-  assert.match(out.sourceVerdict.blocker, /No forward UFC event source/);
+  assert.match(out.sourceVerdict.blocker, /No forward UFC capture exists/);
 });
 
 test("allUpcoming: four sports, fixed order, coverage values from the closed axis only", () => {

@@ -27,6 +27,8 @@ export interface UpcomingEvent {
   status: string;
   competitors: { home?: { name?: string; id?: string }; away?: { name?: string; id?: string }; red?: { name?: string; id?: string }; blue?: { name?: string; id?: string } };
   venue?: string | null;
+  /** Display context beyond the matchup — e.g. a UFC bout's parent card + weight class. */
+  context?: string | null;
 }
 
 export interface SportSchedule {
@@ -92,7 +94,7 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
 
       {s.totals && s.totals.upcoming > s.totals.shown ? (
         <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--text-mute)" }}>
-          Showing the next {s.totals.shown} of {s.totals.upcoming} upcoming fixtures ({s.totals.captured} captured for the season).
+          Showing the next {s.totals.shown} of {s.totals.upcoming} upcoming events ({s.totals.captured} in this capture).
         </p>
       ) : null}
 
@@ -104,6 +106,7 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
               <span style={{ fontSize: 12.5, color: "var(--text-mute)" }}>{etDateTime(e.scheduledStartUtc)}</span>
               {e.status !== "SCHEDULED" ? <span style={{ fontSize: 11, color: "var(--text-mute)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{e.status.toLowerCase()}</span> : null}
               {e.venue ? <span style={{ fontSize: 12, color: "var(--text-mute)" }}>{e.venue}</span> : null}
+              {e.context ? <span style={{ fontSize: 11.5, color: "var(--text-mute)", fontStyle: "italic" }}>{e.context}</span> : null}
             </li>
           ))}
         </ul>
