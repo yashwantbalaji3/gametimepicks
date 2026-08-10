@@ -20,7 +20,10 @@ import crypto from "node:crypto";
 import { EPL_ARTIFACT_ROOT, EPL_ARTIFACT_SUBROOTS } from "./epl-artifacts.ts";
 
 const APP = process.cwd();
-const LANE_DIRS = ["src/lib/soccer", "src/app/preview/epl"];
+// src/lib/sports/research joined in Program 149: the shared replay harness uses the EPL Poisson
+// module as its reference sport adapter — a deliberate research-lane consumer, not a World Cup
+// surface. The guard's purpose (no closed WC-era surface reads EPL artifacts) is unchanged.
+const LANE_DIRS = ["src/lib/soccer", "src/app/preview/epl", "src/lib/sports/research"];
 
 /** Every source file this lane owns. */
 function laneFiles() {
@@ -109,14 +112,21 @@ test("the preview route is internal: guarded in source AND pruned from the expor
   assert.match(list[1], /"preview"/, "the prune list must cover /preview, which contains this route");
 });
 
-test("committed EPL artifacts declare public:false, so the data sweep removes them from out/", () => {
-  // `sweepInternalData` in prune-internal-routes.mjs deletes any out/data JSON with a top-level
-  // `public: false`. Sample artifacts must never be served at their raw URL.
+test("committed EPL artifacts: samples stay non-public; only a membership-verified capture may be public", () => {
+  // `sweepInternalData` deletes any out/data JSON with `public: false`, so samples are never served
+  // raw. Program 149 added the first REAL capture: it may declare public:true ONLY as a
+  // FIXTURE_CAPTURE carrying its membershipVerification receipt — display-eligible public-domain
+  // schedule data. Anything else claiming public is still a defect.
   for (const subroot of ["fixtures", "odds"]) {
     const dir = path.join(APP, EPL_ARTIFACT_ROOT, subroot);
     for (const name of fs.readdirSync(dir).filter((f) => f.endsWith(".json"))) {
       const data = JSON.parse(read(path.join(dir, name)));
-      assert.equal(data.public, false, `${subroot}/${name}`);
+      if (data.public === true) {
+        assert.equal(data.dataClass, "FIXTURE_CAPTURE", `${subroot}/${name}: only a real capture may be public`);
+        assert.ok(data.membershipVerification?.sources?.length >= 2, `${subroot}/${name}: public capture requires the dual-source membership receipt`);
+      } else {
+        assert.equal(data.public, false, `${subroot}/${name}`);
+      }
     }
   }
 });
