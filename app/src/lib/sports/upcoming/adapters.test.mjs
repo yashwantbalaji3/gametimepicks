@@ -51,11 +51,17 @@ test("EPL event path: a row that cannot satisfy the contract QUARANTINES instead
   assert.equal(out.events.length, 0, "an identity-less row must not reach the page");
 });
 
-test("EPL disk truth today: sample-only fixtures dir → unconfigured verdict with the sample named", () => {
+test("EPL disk truth: the committed 2026-27 capture renders a bounded upcoming window, never a silent truncation", () => {
   const out = eplUpcoming({ nowIso: NOW });
-  assert.equal(out.sourceVerdict.configured, false);
-  assert.match(out.sourceVerdict.blocker, /sample only/, "the blocker states the exact disk truth");
-  assert.equal(out.events.length, 0);
+  assert.equal(out.sourceVerdict.configured, true);
+  assert.equal(out.sourceVerdict.sourceId, "openfootball");
+  assert.equal(out.totals.captured, 380, "the full season is captured");
+  assert.equal(out.totals.upcoming, 380, "nothing has kicked off yet at an Aug-9 clock");
+  assert.equal(out.events.length, out.totals.shown, "shown count matches the events actually rendered");
+  assert.ok(out.events.length > 0 && out.events.length <= 12, "the page shows a bounded window");
+  assert.equal(out.quarantined.length, 0);
+  for (const e of out.events) assert.equal(validateEvent(e).ok, true);
+  assert.equal(out.events[0].canonicalEventId.includes("coventry"), true, "opening night is Arsenal v Coventry — the promoted club renders through verified membership");
 });
 
 test("NFL without a capture: the blocker is the receipt, not an empty calendar", () => {

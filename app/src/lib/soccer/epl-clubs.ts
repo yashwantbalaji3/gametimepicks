@@ -45,7 +45,13 @@ export const EPL_CLUB_ALIASES: readonly EplClub[] = [
   },
   { canonical: "Burnley", abbr: "BUR", aliases: ["Burnley", "Burnley FC"] },
   { canonical: "Chelsea", abbr: "CHE", aliases: ["Chelsea", "Chelsea FC"] },
+  // 2026-27 promoted clubs — added ONLY after membership was verified across two independent
+  // sources on 2026-08-09: ESPN's eng.1 scoreboard lists the full opening round (COV @ ARS,
+  // MAN @ HUL, 20 distinct clubs) agreeing fixture-by-fixture with openfootball's 2026-27 file
+  // (kickoffs match across the BST offset). Receipts: docs/EPL_SOURCE_DECISION.md.
+  { canonical: "Coventry City", abbr: "COV", aliases: ["Coventry City", "Coventry"] },
   { canonical: "Crystal Palace", abbr: "CRY", aliases: ["Crystal Palace", "Palace"] },
+  { canonical: "Hull City", abbr: "HUL", aliases: ["Hull City", "Hull"] },
   { canonical: "Everton", abbr: "EVE", aliases: ["Everton", "Everton FC"] },
   { canonical: "Fulham", abbr: "FUL", aliases: ["Fulham", "Fulham FC"] },
   { canonical: "Ipswich Town", abbr: "IPS", aliases: ["Ipswich Town", "Ipswich"] },

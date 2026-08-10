@@ -72,7 +72,7 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "EPL 2026-27 club-membership verification + first real fixture capture: confirm promoted clubs against an authoritative source, extend EPL_CLUB_ALIASES deliberately, run the capture the corpus work left blocked (docs/EPL_SOURCE_DECISION.md)", department: "data-ingestion", sport: "epl", owner: "ENGINEERING", dependency: "membership source (paid api-football tier = FOUNDER; a second free authoritative source = ENGINEERING)", effort: "S", acceptance: "capture validates via validateFixtureArtifact with 20/20 clubs resolving; /sports EPL section renders real fixtures with source + capture time; quarantine receipt closed" },
+      { outcome: "NFL + EPL schedule capture CADENCE: wire both capture scripts into a scheduled workflow with locks, freshness and zero-paid-cost proof — one scheduled run plus one independent subsequent run is the minimum receipt", department: "automation", sport: "nfl", owner: "ENGINEERING", dependency: "capture scripts (shipped: scripts/nfl + scripts/epl)", effort: "M", acceptance: "workflow lands two green scheduled runs; schedule stages carry cadence receipts; no paid credits consumed" },
     ],
   },
   {

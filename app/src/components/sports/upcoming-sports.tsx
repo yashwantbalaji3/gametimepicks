@@ -36,6 +36,8 @@ export interface SportSchedule {
   coverage: string;
   sourceVerdict: { sourceId: string | null; configured: boolean; fetchedAt: string | null; freshness: string; blocker: string | null };
   events: UpcomingEvent[];
+  /** Present when the adapter windows a larger capture — rendered so truncation is never silent. */
+  totals?: { captured: number; upcoming: number; shown: number };
 }
 
 /** Registry source ids → public display names (a slug on a public page reads as a leak, not a label). */
@@ -88,6 +90,12 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
           : <>No approved schedule source is configured for this sport yet.</>}
       </p>
 
+      {s.totals && s.totals.upcoming > s.totals.shown ? (
+        <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--text-mute)" }}>
+          Showing the next {s.totals.shown} of {s.totals.upcoming} upcoming fixtures ({s.totals.captured} captured for the season).
+        </p>
+      ) : null}
+
       {s.events.length > 0 ? (
         <ul style={{ listStyle: "none", margin: "14px 0 0", padding: 0, display: "grid", gap: 10 }}>
           {s.events.map((e) => (
@@ -130,7 +138,7 @@ export function UpcomingSportsStrip({ sports }: { sports: SportSchedule[] }) {
     <nav aria-label="Upcoming sports schedules" style={{ display: "flex", flexWrap: "wrap", gap: "6px 18px", fontSize: 12.5 }}>
       {sports.map((s) => (
         <Link key={s.sport} href={`/sports/#${s.sport}`} style={{ color: "var(--text-mute)", textDecoration: "none", borderBottom: "1px dotted var(--vault-border-strong)" }}>
-          {s.competitionLabel}: {s.events.length > 0 ? `${s.events.length} upcoming` : "schedule not yet published"}
+          {s.competitionLabel}: {(s.totals?.upcoming ?? s.events.length) > 0 ? `${s.totals?.upcoming ?? s.events.length} upcoming` : "schedule not yet published"}
         </Link>
       ))}
     </nav>

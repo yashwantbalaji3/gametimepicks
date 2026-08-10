@@ -178,16 +178,27 @@ test("the preview copy makes no claim about a model, and states the no-model pos
 
 // ── the committed samples render ───────────────────────────────────────────────
 
-test("the committed sample artifacts load and build a preview", () => {
+test("the committed artifacts load and build a preview — samples AND the 2026-27 capture", () => {
   const artifacts = loadEplArtifacts();
-  assert.equal(artifacts.empty, false, "the samples must be readable from disk");
-  assert.deepEqual(artifacts.dataClasses, ["FIXTURE_SAMPLE"]);
+  assert.equal(artifacts.empty, false, "the artifacts must be readable from disk");
+  // Program 149: the first real capture joined the samples. Both classes, nothing else.
+  assert.deepEqual(artifacts.dataClasses, ["FIXTURE_CAPTURE", "FIXTURE_SAMPLE"]);
   assert.equal(artifacts.oddsValidations.every((v) => v.validation.clean), true);
   assert.equal(artifacts.fixtureValidations.every((v) => v.validation.clean), true);
 
-  const views = buildEplPreview({ fixtures: artifacts.fixtures, odds: artifacts.odds });
+  const allViews = buildEplPreview({ fixtures: artifacts.fixtures, odds: artifacts.odds });
+  assert.equal(allViews.length, 384, "4 sample fixtures + 380 captured fixtures, every one previewable");
+  assert.equal(findModelField(allViews), null);
+
+  // The sample-scenario assertions below run on the sample rows alone — the synthetic
+  // postponed/replayed pair is the schema demonstration, not part of the real season.
+  const sampleIds = new Set(
+    artifacts.fixtureValidations
+      .filter((v) => v.file.startsWith("sample-"))
+      .flatMap((v) => v.validation.accepted.map((r) => r.eventId)),
+  );
+  const views = allViews.filter((v) => sampleIds.has(v.eventId));
   assert.equal(views.length, 4);
-  assert.equal(findModelField(views), null);
 
   const states = views.map((v) => v.movement.state);
   assert.ok(states.includes("MULTI_CAPTURE"), "one sample fixture has two snapshots");

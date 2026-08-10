@@ -150,23 +150,35 @@ test("publication refuses an artifact with any rejected row", () => {
 
 // ── the committed sample artifacts ─────────────────────────────────────────────
 
-test("every committed EPL artifact validates clean and is marked non-public sample data", () => {
+test("every committed EPL artifact validates clean; samples stay non-public, captures carry membership receipts", () => {
+  // Program 149 landed the first REAL capture (dual-source-verified membership), so "everything is
+  // a sample" stopped being the truth. The invariant that survives: every artifact validates clean
+  // through its own lane validator, samples remain public:false and say SAMPLE, and a capture may
+  // exist only with dataClass FIXTURE_CAPTURE + a two-source membershipVerification receipt.
   const roots = { fixtures: validateFixtureArtifact, odds: validateOddsArtifact };
-  let seen = 0;
+  let samples = 0, captures = 0;
 
   for (const [subroot, validate] of Object.entries(roots)) {
     const dir = path.join(APP, EPL_ARTIFACT_ROOT, subroot);
     for (const name of fs.readdirSync(dir).filter((f) => f.endsWith(".json"))) {
-      seen += 1;
       const data = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8"));
       assert.equal(data.competition, "epl", name);
-      assert.equal(data.dataClass, "FIXTURE_SAMPLE", `${name} — nothing live exists yet`);
-      assert.equal(data.public, false, `${name} must be swept out of the deployed export`);
-      assert.match(data.notes ?? "", /SAMPLE/, `${name} must say what it is`);
+      if (data.dataClass === "FIXTURE_CAPTURE") {
+        captures += 1;
+        assert.equal(data.public, true, `${name}: a verified capture is display-eligible`);
+        assert.ok(data.membershipVerification?.sources?.length >= 2, `${name}: capture requires the dual-source membership receipt`);
+        assert.equal(data.rows.length, 380, `${name}: a Premier League season capture is exactly 380 fixtures`);
+      } else {
+        samples += 1;
+        assert.equal(data.dataClass, "FIXTURE_SAMPLE", `${name} — sample or verified capture, nothing else`);
+        assert.equal(data.public, false, `${name} must be swept out of the deployed export`);
+        assert.match(data.notes ?? "", /SAMPLE/, `${name} must say what it is`);
+      }
       assert.doesNotThrow(() => assertArtifactPublishable(validate(data), `${subroot}/${name}`));
     }
   }
-  assert.ok(seen >= 3, `expected committed samples, found ${seen}`);
+  assert.ok(samples >= 3, `expected committed samples, found ${samples}`);
+  assert.ok(captures >= 1, "the 2026-27 capture must be present");
 });
 
 test("results/ and settlement/ are empty — no approved source, so nothing was invented", () => {

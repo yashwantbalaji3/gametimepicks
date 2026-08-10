@@ -98,11 +98,19 @@ export function eplUpcoming({ nowIso, artifact }) {
     };
   }, quarantined)).filter(Boolean);
 
+  // A season capture holds 380 fixtures; the page shows a bounded upcoming window and SAYS SO —
+  // rendering the whole season would bury the near slate, and silently truncating would lie.
+  const DISPLAY_CAP = 12;
+  const upcoming = events
+    .filter((e) => Date.parse(e.scheduledStartUtc) > Date.parse(nowIso))
+    .sort((a, b) => a.scheduledStartUtc.localeCompare(b.scheduledStartUtc));
   return {
     sport: "epl", competitionLabel: "Premier League", seasonContext: newestReal.season ?? "2026–27",
     coverage: "SCHEDULE_ONLY",
-    sourceVerdict: { sourceId: "committed-fixture-capture", configured: true, fetchedAt: newestReal.generatedAt, freshness: classifySnapshotFreshness({ fetchedAt: newestReal.generatedAt, nowIso, freshWindowHours: 7 * 24 }), blocker: null },
-    events, quarantined,
+    sourceVerdict: { sourceId: "openfootball", configured: true, fetchedAt: newestReal.generatedAt, freshness: classifySnapshotFreshness({ fetchedAt: newestReal.generatedAt, nowIso, freshWindowHours: 7 * 24 }), blocker: null },
+    events: upcoming.slice(0, DISPLAY_CAP),
+    totals: { captured: events.length, upcoming: upcoming.length, shown: Math.min(DISPLAY_CAP, upcoming.length) },
+    quarantined,
   };
 }
 
