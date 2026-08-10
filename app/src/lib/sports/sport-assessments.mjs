@@ -43,7 +43,9 @@ export const SPORT_ASSESSMENTS = {
     inSeason: false,
     historicalArchive: true,
     stages: {
-      schedule: { status: "PARTIAL", evidence: "Program 150: FRESH capture of the 42 confirmed 2026-27 events (preseason, 3 neutral-site) from the ESPN public scoreboard, rendered on /sports as a stated partial calendar — never the season (guard: lib/sports/upcoming/adapters.test.mjs). The stale June probe is display-retired. PARTIAL: no cadence yet, full-season publication pending" },
+      schedule: { status: "PARTIAL", evidence: "Program 150: FRESH capture of the 42 confirmed 2026-27 events rendered as a stated partial calendar (guard: lib/sports/upcoming/adapters.test.mjs). Cadence receipt 1/2: scheduled run 31396780843 (Aug 10) captured all four sports with semantic idempotency proven live; receipt 2 earliest Aug 11 13:00 UTC" },
+      data: { status: "PARTIAL", evidence: "Program 152: private corpus — 4,179 finals across 2023-24/2024-25/2025-26 (1,230×3 regular EXACT, cup-final own phase, play-in 6×3, both All-Star formats quarantined, 28 counted keyless requests incl. the leap-day the exactly-1230 refusal caught; guard: lib/sports/research/nba-research.test.mjs). PARTIAL: historical, not live daily inputs" },
+      model: { status: "PARTIAL", evidence: "Program 152: chronological baselines over 2,643 games — Elo log loss 0.6161 / 65.8% vs coin ln(2) anchor; margin MAE 12.0; 91-game postseason HISTORICAL_REPLAY through the shared harness (54/91, frozen-state conservatism stated, byte-deterministic); model-card-v1 with limitations + activation OFF. The BAR a future NBA model must beat" },
       identity: { status: "PARTIAL", evidence: "ESPN athlete ids resolve through PlayerAvatar; team coverage unverified for a full slate" },
       settlement: { status: "PARTIAL", evidence: "the settled archive was graded from official results; no repeatable forward pipeline" },
       calibration: { status: "BLOCKED_EXTERNAL", blocker: "MLB stopping rule (Program 058-061): model R&D suspended after w=0 three times — a new sport model needs the same preregistered bar and a founder decision to invest" },

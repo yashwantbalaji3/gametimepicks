@@ -1,0 +1,30 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-model-card",
+ "dataClass": "PRIVATE_RESEARCH",
+ "version": "v1",
+ "generatedAt": "2026-08-10T18:50:00Z",
+ "objective": "winner probability baseline (research bar, not a product model)",
+ "supportedOutputs": ["P(home win) binary", "margin point estimate (not a calibrated probability)", "total point estimate (not a calibrated probability)"],
+ "corpus": {"range": "2023-24 through 2025-26", "finals": 4179, "regularPerSeason": 1230, "sourceRequests": 28, "source": "espn_scoreboard (keyless, registered)", "manifest": "raw/CAPTURE_MANIFEST.json"},
+ "featureCutoff": "expanding pregame state only: prior finals' scores and venues; no injuries, no rosters, no rest modeling in v1",
+ "baselines": {"elo": "K=20, HA=+70 (neutral suppressed), 1/3 season regression, preseason never fit", "pace": "expanding net/combined points means + bounded 2.5 home bump"},
+ "metrics": {
+  "elo": {"logLoss": 0.6161, "brier": 0.2138, "accuracy": 0.6576, "n": 2643},
+  "homerate": {"logLoss": 0.6883, "n": 2643},
+  "coinAnchor": {"logLoss": 0.6931, "note": "exactly ln 2 — arithmetic sanity"},
+  "score": {"marginMAE": 11.98, "totalMAE": 15.52, "n": 2643},
+  "postseasonReplay": {"topClass": "54/91", "note": "frozen pre-play-in state, deliberately conservative"}
+ },
+ "evaluation": {"split": "chronological walk-forward; warm-up 2023-24 fit-only; evaluated 2024-25 + 2025-26", "calibration": "10-bin table in reports/baseline-evaluation-v1.json"},
+ "marketComparison": "unavailable — no authorized historical NBA odds capture exists",
+ "limitations": [
+  "no injury/roster/rest information — a real gap, not a rounding error",
+  "postseason replay uses one frozen state (no intra-tournament updates)",
+  "cold starts enter at league mean; early-season predictions are weaker",
+  "margin/total are point estimates with MAE/RMSE, never calibrated probabilities"
+ ],
+ "lastEvaluatedCommit": "P152-A",
+ "evaluationEligible": true,
+ "publicActivation": "OFF — founder decision; research readiness is not product activation"
+}
