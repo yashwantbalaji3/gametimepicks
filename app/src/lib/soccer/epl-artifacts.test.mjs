@@ -181,15 +181,22 @@ test("every committed EPL artifact validates clean; samples stay non-public, cap
   assert.ok(captures >= 1, "the 2026-27 capture must be present");
 });
 
-test("results/ and settlement/ are empty — no approved source, so nothing was invented", () => {
-  for (const subroot of ["results", "settlement"]) {
-    const dir = path.join(APP, EPL_ARTIFACT_ROOT, subroot);
-    assert.deepEqual(
-      fs.readdirSync(dir).filter((f) => f.endsWith(".json")),
-      [],
-      `${subroot}/ must hold no artifacts while settlement is switched off`,
-    );
-  }
+test("results/ holds ONLY the honest current-capture; settlement/ stays empty until a real slate grades", () => {
+  // Program 154 turned the results side on through the registered espn_scoreboard source
+  // (results-candidate role). The invariant that survives: results/ may hold exactly the
+  // RESULTS_CAPTURE artifact whose empty pre-season state is stamped and honest — anything else
+  // (an invented graded matchweek, a stray file) is still a defect. Settlement stays off.
+  const resultsFiles = fs.readdirSync(path.join(APP, EPL_ARTIFACT_ROOT, "results")).filter((f) => f.endsWith(".json"));
+  assert.deepEqual(resultsFiles, ["latest.json"], "exactly the capture artifact, nothing invented");
+  const a = JSON.parse(fs.readFileSync(path.join(APP, EPL_ARTIFACT_ROOT, "results", "latest.json"), "utf8"));
+  assert.equal(a.dataClass, "RESULTS_CAPTURE");
+  assert.ok(["PRESEASON", "NO_RESULTS_YET", "RESULTS"].includes(a.state));
+  if (a.state !== "RESULTS") assert.equal(a.rows.length, 0, "an empty state carries zero rows — no 0-0 placeholders");
+  assert.deepEqual(
+    fs.readdirSync(path.join(APP, EPL_ARTIFACT_ROOT, "settlement")).filter((f) => f.endsWith(".json")),
+    [],
+    "settlement/ must hold no artifacts until a real slate grades through the contract",
+  );
 });
 
 test("all four artifact subroots exist and carry provenance", () => {
