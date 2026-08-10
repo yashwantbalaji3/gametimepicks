@@ -4,6 +4,8 @@
  * Run: npx tsx --test src/lib/launch/work-board.test.mjs
  */
 import { test } from "node:test";
+import fs from "node:fs";
+import path from "node:path";
 import assert from "node:assert/strict";
 
 import { buildWorkBoard, BOARD_STATES } from "./work-board.mjs";
@@ -60,4 +62,13 @@ test("cadence receipt work is P0 and names the time-gated next action", () => {
   const cadence = board.sprints.today.find((t) => /receipt/.test(t.nextAction));
   assert.ok(cadence, "the cadence follow-through must be on today's list while receipt 2/2 is pending");
   assert.match(cadence.nextAction, /second scheduled/);
+});
+
+test("the filter component is READ-ONLY presentation — no fetch, no mutation, Reset + zero-state present", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "src", "components", "launch", "board-filters.tsx"), "utf8");
+  assert.match(src, /"use client"/);
+  assert.match(src, /Reset/);
+  assert.match(src, /No cards match/, "zero results explains itself instead of rendering a void");
+  assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|localStorage|POST/, "filters can mutate nothing");
+  assert.match(src, /aria-pressed/, "filter chips are real toggle buttons");
 });

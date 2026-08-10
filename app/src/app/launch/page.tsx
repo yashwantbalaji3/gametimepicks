@@ -4,6 +4,8 @@ import { guardInternalRoute } from "@/lib/internal-route-guard";
 import { currentEtDate } from "@/lib/freshness";
 import { buildCompletionMatrix, ROADMAP_30D } from "@/lib/launch/completion-matrix.mjs";
 import { buildWorkBoard } from "@/lib/launch/work-board.mjs";
+import BoardFilters from "@/components/launch/board-filters";
+import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
 import {
   buildDepartments,
@@ -144,37 +146,49 @@ export default function LaunchCommandCenter() {
           Cards are generated from gate assessments and the roadmap — there is no checkbox; a card closes when its receipt
           changes the committed truth. Today&apos;s P0s: {workBoard.sprints.today.map((t) => t.id).join(", ") || "none"}.
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
-          {(["IN_PROGRESS", "READY", "NEW", "BLOCKED"] as const).map((state) => (
-            <div key={state} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
-              <h3 style={{ fontSize: 11.5, textTransform: "uppercase", letterSpacing: "0.08em", color: state === "BLOCKED" ? "var(--vault-danger)" : "var(--vault-text-mute)", margin: "0 0 8px" }}>
-                {state.replace("_", " ")} · {workBoard.columns[state].length}
-              </h3>
-              {workBoard.columns[state].length === 0 ? (
-                <p style={{ fontSize: 12, color: "var(--vault-text-faint)", margin: 0 }}>empty — nothing hidden, nothing pending here</p>
-              ) : (
-                <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
-                  {workBoard.columns[state].map((t) => (
-                    <li key={t.id} style={{ borderTop: "1px solid var(--vault-rule)", paddingTop: 8 }}>
-                      <details>
-                        <summary style={{ cursor: "pointer", fontSize: 12.5 }}>
-                          <span style={{ color: t.priority === "P0" ? "var(--vault-danger)" : "var(--vault-text-mute)", fontFamily: "monospace", fontSize: 11 }}>{t.priority}</span>{" "}
-                          {t.title}
-                        </summary>
-                        <div style={{ fontSize: 11.5, color: "var(--vault-text-mute)", marginTop: 6, display: "grid", gap: 3 }}>
-                          <span style={{ fontFamily: "monospace", color: "var(--vault-text-faint)" }}>{t.id}{t.sinceProgram ? ` · since P${t.sinceProgram}` : ""}</span>
-                          {t.blocker ? <span>Blocker: {t.blocker}</span> : null}
-                          <span>Next: {t.nextAction}</span>
-                          <span>Accept: {t.acceptance}</span>
-                        </div>
-                      </details>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
+        {/* Filters + columns are CLIENT presentation over the pure board — filtering mutates
+            nothing (Program 155 · Release C). */}
+        <BoardFilters tickets={[...Object.values(workBoard.columns).flat()] as never[]} />
+
+        {/* Pipeline lanes — per sport, every gate stage's state IN WORDS, derived from the same
+            assessments the matrix uses. PROVEN earns the only filled glyph; PARTIAL is visible and
+            earns nothing (Program 155 · Release C). */}
+        <div style={{ marginTop: 16, overflowX: "auto" }}>
+          <table style={{ borderCollapse: "collapse", minWidth: 900 }}>
+            <caption className="sr-only">Per-sport pipeline lanes: gate-stage states, derived from committed assessments</caption>
+            <thead>
+              <tr>
+                <Head>Sport</Head>
+                {DEPARTMENT_BUCKETS.flatMap((b) => b.stages).map((st) => <Head key={st}>{st}</Head>)}
+              </tr>
+            </thead>
+            <tbody>
+              {(["mlb", "nfl", "nba", "epl", "ufc"] as const).map((sp) => {
+                const col = sportColumn(SPORT_ASSESSMENTS[sp]);
+                const stages = DEPARTMENT_BUCKETS.flatMap((b) => col[b.id].stages);
+                return (
+                  <tr key={sp}>
+                    <Cell mono>{sp.toUpperCase()}</Cell>
+                    {stages.map((st) => (
+                      <Cell key={st.id} mono>
+                        <span
+                          title={st.evidence ?? st.blocker ?? "no receipt"}
+                          style={{ color: st.status === "PROVEN" ? "var(--gtp-success-on-dark, #7ee2a8)" : st.status === "PARTIAL" ? "var(--vault-gold-bright)" : st.status === "BLOCKED_EXTERNAL" ? "var(--vault-danger)" : "var(--vault-text-faint)" }}
+                        >
+                          {st.status === "PROVEN" ? "●" : st.status === "PARTIAL" ? "◐" : st.status === "BLOCKED_EXTERNAL" ? "✕" : "○"}
+                        </span>
+                      </Cell>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <p style={{ fontSize: 11, color: "var(--vault-text-faint)", marginTop: 6 }}>
+            ● proven · ◐ partial (receipts, no percentage credit) · ✕ blocked external · ○ unproven — hover a cell for its receipt or blocker.
+          </p>
         </div>
+
         <details style={{ marginTop: 12 }}>
           <summary style={{ cursor: "pointer", fontSize: 12.5, color: "var(--vault-text-mute)" }}>
             Founder queue ({workBoard.founderQueue.length}) — separated, engineering never stalls on these
