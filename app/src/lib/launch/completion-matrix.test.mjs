@@ -29,11 +29,17 @@ test("percentages derive from stages — MLB all-proven is 100 everywhere, empty
     assert.equal(mlb[b.id].pct, 100, `mlb.${b.id}`);
     assert.equal(mlb[b.id].proven, mlb[b.id].total);
   }
+  // NFL gained its FIRST evidence in Release B (Program 148): a contract-satisfying schedule
+  // adapter + honest public destination — PARTIAL, not PROVEN, so every percentage stays 0
+  // (only PROVEN counts) while the schedule stage now carries a receipt instead of nothing.
   const nfl = sportColumn(SPORT_ASSESSMENTS.nfl);
   for (const b of DEPARTMENT_BUCKETS) {
-    assert.equal(nfl[b.id].pct, 0, `nfl.${b.id} — UNPROVEN stages are 0, honestly`);
-    assert.ok(nfl[b.id].stages.every((s) => s.status === "UNPROVEN"));
+    assert.equal(nfl[b.id].pct, 0, `nfl.${b.id} — PARTIAL earns receipts, never percentage`);
+    assert.ok(nfl[b.id].stages.every((s) => s.status === "UNPROVEN" || s.id === "schedule"),
+      `nfl.${b.id} — only the schedule stage may carry non-UNPROVEN evidence today`);
   }
+  const nflSchedule = DEPARTMENT_BUCKETS.flatMap((b) => nfl[b.id].stages).find((s) => s.id === "schedule");
+  assert.equal(nflSchedule.status, "PARTIAL", "the Release B adapter is evidence, not proof — PARTIAL exactly");
 });
 
 test("a bucket with no applicable stages is N_A (null), never 0% or 100%", () => {

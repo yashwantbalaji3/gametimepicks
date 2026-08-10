@@ -20,7 +20,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
 /** The first-time-user journey. Kept in sync with ROUTES in scripts/audit-accessibility.mjs. */
-const ROUTES = ["/", "/today/", "/markets/", "/results/", "/methodology/", "/learn/", "/moonshot/", "/bank-builder/", "/mlb/"];
+const ROUTES = ["/", "/today/", "/markets/", "/results/", "/methodology/", "/learn/", "/moonshot/", "/bank-builder/", "/mlb/", "/sports/"];
 
 const VIEWPORTS = [
   { name: "mobile", width: 390, height: 844 },

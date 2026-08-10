@@ -33,7 +33,8 @@ export const SPORT_ASSESSMENTS = {
     inSeason: false,
     historicalArchive: false,
     stages: {
-      // Nothing exists. Every stage UNPROVEN — the honest NOT_STARTED.
+      // First stage with any evidence (Release B). Everything else UNPROVEN.
+      schedule: { status: "PARTIAL", evidence: "Release B (Program 148): contract-satisfying adapter + public /sports destination rendering the honest no-source state (guard: lib/sports/upcoming/adapters.test.mjs); no approved NFL source configured yet — sequenced after EPL" },
     },
   },
 
@@ -41,7 +42,7 @@ export const SPORT_ASSESSMENTS = {
     inSeason: false,
     historicalArchive: true,
     stages: {
-      schedule: { status: "PARTIAL", evidence: "adapter code exists (Program 062-065) but is HISTORICAL_ONLY; balldontlie provider tests fail pre-existing" },
+      schedule: { status: "PARTIAL", evidence: "Program 062-065 adapter is HISTORICAL_ONLY (balldontlie tests fail pre-existing); Release B (Program 148) adds the contract-satisfying upcoming adapter + /sports destination that renders the June probe as STALE + off-season in words" },
       identity: { status: "PARTIAL", evidence: "ESPN athlete ids resolve through PlayerAvatar; team coverage unverified for a full slate" },
       settlement: { status: "PARTIAL", evidence: "the settled archive was graded from official results; no repeatable forward pipeline" },
       calibration: { status: "BLOCKED_EXTERNAL", blocker: "MLB stopping rule (Program 058-061): model R&D suspended after w=0 three times — a new sport model needs the same preregistered bar and a founder decision to invest" },
@@ -52,6 +53,7 @@ export const SPORT_ASSESSMENTS = {
     inSeason: true,
     historicalArchive: false,
     stages: {
+      schedule: { status: "PARTIAL", evidence: "Release B (Program 148): adapter reads the documented soccer/epl fixture schema through the Release A contract with per-row quarantine (guard: lib/sports/upcoming/adapters.test.mjs); fixtures dir holds the schema sample only — the first real capture is Release C" },
       markets: { status: "PARTIAL", evidence: "EPL odds side landed (Program 062-065); settlement-gated, never published" },
       model: { status: "PARTIAL", evidence: "internal FIFA-Poisson soccer engine exists (N=5, not public, not validated for EPL)" },
       settlement: { status: "PARTIAL", evidence: "grading CONTRACT designed + guard-tested (lib/sports/epl/settlement-contract.mjs v1, Program 146): FT-only, StatsAPI-lesson quarantines, decisive=W+L, zero-gap reconciliation — source integration still unbuilt" },
@@ -62,6 +64,7 @@ export const SPORT_ASSESSMENTS = {
     inSeason: false,             // no covered event scheduled
     historicalArchive: true,
     stages: {
+      schedule: { status: "PARTIAL", evidence: "Release B (Program 148): /sports destination renders the honest no-forward-source state; the settled archive is guard-blocked from ever rendering as an upcoming event (lib/sports/upcoming/adapters.test.mjs)" },
       identity: { status: "PARTIAL", evidence: "boutId join made rematch-safe (Program 058-061) after the unsound join finding" },
       settlement: { status: "PARTIAL", evidence: "ONE card settled from official results (2026-06-15); not a repeatable pipeline" },
       model: { status: "UNPROVEN", blocker: "no fight model exists; UFC has never published a prediction" },

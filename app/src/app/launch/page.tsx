@@ -336,14 +336,17 @@ export default function LaunchCommandCenter() {
 
       {/* ── Sports ──────────────────────────────────────────────────────────────────── */}
       <section aria-labelledby="sports" style={{ marginBottom: 30 }}>
-        <h2 id="sports" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Sport readiness</h2>
+        <h2 id="sports" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Sport product completeness (archive view)</h2>
         <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
-          Completion and launch state are separate columns on purpose: an archived sport can be 100% complete while its live readiness is N/A.
+          The percentage here measures how complete each sport&apos;s BUILT product/archive is — it is NOT model or launch
+          readiness. Readiness truth is the 12-stage gate matrix above (derived, never typed): a sport can be
+          &quot;100% complete&quot; as an archive while standing at 1/12 gate stages. Completion and launch state stay
+          separate columns for the same reason.
         </p>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
-            <caption className="sr-only">Sport completion versus live readiness</caption>
-            <thead><tr><Head>Sport</Head><Head align="right">Complete</Head><Head>Launch state</Head><Head>Live readiness</Head><Head align="right">Gaps</Head><Head>Note</Head></tr></thead>
+            <caption className="sr-only">Sport product/archive completeness versus live readiness (readiness truth is the gate matrix)</caption>
+            <thead><tr><Head>Sport</Head><Head align="right">Product complete</Head><Head>Launch state</Head><Head>Live readiness</Head><Head align="right">Gaps</Head><Head>Note</Head></tr></thead>
             <tbody>
               {sports.map((s) => (
                 <tr key={s.name}>

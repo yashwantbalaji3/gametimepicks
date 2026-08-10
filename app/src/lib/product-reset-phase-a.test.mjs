@@ -27,13 +27,20 @@ test("primary nav is the pruned Adoption-Sprint spine: Today · Simulate · Resu
   assert.ok(nav.indexOf('href: "/moonshot"') > dividerAt, "Moonshot is secondary (after the divider)");
 });
 
-test("/sports is retired to a redirect and the nav no longer links it", () => {
-  // The 'More Sports' directory listed scaffold sports as equal tiles beside the one FULL_MODEL sport,
-  // which overstated coverage however carefully each tile was gated. The route is a redirect stub now,
-  // so a stub link would be nav noise — and re-linking it would re-open the overstated directory.
+test("/sports revival keeps the retirement's invariant: coverage stated in words, never as equal tiles", () => {
+  // The 'More Sports' directory was retired 2026-07-30 because equal sport tiles beside the one
+  // FULL_MODEL sport overstated coverage. Release B (Program 148) revived the route by FIXING the
+  // overstatement instead of hiding the page: the invariant moves from "the route must not exist"
+  // to "the rendered words must state what each sport is not". Nav still does not link it — the
+  // strip on the homepage is the deliberate, restrained discovery path.
   const nav = read("src/components/nav.tsx");
-  assert.ok(!/href: "\/sports"/.test(nav), "nav carries no /sports item");
-  assert.match(read("src/app/sports/page.tsx"), /ClientRedirect/, "/sports is a redirect stub, not a directory");
+  assert.ok(!/href: "\/sports"/.test(nav), "nav carries no /sports item (discovery stays restrained)");
+  const page = read("src/app/sports/page.tsx");
+  const shared = read("src/components/sports/upcoming-sports.tsx");
+  assert.match(page, /not modelled/, "the page itself says these sports are not modelled");
+  assert.match(shared, /Schedule only — not modelled/, "coverage state is rendered in words, not implied by layout");
+  assert.match(shared, /no simulations, no predictions and no picks/, "every sport section closes with the explicit no-model line");
+  assert.match(page, /MLB Simulation Center/, "the one modelled product is named so the contrast is explicit");
 });
 
 test("the ONE modelled sport keeps 'Simulation Center' framing; retired sport routes claim none", () => {

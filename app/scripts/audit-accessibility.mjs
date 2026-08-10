@@ -29,7 +29,7 @@ if (!fs.existsSync(OUT)) {
 }
 
 /** Launch-critical public routes: the first-time-user journey. */
-const ROUTES = ["", "today", "markets", "results", "methodology", "learn", "moonshot", "bank-builder", "mlb"];
+const ROUTES = ["", "today", "markets", "results", "methodology", "learn", "moonshot", "bank-builder", "mlb", "sports"];
 
 const strip = (h) => h.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");
 const textOf = (s) => s.replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/gi, " ").replace(/\s+/g, " ").trim();

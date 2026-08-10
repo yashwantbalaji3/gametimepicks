@@ -42,7 +42,10 @@ const REMOVED = {
   "/projections": "stub",
   "/events": "stub",
   "/trends": "stub",
-  "/sports": "stub",
+  // "/sports" left this list in Program 148 Release B: the route is LIVE again as the Upcoming
+  // Sports schedule directory. The retirement's invariant (no overstated coverage, no liveness
+  // claims) did not lapse — it moved to rendered-text guards in product-reset-phase-a.test.mjs and
+  // slate-liveness.test.mjs. It stays in NEVER_IN_NAV below: discovery is the homepage strip.
   "/homer-nukes": "stub",
   "/mlb/parlays": "stub",
   "/nhl/board": "gone",

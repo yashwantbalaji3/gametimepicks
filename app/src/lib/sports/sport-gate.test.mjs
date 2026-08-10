@@ -66,7 +66,12 @@ test("THE COMMITTED ASSESSMENTS · maturity derives to the honest current pictur
     Object.entries(SPORT_ASSESSMENTS).map(([k, v]) => [k, deriveSportMaturity(v.stages, v)]),
   );
   assert.equal(m.mlb, "LIVE_ELIGIBLE", "MLB is the one end-to-end pipeline");
-  assert.equal(m.nfl, "NOT_STARTED", "nothing exists for NFL and the gate must say so");
+  // Release B (Program 148) gave NFL its first real artifact — the contract-satisfying schedule
+  // adapter + honest /sports destination — so NOT_STARTED would now be FALSE modesty, which is as
+  // dishonest as overclaiming. SCAFFOLDED, with the schedule stage as the only evidence-bearer.
+  assert.equal(m.nfl, "SCAFFOLDED", "one PARTIAL stage exists (schedule); the gate must say exactly that much");
+  assert.equal(SPORT_ASSESSMENTS.nfl.stages.schedule?.status, "PARTIAL", "NFL's sole evidence is the Release B schedule adapter");
+  assert.equal(Object.keys(SPORT_ASSESSMENTS.nfl.stages).length, 1, "no other NFL stage may claim evidence yet");
   assert.equal(m.nba, "SCAFFOLDED");
   assert.equal(m.epl, "SCAFFOLDED");
   assert.equal(m.ufc, "SCAFFOLDED", "internal maturity — the PUBLIC display state stays HISTORICAL_ONLY via simulation-hub");

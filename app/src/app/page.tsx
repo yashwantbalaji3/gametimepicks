@@ -34,6 +34,7 @@ import { resolveLadderStep } from "@/lib/bank-builder-ladder";
 import { buildTop10Board } from "@/lib/top10/top10-picks";
 import { loadTodaySlate } from "@/lib/parlays/ui-loader";
 import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
+import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 
 import LandingHero from "@/components/home/landing-hero";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
@@ -41,6 +42,7 @@ import PreSportsbookStrip from "@/components/home/pre-sportsbook-strip";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
 import { HowItWorks, FooterCta } from "@/components/home/home-sections";
+import { UpcomingSportsStrip, type SportSchedule } from "@/components/sports/upcoming-sports";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 
 export const metadata = {
@@ -269,6 +271,13 @@ export default function HomePage() {
           ariaLabel="Historical and upcoming sport coverage"
         />
       ) : null}
+
+      {/* Upcoming Sports schedules (Program 148 · Release B) — a deliberately quiet strip, OUTSIDE the
+          Simulation Hub by contract: schedule availability is not simulation coverage, and these four
+          sports must never render as hub peers of MLB. One line per sport, status in words. */}
+      <section aria-label="Upcoming sports schedule status" style={{ marginTop: 8 }}>
+        <UpcomingSportsStrip sports={allUpcoming({ nowIso: new Date().toISOString() }) as SportSchedule[]} />
+      </section>
 
       {/* 5 — Flagship products, powered by the simulations. Each card carries its own current status,
           which is why the page no longer repeats those statuses in a second slate-summary block. */}

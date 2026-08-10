@@ -175,11 +175,16 @@ test("safe-fix · the /today header + /mlb eyebrow read 'latest slate' when the 
   assert.match(mlbPage, /date < currentEtDate\(\) \? "MLB Simulation Center · latest slate"/, "/mlb eyebrow flips to 'latest slate' (Simulation Center framing) when the board is behind today");
 });
 
-test("safe-fix · the /sports directory can no longer show a stale 'Live today' — it is a redirect", () => {
-  // The original fix date-gated each tile's "live" chip. The public-route audit (2026-07-30) removed the
-  // directory outright: with one FULL_MODEL sport, three equal tiles overstated coverage however
-  // carefully each chip was gated. A stub renders no liveness claim at all, which is the stronger fix.
+test("safe-fix · the revived /sports directory renders NO liveness claim of any kind", () => {
+  // The original fix date-gated each tile's "live" chip; the 2026-07-30 audit then removed the
+  // directory outright. Release B (Program 148) revived it as a schedule-status page whose stronger
+  // fix is structural: the shared presentation has no liveness chip to gate — capture times render
+  // as absolute dates and state is carried by words. This guard pins that absence.
   const src = fs.readFileSync(path.join(APP, "src/app/sports/page.tsx"), "utf8");
-  assert.match(src, /ClientRedirect/, "/sports is a redirect stub");
-  assert.doesNotMatch(src, /Live today/, "the stub makes no liveness claim");
+  const shared = fs.readFileSync(path.join(APP, "src/components/sports/upcoming-sports.tsx"), "utf8");
+  for (const [name, txt] of [["page", src], ["shared presentation", shared]]) {
+    assert.doesNotMatch(txt, /Live today/i, `${name} makes no 'Live today' claim`);
+    assert.doesNotMatch(txt, /"Live"|>Live</, `${name} renders no bare Live chip`);
+  }
+  assert.match(shared, /ABSOLUTE/, "capture times documented as absolute so build-time relatives cannot rot");
 });
