@@ -4,6 +4,7 @@ import { guardInternalRoute } from "@/lib/internal-route-guard";
 import { currentEtDate } from "@/lib/freshness";
 import { buildCompletionMatrix, ROADMAP_30D } from "@/lib/launch/completion-matrix.mjs";
 import { buildWorkBoard } from "@/lib/launch/work-board.mjs";
+import { ENGINES, ASSURED_ROUTES } from "@/lib/launch/browser-assurance.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
@@ -188,6 +189,23 @@ export default function LaunchCommandCenter() {
             No inventory artifact — run <code>node scripts/audits/build-route-inventory.mjs</code>. This says &ldquo;not generated&rdquo;, never &ldquo;all clean&rdquo;.
           </p>
         )}
+      </section>
+
+      {/* ── Browser assurance — the committed CONTRACT; the proof is every quality-gate run
+             executing route-assurance.spec.ts on all three engines (P161 · Release C). A committed
+             "results" snapshot would rot with the next artifact, so none exists by design. ──── */}
+      <section aria-labelledby="browser-assurance" style={{ marginBottom: 30 }}>
+        <h2 id="browser-assurance" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Browser assurance</h2>
+        <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)", marginBottom: 8 }}>
+          {ASSURED_ROUTES.length} high-traffic routes render-proven on {ENGINES.join(" · ")} against the built export,
+          every quality-gate run (e2e/route-assurance.spec.ts). Baseline everywhere: HTTP 200, visible body, zero
+          console/page errors after hydration. Live gate, not a snapshot — a committed result would rot with the next artifact.
+        </p>
+        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "var(--vault-text-mute)", display: "grid", gap: 3 }}>
+          {ASSURED_ROUTES.map((r) => (
+            <li key={r.route}><code>{r.route}</code> — {r.proves}</li>
+          ))}
+        </ul>
       </section>
 
       {/* ── Work board — tickets DERIVED from receipts; closing happens only when the receipt

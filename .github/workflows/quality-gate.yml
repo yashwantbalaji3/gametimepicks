@@ -82,7 +82,7 @@ jobs:
       - name: Accessibility — browser (contrast · keyboard · reflow)
         # Chromium + Firefox + WebKit. Keyboard traversal is skipped on WebKit by design: Safari
         # ships with Full Keyboard Access off, so links are not in its Tab order.
-        run: npx playwright test e2e/accessibility.spec.ts
+        run: npx playwright test e2e/accessibility.spec.ts e2e/route-assurance.spec.ts
 
       - name: Upload report on failure
         if: failure()

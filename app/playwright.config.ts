@@ -40,20 +40,20 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
-    // The accessibility gate claims "cross-browser", so it is proven on all three engines. Scoped
-    // with testMatch to the a11y spec alone — the other specs assert product behaviour that is
-    // engine-independent, and running them 3x would triple the suite for no added signal.
-    // Contrast and focus DO differ by engine: focus-visible heuristics and gradient rasterisation
-    // are not identical across Blink/WebKit/Gecko.
+    // Two claims are proven on all three engines: the accessibility gate says "cross-browser"
+    // (contrast/focus genuinely differ across Blink/WebKit/Gecko), and the route/state assurance
+    // contract says high-traffic routes hydrate clean everywhere (hydration errors differ by
+    // engine timing). The remaining specs assert engine-independent product behaviour, and
+    // running them 3x would triple the suite for no added signal.
     {
       name: "webkit-a11y",
       use: { ...devices["Desktop Safari"] },
-      testMatch: /accessibility\.spec\.ts/,
+      testMatch: /accessibility\.spec\.ts|route-assurance\.spec\.ts/,
     },
     {
       name: "firefox-a11y",
       use: { ...devices["Desktop Firefox"] },
-      testMatch: /accessibility\.spec\.ts/,
+      testMatch: /accessibility\.spec\.ts|route-assurance\.spec\.ts/,
     },
   ],
   webServer: {

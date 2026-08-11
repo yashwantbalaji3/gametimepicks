@@ -24,8 +24,10 @@ export interface FeaturedSimulationsProps {
 }
 
 /** Crest: MLB uses the ESPN-CDN TeamLogo; World Cup uses the real provider logo URL (never fabricated). */
-function Crest({ team, logo, isWc }: { team: string; logo: string | null; isWc: boolean }) {
-  if (!isWc) return <TeamLogo team={team} sport="mlb" size="sm" />;
+function Crest({ team, abbr, logo, isWc }: { team: string; abbr: string | null; logo: string | null; isWc: boolean }) {
+  // The CDN resolves abbreviations; `team` may be the sim artifact's full display name. Without an
+  // abbr the monogram fallback still renders, so nothing looks broken — but nothing 404s either.
+  if (!isWc) return <TeamLogo team={abbr ?? team} sport="mlb" size="sm" ariaLabel={`${team} logo`} />;
   if (logo) {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={logo} alt={`${team} crest`} width={24} height={24} style={{ borderRadius: 4, objectFit: "contain" }} />;
@@ -50,11 +52,11 @@ function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer
     >
       <div className="flex items-center justify-between gap-2">
         <span className="flex min-w-0 items-center gap-2">
-          <Crest team={away} logo={s.awayLogo} isWc={isWc} />
+          <Crest team={away} abbr={s.teamAbbrs?.away ?? null} logo={s.awayLogo} isWc={isWc} />
           <span className="truncate text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
             {away} <span style={{ color: "var(--vault-text-faint)" }}>{isWc ? "vs" : "@"}</span> {home}
           </span>
-          <Crest team={home} logo={s.homeLogo} isWc={isWc} />
+          <Crest team={home} abbr={s.teamAbbrs?.home ?? null} logo={s.homeLogo} isWc={isWc} />
         </span>
         {/* Honest mode badge: an MLB run-sim reads "Simulation Ready"; a WC card reads "Market-implied". */}
         <span

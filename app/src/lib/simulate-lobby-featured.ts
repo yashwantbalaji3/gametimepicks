@@ -53,6 +53,12 @@ export interface FeaturedSimulation {
   /** Sport key (mlb / world_cup …) — drives the card's logos + sport label + mode badge. */
   sport: string;
   teams: { home: string; away: string };
+  /**
+   * CDN-resolvable team identifiers (the detail's abbreviations, e.g. "CHC"/"WSH"). Display uses
+   * `teams`; the ESPN logo CDN needs THESE — a full name normalizes to a slug that 404s and the
+   * monogram fallback hides the breakage (the /-renders-clean assurance caught exactly that).
+   */
+  teamAbbrs: { home: string; away: string } | null;
   homeLogo: string | null;
   awayLogo: string | null;
   venue: string | null;
@@ -112,6 +118,7 @@ export function featuredSimulations(details: readonly FeaturedDetailInput[], tod
         href: `/games/${d.sport}/${d.slug}`,
         sport: d.sport,
         teams: sim.teams,
+        teamAbbrs: d.homeTeam && d.awayTeam ? { home: d.homeTeam, away: d.awayTeam } : null,
         homeLogo: d.homeLogo ?? null,
         awayLogo: d.awayLogo ?? null,
         venue: d.venue ?? null,
@@ -131,6 +138,7 @@ export function featuredSimulations(details: readonly FeaturedDetailInput[], tod
         href: `/games/${d.sport}/${d.slug}`,
         sport: d.sport,
         teams: { home: d.homeTeam, away: d.awayTeam },
+        teamAbbrs: null, // World Cup cards render FlagBadge from country codes, never the ESPN team CDN
         homeLogo: d.homeLogo ?? null,
         awayLogo: d.awayLogo ?? null,
         venue: d.venue ?? null,
