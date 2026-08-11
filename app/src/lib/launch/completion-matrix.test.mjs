@@ -30,10 +30,11 @@ test("percentages derive from stages — MLB all-proven is 100 everywhere, empty
     assert.equal(mlb[b.id].proven, mlb[b.id].total);
   }
   // NFL's evidence-bearing set grew release by release with receipts: schedule (P148 capture),
-  // then data + model (P151 research vertical). Every percentage stays 0 — PARTIAL earns
+  // then data + model (P151 research vertical), then settlement (P161 contract validated on all
+  // 1,001 corpus finals + deployed results capture). Every percentage stays 0 — PARTIAL earns
   // receipts, never percentage — and any stage OUTSIDE this receipted set claiming evidence
   // is still a defect this guard catches.
-  const NFL_EVIDENCE_STAGES = ["schedule", "data", "model"];
+  const NFL_EVIDENCE_STAGES = ["schedule", "data", "model", "settlement"];
   const nfl = sportColumn(SPORT_ASSESSMENTS.nfl);
   for (const b of DEPARTMENT_BUCKETS) {
     assert.equal(nfl[b.id].pct, 0, `nfl.${b.id} — PARTIAL earns receipts, never percentage`);

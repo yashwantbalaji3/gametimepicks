@@ -72,7 +72,7 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "NFL results side: forward results capture + settlement contract (WIN/LOSS/PUSH/VOID, ties explicit) so preseason finals grade through one writer when the season starts", department: "settlement", sport: "nfl", owner: "ENGINEERING", dependency: "schedule cadence receipts LANDED (runs 31396780843 + 31500117960, P161)", effort: "M", acceptance: "results contract guard-tested against real corpus shapes; zero-gap reconciliation; no live grading before real finals" },
+      { outcome: "NFL results: first scheduled capture receipt with a real preseason final JOINED zero-gap through the deployed path (DET-CIN Aug 13 window is the first candidate with schedule lineage)", department: "settlement", sport: "nfl", owner: "ENGINEERING", dependency: "contract + capture + adapter shipped P161; the next finals with schedule lineage", effort: "XS-watch", acceptance: "a scheduled sport-schedules run commits a results capture whose finals join their schedule rows exactly-once with zero unexplained quarantines" },
     ],
   },
   {
