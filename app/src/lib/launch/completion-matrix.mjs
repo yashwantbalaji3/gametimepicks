@@ -72,7 +72,7 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "NFL/NBA injuries capture CONTRACT per the accepted evaluation (docs/INJURY_SOURCE_EVALUATION.md): URL-derived athlete id validated against identity components, unknown statuses quarantine, absence maps to UNKNOWN never healthy, stale feed widens uncertainty", department: "data", sport: "nfl/nba", owner: "ENGINEERING", dependency: "evaluation ACCEPTED with two named conditions (P162-F)", effort: "M", acceptance: "contract module + real-sample fixtures + stale-behavior test green; matrix entries stay MISSING until a capture lands through it" },
+      { outcome: "NFL/NBA injuries capture script + cadence step through the shipped contract (facts only — status/date/ids; editorial prose never stored); LIVE_INPUT_MATRIX flips only on the first committed capture receipt", department: "data", sport: "nfl/nba", owner: "ENGINEERING", dependency: "contract + real-sample fixtures green (P162-G)", effort: "S", acceptance: "scheduled capture commits normalized facts with exact reconciliation; source failure preserves last-known-good; matrix entries flip MISSING→AVAILABLE with the run id as receipt" },
     ],
   },
   {
