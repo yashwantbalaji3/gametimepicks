@@ -32,6 +32,8 @@ export interface UpcomingEvent {
 }
 
 export interface SportSchedule {
+  /** Optional results-tracking sentence derived from the results capture artifact's own state. */
+  resultsNote?: string | null;
   sport: string;
   competitionLabel: string;
   seasonContext: string;
@@ -115,6 +117,10 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
           No upcoming events are published here yet. {s.sourceVerdict.blocker ?? ""}
         </p>
       )}
+
+      {s.resultsNote ? (
+        <p style={{ margin: "12px 0 0", fontSize: 12, color: "var(--text-mute)" }}>{s.resultsNote}</p>
+      ) : null}
 
       <p style={{ margin: "12px 0 0", fontSize: 11.5, color: "var(--text-mute)" }}>
         Schedule information only. This sport has no simulations, no predictions and no picks on this site.

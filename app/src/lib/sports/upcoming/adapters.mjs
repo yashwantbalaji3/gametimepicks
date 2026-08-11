@@ -114,6 +114,24 @@ export function eplUpcoming({ nowIso, artifact }) {
   };
 }
 
+
+/**
+ * Results-tracking note for a sport's /sports section — derived from the results capture
+ * artifact's OWN state field, never recomputed and never promising picks. A sport without a
+ * results path returns null and the section says nothing (absence over advertisement).
+ */
+export function resultsTrackingNote(sport) {
+  const artifact = sport === "epl" ? readJson("soccer", "epl", "results", "latest.json") : readJson(sport, "results", "latest.json");
+  if (!artifact?.state) return null;
+  const checked = (artifact.sourceAsOf ?? artifact.generatedAt ?? "").slice(0, 10);
+  switch (artifact.state) {
+    case "PRESEASON": return `Results tracking is armed for the season — nothing grades before league play starts (checked ${checked}).`;
+    case "NO_RESULTS_YET": return `Results tracking is active — no completed games in the current capture window yet (checked ${checked}).`;
+    case "RESULTS": return `${artifact.completedCount ?? (artifact.rows ?? []).length} completed ${(artifact.completedCount ?? 0) === 1 ? "game" : "games"} captured from the official scoreboard (checked ${checked}).`;
+    default: return null; // SOURCE_STALE and unknown states: the capture line above already carries the stamp
+  }
+}
+
 /**
  * NFL — ESPN public-scoreboard captures (scripts/nfl/capture-nfl-schedule.mjs). A missing capture
  * renders the honest no-source state; a stale one says it is stale. `capture` injects for tests.

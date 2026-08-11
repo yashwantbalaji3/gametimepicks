@@ -65,6 +65,22 @@ test("state · /sports speaks the adapter's honest vocabulary for all four sport
     const empty = await section.getByText("No upcoming events are published here yet").count();
     expect(events > 0 || empty === 1, `${sport}: expected event rows or the honest empty sentence (rows=${events}, empty=${empty})`).toBe(true);
   }
+  // Results-path discoverability (P162-B): a sport whose results capture artifact exists in a
+  // noted state must say so in its section — derived from the artifact's OWN state field.
+  const NOTED = ["PRESEASON", "NO_RESULTS_YET", "RESULTS"];
+  const RESULT_ARTIFACTS: Array<[string, string]> = [
+    ["nfl", "public/data/nfl/results/latest.json"],
+    ["nba", "public/data/nba/results/latest.json"],
+    ["epl", "public/data/soccer/epl/results/latest.json"],
+  ];
+  for (const [sport, rel] of RESULT_ARTIFACTS) {
+    let st: string | null = null;
+    try { st = JSON.parse(fs.readFileSync(path.join(APP, rel), "utf8")).state; } catch { /* no artifact — nothing promised */ }
+    if (st && NOTED.includes(st)) {
+      const section = page.locator(`section[aria-labelledby="upcoming-${sport}-h"]`);
+      await expect(section.getByText(/Results tracking|completed game/).first(), `${sport}: results path discoverable (artifact state ${st})`).toBeVisible();
+    }
+  }
 });
 
 test("state · /system-status uses only the closed state vocabulary", async ({ page }) => {

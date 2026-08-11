@@ -2,7 +2,7 @@
  * FULL-GAME SIMULATION HONESTY (2026-07-09) — no fake full-game sim; labels are honest.
  *
  * Pins: the MLB market snapshot is labelled market-implied (NOT a simulation) and flags a full-game
- * score simulation as "coming soon"; the internal readiness artifact never reaches "ready", never
+ * score simulation as absent-with-a-condition; the internal readiness artifact never reaches "ready", never
  * labels win probability a "simulation", and stays non-public; soccer never claims a 10,000-run sim;
  * and money is untouched.
  */
@@ -17,11 +17,14 @@ const app = process.cwd();
 const repo = path.join(app, "..");
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
 
-test("1 · the MLB market snapshot is honest — market-implied, not a simulation, full-game coming soon", () => {
+test("1 · the MLB market snapshot is honest — market-implied, not a simulation, full-game absence stated", () => {
   const gc = read("src/components/game/mlb-game-center.tsx");
   assert.match(gc, /market-implied, not a simulation/i, "labelled market-implied, not a simulation");
   assert.match(gc, /full-game score simulation/i, "names the full-game score simulation");
-  assert.match(gc, /coming soon/i, "flags it as coming soon");
+  // P162-B reword: "coming soon" promised without a date; the invariant is that ABSENCE IS
+  // STATED — nothing renders until the dedicated artifact is real.
+  assert.match(gc, /not shown for this game|until that artifact is real/i, "states the absence and its condition");
+  assert.doesNotMatch(gc, /coming soon/i, "no undated promises");
   // It does not positively claim a full-game simulation exists.
   assert.doesNotMatch(gc, /\bruns? a full-game simulation\b|full-game simulation (?:ready|available|shows)/i);
 });

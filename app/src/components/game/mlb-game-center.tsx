@@ -78,7 +78,7 @@ export default function MlbGameCenter({ gameCenter }: { gameCenter: MlbGameCente
       </p>
       <p className="text-[10.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
         A full-game score simulation — projected final score plus run and margin distributions — is{" "}
-        <strong style={{ color: "var(--vault-text-mute)" }}>coming soon</strong>; it needs a dedicated full-game artifact and is not shown until it is real.
+        <strong style={{ color: "var(--vault-text-mute)" }}>not shown for this game</strong>: it needs a dedicated full-game artifact, and nothing renders here until that artifact is real.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

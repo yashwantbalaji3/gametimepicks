@@ -19,7 +19,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
+import { allUpcoming, resultsTrackingNote } from "@/lib/sports/upcoming/adapters.mjs";
 import { UpcomingSportsSections, type SportSchedule } from "@/components/sports/upcoming-sports";
 
 export const metadata: Metadata = {
@@ -29,7 +29,8 @@ export const metadata: Metadata = {
 };
 
 export default function UpcomingSportsPage() {
-  const sports = allUpcoming({ nowIso: new Date().toISOString() }) as SportSchedule[];
+  const sports = (allUpcoming({ nowIso: new Date().toISOString() }) as SportSchedule[])
+    .map((s) => ({ ...s, resultsNote: resultsTrackingNote(s.sport) }));
   return (
     <main style={{ maxWidth: 860, margin: "0 auto", padding: "32px 20px 64px" }}>
       <p style={{ margin: 0, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--text-mute)" }}>
