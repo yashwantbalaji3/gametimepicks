@@ -27,14 +27,14 @@ export const LIVE_INPUT_MATRIX = Object.freeze({
     schedule: { state: "AVAILABLE", source: "sport-schedules daily capture (cadence receipts 2/2: runs 31396780843 + 31500117960)" },
     priorResults: { state: "AVAILABLE", source: "same scoreboard class the corpus used; forward wiring not yet scheduled" },
     teamStrengthState: { state: "AVAILABLE", source: "Elo state reproducible from corpus + results-to-date (deterministic fit)" },
-    injuries: { state: "MISSING", note: "source EVALUATED and accepted-with-conditions (docs/INJURY_SOURCE_EVALUATION.md: ESPN public injuries feed — closed taxonomy, 100% timestamps, team-id linkage; athlete id via playercard URL must validate first; absence = UNKNOWN never healthy). Contract + fixtures are the next receipt; state stays MISSING until they land" },
+    injuries: { state: "AVAILABLE", source: "injuries contract + capture (P162-G/H): first committed capture normalized 800/800 live entries with ZERO quarantines — the URL-derived athlete id validated on the full sample; absence=UNKNOWN and staleness-widens encoded in availabilityFor(); facts only, prose never stored; daily cadence step wired" },
     odds: { state: "BLOCKED_EXTERNAL", note: "founder-owned CI-key exercise" },
   },
   nba: {
     schedule: { state: "AVAILABLE", source: "sport-schedules daily capture (partial calendar until full publication)" },
     priorResults: { state: "AVAILABLE", source: "scoreboard class proven by the corpus" },
     teamStrengthState: { state: "AVAILABLE", source: "Elo/pace state reproducible deterministically" },
-    injuriesLineups: { state: "MISSING", note: "injuries side EVALUATED with NFL (same feed class, Day-To-Day/Out taxonomy, docs/INJURY_SOURCE_EVALUATION.md); lineups still have no evaluated source. Contract + fixtures are the next receipt; state stays MISSING until they land" },
+    injuriesLineups: { state: "MISSING", note: "injuries HALF is captured (77/77 live entries, zero quarantines, same contract as NFL — data/internal/research/injuries/nba); LINEUPS still have no evaluated source, so this combined input stays MISSING until they do — the half-receipt is recorded, not overclaimed" },
     odds: { state: "BLOCKED_EXTERNAL", note: "founder-owned CI-key exercise" },
   },
   epl: {

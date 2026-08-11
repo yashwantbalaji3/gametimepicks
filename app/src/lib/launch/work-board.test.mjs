@@ -9,6 +9,7 @@ import path from "node:path";
 import assert from "node:assert/strict";
 
 import { buildWorkBoard, BOARD_STATES } from "./work-board.mjs";
+import { shadowGaps } from "../sports/research/shadow-contract.mjs";
 import { SPORT_ASSESSMENTS } from "../sports/sport-assessments.mjs";
 
 test("the board is a pure function of committed truth — same inputs, same bytes, no clock", () => {
@@ -83,7 +84,12 @@ test("SHADOW GAPS on the board (P156-B): every gap once, odds merged to ONE foun
   const board = buildWorkBoard();
   const all = [...Object.values(board.columns).flat(), ...board.founderQueue];
   const shadow = all.filter((t) => t.department === "shadow-readiness");
-  assert.equal(shadow.length, 6, "9 named gaps − 4 odds merged into 1 founder card = exactly 6 cards");
+  // DERIVED, not hard-coded: P162-H closed the NFL injuries gap with a real capture receipt, so a
+  // pinned count would rot every time the matrix honestly moves. The invariant is the mapping —
+  // every named gap exactly once, all odds gaps merged into one founder card.
+  const gaps = shadowGaps();
+  const oddsGaps = gaps.filter((g) => g.input === "odds").length;
+  assert.equal(shadow.length, gaps.length - oddsGaps + (oddsGaps ? 1 : 0), "every gap once; odds merged to one card");
   const odds = shadow.filter((t) => /odds/.test(t.id));
   assert.equal(odds.length, 1, "one underlying odds blocker = one card, never four duplicates");
   assert.equal(odds[0].owner, "FOUNDER");

@@ -9,6 +9,8 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 
 import { INJURY_CONTRACT_VERSION, INJURY_STATUSES, athleteIdFromLinks, normalizeInjuryFeed, availabilityFor } from "./contract.mjs";
 
@@ -89,4 +91,21 @@ test("closed surface: version 1, both sport taxonomies exactly as evaluated, unk
   assert.deepEqual([...INJURY_STATUSES.nba], ["Day-To-Day", "Out"]);
   assert.throws(() => normalizeInjuryFeed({}, { sport: "nhl", nowIso: NOW }));
   assert.throws(() => normalizeInjuryFeed({}, { sport: "nfl" }), "clock is a parameter, never read");
+});
+
+test("DISK TRUTH · committed captures are facts-only, exact, and normalize clean through the contract", () => {
+  const fs2 = fs; const path2 = path;
+  for (const sport of ["nfl", "nba"]) {
+    const p = path2.resolve(process.cwd(), "..", "data", "internal", "research", "injuries", sport, "latest.json");
+    const raw = fs2.readFileSync(p, "utf8");
+    assert.ok(!/shortComment|longComment/.test(raw), `${sport}: editorial prose is never stored`);
+    const a = JSON.parse(raw);
+    assert.equal(a.dataClass, "PRIVATE_RESEARCH");
+    assert.equal(a.reconciliation.exact, true);
+    assert.ok(a.entries.length > 0, `${sport}: the first committed capture carries real entries`);
+    for (const e of a.entries.slice(0, 50)) {
+      assert.ok(/^\d+$/.test(e.athleteId), `${sport}: id-based identity only`);
+      assert.ok(INJURY_STATUSES[sport].includes(e.status), `${sport}: closed taxonomy holds on disk`);
+    }
+  }
 });

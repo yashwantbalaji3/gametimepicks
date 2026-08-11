@@ -283,3 +283,39 @@ jobs:
           git commit -m "auto: nba results capture [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
+
+      - name: Capture NFL+NBA injuries facts (ESPN public feed, no key; prose never stored)
+        id: injuries
+        working-directory: app
+        run: |
+          set -uo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node scripts/sports/capture-injuries.mjs --now "$NOW" || { echo "state=FAILED" >> "$GITHUB_OUTPUT"; exit 1; }
+          echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+
+      - name: Commit injuries captures if content changed
+        if: github.event.inputs.dry_run != 'true' && steps.injuries.outputs.state == 'CAPTURED'
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/internal/research/injuries/
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          if node -e "
+            const { execSync } = require('child_process');
+            const strip = (j) => { const o = JSON.parse(j); delete o.generatedAt; delete o.sourceAsOf; return JSON.stringify(o); };
+            let same = true;
+            for (const s of ['nfl','nba']) {
+              const f = 'data/internal/research/injuries/' + s + '/latest.json';
+              let head; try { head = execSync('git show HEAD:' + f, { encoding: 'utf8' }); } catch { same = false; break; }
+              if (strip(head) !== strip(require('fs').readFileSync(f, 'utf8'))) { same = false; break; }
+            }
+            process.exit(same ? 0 : 1);
+          "; then
+            echo "only capture stamps moved — injuries facts unchanged"
+            git reset; git checkout -q -- data/internal/research/injuries/ || true
+            exit 0
+          fi
+          git commit -m "auto: injuries facts capture [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
