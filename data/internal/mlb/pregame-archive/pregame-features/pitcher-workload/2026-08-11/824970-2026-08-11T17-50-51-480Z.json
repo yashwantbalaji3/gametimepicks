@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824970,
+  "date": "2026-08-11",
+  "capturedAt": "2026-08-11T17:50:51.480Z",
+  "availableAt": "2026-08-11T17:50:51.480Z",
+  "eventStartTime": "2026-08-12T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 686930,
+      "name": "Mason Barnett",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 5,
+      "lastStartDate": "2026-08-06",
+      "last5": {
+        "starts": 2,
+        "ipSum": 9.33,
+        "ipAvg": 4.67,
+        "kAvg": 6.5,
+        "bbAvg": 2,
+        "erAvg": 4,
+        "hrAvg": 1.5,
+        "kPer9": 12.54,
+        "workloadIpLast5": 9.33
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 9.33,
+        "k": 13,
+        "bb": 4,
+        "er": 8,
+        "hr": 3
+      }
+    },
+    "away": {
+      "id": 607259,
+      "name": "Nick Martinez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 2.4,
+        "bbAvg": 0.4,
+        "erAvg": 1.8,
+        "hrAvg": 1,
+        "kPer9": 3.72,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 129,
+        "k": 73,
+        "bb": 20,
+        "er": 38,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-11T17:50:51.480Z"
+  },
+  "recordHash": "88187bda2e1221c8aa62b6e742b728d0f14c5947a785196f5ef1aaf99d7deb0b"
+}
