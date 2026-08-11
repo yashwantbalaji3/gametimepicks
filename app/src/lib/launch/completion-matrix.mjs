@@ -72,7 +72,7 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "EPL settlement hardening before opening day: corruption cases (postponed, abandoned, delayed, cancelled, corrected, missing-score, duplicate, alias, kickoff-change) against prior-season real shapes, plus a corrections runbook", department: "settlement", sport: "epl", owner: "ENGINEERING", dependency: "results path shipped P154; contract validated on 380 real results P151; the first-FT observation itself lives on the REALITY_GATED watch, not here", effort: "M", acceptance: "corruption suite green on real + synthetic shapes; runbook committed; zero changes to live grading behavior" },
+      { outcome: "NFL + NBA injuries/lineups source evaluation (free/authorized only): rights, identity linkage, update timestamps, status taxonomy, stale behavior — commit a contract + fixtures only if provenance is acceptable", department: "data", sport: "nfl/nba", owner: "ENGINEERING", dependency: "shadow live-input matrix names the gaps (P155); first-final observations live on REALITY_GATED watches", effort: "M", acceptance: "per-source evaluation recorded with a keep/reject verdict; any committed contract carries fixtures and a stale-behavior test; a missing feed never reads as healthy availability" },
     ],
   },
   {
@@ -86,7 +86,7 @@ export const ROADMAP_30D = Object.freeze([
     horizon: "WEEK_2",
     items: [
       { outcome: "Legal §3 business decisions answered; adviser consultation booked", department: "business-legal", sport: "shared", owner: "FOUNDER", dependency: null, effort: "S-founder", acceptance: "entity/jurisdiction/geography/age/audience recorded in LEGAL_CONTENT_MAP" },
-      { outcome: "NFL + NBA injuries/lineups source evaluation (free/authorized only): rights, identity linkage, update timestamps, status taxonomy, stale behavior — commit a contract + fixtures only if provenance is acceptable", department: "data", sport: "nfl/nba", owner: "ENGINEERING", dependency: "shadow live-input matrix names the gaps (P155); first-final observations live on REALITY_GATED watches, not here", effort: "M", acceptance: "per-source evaluation recorded with a keep/reject verdict; any committed contract carries fixtures and a stale-behavior test; a missing feed never reads as healthy availability" },
+      { outcome: "UFC results-shape design against registered sources: winner + red/blue identity + no-contest/draw/overturned semantics, card-and-bout separation, exact reconciliation — method/round stays UNSUPPORTED rather than fabricated", department: "settlement", sport: "ufc", owner: "ENGINEERING", dependency: "lineage classifier shipped P162-D; corpus proves the source class (P153)", effort: "M", acceptance: "result shapes contract-tested against real corpus rows; unsupported fields refuse; no live grading until a real card settles through it" },
     ],
   },
   {
