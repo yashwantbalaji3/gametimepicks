@@ -127,7 +127,11 @@ export function resultsTrackingNote(sport) {
   switch (artifact.state) {
     case "PRESEASON": return `Results tracking is armed for the season — nothing grades before league play starts (checked ${checked}).`;
     case "NO_RESULTS_YET": return `Results tracking is active — no completed games in the current capture window yet (checked ${checked}).`;
-    case "RESULTS": return `${artifact.completedCount ?? (artifact.rows ?? []).length} completed ${(artifact.completedCount ?? 0) === 1 ? "game" : "games"} captured from the official scoreboard (checked ${checked}).`;
+    case "RESULTS": {
+      const n = artifact.completedCount ?? (artifact.rows ?? []).length;
+      const noun = sport === "ufc" ? (n === 1 ? "bout" : "bouts") : (n === 1 ? "game" : "games");
+      return `${n} completed ${noun} captured from the official scoreboard (checked ${checked}).`;
+    }
     default: return null; // SOURCE_STALE and unknown states: the capture line above already carries the stamp
   }
 }

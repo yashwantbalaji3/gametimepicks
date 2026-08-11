@@ -319,3 +319,36 @@ jobs:
           git commit -m "auto: injuries facts capture [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
+
+      - name: Capture UFC current results (ESPN MMA scoreboard, no key; honest empty states)
+        id: ufcresults
+        working-directory: app
+        run: |
+          set -uo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node scripts/ufc/capture-ufc-results.mjs --now "$NOW" || { echo "state=FAILED" >> "$GITHUB_OUTPUT"; exit 1; }
+          echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+
+      - name: Commit UFC results capture if its content changed
+        if: github.event.inputs.dry_run != 'true' && steps.ufcresults.outputs.state == 'CAPTURED'
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add app/public/data/ufc/results/
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          if node -e "
+            const { execSync } = require('child_process');
+            const strip = (j) => { const o = JSON.parse(j); delete o.generatedAt; delete o.sourceAsOf;
+              o.rows = (o.rows||[]).map(r => { const { capturedAt, ...rest } = r; return rest; }); return JSON.stringify(o); };
+            const f = 'app/public/data/ufc/results/latest.json';
+            let head; try { head = execSync('git show HEAD:' + f, { encoding: 'utf8' }); } catch { process.exit(1); }
+            process.exit(strip(head) === strip(require('fs').readFileSync(f, 'utf8')) ? 0 : 1);
+          "; then
+            echo "only capture stamps moved — results unchanged"
+            git reset; git checkout -q -- app/public/data/ufc/results/ || true
+            exit 0
+          fi
+          git commit -m "auto: ufc results capture [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main

@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "product-truth-audit",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-08-11T21:00:45Z",
+ "generatedAt": "2026-08-11T21:41:27Z",
  "facts": [
   {
    "name": "paper-record",
@@ -46,7 +46,7 @@
   {
    "name": "nfl-capture-age-hours",
    "owner": "nfl/schedule/latest.json",
-   "value": 6.8,
+   "value": 7.5,
    "consumers": [
     "/sports"
    ]
@@ -54,7 +54,7 @@
   {
    "name": "nba-capture-age-hours",
    "owner": "nba/schedule/latest.json",
-   "value": 6.8,
+   "value": 7.5,
    "consumers": [
     "/sports"
    ]
@@ -62,7 +62,7 @@
   {
    "name": "ufc-capture-age-hours",
    "owner": "ufc/schedule/latest.json",
-   "value": 6.8,
+   "value": 7.5,
    "consumers": [
     "/sports"
    ]
@@ -91,12 +91,20 @@
    "consumers": [
     "settlement readiness"
    ]
+  },
+  {
+   "name": "ufc-results-state",
+   "owner": "ufc/results/latest.json",
+   "value": "RESULTS",
+   "consumers": [
+    "settlement readiness"
+   ]
   }
  ],
  "contradictions": [],
  "exceptionsApplied": [],
  "totals": {
-  "facts": 10,
+  "facts": 11,
   "contradictions": 0,
   "p0": 0,
   "exceptions": 0

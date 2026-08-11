@@ -72,13 +72,14 @@ test("state · /sports speaks the adapter's honest vocabulary for all four sport
     ["nfl", "public/data/nfl/results/latest.json"],
     ["nba", "public/data/nba/results/latest.json"],
     ["epl", "public/data/soccer/epl/results/latest.json"],
+    ["ufc", "public/data/ufc/results/latest.json"],
   ];
   for (const [sport, rel] of RESULT_ARTIFACTS) {
     let st: string | null = null;
     try { st = JSON.parse(fs.readFileSync(path.join(APP, rel), "utf8")).state; } catch { /* no artifact — nothing promised */ }
     if (st && NOTED.includes(st)) {
       const section = page.locator(`section[aria-labelledby="upcoming-${sport}-h"]`);
-      await expect(section.getByText(/Results tracking|completed game/).first(), `${sport}: results path discoverable (artifact state ${st})`).toBeVisible();
+      await expect(section.getByText(/Results tracking|completed games? captured|completed bouts? captured/).first(), `${sport}: results path discoverable (artifact state ${st})`).toBeVisible();
     }
   }
 });
