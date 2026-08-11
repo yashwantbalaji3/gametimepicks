@@ -54,6 +54,7 @@ export function buildProductTruthAudit({ now, appRoot, artifacts = null }) {
       ufc: readJson(appRoot, "public/data/ufc/schedule/latest.json"),
       eplResults: readJson(appRoot, "public/data/soccer/epl/results/latest.json"),
       nflResults: readJson(appRoot, "public/data/nfl/results/latest.json"),
+      nbaResults: readJson(appRoot, "public/data/nba/results/latest.json"),
     },
   };
 
@@ -114,6 +115,11 @@ export function buildProductTruthAudit({ now, appRoot, artifacts = null }) {
     const st = a.captures.nflResults.state;
     fact("nfl-results-state", "nfl/results/latest.json", st, ["settlement readiness"]);
     if (st === "RESULTS" && (a.captures.nflResults.rows ?? []).length === 0) fail("nfl-results-empty-claim", "NFL results state RESULTS with zero rows — a claim without content");
+  }
+  if (a.captures?.nbaResults) {
+    const st = a.captures.nbaResults.state;
+    fact("nba-results-state", "nba/results/latest.json", st, ["settlement readiness"]);
+    if (st === "RESULTS" && (a.captures.nbaResults.rows ?? []).length === 0) fail("nba-results-empty-claim", "NBA results state RESULTS with zero rows — a claim without content");
   }
 
   contradictions.sort((x, y) => (x.severity === y.severity ? x.id.localeCompare(y.id) : x.severity === "P0" ? -1 : 1));
