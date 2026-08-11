@@ -58,6 +58,11 @@ export default function LaunchCommandCenter() {
 
   // Internal Alpha progress. Read from the artifact the generator commits — this page renders it,
   // it never recomputes it, so /launch and ops/internal-alpha can never disagree.
+  const productTruth = (() => {
+    try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/audits/product-truth-v1.json"), "utf8")); }
+    catch { return null; }
+  })();
+
   const routeInventory = (() => {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/audits/route-inventory-v1.json"), "utf8")); }
     catch { return null; }
@@ -143,6 +148,25 @@ export default function LaunchCommandCenter() {
         ) : (
           <p style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
             No ledger artifact — run <code>npm run admin:ledger</code>. This says &ldquo;not generated&rdquo;, never &ldquo;all healthy&rdquo;.
+          </p>
+        )}
+      </section>
+
+      {/* ── Product truth — cross-surface figure reconciliation, rendered verbatim (P160 · A) ── */}
+      <section aria-labelledby="product-truth" style={{ marginBottom: 30 }}>
+        <h2 id="product-truth" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Product truth</h2>
+        {productTruth ? (
+          <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+            {productTruth.totals.facts} owned facts reconciled ·{" "}
+            <strong style={{ color: productTruth.totals.p0 === 0 ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-danger)" }}>
+              {productTruth.totals.contradictions} contradictions ({productTruth.totals.p0} P0)
+            </strong>
+            {" · "}{productTruth.totals.exceptions} documented exception(s) applied · generated {productTruth.generatedAt}.
+            {productTruth.contradictions.length > 0 ? ` Top: ${productTruth.contradictions.slice(0, 3).map((c: { id: string }) => c.id).join(", ")}` : " Every repeated public figure agrees with its authoritative owner."}
+          </p>
+        ) : (
+          <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+            No product-truth artifact — run <code>node scripts/audits/build-product-truth.mjs</code>. This says &ldquo;not generated&rdquo;, never &ldquo;all consistent&rdquo;.
           </p>
         )}
       </section>

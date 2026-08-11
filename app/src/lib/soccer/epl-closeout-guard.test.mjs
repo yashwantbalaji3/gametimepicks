@@ -24,6 +24,11 @@ const APP = process.cwd();
 // module as its reference sport adapter — a deliberate research-lane consumer, not a World Cup
 // surface. The guard's purpose (no closed WC-era surface reads EPL artifacts) is unchanged.
 const LANE_DIRS = ["src/lib/soccer", "src/app/preview/epl", "src/lib/sports/research"];
+// Cross-lane AUDITORS may READ EPL artifact paths to reconcile copies of public figures — they are
+// exempt from the readers check ONLY (Program 160). They are NOT lane members: the lane-ownership
+// rules (no MLB reads, no world-cup paths) do not apply to reconciliation code whose whole job is
+// touching every lane's artifacts.
+const CROSS_LANE_READERS = ["src/lib/audits"];
 
 /** Every source file this lane owns. */
 function laneFiles() {
@@ -93,7 +98,7 @@ test("only this lane references the soccer/epl root — no World Cup surface rea
         continue;
       }
       if (!/\.(ts|tsx|mjs)$/.test(e.name)) continue;
-      if (LANE_DIRS.some((lane) => rel(p).startsWith(lane))) continue;
+      if ([...LANE_DIRS, ...CROSS_LANE_READERS].some((lane) => rel(p).startsWith(lane))) continue;
       if (/data\/soccer\/epl|soccer\/epl-/.test(read(p))) readers.push(rel(p));
     }
   };
