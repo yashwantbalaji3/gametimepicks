@@ -49,6 +49,9 @@ const ITEMS: RailItem[] = [
   // complete, NBA is a settled archive reachable from Results, and UFC is a scaffold that publishes no
   // predictions — none of them is a destination the rail should offer.
   { href: "/mlb", label: "MLB", glyph: "⚾", group: "Sports", desc: "Baseball hub" },
+  // ONE schedules destination (Program 158 IA) — sits under Sports beside the live hub; the desc
+  // says schedules so the rail never implies a second model hub.
+  { href: "/sports", label: "Sports · Schedules", glyph: "🗓", desc: "EPL · NFL · NBA · UFC schedules" },
   { href: "/learn", label: "How It Works", glyph: "✦", group: "Learn", desc: "Start here" },
   { href: "/methodology", label: "Methodology", glyph: "◳", desc: "The model, in depth" },
   { href: "/system-status", label: "System Status", glyph: "◉", desc: "What is running right now" },

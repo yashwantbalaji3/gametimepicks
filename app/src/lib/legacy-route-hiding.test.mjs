@@ -37,7 +37,9 @@ test("the footer states coverage honestly: MLB live, NBA archive, and NO schedul
 test("the primary nav stays a clean simulate-first spine (no non-live sport promoted to primary)", () => {
   const dividerIdx = nav.indexOf("beforeDivider: true");
   // No non-live sport route appears in the nav at all; MLB is the only sport, and it sits AFTER the divider.
-  for (const href of ["/nba", "/nhl", "/ipl", "/ufc", "/sports"]) {
+  // "/sports" left this list in Program 158: it is the canonical schedules destination now
+  // (one "Sports · Schedules" item, secondary group) — the per-league and retired-sport bans stand.
+  for (const href of ["/nba", "/nhl", "/ipl", "/ufc"]) {
     assert.equal(nav.indexOf(`href: "${href}"`), -1, `${href} is not a nav destination`);
   }
   const mlb = nav.indexOf('href: "/mlb"');

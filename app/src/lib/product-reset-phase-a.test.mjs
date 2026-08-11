@@ -33,8 +33,13 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
   // overstatement instead of hiding the page: the invariant moves from "the route must not exist"
   // to "the rendered words must state what each sport is not". Nav still does not link it — the
   // strip on the homepage is the deliberate, restrained discovery path.
+  // Program 158 IA decision: ONE "Sports · Schedules" nav item exists (secondary group), never
+  // four league links — the label carries "Schedules" so it cannot read as a second model hub.
   const nav = read("src/components/nav.tsx");
-  assert.ok(!/href: "\/sports"/.test(nav), "nav carries no /sports item (discovery stays restrained)");
+  const sportsItems = nav.match(/href: "\/sports"/g) ?? [];
+  assert.equal(sportsItems.length, 1, "exactly ONE /sports nav item — the canonical discovery path");
+  assert.match(nav, /label: "Sports · Schedules"/, "the nav label says Schedules, never a bare sport-hub claim");
+  assert.ok(!/href: "\/epl"|href: "\/nfl"|href: "\/ufc-schedule"/.test(nav), "no per-league nav links");
   const page = read("src/app/sports/page.tsx");
   const shared = read("src/components/sports/upcoming-sports.tsx");
   assert.match(page, /not modelled/, "the page itself says these sports are not modelled");

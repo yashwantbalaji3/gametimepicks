@@ -37,7 +37,7 @@ const STUBS = {
   "/events": "/today",
   "/nhl": "/today",
   "/ipl": "/today",
-  "/sports": "/mlb",
+  // "/sports" removed in Program 158: no longer a stub — it is a real destination (schedules directory).
   "/nba": "/results/nba",
   "/mlb/parlays": "/picks",
   "/homer-nukes": "/results",

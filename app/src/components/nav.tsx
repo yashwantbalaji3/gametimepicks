@@ -48,11 +48,16 @@ const NAV_ITEMS: Array<{
   { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
   { href: "/moonshot", label: "Moonshot" },
   { href: "/mlb", label: "MLB" },
+  // ONE Sports destination, not four league links (Program 158 IA decision): /sports carries real
+  // verified schedules for EPL/NFL/NBA/UFC with coverage stated in words. The label says
+  // "Schedules" so the item can never read as a second model hub beside MLB.
+  { href: "/sports", label: "Sports · Schedules" },
   { href: "/mr-dub", label: "Mr. Dub's Portfolio" },
 ];
-// The "More Sports" directory is gone. MLB is the only sport with a live model; NBA is a settled
-// archive reachable from Results, and the schedule-only leagues (NHL, IPL, WNBA, MLS) no longer have
-// public destinations at all. Nav lists what the site can actually do today, nothing more.
+// The old "More Sports" directory of equal model-ish tiles stays gone. What exists instead is the
+// honest schedules directory at /sports (real EPL/NFL/NBA/UFC data, "Schedule only — not modelled"
+// in words) — one nav item, secondary group, beside the one live sport hub. NBA's settled archive
+// stays reachable from Results; retired leagues (NHL, IPL, WNBA, MLS) still have no destinations.
 // The 2026 World Cup is complete: it is NOT an active nav destination. It remains reachable only as an
 // archive (from /results / methodology), never a primary nav item or an active sport. /world-cup-specials
 // is a retired World-Cup-only product landing, likewise out of nav.

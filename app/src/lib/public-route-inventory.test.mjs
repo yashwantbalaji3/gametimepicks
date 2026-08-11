@@ -78,6 +78,7 @@ const APPROVED_DESTINATIONS = new Set([
   "/results/nba",
   "/mlb",
   "/mlb/board",
+  "/sports",
   "/learn",
   "/methodology",
   "/market-guide",
@@ -89,7 +90,9 @@ const APPROVED_DESTINATIONS = new Set([
 
 /** Nothing in a nav surface may point at any of these, however it is labelled. */
 const NEVER_IN_NAV = [
-  "/nba", "/nhl", "/ipl", "/ufc", "/sports", "/board", "/projections", "/events",
+  // "/sports" left this list in Program 158: it is now the canonical nav destination for the
+  // four-sport schedules directory (one item, "Sports · Schedules", secondary group).
+  "/nba", "/nhl", "/ipl", "/ufc", "/board", "/projections", "/events",
   "/trends", "/homer-nukes", "/world-cup", "/world-cup-specials", "/mlb/parlays",
   "/parlays", "/parlay-lab", "/games", "/ops", "/preview",
 ];

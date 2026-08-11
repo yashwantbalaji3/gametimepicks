@@ -83,6 +83,11 @@ export default function Footer() {
                   NBA <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· settled archive</span>
                 </Link>
               </li>
+              <li>
+                <Link href="/sports" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
+                  Sports <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· schedules</span>
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
