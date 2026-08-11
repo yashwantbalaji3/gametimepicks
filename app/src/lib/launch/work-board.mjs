@@ -36,7 +36,7 @@ export function buildWorkBoard({ assessments = SPORT_ASSESSMENTS, roadmap = ROAD
     if (sport === "mlb") continue; // the live pipeline's truth lives in the ledger, not on this board
     for (const [stage, s] of Object.entries(a.stages)) {
       if (s.status === "PARTIAL") {
-        const cadence = /receipt 1\/2/i.test(s.evidence ?? "");
+        const cadence = /receipt 1\/2|CADENCE 1\/2/i.test(s.evidence ?? "");
         push({
           id: `stage-${sport}-${stage}`,
           title: `${sport.toUpperCase()} · prove ${STAGE_LABEL[stage] ?? stage}`,

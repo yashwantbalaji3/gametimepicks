@@ -72,7 +72,7 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "Cadence receipt #2: verify the second scheduled sport-schedules firing PER SPORT against receipt #1 (run 31396780843) — semantic idempotency, last-known-good preservation, zero credits — then move each schedule stage from its own receipts", department: "automation", sport: "shared", owner: "ENGINEERING", dependency: "the next scheduled firing (wiring + receipt 1/2 shipped P149-P152)", effort: "S", acceptance: "two linked scheduled run ids per sport; per-sport before→after recorded; no blanket promotion" },
+      { outcome: "NFL results side: forward results capture + settlement contract (WIN/LOSS/PUSH/VOID, ties explicit) so preseason finals grade through one writer when the season starts", department: "settlement", sport: "nfl", owner: "ENGINEERING", dependency: "schedule cadence receipts LANDED (runs 31396780843 + 31500117960, P161)", effort: "M", acceptance: "results contract guard-tested against real corpus shapes; zero-gap reconciliation; no live grading before real finals" },
     ],
   },
   {
@@ -86,7 +86,7 @@ export const ROADMAP_30D = Object.freeze([
     horizon: "WEEK_2",
     items: [
       { outcome: "Legal §3 business decisions answered; adviser consultation booked", department: "business-legal", sport: "shared", owner: "FOUNDER", dependency: null, effort: "S-founder", acceptance: "entity/jurisdiction/geography/age/audience recorded in LEGAL_CONTENT_MAP" },
-      { outcome: "NFL results side: forward results capture + settlement contract (WIN/LOSS/PUSH/VOID, ties explicit) so preseason finals grade through one writer when the season starts", department: "settlement", sport: "nfl", owner: "ENGINEERING", dependency: "schedule cadence receipts", effort: "M", acceptance: "results contract guard-tested against real corpus shapes; zero-gap reconciliation; no live grading before real finals" },
+      { outcome: "EPL first real FT flows through the deployed results path (opening day Aug 21) — PRESEASON state flips on reality, never manually", department: "settlement", sport: "epl", owner: "ENGINEERING", dependency: "the season starting; capture + adapter shipped P154", effort: "XS-watch", acceptance: "first FT row appears via the scheduled capture with canonical join + zero quarantine; state RESULTS with real rows" },
     ],
   },
   {

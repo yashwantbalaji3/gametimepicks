@@ -24,7 +24,7 @@ export const INPUT_STATES = Object.freeze(["AVAILABLE", "MISSING", "STALE", "BLO
  */
 export const LIVE_INPUT_MATRIX = Object.freeze({
   nfl: {
-    schedule: { state: "AVAILABLE", source: "sport-schedules daily capture (receipt 1/2)", note: "cadence receipt #2 pending" },
+    schedule: { state: "AVAILABLE", source: "sport-schedules daily capture (cadence receipts 2/2: runs 31396780843 + 31500117960)" },
     priorResults: { state: "AVAILABLE", source: "same scoreboard class the corpus used; forward wiring not yet scheduled" },
     teamStrengthState: { state: "AVAILABLE", source: "Elo state reproducible from corpus + results-to-date (deterministic fit)" },
     injuries: { state: "MISSING", note: "no authorized timestamped source; absence forces wider uncertainty, never invented" },
@@ -45,7 +45,7 @@ export const LIVE_INPUT_MATRIX = Object.freeze({
     odds: { state: "BLOCKED_EXTERNAL", note: "founder-owned CI-key exercise (Odds API supports EPL)" },
   },
   ufc: {
-    schedule: { state: "AVAILABLE", source: "forward cards/bouts capture (16 cards / 82 bouts)" },
+    schedule: { state: "AVAILABLE", source: "forward cards/bouts capture (16 cards / 83 bouts; fight-day addition lineage observed live)" },
     priorResults: { state: "AVAILABLE", source: "MMA scoreboard class proven by the corpus (rate-limit-aware fetcher)" },
     fighterStrengthState: { state: "AVAILABLE", source: "abstaining Elo state reproducible; 25.6% coverage limitation carries over" },
     weighInsReplacements: { state: "MISSING", note: "no authorized timestamped source; late replacements force abstention" },

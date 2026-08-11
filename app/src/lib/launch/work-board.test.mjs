@@ -57,11 +57,17 @@ test("there is NO close/done mechanism — closing happens only by receipts chan
   assert.ok(!/Date\.now|new Date\(\)/.test(src), "no clock — age comes from receipts, not render time");
 });
 
-test("cadence receipt work is P0 and names the time-gated next action", () => {
+test("half-landed cadence escalates to P0; the real board carries none now that receipts are 2/2", () => {
+  // Receipts 31396780843 + 31500117960 landed (P161), so no live evidence string may still claim
+  // a pending cadence — but the escalation mechanism must survive for the next first-receipt phase.
   const board = buildWorkBoard();
-  const cadence = board.sprints.today.find((t) => /receipt/.test(t.nextAction));
-  assert.ok(cadence, "the cadence follow-through must be on today's list while receipt 2/2 is pending");
-  assert.match(cadence.nextAction, /second scheduled/);
+  const pending = Object.values(board.columns).flat().filter((t) => /receipt 1\/2|CADENCE 1\/2/i.test(t.evidence ?? ""));
+  assert.deepEqual(pending.map((t) => t.id), [], "an evidence string still claims a half-landed cadence after receipt #2");
+  const synth = buildWorkBoard({ assessments: { testsport: { stages: { schedule: { status: "PARTIAL", evidence: "P999 first capture; CADENCE 1/2: run 123 landed, second firing pending" } } } } });
+  const t = synth.sprints.today.find((x) => x.id === "stage-testsport-schedule");
+  assert.ok(t, "a half-landed cadence must surface on today's sprint as P0");
+  assert.equal(t.priority, "P0");
+  assert.match(t.nextAction, /second scheduled/);
 });
 
 test("the filter component is READ-ONLY presentation — no fetch, no mutation, Reset + zero-state present", () => {

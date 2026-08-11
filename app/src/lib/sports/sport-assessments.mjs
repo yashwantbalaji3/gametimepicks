@@ -33,7 +33,7 @@ export const SPORT_ASSESSMENTS = {
     inSeason: false,
     historicalArchive: false,
     stages: {
-      schedule: { status: "PARTIAL", evidence: "Program 148: FIRST REAL CAPTURE — 16 preseason events from the ESPN public scoreboard (espn_scoreboard registry entry, scripts/nfl/capture-nfl-schedule.mjs), rendered on /sports through the Release A contract with zero quarantine (guard: lib/sports/upcoming/adapters.test.mjs). PARTIAL not PROVEN: one manual capture is not a daily cadence" },
+      schedule: { status: "PARTIAL", evidence: "P148 first capture; CADENCE 2/2: scheduled runs 31396780843 (Aug 10) + 31500117960 (Aug 11) — run 1 proved semantic idempotency (only stamps moved), run 2 committed an intended content change. PARTIAL: reschedule/postponement lineage not yet exercised by reality" },
       data: { status: "PARTIAL", evidence: "Program 151: private research corpus — 1,001 finals across 2023-2025 (272×3 regular-season exact, 7 ties preserved, Pro Bowls quarantined, 21 counted keyless requests, manifest claims retrieval only; guard: lib/sports/research/nfl-research.test.mjs). PARTIAL: historical corpus, not live daily inputs" },
       model: { status: "PARTIAL", evidence: "Program 151: chronological baselines over 569 decisive games — Elo log loss 0.6415 / 64.5% vs coin ln(2)=0.6931 anchor; margin MAE 11.0; 2025 postseason HISTORICAL_REPLAY through the shared harness (10/13, byte-deterministic, evaluationEligible). The BAR a future NFL model must beat, not a model claim; market comparison unavailable and stated" },
     },
@@ -43,7 +43,7 @@ export const SPORT_ASSESSMENTS = {
     inSeason: false,
     historicalArchive: true,
     stages: {
-      schedule: { status: "PARTIAL", evidence: "Program 150: FRESH capture of the 42 confirmed 2026-27 events rendered as a stated partial calendar (guard: lib/sports/upcoming/adapters.test.mjs). Cadence receipt 1/2: scheduled run 31396780843 (Aug 10) captured all four sports with semantic idempotency proven live; receipt 2 earliest Aug 11 13:00 UTC" },
+      schedule: { status: "PARTIAL", evidence: "P150 first capture (42 events, stated partial calendar); CADENCE 2/2: scheduled runs 31396780843 (Aug 10) + 31500117960 (Aug 11) — run 2 captured the provider RELEASING more season (42→58 events, seasonTypes 1+2) — the partial-calendar design absorbed real growth correctly. PARTIAL: reschedule lineage unexercised" },
       data: { status: "PARTIAL", evidence: "Program 152: private corpus — 4,179 finals across 2023-24/2024-25/2025-26 (1,230×3 regular EXACT, cup-final own phase, play-in 6×3, both All-Star formats quarantined, 28 counted keyless requests incl. the leap-day the exactly-1230 refusal caught; guard: lib/sports/research/nba-research.test.mjs). PARTIAL: historical, not live daily inputs" },
       model: { status: "PARTIAL", evidence: "Program 152: chronological baselines over 2,643 games — Elo log loss 0.6161 / 65.8% vs coin ln(2) anchor; margin MAE 12.0; 91-game postseason HISTORICAL_REPLAY through the shared harness (54/91, frozen-state conservatism stated, byte-deterministic); model-card-v1 with limitations + activation OFF. The BAR a future NBA model must beat" },
       identity: { status: "PARTIAL", evidence: "ESPN athlete ids resolve through PlayerAvatar; team coverage unverified for a full slate" },
@@ -56,7 +56,7 @@ export const SPORT_ASSESSMENTS = {
     inSeason: true,
     historicalArchive: false,
     stages: {
-      schedule: { status: "PARTIAL", evidence: "Program 149: FIRST REAL CAPTURE — all 380 2026-27 fixtures (20/20 clubs, membership dual-source-verified: ESPN eng.1 × openfootball, receipts docs/EPL_SOURCE_DECISION.md), validated by the lane's own validateFixtureArtifact, rendered on /sports as a bounded stated window (guard: lib/sports/upcoming/adapters.test.mjs). PARTIAL not PROVEN: one manual capture is not a refresh cadence and postponement lineage is unexercised" },
+      schedule: { status: "PARTIAL", evidence: "P149 first capture (380/380, dual-source membership); CADENCE 2/2: scheduled runs 31396780843 (Aug 10) + 31500117960 (Aug 11) — both runs re-captured 380/380 clean and DISCARDED the unchanged snapshot (snapshot-per-capture idempotency live twice). PARTIAL: postponement lineage unexercised until the season supplies one" },
       markets: { status: "PARTIAL", evidence: "EPL odds side landed (Program 062-065); settlement-gated, never published" },
       model: { status: "PARTIAL", evidence: "Release C (Program 148): private 4-season research corpus (1,520 matches, 0 quarantined) + three chronologically-evaluated baselines — Elo log loss 0.9991 vs uniform 1.0986 over 1,140 leakage-free predictions (data/internal/research/epl/, guard: epl-research.test.mjs in the soccer lane). These are the BAR a future model must beat, not a model claim; no-vig comparison absent until a real odds capture exists" },
       settlement: { status: "PARTIAL", evidence: "Contract v1 validated on a full real season (P151); P154 adds the OPERATIONAL current-results path: capture script + honest PRESEASON/NO_RESULTS_YET/SOURCE_STALE states (fresh stamps, zero fabricated rows), canonical-identity join with exactly-once consumption + total quarantine (guard: epl-current-results.test.mjs), wired into sport-schedules so the first real FT flows without deployment. PARTIAL: first real FT + settlement cadence receipts do not exist yet by definition" },
@@ -67,7 +67,7 @@ export const SPORT_ASSESSMENTS = {
     inSeason: true,              // forward cards captured (P150) — next event Aug 11
     historicalArchive: true,
     stages: {
-      schedule: { status: "PARTIAL", evidence: "Program 150: FIRST FORWARD CAPTURE — 16 cards / 82 named bouts (ESPN MMA scoreboard), bouts rendered through the contract red/blue scheme with card context; settled archive stays a separate store, guard-blocked from rendering as upcoming (lib/sports/upcoming/adapters.test.mjs). PARTIAL: no cadence, replacement/cancellation lineage unexercised" },
+      schedule: { status: "PARTIAL", evidence: "P150 first forward capture; CADENCE 2/2: scheduled runs 31396780843 (Aug 10) + 31500117960 (Aug 11) — run 2 recorded REAL lineage on fight day: one bout ADDED (82→83, stable ids, zero swaps/removals) — addition lineage observed from reality, never manufactured. PARTIAL: replacement/cancellation lineage still unexercised" },
       identity: { status: "PARTIAL", evidence: "boutId join made rematch-safe (Program 058-061); Program 153 corpus proves id-based fighter identity end-to-end (1,046 fighters, zero name-joins, self-matchup refusal)" },
       settlement: { status: "PARTIAL", evidence: "ONE card settled from official results (2026-06-15); not a repeatable pipeline" },
       data: { status: "PARTIAL", evidence: "Program 153: private corpus — 1,716 final bouts on 160 cards (Aug 2023–Aug 2026), 25 draw/NC preserved, 0 quarantined; rate-limit receipt in the manifest (burst→400, resumable fetcher at 15s spacing); winner-only field limitation stated (guard: lib/sports/research/ufc-research.test.mjs). PARTIAL: historical, not live" },

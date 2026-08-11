@@ -22,6 +22,14 @@ export const PRODUCT_TRUTH_VERSION = 1;
 /** Intentional, documented divergences. An exception excuses exactly its `matches` class. */
 export const KNOWN_EXCEPTIONS = Object.freeze([
   {
+    id: "products-precede-morning-board",
+    matches: "money-ahead-of-board",
+    rationale: "the daily-products morning skeleton stamps TODAY (~09:39 ET) before today's board generates (~11:51 ET) — the money date may lead the newest board by at most one day inside that window (observed live in receipt-#2 aftermath, Program 161)",
+    evidence: "daily-products run 13:39 UTC vs board generation ~15:51 UTC on 2026-08-11; admin-status guard carries the same bound",
+    review: "re-examine if the lead ever exceeds one day or persists past board generation",
+    maxLeadDays: 1,
+  },
+  {
     id: "money-lags-newest-board",
     matches: "slate-date-lag",
     rationale: "the money state settles overnight while the board generates in the morning — daily-portfolio.date may trail the newest board by one day during the settle window (Program 124/151 lesson)",
@@ -78,7 +86,12 @@ export function buildProductTruthAudit({ now, appRoot, artifacts = null }) {
         if (ex && lagDays <= ex.maxLagDays) exceptionsApplied.push({ id: ex.id, detail: `daily-portfolio ${d.date} trails newest board ${a.newestBoardDate} by ${lagDays}d — inside the documented settle-window lag` });
         else fail("slate-date-lag-exceeded", `daily-portfolio ${d.date} trails newest board ${a.newestBoardDate} by ${lagDays}d — beyond the documented 1-day settle lag`);
       }
-      if (a.newestBoardDate && d.date && d.date > a.newestBoardDate) fail("money-ahead-of-board", `daily-portfolio ${d.date} is AHEAD of the newest board ${a.newestBoardDate} — a future money state is fabrication`);
+      if (a.newestBoardDate && d.date && d.date > a.newestBoardDate) {
+        const leadDays = Math.round((Date.parse(d.date) - Date.parse(a.newestBoardDate)) / 86400000);
+        const exF = KNOWN_EXCEPTIONS.find((x) => x.matches === "money-ahead-of-board");
+        if (exF && leadDays <= exF.maxLeadDays) exceptionsApplied.push({ id: exF.id, detail: `daily-portfolio ${d.date} leads newest board ${a.newestBoardDate} by ${leadDays}d — inside the documented morning window` });
+        else fail("money-ahead-of-board", `daily-portfolio ${d.date} is AHEAD of the newest board ${a.newestBoardDate} by ${leadDays}d — beyond the morning window, a future money state is fabrication`);
+      }
     } else fail("missing-daily-portfolio", "daily-portfolio artifact missing while the portfolio exists");
   }
 

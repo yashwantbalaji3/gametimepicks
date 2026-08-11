@@ -10,8 +10,11 @@ import fs from "node:fs";
 import { buildTop10Board } from "./top10-picks.ts";
 
 const root = path.join(process.cwd(), "public", "data");
-const date = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, "mr-dub", "daily-portfolio.json"))).date; } catch { return "2026-07-05"; } })();
-// Pre-slate clock (before the earliest July-5 start) so real pregame picks exist deterministically.
+// Anchor to the NEWEST BOARD date, not daily-portfolio.date: the morning products stamp the money
+// date ~2h before that day's board generates (documented products-precede-morning-board exception,
+// P161), and Top10 builds from boards — so the money date can name a board that does not exist yet.
+const date = (() => { try { return fs.readdirSync(path.join(root, "mlb", "boards")).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().slice(-1)[0].slice(0, 10); } catch { return "2026-07-05"; } })();
+// Pre-slate clock (before the earliest start on that date) so real pregame picks exist deterministically.
 const nowMs = Date.parse(`${date}T09:00:00-04:00`);
 const board = buildTop10Board(root, date, nowMs);
 

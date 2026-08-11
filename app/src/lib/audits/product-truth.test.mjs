@@ -10,7 +10,11 @@ import path from "node:path";
 import { buildProductTruthAudit, KNOWN_EXCEPTIONS } from "./product-truth.mjs";
 
 const APP = process.cwd();
-const NOW = "2026-08-11T03:45:00Z";
+// NOW derives from the artifacts on disk: the daily cadence moves capture stamps forward, so a
+// frozen literal here goes stale and fires false capture-future P0s (receipt-#2 lesson, P161).
+const STAMP_MAX = Math.max(...["nfl", "nba", "ufc"].map((s) => Date.parse(JSON.parse(fs.readFileSync(path.join(APP, "public", "data", s, "schedule", "latest.json"), "utf8")).generatedAt)));
+const NOW = new Date(STAMP_MAX + 3_600_000).toISOString();
+const FIXTURE_STAMP = new Date(STAMP_MAX).toISOString();
 
 test("the committed audit reconciles every repeated figure with zero contradictions", () => {
   const audit = JSON.parse(fs.readFileSync(path.resolve(APP, "..", "data", "internal", "audits", "product-truth-v1.json"), "utf8"));
@@ -36,9 +40,9 @@ test("CONTRADICTIONS fire fail-closed on corrupted copies — and exceptions nev
     dailyPortfolio: { date: "2026-08-10", activeBankroll: 19065.4, crownBankroll: 20465.4, openExposure: 0 },
     ledger: null, newestBoardDate: "2026-08-10",
     captures: {
-      nfl: { generatedAt: "2026-08-11T02:00:00Z" },
-      nba: { generatedAt: "2026-08-11T02:00:00Z" },
-      ufc: { generatedAt: "2026-08-11T02:00:00Z" },
+      nfl: { generatedAt: FIXTURE_STAMP },
+      nba: { generatedAt: FIXTURE_STAMP },
+      ufc: { generatedAt: FIXTURE_STAMP },
       eplResults: { state: "PRESEASON", rows: [] },
     },
   };
@@ -46,7 +50,12 @@ test("CONTRADICTIONS fire fail-closed on corrupted copies — and exceptions nev
   assert.ok(run({ dailyPortfolio: { ...base.dailyPortfolio, activeBankroll: 19000 } }).contradictions.some((c) => c.id === "bankroll-mismatch"), "a drifted bankroll copy is a P0");
   assert.ok(run({ dailyPortfolio: { ...base.dailyPortfolio, crownBankroll: 1 } }).contradictions.some((c) => c.id === "crown-mismatch"));
   assert.ok(run({ portfolio: { ...base.portfolio, openExposure: 500 } }).contradictions.some((c) => c.id === "exposure-without-pending"), "exposure with zero pending is internally incoherent");
-  assert.ok(run({ dailyPortfolio: { ...base.dailyPortfolio, date: "2026-08-11" } }).contradictions.some((c) => c.id === "money-ahead-of-board"), "a future money state is fabrication");
+  // A one-day lead is the documented morning window; anything beyond is still fabrication.
+  const lead1 = run({ dailyPortfolio: { ...base.dailyPortfolio, date: "2026-08-11" } });
+  assert.equal(lead1.contradictions.length, 0);
+  assert.ok(lead1.exceptionsApplied.some((e) => e.id === "products-precede-morning-board"));
+  const lead2 = run({ dailyPortfolio: { ...base.dailyPortfolio, date: "2026-08-12" } });
+  assert.ok(lead2.contradictions.some((c) => c.id === "money-ahead-of-board"), "a two-day future money state stays P0 — the morning-window exception refuses to stretch");
   // The documented lag exception applies ONLY to its own class, within its bound.
   const lag1 = run({ dailyPortfolio: { ...base.dailyPortfolio, date: "2026-08-09" } });
   assert.equal(lag1.contradictions.length, 0);

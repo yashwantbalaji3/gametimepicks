@@ -38,7 +38,12 @@ test("admin/status.json slate + products are present and self-consistent", () =>
   // Enforced end-to-end by admin-status-slate-pointer.test.mjs (runs the generator with a fixed clock).
   assert.equal(status.slate.dailyPortfolioDate, dp.date, "daily-portfolio (money-state) date is carried verbatim");
   assert.ok(/^2\d{3}-\d{2}-\d{2}$/.test(status.slate.date), "slate date is a real ISO date");
-  assert.ok(status.slate.date >= dp.date, "slate date never lags behind the money-state daily-portfolio date");
+  // The morning sequence stamps daily-portfolio with TODAY (~09:39 ET) about two hours before
+  // today's board generates (~11:51 ET), so the slate may trail the money date by AT MOST one day
+  // during that window (receipt-#2 aftermath finding, Program 161). Beyond one day is still a
+  // defect — the bound is the exception, not a loophole.
+  const lagDays = Math.round((Date.parse(dp.date) - Date.parse(status.slate.date)) / 86400000);
+  assert.ok(lagDays <= 1, `slate ${status.slate.date} trails money date ${dp.date} by ${lagDays}d — beyond the documented morning window`);
   if (status.slate.mlbSlate) assert.ok(status.slate.date >= status.slate.mlbSlate, "slate date never lags behind the newest MLB board");
   assert.ok(typeof status.slate.worldCupGames === "number" && status.slate.worldCupGames >= 0);
   assert.ok(status.products.bankBuilder && status.products.moonshot, "both flagship products reported");
