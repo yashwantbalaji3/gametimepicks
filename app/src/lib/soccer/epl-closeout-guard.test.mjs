@@ -28,7 +28,12 @@ const LANE_DIRS = ["src/lib/soccer", "src/app/preview/epl", "src/lib/sports/rese
 // exempt from the readers check ONLY (Program 160). They are NOT lane members: the lane-ownership
 // rules (no MLB reads, no world-cup paths) do not apply to reconciliation code whose whole job is
 // touching every lane's artifacts.
-const CROSS_LANE_READERS = ["src/lib/audits"];
+const CROSS_LANE_READERS = [
+  "src/lib/audits",
+  // watches.mjs (P162): the command center's reality-gated watch NAMES the EPL results artifact
+  // path as evidence-to-inspect for a human. It imports nothing from the lane — prose, not a read.
+  "src/lib/launch/watches.mjs",
+];
 
 /** Every source file this lane owns. */
 function laneFiles() {

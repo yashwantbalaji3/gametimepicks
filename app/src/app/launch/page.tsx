@@ -5,6 +5,8 @@ import { currentEtDate } from "@/lib/freshness";
 import { buildCompletionMatrix, ROADMAP_30D } from "@/lib/launch/completion-matrix.mjs";
 import { buildWorkBoard } from "@/lib/launch/work-board.mjs";
 import { ENGINES, ASSURED_ROUTES } from "@/lib/launch/browser-assurance.mjs";
+import { RELEASE_HISTORY } from "@/lib/launch/release-history.mjs";
+import { withCountdown } from "@/lib/launch/watches.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
@@ -43,6 +45,22 @@ export default function LaunchCommandCenter() {
   const departments = buildDepartments();
   const sports = buildSports();
   const workBoard = buildWorkBoard();
+  const buildNowIso = new Date().toISOString(); // build-time clock: freshness is re-derived per render of the artifact, same convention as etDate
+  const watches = withCountdown(buildNowIso);
+  const allCards = [...Object.values(workBoard.columns).flat(), ...workBoard.founderQueue];
+  const openP0 = allCards.filter((t) => t.priority === "P0").length;
+  const openP1 = allCards.filter((t) => t.priority === "P1").length;
+  // Sprint-week lanes derive from the build clock — never hard-coded calendar copy.
+  const weekOf = (offset: number) => {
+    const d = new Date(Date.parse(buildNowIso) + offset * 7 * 86400_000);
+    return d.toISOString().slice(0, 10);
+  };
+  const SPRINT_LANES = [
+    { week: `Week 1 · from ${weekOf(0)}`, theme: "Operational results + public comprehension", horizons: ["NOW", "DAYS_3_7"] },
+    { week: `Week 2 · from ${weekOf(1)}`, theme: "Live-input + shadow readiness", horizons: ["WEEK_2"] },
+    { week: `Week 3 · from ${weekOf(2)}`, theme: "Settlement, model cards, recovery", horizons: ["WEEKS_3_4"] },
+    { week: `Week 4 · from ${weekOf(3)}`, theme: "Public-beta assurance", horizons: ["LATER"] },
+  ];
 
   const APP = process.cwd();
   const readJson = (rel: string) => {
@@ -110,6 +128,27 @@ export default function LaunchCommandCenter() {
           Slate {etDate} · schema v{SCHEMA_VERSION} · every figure derived from the scorecard checklist and launch gates — nothing here is hand-maintained.
         </p>
       </header>
+
+      {/* ── Health strip (P162 · Release C): the console's first row. Every tile links to the
+             evidence section it summarizes — a tile is a doorway, never the proof itself. ── */}
+      <section aria-label="Health strip" style={{ marginBottom: 26 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8 }}>
+          {[
+            { href: "#ledger", label: "Evidence ledger", value: ledger ? `${ledger.counts?.HEALTHY ?? 0} healthy · ${(ledger.contradictions ?? []).length} contradictions` : "not generated", bad: !ledger || (ledger.contradictions ?? []).length > 0 },
+            { href: "#product-truth", label: "Product truth", value: productTruth ? `${productTruth.totals.facts} facts · ${productTruth.totals.p0} P0` : "not generated", bad: !productTruth || productTruth.totals.p0 > 0 },
+            { href: "#routes-assurance", label: "Routes", value: routeInventory ? `${routeInventory.totals.routes} routes · ${routeInventory.totals.p0} P0` : "not generated", bad: !routeInventory || routeInventory.totals.p0 > 0 },
+            { href: "#board", label: "Open P0 / P1", value: `${openP0} P0 · ${openP1} P1`, bad: openP0 > 0 },
+            { href: "#board", label: "Engineering WIP", value: `${(workBoard.columns.IN_PROGRESS ?? []).length} in progress`, bad: false },
+            { href: "#queues", label: "Founder queue", value: `${workBoard.founderQueue.length} waiting on founder`, bad: false },
+            { href: "#watches", label: "Next observation", value: watches[0] ? `${watches[0].sport.toUpperCase()} · ${watches[0].due ? "due now" : `${watches[0].hoursUntil}h`}` : "none", bad: false },
+          ].map((t) => (
+            <a key={t.label} href={t.href} style={{ display: "block", padding: "10px 12px", borderRadius: 10, textDecoration: "none", border: `1px solid ${t.bad ? "var(--vault-danger-dim, rgba(242,54,69,0.4))" : "var(--vault-border)"}`, background: "var(--vault-panel)" }}>
+              <span style={{ display: "block", fontSize: 9.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{t.label}</span>
+              <span style={{ display: "block", marginTop: 4, fontSize: 12.5, fontWeight: 600, color: t.bad ? "var(--vault-danger)" : "var(--vault-text)" }}>{t.value}</span>
+            </a>
+          ))}
+        </div>
+      </section>
 
       {/* ── Evidence ledger: states, freshness, contradictions ─────────────────────── */}
       <section aria-labelledby="ledger" style={{ marginBottom: 30 }}>
@@ -277,6 +316,78 @@ export default function LaunchCommandCenter() {
 
       {/* ── Model registry — the four-sport private research index, rendered VERBATIM
              (Program 157 · Release A). Missing card fields say INCOMPLETE, never a substitute. ── */}
+      {/* ── Reality-gated watches: the next receipts only reality can supply ─────────── */}
+      <section aria-labelledby="watches" style={{ marginBottom: 30 }}>
+        <h2 id="watches" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Reality-gated watches</h2>
+        <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+          Time-gated observations with their evidence and the productive work that proceeds meanwhile. A due watch is an instruction to inspect, never an incident.
+        </p>
+        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 8 }}>
+          {watches.map((w) => (
+            <li key={w.id} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 10px", alignItems: "baseline" }}>
+                <strong style={{ fontSize: 13 }}>{w.title}</strong>
+                <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: w.due ? "var(--vault-gold-bright)" : "var(--vault-text-mute)" }}>
+                  {w.due ? "DUE — inspect now" : `in ${w.hoursUntil}h`} · {w.observeAtUtc}
+                </span>
+              </div>
+              <p style={{ margin: "6px 0 0", fontSize: 12, color: "var(--vault-text-mute)" }}>Inspect: {w.evidenceToInspect}</p>
+              <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--vault-text-faint)" }}>Meanwhile: {w.productiveBefore}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* ── Sprint lanes: week themes with dates DERIVED from the build clock ────────── */}
+      <section aria-labelledby="sprints" style={{ marginBottom: 30 }}>
+        <h2 id="sprints" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Sprint lanes</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 8 }}>
+          {SPRINT_LANES.map((lane) => {
+            const items = allCards.filter((t) => t.horizon && lane.horizons.includes(t.horizon));
+            return (
+              <div key={lane.week} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
+                <p style={{ margin: 0, fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold-bright)" }}>{lane.week}</p>
+                <p style={{ margin: "3px 0 6px", fontSize: 12, fontWeight: 600 }}>{lane.theme}</p>
+                {items.length ? (
+                  <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: "var(--vault-text-mute)", display: "grid", gap: 3 }}>
+                    {items.map((t) => <li key={t.id}>{t.title}</li>)}
+                  </ul>
+                ) : (
+                  <p style={{ margin: 0, fontSize: 12, color: "var(--vault-text-faint)" }}>No roadmap items carry this horizon yet.</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Release history: shipped programs as auditable outcomes, pruned from lanes ── */}
+      <section aria-labelledby="history" style={{ marginBottom: 30 }}>
+        <h2 id="history" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Release history</h2>
+        <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+          {RELEASE_HISTORY.filter((r) => r.commit).length} recorded releases. A guard proves none of these still occupies an active lane; a missing receipt says UNRECORDED in words.
+        </p>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 760 }}>
+            <thead><tr>
+              <Head>Program</Head><Head>Commit</Head><Head>Date</Head><Head>Departments</Head><Head>Outcome</Head><Head>Defects found shipping</Head>
+            </tr></thead>
+            <tbody>
+              {RELEASE_HISTORY.map((r) => (
+                <tr key={`${r.program}-${r.release}`}>
+                  <Cell mono>{r.program} · {r.release}</Cell>
+                  <Cell mono>{r.commit ?? "—"}</Cell>
+                  <Cell mono>{r.date}</Cell>
+                  <Cell>{r.departments.join(" · ")}</Cell>
+                  <Cell>{r.outcome}</Cell>
+                  <Cell>{r.defectsFound ?? "—"}</Cell>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section aria-labelledby="registry" style={{ marginBottom: 30 }}>
         <h2 id="registry" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Model registry (private research)</h2>
         {modelRegistry ? (

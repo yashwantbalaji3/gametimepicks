@@ -14,9 +14,10 @@ import { SPORT_ASSESSMENTS } from "../sports/sport-assessments.mjs";
 import { GATE_STAGES } from "../sports/sport-gate.mjs";
 import { ROADMAP_30D } from "./completion-matrix.mjs";
 import { shadowGaps } from "../sports/research/shadow-contract.mjs";
+import { REALITY_GATED_WATCHES } from "./watches.mjs";
 
 export const BOARD_VERSION = 1;
-export const BOARD_STATES = Object.freeze(["NEW", "READY", "IN_PROGRESS", "BLOCKED"]);
+export const BOARD_STATES = Object.freeze(["NEW", "READY", "IN_PROGRESS", "BLOCKED", "REALITY_GATED"]);
 
 const STAGE_LABEL = Object.fromEntries(GATE_STAGES.map((s) => [s.id, s.label ?? s.id]));
 const programOf = (text) => text?.match(/Program\s+(\d+)/)?.[1] ?? null;
@@ -99,6 +100,22 @@ export function buildWorkBoard({ assessments = SPORT_ASSESSMENTS, roadmap = ROAD
       blocker: g.state === "UNSUPPORTED" ? g.note : null,
       nextAction: g.note ?? "acquire an authorized timestamped source or record the abstention policy",
       acceptance: "LIVE_INPUT_MATRIX entry flips to AVAILABLE with a source receipt (or NOT_REQUIRED with a stated policy)",
+    });
+  }
+
+  // 2b · Reality-gated watches (Program 162 · Release C): work whose next receipt only reality
+  //      can supply. Their own state so a time-gated observation never reads as a stalled card,
+  //      and never enters today's sprint — the countdown view lives beside the board.
+  for (const w of REALITY_GATED_WATCHES) {
+    push({
+      id: w.id,
+      title: w.title,
+      sport: w.sport, department: "observation", priority: "P2",
+      owner: "ENGINEERING", state: "REALITY_GATED",
+      sinceProgram: "162", evidence: `productive before then: ${w.productiveBefore}`,
+      blocker: null,
+      nextAction: `observe at ${w.observeAtUtc}: ${w.evidenceToInspect}`,
+      acceptance: "the named real-world evidence lands in a committed artifact and the stage records it",
     });
   }
 
