@@ -72,7 +72,7 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "NFL results: first scheduled capture receipt with a real preseason final JOINED zero-gap through the deployed path (DET-CIN Aug 13 window is the first candidate with schedule lineage)", department: "settlement", sport: "nfl", owner: "ENGINEERING", dependency: "contract + capture + adapter shipped P161; the next finals with schedule lineage", effort: "XS-watch", acceptance: "a scheduled sport-schedules run commits a results capture whose finals join their schedule rows exactly-once with zero unexplained quarantines" },
+      { outcome: "EPL settlement hardening before opening day: corruption cases (postponed, abandoned, delayed, cancelled, corrected, missing-score, duplicate, alias, kickoff-change) against prior-season real shapes, plus a corrections runbook", department: "settlement", sport: "epl", owner: "ENGINEERING", dependency: "results path shipped P154; contract validated on 380 real results P151; the first-FT observation itself lives on the REALITY_GATED watch, not here", effort: "M", acceptance: "corruption suite green on real + synthetic shapes; runbook committed; zero changes to live grading behavior" },
     ],
   },
   {
@@ -86,7 +86,7 @@ export const ROADMAP_30D = Object.freeze([
     horizon: "WEEK_2",
     items: [
       { outcome: "Legal §3 business decisions answered; adviser consultation booked", department: "business-legal", sport: "shared", owner: "FOUNDER", dependency: null, effort: "S-founder", acceptance: "entity/jurisdiction/geography/age/audience recorded in LEGAL_CONTENT_MAP" },
-      { outcome: "EPL first real FT flows through the deployed results path (opening day Aug 21) — PRESEASON state flips on reality, never manually", department: "settlement", sport: "epl", owner: "ENGINEERING", dependency: "the season starting; capture + adapter shipped P154", effort: "XS-watch", acceptance: "first FT row appears via the scheduled capture with canonical join + zero quarantine; state RESULTS with real rows" },
+      { outcome: "NFL + NBA injuries/lineups source evaluation (free/authorized only): rights, identity linkage, update timestamps, status taxonomy, stale behavior — commit a contract + fixtures only if provenance is acceptable", department: "data", sport: "nfl/nba", owner: "ENGINEERING", dependency: "shadow live-input matrix names the gaps (P155); first-final observations live on REALITY_GATED watches, not here", effort: "M", acceptance: "per-source evaluation recorded with a keep/reject verdict; any committed contract carries fixtures and a stale-behavior test; a missing feed never reads as healthy availability" },
     ],
   },
   {
