@@ -72,7 +72,7 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "NFL + EPL schedule capture CADENCE: wire both capture scripts into a scheduled workflow with locks, freshness and zero-paid-cost proof — one scheduled run plus one independent subsequent run is the minimum receipt", department: "automation", sport: "nfl", owner: "ENGINEERING", dependency: "capture scripts (shipped: scripts/nfl + scripts/epl)", effort: "M", acceptance: "workflow lands two green scheduled runs; schedule stages carry cadence receipts; no paid credits consumed" },
+      { outcome: "Cadence receipt #2: verify the second scheduled sport-schedules firing PER SPORT against receipt #1 (run 31396780843) — semantic idempotency, last-known-good preservation, zero credits — then move each schedule stage from its own receipts", department: "automation", sport: "shared", owner: "ENGINEERING", dependency: "the next scheduled firing (wiring + receipt 1/2 shipped P149-P152)", effort: "S", acceptance: "two linked scheduled run ids per sport; per-sport before→after recorded; no blanket promotion" },
     ],
   },
   {
@@ -86,7 +86,7 @@ export const ROADMAP_30D = Object.freeze([
     horizon: "WEEK_2",
     items: [
       { outcome: "Legal §3 business decisions answered; adviser consultation booked", department: "business-legal", sport: "shared", owner: "FOUNDER", dependency: null, effort: "S-founder", acceptance: "entity/jurisdiction/geography/age/audience recorded in LEGAL_CONTENT_MAP" },
-      { outcome: "NFL first gate (schedule adapter + fixtures) — now unblocked: EPL proved the second-sport adapter pattern", department: "data-ingestion", sport: "nfl", owner: "ENGINEERING", dependency: "EPL adapter receipt", effort: "M", acceptance: "sport-gate schedule stage PARTIAL with committed fixtures; no paid calls" },
+      { outcome: "NFL results side: forward results capture + settlement contract (WIN/LOSS/PUSH/VOID, ties explicit) so preseason finals grade through one writer when the season starts", department: "settlement", sport: "nfl", owner: "ENGINEERING", dependency: "schedule cadence receipts", effort: "M", acceptance: "results contract guard-tested against real corpus shapes; zero-gap reconciliation; no live grading before real finals" },
     ],
   },
   {
