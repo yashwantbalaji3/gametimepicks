@@ -1,0 +1,188 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823673-188f3bd42542c3b33451582d826f1396",
+  "snapshotCreatedAt": "2026-08-11T19:55:32.458Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-11",
+  "eventId": "823673",
+  "gamePk": 823673,
+  "eventStartTime": "2026-08-11T23:40:00Z",
+  "homeTeam": "MIN",
+  "awayTeam": "BAL",
+  "venue": "Target Field",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "8254e2c35f3cb6686aeee01b2a2d429d",
+  "normalizedPayloadHash": "e9047142e23878495ec0c6a7f63febb3",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": false,
+      "value": {
+        "status": "PROJECTED_OR_UNPOSTED"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-11T19:55:32.458Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-11T19:55:32.458Z",
+      "timestampProven": true,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823673/feed/live",
+        "requestedAt": "2026-08-11T19:55:32.458Z",
+        "receivedAt": "2026-08-11T19:55:32.458Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Bailey Ober",
+        "awayProbable": "Brandon Young",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-11T19:55:32.458Z",
+      "availableAt": "2026-08-11T19:55:32.458Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-11T19:55:32.458Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823673/feed/live",
+        "requestedAt": "2026-08-11T19:55:32.458Z",
+        "receivedAt": "2026-08-11T19:55:32.458Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "85",
+        "wind": "3 mph, In From LF",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-11T19:55:32.458Z",
+      "availableAt": "2026-08-11T19:55:32.458Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-11T19:55:32.458Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823673/feed/live",
+        "requestedAt": "2026-08-11T19:55:32.458Z",
+        "receivedAt": "2026-08-11T19:55:32.458Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Todd Tichenor",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Tyler Jones",
+            "type": "First Base"
+          },
+          {
+            "name": "Bruce Dreckman",
+            "type": "Second Base"
+          },
+          {
+            "name": "Adam Hamari",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-11T19:55:32.458Z",
+      "availableAt": "2026-08-11T19:55:32.458Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-11T19:55:32.458Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823673/feed/live",
+        "requestedAt": "2026-08-11T19:55:32.458Z",
+        "receivedAt": "2026-08-11T19:55:32.458Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

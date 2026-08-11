@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824240,
+  "date": "2026-08-11",
+  "capturedAt": "2026-08-11T19:55:32.604Z",
+  "availableAt": "2026-08-11T19:55:32.604Z",
+  "eventStartTime": "2026-08-11T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 623454,
+      "name": "Drew Anderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 3,
+        "ipSum": 11,
+        "ipAvg": 3.67,
+        "kAvg": 4,
+        "bbAvg": 1.67,
+        "erAvg": 0.33,
+        "hrAvg": 0,
+        "kPer9": 9.82,
+        "workloadIpLast5": 11
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 11,
+        "k": 12,
+        "bb": 5,
+        "er": 1,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 676440,
+      "name": "Tanner Bibee",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.67,
+        "ipAvg": 6.33,
+        "kAvg": 5.2,
+        "bbAvg": 1.6,
+        "erAvg": 2.2,
+        "hrAvg": 0.6,
+        "kPer9": 7.39,
+        "workloadIpLast5": 31.67
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 138,
+        "k": 110,
+        "bb": 38,
+        "er": 59,
+        "hr": 23
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-11T19:55:32.604Z"
+  },
+  "recordHash": "e0cb2fc1253cb66183b2a049b10b493db39c424a773716f6eba9febabd8569a9"
+}
