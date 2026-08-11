@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823186,
+  "date": "2026-08-11",
+  "capturedAt": "2026-08-11T03:03:12.535Z",
+  "availableAt": "2026-08-11T03:03:12.535Z",
+  "eventStartTime": "2026-08-12T01:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-08",
+    "2026-08-09",
+    "2026-08-10"
+  ],
+  "home": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 139,
+      "relievers": [
+        {
+          "id": 693313,
+          "name": "Carson Seymour",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 6,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 671345,
+          "name": "Jason Foley",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 681916,
+          "name": "Dylan Smith",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 676775,
+          "name": "Keaton Winn",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 805345,
+          "name": "Trent Harris",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 1,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 656529,
+          "name": "Sam Hentges",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 1,
+          "dates": [
+            "2026-08-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 117,
+    "teamName": "Houston Astros",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 82,
+      "relievers": [
+        {
+          "id": 687911,
+          "name": "Bryan King",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-08-08",
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 660853,
+          "name": "Enyel De Los Santos",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 805123,
+          "name": "AJ Blubaugh",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-08-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-08,2026-08-09,2026-08-10) + feed/live box scores",
+    "capturedAt": "2026-08-11T03:03:12.535Z"
+  },
+  "recordHash": "a077248046dd67b86054c0444288e06f2cde39fdbb7fb0940bade917f256346e"
+}

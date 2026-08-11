@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823512,
+  "date": "2026-08-11",
+  "capturedAt": "2026-08-11T03:03:12.535Z",
+  "availableAt": "2026-08-11T03:03:12.535Z",
+  "eventStartTime": "2026-08-11T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-08",
+    "2026-08-09",
+    "2026-08-10"
+  ],
+  "home": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 82,
+      "relievers": [
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 7,
+          "dates": [
+            "2026-08-08",
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 687396,
+          "name": "Brent Headrick",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 2,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 665645,
+          "name": "Kervin Castro",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 136,
+    "teamName": "Seattle Mariners",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 118,
+      "relievers": [
+        {
+          "id": 621074,
+          "name": "Michael Rucker",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 4,
+          "dates": [
+            "2026-08-08",
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 678606,
+          "name": "José A. Ferrer",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 660825,
+          "name": "Eduard Bazardo",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 5,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 681006,
+          "name": "Josh Simpson",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 4,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 622554,
+          "name": "Seranthony Domínguez",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 662253,
+          "name": "Andrés Muñoz",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 689546,
+          "name": "Nick Davila",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-08,2026-08-09,2026-08-10) + feed/live box scores",
+    "capturedAt": "2026-08-11T03:03:12.535Z"
+  },
+  "recordHash": "4f1b4f3ea88a1dbf0349144bdaf24f7d03ca4075f49f9eed22a27119b48f8ae1"
+}

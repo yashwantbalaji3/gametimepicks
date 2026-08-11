@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824970,
+  "date": "2026-08-11",
+  "capturedAt": "2026-08-11T03:03:12.535Z",
+  "availableAt": "2026-08-11T03:03:12.535Z",
+  "eventStartTime": "2026-08-12T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-08",
+    "2026-08-09",
+    "2026-08-10"
+  ],
+  "home": {
+    "teamId": 133,
+    "teamName": "Athletics",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 108,
+      "relievers": [
+        {
+          "id": 663687,
+          "name": "Hogan Harris",
+          "appearances": 2,
+          "pitches": 56,
+          "outs": 7,
+          "dates": [
+            "2026-08-08",
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 686751,
+          "name": "Seth Johnson",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 2,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 665622,
+          "name": "Luis Medina",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 665660,
+          "name": "Elvis Alvarado",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 669620,
+          "name": "Brady Basso",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 143,
+      "relievers": [
+        {
+          "id": 592155,
+          "name": "Cam Booser",
+          "appearances": 2,
+          "pitches": 36,
+          "outs": 5,
+          "dates": [
+            "2026-08-08",
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 9,
+          "dates": [
+            "2026-08-08",
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 669330,
+          "name": "Tyler Wells",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 6,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 668984,
+          "name": "Casey Legumina",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 664076,
+          "name": "Garrett Cleavinger",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 687330,
+          "name": "Kevin Kelly",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 4,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-08"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-08,2026-08-09,2026-08-10) + feed/live box scores",
+    "capturedAt": "2026-08-11T03:03:12.535Z"
+  },
+  "recordHash": "21b81b89c36b623a28532af94a9d9743d1f0c9509b1254ba756f43a35d66971d"
+}

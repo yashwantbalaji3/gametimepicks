@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 825046,
+  "date": "2026-08-11",
+  "capturedAt": "2026-08-11T03:03:12.535Z",
+  "availableAt": "2026-08-11T03:03:12.535Z",
+  "eventStartTime": "2026-08-12T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-08",
+    "2026-08-09",
+    "2026-08-10"
+  ],
+  "home": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 90,
+      "relievers": [
+        {
+          "id": 642528,
+          "name": "Jonathan Loáisiga",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 3,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 672629,
+          "name": "Gerardo Carrillo",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 5,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 805299,
+          "name": "Brandyn Garcia",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 1,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 664199,
+          "name": "Taylor Clarke",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 139,
+      "relievers": [
+        {
+          "id": 685299,
+          "name": "Tanner Gordon",
+          "appearances": 1,
+          "pitches": 48,
+          "outs": 10,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 656786,
+          "name": "Parker Mushinski",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 5,
+          "dates": [
+            "2026-08-08",
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 605447,
+          "name": "Jordan Romano",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 623474,
+          "name": "Jimmy Herget",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 657514,
+          "name": "Brennan Bernardino",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-08-08"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-08,2026-08-09,2026-08-10) + feed/live box scores",
+    "capturedAt": "2026-08-11T03:03:12.535Z"
+  },
+  "recordHash": "ae31bc9d515ee5b1f98e11e9496f9648c1fccc8a48da4fc889afd653a81b923f"
+}

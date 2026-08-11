@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824886,
+  "date": "2026-08-11",
+  "capturedAt": "2026-08-11T03:03:11.429Z",
+  "availableAt": "2026-08-11T03:03:11.429Z",
+  "eventStartTime": "2026-08-11T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 527048,
+      "name": "Martín Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-08-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 3.4,
+        "bbAvg": 2,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 6.56,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 91,
+        "k": 67,
+        "bb": 40,
+        "er": 33,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 690997,
+      "name": "Nolan McLean",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-08-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 7.6,
+        "bbAvg": 2.2,
+        "erAvg": 1.8,
+        "hrAvg": 0.8,
+        "kPer9": 11.66,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 130.67,
+        "k": 156,
+        "bb": 48,
+        "er": 51,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-11T03:03:11.429Z"
+  },
+  "recordHash": "9f5e6fc2abe840c7eaf28b6585b10bd5716e368b90716f846a89e508aca7003a"
+}

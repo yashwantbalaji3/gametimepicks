@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822697,
+  "date": "2026-08-11",
+  "capturedAt": "2026-08-11T03:03:12.535Z",
+  "availableAt": "2026-08-11T03:03:12.535Z",
+  "eventStartTime": "2026-08-11T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-08",
+    "2026-08-09",
+    "2026-08-10"
+  ],
+  "home": {
+    "teamId": 120,
+    "teamName": "Washington Nationals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 140,
+      "relievers": [
+        {
+          "id": 702021,
+          "name": "Will Dion",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 9,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 592866,
+          "name": "Trevor Williams",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 7,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 690925,
+          "name": "Clayton Beeter",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 676680,
+          "name": "Tom Cosgrove",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 672442,
+          "name": "Yovanny Cruz",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 656234,
+          "name": "Jake Bird",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 668820,
+          "name": "Max Kranick",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-08-08"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 112,
+    "teamName": "Chicago Cubs",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 92,
+      "relievers": [
+        {
+          "id": 607067,
+          "name": "Colin Rea",
+          "appearances": 1,
+          "pitches": 63,
+          "outs": 12,
+          "dates": [
+            "2026-08-08"
+          ]
+        },
+        {
+          "id": 666171,
+          "name": "Ryan Zeferjahn",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 665871,
+          "name": "Javier Assad",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-08,2026-08-09,2026-08-10) + feed/live box scores",
+    "capturedAt": "2026-08-11T03:03:12.535Z"
+  },
+  "recordHash": "6b5c7f29841016c9f257620cffd0958e8cd94a8ee4608591dd41db49f905cee4"
+}
