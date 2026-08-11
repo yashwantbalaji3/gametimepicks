@@ -1,0 +1,184 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823512-ff46b0cecdf0591ebd427fe46bc84a82",
+  "snapshotCreatedAt": "2026-08-11T23:19:39.385Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-11",
+  "eventId": "823512",
+  "gamePk": 823512,
+  "eventStartTime": "2026-08-11T23:05:00Z",
+  "homeTeam": "NYY",
+  "awayTeam": "SEA",
+  "venue": "Yankee Stadium",
+  "statusState": "In Progress",
+  "startedAtCapture": true,
+  "dataQuality": {
+    "anyEligible": false,
+    "eligibleFamilies": []
+  },
+  "rawPayloadHash": "d1da3c79ef8d4b6dcf3f7750197af796",
+  "normalizedPayloadHash": "5d332022cfbde438cb0f50c741402153",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": false,
+      "value": {
+        "status": "POST_START"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-11T23:19:39.385Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-11T23:19:39.385Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823512/feed/live",
+        "requestedAt": "2026-08-11T23:19:39.385Z",
+        "receivedAt": "2026-08-11T23:19:39.385Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": false,
+      "value": {
+        "homeProbable": "Ryan Weathers",
+        "awayProbable": "Bryan Woo",
+        "status": "POST_START"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-11T23:19:39.385Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-11T23:19:39.385Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823512/feed/live",
+        "requestedAt": "2026-08-11T23:19:39.385Z",
+        "receivedAt": "2026-08-11T23:19:39.385Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": false,
+      "value": {
+        "condition": "Cloudy",
+        "temp": "79",
+        "wind": "4 mph, Out To CF",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": true
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-11T23:19:39.385Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-11T23:19:39.385Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823512/feed/live",
+        "requestedAt": "2026-08-11T23:19:39.385Z",
+        "receivedAt": "2026-08-11T23:19:39.385Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": false,
+      "value": {
+        "officials": [
+          {
+            "name": "Stu Scheurwater",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Junior Valentine",
+            "type": "First Base"
+          },
+          {
+            "name": "Rob Drake",
+            "type": "Second Base"
+          },
+          {
+            "name": "Jordan Baker",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-11T23:19:39.385Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-11T23:19:39.385Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823512/feed/live",
+        "requestedAt": "2026-08-11T23:19:39.385Z",
+        "receivedAt": "2026-08-11T23:19:39.385Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

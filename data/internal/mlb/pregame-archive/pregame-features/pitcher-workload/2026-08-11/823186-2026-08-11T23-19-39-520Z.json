@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823186,
+  "date": "2026-08-11",
+  "capturedAt": "2026-08-11T23:19:39.520Z",
+  "availableAt": "2026-08-11T23:19:39.520Z",
+  "eventStartTime": "2026-08-12T01:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687931,
+      "name": "Carson Whisenhunt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 6,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 4,
+        "bbAvg": 3,
+        "erAvg": 3.6,
+        "hrAvg": 0.8,
+        "kPer9": 8.06,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 22.33,
+        "k": 20,
+        "bb": 15,
+        "er": 18,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 686613,
+      "name": "Hunter Brown",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 6,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 5.6,
+        "bbAvg": 3,
+        "erAvg": 2.4,
+        "hrAvg": 0.6,
+        "kPer9": 8.59,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 58.67,
+        "k": 63,
+        "bb": 32,
+        "er": 23,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-11&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-11T23:19:39.520Z"
+  },
+  "recordHash": "e3385b72535324b819b9395258e5e15ef12de5ff1f6dae34813708076af4659d"
+}
