@@ -27,14 +27,14 @@ export const LIVE_INPUT_MATRIX = Object.freeze({
     schedule: { state: "AVAILABLE", source: "sport-schedules daily capture (cadence receipts 2/2: runs 31396780843 + 31500117960)" },
     priorResults: { state: "AVAILABLE", source: "same scoreboard class the corpus used; forward wiring not yet scheduled" },
     teamStrengthState: { state: "AVAILABLE", source: "Elo state reproducible from corpus + results-to-date (deterministic fit)" },
-    injuries: { state: "MISSING", note: "no authorized timestamped source; absence forces wider uncertainty, never invented" },
+    injuries: { state: "MISSING", note: "source EVALUATED and accepted-with-conditions (docs/INJURY_SOURCE_EVALUATION.md: ESPN public injuries feed — closed taxonomy, 100% timestamps, team-id linkage; athlete id via playercard URL must validate first; absence = UNKNOWN never healthy). Contract + fixtures are the next receipt; state stays MISSING until they land" },
     odds: { state: "BLOCKED_EXTERNAL", note: "founder-owned CI-key exercise" },
   },
   nba: {
     schedule: { state: "AVAILABLE", source: "sport-schedules daily capture (partial calendar until full publication)" },
     priorResults: { state: "AVAILABLE", source: "scoreboard class proven by the corpus" },
     teamStrengthState: { state: "AVAILABLE", source: "Elo/pace state reproducible deterministically" },
-    injuriesLineups: { state: "MISSING", note: "no authorized timestamped source; model card names this gap" },
+    injuriesLineups: { state: "MISSING", note: "injuries side EVALUATED with NFL (same feed class, Day-To-Day/Out taxonomy, docs/INJURY_SOURCE_EVALUATION.md); lineups still have no evaluated source. Contract + fixtures are the next receipt; state stays MISSING until they land" },
     odds: { state: "BLOCKED_EXTERNAL", note: "founder-owned CI-key exercise" },
   },
   epl: {

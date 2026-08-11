@@ -72,7 +72,7 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "NFL + NBA injuries/lineups source evaluation (free/authorized only): rights, identity linkage, update timestamps, status taxonomy, stale behavior — commit a contract + fixtures only if provenance is acceptable", department: "data", sport: "nfl/nba", owner: "ENGINEERING", dependency: "shadow live-input matrix names the gaps (P155); first-final observations live on REALITY_GATED watches", effort: "M", acceptance: "per-source evaluation recorded with a keep/reject verdict; any committed contract carries fixtures and a stale-behavior test; a missing feed never reads as healthy availability" },
+      { outcome: "NFL/NBA injuries capture CONTRACT per the accepted evaluation (docs/INJURY_SOURCE_EVALUATION.md): URL-derived athlete id validated against identity components, unknown statuses quarantine, absence maps to UNKNOWN never healthy, stale feed widens uncertainty", department: "data", sport: "nfl/nba", owner: "ENGINEERING", dependency: "evaluation ACCEPTED with two named conditions (P162-F)", effort: "M", acceptance: "contract module + real-sample fixtures + stale-behavior test green; matrix entries stay MISSING until a capture lands through it" },
     ],
   },
   {
