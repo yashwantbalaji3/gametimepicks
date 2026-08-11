@@ -1,0 +1,239 @@
+{
+ "schemaVersion": 1,
+ "artifact": "model-registry",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-11T01:35:00Z",
+ "comparabilityNote": "entries share evidence STRUCTURE only — outcome spaces differ (binary vs three-way vs abstaining), so cross-sport performance comparison is meaningless and deliberately absent",
+ "entries": [
+  {
+   "sport": "nfl",
+   "modelVersion": "baseline-v1",
+   "objective": "INCOMPLETE — no model card committed; objective lives in the evaluation artifact header",
+   "outcomeTaxonomy": "binary_winner + margin/total point estimates",
+   "sourceRights": "public JSON endpoint, no key, no credits; point-in-time snapshots with attribution — registered source (P148), respectful 1s spacing",
+   "corpus": {
+    "total": 1001,
+    "note": "7 ties preserved; regular 272×3 exact",
+    "generatedAt": "2026-08-10T03:00:00Z"
+   },
+   "split": "warm-up 2023; chronological walk-forward",
+   "featureCutoff": "INCOMPLETE — no model card; cutoff discipline enforced by the replay runner",
+   "replayMode": "HISTORICAL_REPLAY",
+   "replayDeterministicId": "107259be14d75805",
+   "metrics": {
+    "primary": {
+     "n": 569,
+     "logLoss": 0.6415,
+     "brier": 0.2252,
+     "accuracy": 0.645
+    },
+    "comparators": {
+     "homerate": {
+      "n": 569,
+      "logLoss": 0.6911,
+      "brier": 0.249,
+      "accuracy": 0.5413
+     },
+     "coin": {
+      "n": 569,
+      "logLoss": 0.6931,
+      "brier": 0.25,
+      "accuracy": 0.5413
+     }
+    },
+    "score": {
+     "n": 570,
+     "marginMAE": 11.01,
+     "marginRMSE": 14.09,
+     "totalMAE": 10.38,
+     "totalRMSE": 13.25
+    }
+   },
+   "calibrationRef": "10-bin table in the sport's baseline-evaluation-v1.json",
+   "limitations": [
+    "INCOMPLETE — no model card; limitations stated inside the evaluation artifact"
+   ],
+   "lastEvaluated": "2026-08-10T03:05:00Z",
+   "evaluationEligible": true,
+   "publicActivation": "OFF — no model card exists; activation is definitionally off",
+   "artifactRefs": {
+    "corpus": "data/internal/research/nfl/corpus-v1.json",
+    "evaluation": "data/internal/research/nfl/reports/baseline-evaluation-v1.json",
+    "replay": "data/internal/research/nfl/replays/",
+    "modelCard": null
+   }
+  },
+  {
+   "sport": "nba",
+   "modelVersion": "baseline-v1",
+   "objective": "winner probability baseline (research bar, not a product model)",
+   "outcomeTaxonomy": "binary_winner + margin/total point estimates",
+   "sourceRights": "public JSON endpoint, no key, no credits; point-in-time snapshots with attribution — registered source; respectful 1s spacing",
+   "corpus": {
+    "total": 4179,
+    "note": "regular 1,230×3 exact; cup-final own phase; no ties possible",
+    "generatedAt": "2026-08-10T18:35:00Z"
+   },
+   "split": "warm-up 2024; chronological walk-forward",
+   "featureCutoff": "expanding pregame state only: prior finals' scores and venues; no injuries, no rosters, no rest modeling in v1",
+   "replayMode": "HISTORICAL_REPLAY",
+   "replayDeterministicId": "75455fcde8ba24bf",
+   "metrics": {
+    "primary": {
+     "n": 2643,
+     "logLoss": 0.6161,
+     "brier": 0.2138,
+     "accuracy": 0.6576
+    },
+    "comparators": {
+     "homerate": {
+      "n": 2643,
+      "logLoss": 0.6883,
+      "brier": 0.2476,
+      "accuracy": 0.5501
+     },
+     "coin": {
+      "n": 2643,
+      "logLoss": 0.6931,
+      "brier": 0.25,
+      "accuracy": 0.5501
+     }
+    },
+    "score": {
+     "n": 2643,
+     "marginMAE": 11.98,
+     "marginRMSE": 15.31,
+     "totalMAE": 15.52,
+     "totalRMSE": 19.56
+    }
+   },
+   "calibrationRef": "10-bin table in the sport's baseline-evaluation-v1.json",
+   "limitations": [
+    "no injury/roster/rest information — a real gap, not a rounding error",
+    "postseason replay uses one frozen state (no intra-tournament updates)",
+    "cold starts enter at league mean; early-season predictions are weaker",
+    "margin/total are point estimates with MAE/RMSE, never calibrated probabilities"
+   ],
+   "lastEvaluated": "2026-08-10T18:40:00Z",
+   "evaluationEligible": true,
+   "publicActivation": "OFF — founder decision; research readiness is not product activation",
+   "artifactRefs": {
+    "corpus": "data/internal/research/nba/corpus-v1.json",
+    "evaluation": "data/internal/research/nba/reports/baseline-evaluation-v1.json",
+    "replay": "data/internal/research/nba/replays/",
+    "modelCard": "data/internal/research/nba/model-card-v1.json"
+   }
+  },
+  {
+   "sport": "epl",
+   "modelVersion": "baseline-v1",
+   "objective": "INCOMPLETE — no model card committed; objective lives in the evaluation artifact header",
+   "outcomeTaxonomy": "three_way_1x2 (multi-class) + goal totals",
+   "sourceRights": "api-sports licence; free-tier seasons 2022-2024 only (2026 refused: 'Free plans do not have access to this season')",
+   "corpus": {
+    "total": 1520,
+    "note": "4 seasons × exactly 380; 0 quarantined",
+    "generatedAt": "2026-08-09T21:30:00Z"
+   },
+   "split": "warm-up 2022-23; chronological walk-forward",
+   "featureCutoff": "INCOMPLETE — no model card; cutoff discipline enforced by the replay runner",
+   "replayMode": "HISTORICAL_REPLAY",
+   "replayDeterministicId": "316ef30b1e968860",
+   "metrics": {
+    "primary": {
+     "n": 1140,
+     "logLoss": 0.9991,
+     "brier": 0.5962,
+     "accuracy": 0.5254
+    },
+    "comparators": {
+     "poisson": {
+      "n": 1140,
+      "logLoss": 1.0017,
+      "brier": 0.5968,
+      "accuracy": 0.5158
+     },
+     "empirical": {
+      "n": 1140,
+      "logLoss": 1.075,
+      "brier": 0.6509,
+      "accuracy": 0.4316
+     },
+     "uniform": {
+      "n": 1140,
+      "logLoss": 1.0986,
+      "brier": 0.6667,
+      "accuracy": 0.4316
+     }
+    }
+   },
+   "calibrationRef": "10-bin table in the sport's baseline-evaluation-v1.json",
+   "limitations": [
+    "INCOMPLETE — no model card; limitations stated inside the evaluation artifact"
+   ],
+   "lastEvaluated": "2026-08-09T21:40:00Z",
+   "evaluationEligible": true,
+   "publicActivation": "OFF — no model card exists; activation is definitionally off",
+   "artifactRefs": {
+    "corpus": "data/internal/research/epl/corpus-v1.json",
+    "evaluation": "data/internal/research/epl/reports/baseline-evaluation-v1.json",
+    "replay": "data/internal/research/epl/replays/",
+    "modelCard": null
+   }
+  },
+  {
+   "sport": "ufc",
+   "modelVersion": "baseline-v1",
+   "objective": "abstaining bout-winner baseline (research bar, not a product model)",
+   "outcomeTaxonomy": "abstaining_bout_winner (coverage is a headline metric)",
+   "sourceRights": "public JSON endpoint, no key, no credits; point-in-time snapshots with attribution — registered source",
+   "corpus": {
+    "total": 1716,
+    "note": "25 draw/NC preserved; 1046 fighters by provider id",
+    "generatedAt": "2026-08-10T19:40:00Z"
+   },
+   "split": "INCOMPLETE",
+   "featureCutoff": "prior decisive in-corpus bouts only; winner flags are the only outcome field captured (method/round not in this shape)",
+   "replayMode": "HISTORICAL_REPLAY",
+   "replayDeterministicId": "9f52966a94800cb4",
+   "metrics": {
+    "primary": {
+     "n": 289,
+     "logLoss": 0.6791,
+     "brier": 0.243,
+     "accuracy": 0.5571
+    },
+    "comparators": {
+     "redRatePrior": {
+      "logLoss": 0.6906
+     },
+     "coin": {
+      "logLoss": 0.6931,
+      "note": "exactly ln 2"
+     }
+    },
+    "abstention": {
+     "rules": "either fighter <3 prior decisive bouts OR idle >540d",
+     "abstained": 838,
+     "coverage": 0.2564,
+     "note": "coverage is a headline metric — exclusions shape the denominator and are counted here"
+    }
+   },
+   "calibrationRef": "10-bin table in the sport's baseline-evaluation-v1.json",
+   "limitations": [
+    "in-corpus history only: no pre-Aug-2023 records, no method/round data, no reach/age/stance",
+    "weak signal is the honest finding: 0.679 vs 0.691 prior over 289 covered bouts — a real but small edge over listing-order priors, nowhere near a usable fight model",
+    "draw/no-contest never predicted; replacements/late changes not modeled"
+   ],
+   "lastEvaluated": "2026-08-10T19:45:00Z",
+   "evaluationEligible": true,
+   "publicActivation": "OFF — founder decision; research readiness is not product activation",
+   "artifactRefs": {
+    "corpus": "data/internal/research/ufc/corpus-v1.json",
+    "evaluation": "data/internal/research/ufc/reports/baseline-evaluation-v1.json",
+    "replay": "data/internal/research/ufc/replays/",
+    "modelCard": "data/internal/research/ufc/model-card-v1.json"
+   }
+  }
+ ]
+}

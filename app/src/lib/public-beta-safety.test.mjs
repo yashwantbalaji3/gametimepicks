@@ -38,8 +38,12 @@ test("3 · NO public source reads internal research (observations / benchmark / 
   // The broad `data/internal` read is banned from PUBLIC pages; the /ops route is internal (guardInternalRoute
   // + pruned from the static export) and may read internal SOCIAL ops artifacts — but NEVER research (above).
   const internalData = /data\/internal/;
-  const opsPrefix = `src${path.sep}app${path.sep}ops${path.sep}`;
-  const isInternalOps = (f) => path.relative(app, f).startsWith(opsPrefix);
+  // /launch joined the internal-reader set in Program 157: it renders the model REGISTRY INDEX
+  // verbatim (metrics + activation states — governance metadata, not the research payloads the
+  // `research` regex above bans, which stay banned from /launch too). Both routes are
+  // guardInternalRoute()-protected AND pruned from the public export.
+  const internalPrefixes = [`src${path.sep}app${path.sep}ops${path.sep}`, `src${path.sep}app${path.sep}launch${path.sep}`];
+  const isInternalOps = (f) => internalPrefixes.some((pre) => path.relative(app, f).startsWith(pre));
   const leaks = files.filter((f) => {
     const src = fs.readFileSync(f, "utf8");
     if (research.test(src)) return true; // research leak — banned everywhere

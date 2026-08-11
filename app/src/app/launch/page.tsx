@@ -58,6 +58,11 @@ export default function LaunchCommandCenter() {
 
   // Internal Alpha progress. Read from the artifact the generator commits — this page renders it,
   // it never recomputes it, so /launch and ops/internal-alpha can never disagree.
+  const modelRegistry = (() => {
+    try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/research/model-registry-v1.json"), "utf8")); }
+    catch { return null; }
+  })();
+
   const alpha = (() => {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "ops/internal-alpha/latest.json"), "utf8")); }
     catch { return null; }
@@ -202,6 +207,40 @@ export default function LaunchCommandCenter() {
             ))}
           </ul>
         </details>
+      </section>
+
+      {/* ── Model registry — the four-sport private research index, rendered VERBATIM
+             (Program 157 · Release A). Missing card fields say INCOMPLETE, never a substitute. ── */}
+      <section aria-labelledby="registry" style={{ marginBottom: 30 }}>
+        <h2 id="registry" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Model registry (private research)</h2>
+        {modelRegistry ? (
+          <>
+            <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+              {modelRegistry.entries.length} entries · generated {modelRegistry.generatedAt} · {modelRegistry.comparabilityNote}
+            </p>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 860 }}>
+                <thead><tr><Head>Sport</Head><Head>Outcome space</Head><Head align="right">Primary (log loss · n)</Head><Head>Coverage</Head><Head>Card</Head><Head>Activation</Head></tr></thead>
+                <tbody>
+                  {(modelRegistry.entries as Array<{ sport: string; outcomeTaxonomy: string; metrics: { primary: { logLoss: number; n: number }; abstention?: { coverage: number } }; artifactRefs: { modelCard: string | null }; publicActivation: string }>).map((e) => (
+                    <tr key={e.sport}>
+                      <Cell mono>{e.sport.toUpperCase()}</Cell>
+                      <Cell>{e.outcomeTaxonomy}</Cell>
+                      <Cell mono>{e.metrics.primary.logLoss} · {e.metrics.primary.n}</Cell>
+                      <Cell mono>{e.metrics.abstention ? `${Math.round(e.metrics.abstention.coverage * 1000) / 10}%` : "full"}</Cell>
+                      <Cell>{e.artifactRefs.modelCard ? "v1" : <span style={{ color: "var(--vault-gold-bright)" }}>INCOMPLETE</span>}</Cell>
+                      <Cell mono><span style={{ color: "var(--vault-text-faint)" }}>{e.publicActivation.slice(0, 3)}</span></Cell>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+            No registry artifact — run <code>node scripts/research/build-model-registry.mjs</code>. This says &ldquo;not generated&rdquo;, never &ldquo;all healthy&rdquo;.
+          </p>
+        )}
       </section>
 
       {/* ── Department × Sport completion matrix — derived from the twelve-stage gate ── */}
