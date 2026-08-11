@@ -72,3 +72,19 @@ test("the filter component is READ-ONLY presentation — no fetch, no mutation, 
   assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|localStorage|POST/, "filters can mutate nothing");
   assert.match(src, /aria-pressed/, "filter chips are real toggle buttons");
 });
+
+test("SHADOW GAPS on the board (P156-B): every gap once, odds merged to ONE founder card, ids stable", () => {
+  const board = buildWorkBoard();
+  const all = [...Object.values(board.columns).flat(), ...board.founderQueue];
+  const shadow = all.filter((t) => t.department === "shadow-readiness");
+  assert.equal(shadow.length, 6, "9 named gaps − 4 odds merged into 1 founder card = exactly 6 cards");
+  const odds = shadow.filter((t) => /odds/.test(t.id));
+  assert.equal(odds.length, 1, "one underlying odds blocker = one card, never four duplicates");
+  assert.equal(odds[0].owner, "FOUNDER");
+  assert.match(odds[0].sport, /nfl.*nba.*epl.*ufc|nfl\/nba\/epl\/ufc/, "the merged card names every sport it spans");
+  const ufcMethod = shadow.find((t) => t.id === "shadow-ufc-methodRoundFields");
+  assert.ok(ufcMethod && ufcMethod.state === "NEW" && ufcMethod.priority === "P2", "UNSUPPORTED inputs are planned work, not ready work");
+  for (const t of shadow.filter((x) => x.owner === "ENGINEERING")) assert.notEqual(t.state, "BLOCKED", "engineering shadow work is never blocked by the founder odds decision");
+  // Determinism holds with the integration in place.
+  assert.equal(JSON.stringify(buildWorkBoard()), JSON.stringify(buildWorkBoard()));
+});

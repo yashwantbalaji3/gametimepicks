@@ -13,6 +13,7 @@
 import { SPORT_ASSESSMENTS } from "../sports/sport-assessments.mjs";
 import { GATE_STAGES } from "../sports/sport-gate.mjs";
 import { ROADMAP_30D } from "./completion-matrix.mjs";
+import { shadowGaps } from "../sports/research/shadow-contract.mjs";
 
 export const BOARD_VERSION = 1;
 export const BOARD_STATES = Object.freeze(["NEW", "READY", "IN_PROGRESS", "BLOCKED"]);
@@ -67,7 +68,41 @@ export function buildWorkBoard({ assessments = SPORT_ASSESSMENTS, roadmap = ROAD
     }
   }
 
-  // 2 · Roadmap items become planned cards by horizon; the roadmap's own pruning contract keeps
+  // 2 · Shadow-readiness gaps (Program 156 · Release B): one stable ticket per underlying gap.
+  //     The odds gap is ONE founder blocker spanning every sport — merged to a single card, never
+  //     four duplicates. Everything else is per-sport engineering acquisition work. Tickets close
+  //     the only honest way: the LIVE_INPUT_MATRIX entry flips with a receipt and the generator
+  //     re-runs.
+  const gaps = shadowGaps();
+  const oddsSports = gaps.filter((g) => g.input === "odds").map((g) => g.sport);
+  if (oddsSports.length) {
+    push({
+      id: "shadow-all-odds",
+      title: `Shadow inputs · odds capture (${oddsSports.join("/")}) — founder CI-key exercise`,
+      sport: oddsSports.join("/"), department: "shadow-readiness", priority: "P1",
+      owner: "FOUNDER", state: "BLOCKED",
+      sinceProgram: "155", evidence: null,
+      blocker: "odds is BLOCKED_EXTERNAL in every sport's live-input matrix — one founder-owned CI-key exercise unblocks all four no-vig paths",
+      nextAction: "founder queue — engineering does not stall on this",
+      acceptance: "a guarded odds capture receipt exists and the matrix entries flip to AVAILABLE",
+    });
+  }
+  for (const g of gaps.filter((x) => x.input !== "odds")) {
+    push({
+      id: `shadow-${g.sport}-${g.input}`,
+      title: `${g.sport.toUpperCase()} · shadow input: ${g.input} (${g.state})`,
+      sport: g.sport, department: "shadow-readiness",
+      priority: g.state === "UNSUPPORTED" ? "P2" : "P1",
+      owner: "ENGINEERING",
+      state: g.state === "UNSUPPORTED" ? "NEW" : "READY",
+      sinceProgram: "155", evidence: null,
+      blocker: g.state === "UNSUPPORTED" ? g.note : null,
+      nextAction: g.note ?? "acquire an authorized timestamped source or record the abstention policy",
+      acceptance: "LIVE_INPUT_MATRIX entry flips to AVAILABLE with a source receipt (or NOT_REQUIRED with a stated policy)",
+    });
+  }
+
+  // 3 · Roadmap items become planned cards by horizon; the roadmap's own pruning contract keeps
   //     shipped work off this board automatically.
   const HORIZON_STATE = { NOW: ["READY", "P0"], DAYS_3_7: ["READY", "P1"], WEEK_2: ["NEW", "P1"], WEEKS_3_4: ["NEW", "P2"], LATER: ["NEW", "P2"] };
   for (const h of roadmap) {
