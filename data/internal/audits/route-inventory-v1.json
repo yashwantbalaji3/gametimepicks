@@ -1,0 +1,454 @@
+{
+ "schemaVersion": 1,
+ "artifact": "route-inventory",
+ "dataClass": "PRIVATE_AUDIT",
+ "generatedAt": "2026-08-11T03:15:00Z",
+ "totals": {
+  "routes": 50,
+  "public": 27,
+  "internal": 4,
+  "redirects": 17,
+  "archive": 2,
+  "findings": 0,
+  "p0": 0
+ },
+ "routes": [
+  {
+   "route": "/",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "landing: simulation-first story, today hook, product cards, four-sport strip",
+   "dataOwner": "daily brief + market coverage + upcoming adapters",
+   "freshness": "build-time; freshness badges re-derive client-side",
+   "built": true
+  },
+  {
+   "route": "/about",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "what this is",
+   "dataOwner": "static copy",
+   "freshness": "static",
+   "built": true
+  },
+  {
+   "route": "/bank-builder",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "conservative paper ladder (ONE 5-step ladder)",
+   "dataOwner": "protected locks + lanes",
+   "freshness": "product-state contract",
+   "built": true
+  },
+  {
+   "route": "/board",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "legacy board alias",
+   "redirectTo": "/mlb/board",
+   "built": true
+  },
+  {
+   "route": "/build",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "Advanced Builder: manual builder → suggested cards → optimizer marketplace",
+   "dataOwner": "build legs from eligible slate",
+   "freshness": "sourceDate == productDate gate",
+   "built": true
+  },
+  {
+   "route": "/events",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "retired event hub",
+   "redirectTo": "/today",
+   "built": true
+  },
+  {
+   "route": "/games",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "game-lab hub alias",
+   "redirectTo": "/simulate",
+   "built": true
+  },
+  {
+   "route": "/games/[sport]/[gameId]",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "per-game report (browse-game → report)",
+   "family": true,
+   "dataOwner": "game detail artifacts",
+   "freshness": "artifact stamps",
+   "built": "FAMILY (representative pages generated per fixture)"
+  },
+  {
+   "route": "/homer-nukes",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "retired product",
+   "redirectTo": "/results",
+   "built": true
+  },
+  {
+   "route": "/ipl",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "retired IPL hub",
+   "redirectTo": "/",
+   "built": true
+  },
+  {
+   "route": "/launch",
+   "classification": "internal",
+   "owner": "ops",
+   "purpose": "founder command center (pruned from public export)",
+   "dataOwner": "evidence artifacts + derived boards",
+   "freshness": "per-artifact",
+   "built": false
+  },
+  {
+   "route": "/learn",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "How It Works",
+   "dataOwner": "static copy",
+   "freshness": "static",
+   "built": true
+  },
+  {
+   "route": "/market-guide",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "market terminology guide",
+   "dataOwner": "static copy",
+   "freshness": "static",
+   "built": true
+  },
+  {
+   "route": "/markets",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "Market Center: ranked disagreement list + reading key (pp, never pts)",
+   "dataOwner": "market intelligence artifacts",
+   "freshness": "capture stamps",
+   "built": true
+  },
+  {
+   "route": "/methodology",
+   "classification": "public",
+   "owner": "research",
+   "purpose": "the model, in depth + coverage matrix",
+   "dataOwner": "static + coverage registry",
+   "freshness": "static",
+   "built": true
+  },
+  {
+   "route": "/mlb",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "MLB Simulation Center (the one FULL_MODEL sport)",
+   "dataOwner": "boards + sims",
+   "freshness": "board date, latest-slate eyebrow when behind",
+   "built": true
+  },
+  {
+   "route": "/mlb/board",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "MLB daily board",
+   "dataOwner": "boards",
+   "freshness": "board date",
+   "built": true
+  },
+  {
+   "route": "/mlb/board/[date]",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "MLB dated board",
+   "family": true,
+   "dataOwner": "boards",
+   "freshness": "route param date",
+   "built": "FAMILY (representative pages generated per fixture)"
+  },
+  {
+   "route": "/mlb/parlays",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "legacy alias",
+   "redirectTo": "/build",
+   "built": true
+  },
+  {
+   "route": "/mlb/power",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "MLB power rankings view",
+   "dataOwner": "boards",
+   "freshness": "board date",
+   "built": true
+  },
+  {
+   "route": "/mlb/results",
+   "classification": "public",
+   "owner": "settlement",
+   "purpose": "MLB results view",
+   "dataOwner": "settlement artifacts",
+   "freshness": "settled-through",
+   "built": true
+  },
+  {
+   "route": "/moonshot",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "high-volatility paper longshot lane",
+   "dataOwner": "moonshot-lane active.json",
+   "freshness": "product-state contract",
+   "built": true
+  },
+  {
+   "route": "/mr-dub",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "trust center: complete paper-bankroll journey + receipts",
+   "dataOwner": "protected portfolio + ledger",
+   "freshness": "settlement cutoff shown beside current-ops marker",
+   "built": true
+  },
+  {
+   "route": "/nba",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "retired NBA hub",
+   "redirectTo": "/results/nba",
+   "built": true
+  },
+  {
+   "route": "/nba/parlays",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "legacy alias",
+   "redirectTo": "/build",
+   "built": true
+  },
+  {
+   "route": "/nba/results",
+   "classification": "redirect",
+   "owner": "settlement",
+   "purpose": "alias",
+   "redirectTo": "/results/nba",
+   "built": true
+  },
+  {
+   "route": "/nhl",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "retired NHL hub",
+   "redirectTo": "/",
+   "built": true
+  },
+  {
+   "route": "/ops",
+   "classification": "internal",
+   "owner": "ops",
+   "purpose": "ops dashboard (pruned)",
+   "dataOwner": "admin status",
+   "freshness": "per-artifact",
+   "built": false
+  },
+  {
+   "route": "/parlay-lab",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "legacy alias",
+   "redirectTo": "/build",
+   "built": true
+  },
+  {
+   "route": "/parlays",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "legacy alias",
+   "redirectTo": "/build",
+   "built": true
+  },
+  {
+   "route": "/picks",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "legacy Picks Lab alias",
+   "redirectTo": "/build",
+   "built": true
+  },
+  {
+   "route": "/preview/epl",
+   "classification": "internal",
+   "owner": "research",
+   "purpose": "EPL artifact preview (pruned)",
+   "dataOwner": "epl lane artifacts",
+   "freshness": "per-artifact",
+   "built": false
+  },
+  {
+   "route": "/preview/june20",
+   "classification": "internal",
+   "owner": "research",
+   "purpose": "dated preview fixture (pruned)",
+   "dataOwner": "fixtures",
+   "freshness": "frozen",
+   "built": false
+  },
+  {
+   "route": "/projections",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "legacy projections alias",
+   "redirectTo": "/mlb/board",
+   "built": true
+  },
+  {
+   "route": "/research",
+   "classification": "public",
+   "owner": "research",
+   "purpose": "public research terminal (fail-closed adapter)",
+   "dataOwner": "public research contract",
+   "freshness": "contract stamps",
+   "built": true
+  },
+  {
+   "route": "/responsible-use",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "responsible-use commitments",
+   "dataOwner": "static copy",
+   "freshness": "static",
+   "built": true
+  },
+  {
+   "route": "/results",
+   "classification": "public",
+   "owner": "settlement",
+   "purpose": "settled track record on the canonical accounting",
+   "dataOwner": "results accounting artifacts",
+   "freshness": "settled-through date",
+   "built": true
+  },
+  {
+   "route": "/results/date/[date]",
+   "classification": "public",
+   "owner": "settlement",
+   "purpose": "per-date settled slate",
+   "family": true,
+   "dataOwner": "settlement artifacts",
+   "freshness": "route param date",
+   "built": "FAMILY (representative pages generated per fixture)"
+  },
+  {
+   "route": "/results/mlb",
+   "classification": "public",
+   "owner": "settlement",
+   "purpose": "MLB settled results detail",
+   "dataOwner": "settlement artifacts",
+   "freshness": "settled-through date",
+   "built": true
+  },
+  {
+   "route": "/results/model-audit",
+   "classification": "public",
+   "owner": "research",
+   "purpose": "deep-dive model-performance ledger (money-independent)",
+   "dataOwner": "grading artifacts",
+   "freshness": "per-artifact",
+   "built": true
+  },
+  {
+   "route": "/results/nba",
+   "classification": "archive",
+   "owner": "settlement",
+   "purpose": "NBA settled archive (HISTORICAL_ONLY)",
+   "dataOwner": "frozen archive",
+   "freshness": "frozen — archive is dated by design",
+   "built": true
+  },
+  {
+   "route": "/results/parlays",
+   "classification": "public",
+   "owner": "settlement",
+   "purpose": "parlay settlement history",
+   "dataOwner": "settlement artifacts",
+   "freshness": "settled-through date",
+   "built": true
+  },
+  {
+   "route": "/simulate",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "pick a game, run its simulation report",
+   "dataOwner": "sim artifacts",
+   "freshness": "artifact generatedAt",
+   "built": true
+  },
+  {
+   "route": "/sports",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "four-sport schedules directory (Schedule only — not modelled, in words)",
+   "dataOwner": "upcoming adapters over committed captures",
+   "freshness": "absolute capture dates per section",
+   "built": true
+  },
+  {
+   "route": "/system-status",
+   "classification": "public",
+   "owner": "ops",
+   "purpose": "pipeline stage status in words",
+   "dataOwner": "public research contract",
+   "freshness": "contract stamps",
+   "built": true
+  },
+  {
+   "route": "/today",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "daily command center: slate, predictions table, category picks",
+   "dataOwner": "daily brief + boards",
+   "freshness": "slate-date stamped",
+   "built": true
+  },
+  {
+   "route": "/trends",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "retired trends",
+   "redirectTo": "/results",
+   "built": true
+  },
+  {
+   "route": "/ufc",
+   "classification": "archive",
+   "owner": "settlement",
+   "purpose": "settled UFC archive (the one graded card; accountability outranks minimalism)",
+   "dataOwner": "frozen settlement",
+   "freshness": "frozen — dated by design",
+   "built": true
+  },
+  {
+   "route": "/world-cup",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "closed WC destination",
+   "redirectTo": "/results",
+   "built": true
+  },
+  {
+   "route": "/world-cup-specials",
+   "classification": "redirect",
+   "owner": "product",
+   "purpose": "closed WC product",
+   "redirectTo": "/results",
+   "built": true
+  }
+ ],
+ "findings": []
+}

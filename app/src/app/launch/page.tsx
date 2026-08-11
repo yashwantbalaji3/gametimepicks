@@ -58,6 +58,11 @@ export default function LaunchCommandCenter() {
 
   // Internal Alpha progress. Read from the artifact the generator commits — this page renders it,
   // it never recomputes it, so /launch and ops/internal-alpha can never disagree.
+  const routeInventory = (() => {
+    try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/audits/route-inventory-v1.json"), "utf8")); }
+    catch { return null; }
+  })();
+
   const modelRegistry = (() => {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/research/model-registry-v1.json"), "utf8")); }
     catch { return null; }
@@ -138,6 +143,25 @@ export default function LaunchCommandCenter() {
         ) : (
           <p style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
             No ledger artifact — run <code>npm run admin:ledger</code>. This says &ldquo;not generated&rdquo;, never &ldquo;all healthy&rdquo;.
+          </p>
+        )}
+      </section>
+
+      {/* ── Route assurance — the three-layer inventory, rendered verbatim (P159 · Release A) ── */}
+      <section aria-labelledby="routes-assurance" style={{ marginBottom: 30 }}>
+        <h2 id="routes-assurance" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Route assurance</h2>
+        {routeInventory ? (
+          <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+            {routeInventory.totals.routes} routes reconciled across source · ownership table · built export
+            ({routeInventory.totals.public} public · {routeInventory.totals.redirects} redirects · {routeInventory.totals.internal} internal · {routeInventory.totals.archive} archive)
+            — <strong style={{ color: routeInventory.totals.p0 === 0 ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-danger)" }}>
+              {routeInventory.totals.findings} findings, {routeInventory.totals.p0} P0
+            </strong> · generated {routeInventory.generatedAt}.
+            {routeInventory.findings.length > 0 ? ` Top: ${routeInventory.findings.slice(0, 3).map((f: { id: string }) => f.id).join(", ")}` : " Every active route has an owner, purpose, and build proof."}
+          </p>
+        ) : (
+          <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+            No inventory artifact — run <code>node scripts/audits/build-route-inventory.mjs</code>. This says &ldquo;not generated&rdquo;, never &ldquo;all clean&rdquo;.
           </p>
         )}
       </section>
