@@ -86,7 +86,7 @@ export const ROADMAP_30D = Object.freeze([
     horizon: "WEEK_2",
     items: [
       { outcome: "Legal §3 business decisions answered; adviser consultation booked", department: "business-legal", sport: "shared", owner: "FOUNDER", dependency: null, effort: "S-founder", acceptance: "entity/jurisdiction/geography/age/audience recorded in LEGAL_CONTENT_MAP" },
-      { outcome: "UFC results-shape design against registered sources: winner + red/blue identity + no-contest/draw/overturned semantics, card-and-bout separation, exact reconciliation — method/round stays UNSUPPORTED rather than fabricated", department: "settlement", sport: "ufc", owner: "ENGINEERING", dependency: "lineage classifier shipped P162-D; corpus proves the source class (P153)", effort: "M", acceptance: "result shapes contract-tested against real corpus rows; unsupported fields refuse; no live grading until a real card settles through it" },
+      { outcome: "UFC forward results capture + adapter through the shipped bout_winner contract (id-joined to the bout captures, exactly-once, quarantine-total) — no live grading until a real card settles through it", department: "settlement", sport: "ufc", owner: "ENGINEERING", dependency: "contract validated on all 1,716 corpus finals (P162-I); lineage classifier P162-D", effort: "M", acceptance: "capture + adapter mirror the NFL/NBA pattern; first real card reconciles exactly; draw/NC quarantines surface for review" },
     ],
   },
   {
