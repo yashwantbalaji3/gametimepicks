@@ -1,4 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "bash scripts/vercel-ignore-build.sh"
+  "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
+  "headers": [
+    {
+      "source": "/(launch|ops|preview)(/.*)?",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    }
+  ]
 }

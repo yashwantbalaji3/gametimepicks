@@ -33,6 +33,14 @@ basic-auth secrets pasted into chat.
 3. Reply with: the option chosen + the host-issued private URL's existence (not the URL itself in
    any public artifact).
 
+## Implemented (Program 167 · Release A — 2026-08-12)
+
+Option 1 is LIVE as project `gtp-ops` — see `docs/ADMIN_DEPLOYMENT_GTP_OPS.md` for the full
+implementation record, the plan-limit findings (production-domain auth is plan-gated; the
+auto-assigned production domain was removed so zero unprotected surfaces exist), the transient
+exposure incident and its containment, and the redeploy runbook. Unauthenticated-half acceptance
+below passed on 2026-08-12; the authenticated browser half is founder-run.
+
 ## Acceptance (binary, run after setup)
 
 Unauthenticated request → denied at the edge (no content bytes) → authenticated → /launch
