@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 825047,
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T17:52:22.446Z",
+  "availableAt": "2026-08-12T17:52:22.446Z",
+  "eventStartTime": "2026-08-12T19:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 518876,
+      "name": "Merrill Kelly",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 4.2,
+        "bbAvg": 2.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 7.18,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 120,
+        "k": 80,
+        "bb": 50,
+        "er": 65,
+        "hr": 23
+      }
+    },
+    "away": {
+      "id": 663372,
+      "name": "Ryan Feltner",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 5,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 3,
+        "bbAvg": 2.6,
+        "erAvg": 4.8,
+        "hrAvg": 1.8,
+        "kPer9": 5.87,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 82,
+        "k": 59,
+        "bb": 33,
+        "er": 52,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-12T17:52:22.446Z"
+  },
+  "recordHash": "ea27d5b55675cfc90b9433e1e7827a47b35c63f22f0ec1f00671d1327720730e"
+}

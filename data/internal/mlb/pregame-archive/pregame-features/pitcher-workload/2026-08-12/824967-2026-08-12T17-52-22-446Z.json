@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824967,
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T17:52:22.446Z",
+  "availableAt": "2026-08-12T17:52:22.446Z",
+  "eventStartTime": "2026-08-12T19:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 678022,
+      "name": "Jack Perkins",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 5,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 5.6,
+        "bbAvg": 2.4,
+        "erAvg": 4.6,
+        "hrAvg": 1.4,
+        "kPer9": 11.12,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 45.67,
+        "k": 57,
+        "bb": 22,
+        "er": 40,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 656876,
+      "name": "Drew Rasmussen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 5,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 6.8,
+        "bbAvg": 1,
+        "erAvg": 1.6,
+        "hrAvg": 0.2,
+        "kPer9": 11.2,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 124.33,
+        "k": 130,
+        "bb": 22,
+        "er": 38,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-12T17:52:22.446Z"
+  },
+  "recordHash": "40bd689bf9b2db5acb4fbcc097acd210c4bb922074015e41b36d8ddeb4a76f07"
+}

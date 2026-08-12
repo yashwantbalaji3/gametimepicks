@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823017,
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T17:52:22.446Z",
+  "availableAt": "2026-08-12T17:52:22.446Z",
+  "eventStartTime": "2026-08-12T18:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 681517,
+      "name": "Kyle Leahy",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 5,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 5.2,
+        "bbAvg": 0.4,
+        "erAvg": 1.2,
+        "hrAvg": 0.6,
+        "kPer9": 9,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 112.33,
+        "k": 99,
+        "bb": 35,
+        "er": 43,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 554430,
+      "name": "Zack Wheeler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 6.8,
+        "bbAvg": 1.6,
+        "erAvg": 2.2,
+        "hrAvg": 0.8,
+        "kPer9": 13.11,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 110.33,
+        "k": 132,
+        "bb": 28,
+        "er": 33,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-12T17:52:22.446Z"
+  },
+  "recordHash": "ad85b93adebfa563e5a0ee8f64940e4560759acee7698dd515a49326f5357e6d"
+}
