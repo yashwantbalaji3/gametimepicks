@@ -8,6 +8,7 @@ import { ENGINES, ASSURED_ROUTES } from "@/lib/launch/browser-assurance.mjs";
 import { RELEASE_HISTORY } from "@/lib/launch/release-history.mjs";
 import { withCountdown } from "@/lib/launch/watches.mjs";
 import { founderActionSheet } from "@/lib/launch/shared-blockers.mjs";
+import { ALLOWED_CHOICES } from "@/lib/launch/founder-response.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
@@ -339,7 +340,10 @@ export default function LaunchCommandCenter() {
                   <li key={v.name}><code>{v.name}</code> — {v.format} · <em>{v.where}</em>{v.neverShare && v.neverShare !== "—" ? <span style={{ color: "var(--vault-danger)" }}> · never share: {v.neverShare}</span> : null}</li>
                 ))}
               </ul>
-              <p style={{ margin: "6px 0 0", fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)" }}>accept: {r.acceptance}</p>
+              <p style={{ margin: "6px 0 0", fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)" }}>
+                answer with: {(ALLOWED_CHOICES[r.id as keyof typeof ALLOWED_CHOICES] ?? []).join(" | ")} · form: docs/FOUNDER_RESPONSE_FORM.md
+              </p>
+              <p style={{ margin: "4px 0 0", fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)" }}>accept: {r.acceptance}</p>
             </li>
           ))}
         </ul>
