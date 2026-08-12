@@ -30,7 +30,10 @@ a broad name/glob kill — and a process scan confirmed zero orphan pollers afte
 5. **Exit codes are the receipt.** 0 success · 2 failure/other-terminal · 3 superseded ·
    4 deadline · 5 duplicate · 6 target-not-found. The one-line stdout carries run id, conclusion,
    and elapsed seconds.
-6. **Session close requires a watcher audit.** Zero owned watchers may remain: list background
+6. **Right after a push, the run may not exist yet.** The helper exits 6 (TARGET_NOT_FOUND)
+   honestly in that gap — wait a few seconds and re-arm, or pass the run id once `gh run list`
+   shows it. Observed live at P163 close.
+7. **Session close requires a watcher audit.** Zero owned watchers may remain: list background
    tasks, stop any whose target is terminal, and record each stop (target, terminal conclusion,
    stop method) in the final report.
 
