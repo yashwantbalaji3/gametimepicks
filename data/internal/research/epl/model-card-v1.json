@@ -1,0 +1,40 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-model-card",
+ "dataClass": "PRIVATE_RESEARCH",
+ "modelId": "epl-model-v1-split-poisson",
+ "version": 1,
+ "generatedAt": "2026-08-12T20:05:00Z",
+ "objective": "private pre-event 1X2 + exact-score + total-goals distributions for EPL fixtures; research comparison against three-way no-vig markets only after an authorized snapshot exists",
+ "method": "home/away-split attack-defence multipliers over league goal means; independent-Poisson exact-score grid 0..10, tail-renormalized; λ floor 0.05; promoted clubs cold-start at 1.0 — the committed baseline promoted verbatim to the live adapter; deterministic, no RNG",
+ "alternativesConsidered": [
+  "time-decay weighting",
+  "ridge shrinkage toward 1.0",
+  "Dixon–Coles low-score τ"
+ ],
+ "alternativesDisposition": "deferred — each is a NEW model requiring its own replay before touching the live path (see stoppingRule in the evaluation report)",
+ "lineupPolicy": "NOT_REQUIRED_FOR_TEAM_V1 — team-level forecasting only; no lineup parameter exists; player-aware claims are out of scope for this version",
+ "population": {
+  "corpus": "1,520 matches, 2022-23 → 2025-26; warm-up 2022-23",
+  "scored": 1140
+ },
+ "metrics": {
+  "see": "reports/model-v1-evaluation.json",
+  "headline": {
+   "logLoss": 1.0017,
+   "rps": 0.2061,
+   "accuracy": 0.5158,
+   "drawEce": 0.0262,
+   "totalMAE": 1.316
+  }
+ },
+ "limitations": [
+  "draw probability derives from the Poisson grid, not a dedicated draw parameter — the D-column calibration in the report is the honest check",
+  "promoted-club cold start = league average until real 2026-27 results fold in",
+  "no lineups, injuries, congestion, or European-schedule features — stated, never imputed",
+  "independence assumption between home/away goals (the deferred Dixon–Coles τ is the known correction)"
+ ],
+ "independenceFromMarket": "structural — no odds parameter exists in fit or predict",
+ "rightsAndProvenance": "corpus from api-football fixtures (see corpus sourceManifest); 2026-27 fixtures from openfootball (public domain); educational, paper-only",
+ "publicActivation": "OFF"
+}

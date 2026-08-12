@@ -1,0 +1,264 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-model-v1-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-12T20:05:00Z",
+ "modelId": "epl-model-v1-split-poisson",
+ "protocol": {
+  "warmupSeason": "2022-23",
+  "scored": 1140,
+  "rule": "walk-forward by calendar day; intra-day slates share one pregame state; warm-up folds, never scores; no parameter is tuned on any scored season (the arithmetic has no tunable parameters beyond the committed constants)",
+  "parityTarget": "models.poisson in reports/baseline-evaluation-v1.json — same arithmetic, same protocol"
+ },
+ "params": {
+  "MAX_GOALS": 10,
+  "LAMBDA_FLOOR": 0.05,
+  "COLD_START_MULTIPLIER": 1
+ },
+ "metrics": {
+  "model": {
+   "n": 1140,
+   "logLoss": 1.0017,
+   "rps": 0.2061,
+   "accuracy": 0.5158,
+   "calibrationByOutcome": {
+    "H": {
+     "bins": [
+      {
+       "bin": "0.0-0.1",
+       "n": 45,
+       "meanPredicted": 0.0713,
+       "observedRate": 0.1333
+      },
+      {
+       "bin": "0.1-0.2",
+       "n": 107,
+       "meanPredicted": 0.1573,
+       "observedRate": 0.1028
+      },
+      {
+       "bin": "0.2-0.3",
+       "n": 116,
+       "meanPredicted": 0.2546,
+       "observedRate": 0.2931
+      },
+      {
+       "bin": "0.3-0.4",
+       "n": 196,
+       "meanPredicted": 0.351,
+       "observedRate": 0.4082
+      },
+      {
+       "bin": "0.4-0.5",
+       "n": 190,
+       "meanPredicted": 0.4487,
+       "observedRate": 0.4105
+      },
+      {
+       "bin": "0.5-0.6",
+       "n": 189,
+       "meanPredicted": 0.5466,
+       "observedRate": 0.4762
+      },
+      {
+       "bin": "0.6-0.7",
+       "n": 144,
+       "meanPredicted": 0.6534,
+       "observedRate": 0.5972
+      },
+      {
+       "bin": "0.7-0.8",
+       "n": 96,
+       "meanPredicted": 0.751,
+       "observedRate": 0.6458
+      },
+      {
+       "bin": "0.8-0.9",
+       "n": 50,
+       "meanPredicted": 0.84,
+       "observedRate": 0.78
+      },
+      {
+       "bin": "0.9-1.0",
+       "n": 7,
+       "meanPredicted": 0.9326,
+       "observedRate": 0.8571
+      }
+     ],
+     "ece": 0.0584
+    },
+    "D": {
+     "bins": [
+      {
+       "bin": "0.0-0.1",
+       "n": 31,
+       "meanPredicted": 0.0748,
+       "observedRate": 0.129
+      },
+      {
+       "bin": "0.1-0.2",
+       "n": 294,
+       "meanPredicted": 0.1627,
+       "observedRate": 0.2007
+      },
+      {
+       "bin": "0.2-0.3",
+       "n": 768,
+       "meanPredicted": 0.2418,
+       "observedRate": 0.2617
+      },
+      {
+       "bin": "0.3-0.4",
+       "n": 45,
+       "meanPredicted": 0.3141,
+       "observedRate": 0.3333
+      },
+      {
+       "bin": "0.4-0.5",
+       "n": 2,
+       "meanPredicted": 0.4457,
+       "observedRate": 0
+      },
+      {
+       "bin": "0.5-0.6",
+       "n": 0
+      },
+      {
+       "bin": "0.6-0.7",
+       "n": 0
+      },
+      {
+       "bin": "0.7-0.8",
+       "n": 0
+      },
+      {
+       "bin": "0.8-0.9",
+       "n": 0
+      },
+      {
+       "bin": "0.9-1.0",
+       "n": 0
+      }
+     ],
+     "ece": 0.0262
+    },
+    "A": {
+     "bins": [
+      {
+       "bin": "0.0-0.1",
+       "n": 118,
+       "meanPredicted": 0.0666,
+       "observedRate": 0.1017
+      },
+      {
+       "bin": "0.1-0.2",
+       "n": 233,
+       "meanPredicted": 0.1509,
+       "observedRate": 0.1931
+      },
+      {
+       "bin": "0.2-0.3",
+       "n": 241,
+       "meanPredicted": 0.2512,
+       "observedRate": 0.2863
+      },
+      {
+       "bin": "0.3-0.4",
+       "n": 197,
+       "meanPredicted": 0.3446,
+       "observedRate": 0.3096
+      },
+      {
+       "bin": "0.4-0.5",
+       "n": 138,
+       "meanPredicted": 0.4396,
+       "observedRate": 0.4058
+      },
+      {
+       "bin": "0.5-0.6",
+       "n": 92,
+       "meanPredicted": 0.5517,
+       "observedRate": 0.5
+      },
+      {
+       "bin": "0.6-0.7",
+       "n": 69,
+       "meanPredicted": 0.6409,
+       "observedRate": 0.5942
+      },
+      {
+       "bin": "0.7-0.8",
+       "n": 38,
+       "meanPredicted": 0.7447,
+       "observedRate": 0.7105
+      },
+      {
+       "bin": "0.8-0.9",
+       "n": 12,
+       "meanPredicted": 0.8491,
+       "observedRate": 0.8333
+      },
+      {
+       "bin": "0.9-1.0",
+       "n": 2,
+       "meanPredicted": 0.9412,
+       "observedRate": 1
+      }
+     ],
+     "ece": 0.0382
+    }
+   }
+  },
+  "baselines": {
+   "uniform": {
+    "logLoss": 1.0986,
+    "rps": 0.237
+   },
+   "homeFrequency": {
+    "p": {
+     "H": 0.4830287206266319,
+     "D": 0.2297650130548303,
+     "A": 0.28720626631853785
+    },
+    "logLoss": 1.0778,
+    "rps": 0.2341
+   },
+   "eloCommitted": {
+    "see": "reports/baseline-evaluation-v1.json models.elo (logLoss 0.9991 at n=1140)"
+   }
+  }
+ },
+ "totalsDiagnostics": {
+  "expectedTotalMAE": 1.316,
+  "over25": {
+   "predictedRate": 0.5513,
+   "actualRate": 0.5877
+  }
+ },
+ "bySeason": {
+  "2023-24": {
+   "n": 380,
+   "logLoss": 0.9601,
+   "rps": 0.1988,
+   "accuracy": 0.5684
+  },
+  "2024-25": {
+   "n": 380,
+   "logLoss": 0.9999,
+   "rps": 0.2063,
+   "accuracy": 0.5184
+  },
+  "2025-26": {
+   "n": 380,
+   "logLoss": 1.045,
+   "rps": 0.2133,
+   "accuracy": 0.4605
+  }
+ },
+ "honesty": [
+  "one-league, three-scored-season sample — no production-superiority claim; the draw column's calibration is the metric that matters most for a 1X2 model",
+  "cold-start clubs (promotions) enter at league average — their early-season rows are the weakest slice by construction",
+  "no market data touches fit or predict; no profit or market-beating claim is made or implied"
+ ],
+ "stoppingRule": "changes (time decay, ridge, Dixon–Coles τ) require a fresh chronological replay with material log-loss improvement on a season the change never saw; absent that, v1 stands"
+}
