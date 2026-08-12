@@ -14,6 +14,8 @@ import { IA_SECTIONS } from "@/lib/launch/ia-contract.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
+import { deriveOddsAvailability } from "@/lib/sports/odds/availability.mjs";
+import { classifyOddsSecret } from "@/lib/sports/odds/snapshot-contract.mjs";
 import {
   buildDepartments,
   buildSports,
@@ -136,6 +138,17 @@ export default function LaunchCommandCenter() {
   };
 
   const navRule = "Receipts close work — a browser action can close nothing here.";
+
+  // Odds lane (Program 167 · Release C): one fail-closed classifier per expansion sport. No
+  // contract snapshots are committed yet, so states derive from secret presence + receipts —
+  // honestly different per environment (the key lives in CI, not local builds).
+  const oddsSecret = classifyOddsSecret(process.env);
+  const oddsLane = Object.fromEntries(
+    (["nfl", "ufc", "epl", "nba"] as const).map((sp) => [
+      sp,
+      deriveOddsAvailability({ sport: sp, nowIso: buildNowIso, secretState: oddsSecret.state as "PRESENT" | "BLOCKED_EXTERNAL" | "CONFIG_INVALID" }),
+    ]),
+  );
 
   return (
     <>
@@ -383,6 +396,9 @@ export default function LaunchCommandCenter() {
                       </p>
                       <p style={{ margin: "5px 0 0", fontSize: 11, color: "var(--vault-text-mute)", lineHeight: 1.45 }}>
                         {g.proven === g.total ? "every gate stage proven — the live reference pipeline" : nextStage ? <>next gate: <strong>{nextStage.id}</strong> ({nextStage.status})</> : "—"}
+                      </p>
+                      <p style={{ margin: "5px 0 0", fontSize: 10.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)" }} title={sp === "mlb" ? "MLB odds run the proven daily pipeline with its own credit guards" : oddsLane[sp].reason}>
+                        odds lane: {sp === "mlb" ? "LIVE (own guarded pipeline)" : oddsLane[sp].state}
                       </p>
                     </div>
                   );
