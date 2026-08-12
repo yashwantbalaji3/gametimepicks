@@ -38,7 +38,7 @@ test("invitation prerequisites: the CURRENT real state blocks on support + legal
     analyticsDecision: "DEFERRED_BY_FOUNDER",
   });
   assert.equal(later.ready, true, "an explicit deferral is a decision; unset is not");
-  function ok() { return { status: "APPROVED", approval: { reviewer: "A. Reviewer", role: "solicitor", approvedOn: "2026-09-01", packetVersion: 1 }, effectiveDate: "2026-09-05" }; }
+  function ok() { return { status: "APPROVED", approval: { reviewer: "A. Reviewer", role: "solicitor", approvedOn: "2026-09-01", packetVersion: 1, contentHash: "abc123def456" }, effectiveDate: "2026-09-05" }; }
 });
 
 test("access is deny-by-default at every layer; revocation beats presence", () => {

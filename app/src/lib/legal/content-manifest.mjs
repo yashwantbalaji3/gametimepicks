@@ -41,6 +41,7 @@ export function canPublishLegal(manifest, sectionId) {
   if (!a?.reviewer || !a?.role) reasons.push("approval must name a real reviewer and role — never inferred from a commit");
   if (!Number.isFinite(Date.parse(a?.approvedOn ?? ""))) reasons.push("approval date missing/unparseable");
   if (typeof a?.packetVersion !== "number") reasons.push("the approval must state which packet version was reviewed");
+  if (!/^[a-f0-9]{12,64}$/.test(a?.contentHash ?? "")) reasons.push("the approval must carry the exact content hash reviewed — approving 'whatever is there now' is not approval");
   if (!Number.isFinite(Date.parse(section.effectiveDate ?? ""))) reasons.push("effective date required before publication");
   return { allowed: reasons.length === 0, reasons };
 }

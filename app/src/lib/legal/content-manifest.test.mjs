@@ -19,7 +19,7 @@ test("the CURRENT manifest blocks every required section with counsel-required r
 });
 
 test("APPROVED alone is not enough: reviewer, role, date, packet version, and effective date are all mandatory", () => {
-  const base = { sections: { terms: { status: "APPROVED", approval: { reviewer: "A. Reviewer", role: "solicitor", approvedOn: "2026-09-01", packetVersion: 1 }, effectiveDate: "2026-09-05" } } };
+  const base = { sections: { terms: { status: "APPROVED", approval: { reviewer: "A. Reviewer", role: "solicitor", approvedOn: "2026-09-01", packetVersion: 1, contentHash: "abc123def456" }, effectiveDate: "2026-09-05" } } };
   assert.equal(canPublishLegal(base, "terms").allowed, true);
   const noRole = JSON.parse(JSON.stringify(base)); delete noRole.sections.terms.approval.role;
   assert.equal(canPublishLegal(noRole, "terms").allowed, false);
@@ -27,6 +27,8 @@ test("APPROVED alone is not enough: reviewer, role, date, packet version, and ef
   assert.equal(canPublishLegal(noDate, "terms").allowed, false);
   const noVer = JSON.parse(JSON.stringify(base)); delete noVer.sections.terms.approval.packetVersion;
   assert.equal(canPublishLegal(noVer, "terms").allowed, false);
+  const noHash = JSON.parse(JSON.stringify(base)); delete noHash.sections.terms.approval.contentHash;
+  assert.equal(canPublishLegal(noHash, "terms").allowed, false, "approving whatever-is-there-now is not approval");
   const noEff = JSON.parse(JSON.stringify(base)); delete noEff.sections.terms.effectiveDate;
   assert.equal(canPublishLegal(noEff, "terms").allowed, false);
   assert.equal(canPublishLegal(base, "made-up").allowed, false, "unknown sections never publish");
