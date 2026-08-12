@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823187,
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T15:51:38.578Z",
+  "availableAt": "2026-08-12T15:51:38.578Z",
+  "eventStartTime": "2026-08-12T19:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 605288,
+      "name": "Adrian Houser",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 57,
+      "lastStartDate": "2026-06-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 18,
+        "ipAvg": 3.6,
+        "kAvg": 4.4,
+        "bbAvg": 1.2,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 11,
+        "workloadIpLast5": 18
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 66,
+        "k": 48,
+        "bb": 25,
+        "er": 42,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 687911,
+      "name": "Bryan King",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-12T15:51:38.578Z"
+  },
+  "recordHash": "f6386753e9553c6fc872f86d8dd94871b8bd56c9d48cb2decdb6d8b0aa206f9a"
+}
