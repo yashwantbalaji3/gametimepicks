@@ -34,7 +34,7 @@ export const LIVE_INPUT_MATRIX = Object.freeze({
     schedule: { state: "AVAILABLE", source: "sport-schedules daily capture (partial calendar until full publication)" },
     priorResults: { state: "AVAILABLE", source: "scoreboard class proven by the corpus" },
     teamStrengthState: { state: "AVAILABLE", source: "Elo/pace state reproducible deterministically" },
-    injuriesLineups: { state: "MISSING", note: "injuries HALF is captured (77/77 live entries, zero quarantines, same contract as NFL — data/internal/research/injuries/nba); LINEUPS still have no evaluated source, so this combined input stays MISSING until they do — the half-receipt is recorded, not overclaimed" },
+    injuriesLineups: { state: "MISSING", note: "injuries HALF captured (77/77, zero quarantines); LINEUPS evaluated and REJECTED for the pre-start role (docs/NBA_LINEUP_SOURCE_EVALUATION.md: box-score starters are POST_START by definition, depth charts are PROJECTED, NBA.com official needs a founder rights decision). Fail-closed vocabulary shipped (lib/sports/lineups/contract) — injuries can never satisfy lineups, executable. Stays MISSING; next receipt = founder licensing decision" },
     odds: { state: "BLOCKED_EXTERNAL", note: "founder-owned CI-key exercise" },
   },
   epl: {

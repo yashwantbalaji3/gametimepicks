@@ -86,7 +86,7 @@ export const ROADMAP_30D = Object.freeze([
     horizon: "WEEK_2",
     items: [
       { outcome: "Legal §3 business decisions answered; adviser consultation booked", department: "business-legal", sport: "shared", owner: "FOUNDER", dependency: null, effort: "S-founder", acceptance: "entity/jurisdiction/geography/age/audience recorded in LEGAL_CONTENT_MAP" },
-      { outcome: "NBA lineups source evaluation (the missing half of injuriesLineups): predicted vs official distinction, publication timestamps, formation/role identity — evaluation with keep/reject verdict; contract only if provenance is acceptable", department: "data", sport: "nba", owner: "ENGINEERING", dependency: "injuries half captured (P162-H); shadow matrix names the remainder", effort: "M", acceptance: "per-source evaluation recorded; genuinely pre-start evidence timestamps proven or the source rejected; the combined matrix entry flips only when BOTH halves have receipts" },
+      { outcome: "NBA official-lineup rights decision: NBA.com official pregame lineups (or a licensed feed) — the only remaining path after the free-source rejection (docs/NBA_LINEUP_SOURCE_EVALUATION.md); the shipped lineup contract is the acceptance bar any licensed adapter must satisfy", department: "data", sport: "nba", owner: "FOUNDER", dependency: "free sources REJECTED with evidence (P163-B); lineup contract shipped", effort: "decision", acceptance: "a rights/licensing decision recorded; if licensed, the adapter passes lineupShadowEligibility with provably pre-start timestamps" },
     ],
   },
   {
