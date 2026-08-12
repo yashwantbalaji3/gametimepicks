@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824883,
+  "teamId": 121,
+  "name": "New York Mets",
+  "side": "away",
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T21:36:08.325Z",
+  "availableAt": "2026-08-12T21:36:08.325Z",
+  "eventStartTime": "2026-08-12T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 7,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-11",
+  "previousVenueId": 4705,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=121&startDate=2026-07-29&endDate=2026-08-11",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-12T21:36:08.325Z"
+  },
+  "recordHash": "ba28aa5d7a2aa5ac30a95b6228d85057e3b6fad4fa133055a37b4655a8e7f627"
+}

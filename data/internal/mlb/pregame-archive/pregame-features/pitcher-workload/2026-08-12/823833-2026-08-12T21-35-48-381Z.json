@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823833,
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T21:35:48.381Z",
+  "availableAt": "2026-08-12T21:35:48.381Z",
+  "eventStartTime": "2026-08-12T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 676083,
+      "name": "Janson Junk",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 6,
+      "lastStartDate": "2026-08-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.67,
+        "ipAvg": 4.33,
+        "kAvg": 3.8,
+        "bbAvg": 2,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 7.89,
+        "workloadIpLast5": 21.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 81.67,
+        "k": 62,
+        "bb": 23,
+        "er": 42,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 669387,
+      "name": "Carmen Mlodzinski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 5,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 3,
+        "bbAvg": 1.4,
+        "erAvg": 2.6,
+        "hrAvg": 0.8,
+        "kPer9": 5.47,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 47,
+        "k": 40,
+        "bb": 16,
+        "er": 26,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-12T21:35:48.381Z"
+  },
+  "recordHash": "2d54814d774041a3f9ab11caeb6c4998302d7dae5fa88de4be19a239da29ec0d"
+}

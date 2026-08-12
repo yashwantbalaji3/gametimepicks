@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824883,
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T21:35:48.381Z",
+  "availableAt": "2026-08-12T21:35:48.381Z",
+  "eventStartTime": "2026-08-12T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641816,
+      "name": "Tyler Mahle",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 5.8,
+        "bbAvg": 2,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 8.8,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 100.67,
+        "k": 98,
+        "bb": 39,
+        "er": 54,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 804267,
+      "name": "Zac Thornton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 5,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 3.4,
+        "bbAvg": 1.8,
+        "erAvg": 1.2,
+        "hrAvg": 0.4,
+        "kPer9": 5.28,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 39.33,
+        "k": 27,
+        "bb": 12,
+        "er": 11,
+        "hr": 3
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-12T21:35:48.381Z"
+  },
+  "recordHash": "3d8676d849b88efe5d00dc05bf39aade808cc2ee20713fb7491719c0005bacc4"
+}
