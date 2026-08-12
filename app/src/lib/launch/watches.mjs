@@ -43,7 +43,7 @@ export const REALITY_GATED_WATCHES = Object.freeze([
     sport: "shared",
     title: "Daily sport-schedules cadence (4 schedules + NFL/NBA/EPL results steps)",
     observeAtUtc: "2026-08-12T14:15:00Z", // cron 13:00 UTC with observed drift to ~14:11
-    evidenceToInspect: "the run's per-sport log lines + stamp-stripped commit behavior; NBA results step fires for the first time on a scheduled trigger",
+    evidenceToInspect: "ONE COMMAND after pulling the run's commits: npx tsx scripts/ops/verify-cadence-receipts.mjs --run <id> --before <pre-pull sha> — per-sport verdicts against committed expectations (P163-C); plus the run's own step log for discard-day acquisition proof",
     productiveBefore: "everything — the cadence needs no attendance, only next-day verification",
   },
   {
