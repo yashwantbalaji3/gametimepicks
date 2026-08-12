@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823187,
   "date": "2026-08-12",
-  "capturedAt": "2026-08-12T03:22:04.098Z",
-  "availableAt": "2026-08-12T03:22:04.098Z",
+  "capturedAt": "2026-08-12T11:44:18.067Z",
+  "availableAt": "2026-08-12T11:44:18.067Z",
   "eventStartTime": "2026-08-12T19:45:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,44 @@
     "teamId": 137,
     "teamName": "San Francisco Giants",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 42,
+      "relievers": [
+        {
+          "id": 693313,
+          "name": "Carson Seymour",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-08-11"
+          ]
+        },
+        {
+          "id": 664141,
+          "name": "JT Brubaker",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 3,
+          "dates": [
+            "2026-08-11"
+          ]
+        },
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-08-11"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 8,
-      "pitches": 118,
+      "appearances": 11,
+      "pitches": 160,
       "relievers": [
         {
           "id": 671345,
@@ -51,6 +82,16 @@
           ]
         },
         {
+          "id": 693313,
+          "name": "Carson Seymour",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-08-11"
+          ]
+        },
+        {
           "id": 656529,
           "name": "Sam Hentges",
           "appearances": 2,
@@ -64,11 +105,12 @@
         {
           "id": 664141,
           "name": "JT Brubaker",
-          "appearances": 1,
-          "pitches": 17,
-          "outs": 2,
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 5,
           "dates": [
-            "2026-08-10"
+            "2026-08-10",
+            "2026-08-11"
           ]
         },
         {
@@ -80,31 +122,79 @@
           "dates": [
             "2026-08-10"
           ]
+        },
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-08-11"
+          ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 693313,
+        "name": "Carson Seymour",
+        "reason": "30 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 117,
     "teamName": "Houston Astros",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
-      "appearances": 4,
-      "pitches": 87,
+      "appearances": 3,
+      "pitches": 48,
       "relievers": [
+        {
+          "id": 656986,
+          "name": "Bennett Sousa",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-08-11"
+          ]
+        },
         {
           "id": 805123,
           "name": "AJ Blubaugh",
           "appearances": 1,
-          "pitches": 25,
-          "outs": 6,
+          "pitches": 18,
+          "outs": 3,
           "dates": [
-            "2026-08-09"
+            "2026-08-11"
+          ]
+        },
+        {
+          "id": 660853,
+          "name": "Enyel De Los Santos",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-08-11"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 135,
+      "relievers": [
+        {
+          "id": 805123,
+          "name": "AJ Blubaugh",
+          "appearances": 2,
+          "pitches": 43,
+          "outs": 9,
+          "dates": [
+            "2026-08-09",
+            "2026-08-11"
           ]
         },
         {
@@ -128,6 +218,16 @@
           ]
         },
         {
+          "id": 656986,
+          "name": "Bennett Sousa",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-08-11"
+          ]
+        },
+        {
           "id": 595345,
           "name": "Steven Okert",
           "appearances": 1,
@@ -135,6 +235,16 @@
           "outs": 3,
           "dates": [
             "2026-08-10"
+          ]
+        },
+        {
+          "id": 660853,
+          "name": "Enyel De Los Santos",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-08-11"
           ]
         }
       ]
@@ -144,7 +254,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-09,2026-08-10,2026-08-11) + feed/live box scores",
-    "capturedAt": "2026-08-12T03:22:04.098Z"
+    "capturedAt": "2026-08-12T11:44:18.067Z"
   },
-  "recordHash": "35879651eaab6775e8a176d23c7979135e31c6ebfa681dcc2d076d37e6944074"
+  "recordHash": "e1e0a3f2cd2835bd5bf022029118dad98d064474bed3104200bd06f3a16ef1d6"
 }

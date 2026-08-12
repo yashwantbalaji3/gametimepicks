@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822698,
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T11:44:17.436Z",
+  "availableAt": "2026-08-12T11:44:17.436Z",
+  "eventStartTime": "2026-08-12T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 800600,
+      "name": "Jackson Kent",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 656849,
+      "name": "David Peterson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 6,
+      "lastStartDate": "2026-08-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 4,
+        "bbAvg": 2,
+        "erAvg": 1,
+        "hrAvg": 0.6,
+        "kPer9": 6.28,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 75.33,
+        "k": 63,
+        "bb": 34,
+        "er": 49,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-12T11:44:17.436Z"
+  },
+  "recordHash": "5b445f654a10d7db46c979cced95c43939207a1e26eb01b46ed1b95d76ed5d90"
+}
