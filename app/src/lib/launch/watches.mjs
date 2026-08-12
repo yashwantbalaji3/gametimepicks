@@ -17,9 +17,9 @@ export const REALITY_GATED_WATCHES = Object.freeze([
   {
     id: "watch-nfl-first-joined-final",
     sport: "nfl",
-    title: "NFL · first JOINED preseason final flows through the deployed results path",
-    observeAtUtc: "2026-08-14T03:30:00Z", // DET@CIN kicks 2026-08-13T23:00Z; final expected ~3.5h later, captured by the next cadence run
-    evidenceToInspect: "public/data/nfl/results/latest.json after the Aug 14 cadence run — expect state RESULTS with the final joined (not quarantined) and reconciliation exact",
+    title: "NFL · first JOINED preseason final flows through the deployed results path (DET@CIN)",
+    observeAtUtc: "2026-08-14T14:15:00Z", // DET@CIN kicks 2026-08-13T23:00Z; the final can only LAND in the artifact via the 13:00 UTC cadence (observed drift ~14:11) — the watch opens when evidence can exist, not when the game ends
+    evidenceToInspect: "public/data/nfl/results/latest.json after the Aug 14 cadence run — expect state RESULTS with 401873272 JOINED (not quarantined) and reconciliation exact. Precedent: the first captured final (CAR@ARI 33-30, Aug 7) correctly QUARANTINED for missing pre-event schedule lineage (captures began Aug 9) — the lineage gate is proven live; DET@CIN has pre-event lineage in four committed captures, so it must join",
     productiveBefore: "results-correction monitoring and injury-input source evaluation proceed now; nothing about the join waits",
   },
   {
