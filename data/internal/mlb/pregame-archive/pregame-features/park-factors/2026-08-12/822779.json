@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "mlb-pregame-park-factors-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "park_factors",
+  "gamePk": 822779,
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T03:22:28.297Z",
+  "availableAt": "2026-08-12T03:22:28.297Z",
+  "eventStartTime": "2026-08-12T23:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "static venue facts, captured pregame",
+  "venue": {
+    "id": 14,
+    "name": "Rogers Centre",
+    "city": "Toronto",
+    "elevation": 270,
+    "roofType": "Retractable",
+    "turfType": "Artificial Turf"
+  },
+  "factors": {
+    "runFactor": 100,
+    "hrFactor": 100,
+    "handednessEffect": null,
+    "runEnvironmentSignal": "sea-level-ish (270 ft)"
+  },
+  "source": "StatsAPI venue endpoint (FACTUAL: elevation/roof/turf/city). Numeric run/HR/handedness park factors are NOT loaded from any published source — runFactor/hrFactor default to a NEUTRAL 100 baseline; treat as neutral until a real source is loaded. Only runEnvironmentSignal is derived (from factual elevation).",
+  "updatePolicy": "Static per venue. Refresh factual attributes if a venue changes. Load numeric park factors annually from a published source (e.g. Statcast/FanGraphs park factors) in a SEPARATE internal reference; never fabricate.",
+  "leakageRule": "venue attributes are static/pregame; capturedAt recorded for provenance",
+  "recordHash": "adc2d7acfdc87044ed5b3595fad0c875a0359a84b1ed96b4aa62471a0bf5f49d"
+}

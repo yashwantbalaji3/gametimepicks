@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823916,
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T03:22:03.211Z",
+  "availableAt": "2026-08-12T03:22:03.211Z",
+  "eventStartTime": "2026-08-13T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641778,
+      "name": "Eric Lauer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 7,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 3,
+        "bbAvg": 1,
+        "erAvg": 3,
+        "hrAvg": 1.2,
+        "kPer9": 4.94,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 76,
+        "k": 47,
+        "bb": 23,
+        "er": 41,
+        "hr": 18
+      }
+    },
+    "away": {
+      "id": 663738,
+      "name": "Daniel Lynch IV",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 5,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 1,
+        "ipSum": 1.67,
+        "ipAvg": 1.67,
+        "kAvg": 2,
+        "bbAvg": 2,
+        "erAvg": 3,
+        "hrAvg": 0,
+        "kPer9": 10.8,
+        "workloadIpLast5": 1.67
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 1.67,
+        "k": 2,
+        "bb": 2,
+        "er": 3,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-12T03:22:03.211Z"
+  },
+  "recordHash": "f90907c74257dba6d83f00354f43fd9b0a716e8b925af692e1eb7ac002d013df"
+}

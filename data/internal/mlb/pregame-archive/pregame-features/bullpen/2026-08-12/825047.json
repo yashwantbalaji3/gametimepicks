@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 825047,
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T03:22:04.098Z",
+  "availableAt": "2026-08-12T03:22:04.098Z",
+  "eventStartTime": "2026-08-12T19:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-09",
+    "2026-08-10",
+    "2026-08-11"
+  ],
+  "home": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 67,
+      "relievers": [
+        {
+          "id": 641793,
+          "name": "Zack Littell",
+          "appearances": 1,
+          "pitches": 45,
+          "outs": 14,
+          "dates": [
+            "2026-08-10"
+          ]
+        },
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 664199,
+          "name": "Taylor Clarke",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 137,
+      "relievers": [
+        {
+          "id": 688642,
+          "name": "Zach Agnos",
+          "appearances": 1,
+          "pitches": 55,
+          "outs": 9,
+          "dates": [
+            "2026-08-10"
+          ]
+        },
+        {
+          "id": 685299,
+          "name": "Tanner Gordon",
+          "appearances": 1,
+          "pitches": 48,
+          "outs": 10,
+          "dates": [
+            "2026-08-09"
+          ]
+        },
+        {
+          "id": 693308,
+          "name": "Nick Frasso",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-08-10"
+          ]
+        },
+        {
+          "id": 656786,
+          "name": "Parker Mushinski",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 1,
+          "dates": [
+            "2026-08-09"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-09,2026-08-10,2026-08-11) + feed/live box scores",
+    "capturedAt": "2026-08-12T03:22:04.098Z"
+  },
+  "recordHash": "82a87fef80ab0a8f0d4dccbc5bbe3a66a5f7decd413a473b26bae2a112cf0638"
+}
