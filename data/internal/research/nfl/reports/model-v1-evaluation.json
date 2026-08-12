@@ -1,0 +1,149 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-model-v1-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-12T19:30:00Z",
+ "modelId": "nfl-model-v1-elo-analytic",
+ "modelVersion": 1,
+ "protocol": {
+  "train": {
+   "seasons": [
+    2023,
+    2024
+   ],
+   "observations": 570,
+   "declaredBeforeEvaluation": true
+  },
+  "test": {
+   "season": 2025,
+   "observations": 285
+  },
+  "preseasonPolicy": "phase-1 games are outside fit and outside coverage — ABSTAINED, counted below, accuracy UNPROVEN by design",
+  "tieHandling": "two-way heads score ties as non-home-win; tie counts reported per slice (7 corpus-wide)"
+ },
+ "fitParams": {
+  "elo": {
+   "K": 20,
+   "HOME_ADVANTAGE": 48,
+   "MEAN": 1505,
+   "SEASON_REGRESSION": 0.3333333333333333
+  },
+  "marginSlope": 0.069322,
+  "sigmaMargin": 13.7007,
+  "muTotal": 44.9088,
+  "sigmaTotal": 13.4915
+ },
+ "coverage": {
+  "testGamesTotal": 333,
+  "predicted": 285,
+  "abstainedPreseason": 48,
+  "coverageRate": 0.8559
+ },
+ "metrics": {
+  "model": {
+   "logLoss": 0.6478,
+   "brier": 0.2282,
+   "calibration": {
+    "bins": [
+     {
+      "bin": "0.0-0.1",
+      "n": 0
+     },
+     {
+      "bin": "0.1-0.2",
+      "n": 0
+     },
+     {
+      "bin": "0.2-0.3",
+      "n": 0
+     },
+     {
+      "bin": "0.3-0.4",
+      "n": 26,
+      "meanPredicted": 0.367,
+      "observedHomeRate": 0.3077
+     },
+     {
+      "bin": "0.4-0.5",
+      "n": 53,
+      "meanPredicted": 0.4634,
+      "observedHomeRate": 0.3396
+     },
+     {
+      "bin": "0.5-0.6",
+      "n": 96,
+      "meanPredicted": 0.5495,
+      "observedHomeRate": 0.5208
+     },
+     {
+      "bin": "0.6-0.7",
+      "n": 80,
+      "meanPredicted": 0.646,
+      "observedHomeRate": 0.65
+     },
+     {
+      "bin": "0.7-0.8",
+      "n": 28,
+      "meanPredicted": 0.7444,
+      "observedHomeRate": 0.7857
+     },
+     {
+      "bin": "0.8-0.9",
+      "n": 2,
+      "meanPredicted": 0.8076,
+      "observedHomeRate": 1
+     },
+     {
+      "bin": "0.9-1.0",
+      "n": 0
+     }
+    ],
+    "ece": 0.0446
+   },
+   "marginMAE": 10.262,
+   "totalMAE": 10.997
+  },
+  "baselines": {
+   "coin": {
+    "logLoss": 0.6931,
+    "brier": 0.25
+   },
+   "naiveHome": {
+    "p": 0.5561,
+    "logLoss": 0.692,
+    "brier": 0.2494
+   },
+   "eloOnly": {
+    "note": "identical to the model's win head by construction — v1 adds distribution heads, not a new win model"
+   }
+  }
+ },
+ "slices": [
+  {
+   "slice": "regular (phase 2)",
+   "n": 272,
+   "ties": 1,
+   "logLoss": 0.6469,
+   "brier": 0.2279
+  },
+  {
+   "slice": "postseason (phase 3)",
+   "n": 13,
+   "ties": 0,
+   "logLoss": 0.6655,
+   "brier": 0.236
+  },
+  {
+   "slice": "preseason (phase 1)",
+   "n": 48,
+   "state": "ABSTAINED_BY_POLICY",
+   "accuracy": "UNPROVEN — no prediction exists to score"
+  }
+ ],
+ "honesty": [
+  "the win head IS the P151 Elo baseline — no novelty is claimed for it",
+  "the total head is league climatology; team-level totals are a stated v1 gap",
+  "no market data touches fit or predict — independence is structural",
+  "no profit or market-beating claim is made or implied anywhere"
+ ]
+}

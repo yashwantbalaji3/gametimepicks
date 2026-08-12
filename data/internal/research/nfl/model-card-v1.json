@@ -1,0 +1,43 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-model-card",
+ "dataClass": "PRIVATE_RESEARCH",
+ "modelId": "nfl-model-v1-elo-analytic",
+ "version": 1,
+ "generatedAt": "2026-08-12T19:30:00Z",
+ "objective": "pre-event win probability plus margin/total distributions for NFL games, as a private research forecast compared (never blended) with no-vig market probabilities",
+ "method": "ANALYTICAL_NORMAL_HEADS_OVER_CUTOFF_ELO — closed-form normals; no Monte Carlo, no RNG, deterministic by construction; quantiles are exact normal quantiles",
+ "features": [
+  "cutoff-versioned Elo ratings (K=20, HA=48, mean 1505, 1/3 season regression; preseason never fits)",
+  "nothing else — no injuries, weather, market, or roster features in v1 (each is either an explicit shadow-run input state or a stated limitation)"
+ ],
+ "featureCutoff": "strength state at the assembly clock; every training row strictly precedes the declared train/test boundary",
+ "population": {
+  "corpus": "1,001 finals 2023–2025 (7 ties preserved)",
+  "train": "2023–2024",
+  "test": "2025"
+ },
+ "metrics": {
+  "see": "reports/model-v1-evaluation.json",
+  "headline": {
+   "testLogLoss": 0.6478,
+   "coin": 0.6931,
+   "ece": 0.0446,
+   "marginMAE": 10.262,
+   "totalMAE": 10.997
+  }
+ },
+ "limitations": [
+  "PRESEASON: abstains entirely — starter participation, roster churn, depth-chart uncertainty make the regular-season fit unfounded; a separate evidence-backed preseason update would be its own versioned model",
+  "totals are league climatology (no team scoring signal)",
+  "no injury/weather/rest adjustment in v1 — those are shadow-run INPUT states, surfaced beside the forecast, never silently imputed",
+  "margin/total normality is an approximation; key-number mass (3, 7) is not modeled"
+ ],
+ "abstention": {
+  "preseason": "always",
+  "unresolvedIdentity": "always"
+ },
+ "independenceFromMarket": "structural — no odds parameter exists in fit or predict; odds qualify shadow freshness and provide no-vig comparison only",
+ "rightsAndProvenance": "corpus from ESPN public scoreboard snapshots with attribution (see corpus sourceManifest); educational, paper-only use",
+ "publicActivation": "OFF"
+}
