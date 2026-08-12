@@ -48,7 +48,9 @@ export function classifyRun(run) {
 /**
  * Evaluate one artifact class. `prior`/`current` manifests: { generatedAt, sourceAsOf,
  * semanticHash, counts, state, reconciliationExact } — semanticHash is stamp-stripped upstream.
- * `expectation`: { state?, allowRetention?, minCount?, note? } — tomorrow's committed truth.
+ * `expectation`: { state?, allowRetention?, minCount?, allowWindowSlide?, note? } — tomorrow's committed truth.
+ * `allowWindowSlide` belongs ONLY to forward-window classes whose counts legitimately collapse
+ * when events start (observed live: UFC 83→17 bouts the night two cards ran).
  */
 export function evaluateClass(cls, { prior, current, expectation = {} }) {
   const r = (verdict, evidence) => ({ class: cls.id, sport: cls.sport, verdict, evidence });
@@ -74,7 +76,7 @@ export function evaluateClass(cls, { prior, current, expectation = {} }) {
   if (!semanticEqual && before > 0 && after === 0 && prior.state === current.state) {
     return r("FAILED_EMPTY_OVERWRITE", `${before} → 0 with no state change — an empty overwrite is never a receipt`);
   }
-  if (!semanticEqual && after < before * 0.5 && before >= 10 && prior.state === current.state) {
+  if (!semanticEqual && after < before * 0.5 && before >= 10 && prior.state === current.state && !expectation.allowWindowSlide) {
     return r("FAILED_MASS_DELETION", `${before} → ${after} without a state change — unexplained mass deletion`);
   }
 

@@ -112,7 +112,9 @@ test("UFC disk truth: forward BOUTS validate through the red/blue scheme with th
   const out = ufcUpcoming({ nowIso: NOW });
   assert.equal(out.sourceVerdict.configured, true);
   assert.equal(out.sourceVerdict.sourceId, "espn_scoreboard");
-  assert.ok(out.totals.captured >= 50, `expected the forward bout list, got ${out.totals.captured}`);
+  // The forward window legitimately collapses when cards start (83→17 observed live the night two
+  // cards ran, Aug 12) — the invariant is a NON-EMPTY validated bout list, never a count era.
+  assert.ok(out.totals.captured >= 5, `expected a non-empty forward bout list, got ${out.totals.captured}`);
   assert.ok(out.events.length > 0 && out.events.length <= 12);
   assert.equal(out.quarantined.length, 0, JSON.stringify(out.quarantined.slice(0, 2)));
   for (const e of out.events) {

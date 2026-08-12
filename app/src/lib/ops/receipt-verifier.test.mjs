@@ -37,6 +37,10 @@ test("FAIL-CLOSED: green-without-artifact, empty overwrite, mass deletion, broke
   assert.equal(empty.verdict, "FAILED_EMPTY_OVERWRITE");
   const mass = evaluateClass(CLS("nba-schedule"), { prior: M("2026-08-11T14:10:00Z", "aaa", { rows: 58 }), current: M("2026-08-12T14:10:00Z", "bbb", { rows: 12 }) });
   assert.equal(mass.verdict, "FAILED_MASS_DELETION");
+  // Forward-window classes may collapse legitimately when events start (UFC 83→17 observed live
+  // the night two cards ran) — but ONLY with the explicit expectation.
+  const slide = evaluateClass(CLS("ufc-schedule"), { prior: M("2026-08-11T14:10:00Z", "aaa", { rows: 83 }), current: M("2026-08-12T14:10:00Z", "bbb", { rows: 17 }), expectation: { allowWindowSlide: true } });
+  assert.equal(slide.verdict, "QUALIFYING_CHANGE");
   const recon = evaluateClass(CLS("ufc-results"), { prior: M("2026-08-11T14:10:00Z", "aaa", { completed: 12 }, { state: "RESULTS" }), current: M("2026-08-12T14:10:00Z", "bbb", { completed: 14 }, { state: "RESULTS", reconciliationExact: false }) });
   assert.equal(recon.verdict, "FAILED_RECONCILIATION");
 });

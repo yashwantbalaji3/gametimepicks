@@ -14,9 +14,9 @@
  */
 
 export const CADENCE_EXPECTATIONS = Object.freeze({
-  "nfl-schedule": { allowRetention: true },
-  "nba-schedule": { allowRetention: true },
-  "ufc-schedule": { allowRetention: true },
+  "nfl-schedule": { allowRetention: true, allowWindowSlide: true },
+  "nba-schedule": { allowRetention: true, allowWindowSlide: true },
+  "ufc-schedule": { allowRetention: true, allowWindowSlide: true },
   "epl-fixtures": { allowRetention: true },
   "nfl-results": { state: "RESULTS", allowRetention: true, note: "the trailing window still holds the Aug 7 final, honestly quarantined for lineage; the first JOIN is the Aug 13+ watch" },
   "nba-results": { state: "NO_RESULTS_YET", allowRetention: true, note: "off-season until Oct 3" },

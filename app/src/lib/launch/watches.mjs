@@ -34,9 +34,9 @@ export const REALITY_GATED_WATCHES = Object.freeze([
     id: "watch-ufc-replacement-lineage",
     sport: "ufc",
     title: "UFC · replacement/cancellation lineage from a real card change",
-    observeAtUtc: "2026-08-12T14:15:00Z", // next scheduled capture after the Aug 11 card — post-card diffs are where replacements surface
-    evidenceToInspect: "consecutive ufc/schedule captures diffed by stable bout ids — a swap/removal is the receipt; a no-change capture is also a valid observation",
-    productiveBefore: "the lineage classifier can ship against the two real captures that already exist (one addition observed)",
+    observeAtUtc: "2026-08-16T14:15:00Z", // post-UFC-330 capture (card Aug 15) — the Aug 12 post-card observation recorded a valid NO-CHANGE lineage receipt (zero replacements)
+    evidenceToInspect: "consecutive ufc/schedule captures diffed via classifyUfcLineage — a swap/removal-with-status is the receipt; the Aug 12 observation classified 66 window-slides + 17 UNCHANGED with zero replacements (valid no-change)",
+    productiveBefore: "UFC 330 (Makhachev vs Machado Garry, Aug 15) is the next real replacement-risk window; nothing waits on it",
   },
   {
     id: "watch-daily-cadence",
