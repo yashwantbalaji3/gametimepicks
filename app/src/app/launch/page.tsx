@@ -9,6 +9,7 @@ import { RELEASE_HISTORY } from "@/lib/launch/release-history.mjs";
 import { withCountdown } from "@/lib/launch/watches.mjs";
 import { founderActionSheet } from "@/lib/launch/shared-blockers.mjs";
 import { ALLOWED_CHOICES } from "@/lib/launch/founder-response.mjs";
+import { IA_SECTIONS } from "@/lib/launch/ia-contract.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
@@ -121,19 +122,37 @@ export default function LaunchCommandCenter() {
 
   return (
     <main style={{ maxWidth: 1180, margin: "0 auto", padding: "28px 20px 72px" }}>
-      <header style={{ marginBottom: 26 }}>
-        <p style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--vault-gold-bright)", marginBottom: 6 }}>
-          Internal · not deployed publicly
-        </p>
-        <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.01em" }}>Launch Command Center</h1>
+      <header style={{ marginBottom: 14 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", alignItems: "baseline" }}>
+          <p style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--vault-gold-bright)", margin: 0 }}>
+            Internal · not deployed publicly
+          </p>
+          <span style={{ fontSize: 10, fontFamily: "var(--font-mono, monospace)", border: "1px solid var(--vault-border-strong)", borderRadius: 999, padding: "1px 8px", color: "var(--vault-text-mute)" }}>
+            env: internal build · read-only
+          </span>
+          <span style={{ fontSize: 10, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)" }}>
+            as of {buildNowIso} (build clock; freshness re-derives from artifacts)
+          </span>
+        </div>
+        <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.01em", marginTop: 6 }}>Launch Command Center</h1>
         <p style={{ color: "var(--vault-text-mute)", fontSize: 13, marginTop: 6 }}>
-          Slate {etDate} · schema v{SCHEMA_VERSION} · every figure derived from the scorecard checklist and launch gates — nothing here is hand-maintained.
+          Slate {etDate} · schema v{SCHEMA_VERSION} · every figure derived from committed evidence owners — nothing here is hand-maintained. A browser action can close nothing; receipts close work.
         </p>
       </header>
 
+      {/* ── IA nav (P166 · Release A): rendered FROM the contract so menu and truth cannot drift.
+             Sticky, keyboard-reachable, anchors only — one page, one task authority. ─────── */}
+      <nav aria-label="Command center sections" style={{ position: "sticky", top: 0, zIndex: 5, background: "var(--vault-bg, #14100c)", borderBottom: "1px solid var(--vault-border)", margin: "0 -20px 22px", padding: "8px 20px", display: "flex", flexWrap: "wrap", gap: "4px 14px" }}>
+        {IA_SECTIONS.map((g) => (
+          <a key={g.group} href={`#${g.anchors[0]}`} title={`authority: ${g.authority}`} style={{ fontSize: 11.5, textDecoration: "none", color: "var(--vault-text-mute)", padding: "2px 2px" }}>
+            {g.group}
+          </a>
+        ))}
+      </nav>
+
       {/* ── Health strip (P162 · Release C): the console's first row. Every tile links to the
              evidence section it summarizes — a tile is a doorway, never the proof itself. ── */}
-      <section aria-label="Health strip" style={{ marginBottom: 26 }}>
+      <section id="health" aria-label="Health strip" style={{ marginBottom: 26 }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8 }}>
           {[
             { href: "#ledger", label: "Evidence ledger", value: ledger ? `${ledger.counts?.HEALTHY ?? 0} healthy · ${(ledger.contradictions ?? []).length} contradictions` : "not generated", bad: !ledger || (ledger.contradictions ?? []).length > 0 },
@@ -704,6 +723,41 @@ export default function LaunchCommandCenter() {
       </section>
 
       {/* ── Queues ──────────────────────────────────────────────────────────────────── */}
+      {/* ── Runbooks: what to do when — each entry names its doc and trigger ─────────── */}
+      <section id="runbooks" aria-labelledby="runbooks-h" style={{ marginBottom: 30 }}>
+        <h2 id="runbooks-h" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Runbooks</h2>
+        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "var(--vault-text-mute)", display: "grid", gap: 3 }}>
+          <li><code>docs/OPS_WATCHERS.md</code> — gate watchers: one target, bounded, superseded exits; zero owned watchers at close</li>
+          <li><code>docs/DAILY_OPS.md</code> — the MLB daily production loop (protected reference pipeline)</li>
+          <li><code>scripts/ops/verify-cadence-receipts.mjs --run &lt;id&gt; --before &lt;run headSha&gt;</code> — the one command after every scheduled cadence</li>
+          <li><code>docs/NFL_CORRECTIONS_RUNBOOK.md</code> — score corrections, status regressions, first-join verification (Aug 13+)</li>
+          <li><code>docs/EPL_CORRECTIONS_RUNBOOK.md</code> — kickoff moves, latest-wins policy, the Aug-21 first-FT checklist</li>
+          <li><code>docs/FOUNDER_RESPONSE_FORM.md</code> + <code>scripts/ops/founder-orchestrate.mjs</code> — the seven-answer flow (read-only)</li>
+          <li><code>docs/ADMIN_ACCESS_DECISION.md</code> + <code>scripts/ops/verify-admin-access.mjs</code> — private-deployment verification</li>
+          <li>Stale artifact / failed cadence / source outage → the receipt verifier names the failing class; last-known-good stands by design; never hand-edit an artifact</li>
+          <li>Protected-money mismatch → STOP; the only writer is nightly-settle; verify md5s and inspect its run log — never repair by hand</li>
+        </ul>
+      </section>
+
+      {/* ── Transition readiness (Dhruv onboarding) — documentation ONLY; nothing here
+             transfers accounts, credentials, or control (possible Aug-30 event, PLANNED). ── */}
+      <section id="transition" aria-labelledby="transition-h" style={{ marginBottom: 30 }}>
+        <h2 id="transition-h" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Transition readiness · Dhruv onboarding</h2>
+        <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 8 }}>
+          Read-only orientation. No ownership, account, credential, or control transfer has occurred or is authorized by this page; the Aug-30 possibility is PLANNED_EXTERNAL.
+        </p>
+        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "var(--vault-text-mute)", display: "grid", gap: 3 }}>
+          <li><strong>System in one line:</strong> an educational, paper-only sports analytics platform — MLB is the live 12/12 reference pipeline; NFL/UFC/EPL/NBA have receipt-derived schedule/results foundations and private research only; publicActivation is OFF everywhere non-MLB.</li>
+          <li><strong>Daily rhythm:</strong> scheduled captures ~13:00-14:15 UTC → one verification command (see Runbooks) → watches/incidents on this page → releases ship through the quality gate → receipts close work.</li>
+          <li><strong>Owner types:</strong> ENGINEERING (this console&apos;s lanes) · FOUNDER (the seven-blocker sheet above) · REALITY (time-gated watches) — founder actions never block engineering lanes.</li>
+          <li><strong>Provider inventory (names only, no credentials):</strong> MLB StatsAPI (free) · ESPN public scoreboards/injuries (free, attributed snapshots) · openfootball (public domain) · The Odds API (paid, credit-guarded, dormant for non-MLB until authorized) · Vercel (hosting) · GitHub Actions (automation).</li>
+          <li><strong>Environment names (values live in dashboards, never here):</strong> ODDS_API_KEY (CI) · GTP_SUPPORT_* ·(unset) · NEXT_PUBLIC_ANALYTICS_* (unset = hard off).</li>
+          <li><strong>Escalation:</strong> protected-money mismatch → stop-and-inspect (runbook) · public/private leak → P0, prune + redeploy · provider outage → last-known-good stands, watch the next cadence.</li>
+          <li><strong>Transfer checklist (ALL not-started, deliberately):</strong> documentation ✓in-progress here · account/service inventory (names only) ✓above · access model → the admin-access blocker · backup/export, credential rotation, billing/domain ownership, old-access revocation → FUTURE, each its own gated step.</li>
+          <li><strong>Sharing rule:</strong> until the protected internal deployment is verifiably active (admin blocker), Dhruv sees exports/walkthroughs — never a URL whose only protection is obscurity.</li>
+        </ul>
+      </section>
+
       <section aria-labelledby="queues">
         <h2 id="queues" style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Action queues</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
