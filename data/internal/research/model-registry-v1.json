@@ -2,13 +2,13 @@
  "schemaVersion": 1,
  "artifact": "model-registry",
  "dataClass": "PRIVATE_RESEARCH",
- "generatedAt": "2026-08-11T01:35:00Z",
+ "generatedAt": "2026-08-12T20:50:00Z",
  "comparabilityNote": "entries share evidence STRUCTURE only — outcome spaces differ (binary vs three-way vs abstaining), so cross-sport performance comparison is meaningless and deliberately absent",
  "entries": [
   {
    "sport": "nfl",
    "modelVersion": "baseline-v1",
-   "objective": "INCOMPLETE — no model card committed; objective lives in the evaluation artifact header",
+   "objective": "pre-event win probability plus margin/total distributions for NFL games, as a private research forecast compared (never blended) with no-vig market probabilities",
    "outcomeTaxonomy": "binary_winner + margin/total point estimates",
    "sourceRights": "public JSON endpoint, no key, no credits; point-in-time snapshots with attribution — registered source (P148), respectful 1s spacing",
    "corpus": {
@@ -17,7 +17,7 @@
     "generatedAt": "2026-08-10T03:00:00Z"
    },
    "split": "warm-up 2023; chronological walk-forward",
-   "featureCutoff": "INCOMPLETE — no model card; cutoff discipline enforced by the replay runner",
+   "featureCutoff": "strength state at the assembly clock; every training row strictly precedes the declared train/test boundary",
    "replayMode": "HISTORICAL_REPLAY",
    "replayDeterministicId": "107259be14d75805",
    "metrics": {
@@ -51,16 +51,19 @@
    },
    "calibrationRef": "10-bin table in the sport's baseline-evaluation-v1.json",
    "limitations": [
-    "INCOMPLETE — no model card; limitations stated inside the evaluation artifact"
+    "PRESEASON: abstains entirely — starter participation, roster churn, depth-chart uncertainty make the regular-season fit unfounded; a separate evidence-backed preseason update would be its own versioned model",
+    "totals are league climatology (no team scoring signal)",
+    "no injury/weather/rest adjustment in v1 — those are shadow-run INPUT states, surfaced beside the forecast, never silently imputed",
+    "margin/total normality is an approximation; key-number mass (3, 7) is not modeled"
    ],
    "lastEvaluated": "2026-08-10T03:05:00Z",
    "evaluationEligible": true,
-   "publicActivation": "OFF — no model card exists; activation is definitionally off",
+   "publicActivation": "OFF",
    "artifactRefs": {
     "corpus": "data/internal/research/nfl/corpus-v1.json",
     "evaluation": "data/internal/research/nfl/reports/baseline-evaluation-v1.json",
     "replay": "data/internal/research/nfl/replays/",
-    "modelCard": null
+    "modelCard": "data/internal/research/nfl/model-card-v1.json"
    }
   },
   {
@@ -127,7 +130,7 @@
   {
    "sport": "epl",
    "modelVersion": "baseline-v1",
-   "objective": "INCOMPLETE — no model card committed; objective lives in the evaluation artifact header",
+   "objective": "private pre-event 1X2 + exact-score + total-goals distributions for EPL fixtures; research comparison against three-way no-vig markets only after an authorized snapshot exists",
    "outcomeTaxonomy": "three_way_1x2 (multi-class) + goal totals",
    "sourceRights": "api-sports licence; free-tier seasons 2022-2024 only (2026 refused: 'Free plans do not have access to this season')",
    "corpus": {
@@ -169,16 +172,19 @@
    },
    "calibrationRef": "10-bin table in the sport's baseline-evaluation-v1.json",
    "limitations": [
-    "INCOMPLETE — no model card; limitations stated inside the evaluation artifact"
+    "draw probability derives from the Poisson grid, not a dedicated draw parameter — the D-column calibration in the report is the honest check",
+    "promoted-club cold start = league average until real 2026-27 results fold in",
+    "no lineups, injuries, congestion, or European-schedule features — stated, never imputed",
+    "independence assumption between home/away goals (the deferred Dixon–Coles τ is the known correction)"
    ],
    "lastEvaluated": "2026-08-09T21:40:00Z",
    "evaluationEligible": true,
-   "publicActivation": "OFF — no model card exists; activation is definitionally off",
+   "publicActivation": "OFF",
    "artifactRefs": {
     "corpus": "data/internal/research/epl/corpus-v1.json",
     "evaluation": "data/internal/research/epl/reports/baseline-evaluation-v1.json",
     "replay": "data/internal/research/epl/replays/",
-    "modelCard": null
+    "modelCard": "data/internal/research/epl/model-card-v1.json"
    }
   },
   {

@@ -50,7 +50,8 @@ const SPORTS = [
   {
     sport: "epl", outcomeTaxonomy: "three_way_1x2 (multi-class) + goal totals",
     corpus: read("epl", "corpus-v1.json"), evaluation: read("epl", "reports", "baseline-evaluation-v1.json"),
-    card: null, replay: read("epl", "replays", "replay-2025-26-md38.json"),
+    // Program 167 · Release G committed the EPL card (the promoted split-Poisson v1).
+    card: read("epl", "model-card-v1.json"), replay: read("epl", "replays", "replay-2025-26-md38.json"),
     manifest: read("epl", "raw", "CAPTURE_MANIFEST.json"),
     metricsPath: (ev) => ({ primary: ev.models.elo.overall, comparators: { poisson: ev.models.poisson.overall, empirical: ev.models.empirical.overall, uniform: ev.models.uniform.overall } }),
     populationPath: (c) => ({ total: c.totalMatches, note: "4 seasons × exactly 380; 0 quarantined" }),

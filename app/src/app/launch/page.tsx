@@ -16,7 +16,7 @@ import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
 import { deriveOddsAvailability } from "@/lib/sports/odds/availability.mjs";
 import { classifyOddsSecret } from "@/lib/sports/odds/snapshot-contract.mjs";
-import { deriveReadinessRegistry } from "@/lib/sports/research/prediction-factory.mjs";
+import { deriveReadinessRegistry } from "@/lib/sports/prediction-factory.mjs";
 import {
   buildDepartments,
   buildSports,
@@ -812,7 +812,8 @@ export default function LaunchCommandCenter() {
                     {" · "}
                     {Object.entries(ledger.counts as Record<string, number>).filter(([, n]) => n > 0).map(([st, n]) => `${st} ${n}`).join(" · ")}
                   </p>
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
                     <caption style={{ captionSide: "top", textAlign: "left", fontSize: 11, color: "var(--vault-text-faint)", paddingBottom: 6 }}>
                       Severity-first: incidents and unknowns lead. NO_PLAY and OFF_SEASON are answers, not failures.
                     </caption>
@@ -836,6 +837,7 @@ export default function LaunchCommandCenter() {
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 </>
               ) : (
                 <p style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
@@ -971,7 +973,8 @@ export default function LaunchCommandCenter() {
                     {" · "}
                     {alpha.tally?.PASS ?? 0} pass · {alpha.tally?.FAIL ?? 0} fail · {alpha.tally?.BLOCKED ?? 0} blocked · {alpha.tally?.UNKNOWN ?? 0} unknown
                   </p>
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
                     <caption style={{ captionSide: "top", textAlign: "left", fontSize: 11, color: "var(--vault-text-faint)", paddingBottom: 6 }}>
                       Day {alpha.day} criteria. Blocked items are founder-owned and do not fail the day.
                     </caption>
@@ -988,6 +991,7 @@ export default function LaunchCommandCenter() {
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 </>
               ) : (
                 <p style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>

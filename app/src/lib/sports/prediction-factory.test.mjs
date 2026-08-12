@@ -9,9 +9,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { validateModelOutput, deriveReadinessRegistry, SPORT_ADAPTER_MANIFESTS, READINESS_AXES, PIPELINE_STAGES } from "./prediction-factory.mjs";
-import { fitNflV1, predictNflV1, strengthStateAt } from "../nfl/model-v1.mjs";
-import { fitUfcV1, predictUfcV1 } from "../ufc/model-v1.mjs";
-import { fitEplStrength, scoreMatrix } from "../epl/strength-state.mjs";
+import { fitNflV1, predictNflV1, strengthStateAt } from "./nfl/model-v1.mjs";
+import { fitUfcV1, predictUfcV1 } from "./ufc/model-v1.mjs";
+import { fitEplStrength, scoreMatrix } from "./epl/strength-state.mjs";
 
 const nflCorpus = JSON.parse(fs.readFileSync(path.join(process.cwd(), "..", "data/internal/research/nfl/corpus-v1.json"), "utf8"));
 const ufcCorpus = JSON.parse(fs.readFileSync(path.join(process.cwd(), "..", "data/internal/research/ufc/corpus-v1.json"), "utf8"));
@@ -90,7 +90,7 @@ test("replay axes cite the committed reports; engine sports are REPLAY_VALIDATED
 test("cross-sport ranking is banned in data and in code", () => {
   const reg = deriveReadinessRegistry();
   assert.match(reg.crossSportRanking, /BANNED/);
-  const src = fs.readFileSync(path.join(process.cwd(), "src/lib/sports/research/prediction-factory.mjs"), "utf8");
+  const src = fs.readFileSync(path.join(process.cwd(), "src/lib/sports/prediction-factory.mjs"), "utf8");
   assert.ok(!/\.sort\(/.test(src), "no sort exists in the factory — nothing can order sports by metric");
   assert.equal(PIPELINE_STAGES.length, 12, "the shared vocabulary is the twelve-stage pipeline");
 });

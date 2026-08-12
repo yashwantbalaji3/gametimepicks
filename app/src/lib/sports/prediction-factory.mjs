@@ -18,8 +18,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { MARKET_SCOPE } from "../odds/market-scope.mjs";
-import { LIVE_INPUT_MATRIX } from "./shadow-contract.mjs";
+import { MARKET_SCOPE } from "./odds/market-scope.mjs";
+import { LIVE_INPUT_MATRIX } from "./research/shadow-contract.mjs";
 
 export const FACTORY_VERSION = 1;
 
@@ -87,8 +87,8 @@ export const SPORT_ADAPTER_MANIFESTS = Object.freeze({
     outcomeTaxonomy: "moneyline/run-line/totals + player props (live pipeline)",
     markets: "own credit-guarded daily pipeline (not MARKET_SCOPE-governed)",
     inputs: { note: "the live pipeline's own capture chain — described, not re-declared" },
-    modelCard: "lib/mlb/model-calibration-status.ts (all modeled markets demoted to market-context — the committed truth)",
-    replayReport: "data/internal/research + docs (Sprints 046-057: no measurable edge; research terminal direction)",
+    modelCard: "the committed MLB calibration-status module (all modeled markets demoted to market-context — the committed truth)",
+    replayReport: "data/internal/research + docs (Sprints 046-057: no measurable advantage vs the market; research-terminal direction)",
     qualificationPolicy: "existing publication gate + identity ratchet",
     settlement: "nightly-settle (THE one writer) from MLB StatsAPI officials",
     automationOwner: "daily-refresh / nightly-settle / auto-refresh workflows",

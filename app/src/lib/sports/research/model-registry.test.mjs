@@ -45,15 +45,23 @@ test("EQUIVALENCE · every echoed metric equals its committed source exactly", (
   assert.equal(e.ufc.metrics.primary.logLoss, read("ufc", "model-card-v1.json").metrics.elo.logLoss);
 });
 
-test("missing model cards render INCOMPLETE — never synthesized", () => {
+test("missing model cards render INCOMPLETE — never synthesized (property), and cited cards exist on disk", () => {
+  // Program 167 (Releases E/G) committed the NFL and EPL cards, so the original pinned
+  // expectation (nfl/epl null) advanced with the receipts. The PROPERTY is unchanged and now
+  // holds structurally: a card is cited only when the file exists, and card-derived fields say
+  // INCOMPLETE exactly when no card is cited — never synthesized either way.
   const e = Object.fromEntries(registry.entries.map((x) => [x.sport, x]));
-  for (const sport of ["nfl", "epl"]) {
-    assert.equal(e[sport].artifactRefs.modelCard, null);
-    assert.match(e[sport].objective, /INCOMPLETE/);
-    assert.match(e[sport].featureCutoff, /INCOMPLETE/);
-    assert.match(e[sport].limitations.join(" "), /INCOMPLETE/);
+  for (const [sport, entry] of Object.entries(e)) {
+    if (entry.artifactRefs.modelCard) {
+      assert.ok(fs.existsSync(path.join(APP, "..", entry.artifactRefs.modelCard)), `${sport}: cited card exists on disk`);
+      assert.doesNotMatch(entry.objective, /INCOMPLETE/, `${sport}: a real card never renders INCOMPLETE`);
+    } else {
+      assert.match(entry.objective, /INCOMPLETE/);
+      assert.match(entry.featureCutoff, /INCOMPLETE/);
+      assert.match(entry.limitations.join(" "), /INCOMPLETE/);
+    }
   }
-  for (const sport of ["nba", "ufc"]) assert.ok(e[sport].artifactRefs.modelCard, `${sport} has a real card`);
+  for (const sport of ["nfl", "nba", "epl", "ufc"]) assert.ok(e[sport].artifactRefs.modelCard, `${sport} has a real card (P167 state)`);
 });
 
 test("activation is OFF everywhere; every entry is evaluation-eligible HISTORICAL_REPLAY evidence with rights", () => {
