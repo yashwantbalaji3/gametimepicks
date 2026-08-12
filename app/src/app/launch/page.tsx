@@ -7,6 +7,7 @@ import { buildWorkBoard } from "@/lib/launch/work-board.mjs";
 import { ENGINES, ASSURED_ROUTES } from "@/lib/launch/browser-assurance.mjs";
 import { RELEASE_HISTORY } from "@/lib/launch/release-history.mjs";
 import { withCountdown } from "@/lib/launch/watches.mjs";
+import { founderActionSheet } from "@/lib/launch/shared-blockers.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
@@ -316,6 +317,34 @@ export default function LaunchCommandCenter() {
 
       {/* ── Model registry — the four-sport private research index, rendered VERBATIM
              (Program 157 · Release A). Missing card fields say INCOMPLETE, never a substitute. ── */}
+      {/* ── Shared-blocker control plane (P164): seven launch blockers, once each, with the
+             founder's exact residual action — never exported publicly. ─────────────────── */}
+      <section aria-labelledby="founder-actions" style={{ marginBottom: 30 }}>
+        <h2 id="founder-actions" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Founder Action Sheet</h2>
+        <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+          Every shared launch blocker exactly once, dependency-ordered. Engineering states are verified against code; a blocker closes only on a real post-action receipt.
+        </p>
+        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 8 }}>
+          {founderActionSheet().map((r, i) => (
+            <li key={r.id} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 10px", alignItems: "baseline" }}>
+                <span style={{ fontSize: 10, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)" }}>{i + 1}</span>
+                <strong style={{ fontSize: 13 }}>{r.title}</strong>
+                <span style={{ fontSize: 10, fontFamily: "var(--font-mono, monospace)", color: r.state === "ENGINEERING_READY_FOR_FOUNDER" ? "var(--vault-gold-bright)" : "var(--vault-text-mute)" }}>{r.state}</span>
+                <span style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>effort: {r.founderEffort}</span>
+              </div>
+              <p style={{ margin: "6px 0 0", fontSize: 12, color: "var(--vault-text-mute)" }}>{r.action}</p>
+              <ul style={{ margin: "6px 0 0", paddingLeft: 16, fontSize: 11.5, color: "var(--vault-text-mute)", display: "grid", gap: 2 }}>
+                {r.values.map((v) => (
+                  <li key={v.name}><code>{v.name}</code> — {v.format} · <em>{v.where}</em>{v.neverShare && v.neverShare !== "—" ? <span style={{ color: "var(--vault-danger)" }}> · never share: {v.neverShare}</span> : null}</li>
+                ))}
+              </ul>
+              <p style={{ margin: "6px 0 0", fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)" }}>accept: {r.acceptance}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       {/* ── Today queue: the P0 execution list, straight from the derived board ──────── */}
       <section aria-labelledby="today-queue" style={{ marginBottom: 30 }}>
         <h2 id="today-queue" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Today queue</h2>
