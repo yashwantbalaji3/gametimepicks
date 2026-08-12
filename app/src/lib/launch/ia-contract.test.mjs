@@ -13,9 +13,11 @@ import { IA_SECTIONS, LAUNCH_IA_VERSION } from "./ia-contract.mjs";
 
 const page = fs.readFileSync(path.join(process.cwd(), "src", "app", "launch", "page.tsx"), "utf8");
 
-test("eleven groups, unique anchors, every anchor exists on the page, authorities named", () => {
-  assert.equal(LAUNCH_IA_VERSION, 1);
-  assert.equal(IA_SECTIONS.length, 11);
+test("twelve groups, unique anchors, every anchor exists on the page, authorities named", () => {
+  assert.equal(LAUNCH_IA_VERSION, 2);
+  assert.equal(IA_SECTIONS.length, 12);
+  assert.equal(IA_SECTIONS[1].group, "Today", "task-first: Today sits directly under Overview");
+  assert.ok(IA_SECTIONS.some((g) => g.group === "Onboarding"), "v2 adds the sanitized operator guide");
   const all = IA_SECTIONS.flatMap((g) => g.anchors);
   assert.equal(new Set(all).size, all.length, "a section belongs to exactly one group");
   for (const a of all) {

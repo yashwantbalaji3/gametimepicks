@@ -12,18 +12,24 @@
  * INCIDENT (danger tone + owner), REALITY_GATED (time-gated, never urgent-styled).
  */
 
-export const LAUNCH_IA_VERSION = 1;
+export const LAUNCH_IA_VERSION = 2;
 
+/**
+ * v2 (Program 167 · Release B): task-first order — what needs me now, then league state, then
+ * planning, then evidence drill-downs — plus the Onboarding group (sanitized operator guide).
+ * Groups, anchors and authorities are otherwise the Program 166 contract, unchanged.
+ */
 export const IA_SECTIONS = Object.freeze([
   { group: "Overview", anchors: ["health", "exec"], authority: "evidence-ledger + launch gates" },
-  { group: "Today", anchors: ["today-queue", "today"], authority: "work-board sprints.today + MLB daily board" },
+  { group: "Today", anchors: ["today-queue", "today"], authority: "today-board over work-board + watches (derived) + MLB daily board" },
+  { group: "Sports", anchors: ["sports", "gates"], authority: "sport-assessments via completion-matrix" },
   { group: "Founder", anchors: ["founder-actions", "queues"], authority: "shared-blockers registry" },
   { group: "Work Board", anchors: ["board"], authority: "work-board (derived, no ticket store)" },
   { group: "Sprints", anchors: ["sprints"], authority: "roadmap horizons + build clock" },
   { group: "Roadmap", anchors: ["roadmap"], authority: "completion-matrix ROADMAP_30D" },
-  { group: "Sports", anchors: ["sports", "gates"], authority: "sport-assessments via completion-matrix" },
   { group: "Departments", anchors: ["depts", "matrix"], authority: "completion-matrix buckets" },
   { group: "Incidents & Watches", anchors: ["watches", "ledger"], authority: "watches.mjs + evidence-ledger" },
   { group: "Evidence", anchors: ["product-truth", "routes-assurance", "browser-assurance", "registry", "history", "alpha"], authority: "committed audit artifacts, rendered verbatim" },
   { group: "Runbooks & Transition", anchors: ["runbooks", "transition"], authority: "docs/ runbooks + transition checklist (PLANNED only)" },
+  { group: "Onboarding", anchors: ["onboarding"], authority: "sanitized operator guide (static, versioned, zero secrets)" },
 ]);
