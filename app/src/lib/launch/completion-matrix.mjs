@@ -72,27 +72,25 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "NFL/NBA injuries capture script + cadence step through the shipped contract (facts only — status/date/ids; editorial prose never stored); LIVE_INPUT_MATRIX flips only on the first committed capture receipt", department: "data", sport: "nfl/nba", owner: "ENGINEERING", dependency: "contract + real-sample fixtures green (P162-G)", effort: "S", acceptance: "scheduled capture commits normalized facts with exact reconciliation; source failure preserves last-known-good; matrix entries flip MISSING→AVAILABLE with the run id as receipt" },
+      { outcome: "Founder Reply Box: seven answers via docs/FOUNDER_RESPONSE_FORM.md — every shared blocker is engineering-ready; the read-only orchestrator + per-blocker acceptance verifiers consume answers as they arrive (the shared-blocker registry on this page is the ONE authority; former per-item founder roadmap entries are deduplicated into it)", department: "operations", sport: "shared", owner: "FOUNDER", dependency: "P164 packets + P165 form/orchestrator shipped; injuries capture landed P162-H with run receipts", effort: "one sitting", acceptance: "a valid response file passes validateFounderResponse; each blocker transitions mechanically; CLOSED only on real acceptance receipts" },
     ],
   },
   {
     horizon: "DAYS_3_7",
     items: [
-      { outcome: "Support channel live end-to-end", department: "operations", sport: "shared", owner: "FOUNDER", dependency: "GTP_SUPPORT_* values in Vercel", effort: "XS-founder", acceptance: "real message sent from the footer entry and received; gate PARTIAL→PASS" },
-      { outcome: "Analytics activated for the beta cohort", department: "operations", sport: "shared", owner: "FOUNDER", dependency: "NEXT_PUBLIC_ANALYTICS_* + collector flag (privacy already signed §7)", effort: "S-founder", acceptance: "staging network-payload inspection then PRODUCTION_ENABLED on the activation ladder" },
+      { outcome: "EPL opening-day operational execution (Aug 21): run the corrections-runbook first-FT checklist against the deployed path, baseline the results monitor on the first real captures, and record the settlement-stage receipt", department: "settlement", sport: "epl", owner: "ENGINEERING", dependency: "reality (league play starts); runbook + monitor shipped P162-E/P163-J", effort: "S", acceptance: "PRESEASON→RESULTS flips via the scheduled capture with canonical join, zero unexplained quarantines, and the checklist's five steps recorded" },
     ],
   },
   {
     horizon: "WEEK_2",
     items: [
-      { outcome: "Legal §3 business decisions answered; adviser consultation booked", department: "business-legal", sport: "shared", owner: "FOUNDER", dependency: null, effort: "S-founder", acceptance: "entity/jurisdiction/geography/age/audience recorded in LEGAL_CONTENT_MAP" },
-      { outcome: "NBA official-lineup rights decision: NBA.com official pregame lineups (or a licensed feed) — the only remaining path after the free-source rejection (docs/NBA_LINEUP_SOURCE_EVALUATION.md); the shipped lineup contract is the acceptance bar any licensed adapter must satisfy", department: "data", sport: "nba", owner: "FOUNDER", dependency: "free sources REJECTED with evidence (P163-B); lineup contract shipped", effort: "decision", acceptance: "a rights/licensing decision recorded; if licensed, the adapter passes lineupShadowEligibility with provably pre-start timestamps" },
+      { outcome: "Post-answer acceptance wave: as founder responses land, run each blocker's acceptance verifier (support build-check, analytics consent/production smoke, odds canary receipt validation, admin unauthenticated-deny verifier) and transition registry states via reviewed commits — never from choices alone", department: "operations", sport: "shared", owner: "ENGINEERING", dependency: "the Founder Reply Box (NOW item)", effort: "S per blocker", acceptance: "each transitioned blocker cites its real acceptance receipt; CLOSED states carry receipts, not declarations" },
     ],
   },
   {
     horizon: "WEEKS_3_4",
     items: [
-      { outcome: "Private beta runs per the cohort contract", department: "user-validation", sport: "shared", owner: "FOUNDER", dependency: "support live + legal disclosed", effort: "M-founder", acceptance: "go/no-go checklist signed; 8 testers; stop conditions armed" },
+      { outcome: "Beta go/no-go execution IF prerequisites close: synthetic access + revocation tests, roster count/hash receipt (no identities), onboarding gated on the approved legal version — invitations generate only when the prerequisite gate is green", department: "user-validation", sport: "shared", owner: "ENGINEERING", dependency: "support + legal + analytics acceptance receipts (WEEK_2 wave)", effort: "M", acceptance: "invitationPrerequisites().ready === true from REAL states; go/no-go output produced; nothing sent without founder approval" },
     ],
   },
   {

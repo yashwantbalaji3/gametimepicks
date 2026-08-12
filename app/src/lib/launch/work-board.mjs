@@ -83,8 +83,8 @@ export function buildWorkBoard({ assessments = SPORT_ASSESSMENTS, roadmap = ROAD
       sport: oddsSports.join("/"), department: "shadow-readiness", priority: "P1",
       owner: "FOUNDER", state: "BLOCKED",
       sinceProgram: "155", evidence: null,
-      blocker: "odds is BLOCKED_EXTERNAL in every sport's live-input matrix — one founder-owned CI-key exercise unblocks all four no-vig paths",
-      nextAction: "founder queue — engineering does not stall on this",
+      blocker: "odds is BLOCKED_EXTERNAL in every sport's live-input matrix — ONE founder action, owned by blocker-odds on the Founder Action Sheet (this card is a pointer, not a second authority)",
+      nextAction: "answer blocker-odds via docs/FOUNDER_RESPONSE_FORM.md — engineering does not stall on this",
       acceptance: "a guarded odds capture receipt exists and the matrix entries flip to AVAILABLE",
     });
   }
