@@ -61,6 +61,10 @@ test("withCountdown: pure clock parameter, soonest first, due flags honest on bo
   assert.equal(cadence.due, true, "a passed observation time reads as due — it never silently vanishes");
   const nba = view.find((w) => w.id === "watch-nba-first-joined-final");
   assert.equal(nba.due, false);
+  assert.equal(nba.overdue, false);
+  // OVERDUE is a distinct hygiene state: >24h past the observation time without an update.
+  const old = withCountdown("2026-08-20T00:00:00Z").find((w) => w.id === "watch-daily-cadence");
+  assert.equal(old.overdue, true, "a missed observation cannot rot quietly as merely DUE");
   assert.ok(nba.hoursUntil > 24 * 30, "the NBA watch is honestly months out");
   assert.throws(() => withCountdown("not-a-clock"));
 });

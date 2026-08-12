@@ -316,6 +316,26 @@ export default function LaunchCommandCenter() {
 
       {/* ── Model registry — the four-sport private research index, rendered VERBATIM
              (Program 157 · Release A). Missing card fields say INCOMPLETE, never a substitute. ── */}
+      {/* ── Today queue: the P0 execution list, straight from the derived board ──────── */}
+      <section aria-labelledby="today-queue" style={{ marginBottom: 30 }}>
+        <h2 id="today-queue" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Today queue</h2>
+        {workBoard.sprints.today.length ? (
+          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
+            {workBoard.sprints.today.map((t) => (
+              <li key={t.id} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "8px 12px", display: "flex", flexWrap: "wrap", gap: "4px 10px", alignItems: "baseline" }}>
+                <span style={{ fontSize: 10, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-danger)" }}>{t.priority}</span>
+                <strong style={{ fontSize: 13 }}>{t.title}</strong>
+                <span style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>{t.nextAction}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)", margin: 0 }}>
+            No P0 work is open. The next actions live in the sprint lanes and the watches below — an empty queue means nothing is on fire, not that nothing is next.
+          </p>
+        )}
+      </section>
+
       {/* ── Reality-gated watches: the next receipts only reality can supply ─────────── */}
       <section aria-labelledby="watches" style={{ marginBottom: 30 }}>
         <h2 id="watches" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Reality-gated watches</h2>
@@ -327,8 +347,8 @@ export default function LaunchCommandCenter() {
             <li key={w.id} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 10px", alignItems: "baseline" }}>
                 <strong style={{ fontSize: 13 }}>{w.title}</strong>
-                <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: w.due ? "var(--vault-gold-bright)" : "var(--vault-text-mute)" }}>
-                  {w.due ? "DUE — inspect now" : `in ${w.hoursUntil}h`} · {w.observeAtUtc}
+                <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: w.overdue ? "var(--vault-danger)" : w.due ? "var(--vault-gold-bright)" : "var(--vault-text-mute)" }}>
+                  {w.overdue ? "OVERDUE — the observation was missed; record it or move the watch" : w.due ? "DUE — inspect now" : `in ${w.hoursUntil}h`} · {w.observeAtUtc}
                 </span>
               </div>
               <p style={{ margin: "6px 0 0", fontSize: 12, color: "var(--vault-text-mute)" }}>Inspect: {w.evidenceToInspect}</p>

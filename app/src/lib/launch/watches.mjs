@@ -64,7 +64,9 @@ export function withCountdown(nowIso) {
     .map((w) => {
       const at = Date.parse(w.observeAtUtc);
       const hours = (at - now) / 3_600_000;
-      return { ...w, due: hours <= 0, hoursUntil: Number(hours.toFixed(1)) };
+      // due = the observation window opened; overdue = it opened >24h ago and nobody recorded the
+      // result — an ops-hygiene state distinct from DUE, so a missed inspection cannot rot quietly.
+      return { ...w, due: hours <= 0, overdue: hours <= -24, hoursUntil: Number(hours.toFixed(1)) };
     })
     .sort((a, b) => Date.parse(a.observeAtUtc) - Date.parse(b.observeAtUtc));
 }
