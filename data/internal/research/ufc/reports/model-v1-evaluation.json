@@ -1,0 +1,172 @@
+{
+ "schemaVersion": 1,
+ "artifact": "ufc-model-v1-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-12T19:45:00Z",
+ "modelId": "ufc-model-v1-abstaining-elo",
+ "modelVersion": 1,
+ "protocol": {
+  "corpus": {
+   "totalRows": 1716,
+   "decisiveFolded": 1691
+  },
+  "warmupBoundary": "2024-08-03T19:00Z",
+  "scoredWindow": 1133,
+  "note": "warmup folds state, never scores — the committed baseline's protocol, preserved"
+ },
+ "coverage": {
+  "eligible": 1133,
+  "covered": 288,
+  "abstained": 845,
+  "coverageRate": 0.2542,
+  "abstentionBreakdown": {
+   "SPARSE": 843,
+   "IDLE": 2
+  }
+ },
+ "metrics": {
+  "model": {
+   "n": 288,
+   "logLoss": 0.6788,
+   "brier": 0.2429,
+   "accuracy": 0.559,
+   "calibration": {
+    "bins": [
+     {
+      "bin": "0.0-0.1",
+      "n": 0
+     },
+     {
+      "bin": "0.1-0.2",
+      "n": 0
+     },
+     {
+      "bin": "0.2-0.3",
+      "n": 0
+     },
+     {
+      "bin": "0.3-0.4",
+      "n": 20,
+      "meanPredicted": 0.3806,
+      "observedRedRate": 0.35
+     },
+     {
+      "bin": "0.4-0.5",
+      "n": 174,
+      "meanPredicted": 0.455,
+      "observedRedRate": 0.4368
+     },
+     {
+      "bin": "0.5-0.6",
+      "n": 91,
+      "meanPredicted": 0.5335,
+      "observedRedRate": 0.5275
+     },
+     {
+      "bin": "0.6-0.7",
+      "n": 3,
+      "meanPredicted": 0.6063,
+      "observedRedRate": 0.6667
+     },
+     {
+      "bin": "0.7-0.8",
+      "n": 0
+     },
+     {
+      "bin": "0.8-0.9",
+      "n": 0
+     },
+     {
+      "bin": "0.9-1.0",
+      "n": 0
+     }
+    ],
+    "ece": 0.0157
+   }
+  },
+  "baselines": {
+   "coin": {
+    "logLoss": 0.6931
+   },
+   "redRatePrior": {
+    "p": 0.4618,
+    "logLoss": 0.6902
+   }
+  }
+ },
+ "slices": {
+  "favorite": {
+   "rate": 0.559,
+   "note": "share of covered bouts won by the higher pre-bout Elo corner"
+  },
+  "byWeightClass": {
+   "Bantamweight": {
+    "n": 28,
+    "logLoss": 0.6644,
+    "accuracy": 0.6786
+   },
+   "Catch Weight": {
+    "n": 2,
+    "note": "sample too small to report"
+   },
+   "Catchweight": {
+    "n": 1,
+    "note": "sample too small to report"
+   },
+   "Featherweight": {
+    "n": 33,
+    "logLoss": 0.7048,
+    "accuracy": 0.5152
+   },
+   "Flyweight": {
+    "n": 23,
+    "logLoss": 0.6871,
+    "accuracy": 0.6087
+   },
+   "Heavyweight": {
+    "n": 21,
+    "logLoss": 0.6711,
+    "accuracy": 0.619
+   },
+   "Light Heavyweight": {
+    "n": 24,
+    "logLoss": 0.6682,
+    "accuracy": 0.5417
+   },
+   "Lightweight": {
+    "n": 35,
+    "logLoss": 0.701,
+    "accuracy": 0.4
+   },
+   "Middleweight": {
+    "n": 46,
+    "logLoss": 0.6834,
+    "accuracy": 0.5
+   },
+   "W Bantamweight": {
+    "n": 8,
+    "note": "sample too small to report"
+   },
+   "W Flyweight": {
+    "n": 13,
+    "note": "sample too small to report"
+   },
+   "W Strawweight": {
+    "n": 22,
+    "logLoss": 0.6567,
+    "accuracy": 0.6818
+   },
+   "Welterweight": {
+    "n": 32,
+    "logLoss": 0.6599,
+    "accuracy": 0.5625
+   }
+  }
+ },
+ "honesty": [
+  "uncovered bouts are ABSTENTIONS, never wrong picks — coverage shapes every headline number",
+  "method/round/prop outputs do not exist (corpus is winner-only)",
+  "no market data touches fit or predict; comparison happens beside the forecast in shadow runs",
+  "no profit or market-beating claim is made or implied"
+ ]
+}

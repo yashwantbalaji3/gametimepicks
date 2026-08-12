@@ -1,0 +1,39 @@
+{
+ "schemaVersion": 1,
+ "artifact": "ufc-model-card",
+ "dataClass": "PRIVATE_RESEARCH",
+ "modelId": "ufc-model-v1-abstaining-elo",
+ "version": 2,
+ "generatedAt": "2026-08-12T19:45:00Z",
+ "objective": "private pre-event WINNER probability for UFC bouts with first-class abstention; research comparison against no-vig two-way markets only after an authorized snapshot exists",
+ "method": "abstaining fighter Elo (K=32, start 1500, decisive-only updates, no corner advantage) — the committed baseline promoted to the live adapter; deterministic, no RNG",
+ "abstention": {
+  "IDENTITY": "fighter resolves by provider id, else UNIQUE normalized corpus name; zero or multiple matches abstain",
+  "SPARSE": "either fighter < 3 prior decisive corpus bouts",
+  "IDLE": "either fighter idle > 540 days at bout time",
+  "CARD_UNCERTAIN": "shadow-level: lineage instability across the newest two captures, staleness, or single-observation bouts — weigh-in/replacement facts have no authorized source (matrix MISSING), so instability always abstains"
+ },
+ "population": {
+  "corpus": "1716 finals (1691 decisive folded), 25 draw/NC excluded from updates",
+  "warmup": "2024-08-03T19:00Z"
+ },
+ "metrics": {
+  "see": "reports/model-v1-evaluation.json",
+  "headline": {
+   "n": 288,
+   "logLoss": 0.6788,
+   "coin": 0.6931,
+   "coverage": 0.2542,
+   "ece": 0.0157
+  }
+ },
+ "limitations": [
+  "winner-only: method/round/props UNSUPPORTED by corpus shape",
+  "coverage ~quarter of bouts by design — SPARSE/IDLE rules preserved from the baseline; the denominator story is part of every claim",
+  "no weigh-in, reach, camp, or injury features — each is either an abstention trigger (card uncertainty) or absent, never imputed",
+  "draw/no-contest settle as quarantine states in the settlement contract, never as wins"
+ ],
+ "independenceFromMarket": "structural — no odds parameter exists in fit or predict",
+ "rightsAndProvenance": "corpus from ESPN public MMA scoreboard snapshots with attribution (see corpus sourceManifest); educational, paper-only",
+ "publicActivation": "OFF"
+}
