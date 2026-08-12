@@ -102,8 +102,8 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["shared"],
     unlocks: "public Terms/Privacy/responsible-use pages; a beta prerequisite",
-    engineeringState: "ENGINEERING_IN_PROGRESS",
-    engineeringEvidence: "docs/LEGAL_CONTENT_MAP.md carries repository facts, the five decisions, and adviser questions; the numbered decision packet + content/version guard land in P164 Release 5",
+    engineeringState: "ENGINEERING_READY_FOR_FOUNDER",
+    engineeringEvidence: "docs/LEGAL_SECTION3_DECISION_PACKET.md (11 numbered items: 5 founder decisions with conservative recommendations + 6 verbatim LEGAL_COUNSEL_REQUIRED questions) + lib/legal/content-manifest publish guard — unapproved text is structurally unable to ship as final; approval = named reviewer + role + date + packet version, never inferred from a commit (P164 Release 5)",
     founderAction: "answer the five business decisions (entity, jurisdiction, audience geography, age floor, audience framing), then book the counsel review for the adviser questions",
     requiredValues: [
       { name: "section-3 answers", format: "five short answers, numbered 1-5, in the founder's words", where: "reply in chat or a note in docs/ — these are business facts, not secrets", neverShare: "—" },
