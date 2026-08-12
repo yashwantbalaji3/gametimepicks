@@ -119,8 +119,8 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["shared"],
     unlocks: "the private beta itself",
-    engineeringState: "ENGINEERING_IN_PROGRESS",
-    engineeringEvidence: "operating docs exist (cohort contract, daily operations, service levels, go/no-go); the deny-by-default access interface + prerequisite gate land in P164 Release 6",
+    engineeringState: "ENGINEERING_READY_FOR_FOUNDER",
+    engineeringEvidence: "lib/beta/access: PII structurally refused (email-shaped values + roster-like fields fail validation anywhere in the object), deny-by-default access with revocation-wins, and the invitation prerequisite gate that blocks until support is CONFIGURED, the legal set is publishable, and analytics is explicitly decided — P164 Release 6, on top of the existing operating docs",
     founderAction: "choose cohort size (contract recommends 8), access option, start window, and sourcing channel — and hold the roster OUTSIDE git",
     requiredValues: [
       { name: "cohort decision", format: "size + start window + access option (allowlist recommended) + sourcing channel", where: "reply in chat; the roster itself goes to the access provider directly, never the repository", neverShare: "participant names/emails — no PII in git, tickets, logs, or artifacts, ever" },
@@ -135,8 +135,8 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["shared"],
     unlocks: "the founder reading the command center without a local checkout",
-    engineeringState: "ENGINEERING_IN_PROGRESS",
-    engineeringEvidence: "public pruning is proven every gate (/launch 404s in production); the architecture decision record + provider-neutral auth contract + synthetic fixtures land in P164 Release 7",
+    engineeringState: "ENGINEERING_READY_FOR_FOUNDER",
+    engineeringEvidence: "docs/ADMIN_ACCESS_DECISION.md (recommended: host-level protection on a separate internal deployment; URL-hiding and client prompts named insufficient) + lib/admin/access-contract (deny-by-default on every missing input, session expiry, noindex/no-store headers) with synthetic fixtures — P164 Release 7; public pruning unchanged and still gate-proven",
     founderAction: "choose the hosting/auth option from the decision record (recommended: a separate password-protected preview deployment with server-side auth), then authorize its setup",
     requiredValues: [
       { name: "hosting/auth choice", format: "one of the decision record's options", where: "reply in chat", neverShare: "any auth secret goes to the hosting provider's env, never chat or git" },
