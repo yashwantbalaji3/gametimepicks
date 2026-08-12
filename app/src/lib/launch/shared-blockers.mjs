@@ -34,8 +34,8 @@ export const SHARED_BLOCKERS = Object.freeze([
     owner: "FOUNDER",
     affects: ["nfl", "nba", "epl", "ufc"],
     unlocks: "no-vig market comparison — the last missing shadow input for NFL (READY_EXCEPT_ODDS) and one of several for NBA/EPL/UFC",
-    engineeringState: "ENGINEERING_IN_PROGRESS",
-    engineeringEvidence: "MLB path proven for a year (dry-run default, credit floor+max, ODDS_API_KEY); the multi-sport snapshot contract, sanitized fixtures, and the narrowly-scoped canary land in P164 Release 2",
+    engineeringState: "ENGINEERING_READY_FOR_FOUNDER",
+    engineeringEvidence: "lib/sports/odds/snapshot-contract (provider-neutral, no-vig with the vig visible, fail-closed secret shapes, population-exact validation) + four-sport sanitized fixtures + scripts/ops/odds-canary.mjs (dry-run default, authorization flag, ceiling 5 + floor 50, single sport/market, redacted, self-leak-scanned) — P164 Release 2; refusals proven as real subprocesses",
     founderAction: "confirm The Odds API plan covers NFL/NBA/EPL/UFC market reads within existing credits, then authorize ONE canary run (single sport, single event, hard credit ceiling)",
     requiredValues: [
       { name: "ODDS_API_KEY", format: "existing repository-CI secret — already set for MLB; NO new secret needed", where: "GitHub Actions secrets (already present)", neverShare: "the key value itself — never in chat, commits, or logs" },
