@@ -16,6 +16,7 @@ import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
 import { deriveOddsAvailability } from "@/lib/sports/odds/availability.mjs";
 import { classifyOddsSecret } from "@/lib/sports/odds/snapshot-contract.mjs";
+import { deriveReadinessRegistry } from "@/lib/sports/research/prediction-factory.mjs";
 import {
   buildDepartments,
   buildSports,
@@ -404,6 +405,52 @@ export default function LaunchCommandCenter() {
                   );
                 })}
               </div>
+              {/* All-sport readiness registry (P167-H) — rendered VERBATIM; six independent axes,
+                  never a merged score, never sorted by metric (cross-sport ranking is banned). */}
+              {(() => {
+                const reg = deriveReadinessRegistry();
+                return (
+                  <div style={{ marginBottom: 14, overflowX: "auto" }}>
+                    <table style={{ borderCollapse: "collapse", minWidth: 860 }}>
+                      <caption style={{ captionSide: "top", textAlign: "left", fontSize: 11, color: "var(--vault-text-faint)", paddingBottom: 6 }}>
+                        Readiness axes (independent, never collapsed): a sport may be replay-validated and shadow-ready while its
+                        current-shadow axis stays honestly false. Hover a cell for its receipt or reason; the same text ships in the
+                        registry artifact.
+                      </caption>
+                      <thead><tr><Head>Sport</Head><Head>Variant</Head>{reg.axes.map((a) => <Head key={a}>{a.replace(/_/g, " ")}</Head>)}</tr></thead>
+                      <tbody>
+                        {Object.entries(reg.sports).map(([sp, entry]) => (
+                          <tr key={sp}>
+                            <Cell mono>{sp.toUpperCase()}</Cell>
+                            <Cell><span style={{ fontSize: 11 }}>{entry.outputVariant}</span></Cell>
+                            {reg.axes.map((a) => {
+                              const v = (entry.axes as Record<string, { state: boolean; receipt?: string; reason?: string }>)[a];
+                              return (
+                                <Cell key={a} mono>
+                                  <span title={v.receipt ?? v.reason} style={{ color: v.state ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-text-faint)" }}>
+                                    {v.state ? "●" : "○"}
+                                  </span>
+                                </Cell>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <details style={{ marginTop: 8 }}>
+                      <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)" }}>Every axis receipt/reason in words (never hover-only)</summary>
+                      <ul style={{ margin: "8px 0 0", paddingLeft: 18, fontSize: 11.5, color: "var(--vault-text-mute)", display: "grid", gap: 3 }}>
+                        {Object.entries(reg.sports).flatMap(([sp, entry]) =>
+                          reg.axes.map((a) => {
+                            const v = (entry.axes as Record<string, { state: boolean; receipt?: string; reason?: string }>)[a];
+                            return <li key={`${sp}-${a}`}><code>{sp}.{a}</code> {v.state ? "●" : "○"} — {v.receipt ?? v.reason}</li>;
+                          }),
+                        )}
+                      </ul>
+                    </details>
+                  </div>
+                );
+              })()}
               <h3 style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Product/archive completeness (NOT readiness)</h3>
               <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
                 The percentage here measures how complete each sport&apos;s BUILT product/archive is — it is NOT model or launch
