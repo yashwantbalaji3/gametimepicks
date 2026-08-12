@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823511,
+  "date": "2026-08-12",
+  "capturedAt": "2026-08-12T19:56:21.371Z",
+  "availableAt": "2026-08-12T19:56:21.371Z",
+  "eventStartTime": "2026-08-12T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 701542,
+      "name": "Will Warren",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 7,
+      "lastStartDate": "2026-08-05",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4.4,
+        "bbAvg": 1.4,
+        "erAvg": 3.2,
+        "hrAvg": 1,
+        "kPer9": 8.25,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 113.33,
+        "k": 113,
+        "bb": 36,
+        "er": 53,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 682243,
+      "name": "Bryce Miller",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 6,
+      "lastStartDate": "2026-08-06",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 3.4,
+        "bbAvg": 2,
+        "erAvg": 3.4,
+        "hrAvg": 1.2,
+        "kPer9": 5.81,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 74,
+        "k": 75,
+        "bb": 15,
+        "er": 25,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-12T19:56:21.371Z"
+  },
+  "recordHash": "3afad4d3eb69f5baac1869fa8dfbe2f03cd3f3d52739ca9f391f375ff7bd3fad"
+}
