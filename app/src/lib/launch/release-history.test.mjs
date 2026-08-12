@@ -55,7 +55,7 @@ test("watches: parseable observation times, evidence named, REALITY_GATED cards 
 });
 
 test("withCountdown: pure clock parameter, soonest first, due flags honest on both sides", () => {
-  const view = withCountdown("2026-08-13T00:00:00Z");
+  const view = withCountdown("2026-08-13T15:00:00Z"); // past the Aug-13 cadence slot (the Aug-12 run was verified and the watch moved forward)
   for (let i = 1; i < view.length; i++) assert.ok(Date.parse(view[i - 1].observeAtUtc) <= Date.parse(view[i].observeAtUtc));
   const cadence = view.find((w) => w.id === "watch-daily-cadence");
   assert.equal(cadence.due, true, "a passed observation time reads as due — it never silently vanishes");

@@ -27,7 +27,7 @@ export const LIVE_INPUT_MATRIX = Object.freeze({
     schedule: { state: "AVAILABLE", source: "sport-schedules daily capture (cadence receipts 2/2: runs 31396780843 + 31500117960)" },
     priorResults: { state: "AVAILABLE", source: "same scoreboard class the corpus used; forward wiring not yet scheduled" },
     teamStrengthState: { state: "AVAILABLE", source: "Elo state reproducible from corpus + results-to-date (deterministic fit)" },
-    injuries: { state: "AVAILABLE", source: "injuries contract + capture (P162-G/H): first committed capture normalized 800/800 live entries with ZERO quarantines — the URL-derived athlete id validated on the full sample; absence=UNKNOWN and staleness-widens encoded in availabilityFor(); facts only, prose never stored; daily cadence step wired" },
+    injuries: { state: "AVAILABLE", source: "injuries contract + capture (P162-G/H): 800/800 zero-quarantine first capture; FIRST SCHEDULED RECEIPT run 31605451090 (Aug 12) — facts churned and committed through the stamp-stripped step, verified by the cadence receipt verifier; absence=UNKNOWN and staleness-widens encoded" },
     odds: { state: "BLOCKED_EXTERNAL", note: "founder-owned CI-key exercise" },
   },
   nba: {
