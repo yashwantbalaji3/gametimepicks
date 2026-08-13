@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824561,
+  "date": "2026-08-13",
+  "capturedAt": "2026-08-13T03:25:26.389Z",
+  "availableAt": "2026-08-13T03:25:26.389Z",
+  "eventStartTime": "2026-08-13T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 663436,
+    "name": "Davis Martin",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 671096,
+    "name": "Andrew Abbott",
+    "pitchHand": "L"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-13T03:25:26.389Z"
+  },
+  "recordHash": "350ce341c6c1bede099f60e6c94eaba441ca4ae3c2c788bc2102218fe0c706a0"
+}

@@ -1,0 +1,235 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823829,
+  "date": "2026-08-13",
+  "capturedAt": "2026-08-13T03:25:25.110Z",
+  "availableAt": "2026-08-13T03:25:25.110Z",
+  "eventStartTime": "2026-08-13T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12"
+  ],
+  "home": {
+    "teamId": 146,
+    "teamName": "Miami Marlins",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 45,
+      "relievers": [
+        {
+          "id": 680767,
+          "name": "Victor Vodnik",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 676604,
+          "name": "Tyler Zuber",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 676534,
+          "name": "Calvin Faucher",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 77,
+      "relievers": [
+        {
+          "id": 680767,
+          "name": "Victor Vodnik",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 656848,
+          "name": "Michael Petersen",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-11"
+          ]
+        },
+        {
+          "id": 664126,
+          "name": "Pete Fairbanks",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-11"
+          ]
+        },
+        {
+          "id": 676604,
+          "name": "Tyler Zuber",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 676534,
+          "name": "Calvin Faucher",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 134,
+    "teamName": "Pittsburgh Pirates",
+    "last1Day": {
+      "appearances": 4,
+      "pitches": 110,
+      "relievers": [
+        {
+          "id": 669199,
+          "name": "Lake Bachar",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 9,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 666808,
+          "name": "Camilo Doval",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 681895,
+          "name": "Evan Sisk",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 2,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 489446,
+          "name": "Kirby Yates",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 150,
+      "relievers": [
+        {
+          "id": 669199,
+          "name": "Lake Bachar",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 9,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 670990,
+          "name": "Yohan Ramírez",
+          "appearances": 1,
+          "pitches": 40,
+          "outs": 9,
+          "dates": [
+            "2026-08-11"
+          ]
+        },
+        {
+          "id": 666808,
+          "name": "Camilo Doval",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 681895,
+          "name": "Evan Sisk",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 2,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 489446,
+          "name": "Kirby Yates",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 669199,
+        "name": "Lake Bachar",
+        "reason": "46 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-10,2026-08-11,2026-08-12) + feed/live box scores",
+    "capturedAt": "2026-08-13T03:25:25.110Z"
+  },
+  "recordHash": "146d248c5c1bd49f77dd6a8d1b378cec874ee8be1c35c0daa1fc205d2cfdfce6"
+}
