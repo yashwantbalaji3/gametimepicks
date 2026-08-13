@@ -88,6 +88,11 @@ export default function Footer() {
                   Sports <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· schedules</span>
                 </Link>
               </li>
+              <li>
+                <Link href="/nfl" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
+                  NFL <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· hub</span>
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

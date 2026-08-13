@@ -42,7 +42,7 @@ test("the committed artifact reconciles all three layers with zero findings and 
   assert.equal(artifact.dataClass, "PRIVATE_AUDIT");
   assert.equal(artifact.totals.p0, 0, "zero engineering-owned P0s — the launch-blocker bar");
   assert.equal(artifact.totals.findings, 0, "the route surface is clean, mechanically");
-  assert.equal(artifact.totals.routes, 50);
+  assert.equal(artifact.totals.routes, 51); // P169-J added /nfl (public, owned in ROUTE_TABLE)
   // The built layer was actually exercised (not UNVERIFIED) for concrete public routes.
   const home = artifact.routes.find((r) => r.route === "/");
   assert.equal(home.built, true, "the committed run reconciled against a real export");

@@ -19,7 +19,7 @@
 import { useState } from "react";
 import TeamBadge from "./team-badge";
 
-type SportKey = "nba" | "mlb" | "nhl";
+type SportKey = "nba" | "mlb" | "nhl" | "nfl";
 
 interface Props {
   team: string | null | undefined;

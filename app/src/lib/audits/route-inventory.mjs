@@ -40,6 +40,7 @@ export const ROUTE_TABLE = Object.freeze({
   "/mlb/results": { classification: "public", owner: "settlement", purpose: "MLB results view", dataOwner: "settlement artifacts", freshness: "settled-through" },
   "/mlb/power": { classification: "public", owner: "product", purpose: "MLB power rankings view", dataOwner: "boards", freshness: "board date" },
   "/sports": { classification: "public", owner: "product", purpose: "four-sport schedules directory (Schedule only — not modelled, in words)", dataOwner: "upcoming adapters over committed captures", freshness: "absolute capture dates per section" },
+  "/nfl": { classification: "public", owner: "product", purpose: "NFL hub (P169-J): real slate + finals from committed captures, market-by-market coverage table with typed states (PRIVATE_ONLY/AUTH_REQUIRED/ROLE_UNCERTAIN/NO_VAULT) — no predictions published", dataOwner: "nfl schedule/results captures (build-time reads)", freshness: "absolute capture stamps in copy" },
   "/games/[sport]/[gameId]": { classification: "public", owner: "product", purpose: "per-game report (browse-game → report)", family: true, dataOwner: "game detail artifacts", freshness: "artifact stamps" },
   "/learn": { classification: "public", owner: "product", purpose: "How It Works", dataOwner: "static copy", freshness: "static" },
   "/methodology": { classification: "public", owner: "research", purpose: "the model, in depth + coverage matrix", dataOwner: "static + coverage registry", freshness: "static" },

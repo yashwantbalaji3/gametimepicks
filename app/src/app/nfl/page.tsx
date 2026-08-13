@@ -1,0 +1,145 @@
+/**
+ * /nfl — NFL hub (Program 169 · Release J). PUBLIC.
+ *
+ * The honest first-class NFL surface: the REAL slate and results from committed captures, plus a
+ * coverage table that states each product layer's exact typed state and reason. Nothing here is a
+ * prediction: team research is PRIVATE and evidence-gated (the repository's activation contract),
+ * player markets abstain while preseason participation is unverified, and the market comparison
+ * awaits an authorized odds capture. The /sports directory design rule carries over — coverage in
+ * words, absolute capture times, no liveness theater, an explicit no-picks line.
+ *
+ * Data: build-time reads of COMMITTED artifacts only (no network, no private research payloads).
+ */
+import type { Metadata } from "next";
+import fs from "node:fs";
+import path from "node:path";
+import Link from "next/link";
+
+import TeamLogo from "@/components/team-logo";
+import { seasonContextFor } from "@/lib/sports/nfl/season-context.mjs";
+
+export const metadata: Metadata = {
+  title: "NFL Hub — Schedule, Results & Coverage Status · GameTime Picks",
+  description:
+    "The NFL slate from committed schedule captures, recent finals, and an honest market-by-market coverage table. Educational and paper-only; no NFL predictions are published.",
+};
+
+const read = (rel: string) => {
+  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
+};
+
+const etKickoff = (iso: string) =>
+  new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(iso)) + " ET";
+
+export default function NflHubPage() {
+  const schedule = read("nfl/schedule/latest.json");
+  const results = read("nfl/results/latest.json");
+  const upcoming = (schedule?.rows ?? [])
+    .filter((r: { statusRaw: string }) => r.statusRaw === "STATUS_SCHEDULED")
+    .sort((a: { dateUtc: string }, b: { dateUtc: string }) => a.dateUtc.localeCompare(b.dateUtc))
+    .slice(0, 12);
+  const finals = (results?.rows ?? []).filter((r: { statusRaw: string }) => /^STATUS_FINAL/.test(r.statusRaw));
+
+  const coverage = [
+    { layer: "Schedule & identities", state: "LIVE", detail: `daily capture · ${schedule ? `${schedule.rows.length} events in window, captured ${schedule.generatedAt}` : "capture unavailable — shown as missing, never guessed"}` },
+    { layer: "Results", state: "LIVE", detail: `official finals join by durable event id; results without pre-event schedule lineage are quarantined and say so` },
+    { layer: "Team game simulation", state: "PRIVATE_ONLY", detail: "a deterministic joint score simulation exists as private research; publishing requires the repository's activation gate (current pre-event evidence, calibration receipts, explicit approval) — none of that is claimed here" },
+    { layer: "Moneyline comparison", state: "AUTH_REQUIRED", detail: "no authorized odds capture exists; no substitute prices are shown and none are invented" },
+    { layer: "Player props (pass / rush / receive)", state: "ROLE_UNCERTAIN", detail: "preseason participation is unverified — without source-backed snap evidence every player market abstains, whatever a sportsbook posts" },
+    { layer: "Anytime touchdown · End Zone Vault", state: "NO_VAULT", detail: "the touchdown product holds: participation, authorized prices, and a committed calibration receipt are all required before anything publishes — a hold is an answer, not an outage" },
+    { layer: "Settlement", state: "DEPLOYED", detail: "team and scorer settlement contracts are deployed and tested; the first matching pre-event artifacts settle exactly once when they exist" },
+  ];
+
+  return (
+    <main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 20px 64px" }}>
+      <p style={{ margin: 0, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--text-mute)" }}>NFL hub · public beta</p>
+      <h1 style={{ margin: "6px 0 0", fontSize: 26 }}>NFL — schedule, results, and what is honestly covered</h1>
+      <p style={{ margin: "12px 0 0", fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))", maxWidth: 680 }}>
+        Everything on this page derives from committed public captures. No NFL predictions, picks, or
+        simulations are published here — the coverage table below states each layer&apos;s exact status
+        and the reason, in words. Educational and paper-only.
+      </p>
+
+      <section aria-labelledby="nfl-slate" style={{ marginTop: 28 }}>
+        <h2 id="nfl-slate" style={{ fontSize: 17, marginBottom: 4 }}>Upcoming games</h2>
+        <p style={{ margin: "0 0 12px", fontSize: 12.5, color: "var(--text-mute)" }}>
+          {schedule ? `From the committed schedule capture (${schedule.generatedAt}); all games below are ${seasonContextFor(upcoming[0] ?? {}).state === "PRESEASON" ? "preseason" : "scheduled"} — kickoff times in ET.` : "No schedule capture is readable — shown as missing rather than guessed."}
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 10 }}>
+          {upcoming.map((g: { providerEventId: string; shortName: string; dateUtc: string; seasonType: number; week: number; venue: string; home: { abbr: string; name: string }; away: { abbr: string; name: string } }) => (
+            <article key={g.providerEventId} style={{ border: "1px solid var(--vault-border)", borderRadius: 12, padding: "12px 14px" }}>
+              <p style={{ margin: 0, fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+                {seasonContextFor(g).state.replace(/_/g, " ").toLowerCase()} · week {g.week}
+              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+                <TeamLogo team={g.away.abbr} sport="nfl" size="sm" ariaLabel={`${g.away.name} logo`} />
+                <span style={{ fontSize: 13.5, fontWeight: 600 }}>{g.away.abbr}</span>
+                <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>at</span>
+                <TeamLogo team={g.home.abbr} sport="nfl" size="sm" ariaLabel={`${g.home.name} logo`} />
+                <span style={{ fontSize: 13.5, fontWeight: 600 }}>{g.home.abbr}</span>
+              </div>
+              <p style={{ margin: "8px 0 0", fontSize: 12.5 }}>{etKickoff(g.dateUtc)}</p>
+              <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--vault-text-mute)" }}>{g.venue}</p>
+            </article>
+          ))}
+        </div>
+        {upcoming.length === 0 ? <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>No scheduled games in the committed capture window.</p> : null}
+      </section>
+
+      <section aria-labelledby="nfl-results" style={{ marginTop: 28 }}>
+        <h2 id="nfl-results" style={{ fontSize: 17, marginBottom: 4 }}>Recent finals</h2>
+        {finals.length ? (
+          <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 8 }}>
+            {finals.map((r: { providerEventId: string; shortName: string; dateUtc: string; ftHome: number; ftAway: number; home: { abbr: string }; away: { abbr: string } }) => (
+              <li key={r.providerEventId} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px", display: "flex", gap: 10, alignItems: "center" }}>
+                <TeamLogo team={r.away?.abbr} sport="nfl" size="sm" />
+                <span style={{ fontSize: 13 }}>{r.away?.abbr} {r.ftAway} — {r.ftHome} {r.home?.abbr}</span>
+                <TeamLogo team={r.home?.abbr} sport="nfl" size="sm" />
+                <span style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>final · {r.dateUtc.slice(0, 10)}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>No finals in the current capture window{results ? ` (captured ${results.generatedAt})` : ""}.</p>
+        )}
+        <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>
+          Finals join by durable event identity; a result without pre-event schedule lineage is quarantined and reported, never settled.
+        </p>
+      </section>
+
+      <section aria-labelledby="nfl-coverage" style={{ marginTop: 28 }}>
+        <h2 id="nfl-coverage" style={{ fontSize: 17, marginBottom: 4 }}>Coverage, market by market</h2>
+        <p style={{ margin: "0 0 10px", fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+          Readiness is stated per layer — a page section is never filled merely because it exists.
+        </p>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
+            <thead>
+              <tr>
+                {["Layer", "Status", "What that means"].map((h) => (
+                  <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {coverage.map((c) => (
+                <tr key={c.layer}>
+                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>{c.layer}</td>
+                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: c.state === "LIVE" || c.state === "DEPLOYED" ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-text-mute)" }}>{c.state}</td>
+                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{c.detail}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <p style={{ margin: "28px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 680 }}>
+        No NFL models, simulations, or picks are published on this site. When a layer&apos;s evidence
+        gates pass, it activates market by market — team readiness never auto-publishes player
+        markets. See <Link href="/methodology" style={{ color: "var(--vault-gold)" }}>methodology</Link> and{" "}
+        <Link href="/sports" style={{ color: "var(--vault-gold)" }}>all sports coverage</Link>.
+      </p>
+    </main>
+  );
+}
