@@ -104,6 +104,9 @@ jobs:
           set -euo pipefail
           node scripts/nfl/build-nfl-public-forecasts.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 30
           node scripts/nfl/build-nfl-public-status.mjs --now "${{ steps.window.outputs.now }}"
+          # P174-A: the canonical index every NFL surface consumes. Built LAST so it summarises
+          # the artifacts this run just produced, and it refuses on any contradiction between them.
+          node scripts/nfl/build-nfl-index.mjs --now "${{ steps.window.outputs.now }}"
 
       - name: Rebuild the NFL admin lane status
         if: steps.window.outputs.events != '0'
