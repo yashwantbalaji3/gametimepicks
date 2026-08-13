@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 822696,
+  "teamId": 120,
+  "name": "Washington Nationals",
+  "side": "home",
+  "date": "2026-08-13",
+  "capturedAt": "2026-08-13T19:52:06.201Z",
+  "availableAt": "2026-08-13T19:52:06.201Z",
+  "eventStartTime": "2026-08-13T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-12",
+  "previousVenueId": 3309,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=120&startDate=2026-07-30&endDate=2026-08-12",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-13T19:52:06.201Z"
+  },
+  "recordHash": "704451002e08ef0f50562694486f3c77ea9c99becdf4ac960c63564c426748a9"
+}

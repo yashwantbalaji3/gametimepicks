@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "822696-d949631b507320ff5f32e4933c54fb61",
+  "snapshotCreatedAt": "2026-08-13T19:51:57.082Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-13",
+  "eventId": "822696",
+  "gamePk": 822696,
+  "eventStartTime": "2026-08-13T20:05:00Z",
+  "homeTeam": "WSH",
+  "awayTeam": "CHC",
+  "venue": "Nationals Park",
+  "statusState": "Warmup",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "17282c800931d5b2756e4ec8820b38a2",
+  "normalizedPayloadHash": "f4f9d7f56d16c53f3def25b5dc3ec804",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          682928,
+          694673,
+          686611,
+          695734,
+          691781,
+          678391,
+          665953,
+          660688,
+          687605
+        ],
+        "away": [
+          691718,
+          673548,
+          683737,
+          608324,
+          664023,
+          699393,
+          621020,
+          624424,
+          665804
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T19:51:57.082Z",
+      "availableAt": "2026-08-13T19:51:57.082Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T19:51:57.082Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822696/feed/live",
+        "requestedAt": "2026-08-13T19:51:57.082Z",
+        "receivedAt": "2026-08-13T19:51:57.082Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Cade Cavalli",
+        "awayProbable": "Kevin Gausman",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T19:51:57.082Z",
+      "availableAt": "2026-08-13T19:51:57.082Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T19:51:57.082Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822696/feed/live",
+        "requestedAt": "2026-08-13T19:51:57.082Z",
+        "receivedAt": "2026-08-13T19:51:57.082Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "89",
+        "wind": "4 mph, In From LF",
+        "roofType": "Open",
+        "dayNight": "day",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T19:51:57.082Z",
+      "availableAt": "2026-08-13T19:51:57.082Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T19:51:57.082Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822696/feed/live",
+        "requestedAt": "2026-08-13T19:51:57.082Z",
+        "receivedAt": "2026-08-13T19:51:57.082Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Lance Barksdale",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Ryan Wills",
+            "type": "First Base"
+          },
+          {
+            "name": "Ryan Additon",
+            "type": "Second Base"
+          },
+          {
+            "name": "Jonathan Parra",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T19:51:57.082Z",
+      "availableAt": "2026-08-13T19:51:57.082Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T19:51:57.082Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822696/feed/live",
+        "requestedAt": "2026-08-13T19:51:57.082Z",
+        "receivedAt": "2026-08-13T19:51:57.082Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
