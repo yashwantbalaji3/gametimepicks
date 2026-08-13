@@ -79,6 +79,7 @@ const APPROVED_DESTINATIONS = new Set([
   "/mlb",
   "/mlb/board",
   "/sports",
+  "/nfl", // P169-J: the NFL honesty hub — footer-linked; guarded by the rendered-text rules above
   "/learn",
   "/methodology",
   "/market-guide",
@@ -133,12 +134,24 @@ test("every removed route has no page body left in the source tree", () => {
 // ── 2 · the capability registry actually justifies each removal ──────────────────────────────────
 test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   const { capabilityState } = await import("./sport-capability-registry.ts");
-  for (const sport of ["nhl", "ipl", "wnba", "mls", "epl", "nfl"]) {
+  for (const sport of ["nhl", "ipl", "wnba", "mls", "epl"]) {
     assert.notEqual(capabilityState(sport), "FULL_MODEL", `${sport} is not FULL_MODEL`);
     const hub = path.join(APP, `src/app/${sport}/page.tsx`);
     if (!fs.existsSync(hub)) continue; // no route at all is the strongest form of "not public"
     assert.match(fs.readFileSync(hub, "utf8"), /ClientRedirect/, `/${sport} may only exist as a redirect`);
   }
+  // NFL graduated from redirect-only to an HONESTY HUB (Program 169 · Release J, founder charter)
+  // exactly as /sports graduated in P148-B: the invariant — no overstated coverage, no model
+  // claims, no liveness theater — did not lapse; it is enforced against the RENDERED TEXT below.
+  // The sport's capability state is unchanged: still not FULL_MODEL, still no public model.
+  assert.notEqual(capabilityState("nfl"), "FULL_MODEL", "nfl is not FULL_MODEL — the hub is schedule/honesty context only");
+  const nflHub = read("src/app/nfl/page.tsx");
+  assert.doesNotMatch(nflHub, /ClientRedirect/, "/nfl is a real page now (P169-J)");
+  assert.match(nflHub, /No NFL predictions, picks, or\s+simulations are published/, "the no-model line is load-bearing copy");
+  assert.match(nflHub, /PRIVATE_ONLY/, "team simulation states its private, activation-gated status");
+  assert.match(nflHub, /AUTH_REQUIRED/, "market comparison states its authorization gate");
+  assert.match(nflHub, /ROLE_UNCERTAIN/, "player props state the participation gate");
+  assert.match(nflHub, /committed/i, "data provenance is stated");
   // NBA is HISTORICAL_ONLY: the settled archive stays published, the live model surfaces do not.
   assert.equal(capabilityState("nba"), "HISTORICAL_ONLY");
   assert.ok(fs.existsSync(path.join(APP, "src/app/results/nba/page.tsx")), "the NBA settled archive stays published");
