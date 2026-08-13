@@ -1,0 +1,248 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-props-v1-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-13T06:00:00Z",
+ "engine": {
+  "id": "nfl-player-props-v1-opportunity-efficiency",
+  "version": 1
+ },
+ "corpusAccounting": [
+  {
+   "season": 2023,
+   "games": 334,
+   "contentHash": "fd64ebd56563d258"
+  },
+  {
+   "season": 2024,
+   "games": 334,
+   "contentHash": "5e8075b215ee74b9"
+  },
+  {
+   "season": 2025,
+   "games": 333,
+   "contentHash": "bf118f6dd4b6b75c"
+  }
+ ],
+ "protocol": {
+  "fit": "2023–24 REG+POST only: game-script volume OLS, league Σ-rates, Gamma dispersion (MoM, ≥30-opportunity players), rate shrink m walk-forward-selected inside 2023–24",
+  "test": "held-out 2025, fully pre-game walk-forward chain (roles, rates, Elo cutoff, committed game-sim heads), sampled distributions, baselines on identical points",
+  "runs": 1000,
+  "thresholds": {
+   "qbShare": 0.3,
+   "carryShare": 0.05,
+   "targetShare": 0.05
+  }
+ },
+ "fit": {
+  "gamesim": {
+   "marginSlope": 0.069322,
+   "sigmaMargin": 13.7007,
+   "muTotal": 44.9088,
+   "sigmaTotal": 13.4915,
+   "source": "data/internal/research/nfl/reports/model-v1-evaluation.json (committed P167-E fit, copied verbatim)"
+  },
+  "volume": {
+   "pass": {
+    "a0": 33.1877,
+    "a1": -0.13645,
+    "sigma": 7.4689,
+    "n": 1140
+   },
+   "rush": {
+    "a0": 26.9535,
+    "a1": 0.27956,
+    "sigma": 6.378,
+    "n": 1140
+   }
+  },
+  "dispersion": {
+   "recShape": 1.3741,
+   "rushShape": 0.5619,
+   "passShape": 1.2593,
+   "allocKappa": {
+    "passAttempts": 2,
+    "rushAttempts": 17.82,
+    "targets": 65.64
+   },
+   "gameSigma": {
+    "player_pass_yds": 0,
+    "player_rush_yds": 0,
+    "player_reception_yds": 0
+   }
+  },
+  "league": {
+   "catchRate": 0.68002,
+   "ypr": 10.93,
+   "ypc": 4.3301,
+   "compRate": 0.64923,
+   "ypcmp": 10.93,
+   "intRate": 0.02241
+  },
+  "rates": {
+   "halfLifeGames": 8,
+   "boundaryDecay": 0.25,
+   "priorTrials": 25,
+   "selection": [
+    {
+     "m": 25,
+     "mae": 1.07716
+    },
+    {
+     "m": 10,
+     "mae": 1.08062
+    },
+    {
+     "m": 60,
+     "mae": 1.08204
+    }
+   ]
+  }
+ },
+ "heldOut2025": {
+  "evaluatedPlayerMarkets": 13820,
+  "realizedYardageCoverage": 0.9132,
+  "table": {
+   "player_pass_yds": {
+    "n": 969,
+    "mae": 81.432,
+    "rmse": 98.146,
+    "pinball": 27.019,
+    "interval80Coverage": 0.5686,
+    "thresholdCalibration": {
+     "pairs": 838,
+     "binsUsed": 6,
+     "ece": 0.0436
+    },
+    "baselines": {
+     "rolling4Mae": 111.63,
+     "shareVolMae": 97.191,
+     "roleTierMae": 144.381,
+     "trailing8Pinball": 42.91,
+     "trailing8Cover80": 0.5095,
+     "trailing8N": 838
+    }
+   },
+   "player_rush_yds": {
+    "n": 3273,
+    "mae": 16.093,
+    "rmse": 23.692,
+    "pinball": 5.174,
+    "interval80Coverage": 0.7412,
+    "thresholdCalibration": {
+     "pairs": 2702,
+     "binsUsed": 7,
+     "ece": 0.0297
+    },
+    "baselines": {
+     "rolling4Mae": 21.182,
+     "shareVolMae": 18.087,
+     "roleTierMae": 22.782,
+     "trailing8Pinball": 8.059,
+     "trailing8Cover80": 0.5928,
+     "trailing8N": 2721
+    }
+   },
+   "player_reception_yds": {
+    "n": 4789,
+    "mae": 20.808,
+    "rmse": 27.098,
+    "pinball": 6.559,
+    "interval80Coverage": 0.8219,
+    "thresholdCalibration": {
+     "pairs": 4462,
+     "binsUsed": 7,
+     "ece": 0.0761
+    },
+    "baselines": {
+     "rolling4Mae": 24.198,
+     "shareVolMae": 21.862,
+     "roleTierMae": 24.216,
+     "trailing8Pinball": 8.598,
+     "trailing8Cover80": 0.7066,
+     "trailing8N": 4462
+    }
+   },
+   "player_receptions": {
+    "n": 4789,
+    "mae": 1.639,
+    "rmse": 2.054,
+    "pinball": 0.531,
+    "interval80Coverage": 0.8597,
+    "thresholdCalibration": {
+     "pairs": 4462,
+     "binsUsed": 8,
+     "ece": 0.057
+    },
+    "baselines": {
+     "rolling4Mae": 1.901,
+     "shareVolMae": 1.745,
+     "roleTierMae": 1.881,
+     "trailing8Pinball": 0.688,
+     "trailing8Cover80": 0.74,
+     "trailing8N": 4462
+    }
+   }
+  }
+ },
+ "promotionPolicy": [
+  "PUBLIC_ELIGIBLE: beats rolling-4 AND share×volume on MAE; interval80 coverage in [0.72,0.88]; threshold ECE ≤ 0.05; n ≥ 300 — runtime role/line/settlement gates still apply",
+  "SHADOW_ELIGIBLE: beats ≥1 point baseline; coverage in [0.68,0.92]; n ≥ 300",
+  "RESEARCH_ONLY otherwise; promotion of one market never promotes siblings",
+  "preseason events: every player market ABSTAINS regardless (participation contract), evidenceTier REDUCED_PRESEASON"
+ ],
+ "promotion": {
+  "player_pass_yds": {
+   "state": "RESEARCH_ONLY",
+   "evidence": {
+    "beatsRolling": true,
+    "beatsShareVol": true,
+    "coverOk": false,
+    "calOk": true,
+    "n": 969
+   }
+  },
+  "player_rush_yds": {
+   "state": "PUBLIC_ELIGIBLE",
+   "evidence": {
+    "beatsRolling": true,
+    "beatsShareVol": true,
+    "coverOk": true,
+    "calOk": true,
+    "n": 3273
+   }
+  },
+  "player_reception_yds": {
+   "state": "SHADOW_ELIGIBLE",
+   "evidence": {
+    "beatsRolling": true,
+    "beatsShareVol": true,
+    "coverOk": true,
+    "calOk": false,
+    "n": 4789
+   }
+  },
+  "player_receptions": {
+   "state": "SHADOW_ELIGIBLE",
+   "evidence": {
+    "beatsRolling": true,
+    "beatsShareVol": true,
+    "coverOk": true,
+    "calOk": false,
+    "n": 4789
+   }
+  },
+  "player_pass_int": {
+   "state": "RESEARCH_ONLY",
+   "evidence": {
+    "note": "simulated component, never separately evaluated — cannot promote"
+   }
+  }
+ },
+ "honesty": [
+  "distributions are opportunity×efficiency conditioned on the committed game-sim stream — no odds parameter exists anywhere in the engine (source-scan pinned)",
+  "multinomial allocation reconciles player opportunities to team volumes per iteration by construction",
+  "threshold calibration uses the rolling-4 mean as the line proxy (no historical sportsbook lines exist in this repo); P(over) is read off the true sampled distribution as a post-sampling read-out",
+  "rush yards are Gamma (non-negative): true negative rushing games exist and are outside v1 support — a stated limitation"
+ ]
+}
