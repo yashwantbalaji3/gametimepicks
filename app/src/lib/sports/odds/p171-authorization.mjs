@@ -34,13 +34,48 @@ export function parseAuthorizationReceipt(markdown) {
   if (errors.length) return { ok: false, errors };
   return {
     ok: true,
-    program: "P171",
+    // ONE allowance, not one per program: Program 172 continues under the SAME committed receipt,
+    // so the ledger's cumulative total spans 171 and 172 and the ceiling is never re-issued.
+    program: "P171-172",
+    coveredPrograms: ["P171", "P172"],
     sport: "nfl",
     sportKey: "americanfootball_nfl",
     ceiling,
     floor: 0,
-    terms: "NFL-only; preflight, discovery, team ML/spread/total, supported props, anytime TD, evidence-driven pre-start refreshes; no blind retries; stop before the ceiling",
+    terms: "NFL-only; preflight, discovery, team ML/spread/total, supported props, anytime TD, evidence-driven pre-start refreshes; no blind retries; stop before the cumulative ceiling",
   };
+}
+
+/**
+ * Result classes for a provider response (Program 172 · Release D). These must never collapse
+ * into one "failed" bucket: each implies a different next action, and treating a NO_MARKET as an
+ * outage (or a 429 as an auth problem) is how a lane either spins or gives up wrongly.
+ */
+export function classifyProviderResult({ status, body }) {
+  if (status === 401 || status === 403) return { class: "AUTHORIZATION_FAILED", retryable: false, action: "credential/config problem — stop and report; never retry blindly" };
+  if (status === 429) return { class: "RATE_OR_CREDIT_LIMITED", retryable: false, action: "provider is throttling or the plan is exhausted — stop, re-read usage headers, do not spend again this window" };
+  if (status >= 500) return { class: "PROVIDER_INCIDENT", retryable: false, action: "provider-side incident — preserve last-known-good as STALE, never overwrite with an empty slate" };
+  if (status === 200 && Array.isArray(body) && body.length === 0) return { class: "NO_MARKET", retryable: false, action: "the provider genuinely offers nothing here — absence is evidence, not a retry target" };
+  if (status === 200 && body == null) return { class: "QUARANTINED", retryable: false, action: "a 200 whose body will not parse is a contradiction — quarantine, never guess" };
+  if (status === 200) return { class: "OK", retryable: false, action: "consume" };
+  return { class: "QUARANTINED", retryable: false, action: `unmodelled status ${status} — quarantine rather than assume` };
+}
+
+/**
+ * Duplicate-request circuit breaker: the same fingerprint inside its freshness window is refused,
+ * so a re-run of the chain cannot re-buy prices it already holds.
+ */
+export function isDuplicateRequest(ledger, { fingerprint, nowIso, freshnessMinutes = 30 }) {
+  const now = Date.parse(nowIso);
+  for (const r of ledger?.requests ?? []) {
+    if (r.fingerprint !== fingerprint) continue;
+    if (!r.creditsUsed) continue; // a free call is not a purchase worth blocking
+    const age = (now - Date.parse(r.at)) / 60000;
+    if (age >= 0 && age < freshnessMinutes) {
+      return { duplicate: true, reason: `identical request bought ${age.toFixed(1)}m ago (< ${freshnessMinutes}m freshness window) — refusing to re-buy`, priorAt: r.at };
+    }
+  }
+  return { duplicate: false };
 }
 
 /** A fresh ledger (first authorized run creates it). */
@@ -74,7 +109,7 @@ export function assertCallAllowed({ authorization, ledger, worstCaseCredits, pur
  * (x-requests-last / x-requests-used / x-requests-remaining) — parsed here, defaulting a paid
  * call with unreadable headers to cost 1 (never 0: unaccounted spend is the failure mode).
  */
-export function recordRequest(ledger, { at, purpose, endpoint, events = null, markets = null, regions = null, status, headers = {}, charged = true }) {
+export function recordRequest(ledger, { at, purpose, endpoint, events = null, markets = null, regions = null, status, headers = {}, charged = true, fingerprint = null, resultClass = null }) {
   const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : null; };
   const lastCost = num(headers["x-requests-last"]);
   const creditsUsed = charged ? (lastCost ?? 1) : (lastCost ?? 0);
@@ -86,6 +121,8 @@ export function recordRequest(ledger, { at, purpose, endpoint, events = null, ma
     markets,
     regions,
     status,
+    resultClass,
+    fingerprint,
     creditsUsed,
     providerRequestsUsed: num(headers["x-requests-used"]),
     providerRequestsRemaining: num(headers["x-requests-remaining"]),

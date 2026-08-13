@@ -10,6 +10,7 @@ import path from "node:path";
 
 import {
   parseAuthorizationReceipt, emptyLedger, assertCallAllowed, recordRequest, assertNoSecretLeak,
+  classifyProviderResult, isDuplicateRequest,
 } from "./p171-authorization.mjs";
 
 const ROOT = path.join(process.cwd(), "..");
@@ -22,6 +23,39 @@ test("the committed founder receipt parses to exactly the authorized terms", () 
   assert.equal(r.floor, 0);
   assert.equal(r.sport, "nfl");
   assert.equal(r.sportKey, "americanfootball_nfl");
+  // P172: ONE allowance spans both programs — a second program never re-issues the ceiling
+  assert.deepEqual(r.coveredPrograms, ["P171", "P172"]);
+  assert.equal(r.program, "P171-172");
+});
+
+test("P172 · provider result classes never collapse into one 'failed' bucket", () => {
+  assert.equal(classifyProviderResult({ status: 401 }).class, "AUTHORIZATION_FAILED");
+  assert.equal(classifyProviderResult({ status: 403 }).class, "AUTHORIZATION_FAILED");
+  assert.equal(classifyProviderResult({ status: 429 }).class, "RATE_OR_CREDIT_LIMITED");
+  assert.equal(classifyProviderResult({ status: 503 }).class, "PROVIDER_INCIDENT");
+  assert.equal(classifyProviderResult({ status: 200, body: [] }).class, "NO_MARKET");
+  assert.equal(classifyProviderResult({ status: 200, body: null }).class, "QUARANTINED");
+  assert.equal(classifyProviderResult({ status: 200, body: [{ id: "x" }] }).class, "OK");
+  assert.equal(classifyProviderResult({ status: 418 }).class, "QUARANTINED", "an unmodelled status quarantines rather than assumes");
+  // none is retryable: a blind retry is exactly what the authorization forbids
+  for (const s of [401, 429, 503, 200]) assert.equal(classifyProviderResult({ status: s, body: [] }).retryable, false);
+  assert.match(classifyProviderResult({ status: 200, body: [] }).action, /absence is evidence/);
+  assert.match(classifyProviderResult({ status: 503 }).action, /never overwrite with an empty slate/);
+});
+
+test("P172 · the duplicate circuit breaker refuses re-buying inside the freshness window", () => {
+  let ledger = emptyLedger("r");
+  ledger = recordRequest(ledger, { at: "2026-08-13T12:00:00Z", purpose: "bulk", endpoint: "/odds", status: 200, headers: { "x-requests-last": "3" }, charged: true, fingerprint: "bulk:nfl_pre:h2h,spreads,totals:us" });
+  const soon = isDuplicateRequest(ledger, { fingerprint: "bulk:nfl_pre:h2h,spreads,totals:us", nowIso: "2026-08-13T12:20:00Z", freshnessMinutes: 45 });
+  assert.equal(soon.duplicate, true);
+  assert.match(soon.reason, /refusing to re-buy/);
+  const later = isDuplicateRequest(ledger, { fingerprint: "bulk:nfl_pre:h2h,spreads,totals:us", nowIso: "2026-08-13T13:00:00Z", freshnessMinutes: 45 });
+  assert.equal(later.duplicate, false, "outside the window a refresh is allowed");
+  const other = isDuplicateRequest(ledger, { fingerprint: "bulk:nfl_reg:h2h:us", nowIso: "2026-08-13T12:20:00Z", freshnessMinutes: 45 });
+  assert.equal(other.duplicate, false, "a different request is not a duplicate");
+  // a FREE call never blocks a later paid one
+  let freeLedger = recordRequest(emptyLedger("r"), { at: "2026-08-13T12:00:00Z", purpose: "index", endpoint: "/sports", status: 200, headers: { "x-requests-last": "0" }, charged: false, fingerprint: "f" });
+  assert.equal(isDuplicateRequest(freeLedger, { fingerprint: "f", nowIso: "2026-08-13T12:05:00Z" }).duplicate, false);
 });
 
 test("receipt parsing is fail-closed: any missing operative term refuses", () => {

@@ -33,7 +33,7 @@ import { fileURLToPath } from "node:url";
 import { ODDS_SPORT_KEYS, classifyOddsSecret, validateOddsSnapshot } from "../../src/lib/sports/odds/snapshot-contract.mjs";
 import { MARKET_SCOPE, normalizeScopedOddsEvent } from "../../src/lib/sports/odds/market-scope.mjs";
 import { joinOddsBatch } from "../../src/lib/sports/odds/event-join.mjs";
-import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, recordRequest, assertNoSecretLeak, P171_LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
+import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, recordRequest, assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, P171_LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { buildPlayerRegistry, resolvePlayerRef } from "../../src/lib/sports/nfl/player-identity.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -47,6 +47,9 @@ const AUTHORIZED = has("--authorized");
 const RECEIPT_PATH = arg("--receipt");
 const PROBE = arg("--probe-props");
 const LOOKAHEAD_H = Number(arg("--lookahead-hours", "40"));
+// price-refresh policy: an identical request inside this window is refused as a duplicate, so a
+// re-run of the event-window chain re-uses the capture it already holds instead of re-buying it.
+const REFRESH_MINUTES = Number(arg("--refresh-minutes", "45"));
 const SPORT = "nfl";
 const SPORT_KEY = ODDS_SPORT_KEYS[SPORT];
 // The provider splits the league across two keys: americanfootball_nfl (regular/post) and
@@ -144,13 +147,20 @@ for (const plan of livePlan) {
     console.log(`${plan.label}: /events returned ${evRes.status} with ${Array.isArray(evRes.body) ? evRes.body.length : "no"} events — skipping its bulk call (an empty key is an answer)`);
     continue;
   }
+  // duplicate circuit breaker: the same key+markets+regions inside its freshness window is not re-bought
+  const fingerprint = `bulk:${plan.key}:${TEAM_MARKETS.join(",")}:${REGIONS.join(",")}`;
+  const dup = isDuplicateRequest(ledger, { fingerprint, nowIso: NOW, freshnessMinutes: REFRESH_MINUTES });
+  if (dup.duplicate) { console.log(`${plan.label}: ${dup.reason} — keeping the existing capture`); continue; }
   const gateBulk = assertCallAllowed({ authorization, ledger, worstCaseCredits: TEAM_MARKETS.length * REGIONS.length, purpose: `bulk team markets (${plan.label})` });
   if (!gateBulk.ok) { console.error(gateBulk.errors.join("; ")); fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1)); process.exit(5); }
   const bulkRes = await get(`/sports/${plan.key}/odds?regions=${REGIONS.join(",")}&markets=${TEAM_MARKETS.join(",")}&oddsFormat=american`);
-  ledger = recordRequest(ledger, { at: NOW, purpose: `bulk team ML/spread/total (${plan.label})`, endpoint: `/sports/${plan.key}/odds`, events: Array.isArray(bulkRes.body) ? bulkRes.body.length : null, markets: TEAM_MARKETS, regions: REGIONS, status: bulkRes.status, headers: bulkRes.headers, charged: true });
-  if (bulkRes.status !== 200 || !Array.isArray(bulkRes.body)) {
+  const cls = classifyProviderResult(bulkRes);
+  ledger = recordRequest(ledger, { at: NOW, purpose: `bulk team ML/spread/total (${plan.label})`, endpoint: `/sports/${plan.key}/odds`, events: Array.isArray(bulkRes.body) ? bulkRes.body.length : null, markets: TEAM_MARKETS, regions: REGIONS, status: bulkRes.status, headers: bulkRes.headers, charged: true, fingerprint, resultClass: cls.class });
+  if (cls.class !== "OK") {
     fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1));
-    console.error(`FAILED: bulk odds (${plan.label}) returned ${bulkRes.status} — charged cost recorded (${ledger.requests[ledger.requests.length - 1].creditsUsed}); not retried`);
+    // last-known-good is preserved by construction: a failed run writes NO public artifact, so
+    // the previous capture stands as STALE rather than being overwritten with an empty slate.
+    console.error(`${cls.class} (${plan.label}, status ${bulkRes.status}): ${cls.action}. Charged cost recorded (${ledger.requests[ledger.requests.length - 1].creditsUsed}); the prior capture stands.`);
     process.exit(6);
   }
   for (const raw of bulkRes.body) {
