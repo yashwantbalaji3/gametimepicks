@@ -49,6 +49,12 @@ const PROBE = arg("--probe-props");
 const LOOKAHEAD_H = Number(arg("--lookahead-hours", "40"));
 const SPORT = "nfl";
 const SPORT_KEY = ODDS_SPORT_KEYS[SPORT];
+// The provider splits the league across two keys: americanfootball_nfl (regular/post) and
+// americanfootball_nfl_preseason (preseason). BOTH are NFL keys — the receipt's exclusion list
+// names non-NFL leagues ("MLB, UFC, EPL, NBA, NHL, and all non-NFL keys"), and the authorized
+// purpose is the CURRENT not-yet-started NFL window, which in August is preseason. The first
+// authorized run proved the regular key holds zero current-window events (3 credits, recorded).
+const PRESEASON_KEY = "americanfootball_nfl_preseason";
 const TEAM_MARKETS = MARKET_SCOPE[SPORT]; // h2h, spreads, totals — the frozen team scope
 const PROP_PROBE_MARKETS = ["player_anytime_td", "player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions"];
 const REGIONS = ["us"];
@@ -65,7 +71,11 @@ const windowRows = schedule.rows.filter((r) => {
 });
 const canonicalRows = windowRows.map((r) => ({ canonicalEventId: `nfl-${r.providerEventId}`, home: r.home.name, away: r.away.name, startTimeUtc: r.dateUtc, scheduleRow: r }));
 
-const worstCaseBulk = TEAM_MARKETS.length * REGIONS.length;
+const seasonTypes = new Set(windowRows.map((r) => r.seasonType));
+const keyPlan = [];
+if (seasonTypes.has(1)) keyPlan.push({ key: PRESEASON_KEY, label: "preseason" });
+if (seasonTypes.has(2) || seasonTypes.has(3)) keyPlan.push({ key: SPORT_KEY, label: "regular/post" });
+const worstCaseBulk = keyPlan.length * TEAM_MARKETS.length * REGIONS.length;
 const worstCaseProbe = PROBE ? PROP_PROBE_MARKETS.length * REGIONS.length : 0;
 
 // ---------------------------------------------------------------- ledger + authorization
@@ -73,8 +83,8 @@ const ledgerPath = path.join(ROOT, P171_LEDGER_RELPATH);
 let ledger = fs.existsSync(ledgerPath) ? read(ledgerPath) : emptyLedger(RECEIPT_PATH ?? "docs/receipts/ODDS_AUTHORIZATION_P171.md");
 const authorization = RECEIPT_PATH ? parseAuthorizationReceipt(fs.readFileSync(path.isAbsolute(RECEIPT_PATH) ? RECEIPT_PATH : path.join(ROOT, RECEIPT_PATH), "utf8")) : { ok: false, errors: ["no --receipt supplied"] };
 
-console.log(`window: ${windowRows.length} pre-start events within ${LOOKAHEAD_H}h of ${NOW}`);
-console.log(`plan: [free] /events → [${worstCaseBulk} worst-case] bulk ${TEAM_MARKETS.join(",")} regions=${REGIONS.join(",")}${PROBE ? ` → [${worstCaseProbe} worst-case] prop probe ${PROP_PROBE_MARKETS.join(",")}` : ""}`);
+console.log(`window: ${windowRows.length} pre-start events within ${LOOKAHEAD_H}h of ${NOW} (keys: ${keyPlan.map((k) => k.label).join("+") || "none"})`);
+console.log(`plan: [free] /sports + /events per key → [${worstCaseBulk} worst-case] bulk ${TEAM_MARKETS.join(",")} regions=${REGIONS.join(",")} × ${keyPlan.length} key(s)${PROBE ? ` → [${worstCaseProbe} worst-case] prop probe ${PROP_PROBE_MARKETS.join(",")}` : ""}`);
 console.log(`budget: cumulative ${ledger.cumulativeCredits} of ${authorization.ok ? authorization.ceiling : "?"} — worst case this run ${worstCaseBulk + worstCaseProbe}`);
 
 if (!AUTHORIZED) {
@@ -100,45 +110,59 @@ const get = async (pathAndQuery) => {
 const stamp = NOW.replace(/[-:]/g, "").slice(0, 13);
 const requestId = `p171-${stamp}`;
 
-// ---------------------------------------------------------------- 0. FREE events index
-const evRes = await get(`/sports/${SPORT_KEY}/events`);
-if (ledger.openingBalance == null && evRes.headers["x-requests-remaining"] != null) {
+// ---------------------------------------------------------------- 0. FREE sports index — both
+// NFL keys must be confirmed to EXIST before any paid call names them (0 credits).
+const idxRes = await get(`/sports/`);
+ledger = recordRequest(ledger, { at: NOW, purpose: "free sports index (key existence + opening usage)", endpoint: "/sports/", status: idxRes.status, headers: idxRes.headers, charged: false });
+if (ledger.openingBalance == null && idxRes.headers["x-requests-remaining"] != null) {
   ledger.openingBalance = {
     capturedAt: NOW,
-    providerRequestsUsed: Number(evRes.headers["x-requests-used"]),
-    providerRequestsRemaining: Number(evRes.headers["x-requests-remaining"]),
-    note: "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth",
+    providerRequestsUsed: Number(idxRes.headers["x-requests-used"]),
+    providerRequestsRemaining: Number(idxRes.headers["x-requests-remaining"]),
+    note: "provider-verified via response headers on the free index call — the screenshot claim is context, this is machine truth",
   };
 }
-ledger = recordRequest(ledger, { at: NOW, purpose: "free events index (key validity + opening usage + provider event ids)", endpoint: `/sports/${SPORT_KEY}/events`, status: evRes.status, headers: evRes.headers, charged: false });
-if (evRes.status !== 200 || !Array.isArray(evRes.body)) {
+if (idxRes.status !== 200 || !Array.isArray(idxRes.body)) {
   fs.mkdirSync(path.dirname(ledgerPath), { recursive: true });
   fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1));
-  console.error(`REFUSED: /events returned ${evRes.status} — no paid call follows a failed preflight (no blind retries)`);
+  console.error(`REFUSED: /sports index returned ${idxRes.status} — no paid call follows a failed preflight (no blind retries)`);
   process.exit(4);
 }
-console.log(`preflight: ${evRes.body.length} provider events; opening remaining=${evRes.headers["x-requests-remaining"]}`);
+const knownKeys = new Set(idxRes.body.map((s) => s.key));
+const livePlan = keyPlan.filter((p) => knownKeys.has(p.key));
+for (const p of keyPlan) if (!knownKeys.has(p.key)) console.log(`key ${p.key} absent from the provider index — that window slice is NO_MARKET, not a paid attempt`);
+console.log(`preflight: opening remaining=${idxRes.headers["x-requests-remaining"]}; live keys: ${livePlan.map((p) => p.key).join(", ") || "none"}`);
 
-// ---------------------------------------------------------------- 1. bulk team markets
-const gateBulk = assertCallAllowed({ authorization, ledger, worstCaseCredits: worstCaseBulk, purpose: "bulk team markets" });
-if (!gateBulk.ok) { console.error(gateBulk.errors.join("; ")); fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1)); process.exit(5); }
-const bulkRes = await get(`/sports/${SPORT_KEY}/odds?regions=${REGIONS.join(",")}&markets=${TEAM_MARKETS.join(",")}&oddsFormat=american`);
-ledger = recordRequest(ledger, { at: NOW, purpose: "bulk team ML/spread/total", endpoint: `/sports/${SPORT_KEY}/odds`, events: Array.isArray(bulkRes.body) ? bulkRes.body.length : null, markets: TEAM_MARKETS, regions: REGIONS, status: bulkRes.status, headers: bulkRes.headers, charged: true });
-if (bulkRes.status !== 200 || !Array.isArray(bulkRes.body)) {
-  fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1));
-  console.error(`FAILED: bulk odds returned ${bulkRes.status} — charged cost recorded (${ledger.requests[ledger.requests.length - 1].creditsUsed}); not retried`);
-  process.exit(6);
-}
-
-// normalize + join
+// ---------------------------------------------------------------- 1. per-key: free /events, then ONE gated bulk call
 const rows = [];
 const quarantined = [];
-for (const raw of bulkRes.body) {
-  const out = normalizeScopedOddsEvent(raw, { sport: SPORT, capturedAt: NOW, requestId });
-  rows.push(...out.rows);
-  quarantined.push(...out.quarantined);
+const oddsEventsMap = new Map(); // odds event id → {providerEventId, home, away, scheduledStartUtc, sportKey}
+for (const plan of livePlan) {
+  const evRes = await get(`/sports/${plan.key}/events`);
+  ledger = recordRequest(ledger, { at: NOW, purpose: `free events index (${plan.label})`, endpoint: `/sports/${plan.key}/events`, events: Array.isArray(evRes.body) ? evRes.body.length : null, status: evRes.status, headers: evRes.headers, charged: false });
+  if (evRes.status !== 200 || !Array.isArray(evRes.body) || evRes.body.length === 0) {
+    console.log(`${plan.label}: /events returned ${evRes.status} with ${Array.isArray(evRes.body) ? evRes.body.length : "no"} events — skipping its bulk call (an empty key is an answer)`);
+    continue;
+  }
+  const gateBulk = assertCallAllowed({ authorization, ledger, worstCaseCredits: TEAM_MARKETS.length * REGIONS.length, purpose: `bulk team markets (${plan.label})` });
+  if (!gateBulk.ok) { console.error(gateBulk.errors.join("; ")); fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1)); process.exit(5); }
+  const bulkRes = await get(`/sports/${plan.key}/odds?regions=${REGIONS.join(",")}&markets=${TEAM_MARKETS.join(",")}&oddsFormat=american`);
+  ledger = recordRequest(ledger, { at: NOW, purpose: `bulk team ML/spread/total (${plan.label})`, endpoint: `/sports/${plan.key}/odds`, events: Array.isArray(bulkRes.body) ? bulkRes.body.length : null, markets: TEAM_MARKETS, regions: REGIONS, status: bulkRes.status, headers: bulkRes.headers, charged: true });
+  if (bulkRes.status !== 200 || !Array.isArray(bulkRes.body)) {
+    fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1));
+    console.error(`FAILED: bulk odds (${plan.label}) returned ${bulkRes.status} — charged cost recorded (${ledger.requests[ledger.requests.length - 1].creditsUsed}); not retried`);
+    process.exit(6);
+  }
+  for (const raw of bulkRes.body) {
+    const out = normalizeScopedOddsEvent(raw, { sport: SPORT, capturedAt: NOW, requestId });
+    rows.push(...out.rows);
+    quarantined.push(...out.quarantined);
+    if (raw?.id && !oddsEventsMap.has(String(raw.id))) {
+      oddsEventsMap.set(String(raw.id), { providerEventId: String(raw.id), home: raw.home_team, away: raw.away_team, scheduledStartUtc: raw.commence_time, sportKey: plan.key });
+    }
+  }
 }
-const oddsEvents = [...new Map(bulkRes.body.map((e) => [e.id, { providerEventId: String(e.id), home: e.home_team, away: e.away_team, scheduledStartUtc: e.commence_time }])).values()];
+const oddsEvents = [...oddsEventsMap.values()];
 const join = joinOddsBatch(oddsEvents, canonicalRows);
 const joinedByOddsId = new Map(join.joined.map((j) => [j.providerEventId, j]));
 const rowsJoined = rows.filter((r) => joinedByOddsId.has(r.providerEventId));
@@ -157,8 +181,8 @@ if (PROBE) {
     if (!gateProbe.ok) {
       propProbe = { state: "REFUSED_BUDGET", reason: gateProbe.errors.join("; ") };
     } else {
-      const probeRes = await get(`/sports/${SPORT_KEY}/events/${target.providerEventId}/odds?regions=${REGIONS.join(",")}&markets=${PROP_PROBE_MARKETS.join(",")}&oddsFormat=american`);
-      ledger = recordRequest(ledger, { at: NOW, purpose: `player-prop probe on ${target.away} @ ${target.home}`, endpoint: `/sports/${SPORT_KEY}/events/${target.providerEventId}/odds`, events: 1, markets: PROP_PROBE_MARKETS, regions: REGIONS, status: probeRes.status, headers: probeRes.headers, charged: probeRes.status === 200 });
+      const probeRes = await get(`/sports/${target.sportKey}/events/${target.providerEventId}/odds?regions=${REGIONS.join(",")}&markets=${PROP_PROBE_MARKETS.join(",")}&oddsFormat=american`);
+      ledger = recordRequest(ledger, { at: NOW, purpose: `player-prop probe on ${target.away} @ ${target.home}`, endpoint: `/sports/${target.sportKey}/events/${target.providerEventId}/odds`, events: 1, markets: PROP_PROBE_MARKETS, regions: REGIONS, status: probeRes.status, headers: probeRes.headers, charged: probeRes.status === 200 });
       if (probeRes.status !== 200) {
         propProbe = { state: "NO_MARKET", oddsEventId: target.providerEventId, status: probeRes.status, reason: "provider does not offer these prop markets for this event (422/absent) — typed evidence, never retried" };
       } else {
