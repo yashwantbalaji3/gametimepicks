@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823669-40c0611d383248c532ad847e582b499d",
+  "snapshotCreatedAt": "2026-08-13T21:35:44.844Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-13",
+  "eventId": "823669",
+  "gamePk": 823669,
+  "eventStartTime": "2026-08-13T23:30:00Z",
+  "homeTeam": "MIN",
+  "awayTeam": "PHI",
+  "venue": "Field of Dreams",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "37a29c54f6798dd6e6780fbd2cf163a3",
+  "normalizedPayloadHash": "449b64db12b63f1bed7039c14a34d0c2",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          663616,
+          621439,
+          680777,
+          605137,
+          668904,
+          665019,
+          807712,
+          686797,
+          701785
+        ],
+        "away": [
+          656941,
+          607208,
+          547180,
+          650333,
+          681082,
+          664761,
+          669016,
+          592663,
+          702222
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T21:35:44.844Z",
+      "availableAt": "2026-08-13T21:35:44.844Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T21:35:44.844Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823669/feed/live",
+        "requestedAt": "2026-08-13T21:35:44.844Z",
+        "receivedAt": "2026-08-13T21:35:44.844Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Taj Bradley",
+        "awayProbable": "Aaron Nola",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T21:35:44.844Z",
+      "availableAt": "2026-08-13T21:35:44.844Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T21:35:44.844Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823669/feed/live",
+        "requestedAt": "2026-08-13T21:35:44.844Z",
+        "receivedAt": "2026-08-13T21:35:44.844Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "73",
+        "wind": "10 mph, Out To CF",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T21:35:44.844Z",
+      "availableAt": "2026-08-13T21:35:44.844Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T21:35:44.844Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823669/feed/live",
+        "requestedAt": "2026-08-13T21:35:44.844Z",
+        "receivedAt": "2026-08-13T21:35:44.844Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Bruce Dreckman",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Alex Tosi",
+            "type": "First Base"
+          },
+          {
+            "name": "Cory Blaser",
+            "type": "Second Base"
+          },
+          {
+            "name": "Jansen Visconti",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T21:35:44.844Z",
+      "availableAt": "2026-08-13T21:35:44.844Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T21:35:44.844Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823669/feed/live",
+        "requestedAt": "2026-08-13T21:35:44.844Z",
+        "receivedAt": "2026-08-13T21:35:44.844Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
