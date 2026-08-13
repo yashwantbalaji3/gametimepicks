@@ -75,6 +75,7 @@ test("capture script structure: dry-run precedes any network call; NFL-only; no 
   assert.doesNotMatch(src, /maxRetries|backoff|attempt\s*<|while\s*\(\s*true\s*\).*get\(|for\s*\(\s*let\s+attempt/is, "no retry-loop construct exists to repeat a failed paid call");
   assert.ok(src.indexOf("assertNoSecretLeak(payload") < src.indexOf("fs.writeFileSync(p, payload)"), "every artifact write passes the leak-guard first");
   assert.match(src, /assertCallAllowed/, "every paid call clears the cumulative gate");
+  assert.match(src, /secretState\.state !== "PRESENT"/, "the key gate accepts exactly the contract's healthy state — the first CI run failed on an imagined 'OK'");
   const canary = fs.readFileSync(path.join(process.cwd(), "scripts/ops/odds-canary.mjs"), "utf8");
   assert.match(canary, /parsed\.sport !== SPORT/, "the canary refuses a receipt whose scope differs from --sport");
   assert.match(canary, /const FLOOR = 50;/, "the legacy default floor literal survives the extension");

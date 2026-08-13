@@ -85,8 +85,9 @@ if (!authorization.ok) { console.error(`REFUSED: authorization did not parse: ${
 if (!windowRows.length) { console.log("NO_EVENTS: no pre-start events in the window — an empty slate is an answer, not a call"); process.exit(0); }
 
 const secretState = classifyOddsSecret(process.env);
-if (secretState.state !== "OK") { console.error(`BLOCKED_EXTERNAL: ${secretState.state} — no key, no call`); process.exit(3); }
-const KEY = process.env.ODDS_API_KEY;
+// the contract's healthy state is PRESENT (key-shaped, value never echoed) — refuse the other two
+if (secretState.state !== "PRESENT") { console.error(`${secretState.state}: ${secretState.reason} — no key, no call`); process.exit(3); }
+const KEY = process.env.ODDS_API_KEY.trim();
 
 const get = async (pathAndQuery) => {
   const res = await fetch(`${BASE}${pathAndQuery}${pathAndQuery.includes("?") ? "&" : "?"}apiKey=${KEY}`, { signal: AbortSignal.timeout(25_000), headers: { accept: "application/json" } });
