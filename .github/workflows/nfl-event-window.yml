@@ -24,6 +24,8 @@ on:
     # and T-2h (evidence-driven refresh before the earliest kickoffs).
     - cron: "0 15 * * *" # 11:00 ET
     - cron: "0 21 * * *" # 17:00 ET
+    # Morning settle pass, AFTER sport-schedules (13:00Z) lands the previous night's finals.
+    - cron: "30 14 * * *" # 10:30 ET
   workflow_dispatch:
     inputs:
       skip_odds:
@@ -112,6 +114,31 @@ jobs:
             exit 0
           fi
           git commit -m "auto: nfl event window ${{ steps.window.outputs.now }} [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
+      # Settlement is INDEPENDENT of the window gate: last night's finals settle even when
+      # tonight has no events. It is idempotent (exactly-once by canonicalEventId) and free.
+      - name: Settle yesterday's and today's current artifacts
+        id: settle
+        working-directory: app
+        run: |
+          set -euo pipefail
+          NOW="${{ steps.window.outputs.now }}"
+          for D in "$(date -u -d 'yesterday' +%Y-%m-%d 2>/dev/null || date -u -v-1d +%Y-%m-%d)" "$(date -u +%Y-%m-%d)"; do
+            if [ -d "../data/internal/nfl/current/$D" ]; then
+              node scripts/nfl/settle-nfl-current.mjs --now "$NOW" --date "$D"
+            fi
+          done
+
+      - name: Commit settlement receipts
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/internal/nfl/settlement/
+          if git diff --cached --quiet; then echo "no settlement change"; exit 0; fi
+          git commit -m "auto: nfl settlement receipts [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
 

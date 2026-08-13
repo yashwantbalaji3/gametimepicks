@@ -1,0 +1,41 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-settlement-watch",
+ "dataClass": "PRIVATE_PAPER_RECORD",
+ "program": "P171",
+ "release": "H",
+ "state": "ARMED",
+ "observable": false,
+ "armedAt": "2026-08-13T12:45:00Z",
+ "why": "Six legitimate pre-kickoff artifacts exist for 2026-08-13 and each pins its own pre-start market consensus, but the earliest kickoff is 2026-08-13T23:00Z — nothing has been observable yet. A post-event file can never masquerade as pre-event evidence, so the settlement waits for reality rather than reconstructing it.",
+ "trigger": {
+  "canonicalEventId": "nfl-401873272",
+  "matchup": "DET @ CIN",
+  "kickoffUtc": "2026-08-13T23:00Z",
+  "afterUtc": "2026-08-14T13:30:00Z",
+  "condition": "the sport-schedules cadence (13:00Z) lands the Aug 13 finals in app/public/data/nfl/results/latest.json with STATUS_FINAL and integer scores",
+  "command": "node scripts/nfl/settle-nfl-current.mjs --now <iso> --date 2026-08-13",
+  "automatedBy": ".github/workflows/nfl-event-window.yml (settle job, cron 30 14 * * *) — the manual command is the fallback, not the plan"
+ },
+ "acceptance": [
+  "each of the six events settles EXACTLY ONCE: a second run adds no rows and the receipt's canonicalEventId set is unchanged",
+  "accounting reconciles with gap zero — artifactsForDate === settled + pending — or the script refuses to write at all",
+  "every settled event carries full lineage: the artifact file it graded, its generatedAt, the market capturedAt, the evidence stamps, and the settlement contract version",
+  "pushes and voids are reported separately from the decisive denominator (WIN + LOSS); a missing or non-final result stays PENDING and is never a loss",
+  "the receipt states plainly that it grades the PRE-START MARKET consensus, not model performance — the team model abstained in preseason",
+  "protected money is untouched: portfolio.json md5 stays affe6b21071f2b3be96bb2774eb347c3"
+ ],
+ "artifacts": [
+  "data/internal/nfl/current/2026-08-13/401873272-1213Z.json",
+  "data/internal/nfl/current/2026-08-13/401873273-1213Z.json",
+  "data/internal/nfl/current/2026-08-13/401873274-1213Z.json",
+  "data/internal/nfl/current/2026-08-13/401873275-1213Z.json",
+  "data/internal/nfl/current/2026-08-13/401873640-1213Z.json",
+  "data/internal/nfl/current/2026-08-13/401874392-1213Z.json"
+ ],
+ "knownRisks": [
+  "the CAR@ARI precedent: a final without pre-event schedule lineage is quarantined, never settled — these six have lineage in two committed captures",
+  "postponement or abandonment yields VOID_PENDING_REVIEW, not a loss",
+  "a score correction after settlement appends correction lineage; nothing regrades silently (docs/NFL_CORRECTIONS_RUNBOOK.md)"
+ ]
+}
