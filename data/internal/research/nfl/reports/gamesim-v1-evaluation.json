@@ -1,0 +1,71 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-gamesim-v1-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-13T03:12:00Z",
+ "simId": "nfl-gamesim-v1-joint-normal",
+ "regularConsistency": {
+  "probedGames": 12,
+  "maxSimVsAnalyticGap": 0.0001,
+  "bound": 0.015,
+  "pass": true,
+  "note": "the sim's REPORTED win head must BE the analytic head — a gap beyond tie-decomposition noise is drift",
+  "knownHeadDivergence": {
+   "maxScoreImpliedVsReported": 0.0944,
+   "note": "margin-probit vs elo-logistic disagreement — a property of the two fitted heads, shipped as a visible diagnostic on every artifact (this release's own eval found it)"
+  }
+ },
+ "scoreMarginals2025Regular": {
+  "n": 272,
+  "teamScoreMAE": 7.584,
+  "naiveLeagueAvgMAE": 7.941,
+  "interval80Coverage": 0.8015,
+  "note": "coverage near 0.80 = honest widths; the naive gap is the margin head's contribution to scores"
+ },
+ "preseasonShrink": {
+  "protocol": "fit on 2023-24 preseason decisive games only; grid over [0.2,0.35,0.5,0.7,1]; tested once on 2025 preseason",
+  "train": {
+   "n": 95,
+   "curve": [
+    {
+     "shrink": 0.2,
+     "trainLogLoss": 0.6934
+    },
+    {
+     "shrink": 0.35,
+     "trainLogLoss": 0.6945
+    },
+    {
+     "shrink": 0.5,
+     "trainLogLoss": 0.6964
+    },
+    {
+     "shrink": 0.7,
+     "trainLogLoss": 0.7003
+    },
+    {
+     "shrink": 1,
+     "trainLogLoss": 0.7086
+    }
+   ],
+   "chosenShrink": 0.2
+  },
+  "test": {
+   "n": 45,
+   "logLossAtChosen": 0.6995,
+   "logLossAtFullSignal": 0.7685,
+   "coin": 0.6931
+  },
+  "committedVariant": {
+   "marginShrink": 0.2,
+   "sigmaWiden": 1.25,
+   "evidenceTier": "REDUCED_PRESEASON"
+  },
+  "committedMatchesChosen": true
+ },
+ "honesty": [
+  "the preseason variant is RESEARCH_ONLY: it widens and shrinks a regular-season fit; it does not model participation — player markets stay gated regardless",
+  "sigmaWiden 1.25 is a stated conservatism choice (unfit) — it widens intervals and cannot sharpen any claim",
+  "no market data touches the simulation; comparison happens beside it"
+ ]
+}
