@@ -112,6 +112,9 @@ test("the source registry records rights + authorization for every source, and b
 test("no source is invented — the registry covers exactly the providers this repo already touches", () => {
   // Additions must name their first real use: openfootball (Release C, EPL research corpus) and
   // espn_scoreboard (Release B/D, first NFL preseason capture) joined in Program 148.
+  // Program 169 · Release A: espn_site_api_nfl (roster/player identity — same public-JSON usage
+  // class as espn_scoreboard, split for its own freshness/consumer rules) and
+  // nfl_weather_unsourced (a BLOCKED role recorded so no adapter can assume a weather default).
   assert.deepEqual(Object.keys(SOURCES).sort(),
-    ["api_football", "balldontlie", "espn_cdn", "espn_scoreboard", "mlb_midfield", "mlb_statsapi", "odds_api", "openfootball"]);
+    ["api_football", "balldontlie", "espn_cdn", "espn_scoreboard", "espn_site_api_nfl", "mlb_midfield", "mlb_statsapi", "nfl_weather_unsourced", "odds_api", "openfootball"]);
 });
