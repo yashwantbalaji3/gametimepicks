@@ -118,13 +118,23 @@ jobs:
             console.log('artifact ok: ' + d.date + ' · lanes ' + (d.lanes || []).length);
           "
 
+      # P172-E/F/G: one dated operating receipt per day covering Bank Builder, Moonshot, and the
+      # Vault. It reads the SAME authority activate-daily-portfolio just ran and records what that
+      # authority decided — including the distinction a page cannot show on its own: a missing
+      # slate is INPUTS_MISSING, never a no-play. It writes only its own receipt path.
+      - name: Write the daily product receipt
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          npx tsx app/scripts/products/build-daily-product-receipts.mjs --now "$NOW" --date "${{ steps.d.outputs.date }}"
+
       - name: Commit if anything changed
         if: github.event.inputs.dry_run != 'true'
         run: |
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add app/public/data/mr-dub/ app/public/data/admin/ || true
+          git add app/public/data/mr-dub/ app/public/data/admin/ data/internal/products/receipts/ || true
           if git diff --cached --quiet; then
             echo "no change — products already current for ${{ steps.d.outputs.date }}"
             exit 0

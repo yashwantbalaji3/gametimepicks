@@ -9,6 +9,18 @@
 import type { MoonshotCandidate } from "./moonshot-lane";
 
 /** Do not activate a Moonshot card if any leg kicks off within this many minutes. */
+/**
+ * ⚠️ THIS MODULE IS NOT THE LIVE ACTIVATION AUTHORITY (documented Program 172 · Release F).
+ *
+ * The band below (+600..+2000) is NOT what decides a real Moonshot lane. The live path is
+ * buildPersistedDailyPortfolio → laneEligibility in src/lib/daily-portfolio/accounting.ts, which
+ * uses MOONSHOT_MIN_COMBINED_ODDS (+700, no upper bound) from world-cup/model-qualified-picks.ts.
+ * The two have silently disagreed; this note records which one actually runs so nobody reads the
+ * dormant band as policy. moonshot-policy.test.mjs pins the divergence, so if either side moves,
+ * the guard fails and the fork must be resolved deliberately rather than drifting further.
+ *
+ * Callers today: tests only. Do not wire this without first reconciling it with the live band.
+ */
 export const ACTIVATION_CUTOFF_MIN = 30;
 /** Moonshot combined-odds activation band. */
 export const MOONSHOT_MIN_COMBINED = 600;
