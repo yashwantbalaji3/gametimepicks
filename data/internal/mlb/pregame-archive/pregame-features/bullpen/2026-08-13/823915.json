@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823915,
   "date": "2026-08-13",
-  "capturedAt": "2026-08-13T03:25:25.110Z",
-  "availableAt": "2026-08-13T03:25:25.110Z",
+  "capturedAt": "2026-08-13T11:44:28.092Z",
+  "availableAt": "2026-08-13T11:44:28.092Z",
   "eventStartTime": "2026-08-14T02:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,35 @@
     "teamId": 119,
     "teamName": "Los Angeles Dodgers",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 36,
+      "relievers": [
+        {
+          "id": 689017,
+          "name": "Landon Knack",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 8,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 9,
-      "pitches": 129,
+      "appearances": 10,
+      "pitches": 165,
       "relievers": [
+        {
+          "id": 689017,
+          "name": "Landon Knack",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 8,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
         {
           "id": 681911,
           "name": "Alex Vesia",
@@ -102,7 +123,13 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 689017,
+        "name": "Landon Knack",
+        "reason": "36 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 158,
@@ -234,7 +261,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-10,2026-08-11,2026-08-12) + feed/live box scores",
-    "capturedAt": "2026-08-13T03:25:25.110Z"
+    "capturedAt": "2026-08-13T11:44:28.092Z"
   },
-  "recordHash": "812c6c5888e2a1c65bfe2919bd0cf32d649a3c730cc98547f89bc2005a5b722e"
+  "recordHash": "af263d04fcd58a709b5ec41062b8a93733bbbc05b6058a91a10ebe815fe23368"
 }
