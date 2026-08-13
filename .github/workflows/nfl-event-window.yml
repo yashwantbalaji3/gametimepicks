@@ -95,6 +95,16 @@ jobs:
             --now "${{ steps.window.outputs.now }}" \
             --lookahead-hours "${{ github.event.inputs.lookahead_hours || 18 }}"
 
+      # P173-A: public-beta forecasts. Runs AFTER the market capture and event assembly so each
+      # forecast is frozen against the inputs that existed pre-kickoff, and never after a start.
+      - name: Generate public-beta NFL forecasts
+        if: steps.window.outputs.events != '0'
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/build-nfl-public-forecasts.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 30
+          node scripts/nfl/build-nfl-public-status.mjs --now "${{ steps.window.outputs.now }}"
+
       - name: Rebuild the NFL admin lane status
         if: steps.window.outputs.events != '0'
         working-directory: app
@@ -108,7 +118,7 @@ jobs:
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/internal/research/odds/nfl/ data/internal/nfl/ app/public/data/nfl/markets/ app/public/data/admin/nfl-lane.json
+          git add data/internal/research/odds/nfl/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json
           if git diff --cached --quiet; then
             echo "nothing changed — no commit"
             exit 0
