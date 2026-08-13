@@ -1,0 +1,139 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-anytime-td-v1-calibration",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-13T06:30:00Z",
+ "engine": {
+  "id": "nfl-td-engine-v1-team-first",
+  "version": 1
+ },
+ "mappingReceipt": "fit 2026-08-13T05:20:00Z on n=1140 train team-games (this file IS the committed calibration receipt the TD engine requires)",
+ "corpusAccounting": [
+  {
+   "season": 2023,
+   "games": 334,
+   "contentHash": "fd64ebd56563d258"
+  },
+  {
+   "season": 2024,
+   "games": 334,
+   "contentHash": "5e8075b215ee74b9"
+  },
+  {
+   "season": 2025,
+   "games": 333,
+   "contentHash": "bf118f6dd4b6b75c"
+  }
+ ],
+ "protocol": {
+  "chain": "Elo cutoff → committed game-sim score means (2k deterministic runs) → committed bridge λ → Poisson team TD → walk-forward scorer shares → engine P(anytime)",
+  "population": "walk-forward scorer share ≥ 0.02 at the FIXED k=0.5 gate AND played (DNP voids excluded exactly as settlement voids them)",
+  "tdShrinkSelection": "scorerTd shrink selected on 2024 walk-forward logLoss (2023 burn-in) because TD shares regress far harder than opportunity shares; tested ONCE on 2025",
+  "heldOut": "2025 REG+POST; shares/strength walk-forward; nothing in the chain sees the game being scored"
+ },
+ "shareParams": {
+  "halfLifeGames": 4,
+  "boundaryDecay": 0.25,
+  "tdShrink": 0.5,
+  "poolFlattenBeta": 0.5,
+  "selectionTop5": [
+   {
+    "k": 0.5,
+    "beta": 0.5,
+    "logLoss": 0.563,
+    "n": 3459
+   },
+   {
+    "k": 0.5,
+    "beta": 0.25,
+    "logLoss": 0.5648,
+    "n": 3459
+   },
+   {
+    "k": 0.5,
+    "beta": 0.75,
+    "logLoss": 0.5681,
+    "n": 3459
+   },
+   {
+    "k": 2,
+    "beta": 0.5,
+    "logLoss": 0.5699,
+    "n": 3459
+   },
+   {
+    "k": 2,
+    "beta": 0.25,
+    "logLoss": 0.572,
+    "n": 3459
+   }
+  ],
+  "selectionWorst": {
+   "k": 4,
+   "beta": 0,
+   "logLoss": 0.6101,
+   "n": 3459
+  }
+ },
+ "consumerContract": "board builders must apply the SAME pool flattening to the eligible pool's raw decayed shares (s' = (1−β)s + β·S/n) — Σ shares and the residual are preserved exactly, so validateAllocation still holds",
+ "heldOut2025": {
+  "n": 3570,
+  "positives": 903,
+  "classBalance": 0.2529,
+  "refusedSims": 0,
+  "model": {
+   "logLoss": 0.5492,
+   "brier": 0.183
+  },
+  "baselines": {
+   "constantLambdaSameShares": {
+    "logLoss": 0.5525,
+    "brier": 0.1844
+   },
+   "trainBaseRate": {
+    "logLoss": 0.5657,
+    "brier": 0.189,
+    "rate": 0.2618,
+    "trainN": 6403
+   }
+  },
+  "reliability": [
+   {
+    "bin": "0.1–0.2",
+    "n": 1022,
+    "meanPredicted": 0.166,
+    "actualRate": 0.1575
+   },
+   {
+    "bin": "0.2–0.3",
+    "n": 1445,
+    "meanPredicted": 0.2456,
+    "actualRate": 0.2512
+   },
+   {
+    "bin": "0.3–0.4",
+    "n": 732,
+    "meanPredicted": 0.3424,
+    "actualRate": 0.3347
+   },
+   {
+    "bin": "0.4–0.5",
+    "n": 280,
+    "meanPredicted": 0.441,
+    "actualRate": 0.3607
+   },
+   {
+    "bin": "0.5–0.6",
+    "n": 67,
+    "meanPredicted": 0.5301,
+    "actualRate": 0.4179
+   }
+  ],
+  "ece": 0.0148
+ },
+ "honesty": [
+  "calibration conditions on having played — it grades the market the way the market settles (DNP = void), and says so",
+  "first-TD / last-TD / 2+ TD remain DISABLED research surfaces with no calibration receipt of their own",
+  "preseason boards remain MODELLED_NOT_PUBLISHABLE regardless of this receipt: participation and price gates are separate"
+ ]
+}

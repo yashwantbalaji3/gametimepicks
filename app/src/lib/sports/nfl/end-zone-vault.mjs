@@ -95,6 +95,25 @@ export function buildVault({ boards, date, nowIso, jointReceipts = {} }) {
   };
 }
 
+/**
+ * Correction lineage (Program 171 · Release C): a committed entry's REASONS can go stale (a
+ * blocker resolves after the entry was written) but the entry never mutates — corrections
+ * append to the entry's `corrections[]` with their own timestamps. State, legs, and the
+ * original reasons are untouchable; unknown dates refuse.
+ */
+export function appendVaultCorrection(ledger, { date, at, note }) {
+  const errors = [];
+  if (ledger?.product !== "end-zone-vault") errors.push("wrong ledger — the Vault never writes into another product's record");
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) errors.push("correction needs the entry date");
+  if (!at || !Number.isFinite(Date.parse(at))) errors.push("correction needs its own timestamp");
+  if (!note || String(note).trim().length < 10) errors.push("correction needs a substantive note (≥10 chars)");
+  const idx = (ledger?.entries ?? []).findIndex((e) => e.date === date);
+  if (idx === -1) errors.push(`no entry exists for ${date} — a correction can only annotate a real entry`);
+  if (errors.length) return { ok: false, errors };
+  const entries = ledger.entries.map((e, i) => (i === idx ? { ...e, corrections: [...(e.corrections ?? []), { at, note }] } : e));
+  return { ok: true, ledger: { ...ledger, entries } };
+}
+
 /** Vault-ledger discipline: separate, versioned, append-only, never blended. */
 export function validateVaultLedgerAppend(ledger, entry) {
   const errors = [];

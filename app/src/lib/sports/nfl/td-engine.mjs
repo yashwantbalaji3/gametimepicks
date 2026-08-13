@@ -62,7 +62,9 @@ export function buildScorerBoard({ event, teamAbbr, teamSim, mapping, pool, role
   const base = { version: NFL_TD_ENGINE_VERSION, engineId: NFL_TD_ENGINE_ID, providerEventId: event?.providerEventId ?? null, teamAbbr, ranAt: nowIso, market: "ANYTIME_TOUCHDOWN" };
   if (teamSim?.state !== "SIMULATED") return { ...base, state: "REFUSED", reason: "no team simulation — players are allocated from team scoring, never modelled free-floating" };
 
-  const expectedPoints = teamSim.scores[teamAbbr === event?.home?.abbr ? "home" : "away"]?.mean;
+  const side = teamAbbr === event?.home?.abbr ? "home" : teamAbbr === event?.away?.abbr ? "away" : null;
+  if (!side) return { ...base, state: "REFUSED", reason: `teamAbbr ${teamAbbr} belongs to neither side of ${event?.providerEventId ?? "the event"} — a board is never built for a spectator team (P171-C guard)` };
+  const expectedPoints = teamSim.scores[side]?.mean;
   const teamTd = teamTdDistribution({ expectedPoints, mapping });
   if (teamTd.state !== "OK") return { ...base, state: "REFUSED", reason: teamTd.reason };
 
@@ -119,6 +121,41 @@ export function settleAnytimeTd({ playerId, officialScorers, playerStatus }) {
   if (scored) return { outcome: "WIN", reason: "official record credits this player as the scorer" };
   if (threwOnly) return { outcome: "LOSS", reason: "passing-TD credit only — the passer is not the scoring player for anytime-TD" };
   return { outcome: "LOSS", reason: "no official scoring credit" };
+}
+
+/**
+ * Pool flattening (Program 171 · Release C): blend each eligible-pool share toward the pool
+ * mean, s' = (1−β)s + β·S/n. Σ shares is preserved EXACTLY (so the residual and
+ * validateAllocation's reconciliation are untouched) — the calibration receipt selected β on
+ * train because raw decayed TD shares over-concentrate on stars.
+ */
+export function flattenPoolShares(shares, beta) {
+  if (!Array.isArray(shares) || !shares.length) return [];
+  if (!(beta > 0)) return shares.slice();
+  const mean = shares.reduce((a, s) => a + s, 0) / shares.length;
+  return shares.map((s) => (1 - beta) * s + beta * mean);
+}
+
+/**
+ * Load the committed anytime-TD calibration receipt (Program 171 · Release C). Supplies the
+ * `calibration` gate evidence plus the pool-flattening β consumers must apply. Null keeps the
+ * engine's refusal path intact.
+ */
+export function loadTdCalibrationReceipt({ fs, path, cwd }) {
+  try {
+    const p = path.join(cwd, "..", "data/internal/research/nfl/reports/anytime-td-v1-calibration.json");
+    const r = JSON.parse(fs.readFileSync(p, "utf8"));
+    if (typeof r?.heldOut2025?.ece !== "number" || typeof r?.shareParams?.poolFlattenBeta !== "number") return null;
+    return {
+      receipt: `${r.artifact}@${r.generatedAt}`,
+      ece: r.heldOut2025.ece,
+      logLoss: r.heldOut2025.model.logLoss,
+      brier: r.heldOut2025.model.brier,
+      n: r.heldOut2025.n,
+      poolFlattenBeta: r.shareParams.poolFlattenBeta,
+      shareParams: r.shareParams,
+    };
+  } catch { return null; }
 }
 
 /**
