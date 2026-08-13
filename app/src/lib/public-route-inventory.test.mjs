@@ -147,15 +147,30 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   assert.notEqual(capabilityState("nfl"), "FULL_MODEL", "nfl is not FULL_MODEL — the hub is schedule/honesty context only");
   const nflHub = read("src/app/nfl/page.tsx");
   assert.doesNotMatch(nflHub, /ClientRedirect/, "/nfl is a real page now (P169-J)");
-  assert.match(nflHub, /No NFL predictions, picks, or\s+simulations are published/, "the no-model line is load-bearing copy");
+  // P173: the founder authorised a two-tier launch, so the old blanket "no predictions" line is
+  // now FALSE and was replaced rather than left to contradict the page. The invariant it protected
+  // — never implying a proven or market-beating model — is asserted directly instead.
+  assert.doesNotMatch(nflHub, /No NFL predictions, picks, or\s+simulations are published/, "that line is no longer true and must not linger");
+  assert.match(nflHub, /experimental\s+preseason simulations/i, "the page says plainly what it publishes");
+  assert.match(nflHub, /not a claim to beat the sportsbook market/i, "and what it does not claim");
+  assert.match(nflHub, /coin flip/i, "the honest limit is in the lead copy, not buried");
+  assert.doesNotMatch(nflHub, /\b(edge|lock|best bet|profitable|guaranteed)\b/i, "no validated-tier vocabulary");
   // P172-C: the literal "PRIVATE_ONLY" moved out of typed prose into the DERIVED status artifact.
   // The invariant is unchanged and now checked against the artifact the page actually renders:
   // the team-simulation layer may never claim a published NFL model.
   {
     const st = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/model-status.json"), "utf8")).teamSimulation;
-    assert.ok(["PRIVATE_ONLY", "MODEL_ABSTAINS", "REGULAR_SEASON_ELIGIBLE", "UNKNOWN"].includes(st.state),
-      `team simulation state ${st.state} outside the non-published set`);
-    if (st.state !== "LIVE") assert.ok(st.nextGate || st.state === "UNKNOWN", "a held layer names the gate that would release it");
+    // P173 two-tier contract: PUBLIC_EXPERIMENTAL joins the allowed set by founder decision, but
+    // it is NOT the validated tier — it must still name the gate it has not cleared and must
+    // carry its honest limit in the same breath as the claim.
+    assert.ok(["PRIVATE_ONLY", "MODEL_ABSTAINS", "REGULAR_SEASON_ELIGIBLE", "PUBLIC_EXPERIMENTAL", "UNKNOWN"].includes(st.state),
+      `team simulation state ${st.state} outside the allowed set`);
+    if (st.state !== "LIVE") assert.ok(st.nextGate || st.state === "UNKNOWN", "a held or experimental layer names the gate that would release it");
+    if (st.state === "PUBLIC_EXPERIMENTAL") {
+      assert.match(st.detail, /coin flip/i, "an experimental claim carries its honest limit inline");
+      assert.match(st.detail, /no claim to beat/i);
+      assert.match(st.nextGate, /validated pick/i, "and names the stronger tier it has not reached");
+    }
   }
   assert.match(nflHub, /committed/i, "data provenance is stated");
   // P172-C: layer states are DERIVED from committed evaluation receipts, not typed prose — the

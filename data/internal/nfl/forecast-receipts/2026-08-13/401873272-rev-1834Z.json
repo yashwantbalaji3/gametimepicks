@@ -1,0 +1,76 @@
+{
+ "providerEventId": "401873272",
+ "canonicalEventId": "nfl-401873272",
+ "matchup": "DET @ CIN",
+ "home": {
+  "abbr": "CIN",
+  "name": "Cincinnati Bengals"
+ },
+ "away": {
+  "abbr": "DET",
+  "name": "Detroit Lions"
+ },
+ "kickoffUtc": "2026-08-13T23:00Z",
+ "seasonType": 1,
+ "week": 2,
+ "venue": "Paycor Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-preseason-public-beta-v1",
+  "version": 1,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "4cce8c18e4c93f7f",
+  "simulations": 10000
+ },
+ "generatedAt": "2026-08-13T18:34:29Z",
+ "evidence": {
+  "schedule": "2026-08-13T14:14:22Z",
+  "strengthCutoff": "2026-08-13T18:34:29Z"
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 18,
+   "away": 19
+  },
+  "winProbability": {
+   "home": 0.4793,
+   "away": 0.5207,
+   "tieMass": 0.0312,
+   "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+  },
+  "margin": {
+   "median": 0,
+   "p10": -17,
+   "p90": 16
+  },
+  "total": {
+   "median": 37,
+   "p10": 23,
+   "p90": 51
+  },
+  "scoreRange": {
+   "homeP10": 8,
+   "homeP90": 30,
+   "awayP10": 8,
+   "awayP90": 30
+  }
+ },
+ "marketComparison": {
+  "state": "MARKET_VIEW",
+  "capturedAt": "2026-08-13T15:31:35Z",
+  "books": 11,
+  "marketHomeWinPct": 0.713551,
+  "marketSpreadHome": -7,
+  "marketTotal": 37.5,
+  "modelVsMarketTotal": -0.5,
+  "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401873272",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market.",
+ "revisionOf": "401873272.json",
+ "priorInputHash": "a6515f59dfb45c52"
+}

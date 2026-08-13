@@ -1,0 +1,74 @@
+{
+ "providerEventId": "401874392",
+ "canonicalEventId": "nfl-401874392",
+ "matchup": "TEN @ SF",
+ "home": {
+  "abbr": "SF",
+  "name": "San Francisco 49ers"
+ },
+ "away": {
+  "abbr": "TEN",
+  "name": "Tennessee Titans"
+ },
+ "kickoffUtc": "2026-08-14T01:00Z",
+ "seasonType": 1,
+ "week": 2,
+ "venue": "Levi's Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-preseason-public-beta-v1",
+  "version": 1,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "e06c474e8922dd32",
+  "simulations": 10000
+ },
+ "generatedAt": "2026-08-13T18:33:15Z",
+ "evidence": {
+  "schedule": "2026-08-13T14:14:22Z",
+  "strengthCutoff": "2026-08-13T18:33:15Z"
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 17,
+   "away": 21
+  },
+  "winProbability": {
+   "home": 0.5,
+   "away": 0.5,
+   "tieMass": 0.0294,
+   "calibration": "Held at 50% by design: on a full held-out preseason this model picked winners no better than a coin flip, so it does not claim a side."
+  },
+  "margin": {
+   "median": -4,
+   "p10": -20,
+   "p90": 13
+  },
+  "total": {
+   "median": 37,
+   "p10": 23,
+   "p90": 52
+  },
+  "scoreRange": {
+   "homeP10": 6,
+   "homeP90": 28,
+   "awayP10": 10,
+   "awayP90": 32
+  }
+ },
+ "marketComparison": {
+  "state": "MARKET_VIEW",
+  "capturedAt": "2026-08-13T15:31:35Z",
+  "books": 11,
+  "marketHomeWinPct": 0.320755,
+  "marketSpreadHome": 6,
+  "marketTotal": 39.5,
+  "modelVsMarketTotal": -2.5,
+  "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401874392",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+}

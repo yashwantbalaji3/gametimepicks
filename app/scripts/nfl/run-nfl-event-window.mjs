@@ -61,7 +61,16 @@ const publicMarkets = readMaybe(path.join(APP, "public/data/nfl/markets/latest.j
 const snapFiles = fs.existsSync(path.join(ROOT, "data/internal/research/odds/nfl"))
   ? fs.readdirSync(path.join(ROOT, "data/internal/research/odds/nfl")).filter((f) => f.startsWith("capture-")).sort()
   : [];
-const oddsSnapshot = snapFiles.length ? read(path.join(ROOT, "data/internal/research/odds/nfl", snapFiles[snapFiles.length - 1])) : null;
+// Pick the newest snapshot that actually CARRIES evidence. Taking the newest unconditionally let a
+// zero-row capture (the 2026-08-13T16:03Z incident) erase the market state and the player-market
+// probe from every downstream artifact — an empty file is not more current than a full one.
+const oddsSnapshot = (() => {
+  for (let i = snapFiles.length - 1; i >= 0; i -= 1) {
+    const s = read(path.join(ROOT, "data/internal/research/odds/nfl", snapFiles[i]));
+    if (s && ((s.rows?.length ?? 0) > 0 || s.propProbe?.state === "PROBED")) return s;
+  }
+  return null;
+})();
 
 const fit = { modelId: modelReceipt.modelId, version: modelReceipt.modelVersion, method: "ANALYTICAL_NORMAL_HEADS_OVER_CUTOFF_ELO", params: modelReceipt.fitParams };
 // the registry consumes the WHOLE roster artifact as one capture (participation.test's shape)

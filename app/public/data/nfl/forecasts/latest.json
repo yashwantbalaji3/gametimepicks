@@ -1,0 +1,689 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-public-forecasts",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-08-13T18:34:29Z",
+ "date": "2026-08-13",
+ "model": {
+  "id": "nfl-preseason-public-beta-v1",
+  "version": 1,
+  "launchState": "PUBLIC_EXPERIMENTAL"
+ },
+ "modelCard": {
+  "what": "An early, experimental simulation of NFL preseason games. It runs 10,000 game simulations and reports the range of scores it sees.",
+  "honestLimit": "Tested on a full held-out preseason, this model picked winners no better than a coin flip. Its win percentages are therefore deliberately pulled close to 50% — the widest it will ever go is 45.3%–50.6%.",
+  "whatItIsGoodFor": "Seeing a plausible score range and how it compares with the sportsbook market. It is not a betting recommendation and has not been shown to beat the market.",
+  "whyPublishItAtAll": "Publishing it with its results tracked is how it earns — or fails to earn — a stronger status over time."
+ },
+ "eventCount": 9,
+ "forecasts": [
+  {
+   "providerEventId": "401873272",
+   "canonicalEventId": "nfl-401873272",
+   "matchup": "DET @ CIN",
+   "home": {
+    "abbr": "CIN",
+    "name": "Cincinnati Bengals"
+   },
+   "away": {
+    "abbr": "DET",
+    "name": "Detroit Lions"
+   },
+   "kickoffUtc": "2026-08-13T23:00Z",
+   "seasonType": 1,
+   "week": 2,
+   "venue": "Paycor Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "4cce8c18e4c93f7f",
+    "simulations": 10000
+   },
+   "generatedAt": "2026-08-13T18:34:29Z",
+   "evidence": {
+    "schedule": "2026-08-13T14:14:22Z",
+    "strengthCutoff": "2026-08-13T18:34:29Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4793,
+     "away": 0.5207,
+     "tieMass": 0.0312,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": 0,
+     "p10": -17,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 51
+    },
+    "scoreRange": {
+     "homeP10": 8,
+     "homeP90": 30,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "MARKET_VIEW",
+    "capturedAt": "2026-08-13T15:31:35Z",
+    "books": 11,
+    "marketHomeWinPct": 0.713551,
+    "marketSpreadHome": -7,
+    "marketTotal": 37.5,
+    "modelVsMarketTotal": -0.5,
+    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873272",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873275",
+   "canonicalEventId": "nfl-401873275",
+   "matchup": "GB @ PIT",
+   "home": {
+    "abbr": "PIT",
+    "name": "Pittsburgh Steelers"
+   },
+   "away": {
+    "abbr": "GB",
+    "name": "Green Bay Packers"
+   },
+   "kickoffUtc": "2026-08-13T23:00Z",
+   "seasonType": 1,
+   "week": 2,
+   "venue": "Acrisure Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "06341629fd5d632b",
+    "simulations": 10000
+   },
+   "generatedAt": "2026-08-13T18:34:29Z",
+   "evidence": {
+    "schedule": "2026-08-13T14:14:22Z",
+    "strengthCutoff": "2026-08-13T18:34:29Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4624,
+     "away": 0.5376,
+     "tieMass": 0.0308,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": -1,
+     "p10": -17,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 52
+    },
+    "scoreRange": {
+     "homeP10": 7,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "MARKET_VIEW",
+    "capturedAt": "2026-08-13T15:31:35Z",
+    "books": 11,
+    "marketHomeWinPct": 0.403727,
+    "marketSpreadHome": 3,
+    "marketTotal": 40.5,
+    "modelVsMarketTotal": -3.5,
+    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873275",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873273",
+   "canonicalEventId": "nfl-401873273",
+   "matchup": "IND @ NE",
+   "home": {
+    "abbr": "NE",
+    "name": "New England Patriots"
+   },
+   "away": {
+    "abbr": "IND",
+    "name": "Indianapolis Colts"
+   },
+   "kickoffUtc": "2026-08-13T23:30Z",
+   "seasonType": 1,
+   "week": 2,
+   "venue": "Gillette Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "b4e760dc54babcb5",
+    "simulations": 10000
+   },
+   "generatedAt": "2026-08-13T18:34:29Z",
+   "evidence": {
+    "schedule": "2026-08-13T14:14:22Z",
+    "strengthCutoff": "2026-08-13T18:34:29Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4592,
+     "away": 0.5408,
+     "tieMass": 0.0298,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": -1,
+     "p10": -18,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 52
+    },
+    "scoreRange": {
+     "homeP10": 7,
+     "homeP90": 30,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "MARKET_VIEW",
+    "capturedAt": "2026-08-13T15:31:35Z",
+    "books": 11,
+    "marketHomeWinPct": 0.411788,
+    "marketSpreadHome": 2.5,
+    "marketTotal": 37.5,
+    "modelVsMarketTotal": -0.5,
+    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873273",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873640",
+   "canonicalEventId": "nfl-401873640",
+   "matchup": "ARI @ LV",
+   "home": {
+    "abbr": "LV",
+    "name": "Las Vegas Raiders"
+   },
+   "away": {
+    "abbr": "ARI",
+    "name": "Arizona Cardinals"
+   },
+   "kickoffUtc": "2026-08-14T00:00Z",
+   "seasonType": 1,
+   "week": 2,
+   "venue": "Allegiant Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "c253358ed5faa879",
+    "simulations": 10000
+   },
+   "generatedAt": "2026-08-13T18:34:29Z",
+   "evidence": {
+    "schedule": "2026-08-13T14:14:22Z",
+    "strengthCutoff": "2026-08-13T18:34:29Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4628,
+     "away": 0.5372,
+     "tieMass": 0.0296,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": -1,
+     "p10": -17,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 52
+    },
+    "scoreRange": {
+     "homeP10": 7,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "MARKET_VIEW",
+    "capturedAt": "2026-08-13T15:31:35Z",
+    "books": 11,
+    "marketHomeWinPct": 0.562044,
+    "marketSpreadHome": -2,
+    "marketTotal": 42.5,
+    "modelVsMarketTotal": -5.5,
+    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873640",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873274",
+   "canonicalEventId": "nfl-401873274",
+   "matchup": "LAC @ HOU",
+   "home": {
+    "abbr": "HOU",
+    "name": "Houston Texans"
+   },
+   "away": {
+    "abbr": "LAC",
+    "name": "Los Angeles Chargers"
+   },
+   "kickoffUtc": "2026-08-14T00:00Z",
+   "seasonType": 1,
+   "week": 2,
+   "venue": "NRG Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "328fe3ed949a4c1d",
+    "simulations": 10000
+   },
+   "generatedAt": "2026-08-13T18:34:29Z",
+   "evidence": {
+    "schedule": "2026-08-13T14:14:22Z",
+    "strengthCutoff": "2026-08-13T18:34:29Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4565,
+     "away": 0.5435,
+     "tieMass": 0.0329,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": -1,
+     "p10": -17,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 52
+    },
+    "scoreRange": {
+     "homeP10": 7,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "MARKET_VIEW",
+    "capturedAt": "2026-08-13T15:31:35Z",
+    "books": 11,
+    "marketHomeWinPct": 0.489166,
+    "marketSpreadHome": 1,
+    "marketTotal": 36.5,
+    "modelVsMarketTotal": 0.5,
+    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873274",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401874392",
+   "canonicalEventId": "nfl-401874392",
+   "matchup": "TEN @ SF",
+   "home": {
+    "abbr": "SF",
+    "name": "San Francisco 49ers"
+   },
+   "away": {
+    "abbr": "TEN",
+    "name": "Tennessee Titans"
+   },
+   "kickoffUtc": "2026-08-14T01:00Z",
+   "seasonType": 1,
+   "week": 2,
+   "venue": "Levi's Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "68d0f27724306a96",
+    "simulations": 10000
+   },
+   "generatedAt": "2026-08-13T18:34:29Z",
+   "evidence": {
+    "schedule": "2026-08-13T14:14:22Z",
+    "strengthCutoff": "2026-08-13T18:34:29Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4395,
+     "away": 0.5605,
+     "tieMass": 0.0279,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": -2,
+     "p10": -18,
+     "p90": 15
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 51
+    },
+    "scoreRange": {
+     "homeP10": 7,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "MARKET_VIEW",
+    "capturedAt": "2026-08-13T15:31:35Z",
+    "books": 11,
+    "marketHomeWinPct": 0.320755,
+    "marketSpreadHome": 6,
+    "marketTotal": 39.5,
+    "modelVsMarketTotal": -2.5,
+    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401874392",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873278",
+   "canonicalEventId": "nfl-401873278",
+   "matchup": "DEN @ ATL",
+   "home": {
+    "abbr": "ATL",
+    "name": "Atlanta Falcons"
+   },
+   "away": {
+    "abbr": "DEN",
+    "name": "Denver Broncos"
+   },
+   "kickoffUtc": "2026-08-14T23:00Z",
+   "seasonType": 1,
+   "week": 2,
+   "venue": "Mercedes-Benz Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "b9cf8be9dd10c575",
+    "simulations": 10000
+   },
+   "generatedAt": "2026-08-13T18:34:29Z",
+   "evidence": {
+    "schedule": "2026-08-13T14:14:22Z",
+    "strengthCutoff": "2026-08-13T18:34:29Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 19,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4854,
+     "away": 0.5146,
+     "tieMass": 0.0296,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": 0,
+     "p10": -17,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 51
+    },
+    "scoreRange": {
+     "homeP10": 8,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "MARKET_VIEW",
+    "capturedAt": "2026-08-13T15:31:35Z",
+    "books": 11,
+    "marketHomeWinPct": 0.357143,
+    "marketSpreadHome": 4,
+    "marketTotal": 39.5,
+    "modelVsMarketTotal": -2.5,
+    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873278",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873276",
+   "canonicalEventId": "nfl-401873276",
+   "matchup": "TB @ NYJ",
+   "home": {
+    "abbr": "NYJ",
+    "name": "New York Jets"
+   },
+   "away": {
+    "abbr": "TB",
+    "name": "Tampa Bay Buccaneers"
+   },
+   "kickoffUtc": "2026-08-14T23:00Z",
+   "seasonType": 1,
+   "week": 2,
+   "venue": "MetLife Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "4105acd2b77da8cf",
+    "simulations": 10000
+   },
+   "generatedAt": "2026-08-13T18:34:29Z",
+   "evidence": {
+    "schedule": "2026-08-13T14:14:22Z",
+    "strengthCutoff": "2026-08-13T18:34:29Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 19,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4798,
+     "away": 0.5202,
+     "tieMass": 0.0304,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": 0,
+     "p10": -16,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 24,
+     "p90": 52
+    },
+    "scoreRange": {
+     "homeP10": 8,
+     "homeP90": 30,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "MARKET_VIEW",
+    "capturedAt": "2026-08-13T15:31:35Z",
+    "books": 11,
+    "marketHomeWinPct": 0.694656,
+    "marketSpreadHome": -6,
+    "marketTotal": 35.5,
+    "modelVsMarketTotal": 1.5,
+    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873276",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873277",
+   "canonicalEventId": "nfl-401873277",
+   "matchup": "MIA @ WSH",
+   "home": {
+    "abbr": "WSH",
+    "name": "Washington Commanders"
+   },
+   "away": {
+    "abbr": "MIA",
+    "name": "Miami Dolphins"
+   },
+   "kickoffUtc": "2026-08-14T23:00Z",
+   "seasonType": 1,
+   "week": 2,
+   "venue": "Northwest Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "1c9f7175e1fb499e",
+    "simulations": 10000
+   },
+   "generatedAt": "2026-08-13T18:34:29Z",
+   "evidence": {
+    "schedule": "2026-08-13T14:14:22Z",
+    "strengthCutoff": "2026-08-13T18:34:29Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4684,
+     "away": 0.5316,
+     "tieMass": 0.0306,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": -1,
+     "p10": -17,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 52
+    },
+    "scoreRange": {
+     "homeP10": 7,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "MARKET_VIEW",
+    "capturedAt": "2026-08-13T15:31:35Z",
+    "books": 11,
+    "marketHomeWinPct": 0.392738,
+    "marketSpreadHome": 3.5,
+    "marketTotal": 36,
+    "modelVsMarketTotal": 1,
+    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873277",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  }
+ ],
+ "refused": [],
+ "disclaimer": "Experimental preseason forecasts. Educational and paper-only. This model has not been shown to beat the sportsbook market."
+}

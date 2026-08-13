@@ -79,9 +79,17 @@ test("corruption fails the shared contract: late stamps, blended reads, broken t
 });
 
 test("anytime-TD family carries the NO_MARKET price truth from the authorized probe", () => {
-  const withBoards = artifacts.filter((a) => a.artifact.families.anytimeTd.state === "MODELLED_NOT_PUBLISHABLE");
-  assert.ok(withBoards.length >= 6);
-  for (const { artifact } of withBoards) {
+  // Snapshots are APPEND-ONLY, so earlier ones legitimately record what was known at the time —
+  // including AUTH_REQUIRED from before the probe ran. The claim to police is CURRENT truth: the
+  // newest snapshot per event must carry the probe's finding.
+  const newest = new Map();
+  for (const x of artifacts) {
+    const k = `${x.date}/${x.artifact.providerEventId}`;
+    if (!newest.has(k) || x.file > newest.get(k).file) newest.set(k, x);
+  }
+  const boards = [...newest.values()].filter((a) => a.artifact.families.anytimeTd.state === "MODELLED_NOT_PUBLISHABLE");
+  assert.ok(boards.length >= 6, `expected current boards, found ${boards.length}`);
+  for (const { artifact } of boards) {
     assert.match(artifact.families.anytimeTd.scorerPriceState, /NO_MARKET/, "the probe proved absence — AUTH_REQUIRED would be stale language");
   }
 });

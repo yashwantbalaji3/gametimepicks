@@ -1,0 +1,76 @@
+{
+ "providerEventId": "401873273",
+ "canonicalEventId": "nfl-401873273",
+ "matchup": "IND @ NE",
+ "home": {
+  "abbr": "NE",
+  "name": "New England Patriots"
+ },
+ "away": {
+  "abbr": "IND",
+  "name": "Indianapolis Colts"
+ },
+ "kickoffUtc": "2026-08-13T23:30Z",
+ "seasonType": 1,
+ "week": 2,
+ "venue": "Gillette Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-preseason-public-beta-v1",
+  "version": 1,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "b4e760dc54babcb5",
+  "simulations": 10000
+ },
+ "generatedAt": "2026-08-13T18:34:29Z",
+ "evidence": {
+  "schedule": "2026-08-13T14:14:22Z",
+  "strengthCutoff": "2026-08-13T18:34:29Z"
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 18,
+   "away": 19
+  },
+  "winProbability": {
+   "home": 0.4592,
+   "away": 0.5408,
+   "tieMass": 0.0298,
+   "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+  },
+  "margin": {
+   "median": -1,
+   "p10": -18,
+   "p90": 16
+  },
+  "total": {
+   "median": 37,
+   "p10": 23,
+   "p90": 52
+  },
+  "scoreRange": {
+   "homeP10": 7,
+   "homeP90": 30,
+   "awayP10": 8,
+   "awayP90": 30
+  }
+ },
+ "marketComparison": {
+  "state": "MARKET_VIEW",
+  "capturedAt": "2026-08-13T15:31:35Z",
+  "books": 11,
+  "marketHomeWinPct": 0.411788,
+  "marketSpreadHome": 2.5,
+  "marketTotal": 37.5,
+  "modelVsMarketTotal": -0.5,
+  "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401873273",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market.",
+ "revisionOf": "401873273.json",
+ "priorInputHash": "52912ac243ecc64c"
+}

@@ -1,0 +1,179 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-public-beta-v1-calibration",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-13T18:34:01Z",
+ "modelId": "nfl-preseason-public-beta-v1",
+ "modelVersion": 1,
+ "launchState": "PUBLIC_EXPERIMENTAL",
+ "derivedFrom": {
+  "modelId": "nfl-preseason-v1-score-distribution",
+  "evaluation": "reports/preseason-model-v1-evaluation.json"
+ },
+ "protocol": {
+  "operations": "TWO preregistered calibrations only — winner shrinkage toward 0.5, and interval inflation to nominal coverage. No head was refit; no new feature was added.",
+  "fit": "2023-24 preseason",
+  "verify": "2025 preseason, held out, scored once",
+  "whyThisCannotInflateConfidence": "shrinkage is monotone toward 0.5 so ordering is unchanged and every probability moves closer to a coin; inflation only widens intervals. Neither operation can make a claim stronger."
+ },
+ "calibration": {
+  "signalShrinkLambda": 0.25,
+  "shrinkAppliesTo": "the Elo-driven term of the margin mean (NOT the output probability) — so win %, projected score, margin and total all remain derivable from one distribution",
+  "calibratedMarginMeanFormula": "homeAdvantage(-0.6481) + 0.25 × marginSlope(-0.017442) × eloDiff",
+  "marginSigmaInflation": 1,
+  "totalSigmaInflation": 1,
+  "sigmaMarginCalibrated": 12.9375,
+  "sigmaTotalCalibrated": 11.1501,
+  "fitOn": "2023-24 preseason only",
+  "intervalMethod": "leave-one-season-out across 2 train seasons — an in-sample fit is circular here because σ is itself the train residual SD",
+  "losoCoverageAtChosen": {
+   "margin": 0.8061,
+   "total": 0.7959
+  }
+ },
+ "shrinkCurve": [
+  {
+   "lambda": 0,
+   "trainLogLoss": 0.69521
+  },
+  {
+   "lambda": 0.05,
+   "trainLogLoss": 0.69518
+  },
+  {
+   "lambda": 0.1,
+   "trainLogLoss": 0.69516
+  },
+  {
+   "lambda": 0.15,
+   "trainLogLoss": 0.69514
+  },
+  {
+   "lambda": 0.2,
+   "trainLogLoss": 0.69513
+  },
+  {
+   "lambda": 0.25,
+   "trainLogLoss": 0.69512
+  },
+  {
+   "lambda": 0.3,
+   "trainLogLoss": 0.69512
+  },
+  {
+   "lambda": 0.35,
+   "trainLogLoss": 0.69512
+  },
+  {
+   "lambda": 0.4,
+   "trainLogLoss": 0.69513
+  },
+  {
+   "lambda": 0.45,
+   "trainLogLoss": 0.69514
+  },
+  {
+   "lambda": 0.5,
+   "trainLogLoss": 0.69516
+  },
+  {
+   "lambda": 0.55,
+   "trainLogLoss": 0.69519
+  },
+  {
+   "lambda": 0.6,
+   "trainLogLoss": 0.69522
+  },
+  {
+   "lambda": 0.65,
+   "trainLogLoss": 0.69526
+  },
+  {
+   "lambda": 0.7,
+   "trainLogLoss": 0.6953
+  },
+  {
+   "lambda": 0.75,
+   "trainLogLoss": 0.69534
+  },
+  {
+   "lambda": 0.8,
+   "trainLogLoss": 0.69539
+  },
+  {
+   "lambda": 0.85,
+   "trainLogLoss": 0.69545
+  },
+  {
+   "lambda": 0.9,
+   "trainLogLoss": 0.69551
+  },
+  {
+   "lambda": 0.95,
+   "trainLogLoss": 0.69558
+  },
+  {
+   "lambda": 1,
+   "trainLogLoss": 0.69566
+  }
+ ],
+ "heldOut2025": {
+  "winner": {
+   "nDecisive": 45,
+   "raw": {
+    "logLoss": 0.6933
+   },
+   "calibrated": {
+    "logLoss": 0.6919
+   },
+   "coin": 0.6931,
+   "publishedSpread": {
+    "min": 45.3,
+    "max": 50.6,
+    "note": "the full range of win percentages this calibration can ever publish"
+   }
+  },
+  "margin": {
+   "n": 48,
+   "coverage80Raw": 0.6875,
+   "coverage80Calibrated": 0.6875,
+   "mae": 11.872
+  },
+  "total": {
+   "n": 48,
+   "coverage80Raw": 0.7708,
+   "coverage80Calibrated": 0.7708,
+   "mae": 8.286
+  }
+ },
+ "priorVerdictPreserved": {
+  "winner": "ABSTAIN",
+  "total": "RESEARCH_ONLY",
+  "margin": "RESEARCH_ONLY",
+  "winnerLogLoss": 0.6933,
+  "coin": 0.6931,
+  "note": "these remain the boundary for VALIDATED_PICK; PUBLIC_EXPERIMENTAL does not clear them and never claims to"
+ },
+ "intervalFinding": {
+  "losoCoverage": {
+   "margin": 0.8061,
+   "total": 0.7959
+  },
+  "heldOut2025Coverage": {
+   "margin": 0.6875,
+   "total": 0.7708
+  },
+  "chosenInflation": {
+   "margin": 1,
+   "total": 1
+  },
+  "reading": "Leave-one-season-out coverage sits at ~0.80 for both heads, so the interval WIDTHS are not systematically too narrow — the 0.688 margin coverage seen on 2025 is one season landing wider than the model expected (n=48; roughly a 1.9σ deviation), not a calibration defect. Inflating sigma until 2025 covered would be fitting the held-out season, which the protocol forbids. k=1.00 therefore stands and the 2025 shortfall is published as a limitation rather than tuned away."
+ },
+ "honesty": [
+  "this model does NOT beat the market and does not claim to — it is published as an experiment with its results tracked",
+  "interval width was NOT inflated to make the held-out season look covered: leave-season-out says the width is right, and tuning to the test set is the one thing the protocol forbids",
+  "the winner head has no measurable preseason skill; shrinkage is the honest response and the published spread of win percentages shows exactly how little the model is willing to say",
+  "interval widening is a humility operation: it admits more uncertainty and can never sharpen a forecast",
+  "no forecast is ever updated after seeing its result — versions are frozen before kickoff and learn only between slates"
+ ]
+}

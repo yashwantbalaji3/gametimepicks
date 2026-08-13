@@ -58,6 +58,24 @@ export default function NflHubPage() {
     .filter((r) => markets?.capturedAt && r.kickoffUtc && markets.capturedAt < r.kickoffUtc)
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
   const pct = (p: number | null) => (typeof p === "number" ? `${(p * 100).toFixed(1)}%` : "—");
+
+  // P173-A: public-beta forecasts. Only rows generated BEFORE their own kickoff render — a static
+  // truth that cannot rot — and only while the artifact exists. No artifact, no section.
+  type Forecast = {
+    providerEventId: string; kickoffUtc: string; generatedAt: string;
+    home: { abbr: string; name: string }; away: { abbr: string; name: string };
+    forecastSummary: {
+      projectedScore: { home: number; away: number };
+      winProbability: { home: number; away: number; calibration: string };
+      total: { median: number; p10: number; p90: number };
+    };
+    marketComparison: { state: string; marketTotal?: number | null; marketHomeWinPct?: number | null };
+  };
+  const forecastArtifact = read("nfl/forecasts/latest.json");
+  const forecasts: Forecast[] = ((forecastArtifact?.forecasts ?? []) as Forecast[])
+    .filter((f) => f.generatedAt < f.kickoffUtc)
+    .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
+  const forecastCard = forecastArtifact?.modelCard ?? null;
   const propAbsence = markets?.propMarkets?.state === "PROBED" && (markets.propMarkets.offeredMarkets ?? []).length === 0;
 
   // Every model/market state below is DERIVED from committed evaluation receipts by
@@ -85,9 +103,11 @@ export default function NflHubPage() {
       <p style={{ margin: 0, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--text-mute)" }}>NFL hub · public beta</p>
       <h1 style={{ margin: "6px 0 0", fontSize: 26 }}>NFL — schedule, results, and what is honestly covered</h1>
       <p style={{ margin: "12px 0 0", fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))", maxWidth: 680 }}>
-        Everything on this page derives from committed public captures. No NFL predictions, picks, or
-        simulations are published here — the coverage table below states each layer&apos;s exact status
-        and the reason, in words. Educational and paper-only.
+        Everything on this page derives from committed public captures. We publish experimental
+        preseason simulations — not picks, and not a claim to beat the sportsbook market: this model
+        forecast winners barely better than a coin flip when tested on a season it had never seen,
+        so its win percentages sit deliberately close to even. The coverage table below states each
+        layer&apos;s exact status and the reason, in words. Educational and paper-only.
       </p>
 
       <section aria-labelledby="nfl-slate" style={{ marginTop: 28 }}>
@@ -115,6 +135,61 @@ export default function NflHubPage() {
         </div>
         {upcoming.length === 0 ? <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>No scheduled games in the committed capture window.</p> : null}
       </section>
+
+      {forecasts.length ? (
+        <section aria-labelledby="nfl-forecasts" style={{ marginTop: 28 }}>
+          <h2 id="nfl-forecasts" style={{ fontSize: 17, marginBottom: 4 }}>
+            Our simulations for tonight <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-gold)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px", verticalAlign: "middle" }}>EXPERIMENTAL</span>
+          </h2>
+          <p style={{ margin: "0 0 4px", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 720, lineHeight: 1.6 }}>
+            {forecastCard?.what}
+          </p>
+          <p style={{ margin: "0 0 12px", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 720, lineHeight: 1.6 }}>
+            <strong style={{ color: "var(--vault-text)" }}>Read this first:</strong> {forecastCard?.honestLimit} {forecastCard?.whatItIsGoodFor}
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 10 }}>
+            {forecasts.map((f) => (
+              <article key={f.providerEventId} style={{ border: "1px solid var(--vault-border)", borderRadius: 12, padding: "12px 14px" }}>
+                <p style={{ margin: 0, fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+                  {etKickoff(f.kickoffUtc)}
+                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+                  <TeamLogo team={f.away.abbr} sport="nfl" size="sm" ariaLabel={`${f.away.name} logo`} />
+                  <span style={{ fontSize: 15, fontWeight: 700 }}>{f.forecastSummary.projectedScore.away}</span>
+                  <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>at</span>
+                  <TeamLogo team={f.home.abbr} sport="nfl" size="sm" ariaLabel={`${f.home.name} logo`} />
+                  <span style={{ fontSize: 15, fontWeight: 700 }}>{f.forecastSummary.projectedScore.home}</span>
+                  <span style={{ fontSize: 11, color: "var(--vault-text-mute)", marginLeft: "auto" }}>projected</span>
+                </div>
+                <dl style={{ margin: "10px 0 0", display: "grid", gridTemplateColumns: "auto 1fr", gap: "3px 10px", fontSize: 12 }}>
+                  <dt style={{ color: "var(--vault-text-faint)" }}>Win chance</dt>
+                  <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
+                    {f.away.abbr} {(f.forecastSummary.winProbability.away * 100).toFixed(1)}% · {f.home.abbr} {(f.forecastSummary.winProbability.home * 100).toFixed(1)}%
+                  </dd>
+                  <dt style={{ color: "var(--vault-text-faint)" }}>Total points</dt>
+                  <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
+                    {f.forecastSummary.total.median} <span style={{ color: "var(--vault-text-faint)" }}>(likely {f.forecastSummary.total.p10}–{f.forecastSummary.total.p90})</span>
+                  </dd>
+                  {f.marketComparison.state === "MARKET_VIEW" ? (
+                    <>
+                      <dt style={{ color: "var(--vault-text-faint)" }}>Sportsbooks</dt>
+                      <dd style={{ margin: 0, fontFamily: "var(--font-mono, monospace)" }}>
+                        total {f.marketComparison.marketTotal} · {f.home.abbr} {((f.marketComparison.marketHomeWinPct ?? 0) * 100).toFixed(1)}%
+                      </dd>
+                    </>
+                  ) : null}
+                </dl>
+                <p style={{ margin: "8px 0 0", fontSize: 11, lineHeight: 1.45, color: "var(--vault-text-faint)" }}>
+                  {f.forecastSummary.winProbability.calibration}
+                </p>
+              </article>
+            ))}
+          </div>
+          <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+            Generated {forecastArtifact?.generatedAt} under model {forecastArtifact?.model?.id} before every kickoff shown, and frozen at that moment — the forecast never changes after the fact, and each one is settled against the official result. {forecastCard?.whyPublishItAtAll}
+          </p>
+        </section>
+      ) : null}
 
       {marketRows.length ? (
         <section aria-labelledby="nfl-markets" style={{ marginTop: 28 }}>

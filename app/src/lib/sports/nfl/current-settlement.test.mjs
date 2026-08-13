@@ -40,9 +40,25 @@ test("every artifact carries what settlement needs: pre-start lineage and pinned
   assert.ok(artifacts.length >= 6);
   for (const { a } of artifacts) {
     assert.equal(validateCurrentEventArtifact(a).ok, true);
-    assert.ok(a.settlementTargets, "a settleable artifact pins its targets");
-    assert.ok(Date.parse(a.settlementTargets.capturedAt) < Date.parse(a.kickoffUtc), "targets were captured pre-kickoff");
     assert.ok(Date.parse(a.generatedAt) < Date.parse(a.kickoffUtc));
+    // An artifact whose market is genuinely absent has nothing to settle against, and demanding
+    // targets from it would force a fabricated price. Targets are required exactly when a market
+    // WAS captured — that is the real invariant, and it is what a settleable artifact means.
+    if (a.families.market.state?.startsWith("CAPTURED")) {
+      assert.ok(a.settlementTargets, `${a.matchup}: a captured market must pin its settlement targets`);
+      assert.ok(Date.parse(a.settlementTargets.capturedAt) < Date.parse(a.kickoffUtc), "targets were captured pre-kickoff");
+    } else {
+      assert.equal(a.settlementTargets, null, `${a.matchup}: no market means no targets — never a fabricated one`);
+    }
+  }
+  // and the CURRENT truth (newest snapshot per event) must carry targets: today's market is live
+  const newestPerEvent = new Map();
+  for (const x of artifacts) {
+    const k = x.a.providerEventId;
+    if (!newestPerEvent.has(k) || x.file > newestPerEvent.get(k).file) newestPerEvent.set(k, x);
+  }
+  for (const { a } of newestPerEvent.values()) {
+    assert.ok(a.settlementTargets, `${a.matchup}: the newest snapshot must reflect the restored live market`);
   }
 });
 

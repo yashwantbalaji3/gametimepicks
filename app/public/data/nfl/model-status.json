@@ -2,18 +2,18 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-model-status",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-13T18:28:40Z",
+ "generatedAt": "2026-08-13T18:37:04Z",
  "windowSeasonType": "PRESEASON",
  "note": "Derived from committed evaluation receipts. Every state here is evidence-backed; a layer with no receipt reads UNKNOWN rather than green.",
  "teamSimulation": {
-  "state": "MODEL_ABSTAINS",
-  "headline": "We do not publish a prediction for preseason games",
-  "detail": "A preseason-specific model was built and tested on a held-out season. It picked winners no better than a coin flip (0.6933 against a coin's 0.6931), and its score ranges missed the accuracy and calibration bars that were set before the test. The bars were not lowered afterwards, so the model holds.",
-  "nextGate": "Regular season kickoff in September, where the evaluated model already clears its bar on a held-out 2025 season.",
+  "state": "PUBLIC_EXPERIMENTAL",
+  "headline": "Experimental preseason simulations are published",
+  "detail": "We publish a simulated score range and win chance for every game, clearly marked experimental. Tested on a full held-out preseason this model picked winners barely better than a coin flip (9 games forecast today under nfl-preseason-public-beta-v1), so its win percentages stay close to 50% on purpose and it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.",
+  "nextGate": "A validated pick additionally needs performance, calibration, a current price, and settlement evidence — bars this version has not met.",
   "checkable": {
-   "heldOutSeason": "2025 preseason",
-   "games": 48,
-   "winnerLogLoss": 0.6933,
+   "forecasts": 9,
+   "model": "nfl-preseason-public-beta-v1",
+   "heldOutWinnerLogLoss": 0.6933,
    "coinLogLoss": 0.6931
   }
  },

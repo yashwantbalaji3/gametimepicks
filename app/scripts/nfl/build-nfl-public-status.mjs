@@ -41,9 +41,22 @@ let teamSim;
 if (!preseason || !regular) {
   teamSim = { state: "UNKNOWN", headline: "Model status unavailable", detail: "No evaluation receipt is readable, so no claim is made.", nextGate: null };
 } else if (windowIsPreseason) {
-  const promoted = Object.values(preseason.promotion).some((p) => p.state === "PUBLIC_ELIGIBLE");
   const w = preseason.heldOut2025.winner;
-  teamSim = promoted
+  // P173: the founder's two-tier launch. A published EXPERIMENTAL forecast does not mean the
+  // VALIDATED_PICK bars were met — those results stand and are still reported here.
+  const beta = read(path.join(APP, "public/data/nfl/forecasts/latest.json"));
+  const betaLive = beta?.model?.launchState === "PUBLIC_EXPERIMENTAL" && (beta?.forecasts ?? []).length > 0;
+  const promoted = Object.values(preseason.promotion).some((p) => p.state === "PUBLIC_ELIGIBLE");
+  teamSim = betaLive
+    ? {
+      state: "PUBLIC_EXPERIMENTAL",
+      headline: "Experimental preseason simulations are published",
+      detail:
+        `We publish a simulated score range and win chance for every game, clearly marked experimental. Tested on a full held-out preseason this model picked winners barely better than a coin flip (${beta.forecasts.length} games forecast today under ${beta.model.id}), so its win percentages stay close to 50% on purpose and it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.`,
+      nextGate: "A validated pick additionally needs performance, calibration, a current price, and settlement evidence — bars this version has not met.",
+      checkable: { forecasts: beta.forecasts.length, model: beta.model.id, heldOutWinnerLogLoss: w.model.logLoss, coinLogLoss: w.baselines.coin.logLoss },
+    }
+    : promoted
     ? { state: "LIVE", headline: "Preseason simulations are published", detail: "A preseason-specific model cleared the accuracy and calibration bars set before it was tested.", nextGate: null }
     : {
       state: "MODEL_ABSTAINS",
