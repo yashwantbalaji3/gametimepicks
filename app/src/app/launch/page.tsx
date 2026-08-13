@@ -3,6 +3,7 @@ import path from "node:path";
 import { guardInternalRoute } from "@/lib/internal-route-guard";
 import { currentEtDate } from "@/lib/freshness";
 import { buildCompletionMatrix, ROADMAP_30D } from "@/lib/launch/completion-matrix.mjs";
+import { buildExecutiveHealth } from "@/lib/launch/executive-health.mjs";
 import { buildWorkBoard } from "@/lib/launch/work-board.mjs";
 import { buildTodayBoard, topActions } from "@/lib/launch/today-board.mjs";
 import { ENGINES, ASSURED_ROUTES } from "@/lib/launch/browser-assurance.mjs";
@@ -115,6 +116,24 @@ export default function LaunchCommandCenter() {
   const nflLane = (() => {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data/admin/nfl-lane.json"), "utf8")); }
     catch { return null; }
+  })();
+
+  // Executive health (Program 172 · Release J): nine lanes, each derived from a receipt and
+  // carrying the path that proves it. Worst-of overall — one incident is never averaged away.
+  const readRoot = (rel: string) => { try { return JSON.parse(fs.readFileSync(path.join(APP, "..", rel), "utf8")); } catch { return null; } };
+  const health = (() => {
+    try {
+      return buildExecutiveHealth({
+        nowIso: buildNowIso,
+        etDate,
+        adminStatus: readJson("admin/status.json"),
+        productReceipt: readRoot(`data/internal/products/receipts/${etDate}.json`),
+        nflLane,
+        nflStatus: readJson("nfl/model-status.json"),
+        settlementReceipt: readRoot(`data/internal/nfl/settlement/${etDate}.json`),
+        buildInfo: readJson("build-info.json"),
+      });
+    } catch { return null; }
   })();
   const covered = board ? new Set(board.leans.map((l: { gamePk: number }) => l.gamePk)).size : null;
 
@@ -256,6 +275,33 @@ export default function LaunchCommandCenter() {
                 ))}
               </div>
             </section>
+
+            {/* ── Executive health strip (P172-J): nine lanes, each DERIVED from a receipt and
+                 carrying the path that proves it. Ordered worst-first so one incident is never
+                 buried under greens; overall is worst-of, never an average. ──────────────── */}
+            {health ? (
+              <section aria-labelledby="exec-health" style={{ marginBottom: 26 }}>
+                <h2 id="exec-health" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>
+                  Executive health · <span style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 12, color: tone(health.overall === "HEALTHY" ? "PASS" : health.overall === "INCIDENT" ? "FAIL" : "PARTIAL") }}>{health.overall}</span>
+                </h2>
+                <p style={{ margin: "0 0 10px", fontSize: 11.5, color: "var(--vault-text-mute)" }}>
+                  Worst-of across nine lanes for {health.etDate}. Every state is derived from the evidence path shown; a lane with no receipt reads UNKNOWN, never green.
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 8 }}>
+                  {health.ordered.map((l: { id: string; label: string; state: string; detail: string; evidence: string; nextAction: string | null }) => (
+                    <div key={l.id} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "9px 11px" }}>
+                      <p style={{ margin: 0, display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                        <strong style={{ fontSize: 12.5 }}>{l.label}</strong>
+                        <span style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 10.5, color: tone(l.state === "HEALTHY" ? "PASS" : l.state === "INCIDENT" ? "FAIL" : l.state === "HOLDING" ? "" : "PARTIAL") }}>{l.state}</span>
+                      </p>
+                      <p style={{ margin: "4px 0 0", fontSize: 11.5, lineHeight: 1.45, color: "var(--vault-text-mute)" }}>{l.detail}</p>
+                      {l.nextAction ? <p style={{ margin: "4px 0 0", fontSize: 11, lineHeight: 1.4, color: "var(--vault-gold)" }}>→ {l.nextAction}</p> : null}
+                      <p style={{ margin: "4px 0 0", fontSize: 10, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)", wordBreak: "break-all" }}>{l.evidence}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
 
             {/* ── Executive overview: four SEPARATE headlines ─────────────────────────────── */}
             <section aria-labelledby="exec" style={{ marginBottom: 30 }}>
