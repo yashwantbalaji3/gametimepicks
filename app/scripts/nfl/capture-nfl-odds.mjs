@@ -172,6 +172,21 @@ for (const plan of livePlan) {
     }
   }
 }
+// ---------------------------------------------------------------- last-known-good invariant
+// P173 DEFECT FIX. The duplicate breaker (P172-D) correctly skips a re-purchase inside the
+// freshness window — but the run then fell through to the artifact writer with zero rows and
+// OVERWROTE a good public capture with an empty slate, which is exactly the outcome the
+// "preserve last-known-good" rule exists to prevent. It happened live at 16:03Z and the price
+// table disappeared from /nfl. Two defences now, because either alone leaves a hole:
+//   1. a run that fetched NOTHING (every key skipped) writes nothing at all;
+//   2. a run that would REPLACE a non-empty public artifact with an empty one refuses.
+// Both exit 0: skipping is a correct, successful outcome — the prior capture simply stands.
+if (!rows.length) {
+  fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1));
+  console.log("PRESERVED_LAST_KNOWN_GOOD: no rows fetched this run (all keys duplicate-skipped or empty) — the prior capture stands untouched");
+  process.exit(0);
+}
+
 const oddsEvents = [...oddsEventsMap.values()];
 const join = joinOddsBatch(oddsEvents, canonicalRows);
 const joinedByOddsId = new Map(join.joined.map((j) => [j.providerEventId, j]));
@@ -331,6 +346,15 @@ const publicArtifact = {
     ? { state: "PROBED", probedEventId: propProbe.canonicalEventId, offeredMarkets: Object.keys(propProbe.marketsSeen ?? {}), absentMarkets: propProbe.absentMarkets ?? [] }
     : { state: propProbe?.state ?? "NOT_PROBED", offeredMarkets: [], absentMarkets: [] },
 };
+
+// defence 2: never replace a non-empty public capture with an empty one, whatever the cause
+const publicPath = path.join(APP, "public/data/nfl/markets", "latest.json");
+const priorPublic = read(publicPath);
+if (!publicRows.length && (priorPublic?.eventCount ?? 0) > 0) {
+  fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1));
+  console.error(`REFUSED: this run joined 0 events but the committed capture holds ${priorPublic.eventCount} — refusing to overwrite a good artifact with an empty slate; the prior capture stands as the last known good`);
+  process.exit(9);
+}
 
 // leak-guard every artifact, then write
 const outputs = [

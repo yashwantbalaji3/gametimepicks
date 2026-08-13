@@ -99,6 +99,32 @@ test("assertNoSecretLeak: raw keys and unredacted apiKey params refuse the write
   assert.equal(assertNoSecretLeak('{"url":"/odds?apiKey=abc123def456"}', []).ok, false);
 });
 
+test("P173 REGRESSION · a duplicate-skipped run can never overwrite a good capture with an empty slate", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/nfl/capture-nfl-odds.mjs"), "utf8");
+  // THE DEFECT (live at 2026-08-13T16:03Z): the duplicate breaker `continue`d past the fetch, the
+  // run fell through with zero rows, and the public artifact was rewritten with eventCount 0 —
+  // the price table vanished from /nfl. Two independent defences must both be present.
+  const emptyGuard = src.indexOf("PRESERVED_LAST_KNOWN_GOOD");
+  const writeIdx = src.indexOf("const outputs = [");
+  assert.ok(emptyGuard > 0, "defence 1: a run that fetched nothing must exit before writing");
+  assert.ok(emptyGuard < writeIdx, "defence 1 must sit BEFORE the artifact writer");
+  const replaceGuard = src.indexOf("refusing to overwrite a good artifact with an empty slate");
+  assert.ok(replaceGuard > 0, "defence 2: replacing a non-empty capture with an empty one must refuse");
+  assert.ok(replaceGuard < writeIdx, "defence 2 must also precede the writer");
+  // and the ordering that caused it: the duplicate `continue` must come before the empty check
+  assert.ok(src.indexOf("dup.duplicate") < emptyGuard, "the skip path is what falls into the empty check");
+});
+
+test("P173 REGRESSION · the committed public capture is non-empty and pre-kickoff", () => {
+  const m = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/markets/latest.json"), "utf8"));
+  assert.ok(m.eventCount > 0, "an empty committed capture means the last-known-good was destroyed again");
+  assert.equal(m.rows.length, m.eventCount, "eventCount must match the rows actually carried");
+  for (const r of m.rows) {
+    assert.ok(m.capturedAt < r.kickoffUtc, `${r.away.abbr}@${r.home.abbr}: capture must precede its own kickoff`);
+    assert.ok(r.books.length > 0, "a published row carries real book prices");
+  }
+});
+
 test("capture script structure: dry-run precedes any network call; NFL-only; no retries; leak-guarded writes", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "scripts/nfl/capture-nfl-odds.mjs"), "utf8");
   const dryRunIdx = src.indexOf("if (!AUTHORIZED)");
