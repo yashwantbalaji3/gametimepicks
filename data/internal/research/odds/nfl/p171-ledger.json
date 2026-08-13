@@ -1,0 +1,46 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-odds-p171-ledger",
+ "dataClass": "PRIVATE_RESEARCH",
+ "program": "P171",
+ "receiptPath": "docs/receipts/ODDS_AUTHORIZATION_P171.md",
+ "openingBalance": {
+  "capturedAt": "2026-08-13T08:57:07Z",
+  "providerRequestsUsed": 4342,
+  "providerRequestsRemaining": 15658,
+  "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
+ },
+ "requests": [
+  {
+   "at": "2026-08-13T08:57:07Z",
+   "purpose": "free events index (key validity + opening usage + provider event ids)",
+   "endpoint": "/sports/americanfootball_nfl/events",
+   "events": null,
+   "markets": null,
+   "regions": null,
+   "status": 200,
+   "creditsUsed": 0,
+   "providerRequestsUsed": 4342,
+   "providerRequestsRemaining": 15658
+  },
+  {
+   "at": "2026-08-13T08:57:07Z",
+   "purpose": "bulk team ML/spread/total",
+   "endpoint": "/sports/americanfootball_nfl/odds",
+   "events": 272,
+   "markets": [
+    "h2h",
+    "spreads",
+    "totals"
+   ],
+   "regions": [
+    "us"
+   ],
+   "status": 200,
+   "creditsUsed": 3,
+   "providerRequestsUsed": 4345,
+   "providerRequestsRemaining": 15655
+  }
+ ],
+ "cumulativeCredits": 3
+}
