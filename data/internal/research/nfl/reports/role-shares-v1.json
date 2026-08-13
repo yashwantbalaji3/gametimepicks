@@ -1,0 +1,136 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-role-shares-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-13T05:20:00Z",
+ "engine": {
+  "id": "nfl-role-shares-v1-decayed-stint",
+  "version": 1
+ },
+ "corpusAccounting": [
+  {
+   "season": 2023,
+   "games": 334,
+   "contentHash": "fd64ebd56563d258"
+  },
+  {
+   "season": 2024,
+   "games": 334,
+   "contentHash": "5e8075b215ee74b9"
+  },
+  {
+   "season": 2025,
+   "games": 333,
+   "contentHash": "bf118f6dd4b6b75c"
+  }
+ ],
+ "protocol": {
+  "selection": "walk-forward on 2023–24 REG+POST team-games only (grid below); preseason never fits or evaluates",
+  "test": "chosen setting applied ONCE to held-out 2025; baselines score the same eval points",
+  "metric": "mean total-variation distance between predicted allocation (known players + OTHER) and realized allocation — the fraction of team opportunities misallocated"
+ },
+ "grid": {
+  "size": 36,
+  "top3": [
+   {
+    "params": {
+     "halfLifeGames": 4,
+     "shrinkK": 0.5,
+     "boundaryDecay": 0.25
+    },
+    "trainOverall": 0.4362
+   },
+   {
+    "params": {
+     "halfLifeGames": 8,
+     "shrinkK": 0.5,
+     "boundaryDecay": 0.25
+    },
+    "trainOverall": 0.4362
+   },
+   {
+    "params": {
+     "halfLifeGames": "inf",
+     "shrinkK": 0.5,
+     "boundaryDecay": 0.25
+    },
+    "trainOverall": 0.4374
+   }
+  ]
+ },
+ "chosen": {
+  "halfLifeGames": 4,
+  "shrinkK": 0.5,
+  "boundaryDecay": 0.25
+ },
+ "heldOut2025": {
+  "model": {
+   "overall": 0.4637,
+   "n": 2234,
+   "perFamily": {
+    "passAttempts": 0.3442,
+    "rushAttempts": 0.3859,
+    "targets": 0.3936,
+    "scorerTd": 0.7547
+   }
+  },
+  "baselines": {
+   "last-game": {
+    "overall": 0.4971,
+    "n": 2234,
+    "perFamily": {
+     "passAttempts": 0.3436,
+     "rushAttempts": 0.4296,
+     "targets": 0.4403,
+     "scorerTd": 0.7995
+    }
+   },
+   "rolling-4": {
+    "overall": 0.4954,
+    "n": 2234,
+    "perFamily": {
+     "passAttempts": 0.3746,
+     "rushAttempts": 0.4303,
+     "targets": 0.4293,
+     "scorerTd": 0.7698
+    }
+   },
+   "stint-mean": {
+    "overall": 0.5092,
+    "n": 2234,
+    "perFamily": {
+     "passAttempts": 0.3912,
+     "rushAttempts": 0.449,
+     "targets": 0.443,
+     "scorerTd": 0.7752
+    }
+   },
+   "uniform": {
+    "overall": 0.947,
+    "n": 2234,
+    "perFamily": {
+     "passAttempts": 0.984,
+     "rushAttempts": 0.9443,
+     "targets": 0.8924,
+     "scorerTd": 0.969
+    }
+   }
+  },
+  "earlySeasonWeeks1to4": {
+   "overall": 0.44,
+   "n": 504,
+   "perFamily": {
+    "passAttempts": 0.3335,
+    "rushAttempts": 0.3686,
+    "targets": 0.361,
+    "scorerTd": 0.714
+   }
+  }
+ },
+ "honesty": [
+  "shares shrink toward ZERO, so uncertain mass lands in OTHER/UNALLOCATED — the visible list is never forced to 100%",
+  "a team change resets evidence: the new team's usage is unknown until observed (no carryover)",
+  "preseason games update membership only; 2026 preseason W2 boards therefore lean on 2023-25 stint evidence with the season boundary decayed",
+  "current active status and expected usage stay SEPARATE: these are historical roles; participation states come from participation.mjs"
+ ]
+}
