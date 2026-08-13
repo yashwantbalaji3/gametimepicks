@@ -76,6 +76,13 @@ export default function NflHubPage() {
     .filter((f) => f.generatedAt < f.kickoffUtc)
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
   const forecastCard = forecastArtifact?.modelCard ?? null;
+
+  // P174-E: End Zone Vault. Renders only when the evaluator produced candidates; a NO_VAULT or
+  // INCIDENT window shows nothing here rather than an empty table pretending to be a product.
+  type VaultRow = { playerId: string; name: string; position: string | null; team: string; event: string; tdProbability: number; roleState: string };
+  const vault = read("nfl/end-zone-vault/latest.json") as
+    | { state: string; reason: string; disclaimer: string; selections: VaultRow[]; watchlist: VaultRow[] }
+    | null;
   const propAbsence = markets?.propMarkets?.state === "PROBED" && (markets.propMarkets.offeredMarkets ?? []).length === 0;
 
   // Every model/market state below is DERIVED from committed evaluation receipts by
@@ -187,6 +194,49 @@ export default function NflHubPage() {
           </div>
           <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
             Generated {forecastArtifact?.generatedAt} under model {forecastArtifact?.model?.id} before every kickoff shown, and frozen at that moment — the forecast never changes after the fact, and each one is settled against the official result. {forecastCard?.whyPublishItAtAll}
+          </p>
+        </section>
+      ) : null}
+
+      {vault && (vault.watchlist?.length || vault.selections?.length) ? (
+        <section aria-labelledby="nfl-vault" style={{ marginTop: 28 }}>
+          <h2 id="nfl-vault" style={{ fontSize: 17, marginBottom: 4 }}>
+            End Zone Vault <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-gold)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px", verticalAlign: "middle" }}>
+              {vault.state === "ACTIVE" ? "CARD" : "WATCHLIST"}
+            </span>
+          </h2>
+          <p style={{ margin: "0 0 12px", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 720, lineHeight: 1.6 }}>
+            {vault.state === "ACTIVE"
+              ? vault.reason
+              : <>Who our model thinks is most likely to score tonight. <strong style={{ color: "var(--vault-text)" }}>This is a watchlist, not a card</strong> — {vault.reason.replace(/^\d+ model candidates, but no card: /, "")}</>}
+          </p>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
+              <thead>
+                <tr>
+                  {["Player", "Game", "Chance to score", "Playing time"].map((h) => (
+                    <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {(vault.state === "ACTIVE" ? vault.selections : vault.watchlist).slice(0, 8).map((c) => (
+                  <tr key={c.playerId}>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>
+                      {c.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{c.position ?? ""} · {c.team}</span>
+                    </td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)" }}>{c.event}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{(c.tdProbability * 100).toFixed(1)}%</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, color: "var(--vault-text-mute)" }}>
+                      {c.roleState === "ACTIVE_EXPECTED" ? "Expected to play" : "Unknown — preseason"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+            These percentages never add to 100%: defences, special teams and unlisted players hold the rest. {vault.disclaimer}
           </p>
         </section>
       ) : null}
