@@ -148,18 +148,50 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   const nflHub = read("src/app/nfl/page.tsx");
   assert.doesNotMatch(nflHub, /ClientRedirect/, "/nfl is a real page now (P169-J)");
   assert.match(nflHub, /No NFL predictions, picks, or\s+simulations are published/, "the no-model line is load-bearing copy");
-  assert.match(nflHub, /PRIVATE_ONLY/, "team simulation states its private, activation-gated status");
-  assert.match(nflHub, /AUTH_REQUIRED/, "the market layer still names its authorization gate for the no-artifact case");
-  assert.match(nflHub, /ROLE_UNCERTAIN/, "player props state the participation gate");
+  // P172-C: the literal "PRIVATE_ONLY" moved out of typed prose into the DERIVED status artifact.
+  // The invariant is unchanged and now checked against the artifact the page actually renders:
+  // the team-simulation layer may never claim a published NFL model.
+  {
+    const st = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/model-status.json"), "utf8")).teamSimulation;
+    assert.ok(["PRIVATE_ONLY", "MODEL_ABSTAINS", "REGULAR_SEASON_ELIGIBLE", "UNKNOWN"].includes(st.state),
+      `team simulation state ${st.state} outside the non-published set`);
+    if (st.state !== "LIVE") assert.ok(st.nextGate || st.state === "UNKNOWN", "a held layer names the gate that would release it");
+  }
   assert.match(nflHub, /committed/i, "data provenance is stated");
+  // P172-C: layer states are DERIVED from committed evaluation receipts, not typed prose — the
+  // page must read the derived artifact and must fall back to UNKNOWN, never to green.
+  assert.match(nflHub, /nfl\/model-status\.json/, "the coverage table reads the derived status artifact");
+  assert.match(nflHub, /state: "UNKNOWN"/, "a missing receipt renders UNKNOWN");
+  const status = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/model-status.json"), "utf8"));
+  assert.equal(status.dataClass, "PUBLIC_DERIVED");
+  for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "perTdShare"]) {
+    assert.ok(!JSON.stringify(status).includes(banned), `the public status must not carry "${banned}"`);
+  }
+  // each player family carries its OWN decision — receiving never inherits rushing's status
+  const families = status.playerFamilies.map((f) => f.modelStanding ?? f.detail);
+  assert.equal(new Set(families).size >= 2, true, "families are decided independently, not as one block");
   // P171-F: the market layer publishes PRICES, never a model claim beside them. The invariant
   // holds in rendered text — prices are attributed as the books' own numbers, the capture stamp
   // is absolute, and the section cannot render without its artifact.
-  assert.match(nflHub, /not\s+GameTimePicks predictions/, "captured prices are attributed as market facts, never as our output");
+  // the attribution invariant is now asserted in BOTH places it can reach a reader: the page's
+  // own market-section prose, and the derived status detail the coverage table renders.
+  assert.match(nflHub, /GameTimePicks publishes no NFL prediction beside/, "the market section attributes prices as the books' own");
+  {
+    const st = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/model-status.json"), "utf8"));
+    if (st.market.state === "LIVE") assert.match(st.market.detail, /not GameTimePicks predictions/, "captured prices are attributed as market facts, never as our output");
+  }
   assert.match(nflHub, /they describe the market, not a forecast of ours/, "the de-vigged percentages disclaim forecast status in words");
   assert.match(nflHub, /markets\?\.capturedAt && r\.kickoffUtc && markets\.capturedAt < r\.kickoffUtc/, "only rows captured BEFORE their own kickoff render — a static truth that cannot rot into liveness theater");
   assert.match(nflHub, /marketRows\.length \? \(/, "no artifact, no section — a page area is never filled merely because a file exists");
-  assert.match(nflHub, /NO_MARKET/, "probed-absent player markets are typed, not left as stale AUTH_REQUIRED language");
+  {
+    // the typed NO_MARKET finding also moved into the derived artifact (P172-C)
+    const st = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/model-status.json"), "utf8"));
+    const probed = st.playerFamilies.some((f) => f.state === "NO_MARKET") || st.anytimeTd.state === "NO_MARKET";
+    const holds = st.playerFamilies.every((f) => f.state !== "MODEL_READY" || f.nextGate);
+    assert.ok(probed || st.playerFamilies.every((f) => f.state === "ROLE_UNCERTAIN"),
+      "probed-absent player markets are typed NO_MARKET, not left as stale AUTH_REQUIRED language");
+    assert.ok(holds, "any ready family still names the live-data gate it waits on");
+  }
   assert.doesNotMatch(nflHub, /\bedge\b|\block\b|best bet|beat the market|profitable/i, "the banned advantage vocabulary never appears beside prices");
   // NBA is HISTORICAL_ONLY: the settled archive stays published, the live model surfaces do not.
   assert.equal(capabilityState("nba"), "HISTORICAL_ONLY");

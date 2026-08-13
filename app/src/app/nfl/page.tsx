@@ -60,15 +60,23 @@ export default function NflHubPage() {
   const pct = (p: number | null) => (typeof p === "number" ? `${(p * 100).toFixed(1)}%` : "—");
   const propAbsence = markets?.propMarkets?.state === "PROBED" && (markets.propMarkets.offeredMarkets ?? []).length === 0;
 
+  // Every model/market state below is DERIVED from committed evaluation receipts by
+  // scripts/nfl/build-nfl-public-status.mjs. Nothing here is hand-typed prose: if a receipt
+  // says the model failed its bar, this table says so in plain language, and a layer with no
+  // receipt reads UNKNOWN rather than green.
+  type StatusLayer = { state: string; headline: string; detail: string; nextGate?: string | null; modelStanding?: string };
+  const modelStatus = read("nfl/model-status.json");
+  const layerRow = (layer: string, s: StatusLayer | null | undefined, fallback: string) =>
+    s ? { layer, state: s.state, detail: `${s.detail}${s.modelStanding ? ` ${s.modelStanding}` : ""}${s.nextGate ? ` Next: ${s.nextGate}` : ""}` }
+      : { layer, state: "UNKNOWN", detail: fallback };
+
   const coverage = [
     { layer: "Schedule & identities", state: "LIVE", detail: `daily capture · ${schedule ? `${schedule.rows.length} events in window, captured ${schedule.generatedAt}` : "capture unavailable — shown as missing, never guessed"}` },
     { layer: "Results", state: "LIVE", detail: `official finals join by durable event id; results without pre-event schedule lineage are quarantined and say so` },
-    { layer: "Team game simulation", state: "PRIVATE_ONLY", detail: "a deterministic joint score simulation exists as private research; publishing requires the repository's activation gate (current pre-event evidence, calibration receipts, explicit approval) — none of that is claimed here" },
-    marketRows.length
-      ? { layer: "Moneyline / spread / total prices", state: "LIVE", detail: `authorized capture: ${marketRows.length} events across up to ${Math.max(...marketRows.map((r) => r.books.length))} books, captured ${markets.capturedAt} (pre-kickoff). Prices and the de-vigged win probabilities they imply are market facts with attribution — not GameTimePicks predictions.` }
-      : { layer: "Moneyline / spread / total prices", state: "AUTH_REQUIRED", detail: "no authorized odds capture exists; no substitute prices are shown and none are invented" },
-    { layer: "Player props (pass / rush / receive)", state: "ROLE_UNCERTAIN", detail: `preseason participation is unverified — without source-backed snap evidence every player market abstains, whatever a sportsbook posts${propAbsence ? ". The authorized capture also probed this window: no player-prop markets are offered (NO_MARKET)" : ""}` },
-    { layer: "Anytime touchdown · End Zone Vault", state: "NO_VAULT", detail: `the touchdown product holds: participation, current prices, and a committed calibration receipt are all required before anything publishes${propAbsence ? " — and the probed window offers no anytime-touchdown market (NO_MARKET)" : ""} — a hold is an answer, not an outage` },
+    layerRow("Team game simulation", modelStatus?.teamSimulation, "no model evaluation is readable — no claim is made"),
+    layerRow("Moneyline / spread / total prices", modelStatus?.market, "no price capture is readable"),
+    ...((modelStatus?.playerFamilies ?? []) as Array<StatusLayer & { label: string }>).map((f) => layerRow(f.label, f, "no evaluation on file")),
+    layerRow("Anytime touchdown · End Zone Vault", modelStatus?.anytimeTd, "no calibration receipt on file"),
     { layer: "Settlement", state: "DEPLOYED", detail: "team and scorer settlement contracts are deployed and tested; the first matching pre-event artifacts settle exactly once when they exist" },
   ];
 
