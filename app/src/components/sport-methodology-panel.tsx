@@ -6,9 +6,20 @@
  * Pure/static copy that matches the `market-coverage` registry's honesty baseline. No fabrication.
  */
 
-type Sport = "mlb" | "soccer" | "ufc";
+type Sport = "mlb" | "nfl" | "soccer" | "ufc";
 
 const METHODOLOGY: Record<Sport, { title: string; kind: string; lines: string[] }> = {
+  // P175-C: NFL joins this SHARED owner rather than getting a forked panel. Purely additive —
+  // every existing sport's copy is untouched, which is what lets MLB output stay byte-identical.
+  nfl: {
+    title: "How the NFL simulation works",
+    kind: "experimental · 10,000-run preseason score simulation",
+    lines: [
+      "Every eligible game runs 10,000 simulations of the final score. The projected score, win chance, margin and total all come from that one set of runs, so they can never disagree with each other.",
+      "It is an early model and we say so: tested on a full season it had never seen, it picked winners no better than a coin flip, so its win percentages sit deliberately close to even and it makes no claim to beat the sportsbook market.",
+      "Player projections and touchdown cards need to know who actually plays. Nobody publishes that for preseason games, so those stay withheld rather than invented — the touchdown list is a watchlist, not a card.",
+    ],
+  },
   mlb: {
     title: "How the MLB simulation works",
     kind: "market-anchored + 10,000-run player-prop sim",

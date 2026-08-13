@@ -51,7 +51,7 @@ function Row({ m }: { m: MarketCoverage }) {
   );
 }
 
-export default function SimulationCoverageMatrix({ sport }: { sport?: "mlb" | "soccer" | "ufc" }) {
+export default function SimulationCoverageMatrix({ sport }: { sport?: "mlb" | "nfl" | "soccer" | "ufc" }) {
   const groups = sport
     ? COVERAGE_SPORTS.filter((s) => s.key === sport)
     : COVERAGE_SPORTS;

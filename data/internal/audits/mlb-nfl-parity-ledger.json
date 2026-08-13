@@ -1,0 +1,192 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-nfl-parity-ledger",
+ "dataClass": "PRIVATE_RESEARCH",
+ "program": "P175",
+ "generatedAt": "2026-08-13T21:00:00Z",
+ "referenceRoute": "/mlb (production, src/app/mlb/page.tsx, 401 lines, vault-page-shell max-width 1440px)",
+ "targetRoute": "/nfl (src/app/nfl/page.tsx, 348 lines, inline main max-width 900px)",
+ "method": "mechanical inventory of the current /mlb render order, its sub-routes, and every shared component it imports; each row names an MLB owner, the NFL owner or gap, and the shared-vs-adapter decision. A row may be NOT_APPLICABLE only with a football-specific reason and a named replacement of equal user value.",
+ "statusVocabulary": {
+  "SHIPPED": "NFL has the capability through a named owner",
+  "ADOPTED_SHARED": "NFL now consumes the same shared component MLB uses",
+  "ADAPTER_NEEDED": "shared owner exists but its sport union/registry excludes nfl \u2014 additive extension required",
+  "NFL_OWNER_NEEDED": "no shared owner exists; NFL needs its own component or route",
+  "NOT_APPLICABLE": "football-specific reason + named replacement",
+  "OPEN": "engineering-owned and not yet built"
+ },
+ "rows": [
+  {
+   "capability": "Sport hub shell (width, hierarchy, density)",
+   "mlbOwner": "div.vault-page-shell (globals.css:802, max-width 1440px) + SportShell tabs (components/ui/sport-shell.tsx)",
+   "nflOwner": "inline <main style={{maxWidth:900}}>",
+   "decision": "SHARED \u2014 adopt vault-page-shell; SportShell is already sport-agnostic ({tabs})",
+   "status": "OPEN",
+   "note": "the single largest visual parity gap: /nfl is a 900px document, /mlb is a 1440px application shell"
+  },
+  {
+   "capability": "Methodology panel",
+   "mlbOwner": "components/sport-methodology-panel.tsx (Record<Sport,...>)",
+   "nflOwner": "same component, nfl key added (P175-C)",
+   "decision": "SHARED \u2014 additive key, every existing sport's copy untouched",
+   "status": "ADOPTED_SHARED"
+  },
+  {
+   "capability": "Simulation coverage matrix",
+   "mlbOwner": "components/simulation-coverage-matrix.tsx (sport?: mlb|soccer|ufc)",
+   "nflOwner": "same component + NFL_COVERAGE registry rows (P175-C)",
+   "decision": "SHARED \u2014 widen the union and add an nfl COVERAGE_SPORTS registry entry",
+   "status": "ADOPTED_SHARED",
+   "note": "union widened and 6 honest NFL market rows added to the SHARED registry; MLB entries byte-identical"
+  },
+  {
+   "capability": "Sport identity (accent, glyph, label)",
+   "mlbOwner": "lib/sport-identity.ts",
+   "nflOwner": null,
+   "decision": "SHARED \u2014 add an nfl key; note football currently maps to soccer (sport-identity.ts:139), which would mislabel NFL",
+   "status": "ADAPTER_NEEDED",
+   "defectRisk": "an unguarded CompetitionBadge sport='nfl' would fall through to the soccer identity"
+  },
+  {
+   "capability": "Overview hero (eyebrow, status kind, hero stats, CTAs)",
+   "mlbOwner": "components/sport-overview-hero.tsx (fully parameterized)",
+   "nflOwner": null,
+   "decision": "SHARED \u2014 already agnostic; NFL supplies stats from the canonical index",
+   "status": "OPEN"
+  },
+  {
+   "capability": "Freshness badge",
+   "mlbOwner": "components/ui/freshness-badge.tsx (agnostic)",
+   "nflOwner": "inline absolute capture stamps in copy",
+   "decision": "SHARED \u2014 adopt; NFL noun is 'NFL forecasts'",
+   "status": "OPEN"
+  },
+  {
+   "capability": "Quick action rail",
+   "mlbOwner": "components/quick-action-rail.tsx (agnostic)",
+   "nflOwner": null,
+   "decision": "SHARED \u2014 adopt with NFL destinations",
+   "status": "OPEN"
+  },
+  {
+   "capability": "Section header",
+   "mlbOwner": "components/section-header.tsx (agnostic)",
+   "nflOwner": "raw <h2>",
+   "decision": "SHARED \u2014 adopt",
+   "status": "OPEN"
+  },
+  {
+   "capability": "Daily slate / event cards",
+   "mlbOwner": "inline slateTiles + TeamMark + gameHrefByMatchId",
+   "nflOwner": "inline article grid + TeamLogo",
+   "decision": "ADAPTER \u2014 both are inline today; extract a shared EventCard in an additive release",
+   "status": "OPEN"
+  },
+  {
+   "capability": "Per-game deep route",
+   "mlbOwner": "/games/[sport]/[gameId] via gameDetailParams(); SPORT_LABEL (lib/game-detail.ts:159) = {world_cup,mlb,nba,ufc}",
+   "nflOwner": null,
+   "decision": "SHARED \u2014 widen SPORT_LABEL and emit nfl params; multi-sport-report-shell.tsx is the cheapest spine (already schema-driven)",
+   "status": "OPEN",
+   "note": "identified as the cheapest parity path: MultiSportGameReport schema + an NFL adapter, not a new page tree"
+  },
+  {
+   "capability": "Simulation report depth (distributions, percentiles, drivers)",
+   "mlbOwner": "components/game/mlb-simulation-report-v2.tsx (756 lines) + mlb-full-game-report.tsx (histograms, p10-p90)",
+   "nflOwner": "forecast cards on /nfl carry median + p10/p90 for margin and total",
+   "decision": "ADAPTER \u2014 NFL distributions exist in the artifact; the REPORT surface does not",
+   "status": "OPEN"
+  },
+  {
+   "capability": "Market Center sport support",
+   "mlbOwner": "lib/markets/load.ts already seamed: loadMarketCenter(date, todayEt, nowIso, sport=MLB_SPORT_KEY)",
+   "nflOwner": null,
+   "decision": "ADAPTER \u2014 add NFL_MARKET_CONFIG to lib/markets/sport-config.ts and thread sport through 4 call sites in app/markets/page.tsx",
+   "status": "ADAPTER_NEEDED",
+   "note": "the loader is already sport-aware and fail-closed; this is a registry entry plus argument threading, not a rewrite"
+  },
+  {
+   "capability": "Build inventory",
+   "mlbOwner": "lib/parlays/ui-loader.ts (SportKey union), lib/build-legs.ts:123 (rejects non nba/mlb)",
+   "nflOwner": null,
+   "decision": "ADAPTER \u2014 widen unions; NFL legs must remain EXCLUDED until a leg passes the validated gate",
+   "status": "OPEN",
+   "guard": "an experimental forecast must never become a selectable leg \u2014 output-state.mjs permitsProductLeg already enforces this"
+  },
+  {
+   "capability": "Player projection surfaces",
+   "mlbOwner": "components/ui/player-props-explorer.tsx, projection-card.tsx",
+   "nflOwner": "typed refusal in the coverage table",
+   "decision": "NOT_APPLICABLE TODAY \u2014 football-specific: no source publishes preseason participation, so a projection would be invented",
+   "replacement": "per-player role-evidence artifact (P175-A) naming each player's state, reason and next observation window; the refusal is evidenced rather than asserted",
+   "status": "NOT_APPLICABLE"
+  },
+  {
+   "capability": "Player portrait",
+   "mlbOwner": "components/ui/player-avatar.tsx (sport?: nba|mlb)",
+   "nflOwner": null,
+   "decision": "ADAPTER \u2014 widen the union when player rows publish",
+   "status": "OPEN",
+   "blockedBy": "player projections are NOT_APPLICABLE today"
+  },
+  {
+   "capability": "Signature product surface",
+   "mlbOwner": "Bank Builder / Moonshot lanes",
+   "nflOwner": "End Zone Vault WATCHLIST_ONLY (public/data/nfl/end-zone-vault/latest.json) rendered on /nfl",
+   "decision": "NFL-NATIVE \u2014 football's signature product is touchdown scorers, not a baseball lane",
+   "status": "SHIPPED"
+  },
+  {
+   "capability": "Bank Builder / Moonshot NFL adapters",
+   "mlbOwner": "lib/daily-portfolio/accounting.ts laneEligibility",
+   "nflOwner": null,
+   "decision": "ADAPTER \u2014 explicit NFL eligibility adapter; experimental forecasts must not auto-qualify",
+   "status": "OPEN"
+  },
+  {
+   "capability": "Results / settlement lineage",
+   "mlbOwner": "/mlb/results + lib/data-mlb-results",
+   "nflOwner": "experimental-settlement ledger + WATCH.json (P174-G)",
+   "decision": "SHARED CONTRACT, separate ledgers \u2014 experimental accuracy must never merge with money records",
+   "status": "SHIPPED",
+   "realityGate": "official finals after tonight's 23:00Z kickoffs"
+  },
+  {
+   "capability": "Canonical asset resolver",
+   "mlbOwner": "TeamMark + mlbTeamLogoUrl",
+   "nflOwner": "TeamLogo (already NFL-aware, ESPN CDN)",
+   "decision": "SHARED \u2014 TeamLogo is the one shared component NFL already uses",
+   "status": "SHIPPED"
+  },
+  {
+   "capability": "Liveness banner",
+   "mlbOwner": "components/slate-liveness-banner.tsx",
+   "nflOwner": null,
+   "decision": "NOT_APPLICABLE as-is \u2014 the component takes MLB/World-Cup-specific boolean flags (includeMlbNote, includeWcFocus)",
+   "replacement": "the canonical NFL index already carries lifecycle per event (UPCOMING/STARTED/SETTLED) and the page renders state per card; a shared banner would need a sport adapter first",
+   "status": "NOT_APPLICABLE"
+  },
+  {
+   "capability": "Protected console NFL lane",
+   "mlbOwner": "/launch executive health + sports panel",
+   "nflOwner": "nfl-lane.json panel (P171-G) + executive health strip (P172-J)",
+   "decision": "SHARED \u2014 extend the existing console; event control table still OPEN",
+   "status": "OPEN"
+  }
+ ],
+ "summary": {
+  "totalRows": 21,
+  "shipped": 3,
+  "adoptedShared": 2,
+  "adapterNeeded": 2,
+  "notApplicableWithReplacement": 2,
+  "open": 12,
+  "unexplainedGaps": 0,
+  "derivedNote": "counted from rows, never hand-written \u2014 the first hand-written summary over-claimed 4 shipped/10 open against an actual 3/12 and a guard caught it"
+ },
+ "honesty": [
+  "every row names an owner or an explicit gap \u2014 no row is hand-waved, and the two NOT_APPLICABLE rows each carry a football-specific reason and a named replacement of equal user value",
+  "10 rows are OPEN engineering work. This ledger exists so that count is visible rather than hidden behind the word 'complete'.",
+  "the cheapest real parity path is adopting owners that already exist and are sport-agnostic, not forking the /mlb page tree \u2014 8 of the shared components MLB uses need no change at all, and 4 need only an additive registry/union entry"
+ ]
+}

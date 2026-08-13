@@ -16,7 +16,7 @@
  *     UFC is product-card eligible until the validation threshold is met.
  */
 
-export type MarketSport = "mlb" | "soccer" | "ufc";
+export type MarketSport = "mlb" | "nfl" | "soccer" | "ufc";
 
 export type MarketStatus =
   | "supported" // live where odds/artifacts exist; safe to show + (if settlement supported) product-eligible
@@ -46,6 +46,52 @@ export interface MarketCoverage {
   settlementSupport: SettlementSupport;
   publicExplanation: string;
 }
+
+/** NFL coverage (Program 175 · Release C). Every row states what the market actually is today. */
+export const NFL_COVERAGE: MarketCoverage[] = [
+  {
+    sport: "nfl", market: "team_score", publicLabel: "Projected score",
+    status: "experimental", predictionSource: "independent_sim",
+    requiredData: ["schedule", "cutoff-versioned strength state", "preseason scoring model"],
+    settlementSupport: "supported",
+    publicExplanation: "10,000 simulations of the final score per game. Early model: on a season it had never seen it picked winners no better than a coin flip, so win percentages stay near even and it is never presented as sharper than the sportsbook price.",
+  },
+  {
+    sport: "nfl", market: "moneyline", publicLabel: "Win chance",
+    status: "experimental", predictionSource: "independent_sim",
+    requiredData: ["team score simulation"],
+    settlementSupport: "supported",
+    publicExplanation: "Read from the same simulation as the projected score, so the two can never disagree. Experimental — never a validated pick.",
+  },
+  {
+    sport: "nfl", market: "totals", publicLabel: "Total points",
+    status: "experimental", predictionSource: "independent_sim",
+    requiredData: ["team score simulation"],
+    settlementSupport: "supported",
+    publicExplanation: "Median and likely range from the same 10,000 runs, shown beside the sportsbook total for context.",
+  },
+  {
+    sport: "nfl", market: "market_consensus", publicLabel: "Sportsbook prices",
+    status: "supported", predictionSource: "market_anchored",
+    requiredData: ["authorized odds capture"],
+    settlementSupport: "supported",
+    publicExplanation: "The books' own moneyline, spread and total with the margin removed, captured before kickoff and attributed. Not a GameTimePicks prediction.",
+  },
+  {
+    sport: "nfl", market: "anytime_touchdown", publicLabel: "Anytime touchdown",
+    status: "settlement_blocked", predictionSource: "independent_sim",
+    requiredData: ["current role evidence", "an offered touchdown market"],
+    settlementSupport: "pending",
+    publicExplanation: "The scoring model is calibrated, but nobody publishes preseason playing time and the books offer no touchdown market for these games — so it appears as a watchlist, never a card.",
+  },
+  {
+    sport: "nfl", market: "player_props", publicLabel: "Passing / rushing / receiving",
+    status: "provider_needed", predictionSource: "none",
+    requiredData: ["event-bound player availability", "an offered player market"],
+    settlementSupport: "pending",
+    publicExplanation: "Withheld: no source publishes who dresses for a preseason game or how much they play, so a projection would be invented rather than measured.",
+  },
+];
 
 /** A market may enter a Bank Builder / Moonshot product card ONLY if it is settleable and not experimental. */
 export function isProductEligible(m: MarketCoverage): boolean {
@@ -190,6 +236,7 @@ export const MARKET_COVERAGE: readonly MarketCoverage[] = [
     settlementSupport: "unsupported",
     publicExplanation: "Not offered — needs a round/distance odds feed. Never faked.",
   },
+  ...NFL_COVERAGE,
 ];
 
 export function coverageForSport(sport: MarketSport): MarketCoverage[] {
@@ -200,6 +247,8 @@ export function coverageForSport(sport: MarketSport): MarketCoverage[] {
  *  capability with no live tournament right now (the 2026 World Cup is complete); UFC is experimental. */
 export const COVERAGE_SPORTS: { key: MarketSport; label: string; note: string }[] = [
   { key: "mlb", label: "MLB", note: "market-anchored + 10k player-prop sim" },
+  // P175-C: NFL joins the SHARED coverage registry rather than getting a forked matrix.
+  { key: "nfl", label: "NFL", note: "experimental 10k preseason score simulation — not product-eligible" },
   { key: "soccer", label: "Soccer", note: "market-implied 90' read — no live tournament right now" },
   { key: "ufc", label: "UFC", note: "experimental — market-implied, not product-eligible" },
 ];
