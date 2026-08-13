@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823995-7b4f5e3751227a861250120790a925e0",
+  "snapshotCreatedAt": "2026-08-13T23:31:53.697Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-13",
+  "eventId": "823995",
+  "gamePk": 823995,
+  "eventStartTime": "2026-08-14T02:07:00Z",
+  "homeTeam": "LAA",
+  "awayTeam": "TEX",
+  "venue": "Angel Stadium",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "22a7542549b10dfd851a7822f2cd98b7",
+  "normalizedPayloadHash": "7df13b52d6a5a2732c9d099f3fd9277b",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          685133,
+          545361,
+          694384,
+          687093,
+          694208,
+          694203,
+          666139,
+          642350,
+          624428
+        ],
+        "away": [
+          592626,
+          694671,
+          608369,
+          607043,
+          677649,
+          694497,
+          670032,
+          642851,
+          679822
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T23:31:53.697Z",
+      "availableAt": "2026-08-13T23:31:53.697Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T23:31:53.697Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823995/feed/live",
+        "requestedAt": "2026-08-13T23:31:53.697Z",
+        "receivedAt": "2026-08-13T23:31:53.697Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Walbert Ureña",
+        "awayProbable": "Jacob deGrom",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T23:31:53.697Z",
+      "availableAt": "2026-08-13T23:31:53.697Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T23:31:53.697Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823995/feed/live",
+        "requestedAt": "2026-08-13T23:31:53.697Z",
+        "receivedAt": "2026-08-13T23:31:53.697Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Cloudy",
+        "temp": "84",
+        "wind": "9 mph, Varies",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T23:31:53.697Z",
+      "availableAt": "2026-08-13T23:31:53.697Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T23:31:53.697Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823995/feed/live",
+        "requestedAt": "2026-08-13T23:31:53.697Z",
+        "receivedAt": "2026-08-13T23:31:53.697Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Marvin Hudson",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Nick Mahrley",
+            "type": "First Base"
+          },
+          {
+            "name": "Austin Jones",
+            "type": "Second Base"
+          },
+          {
+            "name": "Tripp Gibson",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-13T23:31:53.697Z",
+      "availableAt": "2026-08-13T23:31:53.697Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-13T23:31:53.697Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823995/feed/live",
+        "requestedAt": "2026-08-13T23:31:53.697Z",
+        "receivedAt": "2026-08-13T23:31:53.697Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823995,
+  "date": "2026-08-13",
+  "capturedAt": "2026-08-13T23:31:53.758Z",
+  "availableAt": "2026-08-13T23:31:53.758Z",
+  "eventStartTime": "2026-08-14T02:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 700712,
+      "name": "Walbert Ureña",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 4.4,
+        "bbAvg": 2.8,
+        "erAvg": 1.2,
+        "hrAvg": 0.2,
+        "kPer9": 8.14,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 100,
+        "k": 95,
+        "bb": 52,
+        "er": 32,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 594798,
+      "name": "Jacob deGrom",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 5,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 5.8,
+        "bbAvg": 2,
+        "erAvg": 2.8,
+        "hrAvg": 0.2,
+        "kPer9": 11.35,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 118.67,
+        "k": 144,
+        "bb": 30,
+        "er": 51,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-13&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-13T23:31:53.758Z"
+  },
+  "recordHash": "e6156de6d82735adcb2e442a8f9210eeef5feb2e0ccca4bf41fdf7ca14572b4a"
+}
