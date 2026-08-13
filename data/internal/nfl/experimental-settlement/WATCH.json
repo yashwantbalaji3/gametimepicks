@@ -1,0 +1,33 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-experimental-settlement-watch",
+ "dataClass": "PRIVATE_PAPER_RECORD",
+ "program": "P174",
+ "release": "G",
+ "state": "ARMED",
+ "observable": false,
+ "armedAt": "2026-08-13T20:10:00Z",
+ "why": "Nine public experimental forecasts are frozen for 2026-08-13, but the earliest kickoff is 23:00Z — no result exists yet. The settlement path is PROVEN on a scratch fixture (3 synthetic finals graded, exactly-once verified on rerun, market benchmark computed in its own lane) and the real run correctly reports 9 pending. A post-event artifact must never masquerade as pre-event evidence, so this waits for reality.",
+ "trigger": {
+  "canonicalEventId": "nfl-401873272",
+  "matchup": "DET @ CIN",
+  "kickoffUtc": "2026-08-13T23:00Z",
+  "afterUtc": "2026-08-14T13:30:00Z",
+  "condition": "the sport-schedules cadence lands the Aug 13 finals in app/public/data/nfl/results/latest.json with STATUS_FINAL and integer scores",
+  "automatedBy": ".github/workflows/nfl-event-window.yml settle job (cron 30 14 * * *)",
+  "command": "node scripts/nfl/settle-nfl-experimental.mjs --now <iso> --date 2026-08-13"
+ },
+ "acceptance": [
+  "each of the nine forecasts settles EXACTLY ONCE; a second run adds zero rows",
+  "the graded receipt is the LATEST PRE-KICKOFF revision — the forecast readers actually saw — with the full revision chain preserved as lineage",
+  "accounting reconciles with gap zero (receipts = settled + pending + quarantined) or the script refuses to write",
+  "metrics are distribution metrics only — winner correctness, margin/total MAE, 80% interval coverage, Brier, log loss — and no W-L, ROI, stake, or exposure field exists",
+  "the market benchmark is computed in its own block and never merged into the model's metrics",
+  "protected money stays byte-identical: portfolio affe6b21..., locks cb80473f..."
+ ],
+ "knownRisks": [
+  "a tie (preseason ties are real) has no winner side and is excluded from the decisive denominator, not counted as a loss",
+  "a FINAL without integer scores quarantines rather than grading",
+  "a correction after settlement appends lineage; the original receipt and prior result version are preserved"
+ ]
+}
