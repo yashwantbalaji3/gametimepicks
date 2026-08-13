@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823669,
+  "date": "2026-08-13",
+  "capturedAt": "2026-08-13T15:51:07.227Z",
+  "availableAt": "2026-08-13T15:51:07.227Z",
+  "eventStartTime": "2026-08-13T23:30:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 671737,
+      "name": "Taj Bradley",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 6,
+        "bbAvg": 3,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 9.31,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 131.67,
+        "k": 148,
+        "bb": 55,
+        "er": 55,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 605400,
+      "name": "Aaron Nola",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.4,
+        "bbAvg": 2.4,
+        "erAvg": 2.8,
+        "hrAvg": 1.8,
+        "kPer9": 8.68,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 125,
+        "k": 129,
+        "bb": 43,
+        "er": 76,
+        "hr": 29
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-13&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-13T15:51:07.227Z"
+  },
+  "recordHash": "43833a445a2a49c8dc727a0326e4a0d6fc00a43877501870d43b2a0eebdd1a6b"
+}
