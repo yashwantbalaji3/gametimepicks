@@ -1,0 +1,164 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-preseason-model-v1-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-13T13:10:00Z",
+ "modelId": "nfl-preseason-v1-score-distribution",
+ "modelVersion": 1,
+ "protocol": {
+  "fit": "2023 + 2024 preseason only",
+  "test": "2025 preseason held out entirely, scored ONCE",
+  "inputs": "regular-season cutoff Elo as an explicitly DISCOUNTED prior (discount fit, not assumed), preseason home context, preseason scoring climatology",
+  "excluded": "no market input, no post-game information, no regular-season games in the target population",
+  "tiePolicy": "ties are excluded from the winner denominator and reported separately — a two-way winner claim has no tie side"
+ },
+ "accounting": {
+  "preseasonGames": 146,
+  "bySeason": {
+   "2023": 49,
+   "2024": 49,
+   "2025": 48
+  },
+  "trainGames": 98,
+  "testGames": 48,
+  "ties": 6,
+  "neutralSite": 2,
+  "reconciles": true
+ },
+ "bars": {
+  "winner": {
+   "metric": "held-out log loss",
+   "mustBeat": [
+    "coin (0.6931)",
+    "home-prior (fit on train preseason home rate)",
+    "regular-season v1 out of domain"
+   ],
+   "threshold": "logLoss < 0.6931 − 0.010 AND reliability ECE ≤ 0.05",
+   "rationale": "a winner claim needs real separation from a coin, not noise; P169's shrink study already found preseason winner skill ≈ 0, so the bar is set where a genuine signal would clear it"
+  },
+  "total": {
+   "metric": "held-out MAE + 80% interval coverage",
+   "mustBeat": [
+    "regular-season v1 out of domain by ≥ 2.0 points",
+    "must not be worse than walk-forward preseason climatology by > 0.25 points"
+   ],
+   "threshold": "MAE ≤ v1MAE − 2.0 AND MAE ≤ climatologyMAE + 0.25 AND coverage ∈ [0.72, 0.88]",
+   "rationale": "the whole claim is bias correction; if it cannot beat the out-of-domain model by two full points it is not worth a separate version"
+  },
+  "margin": {
+   "metric": "held-out MAE + 80% interval coverage",
+   "mustBeat": [
+    "regular-season v1 out of domain",
+    "zero-margin (pick'em) baseline"
+   ],
+   "threshold": "MAE ≤ min(v1MAE, pickemMAE) AND coverage ∈ [0.72, 0.88]",
+   "rationale": "removing a phantom home edge must not cost accuracy; a wider-but-honest interval is acceptable, a miscalibrated one is not"
+  }
+ },
+ "fit": {
+  "muTotal": 37.3265,
+  "sigmaTotal": 11.1501,
+  "homeAdvantage": -0.6481,
+  "marginSlope": -0.017442,
+  "sigmaMargin": 12.9375,
+  "eloDiscountVsRegular": -0.2516,
+  "trainN": 98
+ },
+ "heldOut2025": {
+  "winner": {
+   "nDecisive": 45,
+   "ties": 3,
+   "model": {
+    "logLoss": 0.6933,
+    "brier": 0.2502,
+    "ece": 0.1537
+   },
+   "baselines": {
+    "coin": {
+     "logLoss": 0.6931,
+     "brier": 0.25
+    },
+    "homePrior": {
+     "rate": 0.5,
+     "logLoss": 0.6931,
+     "brier": 0.25
+    },
+    "regularV1OutOfDomain": {
+     "logLoss": 0.8406,
+     "brier": 0.3018
+    }
+   }
+  },
+  "total": {
+   "n": 48,
+   "model": {
+    "mae": 8.286,
+    "pinball": 2.952,
+    "coverage80": 0.7708
+   },
+   "baselines": {
+    "regularV1OutOfDomain": {
+     "mae": 8.862,
+     "coverage80": 0.8958,
+     "biasPoints": 3.888
+    },
+    "preseasonClimatology": {
+     "mae": 8.286
+    }
+   }
+  },
+  "margin": {
+   "n": 48,
+   "model": {
+    "mae": 11.872,
+    "pinball": 4.203,
+    "coverage80": 0.6875
+   },
+   "baselines": {
+    "regularV1OutOfDomain": {
+     "mae": 13.404,
+     "coverage80": 0.625
+    },
+    "pickem": {
+     "mae": 11.813
+    }
+   }
+  }
+ },
+ "promotion": {
+  "winner": {
+   "state": "ABSTAIN",
+   "evidence": {
+    "beatsCoinByMargin": -0.0002,
+    "requiredMargin": 0.01,
+    "ece": 0.1537,
+    "beatsHomePrior": false,
+    "beatsRegularV1": true
+   }
+  },
+  "total": {
+   "state": "RESEARCH_ONLY",
+   "evidence": {
+    "improvementOverV1": 0.576,
+    "requiredImprovement": 2,
+    "coverage80": 0.7708,
+    "vsClimatology": 0
+   }
+  },
+  "margin": {
+   "state": "RESEARCH_ONLY",
+   "evidence": {
+    "mae": 11.872,
+    "v1Mae": 13.404,
+    "pickemMae": 11.813,
+    "coverage80": 0.6875
+   }
+  }
+ },
+ "honesty": [
+  "the winner head and the score-distribution heads promote INDEPENDENTLY: a calibrated score range is a real product even where no winner edge exists",
+  "the Elo input is a regular-season prior applied at a fitted discount — it is never the target, and its discount is measured rather than chosen",
+  "preseason home advantage is FIT, not inherited: the regular-season +48 Elo home constant is not carried over",
+  "n is small (98 train / 48 test games) — every promotion here is a bias-correction claim on top of a simple model, never a precision claim"
+ ]
+}

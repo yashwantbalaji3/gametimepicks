@@ -1,0 +1,57 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-preseason-model-card",
+ "dataClass": "PRIVATE_RESEARCH",
+ "modelId": "nfl-preseason-v1-score-distribution",
+ "version": 1,
+ "generatedAt": "2026-08-13T13:10:00Z",
+ "objective": "pre-event PRESEASON score distributions (total, margin, per-team scores) for NFL preseason games, with an independently gated winner head",
+ "method": "closed-form normal heads fit on preseason-only history; margin = fitted preseason home advantage + fitted discount × regular-season cutoff Elo difference; total = preseason climatology; one distribution drives every reported quantity",
+ "separateFrom": "nfl-model-v1-elo-analytic — the regular-season card is NOT modified and the two records never merge",
+ "population": {
+  "corpus": "146 preseason games 2023-25",
+  "train": "2023-24 (98)",
+  "test": "2025 (48)"
+ },
+ "metrics": {
+  "see": "reports/preseason-model-v1-evaluation.json"
+ },
+ "promotion": {
+  "winner": {
+   "state": "ABSTAIN",
+   "evidence": {
+    "beatsCoinByMargin": -0.0002,
+    "requiredMargin": 0.01,
+    "ece": 0.1537,
+    "beatsHomePrior": false,
+    "beatsRegularV1": true
+   }
+  },
+  "total": {
+   "state": "RESEARCH_ONLY",
+   "evidence": {
+    "improvementOverV1": 0.576,
+    "requiredImprovement": 2,
+    "coverage80": 0.7708,
+    "vsClimatology": 0
+   }
+  },
+  "margin": {
+   "state": "RESEARCH_ONLY",
+   "evidence": {
+    "mae": 11.872,
+    "v1Mae": 13.404,
+    "pickemMae": 11.813,
+    "coverage80": 0.6875
+   }
+  }
+ },
+ "limitations": [
+  "preseason participation is unmodelled: starters' snap counts are the dominant unobserved variable and no authorized source exists",
+  "small sample — 98 training games; the model is deliberately simple and its intervals are wide",
+  "no injury, weather, rest, or roster-continuity feature (none is sourced pre-event today)"
+ ],
+ "independenceFromMarket": "structural — no odds parameter exists in fit or predict; market prices are compared beside the model, never blended",
+ "publicActivation": "OFF",
+ "activationNote": "no head cleared its pre-declared bar; promotion requires a NEW evaluation, not a relaxed threshold"
+}
