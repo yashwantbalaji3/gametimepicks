@@ -1,0 +1,94 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-scoring-bridge-v1",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-08-13T05:20:00Z",
+ "protocol": {
+  "train": "2023-24 regular+post team-games",
+  "test": "2025 regular+post held out",
+  "preseason": "separate slice, never mixed"
+ },
+ "corpusAccounting": [
+  {
+   "season": 2023,
+   "captured": 334,
+   "quarantined": 0,
+   "contentHash": "fd64ebd56563d258"
+  },
+  {
+   "season": 2024,
+   "captured": 334,
+   "quarantined": 0,
+   "contentHash": "5e8075b215ee74b9"
+  },
+  {
+   "season": 2025,
+   "captured": 333,
+   "quarantined": 0,
+   "contentHash": "bf118f6dd4b6b75c"
+  }
+ ],
+ "mapping": {
+  "receipt": "fit 2026-08-13T05:20:00Z on n=1140 train team-games (this file IS the committed calibration receipt the TD engine requires)",
+  "form": "lambda(points) = intercept + slope × points (linear-λ Poisson; deliberately simple, stated)",
+  "lambdaIntercept": -0.47428,
+  "lambdaPerPoint": 0.12601,
+  "trainPassShare": 0.6123
+ },
+ "metrics": {
+  "test": {
+   "n": 570,
+   "logLoss": 1.397,
+   "brier": 0.6937
+  },
+  "baselineConstant": {
+   "lambda": 2.3553,
+   "logLoss": 1.7504,
+   "brier": 0.8044
+  },
+  "calibrationByPointsBand": [
+   {
+    "band": "0-13",
+    "n": 105,
+    "predictedMeanTd": 0.654,
+    "actualMeanTd": 0.686,
+    "actualPassShare": 0.694
+   },
+   {
+    "band": "14-20",
+    "n": 133,
+    "predictedMeanTd": 1.758,
+    "actualMeanTd": 1.699,
+    "actualPassShare": 0.637
+   },
+   {
+    "band": "21-27",
+    "n": 160,
+    "predictedMeanTd": 2.593,
+    "actualMeanTd": 2.525,
+    "actualPassShare": 0.599
+   },
+   {
+    "band": "28-99",
+    "n": 172,
+    "predictedMeanTd": 3.881,
+    "actualMeanTd": 3.942,
+    "actualPassShare": 0.617
+   }
+  ]
+ },
+ "preseasonSlice": {
+  "n": 292,
+  "meanOffTd": 1.959,
+  "note": "variant evidence only — the preseason TD environment differs and is never blended into the regular fit"
+ },
+ "negativeCases": {
+  "zeroTdGames": 46,
+  "identityR3": "6×offTD ≤ points enforced per game by the corpus builder before any row enters this fit"
+ },
+ "honesty": [
+  "conditioning is on FINAL points (the simulator supplies its own simulated points at runtime — the bridge translates, it does not predict)",
+  "defensive/special-teams touchdowns live OUTSIDE offensive TD counts by construction (player pass/rush credit only) — the TD engine's residual bucket carries them",
+  "no market data anywhere in this fit"
+ ]
+}

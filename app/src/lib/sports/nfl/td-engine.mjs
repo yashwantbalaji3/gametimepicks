@@ -120,3 +120,17 @@ export function settleAnytimeTd({ playerId, officialScorers, playerStatus }) {
   if (threwOnly) return { outcome: "LOSS", reason: "passing-TD credit only — the passer is not the scoring player for anytime-TD" };
   return { outcome: "LOSS", reason: "no official scoring credit" };
 }
+
+/**
+ * Load the committed points→TD calibration receipt (Program 170 · Release B). Returns the
+ * mapping teamTdDistribution() requires, or null when no receipt exists — the engine's refusal
+ * path stays intact; this loader can only ever supply a REAL committed fit.
+ */
+export function loadScoringBridgeMapping({ fs, path, cwd }) {
+  try {
+    const p = path.join(cwd, "..", "data/internal/research/nfl/reports/scoring-bridge-v1.json");
+    const r = JSON.parse(fs.readFileSync(p, "utf8"));
+    if (typeof r?.mapping?.lambdaPerPoint !== "number" || typeof r?.mapping?.lambdaIntercept !== "number" || !r?.mapping?.receipt) return null;
+    return { lambdaPerPoint: r.mapping.lambdaPerPoint, lambdaIntercept: r.mapping.lambdaIntercept, receipt: r.mapping.receipt, trainPassShare: r.mapping.trainPassShare ?? null };
+  } catch { return null; }
+}

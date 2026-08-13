@@ -77,3 +77,15 @@ test("settlement: scoring-player credit wins; passer-only credit loses; DNP void
   assert.equal(settleAnytimeTd({ playerId: "wr1", officialScorers: null, playerStatus: "PLAYED" }).outcome, "PENDING");
   assert.equal(settleAnytimeTd({ playerId: "wr1", officialScorers: scorers, playerStatus: "POSTPONED" }).outcome, "VOID");
 });
+
+test("REAL RECEIPT · the committed scoring bridge loads and unlocks the mapping gate (P170-B)", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const { loadScoringBridgeMapping } = await import("./td-engine.mjs");
+  const mapping = loadScoringBridgeMapping({ fs: fs.default, path: path.default, cwd: process.cwd() });
+  assert.ok(mapping, "the committed receipt exists and parses");
+  assert.match(mapping.receipt, /committed calibration receipt/);
+  const dist = teamTdDistribution({ expectedPoints: 24, mapping });
+  assert.equal(dist.state, "OK");
+  assert.ok(dist.lambda > 1.5 && dist.lambda < 4, `λ(24) = ${dist.lambda} in the plausible NFL band`);
+});
