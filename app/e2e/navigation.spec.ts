@@ -28,10 +28,15 @@ const PAGES = [
 // /trends is a soft-retired route post-Phase 12. It must still respond
 // (we don't want broken external links) but shows the retirement notice.
 // Legacy aliases that must keep working rather than 404 — they client-redirect to their new home.
+// P172-K: this table drifted from reality and sat red for two releases. /parlay-lab was
+// repointed when /picks itself was retired into /build, and /sports was deliberately REVIVED as a
+// real page (Program 148 · Release B) so it is not a redirect at all. Both entries asserted the
+// old world. The table is now cross-checked against each route's actual ClientRedirect target by
+// src/lib/audits/redirect-targets.test.mjs, which runs in the FAST suite — so the next time a
+// destination moves, it fails in seconds rather than silently rotting here.
 const REDIRECTS = [
-  { path: "/parlay-lab/", lands: /\/picks\/?$/ },
+  { path: "/parlay-lab/", lands: /\/build\/?(#.*)?$/ },
   { path: "/board/", lands: /\/mlb\/board\/?$/ },
-  { path: "/sports/", lands: /\/mlb\/?$/ },
   { path: "/nba/", lands: /\/results\/nba\/?$/ },
 ];
 
