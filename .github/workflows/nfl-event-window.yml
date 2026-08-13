@@ -97,6 +97,15 @@ jobs:
 
       # P173-A: public-beta forecasts. Runs AFTER the market capture and event assembly so each
       # forecast is frozen against the inputs that existed pre-kickoff, and never after a start.
+      # P175-A: event-bound role evidence. Runs BEFORE the forecasts so player families have a
+      # per-player availability verdict to consume rather than an assumption.
+      - name: Build NFL role evidence
+        if: steps.window.outputs.events != '0'
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/build-nfl-role-evidence.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 30
+
       - name: Generate public-beta NFL forecasts
         if: steps.window.outputs.events != '0'
         working-directory: app
