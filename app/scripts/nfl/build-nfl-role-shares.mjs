@@ -176,6 +176,57 @@ const decayedMean = (values) => {
 
 const PREDICT_SEASON = 2026;
 const MIN_SHARE = 0.005;
+
+// Per-opportunity efficiency rates for the prop engine, computed with the COMMITTED player-props
+// receipt's rate params (shrunkRate: hl/boundary/m + league priors). Absent that receipt the
+// rates block is omitted — the prop engine then refuses, which is the correct failure.
+let propsFit = null;
+try {
+  const pf = read(path.join(ROOT, "data/internal/research/nfl/reports/player-props-v1-evaluation.json"));
+  if (pf?.fit?.league && pf?.fit?.rates) propsFit = pf.fit;
+} catch { /* no receipt — no rates block */ }
+const RATE_DEFS = propsFit ? {
+  compRate: { s: (p) => p.passCmp ?? 0, t: (p) => p.passAtt ?? 0, league: propsFit.league.compRate },
+  ypcmp: { s: (p) => p.passYds ?? 0, t: (p) => p.passCmp ?? 0, league: propsFit.league.ypcmp },
+  intRate: { s: (p) => p.passInt ?? 0, t: (p) => p.passAtt ?? 0, league: propsFit.league.intRate },
+  catchRate: { s: (p) => p.rec ?? 0, t: (p) => p.targets ?? 0, league: propsFit.league.catchRate },
+  ypr: { s: (p) => p.recYds ?? 0, t: (p) => p.rec ?? 0, league: propsFit.league.ypr },
+  ypc: { s: (p) => p.rushYds ?? 0, t: (p) => p.rushAtt ?? 0, league: propsFit.league.ypc },
+} : null;
+// per-player rate observations over the same stint discipline (reset on team change)
+const rateState = new Map(); // playerId → {team, obs: {key: [{success, trials, season}]}}
+if (RATE_DEFS) {
+  for (const game of allGames) {
+    if ((game.seasonType ?? 0) === 1) {
+      for (const r of game.players ?? []) {
+        let st = rateState.get(r.playerId);
+        if (!st || st.team !== r.teamAbbr) rateState.set(r.playerId, { team: r.teamAbbr, obs: {} });
+      }
+      continue;
+    }
+    for (const r of game.players ?? []) {
+      let st = rateState.get(r.playerId);
+      if (!st || st.team !== r.teamAbbr) { st = { team: r.teamAbbr, obs: {} }; rateState.set(r.playerId, st); }
+      for (const [key, def] of Object.entries(RATE_DEFS)) {
+        const trials = def.t(r);
+        if (trials > 0) (st.obs[key] ??= []).push({ success: def.s(r), trials, season: game.season });
+      }
+    }
+  }
+}
+const shrunk = (obs, def) => {
+  const hl = propsFit.rates.halfLifeGames;
+  const bd = propsFit.rates.boundaryDecay;
+  const m = propsFit.rates.priorTrials;
+  let s = 0; let t = 0;
+  const n = obs.length;
+  for (let i = 0; i < n; i += 1) {
+    const w = (hl === Infinity ? 1 : 0.5 ** ((n - 1 - i) / hl)) * bd ** Math.max(0, PREDICT_SEASON - obs[i].season);
+    s += w * obs[i].success;
+    t += w * obs[i].trials;
+  }
+  return (s + m * def.league) / (t + m);
+};
 const basis = (nEff, games) => `corpus-role 2023-25 stint (nEff ${nEff.toFixed(2)}, g ${games}, hl=${chosen.halfLifeGames}, k=${chosen.shrinkK}, boundary=${chosen.boundaryDecay}) — ${NFL_ROLE_SHARES_ID}`;
 const teams = {};
 for (const t of roster.teams) {
@@ -209,6 +260,22 @@ for (const t of roster.teams) {
     rushAttempts: vols.length ? Number(decayedMean(vols.map((v) => v.rushAttempts)).toFixed(2)) : null,
     basis: "decayed mean of 2025 REG+POST team totals (hl=8 games) — context, not a forecast",
   };
+  if (RATE_DEFS) {
+    const listed = new Set(SHARE_FAMILIES.flatMap((f) => families[f].players.map((p) => p.playerId)));
+    const players = [];
+    for (const playerId of [...listed].sort()) {
+      const st = rateState.get(playerId);
+      if (!st || st.team !== t.teamAbbr) continue;
+      const row = { playerId };
+      for (const [key, def] of Object.entries(RATE_DEFS)) row[key] = Number(shrunk(st.obs[key] ?? [], def).toFixed(5));
+      players.push(row);
+    }
+    families.rates = {
+      players,
+      basis: `shrunkRate per committed props receipt (hl=${propsFit.rates.halfLifeGames}, boundary=${propsFit.rates.boundaryDecay}, m=${propsFit.rates.priorTrials}) toward league priors`,
+      receipt: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+    };
+  }
   teams[t.teamAbbr] = families;
 }
 

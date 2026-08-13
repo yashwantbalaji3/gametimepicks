@@ -58,7 +58,7 @@ export function anytimeTdProbability({ teamTd, perTdShare }) {
  * Build the scorer board for one team. Every player gets a typed state; publishable rows demand
  * every gate. Shares must reconcile (validateAllocation's TD rule) before anything is computed.
  */
-export function buildScorerBoard({ event, teamAbbr, teamSim, mapping, pool, roleShares, scorerPrices = null, calibrationReceipt = null, nowIso }) {
+export function buildScorerBoard({ event, teamAbbr, teamSim, mapping, pool, roleShares, scorerPrices = null, scorerPriceState = "AUTH_REQUIRED — no authorized current price", calibrationReceipt = null, nowIso }) {
   const base = { version: NFL_TD_ENGINE_VERSION, engineId: NFL_TD_ENGINE_ID, providerEventId: event?.providerEventId ?? null, teamAbbr, ranAt: nowIso, market: "ANYTIME_TOUCHDOWN" };
   if (teamSim?.state !== "SIMULATED") return { ...base, state: "REFUSED", reason: "no team simulation — players are allocated from team scoring, never modelled free-floating" };
 
@@ -84,7 +84,7 @@ export function buildScorerBoard({ event, teamAbbr, teamSim, mapping, pool, role
     const gates = {
       participation: part?.state === "ACTIVE_PROJECTED" || part?.state === "ACTIVE_CONFIRMED" ? "PASS" : `FAIL(${part?.state ?? "NOT_IN_POOL"})`,
       roleShare: s.shareBasis ? "PASS" : "FAIL(no source-backed basis)",
-      scorerPrice: scorerPrices?.[s.playerId] != null ? "PASS" : "FAIL(AUTH_REQUIRED — no authorized current price)",
+      scorerPrice: scorerPrices?.[s.playerId] != null ? "PASS" : `FAIL(${scorerPriceState})`,
       calibration: calibrationReceipt ? "PASS" : "FAIL(no committed calibration receipt)",
     };
     const publishable = Object.values(gates).every((g) => g === "PASS");

@@ -192,7 +192,7 @@ if (PROBE) {
         }
         // anytime-TD outcomes resolve to durable player ids or quarantine — names never mint identity
         const rosters = read(path.join(APP, "public/data/nfl/rosters/latest.json"));
-        const registry = buildPlayerRegistry(rosters.teams.map((t) => ({ teamAbbr: t.teamAbbr, capturedAt: rosters.sourceAsOf ?? rosters.generatedAt, players: t.players })));
+        const registry = buildPlayerRegistry([rosters]); // the whole artifact is ONE capture (participation.test's shape)
         const joinRow = joinedByOddsId.get(target.providerEventId);
         const schedRow = canonicalRows.find((c) => c.canonicalEventId === joinRow.canonicalEventId)?.scheduleRow;
         const teamAbbrs = schedRow ? [schedRow.home.abbr, schedRow.away.abbr] : [];
