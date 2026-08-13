@@ -1,0 +1,141 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-lane-status",
+ "dataClass": "INTERNAL_ADMIN",
+ "generatedAt": "2026-08-13T12:30:00Z",
+ "program": "P171",
+ "nextWindow": {
+  "matchup": "DET @ CIN",
+  "kickoffUtc": "2026-08-13T23:00Z",
+  "seasonType": 1,
+  "week": 2,
+  "hoursToKickoff": 10.5,
+  "eventsInWindow": 21
+ },
+ "freshness": {
+  "schedule": {
+   "state": "FRESH",
+   "detail": "as of 2026-08-12T14:12:22Z (FRESH)"
+  },
+  "rosters": {
+   "state": "FRESH",
+   "detail": "as of 2026-08-13T02:55:00Z (FRESH)"
+  },
+  "injuries": {
+   "state": "FRESH",
+   "detail": "as of 2026-08-12T14:12:22Z (FRESH)"
+  },
+  "odds": {
+   "state": "FRESH",
+   "detail": "as of 2026-08-13T11:59:49Z (FRESH)"
+  }
+ },
+ "markets": {
+  "state": "CAPTURED",
+  "events": 9,
+  "books": 11,
+  "capturedAt": "2026-08-13T11:59:49Z",
+  "propMarkets": {
+   "state": "PROBED",
+   "probedEventId": "nfl-401873272",
+   "offeredMarkets": [],
+   "absentMarkets": [
+    "player_anytime_td",
+    "player_pass_yds",
+    "player_rush_yds",
+    "player_reception_yds",
+    "player_receptions"
+   ]
+  }
+ },
+ "credits": {
+  "state": "AUTHORIZED",
+  "programSpend": 12,
+  "ceiling": 3000,
+  "remainingProgram": 2988,
+  "providerRemaining": 15616,
+  "openingBalance": {
+   "capturedAt": "2026-08-13T08:57:07Z",
+   "providerRequestsUsed": 4342,
+   "providerRequestsRemaining": 15658,
+   "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
+  },
+  "requests": 14,
+  "detail": "12 of 3000 Program 171 credits across 14 requests; provider reports 15616 remaining"
+ },
+ "models": {
+  "roleShares": {
+   "state": "EVALUATED",
+   "detail": "held-out 2025 TV 0.4637 vs best baseline 0.4954 (n=2234)"
+  },
+  "playerProps": {
+   "state": "EVALUATED",
+   "detail": "player_pass_yds=RESEARCH_ONLY · player_rush_yds=PUBLIC_ELIGIBLE · player_reception_yds=SHADOW_ELIGIBLE · player_receptions=SHADOW_ELIGIBLE · player_pass_int=RESEARCH_ONLY",
+   "promotion": {
+    "player_pass_yds": "RESEARCH_ONLY",
+    "player_rush_yds": "PUBLIC_ELIGIBLE",
+    "player_reception_yds": "SHADOW_ELIGIBLE",
+    "player_receptions": "SHADOW_ELIGIBLE",
+    "player_pass_int": "RESEARCH_ONLY"
+   }
+  },
+  "anytimeTd": {
+   "state": "CALIBRATED",
+   "detail": "logLoss 0.5492 vs const-λ 0.5525, ECE 0.0148, n=3570"
+  },
+  "scoringBridge": {
+   "state": "CALIBRATED",
+   "detail": "λ = -0.47428 + 0.12601·points (fit 2026-08-13T05:20:00Z on n=1140 train team-games (this file IS the committed calibration receipt the TD engine requires))"
+  },
+  "teamModel": {
+   "state": "EVALUATED",
+   "detail": "held-out logLoss 0.6478 vs coin 0.6931; PRESEASON ABSTAINS by model card"
+  }
+ },
+ "currentArtifacts": {
+  "total": 6,
+  "contractValid": 6,
+  "preStart": 6,
+  "settlementReady": 6,
+  "detail": "6/6 pass the current-event contract; 6 carry pinned settlement targets"
+ },
+ "vault": {
+  "state": "NO_PLAY",
+  "date": "2026-08-13",
+  "entries": 1,
+  "corrections": 2
+ },
+ "gate": {
+  "maturity": "SCAFFOLDED",
+  "proven": 2,
+  "total": 12,
+  "nextGate": "schedule (PARTIAL)",
+  "detail": "2/12 stages proven"
+ },
+ "cadence": {
+  "state": "UNPROVEN",
+  "detail": "nfl-event-window.yml is deployed with two daily window passes, but a workflow file is not cadence proof — promotion waits for terminal scheduled receipts"
+ },
+ "blockers": [
+  {
+   "id": "preseason-participation",
+   "state": "REALITY_GATED",
+   "detail": "preseason: no dated+sourced snap scenarios exist, so every player market is ROLE_UNCERTAIN and the team model abstains by its model card. Clears when the regular season starts (or a participation source is authorized)."
+  },
+  {
+   "id": "player-markets-absent",
+   "state": "NO_MARKET",
+   "detail": "the authorized capture probed this window: the provider offers no NFL player-prop or anytime-TD market. Absence is evidence — not a retry target. Re-probe when the regular season opens."
+  },
+  {
+   "id": "first-settlement",
+   "state": "NOT_YET_OBSERVABLE",
+   "detail": "no pre-start artifact has passed its kickoff yet; the first settleable event is DET @ CIN at 2026-08-13T23:00Z"
+  },
+  {
+   "id": "ops-webhook",
+   "state": "FOUNDER_ACTION",
+   "detail": "OPS_WEBHOOK_URL unset — NFL workflow failures land in the Actions tab only"
+  }
+ ]
+}

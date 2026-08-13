@@ -109,6 +109,13 @@ export default function LaunchCommandCenter() {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "ops/internal-alpha/latest.json"), "utf8")); }
     catch { return null; }
   })();
+
+  // NFL lane (Program 171 · Release G). Every field is DERIVED by build-nfl-lane-status.mjs from
+  // committed receipts; a missing artifact renders UNKNOWN here, never green.
+  const nflLane = (() => {
+    try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data/admin/nfl-lane.json"), "utf8")); }
+    catch { return null; }
+  })();
   const covered = board ? new Set(board.leans.map((l: { gamePk: number }) => l.gamePk)).size : null;
 
   const tasks = departments.flatMap((d) => d.tasks);
@@ -405,6 +412,51 @@ export default function LaunchCommandCenter() {
                   );
                 })}
               </div>
+              {/* NFL lane (P171-G) — the event-window operator screen. Every value below is
+                  DERIVED from a committed receipt by build-nfl-lane-status.mjs; absent evidence
+                  renders UNKNOWN. Nothing here is typed by hand and nothing is actionable from
+                  the browser: receipts close work. */}
+              {nflLane ? (
+                <div style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+                  <p style={{ margin: 0, display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+                    <strong style={{ fontSize: 13 }}>NFL lane · event window</strong>
+                    <span style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 10.5, color: "var(--vault-text-faint)" }}>derived {nflLane.generatedAt}</span>
+                  </p>
+                  <p style={{ margin: "6px 0 0", fontSize: 12 }}>
+                    {nflLane.nextWindow?.matchup
+                      ? <>next: <strong>{nflLane.nextWindow.matchup}</strong> {nflLane.nextWindow.kickoffUtc} (T−{nflLane.nextWindow.hoursToKickoff}h) · {nflLane.nextWindow.eventsInWindow} events ahead</>
+                      : <span style={{ color: "var(--vault-text-mute)" }}>{nflLane.nextWindow?.detail ?? "UNKNOWN"}</span>}
+                  </p>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 8, marginTop: 10 }}>
+                    {[
+                      ["freshness", Object.entries(nflLane.freshness).map(([k, v]) => `${k}:${(v as { state: string }).state}`).join(" · ")],
+                      ["markets", nflLane.markets?.state === "CAPTURED" ? `${nflLane.markets.events} events · ${nflLane.markets.books} books · ${nflLane.markets.capturedAt}` : nflLane.markets?.detail ?? "UNKNOWN"],
+                      ["credits", nflLane.credits?.detail ?? "UNKNOWN"],
+                      ["artifacts", nflLane.currentArtifacts?.detail ?? "UNKNOWN"],
+                      ["models", Object.entries(nflLane.models).map(([k, v]) => `${k}:${(v as { state: string }).state}`).join(" · ")],
+                      ["props promotion", Object.entries(nflLane.models?.playerProps?.promotion ?? {}).map(([k, v]) => `${k.replace("player_", "")}:${v}`).join(" · ") || "UNKNOWN"],
+                      ["vault", nflLane.vault?.state ? `${nflLane.vault.state} ${nflLane.vault.date ?? ""} · ${nflLane.vault.corrections} correction(s)` : "UNKNOWN"],
+                      ["gate", `${nflLane.gate.detail}${nflLane.gate.nextGate ? ` · next: ${nflLane.gate.nextGate}` : ""}`],
+                      ["cadence", `${nflLane.cadence.state} — ${nflLane.cadence.detail}`],
+                    ].map(([label, value]) => (
+                      <div key={label as string}>
+                        <p style={{ margin: 0, fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{label}</p>
+                        <p style={{ margin: "2px 0 0", fontSize: 11.5, lineHeight: 1.45, color: "var(--vault-text-mute)", fontFamily: "var(--font-mono, monospace)" }}>{value as string}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <ul style={{ margin: "10px 0 0", paddingLeft: 16, fontSize: 11.5, color: "var(--vault-text-mute)", lineHeight: 1.5 }}>
+                    {nflLane.blockers.map((b: { id: string; state: string; detail: string }) => (
+                      <li key={b.id}><strong style={{ color: tone(b.state === "FOUNDER_ACTION" ? "PARTIAL" : "") }}>{b.id}</strong> · {b.state} — {b.detail}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p style={{ fontSize: 11.5, color: "var(--vault-text-mute)", marginBottom: 14 }}>
+                  NFL lane: UNKNOWN — no derived status artifact on disk (run scripts/nfl/build-nfl-lane-status.mjs).
+                </p>
+              )}
+
               {/* All-sport readiness registry (P167-H) — rendered VERBATIM; six independent axes,
                   never a merged score, never sorted by metric (cross-sport ranking is banned). */}
               {(() => {

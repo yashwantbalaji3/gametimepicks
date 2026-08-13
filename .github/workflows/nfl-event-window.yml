@@ -1,0 +1,128 @@
+# NFL event-window pipeline (Program 171 · Release G).
+#
+# ONE idempotent workflow for the whole NFL day, triggered by the EVENT WINDOW rather than an
+# MLB-style fixed calendar: it runs, checks whether pre-start events actually exist inside the
+# lookahead, and exits NO_EVENTS cleanly when they do not (an off-day is an answer, not an
+# outage). Chain: schedule/rosters/injuries freshness → authorized odds capture (receipt-gated,
+# ledger-accounted) → event assembly + shadow simulations → current artifacts → commit.
+#
+# DESIGN CONSTRAINTS, inherited not re-invented:
+#   - shares the gtp-generated-artifacts writer group: never interleaves with the board
+#     generator, the settler, daily-products, or sport-schedules;
+#   - set -euo pipefail everywhere (the P066 lesson: a crashing step that prints success is worse
+#     than a failing one);
+#   - the odds step is the ONLY credit-bearing step and refuses before the 3,000-credit ceiling;
+#     skip_odds runs the whole chain against the last committed capture for zero credits;
+#   - artifacts are append-only — a rerun writes a NEW stamped file and refuses to overwrite;
+#   - a workflow file is not cadence proof: promotion of the `products`/`monitoring` gate stages
+#     waits for terminal scheduled receipts, which is why those stages stay UNPROVEN today.
+name: nfl-event-window
+
+on:
+  schedule:
+    # Preseason/regular NFL windows are evening ET. Two passes: T-8h (openers + first artifacts)
+    # and T-2h (evidence-driven refresh before the earliest kickoffs).
+    - cron: "0 15 * * *" # 11:00 ET
+    - cron: "0 21 * * *" # 17:00 ET
+  workflow_dispatch:
+    inputs:
+      skip_odds:
+        description: "Run the chain against the last committed capture (zero credits)"
+        required: false
+        default: "false"
+      lookahead_hours:
+        description: "Pre-start window for artifact generation"
+        required: false
+        default: "18"
+
+concurrency:
+  group: gtp-generated-artifacts
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  window:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # The window gate: no pre-start events → the whole run is a clean NO_EVENTS skip.
+      - name: Check the event window
+        id: window
+        working-directory: app
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "now=$NOW" >> "$GITHUB_OUTPUT"
+          COUNT=$(node -e "
+            const fs=require('fs');
+            const s=JSON.parse(fs.readFileSync('public/data/nfl/schedule/latest.json','utf8'));
+            const now=Date.parse('$NOW'), h=Number('${{ github.event.inputs.lookahead_hours || 18 }}');
+            console.log(s.rows.filter(r=>r.statusRaw==='STATUS_SCHEDULED'&&Date.parse(r.dateUtc)>now&&Date.parse(r.dateUtc)<=now+h*3.6e6).length);
+          ")
+          echo "events=$COUNT" >> "$GITHUB_OUTPUT"
+          if [ "$COUNT" -eq 0 ]; then echo "NO_EVENTS: nothing pre-start inside the window — clean skip, not an outage"; fi
+
+      - name: Authorized odds capture (receipt-gated, the only credit-bearing step)
+        if: steps.window.outputs.events != '0' && github.event.inputs.skip_odds != 'true'
+        working-directory: app
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          set -euo pipefail
+          node scripts/nfl/capture-nfl-odds.mjs \
+            --now "${{ steps.window.outputs.now }}" \
+            --authorized \
+            --receipt docs/receipts/ODDS_AUTHORIZATION_P171.md \
+            --probe-props auto \
+            --lookahead-hours 40
+
+      - name: Event assembly + shadow simulations + current artifacts
+        if: steps.window.outputs.events != '0'
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/run-nfl-event-window.mjs \
+            --now "${{ steps.window.outputs.now }}" \
+            --lookahead-hours "${{ github.event.inputs.lookahead_hours || 18 }}"
+
+      - name: Rebuild the NFL admin lane status
+        if: steps.window.outputs.events != '0'
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/build-nfl-lane-status.mjs --now "${{ steps.window.outputs.now }}"
+
+      - name: Commit the window's artifacts
+        if: steps.window.outputs.events != '0'
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/internal/research/odds/nfl/ data/internal/nfl/ app/public/data/nfl/markets/ app/public/data/admin/nfl-lane.json
+          if git diff --cached --quiet; then
+            echo "nothing changed — no commit"
+            exit 0
+          fi
+          git commit -m "auto: nfl event window ${{ steps.window.outputs.now }} [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
+      - name: Alert on failure
+        if: failure()
+        run: |
+          set -euo pipefail
+          if [ -z "${{ secrets.OPS_WEBHOOK_URL }}" ]; then
+            echo "::notice::OPS_WEBHOOK_URL unset — failure not delivered (founder action)"
+            exit 0
+          fi
+          curl -sS -X POST -H 'content-type: application/json' \
+            -d "{\"text\":\"nfl-event-window FAILED — run ${{ github.run_id }}\"}" \
+            --max-time 15 "${{ secrets.OPS_WEBHOOK_URL }}" || echo "delivery failed; primary failure stands"
