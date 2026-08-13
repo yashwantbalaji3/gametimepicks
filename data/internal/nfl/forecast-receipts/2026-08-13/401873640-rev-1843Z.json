@@ -1,0 +1,76 @@
+{
+ "providerEventId": "401873640",
+ "canonicalEventId": "nfl-401873640",
+ "matchup": "ARI @ LV",
+ "home": {
+  "abbr": "LV",
+  "name": "Las Vegas Raiders"
+ },
+ "away": {
+  "abbr": "ARI",
+  "name": "Arizona Cardinals"
+ },
+ "kickoffUtc": "2026-08-14T00:00Z",
+ "seasonType": 1,
+ "week": 2,
+ "venue": "Allegiant Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-preseason-public-beta-v1",
+  "version": 1,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "ecba62d921bc60d3",
+  "simulations": 10000
+ },
+ "generatedAt": "2026-08-13T18:43:46Z",
+ "evidence": {
+  "schedule": "2026-08-13T14:14:22Z",
+  "strengthCutoff": "2026-08-13T18:43:46Z"
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 18,
+   "away": 19
+  },
+  "winProbability": {
+   "home": 0.4646,
+   "away": 0.5354,
+   "tieMass": 0.0328,
+   "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+  },
+  "margin": {
+   "median": -1,
+   "p10": -17,
+   "p90": 16
+  },
+  "total": {
+   "median": 37,
+   "p10": 23,
+   "p90": 52
+  },
+  "scoreRange": {
+   "homeP10": 7,
+   "homeP90": 29,
+   "awayP10": 8,
+   "awayP90": 30
+  }
+ },
+ "marketComparison": {
+  "state": "MARKET_VIEW",
+  "capturedAt": "2026-08-13T15:31:35Z",
+  "books": 11,
+  "marketHomeWinPct": 0.562044,
+  "marketSpreadHome": -2,
+  "marketTotal": 42.5,
+  "modelVsMarketTotal": -5.5,
+  "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401873640",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market.",
+ "revisionOf": "401873640.json",
+ "priorInputHash": "64290a99721463dd"
+}
