@@ -314,6 +314,12 @@ const publicArtifact = {
   disclaimer: "Sportsbook prices captured pre-kickoff for comparison. Prices are market facts, not GameTimePicks predictions; no wager is suggested.",
   eventCount: publicRows.length,
   rows: publicRows,
+  // player-market availability, from the authorized probe — absence is EVIDENCE, so the public
+  // surface can say NO_MARKET instead of the stale AUTH_REQUIRED language. Prices are never
+  // published here; only which market families the provider offers for this window.
+  propMarkets: propProbe?.state === "PROBED"
+    ? { state: "PROBED", probedEventId: propProbe.canonicalEventId, offeredMarkets: Object.keys(propProbe.marketsSeen ?? {}), absentMarkets: propProbe.absentMarkets ?? [] }
+    : { state: propProbe?.state ?? "NOT_PROBED", offeredMarkets: [], absentMarkets: [] },
 };
 
 // leak-guard every artifact, then write
