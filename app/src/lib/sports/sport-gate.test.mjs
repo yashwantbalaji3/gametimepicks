@@ -70,12 +70,28 @@ test("THE COMMITTED ASSESSMENTS · maturity derives to the honest current pictur
   // adapter + honest /sports destination — so NOT_STARTED would now be FALSE modesty, which is as
   // dishonest as overclaiming. SCAFFOLDED, with the schedule stage as the only evidence-bearer.
   assert.equal(m.nfl, "SCAFFOLDED", "PARTIAL stages exist; the gate must say exactly that much");
-  // The receipted set grew P148→P151→P161: schedule capture, then the research corpus (data) and
-  // evaluated baselines + shared-harness replay (model), then the settlement contract validated on
-  // all 1,001 corpus finals with its deployed results capture. Exactly these four, nothing else.
-  assert.deepEqual(Object.keys(SPORT_ASSESSMENTS.nfl.stages).sort(), ["data", "model", "schedule", "settlement"],
-    "NFL evidence = schedule + data + model + settlement, each with its P148/P151/P161 receipt");
-  for (const st of Object.values(SPORT_ASSESSMENTS.nfl.stages)) assert.equal(st.status, "PARTIAL");
+  // The receipted set grew P148→P151→P161→P171: schedule capture, the research corpus (data),
+  // evaluated baselines + shared-harness replay (model), the settlement contract validated on all
+  // 1,001 corpus finals, then Program 171's durable-id registry consumed by a real odds join
+  // (identity), the receipt-gated authorized capture (markets), and the public price layer
+  // (publication). Exactly these seven, nothing else.
+  assert.deepEqual(Object.keys(SPORT_ASSESSMENTS.nfl.stages).sort(),
+    ["data", "identity", "markets", "model", "publication", "schedule", "settlement"],
+    "NFL evidence = the P148/P151/P161 four plus P171's identity + markets + publication");
+  // identity and markets earned PROVEN on Program 171 receipts; everything else is honestly
+  // PARTIAL — and publication CANNOT be PROVEN on a price table, because no model layer is public.
+  assert.equal(SPORT_ASSESSMENTS.nfl.stages.identity.status, "PROVEN");
+  assert.equal(SPORT_ASSESSMENTS.nfl.stages.markets.status, "PROVEN");
+  assert.match(SPORT_ASSESSMENTS.nfl.stages.markets.evidence, /cumulative 12 of 3,000/, "the markets claim carries its actual credit spend");
+  assert.equal(SPORT_ASSESSMENTS.nfl.stages.publication.status, "PARTIAL");
+  assert.match(SPORT_ASSESSMENTS.nfl.stages.publication.evidence, /no MODEL layer is public/);
+  for (const [name, st] of Object.entries(SPORT_ASSESSMENTS.nfl.stages)) {
+    if (name !== "identity" && name !== "markets") assert.equal(st.status, "PARTIAL", `${name} stays PARTIAL`);
+  }
+  // The live window is PRESEASON: every P171 model receipt is regular-season evidence, and the
+  // model stage must say so rather than let a preseason slate imply promotion.
+  assert.match(SPORT_ASSESSMENTS.nfl.stages.model.evidence, /the live window is preseason/i);
+  assert.equal(SPORT_ASSESSMENTS.nfl.inSeason, true, "the 2026 preseason window is live and captured daily");
   assert.equal(m.nba, "SCAFFOLDED");
   assert.equal(m.epl, "SCAFFOLDED");
   assert.equal(m.ufc, "SCAFFOLDED", "internal maturity — the PUBLIC display state stays HISTORICAL_ONLY via simulation-hub");

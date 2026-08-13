@@ -31,19 +31,34 @@ test("percentages derive from stages — MLB all-proven is 100 everywhere, empty
   }
   // NFL's evidence-bearing set grew release by release with receipts: schedule (P148 capture),
   // then data + model (P151 research vertical), then settlement (P161 contract validated on all
-  // 1,001 corpus finals + deployed results capture). Every percentage stays 0 — PARTIAL earns
-  // receipts, never percentage — and any stage OUTSIDE this receipted set claiming evidence
-  // is still a defect this guard catches.
-  const NFL_EVIDENCE_STAGES = ["schedule", "data", "model", "settlement"];
+  // 1,001 corpus finals + deployed results capture), then Program 171's identity (durable-id
+  // registry consumed by a real odds join) and markets (receipt-gated authorized capture) —
+  // the first two NFL stages to earn PROVEN — plus publication (public price layer, PARTIAL).
+  // The invariant is unchanged and still enforced: percentage counts PROVEN only, so every
+  // bucket whose stages are merely PARTIAL stays 0. Any stage OUTSIDE the receipted set
+  // claiming evidence is still a defect this guard catches.
+  const NFL_EVIDENCE_STAGES = ["schedule", "data", "model", "settlement", "identity", "markets", "publication"];
+  const NFL_PROVEN_STAGES = ["identity", "markets"];
   const nfl = sportColumn(SPORT_ASSESSMENTS.nfl);
   for (const b of DEPARTMENT_BUCKETS) {
-    assert.equal(nfl[b.id].pct, 0, `nfl.${b.id} — PARTIAL earns receipts, never percentage`);
     assert.ok(nfl[b.id].stages.every((s) => s.status === "UNPROVEN" || NFL_EVIDENCE_STAGES.includes(s.id)),
       `nfl.${b.id} — only receipted stages may carry non-UNPROVEN evidence`);
+    const provenHere = nfl[b.id].stages.filter((s) => s.status === "PROVEN").length;
+    assert.equal(nfl[b.id].proven, provenHere, `nfl.${b.id} — the numerator counts PROVEN stages only`);
+    if (provenHere === 0) assert.equal(nfl[b.id].pct, 0, `nfl.${b.id} — PARTIAL earns receipts, never percentage`);
+  }
+  // The exact honest picture after P171: data-ingestion 1/3 (markets proven; schedule+data still
+  // PARTIAL), identity-assets 1/1, and every MODEL/PRODUCT/SETTLEMENT bucket still 0 — a captured
+  // price table must never read as model or settlement progress.
+  assert.equal(nfl["data-ingestion"].pct, 33);
+  assert.equal(nfl["identity-assets"].pct, 100);
+  for (const id of ["model-validation", "product-generation", "settlement", "operations"]) {
+    assert.equal(nfl[id].pct, 0, `nfl.${id} must stay 0 — P171 published prices, not models or settled results`);
   }
   for (const id of NFL_EVIDENCE_STAGES) {
     const st = DEPARTMENT_BUCKETS.flatMap((b) => nfl[b.id].stages).find((s) => s.id === id);
-    assert.equal(st.status, "PARTIAL", `nfl.${id} is evidence, not proof — PARTIAL exactly`);
+    const expected = NFL_PROVEN_STAGES.includes(id) ? "PROVEN" : "PARTIAL";
+    assert.equal(st.status, expected, `nfl.${id} — ${expected} exactly`);
   }
 });
 

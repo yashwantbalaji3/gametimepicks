@@ -149,9 +149,18 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   assert.doesNotMatch(nflHub, /ClientRedirect/, "/nfl is a real page now (P169-J)");
   assert.match(nflHub, /No NFL predictions, picks, or\s+simulations are published/, "the no-model line is load-bearing copy");
   assert.match(nflHub, /PRIVATE_ONLY/, "team simulation states its private, activation-gated status");
-  assert.match(nflHub, /AUTH_REQUIRED/, "market comparison states its authorization gate");
+  assert.match(nflHub, /AUTH_REQUIRED/, "the market layer still names its authorization gate for the no-artifact case");
   assert.match(nflHub, /ROLE_UNCERTAIN/, "player props state the participation gate");
   assert.match(nflHub, /committed/i, "data provenance is stated");
+  // P171-F: the market layer publishes PRICES, never a model claim beside them. The invariant
+  // holds in rendered text — prices are attributed as the books' own numbers, the capture stamp
+  // is absolute, and the section cannot render without its artifact.
+  assert.match(nflHub, /not\s+GameTimePicks predictions/, "captured prices are attributed as market facts, never as our output");
+  assert.match(nflHub, /they describe the market, not a forecast of ours/, "the de-vigged percentages disclaim forecast status in words");
+  assert.match(nflHub, /markets\?\.capturedAt && r\.kickoffUtc && markets\.capturedAt < r\.kickoffUtc/, "only rows captured BEFORE their own kickoff render — a static truth that cannot rot into liveness theater");
+  assert.match(nflHub, /marketRows\.length \? \(/, "no artifact, no section — a page area is never filled merely because a file exists");
+  assert.match(nflHub, /NO_MARKET/, "probed-absent player markets are typed, not left as stale AUTH_REQUIRED language");
+  assert.doesNotMatch(nflHub, /\bedge\b|\block\b|best bet|beat the market|profitable/i, "the banned advantage vocabulary never appears beside prices");
   // NBA is HISTORICAL_ONLY: the settled archive stays published, the live model surfaces do not.
   assert.equal(capabilityState("nba"), "HISTORICAL_ONLY");
   assert.ok(fs.existsSync(path.join(APP, "src/app/results/nba/page.tsx")), "the NBA settled archive stays published");
