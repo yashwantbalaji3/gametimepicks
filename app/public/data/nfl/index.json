@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-13T21:43:17Z",
+ "generatedAt": "2026-08-14T00:42:52Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-preseason-public-beta-v1",
@@ -16,21 +16,21 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 31,
+  "scheduledUpcoming": 26,
   "forecastsTotal": 9,
-  "forecastsUpcoming": 9,
-  "forecastsStarted": 0,
+  "forecastsUpcoming": 4,
+  "forecastsStarted": 5,
   "marketEvents": 9,
   "settled": 0
  },
- "nextKickoffUtc": "2026-08-13T23:00Z",
- "nextMatchup": "DET @ CIN",
+ "nextKickoffUtc": "2026-08-14T01:00Z",
+ "nextMatchup": "TEN @ SF",
  "marketCapturedAt": "2026-08-13T21:43:17Z",
  "experimentalRecord": {
   "schemaVersion": 1,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-08-13T20:06:34Z",
+  "generatedAt": "2026-08-13T21:43:17Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-preseason-public-beta-v1",
   "settledForecasts": 0,
@@ -56,15 +56,11 @@
     "name": "Detroit Lions"
    },
    "kickoffUtc": "2026-08-13T23:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": -23.3,
-    "leansTo": "DET",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
    "projectedScore": {
     "home": 19,
     "away": 19
@@ -99,10 +95,10 @@
     "name": "Green Bay Packers"
    },
    "kickoffUtc": "2026-08-13T23:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
    "lean": null,
    "projectedScore": {
     "home": 18,
@@ -138,15 +134,11 @@
     "name": "Indianapolis Colts"
    },
    "kickoffUtc": "2026-08-13T23:30Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": 5.4,
-    "leansTo": "NE",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
    "projectedScore": {
     "home": 18,
     "away": 19
@@ -181,15 +173,11 @@
     "name": "Arizona Cardinals"
    },
    "kickoffUtc": "2026-08-14T00:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": -12.6,
-    "leansTo": "ARI",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
    "projectedScore": {
     "home": 18,
     "away": 19
@@ -224,10 +212,10 @@
     "name": "Los Angeles Chargers"
    },
    "kickoffUtc": "2026-08-14T00:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
    "lean": null,
    "projectedScore": {
     "home": 18,
