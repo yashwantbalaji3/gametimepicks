@@ -34,11 +34,21 @@ test("World Cup is NOT a current schedule-only tab in the events hub (completed 
   assert.ok(!/"fifa-world-cup"/.test(order[1]), "fifa-world-cup is delisted from the events hub order");
 });
 
-test("World Cup is NOT a current filter chip on /simulate or /picks (archived → gated on eligible cards)", () => {
-  // /simulate all-games board: the CHIPS array has no world_cup.
+test("World Cup is NOT a current filter chip on /simulate or /picks (archived → gated on eligible cards)", async () => {
+  const { chipsFor } = await import("./simulate-chips.ts");
+  // /simulate all-games board. P178-A replaced the hand-kept CHIPS array with a list DERIVED from
+  // the rows present, which is a STRONGER form of this same invariant: the old array could have had
+  // world_cup re-added by hand, whereas a derived list cannot show a chip for a sport with no rows.
+  // So this now drives the real function instead of regexing a constant that no longer exists.
   const games = read("src/components/games-experience.tsx");
-  assert.match(games, /const CHIPS = \[[^\]]*\]/, "CHIPS is defined");
-  assert.ok(!/const CHIPS = \[[^\]]*"world_cup"[^\]]*\]/.test(games), "games-experience CHIPS has no world_cup");
+  assert.doesNotMatch(games, /const CHIPS = \[/, "the hand-kept chip array is gone — chips derive from rows");
+  assert.match(games, /import \{ chipsFor \} from "@\/lib\/simulate-chips"/, "the board consumes the pure chip owner");
+  assert.deepEqual(chipsFor([]), ["all"], "no rows ⇒ no sport chips at all");
+  assert.ok(!chipsFor([{ sport: "mlb" }]).includes("world_cup"), "an MLB-only board shows no World Cup chip");
+  assert.ok(!chipsFor([{ sport: "mlb" }, { sport: "nfl" }]).includes("world_cup"), "a two-sport board shows no World Cup chip");
+  // and the archived competition can only ever return alongside real fixtures, never by hand
+  assert.ok(chipsFor([{ sport: "world_cup" }]).includes("world_cup"),
+    "if current World Cup fixtures ever exist again the chip returns with them — the gate is the rows, not a list");
   // /picks parlay selector: WC tab is gated out when it has no eligible cards.
   const parlays = read("src/components/parlays/parlays-explorer.tsx");
   assert.match(parlays, /filter\(\(s\) => s\.sport !== "WORLD_CUP" \|\| s\.eligibleCount > 0\)/, "parlays-explorer gates archived WC out of the sport selector");

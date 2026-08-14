@@ -32,7 +32,7 @@ const NFL_GAME_DIR = path.join(__dirname, "..", "out", "nfl", "game");
 const FIRST_NFL_GAME = fs.existsSync(NFL_GAME_DIR)
   ? fs.readdirSync(NFL_GAME_DIR).filter((d) => /^\d+$/.test(d)).sort()[0]
   : null;
-const ROUTES = ["/", "/today/", "/markets/", "/results/", "/methodology/", "/learn/", "/moonshot/", "/bank-builder/", "/mlb/", "/nfl/", "/sports/",
+const ROUTES = ["/", "/today/", "/markets/", "/results/", "/methodology/", "/learn/", "/moonshot/", "/bank-builder/", "/mlb/", "/nfl/", "/simulate/", "/sports/",
   ...(FIRST_NFL_GAME ? [`/nfl/game/${FIRST_NFL_GAME}/`] : [])];
 
 const VIEWPORTS = [

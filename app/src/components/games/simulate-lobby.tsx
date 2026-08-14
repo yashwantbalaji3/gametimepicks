@@ -27,6 +27,7 @@ import { loadRoundOf32Board } from "@/lib/world-cup/round-of-32";
 import { gameScriptFromBoard } from "@/lib/world-cup/game-script";
 import { scriptSignal, topPropSignal } from "@/lib/games-board-signal";
 import { getSportIdentity } from "@/lib/sport-identity";
+import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { mlbAvailabilityBadges, worldCupAvailabilityBadges } from "@/lib/simulate-availability";
 import type { PublicProjection } from "@/lib/normalize";
@@ -51,6 +52,10 @@ function countBy<T>(items: T[], key: (t: T) => string | number | null | undefine
   }
   return m;
 }
+
+/** ET kickoff for an NFL row — same clock rule the NFL hub uses, stated once here. */
+const formatNflKickoff = (iso: string) =>
+  new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(iso)) + " ET";
 
 export default function SimulateLobby() {
   const today = currentEtDate();
@@ -170,6 +175,41 @@ export default function SimulateLobby() {
     });
   }
 
+  // ── NFL (P178-A) ──────────────────────────────────────────────────────────────────────────────
+  // The founder's defect: /simulate listed Today, MLB, NBA, NHL and UFC while live NFL simulations
+  // existed only behind /nfl. Every NFL number below — rows, card count, chip count, ready count —
+  // comes from ONE selector, so they cannot disagree with each other or with /nfl.
+  const nflEligibility = nflSimulateEligibility();
+  for (const e of nflEligibility.events) {
+    rows.push({
+      id: `nfl_${e.providerEventId}`,
+      sport: "nfl",
+      sportLabel: "NFL",
+      matchup: `${e.away.abbr} @ ${e.home.abbr}`,
+      timeLabel: formatNflKickoff(e.kickoffUtc),
+      statusLabel: e.lifecycle === "STARTED" ? "Kicked off · locked" : "Upcoming",
+      // The simulation's own outputs, not a prop count: NFL publishes team distributions, and the
+      // Vault's player rows are candidates rather than published projections.
+      projections: 0,
+      props: e.playerCandidates,
+      href: "/nfl",
+      buildHref: "/build",
+      // The NATIVE per-game report P177 built — not a /games/* slug NFL does not have.
+      detailHref: `/nfl/game/${e.providerEventId}`,
+      // Eligibility REQUIRES a simulation, so this is true for every NFL row by construction.
+      simReady: true,
+      // "script" is the coherent model read (renders as "Model read"), which is exactly what an NFL
+      // forecast is: one joint distribution, not a top prop. Confidence is LOW and always will be
+      // while the model is an experimental preseason beta held near a coin flip.
+      signal: {
+        kind: "script",
+        pick: `${e.away.abbr} ${e.projectedScore.away} — ${e.projectedScore.home} ${e.home.abbr}`,
+        sub: `total ${e.total.median} · ${e.home.abbr} ${(e.winProbability.home * 100).toFixed(1)}% to win`,
+        confidence: "Low",
+      },
+    });
+  }
+
   // UFC (one event row) — only when there is a real UPCOMING card. Once the
   // event is officially settled it belongs in /results, not the games board, so
   // a finished card (e.g. UFC 250) never lingers as "Upcoming".
@@ -205,6 +245,8 @@ export default function SimulateLobby() {
   // state, never fabricated cards). Reuses the SAME details the rows above are built from — now the
   // details ALSO thread through each fixture's real team logos so the featured cards can show them.
   const { featured, readyCount, allCurrent } = featuredSimulations([...detailMap.values()], today);
+  /** Every row on this board that carries a ready simulation — the one number every surface reads. */
+  const boardReadyCount = rows.filter((r) => r.simReady).length;
   const overflowReady = Math.max(0, readyCount - featured.length);
 
   // ── SPORT-FIRST SELECTOR STATES ──
@@ -219,11 +261,13 @@ export default function SimulateLobby() {
   const mlbRows = rowsBySport("mlb");
   const wcRows = rowsBySport("world_cup");
   const nbaRows = rowsBySport("nba");
+  const nflRows = rowsBySport("nfl");
   const ufcRows = rowsBySport("ufc");
 
   const mlbId = getSportIdentity("mlb");
   const wcId = getSportIdentity("world_cup");
   const nbaId = getSportIdentity("nba");
+  const nflId = getSportIdentity("nfl");
   const nhlId = getSportIdentity("nhl");
   const ufcId = getSportIdentity("ufc");
 
@@ -238,8 +282,11 @@ export default function SimulateLobby() {
     note?: string,
   ): SportState => ({ key, label, icon, tone, stateLabel, gameCount, simReadyCount, note });
 
-  const sports: SportState[] = [
-    mk("today", "Today", "◎", rows.length > 0 ? "active" : "conditional", rows.length > 0 ? "live slate" : "no games", rows.length, readyCount),
+  const unorderedSports: SportState[] = [
+    // P178-A: Today's ready count is derived from THE SAME ROWS the board renders. It previously
+    // read `readyCount`, which counts joined MLB game-detail artifacts only — so the moment NFL
+    // rows appeared, the aggregate would have under-reported its own board.
+    mk("today", "Today", "◎", rows.length > 0 ? "active" : "conditional", rows.length > 0 ? "live slate" : "no games", rows.length, boardReadyCount),
     // MLB is active when the board carries games; sim-ready count is the real joined-artifact count.
     mlbRows.length > 0
       ? mk("mlb", mlbId.label, mlbId.icon, "active", "active", mlbRows.length, simReadyCountFor("mlb"))
@@ -250,6 +297,16 @@ export default function SimulateLobby() {
       ? [mk("world_cup", wcId.label, wcId.icon, "available", "fixtures", wcRows.length, 0,
           "Soccer simulations require a soccer simulation artifact — none exists yet, so World Cup fixtures show model reads (moneyline / totals / props) on the game page, not a generated simulation.")]
       : []),
+    // NFL (P178-A): active ONLY when the canonical eligible set carries simulations. Its counts are
+    // the SAME numbers the rows above were built from, so the card, the chip and the list agree by
+    // construction rather than by three call sites happening to compute the same thing. An outage
+    // reads as an outage; an empty slate reads as an empty slate; they are never merged.
+    nflRows.length > 0
+      ? mk("nfl", nflId.label, nflId.icon, "active", "active", nflRows.length, simReadyCountFor("nfl"),
+          "Experimental preseason simulations — every NFL game here carries a deterministic team distribution. The model has not been shown to beat the sportsbook market.")
+      : nflEligibility.state === "ARTIFACT_UNAVAILABLE"
+        ? mk("nfl", nflId.label, nflId.icon, "provider_pending", "data unavailable", 0, 0, nflEligibility.note)
+        : mk("nfl", nflId.label, nflId.icon, "conditional", "no current slate", 0, 0, nflEligibility.note),
     // NBA: off-season unless a fresh board produced rows.
     nbaRows.length > 0
       ? mk("nba", nbaId.label, nbaId.icon, "active", "active", nbaRows.length, 0)
@@ -261,6 +318,18 @@ export default function SimulateLobby() {
       ? mk("ufc", ufcId.label, ufcId.icon, "available", "upcoming card", ufcRows.length, 0, "UFC surfaces a moneyline model for the next card — there’s no per-fight generated simulation artifact.")
       : mk("ufc", ufcId.label, ufcId.icon, "conditional", "no current card", 0, 0, "No current UFC card. Once a real upcoming card posts, its moneyline model appears here."),
   ];
+
+  // P178-A: order DELIBERATELY and DERIVED — Today first, then sports with a live modeled slate,
+  // then everything that is merely available, then off-season / provider-pending. Hand-ordering is
+  // what let NFL sit below three inactive sports while its simulations were live, and a calendar
+  // literal would rot; this reads each sport's own tone instead.
+  const TONE_RANK: Record<SportStateTone, number> = { active: 0, available: 1, conditional: 2, off_season: 3, provider_pending: 4 };
+  const sports = [...unorderedSports].sort((a, b) => {
+    if (a.key === "today") return -1;
+    if (b.key === "today") return 1;
+    const d = TONE_RANK[a.tone] - TONE_RANK[b.tone];
+    return d !== 0 ? d : b.gameCount - a.gameCount;
+  });
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
@@ -317,7 +386,10 @@ export default function SimulateLobby() {
         <div className="relative flex flex-wrap items-center gap-2">
           {[
             { v: `${activeSports}`, l: `sport${activeSports === 1 ? "" : "s"} live`, accent: true },
-            { v: `${readyCount}`, l: "simulation-ready", accent: true },
+            // P178-A: the SAME derived number the Today card shows. It read `readyCount` (joined MLB
+            // game-detail artifacts only), so the hero and the sport card printed two different
+            // "simulation-ready" totals on one page the moment a second modeled sport appeared.
+            { v: `${boardReadyCount}`, l: "simulation-ready", accent: true },
             { v: "Paper-only", l: "no real money", accent: false },
             { v: "Deterministic", l: "same for everyone", accent: false },
           ].map((c) => (

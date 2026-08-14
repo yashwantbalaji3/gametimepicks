@@ -13,11 +13,12 @@ import Link from "next/link";
 import { getSportIdentity } from "@/lib/sport-identity";
 import TeamMark from "@/components/ui/team-mark";
 import type { GameCardSignal } from "@/lib/games-board-signal";
+import { chipsFor } from "@/lib/simulate-chips";
 import type { GameAvailabilityBadge } from "@/lib/simulate-availability";
 
 export interface GameRow {
   id: string;
-  sport: "world_cup" | "mlb" | "nba" | "ufc";
+  sport: "world_cup" | "mlb" | "nba" | "ufc" | "nfl";
   sportLabel: string;
   matchup: string;
   timeLabel: string;
@@ -53,8 +54,6 @@ function confChip(c: "High" | "Medium" | "Low"): { color: string; background: st
   return { color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" };
 }
 
-// The 2026 World Cup is complete — it is not a current filter chip (archive only). MLB leads the board.
-const CHIPS = ["all", "mlb", "nba", "ufc"] as const;
 
 export default function GamesExperience({ games }: { games: GameRow[] }) {
   const [sport, setSport] = useState<string>("all");
@@ -64,11 +63,12 @@ export default function GamesExperience({ games }: { games: GameRow[] }) {
     return c;
   }, [games]);
   const filtered = sport === "all" ? games : games.filter((g) => g.sport === sport);
+  const chips = useMemo(() => chipsFor(games), [games]);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-        {CHIPS.map((key) => {
+        {chips.map((key) => {
           const on = sport === key;
           const id = key === "all" ? null : getSportIdentity(key);
           const n = key === "all" ? games.length : counts[key] ?? 0;
