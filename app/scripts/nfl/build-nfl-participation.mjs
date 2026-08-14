@@ -47,18 +47,53 @@ const read = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } cat
  */
 
 /**
- * Preseason rotation factor: what fraction of a regular-season workload a listed player actually
- * sees in an August game. Deliberately wide and asymmetric — a nominal starter may take one series
- * (~0.08 of a game) or push toward a half (~0.55). The p50 sits low because that is what preseason
- * usage looks like, and the width is the point: it is uncertainty, not a forecast.
+ * MEASURED preseason share by depth rank — 292 preseason team-games from the committed corpus.
+ *
+ * THIS REPLACES A FACTOR I INVENTED. Program 182 multiplied a regular-season share by a rotation
+ * factor (QB p50 = 0.20), which published Michael Penix Jr. at 12.8% of Atlanta's pass attempts.
+ * The corpus says the LEADING preseason passer actually takes 56.7% (p10 0.405, p90 0.875). The
+ * factor was wrong by more than a factor of four, and it made every downstream player projection
+ * far too small.
+ *
+ * The fix is to stop deriving preseason usage from regular-season usage at all. Depth RANK is the
+ * only thing that transfers — who is first, second, third on the sheet — and the share each rank
+ * takes in an August game is measured directly here. Regular-season share is now used ONLY to
+ * order players by rank, never as a magnitude.
+ *
+ * Ranks beyond the table decay into the tail; the residual is published as unallocated mass.
  */
-const ROTATION_FACTOR = Object.freeze({
-  QB: { p10: 0.05, p50: 0.20, p90: 0.55 },
-  RB: { p10: 0.10, p50: 0.30, p90: 0.65 },
-  WR: { p10: 0.10, p50: 0.30, p90: 0.65 },
-  TE: { p10: 0.10, p50: 0.30, p90: 0.65 },
-  DEFAULT: { p10: 0.10, p50: 0.35, p90: 0.75 },
+const RANK_SHARES = Object.freeze({
+  passAttempts: [
+    { p10: 0.405, p50: 0.567, p90: 0.875 }, { p10: 0.188, p50: 0.312, p90: 0.444 },
+    { p10: 0.095, p50: 0.189, p90: 0.258 }, { p10: 0.031, p50: 0.121, p90: 0.171 },
+  ],
+  rushAttempts: [
+    { p10: 0.237, p50: 0.333, p90: 0.500 }, { p10: 0.175, p50: 0.235, p90: 0.316 },
+    { p10: 0.111, p50: 0.161, p90: 0.222 }, { p10: 0.059, p50: 0.114, p90: 0.160 },
+    { p10: 0.038, p50: 0.077, p90: 0.120 }, { p10: 0.032, p50: 0.051, p90: 0.095 },
+  ],
+  targets: [
+    { p10: 0.132, p50: 0.179, p90: 0.267 }, { p10: 0.105, p50: 0.138, p90: 0.188 },
+    { p10: 0.091, p50: 0.111, p90: 0.147 }, { p10: 0.071, p50: 0.095, p90: 0.120 },
+    { p10: 0.065, p50: 0.083, p90: 0.105 }, { p10: 0.053, p50: 0.074, p90: 0.095 },
+  ],
 });
+/**
+ * Bumped whenever ANYTHING that determines a published share changes — the rank table, the tail
+ * function, or the normalization. It is part of the input hash, so a change to the share model can
+ * never leave a stale artifact in place looking current. The tail fix exposed exactly that gap.
+ */
+const SHARE_MODEL_VERSION = "v2-measured-rank+tail-distribution";
+const RANK_SHARES_SOURCE = "292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json";
+/**
+ * Beyond the measured table, a decaying tail — never zero, never a confident number, and always a
+ * genuine DISTRIBUTION. An earlier version used a constant p10 floor, which collapsed to p10 == p50
+ * by about rank 9 and published a point dressed as a range.
+ */
+const tailShare = (rank) => {
+  const base = 0.02 / Math.max(1, rank - 5);
+  return { p10: base * 0.4, p50: base, p90: base * 2.5 };
+};
 
 const schedule = read(path.join(APP, "public/data/nfl/schedule/latest.json"));
 const roleShares = read(path.join(ROOT, "data/internal/research/nfl/role-shares-v1/current.json"));
@@ -77,10 +112,12 @@ const events = schedule.rows
 const MARKETS = ["passAttempts", "rushAttempts", "targets"];
 const r4 = (x) => Number(x.toFixed(4));
 
-/** Widen one corpus share into a preseason opportunity distribution. */
-function shareDistribution(share, position) {
-  const f = ROTATION_FACTOR[position] ?? ROTATION_FACTOR.DEFAULT;
-  return { p10: r4(share * f.p10), p50: r4(share * f.p50), p90: r4(share * f.p90) };
+/** The measured share for a player's DEPTH RANK in this market. Magnitude never comes from the
+ *  regular-season number — only the ordering does. */
+function shareForRank(market, rankIndex) {
+  const table = RANK_SHARES[market] ?? [];
+  const d = table[rankIndex] ?? tailShare(rankIndex + 1);
+  return { p10: r4(d.p10), p50: r4(d.p50), p90: r4(d.p90) };
 }
 
 const written = [];
@@ -95,7 +132,9 @@ for (const ev of events) {
     if (!teamRoles) { ok = false; break; }
     const markets = {};
     for (const m of MARKETS) {
-      const players = (teamRoles[m]?.players ?? []).map((p) => {
+      // Rank by the regular-season share — the ONLY thing it is used for now.
+      const ranked = [...(teamRoles[m]?.players ?? [])].sort((a, b) => b.share - a.share);
+      const players = ranked.map((p, rankIndex) => {
         // Every named player is ROLE_UNCERTAIN today: no registered source can confirm otherwise.
         const state = "AVAILABLE_ROLE_UNCERTAIN";
         return {
@@ -104,13 +143,27 @@ for (const ev of events) {
           position: p.position ?? null,
           state,
           stateReason: "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+          depthRank: rankIndex + 1,
           regularSeasonShare: r4(p.share),
-          preseasonShare: shareDistribution(p.share, p.position),
+          preseasonShare: shareForRank(m, rankIndex),
+          shareBasis: `measured preseason share for depth rank ${rankIndex + 1} (${RANK_SHARES_SOURCE}) — the regular-season number orders players and never sets the magnitude`,
           evidence: { nEff: p.nEff, games: p.games, basis: p.shareBasis, sourceAsOf: roleShares.rosterAsOf },
         };
       });
       // Named mass uses the MEDIAN of each distribution; everything else is explicitly unallocated —
       // backups, unlisted players, and the part of the game the listed players do not play.
+      // The measured rank shares are MARGINAL medians — independently correct, but their sum can
+      // exceed the whole. A coherent allocation renormalizes them and keeps a real floor of
+      // unallocated mass for unlisted players, so the parts never claim more than the game.
+      const RESERVED_UNALLOCATED = 0.10;
+      const rawMass = players.reduce((s, p) => s + p.preseasonShare.p50, 0);
+      if (rawMass > 1 - RESERVED_UNALLOCATED) {
+        const scale = (1 - RESERVED_UNALLOCATED) / rawMass;
+        for (const p of players) {
+          p.normalizedFrom = { ...p.preseasonShare };
+          p.preseasonShare = { p10: r4(p.preseasonShare.p10 * scale), p50: r4(p.preseasonShare.p50 * scale), p90: r4(p.preseasonShare.p90 * scale) };
+        }
+      }
       const namedMass = players.reduce((s, p) => s + p.preseasonShare.p50, 0);
       markets[m] = {
         players,
@@ -142,13 +195,15 @@ for (const ev of events) {
       registered: ["ESPN roster capture (identities only)", "role-shares-v1 decayed-stint corpus (regular-season usage)"],
       absent: "authorized actives / inactives / depth chart / coach playing-time statements",
       whatAbsenceMeans: `without that source, ${REQUIRES_AUTHORIZED_ACTIVES.join(", ")} are all UNREACHABLE. Every named player stays AVAILABLE_ROLE_UNCERTAIN.`,
-      basisWarning: "the share basis is REGULAR-SEASON usage. In preseason a nominal starter often plays one or two series, so carrying that basis through unchanged would hand a projection a full-game workload and call it evidence.",
+      basisWarning: "shares are MEASURED preseason shares by depth rank, from 292 preseason team-games. Regular-season usage is used only to ORDER players by depth and never to set a magnitude — carrying a regular-season share through unchanged would hand a projection a full-game workload and call it evidence, and scaling it by an invented factor (Program 182) was wrong by more than a factor of four in the other direction.",
     },
-    rotationFactor: ROTATION_FACTOR,
+    rankShares: RANK_SHARES,
+    rankSharesSource: RANK_SHARES_SOURCE,
+    shareModelVersion: SHARE_MODEL_VERSION,
     teams,
     cutoffSafe: Date.parse(roleShares.rosterAsOf) < Date.parse(ev.dateUtc),
   };
-  body.inputHash = crypto.createHash("md5").update(JSON.stringify({ e: ev.providerEventId, r: roleShares.generatedAt, f: ROTATION_FACTOR })).digest("hex").slice(0, 16);
+  body.inputHash = crypto.createHash("md5").update(JSON.stringify({ e: ev.providerEventId, r: roleShares.generatedAt, f: RANK_SHARES, v: SHARE_MODEL_VERSION })).digest("hex").slice(0, 16);
 
   const day = ev.dateUtc.slice(0, 10);
   const dir = path.join(ROOT, "data/internal/nfl/participation", day);
@@ -158,7 +213,11 @@ for (const ev of events) {
   if (fs.existsSync(base)) {
     const existing = read(base);
     if (existing?.inputHash !== body.inputHash) {
-      fs.writeFileSync(path.join(dir, `${ev.providerEventId}-rev-${NOW.slice(11, 16).replace(":", "")}Z.json`), JSON.stringify({ ...body, revisionOf: `${ev.providerEventId}.json`, priorInputHash: existing?.inputHash ?? null }, null, 1) + "\n");
+      // Preserve the superseded version verbatim, then let the corrected one BE the artifact a
+      // reader sees. Program 182's shares were wrong by more than a factor of four; leaving them in
+      // place as the base file while a correction sat beside it would publish the known-wrong one.
+      fs.writeFileSync(path.join(dir, `${ev.providerEventId}-superseded-${(existing?.generatedAt ?? "unknown").slice(11, 16).replace(":", "")}Z.json`), JSON.stringify(existing, null, 1) + "\n");
+      fs.writeFileSync(base, JSON.stringify({ ...body, supersedes: existing?.inputHash ?? null, correction: "Program 182 derived preseason shares by multiplying a regular-season share by an invented rotation factor. The corpus says the leading preseason passer takes 56.7% of team attempts, not the 12.8% that produced. Shares are now MEASURED by depth rank." }, null, 1) + "\n");
     }
   } else {
     fs.writeFileSync(base, JSON.stringify(body, null, 1) + "\n");

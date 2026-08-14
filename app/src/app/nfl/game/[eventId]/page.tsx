@@ -50,6 +50,19 @@ type Forecast = {
   disclaimer: string;
 };
 
+/** The per-game simulation artifact: team opportunity plus one distribution per player family. */
+type GameSim = {
+  providerEventId: string;
+  status: string;
+  simulationSummary: { runCount: number };
+  players: Array<{
+    playerId: string; name: string; position: string | null; team: string; family: string;
+    anytimeTdProbability: number | null; marketState: string;
+    projections: Array<{ field: string; label: string; distribution: { p10: number; p50: number; p90: number; mean: number }; thresholds: Array<{ line: number; modelProbabilityOver: number }> }>;
+  }>;
+  conservation: { enforcedWithinDraw: string[]; notEnforcedAcrossFamilies: string };
+};
+
 const readPublic = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
 };
@@ -82,6 +95,10 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
 
   const idx = indexArtifact();
   const idxEvent = (idx?.events ?? []).find((e: { providerEventId: string }) => e.providerEventId === params.eventId);
+  // P183-F: the per-game simulation — team opportunity plus every player's distribution, from the
+  // SAME joint process that produced the score above.
+  const simArtifact = readPublic("nfl/game-simulations/latest.json") as { games: GameSim[] } | null;
+  const sim: GameSim | undefined = (simArtifact?.games ?? []).find((g) => g.providerEventId === params.eventId);
   const lifecycle: string = idxEvent?.lifecycle ?? "UPCOMING";
   const started = lifecycle !== "UPCOMING";
   const s = f.forecastSummary;
@@ -208,6 +225,54 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{mc.note}</p>
         )}
       </section>
+
+      {sim ? (
+        <section aria-labelledby="sim-players">
+          <SectionHeader
+            eyebrow={`Player simulations · ${sim.players.length} players · ${sim.simulationSummary.runCount.toLocaleString()} runs`}
+            title="Every player we can model, with the range"
+            sub="Each row is a distribution from the same simulation that produced the score above — team volume, then each player's share of it, then efficiency. Wide ranges are the point: preseason playing time is genuinely uncertain, and these numbers carry that rather than hiding it."
+          />
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
+              <thead>
+                <tr>
+                  {["Player", "Stat", "Low (10th)", "Projected", "High (90th)", "Model chance", "Any TD"].map((h) => (
+                    <th key={h} scope="col" style={{ textAlign: "left", padding: "6px 9px", fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sim.players.flatMap((pl) =>
+                  pl.projections.map((pr, i) => (
+                    <tr key={`${pl.playerId}-${pr.field}`}>
+                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, whiteSpace: "nowrap" }}>
+                        {i === 0 ? <>{pl.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{pl.position ?? ""} · {pl.team}</span></> : ""}
+                      </td>
+                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{pr.label}</td>
+                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)" }}>{pr.distribution.p10}</td>
+                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)", fontWeight: 600 }}>{pr.distribution.p50}</td>
+                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-faint)" }}>{pr.distribution.p90}</td>
+                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>
+                        {pr.thresholds.map((t) => `${Math.round(t.modelProbabilityOver * 100)}% over ${t.line}`).join(" · ")}
+                      </td>
+                      <td style={{ padding: "6px 9px", borderTop: "1px solid var(--vault-border)", fontSize: 12, fontFamily: "var(--font-mono, monospace)" }}>
+                        {i === 0 && pl.anytimeTdProbability != null ? `${(pl.anytimeTdProbability * 100).toFixed(1)}%` : ""}
+                      </td>
+                    </tr>
+                  )),
+                )}
+              </tbody>
+            </table>
+          </div>
+          <p style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 760 }}>
+            No sportsbook offers NFL player markets for this game, so these are model-only research
+            estimates with no price to compare against — we do not invent a line. Tested against a
+            simple role baseline, none of these families beat it, which is why they are published as
+            ranges rather than as picks. {sim.conservation.notEnforcedAcrossFamilies}
+          </p>
+        </section>
+      ) : null}
 
       <section aria-labelledby="how-read" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Reading key" title="What these numbers mean" />

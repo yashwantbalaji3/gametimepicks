@@ -2,11 +2,11 @@
  "schemaVersion": 1,
  "artifact": "nfl-participation",
  "dataClass": "PRIVATE_RESEARCH",
- "providerEventId": "401873280",
- "canonicalEventId": "nfl-401873280",
- "matchup": "MIN @ NYG",
- "kickoffUtc": "2026-08-15T17:00Z",
- "generatedAt": "2026-08-14T15:01:49Z",
+ "providerEventId": "401873284",
+ "canonicalEventId": "nfl-401873284",
+ "matchup": "PHI @ BAL",
+ "kickoffUtc": "2026-08-15T23:00Z",
+ "generatedAt": "2026-08-14T14:54:45Z",
  "sourceContract": {
   "registered": [
    "ESPN roster capture (identities only)",
@@ -105,116 +105,79 @@
   ]
  },
  "rankSharesSource": "292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json",
- "shareModelVersion": "v2-measured-rank+tail-distribution",
  "teams": {
-  "NYG": {
+  "BAL": {
    "markets": {
     "passAttempts": {
      "players": [
       {
-       "playerId": "nfl-athlete-4689114",
-       "name": "Jaxson Dart",
+       "playerId": "nfl-athlete-3916387",
+       "name": "Lamar Jackson",
        "position": "QB",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 1,
-       "regularSeasonShare": 0.6664,
+       "regularSeasonShare": 0.631,
        "preseasonShare": {
-        "p10": 0.3413,
-        "p50": 0.4778,
-        "p90": 0.7374
-       },
-       "shareBasis": "measured preseason share for depth rank 1 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.432,
-        "games": 14,
-        "basis": "corpus-role 2023-25 stint (nEff 1.43, g 14, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       },
-       "normalizedFrom": {
         "p10": 0.405,
         "p50": 0.567,
         "p90": 0.875
+       },
+       "shareBasis": "measured preseason share for depth rank 1 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.446,
+        "games": 50,
+        "basis": "corpus-role 2023-25 stint (nEff 1.45, g 50, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
        }
       },
       {
-       "playerId": "nfl-athlete-2969939",
-       "name": "Jameis Winston",
+       "playerId": "nfl-athlete-4035671",
+       "name": "Tyler Huntley",
        "position": "QB",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 2,
-       "regularSeasonShare": 0.3283,
+       "regularSeasonShare": 0.369,
        "preseasonShare": {
-        "p10": 0.1584,
-        "p50": 0.2629,
-        "p90": 0.3742
-       },
-       "shareBasis": "measured preseason share for depth rank 2 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 0.637,
-        "games": 3,
-        "basis": "corpus-role 2023-25 stint (nEff 0.64, g 3, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       },
-       "normalizedFrom": {
         "p10": 0.188,
         "p50": 0.312,
         "p90": 0.444
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4424106",
-       "name": "Gunner Olszewski",
-       "position": "WR",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 3,
-       "regularSeasonShare": 0.0053,
-       "preseasonShare": {
-        "p10": 0.0801,
-        "p50": 0.1593,
-        "p90": 0.2174
        },
-       "shareBasis": "measured preseason share for depth rank 3 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "shareBasis": "measured preseason share for depth rank 2 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.478,
-        "games": 25,
-        "basis": "corpus-role 2023-25 stint (nEff 1.48, g 25, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 0.911,
+        "games": 5,
+        "basis": "corpus-role 2023-25 stint (nEff 0.91, g 5, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
-       },
-       "normalizedFrom": {
-        "p10": 0.095,
-        "p50": 0.189,
-        "p90": 0.258
        }
       }
      ],
-     "namedMassP50": 0.9,
-     "unallocatedMass": 0.1,
+     "namedMassP50": 0.879,
+     "unallocatedMass": 0.121,
      "reconciles": true,
      "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
     },
     "rushAttempts": {
      "players": [
       {
-       "playerId": "nfl-athlete-4360516",
-       "name": "Tyrone Tracy Jr.",
+       "playerId": "nfl-athlete-3043078",
+       "name": "Derrick Henry",
        "position": "RB",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 1,
-       "regularSeasonShare": 0.3337,
+       "regularSeasonShare": 0.4565,
        "preseasonShare": {
-        "p10": 0.2197,
-        "p50": 0.3087,
-        "p90": 0.4634
+        "p10": 0.2174,
+        "p50": 0.3055,
+        "p90": 0.4587
        },
        "shareBasis": "measured preseason share for depth rank 1 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.482,
-        "games": 32,
-        "basis": "corpus-role 2023-25 stint (nEff 1.48, g 32, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.509,
+        "games": 36,
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 36, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        },
        "normalizedFrom": {
@@ -224,23 +187,23 @@
        }
       },
       {
-       "playerId": "nfl-athlete-4696981",
-       "name": "Cam Skattebo",
-       "position": "RB",
+       "playerId": "nfl-athlete-3916387",
+       "name": "Lamar Jackson",
+       "position": "QB",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 2,
-       "regularSeasonShare": 0.2721,
+       "regularSeasonShare": 0.1237,
        "preseasonShare": {
-        "p10": 0.1622,
-        "p50": 0.2178,
-        "p90": 0.2929
+        "p10": 0.1606,
+        "p50": 0.2156,
+        "p90": 0.2899
        },
        "shareBasis": "measured preseason share for depth rank 2 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.178,
-        "games": 8,
-        "basis": "corpus-role 2023-25 stint (nEff 1.18, g 8, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.446,
+        "games": 50,
+        "basis": "corpus-role 2023-25 stint (nEff 1.45, g 50, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        },
        "normalizedFrom": {
@@ -250,23 +213,23 @@
        }
       },
       {
-       "playerId": "nfl-athlete-4040761",
-       "name": "Devin Singletary",
-       "position": "RB",
+       "playerId": "nfl-athlete-4035671",
+       "name": "Tyler Huntley",
+       "position": "QB",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 3,
-       "regularSeasonShare": 0.2042,
+       "regularSeasonShare": 0.0827,
        "preseasonShare": {
-        "p10": 0.1029,
-        "p50": 0.1492,
-        "p90": 0.2058
+        "p10": 0.1018,
+        "p50": 0.1477,
+        "p90": 0.2037
        },
        "shareBasis": "measured preseason share for depth rank 3 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.508,
-        "games": 32,
-        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 32, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 0.911,
+        "games": 5,
+        "basis": "corpus-role 2023-25 stint (nEff 0.91, g 5, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        },
        "normalizedFrom": {
@@ -276,23 +239,23 @@
        }
       },
       {
-       "playerId": "nfl-athlete-4689114",
-       "name": "Jaxson Dart",
-       "position": "QB",
+       "playerId": "nfl-athlete-4038441",
+       "name": "Justice Hill",
+       "position": "RB",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 4,
-       "regularSeasonShare": 0.1517,
+       "regularSeasonShare": 0.0416,
        "preseasonShare": {
-        "p10": 0.0547,
-        "p50": 0.1057,
-        "p90": 0.1483
+        "p10": 0.0541,
+        "p50": 0.1046,
+        "p90": 0.1468
        },
        "shareBasis": "measured preseason share for depth rank 4 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.432,
-        "games": 14,
-        "basis": "corpus-role 2023-25 stint (nEff 1.43, g 14, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.36,
+        "games": 45,
+        "basis": "corpus-role 2023-25 stint (nEff 1.36, g 45, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        },
        "normalizedFrom": {
@@ -302,23 +265,23 @@
        }
       },
       {
-       "playerId": "nfl-athlete-2969939",
-       "name": "Jameis Winston",
-       "position": "QB",
+       "playerId": "nfl-athlete-4690013",
+       "name": "Rasheen Ali",
+       "position": "RB",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 5,
-       "regularSeasonShare": 0.0304,
+       "regularSeasonShare": 0.0168,
        "preseasonShare": {
-        "p10": 0.0352,
-        "p50": 0.0714,
-        "p90": 0.1112
+        "p10": 0.0349,
+        "p50": 0.0706,
+        "p90": 0.1101
        },
        "shareBasis": "measured preseason share for depth rank 5 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 0.637,
-        "games": 3,
-        "basis": "corpus-role 2023-25 stint (nEff 0.64, g 3, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.471,
+        "games": 20,
+        "basis": "corpus-role 2023-25 stint (nEff 1.47, g 20, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        },
        "normalizedFrom": {
@@ -328,23 +291,23 @@
        }
       },
       {
-       "playerId": "nfl-athlete-4570561",
-       "name": "Eric Gray",
-       "position": "RB",
+       "playerId": "nfl-athlete-4429615",
+       "name": "Zay Flowers",
+       "position": "WR",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 6,
-       "regularSeasonShare": 0.0079,
+       "regularSeasonShare": 0.0107,
        "preseasonShare": {
-        "p10": 0.0297,
-        "p50": 0.0473,
-        "p90": 0.0881
+        "p10": 0.0294,
+        "p50": 0.0468,
+        "p90": 0.0872
        },
        "shareBasis": "measured preseason share for depth rank 6 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 0.557,
-        "games": 25,
-        "basis": "corpus-role 2023-25 stint (nEff 0.56, g 25, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.509,
+        "games": 52,
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 52, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        },
        "normalizedFrom": {
@@ -352,377 +315,31 @@
         "p50": 0.051,
         "p90": 0.095
        }
-      }
-     ],
-     "namedMassP50": 0.9001,
-     "unallocatedMass": 0.0999,
-     "reconciles": true,
-     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
-    },
-    "targets": {
-     "players": [
-      {
-       "playerId": "nfl-athlete-4595348",
-       "name": "Malik Nabers",
-       "position": "WR",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 1,
-       "regularSeasonShare": 0.1788,
-       "preseasonShare": {
-        "p10": 0.132,
-        "p50": 0.179,
-        "p90": 0.267
-       },
-       "shareBasis": "measured preseason share for depth rank 1 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 0.967,
-        "games": 19,
-        "basis": "corpus-role 2023-25 stint (nEff 0.97, g 19, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
       },
       {
-       "playerId": "nfl-athlete-4429148",
-       "name": "Theo Johnson",
+       "playerId": "nfl-athlete-3116365",
+       "name": "Mark Andrews",
        "position": "TE",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 2,
-       "regularSeasonShare": 0.1344,
-       "preseasonShare": {
-        "p10": 0.105,
-        "p50": 0.138,
-        "p90": 0.188
-       },
-       "shareBasis": "measured preseason share for depth rank 2 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.479,
-        "games": 25,
-        "basis": "corpus-role 2023-25 stint (nEff 1.48, g 25, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      },
-      {
-       "playerId": "nfl-athlete-3916945",
-       "name": "Darius Slayton",
-       "position": "WR",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 3,
-       "regularSeasonShare": 0.1285,
-       "preseasonShare": {
-        "p10": 0.091,
-        "p50": 0.111,
-        "p90": 0.147
-       },
-       "shareBasis": "measured preseason share for depth rank 3 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.465,
-        "games": 47,
-        "basis": "corpus-role 2023-25 stint (nEff 1.47, g 47, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4360516",
-       "name": "Tyrone Tracy Jr.",
-       "position": "RB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 4,
-       "regularSeasonShare": 0.0962,
-       "preseasonShare": {
-        "p10": 0.071,
-        "p50": 0.095,
-        "p90": 0.12
-       },
-       "shareBasis": "measured preseason share for depth rank 4 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.482,
-        "games": 32,
-        "basis": "corpus-role 2023-25 stint (nEff 1.48, g 32, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4696981",
-       "name": "Cam Skattebo",
-       "position": "RB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 5,
-       "regularSeasonShare": 0.0912,
-       "preseasonShare": {
-        "p10": 0.065,
-        "p50": 0.083,
-        "p90": 0.105
-       },
-       "shareBasis": "measured preseason share for depth rank 5 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.178,
-        "games": 8,
-        "basis": "corpus-role 2023-25 stint (nEff 1.18, g 8, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4242540",
-       "name": "Isaiah Hodgins",
-       "position": "WR",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 6,
-       "regularSeasonShare": 0.0593,
-       "preseasonShare": {
-        "p10": 0.053,
-        "p50": 0.074,
-        "p90": 0.095
-       },
-       "shareBasis": "measured preseason share for depth rank 6 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.016,
-        "games": 6,
-        "basis": "corpus-role 2023-25 stint (nEff 1.02, g 6, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4692590",
-       "name": "Jalin Hyatt",
-       "position": "WR",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 7,
-       "regularSeasonShare": 0.0486,
+       "regularSeasonShare": 0.0104,
        "preseasonShare": {
-        "p10": 0.004,
-        "p50": 0.01,
-        "p90": 0.025
+        "p10": 0.0046,
+        "p50": 0.0092,
+        "p90": 0.0229
        },
        "shareBasis": "measured preseason share for depth rank 7 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.136,
-        "games": 29,
-        "basis": "corpus-role 2023-25 stint (nEff 1.14, g 29, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4424106",
-       "name": "Gunner Olszewski",
-       "position": "WR",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 8,
-       "regularSeasonShare": 0.0432,
-       "preseasonShare": {
-        "p10": 0.0027,
-        "p50": 0.0067,
-        "p90": 0.0167
-       },
-       "shareBasis": "measured preseason share for depth rank 8 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.478,
-        "games": 25,
-        "basis": "corpus-role 2023-25 stint (nEff 1.48, g 25, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4040761",
-       "name": "Devin Singletary",
-       "position": "RB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 9,
-       "regularSeasonShare": 0.0406,
-       "preseasonShare": {
-        "p10": 0.002,
-        "p50": 0.005,
-        "p90": 0.0125
-       },
-       "shareBasis": "measured preseason share for depth rank 9 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.508,
-        "games": 32,
-        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 32, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4431210",
-       "name": "Beaux Collins",
-       "position": "WR",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 10,
-       "regularSeasonShare": 0.0332,
-       "preseasonShare": {
-        "p10": 0.0016,
-        "p50": 0.004,
-        "p90": 0.01
-       },
-       "shareBasis": "measured preseason share for depth rank 10 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 0.786,
-        "games": 4,
-        "basis": "corpus-role 2023-25 stint (nEff 0.79, g 4, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      },
-      {
-       "playerId": "nfl-athlete-2531358",
-       "name": "Chris Manhertz",
-       "position": "TE",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 11,
-       "regularSeasonShare": 0.014,
-       "preseasonShare": {
-        "p10": 0.0013,
-        "p50": 0.0033,
-        "p90": 0.0083
-       },
-       "shareBasis": "measured preseason share for depth rank 11 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 0.788,
-        "games": 9,
-        "basis": "corpus-role 2023-25 stint (nEff 0.79, g 9, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4570561",
-       "name": "Eric Gray",
-       "position": "RB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 12,
-       "regularSeasonShare": 0.0075,
-       "preseasonShare": {
-        "p10": 0.0011,
-        "p50": 0.0029,
-        "p90": 0.0071
-       },
-       "shareBasis": "measured preseason share for depth rank 12 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 0.557,
-        "games": 25,
-        "basis": "corpus-role 2023-25 stint (nEff 0.56, g 25, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      },
-      {
-       "playerId": "nfl-athlete-2969939",
-       "name": "Jameis Winston",
-       "position": "QB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 13,
-       "regularSeasonShare": 0.0054,
-       "preseasonShare": {
-        "p10": 0.001,
-        "p50": 0.0025,
-        "p90": 0.0063
-       },
-       "shareBasis": "measured preseason share for depth rank 13 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 0.637,
-        "games": 3,
-        "basis": "corpus-role 2023-25 stint (nEff 0.64, g 3, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       }
-      }
-     ],
-     "namedMassP50": 0.7144,
-     "unallocatedMass": 0.2856,
-     "reconciles": true,
-     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
-    }
-   },
-   "rosterAsOf": "2026-08-13T02:55:00Z"
-  },
-  "MIN": {
-   "markets": {
-    "passAttempts": {
-     "players": [
-      {
-       "playerId": "nfl-athlete-4433970",
-       "name": "J.J. McCarthy",
-       "position": "QB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 1,
-       "regularSeasonShare": 0.4072,
-       "preseasonShare": {
-        "p10": 0.3413,
-        "p50": 0.4778,
-        "p90": 0.7374
-       },
-       "shareBasis": "measured preseason share for depth rank 1 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.294,
-        "games": 10,
-        "basis": "corpus-role 2023-25 stint (nEff 1.29, g 10, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.509,
+        "games": 47,
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 47, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        },
        "normalizedFrom": {
-        "p10": 0.405,
-        "p50": 0.567,
-        "p90": 0.875
-       }
-      },
-      {
-       "playerId": "nfl-athlete-2573079",
-       "name": "Carson Wentz",
-       "position": "QB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 2,
-       "regularSeasonShare": 0.3849,
-       "preseasonShare": {
-        "p10": 0.1584,
-        "p50": 0.2629,
-        "p90": 0.3742
-       },
-       "shareBasis": "measured preseason share for depth rank 2 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 0.911,
-        "games": 5,
-        "basis": "corpus-role 2023-25 stint (nEff 0.91, g 5, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       },
-       "normalizedFrom": {
-        "p10": 0.188,
-        "p50": 0.312,
-        "p90": 0.444
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4573398",
-       "name": "Max Brosmer",
-       "position": "QB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 3,
-       "regularSeasonShare": 0.2078,
-       "preseasonShare": {
-        "p10": 0.0801,
-        "p50": 0.1593,
-        "p90": 0.2174
-       },
-       "shareBasis": "measured preseason share for depth rank 3 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.104,
-        "games": 7,
-        "basis": "corpus-role 2023-25 stint (nEff 1.10, g 7, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       },
-       "normalizedFrom": {
-        "p10": 0.095,
-        "p50": 0.189,
-        "p90": 0.258
+        "p10": 0.005,
+        "p50": 0.01,
+        "p90": 0.025
        }
       }
      ],
@@ -731,180 +348,16 @@
      "reconciles": true,
      "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
     },
-    "rushAttempts": {
-     "players": [
-      {
-       "playerId": "nfl-athlete-3042519",
-       "name": "Aaron Jones Sr.",
-       "position": "RB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 1,
-       "regularSeasonShare": 0.3792,
-       "preseasonShare": {
-        "p10": 0.2197,
-        "p50": 0.3087,
-        "p90": 0.4634
-       },
-       "shareBasis": "measured preseason share for depth rank 1 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.422,
-        "games": 30,
-        "basis": "corpus-role 2023-25 stint (nEff 1.42, g 30, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       },
-       "normalizedFrom": {
-        "p10": 0.237,
-        "p50": 0.333,
-        "p90": 0.5
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4360569",
-       "name": "Jordan Mason",
-       "position": "RB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 2,
-       "regularSeasonShare": 0.2623,
-       "preseasonShare": {
-        "p10": 0.1622,
-        "p50": 0.2178,
-        "p90": 0.2929
-       },
-       "shareBasis": "measured preseason share for depth rank 2 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.473,
-        "games": 16,
-        "basis": "corpus-role 2023-25 stint (nEff 1.47, g 16, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       },
-       "normalizedFrom": {
-        "p10": 0.175,
-        "p50": 0.235,
-        "p90": 0.316
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4433970",
-       "name": "J.J. McCarthy",
-       "position": "QB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 3,
-       "regularSeasonShare": 0.0902,
-       "preseasonShare": {
-        "p10": 0.1029,
-        "p50": 0.1492,
-        "p90": 0.2058
-       },
-       "shareBasis": "measured preseason share for depth rank 3 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.294,
-        "games": 10,
-        "basis": "corpus-role 2023-25 stint (nEff 1.29, g 10, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       },
-       "normalizedFrom": {
-        "p10": 0.111,
-        "p50": 0.161,
-        "p90": 0.222
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4257364",
-       "name": "Zavier Scott",
-       "position": "RB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 4,
-       "regularSeasonShare": 0.0715,
-       "preseasonShare": {
-        "p10": 0.0547,
-        "p50": 0.1057,
-        "p90": 0.1483
-       },
-       "shareBasis": "measured preseason share for depth rank 4 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.338,
-        "games": 11,
-        "basis": "corpus-role 2023-25 stint (nEff 1.34, g 11, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       },
-       "normalizedFrom": {
-        "p10": 0.059,
-        "p50": 0.114,
-        "p90": 0.16
-       }
-      },
-      {
-       "playerId": "nfl-athlete-2573079",
-       "name": "Carson Wentz",
-       "position": "QB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 5,
-       "regularSeasonShare": 0.0585,
-       "preseasonShare": {
-        "p10": 0.0352,
-        "p50": 0.0714,
-        "p90": 0.1112
-       },
-       "shareBasis": "measured preseason share for depth rank 5 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 0.911,
-        "games": 5,
-        "basis": "corpus-role 2023-25 stint (nEff 0.91, g 5, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       },
-       "normalizedFrom": {
-        "p10": 0.038,
-        "p50": 0.077,
-        "p90": 0.12
-       }
-      },
-      {
-       "playerId": "nfl-athlete-4573398",
-       "name": "Max Brosmer",
-       "position": "QB",
-       "state": "AVAILABLE_ROLE_UNCERTAIN",
-       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 6,
-       "regularSeasonShare": 0.0287,
-       "preseasonShare": {
-        "p10": 0.0297,
-        "p50": 0.0473,
-        "p90": 0.0881
-       },
-       "shareBasis": "measured preseason share for depth rank 6 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
-       "evidence": {
-        "nEff": 1.104,
-        "games": 7,
-        "basis": "corpus-role 2023-25 stint (nEff 1.10, g 7, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-        "sourceAsOf": "2026-08-13T02:55:00Z"
-       },
-       "normalizedFrom": {
-        "p10": 0.032,
-        "p50": 0.051,
-        "p90": 0.095
-       }
-      }
-     ],
-     "namedMassP50": 0.9001,
-     "unallocatedMass": 0.0999,
-     "reconciles": true,
-     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
-    },
     "targets": {
      "players": [
       {
-       "playerId": "nfl-athlete-4262921",
-       "name": "Justin Jefferson",
+       "playerId": "nfl-athlete-4429615",
+       "name": "Zay Flowers",
        "position": "WR",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 1,
-       "regularSeasonShare": 0.2368,
+       "regularSeasonShare": 0.2305,
        "preseasonShare": {
         "p10": 0.132,
         "p50": 0.179,
@@ -913,19 +366,19 @@
        "shareBasis": "measured preseason share for depth rank 1 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
         "nEff": 1.509,
-        "games": 45,
-        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 45, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "games": 52,
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 52, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        }
       },
       {
-       "playerId": "nfl-athlete-4429205",
-       "name": "Jordan Addison",
-       "position": "WR",
+       "playerId": "nfl-athlete-3116365",
+       "name": "Mark Andrews",
+       "position": "TE",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 2,
-       "regularSeasonShare": 0.1178,
+       "regularSeasonShare": 0.1352,
        "preseasonShare": {
         "p10": 0.105,
         "p50": 0.138,
@@ -933,20 +386,20 @@
        },
        "shareBasis": "measured preseason share for depth rank 2 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.465,
+        "nEff": 1.509,
         "games": 47,
-        "basis": "corpus-role 2023-25 stint (nEff 1.47, g 47, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 47, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        }
       },
       {
-       "playerId": "nfl-athlete-3042519",
-       "name": "Aaron Jones Sr.",
-       "position": "RB",
+       "playerId": "nfl-athlete-4360939",
+       "name": "Rashod Bateman",
+       "position": "WR",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 3,
-       "regularSeasonShare": 0.1152,
+       "regularSeasonShare": 0.0731,
        "preseasonShare": {
         "p10": 0.091,
         "p50": 0.111,
@@ -954,20 +407,20 @@
        },
        "shareBasis": "measured preseason share for depth rank 3 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.422,
-        "games": 30,
-        "basis": "corpus-role 2023-25 stint (nEff 1.42, g 30, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.446,
+        "games": 48,
+        "basis": "corpus-role 2023-25 stint (nEff 1.45, g 48, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        }
       },
       {
-       "playerId": "nfl-athlete-4036133",
-       "name": "T.J. Hockenson",
-       "position": "TE",
+       "playerId": "nfl-athlete-4038441",
+       "name": "Justice Hill",
+       "position": "RB",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 4,
-       "regularSeasonShare": 0.1115,
+       "regularSeasonShare": 0.0608,
        "preseasonShare": {
         "p10": 0.071,
         "p50": 0.095,
@@ -975,20 +428,20 @@
        },
        "shareBasis": "measured preseason share for depth rank 4 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.48,
-        "games": 41,
-        "basis": "corpus-role 2023-25 stint (nEff 1.48, g 41, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.36,
+        "games": 45,
+        "basis": "corpus-role 2023-25 stint (nEff 1.36, g 45, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        }
       },
       {
-       "playerId": "nfl-athlete-3921690",
-       "name": "Josh Oliver",
-       "position": "TE",
+       "playerId": "nfl-athlete-4690013",
+       "name": "Rasheen Ali",
+       "position": "RB",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 5,
-       "regularSeasonShare": 0.0578,
+       "regularSeasonShare": 0.0452,
        "preseasonShare": {
         "p10": 0.065,
         "p50": 0.083,
@@ -996,20 +449,20 @@
        },
        "shareBasis": "measured preseason share for depth rank 5 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.419,
-        "games": 36,
-        "basis": "corpus-role 2023-25 stint (nEff 1.42, g 36, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.471,
+        "games": 20,
+        "basis": "corpus-role 2023-25 stint (nEff 1.47, g 20, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        }
       },
       {
-       "playerId": "nfl-athlete-4257364",
-       "name": "Zavier Scott",
-       "position": "RB",
+       "playerId": "nfl-athlete-4696882",
+       "name": "Devontez Walker",
+       "position": "WR",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 6,
-       "regularSeasonShare": 0.0252,
+       "regularSeasonShare": 0.0373,
        "preseasonShare": {
         "p10": 0.053,
         "p50": 0.074,
@@ -1017,78 +470,447 @@
        },
        "shareBasis": "measured preseason share for depth rank 6 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.338,
-        "games": 11,
-        "basis": "corpus-role 2023-25 stint (nEff 1.34, g 11, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.151,
+        "games": 10,
+        "basis": "corpus-role 2023-25 stint (nEff 1.15, g 10, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        }
       },
       {
-       "playerId": "nfl-athlete-4360569",
-       "name": "Jordan Mason",
+       "playerId": "nfl-athlete-3043078",
+       "name": "Derrick Henry",
        "position": "RB",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 7,
-       "regularSeasonShare": 0.0154,
+       "regularSeasonShare": 0.0302,
        "preseasonShare": {
-        "p10": 0.004,
+        "p10": 0.005,
         "p50": 0.01,
         "p90": 0.025
        },
        "shareBasis": "measured preseason share for depth rank 7 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.473,
-        "games": 16,
-        "basis": "corpus-role 2023-25 stint (nEff 1.47, g 16, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.509,
+        "games": 36,
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 36, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      }
+     ],
+     "namedMassP50": 0.69,
+     "unallocatedMass": 0.31,
+     "reconciles": true,
+     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
+    }
+   },
+   "rosterAsOf": "2026-08-13T02:55:00Z"
+  },
+  "PHI": {
+   "markets": {
+    "passAttempts": {
+     "players": [
+      {
+       "playerId": "nfl-athlete-4040715",
+       "name": "Jalen Hurts",
+       "position": "QB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 1,
+       "regularSeasonShare": 0.7379,
+       "preseasonShare": {
+        "p10": 0.405,
+        "p50": 0.567,
+        "p90": 0.875
+       },
+       "shareBasis": "measured preseason share for depth rank 1 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.509,
+        "games": 54,
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 54, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        }
       },
       {
-       "playerId": "nfl-athlete-4433959",
-       "name": "Ben Yurosek",
+       "playerId": "nfl-athlete-4685201",
+       "name": "Tanner McKee",
+       "position": "QB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 2,
+       "regularSeasonShare": 0.2354,
+       "preseasonShare": {
+        "p10": 0.188,
+        "p50": 0.312,
+        "p90": 0.444
+       },
+       "shareBasis": "measured preseason share for depth rank 2 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 0.843,
+        "games": 6,
+        "basis": "corpus-role 2023-25 stint (nEff 0.84, g 6, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      }
+     ],
+     "namedMassP50": 0.879,
+     "unallocatedMass": 0.121,
+     "reconciles": true,
+     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
+    },
+    "rushAttempts": {
+     "players": [
+      {
+       "playerId": "nfl-athlete-3929630",
+       "name": "Saquon Barkley",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 1,
+       "regularSeasonShare": 0.4925,
+       "preseasonShare": {
+        "p10": 0.2318,
+        "p50": 0.3258,
+        "p90": 0.4891
+       },
+       "shareBasis": "measured preseason share for depth rank 1 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.509,
+        "games": 37,
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 37, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       },
+       "normalizedFrom": {
+        "p10": 0.237,
+        "p50": 0.333,
+        "p90": 0.5
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4429013",
+       "name": "Tank Bigsby",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 2,
+       "regularSeasonShare": 0.1634,
+       "preseasonShare": {
+        "p10": 0.1712,
+        "p50": 0.2299,
+        "p90": 0.3091
+       },
+       "shareBasis": "measured preseason share for depth rank 2 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.455,
+        "games": 15,
+        "basis": "corpus-role 2023-25 stint (nEff 1.45, g 15, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       },
+       "normalizedFrom": {
+        "p10": 0.175,
+        "p50": 0.235,
+        "p90": 0.316
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4040715",
+       "name": "Jalen Hurts",
+       "position": "QB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 3,
+       "regularSeasonShare": 0.1431,
+       "preseasonShare": {
+        "p10": 0.1086,
+        "p50": 0.1575,
+        "p90": 0.2172
+       },
+       "shareBasis": "measured preseason share for depth rank 3 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.509,
+        "games": 54,
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 54, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       },
+       "normalizedFrom": {
+        "p10": 0.111,
+        "p50": 0.161,
+        "p90": 0.222
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4685201",
+       "name": "Tanner McKee",
+       "position": "QB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 4,
+       "regularSeasonShare": 0.0454,
+       "preseasonShare": {
+        "p10": 0.0577,
+        "p50": 0.1115,
+        "p90": 0.1565
+       },
+       "shareBasis": "measured preseason share for depth rank 4 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 0.843,
+        "games": 6,
+        "basis": "corpus-role 2023-25 stint (nEff 0.84, g 6, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       },
+       "normalizedFrom": {
+        "p10": 0.059,
+        "p50": 0.114,
+        "p90": 0.16
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4431545",
+       "name": "Will Shipley",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 5,
+       "regularSeasonShare": 0.0219,
+       "preseasonShare": {
+        "p10": 0.0372,
+        "p50": 0.0753,
+        "p90": 0.1174
+       },
+       "shareBasis": "measured preseason share for depth rank 5 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.482,
+        "games": 31,
+        "basis": "corpus-role 2023-25 stint (nEff 1.48, g 31, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       },
+       "normalizedFrom": {
+        "p10": 0.038,
+        "p50": 0.077,
+        "p90": 0.12
+       }
+      }
+     ],
+     "namedMassP50": 0.9,
+     "unallocatedMass": 0.1,
+     "reconciles": true,
+     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
+    },
+    "targets": {
+     "players": [
+      {
+       "playerId": "nfl-athlete-4241478",
+       "name": "DeVonta Smith",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 1,
+       "regularSeasonShare": 0.1805,
+       "preseasonShare": {
+        "p10": 0.132,
+        "p50": 0.179,
+        "p90": 0.267
+       },
+       "shareBasis": "measured preseason share for depth rank 1 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.519,
+        "games": 52,
+        "basis": "corpus-role 2023-25 stint (nEff 1.52, g 52, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-3121023",
+       "name": "Dallas Goedert",
        "position": "TE",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
-       "depthRank": 8,
-       "regularSeasonShare": 0.0129,
+       "depthRank": 2,
+       "regularSeasonShare": 0.1593,
        "preseasonShare": {
-        "p10": 0.0027,
+        "p10": 0.105,
+        "p50": 0.138,
+        "p90": 0.188
+       },
+       "shareBasis": "measured preseason share for depth rank 2 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.496,
+        "games": 45,
+        "basis": "corpus-role 2023-25 stint (nEff 1.50, g 45, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-3929630",
+       "name": "Saquon Barkley",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 3,
+       "regularSeasonShare": 0.0825,
+       "preseasonShare": {
+        "p10": 0.091,
+        "p50": 0.111,
+        "p90": 0.147
+       },
+       "shareBasis": "measured preseason share for depth rank 3 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.509,
+        "games": 37,
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 37, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4715355",
+       "name": "Darius Cooper",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 4,
+       "regularSeasonShare": 0.0475,
+       "preseasonShare": {
+        "p10": 0.071,
+        "p50": 0.095,
+        "p90": 0.12
+       },
+       "shareBasis": "measured preseason share for depth rank 4 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.016,
+        "games": 6,
+        "basis": "corpus-role 2023-25 stint (nEff 1.02, g 6, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4241374",
+       "name": "Grant Calcaterra",
+       "position": "TE",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 5,
+       "regularSeasonShare": 0.0421,
+       "preseasonShare": {
+        "p10": 0.065,
+        "p50": 0.083,
+        "p90": 0.105
+       },
+       "shareBasis": "measured preseason share for depth rank 5 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.318,
+        "games": 27,
+        "basis": "corpus-role 2023-25 stint (nEff 1.32, g 27, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4431545",
+       "name": "Will Shipley",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 6,
+       "regularSeasonShare": 0.0238,
+       "preseasonShare": {
+        "p10": 0.053,
+        "p50": 0.074,
+        "p90": 0.095
+       },
+       "shareBasis": "measured preseason share for depth rank 6 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 1.482,
+        "games": 31,
+        "basis": "corpus-role 2023-25 stint (nEff 1.48, g 31, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4686104",
+       "name": "Johnny Wilson",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 7,
+       "regularSeasonShare": 0.0231,
+       "preseasonShare": {
+        "p10": 0.005,
+        "p50": 0.01,
+        "p90": 0.025
+       },
+       "shareBasis": "measured preseason share for depth rank 7 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 0.323,
+        "games": 10,
+        "basis": "corpus-role 2023-25 stint (nEff 0.32, g 10, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-3926231",
+       "name": "Britain Covey",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 8,
+       "regularSeasonShare": 0.0154,
+       "preseasonShare": {
+        "p10": 0.005,
         "p50": 0.0067,
         "p90": 0.0167
        },
        "shareBasis": "measured preseason share for depth rank 8 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 0.911,
-        "games": 5,
-        "basis": "corpus-role 2023-25 stint (nEff 0.91, g 5, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.104,
+        "games": 7,
+        "basis": "corpus-role 2023-25 stint (nEff 1.10, g 7, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        }
       },
       {
-       "playerId": "nfl-athlete-4565185",
-       "name": "Tai Felton",
-       "position": "WR",
+       "playerId": "nfl-athlete-4429013",
+       "name": "Tank Bigsby",
+       "position": "RB",
        "state": "AVAILABLE_ROLE_UNCERTAIN",
        "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
        "depthRank": 9,
-       "regularSeasonShare": 0.0108,
+       "regularSeasonShare": 0.0118,
        "preseasonShare": {
-        "p10": 0.002,
+        "p10": 0.005,
         "p50": 0.005,
         "p90": 0.0125
        },
        "shareBasis": "measured preseason share for depth rank 9 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
        "evidence": {
-        "nEff": 1.294,
-        "games": 10,
-        "basis": "corpus-role 2023-25 stint (nEff 1.29, g 10, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "nEff": 1.455,
+        "games": 15,
+        "basis": "corpus-role 2023-25 stint (nEff 1.45, g 15, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4248557",
+       "name": "E.J. Jenkins",
+       "position": "TE",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "depthRank": 10,
+       "regularSeasonShare": 0.0072,
+       "preseasonShare": {
+        "p10": 0.005,
+        "p50": 0.004,
+        "p90": 0.01
+       },
+       "shareBasis": "measured preseason share for depth rank 10 (292 preseason team-games, data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json) — the regular-season number orders players and never sets the magnitude",
+       "evidence": {
+        "nEff": 0.115,
+        "games": 2,
+        "basis": "corpus-role 2023-25 stint (nEff 0.12, g 2, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
         "sourceAsOf": "2026-08-13T02:55:00Z"
        }
       }
      ],
-     "namedMassP50": 0.7017,
-     "unallocatedMass": 0.2983,
+     "namedMassP50": 0.7057,
+     "unallocatedMass": 0.2943,
      "reconciles": true,
      "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
     }
@@ -1097,7 +919,7 @@
   }
  },
  "cutoffSafe": true,
- "inputHash": "6b47a7b48a089753",
- "supersedes": "4a07914c44f5905e",
+ "inputHash": "028b3f17672dc667",
+ "supersedes": "e97f91a9a2010ea2",
  "correction": "Program 182 derived preseason shares by multiplying a regular-season share by an invented rotation factor. The corpus says the leading preseason passer takes 56.7% of team attempts, not the 12.8% that produced. Shares are now MEASURED by depth rank."
 }

@@ -54,30 +54,48 @@ test("MASS RECONCILES — the unmodelled part of the game stays VISIBLE, never a
   assert.ok(checked >= 60, `every team-market checked (${checked})`);
 });
 
-test("THE PRESEASON TRAP IS CLOSED — no player inherits a regular-season workload", () => {
-  assert.match(src, /carrying that basis through unchanged would hand a projection a full-game workload/);
+test("THE PRESEASON TRAP IS CLOSED — shares are MEASURED, and regular-season usage sets no magnitude", () => {
+  // P183 correction. Program 182 asserted `preseasonShare.p50 < regularSeasonShare`, which encoded
+  // its own mistake: it derived preseason usage by multiplying a regular-season share by an invented
+  // rotation factor, publishing the leading passer at 12.8% of team attempts. The corpus says 56.7%
+  // (292 preseason team-games). Shares now come from a MEASURED table keyed by depth rank, and the
+  // regular-season number is used only to ORDER players — so comparing the two is meaningless.
+  assert.match(src, /Regular-season share is now used ONLY to\s*\n? \* order players by rank, never as a magnitude/);
+  assert.match(src, /RANK_SHARES/);
   for (const a of artifacts) {
+    assert.ok(a.rankShares?.passAttempts?.length >= 1, `${a.matchup} carries the measured rank table`);
+    assert.match(a.rankSharesSource, /preseason team-games/);
     for (const tv of Object.values(a.teams)) {
       for (const mv of Object.values(tv.markets)) {
         for (const p of mv.players) {
-          assert.ok(p.preseasonShare.p50 < p.regularSeasonShare,
-            `${p.name}: the preseason median must sit below the regular-season basis`);
-          assert.ok(p.preseasonShare.p90 < p.regularSeasonShare || p.regularSeasonShare < 0.05,
-            `${p.name}: even the optimistic end stays below a full regular-season workload`);
+          assert.ok(p.depthRank >= 1, `${p.name}: every row carries the depth rank its share came from`);
+          assert.match(p.shareBasis, /never sets the magnitude/);
           assert.ok(p.preseasonShare.p10 < p.preseasonShare.p50 && p.preseasonShare.p50 < p.preseasonShare.p90,
             `${p.name}: a distribution, not a point`);
+        }
+        // ranks are ordered: a deeper player never out-shares a shallower one in the same market
+        const byRank = [...mv.players].sort((x, y) => x.depthRank - y.depthRank);
+        for (let i = 1; i < byRank.length; i += 1) {
+          assert.ok(byRank[i].preseasonShare.p50 <= byRank[i - 1].preseasonShare.p50 + 1e-9,
+            `${byRank[i].name} (rank ${byRank[i].depthRank}) may not out-share rank ${byRank[i - 1].depthRank}`);
         }
       }
     }
   }
 });
 
-test("A DISTRIBUTION IS WIDE ON PURPOSE — a one-series starter and a half-game starter both fit", () => {
-  const qb = artifacts.flatMap((a) => Object.values(a.teams))
-    .flatMap((t) => t.markets.passAttempts.players).find((p) => p.position === "QB" && p.regularSeasonShare > 0.4);
-  assert.ok(qb, "a nominal starting quarterback is present");
-  const ratio = qb.preseasonShare.p90 / qb.preseasonShare.p10;
-  assert.ok(ratio > 5, `the range spans a one-series and a half-game outcome (p90/p10 = ${ratio.toFixed(1)})`);
+test("THE WIDTH IS THE MEASURED WIDTH — not a width chosen to look uncertain", () => {
+  // P182 asserted p90/p10 > 5, which its invented factor produced mechanically. The corpus width for
+  // a leading preseason passer is 0.875 / 0.405 = 2.16. Asserting the old ratio would now force the
+  // engine BACK to a fabricated spread, so the guard checks the real one instead.
+  const lead = artifacts.flatMap((a) => Object.values(a.teams))
+    .flatMap((t) => t.markets.passAttempts.players).find((p) => p.depthRank === 1);
+  assert.ok(lead, "a rank-1 passer is present");
+  const ratio = lead.preseasonShare.p90 / lead.preseasonShare.p10;
+  assert.ok(ratio > 1.5 && ratio < 4,
+    `the measured rank-1 spread is about 2.2x, not the 11x an invented factor produced (got ${ratio.toFixed(2)})`);
+  // and it is still genuinely uncertain — a starter can take a third of the work or most of it
+  assert.ok(lead.preseasonShare.p90 - lead.preseasonShare.p10 > 0.15, "a real spread, not a point dressed as a range");
 });
 
 test("THE CONFIDENT STATES ARE UNREACHABLE, and the reason is named", () => {
@@ -137,8 +155,17 @@ test("PUBLIC · the summary leads with the limitation and never claims a player 
   }
 });
 
-test("APPEND-ONLY · a changed input writes a stamped revision beside the original", () => {
-  assert.match(src, /revisionOf: `\$\{ev\.providerEventId\}\.json`/);
-  assert.match(src, /priorInputHash/);
-  assert.match(src, /Append-only: an existing artifact with different inputs becomes a stamped revision/);
+test("A CORRECTION SUPERSEDES, and the superseded version is preserved verbatim", () => {
+  // P183: when a prior artifact is found to be WRONG (not merely stale), the corrected one must be
+  // the file readers see — leaving the known-wrong values as the base while a fix sits beside it
+  // would publish the mistake. The old version is written out first, so nothing is lost.
+  assert.match(src, /supersedes: existing\?\.inputHash/);
+  assert.match(src, /correction: "Program 182 derived preseason shares/);
+  assert.match(src, /leaving them in\s*\n?\s*\/\/ place as the base file while a correction sat beside it would publish the known-wrong one/);
+  const withCorrection = artifacts.filter((a) => a.correction);
+  assert.ok(withCorrection.length >= 1, "the corrected artifacts carry the reason inline");
+  // the superseded copies exist on disk
+  const day = path.join(ROOT, "data/internal/nfl/participation", artifacts[0].kickoffUtc.slice(0, 10));
+  const superseded = fs.readdirSync(day).filter((f) => f.includes("-superseded-"));
+  assert.ok(superseded.length >= 1, "the prior version is preserved, not overwritten away");
 });
