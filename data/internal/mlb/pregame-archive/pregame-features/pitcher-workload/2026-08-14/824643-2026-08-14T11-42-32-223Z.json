@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824643,
+  "date": "2026-08-14",
+  "capturedAt": "2026-08-14T11:42:32.223Z",
+  "availableAt": "2026-08-14T11:42:32.223Z",
+  "eventStartTime": "2026-08-14T18:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 605280,
+      "name": "Clay Holmes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 6,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 5.4,
+        "bbAvg": 2,
+        "erAvg": 2.2,
+        "hrAvg": 0.2,
+        "kPer9": 9.11,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 56.67,
+        "k": 46,
+        "bb": 20,
+        "er": 18,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 669461,
+      "name": "Matthew Liberatore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 6,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 5.6,
+        "bbAvg": 1.6,
+        "erAvg": 2.6,
+        "hrAvg": 0.6,
+        "kPer9": 9.69,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 113.67,
+        "k": 110,
+        "bb": 43,
+        "er": 65,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-14&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-14T11:42:32.223Z"
+  },
+  "recordHash": "439c7b82c9b01856397bc02903dd0b718748c017e9c5de9e888704191f31cadd"
+}
