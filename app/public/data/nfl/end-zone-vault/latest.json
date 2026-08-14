@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-08-14",
- "generatedAt": "2026-08-14T15:51:52Z",
+ "generatedAt": "2026-08-14T21:24:14Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "120 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
+ "reason": "121 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -50,6 +50,25 @@
    "roleNote": "preseason: no source-backed evidence of how much this player will play",
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 44, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-3043078",
+   "name": "Derrick Henry",
+   "position": "RB",
+   "team": "BAL",
+   "opponent": "PHI",
+   "event": "PHI @ BAL",
+   "providerEventId": "401873284",
+   "kickoffUtc": "2026-08-15T23:00Z",
+   "tdProbability": 0.303939,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "preseason: no source-backed evidence of how much this player will play",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 35, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
   },
   {
@@ -126,25 +145,6 @@
    "roleNote": "preseason: no source-backed evidence of how much this player will play",
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.46, g 35, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
-  },
-  {
-   "playerId": "nfl-athlete-3043078",
-   "name": "Derrick Henry",
-   "position": "RB",
-   "team": "BAL",
-   "opponent": "PHI",
-   "event": "PHI @ BAL",
-   "providerEventId": "401873284",
-   "kickoffUtc": "2026-08-15T23:00Z",
-   "tdProbability": 0.28722,
-   "probabilityRange": {
-    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ROLE_UNCERTAIN",
-   "roleNote": "preseason: no source-backed evidence of how much this player will play",
-   "marketPrice": null,
-   "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 35, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
   },
   {
@@ -243,7 +243,7 @@
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
   }
  ],
- "candidateCount": 120,
+ "candidateCount": 121,
  "withheld": [],
  "gates": {
   "required": [
