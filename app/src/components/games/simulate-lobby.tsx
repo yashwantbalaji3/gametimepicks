@@ -385,8 +385,7 @@ export default function SimulateLobby() {
             Simulate Today&rsquo;s Games
           </h3>
           <p style={{ color: "var(--vault-text-mute)", fontSize: "clamp(13px, 1.6vw, 15px)", lineHeight: 1.5, maxWidth: 640 }}>
-            Pick a matchup and generate its precomputed model simulation. Watch a short reveal, then read the full dashboard on the game page. Everyone sees the same result.
-          </p>
+            Pick a matchup to run its simulation.</p>
           <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11, letterSpacing: "0.01em" }}>
             precomputed · deterministic · same output for every user · paper-only
           </p>

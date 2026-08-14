@@ -24,8 +24,15 @@ test("1 · /ufc renders the settled record through the official recap, clearly d
   assert.match(page, /UfcEventResultsRecap/, "the settled recap component renders the record");
   assert.match(page, /results-settled-latest\.json/, "the record comes from the settlement artifact");
   assert.match(page, /settledAt/, "the page derives a visible settled date");
-  assert.match(page, /settled archive/i, "the page names itself an archive");
-  assert.match(page, /Archive · no live coverage/, "the no-live-coverage label renders");
+  // P189: /ufc now publishes an experimental fight model, so the PAGE is no longer an archive —
+  // but the settled record still must never read as live. The label therefore belongs to the
+  // section that holds that record, and is asserted there. The page-level claim was retired
+  // because it had become false, not because the invariant lapsed.
+  assert.match(page, /Settled archive/, "the settled record sits under its own archive heading");
+  assert.match(page, /Archive · no live coverage/, "the no-live-coverage label renders on that section");
+  const archiveAt = page.indexOf("Settled archive");
+  const recapAt = page.indexOf("<UfcEventResultsRecap");
+  assert.ok(archiveAt > -1 && recapAt > archiveAt, "the archive label precedes the record it describes");
   // Known-positive on the recap itself: official winners + graded results are what it shows.
   assert.match(recap, /officially settled/, "recap frames the event as officially settled");
   assert.match(recap, /officialWinner/, "recap renders the official winner of every fight");

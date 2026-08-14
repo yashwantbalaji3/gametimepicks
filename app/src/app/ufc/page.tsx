@@ -12,6 +12,7 @@
  * is fail-closed on the settlement artifact: no official "final" settlement, no record shown.
  */
 import fs from "node:fs";
+import Explain from "@/components/ui/explain";
 import UfcCard, { type UfcCardArtifact } from "@/components/sports/ufc-card";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
@@ -69,22 +70,26 @@ export default function UfcArchivePage() {
       <header className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 24, fontWeight: 700 }}>
-            UFC · settled archive
+            UFC
           </h1>
           <span
             className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
-            style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.5)" }}
+            style={{ color: "var(--vault-gold)", border: "1px solid var(--vault-gold)", background: "rgba(217,164,65,0.08)" }}
           >
-            Archive · no live coverage
+            Predictions · experimental
           </span>
         </div>
         <p className="max-w-2xl font-mono text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-          UFC coverage was retired on 2026-07-23. The numbers it used were sportsbook prices with the
-          bookmaker&rsquo;s margin removed — not a fight model — and without a reliable record of when each
-          price was captured, no bout can be honestly evaluated after the fact. Nothing predictive
-          publishes here. What remains is the settled record below, graded from the official ESPN MMA
-          scoreboard.
+          Winner, method and finishing round for every bout on the next card. Paper and educational.
         </p>
+        <Explain label="What changed, and what is still refused">
+          The de-vigged-price read that ran until 2026-07-23 was retired: it restated the sportsbook
+          rather than forming an opinion. What publishes now is a fight model trained on 8,642
+          decisive bouts, with each of its three markets tested separately against a base-rate
+          baseline. No sportsbook price is shown or compared — our odds authorisation covers NFL
+          only — so these probabilities stand alone rather than being set against a market they have
+          not seen. The settled record from the retired era is kept below.
+        </Explain>
         <nav className="flex flex-wrap gap-3 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
           <Link href="/today" style={{ color: "var(--gtp-bank-heat)" }}>Live action → Today</Link>
           <Link href="/results" style={{ color: "var(--vault-text-mute)" }}>Track record → Results</Link>
@@ -94,26 +99,13 @@ export default function UfcArchivePage() {
 
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700, margin: 0 }}>Upcoming schedule</h2>
-          <span className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
-            style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.5)" }}>
-            Schedule only — simulation pending
-          </span>
+          <h2 className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700, margin: 0 }}>Next card</h2>
         </div>
-        <p className="max-w-2xl font-mono text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-          The next scheduled bouts, listed with their start time and nothing else. No projection,
-          probability, price or pick is published for UFC: the retired V1 moneyline read was a
-          de-vigged market price with a capped nudge, and no bout is cleanly backtestable without
-          point-in-time odds capture — so no moneyline or method-of-victory number is published.
-          One market IS modelled: whether a bout goes the distance, which cleared a walk-forward
-          backtest against a base-rate baseline. The block under the card states exactly what that
-          test measured and what is still refused.
-        </p>
         {card?.bouts?.length
           ? <UfcCard card={card} />
           : <ScheduleList events={(feed?.events ?? []) as never[]} sides={["red", "blue"]} joiner="vs" />}
         <p className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
-          Source: {feed?.sourceVerdict?.sourceId ?? "ESPN schedule capture"}
+          Schedule source: {feed?.sourceVerdict?.sourceId ?? "ESPN"}
         </p>
       </section>
 
@@ -124,6 +116,20 @@ export default function UfcArchivePage() {
               Officially settled {settledOn}
             </span>
           </div>
+      <section className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700, margin: 0 }}>
+            Settled archive
+          </h2>
+          <span
+            className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
+            style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.5)" }}
+          >
+            Archive · no live coverage
+          </span>
+        </div>
+      </section>
+
           <UfcEventResultsRecap s={settled} />
           <p className="font-mono text-[10px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
             This is one settled event ({settled.fights.length} graded fights). A single-card record is an outcome log,

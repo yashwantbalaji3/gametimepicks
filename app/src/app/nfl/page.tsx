@@ -23,6 +23,7 @@
  * Data: build-time reads of COMMITTED PUBLIC artifacts only (no network, no private research).
  */
 import type { Metadata } from "next";
+import Explain from "@/components/ui/explain";
 import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
@@ -254,13 +255,20 @@ export default function NflHubPage() {
         framing="Experimental, educational, paper-only. This model has not been shown to beat the sportsbook market — nothing here is a pick or a recommendation to wager."
       />
 
-      <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))", maxWidth: 680 }}>
-        Everything on this page derives from committed public captures. We publish experimental
-        preseason simulations — not picks, and not a claim to beat the sportsbook market: this model
-        forecast winners barely better than a coin flip when tested on a season it had never seen,
-        so its win percentages sit deliberately close to even. The coverage table below states each
-        layer&apos;s exact status and the reason, in words.
-      </p>
+      <div style={{ maxWidth: 680 }}>
+        {/* The coin-flip limit stays in the LEAD, not behind a disclosure: it changes how every
+            number on this page should be read, and a guard holds it here on purpose. Only the
+            provenance detail folds away. */}
+        <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))" }}>
+          Experimental preseason simulations — not picks. Tested on a season it had never seen, this
+          model picked winners barely better than a coin flip, so the percentages stay near even.
+        </p>
+        <Explain label="Where the data comes from">
+          Everything on this page derives from committed public captures, and the coverage table
+          below states each layer&apos;s exact status and the reason, in words. These simulations are
+          not a claim to beat the sportsbook market.
+        </Explain>
+      </div>
 
       {/* ── THE SLATE ─────────────────────────────────────────────────────────
           One card per game, each carrying its own simulation and its own full report. */}

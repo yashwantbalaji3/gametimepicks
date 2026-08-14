@@ -23,6 +23,7 @@
  * = model probability minus market-implied probability (display only). Paper-only, review, $0 exposure.
  */
 import type { PublicProjection } from "@/lib/normalize";
+import Explain from "@/components/ui/explain";
 import PlayerAvatar from "@/components/player-avatar";
 import type { SimGeneratedPick, SimDistributions } from "@/lib/game-simulations/types";
 import type { MlbGameCenter } from "@/lib/mlb-team-markets";
@@ -437,9 +438,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                 </table>
               </div>
             ))}
-            <p className="mt-1 font-mono text-[9.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
-              Proj = the model&apos;s projected stat · Model % / Mkt % = probability to clear the posted line · Gap = model − market, in points. A research board, not a bet slip. Paper-only.
-            </p>
+            <Explain label="How to read this table">Proj is the model’s projected stat. Model % and Mkt % are each side’s probability of clearing the posted line, and Gap is model minus market in points. A research board, not a bet slip. Paper-only.</Explain>
           </div>
         ) : boardPicks.length > 0 ? (
           <div className="overflow-x-auto -mx-1">
