@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-08-14T19:24:59Z",
+ "generatedAt": "2026-08-14T19:46:26Z",
  "sport": "ufc",
  "state": "SCHEDULED_CARD",
  "event": {
@@ -11,20 +11,53 @@
   "boutCount": 12
  },
  "model": {
-  "id": "ufc-distance-v1",
+  "id": "ufc-fight-v1",
   "publishes": [
-   "goes_the_distance"
+   "winner",
+   "method",
+   "rounds"
   ],
-  "verdict": "PASS",
+  "verdicts": {
+   "winner": "PASS",
+   "method": "PASS",
+   "round": "PASS"
+  },
+  "corpus": {
+   "fights": 8642,
+   "from": "1994-03-11",
+   "to": "2026-08-08",
+   "source": "scrape_ufc_stats (GPL-3.0)"
+  },
   "evidence": {
-   "scoredBouts": 909,
-   "modelLogLoss": 0.6728431317615647,
-   "baselineLogLoss": 0.6931141393165912,
-   "baseDistanceRate": 0.4813519813519814
+   "heldOutFights": 3557,
+   "winner": {
+    "logLoss": 0.6784034069413324,
+    "baselineLogLoss": 0.6931471805599406,
+    "gain": 0.014743773618608236,
+    "accuracy": 0.5760472308124824,
+    "baselineAccuracy": 0.5,
+    "n": 3557,
+    "maxCalibrationZ": 0.8758878943012491
+   },
+   "method": {
+    "logLoss": 0.9691813897873223,
+    "baselineLogLoss": 1.025468573109379,
+    "gain": 0.05628718332205662,
+    "accuracy": 0.5268484678099522,
+    "baselineAccuracy": 0.4673686646609581,
+    "n": 3557
+   },
+   "round": {
+    "logLoss": 0.9147887766949868,
+    "baselineLogLoss": 0.9549288360179992,
+    "gain": 0.040140059323012345,
+    "accuracy": 0.6061287601911723,
+    "baselineAccuracy": 0.5525341356167554,
+    "n": 3557
+   }
   },
   "notModelled": {
-   "methodOfVictory": "Not published. The only bouts in our corpus carrying a method label are those with play-by-play — 329 decisions, 154 submissions and zero KOs — so a KO/submission split fitted on them would reflect which bouts have play-by-play, not how fights end.",
-   "moneyline": "Not published. The retired V1 read was a de-vigged market price with a capped nudge, which is a restatement of the market rather than an independent opinion."
+   "moneyline": "No sportsbook price is published or compared. Our authorisation to buy odds covers NFL only, so there is no captured UFC line to show — the win probability here is the model's own, standing alone."
   }
  },
  "bouts": [
@@ -39,20 +72,47 @@
     "name": "Islam Makhachev",
     "record": "28-1-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/3332412.png",
-    "priorBoutsInCorpus": 4
+    "priorBoutsInCorpus": 18
    },
    "blue": {
     "athleteId": "4738092",
     "name": "Ian Machado Garry",
     "record": "17-1-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4738092.png",
-    "priorBoutsInCorpus": 6
+    "priorBoutsInCorpus": 11
    },
-   "distance": {
-    "probability": 0.554,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": {
+    "winner": {
+     "name": "Islam Makhachev",
+     "probability": 0.6055,
+     "byFighter": {
+      "Ian Machado Garry": 0.3945,
+      "Islam Makhachev": 0.6055
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.3056,
+      "submission": 0.1634,
+      "decision": 0.531
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.1282,
+      "round2": 0.1461,
+      "round3plus": 0.7256
+     },
+     "goesTheDistance": 0.531
+    },
+    "priorFights": {
+     "a": 11,
+     "b": 18
+    }
+   },
+   "unmodelledReason": null
   },
   {
    "boutId": "401878072",
@@ -65,20 +125,47 @@
     "name": "Mackenzie Dern",
     "record": "16-5-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4021217.png",
-    "priorBoutsInCorpus": 5
+    "priorBoutsInCorpus": 16
    },
    "blue": {
     "athleteId": "4089026",
     "name": "Gillian Robertson",
     "record": "17-8-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4089026.png",
-    "priorBoutsInCorpus": 5
+    "priorBoutsInCorpus": 20
    },
-   "distance": {
-    "probability": 0.5936,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": {
+    "winner": {
+     "name": "Gillian Robertson",
+     "probability": 0.5238,
+     "byFighter": {
+      "Gillian Robertson": 0.5238,
+      "Mackenzie Dern": 0.4762
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.1615,
+      "submission": 0.2748,
+      "decision": 0.5637
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.1093,
+      "round2": 0.1241,
+      "round3plus": 0.7666
+     },
+     "goesTheDistance": 0.5637
+    },
+    "priorFights": {
+     "a": 20,
+     "b": 16
+    }
+   },
+   "unmodelledReason": null
   },
   {
    "boutId": "401886764",
@@ -91,20 +178,17 @@
     "name": "Jalin Turner",
     "record": "15-9-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4339490.png",
-    "priorBoutsInCorpus": 4
+    "priorBoutsInCorpus": 14
    },
    "blue": {
     "athleteId": "5172124",
     "name": "Kauê Fernandes",
     "record": "11-2-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5172124.png",
-    "priorBoutsInCorpus": 4
+    "priorBoutsInCorpus": 0
    },
-   "distance": {
-    "probability": 0.3802,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": null,
+   "unmodelledReason": "One or both fighters have fewer than two bouts in the corpus, so there is no history to build a read from."
   },
   {
    "boutId": "401881928",
@@ -117,20 +201,47 @@
     "name": "Dustin Stoltzfus",
     "record": "16-8-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4685871.png",
-    "priorBoutsInCorpus": 5
+    "priorBoutsInCorpus": 10
    },
    "blue": {
     "athleteId": "5211221",
     "name": "Mansur Abdul-Malik",
     "record": "9-1-1",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5211221.png",
-    "priorBoutsInCorpus": 6
+    "priorBoutsInCorpus": 4
    },
-   "distance": {
-    "probability": 0.3236,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": {
+    "winner": {
+     "name": "Mansur Abdul-Malik",
+     "probability": 0.7035,
+     "byFighter": {
+      "Dustin Stoltzfus": 0.2965,
+      "Mansur Abdul-Malik": 0.7035
+     }
+    },
+    "method": {
+     "most": "KO",
+     "probabilities": {
+      "ko": 0.402,
+      "submission": 0.2521,
+      "decision": 0.3459
+     }
+    },
+    "rounds": {
+     "endsIn": "1",
+     "probabilities": {
+      "round1": 0.4071,
+      "round2": 0.1946,
+      "round3plus": 0.3983
+     },
+     "goesTheDistance": 0.3459
+    },
+    "priorFights": {
+     "a": 10,
+     "b": 4
+    }
+   },
+   "unmodelledReason": null
   },
   {
    "boutId": "401879330",
@@ -143,20 +254,47 @@
     "name": "Edson Barboza",
     "record": "24-14-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/2526299.png",
-    "priorBoutsInCorpus": 4
+    "priorBoutsInCorpus": 32
    },
    "blue": {
     "athleteId": "5074131",
     "name": "Esteban Ribovics",
     "record": "15-3-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5074131.png",
-    "priorBoutsInCorpus": 5
+    "priorBoutsInCorpus": 7
    },
-   "distance": {
-    "probability": 0.5275,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": {
+    "winner": {
+     "name": "Edson Barboza",
+     "probability": 0.516,
+     "byFighter": {
+      "Edson Barboza": 0.516,
+      "Esteban Ribovics": 0.484
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.3597,
+      "submission": 0.0735,
+      "decision": 0.5668
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.1995,
+      "round2": 0.1333,
+      "round3plus": 0.6672
+     },
+     "goesTheDistance": 0.5668
+    },
+    "priorFights": {
+     "a": 32,
+     "b": 7
+    }
+   },
+   "unmodelledReason": null
   },
   {
    "boutId": "401905373",
@@ -169,20 +307,17 @@
     "name": "Chidi Njokuani",
     "record": "25-12-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/2959422.png",
-    "priorBoutsInCorpus": 6
+    "priorBoutsInCorpus": 10
    },
    "blue": {
     "athleteId": "4411888",
     "name": "Joel Álvarez",
     "record": "23-4-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4411888.png",
-    "priorBoutsInCorpus": 4
+    "priorBoutsInCorpus": 0
    },
-   "distance": {
-    "probability": 0.4283,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": null,
+   "unmodelledReason": "One or both fighters have fewer than two bouts in the corpus, so there is no history to build a read from."
   },
   {
    "boutId": "401909737",
@@ -195,20 +330,17 @@
     "name": "Charles Johnson",
     "record": "19-9-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4375156.png",
-    "priorBoutsInCorpus": 10
+    "priorBoutsInCorpus": 15
    },
    "blue": {
     "athleteId": "5150021",
     "name": "Eduardo Chapolin",
     "record": "15-2-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5150021.png",
-    "priorBoutsInCorpus": 1
+    "priorBoutsInCorpus": 0
    },
-   "distance": {
-    "probability": 0.5671,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": null,
+   "unmodelledReason": "One or both fighters have fewer than two bouts in the corpus, so there is no history to build a read from."
   },
   {
    "boutId": "401902724",
@@ -228,13 +360,40 @@
     "name": "Donte Johnson",
     "record": "8-0-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5302831.png",
-    "priorBoutsInCorpus": 3
+    "priorBoutsInCorpus": 2
    },
-   "distance": {
-    "probability": 0.4317,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": {
+    "winner": {
+     "name": "Donte Johnson",
+     "probability": 0.6466,
+     "byFighter": {
+      "Donte Johnson": 0.6466,
+      "Eric McConico": 0.3534
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.2893,
+      "submission": 0.231,
+      "decision": 0.4796
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.2702,
+      "round2": 0.1741,
+      "round3plus": 0.5557
+     },
+     "goesTheDistance": 0.4796
+    },
+    "priorFights": {
+     "a": 2,
+     "b": 4
+    }
+   },
+   "unmodelledReason": null
   },
   {
    "boutId": "401869338",
@@ -247,20 +406,47 @@
     "name": "Vicente Luque",
     "record": "24-12-1",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/3045887.png",
-    "priorBoutsInCorpus": 6
+    "priorBoutsInCorpus": 25
    },
    "blue": {
     "athleteId": "4815999",
     "name": "Tresean Gore",
     "record": "7-4-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4815999.png",
-    "priorBoutsInCorpus": 4
+    "priorBoutsInCorpus": 7
    },
-   "distance": {
-    "probability": 0.3821,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": {
+    "winner": {
+     "name": "Vicente Luque",
+     "probability": 0.683,
+     "byFighter": {
+      "Tresean Gore": 0.317,
+      "Vicente Luque": 0.683
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.3544,
+      "submission": 0.276,
+      "decision": 0.3695
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.3621,
+      "round2": 0.2077,
+      "round3plus": 0.4303
+     },
+     "goesTheDistance": 0.3695
+    },
+    "priorFights": {
+     "a": 7,
+     "b": 25
+    }
+   },
+   "unmodelledReason": null
   },
   {
    "boutId": "401905694",
@@ -273,20 +459,17 @@
     "name": "Lucas Fernando",
     "record": "13-3-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5119021.png",
-    "priorBoutsInCorpus": 1
+    "priorBoutsInCorpus": 0
    },
    "blue": {
     "athleteId": "5308871",
     "name": "Rafael Tobias",
     "record": "14-2-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5308871.png",
-    "priorBoutsInCorpus": 2
+    "priorBoutsInCorpus": 1
    },
-   "distance": {
-    "probability": 0.4287,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": null,
+   "unmodelledReason": "One or both fighters have fewer than two bouts in the corpus, so there is no history to build a read from."
   },
   {
    "boutId": "401886763",
@@ -299,20 +482,47 @@
     "name": "Neil Magny",
     "record": "31-15-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/3001914.png",
-    "priorBoutsInCorpus": 7
+    "priorBoutsInCorpus": 37
    },
    "blue": {
     "athleteId": "4297311",
     "name": "Ramiz Brahimaj",
     "record": "13-6-0",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4297311.png",
-    "priorBoutsInCorpus": 5
+    "priorBoutsInCorpus": 9
    },
-   "distance": {
-    "probability": 0.3776,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": {
+    "winner": {
+     "name": "Neil Magny",
+     "probability": 0.5227,
+     "byFighter": {
+      "Neil Magny": 0.5227,
+      "Ramiz Brahimaj": 0.4773
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.2939,
+      "submission": 0.1898,
+      "decision": 0.5163
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.2302,
+      "round2": 0.1687,
+      "round3plus": 0.6012
+     },
+     "goesTheDistance": 0.5163
+    },
+    "priorFights": {
+     "a": 37,
+     "b": 9
+    }
+   },
+   "unmodelledReason": null
   },
   {
    "boutId": "401881926",
@@ -325,7 +535,7 @@
     "name": "Jeremiah Wells",
     "record": "13-4-1",
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/3970873.png",
-    "priorBoutsInCorpus": 3
+    "priorBoutsInCorpus": 7
    },
    "blue": {
     "athleteId": "5050129",
@@ -334,11 +544,38 @@
     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5050129.png",
     "priorBoutsInCorpus": 6
    },
-   "distance": {
-    "probability": 0.496,
-    "state": "MODELLED",
-    "note": "From a walk-forward validated model of whether a bout reaches the final bell."
-   }
+   "prediction": {
+    "winner": {
+     "name": "Myktybek Orolbai",
+     "probability": 0.5635,
+     "byFighter": {
+      "Jeremiah Wells": 0.4365,
+      "Myktybek Orolbai": 0.5635
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.2844,
+      "submission": 0.1815,
+      "decision": 0.534
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.2101,
+      "round2": 0.1686,
+      "round3plus": 0.6213
+     },
+     "goesTheDistance": 0.534
+    },
+    "priorFights": {
+     "a": 7,
+     "b": 6
+    }
+   },
+   "unmodelledReason": null
   }
  ]
 }

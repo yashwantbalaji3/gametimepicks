@@ -1,0 +1,66 @@
+{
+ "generatedAt": "2026-08-14T19:45:16Z",
+ "corpus": {
+  "source": "scrape_ufc_stats (GPL-3.0)",
+  "fights": 8642,
+  "from": "1994-03-11",
+  "to": "2026-08-08",
+  "excluded": {
+   "noDate": 27,
+   "noMethod": 116,
+   "notDecisive": 62,
+   "badNames": 0
+  }
+ },
+ "cornerCanonicalisation": {
+  "rule": "alphabetical, independent of outcome",
+  "aWinRate": 0.49641286739180746,
+  "listedOrderWinRate": 0.641
+ },
+ "baseRates": {
+  "method": {
+   "KO": 0.33441333024762787,
+   "SUB": 0.19821800509141402,
+   "DEC": 0.4673686646609581
+  }
+ },
+ "heads": {
+  "winner": {
+   "logLoss": 0.6784034069413324,
+   "baselineLogLoss": 0.6931471805599406,
+   "gain": 0.014743773618608236,
+   "accuracy": 0.5760472308124824,
+   "baselineAccuracy": 0.5,
+   "n": 3557,
+   "maxCalibrationZ": 0.8758878943012491
+  },
+  "method": {
+   "logLoss": 0.9691813897873223,
+   "baselineLogLoss": 1.025468573109379,
+   "gain": 0.05628718332205662,
+   "accuracy": 0.5268484678099522,
+   "baselineAccuracy": 0.4673686646609581,
+   "n": 3557
+  },
+  "round": {
+   "logLoss": 0.9147887766949868,
+   "baselineLogLoss": 0.9549288360179992,
+   "gain": 0.040140059323012345,
+   "accuracy": 0.6061287601911723,
+   "baselineAccuracy": 0.5525341356167554,
+   "n": 3557
+  }
+ },
+ "bars": {
+  "winnerGain": 0.005,
+  "winnerAccuracy": 0.52,
+  "methodGain": 0.005,
+  "roundGain": 0.005,
+  "calibrationZ": 2
+ },
+ "verdicts": {
+  "winner": "PASS",
+  "method": "PASS",
+  "round": "PASS"
+ }
+}
