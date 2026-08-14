@@ -32,6 +32,20 @@ import path from "node:path";
  */
 export const STARTED_GRACE_HOURS = 6;
 
+/**
+ * ARTIFACT_READY vs SIMULATION_READY — the distinction Program 179 exists to enforce.
+ *
+ * A committed, deterministic, reproducible artifact is ARTIFACT_READY. It earns the green
+ * SIMULATION READY badge only when event-specific inputs measurably move its distribution. On
+ * 2026-08-14 all ten NFL games rendered 19-18 inside a 1.7pp win spread while every card showed the
+ * green badge: the artifacts were real, and the impression they created was not.
+ */
+export type NflReadiness =
+  /** Event-specific inputs are applied and measurably move this game's distribution. */
+  | "SIMULATION_READY"
+  /** A real, reproducible artifact built from a shared prior — no event-specific signal applied. */
+  | "BASELINE_ONLY";
+
 export type NflEligibilityState =
   /** The index is readable and at least one event carries a simulation. */
   | "ACTIVE"
@@ -58,6 +72,11 @@ export interface NflEligibleEvent {
   venue: string | null;
   /** How many player rows the Vault published for this event (0 when none). */
   playerCandidates: number;
+  readiness: NflReadiness;
+  /** True only for SIMULATION_READY. This is what drives the green badge. */
+  simulationReady: boolean;
+  /** Why, in the words a reader needs. Always populated. */
+  readinessReason: string;
 }
 
 export interface NflSimulateEligibility {
@@ -65,7 +84,11 @@ export interface NflSimulateEligibility {
   /** Reader-facing explanation of the state, always populated. */
   note: string;
   events: NflEligibleEvent[];
-  /** Events with a ready deterministic simulation — by construction, every eligible event. */
+  /**
+   * Events classified SIMULATION_READY. This USED to equal `events.length` by construction, which
+   * is precisely what let a slate of ten shared-prior forecasts report itself as ten ready
+   * simulations. It is now a count of a classification, and can legitimately be zero.
+   */
   readyCount: number;
   /** The artifact stamp these were derived from, for freshness display. */
   indexGeneratedAt: string | null;
@@ -79,6 +102,11 @@ type IndexEvent = {
   winProbability?: { home: number; away: number } | null;
   total?: { median: number; p10: number; p90: number } | null;
   hasMarket?: boolean;
+};
+
+type Forecast = {
+  providerEventId: string;
+  teamSignal?: { state: string; note?: string } | null;
 };
 
 const readJson = <T,>(rel: string): T | null => {
@@ -101,6 +129,29 @@ export function isEligibleForLobby(e: IndexEvent, indexGeneratedAt: string): boo
   return e.lifecycle === "UPCOMING";
 }
 
+/**
+ * Classify one event's readiness from the signal state its own forecast recorded. A missing signal
+ * block is treated as BASELINE_ONLY: an artifact that cannot say whether event-specific inputs were
+ * applied has not earned the badge, and defaulting the other way is how the badge got detached from
+ * the evidence in the first place.
+ */
+function readinessOf(signal: { state: string; note?: string } | null): { readiness: NflReadiness; simulationReady: boolean; readinessReason: string } {
+  if (signal?.state === "APPLIED") {
+    return {
+      readiness: "SIMULATION_READY",
+      simulationReady: true,
+      readinessReason: "Event-specific team evidence is applied to this game's distribution.",
+    };
+  }
+  return {
+    readiness: "BASELINE_ONLY",
+    simulationReady: false,
+    readinessReason:
+      signal?.note ??
+      "This is a real, reproducible simulation built from league-wide preseason context only — no measured signal separates these two teams, so it is a baseline rather than a game-specific read.",
+  };
+}
+
 /** Build the eligible set from the committed artifacts. */
 export function nflSimulateEligibility(): NflSimulateEligibility {
   const index = readJson<{ generatedAt: string; events: IndexEvent[] }>("nfl/index.json");
@@ -116,6 +167,11 @@ export function nflSimulateEligibility(): NflSimulateEligibility {
 
   const schedule = readJson<{ rows: Array<{ providerEventId: string; venue: string }> }>("nfl/schedule/latest.json");
   const venueById = new Map((schedule?.rows ?? []).map((r) => [r.providerEventId, r.venue]));
+
+  // The forecast artifact carries the per-event signal state the significance gate wrote. Readiness
+  // is read from THERE, never inferred from the index having an entry for the game.
+  const forecasts = readJson<{ forecasts: Forecast[] }>("nfl/forecasts/latest.json");
+  const signalById = new Map((forecasts?.forecasts ?? []).map((f) => [f.providerEventId, f.teamSignal ?? null]));
 
   const vault = readJson<{ selections?: Array<{ providerEventId: string }>; watchlist?: Array<{ providerEventId: string }> }>("nfl/end-zone-vault/latest.json");
   const playerCounts = new Map<string, number>();
@@ -142,16 +198,16 @@ export function nflSimulateEligibility(): NflSimulateEligibility {
       hasMarket: Boolean(e.hasMarket),
       venue: venueById.get(e.providerEventId) ?? null,
       playerCandidates: playerCounts.get(e.providerEventId) ?? 0,
+      ...readinessOf(signalById.get(e.providerEventId) ?? null),
     }));
 
   return {
     state: events.length > 0 ? "ACTIVE" : "NO_ACTIVE_SLATE",
     note: events.length > 0
-      ? `${events.length} NFL game${events.length === 1 ? "" : "s"} carry a deterministic simulation from the current window.`
+      ? `${events.length} NFL game${events.length === 1 ? "" : "s"} carry a deterministic simulation from the current window; ${events.filter((e) => e.simulationReady).length} of them apply event-specific team evidence.`
       : "The NFL index is readable and lists no game with a current simulation — a real empty slate, not an outage.",
     events,
-    // Eligibility REQUIRES a simulation, so these are equal by construction rather than by coincidence.
-    readyCount: events.length,
+    readyCount: events.filter((e) => e.simulationReady).length,
     indexGeneratedAt: index.generatedAt,
   };
 }

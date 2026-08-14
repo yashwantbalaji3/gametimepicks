@@ -187,7 +187,10 @@ export default function SimulateLobby() {
       sportLabel: "NFL",
       matchup: `${e.away.abbr} @ ${e.home.abbr}`,
       timeLabel: formatNflKickoff(e.kickoffUtc),
-      statusLabel: e.lifecycle === "STARTED" ? "Kicked off · locked" : "Upcoming",
+      // P179-A0: BASELINE ONLY is the honest label while the engine has no event-specific signal.
+      // Ten games rendering 19-18 under a green "Simulation Ready" badge told a reader they were
+      // looking at ten game-specific model reads. They were looking at one shared prior ten times.
+      statusLabel: e.lifecycle === "STARTED" ? "Kicked off · locked" : e.simulationReady ? "Upcoming" : "BASELINE ONLY",
       // The simulation's own outputs, not a prop count: NFL publishes team distributions, and the
       // Vault's player rows are candidates rather than published projections.
       projections: 0,
@@ -196,15 +199,22 @@ export default function SimulateLobby() {
       buildHref: "/build",
       // The NATIVE per-game report P177 built — not a /games/* slug NFL does not have.
       detailHref: `/nfl/game/${e.providerEventId}`,
-      // Eligibility REQUIRES a simulation, so this is true for every NFL row by construction.
-      simReady: true,
+      // Drives the green SIMULATION READY badge. Read from the artifact's own signal state — the
+      // previous `simReady: true` said "a file exists", which is not the same claim.
+      simReady: e.simulationReady,
       // "script" is the coherent model read (renders as "Model read"), which is exactly what an NFL
       // forecast is: one joint distribution, not a top prop. Confidence is LOW and always will be
       // while the model is an experimental preseason beta held near a coin flip.
+      // Lead with the RANGE, not the rounded scoreline. A single "19-18" reads as a specific
+      // prediction; the interval is what this model actually produces, and it is wide.
       signal: {
         kind: "script",
-        pick: `${e.away.abbr} ${e.projectedScore.away} — ${e.projectedScore.home} ${e.home.abbr}`,
-        sub: `total ${e.total.median} · ${e.home.abbr} ${(e.winProbability.home * 100).toFixed(1)}% to win`,
+        pick: e.simulationReady
+          ? `${e.away.abbr} ${e.projectedScore.away} — ${e.projectedScore.home} ${e.home.abbr}`
+          : `Total likely ${e.total.p10}–${e.total.p90}`,
+        sub: e.simulationReady
+          ? `total ${e.total.median} · ${e.home.abbr} ${(e.winProbability.home * 100).toFixed(1)}% to win`
+          : `baseline only · near a coin flip either way`,
         confidence: "Low",
       },
     });

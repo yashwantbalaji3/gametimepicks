@@ -23,6 +23,8 @@ import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
 
 type Forecast = {
+  /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
+  teamSignal?: { state: string; note?: string } | null;
   providerEventId: string;
   matchup: string;
   kickoffUtc: string;
@@ -132,7 +134,22 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       </header>
 
       <section aria-labelledby="sim-summary" style={{ marginTop: 26 }}>
-        <SectionHeader eyebrow="Simulation" title="What our model expects" sub={`${f.model.simulations.toLocaleString()} simulated games · model ${f.model.id}`} />
+        {/* P179-A0: the report states its OWN readiness before showing a number. A page that leads
+            with "19-18" and mentions the limitation three sections later has already made the
+            claim. `teamSignal` is written by the significance gate, so this cannot drift from the
+            engine that produced the distribution. */}
+        <SectionHeader
+          eyebrow={f.teamSignal?.state === "APPLIED" ? "Simulation" : "Simulation · BASELINE ONLY"}
+          title={f.teamSignal?.state === "APPLIED" ? "What our model expects" : "What a league-average preseason game looks like"}
+          sub={`${f.model.simulations.toLocaleString()} simulated games · model ${f.model.id}`}
+        />
+        {f.teamSignal && f.teamSignal.state !== "APPLIED" ? (
+          <p style={{ margin: "0 0 12px", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 720, borderLeft: "2px solid var(--vault-gold)", paddingLeft: 12 }}>
+            <strong style={{ color: "var(--vault-text)" }}>Read the range, not the score.</strong> {f.teamSignal.note} The numbers below are a
+            real, reproducible simulation — they are just not a read on <em>these</em> two teams, so
+            treat the projected scoreline as the middle of a wide range rather than a prediction.
+          </p>
+        ) : null}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 10, marginTop: 12 }}>
           <Stat label="Projected score" value={`${f.away.abbr} ${s.projectedScore.away} — ${s.projectedScore.home} ${f.home.abbr}`} sub="median of every simulated game" />
           <Stat label="Win chance" value={`${f.away.abbr} ${pct(s.winProbability.away)} · ${f.home.abbr} ${pct(s.winProbability.home)}`} sub={`ties ${pct(s.winProbability.tieMass)}`} />

@@ -76,8 +76,12 @@ test("AN OUTAGE IS NOT AN EMPTY SLATE — three distinct states, each with its o
 
 test("ONE SET · the card count, the ready count and the rendered rows cannot disagree", () => {
   const live = nflSimulateEligibility();
-  assert.equal(live.readyCount, live.events.length,
-    "eligibility REQUIRES a simulation, so ready and total are equal by construction, not by coincidence");
+  // P179-A0: readyCount is no longer events.length "by construction". That construction is exactly
+  // what let ten shared-prior forecasts report themselves as ten ready simulations. It now counts a
+  // CLASSIFICATION, and may legitimately be zero while ten artifacts exist.
+  assert.equal(live.readyCount, live.events.filter((e) => e.simulationReady).length,
+    "readyCount counts SIMULATION_READY events");
+  assert.ok(live.readyCount <= live.events.length);
   // the lobby builds its rows from that same call, and its card reads the row count back
   assert.match(lobby, /const nflEligibility = nflSimulateEligibility\(\)/);
   assert.match(lobby, /for \(const e of nflEligibility\.events\)/);
@@ -102,8 +106,12 @@ test("sports are ORDERED by their own tone, not hand-ranked", () => {
   assert.match(lobby, /const TONE_RANK: Record<SportStateTone, number>/);
   assert.match(lobby, /if \(a\.key === "today"\) return -1;/);
   // no calendar literal anywhere in the lobby or the selector
+  // Comments are stripped first: both files EXPLAIN the dated incident that motivated the rule, and
+  // a naive scan flags the explanation. A guard that punishes its own rationale teaches the next
+  // author to delete the rationale — this repository has now hit that trap four times.
+  const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
   for (const [name, src] of [["lobby", lobby], ["eligibility", fs.readFileSync(path.join(APP, "src/lib/sports/nfl/simulate-eligibility.ts"), "utf8")]]) {
-    assert.deepEqual(src.match(/\b20\d\d-\d\d-\d\d\b/g) ?? [], [], `${name} must not pin a date`);
+    assert.deepEqual(strip(src).match(/\b20\d\d-\d\d-\d\d\b/g) ?? [], [], `${name} must not pin a date`);
   }
 });
 
