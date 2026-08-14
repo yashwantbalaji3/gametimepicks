@@ -188,3 +188,23 @@ test("having a market config does not promote a sport", () => {
   // The registry, not this file, decides what a sport may claim. A config is plumbing.
   assert.equal(capabilityState(NBA_SPORT_KEY), "HISTORICAL_ONLY");
 });
+
+/**
+ * P177: a sport that posts no player families must not be blocked from opening by a missing
+ * player-props artifact. Requiring one demands a file the sport is defined never to produce, and
+ * conflates "the book offers no player market" with "the player capture broke" — two different
+ * answers. NBA is registered exactly that way today, so this was live, not hypothetical.
+ */
+test("latestMarketDate does not demand a props file from a sport that posts no player families", async () => {
+  const { NBA_MARKET_CONFIG, MLB_MARKET_CONFIG } = await import("./sport-config.ts");
+  assert.equal(NBA_MARKET_CONFIG.playerFamilies.size, 0, "NBA is the registered no-player-market sport");
+  assert.ok(MLB_MARKET_CONFIG.playerFamilies.size > 0, "MLB posts player families and keeps the stricter rule");
+
+  const load = fs.readFileSync(path.join(process.cwd(), "src/lib/markets/load.ts"), "utf8");
+  const fn = load.slice(load.indexOf("export function latestMarketDate"), load.indexOf("export interface MarketCenterData"));
+  assert.match(fn, /postsPlayerMarkets/);
+  assert.match(fn, /playerFamilies\.size \?\? 0\) > 0/);
+  // the stricter both-must-exist rule survives for sports that DO post props
+  assert.match(fn, /availableDates\("player-props", sport\)\.filter/);
+  assert.match(load, /conflates two\s+\*? ?different things/, "the reason is recorded where the next author will read it");
+});

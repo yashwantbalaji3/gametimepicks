@@ -73,15 +73,25 @@ function availableDates(dir: string, sport: string): string[] {
 }
 
 /**
- * The newest date for which BOTH sportsbook artifacts exist.
+ * The newest date for which every artifact this sport actually posts exists.
  *
- * Requiring both is the point: a date with game markets but no props would render a Market Center
- * that silently lost its player section, which reads as breakage rather than as absence.
+ * Requiring game markets AND props is the point FOR A SPORT THAT POSTS PROPS: a date with game
+ * markets but no props would render a Market Center that silently lost its player section, which
+ * reads as breakage rather than as absence.
+ *
+ * P177: but for a sport whose config declares NO player families, the same rule conflates two
+ * different things — "the book offers no player market here" and "the player capture broke". It
+ * demands a file the sport is defined never to produce, so the surface can never open at all. NBA
+ * is registered exactly that way today (`playerFamilies: new Set()`), so this was a live defect,
+ * not a hypothetical one. A sport that posts no player families is judged on its game markets
+ * alone; every sport that posts them is unchanged.
  */
 export function latestMarketDate(sport: string = MLB_SPORT_KEY): string | null {
-  const games = new Set(availableDates("team-markets", sport));
-  const props = availableDates("player-props", sport);
-  const both = [...props].filter((d) => games.has(d)).sort();
+  const games = availableDates("team-markets", sport);
+  const postsPlayerMarkets = (marketConfigFor(sport)?.playerFamilies.size ?? 0) > 0;
+  if (!postsPlayerMarkets) return games.length ? games[games.length - 1] : null;
+  const gameSet = new Set(games);
+  const both = availableDates("player-props", sport).filter((d) => gameSet.has(d)).sort();
   return both.length ? both[both.length - 1] : null;
 }
 

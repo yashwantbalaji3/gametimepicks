@@ -108,9 +108,9 @@
       "capability": "Market Center sport support",
       "mlbOwner": "lib/markets/load.ts already seamed: loadMarketCenter(date, todayEt, nowIso, sport=MLB_SPORT_KEY)",
       "nflOwner": null,
-      "decision": "ADAPTER \u2014 add NFL_MARKET_CONFIG to lib/markets/sport-config.ts and thread sport through 4 call sites in app/markets/page.tsx",
+      "decision": "ADAPTER \u2014 still needed, and now UNBLOCKED at the contract level. P177 removed the precondition defect: latestMarketDate demanded a player-props artifact from every sport, which for a sport that posts no player families conflates 'the book offers no player market' with 'the player capture broke' and kept the surface from ever opening. NBA is registered exactly that way today, so the defect was live. What REMAINS for NFL is four artifacts in the loader's own shape under public/data/nfl: team-markets/<date>.json, boards/<date>.json, full-game-simulations/<date>.json, and an NFL_MARKET_CONFIG with model.kind NONE (the experimental simulation must not surface a probability on a /markets row), plus threading `sport` through the four call sites in app/markets/page.tsx.",
       "status": "ADAPTER_NEEDED",
-      "note": "the loader is already sport-aware and fail-closed; this is a registry entry plus argument threading, not a rewrite"
+      "note": "NOT claimed as done. The loader is MLB-shaped at the join layer (gamePk, board leans, probable pitchers) and NFL publishes none of those keys, so this is a real adapter and not a registry line. /nfl already shows the same prices with the simulation beside them, which is why this ranked below the reader-facing releases rather than being rushed."
     },
     {
       "capability": "Build inventory",
