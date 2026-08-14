@@ -113,7 +113,8 @@ export default function NflHubPage() {
   // — is exactly the misreading the audit was written to prevent.
   const differentiation = read("nfl/model-differentiation.json") as
     | { headline: string; heads: Array<{ head: string; state: string; plainEnglish: string }>;
-        whyGamesLookAlike: string; whatWeFoundAndFixed?: string; whatWouldChangeIt: string }
+        whyGamesLookAlike: string; whatWeFoundAndFixed?: string; whatWouldChangeIt: string;
+        weTriedToFixIt?: { what: string; bars: string; result: string; decision: string; alsoLearned: string } }
     | null;
   // P177-C: the daily paper-product evaluation. A reader who asks "why is there no NFL in Bank
   // Builder?" gets a dated answer from an evaluation that actually ran, not an inference from an
@@ -543,6 +544,22 @@ export default function NflHubPage() {
             <p style={{ margin: "12px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 720 }}>
               <strong style={{ color: "var(--vault-text)" }}>What we found and fixed:</strong> {differentiation.whatWeFoundAndFixed}
             </p>
+          ) : null}
+          {differentiation.weTriedToFixIt ? (
+            <div style={{ margin: "12px 0 0", padding: "12px 14px", border: "1px solid var(--vault-border)", borderRadius: 12, maxWidth: 760 }}>
+              <p style={{ margin: 0, fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+                We tried to fix it — here is what happened
+              </p>
+              <p style={{ margin: "6px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
+                {differentiation.weTriedToFixIt.what} {differentiation.weTriedToFixIt.bars}
+              </p>
+              <p style={{ margin: "6px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text)" }}>
+                {differentiation.weTriedToFixIt.result} {differentiation.weTriedToFixIt.decision}
+              </p>
+              <p style={{ margin: "6px 0 0", fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)" }}>
+                {differentiation.weTriedToFixIt.alsoLearned}
+              </p>
+            </div>
           ) : null}
           <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
             {differentiation.whatWouldChangeIt}

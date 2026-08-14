@@ -1,0 +1,427 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-team-strength-bakeoff",
+  "dataClass": "PRIVATE_RESEARCH",
+  "generatedAt": "2026-08-14T12:52:04Z",
+  "contract": {
+    "version": "v1",
+    "sha256": "82055aad21539e6dc1574f94a561857a6148f4a6fe46d9840718814c6ea85510",
+    "declaredAt": "2026-08-14T12:55:00Z"
+  },
+  "whatThisIs": "A hierarchical offense/defense SCORING model, not a drive simulator. The committed corpus carries final scores only — no drives, plays or field position — so a drive mechanism cannot be fitted from it. This builds the part of a drive model that produces the audit's missing behaviour (matchup-dependent margin dispersion) and names the part that does not exist yet.",
+  "population": {
+    "corpusRows": 1001,
+    "used": 1001,
+    "quarantined": 0,
+    "lockedCohortExcluded": 0
+  },
+  "splits": {
+    "method": "expanding-window, rolling origin",
+    "targetSeasons": [
+      2024,
+      2025
+    ]
+  },
+  "candidates": [
+    {
+      "id": "shared_prior",
+      "kind": "baseline",
+      "describe": "one league scoring mean and one home constant; no team term (the shipped champion)",
+      "folds": [
+        {
+          "targetSeason": 2024,
+          "fitRows": 334,
+          "n": 49,
+          "decisiveN": 48,
+          "teamScoreMAE": 7.7755,
+          "teamScoreRMSE": 9.135,
+          "marginMAE": 9.6939,
+          "totalMAE": 10.6327,
+          "marginInterval80Coverage": 0.8163,
+          "totalInterval80Coverage": 0.7755,
+          "marginIntervalWidth": 29.4898,
+          "winBrier": 0.2629,
+          "winLogLoss": 0.7192,
+          "blowouts": 11,
+          "blowoutRecall": 0.4545
+        },
+        {
+          "targetSeason": 2025,
+          "fitRows": 668,
+          "n": 48,
+          "decisiveN": 45,
+          "teamScoreMAE": 7.2396,
+          "teamScoreRMSE": 9.202,
+          "marginMAE": 11.8542,
+          "totalMAE": 8.2708,
+          "marginInterval80Coverage": 0.6667,
+          "totalInterval80Coverage": 0.8333,
+          "marginIntervalWidth": 30.7083,
+          "winBrier": 0.2514,
+          "winLogLoss": 0.696,
+          "blowouts": 18,
+          "blowoutRecall": 1
+        }
+      ],
+      "pooled": {
+        "n": 97,
+        "decisiveN": 93,
+        "teamScoreMAE": 7.5103,
+        "teamScoreRMSE": 9.1682,
+        "marginMAE": 10.7629,
+        "totalMAE": 9.4639,
+        "marginInterval80Coverage": 0.7423,
+        "totalInterval80Coverage": 0.8041,
+        "marginIntervalWidth": 30.0928,
+        "winBrier": 0.2573,
+        "winLogLoss": 0.708,
+        "blowouts": 29,
+        "blowoutRecall": 0.7931
+      }
+    },
+    {
+      "id": "home_only",
+      "kind": "baseline",
+      "describe": "home constant alone, zero team signal",
+      "folds": [
+        {
+          "targetSeason": 2024,
+          "fitRows": 334,
+          "n": 49,
+          "decisiveN": 48,
+          "teamScoreMAE": 7.7755,
+          "teamScoreRMSE": 9.135,
+          "marginMAE": 9.6122,
+          "totalMAE": 10.7347,
+          "marginInterval80Coverage": 0.8163,
+          "totalInterval80Coverage": 0.7551,
+          "marginIntervalWidth": 29.6327,
+          "winBrier": 0.2639,
+          "winLogLoss": 0.7212,
+          "blowouts": 11,
+          "blowoutRecall": 0.4545
+        },
+        {
+          "targetSeason": 2025,
+          "fitRows": 668,
+          "n": 48,
+          "decisiveN": 45,
+          "teamScoreMAE": 7.1875,
+          "teamScoreRMSE": 9.1776,
+          "marginMAE": 11.8333,
+          "totalMAE": 8.2083,
+          "marginInterval80Coverage": 0.6667,
+          "totalInterval80Coverage": 0.8542,
+          "marginIntervalWidth": 30.5625,
+          "winBrier": 0.2509,
+          "winLogLoss": 0.6949,
+          "blowouts": 18,
+          "blowoutRecall": 1
+        }
+      ],
+      "pooled": {
+        "n": 97,
+        "decisiveN": 93,
+        "teamScoreMAE": 7.4845,
+        "teamScoreRMSE": 9.1561,
+        "marginMAE": 10.7113,
+        "totalMAE": 9.4845,
+        "marginInterval80Coverage": 0.7423,
+        "totalInterval80Coverage": 0.8041,
+        "marginIntervalWidth": 30.0928,
+        "winBrier": 0.2576,
+        "winLogLoss": 0.7085,
+        "blowouts": 29,
+        "blowoutRecall": 0.7931
+      }
+    },
+    {
+      "id": "elo_v1",
+      "kind": "baseline",
+      "describe": "the P178 Elo margin slope as fitted, WITHOUT the significance gate, so the rejected model is still scored",
+      "folds": [
+        {
+          "targetSeason": 2024,
+          "fitRows": 334,
+          "n": 49,
+          "decisiveN": 48,
+          "teamScoreMAE": 7.7245,
+          "teamScoreRMSE": 9.0942,
+          "marginMAE": 9.8163,
+          "totalMAE": 10.7755,
+          "marginInterval80Coverage": 0.7959,
+          "totalInterval80Coverage": 0.7755,
+          "marginIntervalWidth": 29.4898,
+          "winBrier": 0.2645,
+          "winLogLoss": 0.7226,
+          "blowouts": 11,
+          "blowoutRecall": 0.5455
+        },
+        {
+          "targetSeason": 2025,
+          "fitRows": 668,
+          "n": 48,
+          "decisiveN": 45,
+          "teamScoreMAE": 7.1042,
+          "teamScoreRMSE": 9.1413,
+          "marginMAE": 11.9167,
+          "totalMAE": 8.2917,
+          "marginInterval80Coverage": 0.6667,
+          "totalInterval80Coverage": 0.8542,
+          "marginIntervalWidth": 30.6042,
+          "winBrier": 0.2518,
+          "winLogLoss": 0.6967,
+          "blowouts": 18,
+          "blowoutRecall": 0.8889
+        }
+      ],
+      "pooled": {
+        "n": 97,
+        "decisiveN": 93,
+        "teamScoreMAE": 7.4175,
+        "teamScoreRMSE": 9.1175,
+        "marginMAE": 10.8557,
+        "totalMAE": 9.5464,
+        "marginInterval80Coverage": 0.732,
+        "totalInterval80Coverage": 0.8144,
+        "marginIntervalWidth": 30.0412,
+        "winBrier": 0.2583,
+        "winLogLoss": 0.71,
+        "blowouts": 29,
+        "blowoutRecall": 0.7586
+      }
+    },
+    {
+      "id": "hier_offdef_k8",
+      "kind": "candidate",
+      "describe": "hierarchical offense/defense scoring states, prior weight k=8, regular season discounted to 0.35",
+      "folds": [
+        {
+          "targetSeason": 2024,
+          "fitRows": 334,
+          "n": 49,
+          "decisiveN": 48,
+          "teamScoreMAE": 8.0714,
+          "teamScoreRMSE": 9.6039,
+          "marginMAE": 9.8367,
+          "totalMAE": 12.3469,
+          "marginInterval80Coverage": 0.7959,
+          "totalInterval80Coverage": 0.7143,
+          "marginIntervalWidth": 29.5102,
+          "winBrier": 0.2657,
+          "winLogLoss": 0.7256,
+          "blowouts": 11,
+          "blowoutRecall": 0.6364
+        },
+        {
+          "targetSeason": 2025,
+          "fitRows": 668,
+          "n": 48,
+          "decisiveN": 45,
+          "teamScoreMAE": 7.0313,
+          "teamScoreRMSE": 8.9518,
+          "marginMAE": 11.7292,
+          "totalMAE": 8.375,
+          "marginInterval80Coverage": 0.6875,
+          "totalInterval80Coverage": 0.875,
+          "marginIntervalWidth": 30.8542,
+          "winBrier": 0.2484,
+          "winLogLoss": 0.6899,
+          "blowouts": 18,
+          "blowoutRecall": 0.8889
+        }
+      ],
+      "pooled": {
+        "n": 97,
+        "decisiveN": 93,
+        "teamScoreMAE": 7.5567,
+        "teamScoreRMSE": 9.2869,
+        "marginMAE": 10.7732,
+        "totalMAE": 10.3814,
+        "marginInterval80Coverage": 0.7423,
+        "totalInterval80Coverage": 0.7938,
+        "marginIntervalWidth": 30.1753,
+        "winBrier": 0.2574,
+        "winLogLoss": 0.7083,
+        "blowouts": 29,
+        "blowoutRecall": 0.7931
+      }
+    },
+    {
+      "id": "hier_offdef_k20",
+      "kind": "candidate",
+      "describe": "same, with heavier shrinkage (k=20) — sparse teams stay closer to the league mean",
+      "folds": [
+        {
+          "targetSeason": 2024,
+          "fitRows": 334,
+          "n": 49,
+          "decisiveN": 48,
+          "teamScoreMAE": 8.102,
+          "teamScoreRMSE": 9.6394,
+          "marginMAE": 9.6939,
+          "totalMAE": 12.4694,
+          "marginInterval80Coverage": 0.8163,
+          "totalInterval80Coverage": 0.7143,
+          "marginIntervalWidth": 29.3673,
+          "winBrier": 0.2624,
+          "winLogLoss": 0.7183,
+          "blowouts": 11,
+          "blowoutRecall": 0.6364
+        },
+        {
+          "targetSeason": 2025,
+          "fitRows": 668,
+          "n": 48,
+          "decisiveN": 45,
+          "teamScoreMAE": 7.0938,
+          "teamScoreRMSE": 9.0156,
+          "marginMAE": 11.625,
+          "totalMAE": 8.3125,
+          "marginInterval80Coverage": 0.6875,
+          "totalInterval80Coverage": 0.875,
+          "marginIntervalWidth": 30.8333,
+          "winBrier": 0.248,
+          "winLogLoss": 0.689,
+          "blowouts": 18,
+          "blowoutRecall": 0.9444
+        }
+      ],
+      "pooled": {
+        "n": 97,
+        "decisiveN": 93,
+        "teamScoreMAE": 7.6031,
+        "teamScoreRMSE": 9.3359,
+        "marginMAE": 10.6495,
+        "totalMAE": 10.4124,
+        "marginInterval80Coverage": 0.7526,
+        "totalInterval80Coverage": 0.7938,
+        "marginIntervalWidth": 30.0928,
+        "winBrier": 0.2554,
+        "winLogLoss": 0.7042,
+        "blowouts": 29,
+        "blowoutRecall": 0.8276
+      }
+    },
+    {
+      "id": "hier_offdef_k8_preonly",
+      "kind": "candidate",
+      "describe": "preseason-only evidence, k=8 — an ablation isolating whether regular-season form transfers",
+      "folds": [
+        {
+          "targetSeason": 2024,
+          "fitRows": 334,
+          "n": 49,
+          "decisiveN": 48,
+          "teamScoreMAE": 7.8571,
+          "teamScoreRMSE": 9.3623,
+          "marginMAE": 9.6122,
+          "totalMAE": 11.8776,
+          "marginInterval80Coverage": 0.8367,
+          "totalInterval80Coverage": 0.7347,
+          "marginIntervalWidth": 29.4286,
+          "winBrier": 0.2618,
+          "winLogLoss": 0.7177,
+          "blowouts": 11,
+          "blowoutRecall": 0.9091
+        },
+        {
+          "targetSeason": 2025,
+          "fitRows": 668,
+          "n": 48,
+          "decisiveN": 45,
+          "teamScoreMAE": 6.9583,
+          "teamScoreRMSE": 8.9139,
+          "marginMAE": 11.9375,
+          "totalMAE": 8.0625,
+          "marginInterval80Coverage": 0.7292,
+          "totalInterval80Coverage": 0.8958,
+          "marginIntervalWidth": 30.875,
+          "winBrier": 0.2541,
+          "winLogLoss": 0.7013,
+          "blowouts": 18,
+          "blowoutRecall": 0.9444
+        }
+      ],
+      "pooled": {
+        "n": 97,
+        "decisiveN": 93,
+        "teamScoreMAE": 7.4124,
+        "teamScoreRMSE": 9.1432,
+        "marginMAE": 10.7629,
+        "totalMAE": 9.9897,
+        "marginInterval80Coverage": 0.7835,
+        "totalInterval80Coverage": 0.8144,
+        "marginIntervalWidth": 30.1443,
+        "winBrier": 0.2581,
+        "winLogLoss": 0.7097,
+        "blowouts": 29,
+        "blowoutRecall": 0.931
+      }
+    }
+  ],
+  "sensitivity": {
+    "strongerOffenseRaisesOwnScoring": {
+      "pass": true,
+      "base": 20,
+      "moved": 24
+    },
+    "strongerOpposingDefenseLowersScoring": {
+      "pass": true,
+      "base": 20,
+      "moved": 17
+    },
+    "biggerGapShiftsMargin": {
+      "pass": true,
+      "base": 1,
+      "moved": 18
+    },
+    "biggerGapReachesBlowout": {
+      "pass": true,
+      "p90": 35
+    },
+    "swapReversesMargin": {
+      "pass": true,
+      "moved": -9
+    }
+  },
+  "bars": {
+    "MINIMUM_N": {
+      "pass": true,
+      "detail": "n=97 vs required 48"
+    },
+    "MARGIN_DISPERSION": {
+      "pass": false,
+      "detail": "marginMAE 10.6495 vs shared prior 10.7629 (improvement 0.1134, need >= 0.50)"
+    },
+    "COVERAGE_FLOOR": {
+      "pass": true,
+      "detail": "margin coverage 0.7526, band [0.72, 0.88]"
+    },
+    "SCORING_PRESERVED": {
+      "pass": false,
+      "detail": "totalMAE 10.4124 vs 9.4639; total coverage 0.7938"
+    },
+    "WIN_CALIBRATION": {
+      "pass": true,
+      "detail": "winBrier 0.2554 vs shared prior 0.2573"
+    },
+    "DIRECTION_AND_SENSITIVITY": {
+      "pass": true,
+      "detail": "all direction tests pass"
+    }
+  },
+  "bestCandidate": "hier_offdef_k20",
+  "verdict": "REJECTED_WITH_EVIDENCE",
+  "consequence": "no candidate cleared the predeclared bars. BASELINE_ONLY stays public and the shipped champion is untouched. A kickoff deadline is a lock boundary, not a reason to lower a bar.",
+  "failingBars": [
+    {
+      "bar": "MARGIN_DISPERSION",
+      "detail": "marginMAE 10.6495 vs shared prior 10.7629 (improvement 0.1134, need >= 0.50)"
+    },
+    {
+      "bar": "SCORING_PRESERVED",
+      "detail": "totalMAE 10.4124 vs 9.4639; total coverage 0.7938"
+    }
+  ]
+}
