@@ -1,4 +1,17 @@
-# Program 179 — exact resume state
+# Program 179–180 — exact resume state
+
+> **Superseded header (P180, 2026-08-14 03:05 ET).** P179-A0 shipped as described below.
+> **P180 Release A also shipped** (`a96c6da0a`): the immutable six-game Aug-13 pregame-versus-final
+> audit. Findings — winners 3/5 decisive (1 tie), team-score MAE 6.25, margin MAE 9.83, total MAE
+> 5.17, **Brier 0.2391 vs market 0.2237 (worse)**. The sharp diagnostic: **totals were calibrated
+> (6/6 inside the 80% interval), margins were not (4/6, both misses blowouts)** — a shared prior
+> cannot produce a blowout, which is the evidence-backed case for the possession/drive engine.
+> Four tickets generated; `INTERVAL-WIDTH-MARGIN` explicitly refuses to be fixed by widening a
+> constant. Remaining P180 releases: **B** (champion/challenger governance), **C** (rights-aware
+> participation), **D** (possession/drive engine — the main event), **E** (joint player engine),
+> **F** (prices + Market Center), **G** (products + MLB weekend), **H** (settlement loop),
+> **I** (public UX). UFC 330 is P179 U1–U4 and remains unstarted.
+
 
 **Written** 2026-08-14 02:35 ET / 06:35 UTC · **Tip** `f731b12ff` (= `origin/main`)
 **Classification** `MATERIAL_PROGRESS`. Releases A1–A3, B, C, D, E, F and all UFC releases remain.
