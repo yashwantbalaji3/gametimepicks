@@ -29,7 +29,7 @@
 // ---------------------------------------------------------------------------
 
 /** Sport keys that may own a game-simulations artifact. Mirrors the site's SportKey space. */
-export type SimSportKey = "mlb" | "world_cup" | "nba" | "ufc";
+export type SimSportKey = "mlb" | "world_cup" | "nba" | "ufc" | "nfl";
 
 /**
  * Per-game readiness. This is the honesty flag the whole UI keys off:

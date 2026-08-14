@@ -305,6 +305,14 @@ function TieredEditorialCards({ cards }: { cards: EditorialCard[] }) {
   );
 }
 
+/**
+ * Sports whose games render the SIMULATION experience (runner, tabs, ranked picks, histograms).
+ * Membership is about supplying the shared game-simulation artifact — not about being MLB. NFL
+ * joined in P183 by emitting the same contract; gating on the sport would have forced a forked page
+ * for an identical shape.
+ */
+const SIMULATION_SPORTS = new Set(["mlb", "nfl"]);
+
 export default function GameDetailPage({ detail, engineCards, multiGameCards, playerPropParlays, teamPropParlays }: { detail: PublicGameDetail; engineCards?: GameSpecificCards | null; multiGameCards?: GameSpecificCards | null; playerPropParlays?: GameSpecificCards | null; teamPropParlays?: GameSpecificCards | null }) {
   const identity = getSportIdentity(detail.sport);
   const homeCode = detail.sport === "world_cup" && detail.homeTeam ? teamByName(detail.homeTeam)?.code ?? "" : "";
@@ -705,7 +713,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
 
   // ── Gate: an MLB fixture that carries a simulation shows a CLEAN matchup hero (no prices) + the runner
   // ONLY before the click. The dense report, Model spotlight, and price tabs are gated behind Generate. ──
-  const isMlbSim = detail.sport === "mlb" && !!detail.gameLabSimulation;
+  // P183: the simulation experience is gated on HAVING a simulation, not on being MLB. NFL feeds
+  // the same artifact contract, so gating on the sport would have forced a forked page for an
+  // identical shape — the exact drift this codebase keeps closing.
+  const isMlbSim = SIMULATION_SPORTS.has(detail.sport) && !!detail.gameLabSimulation;
 
   if (isMlbSim) {
     const sim = detail.gameLabSimulation!;

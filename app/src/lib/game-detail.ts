@@ -557,10 +557,54 @@ function nbaDetails(): PublicGameDetail[] {
   return boardDetails("nba", date, board.games ?? [], props, (g) => (g.gameId ? String(g.gameId) : null));
 }
 
+/**
+ * NFL details (P183). NFL feeds the SAME shared detail/simulation contract MLB does, so its games
+ * render through /games/[sport]/[gameId] with the identical experience — the simulation graphic,
+ * the tabs, the ranked prop list, the histograms. Producing an NFL-shaped artifact instead would
+ * have forked that experience, which is exactly the drift this repository keeps closing.
+ */
+function nflDetails(): PublicGameDetail[] {
+  const root = path.join(process.cwd(), "public", "data");
+  let art: { date?: string; modelVersion?: string; runCount?: number; generatedAt?: string; games?: Array<Record<string, unknown>> } | null = null;
+  try { art = JSON.parse(fs.readFileSync(path.join(root, "nfl", "game-simulations", "latest.json"), "utf8")); } catch { return []; }
+  const date = art?.date ?? "";
+  if (!date || !Array.isArray(art?.games)) return [];
+
+  // Build through the SAME team-sport constructor MLB uses, so every field the shared page reads is
+  // present by construction rather than by me remembering it. NFL supplies no separate prop rows:
+  // its projections live inside the simulation artifact, which is what the page renders.
+  const rows = (art.games as Array<Record<string, never>>).map((g) => {
+    const slug = String(g.slug ?? "");
+    return {
+      gamePk: String(g.gameId ?? ""),
+      gameId: String(g.gameId ?? ""),
+      awayTeamAbbr: (slug.split("-vs-")[0] ?? "?").toUpperCase(),
+      homeTeamAbbr: (slug.split("-vs-")[1] ?? "?").split("-")[0].toUpperCase(),
+      venue: null,
+    };
+  });
+  const details = boardDetails("nfl" as "mlb", date, rows, [], (g) => String(g.gameId ?? ""));
+
+  return details.map((d) => {
+    const result = readGameSimulation(root, "nfl", date, d.matchId ?? "", { currentDate: date });
+    return {
+      ...d,
+      sport: "nfl",
+      sportLabel: "NFL",
+      gameLabSimulation: buildGameSimulationView(result, {
+        modelVersion: String(art?.modelVersion ?? "nfl-preseason-public-beta-v1"),
+        simulationVersion: 1,
+        runCount: Number(art?.runCount ?? 10000),
+        generatedAt: String(art?.generatedAt ?? ""),
+      }),
+    } as unknown as PublicGameDetail;
+  });
+}
+
 let _cache: PublicGameDetail[] | null = null;
 export function buildAllGameDetails(): PublicGameDetail[] {
   if (_cache) return _cache;
-  _cache = [...worldCupDetails(), ...mlbDetails(), ...nbaDetails()];
+  _cache = [...worldCupDetails(), ...mlbDetails(), ...nbaDetails(), ...nflDetails()];
   return _cache;
 }
 

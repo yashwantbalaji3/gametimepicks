@@ -50,7 +50,7 @@ test("MLB game cards show a 'Simulation Ready' badge, gated on a real ready arti
 test("game detail GATES the dense model report behind Generate Simulation (report is in postReveal, not a pre-click sibling)", () => {
   // Simulator-first is now the strongest form: on an MLB-sim page the dense report is not a sibling at all —
   // it is handed to the runner via postReveal and revealed ONLY after the ≥10s reveal completes.
-  assert.match(detailPage, /const isMlbSim = detail\.sport === "mlb" && !!detail\.gameLabSimulation/, "the MLB-sim gate exists");
+  assert.match(detailPage, /const isMlbSim = SIMULATION_SPORTS\.has\(detail\.sport\) && !!detail\.gameLabSimulation/, "the simulation gate exists (sport-agnostic since P183)");
   // Now ONE unified report: the detail is the gated `mlbReportDetails` postReveal (not a competing tabbed
   // dashboard); the dense report lives in a collapsed "Advanced report" disclosure, never a pre-click sibling.
   assert.match(detailPage, /postReveal=\{mlbGameFirstReport\}/, "the unified report detail is the gated postReveal");

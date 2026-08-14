@@ -176,10 +176,10 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
 
   // ── Derived, honest reads from the real generated picks (no fabrication) ──
   const simMarkets = [...new Set(picks.map((p) => marketLabel(p.market)))];
-  const eligible = picks.filter((p) => p.edgePct > 0 && DETERMINISTIC_SETTLE.has(p.market) && p.riskTier !== "longshot");
-  const boardPicks = [...picks].sort((a, b) => b.edgePct - a.edgePct);
-  const watchlist = boardPicks.filter((p) => p.edgePct > 0).slice(0, 5);
-  const aboveMarket = picks.filter((p) => p.edgePct > 0).length;
+  const eligible = picks.filter((p) => (p.edgePct ?? 0) > 0 && DETERMINISTIC_SETTLE.has(p.market) && p.riskTier !== "longshot");
+  const boardPicks = [...picks].sort((a, b) => (b.edgePct ?? 0) - (a.edgePct ?? 0));
+  const watchlist = boardPicks.filter((p) => (p.edgePct ?? 0) > 0).slice(0, 5);
+  const aboveMarket = picks.filter((p) => (p.edgePct ?? 0) > 0).length;
   // Phase 7 — market-vs-simulation explanation for the single biggest lead. Uses ONLY factors actually attached
   // to the projection (reasonBullets); neutral "difference" language; shows "Reason unavailable" when the
   // artifact carries no factor detail. Never says "edge" / calls the market wrong / implies causality.
@@ -323,7 +323,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
             <span className="font-mono uppercase tracking-[0.1em] block" style={{ color: "var(--vault-gold)", fontSize: 8.5 }}>What to look at</span>
             <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
               {takeawayLead
-                ? <>Top model lead: <span style={{ color: "var(--vault-text)" }}>{takeawayLead.player}</span> {takeawayLead.market} +{takeawayLead.gap.toFixed(0)} pt{mostAlignedStat ? <> · most aligned: {mostAlignedStat}</> : null}{taggedCount > 0 ? <> · {taggedCount} product leg{taggedCount === 1 ? "" : "s"}</> : null}</>
+                ? <>Top model lead: <span style={{ color: "var(--vault-text)" }}>{takeawayLead.player}</span> {takeawayLead.market} +{(takeawayLead.gap ?? 0).toFixed(0)} pt{mostAlignedStat ? <> · most aligned: {mostAlignedStat}</> : null}{taggedCount > 0 ? <> · {taggedCount} product leg{taggedCount === 1 ? "" : "s"}</> : null}</>
                 : <>Player board · market agreement · product eligibility</>}
             </span>
           </div>
@@ -457,7 +457,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                       <td className="py-2 px-1.5 font-mono tabular text-right hidden sm:table-cell" style={{ color: "var(--vault-text-faint)" }}>{num1(p.projection)}</td>
                       <td className="py-2 px-1.5 font-mono tabular text-right" style={{ color: "var(--vault-text)", fontWeight: 700 }}>{pct(p.modelProbability)}</td>
                       <td className="py-2 px-1.5 font-mono tabular text-right hidden sm:table-cell" style={{ color: "var(--vault-text-faint)" }}>{pct(p.marketProbability)}</td>
-                      <td className="py-2 px-1.5 font-mono tabular text-right" style={{ color: p.edgePct > 0 ? "var(--vault-gold)" : "var(--vault-text-faint)", fontWeight: 700 }}>{p.edgePct > 0 ? "+" : ""}{p.edgePct.toFixed(0)}</td>
+                      <td className="py-2 px-1.5 font-mono tabular text-right" style={{ color: (p.edgePct ?? 0) > 0 ? "var(--vault-gold)" : "var(--vault-text-faint)", fontWeight: 700 }}>{p.edgePct == null ? "—" : `${(p.edgePct ?? 0) > 0 ? "+" : ""}${p.edgePct.toFixed(0)}`}</td>
                       <td className="py-2 px-1.5 text-right hidden sm:table-cell"><span className="font-mono uppercase" style={{ fontSize: 8.5, color: RISK_TONE[p.riskTier] ?? "var(--vault-text-mute)" }}>{p.riskTier}</span></td>
                       <td className="py-2 px-1.5"><ProductChip tag={tag} /></td>
                     </tr>
@@ -488,7 +488,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                   <span className="font-mono shrink-0 flex items-center gap-2" style={{ fontSize: 11 }}>
                     <span style={{ color: "var(--vault-text-mute)" }}>Model <span style={{ color: "var(--vault-text)", fontWeight: 700 }}>{pct(p.modelProbability)}</span></span>
                     <span style={{ color: "var(--vault-text-faint)" }}>vs Mkt {pct(p.marketProbability)}</span>
-                    <span className="rounded-full px-1.5 py-0.5" style={{ color: "var(--vault-gold)", background: "rgba(217,164,65,0.10)", border: "1px solid rgba(217,164,65,0.25)", fontSize: 9.5 }}>+{p.edgePct.toFixed(0)} pt lead</span>
+                    <span className="rounded-full px-1.5 py-0.5" style={{ color: "var(--vault-gold)", background: "rgba(217,164,65,0.10)", border: "1px solid rgba(217,164,65,0.25)", fontSize: 9.5 }}>+{(p.edgePct ?? 0).toFixed(0)} pt lead</span>
                   </span>
                 </div>
               );

@@ -142,110 +142,134 @@ for (const ev of index.events.filter((e) => e.lifecycle === "UPCOMING")) {
     }
   }
 
-  // ── assemble player rows in MLB's shape ───────────────────────────────────────────────────────
+  // ── emit the SHARED reader schema so NFL renders through the same experience as MLB ──────────
+  // lib/game-simulations/read.ts drives /games/[sport]/[gameId]: the simulation graphic, the tabs,
+  // the ranked prop list, the histograms, the story. Producing NFL's own shape would have forked
+  // that; producing THIS shape means NFL inherits all of it.
   const FAMILY_FIELDS = {
-    passAttempts: [["passAtt", "attempts", "passAtt"], ["passCmp", "completions", null], ["passYds", "passing yards", "passYds"], ["passTd", "passing TD", null]],
-    rushAttempts: [["rushAtt", "carries", "rushAtt"], ["rushYds", "rushing yards", "rushYds"], ["rushTd", "rushing TD", null]],
-    targets: [["targets", "targets", null], ["rec", "receptions", "rec"], ["recYds", "receiving yards", "recYds"], ["recTd", "receiving TD", null]],
+    passAttempts: [["passAtt", "Pass attempts", "passAtt"], ["passCmp", "Completions", null], ["passYds", "Passing yards", "passYds"], ["passTd", "Passing TD", null]],
+    rushAttempts: [["rushAtt", "Carries", "rushAtt"], ["rushYds", "Rushing yards", "rushYds"], ["rushTd", "Rushing TD", null]],
+    targets: [["targets", "Targets", null], ["rec", "Receptions", "rec"], ["recYds", "Receiving yards", "recYds"], ["recTd", "Receiving TD", null]],
   };
-  const playerRows = [];
-  for (const { meta, s } of players.values()) {
-    const projections = [];
-    for (const [field, label, thresholdKey] of FAMILY_FIELDS[meta.family]) {
-      const vals = s[field]; if (!vals?.length) continue;
-      const d = dist(vals, label);
-      const thresholds = (THRESHOLDS[thresholdKey] ?? []).map((line) => ({ line, modelProbabilityOver: overProb(vals, line) }));
-      projections.push({ field, label, distribution: d, thresholds });
-    }
-    // Anytime touchdown belongs only to rows that carry SCORING opportunity. A passing row has
-    // none — a quarterback's rushing score lives on his rushing row — so emitting 0.0% here would
-    // read as "this player will not score" when the truth is "this row is not where that lives".
-    const scoring = s.rushTd ?? s.recTd ?? null;
-    const anytime = scoring
-      ? r4(scoring.map((_, i) => (s.rushTd?.[i] ?? 0) + (s.recTd?.[i] ?? 0)).filter((v) => v >= 1).length / scoring.length)
-      : null;
-    playerRows.push({
-      playerId: meta.playerId, name: meta.name, position: meta.position, team: meta.team,
-      family: meta.family,
-      participationState: meta.state,
-      participationShare: meta.preseasonShare,
-      projections,
-      anytimeTdProbability: anytime,
-      marketState: "MODEL_ONLY_NO_MARKET",
-      marketStateReason: "the provider offers no NFL player market for this game, so there is no line to project against and no difference to compute. No line is synthesized.",
-      limitation: "playing time is role-uncertain — this distribution already carries that uncertainty, which is why it is wide.",
-    });
+  /** A histogram in the reader's bin shape — this is what draws the distribution chart. */
+  function histogram(values, key, label) {
+    const max = Math.max(...values);
+    const width = max <= 5 ? 1 : max <= 30 ? 2 : max <= 80 ? 10 : 25;
+    const bins = new Map();
+    for (const v of values) { const lo = Math.floor(v / width) * width; bins.set(lo, (bins.get(lo) ?? 0) + 1); }
+    return {
+      key, label, sampleCount: values.length,
+      bins: [...bins.entries()].sort((a, b) => a[0] - b[0]).map(([lo, count]) => ({
+        label: width === 1 ? String(lo) : `${lo}-${lo + width}`,
+        lowerEdge: lo, upperEdge: lo + width, count, probability: r4(count / values.length),
+      })),
+    };
   }
 
-  // ── TEAM markets: a real comparison, because real lines exist ─────────────────────────────────
+  const distributions = {};
+  const generatedPicks = [];
+  const gameId = `nfl-${ev.providerEventId}`;
+  for (const { meta, s: samples } of players.values()) {
+    for (const [field, label, thresholdKey] of FAMILY_FIELDS[meta.family]) {
+      const vals = samples[field]; if (!vals?.length) continue;
+      const key = `${field}__${meta.playerId}`;
+      distributions[key] = histogram(vals, key, `${meta.name} — ${label}`);
+      const sorted = [...vals].sort((a, b) => a - b);
+      const projection = r2(vals.reduce((a, b) => a + b, 0) / vals.length);
+      for (const line of THRESHOLDS[thresholdKey] ?? []) {
+        const pOver = overProb(vals, line);
+        generatedPicks.push({
+          id: `${gameId}-${meta.playerId}-${field}-${line}-${pOver >= 0.5 ? "over" : "under"}`,
+          sport: "nfl", gameId,
+          market: field, player: meta.name, team: meta.team, position: meta.position,
+          line, side: pOver >= 0.5 ? "over" : "under",
+          projection,
+          modelProbability: pOver >= 0.5 ? pOver : r4(1 - pOver),
+          // No NFL player market exists in this window, so there is no price to compare against.
+          // Null rather than a synthesized number — the reader shows a model-only row.
+          marketProbability: null, edgePct: null,
+          confidence: 0.35,
+          riskTier: "experimental",
+          reasonBullets: [
+            `${meta.name} projects ${projection} ${label.toLowerCase()} across ${RUNS.toLocaleString()} simulated games (p10 ${r2(q(sorted, 0.1))}, p90 ${r2(q(sorted, 0.9))}).`,
+            `Playing time is role-uncertain: his share of team work is modelled as ${meta.preseasonShare.p10}-${meta.preseasonShare.p90}, which is why the range is wide.`,
+            "No sportsbook offers this market for this game, so there is no price to compare against.",
+          ],
+          paperOnly: true,
+          sourceFields: ["projection", "participationShare", "samples"],
+          marketState: "MODEL_ONLY_NO_MARKET",
+        });
+      }
+    }
+  }
+  generatedPicks.sort((a, b) => b.modelProbability - a.modelProbability);
+
   const mkt = (markets?.rows ?? []).find((r) => r.providerEventId === ev.providerEventId) ?? null;
   const s = fc.forecastSummary;
-  const teamPicks = [];
+  const lines = [];
   if (mkt?.consensus) {
-    if (typeof mkt.consensus.homeWinProbNoVig === "number") {
-      teamPicks.push({ market: "moneyline", selection: `${ev.home.abbr} to win`, modelProbability: r4(s.winProbability.home), marketProbability: r4(mkt.consensus.homeWinProbNoVig), differencePp: r2((s.winProbability.home - mkt.consensus.homeWinProbNoVig) * 100), marketState: "PRICED" });
-    }
-    if (typeof mkt.consensus.total === "number") {
-      teamPicks.push({ market: "total", selection: `over ${mkt.consensus.total}`, modelMedian: s.total.median, marketLine: mkt.consensus.total, differencePoints: r2(s.total.median - mkt.consensus.total), marketState: "PRICED" });
-    }
+    if (typeof mkt.consensus.homeWinProbNoVig === "number") lines.push({ market: "moneyline", side: "home", player: null, line: null, impliedProbability: r4(mkt.consensus.homeWinProbNoVig), modelProbability: r4(s.winProbability.home) });
+    if (typeof mkt.consensus.total === "number") lines.push({ market: "total", side: "over", player: null, line: mkt.consensus.total, impliedProbability: null, modelProbability: null });
+    if (typeof mkt.consensus.spreadHome === "number") lines.push({ market: "spread", side: "home", player: null, line: mkt.consensus.spreadHome, impliedProbability: null, modelProbability: null });
   }
 
   games.push({
-    providerEventId: ev.providerEventId,
-    canonicalEventId: ev.canonicalEventId,
-    matchup: ev.matchup,
-    kickoffUtc: ev.kickoffUtc,
-    teams: { home: ev.home, away: ev.away },
-    status: fc.teamSignal?.state === "APPLIED" ? "ready" : "baseline_only",
-    statusReason: fc.teamSignal?.note ?? null,
+    gameId,
+    gamePk: Number(ev.providerEventId),
+    slug: `${ev.away.abbr.toLowerCase()}-vs-${ev.home.abbr.toLowerCase()}-${ev.kickoffUtc.slice(0, 10)}`,
+    teams: { home: ev.home.name, away: ev.away.name },
+    status: "ready",
+    freshness: {
+      slateDate: ev.kickoffUtc.slice(0, 10),
+      sourceCapturedAt: part.generatedAt,
+      generatedAt: NOW,
+      note: `Joint game simulation: team volume, each player's share of it, then efficiency measured from ${RUNS.toLocaleString()} deterministic iterations.`,
+    },
+    marketSnapshot: { bookmaker: mkt ? `median of ${mkt.books?.length ?? 0} books` : null, capturedAt: markets?.capturedAt ?? null, lines },
     simulationSummary: {
-      runCount: RUNS,
-      projectedScore: s.projectedScore, winProbability: s.winProbability, margin: s.margin, total: s.total,
+      headline: `${ev.matchup}: ${Object.keys(distributions).length} player markets simulated over ${RUNS.toLocaleString()} deterministic iterations each.`,
+      projectedScore: s.projectedScore,
+      winProbability: s.winProbability,
+      margin: s.margin,
+      total: s.total,
       teamOpportunity: Object.fromEntries(Object.entries(teamDraws).map(([abbr, d]) => [abbr, { passAttempts: dist(d.passAtt, "attempts"), rushAttempts: dist(d.rushAtt, "carries"), offensiveTd: dist(d.offTd, "touchdowns") }])),
+      readiness: fc.teamSignal?.state === "APPLIED" ? "SIMULATION_READY" : "BASELINE_ONLY",
+      readinessNote: fc.teamSignal?.note ?? null,
     },
-    teamMarkets: teamPicks,
-    players: playerRows.sort((a, b) => (b.projections[0]?.distribution.mean ?? 0) - (a.projections[0]?.distribution.mean ?? 0)),
-    playerCount: playerRows.length,
-    distributionCount: playerRows.reduce((n, p) => n + p.projections.length, 0),
-    conservation: {
-      enforcedWithinDraw: [
-        "player pass attempts are a share of that draw's team pass attempts",
-        "completions never exceed that player's own attempts in the same draw",
-        "receptions never exceed that player's own targets in the same draw",
-        "passing touchdowns are capped by the team's offensive touchdown count in that draw",
-      ],
-      notEnforcedAcrossFamilies:
-        "team receptions are not forced to equal team completions within a draw. The families are allocated from the same team volume but drawn independently, so the two can disagree by a reception or two. Stated rather than claimed — a conservation guarantee that is only mostly true is worse than a stated limitation.",
-    },
+    distributions,
+    generatedPicks,
+    unavailableModules: [
+      { module: "player_market_comparison", reason: "no_market_offered", requiredArtifactField: "generatedPicks[].marketProbability", displayCopy: "No sportsbook offers NFL player markets for this game, so there is no price to compare our projections against. We do not invent one." },
+      { module: "first_scorer", reason: "not_supported_for_sport", requiredArtifactField: "distributions.first_scorer", displayCopy: "First and last touchdown need drive ordering. Our corpus carries per-game stat lines with no ordering, so the mechanism does not exist." },
+      { module: "scoreline", reason: "not_supported_for_sport", requiredArtifactField: "distributions.scoreline", displayCopy: "Scoreline distributions are a soccer module." },
+    ],
     integrity: {
-      engine: "nfl-joint-game-sim-v1",
-      efficiencySource: EFF_SOURCE,
-      seed: `nfl-gamesim-v1::${ev.providerEventId}::${fc.model.inputHash}`,
-      participationAsOf: part.generatedAt,
-      forecastInputHash: fc.model.inputHash,
-      deterministic: "identical inputs reproduce identical bytes — the seed is derived from the event id and the frozen forecast's input hash",
+      sourceBoardHash: fc.model.inputHash,
+      artifactHash: crypto.createHash("sha256").update(JSON.stringify({ e: ev.providerEventId, d: Object.keys(distributions).sort() })).digest("hex"),
     },
   });
 }
 
-const date = games[0]?.kickoffUtc.slice(0, 10) ?? NOW.slice(0, 10);
+const date = games[0]?.freshness?.slateDate ?? NOW.slice(0, 10);
 const artifact = {
-  schemaVersion: 1,
-  artifact: "nfl-game-simulations",
-  dataClass: "PUBLIC_DERIVED",
   date,
+  sport: "nfl",
   generatedAt: NOW,
+  modelVersion: forecasts.model?.id ?? "nfl-preseason-public-beta-v1",
+  simulationVersion: 1,
+  simulationEngine: "nfl-joint-game-sim-v1",
   runCount: RUNS,
+  sourceBoardHash: index.generatedAt,
   games,
   refusals,
   honesty: {
     teamModel: "the team score distribution is BASELINE_ONLY — no measured signal separates these teams, so it reflects league-wide preseason context and home field only.",
-    playerModel: "player distributions come from a joint simulation of team opportunity, participation share and preseason efficiency. They are RESEARCH ESTIMATES: none of the four families beat a simple role baseline when tested, and the distributions are wide because preseason playing time genuinely is.",
-    market: "team markets carry a real captured line and a real comparison. Player markets are not offered by the provider for these games, so player rows show model probability at standard thresholds and no line is invented.",
+    playerModel: "player distributions come from a joint simulation of team opportunity, participation share and preseason efficiency measured from 739 passing / 1,817 rushing / 3,768 receiving preseason player-games. They are RESEARCH ESTIMATES: none of the four families beat a simple role baseline when tested, and the ranges are wide because preseason playing time genuinely is.",
+    market: "team markets carry a real captured line and a real comparison. Player markets are not offered by the provider for these games, so player rows carry model probability only and no line is invented.",
     notAdvice: "educational and paper-only; not betting advice, and not shown to beat the market.",
   },
 };
-artifact.contentHash = crypto.createHash("sha256").update(JSON.stringify(artifact.games)).digest("hex").slice(0, 16);
+artifact.artifactHash = crypto.createHash("sha256").update(JSON.stringify(artifact.games)).digest("hex");
 
 const out = path.join(APP, "public/data/nfl/game-simulations");
 fs.mkdirSync(out, { recursive: true });
@@ -254,6 +278,6 @@ fs.writeFileSync(path.join(out, "latest.json"), JSON.stringify(artifact, null, 1
 
 console.log(`nfl game simulations ${date}: ${games.length} games · ${refusals.length} refused · ${RUNS} runs`);
 for (const g of games) {
-  console.log(`  ${g.matchup.padEnd(12)} ${g.status.padEnd(13)} players ${String(g.playerCount).padStart(3)} · distributions ${String(g.distributionCount).padStart(3)} · team markets ${g.teamMarkets.length}`);
+  console.log(`  ${g.slug.padEnd(22)} ${g.simulationSummary.readiness.padEnd(15)} picks ${String(g.generatedPicks.length).padStart(3)} · distributions ${String(Object.keys(g.distributions).length).padStart(3)} · market lines ${g.marketSnapshot.lines.length}`);
 }
 for (const r of refusals) console.log(`  REFUSED ${r.matchup}: ${r.reason}`);

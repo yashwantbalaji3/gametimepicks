@@ -61,7 +61,17 @@ function validatePick(pick: unknown, gameId: string, idx: number, errors: string
   if (!isNonEmptyString(p.market)) errors.push(`${where}.market: missing/empty`);
   if (!isNonEmptyString(p.side)) errors.push(`${where}.side: missing/empty`);
   if (!isFiniteNumber(p.modelProbability)) errors.push(`${where}.modelProbability: not a finite number`);
-  if (!isFiniteNumber(p.marketProbability)) errors.push(`${where}.marketProbability: not a finite number`);
+  // P183: a market probability may be NULL when no market exists for this pick — but only when the
+  // pick says so. The schema originally required a finite number because MLB always has a price;
+  // a sport whose book offers no player market would otherwise be forced to synthesize one, which
+  // is exactly the thing this codebase refuses to do. Null WITHOUT the declared state stays invalid.
+  if (p.marketProbability === null) {
+    if (p.marketState !== "MODEL_ONLY_NO_MARKET") {
+      errors.push(`${where}.marketProbability: null is allowed only with marketState "MODEL_ONLY_NO_MARKET"`);
+    }
+  } else if (!isFiniteNumber(p.marketProbability)) {
+    errors.push(`${where}.marketProbability: not a finite number`);
+  }
   // PROVENANCE — the core rule: no pick without sourced fields.
   if (!Array.isArray(p.sourceFields) || p.sourceFields.length === 0 || !p.sourceFields.every(isNonEmptyString)) {
     errors.push(`${where}.sourceFields: must be a non-empty array of field paths (no pick without provenance)`);
@@ -221,7 +231,7 @@ export function validateGameSimulation(obj: unknown): GameSimulationValidationRe
   const a = obj as Partial<GameSimulationArtifact> & Record<string, unknown>;
 
   if (!isNonEmptyString(a.date)) errors.push("date: missing/empty");
-  if (a.sport !== "mlb" && a.sport !== "world_cup" && a.sport !== "nba" && a.sport !== "ufc") {
+  if (a.sport !== "mlb" && a.sport !== "world_cup" && a.sport !== "nba" && a.sport !== "ufc" && a.sport !== "nfl") {
     errors.push(`sport: invalid sport "${String(a.sport)}"`);
   }
   if (!isNonEmptyString(a.generatedAt)) errors.push("generatedAt: missing/empty");

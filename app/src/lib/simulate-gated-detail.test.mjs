@@ -83,7 +83,7 @@ test("the runner renders postReveal ONLY in the done phase", () => {
 
 // ── 3 · the MLB-sim path passes report+spotlight+tabs to postReveal, NOT as always-visible siblings ─
 test("MLB-sim page gates report + spotlight + tabs behind the reveal via postReveal (not pre-click siblings)", () => {
-  assert.match(DETAIL_SRC, /const isMlbSim = detail\.sport === "mlb" && !!detail\.gameLabSimulation/, "the MLB-sim gate is defined");
+  assert.match(DETAIL_SRC, /const isMlbSim = SIMULATION_SPORTS\.has\(detail\.sport\) && !!detail\.gameLabSimulation/, "the simulation gate is defined (sport-agnostic since P183)");
   // The gated detail is handed to the runner via postReveal — now the ONE unified report (mlbReportDetails),
   // not a competing tabbed dashboard; the market snapshot node is threaded into the V2.5 report (its §10).
   assert.match(DETAIL_SRC, /marketSnapshotNode=\{gameCenter\}/, "market snapshot node threaded into the V2.5 report");

@@ -275,7 +275,7 @@ test("game-detail-page still builds MlbGameLabReport (gameLabMlb) and wires Game
   assert.match(DETAIL_PAGE_SRC, /import GameSimulationRunner from/, "must import the sim runner");
   // The runner is rendered with the sim view (bound to `sim = detail.gameLabSimulation!`) on the MLB-sim
   // path, and the gated report/spotlight/tabs are handed to it via postReveal (revealed only when done).
-  assert.match(DETAIL_PAGE_SRC, /const isMlbSim = detail\.sport === "mlb" && !!detail\.gameLabSimulation/, "MLB-sim gate defined");
+  assert.match(DETAIL_PAGE_SRC, /const isMlbSim = SIMULATION_SPORTS\.has\(detail\.sport\) && !!detail\.gameLabSimulation/, "the simulation gate is defined (sport-agnostic since P183)");
   assert.match(DETAIL_PAGE_SRC, /const sim = detail\.gameLabSimulation!/, "sim view bound from detail.gameLabSimulation");
   assert.match(DETAIL_PAGE_SRC, /<GameSimulationRunner\s+view=\{sim\}/, "must render the sim runner with the sim view");
   // ONE unified report: the market snapshot (Game Center) node is threaded into the V2.5 report (its §10),
@@ -287,11 +287,25 @@ test("game-detail-page still builds MlbGameLabReport (gameLabMlb) and wires Game
   assert.match(DETAIL_PAGE_SRC, /mlbAdvanced = \([\s\S]*?title="Advanced report"[\s\S]*?\{mlbReport\}\{spotlight\}/, "the dense report is inside the gated Advanced report disclosure (demoted into V2's advanced block)");
 });
 
-// Non-MLB details never carry a simulation view (null/undefined).
-test("non-MLB details do not carry a simulation view", () => {
+// P183: this used to assert "only MLB carries a simulation view", which encoded a fact about which
+// sport happened to have an artifact — not an invariant worth protecting. NFL now emits the SAME
+// shared game-simulation contract, so the real invariant is the one below: a sport carries a
+// simulation view exactly when it supplies the artifact, and never otherwise. That still catches
+// the thing the original guard existed to catch — a sport fabricating a sim view it has no data for.
+test("a sport carries a simulation view EXACTLY when it supplies the artifact", () => {
   const all = buildAllGameDetails();
-  for (const d of all.filter((x) => x.sport !== "mlb")) {
-    assert.ok(d.gameLabSimulation == null, `${d.sport} detail must not carry a sim view`);
+  const SUPPLIES_ARTIFACT = new Set(["mlb", "nfl"]);
+  for (const d of all) {
+    if (SUPPLIES_ARTIFACT.has(d.sport)) continue;   // may or may not, depending on the day's slate
+    assert.ok(d.gameLabSimulation == null,
+      `${d.sport} supplies no game-simulation artifact, so it must not carry a sim view`);
+  }
+  // and the sports that DO supply one actually carry it, or the wiring is silently dead
+  for (const sport of SUPPLIES_ARTIFACT) {
+    const rows = all.filter((d) => d.sport === sport);
+    if (rows.length === 0) continue;
+    assert.ok(rows.some((d) => d.gameLabSimulation != null),
+      `${sport} supplies the artifact, so at least one of its games must carry a sim view`);
   }
 });
 

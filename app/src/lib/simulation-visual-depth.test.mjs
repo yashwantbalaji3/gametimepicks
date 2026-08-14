@@ -40,7 +40,7 @@ test("distributions still render ONLY from a real, non-empty artifact block (no 
 test("the strongest lean, model probability, and model gap remain visible (in the V2.5 report)", () => {
   assert.ok(v2.includes("Biggest model leads"), "the biggest model leads (strongest leans) section stays");
   assert.match(v2, /Model <span[\s\S]{0,120}?\{pct\(p\.modelProbability\)\}/, "model probability visible");
-  assert.match(v2, /\+\{p\.edgePct\.toFixed\(0\)\} pt lead/, "the model gap (lead) is visible");
+  assert.match(v2, /\+\{\(p\.edgePct \?\? 0\)\.toFixed\(0\)\} pt lead/, "the model gap (lead) is visible, null-safe when no market exists");
 });
 
 test("paper-only copy present; NO banned copy anywhere in the runner", () => {

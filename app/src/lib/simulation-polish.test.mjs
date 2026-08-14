@@ -27,8 +27,8 @@ test("the final 'Simulation complete' panel is stronger: matchup + model version
 });
 
 test("the top edge-ranked pick is the strongest lean (V2.5 board + watchlist are edge-ranked)", () => {
-  assert.match(v2, /const boardPicks = \[\.\.\.picks\]\.sort\(\(a, b\) => b\.edgePct - a\.edgePct\)/, "the board is edge-ranked (strongest gap first)");
-  assert.match(v2, /const watchlist = boardPicks\.filter\(\(p\) => p\.edgePct > 0\)\.slice\(0, 5\)/, "the biggest-leads watchlist takes the top edge-ranked picks");
+  assert.match(v2, /const boardPicks = \[\.\.\.picks\]\.sort\(\(a, b\) => \(b\.edgePct \?\? 0\) - \(a\.edgePct \?\? 0\)\)/, "the board is edge-ranked (strongest gap first), null-safe for model-only picks");
+  assert.match(v2, /const watchlist = boardPicks\.filter\(\(p\) => \(p\.edgePct \?\? 0\) > 0\)\.slice\(0, 5\)/, "the biggest-leads watchlist takes the top edge-ranked picks; a null edge is never a lead");
   assert.ok(v2.includes("Biggest model leads"), "the strongest leans surface as 'Biggest model leads'");
 });
 

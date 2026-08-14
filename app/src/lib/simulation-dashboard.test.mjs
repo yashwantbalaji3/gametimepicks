@@ -193,8 +193,10 @@ test("buildRecap: matchup + lean + pick count; run-count ONLY when allowed; no b
 // ── 9 · the single strongest-lean hero now lives in the V2.5 report: edge-ranked + honest no-lean ──
 test("V2.5 surfaces the strongest lean from edge-ranked picks with an honest no-lean branch (not a score)", () => {
   // The board + watchlist are edge-ranked (strongest model-vs-market gap first) — same ordering the runner used.
-  assert.match(V2_SRC, /const boardPicks = \[\.\.\.picks\]\.sort\(\(a, b\) => b\.edgePct - a\.edgePct\)/, "board is edge-ranked");
-  assert.match(V2_SRC, /const watchlist = boardPicks\.filter\(\(p\) => p\.edgePct > 0\)\.slice\(0, 5\)/, "watchlist = top edge-ranked leans");
+  // P183: null-safe. A model-only pick (no market offered) has edgePct null, and `b.edgePct -
+  // a.edgePct` on nulls yields NaN, which silently destabilises the entire ordering.
+  assert.match(V2_SRC, /const boardPicks = \[\.\.\.picks\]\.sort\(\(a, b\) => \(b\.edgePct \?\? 0\) - \(a\.edgePct \?\? 0\)\)/, "board is edge-ranked, null-safe");
+  assert.match(V2_SRC, /const watchlist = boardPicks\.filter\(\(p\) => \(p\.edgePct \?\? 0\) > 0\)\.slice\(0, 5\)/, "watchlist = top edge-ranked leans (a null edge is never a lean)");
   // Honest no-lean branch when there is no positive model-vs-market gap.
   assert.ok(V2_SRC.includes("No positive model-vs-market gaps in this game's simulation."), "honest no-lean branch");
   // Framed as a prop read, never a predicted final score.
