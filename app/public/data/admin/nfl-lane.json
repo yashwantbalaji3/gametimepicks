@@ -2,20 +2,20 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-08-13T21:43:17Z",
+ "generatedAt": "2026-08-14T04:58:31Z",
  "program": "P171",
  "nextWindow": {
-  "matchup": "DET @ CIN",
-  "kickoffUtc": "2026-08-13T23:00Z",
+  "matchup": "DEN @ ATL",
+  "kickoffUtc": "2026-08-14T23:00Z",
   "seasonType": 1,
   "week": 2,
-  "hoursToKickoff": 1.28,
-  "eventsInWindow": 31
+  "hoursToKickoff": 18.02,
+  "eventsInWindow": 26
  },
  "freshness": {
   "schedule": {
    "state": "FRESH",
-   "detail": "as of 2026-08-13T14:14:22Z (FRESH)"
+   "detail": "as of 2026-08-14T04:57:22Z (FRESH)"
   },
   "rosters": {
    "state": "FRESH",
@@ -26,8 +26,8 @@
    "detail": "as of 2026-08-13T14:14:25Z (FRESH)"
   },
   "odds": {
-   "state": "FRESH",
-   "detail": "as of 2026-08-13T21:43:17Z (FRESH)"
+   "state": "STALE",
+   "detail": "as of 2026-08-13T21:43:17Z (STALE)"
   }
  },
  "markets": {
@@ -95,15 +95,15 @@
  "currentArtifacts": {
   "total": 53,
   "contractValid": 53,
-  "preStart": 53,
+  "preStart": 0,
   "settlementReady": 47,
   "detail": "53/53 pass the current-event contract; 47 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",
-  "date": "2026-08-13",
-  "entries": 1,
-  "corrections": 2
+  "date": "2026-08-14",
+  "entries": 2,
+  "corrections": 0
  },
  "gate": {
   "maturity": "SCAFFOLDED",
@@ -126,11 +126,6 @@
    "id": "player-markets-absent",
    "state": "NO_MARKET",
    "detail": "the authorized capture probed this window: the provider offers no NFL player-prop or anytime-TD market. Absence is evidence — not a retry target. Re-probe when the regular season opens."
-  },
-  {
-   "id": "first-settlement",
-   "state": "NOT_YET_OBSERVABLE",
-   "detail": "no pre-start artifact has passed its kickoff yet; the first settleable event is DET @ CIN at 2026-08-13T23:00Z"
   },
   {
    "id": "ops-webhook",

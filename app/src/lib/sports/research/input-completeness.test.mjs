@@ -61,7 +61,10 @@ test("separations are refusals: injuries never satisfy lineups; UFC weigh-ins mi
 
 test("temporal and activation gates refuse before inputs even matter", () => {
   const reps = representatives();
-  const started = classifyEventInputs({ sport: "nfl", event: reps.nfl, nowIso: "2026-08-20T00:00:00Z" });
+  // P178: "2026-08-20" was chosen to be after the representative's kickoff, and stopped being so
+  // when the capture rolled forward to games on the 20th. Derive it from the representative.
+  const afterKickoff = new Date(Date.parse(reps.nfl.scheduledStartUtc) + 3600_000).toISOString();
+  const started = classifyEventInputs({ sport: "nfl", event: reps.nfl, nowIso: afterKickoff });
   assert.ok(started.reasons.some((r) => /post-start evidence never feeds a pre-event artifact/.test(r)));
   assert.equal(started.summary, "MISSING_INPUTS", "a started event can never be ready-except-odds");
   const activated = classifyEventInputs({ sport: "nfl", event: reps.nfl, nowIso: BEFORE_ALL, activation: "SHADOW" });

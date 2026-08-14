@@ -51,17 +51,23 @@ test("reschedule and season-metadata drift are separate classes; unchanged rows 
   for (const c of same.changes) assert.ok(MONITOR_CLASSES.includes(c.class));
 });
 
-test("REAL ARTIFACTS · DET-CIN surfaces as the Aug 13 first-join candidate from committed data alone", () => {
+test("REAL ARTIFACTS · the next scheduled game surfaces as a first-join candidate from committed data alone", () => {
   const dir = path.join(process.cwd(), "public", "data", "nfl", "schedule");
   const scheduleRows = [];
   for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".json"))) {
     for (const r of JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).rows ?? []) scheduleRows.push(r);
   }
   const resultsArtifact = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "nfl", "results", "latest.json"), "utf8"));
-  const candidates = firstJoinCandidates({ scheduleRows, resultsArtifact, nowIso: "2026-08-13T00:00:00Z", horizonDays: 2 });
-  assert.ok(candidates.length >= 1, "the Aug 13 window has scheduled games");
-  const det = candidates.find((c) => /DET/.test(c.shortName ?? ""));
-  assert.ok(det, "DET @ CIN discovered from artifacts, not memory");
+  // P178: `nowIso` was pinned to Aug 13 and the candidate was pinned to DET@CIN. Both rotted when
+  // that night went final. Derive the instant from the artifacts themselves — a day before the
+  // earliest still-scheduled kickoff — so the window is always real and never a calendar guess.
+  const nextKickoff = scheduleRows.filter((x) => x.statusRaw === "STATUS_SCHEDULED").map((x) => x.dateUtc).sort()[0];
+  assert.ok(nextKickoff, "the committed captures hold a forward slate");
+  const nowIso = new Date(Date.parse(nextKickoff) - 24 * 3600_000).toISOString();
+  const candidates = firstJoinCandidates({ scheduleRows, resultsArtifact, nowIso, horizonDays: 2 });
+  assert.ok(candidates.length >= 1, `the window before ${nextKickoff} has scheduled games`);
+  const det = candidates[0];
+  assert.ok(det.shortName, "the candidate is discovered from artifacts, not memory");
   assert.match(det.acceptance, /joins \(not quarantines\)/);
   assert.throws(() => firstJoinCandidates({ scheduleRows, resultsArtifact, nowIso: "nope" }));
 });

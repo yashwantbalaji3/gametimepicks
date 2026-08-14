@@ -67,15 +67,18 @@ test("allocation coherence refuses: over-target, receptions>targets, forced-100%
   assert.equal(forced.ok, false, "no residual = forced 100% across the visible list = refused");
 });
 
-test("REAL ARTIFACTS · tonight's DET@CIN pool builds from the real roster + injuries captures", () => {
+test("REAL ARTIFACTS · the next event's pool builds from the real roster + injuries captures", () => {
   const rosters = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/rosters/latest.json"), "utf8"));
   const registry = buildPlayerRegistry([rosters]);
   const injuries = JSON.parse(fs.readFileSync(path.join(process.cwd(), "..", "data/internal/research/injuries/nfl/latest.json"), "utf8"));
   const sch = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/schedule/latest.json"), "utf8"));
-  const event = sch.rows.find((r) => r.providerEventId === "401873272");
-  assert.ok(event, "DET@CIN in the committed capture");
+  // P178: this pinned providerEventId 401873272 (DET@CIN), which left the forward-looking capture
+  // the moment that game went final. The intent was "a REAL event from the committed artifact", so
+  // take the earliest scheduled one and read its own two teams off it.
+  const event = sch.rows.filter((r) => r.statusRaw === "STATUS_SCHEDULED").sort((a, b) => a.dateUtc.localeCompare(b.dateUtc))[0];
+  assert.ok(event, "the committed capture holds a scheduled event");
   const pool = buildActivePool({ event, registry, injuriesArtifact: injuries, nowIso: injuries.generatedAt });
-  for (const abbr of ["CIN", "DET"]) {
+  for (const abbr of [event.home.abbr, event.away.abbr]) {
     const p = pool.pools[abbr];
     assert.ok(p.accounting.rosterSize > 60, `${abbr} roster present (${p.accounting.rosterSize})`);
     assert.equal(p.accounting.exact, true, "population-exact");

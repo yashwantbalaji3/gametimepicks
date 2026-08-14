@@ -40,8 +40,18 @@ test("blockers are typed and reality-gated, including the ones nobody can code a
   assert.equal(byId["preseason-participation"].state, "REALITY_GATED");
   assert.equal(byId["player-markets-absent"].state, "NO_MARKET");
   assert.match(byId["player-markets-absent"].detail, /not a retry target/);
-  assert.equal(byId["first-settlement"].state, "NOT_YET_OBSERVABLE");
-  assert.match(byId["first-settlement"].detail, /first settleable event/);
+  // P178: this pinned NOT_YET_OBSERVABLE, which was true until the first NFL forecast actually
+  // settled — and then the guard failed for the best possible reason. A blocker that clears is the
+  // system working, so the assertion is now tied to the EVIDENCE: the blocker may exist only while
+  // no experimental settlement has happened, and must be absent once one has.
+  const settled = JSON.parse(fs.readFileSync(path.join(process.cwd(), "..", "data/internal/nfl/experimental-settlement/summary.json"), "utf8"));
+  if (settled.settledForecasts > 0) {
+    assert.equal(byId["first-settlement"], undefined,
+      `${settled.settledForecasts} forecast(s) have settled — the "no settlement yet" blocker must clear itself`);
+  } else {
+    assert.equal(byId["first-settlement"].state, "NOT_YET_OBSERVABLE");
+    assert.match(byId["first-settlement"].detail, /first settleable event/);
+  }
 });
 
 test("cadence stays UNPROVEN — a workflow file is not a receipt", () => {

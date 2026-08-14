@@ -111,8 +111,16 @@ test("LABEL DISCIPLINE · experimental output never borrows validated-pick langu
 
 test("DETERMINISM · identical inputs reproduce identical receipts, and receipts are immutable", () => {
   const dir = path.join(ROOT, "data/internal/nfl/forecast-receipts", pub.date);
-  const files = fs.readdirSync(dir).filter((f) => /^\d+\.json$/.test(f));
-  assert.equal(files.length, pub.forecasts.length, "exactly one receipt per published event");
+  const files = fs.readdirSync(dir).filter((f) => /\.json$/.test(f));
+  // P178: this compared a raw FILE COUNT against the published set, which breaks the moment a
+  // legitimate pre-kickoff revision is appended (by design — corrections append with lineage rather
+  // than overwriting) or a settled game leaves the published set while its receipt stays reachable.
+  // The invariant that actually matters is per EVENT: everything published has a receipt.
+  const eventsWithReceipts = new Set(files.map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).providerEventId));
+  for (const f of pub.forecasts) {
+    assert.ok(eventsWithReceipts.has(f.providerEventId), `${f.matchup}: every published forecast has a receipt on disk`);
+  }
+  assert.ok(files.length >= pub.forecasts.length, "receipts are append-only — a revision adds a file, it never removes one");
   for (const f of files) {
     const r = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
     assert.ok(r.model.inputHash, "the receipt pins the input hash its seed derived from");

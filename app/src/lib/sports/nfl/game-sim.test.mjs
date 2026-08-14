@@ -77,12 +77,20 @@ test("convergence is measured and sane at n=10k", () => {
   assert.ok(s.convergence.splitHalfGap < 0.03, `split-half gap ${s.convergence.splitHalfGap}`);
 });
 
-test("REAL SLATE · tonight's six preseason games simulate under the variant, privately", () => {
+test("REAL SLATE · the next slate's games all simulate under the variant, privately", () => {
   const sch = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/schedule/latest.json"), "utf8"));
-  const tonight = sch.rows.filter((r) => r.statusRaw === "STATUS_SCHEDULED" && r.dateUtc >= "2026-08-13T22:00Z" && r.dateUtc <= "2026-08-14T02:00Z");
-  assert.ok(tonight.length >= 5, `slate resolved from committed capture (${tonight.length})`);
+  // P178: this used to pin "2026-08-13T22:00Z..2026-08-14T02:00Z" and rotted the moment those games
+  // went final and left the forward-looking capture. The intent was never that particular night —
+  // it was "the real committed slate, not a fixture". So DERIVE the slate: the ET day of the
+  // earliest scheduled kickoff. That is true on every future day without edit.
+  const scheduled = sch.rows.filter((r) => r.statusRaw === "STATUS_SCHEDULED").sort((a, b) => a.dateUtc.localeCompare(b.dateUtc));
+  assert.ok(scheduled.length > 0, "the committed capture holds a forward slate");
+  const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+  const day = etDay(scheduled[0].dateUtc);
+  const tonight = scheduled.filter((r) => etDay(r.dateUtc) === day);
+  assert.ok(tonight.length >= 1, `slate resolved from committed capture (${day}: ${tonight.length})`);
   for (const g of tonight) {
-    const s = simulateNflGame({ fit: FIT, strengthState: STATE, event: g, artifactDate: "2026-08-13", runs: 4000 });
+    const s = simulateNflGame({ fit: FIT, strengthState: STATE, event: g, artifactDate: day, runs: 4000 });
     assert.equal(s.state, "SIMULATED");
     assert.equal(s.variant, "PRESEASON_CONSERVATIVE", g.shortName);
     assert.equal(s.publicActivation, "OFF");
