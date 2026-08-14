@@ -12,6 +12,8 @@
  * is fail-closed on the settlement artifact: no official "final" settlement, no record shown.
  */
 import fs from "node:fs";
+import { ScheduleList } from "@/components/sports/sport-schedule-page";
+import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import path from "node:path";
 import Link from "next/link";
 import UfcEventResultsRecap, { type UfcSettlement } from "@/components/ufc/event-results-recap";
@@ -40,6 +42,11 @@ const fmtDay = (iso?: string) => {
 };
 
 export default function UfcArchivePage() {
+  // UPCOMING SCHEDULE (P186). The archive stays exactly as it is — it is the only surface the settled
+  // record has — and the schedule sits above it so the page answers "what is next" as well as "what
+  // happened". Nothing predictive is added: bouts are listed with a time and nothing else.
+  type Feed = { sport?: string; events?: unknown[]; totals?: { upcoming?: number }; sourceVerdict?: { sourceId?: string | null; fetchedAt?: string | null } };
+  const feed = (allUpcoming({ nowIso: new Date().toISOString() }) as unknown as Feed[]).find((x) => x.sport === "ufc");
   const settlement = loadJSONUfc<UfcSettlement>("results-settled-latest.json");
   // Fail-closed: only an OFFICIAL final settlement may render a record.
   const settled = settlement && settlement.status === "final" ? settlement : null;
@@ -80,6 +87,32 @@ export default function UfcArchivePage() {
           <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
         </nav>
       </header>
+
+      <section className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700, margin: 0 }}>Upcoming schedule</h2>
+          <span className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
+            style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.5)" }}>
+            Schedule only — simulation pending
+          </span>
+        </div>
+        <p className="max-w-2xl font-mono text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+          The next scheduled bouts, listed with their start time and nothing else. No projection,
+          probability, price or pick is published for UFC: the retired V1 moneyline read was a
+          de-vigged market price with a capped nudge, and no bout is cleanly backtestable without
+          point-in-time odds capture — so the honest state is a schedule. Fighter portraits are not
+          shown because our schedule carries fighter names but no athlete id to resolve one, and a
+          guessed image is worse than none.
+        </p>
+        <ScheduleList
+          events={(feed?.events ?? []) as never[]}
+          sides={["red", "blue"]}
+          joiner="vs"
+        />
+        <p className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
+          Source: {feed?.sourceVerdict?.sourceId ?? "ESPN schedule capture"}
+        </p>
+      </section>
 
       {settled ? (
         <section className="flex flex-col gap-3">

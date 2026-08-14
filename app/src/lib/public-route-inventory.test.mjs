@@ -80,6 +80,8 @@ const APPROVED_DESTINATIONS = new Set([
   "/mlb/board",
   "/sports",
   "/nfl", // P169-J: the NFL honesty hub — footer-linked; guarded by the rendered-text rules above
+  "/epl", // P186: Premier League schedule hub — schedule only, guarded by the rendered-text rules above
+  "/ufc", // P186: UFC settled archive + upcoming schedule — schedule only, same rendered-text guard
   "/learn",
   "/methodology",
   "/market-guide",
@@ -93,7 +95,11 @@ const APPROVED_DESTINATIONS = new Set([
 const NEVER_IN_NAV = [
   // "/sports" left this list in Program 158: it is now the canonical nav destination for the
   // four-sport schedules directory (one item, "Sports · Schedules", secondary group).
-  "/nba", "/nhl", "/ipl", "/ufc", "/board", "/projections", "/events",
+  // "/ufc" left it in Program 186 on the same terms: it carries an upcoming schedule marked
+  // "Schedule only — simulation pending" above its settled archive, and the rendered-text guard
+  // above holds it to publishing nothing predictive. "/nba" stays — it is still a redirect to its
+  // settled results archive, with no schedule hub of its own.
+  "/nba", "/nhl", "/ipl", "/board", "/projections", "/events",
   "/trends", "/homer-nukes", "/world-cup", "/world-cup-specials", "/mlb/parlays",
   "/parlays", "/parlay-lab", "/games", "/ops", "/preview",
 ];
@@ -115,6 +121,27 @@ function hrefsIn(source) {
 }
 
 // ── 1 · removed routes are gone from the source tree ─────────────────────────────────────────────
+
+/**
+ * A page's rendered source: the page file PLUS the source of any first-party component it imports.
+ *
+ * A guard that greps only the page file silently passes when the page delegates to a shared
+ * component — which is the direction this codebase deliberately moves in (one schedule component
+ * serving several sports). Following the import keeps the assertion about what a READER sees rather
+ * than about which file a sentence happens to live in.
+ */
+function renderedSource(rel) {
+  const src = read(rel);
+  let all = src;
+  for (const m of src.matchAll(/from "@\/(components|lib)\/([^"]+)"/g)) {
+    for (const ext of [".tsx", ".ts", ""]) {
+      const p = path.join(APP, "src", m[1], m[2] + ext);
+      if (fs.existsSync(p) && fs.statSync(p).isFile()) { all += "\n" + fs.readFileSync(p, "utf8"); break; }
+    }
+  }
+  return all;
+}
+
 test("every removed route has no page body left in the source tree", () => {
   for (const [route, kind] of Object.entries(REMOVED)) {
     const page = path.join(APP, `src/app${route}/page.tsx`);
@@ -134,7 +161,11 @@ test("every removed route has no page body left in the source tree", () => {
 // ── 2 · the capability registry actually justifies each removal ──────────────────────────────────
 test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   const { capabilityState } = await import("./sport-capability-registry.ts");
-  for (const sport of ["nhl", "ipl", "wnba", "mls", "epl"]) {
+  // P186: EPL graduates from redirect-only to a SCHEDULE HUB, the same graduation /sports took in
+  // P148-B and /nfl took in P169-J. The invariant never was "the route must not exist" — it was "a
+  // route must not imply coverage it does not have", and that is asserted against rendered text
+  // below. EPL's capability state is unchanged: still not FULL_MODEL, still no published model.
+  for (const sport of ["nhl", "ipl", "wnba", "mls"]) {
     assert.notEqual(capabilityState(sport), "FULL_MODEL", `${sport} is not FULL_MODEL`);
     const hub = path.join(APP, `src/app/${sport}/page.tsx`);
     if (!fs.existsSync(hub)) continue; // no route at all is the strongest form of "not public"
@@ -145,6 +176,18 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   // claims, no liveness theater — did not lapse; it is enforced against the RENDERED TEXT below.
   // The sport's capability state is unchanged: still not FULL_MODEL, still no public model.
   assert.notEqual(capabilityState("nfl"), "FULL_MODEL", "nfl is not FULL_MODEL — the hub is schedule/honesty context only");
+  // ── Schedule hubs: they exist, and they must say what they are. ──
+  for (const [sport, hub] of [["epl", "src/app/epl/page.tsx"], ["ufc", "src/app/ufc/page.tsx"]]) {
+    assert.notEqual(capabilityState(sport), "FULL_MODEL", `${sport} is not FULL_MODEL`);
+    const src = renderedSource(hub);
+    // The page must state its coverage in words a reader sees, not merely omit a model.
+    assert.match(src, /Schedule only — simulation pending/, `/${sport} must state its coverage state`);
+    // And it must not carry the vocabulary of a live model.
+    for (const banned of ["projected score", "win probability", "our pick", "best bet", "\\bedge\\b", "\\block\\b"]) {
+      assert.doesNotMatch(src, new RegExp(banned, "i"), `/${sport} must not use live-model language ("${banned}")`);
+    }
+  }
+
   const nflHub = read("src/app/nfl/page.tsx");
   assert.doesNotMatch(nflHub, /ClientRedirect/, "/nfl is a real page now (P169-J)");
   // P173: the founder authorised a two-tier launch, so the old blanket "no predictions" line is

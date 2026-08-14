@@ -50,6 +50,8 @@ const ITEMS: RailItem[] = [
   // Results, and UFC is a scaffold that publishes no predictions, so those stay behind Schedules.
   { href: "/mlb", label: "MLB", glyph: "⚾", group: "Sports", desc: "Baseball hub" },
   { href: "/nfl", label: "NFL", glyph: "🏈", desc: "Football hub · preseason simulations" },
+  { href: "/epl", label: "Premier League", glyph: "⚽", desc: "Schedule · simulation pending" },
+  { href: "/ufc", label: "UFC", glyph: "🥊", desc: "Schedule + settled archive" },
   // ONE schedules destination (Program 158 IA) — sits under Sports beside the live hub; the desc
   // says schedules so the rail never implies a second model hub.
   { href: "/sports", label: "Sports · Schedules", glyph: "🗓", desc: "EPL · NFL · NBA · UFC schedules" },

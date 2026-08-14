@@ -19,7 +19,7 @@
 import { useState } from "react";
 import TeamBadge from "./team-badge";
 
-type SportKey = "nba" | "mlb" | "nhl" | "nfl";
+type SportKey = "nba" | "mlb" | "nhl" | "nfl" | "soccer";
 
 interface Props {
   team: string | null | undefined;
@@ -60,8 +60,56 @@ const ESPN_SLUG_ALIASES: Record<string, Record<string, string>> = {
  * "arizonadiamondbacks", which 404s and degrades to the monogram — visually fine, so it ships broken
  * easily. `logo-slug.test.mjs` guards against that.
  */
+/**
+ * Premier League clubs are identified by NAME in our schedule, but ESPN's soccer logos are keyed by
+ * NUMERIC team id — so unlike NFL/NBA/MLB there is no abbreviation that resolves on its own.
+ *
+ * This table was generated from ESPN's own team endpoint rather than typed from memory, and every
+ * one of the 20 URLs was verified to return 200 before it landed. Keys are normalised names, with
+ * aliases for the short forms our feed uses ("Bournemouth" for "AFC Bournemouth").
+ */
+const EPL_TEAM_IDS: Record<string, string> = {
+  afcbournemouth: "349",
+  arsenal: "359",
+  astonvilla: "362",
+  bournemouth: "349",
+  brentford: "337",
+  brighton: "331",
+  brightonhovealbion: "331",
+  chelsea: "363",
+  coventry: "388",
+  coventrycity: "388",
+  cpalace: "384",
+  crystalpalace: "384",
+  everton: "368",
+  fulham: "370",
+  hull: "306",
+  hullcity: "306",
+  ipswich: "373",
+  ipswichtown: "373",
+  leeds: "357",
+  leedsunited: "357",
+  liverpool: "364",
+  manchestercity: "382",
+  manchesterunited: "360",
+  mancity: "382",
+  manunited: "360",
+  newcastle: "361",
+  newcastleunited: "361",
+  nottinghamforest: "393",
+  nottmforest: "393",
+  spurs: "367",
+  sunderland: "366",
+  tottenhamhotspur: "367",
+};
+
 function logoUrl(team: string, sport: SportKey): string {
   const raw = team.toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (sport === "soccer") {
+    const id = EPL_TEAM_IDS[raw];
+    // No id means no logo — the crest falls back to initials rather than requesting a 404.
+    return id ? `https://a.espncdn.com/i/teamlogos/soccer/500/${id}.png` : "";
+  }
   const abbr = ESPN_SLUG_ALIASES[sport]?.[raw] ?? raw;
   return `https://a.espncdn.com/i/teamlogos/${sport}/500/${abbr}.png`;
 }
@@ -87,6 +135,7 @@ export default function TeamLogo({
   }
 
   const src = logoUrl(team, sport);
+  if (!src) return <TeamBadge team={team} size={size === "xl" ? "lg" : size} highlight={highlight} />;
   return (
     <span
       className="relative inline-flex items-center justify-center"

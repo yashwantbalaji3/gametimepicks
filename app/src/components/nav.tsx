@@ -49,6 +49,8 @@ const NAV_ITEMS: Array<{
   { href: "/moonshot", label: "Moonshot" },
   { href: "/mlb", label: "MLB" },
   { href: "/nfl", label: "NFL" },
+  { href: "/epl", label: "Premier League" },
+  { href: "/ufc", label: "UFC" },
   // ONE Sports destination, not four league links (Program 158 IA decision): /sports carries real
   // verified schedules for EPL/NFL/NBA/UFC with coverage stated in words. The label says
   // "Schedules" so the item can never read as a second model hub beside MLB.
@@ -67,6 +69,8 @@ const NAV_ITEMS: Array<{
 // MLB board, so they highlight the destination they land on rather than flashing no active item.
 const SPORT_RE = /^\/(mlb|board|projections)(\/|$)/;
 const NFL_RE = /^\/nfl(\/|$)/;
+const EPL_RE = /^\/epl(\/|$)/;
+const UFC_RE = /^\/ufc(\/|$)/;
 const SPORT_HREFS = new Set(["/mlb"]);
 
 // The mobile bottom nav already carries the core product routes. To keep the mobile TOP strip
@@ -97,6 +101,8 @@ export default function Nav() {
     // MLB lights up on the hub, its boards, and the retired aliases that redirect into them.
     if (href === "/mlb") return SPORT_RE.test(pathname);
     if (href === "/nfl") return NFL_RE.test(pathname);
+    if (href === "/epl") return EPL_RE.test(pathname);
+    if (href === "/ufc") return UFC_RE.test(pathname);
     // Results, but not the model-audit surface (that lives under Learn).
     if (href === "/results") return pathname === "/results" || (pathname.startsWith("/results/") && !pathname.startsWith("/results/model-audit"));
     // Learn = the education hub + methodology + responsible-use + model audit.

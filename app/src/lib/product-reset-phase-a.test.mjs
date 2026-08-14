@@ -12,6 +12,27 @@ import path from "node:path";
 const APP = process.cwd(); // app/
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 
+
+/**
+ * A page's rendered source: the page file PLUS the source of any first-party component it imports.
+ *
+ * A guard that greps only the page file silently passes when the page delegates to a shared
+ * component — which is the direction this codebase deliberately moves in (one schedule component
+ * serving several sports). Following the import keeps the assertion about what a READER sees rather
+ * than about which file a sentence happens to live in.
+ */
+function renderedSource(rel) {
+  const src = read(rel);
+  let all = src;
+  for (const m of src.matchAll(/from "@\/(components|lib)\/([^"]+)"/g)) {
+    for (const ext of [".tsx", ".ts", ""]) {
+      const p = path.join(APP, "src", m[1], m[2] + ext);
+      if (fs.existsSync(p) && fs.statSync(p).isFile()) { all += "\n" + fs.readFileSync(p, "utf8"); break; }
+    }
+  }
+  return all;
+}
+
 test("primary nav is the pruned Adoption-Sprint spine: Today · Simulate · Results · How It Works (in order, before the divider); the paper-bankroll products are SECONDARY so the simulation product leads", () => {
   const nav = read("src/components/nav.tsx");
   const dividerAt = nav.indexOf("beforeDivider: true");
@@ -43,10 +64,19 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
   // nothing", written when MLB was the only modelled sport. NFL now publishes full-game simulations
   // and a player board, so it earns its place beside MLB; EPL and UFC still publish nothing and stay
   // behind /sports. The invariant is now stated in those terms so it keeps holding as sports ship.
+  // P186: the invariant is not "which sports may be linked" — it is that a nav link must never IMPLY
+  // a model the sport does not have. So every league in the nav must resolve to a page that states
+  // its coverage in rendered words: a simulated sport says so, and a schedule-only sport carries the
+  // pending line. Checked against the page source, so adding a league without the line fails here.
   const SIMULATED = new Set(["/mlb", "/nfl"]);
-  const leagueLinks = [...nav.matchAll(/href: "(\/(?:mlb|nfl|epl|nba|ufc)[a-z-]*)"/g)].map((m) => m[1]);
+  const PAGE_FOR = { "/mlb": "src/app/mlb/page.tsx", "/nfl": "src/app/nfl/page.tsx", "/epl": "src/app/epl/page.tsx", "/ufc": "src/app/ufc/page.tsx", "/nba": "src/app/nba/page.tsx" };
+  const leagueLinks = [...nav.matchAll(/href: "(\/(?:mlb|nfl|epl|nba|ufc))"/g)].map((m) => m[1]);
+  assert.ok(leagueLinks.length > 0, "the nav links at least one league");
   for (const href of leagueLinks) {
-    assert.ok(SIMULATED.has(href), `${href} is linked in nav but publishes no simulation — it belongs behind /sports`);
+    const src = renderedSource(PAGE_FOR[href]);
+    if (SIMULATED.has(href)) continue;
+    assert.match(src, /Schedule only — simulation pending/,
+      `${href} is linked in nav but never states its coverage — a nav link must not imply a model`);
   }
   const page = read("src/app/sports/page.tsx");
   const shared = read("src/components/sports/upcoming-sports.tsx");

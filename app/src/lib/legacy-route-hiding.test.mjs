@@ -39,11 +39,18 @@ test("the primary nav stays a clean simulate-first spine (no non-live sport prom
   // No non-live sport route appears in the nav at all; MLB is the only sport, and it sits AFTER the divider.
   // "/sports" left this list in Program 158: it is the canonical schedules destination now
   // (one "Sports · Schedules" item, secondary group) — the per-league and retired-sport bans stand.
-  for (const href of ["/nba", "/nhl", "/ipl", "/ufc"]) {
+  // P186: the founder asked for sports beside MLB in the top bar. The invariant this test protects
+  // is "the PRIMARY spine stays simulate-first" — not "no sport may be linked". So sports are
+  // allowed, and every one of them is asserted to sit AFTER the divider, in the secondary group,
+  // exactly where MLB already was. A sport promoted above the divider still fails.
+  for (const href of ["/nhl", "/ipl"]) {
     assert.equal(nav.indexOf(`href: "${href}"`), -1, `${href} is not a nav destination`);
   }
-  const mlb = nav.indexOf('href: "/mlb"');
-  assert.ok(mlb > dividerIdx, "MLB is secondary, not the primary spine");
+  for (const href of ["/mlb", "/nfl", "/epl", "/ufc"]) {
+    const at = nav.indexOf(`href: "${href}"`);
+    if (at === -1) continue;
+    assert.ok(at > dividerIdx, `${href} is secondary, not the primary spine`);
+  }
   assert.ok(nav.indexOf('href: "/simulate"') > 0 && nav.indexOf('href: "/simulate"') < dividerIdx, "/simulate is primary");
 });
 
