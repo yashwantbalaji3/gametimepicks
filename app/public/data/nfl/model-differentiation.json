@@ -2,29 +2,22 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation-public",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-08-14T05:13:41Z",
+  "generatedAt": "2026-08-14T15:23:33Z",
   "slateDate": "2026-08-14",
-  "headline": "This model does not currently tell these teams apart \u2014 and we would rather say so than pretend otherwise.",
+  "headline": "This model does not currently tell these teams apart — and we would rather say so than pretend otherwise.",
   "heads": [
     {
       "head": "Who wins, and by how much",
       "state": "LIMITED_INPUTS",
-      "plainEnglish": "We tested whether this model can tell which of two preseason teams is better, and it cannot \u2014 the measurement is indistinguishable from no effect at all. So we switched that part off rather than publish a favourite we cannot justify. The small differences you see between games are the simulation's own randomness, not a view on the teams."
+      "plainEnglish": "We tested whether this model can tell which of two preseason teams is better, and it cannot — the measurement is indistinguishable from no effect at all. So we switched that part off rather than publish a favourite we cannot justify. The small differences you see between games are the simulation's own randomness, not a view on the teams."
     },
     {
       "head": "How many points are scored",
       "state": "LIMITED_INPUTS",
-      "plainEnglish": "This part does NOT look at the two teams. Every game draws its point total from the same preseason average, so if two games show a similar total that is not a claim about those teams \u2014 it is the same starting number in both."
+      "plainEnglish": "This part does NOT look at the two teams. Every game draws its point total from the same preseason average, so if two games show a similar total that is not a claim about those teams — it is the same starting number in both."
     }
   ],
-  "whyGamesLookAlike": "Preseason games on this slate look similar to each other because, right now, this model genuinely cannot tell them apart. Scoring comes from one league-wide preseason average, and the team-strength input was measured and found to carry no usable signal, so it is switched off. Similar-looking numbers are the honest output of a model that knows very little \u2014 not a coincidence, and not a bug.",
+  "whyGamesLookAlike": "Preseason games on this slate look similar to each other because, right now, this model genuinely cannot tell them apart. Scoring comes from one league-wide preseason average, and the team-strength input was measured and found to carry no usable signal, so it is switched off. Similar-looking numbers are the honest output of a model that knows very little — not a coincidence, and not a bug.",
   "whatWeFoundAndFixed": "An earlier version of this page applied the team-strength input anyway. Because the measured effect pointed slightly the wrong way, it was quietly favouring the WEAKER side in every game. We caught it, tested the input properly, and switched it off.",
-  "whatWouldChangeIt": "A per-team scoring adapter built from the preseason corpus, which would have to beat a preregistered bar on a season it had never seen before it is allowed to move a published total.",
-  "weTriedToFixIt": {
-    "what": "We built and tested a stronger team model \u2014 one that gives each team its own scoring and points-allowed profile, so a mismatch could produce a blowout.",
-    "bars": "The bars it had to clear were written down and committed BEFORE the model was built, so they could not be moved afterwards.",
-    "result": "It did not clear them. Margin accuracy improved by only 0.11 of a point where half a point was required, and it made our point totals noticeably worse.",
-    "decision": "So we kept the simpler model and left these games labelled BASELINE ONLY. Tonight's kickoff is a deadline for locking forecasts, not a reason to lower a standard.",
-    "alsoLearned": "The older team-strength model we switched off in an earlier check scored WORSE than using no team information at all \u2014 three separate tests now agree on that."
-  }
+  "whatWouldChangeIt": "A per-team scoring adapter built from the preseason corpus, which would have to beat a preregistered bar on a season it had never seen before it is allowed to move a published total."
 }
