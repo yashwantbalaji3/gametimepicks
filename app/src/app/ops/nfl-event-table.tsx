@@ -56,6 +56,15 @@ const TONE: Record<string, string> = {
   SETTLED: "var(--vault-text-mute)",
 };
 
+/** Newest committed pregame audit. Derived, never pinned — a date literal here rots in a day. */
+function newestAuditPath(): string {
+  const dir = path.join(process.cwd(), "..", "data/internal/nfl/pregame-audit");
+  try {
+    const files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
+    return files.length ? path.join(dir, files[files.length - 1]) : "";
+  } catch { return ""; }
+}
+
 const th = { textAlign: "left" as const, padding: "6px 8px", fontSize: 9, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "var(--vault-text-faint)" };
 const td = { padding: "6px 8px", borderTop: "1px solid var(--vault-rule)", fontSize: 11.5, whiteSpace: "nowrap" as const };
 
@@ -63,6 +72,13 @@ export function NflEventTable() {
   const index = read<NflIndex>("public/data/nfl/index.json");
   const lane = read<LaneStatus>("public/data/admin/nfl-lane.json");
   const eligibility = read<Eligibility>("public/data/nfl/product-eligibility.json");
+  // P180-A: the operator side of the pregame audit — residuals and the tickets they generated.
+  // The public page shows the record; this shows what the residuals are supposed to change.
+  const audit = read<{
+    etDate: string; cohort: Record<string, number | boolean | null>;
+    tickets: Array<{ id: string; hypothesis: string; evidence: string; acceptanceTest: string; owner: string; candidateRelease: string }>;
+    accounting: { reconciles: boolean; officialFinals: number; scoredWithFrozenForecast: number; missingPreEventArtifact: number };
+  }>(newestAuditPath());
 
   if (!index) {
     return (
@@ -157,6 +173,23 @@ export function NflEventTable() {
       ) : (
         <p className="font-mono text-[10px]" style={{ color: "var(--gtp-bank-heat)" }}>product-eligibility.json absent — the daily paper-product evaluation did not run</p>
       )}
+
+      {audit ? (
+        <div className="flex flex-col gap-1.5" style={{ borderTop: "1px solid var(--vault-rule)", paddingTop: 8 }}>
+          <div className="font-mono text-[10px]" style={{ color: "var(--vault-text-mute)" }}>
+            pregame audit {audit.etDate} · n={String(audit.cohort.n)} · reconciles {String(audit.accounting.reconciles)} · missing {audit.accounting.missingPreEventArtifact}
+            {" · "}teamScoreMAE {String(audit.cohort.teamScoreMAE)} · marginMAE {String(audit.cohort.marginMAE)} · totalMAE {String(audit.cohort.totalMAE)}
+            {" · "}cov80 margin {String(audit.cohort.marginInterval80Coverage)} / total {String(audit.cohort.totalInterval80Coverage)}
+            {" · "}Brier {String(audit.cohort.modelBrier)} vs market {String(audit.cohort.marketBrier)}
+          </div>
+          {audit.tickets.map((t) => (
+            <div key={t.id} className="text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>
+              <span className="font-mono" style={{ color: "var(--gtp-bank-heat)" }}>{t.id}</span>{" — "}{t.hypothesis}
+              <span style={{ color: "var(--vault-text-faint)" }}>{" · accept: "}{t.acceptanceTest}{" · "}{t.candidateRelease}</span>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       <p className="font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>
         Read-only. Every value is read from a committed artifact; this console derives nothing of its own.

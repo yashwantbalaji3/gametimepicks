@@ -100,6 +100,14 @@ export default function NflHubPage() {
   const results = read("nfl/results/latest.json");
   const markets = read("nfl/markets/latest.json");
   const index = read("nfl/index.json");
+  // P180-A: how the last slate's frozen forecasts actually did. Published because a model that only
+  // shows its predictions and never its grades is asking to be taken on trust.
+  const pregameAudit = read("nfl/pregame-audit-latest.json") as
+    | { etDate: string; headline: string; whatThisIs: string; n: number; decisiveGames: number; ties: number;
+        winnersCorrect: number; teamScoreAverageError: number; marginAverageError: number; totalAverageError: number;
+        rangeHitRate: { margin: number; total: number; target: number }; versusSportsbooks: string; honestLimit: string;
+        games: Array<{ matchup: string; predicted: string; actual: string; marginError: number; totalError: number; inRange: boolean; tie: boolean }> }
+    | null;
   // P178-C: what this model can and cannot tell apart, from the differentiation audit. Published
   // because the alternative — a reader inferring a game-specific view from similar-looking numbers
   // — is exactly the misreading the audit was written to prevent.
@@ -467,6 +475,52 @@ export default function NflHubPage() {
           </table>
         </div>
       </section>
+
+      {pregameAudit ? (
+        <section aria-labelledby="nfl-audit" id="nfl-audit">
+          <SectionHeader
+            eyebrow={`Graded · ${pregameAudit.etDate}`}
+            title={pregameAudit.headline}
+            sub={`${pregameAudit.whatThisIs} ${pregameAudit.honestLimit}`}
+          />
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
+              <thead>
+                <tr>
+                  {["Game", "We said", "Result", "Margin off by", "Total off by", "Inside our range"].map((h) => (
+                    <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {pregameAudit.games.map((g) => (
+                  <tr key={g.matchup}>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>
+                      {g.matchup}{g.tie ? <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}> · tie</span> : null}
+                    </td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{g.predicted}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{g.actual}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{g.marginError}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{g.totalError}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: g.inRange ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-text-mute)" }}>{g.inRange ? "yes" : "no"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <dl style={{ margin: "12px 0 0", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "8px 16px", fontSize: 12.5 }}>
+            <div><dt style={{ color: "var(--vault-text-faint)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.08em" }}>Winners called</dt>
+              <dd style={{ margin: "2px 0 0", fontFamily: "var(--font-mono, monospace)" }}>{pregameAudit.winnersCorrect} of {pregameAudit.decisiveGames}{pregameAudit.ties > 0 ? ` (${pregameAudit.ties} tie excluded)` : ""}</dd></div>
+            <div><dt style={{ color: "var(--vault-text-faint)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.08em" }}>Score off by, on average</dt>
+              <dd style={{ margin: "2px 0 0", fontFamily: "var(--font-mono, monospace)" }}>{pregameAudit.teamScoreAverageError} points</dd></div>
+            <div><dt style={{ color: "var(--vault-text-faint)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.08em" }}>Result inside our range</dt>
+              <dd style={{ margin: "2px 0 0", fontFamily: "var(--font-mono, monospace)" }}>margin {Math.round(pregameAudit.rangeHitRate.margin * 100)}% · total {Math.round(pregameAudit.rangeHitRate.total * 100)}% <span style={{ color: "var(--vault-text-faint)" }}>(aiming for {Math.round(pregameAudit.rangeHitRate.target * 100)}%)</span></dd></div>
+          </dl>
+          <p style={{ margin: "10px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 720 }}>
+            {pregameAudit.versusSportsbooks}
+          </p>
+        </section>
+      ) : null}
 
       {differentiation ? (
         <section aria-labelledby="nfl-differentiation" id="nfl-differentiation">

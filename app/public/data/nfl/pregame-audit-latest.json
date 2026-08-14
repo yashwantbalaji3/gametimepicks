@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-pregame-audit-public",
+  "dataClass": "PUBLIC_DERIVED",
+  "generatedAt": "2026-08-14T06:42:31Z",
+  "etDate": "2026-08-13",
+  "headline": "We scored all 6 of our 2026-08-13 NFL forecasts against the official finals.",
+  "whatThisIs": "Every forecast on this slate was a baseline: the model had no measured read separating the two teams, so these numbers grade a league-average preseason prior, not a game-specific prediction.",
+  "n": 6,
+  "decisiveGames": 5,
+  "ties": 1,
+  "winnersCorrect": 3,
+  "teamScoreAverageError": 6.25,
+  "marginAverageError": 9.8333,
+  "totalAverageError": 5.1667,
+  "rangeHitRate": {
+    "margin": 0.6667,
+    "total": 1,
+    "target": 0.8
+  },
+  "versusSportsbooks": "Our winner probabilities scored WORSE than the sportsbook consensus (0.2391 vs 0.2237, lower is better) across 5 decisive games.",
+  "honestLimit": "6 games. A record this small says almost nothing about a model; it is published because grading every forecast is the only way the numbers stay honest, not because it is evidence of skill.",
+  "games": [
+    {
+      "matchup": "DET @ CIN",
+      "predicted": "19-19",
+      "actual": "14-16",
+      "marginError": 2,
+      "totalError": 7,
+      "inRange": true,
+      "tie": false,
+      "readiness": "BASELINE_ONLY"
+    },
+    {
+      "matchup": "GB @ PIT",
+      "predicted": "19-18",
+      "actual": "9-28",
+      "marginError": 20,
+      "totalError": 0,
+      "inRange": false,
+      "tie": false,
+      "readiness": "BASELINE_ONLY"
+    },
+    {
+      "matchup": "IND @ NE",
+      "predicted": "19-18",
+      "actual": "13-13",
+      "marginError": 1,
+      "totalError": 12,
+      "inRange": true,
+      "tie": true,
+      "readiness": "BASELINE_ONLY"
+    },
+    {
+      "matchup": "ARI @ LV",
+      "predicted": "19-18",
+      "actual": "27-14",
+      "marginError": 13,
+      "totalError": 4,
+      "inRange": true,
+      "tie": false,
+      "readiness": "BASELINE_ONLY"
+    },
+    {
+      "matchup": "LAC @ HOU",
+      "predicted": "19-18",
+      "actual": "27-7",
+      "marginError": 19,
+      "totalError": 3,
+      "inRange": false,
+      "tie": false,
+      "readiness": "BASELINE_ONLY"
+    },
+    {
+      "matchup": "TEN @ SF",
+      "predicted": "19-18",
+      "actual": "19-13",
+      "marginError": 4,
+      "totalError": 5,
+      "inRange": true,
+      "tie": false,
+      "readiness": "BASELINE_ONLY"
+    }
+  ]
+}

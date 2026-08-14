@@ -1,0 +1,631 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-pregame-vs-final-audit",
+  "dataClass": "PRIVATE_RESEARCH",
+  "generatedAt": "2026-08-14T06:42:31Z",
+  "etDate": "2026-08-13",
+  "immutability": "This audit READS frozen receipts and never writes to forecast-receipts/. The forecast of record is the latest revision generated strictly before kickoff, chosen by timestamp — never by which one scored best.",
+  "didNotRefit": "No model was fitted, tuned or promoted from these outcomes. Six games cannot close a hypothesis; they expose defects and calibrate monitoring.",
+  "accounting": {
+    "officialFinals": 6,
+    "scoredWithFrozenForecast": 6,
+    "missingPreEventArtifact": 0,
+    "reconciles": true,
+    "everyRowConsumedOnce": true,
+    "unjoinedReceipts": []
+  },
+  "cohort": {
+    "n": 6,
+    "decisiveN": 5,
+    "ties": 1,
+    "winnersCorrect": 3,
+    "teamScoreMAE": 6.25,
+    "marginMAE": 9.8333,
+    "totalMAE": 5.1667,
+    "marginInterval80Coverage": 0.6667,
+    "totalInterval80Coverage": 1,
+    "modelBrier": 0.2391,
+    "marketBrier": 0.2237,
+    "modelLogLoss": 0.6712,
+    "baselineOnlyRows": 6,
+    "modelBeatsMarketBrier": false
+  },
+  "rows": [
+    {
+      "providerEventId": "401873272",
+      "canonicalEventId": "nfl-401873272",
+      "matchup": "DET @ CIN",
+      "kickoffUtc": "2026-08-13T23:00Z",
+      "frozen": {
+        "file": "2026-08-13/401873272-rev-2143Z.json",
+        "generatedAt": "2026-08-13T21:43:17Z",
+        "revisionsBeforeKickoff": 5,
+        "model": {
+          "id": "nfl-preseason-public-beta-v1",
+          "version": 1,
+          "launchState": "PUBLIC_EXPERIMENTAL",
+          "inputHash": "1795c2d7e48a8f09",
+          "simulations": 10000
+        },
+        "readiness": "BASELINE_ONLY",
+        "fallbackReason": "the frozen artifact predates the signal-state field; it was produced by the same shared-prior engine",
+        "evidence": {
+          "schedule": "2026-08-13T14:14:22Z",
+          "strengthCutoff": "2026-08-13T21:43:17Z"
+        }
+      },
+      "predicted": {
+        "projectedScore": {
+          "home": 19,
+          "away": 19
+        },
+        "scoreRange": {
+          "homeP10": 8,
+          "homeP90": 30,
+          "awayP10": 8,
+          "awayP90": 30
+        },
+        "margin": {
+          "median": 0,
+          "p10": -17,
+          "p90": 16
+        },
+        "total": {
+          "median": 37,
+          "p10": 23,
+          "p90": 52
+        },
+        "winProbability": {
+          "home": 0.4806,
+          "away": 0.5194,
+          "tieMass": 0.032,
+          "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+        }
+      },
+      "actual": {
+        "status": "STATUS_FINAL",
+        "home": 16,
+        "away": 14,
+        "margin": 2,
+        "total": 30,
+        "tie": false,
+        "winner": "CIN"
+      },
+      "scores": {
+        "homeAbsError": 3,
+        "awayAbsError": 5,
+        "marginAbsError": 2,
+        "totalAbsError": 7,
+        "marginInInterval80": true,
+        "totalInInterval80": true,
+        "homeScoreInRange": true,
+        "awayScoreInRange": true,
+        "winnerCorrect": false,
+        "brier": 0.26977636,
+        "logLoss": 0.7327199556797684,
+        "residualSign": "HOME_OUTPERFORMED"
+      },
+      "market": {
+        "state": "FROZEN_PRE_KICKOFF",
+        "capturedAt": "2026-08-13T21:43:17Z",
+        "books": 11,
+        "homeWinNoVig": 0.713551,
+        "spreadHome": -7,
+        "total": 37.5,
+        "brier": 0.08205302960099997
+      },
+      "products": {
+        "selected": false,
+        "reason": "no NFL output was eligible for any paper product: an experimental forecast may never become a product leg (output-state.permitsProductLeg requires VALIDATED_PICK)",
+        "exposure": 0
+      },
+      "attribution": [
+        "SHARED_PRIOR: no event-specific team signal was applied, so this row is a baseline diagnostic rather than a game-specific claim",
+        "EXPECTED_NOISE: the result sits inside what this distribution anticipated"
+      ]
+    },
+    {
+      "providerEventId": "401873275",
+      "canonicalEventId": "nfl-401873275",
+      "matchup": "GB @ PIT",
+      "kickoffUtc": "2026-08-13T23:00Z",
+      "frozen": {
+        "file": "2026-08-13/401873275-rev-2143Z.json",
+        "generatedAt": "2026-08-13T21:43:17Z",
+        "revisionsBeforeKickoff": 5,
+        "model": {
+          "id": "nfl-preseason-public-beta-v1",
+          "version": 1,
+          "launchState": "PUBLIC_EXPERIMENTAL",
+          "inputHash": "33eeed8d260ddcfc",
+          "simulations": 10000
+        },
+        "readiness": "BASELINE_ONLY",
+        "fallbackReason": "the frozen artifact predates the signal-state field; it was produced by the same shared-prior engine",
+        "evidence": {
+          "schedule": "2026-08-13T14:14:22Z",
+          "strengthCutoff": "2026-08-13T21:43:17Z"
+        }
+      },
+      "predicted": {
+        "projectedScore": {
+          "home": 18,
+          "away": 19
+        },
+        "scoreRange": {
+          "homeP10": 7,
+          "homeP90": 29,
+          "awayP10": 8,
+          "awayP90": 30
+        },
+        "margin": {
+          "median": -1,
+          "p10": -17,
+          "p90": 15
+        },
+        "total": {
+          "median": 37,
+          "p10": 23,
+          "p90": 52
+        },
+        "winProbability": {
+          "home": 0.4565,
+          "away": 0.5435,
+          "tieMass": 0.0291,
+          "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+        }
+      },
+      "actual": {
+        "status": "STATUS_FINAL",
+        "home": 28,
+        "away": 9,
+        "margin": 19,
+        "total": 37,
+        "tie": false,
+        "winner": "PIT"
+      },
+      "scores": {
+        "homeAbsError": 10,
+        "awayAbsError": 10,
+        "marginAbsError": 20,
+        "totalAbsError": 0,
+        "marginInInterval80": false,
+        "totalInInterval80": true,
+        "homeScoreInRange": true,
+        "awayScoreInRange": true,
+        "winnerCorrect": false,
+        "brier": 0.29539224999999997,
+        "logLoss": 0.7841665789471138,
+        "residualSign": "HOME_OUTPERFORMED"
+      },
+      "market": {
+        "state": "FROZEN_PRE_KICKOFF",
+        "capturedAt": "2026-08-13T21:43:17Z",
+        "books": 11,
+        "homeWinNoVig": 0.42123,
+        "spreadHome": 3,
+        "total": 40.5,
+        "brier": 0.3349747129
+      },
+      "products": {
+        "selected": false,
+        "reason": "no NFL output was eligible for any paper product: an experimental forecast may never become a product leg (output-state.permitsProductLeg requires VALIDATED_PICK)",
+        "exposure": 0
+      },
+      "attribution": [
+        "SHARED_PRIOR: no event-specific team signal was applied, so this row is a baseline diagnostic rather than a game-specific claim",
+        "MARGIN_DISPERSION: the realised margin was far outside the centre of a distribution built on league-average dispersion",
+        "INTERVAL_MISS_MARGIN: the 80% margin interval did not contain the result"
+      ]
+    },
+    {
+      "providerEventId": "401873273",
+      "canonicalEventId": "nfl-401873273",
+      "matchup": "IND @ NE",
+      "kickoffUtc": "2026-08-13T23:30Z",
+      "frozen": {
+        "file": "2026-08-13/401873273-rev-2143Z.json",
+        "generatedAt": "2026-08-13T21:43:17Z",
+        "revisionsBeforeKickoff": 5,
+        "model": {
+          "id": "nfl-preseason-public-beta-v1",
+          "version": 1,
+          "launchState": "PUBLIC_EXPERIMENTAL",
+          "inputHash": "d86c454bea19eb92",
+          "simulations": 10000
+        },
+        "readiness": "BASELINE_ONLY",
+        "fallbackReason": "the frozen artifact predates the signal-state field; it was produced by the same shared-prior engine",
+        "evidence": {
+          "schedule": "2026-08-13T14:14:22Z",
+          "strengthCutoff": "2026-08-13T21:43:17Z"
+        }
+      },
+      "predicted": {
+        "projectedScore": {
+          "home": 18,
+          "away": 19
+        },
+        "scoreRange": {
+          "homeP10": 7,
+          "homeP90": 29,
+          "awayP10": 8,
+          "awayP90": 30
+        },
+        "margin": {
+          "median": -1,
+          "p10": -17,
+          "p90": 15
+        },
+        "total": {
+          "median": 38,
+          "p10": 23,
+          "p90": 52
+        },
+        "winProbability": {
+          "home": 0.4577,
+          "away": 0.5423,
+          "tieMass": 0.0309,
+          "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+        }
+      },
+      "actual": {
+        "status": "STATUS_FINAL",
+        "home": 13,
+        "away": 13,
+        "margin": 0,
+        "total": 26,
+        "tie": true,
+        "winner": null
+      },
+      "scores": {
+        "homeAbsError": 5,
+        "awayAbsError": 6,
+        "marginAbsError": 1,
+        "totalAbsError": 12,
+        "marginInInterval80": true,
+        "totalInInterval80": true,
+        "homeScoreInRange": true,
+        "awayScoreInRange": true,
+        "winnerCorrect": null,
+        "brier": null,
+        "logLoss": null,
+        "residualSign": "HOME_OUTPERFORMED"
+      },
+      "market": {
+        "state": "FROZEN_PRE_KICKOFF",
+        "capturedAt": "2026-08-13T21:43:17Z",
+        "books": 11,
+        "homeWinNoVig": 0.403286,
+        "spreadHome": 3,
+        "total": 37.5,
+        "brier": null
+      },
+      "products": {
+        "selected": false,
+        "reason": "no NFL output was eligible for any paper product: an experimental forecast may never become a product leg (output-state.permitsProductLeg requires VALIDATED_PICK)",
+        "exposure": 0
+      },
+      "attribution": [
+        "SHARED_PRIOR: no event-specific team signal was applied, so this row is a baseline diagnostic rather than a game-specific claim",
+        "TOTAL_DISPERSION: the realised total was far from the shared scoring prior",
+        "TIE: a preseason tie — the model published tie mass and the outcome landed on it"
+      ]
+    },
+    {
+      "providerEventId": "401873640",
+      "canonicalEventId": "nfl-401873640",
+      "matchup": "ARI @ LV",
+      "kickoffUtc": "2026-08-14T00:00Z",
+      "frozen": {
+        "file": "2026-08-13/401873640-rev-2143Z.json",
+        "generatedAt": "2026-08-13T21:43:17Z",
+        "revisionsBeforeKickoff": 5,
+        "model": {
+          "id": "nfl-preseason-public-beta-v1",
+          "version": 1,
+          "launchState": "PUBLIC_EXPERIMENTAL",
+          "inputHash": "8244234c28f30955",
+          "simulations": 10000
+        },
+        "readiness": "BASELINE_ONLY",
+        "fallbackReason": "the frozen artifact predates the signal-state field; it was produced by the same shared-prior engine",
+        "evidence": {
+          "schedule": "2026-08-13T14:14:22Z",
+          "strengthCutoff": "2026-08-13T21:43:17Z"
+        }
+      },
+      "predicted": {
+        "projectedScore": {
+          "home": 18,
+          "away": 19
+        },
+        "scoreRange": {
+          "homeP10": 8,
+          "homeP90": 29,
+          "awayP10": 8,
+          "awayP90": 30
+        },
+        "margin": {
+          "median": 0,
+          "p10": -17,
+          "p90": 16
+        },
+        "total": {
+          "median": 37,
+          "p10": 23,
+          "p90": 51
+        },
+        "winProbability": {
+          "home": 0.4751,
+          "away": 0.5249,
+          "tieMass": 0.0303,
+          "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+        }
+      },
+      "actual": {
+        "status": "STATUS_FINAL",
+        "home": 14,
+        "away": 27,
+        "margin": -13,
+        "total": 41,
+        "tie": false,
+        "winner": "ARI"
+      },
+      "scores": {
+        "homeAbsError": 4,
+        "awayAbsError": 8,
+        "marginAbsError": 13,
+        "totalAbsError": 4,
+        "marginInInterval80": true,
+        "totalInInterval80": true,
+        "homeScoreInRange": true,
+        "awayScoreInRange": true,
+        "winnerCorrect": true,
+        "brier": 0.22572001000000003,
+        "logLoss": 0.6445475107238832,
+        "residualSign": "AWAY_OUTPERFORMED"
+      },
+      "market": {
+        "state": "FROZEN_PRE_KICKOFF",
+        "capturedAt": "2026-08-13T21:43:17Z",
+        "books": 11,
+        "homeWinNoVig": 0.600769,
+        "spreadHome": -3,
+        "total": 41.5,
+        "brier": 0.360923391361
+      },
+      "products": {
+        "selected": false,
+        "reason": "no NFL output was eligible for any paper product: an experimental forecast may never become a product leg (output-state.permitsProductLeg requires VALIDATED_PICK)",
+        "exposure": 0
+      },
+      "attribution": [
+        "SHARED_PRIOR: no event-specific team signal was applied, so this row is a baseline diagnostic rather than a game-specific claim",
+        "EXPECTED_NOISE: the result sits inside what this distribution anticipated"
+      ]
+    },
+    {
+      "providerEventId": "401873274",
+      "canonicalEventId": "nfl-401873274",
+      "matchup": "LAC @ HOU",
+      "kickoffUtc": "2026-08-14T00:00Z",
+      "frozen": {
+        "file": "2026-08-13/401873274-rev-2143Z.json",
+        "generatedAt": "2026-08-13T21:43:17Z",
+        "revisionsBeforeKickoff": 5,
+        "model": {
+          "id": "nfl-preseason-public-beta-v1",
+          "version": 1,
+          "launchState": "PUBLIC_EXPERIMENTAL",
+          "inputHash": "c3ab75241a5be77c",
+          "simulations": 10000
+        },
+        "readiness": "BASELINE_ONLY",
+        "fallbackReason": "the frozen artifact predates the signal-state field; it was produced by the same shared-prior engine",
+        "evidence": {
+          "schedule": "2026-08-13T14:14:22Z",
+          "strengthCutoff": "2026-08-13T21:43:17Z"
+        }
+      },
+      "predicted": {
+        "projectedScore": {
+          "home": 18,
+          "away": 19
+        },
+        "scoreRange": {
+          "homeP10": 7,
+          "homeP90": 29,
+          "awayP10": 8,
+          "awayP90": 30
+        },
+        "margin": {
+          "median": -1,
+          "p10": -17,
+          "p90": 16
+        },
+        "total": {
+          "median": 37,
+          "p10": 23,
+          "p90": 52
+        },
+        "winProbability": {
+          "home": 0.4642,
+          "away": 0.5358,
+          "tieMass": 0.0303,
+          "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+        }
+      },
+      "actual": {
+        "status": "STATUS_FINAL",
+        "home": 7,
+        "away": 27,
+        "margin": -20,
+        "total": 34,
+        "tie": false,
+        "winner": "LAC"
+      },
+      "scores": {
+        "homeAbsError": 11,
+        "awayAbsError": 8,
+        "marginAbsError": 19,
+        "totalAbsError": 3,
+        "marginInInterval80": false,
+        "totalInInterval80": true,
+        "homeScoreInRange": true,
+        "awayScoreInRange": true,
+        "winnerCorrect": true,
+        "brier": 0.21548164,
+        "logLoss": 0.6239943218716286,
+        "residualSign": "AWAY_OUTPERFORMED"
+      },
+      "market": {
+        "state": "FROZEN_PRE_KICKOFF",
+        "capturedAt": "2026-08-13T21:43:17Z",
+        "books": 11,
+        "homeWinNoVig": 0.489166,
+        "spreadHome": 1,
+        "total": 37,
+        "brier": 0.239283375556
+      },
+      "products": {
+        "selected": false,
+        "reason": "no NFL output was eligible for any paper product: an experimental forecast may never become a product leg (output-state.permitsProductLeg requires VALIDATED_PICK)",
+        "exposure": 0
+      },
+      "attribution": [
+        "SHARED_PRIOR: no event-specific team signal was applied, so this row is a baseline diagnostic rather than a game-specific claim",
+        "MARGIN_DISPERSION: the realised margin was far outside the centre of a distribution built on league-average dispersion",
+        "INTERVAL_MISS_MARGIN: the 80% margin interval did not contain the result"
+      ]
+    },
+    {
+      "providerEventId": "401874392",
+      "canonicalEventId": "nfl-401874392",
+      "matchup": "TEN @ SF",
+      "kickoffUtc": "2026-08-14T01:00Z",
+      "frozen": {
+        "file": "2026-08-14/401874392.json",
+        "generatedAt": "2026-08-14T00:43:00Z",
+        "revisionsBeforeKickoff": 6,
+        "model": {
+          "id": "nfl-preseason-public-beta-v1",
+          "version": 1,
+          "launchState": "PUBLIC_EXPERIMENTAL",
+          "inputHash": "5a8c34746449f4db",
+          "simulations": 10000
+        },
+        "readiness": "BASELINE_ONLY",
+        "fallbackReason": "the frozen artifact predates the signal-state field; it was produced by the same shared-prior engine",
+        "evidence": {
+          "schedule": "2026-08-13T14:14:22Z",
+          "strengthCutoff": "2026-08-14T00:43:00Z"
+        }
+      },
+      "predicted": {
+        "projectedScore": {
+          "home": 18,
+          "away": 19
+        },
+        "scoreRange": {
+          "homeP10": 7,
+          "homeP90": 29,
+          "awayP10": 9,
+          "awayP90": 30
+        },
+        "margin": {
+          "median": -2,
+          "p10": -18,
+          "p90": 15
+        },
+        "total": {
+          "median": 37,
+          "p10": 24,
+          "p90": 52
+        },
+        "winProbability": {
+          "home": 0.4348,
+          "away": 0.5652,
+          "tieMass": 0.0311,
+          "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+        }
+      },
+      "actual": {
+        "status": "STATUS_FINAL",
+        "home": 13,
+        "away": 19,
+        "margin": -6,
+        "total": 32,
+        "tie": false,
+        "winner": "TEN"
+      },
+      "scores": {
+        "homeAbsError": 5,
+        "awayAbsError": 0,
+        "marginAbsError": 4,
+        "totalAbsError": 5,
+        "marginInInterval80": true,
+        "totalInInterval80": true,
+        "homeScoreInRange": true,
+        "awayScoreInRange": true,
+        "winnerCorrect": true,
+        "brier": 0.18905104,
+        "logLoss": 0.5705756281717648,
+        "residualSign": "AWAY_OUTPERFORMED"
+      },
+      "market": {
+        "state": "FROZEN_PRE_KICKOFF",
+        "capturedAt": "2026-08-13T21:43:17Z",
+        "books": 11,
+        "homeWinNoVig": 0.318182,
+        "spreadHome": 6,
+        "total": 40,
+        "brier": 0.10123978512400002
+      },
+      "products": {
+        "selected": false,
+        "reason": "no NFL output was eligible for any paper product: an experimental forecast may never become a product leg (output-state.permitsProductLeg requires VALIDATED_PICK)",
+        "exposure": 0
+      },
+      "attribution": [
+        "SHARED_PRIOR: no event-specific team signal was applied, so this row is a baseline diagnostic rather than a game-specific claim",
+        "EXPECTED_NOISE: the result sits inside what this distribution anticipated"
+      ]
+    }
+  ],
+  "missing": [],
+  "tickets": [
+    {
+      "id": "INTERVAL-WIDTH-MARGIN",
+      "hypothesis": "the 80% margin interval is too narrow for preseason dispersion",
+      "evidence": "coverage 0.6667 over n=6 against a 0.80 target",
+      "acceptanceTest": "leave-one-season-out coverage on the committed preseason corpus lands in [0.75, 0.85] before any width change ships",
+      "owner": "ENGINEERING",
+      "candidateRelease": "P180-D (possession engine) — width is a property of the engine, not a knob to turn now"
+    },
+    {
+      "id": "MARKET-GAP",
+      "hypothesis": "the model's winner probabilities are worse than the de-vigged market",
+      "evidence": "model Brier 0.2391 vs market 0.2237 over n=5 decisive games",
+      "acceptanceTest": "a challenger must beat the frozen market benchmark on a FORWARD window of at least 40 games before any promotion claim",
+      "owner": "ENGINEERING",
+      "candidateRelease": "P180-D"
+    },
+    {
+      "id": "NO-EVENT-SPECIFIC-SIGNAL",
+      "hypothesis": "every scored row came from a shared prior, so these residuals measure the PRIOR, not a game-specific model",
+      "evidence": "6/6 rows were baseline-only at freeze time",
+      "acceptanceTest": "a possession/drive candidate must clear predeclared held-out bars before any row here is described as a game-specific forecast",
+      "owner": "ENGINEERING",
+      "candidateRelease": "P180-D"
+    },
+    {
+      "id": "TIE-POLICY-CONFIRMED",
+      "hypothesis": "preseason ties are real and must never score as losses",
+      "evidence": "1 tie(s) in n=6; excluded from winner accuracy and from Brier by contract",
+      "acceptanceTest": "the settlement contract keeps ties out of winner accuracy and reports decisiveN separately",
+      "owner": "ENGINEERING",
+      "candidateRelease": "SHIPPED — recorded so the policy is not re-litigated"
+    }
+  ]
+}
