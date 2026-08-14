@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-model-promotion-contract",
+  "dataClass": "PRIVATE_RESEARCH",
+  "version": "v1",
+  "declaredAt": "2026-08-14T12:55:00Z",
+  "declaredBefore": "any candidate was fitted and before any held-out metric was computed. This file is committed on its own so the commit history proves the bars predate the results.",
+  "program": "P181 Release A",
+
+  "diagnosis": {
+    "source": "data/internal/nfl/pregame-audit/2026-08-13.json",
+    "finding": "Totals covered their 80% interval in 6/6 games (MAE 5.17). Margins covered in 4/6, and both misses were blowouts (19 and 20 points). The scoring prior is not the failure; MARGIN DISPERSION is.",
+    "target": "produce matchup-dependent margin dispersion without degrading the already-calibrated scoring uncertainty"
+  },
+
+  "population": {
+    "corpus": "data/internal/research/nfl/corpus-v1.json",
+    "rows": 1001,
+    "preseasonBySeason": { "2023": 49, "2024": 49, "2025": 48 },
+    "regularBySeason": { "2023": 285, "2024": 285, "2025": 285 },
+    "quarantineRule": "a row missing either final score, either participant identity, or a parseable kickoff is QUARANTINED and stays in the denominator",
+    "excluded": "the six 2026-08-13 games are a LOCKED FORWARD COHORT. They may not fit, select, or tune any candidate in this program. They remain visible in monitoring only."
+  },
+
+  "splits": {
+    "method": "expanding-window, rolling origin",
+    "rule": "for each target preseason season S, fit strictly on games with dateUtc earlier than the first game of S. No random splits, no shuffling, no future rows.",
+    "folds": [
+      { "target": "2024 preseason", "fitThrough": "everything before the 2024 preseason opener" },
+      { "target": "2025 preseason", "fitThrough": "everything before the 2025 preseason opener" }
+    ],
+    "note": "2023 preseason cannot be a target — there is no prior season in the corpus to fit on. Its absence is stated rather than silently dropped."
+  },
+
+  "baselines": [
+    { "id": "shared_prior", "what": "the shipped champion: one league scoring mean and one home constant, no team term" },
+    { "id": "home_only", "what": "home constant alone, zero team signal" },
+    { "id": "elo_v1", "what": "the existing cutoff-safe Elo margin slope as fitted, WITHOUT the significance gate, so the rejected model is still scored" },
+    { "id": "market", "what": "de-vigged sportsbook consensus. EXTERNAL COMPARATOR ONLY — never a feature, never a fitting target" }
+  ],
+
+  "primaryTarget": "margin distribution and win/tie probability",
+  "secondaryConstraint": "team score and total quality must not materially degrade",
+
+  "metrics": [
+    "teamScoreMAE", "teamScoreRMSE", "marginMAE", "totalMAE",
+    "winBrier", "winLogLoss",
+    "marginInterval80Coverage", "totalInterval80Coverage",
+    "marginIntervalWidth", "marginCRPS",
+    "blowoutRecall"
+  ],
+
+  "promotionBars": {
+    "minimumN": 48,
+    "primary": {
+      "id": "MARGIN_DISPERSION",
+      "rule": "marginMAE must improve on the shared_prior baseline by at least 0.50 points on the pooled held-out folds",
+      "rationale": "the audit's margin MAE was 9.83; half a point is the smallest improvement that is not obviously noise at this sample size"
+    },
+    "secondary": {
+      "id": "COVERAGE_FLOOR",
+      "rule": "marginInterval80Coverage must land in [0.72, 0.88] — the interval may not be widened into vacuous safety, and may not stay too narrow",
+      "rationale": "closes INTERVAL-WIDTH-MARGIN by construction rather than by widening a constant after seeing misses"
+    },
+    "noDegradation": {
+      "id": "SCORING_PRESERVED",
+      "rule": "totalMAE may not worsen by more than 0.25 points versus shared_prior, and totalInterval80Coverage may not fall below 0.72",
+      "rationale": "totals were 6/6 in the audit; a margin fix that breaks totals is not a fix"
+    },
+    "calibration": {
+      "id": "WIN_CALIBRATION",
+      "rule": "winBrier may not be worse than shared_prior, and must not be worse than the market by more than 0.010",
+      "rationale": "the model has never beaten the market; the bar is that it not get further behind"
+    },
+    "invariance": {
+      "id": "DIRECTION_AND_SENSITIVITY",
+      "rule": "every direction test must pass: a stronger offense cannot lower its own scoring distribution; a stronger opposing defense cannot raise it; swapping home and away changes only documented venue effects; a larger strength gap must widen or shift the margin distribution in the expected direction",
+      "rationale": "this is the test that would have caught the P178 reversed slope"
+    }
+  },
+
+  "prohibitions": [
+    "no fitting, tuning, threshold-picking or candidate selection on the 2026-08-13 cohort",
+    "no random or shuffled splits",
+    "no feature observed at or after the target kickoff",
+    "no current sportsbook price as a core-model feature",
+    "no widening a constant interval after inspecting misses",
+    "no cosmetic differentiation: jitter, team-name hashing, seed churn, score nudging, market-implied score injection",
+    "no metric reported without its n",
+    "no candidate selected on its own final test result"
+  ],
+
+  "rollback": {
+    "conditions": [
+      "any direction/sensitivity test fails",
+      "held-out coverage leaves the declared band",
+      "population accounting does not reconcile",
+      "a candidate cannot be reproduced byte-for-byte from its recorded inputs"
+    ],
+    "action": "keep BASELINE_ONLY publicly, record REJECTED_WITH_EVIDENCE, and leave the shipped champion untouched"
+  },
+
+  "failureIsAnOutcome": "If no candidate clears these bars, the honest result is BASELINE_ONLY with a published rejection receipt. A kickoff deadline is a lock boundary, not a reason to lower a bar."
+}
