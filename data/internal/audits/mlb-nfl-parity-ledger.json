@@ -19,10 +19,10 @@
   {
    "capability": "Sport hub shell (width, hierarchy, density)",
    "mlbOwner": "div.vault-page-shell (globals.css:802, max-width 1440px) + SportShell tabs (components/ui/sport-shell.tsx)",
-   "nflOwner": "inline <main style={{maxWidth:900}}>",
+   "nflOwner": "main.vault-page-shell \u2014 the SAME class /mlb uses (P176)",
    "decision": "SHARED \u2014 adopt vault-page-shell; SportShell is already sport-agnostic ({tabs})",
-   "status": "OPEN",
-   "note": "the single largest visual parity gap: /nfl is a 900px document, /mlb is a 1440px application shell"
+   "status": "ADOPTED_SHARED",
+   "note": "closed by adopting the existing owner: same class, padding scale and overflow guard as /mlb; MLB untouched"
   },
   {
    "capability": "Methodology panel",
@@ -177,10 +177,10 @@
  "summary": {
   "totalRows": 21,
   "shipped": 3,
-  "adoptedShared": 2,
+  "adoptedShared": 3,
   "adapterNeeded": 2,
   "notApplicableWithReplacement": 2,
-  "open": 12,
+  "open": 11,
   "unexplainedGaps": 0,
   "derivedNote": "counted from rows, never hand-written \u2014 the first hand-written summary over-claimed 4 shipped/10 open against an actual 3/12 and a guard caught it"
  },
@@ -188,5 +188,6 @@
   "every row names an owner or an explicit gap \u2014 no row is hand-waved, and the two NOT_APPLICABLE rows each carry a football-specific reason and a named replacement of equal user value",
   "10 rows are OPEN engineering work. This ledger exists so that count is visible rather than hidden behind the word 'complete'.",
   "the cheapest real parity path is adopting owners that already exist and are sport-agnostic, not forking the /mlb page tree \u2014 8 of the shared components MLB uses need no change at all, and 4 need only an additive registry/union entry"
- ]
+ ],
+ "keyFinding": "the cheapest real parity path is adopting owners that already exist and are sport-agnostic, not forking the /mlb page tree \u2014 /nfl began as a 900px document against /mlb's 1440px application shell, and closing that row took one shared class rather than a component fork"
 }

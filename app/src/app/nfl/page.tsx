@@ -106,7 +106,12 @@ export default function NflHubPage() {
   ];
 
   return (
-    <main style={{ maxWidth: 900, margin: "0 auto", padding: "32px 20px 64px" }}>
+    // P176: adopt the SHARED application shell /mlb uses (vault-page-shell, 1440px) instead of
+    // a 900px document. Same class, same padding scale, same overflow guard — the largest single
+    // parity gap in the ledger, closed by using the existing owner rather than a fork.
+    // A DIV, not a <main>: the app layout already provides the single main landmark, which is
+    // exactly why /mlb wraps in a div too. Using <main> here produced two landmarks.
+    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <p style={{ margin: 0, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--text-mute)" }}>NFL hub · public beta</p>
       <h1 style={{ margin: "6px 0 0", fontSize: 26 }}>NFL — schedule, results, and what is honestly covered</h1>
       <p style={{ margin: "12px 0 0", fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))", maxWidth: 680 }}>
@@ -342,6 +347,6 @@ export default function NflHubPage() {
         markets. See <Link href="/methodology" style={{ color: "var(--vault-gold)" }}>methodology</Link> and{" "}
         <Link href="/sports" style={{ color: "var(--vault-gold)" }}>all sports coverage</Link>.
       </p>
-    </main>
+    </div>
   );
 }

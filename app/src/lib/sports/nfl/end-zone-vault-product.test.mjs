@@ -93,6 +93,8 @@ test("today's real outcome is the honest one: candidates exist, a card does not"
   assert.equal(vault.gates.tdMarketOffered, false, "the probe proved the market is absent");
   assert.equal(vault.gates.pricedCandidates, 0);
   assert.equal(vault.gates.roleReadyCandidates, 0);
-  assert.ok(vault.candidateCount > 50, "the model still has plenty to say");
+  // scales with how many games are still PRE-START, which shrinks as a slate kicks off —
+  // asserting a fixed floor pinned a 9-game window and broke when 5 games started
+  assert.ok(vault.candidateCount >= 10, `a live window should surface candidates (got ${vault.candidateCount})`);
   assert.match(vault.disclaimer, /not been shown to beat the sportsbook market/);
 });

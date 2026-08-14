@@ -20,7 +20,10 @@
 import { test, expect, type Page } from "@playwright/test";
 
 /** The first-time-user journey. Kept in sync with ROUTES in scripts/audit-accessibility.mjs. */
-const ROUTES = ["/", "/today/", "/markets/", "/results/", "/methodology/", "/learn/", "/moonshot/", "/bank-builder/", "/mlb/", "/sports/"];
+// P176: /nfl joins the three-engine matrix. It was absent while /mlb was covered — a real
+// assurance gap, and the one that would have caught the double-<main> landmark I introduced
+// when adopting the shared shell.
+const ROUTES = ["/", "/today/", "/markets/", "/results/", "/methodology/", "/learn/", "/moonshot/", "/bank-builder/", "/mlb/", "/nfl/", "/sports/"];
 
 const VIEWPORTS = [
   { name: "mobile", width: 390, height: 844 },

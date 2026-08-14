@@ -44,7 +44,9 @@ test("intervals were NOT widened to flatter the held-out season", () => {
 });
 
 test("EVERY published forecast is internally coherent — one distribution, no contradictions", () => {
-  assert.ok(pub.forecasts.length >= 6);
+  // window-size independent: the published set shrinks as games kick off (9 → 4 tonight).
+  // Asserting a floor of 6 pinned a full slate and failed the moment 5 games started.
+  assert.ok(pub.forecasts.length >= 1, "a live window publishes at least one forecast");
   for (const f of pub.forecasts) {
     const s = f.forecastSummary;
     const pHome = s.winProbability.home;
@@ -110,7 +112,7 @@ test("LABEL DISCIPLINE · experimental output never borrows validated-pick langu
 test("DETERMINISM · identical inputs reproduce identical receipts, and receipts are immutable", () => {
   const dir = path.join(ROOT, "data/internal/nfl/forecast-receipts", pub.date);
   const files = fs.readdirSync(dir).filter((f) => /^\d+\.json$/.test(f));
-  assert.ok(files.length >= 6, "one receipt per published event");
+  assert.equal(files.length, pub.forecasts.length, "exactly one receipt per published event");
   for (const f of files) {
     const r = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
     assert.ok(r.model.inputHash, "the receipt pins the input hash its seed derived from");

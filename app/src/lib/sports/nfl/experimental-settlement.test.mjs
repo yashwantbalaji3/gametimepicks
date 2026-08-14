@@ -50,9 +50,12 @@ test("THE FORECAST OF RECORD is the latest PRE-KICKOFF revision — the defect t
   assert.match(src, /revisionChain/, "the superseded versions are preserved as lineage, never deleted");
   // the published forecast and the receipt of record must agree TODAY
   const pub = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/forecasts/latest.json"), "utf8"));
-  const dir = path.join(ROOT, "data/internal/nfl/forecast-receipts", DATE);
+  // compare the published artifact against receipts from ITS OWN date. DATE here is the slate
+  // being SETTLED, which stops matching the currently-published slate the moment UTC rolls over —
+  // it did at 00:42Z, and this guard read Aug-13 receipts against an Aug-14 artifact.
+  const dir = path.join(ROOT, "data/internal/nfl/forecast-receipts", pub.date);
   for (const f of pub.forecasts) {
-    const versions = fs.readdirSync(dir).map((x) => read(`data/internal/nfl/forecast-receipts/${DATE}/${x}`))
+    const versions = fs.readdirSync(dir).map((x) => read(`data/internal/nfl/forecast-receipts/${pub.date}/${x}`))
       .filter((r) => r.providerEventId === f.providerEventId && Date.parse(r.generatedAt) < Date.parse(r.kickoffUtc))
       .sort((a, b) => a.generatedAt.localeCompare(b.generatedAt));
     const ofRecord = versions[versions.length - 1];

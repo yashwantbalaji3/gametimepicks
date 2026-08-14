@@ -82,8 +82,10 @@ test("NFL coverage states are honest per market — no blanket 'supported'", () 
 
 test("the cheapest-parity finding is recorded so a future author does not fork the page tree", () => {
   assert.match(ledger.honesty.join(" "), /not forking the \/mlb page tree/);
-  const shellRow = ledger.rows.find((r) => /Sport hub shell/.test(r.capability));
-  assert.match(shellRow.note, /900px document|1440px application shell/);
+  // the finding lives at LEDGER level, not in a row note — a row note legitimately changes when
+  // that row is closed, and the lesson must outlive the gap it describes
+  assert.match(ledger.keyFinding, /900px document|1440px application shell/);
+  assert.match(ledger.keyFinding, /not\s+forking the \/mlb page tree/);
   const gameRow = ledger.rows.find((r) => /Per-game deep route/.test(r.capability));
   assert.match(gameRow.note, /cheapest parity path/);
 });
