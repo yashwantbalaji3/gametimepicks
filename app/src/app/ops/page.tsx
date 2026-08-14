@@ -14,6 +14,7 @@ import { AdoptionPanel } from "./adoption-panel";
 import { buildSocialOpsBoard } from "@/lib/social/social-ops";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { BuildClockPanel } from "@/components/build-clock-panel";
+import { NflEventTable } from "./nfl-event-table";
 
 export const metadata = {
   title: "Ops · GameTime Picks (internal)",
@@ -336,6 +337,12 @@ export default function OpsPage() {
           ))}
         </div>
         <p className="mt-2 font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>Approve by editing data/internal/mlb/social/ops-approvals-&lt;date&gt;.json · a human posts by hand · no posting API is wired.</p>
+      </Card>
+
+      {/* P177-D: the NFL event control table. One place to answer "is the next slate ready, and
+          which row is missing what?" — previously three artifacts read by hand. */}
+      <Card title="NFL · event control">
+        <NflEventTable />
       </Card>
 
       <Card title="Claude team + playbooks">

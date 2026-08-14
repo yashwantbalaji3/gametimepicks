@@ -3,7 +3,7 @@
   "artifact": "mlb-nfl-parity-ledger",
   "dataClass": "PRIVATE_RESEARCH",
   "program": "P175",
-  "generatedAt": "2026-08-14T02:30:00Z",
+  "generatedAt": "2026-08-14T02:45:00Z",
   "referenceRoute": "/mlb (production, src/app/mlb/page.tsx, 401 lines, vault-page-shell max-width 1440px)",
   "targetRoute": "/nfl (src/app/nfl/page.tsx, vault-page-shell max-width 1440px, shared hero/freshness/section/card/rail) + /nfl/game/[eventId]",
   "method": "mechanical inventory of the current /mlb render order, its sub-routes, and every shared component it imports; each row names an MLB owner, the NFL owner or gap, and the shared-vs-adapter decision. A row may be NOT_APPLICABLE only with a football-specific reason and a named replacement of equal user value.",
@@ -177,24 +177,25 @@
     {
       "capability": "Protected console NFL lane",
       "mlbOwner": "/launch executive health + sports panel",
-      "nflOwner": "nfl-lane.json panel (P171-G) + executive health strip (P172-J)",
-      "decision": "SHARED \u2014 extend the existing console; event control table still OPEN",
-      "status": "OPEN"
+      "nflOwner": "src/app/ops/nfl-event-table.tsx \u2014 event control table (lifecycle, kickoff lock, output state, sim, price, receipt hash) plus chain freshness, the credit ledger and the paper-product verdicts (P177-D)",
+      "decision": "SHARED \u2014 extend the existing console",
+      "status": "ADOPTED_SHARED",
+      "note": "reads the canonical index, nfl-lane.json and product-eligibility.json and derives nothing of its own; a missing artifact renders as a stated absence rather than an empty table that reads like 'no events'. Internal only \u2014 guarded and pruned from the public export, asserted by its own guard"
     }
   ],
   "summary": {
     "totalRows": 21,
     "shipped": 8,
-    "adoptedShared": 9,
+    "adoptedShared": 10,
     "adapterNeeded": 1,
     "notApplicableWithReplacement": 2,
-    "open": 1,
+    "open": 0,
     "unexplainedGaps": 0,
     "derivedNote": "counted from rows, never hand-written \u2014 the first hand-written summary over-claimed 4 shipped/10 open against an actual 3/12 and a guard caught it"
   },
   "honesty": [
     "every row names an owner or an explicit gap \u2014 no row is hand-waved, and the two NOT_APPLICABLE rows each carry a football-specific reason and a named replacement of equal user value",
-    "1 row is OPEN engineering work and 1 needs an additive registry entry. This ledger exists so that count is visible rather than hidden behind the word 'complete' \u2014 it read 10 OPEN before P177, and this sentence is corrected with the count, never left to rot.",
+    "0 rows are OPEN and 1 needs an adapter. This ledger exists so that count is visible rather than hidden behind the word 'complete' \u2014 it read 10 OPEN before P177, and this sentence is corrected with the count, never left to rot.",
     "the cheapest real parity path is adopting owners that already exist and are sport-agnostic, not forking the /mlb page tree \u2014 8 of the shared components MLB uses need no change at all, and 4 need only an additive registry/union entry"
   ],
   "keyFinding": "the cheapest real parity path is adopting owners that already exist and are sport-agnostic, not forking the /mlb page tree \u2014 /nfl began as a 900px document against /mlb's 1440px application shell, and closing that row took one shared class rather than a component fork",
@@ -223,6 +224,14 @@
         "Player portrait"
       ],
       "note": "three more rows closed. One deliberately departed from the P175 decision (stated exclusion instead of union widening) and the row records why."
+    },
+    {
+      "program": "P177",
+      "release": "D",
+      "closed": [
+        "Protected console NFL lane"
+      ],
+      "note": "the console row closes by extending /ops rather than building a second internal surface."
     }
   ]
 }
