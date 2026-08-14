@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824237,
+  "teamId": 116,
+  "name": "Detroit Tigers",
+  "side": "home",
+  "date": "2026-08-14",
+  "capturedAt": "2026-08-14T17:45:26.029Z",
+  "availableAt": "2026-08-14T17:45:26.029Z",
+  "eventStartTime": "2026-08-14T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-13",
+  "previousVenueId": 2394,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=116&startDate=2026-07-31&endDate=2026-08-13",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-14T17:45:26.029Z"
+  },
+  "recordHash": "5046213081c909818a4d0f1babc2c558179d5bd3104c632594501033518b69f1"
+}
