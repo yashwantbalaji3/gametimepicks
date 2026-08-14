@@ -100,6 +100,13 @@ export default function NflHubPage() {
   const results = read("nfl/results/latest.json");
   const markets = read("nfl/markets/latest.json");
   const index = read("nfl/index.json");
+  // P178-C: what this model can and cannot tell apart, from the differentiation audit. Published
+  // because the alternative — a reader inferring a game-specific view from similar-looking numbers
+  // — is exactly the misreading the audit was written to prevent.
+  const differentiation = read("nfl/model-differentiation.json") as
+    | { headline: string; heads: Array<{ head: string; state: string; plainEnglish: string }>;
+        whyGamesLookAlike: string; whatWeFoundAndFixed?: string; whatWouldChangeIt: string }
+    | null;
   // P177-C: the daily paper-product evaluation. A reader who asks "why is there no NFL in Bank
   // Builder?" gets a dated answer from an evaluation that actually ran, not an inference from an
   // empty space. Renders only when the evaluation exists.
@@ -460,6 +467,34 @@ export default function NflHubPage() {
           </table>
         </div>
       </section>
+
+      {differentiation ? (
+        <section aria-labelledby="nfl-differentiation" id="nfl-differentiation">
+          <SectionHeader
+            eyebrow="What this model knows"
+            title={differentiation.headline}
+            sub={differentiation.whyGamesLookAlike}
+          />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 10 }}>
+            {differentiation.heads.map((h) => (
+              <article key={h.head} style={{ border: "1px solid var(--vault-border)", borderRadius: 12, padding: "12px 14px" }}>
+                <p style={{ margin: 0, fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+                  {h.head}
+                </p>
+                <p style={{ margin: "6px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>{h.plainEnglish}</p>
+              </article>
+            ))}
+          </div>
+          {differentiation.whatWeFoundAndFixed ? (
+            <p style={{ margin: "12px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 720 }}>
+              <strong style={{ color: "var(--vault-text)" }}>What we found and fixed:</strong> {differentiation.whatWeFoundAndFixed}
+            </p>
+          ) : null}
+          <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+            {differentiation.whatWouldChangeIt}
+          </p>
+        </section>
+      ) : null}
 
       {productEligibility ? (
         <section aria-labelledby="nfl-products" id="nfl-products">

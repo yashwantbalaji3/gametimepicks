@@ -46,6 +46,29 @@ const sigmaMargin = cal.calibration.sigmaMarginCalibrated;
 const sigmaTotal = cal.calibration.sigmaTotalCalibrated;
 const LAMBDA = cal.calibration.signalShrinkLambda;
 
+// ── P178-C · THE SIGNIFICANCE GATE ────────────────────────────────────────────────────────────
+// The team-strength term drives a published forecast only when its coefficient is distinguishable
+// from zero. It is not: t = -0.575, 95% CI [-0.078, +0.043]. Applying it anyway produced a -0.97
+// correlation between a home side's strength and its published win probability — the model leaned
+// AGAINST the better team, consistently, on evidence that does not exist.
+//
+// Zeroing the term is not a claim that the teams are equal. It is the honest statement that this
+// model cannot tell them apart, which is a different and much more publishable thing than a
+// confident-looking number pointing the wrong way.
+const sig = read(path.join(ROOT, "data/internal/research/nfl/reports/signal-significance.json"));
+if (!sig) { console.error("REFUSED: no signal-significance receipt — a forecast may not publish a team term that has never been tested"); process.exit(2); }
+const TEAM_SIGNAL_APPLIED = sig.significant === true;
+const EFFECTIVE_SLOPE = TEAM_SIGNAL_APPLIED ? base.marginSlope : 0;
+const TEAM_SIGNAL = TEAM_SIGNAL_APPLIED
+  ? { state: "APPLIED", tStatistic: sig.fitted.tStatistic, note: "the team-strength coefficient clears the |t| >= 2 bar, so team evidence moves this forecast" }
+  : {
+      state: "NOT_SIGNIFICANT",
+      tStatistic: sig.fitted.tStatistic,
+      ci95: sig.fitted.ci95,
+      note: "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = " + sig.fitted.tStatistic + ", 95% interval " + JSON.stringify(sig.fitted.ci95) + "). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only.",
+    };
+console.log(`team signal: ${TEAM_SIGNAL.state} (t=${sig.fitted.tStatistic}) → effective slope ${TEAM_SIGNAL_APPLIED ? base.marginSlope : 0}`);
+
 const schedule = read(path.join(APP, "public/data/nfl/schedule/latest.json"));
 const finals = read(path.join(ROOT, "data/internal/research/nfl/corpus-v1.json")).rows;
 const markets = read(path.join(APP, "public/data/nfl/markets/latest.json"));
@@ -78,13 +101,14 @@ for (const ev of events) {
   // CALIBRATED margin mean: λ shrinks the team-differentiating term. Everything below — win
   // probability included — is measured off the resulting simulation, so the published win % and
   // the published scoreline are the same distribution by construction and cannot disagree.
-  const marginMean = base.homeAdvantage + LAMBDA * (base.marginSlope * d);
+  const marginMean = base.homeAdvantage + LAMBDA * (EFFECTIVE_SLOPE * d);
 
   // input hash: everything the forecast depends on. Market is NOT included — it is not an input.
   const inputHash = crypto.createHash("md5").update(JSON.stringify({
     modelId: MODEL_ID, version: card.version, eventId: ev.providerEventId, kickoff: ev.dateUtc,
     d: Number(d.toFixed(6)), marginMean: Number(marginMean.toFixed(6)),
     sigmaMargin, sigmaTotal, muTotal: base.muTotal, lambda: LAMBDA,
+    effectiveSlope: EFFECTIVE_SLOPE, teamSignal: TEAM_SIGNAL.state,
     strengthCutoff: strength.cutoffIso, scheduleAsOf: schedule.generatedAt,
   })).digest("hex").slice(0, 16);
 
@@ -126,6 +150,7 @@ for (const ev of events) {
     venue: ev.venue ?? null,
     state: "PUBLIC_EXPERIMENTAL",
     model: { id: MODEL_ID, version: card.version, launchState: card.launchState, inputHash, simulations: RUNS },
+    teamSignal: TEAM_SIGNAL,
     generatedAt: NOW,
     evidence: { schedule: schedule.generatedAt, strengthCutoff: strength.cutoffIso },
     forecastSummary: {

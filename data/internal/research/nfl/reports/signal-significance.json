@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-signal-significance",
+  "dataClass": "PRIVATE_RESEARCH",
+  "generatedAt": "2026-08-14T05:11:22Z",
+  "bar": {
+    "statistic": "|t| on the fitted margin slope",
+    "threshold": 2
+  },
+  "barDeclaredBeforeComputation": true,
+  "protocol": {
+    "trainingSet": "preseason games through 2024, the same rows the committed fit used",
+    "n": 98,
+    "input": "cutoff-safe regular-season Elo difference (home − away), no home constant (fit separately)",
+    "target": "final margin (home − away)"
+  },
+  "fitted": {
+    "slope": -0.017442,
+    "intercept": -0.648125,
+    "standardError": 0.030355,
+    "tStatistic": -0.5746,
+    "ci95": [
+      -0.077667,
+      0.042782
+    ],
+    "ciIncludesZero": true,
+    "marginSwingOver150Elo": -2.616
+  },
+  "committedFitSlope": -0.017442,
+  "reproducesCommittedFit": true,
+  "significant": false,
+  "verdict": "NOT_SIGNIFICANT — the team-strength term may NOT drive a published forecast",
+  "consequence": "the published margin signal is set to ZERO. Every game's forecast then reflects only preseason scoring climatology and home context, which is the honest description of what this model actually knows. It is not a claim that the teams are equal — it is a statement that this model cannot tell them apart.",
+  "whyThisMatters": "Before this gate, the fitted negative coefficient produced a −0.97 correlation between a home side's strength and its published win probability: the model leaned against the better team, consistently, on evidence that does not exist. Publishing a direction from a coefficient whose interval spans zero is publishing noise with a sign."
+}

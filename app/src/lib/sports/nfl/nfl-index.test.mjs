@@ -66,11 +66,19 @@ test("CONTRADICTIONS are detected and stay internal — never a public no-play",
   assert.match(src, /never rendered as a public no-play/, "the contradiction channel is documented as internal");
 });
 
-test("the experimental record is honest before any settlement exists", () => {
+test("the experimental record is honest about what has and has not settled", () => {
   assert.ok(idx.experimentalRecord);
-  if (idx.counts.settled === 0) {
-    assert.equal(idx.experimentalRecord.settledForecasts, 0);
+  // P178: this keyed off `counts.settled`, which counts settled events IN THE CURRENT WINDOW, and
+  // read it as "nothing has ever settled". Those are different questions: on the first day after a
+  // slate settles, the window is all-upcoming again while the lifetime record is no longer empty.
+  // The record's own count is the authority on the lifetime question.
+  if (idx.experimentalRecord.settledForecasts === 0) {
     assert.match(idx.experimentalRecord.note, /No experimental forecast has been settled yet/);
+    assert.equal(idx.experimentalRecord.winnerAccuracy, null, "no accuracy is claimed before any result exists");
+  } else {
+    assert.ok(idx.experimentalRecord.settledForecasts > 0);
+    assert.match(idx.experimentalRecord.note, /not a betting record/,
+      "a populated record still says plainly what it is not");
   }
 });
 

@@ -124,6 +124,11 @@ jobs:
           # is missing — reporting "nothing qualified" from absent data would be a finding about the
           # model drawn from no data about the model.
           node scripts/nfl/build-nfl-product-eligibility.mjs --now "${{ steps.window.outputs.now }}"
+          # P178-C: differentiation audit. Runs every window and EXITS NON-ZERO on a P0 (two distinct
+          # events sharing an input fingerprint, or two distinct events sharing a distribution), so a
+          # model that stops reading the event fails the run instead of publishing quietly.
+          node scripts/nfl/audit-nfl-signal-significance.mjs --now "${{ steps.window.outputs.now }}"
+          node scripts/nfl/audit-nfl-differentiation.mjs --now "${{ steps.window.outputs.now }}"
 
       - name: Rebuild the NFL admin lane status
         if: steps.window.outputs.events != '0'
@@ -138,7 +143,7 @@ jobs:
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/internal/research/odds/nfl/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json
+          git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json
           if git diff --cached --quiet; then
             echo "nothing changed — no commit"
             exit 0
