@@ -3,7 +3,7 @@
   "artifact": "mlb-nfl-parity-ledger",
   "dataClass": "PRIVATE_RESEARCH",
   "program": "P175",
-  "generatedAt": "2026-08-14T02:10:00Z",
+  "generatedAt": "2026-08-14T02:30:00Z",
   "referenceRoute": "/mlb (production, src/app/mlb/page.tsx, 401 lines, vault-page-shell max-width 1440px)",
   "targetRoute": "/nfl (src/app/nfl/page.tsx, vault-page-shell max-width 1440px, shared hero/freshness/section/card/rail) + /nfl/game/[eventId]",
   "method": "mechanical inventory of the current /mlb render order, its sub-routes, and every shared component it imports; each row names an MLB owner, the NFL owner or gap, and the shared-vs-adapter decision. A row may be NOT_APPLICABLE only with a football-specific reason and a named replacement of equal user value.",
@@ -115,10 +115,10 @@
     {
       "capability": "Build inventory",
       "mlbOwner": "lib/parlays/ui-loader.ts (SportKey union), lib/build-legs.ts:123 (rejects non nba/mlb)",
-      "nflOwner": null,
-      "decision": "ADAPTER \u2014 widen unions; NFL legs must remain EXCLUDED until a leg passes the validated gate",
-      "status": "OPEN",
-      "guard": "an experimental forecast must never become a selectable leg \u2014 output-state.mjs permitsProductLeg already enforces this"
+      "nflOwner": "build-legs.ts BUILD_INVENTORY_SPORTS + BUILD_INVENTORY_EXCLUSIONS + buildOptimizerLegExclusions (P177-B); the daily NFL evaluation publishes a build-inventory verdict",
+      "decision": "STATED EXCLUSION \u2014 not the union widening P175 proposed. Widening SportKey in lib/normalize would force an entry into every exhaustive Record across Bank Builder, Moonshot, results and parlays for a sport that is definitionally excluded: churn on money surfaces with no reader benefit. What a reader needed was the REASON, and that is what shipped.",
+      "status": "SHIPPED",
+      "note": "the silent `continue` that made NFL's absence indistinguishable from an oversight is now a counted, reasoned refusal citing the same VALIDATED_PICK gate the money path enforces; a guard asserts the two answers cannot drift"
     },
     {
       "capability": "Player projection surfaces",
@@ -131,10 +131,10 @@
     {
       "capability": "Player portrait",
       "mlbOwner": "components/ui/player-avatar.tsx (sport?: nba|mlb)",
-      "nflOwner": null,
-      "decision": "ADAPTER \u2014 widen the union when player rows publish",
-      "status": "OPEN",
-      "blockedBy": "player projections are NOT_APPLICABLE today"
+      "nflOwner": "components/player-avatar.tsx sport union widened to nfl, ESPN NFL headshot CDN keyed by athlete id; rendered in the /nfl End Zone Vault table (P177-B)",
+      "decision": "SHARED \u2014 widen the union on the existing owner",
+      "status": "ADOPTED_SHARED",
+      "note": "the blocker recorded in P175 (\"player projections are NOT_APPLICABLE\") was too broad: the Vault watchlist publishes real player rows today. All eight rendered ids HEAD-probed 200; an unknown id 404s cleanly to the initials disc"
     },
     {
       "capability": "Signature product surface",
@@ -146,9 +146,10 @@
     {
       "capability": "Bank Builder / Moonshot NFL adapters",
       "mlbOwner": "lib/daily-portfolio/accounting.ts laneEligibility",
-      "nflOwner": null,
-      "decision": "ADAPTER \u2014 explicit NFL eligibility adapter; experimental forecasts must not auto-qualify",
-      "status": "OPEN"
+      "nflOwner": "lib/daily-portfolio/sport-eligibility.ts registry + the sport gate inside laneEligibility + scripts/nfl/build-nfl-product-eligibility.mjs daily evaluation (P177-C)",
+      "decision": "EXPLICIT REFUSAL ADAPTER \u2014 register NFL and refuse it in the money path, rather than leaving it out of the pool",
+      "status": "SHIPPED",
+      "note": "NFL was previously excluded only because no NFL loader existed \u2014 an omission, not a rule, that would have admitted experimental output the day anyone wrote one. The gate is now enforced in laneEligibility itself, fail-closed for unregistered sports, and a guard proves a VALIDATED_PICK leg WOULD qualify so the refusal is the gate and not a stub. Protected money hashes byte-identical"
     },
     {
       "capability": "Results / settlement lineage",
@@ -183,17 +184,17 @@
   ],
   "summary": {
     "totalRows": 21,
-    "shipped": 6,
-    "adoptedShared": 8,
+    "shipped": 8,
+    "adoptedShared": 9,
     "adapterNeeded": 1,
     "notApplicableWithReplacement": 2,
-    "open": 4,
+    "open": 1,
     "unexplainedGaps": 0,
     "derivedNote": "counted from rows, never hand-written \u2014 the first hand-written summary over-claimed 4 shipped/10 open against an actual 3/12 and a guard caught it"
   },
   "honesty": [
     "every row names an owner or an explicit gap \u2014 no row is hand-waved, and the two NOT_APPLICABLE rows each carry a football-specific reason and a named replacement of equal user value",
-    "4 rows are OPEN engineering work and 1 needs an additive registry entry. This ledger exists so that count is visible rather than hidden behind the word 'complete' \u2014 it read 10 OPEN before P177-A closed eight rows, and this sentence is corrected with the count, never left to rot.",
+    "1 row is OPEN engineering work and 1 needs an additive registry entry. This ledger exists so that count is visible rather than hidden behind the word 'complete' \u2014 it read 10 OPEN before P177, and this sentence is corrected with the count, never left to rot.",
     "the cheapest real parity path is adopting owners that already exist and are sport-agnostic, not forking the /mlb page tree \u2014 8 of the shared components MLB uses need no change at all, and 4 need only an additive registry/union entry"
   ],
   "keyFinding": "the cheapest real parity path is adopting owners that already exist and are sport-agnostic, not forking the /mlb page tree \u2014 /nfl began as a 900px document against /mlb's 1440px application shell, and closing that row took one shared class rather than a component fork",
@@ -212,6 +213,16 @@
         "Sport identity (accent, glyph, label)"
       ],
       "note": "eight rows closed in one release: five by adopting existing shared owners, one by creating a new shared owner, two by building the per-game report the ledger said /nfl lacked."
+    },
+    {
+      "program": "P177",
+      "release": "B+C",
+      "closed": [
+        "Bank Builder / Moonshot NFL adapters",
+        "Build inventory",
+        "Player portrait"
+      ],
+      "note": "three more rows closed. One deliberately departed from the P175 decision (stated exclusion instead of union widening) and the row records why."
     }
   ]
 }

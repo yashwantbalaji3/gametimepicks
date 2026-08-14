@@ -36,7 +36,7 @@ interface Props {
   /** Which CDN to fetch the headshot from. Defaults to "nba" so existing
    *  callers keep working. MLB players resolve via the official MLB
    *  Stats people CDN, which is the same source mlb.com itself uses. */
-  sport?: "nba" | "mlb";
+  sport?: "nba" | "mlb" | "nfl";
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   /** P (pitcher) / batter role ring — the one render feature the MLB sibling had that this
    *  component lacked (consolidated Program 147). Communicated by rim colour; the row text
@@ -101,7 +101,12 @@ export default function PlayerAvatar({
     : hasPhoto
       ? sport === "mlb"
         ? `https://midfield.mlbstatic.com/v1/people/${playerId}/spots/120`
-        : `https://a.espncdn.com/i/headshots/nba/players/full/${playerId}.png`
+        // NFL (P177-B): the same ESPN headshot CDN as NBA, on the nfl path, keyed by ESPN athlete
+        // id. HEAD-probed against the eight players the Vault actually renders — all 200 with real
+        // bytes — and an unknown id returns a clean 404, so onError lands on the initials disc.
+        : sport === "nfl"
+          ? `https://a.espncdn.com/i/headshots/nfl/players/full/${playerId}.png`
+          : `https://a.espncdn.com/i/headshots/nba/players/full/${playerId}.png`
       : null;
 
   const wrapperClass = `gtp-player-avatar${flat ? " gtp-player-avatar-flat" : ""}`;

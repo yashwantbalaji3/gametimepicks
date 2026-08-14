@@ -112,6 +112,48 @@ type OptLeg = {
 };
 type OptSlip = { legs?: OptLeg[] };
 
+/**
+ * The sports the card builder accepts a leg from. Anything else is refused with a stated reason
+ * below — never by falling through an unexplained `continue`.
+ */
+export const BUILD_INVENTORY_SPORTS: ReadonlySet<string> = new Set(["nba", "mlb"]);
+
+/**
+ * Why a sport is not in the builder. NFL cites the SAME gate the money path enforces, so the two
+ * surfaces cannot drift into giving a reader different answers to the same question.
+ */
+export const BUILD_INVENTORY_EXCLUSIONS: Readonly<Record<string, string>> = Object.freeze({
+  nfl: "the NFL model is an explicitly experimental preseason beta; only a validated model version may become a selectable leg, so no NFL forecast enters the builder today",
+  ufc: "the UFC surface is a settled archive — there is no current fight output to build from",
+  world_cup: "the World Cup is closed as a destination; its legs remain in the archive, not the builder",
+});
+
+/** What the builder refused, and why — for surfaces that state their own coverage honestly. */
+export function buildInventoryExclusion(sport: string): string {
+  return (
+    BUILD_INVENTORY_EXCLUSIONS[sport?.toLowerCase?.() ?? ""] ??
+    `${sport || "an unnamed sport"} is not a registered card-builder sport — an unregistered sport is refused, never accepted by default`
+  );
+}
+
+/**
+ * What the builder REFUSED from this slip set, and why — one row per excluded sport with its leg
+ * count. A surface can print this instead of leaving a reader to infer an oversight from a gap.
+ */
+export function buildOptimizerLegExclusions(slips: OptSlip[] | null | undefined): Array<{ sport: string; legs: number; reason: string }> {
+  const counts = new Map<string, number>();
+  for (const s of slips ?? []) {
+    for (const l of s.legs ?? []) {
+      const sport = (l.sport ?? "").toLowerCase();
+      if (l.oddsForSide == null || BUILD_INVENTORY_SPORTS.has(sport)) continue;
+      counts.set(sport, (counts.get(sport) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([sport, legs]) => ({ sport, legs, reason: buildInventoryExclusion(sport) }));
+}
+
 /** Distinct parlay-eligible legs from the NBA/MLB optimizer slips (deduped). */
 export function buildOptimizerLegs(slips: OptSlip[] | null | undefined): BuildLeg[] {
   if (!Array.isArray(slips)) return [];
@@ -120,7 +162,12 @@ export function buildOptimizerLegs(slips: OptSlip[] | null | undefined): BuildLe
     for (const l of s.legs ?? []) {
       const odds = l.oddsForSide;
       const sport = (l.sport ?? "").toLowerCase() as SportKey;
-      if (odds == null || (sport !== "nba" && sport !== "mlb")) continue;
+      // P177-B: a rejected sport is COUNTED and REASONED, not silently skipped. The old `continue`
+      // made NFL's absence from the card builder indistinguishable from an oversight — the same
+      // shape of defect the paper-product gate fixed. The accepted set is unchanged (nba, mlb):
+      // this records why everything else is refused so a surface can say it out loud.
+      if (odds == null) continue;
+      if (!BUILD_INVENTORY_SPORTS.has(sport)) continue;   // counted by buildOptimizerLegExclusions
       const who = l.playerName || l.displayName || "Leg";
       const mkt = l.marketLabel || l.market || "";
       const sideLine = `${l.side ?? ""} ${l.line ?? ""}`.trim();

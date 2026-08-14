@@ -28,6 +28,7 @@ import path from "node:path";
 import Link from "next/link";
 
 import EventCard from "@/components/event-card";
+import PlayerAvatar from "@/components/player-avatar";
 import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
 import SportOverviewHero from "@/components/sport-overview-hero";
@@ -53,6 +54,16 @@ const etKickoff = (iso: string) =>
 /** ISO calendar day in ET — the unit a slate is actually organised by. */
 const etDay = (iso: string) =>
   new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+
+/**
+ * ESPN athlete id out of the Vault's canonical player key ("nfl-athlete-4430807" -> 4430807).
+ * Returns null for anything that is not that shape, so a schema change degrades to the initials
+ * disc rather than requesting a nonsense URL.
+ */
+const espnAthleteId = (playerId: string): number | null => {
+  const m = /^nfl-athlete-(\d+)$/.exec(playerId ?? "");
+  return m ? Number(m[1]) : null;
+};
 
 const etDayLabel = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" }).format(new Date(iso));
@@ -89,6 +100,13 @@ export default function NflHubPage() {
   const results = read("nfl/results/latest.json");
   const markets = read("nfl/markets/latest.json");
   const index = read("nfl/index.json");
+  // P177-C: the daily paper-product evaluation. A reader who asks "why is there no NFL in Bank
+  // Builder?" gets a dated answer from an evaluation that actually ran, not an inference from an
+  // empty space. Renders only when the evaluation exists.
+  const productEligibility = read("nfl/product-eligibility.json") as
+    | { generatedAt: string; plainEnglish: string; consideredEvents: number;
+        products: Array<{ product: string; label: string; state: string; eligible: boolean; reason: string; whatWouldQualify: string[] }> }
+    | null;
   const finals = (results?.rows ?? []).filter((r: { statusRaw: string }) => /^STATUS_FINAL/.test(r.statusRaw));
 
   // market rows are pre-kickoff facts by construction: keep only rows whose capture precedes
@@ -149,6 +167,13 @@ export default function NflHubPage() {
     ...((modelStatus?.playerFamilies ?? []) as Array<StatusLayer & { label: string }>).map((f) => layerRow(f.label, f, "no evaluation on file")),
     layerRow("Anytime touchdown · End Zone Vault", modelStatus?.anytimeTd, "no calibration receipt on file"),
     { layer: "Settlement", state: "DEPLOYED", detail: "team and scorer settlement contracts are deployed and tested; the first matching pre-event artifacts settle exactly once when they exist" },
+    ...(productEligibility
+      ? productEligibility.products.map((p) => ({
+          layer: `Paper products · ${p.label}`,
+          state: p.state,
+          detail: p.reason,
+        }))
+      : []),
   ];
 
   const identity = getSportIdentity("nfl");
@@ -315,7 +340,15 @@ export default function NflHubPage() {
                 {(vault.state === "ACTIVE" ? vault.selections : vault.watchlist).slice(0, 8).map((c) => (
                   <tr key={c.playerId}>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>
-                      {c.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{c.position ?? ""} · {c.team}</span>
+                      {/* P177-B: the shared portrait, keyed by the ESPN athlete id already inside
+                          the Vault's own playerId ("nfl-athlete-4430807"). A dead id 404s cleanly
+                          and falls to the initials disc — the same policy every other sport uses. */}
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                        <PlayerAvatar playerId={espnAthleteId(c.playerId)} playerName={c.name} team={c.team} sport="nfl" size="sm" />
+                        <span>
+                          {c.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{c.position ?? ""} · {c.team}</span>
+                        </span>
+                      </span>
                     </td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)" }}>{c.event}</td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{(c.tdProbability * 100).toFixed(1)}%</td>
@@ -427,6 +460,29 @@ export default function NflHubPage() {
           </table>
         </div>
       </section>
+
+      {productEligibility ? (
+        <section aria-labelledby="nfl-products" id="nfl-products">
+          <SectionHeader
+            eyebrow={`Evaluated ${productEligibility.generatedAt}`}
+            title="Why NFL is not in the paper products"
+            sub={productEligibility.plainEnglish}
+          />
+          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 6 }}>
+            {(productEligibility.products.find((p) => p.whatWouldQualify.length)?.whatWouldQualify ?? []).map((w) => (
+              <li key={w} style={{ fontSize: 12.5, color: "var(--vault-text-mute)", display: "flex", gap: 8 }}>
+                <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>·</span>
+                <span>{w}</span>
+              </li>
+            ))}
+          </ul>
+          <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 700 }}>
+            This evaluation runs on every NFL event window and is recorded, so the answer for any past
+            day stays recoverable. The same gate is enforced in the money path itself — an ineligible
+            sport is refused there too, not merely omitted from the pool.
+          </p>
+        </section>
+      ) : null}
 
       {/* P177-A: the shared 4-card action rail /mlb ends on. Every href is a real route. */}
       <QuickActionRail

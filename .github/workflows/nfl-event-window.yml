@@ -119,6 +119,11 @@ jobs:
           # STALE or INCIDENT. It runs before the index so the index can summarise its state.
           node scripts/nfl/build-end-zone-vault.mjs --now "${{ steps.window.outputs.now }}"
           node scripts/nfl/build-nfl-index.mjs --now "${{ steps.window.outputs.now }}"
+          # P177-C: the daily paper-product evaluation. Runs AFTER the index because it consumes the
+          # canonical classification rather than re-deriving it, and it refuses outright if the index
+          # is missing — reporting "nothing qualified" from absent data would be a finding about the
+          # model drawn from no data about the model.
+          node scripts/nfl/build-nfl-product-eligibility.mjs --now "${{ steps.window.outputs.now }}"
 
       - name: Rebuild the NFL admin lane status
         if: steps.window.outputs.events != '0'

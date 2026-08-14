@@ -15,6 +15,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { loadWorldCupModelPicks, buildDailyLaneCandidates, MOONSHOT_MIN_COMBINED_ODDS, type LaneCandidate, type ModelPick } from "../world-cup/model-qualified-picks";
+import { legSportEligibility } from "./sport-eligibility";
 import { readLaneRungs, selectSafestTargetFitCard, SEED_EXPOSURE, type GeneratedLane } from "./bank-builder-generation";
 import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
 import { loadMlbModelPicks } from "./mlb-model-picks";
@@ -77,6 +78,15 @@ const PRODUCT_LABEL: Record<string, string> = { "bank-builder": "Bank Builder", 
 
 export function laneEligibility(lane: LaneCandidate, nowMs: number): ActivationEligibility {
   if (lane.legCount < lane.targetLegs) return { eligible: false, reason: `only ${lane.legCount}/${lane.targetLegs} model-qualified legs — awaiting a full lane` };
+  // P177-C: the SPORT gate, checked before anything else about the legs themselves. NFL was
+  // excluded from the paper products only because no NFL loader was ever written — an omission,
+  // not a rule. Adding one would have quietly let experimental output into a paper ladder. This
+  // makes the rule explicit and fail-closed: an unregistered or ineligible sport is refused here,
+  // in the money path, whatever the pool happens to contain.
+  for (const l of lane.legs) {
+    const v = legSportEligibility(l);
+    if (!v.eligible) return { eligible: false, reason: `${l.matchup} is ${v.sport} — ${v.reason}` };
+  }
   // Moonshot must clear the longshot floor — a thin 3-leg lane of short favorites is not a moonshot.
   if (lane.product === "moonshot" && lane.combinedOdds < MOONSHOT_MIN_COMBINED_ODDS)
     return { eligible: false, reason: `combined +${lane.combinedOdds} is below the +${MOONSHOT_MIN_COMBINED_ODDS} longshot floor — awaiting a longer card` };
