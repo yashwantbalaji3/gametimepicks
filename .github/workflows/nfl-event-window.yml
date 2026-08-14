@@ -104,7 +104,7 @@ jobs:
         working-directory: app
         run: |
           set -euo pipefail
-          node scripts/nfl/build-nfl-role-evidence.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 30
+          node scripts/nfl/build-nfl-role-evidence.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 48
           # P182-A: participation DISTRIBUTIONS per event. Runs beside role evidence and before the
           # forecasts, so any player output downstream consumes one versioned playing-time answer
           # rather than each surface assuming its own.
@@ -115,7 +115,7 @@ jobs:
         working-directory: app
         run: |
           set -euo pipefail
-          node scripts/nfl/build-nfl-public-forecasts.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 30
+          node scripts/nfl/build-nfl-public-forecasts.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 48
           node scripts/nfl/build-nfl-public-status.mjs --now "${{ steps.window.outputs.now }}"
           # P174-A: the canonical index every NFL surface consumes. Built LAST so it summarises
           # the artifacts this run just produced, and it refuses on any contradiction between them.

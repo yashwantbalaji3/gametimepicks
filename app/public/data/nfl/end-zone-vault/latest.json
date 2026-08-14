@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-08-14",
- "generatedAt": "2026-08-14T15:23:33Z",
+ "generatedAt": "2026-08-14T15:51:52Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "95 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
+ "reason": "120 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -34,6 +34,25 @@
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
   },
   {
+   "playerId": "nfl-athlete-3121023",
+   "name": "Dallas Goedert",
+   "position": "TE",
+   "team": "PHI",
+   "opponent": "BAL",
+   "event": "PHI @ BAL",
+   "providerEventId": "401873284",
+   "kickoffUtc": "2026-08-15T23:00Z",
+   "tdProbability": 0.339173,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "preseason: no source-backed evidence of how much this player will play",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 44, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
    "playerId": "nfl-athlete-4430807",
    "name": "Bijan Robinson",
    "position": "RB",
@@ -50,6 +69,25 @@
    "roleNote": "preseason: no source-backed evidence of how much this player will play",
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.48, g 46, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4426385",
+   "name": "Zach Charbonnet",
+   "position": "RB",
+   "team": "SEA",
+   "opponent": "DAL",
+   "event": "DAL @ SEA",
+   "providerEventId": "401873279",
+   "kickoffUtc": "2026-08-16T00:00Z",
+   "tdProbability": 0.29635,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "preseason: no source-backed evidence of how much this player will play",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 46, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
   },
   {
@@ -88,6 +126,25 @@
    "roleNote": "preseason: no source-backed evidence of how much this player will play",
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.46, g 35, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-3043078",
+   "name": "Derrick Henry",
+   "position": "RB",
+   "team": "BAL",
+   "opponent": "PHI",
+   "event": "PHI @ BAL",
+   "providerEventId": "401873284",
+   "kickoffUtc": "2026-08-15T23:00Z",
+   "tdProbability": 0.28722,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "preseason: no source-backed evidence of how much this player will play",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 35, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
   },
   {
@@ -184,66 +241,9 @@
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.52, g 56, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
-  },
-  {
-   "playerId": "nfl-athlete-4426515",
-   "name": "Puka Nacua",
-   "position": "WR",
-   "team": "LAR",
-   "opponent": "KC",
-   "event": "LAR @ KC",
-   "providerEventId": "401873283",
-   "kickoffUtc": "2026-08-15T20:00Z",
-   "tdProbability": 0.245858,
-   "probabilityRange": {
-    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ROLE_UNCERTAIN",
-   "roleNote": "preseason: no source-backed evidence of how much this player will play",
-   "marketPrice": null,
-   "shareBasis": "corpus-role 2023-25 stint (nEff 1.53, g 47, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
-  },
-  {
-   "playerId": "nfl-athlete-4569603",
-   "name": "Malik Washington",
-   "position": "WR",
-   "team": "MIA",
-   "opponent": "WSH",
-   "event": "MIA @ WSH",
-   "providerEventId": "401873277",
-   "kickoffUtc": "2026-08-14T23:00Z",
-   "tdProbability": 0.239013,
-   "probabilityRange": {
-    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ROLE_UNCERTAIN",
-   "roleNote": "preseason: no source-backed evidence of how much this player will play",
-   "marketPrice": null,
-   "shareBasis": "corpus-role 2023-25 stint (nEff 1.48, g 29, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
-  },
-  {
-   "playerId": "nfl-athlete-3128429",
-   "name": "Courtland Sutton",
-   "position": "WR",
-   "team": "DEN",
-   "opponent": "ATL",
-   "event": "DEN @ ATL",
-   "providerEventId": "401873278",
-   "kickoffUtc": "2026-08-14T23:00Z",
-   "tdProbability": 0.23372,
-   "probabilityRange": {
-    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ROLE_UNCERTAIN",
-   "roleNote": "preseason: no source-backed evidence of how much this player will play",
-   "marketPrice": null,
-   "shareBasis": "corpus-role 2023-25 stint (nEff 1.52, g 50, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
   }
  ],
- "candidateCount": 95,
+ "candidateCount": 120,
  "withheld": [],
  "gates": {
   "required": [

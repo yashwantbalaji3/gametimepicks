@@ -1,0 +1,85 @@
+{
+ "providerEventId": "401873282",
+ "canonicalEventId": "nfl-401873282",
+ "matchup": "CAR @ BUF",
+ "home": {
+  "abbr": "BUF",
+  "name": "Buffalo Bills"
+ },
+ "away": {
+  "abbr": "CAR",
+  "name": "Carolina Panthers"
+ },
+ "kickoffUtc": "2026-08-15T17:00Z",
+ "seasonType": 1,
+ "week": 2,
+ "venue": "Highmark Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-preseason-public-beta-v1",
+  "version": 1,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "25366d3683d41c4d",
+  "simulations": 10000
+ },
+ "teamSignal": {
+  "state": "NOT_SIGNIFICANT",
+  "tStatistic": -0.5746,
+  "ci95": [
+   -0.077667,
+   0.042782
+  ],
+  "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
+ },
+ "generatedAt": "2026-08-14T15:49:10Z",
+ "evidence": {
+  "schedule": "2026-08-14T04:57:22Z",
+  "strengthCutoff": "2026-08-14T15:49:10Z"
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 18,
+   "away": 19
+  },
+  "winProbability": {
+   "home": 0.463,
+   "away": 0.537,
+   "tieMass": 0.0326,
+   "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+  },
+  "margin": {
+   "median": -1,
+   "p10": -17,
+   "p90": 16
+  },
+  "total": {
+   "median": 37,
+   "p10": 23,
+   "p90": 51
+  },
+  "scoreRange": {
+   "homeP10": 7,
+   "homeP90": 29,
+   "awayP10": 8,
+   "awayP90": 30
+  }
+ },
+ "marketComparison": {
+  "state": "MARKET_VIEW",
+  "capturedAt": "2026-08-14T15:23:33Z",
+  "books": 11,
+  "marketHomeWinPct": 0.584343,
+  "marketSpreadHome": -3,
+  "marketTotal": 39,
+  "modelVsMarketTotal": -2,
+  "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401873282",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market.",
+ "revisionOf": "401873282.json",
+ "priorInputHash": "bffa614ac657241d"
+}
