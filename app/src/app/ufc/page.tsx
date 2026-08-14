@@ -12,6 +12,7 @@
  * is fail-closed on the settlement artifact: no official "final" settlement, no record shown.
  */
 import fs from "node:fs";
+import UfcCard, { type UfcCardArtifact } from "@/components/sports/ufc-card";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import path from "node:path";
@@ -47,6 +48,9 @@ export default function UfcArchivePage() {
   // happened". Nothing predictive is added: bouts are listed with a time and nothing else.
   type Feed = { sport?: string; events?: unknown[]; totals?: { upcoming?: number }; sourceVerdict?: { sourceId?: string | null; fetchedAt?: string | null } };
   const feed = (allUpcoming({ nowIso: new Date().toISOString() }) as unknown as Feed[]).find((x) => x.sport === "ufc");
+  // The full card (bouts, portraits, records, the one modelled prop) when a card artifact exists;
+  // the generic schedule list is the fallback so the page never renders empty.
+  const card = loadJSONUfc<UfcCardArtifact>("card-latest.json");
   const settlement = loadJSONUfc<UfcSettlement>("results-settled-latest.json");
   // Fail-closed: only an OFFICIAL final settlement may render a record.
   const settled = settlement && settlement.status === "final" ? settlement : null;
@@ -100,15 +104,14 @@ export default function UfcArchivePage() {
           The next scheduled bouts, listed with their start time and nothing else. No projection,
           probability, price or pick is published for UFC: the retired V1 moneyline read was a
           de-vigged market price with a capped nudge, and no bout is cleanly backtestable without
-          point-in-time odds capture — so the honest state is a schedule. Fighter portraits are not
-          shown because our schedule carries fighter names but no athlete id to resolve one, and a
-          guessed image is worse than none.
+          point-in-time odds capture — so no moneyline or method-of-victory number is published.
+          One market IS modelled: whether a bout goes the distance, which cleared a walk-forward
+          backtest against a base-rate baseline. The block under the card states exactly what that
+          test measured and what is still refused.
         </p>
-        <ScheduleList
-          events={(feed?.events ?? []) as never[]}
-          sides={["red", "blue"]}
-          joiner="vs"
-        />
+        {card?.bouts?.length
+          ? <UfcCard card={card} />
+          : <ScheduleList events={(feed?.events ?? []) as never[]} sides={["red", "blue"]} joiner="vs" />}
         <p className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
           Source: {feed?.sourceVerdict?.sourceId ?? "ESPN schedule capture"}
         </p>
