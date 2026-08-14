@@ -48,7 +48,10 @@ test("EVERY game on the derived slate day renders, and every simulated one opens
       `${g.shortName}: a simulated game must carry a score, a win chance and a total`);
   }
   // the hub links by provider event id — the same key the route generates from
-  assert.match(hub, /\/nfl\/game\/\$\{g\.providerEventId\}/);
+  // P183: the hub now links the SHARED experience at /games/nfl/<slug> — the same page MLB uses —
+  // rather than the bespoke /nfl/game route built before NFL fed the shared contract. The intent
+  // ("every simulated game opens a full report") is better served, not weakened.
+  assert.match(hub, /\/games\/nfl\/\$\{g\.away\.abbr\.toLowerCase\(\)\}-vs-\$\{g\.home\.abbr\.toLowerCase\(\)\}/);
   // a game WITHOUT a simulation is stated as such rather than rendered blank
   assert.match(hub, /No simulation was published for this game/);
 });

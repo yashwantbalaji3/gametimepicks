@@ -72,6 +72,12 @@ export interface NflEligibleEvent {
   venue: string | null;
   /** How many player rows the Vault published for this event (0 when none). */
   playerCandidates: number;
+  /**
+   * The canonical link to this game's report, read from the simulation artifact's OWN slug.
+   * Recomputing it from the kickoff date drifts: every game in one artifact shares the artifact's
+   * date, so a Saturday kickoff exports under the Friday artifact date.
+   */
+  reportHref: string;
   readiness: NflReadiness;
   /** True only for SIMULATION_READY. This is what drives the green badge. */
   simulationReady: boolean;
@@ -173,6 +179,9 @@ export function nflSimulateEligibility(): NflSimulateEligibility {
   const forecasts = readJson<{ forecasts: Forecast[] }>("nfl/forecasts/latest.json");
   const signalById = new Map((forecasts?.forecasts ?? []).map((f) => [f.providerEventId, f.teamSignal ?? null]));
 
+  const simArtifact = readJson<{ date?: string; games?: Array<{ gameId?: string; slug?: string }> }>("nfl/game-simulations/latest.json");
+  const slugByEvent = new Map((simArtifact?.games ?? []).map((g) => [String(g.gameId ?? "").replace(/^nfl-/, ""), String(g.slug ?? "")]));
+
   const vault = readJson<{ selections?: Array<{ providerEventId: string }>; watchlist?: Array<{ providerEventId: string }> }>("nfl/end-zone-vault/latest.json");
   const playerCounts = new Map<string, number>();
   for (const c of [...(vault?.selections ?? []), ...(vault?.watchlist ?? [])]) {
@@ -198,6 +207,9 @@ export function nflSimulateEligibility(): NflSimulateEligibility {
       hasMarket: Boolean(e.hasMarket),
       venue: venueById.get(e.providerEventId) ?? null,
       playerCandidates: playerCounts.get(e.providerEventId) ?? 0,
+      reportHref: slugByEvent.get(e.providerEventId)
+        ? `/games/nfl/${slugByEvent.get(e.providerEventId)}`
+        : `/nfl/game/${e.providerEventId}`,
       ...readinessOf(signalById.get(e.providerEventId) ?? null),
     }));
 

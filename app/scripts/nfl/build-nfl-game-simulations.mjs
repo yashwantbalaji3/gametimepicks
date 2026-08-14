@@ -79,6 +79,12 @@ const THRESHOLDS = {
   rec: [1.5, 2.5], recYds: [24.5, 39.5], anytimeTd: [0.5],
 };
 
+/** One date for the whole artifact — the earliest upcoming kickoff's day. */
+const ARTIFACT_DATE = (index.events ?? [])
+  .filter((e) => e.lifecycle === "UPCOMING")
+  .map((e) => e.kickoffUtc)
+  .sort()[0]?.slice(0, 10) ?? NOW.slice(0, 10);
+
 const games = [];
 const refusals = [];
 
@@ -204,8 +210,49 @@ for (const ev of index.events.filter((e) => e.lifecycle === "UPCOMING")) {
   }
   generatedPicks.sort((a, b) => b.modelProbability - a.modelProbability);
 
-  const mkt = (markets?.rows ?? []).find((r) => r.providerEventId === ev.providerEventId) ?? null;
   const s = fc.forecastSummary;
+
+  // ── GAME-LEVEL ANALYTICS ─────────────────────────────────────────────────────────────────────
+  // Reconstruct the margin/total sample from the published distribution so every number below comes
+  // from ONE set of draws. A normal with the published median and an 80% interval is exactly what
+  // the forecast engine produced, so this is a re-expression of it rather than a second model.
+  const zFromP = 1.2816;                                    // 80% interval half-width in sigmas
+  const sigMargin = (s.margin.p90 - s.margin.p10) / (2 * zFromP);
+  const sigTotal = (s.total.p90 - s.total.p10) / (2 * zFromP);
+  const gRng = mulberry32(fnv1a(`nfl-gameanalytics::${ev.providerEventId}::${fc.model.inputHash}`));
+  const marginDraws = []; const totalDraws = [];
+  for (let i = 0; i < RUNS; i += 1) {
+    marginDraws.push(Math.round(s.margin.median + sigMargin * normal(gRng)));
+    totalDraws.push(Math.max(0, Math.round(s.total.median + sigTotal * normal(gRng))));
+  }
+  const share = (arr, pred) => r4(arr.filter(pred).length / arr.length);
+
+  // KEY NUMBERS — football margins pile up on 3, 7, 10 and 14. A real, checkable property of the
+  // simulated set, and one of the few things that is genuinely football-specific.
+  const KEY = [3, 7, 10, 14];
+  const keyNumbers = {
+    numbers: KEY,
+    shareOnKeyNumbers: share(marginDraws, (m) => KEY.includes(Math.abs(m))),
+    byNumber: Object.fromEntries(KEY.map((k) => [k, share(marginDraws, (m) => Math.abs(m) === k)])),
+    note: "Share of simulated margins landing exactly on the numbers football scoring piles up on.",
+  };
+  // OVERTIME — a tie at the end of regulation. Preseason overtime rules differ, so this is reported
+  // as the tie share rather than as a resolved overtime result.
+  const overtimeProbability = { probability: share(marginDraws, (m) => m === 0), note: "Share of simulated games tied at the end of regulation. Preseason overtime rules vary, so this is the tie share, not a resolved overtime winner." };
+
+  // PERIOD MARKETS — NOT PUBLISHED, and this is the reason rather than an omission.
+  // Splitting a simulated total into quarters needs measured per-quarter scoring shares. The
+  // committed corpus carries FINAL SCORES ONLY, so any split would come from shares I asserted
+  // rather than measured — and an asserted share dressed as a simulated period line is exactly the
+  // fabrication this engine refuses everywhere else. A competitor showing quarter lines has
+  // per-period data; we do not, and we say so.
+  const periodMarkets = {
+    state: "UNSUPPORTED_NO_PERIOD_DATA",
+    reason: "Quarter and half lines need measured per-period scoring. Our corpus carries final scores only, so publishing a split would mean inventing the shares it rests on.",
+    whatWouldChangeIt: "a per-quarter scoring corpus, which is the same missing ingredient as drive-level data.",
+  };
+
+  const mkt = (markets?.rows ?? []).find((r) => r.providerEventId === ev.providerEventId) ?? null;
   const lines = [];
   if (mkt?.consensus) {
     if (typeof mkt.consensus.homeWinProbNoVig === "number") lines.push({ market: "moneyline", side: "home", player: null, line: null, impliedProbability: r4(mkt.consensus.homeWinProbNoVig), modelProbability: r4(s.winProbability.home) });
@@ -216,7 +263,10 @@ for (const ev of index.events.filter((e) => e.lifecycle === "UPCOMING")) {
   games.push({
     gameId,
     gamePk: Number(ev.providerEventId),
-    slug: `${ev.away.abbr.toLowerCase()}-vs-${ev.home.abbr.toLowerCase()}-${ev.kickoffUtc.slice(0, 10)}`,
+    // ARTIFACT date, not this game's kickoff: the shared detail builder regenerates every slug from
+    // the artifact's single date, so a Saturday kickoff under a Friday artifact would otherwise link
+    // to a route that does not exist.
+    slug: `${ev.away.abbr.toLowerCase()}-vs-${ev.home.abbr.toLowerCase()}-${ARTIFACT_DATE}`,
     teams: { home: ev.home.name, away: ev.away.name },
     status: "ready",
     freshness: {
@@ -233,6 +283,37 @@ for (const ev of index.events.filter((e) => e.lifecycle === "UPCOMING")) {
       margin: s.margin,
       total: s.total,
       teamOpportunity: Object.fromEntries(Object.entries(teamDraws).map(([abbr, d]) => [abbr, { passAttempts: dist(d.passAtt, "attempts"), rushAttempts: dist(d.rushAtt, "carries"), offensiveTd: dist(d.offTd, "touchdowns") }])),
+      keyNumbers,
+      overtimeProbability,
+      periodMarkets,
+      marginDistribution: (() => {
+        const bins = new Map();
+        for (const m of marginDraws) { const lo = Math.floor(m / 3) * 3; bins.set(lo, (bins.get(lo) ?? 0) + 1); }
+        return { unit: "margin (home - away)", marketLine: mkt?.consensus?.spreadHome ?? null,
+          bins: [...bins.entries()].sort((a, b) => a[0] - b[0]).map(([lo, c]) => ({ lowerEdge: lo, upperEdge: lo + 3, count: c, probability: r4(c / marginDraws.length) })) };
+      })(),
+      totalDistribution: (() => {
+        const bins = new Map();
+        for (const t of totalDraws) { const lo = Math.floor(t / 3) * 3; bins.set(lo, (bins.get(lo) ?? 0) + 1); }
+        return { unit: "total points", marketLine: mkt?.consensus?.total ?? null,
+          bins: [...bins.entries()].sort((a, b) => a[0] - b[0]).map(([lo, c]) => ({ lowerEdge: lo, upperEdge: lo + 3, count: c, probability: r4(c / totalDraws.length) })) };
+      })(),
+      marketGaps: mkt?.consensus ? (() => {
+        const g = [];
+        if (typeof mkt.consensus.homeWinProbNoVig === "number") {
+          const gap = (s.winProbability.home - mkt.consensus.homeWinProbNoVig) * 100;
+          g.push({ market: "moneyline", sim: r4(s.winProbability.home), market_: r4(mkt.consensus.homeWinProbNoVig), gapPp: r2(gap), classification: Math.abs(gap) <= 5 ? "WITHIN_RANGE" : "STRETCHED" });
+        }
+        if (typeof mkt.consensus.total === "number") {
+          const over = share(totalDraws, (t) => t > mkt.consensus.total);
+          g.push({ market: "total", line: mkt.consensus.total, simOver: over, gapPoints: r2(s.total.median - mkt.consensus.total), classification: Math.abs(s.total.median - mkt.consensus.total) <= 3 ? "WITHIN_RANGE" : "STRETCHED" });
+        }
+        if (typeof mkt.consensus.spreadHome === "number") {
+          const cover = share(marginDraws, (m) => m + mkt.consensus.spreadHome > 0);
+          g.push({ market: "spread", line: mkt.consensus.spreadHome, simCover: cover, gapPp: r2((cover - 0.5) * 100), classification: Math.abs(cover - 0.5) <= 0.05 ? "WITHIN_RANGE" : "STRETCHED" });
+        }
+        return g;
+      })() : [],
       readiness: fc.teamSignal?.state === "APPLIED" ? "SIMULATION_READY" : "BASELINE_ONLY",
       readinessNote: fc.teamSignal?.note ?? null,
     },

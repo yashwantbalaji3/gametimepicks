@@ -198,7 +198,7 @@ export default function SimulateLobby() {
       href: "/nfl",
       buildHref: "/build",
       // The NATIVE per-game report P177 built — not a /games/* slug NFL does not have.
-      detailHref: `/nfl/game/${e.providerEventId}`,
+      detailHref: e.reportHref,
       // Drives the green SIMULATION READY badge. Read from the artifact's own signal state — the
       // previous `simReady: true` said "a file exists", which is not the same claim.
       simReady: e.simulationReady,

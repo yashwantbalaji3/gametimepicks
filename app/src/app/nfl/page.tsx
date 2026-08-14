@@ -297,7 +297,7 @@ export default function NflHubPage() {
                     <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--vault-gold)" }}>SIMULATED</span>
                   ) : null
                 }
-                href={sim ? `/nfl/game/${g.providerEventId}` : undefined}
+                href={sim ? `/games/nfl/${g.away.abbr.toLowerCase()}-vs-${g.home.abbr.toLowerCase()}-${g.dateUtc.slice(0, 10)}` : undefined}
                 hrefLabel="Open full simulation →"
                 footnote={sim ? calibrationById.get(g.providerEventId) : "No simulation was published for this game."}
               >

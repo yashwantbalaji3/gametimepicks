@@ -115,13 +115,15 @@ test("sports are ORDERED by their own tone, not hand-ranked", () => {
   }
 });
 
-test("every NFL row opens the NATIVE report route P177 built", () => {
-  assert.match(lobby, /detailHref: `\/nfl\/game\/\$\{e\.providerEventId\}`/);
+test("every NFL row opens the SHARED simulation report (P183: the same page MLB uses)", () => {
+  // The href is READ from the artifact's own slug, never recomputed — every game in one artifact
+  // shares the artifact's date, so recomputing from the kickoff drifts for a Saturday game.
+  assert.match(lobby, /detailHref: e\.reportHref/);
   const live = nflSimulateEligibility();
   for (const e of live.events) {
-    const route = path.join(APP, "out", "nfl", "game", e.providerEventId, "index.html");
-    if (fs.existsSync(path.join(APP, "out"))) {
-      assert.ok(fs.existsSync(route), `${e.matchup}: the lobby links /nfl/game/${e.providerEventId}, which must exist in the export`);
+    const route = path.join(APP, "out", e.reportHref.replace(/^\//, ""), "index.html");
+    if (fs.existsSync(path.join(APP, "out", "games", "nfl"))) {
+      assert.ok(fs.existsSync(route), `${e.matchup}: the lobby links ${e.reportHref}, which must exist in the export`);
     }
   }
 });
