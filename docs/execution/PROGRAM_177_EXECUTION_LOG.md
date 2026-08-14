@@ -1,5 +1,24 @@
 # Program 177 — Aug-14 NFL full slate, product gates, MLB UI parity
 
+> ## CORRECTION (Program 178, 2026-08-14 00:40 ET)
+>
+> **This log's "11 OPEN → 0" headline was false closure and is withdrawn.** The ledger's
+> `open` count was 0 and its `adapterNeeded` count was 1; both numbers were individually
+> derived and individually true, but the headline built from them reads as "parity is
+> finished" when a row still needed engineering. **ADAPTER_NEEDED is open work.**
+>
+> The honest reading of Program 177 is **11 unresolved rows → 1** (Market Center sport
+> support), and the classification is `MATERIAL_PROGRESS`, not complete.
+>
+> The ledger now publishes a single `unresolved` count over every status that means work
+> remains, plus a self-classification, and `src/lib/audits/parity-closure-truth.test.mjs`
+> fails the suite if any completion language coexists with an unresolved row — or if a new
+> status appears that is classified as neither resolved nor unresolved.
+>
+> Every other claim in this log was checked against the repository and stands. The section
+> counts below are left exactly as written so the correction is auditable rather than
+> retro-edited away.
+
 **Window** 2026-08-13 21:50 ET → 2026-08-13 22:35 ET
 **Base** `ae9b5a3b3` · **Tip** `9c0a0bc00` · four commits, all on `origin/main`
 **Charter** minimum package = Release A + (B or C). **Delivered A, B, C and D**, plus the

@@ -3,7 +3,7 @@
   "artifact": "mlb-nfl-parity-ledger",
   "dataClass": "PRIVATE_RESEARCH",
   "program": "P175",
-  "generatedAt": "2026-08-14T02:45:00Z",
+  "generatedAt": "2026-08-14T04:40:00Z",
   "referenceRoute": "/mlb (production, src/app/mlb/page.tsx, 401 lines, vault-page-shell max-width 1440px)",
   "targetRoute": "/nfl (src/app/nfl/page.tsx, vault-page-shell max-width 1440px, shared hero/freshness/section/card/rail) + /nfl/game/[eventId]",
   "method": "mechanical inventory of the current /mlb render order, its sub-routes, and every shared component it imports; each row names an MLB owner, the NFL owner or gap, and the shared-vs-adapter decision. A row may be NOT_APPLICABLE only with a football-specific reason and a named replacement of equal user value.",
@@ -190,12 +190,20 @@
     "adapterNeeded": 1,
     "notApplicableWithReplacement": 2,
     "open": 0,
+    "unresolved": 1,
+    "unresolvedRows": [
+      {
+        "capability": "Market Center sport support",
+        "status": "ADAPTER_NEEDED"
+      }
+    ],
     "unexplainedGaps": 0,
-    "derivedNote": "counted from rows, never hand-written \u2014 the first hand-written summary over-claimed 4 shipped/10 open against an actual 3/12 and a guard caught it"
+    "claim": "MATERIAL_PROGRESS \u2014 1 row(s) still unresolved: Market Center sport support (ADAPTER_NEEDED)",
+    "derivedNote": "counted from rows, never hand-written. TWO corrections live here: the first hand-written summary over-claimed 4 shipped/10 open against an actual 3/12, and P177 then reported '11 OPEN -> 0' while an ADAPTER_NEEDED row was still unresolved. Both numbers were individually true; the headline built from them was not. `unresolved` exists so open work cannot hide in whichever bucket is not being read."
   },
   "honesty": [
     "every row names an owner or an explicit gap \u2014 no row is hand-waved, and the two NOT_APPLICABLE rows each carry a football-specific reason and a named replacement of equal user value",
-    "0 rows are OPEN and 1 needs an adapter. This ledger exists so that count is visible rather than hidden behind the word 'complete' \u2014 it read 10 OPEN before P177, and this sentence is corrected with the count, never left to rot.",
+    "1 row(s) are UNRESOLVED \u2014 Market Center sport support (ADAPTER_NEEDED). ADAPTER_NEEDED is open work, not a resolved state. This ledger exists so that count is visible rather than hidden behind the word 'complete', and P177 proved the point by publishing a zero-open headline over a still-unresolved row.",
     "the cheapest real parity path is adopting owners that already exist and are sport-agnostic, not forking the /mlb page tree \u2014 8 of the shared components MLB uses need no change at all, and 4 need only an additive registry/union entry"
   ],
   "keyFinding": "the cheapest real parity path is adopting owners that already exist and are sport-agnostic, not forking the /mlb page tree \u2014 /nfl began as a 900px document against /mlb's 1440px application shell, and closing that row took one shared class rather than a component fork",
@@ -232,6 +240,12 @@
         "Protected console NFL lane"
       ],
       "note": "the console row closes by extending /ops rather than building a second internal surface."
+    },
+    {
+      "program": "P178",
+      "phase": "0",
+      "correction": "P177's '11 OPEN -> 0' headline was false closure. ADAPTER_NEEDED is unresolved work.",
+      "note": "summary now publishes a single `unresolved` count and a self-classification; a false-closure guard fails the suite if completion language coexists with unresolved rows, and fails if a new status is neither classified resolved nor unresolved."
     }
   ]
 }
