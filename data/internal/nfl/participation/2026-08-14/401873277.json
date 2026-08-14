@@ -1,0 +1,678 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-participation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "providerEventId": "401873277",
+ "canonicalEventId": "nfl-401873277",
+ "matchup": "MIA @ WSH",
+ "kickoffUtc": "2026-08-14T23:00Z",
+ "generatedAt": "2026-08-14T13:20:49Z",
+ "sourceContract": {
+  "registered": [
+   "ESPN roster capture (identities only)",
+   "role-shares-v1 decayed-stint corpus (regular-season usage)"
+  ],
+  "absent": "authorized actives / inactives / depth chart / coach playing-time statements",
+  "whatAbsenceMeans": "without that source, CONFIRMED_OUT, EXPECTED_STARTER, EXPECTED_ROTATION, LIMITED are all UNREACHABLE. Every named player stays AVAILABLE_ROLE_UNCERTAIN.",
+  "basisWarning": "the share basis is REGULAR-SEASON usage. In preseason a nominal starter often plays one or two series, so carrying that basis through unchanged would hand a projection a full-game workload and call it evidence."
+ },
+ "rotationFactor": {
+  "QB": {
+   "p10": 0.05,
+   "p50": 0.2,
+   "p90": 0.55
+  },
+  "RB": {
+   "p10": 0.1,
+   "p50": 0.3,
+   "p90": 0.65
+  },
+  "WR": {
+   "p10": 0.1,
+   "p50": 0.3,
+   "p90": 0.65
+  },
+  "TE": {
+   "p10": 0.1,
+   "p50": 0.3,
+   "p90": 0.65
+  },
+  "DEFAULT": {
+   "p10": 0.1,
+   "p50": 0.35,
+   "p90": 0.75
+  }
+ },
+ "teams": {
+  "WSH": {
+   "markets": {
+    "passAttempts": {
+     "players": [
+      {
+       "playerId": "nfl-athlete-4426348",
+       "name": "Jayden Daniels",
+       "position": "QB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.5406,
+       "preseasonShare": {
+        "p10": 0.027,
+        "p50": 0.1081,
+        "p90": 0.2973
+       },
+       "evidence": {
+        "nEff": 1.217,
+        "games": 27,
+        "basis": "corpus-role 2023-25 stint (nEff 1.22, g 27, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-2576980",
+       "name": "Marcus Mariota",
+       "position": "QB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.4594,
+       "preseasonShare": {
+        "p10": 0.023,
+        "p50": 0.0919,
+        "p90": 0.2527
+       },
+       "evidence": {
+        "nEff": 1.334,
+        "games": 15,
+        "basis": "corpus-role 2023-25 stint (nEff 1.33, g 15, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      }
+     ],
+     "namedMassP50": 0.2,
+     "unallocatedMass": 0.8,
+     "reconciles": true,
+     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
+    },
+    "rushAttempts": {
+     "players": [
+      {
+       "playerId": "nfl-athlete-4575131",
+       "name": "Jacory Croskey-Merritt",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.2913,
+       "preseasonShare": {
+        "p10": 0.0291,
+        "p50": 0.0874,
+        "p90": 0.1894
+       },
+       "evidence": {
+        "nEff": 1.489,
+        "games": 17,
+        "basis": "corpus-role 2023-25 stint (nEff 1.49, g 17, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4426348",
+       "name": "Jayden Daniels",
+       "position": "QB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.1978,
+       "preseasonShare": {
+        "p10": 0.0099,
+        "p50": 0.0396,
+        "p90": 0.1088
+       },
+       "evidence": {
+        "nEff": 1.217,
+        "games": 27,
+        "basis": "corpus-role 2023-25 stint (nEff 1.22, g 27, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-2576980",
+       "name": "Marcus Mariota",
+       "position": "QB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.1214,
+       "preseasonShare": {
+        "p10": 0.0061,
+        "p50": 0.0243,
+        "p90": 0.0668
+       },
+       "evidence": {
+        "nEff": 1.334,
+        "games": 15,
+        "basis": "corpus-role 2023-25 stint (nEff 1.33, g 15, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-3127586",
+       "name": "Jeremy McNichols",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0631,
+       "preseasonShare": {
+        "p10": 0.0063,
+        "p50": 0.0189,
+        "p90": 0.041
+       },
+       "evidence": {
+        "nEff": 1.497,
+        "games": 34,
+        "basis": "corpus-role 2023-25 stint (nEff 1.50, g 34, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      }
+     ],
+     "namedMassP50": 0.1702,
+     "unallocatedMass": 0.8298,
+     "reconciles": true,
+     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
+    },
+    "targets": {
+     "players": [
+      {
+       "playerId": "nfl-athlete-3121422",
+       "name": "Terry McLaurin",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.1777,
+       "preseasonShare": {
+        "p10": 0.0178,
+        "p50": 0.0533,
+        "p90": 0.1155
+       },
+       "evidence": {
+        "nEff": 1.361,
+        "games": 47,
+        "basis": "corpus-role 2023-25 stint (nEff 1.36, g 47, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4567156",
+       "name": "Treylon Burks",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0993,
+       "preseasonShare": {
+        "p10": 0.0099,
+        "p50": 0.0298,
+        "p90": 0.0645
+       },
+       "evidence": {
+        "nEff": 1.178,
+        "games": 8,
+        "basis": "corpus-role 2023-25 stint (nEff 1.18, g 8, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4690923",
+       "name": "Ben Sinnott",
+       "position": "TE",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0639,
+       "preseasonShare": {
+        "p10": 0.0064,
+        "p50": 0.0192,
+        "p90": 0.0416
+       },
+       "evidence": {
+        "nEff": 1.242,
+        "games": 14,
+        "basis": "corpus-role 2023-25 stint (nEff 1.24, g 14, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-3127586",
+       "name": "Jeremy McNichols",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.063,
+       "preseasonShare": {
+        "p10": 0.0063,
+        "p50": 0.0189,
+        "p90": 0.041
+       },
+       "evidence": {
+        "nEff": 1.497,
+        "games": 34,
+        "basis": "corpus-role 2023-25 stint (nEff 1.50, g 34, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4048228",
+       "name": "John Bates",
+       "position": "TE",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0548,
+       "preseasonShare": {
+        "p10": 0.0055,
+        "p50": 0.0164,
+        "p90": 0.0356
+       },
+       "evidence": {
+        "nEff": 1.318,
+        "games": 37,
+        "basis": "corpus-role 2023-25 stint (nEff 1.32, g 37, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4602667",
+       "name": "Jaylin Lane",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0505,
+       "preseasonShare": {
+        "p10": 0.005,
+        "p50": 0.0151,
+        "p90": 0.0328
+       },
+       "evidence": {
+        "nEff": 1.432,
+        "games": 14,
+        "basis": "corpus-role 2023-25 stint (nEff 1.43, g 14, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4426948",
+       "name": "Luke McCaffrey",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0452,
+       "preseasonShare": {
+        "p10": 0.0045,
+        "p50": 0.0136,
+        "p90": 0.0294
+       },
+       "evidence": {
+        "nEff": 1.317,
+        "games": 24,
+        "basis": "corpus-role 2023-25 stint (nEff 1.32, g 24, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-5083297",
+       "name": "Jacoby Jones",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0115,
+       "preseasonShare": {
+        "p10": 0.0011,
+        "p50": 0.0034,
+        "p90": 0.0075
+       },
+       "evidence": {
+        "nEff": 0.25,
+        "games": 1,
+        "basis": "corpus-role 2023-25 stint (nEff 0.25, g 1, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4361088",
+       "name": "Colson Yankoff",
+       "position": "TE",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0107,
+       "preseasonShare": {
+        "p10": 0.0011,
+        "p50": 0.0032,
+        "p90": 0.0069
+       },
+       "evidence": {
+        "nEff": 1.334,
+        "games": 15,
+        "basis": "corpus-role 2023-25 stint (nEff 1.33, g 15, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4575131",
+       "name": "Jacory Croskey-Merritt",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0097,
+       "preseasonShare": {
+        "p10": 0.001,
+        "p50": 0.0029,
+        "p90": 0.0063
+       },
+       "evidence": {
+        "nEff": 1.489,
+        "games": 17,
+        "basis": "corpus-role 2023-25 stint (nEff 1.49, g 17, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      }
+     ],
+     "namedMassP50": 0.1758,
+     "unallocatedMass": 0.8242,
+     "reconciles": true,
+     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
+    }
+   },
+   "rosterAsOf": "2026-08-13T02:55:00Z"
+  },
+  "MIA": {
+   "markets": {
+    "passAttempts": {
+     "players": [
+      {
+       "playerId": "nfl-athlete-4889929",
+       "name": "Quinn Ewers",
+       "position": "QB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.5098,
+       "preseasonShare": {
+        "p10": 0.0255,
+        "p50": 0.102,
+        "p90": 0.2804
+       },
+       "evidence": {
+        "nEff": 0.786,
+        "games": 4,
+        "basis": "corpus-role 2023-25 stint (nEff 0.79, g 4, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      }
+     ],
+     "namedMassP50": 0.102,
+     "unallocatedMass": 0.898,
+     "reconciles": true,
+     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
+    },
+    "rushAttempts": {
+     "players": [
+      {
+       "playerId": "nfl-athlete-4429160",
+       "name": "De'Von Achane",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.4427,
+       "preseasonShare": {
+        "p10": 0.0443,
+        "p50": 0.1328,
+        "p90": 0.2877
+       },
+       "evidence": {
+        "nEff": 1.497,
+        "games": 45,
+        "basis": "corpus-role 2023-25 stint (nEff 1.50, g 45, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4682745",
+       "name": "Jaylen Wright",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.1969,
+       "preseasonShare": {
+        "p10": 0.0197,
+        "p50": 0.0591,
+        "p90": 0.128
+       },
+       "evidence": {
+        "nEff": 1.315,
+        "games": 22,
+        "basis": "corpus-role 2023-25 stint (nEff 1.31, g 22, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4711533",
+       "name": "Ollie Gordon II",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.1134,
+       "preseasonShare": {
+        "p10": 0.0113,
+        "p50": 0.034,
+        "p90": 0.0737
+       },
+       "evidence": {
+        "nEff": 1.489,
+        "games": 17,
+        "basis": "corpus-role 2023-25 stint (nEff 1.49, g 17, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4889929",
+       "name": "Quinn Ewers",
+       "position": "QB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0447,
+       "preseasonShare": {
+        "p10": 0.0022,
+        "p50": 0.0089,
+        "p90": 0.0246
+       },
+       "evidence": {
+        "nEff": 0.786,
+        "games": 4,
+        "basis": "corpus-role 2023-25 stint (nEff 0.79, g 4, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4569603",
+       "name": "Malik Washington",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0277,
+       "preseasonShare": {
+        "p10": 0.0028,
+        "p50": 0.0083,
+        "p90": 0.018
+       },
+       "evidence": {
+        "nEff": 1.508,
+        "games": 31,
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 31, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      }
+     ],
+     "namedMassP50": 0.2431,
+     "unallocatedMass": 0.7569,
+     "reconciles": true,
+     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
+    },
+    "targets": {
+     "players": [
+      {
+       "playerId": "nfl-athlete-4429160",
+       "name": "De'Von Achane",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.1228,
+       "preseasonShare": {
+        "p10": 0.0123,
+        "p50": 0.0368,
+        "p90": 0.0798
+       },
+       "evidence": {
+        "nEff": 1.497,
+        "games": 45,
+        "basis": "corpus-role 2023-25 stint (nEff 1.50, g 45, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4367209",
+       "name": "Greg Dulcich",
+       "position": "TE",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.1134,
+       "preseasonShare": {
+        "p10": 0.0113,
+        "p50": 0.034,
+        "p90": 0.0737
+       },
+       "evidence": {
+        "nEff": 1.241,
+        "games": 9,
+        "basis": "corpus-role 2023-25 stint (nEff 1.24, g 9, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4569603",
+       "name": "Malik Washington",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.1025,
+       "preseasonShare": {
+        "p10": 0.0102,
+        "p50": 0.0307,
+        "p90": 0.0666
+       },
+       "evidence": {
+        "nEff": 1.508,
+        "games": 31,
+        "basis": "corpus-role 2023-25 stint (nEff 1.51, g 31, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4426535",
+       "name": "Theo Wease Jr.",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0757,
+       "preseasonShare": {
+        "p10": 0.0076,
+        "p50": 0.0227,
+        "p90": 0.0492
+       },
+       "evidence": {
+        "nEff": 0.637,
+        "games": 3,
+        "basis": "corpus-role 2023-25 stint (nEff 0.64, g 3, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4567506",
+       "name": "Tahj Washington",
+       "position": "WR",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0444,
+       "preseasonShare": {
+        "p10": 0.0044,
+        "p50": 0.0133,
+        "p90": 0.0288
+       },
+       "evidence": {
+        "nEff": 0.46,
+        "games": 2,
+        "basis": "corpus-role 2023-25 stint (nEff 0.46, g 2, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4682745",
+       "name": "Jaylen Wright",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0331,
+       "preseasonShare": {
+        "p10": 0.0033,
+        "p50": 0.0099,
+        "p90": 0.0215
+       },
+       "evidence": {
+        "nEff": 1.315,
+        "games": 22,
+        "basis": "corpus-role 2023-25 stint (nEff 1.31, g 22, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4711533",
+       "name": "Ollie Gordon II",
+       "position": "RB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0102,
+       "preseasonShare": {
+        "p10": 0.001,
+        "p50": 0.0031,
+        "p90": 0.0067
+       },
+       "evidence": {
+        "nEff": 1.489,
+        "games": 17,
+        "basis": "corpus-role 2023-25 stint (nEff 1.49, g 17, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      },
+      {
+       "playerId": "nfl-athlete-4889929",
+       "name": "Quinn Ewers",
+       "position": "QB",
+       "state": "AVAILABLE_ROLE_UNCERTAIN",
+       "stateReason": "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+       "regularSeasonShare": 0.0074,
+       "preseasonShare": {
+        "p10": 0.0004,
+        "p50": 0.0015,
+        "p90": 0.0041
+       },
+       "evidence": {
+        "nEff": 0.786,
+        "games": 4,
+        "basis": "corpus-role 2023-25 stint (nEff 0.79, g 4, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+        "sourceAsOf": "2026-08-13T02:55:00Z"
+       }
+      }
+     ],
+     "namedMassP50": 0.152,
+     "unallocatedMass": 0.848,
+     "reconciles": true,
+     "note": "shares are PRESEASON opportunity distributions derived from a regular-season basis and widened by a documented rotation factor. The unallocated mass is backups, unlisted players, and the share of the game the listed players do not take."
+    }
+   },
+   "rosterAsOf": "2026-08-13T02:55:00Z"
+  }
+ },
+ "cutoffSafe": true,
+ "inputHash": "6f927a83245f5208"
+}

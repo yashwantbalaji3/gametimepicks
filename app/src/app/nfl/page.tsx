@@ -102,6 +102,12 @@ export default function NflHubPage() {
   const index = read("nfl/index.json");
   // P180-A: how the last slate's frozen forecasts actually did. Published because a model that only
   // shows its predictions and never its grades is asking to be taken on trust.
+  // P182-A: the playing-time answer. Published because every player row on this page is only as
+  // good as the participation assumption behind it, and ours is "we do not know, here is how much".
+  const participation = read("nfl/participation-summary.json") as
+    | { headline: string; whyNotKnown: string; whatWeDoInstead: string; whyItMatters: string;
+        eventsCovered: number; unreachableWithoutSource: string[] }
+    | null;
   const pregameAudit = read("nfl/pregame-audit-latest.json") as
     | { etDate: string; headline: string; whatThisIs: string; n: number; decisiveGames: number; ties: number;
         winnersCorrect: number; teamScoreAverageError: number; marginAverageError: number; totalAverageError: number;
@@ -476,6 +482,24 @@ export default function NflHubPage() {
           </table>
         </div>
       </section>
+
+      {participation ? (
+        <section aria-labelledby="nfl-participation" id="nfl-participation">
+          <SectionHeader
+            eyebrow={`Playing time · ${participation.eventsCovered} games`}
+            title={participation.headline}
+            sub={participation.whyNotKnown}
+          />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 10 }}>
+            {[["What we do instead", participation.whatWeDoInstead], ["Why it matters", participation.whyItMatters]].map(([h, body]) => (
+              <article key={h} style={{ border: "1px solid var(--vault-border)", borderRadius: 12, padding: "12px 14px" }}>
+                <p style={{ margin: 0, fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</p>
+                <p style={{ margin: "6px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>{body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {pregameAudit ? (
         <section aria-labelledby="nfl-audit" id="nfl-audit">

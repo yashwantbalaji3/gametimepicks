@@ -105,6 +105,10 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/nfl/build-nfl-role-evidence.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 30
+          # P182-A: participation DISTRIBUTIONS per event. Runs beside role evidence and before the
+          # forecasts, so any player output downstream consumes one versioned playing-time answer
+          # rather than each surface assuming its own.
+          node scripts/nfl/build-nfl-participation.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 48
 
       - name: Generate public-beta NFL forecasts
         if: steps.window.outputs.events != '0'

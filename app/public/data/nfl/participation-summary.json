@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-participation-public",
+  "dataClass": "PUBLIC_DERIVED",
+  "generatedAt": "2026-08-14T13:22:26Z",
+  "eventsCovered": 10,
+  "eventsRefused": 0,
+  "headline": "We do not know who will play in these preseason games — and we would rather size that uncertainty than hide it.",
+  "whyNotKnown": "No source we are authorized to use publishes confirmed actives, inactives or preseason playing-time plans for this window. So no player on this slate is listed as expected to start or expected to rotate; every one is marked role-uncertain.",
+  "whatWeDoInstead": "For each listed player we publish a RANGE of how much of his team's work he might take, not a single number. The range is deliberately wide because August starters often play one or two series, and the part of the game nobody on our list accounts for is published too, as unallocated share.",
+  "whyItMatters": "A player projection is only as good as the playing-time assumption behind it. Quoting a regular-season workload in August would make a projection look precise while being wrong for a reason that has nothing to do with the player.",
+  "states": {
+    "AVAILABLE_ROLE_UNCERTAIN": "every named player on this slate"
+  },
+  "reachableStatesToday": [
+    "AVAILABLE_ROLE_UNCERTAIN",
+    "UNKNOWN",
+    "SOURCE_STALE",
+    "STARTED_LOCKED"
+  ],
+  "unreachableWithoutSource": [
+    "CONFIRMED_OUT",
+    "EXPECTED_STARTER",
+    "EXPECTED_ROTATION",
+    "LIMITED"
+  ]
+}
