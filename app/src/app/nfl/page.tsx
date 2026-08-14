@@ -131,6 +131,14 @@ export default function NflHubPage() {
   // P177-C: the daily paper-product evaluation. A reader who asks "why is there no NFL in Bank
   // Builder?" gets a dated answer from an evaluation that actually ran, not an inference from an
   // empty space. Renders only when the evaluation exists.
+  // P183-E: the RUN receipt. "Nothing qualified" is a conclusion; this is the working behind it —
+  // every lane's counted rejection doors, so a reader can tell a product that ran from one that did not.
+  const productReceipts = read("nfl/product-receipts.json") as
+    | { runId: string; generatedAt: string; nextRunUtc: string; plainEnglish: string;
+        overDetermined: { note: string; gates: string[] };
+        lanes: Array<{ product: string; label: string; state: string; candidatesConsidered: number;
+                       rejections: Array<{ reason: string; label: string; count: number }> }> }
+    | null;
   const productEligibility = read("nfl/product-eligibility.json") as
     | { generatedAt: string; plainEnglish: string; consideredEvents: number;
         products: Array<{ product: string; label: string; state: string; eligible: boolean; reason: string; whatWouldQualify: string[] }> }
@@ -630,6 +638,43 @@ export default function NflHubPage() {
           ) : null}
           <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
             {differentiation.whatWouldChangeIt}
+          </p>
+        </section>
+      ) : null}
+
+      {productReceipts ? (
+        <section aria-labelledby="nfl-product-receipts" id="nfl-product-receipts">
+          <SectionHeader
+            eyebrow={`Products · run ${productReceipts.runId} · next ${productReceipts.nextRunUtc}`}
+            title="All four NFL lanes ran today"
+            sub={productReceipts.plainEnglish}
+          />
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
+              <thead>
+                <tr>
+                  {["Product", "Result", "Candidates looked at", "Why none qualified"].map((h) => (
+                    <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {productReceipts.lanes.map((l) => (
+                  <tr key={l.product}>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>{l.label}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{l.state}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{l.candidatesConsidered}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, lineHeight: 1.55, color: "var(--vault-text-mute)" }}>
+                      {l.rejections.map((r) => `${r.count} × ${r.label}`).join("; ") || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p style={{ margin: "12px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 760 }}>
+            <strong style={{ color: "var(--vault-text)" }}>Three separate things would each have to change.</strong>{" "}
+            {productReceipts.overDetermined.gates.join("; ")}.
           </p>
         </section>
       ) : null}

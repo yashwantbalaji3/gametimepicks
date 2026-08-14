@@ -133,6 +133,10 @@ jobs:
           # model that stops reading the event fails the run instead of publishing quietly.
           node scripts/nfl/audit-nfl-signal-significance.mjs --now "${{ steps.window.outputs.now }}"
           node scripts/nfl/audit-nfl-differentiation.mjs --now "${{ steps.window.outputs.now }}"
+          # P183-E: product RUN receipts. Consumes the eligibility verdict and publishes the working
+          # behind it — counted rejection doors per lane — so a product that ran is distinguishable
+          # from one that never did. Refuses rather than writing a receipt from absent inputs.
+          node scripts/nfl/build-nfl-product-receipts.mjs --now "${{ steps.window.outputs.now }}"
 
       - name: Rebuild the NFL admin lane status
         if: steps.window.outputs.events != '0'

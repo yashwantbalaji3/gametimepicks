@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-product-receipts",
+  "dataClass": "PUBLIC_DERIVED",
+  "runId": "6a0933006572",
+  "generatedAt": "2026-08-14T14:31:32Z",
+  "asOf": {
+    "index": "2026-08-14T05:13:46Z",
+    "eligibility": "2026-08-14T05:13:46Z",
+    "vault": "2026-08-14T05:13:46Z",
+    "markets": "2026-08-13T21:43:17Z"
+  },
+  "nextRunUtc": "2026-08-14T15:00:00Z",
+  "eventsInWindow": 10,
+  "lanes": [
+    {
+      "product": "bank-builder",
+      "label": "Bank Builder",
+      "state": "NO_PLAY",
+      "stateReason": "every candidate was rejected; see the taxonomy below",
+      "candidatesConsidered": 10,
+      "rejections": [
+        {
+          "reason": "NOT_VALIDATED_MODEL",
+          "label": "the team model is experimental, not validated",
+          "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
+          "count": 10
+        }
+      ],
+      "reconciles": true,
+      "card": null,
+      "exposure": 0,
+      "settlementLinkage": "none — a lane with no card has nothing to settle, and this receipt is the record that it ran"
+    },
+    {
+      "product": "moonshot",
+      "label": "Moonshot",
+      "state": "NO_PLAY",
+      "stateReason": "every candidate was rejected; see the taxonomy below",
+      "candidatesConsidered": 10,
+      "rejections": [
+        {
+          "reason": "NOT_VALIDATED_MODEL",
+          "label": "the team model is experimental, not validated",
+          "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
+          "count": 10
+        }
+      ],
+      "reconciles": true,
+      "card": null,
+      "exposure": 0,
+      "settlementLinkage": "none — a lane with no card has nothing to settle, and this receipt is the record that it ran"
+    },
+    {
+      "product": "build-inventory",
+      "label": "Card builder",
+      "state": "NO_PLAY",
+      "stateReason": "every candidate was rejected; see the taxonomy below",
+      "candidatesConsidered": 10,
+      "rejections": [
+        {
+          "reason": "NOT_VALIDATED_MODEL",
+          "label": "the team model is experimental, not validated",
+          "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
+          "count": 10
+        }
+      ],
+      "reconciles": true,
+      "card": null,
+      "exposure": 0,
+      "settlementLinkage": "none — a lane with no card has nothing to settle, and this receipt is the record that it ran"
+    },
+    {
+      "product": "end-zone-vault",
+      "label": "End Zone Vault",
+      "state": "NO_PLAY",
+      "stateReason": "120 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
+      "candidatesConsidered": 120,
+      "rejections": [
+        {
+          "reason": "NO_PRICED_MARKET",
+          "label": "the provider offers no NFL player market in this window",
+          "detail": "an unpriced leg can never enter a paper product — there is nothing to settle it against.",
+          "count": 120
+        }
+      ],
+      "alsoBlocking": [
+        {
+          "reason": "NO_VALIDATED_FAMILY",
+          "label": "no player family passed its own evaluation",
+          "detail": "all 4 families (passing, rushing, receiving, touchdowns) were rejected on bars frozen before fitting, so no per-player projection exists to select from."
+        }
+      ],
+      "reconciles": true,
+      "card": null,
+      "exposure": 0,
+      "settlementLinkage": "none — no priced selection was frozen, so there is nothing to grade"
+    }
+  ],
+  "overDetermined": {
+    "note": "Today's NO_PLAY is over-determined — three independent gates each close it on their own, so no single small change would open a lane.",
+    "gates": [
+      "the team model is BASELINE_ONLY (the P181 challenger was rejected on bars frozen before it was built)",
+      "all four player families were rejected on their own frozen bars (P183 Release B)",
+      "the provider offers no NFL player market in this window (offeredMarkets: [])"
+    ]
+  },
+  "recordSeparation": "NFL product outcomes are experimental and are kept entirely separate from MLB's settled record, Bank Builder's protected history, Moonshot's history and the Mr. Dub portfolio. A NO_PLAY here touches no money and no other sport's record.",
+  "plainEnglish": "All four NFL lanes ran and none produced a card. That is the result of the checks working, not of the products being switched off: our team model is a labelled baseline, none of our player projections passed their own tests, and the sportsbooks are not offering NFL player markets for these games anyway."
+}
