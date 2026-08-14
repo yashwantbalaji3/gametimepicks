@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "822777-f5109b329fee5e8bd6429762af831a95",
+  "snapshotCreatedAt": "2026-08-14T23:13:28.935Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-14",
+  "eventId": "822777",
+  "gamePk": 822777,
+  "eventStartTime": "2026-08-14T23:15:00Z",
+  "homeTeam": "TOR",
+  "awayTeam": "NYY",
+  "venue": "Rogers Centre",
+  "statusState": "Warmup",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "411693901a1f6ded0957958ced650b6c",
+  "normalizedPayloadHash": "b49df6b3742f68fbad01547f4adf2742",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          703520,
+          664770,
+          665489,
+          543807,
+          672386,
+          665926,
+          672960,
+          660821,
+          676391
+        ],
+        "away": [
+          663757,
+          700250,
+          682987,
+          671277,
+          665862,
+          671218,
+          641857,
+          669224,
+          806146
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-14T23:13:28.935Z",
+      "availableAt": "2026-08-14T23:13:28.935Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-14T23:13:28.935Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822777/feed/live",
+        "requestedAt": "2026-08-14T23:13:28.935Z",
+        "receivedAt": "2026-08-14T23:13:28.935Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Shane Bieber",
+        "awayProbable": "Gerrit Cole",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-14T23:13:28.935Z",
+      "availableAt": "2026-08-14T23:13:28.935Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-14T23:13:28.935Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822777/feed/live",
+        "requestedAt": "2026-08-14T23:13:28.935Z",
+        "receivedAt": "2026-08-14T23:13:28.935Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Clear",
+        "temp": "77",
+        "wind": "2 mph, Out To LF",
+        "roofType": "Retractable",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-14T23:13:28.935Z",
+      "availableAt": "2026-08-14T23:13:28.935Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-14T23:13:28.935Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822777/feed/live",
+        "requestedAt": "2026-08-14T23:13:28.935Z",
+        "receivedAt": "2026-08-14T23:13:28.935Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Vic Carapazza",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Nic Lentz",
+            "type": "First Base"
+          },
+          {
+            "name": "Hunter Wendelstedt",
+            "type": "Second Base"
+          },
+          {
+            "name": "Brock Ballou",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-14T23:13:28.935Z",
+      "availableAt": "2026-08-14T23:13:28.935Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-14T23:13:28.935Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/822777/feed/live",
+        "requestedAt": "2026-08-14T23:13:28.935Z",
+        "receivedAt": "2026-08-14T23:13:28.935Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

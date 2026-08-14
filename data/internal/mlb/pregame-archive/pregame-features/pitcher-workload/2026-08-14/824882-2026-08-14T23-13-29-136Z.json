@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824882,
+  "date": "2026-08-14",
+  "capturedAt": "2026-08-14T23:13:29.136Z",
+  "availableAt": "2026-08-14T23:13:29.136Z",
+  "eventStartTime": "2026-08-14T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 519242,
+      "name": "Chris Sale",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 7.8,
+        "bbAvg": 0.8,
+        "erAvg": 1.2,
+        "hrAvg": 0,
+        "kPer9": 12.54,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 123,
+        "k": 151,
+        "bb": 28,
+        "er": 30,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 694297,
+      "name": "Brandon Pfaadt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 6,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 2.6,
+        "bbAvg": 1.2,
+        "erAvg": 0.8,
+        "hrAvg": 0,
+        "kPer9": 3.66,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 64.33,
+        "k": 34,
+        "bb": 13,
+        "er": 18,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-14&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-14T23:13:29.136Z"
+  },
+  "recordHash": "dad872ab21572702a93bd4d47a5fc70158180ff1c0802e21e5df787ca96dd157"
+}
