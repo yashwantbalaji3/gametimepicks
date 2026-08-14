@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-14T00:51:36Z",
+ "generatedAt": "2026-08-14T02:00:24Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-preseason-public-beta-v1",
@@ -16,15 +16,15 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 26,
+  "scheduledUpcoming": 25,
   "forecastsTotal": 4,
-  "forecastsUpcoming": 4,
-  "forecastsStarted": 0,
+  "forecastsUpcoming": 3,
+  "forecastsStarted": 1,
   "marketEvents": 9,
   "settled": 0
  },
- "nextKickoffUtc": "2026-08-14T01:00Z",
- "nextMatchup": "TEN @ SF",
+ "nextKickoffUtc": "2026-08-14T23:00Z",
+ "nextMatchup": "DEN @ ATL",
  "marketCapturedAt": "2026-08-13T21:43:17Z",
  "experimentalRecord": {
   "schemaVersion": 1,
@@ -56,15 +56,11 @@
     "name": "Tennessee Titans"
    },
    "kickoffUtc": "2026-08-14T01:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": 11.7,
-    "leansTo": "SF",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
    "projectedScore": {
     "home": 18,
     "away": 19

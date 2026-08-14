@@ -86,6 +86,10 @@ test("the cheapest-parity finding is recorded so a future author does not fork t
   // that row is closed, and the lesson must outlive the gap it describes
   assert.match(ledger.keyFinding, /900px document|1440px application shell/);
   assert.match(ledger.keyFinding, /not\s+forking the \/mlb page tree/);
+  // The row note is NOT asserted here. That is the point of the comment above: this row closed in
+  // P177-A and its note now describes the shipped route, while the lesson survives in keyFinding.
+  // A closed row still has to name a real owner, so that is what is checked instead.
   const gameRow = ledger.rows.find((r) => /Per-game deep route/.test(r.capability));
-  assert.match(gameRow.note, /cheapest parity path/);
+  assert.ok(gameRow.status === "OPEN" ? gameRow.nflOwner === null : /\S/.test(gameRow.nflOwner ?? ""),
+    "a closed parity row names the owner that closed it");
 });

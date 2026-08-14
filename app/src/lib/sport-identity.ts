@@ -27,6 +27,7 @@ export type SportIdentityKey =
   | "ufc"
   | "nhl"
   | "ipl"
+  | "nfl"
   | "mixed"
   | "bank_builder";
 
@@ -108,6 +109,15 @@ const IDENTITIES: Record<SportIdentityKey, SportIdentity> = {
     gradient: "linear-gradient(135deg, rgba(251,191,36,0.22) 0%, rgba(251,191,36,0.08) 55%, transparent 100%)",
     ballLabel: "cricket bat",
   },
+  nfl: {
+    key: "nfl",
+    label: "NFL",
+    shortLabel: "NFL",
+    icon: "\u{1F3C8}",
+    accentVar: "var(--sport-nfl)",
+    gradient: "linear-gradient(135deg, rgba(167,139,250,0.22) 0%, rgba(167,139,250,0.08) 55%, transparent 100%)",
+    ballLabel: "American football",
+  },
   mixed: {
     key: "mixed",
     label: "Mixed",
@@ -162,6 +172,13 @@ const ALIASES: Record<string, SportIdentityKey> = {
   // cricket
   ipl: "ipl",
   cricket: "ipl",
+  // american football — the bare "football" alias above belongs to soccer and stays there;
+  // only unambiguous NFL spellings resolve here, including the two provider sport keys.
+  nfl: "nfl",
+  "american football": "nfl",
+  american_football: "nfl",
+  americanfootball_nfl: "nfl",
+  americanfootball_nfl_preseason: "nfl",
   // cross-sport
   mixed: "mixed",
   multi: "mixed",

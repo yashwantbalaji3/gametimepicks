@@ -69,9 +69,9 @@ test("hasSportIdentity flags known vs unknown sports", () => {
   assert.equal(hasSportIdentity(""), false);
 });
 
-test("SPORT_IDENTITIES is frozen and covers all eight identities", () => {
+test("SPORT_IDENTITIES is frozen and covers all nine identities", () => {
   assert.ok(Object.isFrozen(SPORT_IDENTITIES));
-  assert.equal(SPORT_IDENTITIES.length, 8);
+  assert.equal(SPORT_IDENTITIES.length, 9);
   const keys = SPORT_IDENTITIES.map((s) => s.key).sort();
-  assert.deepEqual(keys, ["bank_builder", "ipl", "mixed", "mlb", "nba", "nhl", "soccer", "ufc"]);
+  assert.deepEqual(keys, ["bank_builder", "ipl", "mixed", "mlb", "nba", "nfl", "nhl", "soccer", "ufc"]);
 });

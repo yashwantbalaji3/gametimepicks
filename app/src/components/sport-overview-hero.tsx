@@ -53,7 +53,7 @@ interface Props {
   /** Optional bottom-of-hero honest framing line. */
   framing?: string;
   /** Sport accent color (used for eyebrow dot + tagline). */
-  accent?: "gold" | "nba" | "mlb" | "nhl" | "ipl" | "wc" | "ufc";
+  accent?: "gold" | "nba" | "mlb" | "nhl" | "ipl" | "wc" | "ufc" | "nfl";
   /** Optional sport-identity glyph rendered as an orb beside the headline. */
   icon?: string;
   /** Gradient for the icon orb (from sport-identity). */
@@ -73,6 +73,7 @@ const ACCENT: Record<NonNullable<Props["accent"]>, string> = {
   // Identity-system additions — the two hubs that previously fell back to gold.
   wc: "rgba(52, 211, 153, 1)",
   ufc: "rgba(248, 113, 113, 1)",
+  nfl: "rgba(167, 139, 250, 1)",
 };
 
 export default function SportOverviewHero({

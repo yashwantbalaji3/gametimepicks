@@ -17,13 +17,23 @@
  * at 1.05:1 (it had fallen through to the dark page background) when the true range across the
  * gradient is 2.3:1 → 6.1:1. A checker that is wrong in the SAFE direction is still wrong.
  */
+import fs from "node:fs";
+import path from "node:path";
+
 import { test, expect, type Page } from "@playwright/test";
 
 /** The first-time-user journey. Kept in sync with ROUTES in scripts/audit-accessibility.mjs. */
 // P176: /nfl joins the three-engine matrix. It was absent while /mlb was covered — a real
 // assurance gap, and the one that would have caught the double-<main> landmark I introduced
 // when adopting the shared shell.
-const ROUTES = ["/", "/today/", "/markets/", "/results/", "/methodology/", "/learn/", "/moonshot/", "/bank-builder/", "/mlb/", "/nfl/", "/sports/"];
+// P177-A: the NFL per-game report joins the matrix, DISCOVERED from the export rather than pinned.
+// Event ids change every slate; a hard-coded one would silently start testing a 404.
+const NFL_GAME_DIR = path.join(__dirname, "..", "out", "nfl", "game");
+const FIRST_NFL_GAME = fs.existsSync(NFL_GAME_DIR)
+  ? fs.readdirSync(NFL_GAME_DIR).filter((d) => /^\d+$/.test(d)).sort()[0]
+  : null;
+const ROUTES = ["/", "/today/", "/markets/", "/results/", "/methodology/", "/learn/", "/moonshot/", "/bank-builder/", "/mlb/", "/nfl/", "/sports/",
+  ...(FIRST_NFL_GAME ? [`/nfl/game/${FIRST_NFL_GAME}/`] : [])];
 
 const VIEWPORTS = [
   { name: "mobile", width: 390, height: 844 },

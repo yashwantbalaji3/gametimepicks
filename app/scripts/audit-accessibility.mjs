@@ -29,7 +29,16 @@ if (!fs.existsSync(OUT)) {
 }
 
 /** Launch-critical public routes: the first-time-user journey. */
-const ROUTES = ["", "today", "markets", "results", "methodology", "learn", "moonshot", "bank-builder", "mlb", "sports"];
+// P177-A: `nfl` was absent from this list while the Playwright matrix already covered it — the two
+// lists are supposed to stay in sync and had silently diverged. The per-game report joins too, and
+// is DISCOVERED from the export rather than pinned: event ids change every slate, so a hard-coded
+// one would audit a 404 within a day and report "no findings" for a page nobody can reach.
+const NFL_GAME_DIR = path.join(OUT, "nfl", "game");
+const firstNflGame = fs.existsSync(NFL_GAME_DIR)
+  ? fs.readdirSync(NFL_GAME_DIR).filter((d) => /^\d+$/.test(d)).sort()[0]
+  : null;
+const ROUTES = ["", "today", "markets", "results", "methodology", "learn", "moonshot", "bank-builder", "mlb", "nfl", "sports",
+  ...(firstNflGame ? [`nfl/game/${firstNflGame}`] : [])];
 
 const strip = (h) => h.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");
 const textOf = (s) => s.replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/gi, " ").replace(/\s+/g, " ").trim();
