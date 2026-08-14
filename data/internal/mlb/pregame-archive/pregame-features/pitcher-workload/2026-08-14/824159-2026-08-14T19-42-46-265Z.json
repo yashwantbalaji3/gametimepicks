@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824159,
+  "date": "2026-08-14",
+  "capturedAt": "2026-08-14T19:42:46.265Z",
+  "availableAt": "2026-08-14T19:42:46.265Z",
+  "eventStartTime": "2026-08-15T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663567,
+      "name": "Peter Lambert",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 6,
+        "bbAvg": 2.2,
+        "erAvg": 1.8,
+        "hrAvg": 0.2,
+        "kPer9": 9.76,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 113.67,
+        "k": 111,
+        "bb": 44,
+        "er": 39,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 669923,
+      "name": "George Kirby",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 4.2,
+        "bbAvg": 0.8,
+        "erAvg": 2,
+        "hrAvg": 1.2,
+        "kPer9": 6.75,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 132,
+        "k": 112,
+        "bb": 28,
+        "er": 54,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-14&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-14T19:42:46.265Z"
+  },
+  "recordHash": "2d8175f7bbab9bc01ac4955a17c845e56d82b615471f744bdab67052c6fdb11e"
+}

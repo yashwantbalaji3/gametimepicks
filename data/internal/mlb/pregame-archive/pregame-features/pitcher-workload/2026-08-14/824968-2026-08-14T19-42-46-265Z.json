@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824968,
+  "date": "2026-08-14",
+  "capturedAt": "2026-08-14T19:42:46.265Z",
+  "availableAt": "2026-08-14T19:42:46.265Z",
+  "eventStartTime": "2026-08-15T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 677958,
+      "name": "Kumar Rocker",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-08-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 5.8,
+        "bbAvg": 2,
+        "erAvg": 3.6,
+        "hrAvg": 1.4,
+        "kPer9": 9.79,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 98.33,
+        "k": 87,
+        "bb": 39,
+        "er": 53,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-14&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-14T19:42:46.265Z"
+  },
+  "recordHash": "402b130755780a4006a5ce0079b32b01c6aa2655c19ee9c6d4e2641a26681df6"
+}
