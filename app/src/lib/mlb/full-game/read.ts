@@ -21,8 +21,8 @@ export interface LoadedFullGameArtifact {
 }
 
 /** Load + index the full-game artifact for a slate date. Returns null when the file is missing/malformed. */
-export function loadFullGameArtifact(root: string, date: string): LoadedFullGameArtifact | null {
-  const fp = path.join(root, "mlb", "full-game-simulations", `${date}.json`);
+export function loadFullGameArtifact(root: string, date: string, sport: "mlb" | "nfl" = "mlb"): LoadedFullGameArtifact | null {
+  const fp = path.join(root, sport, "full-game-simulations", `${date}.json`);
   let raw: string;
   try {
     raw = fs.readFileSync(fp, "utf8");
@@ -39,7 +39,12 @@ export function loadFullGameArtifact(root: string, date: string): LoadedFullGame
       games?: FullGameSimGame[];
     };
     const byGamePk = new Map<string, FullGameSimGame>();
-    for (const g of a.games ?? []) if (g.gamePk != null) byGamePk.set(String(g.gamePk), g);
+    // MLB keys on a numeric gamePk; NFL keys on the provider event id. Index by whichever the
+    // artifact carries so one reader serves both without the caller knowing which.
+    for (const g of a.games ?? []) {
+      const key = g.gamePk != null ? String(g.gamePk) : (g as { eventId?: string }).eventId;
+      if (key) byGamePk.set(String(key), g);
+    }
     return {
       meta: {
         date: a.date,

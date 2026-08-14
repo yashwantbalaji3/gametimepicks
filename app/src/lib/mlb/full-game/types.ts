@@ -108,8 +108,55 @@ export interface MarketComparison {
   runLine: { line: number | null; homeCover: number | null } | null;
 }
 
+/**
+ * How ONE sport words its full-game report.
+ *
+ * The report component was written for baseball and hard-coded baseball nouns — so when NFL began
+ * feeding the same contract, an NFL page rendered "MLB", "run line" and "extra innings". Forking the
+ * component per sport is what produced that class of bug in the first place, so instead the sport
+ * supplies its vocabulary and ONE component renders both. Omitted → baseball, so the MLB artifact is
+ * untouched and stays byte-identical.
+ */
+export interface ReportVocabulary {
+  /** Short sport code shown in the report header ("MLB", "NFL"). */
+  sportCode: string;
+  /** Lower-case scoring unit, plural ("runs", "points"). */
+  scoreUnit: string;
+  /** The handicap market's name ("Run line", "Spread"). */
+  spreadLabel: string;
+  /** The beyond-regulation label ("Extra innings", "Overtime"). */
+  overtimeLabel: string;
+  /** Completes "<pct> …" — ("of games go past nine", "of games reach overtime"). */
+  overtimeClause: string;
+  /** What one simulated unit of play is called ("plate appearance", "scoring chance"). */
+  unitOfPlay: string;
+}
+
+/** Simulated per-player football line (means across all complete games). */
+export interface SimFootballLine {
+  playerId: string;
+  name: string;
+  team: string;
+  position: string;
+  passAttempts: number;
+  passCompletions: number;
+  passYards: number;
+  passTouchdowns: number;
+  rushAttempts: number;
+  rushYards: number;
+  rushTouchdowns: number;
+  targets: number;
+  receptions: number;
+  receivingYards: number;
+  receivingTouchdowns: number;
+}
+
 /** The full-game simulation result for ONE matchup. */
 export interface FullGameSimGame {
+  /** Sport wording for the report. Absent → baseball (the MLB artifact predates this field). */
+  vocabulary?: ReportVocabulary;
+  /** Football box score, when the sport has one. Mutually exclusive with `players`. */
+  footballPlayers?: SimFootballLine[] | null;
   gamePk: number;
   date: string;
   slug: string;

@@ -585,10 +585,21 @@ function nflDetails(): PublicGameDetail[] {
   });
   const details = boardDetails("nfl" as "mlb", date, rows, [], (g) => String(g.gameId ?? ""));
 
+  // The full-game score simulation — the same artifact family MLB feeds the shared report, which is
+  // what makes NFL render a projected score, a win probability and a score distribution instead of
+  // the "full-game score: not simulated" placeholder it showed before.
+  const nflFullGame = loadFullGameArtifact(root, date, "nfl");
+
   return details.map((d) => {
     const result = readGameSimulation(root, "nfl", date, d.matchId ?? "", { currentDate: date });
+    const eventId = String(d.matchId ?? "").replace(/^nfl-/, "");
+    const fg = nflFullGame?.byGamePk.get(eventId) ?? null;
     return {
       ...d,
+      // AFTER the spread: `d` carries these keys from the shared constructor, so setting them first
+      // would let the spread overwrite them straight back to null.
+      fullGameSim: fg,
+      fullGameSimMeta: fg ? nflFullGame?.meta ?? null : null,
       sport: "nfl",
       sportLabel: "NFL",
       gameLabSimulation: buildGameSimulationView(result, {

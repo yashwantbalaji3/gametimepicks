@@ -643,6 +643,9 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   // full-game snapshot; NO internal full-game numbers surfaced).
   const mlbReportDetails = (
     <MlbSimulationReportV2
+      // The sport words its own report. Without this an NFL page renders "MLB · <date>" and
+      // "total-runs … for MLB", which is exactly what it did before.
+      vocabulary={detail.fullGameSim?.vocabulary ? { sportCode: detail.fullGameSim.vocabulary.sportCode, scoreUnit: detail.fullGameSim.vocabulary.scoreUnit } : null}
       home={detail.homeTeam ?? ""}
       away={detail.awayTeam ?? ""}
       date={detail.date ?? ""}
@@ -731,8 +734,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           const siblings = siblingGames(detail.sport, detail.date ?? "", detail.slug);
           if (siblings.length === 0) return null;
           return (
-            <div className="mb-4 -mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }} aria-label="Other MLB games today">
-              <span className="shrink-0 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Today&apos;s MLB</span>
+            <div className="mb-4 -mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }} aria-label={`Other ${detail.sportLabel} games today`}>
+              <span className="shrink-0 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Today&apos;s {detail.sportLabel}</span>
               <span className="shrink-0 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: "var(--vault-gold-bright)", background: "rgba(217,164,65,0.12)", border: "1px solid var(--vault-gold-bright)", whiteSpace: "nowrap" }} aria-current="page">{detail.title}</span>
               {siblings.map((s) => (
                 <Link key={s.slug} href={`/games/${s.urlSport}/${s.slug}`} className="shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", textDecoration: "none", whiteSpace: "nowrap" }}>

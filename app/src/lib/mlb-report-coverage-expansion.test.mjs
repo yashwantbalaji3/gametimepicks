@@ -68,7 +68,10 @@ test("5 · NO fabricated full-game output — the 'no projected score / win prob
 
 test("6 · in-page game selector lists the day's OTHER MLB games, current highlighted, no World Cup", () => {
   assert.match(detailPage, /siblingGames\(detail\.sport, detail\.date/, "the page computes sibling games");
-  assert.match(detailPage, /Today&apos;s MLB/, "the selector is labelled Today's MLB");
+  // P184: the label is now DERIVED from the page's sport. It was hard-coded "MLB", which meant an
+  // NFL game page announced "Today's MLB" above a strip of NFL games. The intent — the strip states
+  // which sport's slate it lists — is better served by deriving it than by pinning one sport.
+  assert.match(detailPage, /Today&apos;s \{detail\.sportLabel\}/, "the selector is labelled with the page's own sport");
   assert.match(detailPage, /aria-current="page"/, "the current game is marked aria-current");
   assert.match(detailPage, /href=\{`\/games\/\$\{s\.urlSport\}\/\$\{s\.slug\}`\}/, "each sibling links to its game page");
 });

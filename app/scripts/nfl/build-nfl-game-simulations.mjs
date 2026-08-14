@@ -74,10 +74,48 @@ const dist = (values, unit) => {
 /** Model probability of clearing a standard threshold — no market line exists to anchor to. */
 const overProb = (values, line) => r4(values.filter((v) => v > line).length / values.length);
 
-const THRESHOLDS = {
-  passYds: [149.5, 199.5], passAtt: [19.5], rushYds: [24.5, 49.5], rushAtt: [7.5],
-  rec: [1.5, 2.5], recYds: [24.5, 39.5], anytimeTd: [0.5],
-};
+/**
+ * PER-PLAYER THRESHOLDS, derived from that player's own simulated distribution.
+ *
+ * This used to be a fixed ladder — rushAtt 7.5, rushYds 24.5/49.5 — applied to every player on the
+ * field. The board it produced was worthless: a fourth receiver projecting 0.1 carries got the same
+ * 7.5-carry line as the starting back, cleared it 0% of the time, and the page rendered a wall of
+ * rows all reading 100% UNDER. Every row agreed, so no row said anything.
+ *
+ * A threshold is only informative where the outcome is genuinely uncertain, so each line is placed at
+ * that player's own simulated median (rounded to the half-point a book would use) and kept only if
+ * the simulated probability actually lands away from the extremes.
+ */
+const HALF_STEP = { passYds: 5, passAtt: 1, rushYds: 5, rushAtt: 1, rec: 1, recYds: 5, anytimeTd: 1 };
+
+/** Round to the nearest half-point on a sensible step for the market — 249.5, 24.5, 3.5, … */
+function halfPointNear(value, market) {
+  const step = HALF_STEP[market] ?? 1;
+  const snapped = Math.max(step, Math.round(value / step) * step);
+  return snapped - 0.5;
+}
+
+/**
+ * Lines worth publishing for one player+market: the median-anchored threshold, plus one step either
+ * side when those are still genuinely uncertain. A line the model clears ≥97% or ≤3% of the time
+ * carries no information and is dropped rather than padded onto the board.
+ */
+function thresholdsFor(values, market) {
+  if (!values?.length) return [];
+  const med = q([...values].sort((a, b) => a - b), 0.5);
+  if (!Number.isFinite(med) || med <= 0) return [];
+  const step = HALF_STEP[market] ?? 1;
+  const candidates = market === "anytimeTd"
+    ? [0.5]
+    : [halfPointNear(med, market), halfPointNear(med + step, market), halfPointNear(med - step, market)];
+  const out = [];
+  for (const line of candidates) {
+    if (line <= 0 || out.includes(line)) continue;
+    const p = values.filter((v) => v > line).length / values.length;
+    if (p >= 0.03 && p <= 0.97) out.push(line);
+  }
+  return out.sort((a, b) => a - b);
+}
 
 /** One date for the whole artifact — the earliest upcoming kickoff's day. */
 const ARTIFACT_DATE = (index.events ?? [])
@@ -182,7 +220,7 @@ for (const ev of index.events.filter((e) => e.lifecycle === "UPCOMING")) {
       distributions[key] = histogram(vals, key, `${meta.name} — ${label}`);
       const sorted = [...vals].sort((a, b) => a - b);
       const projection = r2(vals.reduce((a, b) => a + b, 0) / vals.length);
-      for (const line of THRESHOLDS[thresholdKey] ?? []) {
+      for (const line of thresholdsFor(vals, thresholdKey)) {
         const pOver = overProb(vals, line);
         generatedPicks.push({
           id: `${gameId}-${meta.playerId}-${field}-${line}-${pOver >= 0.5 ? "over" : "under"}`,

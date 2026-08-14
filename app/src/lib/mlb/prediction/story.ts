@@ -45,13 +45,26 @@ export function simulationFrequency(probability: number, runCount: number): stri
  * differs from their value; a range bin cannot be attributed to a specific margin, so it is skipped rather
  * than approximated. Returns null when the distribution is absent.
  */
+/**
+ * What counts as a CLOSE game, per sport. A baseball game is close within one run; a football game is
+ * close within one score, which is eight points — a touchdown and the two-point conversion that ties
+ * it. Reporting football closeness in "runs" (which is what this did) is both wrong wording and the
+ * wrong threshold: at ±1 point almost no football game qualifies, so the sentence read as though
+ * every game were a blowout.
+ */
+const CLOSENESS: Record<string, { margin: number; phrase: string }> = {
+  MLB: { margin: 1, phrase: "within one run" },
+  NFL: { margin: 8, phrase: "within one score" },
+};
+
 export function withinOneRunShare(game: FullGameSimGame): number | null {
   const bins = game.runDifferential?.distribution;
   if (!bins?.length) return null;
+  const limit = (CLOSENESS[game.vocabulary?.sportCode ?? "MLB"] ?? CLOSENESS.MLB).margin;
   let share = 0;
   for (const bin of bins) {
     if (bin.label !== String(bin.value)) continue; // range bin — not an exact margin
-    if (Math.abs(bin.value) <= 1) share += bin.probability;
+    if (Math.abs(bin.value) <= limit) share += bin.probability;
   }
   return share;
 }
@@ -81,7 +94,8 @@ function closenessBeat(game: FullGameSimGame): StoryBeat | null {
   if (share == null) return null;
   const pct = Math.round(share * 100);
   const lead = share >= CLOSE_GAME_THRESHOLD ? "This matchup is relatively close: " : "";
-  return { kind: "closeness", text: `${lead}${pct}% of simulations finish within one run.` };
+  const phrase = (CLOSENESS[game.vocabulary?.sportCode ?? "MLB"] ?? CLOSENESS.MLB).phrase;
+  return { kind: "closeness", text: `${lead}${pct}% of simulations finish ${phrase}.` };
 }
 
 /** "Biggest player factor: Logan Webb UNDER 5.5 Strikeouts — 8,400 / 10,000 simulations." */

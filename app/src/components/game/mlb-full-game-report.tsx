@@ -61,6 +61,19 @@ function WinBar({ awayCode, homeCode, away, home }: { awayCode: string; homeCode
   );
 }
 
+/**
+ * Baseball wording, used when the artifact carries no vocabulary of its own. Every MLB artifact
+ * predates the field, so this default is what keeps the MLB report byte-identical.
+ */
+const BASEBALL_VOCAB = {
+  sportCode: "MLB",
+  scoreUnit: "runs",
+  spreadLabel: "Run line",
+  overtimeLabel: "Extra innings",
+  overtimeClause: "of games go past nine",
+  unitOfPlay: "plate appearance",
+} as const;
+
 /** A compact histogram over integer bins (total runs / run differential). */
 function MiniHistogram({ bins, accent = "var(--vault-gold)", label }: { bins: { value: number; label: string; probability: number }[]; accent?: string; label: string }) {
   const max = Math.max(...bins.map((b) => b.probability), 0.0001);
@@ -114,7 +127,7 @@ function PredictionCard({ label, pick, prob, strength, unavailable }: { label: s
 }
 
 /** The prediction-first hero: the direct answers the simulation gives, before any probability evidence. */
-function PredictionHero({ p, runCount }: { p: GamePredictionDecision; runCount?: number | null }) {
+function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecision; runCount?: number | null , spreadLabel: string }) {
   if (!p.predictedWinner || !p.projectedScore) return null;
   const winnerName = p.predictedWinner.side === "home" ? p.homeTeamName : p.awayTeamName;
   const ml = p.moneyline;
@@ -148,9 +161,9 @@ function PredictionHero({ p, runCount }: { p: GamePredictionDecision; runCount?:
           <PredictionCard label="Total" pick="" prob="" strength="" unavailable={total?.unavailableReason ?? "No line"} />
         )}
         {rl ? (
-          <PredictionCard label="Run line" pick={rl.pick} prob={`${Math.round(rl.coverProbability * 100)}% cover`} strength={shortStrength(rl.strengthLabel)} />
+          <PredictionCard label={spreadLabel} pick={rl.pick} prob={`${Math.round(rl.coverProbability * 100)}% cover`} strength={shortStrength(rl.strengthLabel)} />
         ) : (
-          <PredictionCard label="Run line" pick="" prob="" strength="" unavailable="Unavailable" />
+          <PredictionCard label={spreadLabel} pick="" prob="" strength="" unavailable="Unavailable" />
         )}
       </div>
       {p.topPlayerPredictions.length ? (
@@ -186,6 +199,7 @@ function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame
   const N = g.runCount;
   const awayWins = g.winProbability.away * N;
   const homeWins = g.winProbability.home * N;
+  const V = g.vocabulary ?? BASEBALL_VOCAB;
   const extras = g.extraInningsProbability != null ? Math.round(g.extraInningsProbability * N) : null;
   return (
     <section className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
@@ -193,7 +207,7 @@ function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         <StatTile label={`${awayCode} wins`} value={int0(awayWins)} sub={`of ${int0(N)} games`} />
         <StatTile label={`${homeCode} wins`} value={int0(homeWins)} sub={`of ${int0(N)} games`} />
-        {extras != null ? <StatTile label="Extra innings" value={int0(extras)} sub="past nine" /> : null}
+        {extras != null ? <StatTile label={V.overtimeLabel} value={int0(extras)} sub={V.overtimeClause.replace(/^of games /, "")} /> : null}
       </div>
       {g.finalScores.length ? (
         <div>
@@ -213,13 +227,14 @@ function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame
 }
 
 function Overview({ g, prediction, awayCode, homeCode }: { g: FullGameSimGame; prediction: GamePredictionDecision | null; awayCode: string; homeCode: string }) {
+  const V = g.vocabulary ?? BASEBALL_VOCAB;
   if (!g.winProbability || !g.runs || !g.totalRuns) return null;
   const rl15 = g.runLine.find((r) => r.line === 1.5);
   const favHomeRL = (rl15?.homeCover ?? 0) >= (rl15?.awayCover ?? 0);
   return (
     <div className="flex flex-col gap-4">
       {/* PREDICTION FIRST — the direct answers, before any probability evidence. */}
-      {prediction ? <PredictionHero p={prediction} runCount={g.runCount} /> : null}
+      {prediction ? <PredictionHero p={prediction} runCount={g.runCount} spreadLabel={(g.vocabulary ?? BASEBALL_VOCAB).spreadLabel} /> : null}
 
       {/* Everything below is EVIDENCE for the prediction above. */}
       <div className="flex items-center gap-2 mt-1">
@@ -238,30 +253,30 @@ function Overview({ g, prediction, awayCode, homeCode }: { g: FullGameSimGame; p
 
       {/* Expected score + total */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <StatTile label="Expected runs (mean)" value={`${one(g.runs.away.mean)}–${one(g.runs.home.mean)}`} sub={`${awayCode}–${homeCode}`} />
-        <StatTile label={`${awayCode} range`} value={`${g.runs.away.p10}–${g.runs.away.p90}`} sub="p10–p90 runs" />
-        <StatTile label={`${homeCode} range`} value={`${g.runs.home.p10}–${g.runs.home.p90}`} sub="p10–p90 runs" />
-        <StatTile label="Total runs" value={g.totalRuns.median} sub={`p10–p90 ${g.totalRuns.p10}–${g.totalRuns.p90}`} />
+        <StatTile label={`Expected ${V.scoreUnit} (mean)`} value={`${one(g.runs.away.mean)}–${one(g.runs.home.mean)}`} sub={`${awayCode}–${homeCode}`} />
+        <StatTile label={`${awayCode} range`} value={`${g.runs.away.p10}–${g.runs.away.p90}`} sub={`p10–p90 ${V.scoreUnit}`} />
+        <StatTile label={`${homeCode} range`} value={`${g.runs.home.p10}–${g.runs.home.p90}`} sub={`p10–p90 ${V.scoreUnit}`} />
+        <StatTile label={`Total ${V.scoreUnit}`} value={g.totalRuns.median} sub={`p10–p90 ${g.totalRuns.p10}–${g.totalRuns.p90}`} />
       </div>
 
       {/* Run line + team totals */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
-          <span className="font-mono uppercase tracking-[0.1em] block mb-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Run line (from simulated margins)</span>
+          <span className="font-mono uppercase tracking-[0.1em] block mb-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{V.spreadLabel} (from simulated margins)</span>
           <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>
             {favHomeRL ? homeCode : awayCode} −1.5 covers <strong style={{ color: "var(--vault-gold)" }}>{pct(favHomeRL ? rl15?.homeCover : rl15?.awayCover)}</strong> of the time
           </span>
         </div>
         <div className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
-          <span className="font-mono uppercase tracking-[0.1em] block mb-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Extra innings</span>
-          <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>{pct(g.extraInningsProbability)} of games go past nine</span>
+          <span className="font-mono uppercase tracking-[0.1em] block mb-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{V.overtimeLabel}</span>
+          <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>{pct(g.extraInningsProbability)} {V.overtimeClause}</span>
         </div>
       </div>
 
       {/* Total runs distribution */}
       <section>
-        <div className="font-mono uppercase tracking-[0.1em] mb-2" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Total-runs distribution</div>
-        <MiniHistogram bins={g.totalRuns.distribution} label={`Total runs distribution, median ${g.totalRuns.median}`} />
+        <div className="font-mono uppercase tracking-[0.1em] mb-2" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Total-{V.scoreUnit} distribution</div>
+        <MiniHistogram bins={g.totalRuns.distribution} label={`Total ${V.scoreUnit} distribution, median ${g.totalRuns.median}`} />
       </section>
 
       {/* Simulation story (Sprint 014 · Phase 4) — the canonical plain-English read. It replaces the raw
@@ -283,7 +298,7 @@ function Overview({ g, prediction, awayCode, homeCode }: { g: FullGameSimGame; p
           </div>
           {[
             { label: `${homeCode} win`, ours: pct(g.winProbability.home), mkt: pct(g.market.moneyline?.home) },
-            { label: "Total (median vs line)", ours: String(g.totalRuns.median), mkt: g.market.total?.line != null ? String(g.market.total.line) : "—" },
+            { label: `Total (median vs line)`, ours: String(g.totalRuns.median), mkt: g.market.total?.line != null ? String(g.market.total.line) : "—" },
             { label: `${homeCode} −1.5 cover`, ours: pct(rl15?.homeCover), mkt: pct(g.market.runLine?.homeCover) },
           ].map((row) => (
             <div key={row.label} className="grid grid-cols-2" style={{ borderTop: "1px solid var(--vault-rule)" }}>
@@ -457,7 +472,7 @@ export default function MlbFullGameReport({
           {g.status === "degraded" ? <Chip tone="warn">Degraded inputs</Chip> : g.status === "ready" ? <Chip tone="ok">Complete inputs</Chip> : <Chip tone="warn">Unavailable</Chip>}
         </div>
         {meta?.generatedAt ? (
-          <span className="font-mono" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>Simulated {formatEtTime(meta.generatedAt)} ET · pregame</span>
+          <span className="font-mono" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>Simulated {formatEtTime(meta.generatedAt)} · pregame</span>
         ) : null}
       </div>
 

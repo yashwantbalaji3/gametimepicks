@@ -33,6 +33,12 @@ import { buildTimestamps, formatEtTime, distributionBand, gameCompleteness, comp
 import { Section, StatTile, Monogram, AdvancedDisclosure } from "@/components/game/report-v2-shell";
 
 export interface MlbSimulationReportV2Props {
+  /**
+   * How this sport words the report. This component was written for baseball and hard-coded "MLB",
+   * "total-runs" and "MLB Stats API"; when NFL began rendering through it, an NFL page said MLB.
+   * Omitted → baseball, so every existing MLB call site is unchanged.
+   */
+  vocabulary?: { sportCode: string; scoreUnit: string } | null;
   home: string;
   away: string;
   homeCode?: string | null;
@@ -153,7 +159,10 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
     playerProps, advanced, picks = [], distributions = null, gameCenter = null, marketSnapshotNode = null,
     productTags, runCount = null, allowsRunCountClaim = false, modelVersion = null, generatedAt = null,
     marketCapturedAt = null, simStatus = null, unavailableModules = null, gameLab = null,
+    vocabulary = null,
   } = props;
+  const sportCode = vocabulary?.sportCode ?? "MLB";
+  const scoreUnit = vocabulary?.scoreUnit ?? "runs";
 
   // Honest provenance timestamps (pure, artifact-backed): when the market line was captured, how long before
   // first pitch, and when the sim was generated. Never labels a post-first-pitch capture as pregame.
@@ -302,7 +311,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
             <Monogram code={awayCode} name={away} />
             <div className="flex flex-col">
               <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>{away} <span style={{ color: "var(--vault-text-faint)", fontWeight: 500 }}>@</span> {home}</span>
-              <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>MLB · {date}</span>
+              <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>{sportCode} · {date}</span>
             </div>
             <Monogram code={homeCode} name={home} />
           </div>
@@ -606,7 +615,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           ))}
         </div>
         <p className="text-[12px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
-          Every player-prop market in this report settles <strong>deterministically from the official MLB Stats API
+          Every player-prop market in this report settles <strong>deterministically from the official {sportCode} statistics feed
           box score</strong> — strikeouts, hits, total bases, and the rest are read straight from the final box score
           with no human judgment. Team markets settle from the official final score and run line.
         </p>
@@ -709,7 +718,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         <p className="font-mono text-[10.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
           {runLabel} player-prop Monte Carlo simulation. Full-game markets (moneyline / run line / total) are the
           de-vigged sportsbook lines — market-anchored, not an independent game simulation. No projected score,
-          total-runs, or margin distribution is generated for MLB. Paper-only, educational — not betting advice.
+          total-{scoreUnit}, or margin distribution is generated for {sportCode}. Paper-only, educational — not betting advice.
         </p>
         {/* What's next? — keep the daily loop moving from a finished report (retention, not a prediction). */}
         <p className="font-mono text-[10.5px] m-0 mt-3">
