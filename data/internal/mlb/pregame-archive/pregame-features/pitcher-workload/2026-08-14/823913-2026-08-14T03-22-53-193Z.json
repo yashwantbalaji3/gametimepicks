@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823913,
+  "date": "2026-08-14",
+  "capturedAt": "2026-08-14T03:22:53.193Z",
+  "availableAt": "2026-08-14T03:22:53.193Z",
+  "eventStartTime": "2026-08-15T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 808967,
+      "name": "Yoshinobu Yamamoto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 34.67,
+        "ipAvg": 6.93,
+        "kAvg": 5.4,
+        "bbAvg": 2.2,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 7.01,
+        "workloadIpLast5": 34.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 139.33,
+        "k": 127,
+        "bb": 32,
+        "er": 41,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 688107,
+      "name": "Robert Gasser",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 6,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 4.2,
+        "bbAvg": 0.8,
+        "erAvg": 2.8,
+        "hrAvg": 0.6,
+        "kPer9": 7.99,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 67,
+        "k": 61,
+        "bb": 18,
+        "er": 34,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-14&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-14T03:22:53.193Z"
+  },
+  "recordHash": "4ad091d99a9ee610f5b110982a67cd4c8de3f154dac7f2593f025e378a75a505"
+}

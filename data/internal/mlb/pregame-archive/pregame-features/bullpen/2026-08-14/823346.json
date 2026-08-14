@@ -1,0 +1,179 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823346,
+  "date": "2026-08-14",
+  "capturedAt": "2026-08-14T03:22:54.227Z",
+  "availableAt": "2026-08-14T03:22:54.227Z",
+  "eventStartTime": "2026-08-14T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-11",
+    "2026-08-12",
+    "2026-08-13"
+  ],
+  "home": {
+    "teamId": 134,
+    "teamName": "Pittsburgh Pirates",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 150,
+      "relievers": [
+        {
+          "id": 669199,
+          "name": "Lake Bachar",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 9,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 670990,
+          "name": "Yohan Ramírez",
+          "appearances": 1,
+          "pitches": 40,
+          "outs": 9,
+          "dates": [
+            "2026-08-11"
+          ]
+        },
+        {
+          "id": 666808,
+          "name": "Camilo Doval",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 681895,
+          "name": "Evan Sisk",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 2,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 489446,
+          "name": "Kirby Yates",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 1,
+      "pitches": 17,
+      "relievers": [
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-13"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 115,
+      "relievers": [
+        {
+          "id": 594027,
+          "name": "Tyron Guerrero",
+          "appearances": 2,
+          "pitches": 29,
+          "outs": 3,
+          "dates": [
+            "2026-08-11",
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 661527,
+          "name": "Seth Martinez",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-11"
+          ]
+        },
+        {
+          "id": 686580,
+          "name": "Justin Slaten",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 669062,
+          "name": "Erik Miller",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 687941,
+          "name": "Alec Gamboa",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-11,2026-08-12,2026-08-13) + feed/live box scores",
+    "capturedAt": "2026-08-14T03:22:54.227Z"
+  },
+  "recordHash": "0fa2a67869de1e58e0ebb1d324117429fa2edde1fabefb2bfed922fa5bc13fb8"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824399,
+  "date": "2026-08-14",
+  "capturedAt": "2026-08-14T03:22:53.193Z",
+  "availableAt": "2026-08-14T03:22:53.193Z",
+  "eventStartTime": "2026-08-14T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 668909,
+      "name": "Gavin Williams",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.33,
+        "ipAvg": 6.27,
+        "kAvg": 10.2,
+        "bbAvg": 0.8,
+        "erAvg": 1.8,
+        "hrAvg": 1,
+        "kPer9": 14.65,
+        "workloadIpLast5": 31.33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 144.67,
+        "k": 185,
+        "bb": 41,
+        "er": 57,
+        "hr": 22
+      }
+    },
+    "away": {
+      "id": 650633,
+      "name": "Michael King",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.6,
+        "bbAvg": 2.4,
+        "erAvg": 2,
+        "hrAvg": 1,
+        "kPer9": 9,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 136.33,
+        "k": 120,
+        "bb": 55,
+        "er": 51,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-14&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-14T03:22:53.193Z"
+  },
+  "recordHash": "803c3954fb0250a261091553ccce2d1901e25fb0990464135729a52f8fa03a65"
+}

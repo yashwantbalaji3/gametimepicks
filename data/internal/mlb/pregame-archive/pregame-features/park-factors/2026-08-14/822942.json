@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "mlb-pregame-park-factors-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "park_factors",
+  "gamePk": 822942,
+  "date": "2026-08-14",
+  "capturedAt": "2026-08-14T03:23:19.830Z",
+  "availableAt": "2026-08-14T03:23:19.830Z",
+  "eventStartTime": "2026-08-14T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "static venue facts, captured pregame",
+  "venue": {
+    "id": 12,
+    "name": "Tropicana Field",
+    "city": "St. Petersburg",
+    "elevation": 15,
+    "roofType": "Dome",
+    "turfType": "Artificial Turf"
+  },
+  "factors": {
+    "runFactor": 100,
+    "hrFactor": 100,
+    "handednessEffect": null,
+    "runEnvironmentSignal": "sea-level-ish (15 ft)"
+  },
+  "source": "StatsAPI venue endpoint (FACTUAL: elevation/roof/turf/city). Numeric run/HR/handedness park factors are NOT loaded from any published source — runFactor/hrFactor default to a NEUTRAL 100 baseline; treat as neutral until a real source is loaded. Only runEnvironmentSignal is derived (from factual elevation).",
+  "updatePolicy": "Static per venue. Refresh factual attributes if a venue changes. Load numeric park factors annually from a published source (e.g. Statcast/FanGraphs park factors) in a SEPARATE internal reference; never fabricate.",
+  "leakageRule": "venue attributes are static/pregame; capturedAt recorded for provenance",
+  "recordHash": "834432562f07ec2160d9f33963bbea0019e8450f61b4fa6e7a95c7470e5b131d"
+}
