@@ -23,6 +23,7 @@
  * = model probability minus market-implied probability (display only). Paper-only, review, $0 exposure.
  */
 import type { PublicProjection } from "@/lib/normalize";
+import PlayerAvatar from "@/components/player-avatar";
 import type { SimGeneratedPick, SimDistributions } from "@/lib/game-simulations/types";
 import type { MlbGameCenter } from "@/lib/mlb-team-markets";
 import type { MlbGameLabView, MlbLeanRow } from "@/lib/game-lab/mlb-report";
@@ -461,7 +462,12 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                   const tag = tagFor(p);
                   return (
                     <tr key={p.id || i} style={{ borderBottom: "1px solid var(--vault-rule)", background: i % 2 ? "rgba(255,255,255,0.014)" : "transparent" }}>
-                      <td className="py-2 px-1.5" style={{ color: "var(--vault-text)", fontWeight: 600, whiteSpace: "nowrap" }}>{p.player ?? p.team ?? "—"}</td>
+                      <td className="py-2 px-1.5" style={{ color: "var(--vault-text)", fontWeight: 600, whiteSpace: "nowrap" }}>
+                        <span className="inline-flex items-center gap-2">
+                          {p.player ? <PlayerAvatar photoUrl={(p as { photoUrl?: string | null }).photoUrl ?? null} playerName={p.player} size="xs" flat /> : null}
+                          {p.player ?? p.team ?? "—"}
+                        </span>
+                      </td>
                       <td className="py-2 px-1.5 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10, whiteSpace: "nowrap" }}>{marketLabel(p.market)} {cap(p.side)} {p.line ?? ""}</td>
                       <td className="py-2 px-1.5 font-mono tabular text-right hidden sm:table-cell" style={{ color: "var(--vault-text-faint)" }}>{num1(p.projection)}</td>
                       <td className="py-2 px-1.5 font-mono tabular text-right" style={{ color: "var(--vault-text)", fontWeight: 700 }}>{pct(p.modelProbability)}</td>

@@ -42,7 +42,21 @@ if (!upcoming.length) {
   console.log("nfl full-game: no upcoming games — nothing to simulate");
   process.exit(0);
 }
-const DATE = upcoming.map((e) => e.kickoffUtc).sort()[0].slice(0, 10);
+/**
+ * ET kickoff day, not a UTC slice: an 8:00 PM ET Saturday game is 00:00 UTC Sunday, so slicing the
+ * instant files it under the wrong day. Games are grouped by the day they actually kick off.
+ */
+const etDay = (iso) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(new Date(iso));
+
+/** One artifact PER kickoff day — Friday's three games and Saturday's seven are different slates. */
+const byDay = new Map();
+for (const e of upcoming) {
+  const d = etDay(e.kickoffUtc);
+  if (!byDay.has(d)) byDay.set(d, []);
+  byDay.get(d).push(e);
+}
 
 /** League baseline for the roster modifier: the measured preseason team mean. */
 const LEAGUE_BASELINE_POINTS = 19.27;
@@ -172,7 +186,7 @@ const VOCAB = {
   unitOfPlay: "scoring chance",
 };
 
-const games = [];
+const allGames = [];
 for (const ev of upcoming) {
   const away = ev.away?.abbr ?? "AWAY";
   const home = ev.home?.abbr ?? "HOME";
@@ -198,11 +212,11 @@ for (const ev of upcoming) {
   notes.push("No home-field advantage is applied: the measured preseason home edge is −0.01 points.");
   notes.push("No team-strength rating is applied; three preseason strength models were rejected on pre-declared bars.");
 
-  games.push({
+  allGames.push({
     eventId: String(ev.providerEventId),
     gamePk: null,
-    date: DATE,
-    slug: `${away.toLowerCase()}-vs-${home.toLowerCase()}-${DATE}`,
+    date: etDay(ev.kickoffUtc),
+    slug: `${away.toLowerCase()}-vs-${home.toLowerCase()}-${etDay(ev.kickoffUtc)}`,
     awayTeam: away,
     homeTeam: home,
     awayTeamName: ev.away?.name ?? away,
@@ -243,14 +257,14 @@ for (const ev of upcoming) {
   });
 }
 
-const artifact = {
+const makeArtifact = (date, games) => ({
   sport: "nfl",
-  date: DATE,
+  date,
   generatedAt: NOW,
   modelVersion: SCORING.MODEL_VERSION,
   simulationVersion: 1,
   runCount: RUNS,
-  sourceBoardHash: (fnv1a(JSON.stringify(upcoming.map((e) => e.providerEventId))) >>> 0).toString(16),
+  sourceBoardHash: (fnv1a(JSON.stringify(games.map((g) => g.eventId))) >>> 0).toString(16),
   provenance: {
     scoringCalibration: "146 preseason games (data/internal/research/nfl/corpus-v1.json)",
     homeAdvantage: "none applied — measured preseason home edge −0.01 points",
@@ -259,15 +273,20 @@ const artifact = {
     marketRole: "comparison only; never an input",
   },
   games,
-};
+});
 
 const dir = path.join(DATA, "full-game-simulations");
 fs.mkdirSync(dir, { recursive: true });
-fs.writeFileSync(path.join(dir, `${DATE}.json`), JSON.stringify(artifact, null, 1));
-fs.writeFileSync(path.join(dir, "latest.json"), JSON.stringify(artifact, null, 1));
+const days = [...byDay.keys()].sort();
+for (const day of days) {
+  const dayGames = allGames.filter((g) => g.date === day);
+  fs.writeFileSync(path.join(dir, `${day}.json`), JSON.stringify(makeArtifact(day, dayGames), null, 1));
+}
+// `latest` is the NEAREST upcoming day, so a page that asks for "latest" gets tonight, not the week.
+fs.writeFileSync(path.join(dir, "latest.json"), JSON.stringify(makeArtifact(days[0], allGames.filter((g) => g.date === days[0])), null, 1));
 
-console.log(`nfl full-game ${DATE}: ${games.length} games · ${RUNS.toLocaleString()} complete games each`);
-for (const g of games) {
+console.log(`nfl full-game: ${days.length} slate day(s) · ${allGames.length} games · ${RUNS.toLocaleString()} complete games each`);
+for (const g of allGames) {
   const top = g.finalScores[0];
-  console.log(`  ${g.awayTeam}@${g.homeTeam.padEnd(4)} ${String(Math.round(g.winProbability.home * 100)).padStart(2)}% home · median ${g.runs.away.median}-${g.runs.home.median} · top ${top ? `${top.away}-${top.home}` : "—"} · total ${g.totalRuns.median} · box ${g.footballPlayers?.length ?? 0}`);
+  console.log(`  ${g.date} ${g.awayTeam}@${g.homeTeam.padEnd(4)} ${String(Math.round(g.winProbability.home * 100)).padStart(2)}% home · median ${g.runs.away.median}-${g.runs.home.median} · top ${top ? `${top.away}-${top.home}` : "—"} · total ${g.totalRuns.median} · box ${g.footballPlayers?.length ?? 0}`);
 }

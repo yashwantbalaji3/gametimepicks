@@ -45,10 +45,11 @@ const ITEMS: RailItem[] = [
   { href: "/moonshot", label: "Moonshot", glyph: "🌙", desc: "High-risk paper longshots" },
   { href: "/mr-dub", label: "Mr. Dub's Portfolio", glyph: "✓", desc: "Paper bankroll journey" },
   { href: "/results", label: "Results", glyph: "≡", group: "Track Record", desc: "Settled track record" },
-  // MLB is the only sport with a live model, so it is the only sport in the rail. The 2026 World Cup is
-  // complete, NBA is a settled archive reachable from Results, and UFC is a scaffold that publishes no
-  // predictions — none of them is a destination the rail should offer.
+  // The rail offers the sports that actually SIMULATE. MLB and NFL both publish full-game
+  // simulations now; the 2026 World Cup is complete, NBA is a settled archive reachable from
+  // Results, and UFC is a scaffold that publishes no predictions, so those stay behind Schedules.
   { href: "/mlb", label: "MLB", glyph: "⚾", group: "Sports", desc: "Baseball hub" },
+  { href: "/nfl", label: "NFL", glyph: "🏈", desc: "Football hub · preseason simulations" },
   // ONE schedules destination (Program 158 IA) — sits under Sports beside the live hub; the desc
   // says schedules so the rail never implies a second model hub.
   { href: "/sports", label: "Sports · Schedules", glyph: "🗓", desc: "EPL · NFL · NBA · UFC schedules" },

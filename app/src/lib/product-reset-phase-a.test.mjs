@@ -39,13 +39,22 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
   const sportsItems = nav.match(/href: "\/sports"/g) ?? [];
   assert.equal(sportsItems.length, 1, "exactly ONE /sports nav item — the canonical discovery path");
   assert.match(nav, /label: "Sports · Schedules"/, "the nav label says Schedules, never a bare sport-hub claim");
-  assert.ok(!/href: "\/epl"|href: "\/nfl"|href: "\/ufc-schedule"/.test(nav), "no per-league nav links");
+  // P185: the rule was never "no sport links" — it was "no nav link for a sport that publishes
+  // nothing", written when MLB was the only modelled sport. NFL now publishes full-game simulations
+  // and a player board, so it earns its place beside MLB; EPL and UFC still publish nothing and stay
+  // behind /sports. The invariant is now stated in those terms so it keeps holding as sports ship.
+  const SIMULATED = new Set(["/mlb", "/nfl"]);
+  const leagueLinks = [...nav.matchAll(/href: "(\/(?:mlb|nfl|epl|nba|ufc)[a-z-]*)"/g)].map((m) => m[1]);
+  for (const href of leagueLinks) {
+    assert.ok(SIMULATED.has(href), `${href} is linked in nav but publishes no simulation — it belongs behind /sports`);
+  }
   const page = read("src/app/sports/page.tsx");
   const shared = read("src/components/sports/upcoming-sports.tsx");
-  assert.match(page, /not modelled/, "the page itself says these sports are not modelled");
+  assert.match(page, /simulation for those is not published yet/, "the page still says which sports are not modelled");
   assert.match(shared, /Schedule only — not modelled/, "coverage state is rendered in words, not implied by layout");
   assert.match(shared, /no simulations, no predictions and no picks/, "every sport section closes with the explicit no-model line");
-  assert.match(page, /MLB Simulation Center/, "the one modelled product is named so the contrast is explicit");
+  assert.match(page, /MLB Simulation Center/, "the modelled products are named so the contrast is explicit");
+  assert.match(page, /NFL hub/, "NFL is named as modelled now that it publishes simulations");
 });
 
 test("the ONE modelled sport keeps 'Simulation Center' framing; retired sport routes claim none", () => {

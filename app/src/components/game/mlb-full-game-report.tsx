@@ -95,6 +95,49 @@ function MiniHistogram({ bins, accent = "var(--vault-gold)", label }: { bins: { 
   );
 }
 
+/**
+ * THE PREDICTED SCORE, for a sport that has no separate prediction layer yet.
+ *
+ * Every simulation must answer "what is the score going to be" at the top — a reader should not have
+ * to assemble it from a list of most-likely finals. This renders that one line from the same
+ * simulated games everything else on the page comes from.
+ *
+ * It uses the MEAN of each team's simulated points, rounded. The mode was the tempting alternative
+ * because it varies game to game (20-17 here, 17-20 there) and therefore LOOKS like the model is
+ * separating teams — but with no team differentiation applied that variation is Monte Carlo noise,
+ * and a number that looks differentiated while being noise is worse than one that is honestly flat.
+ * The sub-line says so rather than leaving a reader to infer it.
+ */
+function ProjectedScoreHero({ g, awayCode, homeCode }: { g: FullGameSimGame; awayCode: string; homeCode: string }) {
+  if (!g.runs || !g.winProbability) return null;
+  const V = g.vocabulary ?? BASEBALL_VOCAB;
+  const away = Math.round(g.runs.away.mean);
+  const home = Math.round(g.runs.home.mean);
+  const lead = Math.max(g.winProbability.away, g.winProbability.home);
+  const leader = g.winProbability.home >= g.winProbability.away ? homeCode : awayCode;
+  const undifferentiated = Math.abs(away - home) <= 1 && lead < 0.55;
+  return (
+    <div className="rounded-[14px] px-4 py-4 flex flex-col gap-2" style={{ border: "1px solid var(--vault-gold)", background: "linear-gradient(180deg, rgba(217,164,65,0.07), rgba(217,164,65,0.02))" }}>
+      <div className="flex items-baseline justify-between gap-2 flex-wrap">
+        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>Projected score</span>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+          from {g.runCount.toLocaleString()} simulated games · not validated to out-predict the market
+        </span>
+      </div>
+      <div className="font-display" style={{ color: "var(--vault-text)", fontSize: 30, fontWeight: 800, lineHeight: 1.05 }}>
+        {awayCode} {away} – {home} {homeCode}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <StatTile label="Win probability" value={`${leader} ${Math.round(lead * 100)}%`} sub={`${awayCode} ${Math.round(g.winProbability.away * 100)}% · ${homeCode} ${Math.round(g.winProbability.home * 100)}%`} />
+        <StatTile label={`Projected total ${V.scoreUnit}`} value={away + home} sub={g.totalRuns ? `p10–p90 ${g.totalRuns.p10}–${g.totalRuns.p90}` : undefined} />
+      </div>
+      <p className="font-mono m-0" style={{ fontSize: 9.5, color: "var(--vault-text-faint)", lineHeight: 1.5 }}>
+        Mean simulated {V.scoreUnit} for each side, rounded.{undifferentiated ? " These two teams project level because nothing in the model separates them: no team-strength rating and no home-field advantage are applied, and the measured preseason home edge is −0.01 points. A projected score that differed game to game here would be simulation noise dressed up as a read." : ""}
+      </p>
+    </div>
+  );
+}
+
 function StatTile({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
     <div className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
@@ -234,7 +277,8 @@ function Overview({ g, prediction, awayCode, homeCode }: { g: FullGameSimGame; p
   return (
     <div className="flex flex-col gap-4">
       {/* PREDICTION FIRST — the direct answers, before any probability evidence. */}
-      {prediction ? <PredictionHero p={prediction} runCount={g.runCount} spreadLabel={(g.vocabulary ?? BASEBALL_VOCAB).spreadLabel} /> : null}
+      {prediction ? <PredictionHero p={prediction} runCount={g.runCount} spreadLabel={(g.vocabulary ?? BASEBALL_VOCAB).spreadLabel} />
+        : <ProjectedScoreHero g={g} awayCode={awayCode} homeCode={homeCode} />}
 
       {/* Everything below is EVIDENCE for the prediction above. */}
       <div className="flex items-center gap-2 mt-1">
@@ -327,7 +371,57 @@ function Overview({ g, prediction, awayCode, homeCode }: { g: FullGameSimGame; p
   );
 }
 
+/**
+ * Football box score — the average simulated stat line per player.
+ *
+ * Same purpose as the baseball table below it, different sport's columns. The competitor shows an
+ * average box score too; ours is built from the same simulated games as the score, so a reader can
+ * check that the projected 19 points and the projected yardage are telling one story.
+ */
+function FootballBoxScore({ g }: { g: FullGameSimGame }) {
+  const rows = g.footballPlayers ?? [];
+  if (!rows.length) return null;
+  const teams = [...new Set(rows.map((r) => r.team))];
+  const num = (v: number) => (v >= 10 ? Math.round(v) : Math.round(v * 10) / 10);
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-[11px] m-0" style={{ color: "var(--vault-text-faint)" }}>
+        Average per-game stat line across the {g.runCount.toLocaleString()} simulated games — the same games that produced the score above. Preseason snap counts are not published in advance, so playing time comes from a measured rotation model and the ranges behind these means are wide.
+      </p>
+      {teams.map((team) => (
+        <div key={team}>
+          <div className="font-mono uppercase tracking-[0.1em] mb-1.5" style={{ color: "var(--vault-gold)", fontSize: 10 }}>{team}</div>
+          <div className="overflow-x-auto">
+            <table className="w-full" style={{ borderCollapse: "collapse", fontSize: 11 }}>
+              <thead>
+                <tr>
+                  {["Player", "Pos", "Att", "Cmp", "Pass yds", "Rush", "Rush yds", "Tgt", "Rec", "Rec yds"].map((h, i) => (
+                    <th key={h} className="py-1 px-1.5" style={{ textAlign: i === 0 || i === 1 ? "left" : "right", color: "var(--vault-text-faint)", fontWeight: 500, borderBottom: "1px solid var(--vault-rule)", whiteSpace: "nowrap" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.filter((r) => r.team === team).map((r) => (
+                  <tr key={r.playerId}>
+                    <td className="py-1.5 px-1.5" style={{ color: "var(--vault-text)", fontWeight: 600, whiteSpace: "nowrap" }}>{r.name}</td>
+                    <td className="py-1.5 px-1.5" style={{ color: "var(--vault-text-faint)" }}>{r.position}</td>
+                    {[r.passAttempts, r.passCompletions, r.passYards, r.rushAttempts, r.rushYards, r.targets, r.receptions, r.receivingYards].map((v, i) => (
+                      <td key={i} className="py-1.5 px-1.5" style={{ textAlign: "right", color: v ? "var(--vault-text-mute)" : "var(--vault-text-faint)", fontVariantNumeric: "tabular-nums" }}>{v ? num(v) : "—"}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function BoxScore({ g }: { g: FullGameSimGame }) {
+  // A sport with a football box score renders that instead of the batting order.
+  if (g.footballPlayers?.length) return <FootballBoxScore g={g} />;
   if (!g.players) return null;
   const byTeam = (team: string) => g.players!.batters.filter((b) => b.team === team);
   const teams = [...new Set(g.players.batters.map((b) => b.team))];

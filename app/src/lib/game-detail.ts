@@ -563,53 +563,85 @@ function nbaDetails(): PublicGameDetail[] {
  * the tabs, the ranked prop list, the histograms. Producing an NFL-shaped artifact instead would
  * have forked that experience, which is exactly the drift this repository keeps closing.
  */
+/**
+ * NFL details (P183/P185). NFL feeds the SAME shared detail/simulation contract MLB does, so its
+ * games render through /games/[sport]/[gameId] with the identical experience.
+ *
+ * P185: built ONE SLATE DAY AT A TIME. Every game belongs to the ET day it kicks off on, and the
+ * shared constructor stamps the slug from the date it is handed — so passing one "slate date" for a
+ * whole week filed Saturday's seven games under Friday and made tonight's page list tomorrow's
+ * games. Iterating the day files keeps each game on its own day and each URL honest.
+ */
+/**
+ * NFL team crest. ESPN publishes NFL logos under the team's own abbreviation, and our schedule comes
+ * from ESPN, so the abbreviations already agree — no alias table is needed for this sport. Verified
+ * live against every abbreviation on the current slate before wiring it up; a URL that 404s renders
+ * the initials fallback rather than a broken image.
+ */
+function nflTeamLogoUrl(abbr: string | null | undefined): string | null {
+  const a = String(abbr ?? "").trim().toLowerCase();
+  if (!/^[a-z]{2,4}$/.test(a)) return null;
+  return `https://a.espncdn.com/i/teamlogos/nfl/500/${a}.png`;
+}
+
 function nflDetails(): PublicGameDetail[] {
   const root = path.join(process.cwd(), "public", "data");
-  let art: { date?: string; modelVersion?: string; runCount?: number; generatedAt?: string; games?: Array<Record<string, unknown>> } | null = null;
-  try { art = JSON.parse(fs.readFileSync(path.join(root, "nfl", "game-simulations", "latest.json"), "utf8")); } catch { return []; }
-  const date = art?.date ?? "";
-  if (!date || !Array.isArray(art?.games)) return [];
+  const dir = path.join(root, "nfl", "game-simulations");
+  let dayFiles: string[] = [];
+  try {
+    dayFiles = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
+  } catch {
+    return [];
+  }
 
-  // Build through the SAME team-sport constructor MLB uses, so every field the shared page reads is
-  // present by construction rather than by me remembering it. NFL supplies no separate prop rows:
-  // its projections live inside the simulation artifact, which is what the page renders.
-  const rows = (art.games as Array<Record<string, never>>).map((g) => {
-    const slug = String(g.slug ?? "");
-    return {
-      gamePk: String(g.gameId ?? ""),
-      gameId: String(g.gameId ?? ""),
-      awayTeamAbbr: (slug.split("-vs-")[0] ?? "?").toUpperCase(),
-      homeTeamAbbr: (slug.split("-vs-")[1] ?? "?").split("-")[0].toUpperCase(),
-      venue: null,
-    };
-  });
-  const details = boardDetails("nfl" as "mlb", date, rows, [], (g) => String(g.gameId ?? ""));
+  const out: PublicGameDetail[] = [];
+  for (const file of dayFiles) {
+    let art: { date?: string; modelVersion?: string; runCount?: number; generatedAt?: string; games?: Array<Record<string, unknown>> } | null = null;
+    try { art = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8")); } catch { continue; }
+    const date = art?.date ?? file.replace(".json", "");
+    if (!Array.isArray(art?.games) || art.games.length === 0) continue;
 
-  // The full-game score simulation — the same artifact family MLB feeds the shared report, which is
-  // what makes NFL render a projected score, a win probability and a score distribution instead of
-  // the "full-game score: not simulated" placeholder it showed before.
-  const nflFullGame = loadFullGameArtifact(root, date, "nfl");
+    const rows = (art.games as Array<Record<string, never>>).map((g) => {
+      const slug = String(g.slug ?? "");
+      return {
+        gamePk: String(g.gameId ?? ""),
+        gameId: String(g.gameId ?? ""),
+        awayTeamAbbr: (slug.split("-vs-")[0] ?? "?").toUpperCase(),
+        homeTeamAbbr: (slug.split("-vs-")[1] ?? "?").split("-")[0].toUpperCase(),
+        venue: null,
+      };
+    });
+    const details = boardDetails("nfl" as "mlb", date, rows, [], (g) => String(g.gameId ?? ""));
 
-  return details.map((d) => {
-    const result = readGameSimulation(root, "nfl", date, d.matchId ?? "", { currentDate: date });
-    const eventId = String(d.matchId ?? "").replace(/^nfl-/, "");
-    const fg = nflFullGame?.byGamePk.get(eventId) ?? null;
-    return {
-      ...d,
-      // AFTER the spread: `d` carries these keys from the shared constructor, so setting them first
-      // would let the spread overwrite them straight back to null.
-      fullGameSim: fg,
-      fullGameSimMeta: fg ? nflFullGame?.meta ?? null : null,
-      sport: "nfl",
-      sportLabel: "NFL",
-      gameLabSimulation: buildGameSimulationView(result, {
-        modelVersion: String(art?.modelVersion ?? "nfl-preseason-public-beta-v1"),
-        simulationVersion: 1,
-        runCount: Number(art?.runCount ?? 10000),
-        generatedAt: String(art?.generatedAt ?? ""),
-      }),
-    } as unknown as PublicGameDetail;
-  });
+    // The full-game score simulation for THIS day — the same artifact family MLB feeds the shared
+    // report, which is what makes NFL render a projected score instead of a placeholder.
+    const nflFullGame = loadFullGameArtifact(root, date, "nfl");
+
+    for (const d of details) {
+      const result = readGameSimulation(root, "nfl", date, d.matchId ?? "", { currentDate: date });
+      const eventId = String(d.matchId ?? "").replace(/^nfl-/, "");
+      const row = rows.find((r) => r.gameId === String(d.matchId ?? ""));
+      const fg = nflFullGame?.byGamePk.get(eventId) ?? null;
+      out.push({
+        ...d,
+        homeLogo: nflTeamLogoUrl(row?.homeTeamAbbr),
+        awayLogo: nflTeamLogoUrl(row?.awayTeamAbbr),
+        // AFTER the spread: `d` carries these keys from the shared constructor, so setting them
+        // first would let the spread overwrite them straight back to null.
+        fullGameSim: fg,
+        fullGameSimMeta: fg ? nflFullGame?.meta ?? null : null,
+        sport: "nfl",
+        sportLabel: "NFL",
+        gameLabSimulation: buildGameSimulationView(result, {
+          modelVersion: String(art?.modelVersion ?? "nfl-preseason-public-beta-v1"),
+          simulationVersion: 1,
+          runCount: Number(art?.runCount ?? 10000),
+          generatedAt: String(art?.generatedAt ?? ""),
+        }),
+      } as unknown as PublicGameDetail);
+    }
+  }
+  return out;
 }
 
 let _cache: PublicGameDetail[] | null = null;

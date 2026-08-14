@@ -86,6 +86,12 @@ const overProb = (values, line) => r4(values.filter((v) => v > line).length / va
  * that player's own simulated median (rounded to the half-point a book would use) and kept only if
  * the simulated probability actually lands away from the extremes.
  */
+/** ESPN headshot for an athlete id of the form "nfl-athlete-<id>". Null when the id is not one. */
+function espnHeadshot(playerId) {
+  const m = /(?:^|-)athlete-(\d+)$/.exec(String(playerId ?? ""));
+  return m ? `https://a.espncdn.com/i/headshots/nfl/players/full/${m[1]}.png` : null;
+}
+
 const HALF_STEP = { passYds: 5, passAtt: 1, rushYds: 5, rushAtt: 1, rec: 1, recYds: 5, anytimeTd: 1 };
 
 /** Round to the nearest half-point on a sensible step for the market — 249.5, 24.5, 3.5, … */
@@ -117,11 +123,17 @@ function thresholdsFor(values, market) {
   return out.sort((a, b) => a - b);
 }
 
-/** One date for the whole artifact — the earliest upcoming kickoff's day. */
-const ARTIFACT_DATE = (index.events ?? [])
-  .filter((e) => e.lifecycle === "UPCOMING")
-  .map((e) => e.kickoffUtc)
-  .sort()[0]?.slice(0, 10) ?? NOW.slice(0, 10);
+/**
+ * Each game belongs to the ET calendar day it KICKS OFF on — not to one shared "slate date".
+ *
+ * Two bugs live here if you get it wrong. Stamping every game with one artifact date put Saturday's
+ * seven games under Friday, so tonight's page listed tomorrow's games. And slicing the UTC instant
+ * is wrong for late kickoffs: an 8:00 PM ET Saturday game is 00:00 UTC Sunday, so `.slice(0,10)`
+ * would file it under the wrong day entirely.
+ */
+const etDay = (iso) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(new Date(iso));
 
 const games = [];
 const refusals = [];
@@ -226,6 +238,8 @@ for (const ev of index.events.filter((e) => e.lifecycle === "UPCOMING")) {
           id: `${gameId}-${meta.playerId}-${field}-${line}-${pOver >= 0.5 ? "over" : "under"}`,
           sport: "nfl", gameId,
           market: field, player: meta.name, team: meta.team, position: meta.position,
+          // ESPN athlete id is already the participation key, so the portrait needs no new source.
+          photoUrl: espnHeadshot(meta.playerId),
           line, side: pOver >= 0.5 ? "over" : "under",
           projection,
           modelProbability: pOver >= 0.5 ? pOver : r4(1 - pOver),
@@ -301,14 +315,13 @@ for (const ev of index.events.filter((e) => e.lifecycle === "UPCOMING")) {
   games.push({
     gameId,
     gamePk: Number(ev.providerEventId),
-    // ARTIFACT date, not this game's kickoff: the shared detail builder regenerates every slug from
-    // the artifact's single date, so a Saturday kickoff under a Friday artifact would otherwise link
-    // to a route that does not exist.
-    slug: `${ev.away.abbr.toLowerCase()}-vs-${ev.home.abbr.toLowerCase()}-${ARTIFACT_DATE}`,
+    slug: `${ev.away.abbr.toLowerCase()}-vs-${ev.home.abbr.toLowerCase()}-${etDay(ev.kickoffUtc)}`,
+    /** The ET day this game kicks off on — the single key everything downstream groups by. */
+    slateDate: etDay(ev.kickoffUtc),
     teams: { home: ev.home.name, away: ev.away.name },
     status: "ready",
     freshness: {
-      slateDate: ev.kickoffUtc.slice(0, 10),
+      slateDate: etDay(ev.kickoffUtc),
       sourceCapturedAt: part.generatedAt,
       generatedAt: NOW,
       note: `Joint game simulation: team volume, each player's share of it, then efficiency measured from ${RUNS.toLocaleString()} deterministic iterations.`,
@@ -369,9 +382,13 @@ for (const ev of index.events.filter((e) => e.lifecycle === "UPCOMING")) {
   });
 }
 
-const date = games[0]?.freshness?.slateDate ?? NOW.slice(0, 10);
-const artifact = {
-  date,
+/** Games grouped by the ET day they kick off — one artifact per slate day, never one lump. */
+const dayKey = (g) => g.slateDate ?? g.freshness?.slateDate ?? NOW.slice(0, 10);
+const slateDays = [...new Set(games.map(dayKey))].sort();
+const date = slateDays[0] ?? NOW.slice(0, 10);
+
+const buildArtifact = (day, dayGames) => ({
+  date: day,
   sport: "nfl",
   generatedAt: NOW,
   modelVersion: forecasts.model?.id ?? "nfl-preseason-public-beta-v1",
@@ -379,7 +396,7 @@ const artifact = {
   simulationEngine: "nfl-joint-game-sim-v1",
   runCount: RUNS,
   sourceBoardHash: index.generatedAt,
-  games,
+  games: dayGames,
   refusals,
   honesty: {
     teamModel: "the team score distribution is BASELINE_ONLY — no measured signal separates these teams, so it reflects league-wide preseason context and home field only.",
@@ -387,15 +404,19 @@ const artifact = {
     market: "team markets carry a real captured line and a real comparison. Player markets are not offered by the provider for these games, so player rows carry model probability only and no line is invented.",
     notAdvice: "educational and paper-only; not betting advice, and not shown to beat the market.",
   },
-};
-artifact.artifactHash = crypto.createHash("sha256").update(JSON.stringify(artifact.games)).digest("hex");
+});
 
 const out = path.join(APP, "public/data/nfl/game-simulations");
 fs.mkdirSync(out, { recursive: true });
-fs.writeFileSync(path.join(out, `${date}.json`), JSON.stringify(artifact, null, 1) + "\n");
-fs.writeFileSync(path.join(out, "latest.json"), JSON.stringify(artifact, null, 1) + "\n");
+for (const day of slateDays) {
+  const a = buildArtifact(day, games.filter((g) => dayKey(g) === day));
+  a.artifactHash = crypto.createHash("sha256").update(JSON.stringify(a.games)).digest("hex");
+  fs.writeFileSync(path.join(out, `${day}.json`), JSON.stringify(a, null, 1) + "\n");
+  // `latest` is the NEAREST slate day, so "today" never silently includes tomorrow's games.
+  if (day === date) fs.writeFileSync(path.join(out, "latest.json"), JSON.stringify(a, null, 1) + "\n");
+}
 
-console.log(`nfl game simulations ${date}: ${games.length} games · ${refusals.length} refused · ${RUNS} runs`);
+console.log(`nfl game simulations: ${slateDays.length} slate day(s) ${slateDays.join(", ")} · ${games.length} games · ${refusals.length} refused · ${RUNS} runs`);
 for (const g of games) {
   console.log(`  ${g.slug.padEnd(22)} ${g.simulationSummary.readiness.padEnd(15)} picks ${String(g.generatedPicks.length).padStart(3)} · distributions ${String(Object.keys(g.distributions).length).padStart(3)} · market lines ${g.marketSnapshot.lines.length}`);
 }

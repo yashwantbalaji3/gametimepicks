@@ -25,7 +25,7 @@ import { UpcomingSportsSections, type SportSchedule } from "@/components/sports/
 export const metadata: Metadata = {
   title: "Upcoming Sports — Schedules · GameTime Picks",
   description:
-    "Premier League, NFL, NBA and UFC schedule status — what data exists, where it comes from, and what is honestly not published yet. Schedule information only; these sports are not modelled here.",
+    "Premier League, NFL, NBA and UFC schedule status — what data exists, where it comes from, and what is honestly not published yet. NFL and MLB are simulated; the rest are schedule information only.",
 };
 
 export default function UpcomingSportsPage() {
@@ -38,10 +38,13 @@ export default function UpcomingSportsPage() {
       </p>
       <h1 style={{ margin: "6px 0 0", fontSize: 26 }}>Schedules and coverage status</h1>
       <p style={{ margin: "12px 0 0", fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))", maxWidth: 640 }}>
-        Four sports we track toward future coverage. Each section says exactly what exists today —
-        the schedule source, when it was captured, or the specific reason nothing is published yet.
-        None of these sports has simulations, predictions or picks on this site; the modelled
-        product is the <Link href="/mlb/" style={{ color: "var(--vault-gold)" }}>MLB Simulation Center</Link>.
+        Four sports we track toward coverage. Each section says exactly what exists today — the
+        schedule source, when it was captured, or the specific reason nothing is published yet.
+        Two sports are simulated so far: the{" "}
+        <Link href="/mlb/" style={{ color: "var(--vault-gold)" }}>MLB Simulation Center</Link> and the{" "}
+        <Link href="/nfl/" style={{ color: "var(--vault-gold)" }}>NFL hub</Link>. Premier League, NBA
+        and UFC carry schedules only — simulation for those is not published yet, and each section
+        below names the specific blocker rather than promising a date.
       </p>
       <div style={{ marginTop: 24 }}>
         <UpcomingSportsSections sports={sports} />
