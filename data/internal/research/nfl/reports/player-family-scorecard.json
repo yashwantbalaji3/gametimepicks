@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-player-family-scorecard",
+  "dataClass": "PRIVATE_RESEARCH",
+  "generatedAt": "2026-08-14T14:02:20Z",
+  "contract": {
+    "version": "v1",
+    "sha256": "320ee50416b7f3b49f08849a1b67962099387769f262013b12166c0a635c06ce"
+  },
+  "cohort": "PRESEASON only — the cohort the current slate belongs to. A regular-season head is a different question and is not reported here as evidence for a preseason projection.",
+  "population": {
+    "games": 1001,
+    "lockedCohortQuarantined": 0
+  },
+  "families": {
+    "passing": {
+      "family": "passing",
+      "mechanism": "participation state -> team dropbacks -> QB attempts -> completions -> yards -> TD/INT",
+      "baseline": "position-and-role mean from the fit window (the simplest honest competitor)",
+      "n": 497,
+      "folds": [
+        {
+          "targetSeason": 2024,
+          "fitRows": 247,
+          "testRows": 250,
+          "droppedRows": 0
+        },
+        {
+          "targetSeason": 2025,
+          "fitRows": 497,
+          "testRows": 247,
+          "droppedRows": 0
+        }
+      ],
+      "metrics": {
+        "baselineMAE": 6.3319,
+        "modelMAE": 6.2198,
+        "improvement": 0.1121,
+        "interval80Coverage": 0.5151,
+        "meanIntervalWidth": 11.1317
+      },
+      "bars": {
+        "MINIMUM_N": {
+          "pass": true,
+          "detail": "n=497 vs required 100"
+        },
+        "VOLUME_IMPROVEMENT": {
+          "pass": false,
+          "detail": "passAtt MAE 6.2198 vs baseline 6.3319 (improvement 0.1121, need >= 1)"
+        },
+        "COVERAGE_BAND": {
+          "pass": false,
+          "detail": "80% coverage 0.5151, band [0.70, 0.90]"
+        }
+      },
+      "verdict": "REJECTED"
+    },
+    "rushing": {
+      "family": "rushing",
+      "mechanism": "team rush attempts -> carries by role -> yards -> TD with a separate goal-line share",
+      "baseline": "position-and-role mean",
+      "n": 1232,
+      "folds": [
+        {
+          "targetSeason": 2024,
+          "fitRows": 585,
+          "testRows": 643,
+          "droppedRows": 0
+        },
+        {
+          "targetSeason": 2025,
+          "fitRows": 1228,
+          "testRows": 589,
+          "droppedRows": 0
+        }
+      ],
+      "metrics": {
+        "baselineMAE": 2.6793,
+        "modelMAE": 2.5236,
+        "improvement": 0.1557,
+        "interval80Coverage": 0.7695,
+        "meanIntervalWidth": 6.264
+      },
+      "bars": {
+        "MINIMUM_N": {
+          "pass": true,
+          "detail": "n=1232 vs required 150"
+        },
+        "VOLUME_IMPROVEMENT": {
+          "pass": false,
+          "detail": "rushAtt MAE 2.5236 vs baseline 2.6793 (improvement 0.1557, need >= 0.75)"
+        },
+        "COVERAGE_BAND": {
+          "pass": true,
+          "detail": "80% coverage 0.7695, band [0.70, 0.90]"
+        }
+      },
+      "verdict": "REJECTED"
+    },
+    "receiving": {
+      "family": "receiving",
+      "mechanism": "team targets -> targets by route share -> receptions -> yards -> TD",
+      "baseline": "position-and-role mean",
+      "n": 2490,
+      "folds": [
+        {
+          "targetSeason": 2024,
+          "fitRows": 1278,
+          "testRows": 1245,
+          "droppedRows": 0
+        },
+        {
+          "targetSeason": 2025,
+          "fitRows": 2523,
+          "testRows": 1245,
+          "droppedRows": 0
+        }
+      ],
+      "metrics": {
+        "baselineMAE": 1.2309,
+        "modelMAE": 1.2352,
+        "improvement": -0.0043,
+        "interval80Coverage": 0.8498,
+        "meanIntervalWidth": 3.9424
+      },
+      "bars": {
+        "MINIMUM_N": {
+          "pass": true,
+          "detail": "n=2490 vs required 300"
+        },
+        "VOLUME_IMPROVEMENT": {
+          "pass": false,
+          "detail": "targets MAE 1.2352 vs baseline 1.2309 (improvement -0.0043, need >= 0.5)"
+        },
+        "COVERAGE_BAND": {
+          "pass": true,
+          "detail": "80% coverage 0.8498, band [0.70, 0.90]"
+        }
+      },
+      "verdict": "REJECTED"
+    },
+    "touchdowns": {
+      "family": "touchdowns",
+      "mechanism": "team offensive TD count -> pass/rush split -> scorer allocation",
+      "n": 1553,
+      "metrics": {
+        "baselineBrier": 0.1055,
+        "modelBrier": 0.1082
+      },
+      "bars": {
+        "MINIMUM_N": {
+          "pass": true,
+          "detail": "n=1553 vs required 300"
+        },
+        "CALIBRATION": {
+          "pass": false,
+          "detail": "Brier 0.1082 vs baseline 0.1055"
+        }
+      },
+      "verdict": "REJECTED"
+    }
+  },
+  "unsupported": {
+    "firstTouchdown": "requires drive chronology and scorer sequencing. The corpus carries per-game stat lines with NO ordering, so the mechanism does not exist. MARKET_ONLY_UNSUPPORTED.",
+    "lastTouchdown": "same — anytime-TD evidence does not transfer to an ordered scorer market.",
+    "longestPlay": "no per-play data in the corpus.",
+    "rule": "these may never borrow an anytime-TD probability under a different label."
+  },
+  "independence": "each family promotes or fails ALONE. A passing head cannot promote receiving, rushing or touchdowns.",
+  "marketState": "MODEL_ONLY_NO_MARKET — the provider reports offeredMarkets: [] for NFL player props in this window, so no family has a price to compare against and none may be given one.",
+  "verdictByFamily": {
+    "passing": "REJECTED",
+    "rushing": "REJECTED",
+    "receiving": "REJECTED",
+    "touchdowns": "REJECTED"
+  }
+}

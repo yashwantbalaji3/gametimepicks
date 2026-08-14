@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-player-families-public",
+  "dataClass": "PUBLIC_DERIVED",
+  "generatedAt": "2026-08-14T14:02:20Z",
+  "headline": "We built player projections for these games, tested all four families, and rejected every one.",
+  "whatWeTested": "Passing, rushing, receiving and touchdowns \u2014 each judged on its own, against bars committed before any of them was built.",
+  "theCompetitor": "The thing each model had to beat was deliberately simple: 'what a player of this usage level normally does in a preseason game'. If a player's own history cannot beat that, his history is not adding information.",
+  "results": [
+    {
+      "family": "Passing attempts",
+      "n": 497,
+      "verdict": "REJECTED",
+      "why": "improved on the simple baseline by 0.1121 of an attempt where a full attempt was required \u2014 and its ranges were far too narrow, containing the real result only 52% of the time instead of 80%."
+    },
+    {
+      "family": "Rushing attempts",
+      "n": 1232,
+      "verdict": "REJECTED",
+      "why": "improved by 0.1557 of a carry where 0.75 was required. Its ranges were honest (77% coverage), but the projection itself was not better than the simple version."
+    },
+    {
+      "family": "Receiving targets",
+      "n": 2490,
+      "verdict": "REJECTED",
+      "why": "very slightly WORSE than the simple baseline (1.2352 vs 1.2309 targets of average error)."
+    },
+    {
+      "family": "Touchdown scorers",
+      "n": 1553,
+      "verdict": "REJECTED",
+      "why": "scored worse than simply using the league-wide rate (0.1082 vs 0.1055, lower is better)."
+    }
+  ],
+  "whatItMeans": "In preseason, how much a player plays is decided by coaching rotation on the night \u2014 not by what he did in past games. Our player histories could not predict it, so we are not publishing per-player projections for this weekend.",
+  "whatWeArePublishingInstead": "The playing-time ranges themselves, which say honestly how uncertain the workload is, and nothing that looks like a per-player number we cannot stand behind.",
+  "noMarketAnyway": "Separately, our odds provider offers no NFL player markets for these games at all, so there would have been no sportsbook price to compare against even if a family had passed."
+}

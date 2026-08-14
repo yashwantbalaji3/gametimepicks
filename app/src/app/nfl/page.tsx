@@ -104,6 +104,12 @@ export default function NflHubPage() {
   // shows its predictions and never its grades is asking to be taken on trust.
   // P182-A: the playing-time answer. Published because every player row on this page is only as
   // good as the participation assumption behind it, and ours is "we do not know, here is how much".
+  // P183-B: all four player families were tested and rejected. Published because a site that shows
+  // only the models that worked is not showing its work.
+  const playerFamilies = read("nfl/player-families-public.json") as
+    | { headline: string; whatWeTested: string; theCompetitor: string; whatItMeans: string;
+        noMarketAnyway: string; results: Array<{ family: string; n: number; verdict: string; why: string }> }
+    | null;
   const participation = read("nfl/participation-summary.json") as
     | { headline: string; whyNotKnown: string; whatWeDoInstead: string; whyItMatters: string;
         eventsCovered: number; unreachableWithoutSource: string[] }
@@ -482,6 +488,43 @@ export default function NflHubPage() {
           </table>
         </div>
       </section>
+
+      {playerFamilies ? (
+        <section aria-labelledby="nfl-player-families" id="nfl-player-families">
+          <SectionHeader
+            eyebrow="Player projections"
+            title={playerFamilies.headline}
+            sub={`${playerFamilies.whatWeTested} ${playerFamilies.theCompetitor}`}
+          />
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
+              <thead>
+                <tr>
+                  {["Family", "Games of evidence", "Result", "Why"].map((h) => (
+                    <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {playerFamilies.results.map((r) => (
+                  <tr key={r.family}>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>{r.family}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{r.n.toLocaleString()}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{r.verdict}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, lineHeight: 1.55, color: "var(--vault-text-mute)" }}>{r.why}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p style={{ margin: "12px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text)", maxWidth: 760 }}>
+            {playerFamilies.whatItMeans}
+          </p>
+          <p style={{ margin: "6px 0 0", fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 760 }}>
+            {playerFamilies.noMarketAnyway}
+          </p>
+        </section>
+      ) : null}
 
       {participation ? (
         <section aria-labelledby="nfl-participation" id="nfl-participation">
