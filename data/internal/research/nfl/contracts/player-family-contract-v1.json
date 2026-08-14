@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-player-family-evaluation-contract",
+  "dataClass": "PRIVATE_RESEARCH",
+  "version": "v1",
+  "declaredAt": "2026-08-14T14:10:00Z",
+  "declaredBefore": "any player-family head was fitted and before any held-out metric was computed. Committed on its own so the commit history proves the bars predate the results — the same sequence Program 181 used, and the reason its rejection is trustworthy.",
+  "program": "P183 Release B",
+
+  "inheritedTruth": {
+    "participation": "Program 182 Release A. Every named player is AVAILABLE_ROLE_UNCERTAIN; CONFIRMED_OUT / EXPECTED_STARTER / EXPECTED_ROTATION / LIMITED are structurally unreachable without a registered actives source. Shares are PRESEASON distributions (p10/p50/p90), never regular-season point shares.",
+    "market": "the provider reports offeredMarkets: [] for NFL player props in this window. Every family therefore lands at MODEL_ONLY_NO_MARKET at best. That is a STATE, not a gap, and it may never be filled by synthesizing a line.",
+    "team": "BASELINE_ONLY remains champion. The P181 score-only challenger stays REJECTED_WITH_EVIDENCE. No player result may promote the team model."
+  },
+
+  "population": {
+    "corpus": "data/internal/research/nfl/player-events-v1/{2023,2024,2025}.json",
+    "games": 1001,
+    "playerRowsSeason2023": 22083,
+    "rowFrequency": { "receiving": 1049, "rushing": 489, "passing": 203, "note": "per 40 games sampled — receiving rows are ~5x passing rows, so per-family sample size differs enormously and each family carries its own n" },
+    "reconciliationRulesAlreadyEnforced": ["R1 recTd == passTd", "R2 recYds == passYds", "R3 6 x offTD <= official final points"],
+    "quarantineRule": "a player row missing its family's volume field is QUARANTINED and stays in the denominator; a game whose rows violate R1-R3 is already quarantined upstream"
+  },
+
+  "splits": {
+    "method": "expanding-window, rolling origin, by season",
+    "rule": "for each target season S, fit strictly on games with dateUtc earlier than the first game of S. No random splits.",
+    "preseasonSeparation": "preseason and regular season are evaluated as SEPARATE cohorts. A regular-season head may not be reported as evidence for a preseason projection — that is the exact error Program 182's rotation factor exists to prevent.",
+    "lockedCohort": "any game on or after 2026-08-13 is a locked forward cohort and may not fit or select anything."
+  },
+
+  "families": {
+    "passing": {
+      "mechanism": "participation state -> team dropbacks -> QB attempts -> completions -> yards -> TD/INT",
+      "baseline": "position-and-role mean from the fit window (the simplest honest competitor)",
+      "primaryMetric": "attempts MAE, then yards MAE",
+      "bars": { "volumeImprovement": "attempts MAE improves on the baseline by >= 1.0 attempts", "coverageBand": "80% interval coverage in [0.70, 0.90]", "minimumN": 100 }
+    },
+    "rushing": {
+      "mechanism": "team rush attempts -> carries by role -> yards -> TD with a separate goal-line share",
+      "baseline": "position-and-role mean",
+      "primaryMetric": "carries MAE, then yards MAE",
+      "bars": { "volumeImprovement": "carries MAE improves on the baseline by >= 0.75 carries", "coverageBand": "80% interval coverage in [0.70, 0.90]", "minimumN": 150 }
+    },
+    "receiving": {
+      "mechanism": "team targets -> targets by route share -> receptions -> yards -> TD",
+      "baseline": "position-and-role mean",
+      "primaryMetric": "targets MAE, then yards MAE",
+      "bars": { "volumeImprovement": "targets MAE improves on the baseline by >= 0.50 targets", "coverageBand": "80% interval coverage in [0.70, 0.90]", "minimumN": 300 }
+    },
+    "touchdowns": {
+      "mechanism": "team offensive TD count -> pass/rush split -> scorer allocation",
+      "baseline": "team TD rate x role share",
+      "primaryMetric": "anytime-TD Brier",
+      "bars": { "calibration": "Brier improves on the baseline AND reliability ECE <= 0.05", "minimumN": 300 },
+      "note": "2+ TD is reported only if anytime is calibrated AND 2+ has its own n >= 100"
+    }
+  },
+
+  "unsupportedByConstruction": {
+    "firstTouchdown": "requires drive chronology and scorer sequencing. The corpus carries per-game stat lines with NO ordering, so the mechanism does not exist. MARKET_ONLY_UNSUPPORTED.",
+    "lastTouchdown": "same — anytime-TD evidence does not transfer to an ordered scorer market.",
+    "longestPlay": "no per-play data in the corpus.",
+    "rule": "these may never borrow an anytime-TD probability under a different label."
+  },
+
+  "independence": {
+    "rule": "each family promotes or fails ALONE. A passing head cannot promote receiving, rushing or touchdowns.",
+    "rationale": "the families have wildly different sample sizes (receiving rows outnumber passing ~5:1), so one family's evidence says nothing about another's."
+  },
+
+  "prohibitions": [
+    "no synthesized sportsbook line, and no comparison against a threshold the book does not actually offer",
+    "no unpriced leg in Build, Bank Builder, Moonshot or End Zone Vault",
+    "no promotion of the team model from a player result",
+    "no fitting on any game from the locked forward cohort",
+    "no reporting a family without its own n",
+    "no redistribution of unallocated opportunity to recognizable names",
+    "no language implying a recommended wager, edge, lock or expected profit"
+  ],
+
+  "conservation": {
+    "rule": "within EVERY draw: player attempts <= team dropbacks; receptions <= completions; targets <= attempts; carries <= team rush attempts; player TDs <= team offensive TDs; and every remainder carries a NAMED bucket (backup / unlisted / unallocated).",
+    "rationale": "four independent calculators can each look reasonable and jointly describe an impossible game"
+  },
+
+  "failureIsAnOutcome": "A family that misses its bars is published as REJECTED with its scorecard, and its rows render as research distributions labelled MODEL_ONLY_NO_MARKET or are withheld entirely. Friday's kickoff is a lock boundary, not a reason to lower a bar."
+}
