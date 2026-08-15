@@ -13,7 +13,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { loadCorpus, METHODS, WIN_F, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax } from "./lib/fight-model.mjs";
+import { loadCorpus, METHODS, WIN_F, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, nameKey } from "./lib/fight-model.mjs";
 
 
 const APP = process.cwd();
@@ -69,7 +69,7 @@ const V = evaluation.verdicts ?? {};
 
 const corpus = loadCorpus(RAW);
 if (!corpus) { console.error("ufc card: fight corpus absent — cannot build"); process.exit(1); }
-const { rowsOut, rec, wcRec, baseMethod, fights } = corpus;
+const { rowsOut, rec, recByKey, wcRec, baseMethod, fights } = corpus;
 
 const winModel = fitBinary(rowsOut.map((r) => ({ feat: r.feat, y: r.f.aWon })), WIN_F);
 const methodModel = fitSoftmax(rowsOut.map((r) => ({ feat: r.feat, k: METHODS.indexOf(r.f.method) })), CLS_F, 3);
@@ -86,7 +86,7 @@ const rateOf = (num, den, prior, w = 5) => (num + prior * w) / (den + w);
 const lg = (p) => Math.log(Math.max(1e-6, p) / Math.max(1e-6, 1 - p));
 
 function featuresFor(nameA, nameB, weightClass, scheduled) {
-  const A = rec.get(nameA) ?? blankRec, B = rec.get(nameB) ?? blankRec;
+  const A = recByKey.get(nameKey(nameA)) ?? blankRec, B = recByKey.get(nameKey(nameB)) ?? blankRec;
   const wc = wcRec.get(weightClass) ?? { n: 0, KO: 0, SUB: 0, DEC: 0 };
   return {
     feat: {
@@ -118,7 +118,7 @@ for (const c of event.competitions ?? []) {
     record: (x.records ?? [])[0]?.summary ?? null,
     // Verified live against every fighter on this card before wiring: all 24 resolve.
     photoUrl: x.id ? `https://a.espncdn.com/i/headshots/mma/players/full/${x.id}.png` : null,
-    priorBoutsInCorpus: rec.get(x.athlete?.displayName ?? "")?.n ?? 0,
+    priorBoutsInCorpus: recByKey.get(nameKey(x.athlete?.displayName ?? ""))?.n ?? 0,
   });
   const red = side(cs[0]), blue = side(cs[1]);
   const wc = c.type?.abbreviation ?? "Unknown";
@@ -128,8 +128,12 @@ for (const c of event.competitions ?? []) {
   // order the provider happens to list. Getting this backwards silently inverts every win figure.
   const [nameA, nameB] = [red.name, blue.name].slice().sort((x, y) => x.localeCompare(y));
   const { feat, priorFights } = featuresFor(nameA, nameB, WC_MAP[wc] ?? wc, scheduled);
-  const known = Math.min(priorFights.a, priorFights.b);
-  const informed = known >= 2;
+  // A UFC DEBUTANT is a real thing, not a data gap: the model still knows the established fighter,
+  // and the newcomer is genuinely an unknown quantity. Publishing with that stated is more useful
+  // than blanking the bout — the alternative was four fights on this card showing nothing at all.
+  const known = Math.max(priorFights.a, priorFights.b);
+  const bothKnown = Math.min(priorFights.a, priorFights.b) >= 2;
+  const informed = known >= 3;
 
   let prediction = null;
   if (informed) {
@@ -155,6 +159,10 @@ for (const c of event.competitions ?? []) {
         goesTheDistance: Number((pm[2]).toFixed(4)),
       } : null,
       priorFights,
+      basis: bothKnown ? "BOTH_FIGHTERS" : "ONE_FIGHTER_DEBUT",
+      basisNote: bothKnown
+        ? null
+        : "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
     };
   }
 
@@ -166,7 +174,7 @@ for (const c of event.competitions ?? []) {
     titleFight: scheduled === 5,
     red, blue,
     prediction,
-    unmodelledReason: prediction ? null : "One or both fighters have fewer than two bouts in the corpus, so there is no history to build a read from.",
+    unmodelledReason: prediction ? null : "Neither fighter has enough UFC history in our corpus to build a read from.",
   });
 }
 // Main event last in the provider feed — present the card the way it is watched, main event first.

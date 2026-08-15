@@ -144,11 +144,36 @@ export default function HomePage() {
     leans: mlbLeans,
     inSeason: true,                       // MLB regular season — the daily product runs
   });
+  // ── NFL + UFC now publish live simulations, so the hub reads their artifacts instead of the
+  //    hard-coded "MLB is the only sport" assumption this page shipped with. Each count is read from
+  //    the same artifact its own page renders, so the homepage can never claim coverage that is not
+  //    actually built. A missing artifact yields 0 and the sport falls to secondary on its own.
+  const readCount = (rel: string, pick: (d: Record<string, unknown>) => number): number => {
+    try { return pick(JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", rel), "utf8"))); }
+    catch { return 0; }
+  };
+  const nflGames = readCount("nfl/game-simulations/latest.json", (d) => (d.games as unknown[] | undefined)?.length ?? 0);
+  const nflPicks = readCount("nfl/game-simulations/latest.json",
+    (d) => ((d.games ?? []) as Array<{ generatedPicks?: unknown[] }>).reduce((n, g) => n + (g.generatedPicks?.length ?? 0), 0));
+  const ufcBouts = readCount("ufc/card-latest.json", (d) => (d.bouts as unknown[] | undefined)?.length ?? 0);
+  const ufcPredicted = readCount("ufc/card-latest.json",
+    (d) => ((d.bouts ?? []) as Array<{ prediction?: unknown }>).filter((b) => b.prediction).length);
+  const ufcSlateDate = (() => {
+    try { return String(JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", "card-latest.json"), "utf8")).event?.slateDate ?? ""); }
+    catch { return ""; }
+  })();
+
+  const nflState = deriveSportState({
+    slateDate: serverToday,
+    artifactDate: today,
+    leans: nflPicks,
+    inSeason: nflGames > 0,
+  });
   const ufcState = deriveSportState({
     slateDate: serverToday,
-    artifactDate: "2026-06-15",           // the one settled card
-    leans: 0,
-    inSeason: false,                      // no fight model, no live coverage
+    artifactDate: ufcSlateDate || "2026-06-15",
+    leans: ufcPredicted,
+    inSeason: ufcBouts > 0,
   });
 
   const allSports = [
@@ -166,16 +191,29 @@ export default function HomePage() {
       },
     },
     {
+      id: "nfl",
+      state: nflState,
+      card: {
+        href: "/nfl",
+        label: "NFL Simulations",
+        blurb: "Projected score, win probability and a full player board from 10,000 simulated games.",
+        status: nflGames > 0 ? `${nflGames} games · ${nflPicks.toLocaleString()} player markets` : stateLabel(nflState),
+        statusSub: "experimental preseason · paper-only",
+        cta: "Enter",
+        accent: "var(--vault-gold)",
+      },
+    },
+    {
       id: "ufc",
       state: ufcState,
       card: {
         href: "/ufc",
         label: "UFC",
-        blurb: "One settled card's official record. No live coverage and no fight model.",
-        status: stateLabel(ufcState, { artifactDate: "2026-06-15" }),
-        statusSub: "official settlement · paper-only",
-        cta: "View the record",
-        accent: "var(--vault-text-mute)",
+        blurb: "Winner, method of victory and finishing round for every bout on the card.",
+        status: ufcBouts > 0 ? `${ufcPredicted} of ${ufcBouts} bouts predicted` : stateLabel(ufcState, { artifactDate: "2026-06-15" }),
+        statusSub: ufcBouts > 0 ? "experimental · paper-only" : "official settlement · paper-only",
+        cta: ufcBouts > 0 ? "Enter" : "View the record",
+        accent: ufcBouts > 0 ? "var(--gtp-bank-lava-cta, var(--vault-gold))" : "var(--vault-text-mute)",
       },
     },
   ];

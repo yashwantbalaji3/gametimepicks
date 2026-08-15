@@ -15,6 +15,16 @@ import path from "node:path";
 
 export const METHODS = ["KO", "SUB", "DEC"];
 
+/**
+ * Fold a fighter name to a match key: strip diacritics, lowercase, drop punctuation.
+ *
+ * The schedule provider writes "Kauê Fernandes" and "Joel Álvarez"; the stats corpus writes "Kaue
+ * Fernandes" and "Joel Alvarez". Matching on the raw string silently dropped those fighters into
+ * "no history" and blanked their bouts — a data-encoding difference reading as missing knowledge.
+ */
+export const nameKey = (s) =>
+  String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
+
 export function loadCorpus(RAW) {
   // ── CSV ─────────────────────────────────────────────────────────────────────────────────────────
   function readCsv(file) {
@@ -142,7 +152,10 @@ export function loadCorpus(RAW) {
   }
 
 
-  return { fights, excluded, rowsOut, rec, wcRec, baseMethod, aWinRate };
+  // A folded-key index alongside the exact-name map, so callers can resolve provider spellings.
+  const recByKey = new Map();
+  for (const [name, v] of rec) recByKey.set(nameKey(name), v);
+  return { fights, excluded, rowsOut, rec, recByKey, wcRec, baseMethod, aWinRate };
 }
 
 export const WIN_F = ["winDiff", "finishDiff", "durabilityDiff", "expDiff"];

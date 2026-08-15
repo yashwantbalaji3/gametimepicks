@@ -84,14 +84,25 @@ test("the homepage derives the hub rather than hardcoding a sport list", () => {
     "the hub subtitle must describe what is actually rendered, not a fixed roster");
 });
 
-test("PRODUCTION TRUTH · the built homepage does not present UFC as a live simulation", () => {
+test("PRODUCTION TRUTH · the homepage presents UFC as live ONLY while it publishes bout predictions", () => {
   const home = path.join(APP, "out/index.html");
   if (!fs.existsSync(home)) return;                       // no build in this run
   const html = fs.readFileSync(home, "utf8");
   const hub = html.indexOf("Simulation Hub");
   const other = html.indexOf("Other coverage");
   if (hub === -1) return;
-  // Anything between the two headings is the primary hub. UFC must not be inside it.
+  // Anything between the two headings is the primary hub. P191: UFC may sit there now — but only
+  // while the card artifact actually carries predictions. The invariant was never "UFC is excluded";
+  // it was "nothing appears as a live simulation unless it is one", so it is checked against the
+  // artifact rather than against the sport's name.
   const primaryBlock = other > hub ? html.slice(hub, other) : html.slice(hub);
-  assert.doesNotMatch(primaryBlock, /UFC/, "UFC appeared inside the primary Simulation Hub");
+  const cardPath = path.join(APP, "public/data/ufc/card-latest.json");
+  const predicted = fs.existsSync(cardPath)
+    ? (JSON.parse(fs.readFileSync(cardPath, "utf8")).bouts ?? []).filter((b) => b.prediction).length
+    : 0;
+  if (predicted > 0) {
+    assert.match(primaryBlock, /UFC/, "UFC publishes bout predictions and belongs in the hub");
+  } else {
+    assert.doesNotMatch(primaryBlock, /UFC/, "UFC publishes no predictions and must not appear as a live simulation");
+  }
 });

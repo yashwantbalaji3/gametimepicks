@@ -61,7 +61,14 @@ test("WIRING · the homepage hub feeds ONLY mlb + the ufc archive; schedule spor
   const allSportsBlock = src.slice(src.indexOf("const allSports"), src.indexOf("partitionSports(allSports)"));
   assert.match(allSportsBlock, /id: "mlb"/);
   assert.match(allSportsBlock, /id: "ufc"/);
-  for (const banned of ['id: "nfl"', 'id: "nba"', 'id: "epl"']) {
+  // P191: NFL publishes simulations now, so it belongs here — but only while its artifact exists.
+  // Sports that publish nothing stay banned. The door is closed by EVIDENCE, not by a name list.
+  if (allSportsBlock.includes('id: "nfl"')) {
+    const art = path.join(process.cwd(), "public/data/nfl/game-simulations/latest.json");
+    assert.ok(fs.existsSync(art), "nfl is a hub entry but publishes no simulation artifact");
+    assert.ok((JSON.parse(fs.readFileSync(art, "utf8")).games ?? []).length > 0, "nfl's artifact carries no games");
+  }
+  for (const banned of ['id: "nba"', 'id: "epl"']) {
     assert.ok(!allSportsBlock.includes(banned), `${banned} must not be a hub entry — schedules live on /sports`);
   }
   // The UFC STATE derivation must not carry nextEventDate — the ONE selector vector by which an
@@ -70,7 +77,12 @@ test("WIRING · the homepage hub feeds ONLY mlb + the ufc archive; schedule spor
   const ufcStateBlock = src.slice(ufcStateStart, src.indexOf("});", ufcStateStart) + 3);
   assert.ok(ufcStateStart > -1, "the ufcState derivation exists");
   assert.ok(!/nextEventDate/.test(ufcStateBlock), "the UFC state derivation passes no nextEventDate — an upcoming card alone can never promote");
-  assert.match(ufcStateBlock, /inSeason: false/, "no fight model ⇒ never in season for hub purposes");
+  // P191: the door this guarded was "a mere SCHEDULE must not promote UFC". A published FIGHT MODEL
+  // is a different thing, so inSeason is now driven by whether bouts actually carry predictions —
+  // never by a date, and never by the existence of a card alone.
+  assert.match(ufcStateBlock, /inSeason: ufcBouts > 0/, "UFC is in season for hub purposes only when its card artifact holds bouts");
+  const boutsDerivation = src.slice(src.indexOf("const ufcBouts ="), src.indexOf("const ufcSlateDate"));
+  assert.match(boutsDerivation, /card-latest\.json/, "the bout count is read from the card artifact, not asserted");
 });
 
 test("WIRING · neither the hub selector nor the homepage imports schedule captures, replays, registry, or shadow modules", () => {

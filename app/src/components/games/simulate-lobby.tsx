@@ -265,6 +265,45 @@ export default function SimulateLobby() {
   // Cup is honestly flagged as carrying NO simulation artifact (soccer sims are never faked); NBA reads
   // "off-season" unless a fresh board exists; NHL has no provider wired ("provider pending"); UFC is
   // conditional on a real upcoming card. Counts (games / simulation-ready) come straight from `rows`.
+  // ── UFC — tonight's card, from the SAME artifact /ufc renders ──────────────────────────────────
+  // The lobby used to hard-code "no current card" for UFC because no source fed it. It now reads the
+  // card artifact, so a live card appears here the moment it is built, and each bout links to the
+  // page that carries its winner / method / round prediction.
+  try {
+    const cardPath = path.join(process.cwd(), "public", "data", "ufc", "card-latest.json");
+    if (fs.existsSync(cardPath)) {
+      const card = JSON.parse(fs.readFileSync(cardPath, "utf8")) as {
+        event?: { name?: string; slateDate?: string };
+        bouts?: Array<{
+          boutId: string; weightClass: string; startUtc: string; scheduledRounds: number;
+          red: { name: string; photoUrl?: string | null }; blue: { name: string; photoUrl?: string | null };
+          prediction: { winner?: { name: string; probability: number } | null } | null;
+        }>;
+      };
+      for (const b of card.bouts ?? []) {
+        if (card.event?.slateDate && card.event.slateDate !== today) continue;
+        rows.push({
+          id: `ufc-${b.boutId}`,
+          sport: "ufc",
+          sportLabel: "UFC",
+          matchup: `${b.red.name} vs ${b.blue.name}`,
+          timeLabel: formatNflKickoff(b.startUtc),
+          statusLabel: `${b.weightClass} · ${b.scheduledRounds} rounds`,
+          projections: b.prediction ? 3 : 0,
+          href: "/ufc/",
+          buildHref: "/ufc/",
+          detailHref: "/ufc/",
+          homeLogo: b.blue.photoUrl ?? null,
+          awayLogo: b.red.photoUrl ?? null,
+          simReady: Boolean(b.prediction),
+          signal: b.prediction?.winner
+            ? { label: `${b.prediction.winner.name} ${Math.round(b.prediction.winner.probability * 100)}%`, tone: "info" as const }
+            : undefined,
+        } as GameRow);
+      }
+    }
+  } catch { /* a missing or malformed card leaves UFC absent, exactly as before */ }
+
   const rowsBySport = (s: GameRow["sport"]) => rows.filter((r) => r.sport === s);
   const simReadyCountFor = (s: GameRow["sport"]) => rowsBySport(s).filter((r) => r.simReady).length;
 
@@ -325,7 +364,7 @@ export default function SimulateLobby() {
     mk("nhl", nhlId.label, nhlId.icon, "provider_pending", "provider pending", 0, 0, "NHL data isn’t wired into the lobby yet — provider pending. No games or simulations to show."),
     // UFC: conditional on a real upcoming card.
     ufcRows.length > 0
-      ? mk("ufc", ufcId.label, ufcId.icon, "available", "upcoming card", ufcRows.length, 0, "UFC surfaces a moneyline model for the next card — there’s no per-fight generated simulation artifact.")
+      ? mk("ufc", ufcId.label, ufcId.icon, "available", "tonight's card", ufcRows.length, ufcRows.filter((r) => r.simReady).length, "Winner, method and finishing round for every bout the model can read.")
       : mk("ufc", ufcId.label, ufcId.icon, "conditional", "no current card", 0, 0, "No current UFC card. Once a real upcoming card posts, its moneyline model appears here."),
   ];
 
