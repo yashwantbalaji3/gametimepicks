@@ -2,59 +2,14 @@
   "schemaVersion": 1,
   "artifact": "nfl-product-eligibility",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-08-15T15:27:04Z",
-  "indexGeneratedAt": "2026-08-15T15:27:04Z",
+  "generatedAt": "2026-08-15T21:19:48Z",
+  "indexGeneratedAt": "2026-08-15T21:19:48Z",
   "note": "Whether any NFL output may enter a paper product today, evaluated against the same gate the money path enforces. A refusal here is a finding, not an absence.",
-  "evaluatedAt": "2026-08-15T15:27:04Z",
+  "evaluatedAt": "2026-08-15T21:19:48Z",
   "gate": "output-state.permitsProductLeg — true only for VALIDATED_PICK",
-  "consideredEvents": 7,
+  "consideredEvents": 2,
   "qualifyingEvents": 0,
   "events": [
-    {
-      "canonicalEventId": "nfl-401873282",
-      "matchup": "CAR @ BUF",
-      "kickoffUtc": "2026-08-15T17:00Z",
-      "state": "EXPERIMENTAL_LEAN",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified EXPERIMENTAL_LEAN; only VALIDATED_PICK may become a product leg"
-    },
-    {
-      "canonicalEventId": "nfl-401874393",
-      "matchup": "CLE @ CHI",
-      "kickoffUtc": "2026-08-15T17:00Z",
-      "state": "EXPERIMENTAL_LEAN",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified EXPERIMENTAL_LEAN; only VALIDATED_PICK may become a product leg"
-    },
-    {
-      "canonicalEventId": "nfl-401873280",
-      "matchup": "MIN @ NYG",
-      "kickoffUtc": "2026-08-15T17:00Z",
-      "state": "PUBLIC_EXPERIMENTAL",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified PUBLIC_EXPERIMENTAL; only VALIDATED_PICK may become a product leg"
-    },
-    {
-      "canonicalEventId": "nfl-401873283",
-      "matchup": "LAR @ KC",
-      "kickoffUtc": "2026-08-15T20:00Z",
-      "state": "EXPERIMENTAL_LEAN",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified EXPERIMENTAL_LEAN; only VALIDATED_PICK may become a product leg"
-    },
-    {
-      "canonicalEventId": "nfl-401873281",
-      "matchup": "JAX @ NO",
-      "kickoffUtc": "2026-08-15T20:00Z",
-      "state": "EXPERIMENTAL_LEAN",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified EXPERIMENTAL_LEAN; only VALIDATED_PICK may become a product leg"
-    },
     {
       "canonicalEventId": "nfl-401873284",
       "matchup": "PHI @ BAL",
@@ -80,9 +35,9 @@
       "label": "Bank Builder",
       "state": "EVALUATED_NONE_QUALIFY",
       "eligible": false,
-      "consideredEvents": 7,
+      "consideredEvents": 2,
       "qualifyingEvents": 0,
-      "reason": "7 pre-kickoff NFL games were evaluated and none qualified: the NFL model is an explicitly experimental preseason beta, and only a validated model version may contribute a leg to a paper card",
+      "reason": "2 pre-kickoff NFL games were evaluated and none qualified: the NFL model is an explicitly experimental preseason beta, and only a validated model version may contribute a leg to a paper card",
       "whatWouldQualify": [
         "an NFL model version that meets its own preregistered promotion bar on held-out data",
         "enough settled experimental forecasts to measure whether it is calibrated",
@@ -94,9 +49,9 @@
       "label": "Moonshot",
       "state": "EVALUATED_NONE_QUALIFY",
       "eligible": false,
-      "consideredEvents": 7,
+      "consideredEvents": 2,
       "qualifyingEvents": 0,
-      "reason": "7 pre-kickoff NFL games were evaluated and none qualified: the NFL model is an explicitly experimental preseason beta, and only a validated model version may contribute a leg to a paper card",
+      "reason": "2 pre-kickoff NFL games were evaluated and none qualified: the NFL model is an explicitly experimental preseason beta, and only a validated model version may contribute a leg to a paper card",
       "whatWouldQualify": [
         "an NFL model version that meets its own preregistered promotion bar on held-out data",
         "enough settled experimental forecasts to measure whether it is calibrated",
@@ -108,9 +63,9 @@
       "label": "Card builder",
       "state": "EVALUATED_NONE_QUALIFY",
       "eligible": false,
-      "consideredEvents": 7,
+      "consideredEvents": 2,
       "qualifyingEvents": 0,
-      "reason": "7 pre-kickoff NFL games were evaluated and none qualified: the NFL model is an explicitly experimental preseason beta, and only a validated model version may contribute a leg to a paper card",
+      "reason": "2 pre-kickoff NFL games were evaluated and none qualified: the NFL model is an explicitly experimental preseason beta, and only a validated model version may contribute a leg to a paper card",
       "whatWouldQualify": [
         "an NFL model version that meets its own preregistered promotion bar on held-out data",
         "enough settled experimental forecasts to measure whether it is calibrated",
@@ -122,9 +77,9 @@
       "label": "End Zone Vault",
       "state": "PRODUCT_GATED",
       "eligible": false,
-      "consideredEvents": 7,
+      "consideredEvents": 2,
       "qualifyingEvents": 0,
-      "reason": "the Vault reports WATCHLIST_ONLY on its own evaluation: 87 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
+      "reason": "the Vault reports WATCHLIST_ONLY on its own evaluation: 25 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
       "whatWouldQualify": []
     }
   ],

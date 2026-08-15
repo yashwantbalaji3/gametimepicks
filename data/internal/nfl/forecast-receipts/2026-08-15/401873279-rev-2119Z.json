@@ -1,0 +1,85 @@
+{
+ "providerEventId": "401873279",
+ "canonicalEventId": "nfl-401873279",
+ "matchup": "DAL @ SEA",
+ "home": {
+  "abbr": "SEA",
+  "name": "Seattle Seahawks"
+ },
+ "away": {
+  "abbr": "DAL",
+  "name": "Dallas Cowboys"
+ },
+ "kickoffUtc": "2026-08-16T00:00Z",
+ "seasonType": 1,
+ "week": 2,
+ "venue": "Lumen Field",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-preseason-public-beta-v1",
+  "version": 1,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "8307aadc163082ad",
+  "simulations": 10000
+ },
+ "teamSignal": {
+  "state": "NOT_SIGNIFICANT",
+  "tStatistic": -0.5746,
+  "ci95": [
+   -0.077667,
+   0.042782
+  ],
+  "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
+ },
+ "generatedAt": "2026-08-15T21:19:48Z",
+ "evidence": {
+  "schedule": "2026-08-15T14:33:33Z",
+  "strengthCutoff": "2026-08-15T21:19:48Z"
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 18,
+   "away": 19
+  },
+  "winProbability": {
+   "home": 0.4691,
+   "away": 0.5309,
+   "tieMass": 0.0305,
+   "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+  },
+  "margin": {
+   "median": -1,
+   "p10": -17,
+   "p90": 16
+  },
+  "total": {
+   "median": 37,
+   "p10": 23,
+   "p90": 52
+  },
+  "scoreRange": {
+   "homeP10": 8,
+   "homeP90": 29,
+   "awayP10": 8,
+   "awayP90": 30
+  }
+ },
+ "marketComparison": {
+  "state": "MARKET_VIEW",
+  "capturedAt": "2026-08-15T21:19:48Z",
+  "books": 9,
+  "marketHomeWinPct": 0.574468,
+  "marketSpreadHome": -2.5,
+  "marketTotal": 37.5,
+  "modelVsMarketTotal": -0.5,
+  "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401873279",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market.",
+ "revisionOf": "401873279.json",
+ "priorInputHash": "33ed774625618212"
+}
