@@ -1,0 +1,75 @@
+{
+ "schemaVersion": 1,
+ "artifact": "daily-product-receipt",
+ "dataClass": "PRIVATE_OPERATING_RECORD",
+ "date": "2026-08-15",
+ "generatedAt": "2026-08-15T12:57:51Z",
+ "states": [
+  "NOT_RUN",
+  "INPUTS_MISSING",
+  "STALE",
+  "INCIDENT",
+  "NO_PLAY",
+  "ACTIVE",
+  "PENDING_RESULT",
+  "SETTLED",
+  "VOID"
+ ],
+ "inputs": {
+  "mlbBoard": {
+   "date": "2026-08-15",
+   "present": false,
+   "games": 0,
+   "leans": 0,
+   "hash": null
+  },
+  "nflMarket": {
+   "present": true,
+   "capturedAt": "2026-08-14T21:24:14Z",
+   "events": 10
+  },
+  "nflModelEligible": false,
+  "nflNote": "NFL contributes NO legs: PUBLIC_EXPERIMENTAL — sportsbook prices are not a GameTimePicks pick"
+ },
+ "products": [
+  {
+   "product": "bank-builder",
+   "label": "Bank Builder",
+   "state": "INPUTS_MISSING",
+   "reason": "no MLB board exists for 2026-08-15 — the daily slate has not been generated, so the product could not evaluate anything. This is an operational gap, not a model decision.",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null
+  },
+  {
+   "product": "moonshot",
+   "label": "Moonshot",
+   "state": "INPUTS_MISSING",
+   "reason": "no MLB board exists for 2026-08-15 — the daily slate has not been generated, so the product could not evaluate anything. This is an operational gap, not a model decision.",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null
+  },
+  {
+   "product": "end-zone-vault",
+   "label": "End Zone Vault",
+   "state": "NOT_RUN",
+   "reason": "the Vault ledger holds no entry for 2026-08-15",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true
+  }
+ ],
+ "authorities": {
+  "bankBuilder": "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
+  "moonshot": "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
+  "vault": "data/internal/nfl/end-zone-vault/ledger.json (append-only, owned by the Vault)",
+  "money": "NOT THIS SCRIPT — no money artifact is read for state or written at all"
+ },
+ "honesty": [
+  "INPUTS_MISSING is not NO_PLAY: a missing slate is an operational gap, and saying 'nothing qualified' would be a lie about a decision that never happened",
+  "every rejection reason is copied verbatim from the live activation policy — this receipt invents none",
+  "NFL contributes legs only when its MODEL layer is publishable; captured sportsbook prices never qualify a leg by themselves"
+ ]
+}
