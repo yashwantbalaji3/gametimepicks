@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823347,
+  "date": "2026-08-15",
+  "capturedAt": "2026-08-15T23:12:00.549Z",
+  "availableAt": "2026-08-15T23:12:00.549Z",
+  "eventStartTime": "2026-08-15T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 683003,
+      "name": "Jared Jones",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 6,
+      "lastStartDate": "2026-08-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 5.2,
+        "bbAvg": 1.6,
+        "erAvg": 3.2,
+        "hrAvg": 1,
+        "kPer9": 9.75,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 59,
+        "k": 65,
+        "bb": 19,
+        "er": 33,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 543243,
+      "name": "Sonny Gray",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 5,
+      "lastStartDate": "2026-08-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 5,
+        "bbAvg": 1.8,
+        "erAvg": 2.4,
+        "hrAvg": 0.6,
+        "kPer9": 7.5,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 125.67,
+        "k": 110,
+        "bb": 33,
+        "er": 39,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-15&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-15T23:12:00.549Z"
+  },
+  "recordHash": "477126fa4411b4dd25a88d35f19c2236161726b7dce1b017d91acdff67c749d2"
+}
