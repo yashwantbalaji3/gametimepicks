@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822941,
+  "date": "2026-08-15",
+  "capturedAt": "2026-08-15T15:11:34.979Z",
+  "availableAt": "2026-08-15T15:11:34.979Z",
+  "eventStartTime": "2026-08-15T22:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693855,
+      "name": "Ian Seymour",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 6,
+      "lastStartDate": "2026-08-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 7,
+        "bbAvg": 1.4,
+        "erAvg": 2.8,
+        "hrAvg": 1,
+        "kPer9": 13.31,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 40.67,
+        "k": 54,
+        "bb": 9,
+        "er": 20,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 680694,
+      "name": "Kyle Bradish",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 7,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 4,
+        "bbAvg": 1.2,
+        "erAvg": 2,
+        "hrAvg": 0.2,
+        "kPer9": 6.84,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 127,
+        "k": 121,
+        "bb": 54,
+        "er": 52,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-15&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-15T15:11:34.979Z"
+  },
+  "recordHash": "0245da0ae989fb3a871b799aa75ed57cd57b2f12f584371937f0579dbc9562cf"
+}
