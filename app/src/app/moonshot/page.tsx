@@ -42,7 +42,7 @@ const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFrac
 
 export default function MoonshotPage() {
   const lane = loadMoonshotLane();
-  const { record, exposure } = loadMoonshotPortfolio();
+  const { record } = loadMoonshotPortfolio();
   // Today's ET slate is resolved below; the lane's own date comes from the artifact so a stale
   // file can never borrow today's date.
   const etToday = currentEtDate();
@@ -62,6 +62,10 @@ export default function MoonshotPage() {
   // Today's daily portfolio — the activated Moonshot A/B lanes render as the lead ladder.
   const today = currentSlateDate() ?? currentEtDate();
   const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  // Open exposure is a LIVE figure and must come from today's slate, not from portfolio.json — that
+  // artifact is the SETTLED-money authority and correctly reports 0 settled exposure. Reading it here
+  // made the tracker say "$0.00 exposure" on the same page whose header said "$50.00 placed".
+  const exposure = dailyPortfolio?.exposure?.moonshot ?? 0;
   const moonshotLanes = dailyPortfolio.cards.filter((c) => c.product === "moonshot");
   const structured = buildStructuredMoonshot(path.join(process.cwd(), "public", "data"), today);
 

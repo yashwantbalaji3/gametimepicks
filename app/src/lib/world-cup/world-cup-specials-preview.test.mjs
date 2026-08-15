@@ -13,6 +13,8 @@ import {
 } from "./world-cup-specials-preview.ts";
 import { legOddsInRange, combinedOddsInRange } from "./world-cup-specials.ts";
 import { combinedAmerican } from "../parlays/odds-math.ts";
+import path from "node:path";
+import { pinnedLaneRoot } from "../bank-builder/fixtures/root.mjs";
 
 // After the June 20 pull, before any June 20 kickoff (NED/SWE 17:00Z is the earliest).
 const NOW = "2026-06-20T05:00:00Z";
@@ -21,6 +23,8 @@ const result = buildJune20SpecialsPreview({ nowIso: NOW });
 const cfg = JUNE20_SPECIALS_CONFIG;
 
 // ── Player role quality ────────────────────────────────────────────────────────────────────────
+// P192 · PINNED LANE STATE — this regression is about a specific historical lane state, so it reads a
+// pinned snapshot rather than the live ladder. Assertions unchanged; only the source is.
 test("role gate: goalkeepers and unknown-role (unmatched) players are NOT eligible", () => {
   const roles = classifyPlayerRoles(PP.matches, PP.lineupsPosted === true);
   let gk = 0, unk = 0;
@@ -274,7 +278,7 @@ test("PROTECTION: active Bank Builder / Moonshot / Mr. Dub / June 19 WC artifact
   // Banked dual run archived after banking Ladder #2; live artifact is fresh cycle-2. The WC Specials feature must not touch the banked history.
   const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json", "utf8"));
   assert.ok(/Gonzales/.test(JSON.stringify(dual.run.laneA.legs)) && /Hoskins/.test(JSON.stringify(dual.run.laneB.legs)), "banked Lane A/B unchanged");
-  const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
+  const moon = JSON.parse(fs.readFileSync(path.join(pinnedLaneRoot(), "moonshot-lane/active.json"), "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 278, "Moonshot Step 1 card is +278");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
   assert.equal(p.openExposure, 0, "core open exposure $0 (Lane A + Lane B settled WON — both seeds released)");

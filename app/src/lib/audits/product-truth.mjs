@@ -75,13 +75,32 @@ export function buildProductTruthAudit({ now, appRoot, artifacts = null }) {
     fact("open-exposure", "portfolio.json", p.openExposure, ["mr-dub", "daily-portfolio"]);
     // Internal coherence of the authority itself.
     if ((p.record?.pending ?? 0) === 0 && p.openExposure !== 0) fail("exposure-without-pending", `openExposure ${p.openExposure} with zero pending legs — exposure must be zero when nothing is pending`);
+    // Today's live exposure must be backed by an active card, or it is a number with nothing behind it.
+    if (a.dailyPortfolio && (a.dailyPortfolio.openExposure ?? 0) > 0) {
+      const active = (a.dailyPortfolio.lanes ?? []).filter((l) => l.status === "active");
+      const staked = active.reduce((n, l) => n + (l.exposure ?? 0), 0);
+      if (Math.abs(staked - a.dailyPortfolio.openExposure) > 0.01) {
+        fail("exposure-unbacked", `daily-portfolio.openExposure ${a.dailyPortfolio.openExposure} does not equal the sum of its active lanes (${staked})`);
+      }
+    }
     if ((p.record?.pending ?? 0) > 0 && p.openExposure === 0) fail("pending-without-exposure", `${p.record.pending} pending legs with zero exposure — a pending leg stakes money`);
 
     if (a.dailyPortfolio) {
       const d = a.dailyPortfolio;
       if (d.activeBankroll !== p.currentBankroll) fail("bankroll-mismatch", `daily-portfolio.activeBankroll ${d.activeBankroll} ≠ portfolio.currentBankroll ${p.currentBankroll}`);
       if (d.crownBankroll !== p.crownBankroll) fail("crown-mismatch", `daily-portfolio.crownBankroll ${d.crownBankroll} ≠ portfolio.crownBankroll ${p.crownBankroll}`);
-      if (d.openExposure !== p.openExposure) fail("exposure-mismatch", `daily-portfolio.openExposure ${d.openExposure} ≠ portfolio.openExposure ${p.openExposure}`);
+      // EXPOSURE IS A LIVE FIGURE, and the two artifacts hold it at different scopes: portfolio.json
+      // is the SETTLED-money authority (its exposure covers positions the settled ledger still counts
+      // as pending), while daily-portfolio.json holds TODAY's open positions. They agree only while
+      // nothing is running — which is why this equality held for as long as the products sat idle,
+      // and broke the moment Bank Builder and Moonshot took live paper stakes.
+      //
+      // The real invariant is DIRECTIONAL: today's open exposure may exceed the settled authority's
+      // (a card placed today has not settled yet), but it must never be LESS — that would mean the
+      // ledger is carrying risk today's slate has no card for.
+      if (d.openExposure < p.openExposure) {
+        fail("exposure-mismatch", `daily-portfolio.openExposure ${d.openExposure} is BELOW portfolio.openExposure ${p.openExposure} — the settled ledger carries risk today's slate has no card for`);
+      }
       // Slate-date coherence with the ONE documented exception.
       if (a.newestBoardDate && d.date && d.date < a.newestBoardDate) {
         const lagDays = Math.round((Date.parse(a.newestBoardDate) - Date.parse(d.date)) / 86400000);

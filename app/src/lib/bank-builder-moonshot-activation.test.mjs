@@ -5,15 +5,21 @@ import path from "node:path";
 import { buildPersistedDailyPortfolio, MOONSHOT_MAX_EXPOSURE } from "./daily-portfolio/accounting.ts";
 import { buildDailyPortfolio } from "./mr-dub/daily-portfolio.ts";
 import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
-const root = path.join(process.cwd(), "public", "data");
+const root = pinnedLaneRoot();
 const DATE = "2026-06-23";
 const NOW = "2026-06-23T10:00:00Z"; // before every June-23 kickoff, outside the 30m cutoff
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 const round2 = (n) => Math.round(n * 100) / 100;
 
+// P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
+// pinned snapshot instead of the live ladder. Reading `public/data` directly made the running
+// product double as a fixture: Bank Builder and Moonshot could not advance to a live card without
+// breaking assertions that require July's state to still be on disk. The assertions are unchanged —
+// only where their data comes from is.
 test("plan (dry-run): auto BB candidate lane + two Moonshot lanes surface as candidates, $0 exposure (dry-run places nothing)", () => {
   const plan = buildPersistedDailyPortfolio(root, NOW, DATE, NOW, /*activate*/ false);
   // On this historical June-23 slate no operator-approved pin applies, so the auto path proposes CANDIDATE cards

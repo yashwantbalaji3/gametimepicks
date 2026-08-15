@@ -33,6 +33,11 @@ const usa = game("USA", "Bosnia", {
   btts: { pick: "BTTS No", americanOdds: -152, modelProbability: 0.57 },
 });
 
+// P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
+// pinned snapshot instead of the live ladder. Reading `public/data` directly made the running
+// product double as a fixture: Bank Builder and Moonshot could not advance to a live card without
+// breaking assertions that require July's state to still be on disk. The assertions are unchanged —
+// only where their data comes from is.
 test("builds a survival lane (A) + value lane (B), 2 team-market legs each, from different games", () => {
   const p = buildBankBuilderProposalFromGames([eng, bel, usa], "2026-07-01");
   assert.equal(p.available, true);
@@ -116,11 +121,12 @@ import { loadApprovedBankBuilder } from "./bank-builder-proposal.ts";
 import path from "node:path";
 import fs from "node:fs";
 import { makeSettledApprovedRoot } from "../__testsupport__/settled-ladder-root.mjs";
+import { pinnedLaneRoot } from "../bank-builder/fixtures/root.mjs";
 test("approved July-7 Bank Builder is pinned to the exact operator-approved legs — Lane A only, Lane B no-play (no drift)", () => {
   // July-7 Lane A Step-2 is SETTLED WON, so the approved snapshot overlays the OFFICIAL result (legs hit / lane
   // won) regardless of the passed clock. The leg PINS must not drift. Validated against a reconstructed settled
   // root — the July-21 review restart moved that settled cycle into priorLane; the leg pins live in approved.json.
-  const { tmp, dataRoot } = makeSettledApprovedRoot(path.join(process.cwd(), "public", "data"));
+  const { tmp, dataRoot } = makeSettledApprovedRoot(pinnedLaneRoot());
   let ap;
   try {
     ap = loadApprovedBankBuilder(dataRoot, "2026-07-07", Date.UTC(2026, 6, 8, 3, 0));

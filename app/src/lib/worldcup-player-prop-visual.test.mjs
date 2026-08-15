@@ -5,12 +5,18 @@ import path from "node:path";
 import { loadTodaySlate } from "./parlays/ui-loader.ts";
 import { loadWorldCupPlayerPropLegs } from "./parlays/world-cup-player-prop-legs.ts";
 import { getWorldCupMultiGameCardsForGame, getGameSpecificCardsForGame } from "./world-cup/game-specific-cards.ts";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
 const NOW = "2026-06-22T12:00:00Z";
 const slate = loadTodaySlate("2026-06-22", NOW);
 // The current World Cup slate has rolled to June 23 (multi-game cards target the live fixtures).
 const WC_NOW = "2026-06-23T12:00:00Z";
 
+// P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
+// pinned snapshot instead of the live ladder. Reading `public/data` directly made the running
+// product double as a fixture: Bank Builder and Moonshot could not advance to a live card without
+// breaking assertions that require July's state to still be on disk. The assertions are unchanged —
+// only where their data comes from is.
 test("World Cup player-prop legs carry a real headshot OR a flag fallback, plus team flag + opponent + kickoff", () => {
   // SPRINT 035 — this previously required prop legs inside the High/Longshot buckets. Leg scoring no
   // longer awards points for a "High" confidence tier (was up to 30) or for model-vs-market edge (was up
@@ -24,7 +30,7 @@ test("World Cup player-prop legs carry a real headshot OR a flag fallback, plus 
   //   (b) downstream — any prop leg that DOES reach a card must satisfy the original per-leg assertions,
   //       unchanged and unweakened.
   const adapterLegs = loadWorldCupPlayerPropLegs(
-    path.join(process.cwd(), "public", "data"),
+    pinnedLaneRoot(),
     NOW,
     "2026-06-22",
   );
@@ -95,7 +101,7 @@ test("active cards untouched: Lane A/B, Moonshot, Mr. Dub exposure unchanged (di
   // Banked dual run archived after banking Ladder #2; live artifact is fresh cycle-2. Display-only enrichment must not touch it.
   const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json", "utf8"));
   assert.ok(/Gonzales/.test(JSON.stringify(dual.run.laneA.legs)) && /Hoskins/.test(JSON.stringify(dual.run.laneB.legs)), "banked Lane A/B unchanged");
-  const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
+  const moon = JSON.parse(fs.readFileSync(path.join(pinnedLaneRoot(), "moonshot-lane/active.json"), "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 278, "Moonshot Step 1 card is +278");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
   assert.equal(p.openExposure, 0, "core open exposure $0 (Lane A + Lane B settled WON — both seeds released)");

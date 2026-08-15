@@ -13,6 +13,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
@@ -24,7 +25,7 @@ const todayPage = read("src/app/today/page.tsx");
 function makeUnsettledApprovedRoot() {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-bb-cand-"));
   const dataRoot = path.join(tmp, "data");
-  fs.cpSync(path.join(app, "public", "data"), dataRoot, { recursive: true });
+  fs.cpSync(pinnedLaneRoot(), dataRoot, { recursive: true });
   const ladderPath = path.join(dataRoot, "methodology", "launch", "dual-bank-builder-active.json");
   const ladder = JSON.parse(fs.readFileSync(ladderPath, "utf8"));
   ladder.run.laneA.laneStatus = "active";
@@ -34,6 +35,9 @@ function makeUnsettledApprovedRoot() {
   return { tmp, dataRoot };
 }
 
+// P192 · PINNED LANE STATE — this regression builds its scenario by copying a data root and mutating
+// it into the state under test. The copy source must be a pinned snapshot: copying the LIVE ladder
+// made the scenario depend on whatever the product was doing today.
 test("/bank-builder selects the placed card by status === 'active' (a candidate never becomes the card)", () => {
   assert.match(
     bbPage,
@@ -83,7 +87,7 @@ test("SAME-DAY SETTLED: the real July-7 build renders Lane A as a settled status
   const { buildPersistedDailyPortfolio } = await import("./daily-portfolio/accounting.ts");
   // The July-21 review restart pushed the settled July-7 cycle into the live ladder's priorLane; reconstruct the
   // pre-restart settled ladder so the same-day-settled (WON) invariant is validated against canonical July-7 state.
-  const { tmp, dataRoot } = makeSettledApprovedRoot(path.join(app, "public", "data"));
+  const { tmp, dataRoot } = makeSettledApprovedRoot(pinnedLaneRoot());
   let dp;
   try {
     dp = buildPersistedDailyPortfolio(dataRoot, "2026-07-07T14:00:00Z", "2026-07-07", "2026-07-07T14:00:00Z", true);

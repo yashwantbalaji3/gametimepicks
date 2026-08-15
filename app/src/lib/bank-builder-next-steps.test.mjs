@@ -7,6 +7,7 @@ import { readLaneRungs, selectSafestTargetFitCard } from "./daily-portfolio/bank
 import { buildPersistedDailyPortfolio } from "./daily-portfolio/accounting.ts";
 import { loadWorldCupModelPicks } from "./world-cup/model-qualified-picks.ts";
 import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
 /**
  * Build a temp `root` mirroring public/data with an UNSETTLED approved BB step, so the ACTIVE/$100 seed path
@@ -29,12 +30,17 @@ function makeUnsettledApprovedRoot() {
 }
 
 const read = (p) => fs.readFileSync(p, "utf8");
-const root = path.join(process.cwd(), "public", "data");
+const root = pinnedLaneRoot();
 const DATE = "2026-06-23";
 const NOW = "2026-06-23T10:00:00Z";
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const decToAmerican = (d) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
 
+// P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
+// pinned snapshot instead of the live ladder. Reading `public/data` directly made the running
+// product double as a fixture: Bank Builder and Moonshot could not advance to a live card without
+// breaking assertions that require July's state to still be on disk. The assertions are unchanged —
+// only where their data comes from is.
 test("rung math (advanced cycle-8): Lane A WON Steps 1 & 2 → advanced to a Step-3 forward rung (rolled $305.57); Lane B is a no-play (no forward rung)", () => {
   // The advanced cycle-8 Lane A (Step-1 WON July-6 + Step-2 WON July-7) is validated against a reconstructed settled
   // root — the July-21 REVIEW RESTART moved that cycle into priorLane. Its forward rung is Step 3 with 2 cleared
@@ -77,7 +83,7 @@ test("settlement history is DURABLY recorded in the ladder priorLane chain (Lane
   // cycles and a cycle-3 WON Step-1 ($201.08) + LOST Step-2. Lane B (stopped, cycle 7 July-5 loss at top): cycle
   // 6 holds the July-3 LOST Step-1; the deeper chain holds more LOST Step-1s, then a cycle-3 WON Step-1
   // ($206.25) + LOST Step-2.
-  const run = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json")).run;
+  const run = JSON.parse(read(path.join(pinnedLaneRoot(), "methodology/launch/dual-bank-builder-active.json"))).run;
   // JULY-21 REVIEW RESTART: both lanes' live top level is a fresh Step-1 review (paper, $0). The whole settled
   // history shifted down ONE level in each priorLane chain and is DURABLY preserved.
   assert.equal(run.laneA.laneStatus, "active", "Lane A restarted — fresh Step-1 review at the top (cycle 9)");
@@ -128,7 +134,7 @@ test("settlement history is DURABLY recorded in the ladder priorLane chain (Lane
   const bC2Step1 = (bWonCycle?.priorLane?.steps ?? []).find((s) => s.step === 1);
   assert.ok(bC2Step1 && bC2Step1.result === "lost", "Lane B earliest Step-1 settled LOST (archived)");
   // The daily-portfolio (whatever slate it now holds) must always reconcile to the canonical bankroll.
-  const dp = JSON.parse(read("public/data/mr-dub/daily-portfolio.json"));
+  const dp = JSON.parse(read(path.join(pinnedLaneRoot(), "mr-dub/daily-portfolio.json")));
   const port = JSON.parse(read("public/data/mr-dub/portfolio.json"));
   assert.equal(dp.activeBankroll, port.currentBankroll, "daily view reconciles to canonical bankroll");
   assert.equal(dp.crownBankroll, port.crownBankroll, "daily view reconciles to canonical crown");

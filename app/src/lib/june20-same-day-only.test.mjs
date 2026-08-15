@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import path from "node:path";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
 // Cross-slate active-placement invariant (supersedes the emergency June 20 same-day-only rule):
 // under the approved broader criteria, PLACED/ACTIVE legs legitimately span the June 21 + June 22
@@ -13,13 +15,15 @@ const SLATE = "2026-06-21";
 const etDate = (iso) => new Date(Date.parse(iso) - 4 * 3600 * 1000).toISOString().slice(0, 10);
 const isStale = (iso) => iso && etDate(iso) < SLATE; // before the June 21 slate → stale past-date leg
 
-const bb = read("public/data/methodology/launch/dual-bank-builder-active.json").run;
+const bb = read(path.join(pinnedLaneRoot(), "methodology/launch/dual-bank-builder-active.json")).run;
 // The completed/stopped dual-lane run (June 24) is now BANKED + archived. Its settled WON cards
 // (the cross-slate June 18-24 legs) live here; the live artifact is a fresh Step-1 cycle-2.
 const archive = read("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json").run;
-const moon = read("public/data/moonshot-lane/active.json");
+const moon = read(path.join(pinnedLaneRoot(), "moonshot-lane/active.json"));
 const portfolio = read("public/data/mr-dub/portfolio.json");
 
+// P192 · PINNED LANE STATE — this regression is about a specific historical lane state, so it reads a
+// pinned snapshot rather than the live ladder. Assertions unchanged; only the source is.
 test("Bank Builder: completed run BANKED → live lanes restarted with Step-1 active cards; no OPEN leg is a stale past-date leg, and the archived settled legs are intact", () => {
   // Live (restarted cycle): the lanes now carry active Step-1 paper cards. The remaining guard (per the
   // file header) is that no PLACED/ACTIVE leg is TRULY STALE — i.e. no open leg has an ET kickoff date

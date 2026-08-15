@@ -4,12 +4,16 @@ import fs from "node:fs";
 import { loadTodaySlate } from "./parlays/ui-loader.ts";
 import { loadMoonshotLane } from "./moonshot/moonshot-lane.ts";
 import { buildCoverageMatrix } from "./parlays/coverage-matrix.ts";
+import path from "node:path";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
-const slate = loadTodaySlate("2026-06-19", "2026-06-19T19:25:00Z");
+const slate = loadTodaySlate("2026-06-19", "2026-06-19T19:25:00Z", pinnedLaneRoot());
 const m = buildCoverageMatrix(slate, loadMoonshotLane(), "2026-06-19T19:25:00Z");
 const RB = ["low", "medium", "high", "longshot"];
 const SCOPES = ["world_cup_single_game", "world_cup_multi_game", "mlb", "mixed", "moonshot", "bank_builder"];
 
+// P192 · PINNED LANE STATE — this regression is about a specific historical lane state, so it reads a
+// pinned snapshot rather than the live ladder. Assertions unchanged; only the source is.
 test("coverage matrix has all six scopes, each with all four canonical risk buckets", () => {
   assert.deepEqual(m.rows.map((r) => r.scope), SCOPES, "all six scope rows in order");
   for (const r of m.rows) {

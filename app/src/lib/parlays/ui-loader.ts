@@ -415,8 +415,13 @@ const _cache = new Map<string, TodaySlateView>();
  * `nowIsoOverride` fixes the "now" used by the not-started gate (tests pass a fixed time); the live
  * site uses the real current moment so games already started are excluded — never shown as bettable.
  */
-export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string): TodaySlateView {
-  const root = dataRoot();
+/**
+ * @param rootOverride  A pinned data root, for regressions that are ABOUT a specific historical lane
+ *   state. Production always omits it. Without this, those tests could only assert against the live
+ *   ladder — which is what made a running product break tests simply by advancing.
+ */
+export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string, rootOverride?: string): TodaySlateView {
+  const root = rootOverride ?? dataRoot();
   const nowIso = nowIsoOverride ?? new Date().toISOString();
   // Cap the auto-resolved slate at the wall clock (ET) so a pre-generated future slate never surfaces.
   const date = explicitDate ?? latestSlateDate(root, currentEtDate(new Date(nowIso))) ?? "";

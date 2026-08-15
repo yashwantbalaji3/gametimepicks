@@ -13,6 +13,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
@@ -25,6 +26,9 @@ const dp = read("src/lib/mr-dub/daily-portfolio.ts");
 const BANNED = /\b(survival|aggressive|safest)\b/i;
 const NO_RISK_MODE = (s) => !/Lane [AB][^\n]*·[^\n]*(Survival|Value|Aggressive|safest)/i.test(s);
 
+// P192 · PINNED LANE STATE — this regression builds its scenario by copying a data root and mutating
+// it into the state under test. The copy source must be a pinned snapshot: copying the LIVE ladder
+// made the scenario depend on whatever the product was doing today.
 test("ladder version constant: live is v1 (5-step); v2 is the owner-gated Plan-0007 flip, not live", async () => {
   const v = await import("./bank-builder/ladder-version.ts");
   assert.equal(v.BANK_BUILDER_LADDER_VERSION, "v1");
@@ -150,7 +154,7 @@ test("FUNCTIONAL: July-7 build → Lane A settled WON, $0 exposure, clearedSteps
   // The July-21 review restart pushed the settled July-7 cycle into the live ladder's priorLane; reconstruct the
   // pre-restart settled ladder so the same-day-SETTLED (WON, $0 exposure, clearedSteps 2) invariant is validated
   // against canonical July-7 sources (the live daily-portfolio.json has since advanced past July-7).
-  const { tmp, dataRoot } = makeSettledApprovedRoot(path.join(app, "public", "data"));
+  const { tmp, dataRoot } = makeSettledApprovedRoot(pinnedLaneRoot());
   let p;
   try {
     p = buildPersistedDailyPortfolio(dataRoot, "2026-07-07T12:00:00Z", "2026-07-07", "2026-07-07T12:00:00Z", true);

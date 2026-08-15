@@ -5,12 +5,18 @@ import fs from "node:fs";
 import { loadWorldCupPlayerPropLegs } from "./parlays/world-cup-player-prop-legs.ts";
 import { loadTodaySlate } from "./parlays/ui-loader.ts";
 import { getRiskBucketForCombinedOdds } from "./parlays/risk-odds-bands.ts";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
-const root = path.join(process.cwd(), "public", "data");
+const root = pinnedLaneRoot();
 const NOW = "2026-06-19T21:05:00Z";
 const legs = loadWorldCupPlayerPropLegs(root, NOW, "2026-06-19");
 const REAL_MARKETS = new Set(["Anytime Goalscorer", "Shots on Target", "Assists", "Shots"]);
 
+// P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
+// pinned snapshot instead of the live ladder. Reading `public/data` directly made the running
+// product double as a fixture: Bank Builder and Moonshot could not advance to a live card without
+// breaking assertions that require July's state to still be on disk. The assertions are unchanged —
+// only where their data comes from is.
 test("player-prop adapter returns only REAL posted markets, odds-backed + pre-event + guarded", () => {
   assert.ok(legs.length > 0, "real player-prop legs present");
   for (const l of legs) {
@@ -88,7 +94,7 @@ test("active cards untouched: Lane A/B, Moonshot, Mr. Dub unchanged by the playe
   // banking Ladder #2; the live artifact is a fresh cycle-2. The player-prop pool must not touch either.
   const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-2026-06-24-completed.json", "utf8"));
   assert.ok(/Gonzales/.test(JSON.stringify(dual.run.laneA.legs)) && /Hoskins/.test(JSON.stringify(dual.run.laneB.legs)), "banked Lane A/B legs unchanged");
-  const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
+  const moon = JSON.parse(fs.readFileSync(path.join(pinnedLaneRoot(), "moonshot-lane/active.json"), "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 278, "Moonshot Step 1 active card is +278");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
   assert.equal(p.openExposure, 0, "core open exposure $0 (Lane A + Lane B settled WON — both seeds released)");

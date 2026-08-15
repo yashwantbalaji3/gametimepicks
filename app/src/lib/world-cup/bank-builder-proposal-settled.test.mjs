@@ -11,12 +11,18 @@ import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
 import { makeSettledApprovedRoot } from "../__testsupport__/settled-ladder-root.mjs";
+import { pinnedLaneRoot } from "../bank-builder/fixtures/root.mjs";
 
-const DATA = path.join(process.cwd(), "public", "data");
+const DATA = pinnedLaneRoot();
 const md5 = (p) => crypto.createHash("md5").update(fs.readFileSync(p)).digest("hex");
 const MONEY_MD5 = "affe6b21071f2b3be96bb2774eb347c3";
 const POST_SETTLE = Date.UTC(2026, 6, 8, 3, 0); // ~11pm ET July-7, after both games
 
+// P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
+// pinned snapshot instead of the live ladder. Reading `public/data` directly made the running
+// product double as a fixture: Bank Builder and Moonshot could not advance to a live card without
+// breaking assertions that require July's state to still be on disk. The assertions are unchanged —
+// only where their data comes from is.
 test("settled July-7 Lane A Step-2 → reads settled ladder state: laneStatus WON, legs hit", async () => {
   const { loadApprovedBankBuilder } = await import("./bank-builder-proposal.ts");
   // The July-21 review restart pushed the settled July-7 cycle into the live ladder's priorLane; reconstruct the

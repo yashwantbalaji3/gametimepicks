@@ -11,9 +11,10 @@ import {
 } from "./world-cup/model-qualified-props.ts";
 import { buildWcPlayerLegs } from "./build-legs.ts";
 import { loadWorldCupProjections, loadWorldCupPlayerProjections } from "./world-cup/projections.ts";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
-const root = path.join(process.cwd(), "public", "data");
+const root = pinnedLaneRoot();
 const DATE = "2026-06-23";
 const NOW = "2026-06-23T10:00:00Z"; // before every June-23 kickoff
 
@@ -23,6 +24,11 @@ const res = loadModelQualifiedProps(root, NOW, DATE);
 // live counts) retired with the tournament — /world-cup is a closed destination. The tests below pin
 // the model-qualified POLICY itself, which outlives any one surface: props qualify only through
 // modelQualifies, and raw sportsbook inventory is never presented as a recommendation.
+// P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
+// pinned snapshot instead of the live ladder. Reading `public/data` directly made the running
+// product double as a fixture: Bank Builder and Moonshot could not advance to a live card without
+// breaking assertions that require July's state to still be on disk. The assertions are unchanged —
+// only where their data comes from is.
 test("model-qualified filter surfaces a small curated set, NOT raw sportsbook inventory", () => {
   assert.equal(res.evaluatedCount, 168, "all 168 sportsbook prop markets are evaluated");
   assert.ok(res.qualifiedCount > 0, "some props qualify");
@@ -119,7 +125,7 @@ test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live
   // (paper, $0 — MLB pitcher-strikeout review cards). Lane A = cycle 9 active; Lane B = cycle 8 active. The advanced
   // July-6/July-7 cycle (8, Steps 1 & 2 WON) moved one level down into Lane A's priorLane; the July-5 loss (cycle 7)
   // and the July-1→July-3 cycle (6) sit deeper. Banking does not leave a completed ladder sitting in the live run.
-  const live = JSON.parse(read("public/data/methodology/launch/dual-bank-builder-active.json"));
+  const live = JSON.parse(read(path.join(pinnedLaneRoot(), "methodology/launch/dual-bank-builder-active.json")));
   assert.equal(live.run.laneA.cycle, 9, "live Lane A is cycle 9 (fresh Step-1 review restart, July-21)");
   assert.equal(live.run.laneA.laneStatus, "active", "live Lane A active (fresh Step-1 review)");
   const liveAStep1 = live.run.laneA.steps.find((s) => s.step === 1);

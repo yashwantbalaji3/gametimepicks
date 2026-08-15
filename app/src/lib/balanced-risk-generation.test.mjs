@@ -6,11 +6,15 @@ import { loadMoonshotLane } from "./moonshot/moonshot-lane.ts";
 import { buildCoverageMatrix } from "./parlays/coverage-matrix.ts";
 import { RISK_BUCKET_TARGETS } from "./parlays/risk-bucket-targets.ts";
 import { getRiskBucketForCombinedOdds } from "./parlays/risk-odds-bands.ts";
+import path from "node:path";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
-const slate = loadTodaySlate("2026-06-19", "2026-06-19T20:20:00Z");
+const slate = loadTodaySlate("2026-06-19", "2026-06-19T20:20:00Z", pinnedLaneRoot());
 const m = buildCoverageMatrix(slate, loadMoonshotLane(), "2026-06-19T20:20:00Z");
 const RB = ["low", "medium", "high", "longshot"];
 
+// P192 · PINNED LANE STATE — this regression is about a specific historical lane state, so it reads a
+// pinned snapshot rather than the live ladder. Assertions unchanged; only the source is.
 test("RISK_BUCKET_TARGETS config defines all six scopes × four buckets", () => {
   for (const scope of ["world_cup_single_game", "world_cup_multi_game", "mlb", "mixed", "moonshot", "bank_builder"]) {
     assert.ok(RISK_BUCKET_TARGETS[scope], `${scope} target present`);
@@ -75,7 +79,7 @@ test("active cards untouched: Lane A/B, Moonshot, and Mr. Dub exposure unchanged
   // active. The prior settled cycles are preserved DOWN one level in each lane's priorLane chain: Lane A priorLane =
   // cycle 8 ADVANCED (Step-1 WON July-6 + Step-2 WON July-7); cycle 7 (July-5 loss) and cycle 6 (July-1/2/3) sit
   // deeper. Neither lane carries top-level pinned legs (cards live in steps[]). Generation must leave that intact.
-  const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
+  const dual = JSON.parse(fs.readFileSync(path.join(pinnedLaneRoot(), "methodology/launch/dual-bank-builder-active.json"), "utf8"));
   assert.equal(dual.run.laneA.laneStatus, "active", "laneA active (fresh Step-1 review, cycle 9)");
   assert.equal(dual.run.laneB.laneStatus, "active", "laneB active (fresh Step-1 review, cycle 8)");
   // Lane A: fresh Step-1 review cycle 9; the advanced July-6/July-7 cycle (8) then the older cycles live in priorLane.
@@ -104,7 +108,7 @@ test("active cards untouched: Lane A/B, Moonshot, and Mr. Dub exposure unchanged
   assert.deepEqual(dual.run.laneB.legs ?? [], [], "laneB has no top-level pinned legs");
   assert.equal(dual.run.laneB.priorLane.steps.find((s) => s.step === 1).result, "lost", "laneB priorLane (cycle 7) preserves the July-5 LOST Step-1");
   assert.equal(dual.run.laneB.priorLane.priorLane.steps.find((s) => s.step === 1).result, "lost", "laneB chain preserves the July-3 LOST Step-1 one level deeper");
-  const moon = JSON.parse(fs.readFileSync("public/data/moonshot-lane/active.json", "utf8"));
+  const moon = JSON.parse(fs.readFileSync(path.join(pinnedLaneRoot(), "moonshot-lane/active.json"), "utf8"));
   assert.equal(moon.ladder[0].card.combinedOdds, 278, "Moonshot Step 1 review card is +278 (Wheeler + Gausman)");
   const p = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
   // CANONICAL money is the post-banking truth and is NOT moved by generation: crown = Σ two banked ladder finals.

@@ -2,12 +2,16 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { loadMoonshotLane, activeMoonshotCard, moonshotOpenExposure, moonshotAllPreEvent } from "./moonshot/moonshot-lane.ts";
+import path from "node:path";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
-const lane = loadMoonshotLane();
+const lane = loadMoonshotLane(pinnedLaneRoot());
 const portfolio = JSON.parse(fs.readFileSync("public/data/mr-dub/portfolio.json", "utf8"));
 const ledger = JSON.parse(fs.readFileSync("public/data/mr-dub/ledger.json", "utf8"));
 const dec = (a) => (a >= 0 ? 1 + a / 100 : 1 + 100 / -a);
 
+// P192 · PINNED LANE STATE — this regression is about a specific historical lane state, so it reads a
+// pinned snapshot rather than the live ladder. Assertions unchanged; only the source is.
 test("Moonshot lane loads, is a SEPARATE paper challenge (not Lane A/B), 3-step $25→$3K ladder", () => {
   assert.ok(lane, "moonshot lane present");
   assert.equal(lane.paperOnly, true);
@@ -110,6 +114,6 @@ test("protected Bank Builder history + banked Lane A ladder are untouched by Moo
   assert.ok(/USA/.test(aLegs) && /Gonzales/.test(aLegs), "banked Lane A still USA + Gonzales (history preserved, not rewritten)");
   assert.ok(!/moonshot/i.test(JSON.stringify(banked)), "no moonshot contamination in the banked Lane A ladder");
   // The live cycle-2 artifact is a fresh dual-lane cycle, also moonshot-free.
-  const dual = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8"));
+  const dual = JSON.parse(fs.readFileSync(path.join(pinnedLaneRoot(), "methodology/launch/dual-bank-builder-active.json"), "utf8"));
   assert.ok(!/moonshot/i.test(JSON.stringify(dual)), "no moonshot contamination in the live cycle-2 dual artifact");
 });

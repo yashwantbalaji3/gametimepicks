@@ -13,12 +13,18 @@ import { classifyLaneTransition, seedModelOutcome } from "./settlement/daily-por
 import { readLaneRungs } from "./daily-portfolio/bank-builder-generation.ts";
 import { BANK_BUILDER_STEP_COUNT } from "./bank-builder-ladder.ts";
 import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
-const root = path.join(process.cwd(), "public", "data");
+const root = pinnedLaneRoot();
 const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
 const REC = (w, l, v = 0) => ({ wins: w, losses: l, voids: v, pending: 0 });
 
 // ---- TRANSITION CLASSIFIER ----
+// P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
+// pinned snapshot instead of the live ladder. Reading `public/data` directly made the running
+// product double as a fixture: Bank Builder and Moonshot could not advance to a live card without
+// breaking assertions that require July's state to still be on disk. The assertions are unchanged —
+// only where their data comes from is.
 test("transition: rung advancement (won, non-final) → advance", () => {
   for (let cleared = 0; cleared < BANK_BUILDER_STEP_COUNT - 1; cleared++) {
     assert.equal(classifyLaneTransition(cleared, "won"), "advance", `cleared ${cleared} + won → advance`);

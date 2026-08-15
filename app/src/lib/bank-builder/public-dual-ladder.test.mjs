@@ -3,9 +3,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { buildPublicDualLadder } from "./public-dual-ladder.ts";
 import { loadTodaySlate } from "../parlays/ui-loader.ts";
+import path from "node:path";
+import { pinnedLaneRoot } from "./fixtures/root.mjs";
 
-const bb = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z").bankBuilderPreview;
+const bb = loadTodaySlate("2026-06-19", "2026-06-19T16:00:00Z", pinnedLaneRoot()).bankBuilderPreview;
 
+// P192 · PINNED LANE STATE — this regression is about a specific historical lane state, so it reads a
+// pinned snapshot rather than the live ladder. Assertions unchanged; only the source is.
 test("Lane B public ladder after the July-21 review restart (fresh Step-1): clean active Step-1 starting path — no completed/🏆 state, no prior-cycle legs", () => {
   const v = buildPublicDualLadder(bb.laneB, "lane-b");
   assert.ok(v, "lane B view present");
@@ -76,7 +80,7 @@ test("DEMO: Ladder #2 banked + July-21 review restart → both lanes fresh Step-
   // cycles, then the July-21 REVIEW RESTART reset BOTH lanes to fresh Step-1 review cycles (paper, $0). The advanced
   // July-6/July-7 cycle (8: Steps 1 & 2 WON) moved one level down into Lane A's priorLane; the July-5 loss (cycle 7)
   // and the July-1/July-2/July-3 cycle (6) sit deeper.
-  const bbRaw = JSON.parse(fs.readFileSync("public/data/methodology/launch/dual-bank-builder-active.json", "utf8")).run;
+  const bbRaw = JSON.parse(fs.readFileSync(path.join(pinnedLaneRoot(), "methodology/launch/dual-bank-builder-active.json"), "utf8")).run;
   assert.equal(bbRaw.laneA.laneStatus, "active", "Lane A restarted — fresh Step-1 review (cycle 9)");
   assert.equal(bbRaw.laneA.cycle, 9, "Lane A is cycle 9");
   assert.equal(bbRaw.laneA.currentStep, 1, "Lane A restarted to Step 1");

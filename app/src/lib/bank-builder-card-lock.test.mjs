@@ -16,8 +16,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { buildPersistedDailyPortfolio } from "./daily-portfolio/accounting.ts";
 import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
-const root = path.join(process.cwd(), "public", "data");
+const root = pinnedLaneRoot();
 const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
 
 const DATE = "2026-06-24";
@@ -28,6 +29,11 @@ const bb = dp.lanes.filter((l) => l.product === "bank-builder");
 const laneA = bb.find((l) => l.lane === "A");
 const laneB = bb.find((l) => l.lane === "B");
 
+// P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
+// pinned snapshot instead of the live ladder. Reading `public/data` directly made the running
+// product double as a fixture: Bank Builder and Moonshot could not advance to a live card without
+// breaking assertions that require July's state to still be on disk. The assertions are unchanged —
+// only where their data comes from is.
 test("the approved-card lock is CONSUMED for the date: status settled, lanes empty (no pinned cards)", () => {
   const lock = read("mr-dub/bank-builder-locks.json");
   assert.equal(lock.date, LOCK_DATE, "lock carries its own settled date (the latest consumed slate)");

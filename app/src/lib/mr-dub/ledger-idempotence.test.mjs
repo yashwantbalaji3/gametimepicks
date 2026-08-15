@@ -14,8 +14,9 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { pinnedLaneRoot } from "../bank-builder/fixtures/root.mjs";
 
-const DATA = path.join(process.cwd(), "public", "data");
+const DATA = pinnedLaneRoot();
 const SCRIPT = path.join(process.cwd(), "scripts", "build-mr-dub-ledger.mjs");
 const read = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 const pick = (o) => ({
@@ -25,6 +26,11 @@ const pick = (o) => ({
   settledProfit: o.settledProfit,
 });
 
+// P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
+// pinned snapshot instead of the live ladder. Reading `public/data` directly made the running
+// product double as a fixture: Bank Builder and Moonshot could not advance to a live card without
+// breaking assertions that require July's state to still be on disk. The assertions are unchanged —
+// only where their data comes from is.
 test("build-mr-dub-ledger is idempotent vs the canonical portfolio (rebuild reproduces record + bankroll exactly)", () => {
   const canonical = pick(read(path.join(DATA, "mr-dub", "portfolio.json")));
 

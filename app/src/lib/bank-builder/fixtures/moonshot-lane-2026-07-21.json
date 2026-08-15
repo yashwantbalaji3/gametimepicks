@@ -1,0 +1,143 @@
+{
+  "id": "moonshot-lane-mlb-2026-07-21",
+  "name": "Moonshot Lane",
+  "subtitle": "MLB pitcher-strikeout review — higher-variance paper card",
+  "paperOnly": true,
+  "publicVisible": true,
+  "status": "active",
+  "sportScope": "mixed",
+  "startingStake": 25,
+  "targetReturn": 3000,
+  "currentStake": 25,
+  "currentStep": 1,
+  "generatedAt": "2026-07-21T08:00:00Z",
+  "ladder": [
+    {
+      "step": 1,
+      "status": "active",
+      "card": {
+        "cardId": "moonshot-2026-07-21-mlb-review",
+        "scope": "mlb",
+        "risk": "higher-variance",
+        "reviewMode": true,
+        "stake": 0,
+        "combinedOdds": 278,
+        "projectedReturn": 0,
+        "legs": [
+          {
+            "legId": "moonshot:mlb:823437:pitcher_strikeouts:Zack_Wheeler",
+            "kind": "player",
+            "sport": "MLB",
+            "fixture": "Los Angeles Dodgers @ Philadelphia Phillies",
+            "participant": "Zack Wheeler Over 6.5 Ks",
+            "team": "Philadelphia Phillies",
+            "opponent": "Los Angeles Dodgers",
+            "countryCode": null,
+            "playerId": 554430,
+            "photoUrl": null,
+            "market": "pitcher_strikeouts",
+            "marketLabel": "Strikeouts",
+            "side": "over",
+            "line": 6.5,
+            "odds": -122,
+            "modelProbability": 0.8613,
+            "marketImpliedProbability": 0.5495,
+            "modelEdgePct": 31.18,
+            "startTime": null,
+            "dataQuality": "model-simulated (10,000 runs)",
+            "confidence": "Lower confidence",
+            "settlement": {
+              "result": null,
+              "source": "mlb_stats_api",
+              "official": null,
+              "started": false
+            },
+            "why": "Zack Wheeler — model 86% vs market 55% to clear 6.5 strikeouts (10,000-run simulation). Higher-variance review leg. Paper-only, $0 placed.",
+            "displaySelection": "Los Angeles Dodgers @ Philadelphia Phillies — Strikeouts: Zack Wheeler Over 6.5",
+            "kickoffEt": null,
+            "reviewMode": true
+          },
+          {
+            "legId": "moonshot:mlb:822787:pitcher_strikeouts:Kevin_Gausman",
+            "kind": "player",
+            "sport": "MLB",
+            "fixture": "Tampa Bay Rays @ Toronto Blue Jays",
+            "participant": "Kevin Gausman Over 5.5 Ks",
+            "team": "Toronto Blue Jays",
+            "opponent": "Tampa Bay Rays",
+            "countryCode": null,
+            "playerId": 592332,
+            "photoUrl": null,
+            "market": "pitcher_strikeouts",
+            "marketLabel": "Strikeouts",
+            "side": "over",
+            "line": 5.5,
+            "odds": 108,
+            "modelProbability": 0.7204,
+            "marketImpliedProbability": 0.4808,
+            "modelEdgePct": 23.96,
+            "startTime": null,
+            "dataQuality": "model-simulated (10,000 runs)",
+            "confidence": "Lower confidence",
+            "settlement": {
+              "result": null,
+              "source": "mlb_stats_api",
+              "official": null,
+              "started": false
+            },
+            "why": "Kevin Gausman — model 72% vs market 48% to clear 5.5 strikeouts (10,000-run simulation). Higher-variance review leg. Paper-only, $0 placed.",
+            "displaySelection": "Tampa Bay Rays @ Toronto Blue Jays — Strikeouts: Kevin Gausman Over 5.5",
+            "kickoffEt": null,
+            "reviewMode": true
+          }
+        ],
+        "correlationProfile": "independent across 2 distinct MLB games (LAD@PHI, TB@TOR)",
+        "distinctGames": 2,
+        "jointModelProbability": 0.6205,
+        "crossSlate": false,
+        "slateLabel": "July 21 · MLB pitcher strikeouts (Review Mode)",
+        "whyThisCard": [
+          "Review Mode — two independent MLB pitcher-strikeout OVERs from tonight's 10,000-run simulation.",
+          "Wheeler (model 86% vs market 55%) + Gausman (model 72% vs market 48%) — different games, independent (not a same-game stack).",
+          "Paper-only; $0 placed; not official money. Deterministic MLB Stats API settlement."
+        ],
+        "whyItCanFail": [
+          "Both legs must clear their strikeout line — higher variance than a single anchor leg.",
+          "Pitcher strikeout totals swing on an early hook, pitch-count limits, or a soft matchup."
+        ],
+        "dataQuality": "model-simulated (10,000 runs)",
+        "eligible": false,
+        "note": "Review Mode · MLB · paper · $0 exposure"
+      },
+      "stake": 0,
+      "targetReturn": 200,
+      "requiredMultiple": 8,
+      "targetOddsBand": "+600..+900",
+      "reviewNote": "Review card priced +278 — shown for the July-21 review; nothing placed ($0)."
+    },
+    {
+      "step": 2,
+      "status": "upcoming",
+      "card": null,
+      "stake": 200,
+      "targetReturn": 1000,
+      "requiredMultiple": 5,
+      "targetOddsBand": "+350..+550"
+    },
+    {
+      "step": 3,
+      "status": "upcoming",
+      "card": null,
+      "stake": 1000,
+      "targetReturn": 3000,
+      "requiredMultiple": 3,
+      "targetOddsBand": "+180..+300"
+    }
+  ],
+  "disclaimer": "Review Mode — a paper MLB pitcher-strikeout review card for July 21. Higher-volatility, separate from the Dual Bank Builder. Paper-only; $0 placed; nothing is wagered. Deterministic MLB Stats API settlement.",
+  "restartCandidate": null,
+  "priorRun": null,
+  "candidates": [],
+  "reviewMode": true,
+  "mode": "Review Mode · MLB · paper · $0 exposure"
+}

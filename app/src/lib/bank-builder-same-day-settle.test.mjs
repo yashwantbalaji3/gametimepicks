@@ -25,8 +25,9 @@ import path from "node:path";
 import { buildPersistedDailyPortfolio } from "./daily-portfolio/accounting.ts";
 import { readLaneRungs } from "./daily-portfolio/bank-builder-generation.ts";
 import { makeSettledApprovedRoot } from "./__testsupport__/settled-ladder-root.mjs";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
-const root = path.join(process.cwd(), "public", "data");
+const root = pinnedLaneRoot();
 const DATE = "2026-07-07";
 const NOW = "2026-07-07T12:00:00Z"; // pre-slate: before the 16:00Z Argentina/Egypt kickoff
 const PORTFOLIO_MD5 = "affe6b21071f2b3be96bb2774eb347c3"; // canonical money fingerprint — must never change
@@ -57,6 +58,11 @@ function makeUnsettledApprovedRoot() {
 }
 
 // 1 — a same-day SETTLED approved card does NOT render as "active" (renders "won").
+// P192 · PINNED LANE STATE. This regression is about a specific historical lane state, so it reads a
+// pinned snapshot instead of the live ladder. Reading `public/data` directly made the running
+// product double as a fixture: Bank Builder and Moonshot could not advance to a live card without
+// breaking assertions that require July's state to still be on disk. The assertions are unchanged —
+// only where their data comes from is.
 test("1. a same-day-settled approved card renders WON, never active", () => {
   const a = laneAOf(build());
   assert.ok(a, "Lane A is present");
