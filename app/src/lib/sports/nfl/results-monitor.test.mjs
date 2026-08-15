@@ -52,11 +52,12 @@ test("reschedule and season-metadata drift are separate classes; unchanged rows 
 });
 
 test("REAL ARTIFACTS · the next scheduled game surfaces as a first-join candidate from committed data alone", () => {
+  // P190: read the LATEST capture only, not every snapshot in the directory. "Still scheduled" is a
+  // property of the CURRENT state; an August-13 capture legitimately recorded those games as
+  // scheduled at the moment it was taken, so folding old snapshots in resurrects finished games and
+  // pins the derived window to a night that has already been played.
   const dir = path.join(process.cwd(), "public", "data", "nfl", "schedule");
-  const scheduleRows = [];
-  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".json"))) {
-    for (const r of JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).rows ?? []) scheduleRows.push(r);
-  }
+  const scheduleRows = JSON.parse(fs.readFileSync(path.join(dir, "latest.json"), "utf8")).rows ?? [];
   const resultsArtifact = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "nfl", "results", "latest.json"), "utf8"));
   // P178: `nowIso` was pinned to Aug 13 and the candidate was pinned to DET@CIN. Both rotted when
   // that night went final. Derive the instant from the artifacts themselves — a day before the

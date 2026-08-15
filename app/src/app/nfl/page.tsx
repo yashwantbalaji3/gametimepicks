@@ -96,6 +96,16 @@ type IndexEvent = {
   hasMarket: boolean;
 };
 
+/**
+ * The ET calendar day a kickoff belongs to. NEVER `.slice(0, 10)` on the UTC instant: an 8:00 PM ET
+ * Saturday game is 00:00 UTC Sunday, which builds a slug for a day no artifact was written for — a
+ * dead link that looks correct in source. The route-integrity guard caught exactly that here.
+ */
+function etDaySlug(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(new Date(iso));
+}
+
 export default function NflHubPage() {
   const schedule = read("nfl/schedule/latest.json");
   const results = read("nfl/results/latest.json");
@@ -305,7 +315,7 @@ export default function NflHubPage() {
                     <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--vault-gold)" }}>SIMULATED</span>
                   ) : null
                 }
-                href={sim ? `/games/nfl/${g.away.abbr.toLowerCase()}-vs-${g.home.abbr.toLowerCase()}-${g.dateUtc.slice(0, 10)}` : undefined}
+                href={sim ? `/games/nfl/${g.away.abbr.toLowerCase()}-vs-${g.home.abbr.toLowerCase()}-${etDaySlug(g.dateUtc)}` : undefined}
                 hrefLabel="Open full simulation →"
                 footnote={sim ? calibrationById.get(g.providerEventId) : "No simulation was published for this game."}
               >
