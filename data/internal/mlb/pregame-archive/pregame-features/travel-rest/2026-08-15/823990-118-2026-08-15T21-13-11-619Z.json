@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 823990,
+  "teamId": 118,
+  "name": "Kansas City Royals",
+  "side": "away",
+  "date": "2026-08-15",
+  "capturedAt": "2026-08-15T21:13:11.619Z",
+  "availableAt": "2026-08-15T21:13:11.619Z",
+  "eventStartTime": "2026-08-16T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-14",
+  "previousVenueId": 1,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=118&startDate=2026-08-01&endDate=2026-08-14",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-15T21:13:11.619Z"
+  },
+  "recordHash": "8e9db3bf8282bca06d6f8625bb2cad9e625dd5c79022ee1629bc053aedb1d108"
+}

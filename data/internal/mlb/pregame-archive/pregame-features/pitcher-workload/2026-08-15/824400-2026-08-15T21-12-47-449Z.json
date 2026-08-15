@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824400,
+  "date": "2026-08-15",
+  "capturedAt": "2026-08-15T21:12:47.449Z",
+  "availableAt": "2026-08-15T21:12:47.449Z",
+  "eventStartTime": "2026-08-15T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 676282,
+      "name": "Joey Cantillo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 18.67,
+        "ipAvg": 3.73,
+        "kAvg": 5.4,
+        "bbAvg": 1.4,
+        "erAvg": 2.4,
+        "hrAvg": 0.6,
+        "kPer9": 13.02,
+        "workloadIpLast5": 18.67
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 119.67,
+        "k": 132,
+        "bb": 56,
+        "er": 52,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 593974,
+      "name": "Wandy Peralta",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 42,
+      "lastStartDate": "2026-07-04",
+      "last5": {
+        "starts": 4,
+        "ipSum": 4,
+        "ipAvg": 1,
+        "kAvg": 0.75,
+        "bbAvg": 0.25,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 6.75,
+        "workloadIpLast5": 4
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 4,
+        "k": 3,
+        "bb": 1,
+        "er": 0,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-15&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-15T21:12:47.449Z"
+  },
+  "recordHash": "a291886b31af90cb7c43b1819b72694081f727126757a09e65815fc0cfe706c0"
+}
