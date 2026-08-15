@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823184,
+  "date": "2026-08-15",
+  "capturedAt": "2026-08-15T02:12:51.833Z",
+  "availableAt": "2026-08-15T02:12:51.833Z",
+  "eventStartTime": "2026-08-15T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-12",
+    "2026-08-13",
+    "2026-08-14"
+  ],
+  "home": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 43,
+      "relievers": [
+        {
+          "id": 676775,
+          "name": "Keaton Winn",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 5,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 656529,
+          "name": "Sam Hentges",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 1,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 107,
+      "relievers": [
+        {
+          "id": 656786,
+          "name": "Parker Mushinski",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 2,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 657514,
+          "name": "Brennan Bernardino",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 623474,
+          "name": "Jimmy Herget",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 1,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 605447,
+          "name": "Jordan Romano",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-12,2026-08-13,2026-08-14) + feed/live box scores",
+    "capturedAt": "2026-08-15T02:12:51.833Z"
+  },
+  "recordHash": "aedb939640fc639bed30bcd8228f1affedd7a3df0922e7228ed590ac67926dc1"
+}

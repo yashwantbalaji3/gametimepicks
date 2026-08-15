@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824966,
+  "date": "2026-08-15",
+  "capturedAt": "2026-08-15T02:12:51.833Z",
+  "availableAt": "2026-08-15T02:12:51.833Z",
+  "eventStartTime": "2026-08-16T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-12",
+    "2026-08-13",
+    "2026-08-14"
+  ],
+  "home": {
+    "teamId": 133,
+    "teamName": "Athletics",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 60,
+      "relievers": [
+        {
+          "id": 696522,
+          "name": "Hayden Juenger",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 686751,
+          "name": "Seth Johnson",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 680723,
+          "name": "Drew Rom",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 656240,
+          "name": "Scott Blewett",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 189,
+      "relievers": [
+        {
+          "id": 656756,
+          "name": "Jordan Montgomery",
+          "appearances": 1,
+          "pitches": 52,
+          "outs": 6,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 687239,
+          "name": "Ben Peoples",
+          "appearances": 2,
+          "pitches": 43,
+          "outs": 6,
+          "dates": [
+            "2026-08-12",
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 668390,
+          "name": "Cole Winn",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-08-12",
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 682608,
+          "name": "Peyton Gray",
+          "appearances": 2,
+          "pitches": 29,
+          "outs": 5,
+          "dates": [
+            "2026-08-12",
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 695239,
+          "name": "Robby Ahlstrom",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 1,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-12,2026-08-13,2026-08-14) + feed/live box scores",
+    "capturedAt": "2026-08-15T02:12:51.833Z"
+  },
+  "recordHash": "fb380fd149d471f29730eaa0629ce35227c5f397d48075b24250212d7c1925f3"
+}

@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823914,
+  "date": "2026-08-15",
+  "capturedAt": "2026-08-15T02:12:51.833Z",
+  "availableAt": "2026-08-15T02:12:51.833Z",
+  "eventStartTime": "2026-08-15T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-12",
+    "2026-08-13",
+    "2026-08-14"
+  ],
+  "home": {
+    "teamId": 119,
+    "teamName": "Los Angeles Dodgers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 116,
+      "relievers": [
+        {
+          "id": 689017,
+          "name": "Landon Knack",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 8,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 621242,
+          "name": "Edwin Díaz",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 2,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 676263,
+          "name": "Jack Dreyer",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 683618,
+          "name": "Edgardo Henriquez",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 681911,
+          "name": "Alex Vesia",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 1,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 656945,
+          "name": "Tanner Scott",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-08-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 127,
+      "relievers": [
+        {
+          "id": 622608,
+          "name": "Antonio Senzatela",
+          "appearances": 2,
+          "pitches": 33,
+          "outs": 4,
+          "dates": [
+            "2026-08-12",
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 656730,
+          "name": "Trevor Megill",
+          "appearances": 2,
+          "pitches": 28,
+          "outs": 8,
+          "dates": [
+            "2026-08-12",
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 676879,
+          "name": "Aaron Ashby",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 2,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 669084,
+          "name": "DL Hall",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 694477,
+          "name": "Chad Patrick",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-12,2026-08-13,2026-08-14) + feed/live box scores",
+    "capturedAt": "2026-08-15T02:12:51.833Z"
+  },
+  "recordHash": "78d631fcdbfec146baf679fc227b0d24e15e996199712c7e6a19f7c4067695dc"
+}

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822941,
+  "date": "2026-08-15",
+  "capturedAt": "2026-08-15T02:12:51.833Z",
+  "availableAt": "2026-08-15T02:12:51.833Z",
+  "eventStartTime": "2026-08-15T22:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-12",
+    "2026-08-13",
+    "2026-08-14"
+  ],
+  "home": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 54,
+      "relievers": [
+        {
+          "id": 675627,
+          "name": "Michael Grove",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 6,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 668984,
+          "name": "Casey Legumina",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 110,
+    "teamName": "Baltimore Orioles",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 72,
+      "relievers": [
+        {
+          "id": 676742,
+          "name": "Cam Sanders",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 4,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 682274,
+          "name": "Yaramil Hiraldo",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 5,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 695380,
+          "name": "Alex Hoppe",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 544150,
+          "name": "Albert Suárez",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-12,2026-08-13,2026-08-14) + feed/live box scores",
+    "capturedAt": "2026-08-15T02:12:51.833Z"
+  },
+  "recordHash": "c160b85953cdea6c3a0dd2275cf11400db4d8caa2523b14ef54d82a20100b6cb"
+}

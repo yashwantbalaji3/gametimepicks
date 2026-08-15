@@ -1,0 +1,215 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824644,
+  "date": "2026-08-15",
+  "capturedAt": "2026-08-15T02:12:51.833Z",
+  "availableAt": "2026-08-15T02:12:51.833Z",
+  "eventStartTime": "2026-08-15T18:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-12",
+    "2026-08-13",
+    "2026-08-14"
+  ],
+  "home": {
+    "teamId": 112,
+    "teamName": "Chicago Cubs",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 51,
+      "relievers": [
+        {
+          "id": 666171,
+          "name": "Ryan Zeferjahn",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 657097,
+          "name": "Jacob Webb",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 669020,
+          "name": "Ryan Rolison",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 1,
+          "dates": [
+            "2026-08-14"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 154,
+      "relievers": [
+        {
+          "id": 665871,
+          "name": "Javier Assad",
+          "appearances": 1,
+          "pitches": 66,
+          "outs": 12,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 650644,
+          "name": "Aaron Civale",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 10,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 666171,
+          "name": "Ryan Zeferjahn",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 657097,
+          "name": "Jacob Webb",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 669020,
+          "name": "Ryan Rolison",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 1,
+          "dates": [
+            "2026-08-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 138,
+    "teamName": "St. Louis Cardinals",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 53,
+      "relievers": [
+        {
+          "id": 657265,
+          "name": "Peter Strzelecki",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 6,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 666277,
+          "name": "George Soriano",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-08-14"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 105,
+      "relievers": [
+        {
+          "id": 657265,
+          "name": "Peter Strzelecki",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 6,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 700669,
+          "name": "Gordon Graceffo",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 5,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 666277,
+          "name": "George Soriano",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 677865,
+          "name": "Justin Bruihl",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 4,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 703725,
+          "name": "Luis Gastelum",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 657265,
+        "name": "Peter Strzelecki",
+        "reason": "36 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-12,2026-08-13,2026-08-14) + feed/live box scores",
+    "capturedAt": "2026-08-15T02:12:51.833Z"
+  },
+  "recordHash": "1574ea6e6543ff65aedc63bfe20a99e1559d0d4bf314ff7c4439d989acc78792"
+}

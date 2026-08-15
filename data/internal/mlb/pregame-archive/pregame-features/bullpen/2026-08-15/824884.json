@@ -1,0 +1,201 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824884,
+  "date": "2026-08-15",
+  "capturedAt": "2026-08-15T02:12:51.833Z",
+  "availableAt": "2026-08-15T02:12:51.833Z",
+  "eventStartTime": "2026-08-15T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-12",
+    "2026-08-13",
+    "2026-08-14"
+  ],
+  "home": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 55,
+      "relievers": [
+        {
+          "id": 689266,
+          "name": "Dylan Dodd",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 800311,
+          "name": "Didier Fuentes",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 641755,
+          "name": "Tyler Kinley",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 116,
+      "relievers": [
+        {
+          "id": 689266,
+          "name": "Dylan Dodd",
+          "appearances": 2,
+          "pitches": 45,
+          "outs": 6,
+          "dates": [
+            "2026-08-12",
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 628452,
+          "name": "Raisel Iglesias",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 800311,
+          "name": "Didier Fuentes",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 641755,
+          "name": "Tyler Kinley",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 30,
+      "relievers": [
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 805299,
+          "name": "Brandyn Garcia",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 85,
+      "relievers": [
+        {
+          "id": 672629,
+          "name": "Gerardo Carrillo",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-12"
+          ]
+        },
+        {
+          "id": 805299,
+          "name": "Brandyn Garcia",
+          "appearances": 2,
+          "pitches": 23,
+          "outs": 6,
+          "dates": [
+            "2026-08-12",
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 691769,
+          "name": "Philip Abner",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-12,2026-08-13,2026-08-14) + feed/live box scores",
+    "capturedAt": "2026-08-15T02:12:51.833Z"
+  },
+  "recordHash": "f616cb6a90e04cc003e7d93a6746a95a1f5e4a408f528f4d78be135eed246464"
+}
