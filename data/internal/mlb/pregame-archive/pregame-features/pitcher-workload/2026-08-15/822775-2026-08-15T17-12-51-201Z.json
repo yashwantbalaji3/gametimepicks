@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822775,
+  "date": "2026-08-15",
+  "capturedAt": "2026-08-15T17:12:51.201Z",
+  "availableAt": "2026-08-15T17:12:51.201Z",
+  "eventStartTime": "2026-08-15T19:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 680755,
+      "name": "Braydon Fisher",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 24,
+      "lastStartDate": "2026-07-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 5.67,
+        "ipAvg": 1.13,
+        "kAvg": 1,
+        "bbAvg": 1.2,
+        "erAvg": 0.2,
+        "hrAvg": 0,
+        "kPer9": 7.94,
+        "workloadIpLast5": 5.67
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 8,
+        "k": 9,
+        "bb": 7,
+        "er": 1,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 693645,
+      "name": "Cam Schlittler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 9,
+        "bbAvg": 1.2,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 14.46,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 146.67,
+        "k": 182,
+        "bb": 31,
+        "er": 36,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-15&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-15T17:12:51.201Z"
+  },
+  "recordHash": "4494566e27916e0f27ec9a2205a5236414b86f15b2a7dc9c8c08b96fa021eca9"
+}
