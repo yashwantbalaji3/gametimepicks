@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-15T14:50:46Z",
+ "generatedAt": "2026-08-15T15:27:04Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-preseason-public-beta-v1",
@@ -30,17 +30,17 @@
   "schemaVersion": 1,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-08-14T21:24:14Z",
+  "generatedAt": "2026-08-15T14:50:46Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-preseason-public-beta-v1",
-  "settledForecasts": 1,
-  "decisive": 1,
-  "winnerAccuracy": 1,
-  "marginMAE": 4,
-  "totalMAE": 5,
-  "marginInterval80Coverage": 1,
-  "totalInterval80Coverage": 1,
-  "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger."
+  "settledForecasts": 0,
+  "decisive": 0,
+  "winnerAccuracy": null,
+  "marginMAE": null,
+  "totalMAE": null,
+  "marginInterval80Coverage": null,
+  "totalInterval80Coverage": null,
+  "note": "No experimental forecast has been settled yet. A record appears here once the first slate's official results land."
  },
  "events": [
   {
@@ -61,7 +61,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -13.7,
+    "gapPp": -12.7,
     "leansTo": "CAR",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -70,20 +70,20 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4571,
-    "away": 0.5429
+    "home": 0.4672,
+    "away": 0.5328
    },
    "total": {
     "median": 37,
-    "p10": 24,
+    "p10": 23,
     "p90": 52
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "fe2c99b64c85f9de",
-    "generatedAt": "2026-08-15T14:50:46Z"
+    "inputHash": "69c182a8726568bd",
+    "generatedAt": "2026-08-15T15:27:04Z"
    }
   },
   {
@@ -104,7 +104,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": 7.6,
+    "gapPp": 7.9,
     "leansTo": "CHI",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -113,20 +113,20 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4644,
-    "away": 0.5356
+    "home": 0.4673,
+    "away": 0.5327
    },
    "total": {
-    "median": 37,
+    "median": 38,
     "p10": 23,
-    "p90": 52
+    "p90": 51
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "de30968d46283292",
-    "generatedAt": "2026-08-15T14:50:46Z"
+    "inputHash": "d392b26b4a2b19c3",
+    "generatedAt": "2026-08-15T15:27:04Z"
    }
   },
   {
@@ -152,20 +152,20 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4635,
-    "away": 0.5365
+    "home": 0.4663,
+    "away": 0.5337
    },
    "total": {
     "median": 37,
     "p10": 23,
-    "p90": 51
+    "p90": 52
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "023f49402cb7fb84",
-    "generatedAt": "2026-08-15T14:50:46Z"
+    "inputHash": "a3fcc330e6f63bf1",
+    "generatedAt": "2026-08-15T15:27:04Z"
    }
   },
   {
@@ -186,7 +186,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -8.2,
+    "gapPp": -8.7,
     "leansTo": "LAR",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -195,8 +195,8 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4719,
-    "away": 0.5281
+    "home": 0.467,
+    "away": 0.533
    },
    "total": {
     "median": 37,
@@ -207,8 +207,8 @@
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "0490fb669406d555",
-    "generatedAt": "2026-08-15T14:50:46Z"
+    "inputHash": "d0805b9122cc9727",
+    "generatedAt": "2026-08-15T15:27:04Z"
    }
   },
   {
@@ -229,29 +229,29 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -7.7,
+    "gapPp": -9.9,
     "leansTo": "JAX",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
    "projectedScore": {
-    "home": 19,
+    "home": 18,
     "away": 19
    },
    "winProbability": {
-    "home": 0.4784,
-    "away": 0.5216
+    "home": 0.4565,
+    "away": 0.5435
    },
    "total": {
     "median": 37,
-    "p10": 24,
-    "p90": 52
+    "p10": 23,
+    "p90": 51
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "bca358436fbd7918",
-    "generatedAt": "2026-08-15T14:50:46Z"
+    "inputHash": "c621818ab5c57a89",
+    "generatedAt": "2026-08-15T15:27:04Z"
    }
   },
   {
@@ -272,7 +272,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": 10.3,
+    "gapPp": 10.4,
     "leansTo": "BAL",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -281,20 +281,20 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4646,
-    "away": 0.5354
+    "home": 0.4659,
+    "away": 0.5341
    },
    "total": {
     "median": 37,
-    "p10": 23,
-    "p90": 51
+    "p10": 24,
+    "p90": 52
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "a16f88a7ea18729d",
-    "generatedAt": "2026-08-15T14:50:46Z"
+    "inputHash": "677ec093d24de151",
+    "generatedAt": "2026-08-15T15:27:04Z"
    }
   },
   {
@@ -315,7 +315,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -11.5,
+    "gapPp": -11.3,
     "leansTo": "DAL",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -324,20 +324,20 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4678,
-    "away": 0.5322
+    "home": 0.4703,
+    "away": 0.5297
    },
    "total": {
     "median": 37,
     "p10": 23,
-    "p90": 52
+    "p90": 51
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "2ed2867552e7b702",
-    "generatedAt": "2026-08-15T14:50:46Z"
+    "inputHash": "8e54ea024640d368",
+    "generatedAt": "2026-08-15T15:27:04Z"
    }
   }
  ],
