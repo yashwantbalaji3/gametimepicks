@@ -163,6 +163,26 @@ jobs:
           fi
         continue-on-error: true
 
+      # ---- MLB player-prop settlement (Bank Builder + Moonshot lanes) ----
+      # These lanes are built almost entirely from player props, which the soccer/team settler leaves
+      # PENDING by design. Without this step the grades were only ever written by hand, and the daily
+      # products job regenerates daily-portfolio.json every morning — so an ungraded night silently
+      # lost its results. Runs HERE, after the slate is final and BEFORE the morning products job.
+      #
+      # It writes a dated receipt under app/public/data/mr-dub/settled/, which is the durable record
+      # the ladder reads to decide whether a lane advances. Re-running a settled date is a no-op when
+      # the grades match and a hard refusal when they differ, so a rerun can never rewrite history.
+      - name: MLB player-prop settlement (paper lanes)
+        run: |
+          DATE_ARG=""; [ -n "${SETTLE_DATE}" ] && DATE_ARG="--date ${SETTLE_DATE}"
+          cd app
+          if [ "${DRY_RUN_SETTLE}" = "1" ]; then
+            npx tsx scripts/settle-mlb-player-props.mjs $DATE_ARG
+          else
+            npx tsx scripts/settle-mlb-player-props.mjs $DATE_ARG --apply
+          fi
+        continue-on-error: true
+
       # ---- Daily learning loop (PR `update-learning-after-settlement`) ----
       # Runs ONLY here, AFTER settlement+grading — never in generation. Reads
       # settled outcomes only (no same-day leakage) and rewrites the conservative
@@ -361,6 +381,13 @@ jobs:
           # written by pipeline.audit_daily — foundation of the model
           # learning loop. Pure aggregation, never adjusts weights.
           git add app/public/data/audit/daily/ 2>/dev/null || true
+          # Paper-lane settlement. WITHOUT these two lines the settler runs, writes, and its output is
+          # dropped on the floor — a contract that is generated but never added to the commit allowlist
+          # is the same failure that cost this repo a 62-hour freshness outage.
+          # NOTE the deliberate omission: portfolio.json / banked-ladders.json are the protected money
+          # authority and are NEVER auto-committed. Only the dated receipt and today's working copy.
+          git add app/public/data/mr-dub/settled/ 2>/dev/null || true
+          git add app/public/data/mr-dub/daily-portfolio.json 2>/dev/null || true
           # PR #118: confirmed-signal policy aggregated over the
           # rolling window. Single JSON file rewritten every run.
           # Pure aggregation, demotion-only, never raises a weight.
