@@ -25,6 +25,13 @@ import { fileURLToPath } from "node:url";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DP = path.join(APP, "public", "data", "mr-dub", "daily-portfolio.json");
+/**
+ * Settlement must survive the daily roll. `daily-portfolio.json` is REGENERATED every morning by the
+ * products job, so a grade written only there is gone by the next day — which is exactly what
+ * happened to the Aug 15 results. Every run also writes a DATED RECEIPT, and that receipt is the
+ * durable record; the daily file is just today's working copy.
+ */
+const RECEIPTS = path.join(APP, "public", "data", "mr-dub", "settled");
 const arg = (n, d) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 const DATE = arg("--date", new Date().toISOString().slice(0, 10));
 const apply = process.argv.includes("--apply");
@@ -147,5 +154,38 @@ for (const [key, product] of [["bankBuilder", "bank-builder"], ["moonshot", "moo
 console.log(`\n${graded} legs graded, ${pending} pending · open exposure now $${openExposure}`);
 console.log((dp.lanes ?? []).map((l) => `  ${l.productLabel} ${l.lane}: ${String(l.result ?? "pending").toUpperCase()}`).join("\n"));
 if (!apply) { console.log("\ndry-run — nothing written. Re-run with --apply."); process.exit(0); }
+fs.mkdirSync(RECEIPTS, { recursive: true });
+const receipt = {
+  date: DATE,
+  settledAt: new Date().toISOString().replace(/\.\d{3}Z$/, "Z"),
+  source: "MLB Stats API official box score (feed/live), joined by gamePk",
+  lanes: (dp.lanes ?? []).map((l) => ({
+    product: l.product, lane: l.lane, step: l.step, stake: l.stake,
+    result: l.result ?? "pending", potentialReturn: l.potentialReturn,
+    legs: (l.legs ?? []).map((g) => ({
+      player: g.participantName ?? g.participant ?? null,
+      market: g.marketType ?? g.market, side: g.side, line: g.line,
+      official: g.settlement?.official ?? null, result: g.settlement?.result ?? "pending",
+    })),
+  })),
+  record: {
+    wins: (dp.lanes ?? []).filter((l) => l.result === "won").length,
+    losses: (dp.lanes ?? []).filter((l) => l.result === "lost").length,
+    pending: (dp.lanes ?? []).filter((l) => (l.result ?? "pending") === "pending").length,
+  },
+};
+// A settled day is written ONCE. Re-running must never silently rewrite history.
+const receiptPath = path.join(RECEIPTS, `${DATE}.json`);
+if (fs.existsSync(receiptPath)) {
+  const prior = JSON.parse(fs.readFileSync(receiptPath, "utf8"));
+  const same = JSON.stringify(prior.lanes) === JSON.stringify(receipt.lanes);
+  console.log(same
+    ? `\nreceipt ${DATE} already recorded and identical — left untouched`
+    : `\nREFUSED: receipt ${DATE} exists and DIFFERS from this run. A settled day is not rewritten silently.`);
+  if (!same) process.exit(1);
+} else {
+  fs.writeFileSync(receiptPath, JSON.stringify(receipt, null, 1) + "\n");
+  console.log(`\nwrote durable receipt mr-dub/settled/${DATE}.json`);
+}
 fs.writeFileSync(DP, JSON.stringify(dp, null, 2) + "\n");
-console.log("\nwrote mr-dub/daily-portfolio.json");
+console.log("wrote mr-dub/daily-portfolio.json");

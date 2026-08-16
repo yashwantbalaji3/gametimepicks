@@ -63,6 +63,34 @@ if (!fs.existsSync(SIM)) {
 const sim = JSON.parse(fs.readFileSync(SIM, "utf8"));
 
 /**
+ * A LADDER ADVANCES. Yesterday's durable receipt decides where each lane starts today: a lane that
+ * WON climbs to the next rung and carries its rolled return as the new stake, a lane that LOST
+ * restarts at step 1. Restarting a winner at $100 would throw away the climb, which is the entire
+ * product.
+ */
+function priorResults() {
+  const dir = path.join(APP, "public", "data", "mr-dub", "settled");
+  let files = [];
+  try { files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) && f < `${DATE}.json`).sort(); } catch { return new Map(); }
+  const out = new Map();
+  for (const f of files) {                       // oldest → newest, so the latest day wins
+    const r = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    for (const l of r.lanes ?? []) out.set(`${l.product}:${l.lane}`, l);
+  }
+  return out;
+}
+const PRIOR = priorResults();
+
+/** Where a lane starts today, given how it finished last time. */
+function rungFor(product, lane, ladder) {
+  const p = PRIOR.get(`${product}:${lane}`);
+  if (!p || p.result !== "won") return { rung: ladder[0], step: 1, rolled: null };
+  const nextStep = Math.min((p.step ?? 1) + 1, ladder.length);
+  const rolled = round2(p.potentialReturn ?? ladder[nextStep - 1].stake);
+  return { rung: { ...ladder[nextStep - 1], stake: rolled }, step: nextStep, rolled };
+}
+
+/**
  * Every pick that carries a REAL posted line, joined to that line. A pick without a market price
  * cannot be staked honestly — there is no number to settle the paper return against.
  */
@@ -157,13 +185,13 @@ const laneBPicks = selectLegs(candidates, 2, (c) => c.p.edgePct ?? 0,
 function bbCard(picks, laneLetter) {
   if (picks.length < 2) return null;
   const legs = picks.map(bbLeg);
-  const rung = BB_LADDER[0];
+  const { rung, step, rolled } = rungFor("bank-builder", laneLetter, BB_LADDER);
   const combined = combinedDecimal(legs);
   return {
     // "pending" is the LIVE-CARD status in the public ladder contract (buildPublicDualLadder maps
     // settled | pending | evaluating | awaiting). Writing "active" here silently renders the rung as
     // upcoming with no card — the lane looks frozen while carrying a real stake.
-    step: 1, status: "pending", reviewMode: false, mode: "Live paper · MLB",
+    step, status: "pending", reviewMode: false, mode: "Live paper · MLB",
     result: null, slateDate: sim.date,
     combinedOdds: combinedAmerican(legs),
     combinedDecimal: round2(combined),
@@ -172,7 +200,7 @@ function bbCard(picks, laneLetter) {
     stake: rung.stake,
     projectedPayout: round2(rung.stake * combined),
     payout: null, freshCard: true,
-    reviewNote: `Live paper · $${rung.stake} staked toward $${rung.target}. Lane ${laneLetter} · ${legs.length} legs across ${new Set(legs.map((l) => l.eventId)).size} independent games. Deterministic MLB Stats API settlement. Paper-only — no real money.`,
+    reviewNote: `Live paper · $${rung.stake} staked toward $${rung.target}. Lane ${laneLetter} · step ${step}${rolled ? ` (rolled from a settled win)` : ""} · ${legs.length} legs across ${new Set(legs.map((l) => l.eventId)).size} independent games. Deterministic MLB Stats API settlement. Paper-only — no real money.`,
     legs,
   };
 }
@@ -217,7 +245,7 @@ function msCard(laneLetter) {
   for (const c of picks) msUsed.add(String(c.g.gamePk ?? c.g.gameId));
   const legs = picks.map(msLeg);
   const combined = combinedDecimal(legs);
-  const rung = MS_LADDER[0];
+  const { rung, step: msStep } = rungFor("moonshot", laneLetter, MS_LADDER);
   return {
     cardId: `moonshot-${DATE}-mlb-${laneLetter.toLowerCase()}`,
     scope: "mlb", risk: "higher-variance", reviewMode: false,
@@ -294,18 +322,19 @@ if (dp.date !== DATE) {
 }
 
 const laneSpecs = [
-  { id: `bank-builder-lane-a-step-1`, product: "bank-builder", productLabel: "Bank Builder", lane: "A", rung: BB_LADDER[0], legs: bbCards.laneA?.legs ?? [], targetLegs: 2 },
-  { id: `bank-builder-lane-b-step-1`, product: "bank-builder", productLabel: "Bank Builder", lane: "B", rung: BB_LADDER[0], legs: bbCards.laneB?.legs ?? [], targetLegs: 2 },
-  { id: `moonshot-lane-a-step-1`, product: "moonshot", productLabel: "Moonshot", lane: "A", rung: MS_LADDER[0], legs: msLanes[0].ladder[0].card?.legs ?? [], targetLegs: 3 },
-  { id: `moonshot-lane-b-step-1`, product: "moonshot", productLabel: "Moonshot", lane: "B", rung: MS_LADDER[0], legs: msLanes[1].ladder[0].card?.legs ?? [], targetLegs: 3 },
+  { product: "bank-builder", productLabel: "Bank Builder", lane: "A", ...rungFor("bank-builder", "A", BB_LADDER), legs: bbCards.laneA?.legs ?? [], targetLegs: 2 },
+  { product: "bank-builder", productLabel: "Bank Builder", lane: "B", ...rungFor("bank-builder", "B", BB_LADDER), legs: bbCards.laneB?.legs ?? [], targetLegs: 2 },
+  { product: "moonshot", productLabel: "Moonshot", lane: "A", ...rungFor("moonshot", "A", MS_LADDER), legs: msLanes[0].ladder[0].card?.legs ?? [], targetLegs: 3 },
+  { product: "moonshot", productLabel: "Moonshot", lane: "B", ...rungFor("moonshot", "B", MS_LADDER), legs: msLanes[1].ladder[0].card?.legs ?? [], targetLegs: 3 },
 ];
 
 dp.lanes = laneSpecs.map((spec) => {
   const placed = spec.legs.length >= 2;
   const combined = placed ? combinedDecimal(spec.legs) : 1;
   return {
-    id: spec.id, product: spec.product, productLabel: spec.productLabel, lane: spec.lane,
-    step: 1, clearedSteps: 0,
+    id: `${spec.product}-lane-${spec.lane.toLowerCase()}-step-${spec.step}`,
+    product: spec.product, productLabel: spec.productLabel, lane: spec.lane,
+    step: spec.step, clearedSteps: spec.step - 1,
     status: placed ? "active" : "awaiting",
     stake: placed ? spec.rung.stake : 0,
     exposure: placed ? spec.rung.stake : 0,
