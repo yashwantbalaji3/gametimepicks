@@ -1,0 +1,234 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823912,
+  "date": "2026-08-16",
+  "capturedAt": "2026-08-16T02:20:13.813Z",
+  "availableAt": "2026-08-16T02:20:13.813Z",
+  "eventStartTime": "2026-08-16T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-13",
+    "2026-08-14",
+    "2026-08-15"
+  ],
+  "home": {
+    "teamId": 119,
+    "teamName": "Los Angeles Dodgers",
+    "last1Day": {
+      "appearances": 1,
+      "pitches": 34,
+      "relievers": [
+        {
+          "id": 642546,
+          "name": "Jonathan Hernández",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 9,
+          "dates": [
+            "2026-08-15"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 177,
+      "relievers": [
+        {
+          "id": 621242,
+          "name": "Edwin Díaz",
+          "appearances": 2,
+          "pitches": 50,
+          "outs": 5,
+          "dates": [
+            "2026-08-13",
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 642546,
+          "name": "Jonathan Hernández",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 9,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 656945,
+          "name": "Tanner Scott",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 4,
+          "dates": [
+            "2026-08-13",
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 623465,
+          "name": "Evan Phillips",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 676263,
+          "name": "Jack Dreyer",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 683618,
+          "name": "Edgardo Henriquez",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 681911,
+          "name": "Alex Vesia",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 1,
+          "dates": [
+            "2026-08-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 642546,
+        "name": "Jonathan Hernández",
+        "reason": "34 pitches yesterday"
+      }
+    ]
+  },
+  "away": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 43,
+      "relievers": [
+        {
+          "id": 676879,
+          "name": "Aaron Ashby",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 622608,
+          "name": "Antonio Senzatela",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 122,
+      "relievers": [
+        {
+          "id": 676879,
+          "name": "Aaron Ashby",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 622608,
+          "name": "Antonio Senzatela",
+          "appearances": 2,
+          "pitches": 30,
+          "outs": 5,
+          "dates": [
+            "2026-08-13",
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 669084,
+          "name": "DL Hall",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 669060,
+          "name": "Bryse Wilson",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 656730,
+          "name": "Trevor Megill",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-13"
+          ]
+        },
+        {
+          "id": 681982,
+          "name": "Grant Anderson",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-08-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 676879,
+        "name": "Aaron Ashby",
+        "reason": "31 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-13,2026-08-14,2026-08-15) + feed/live box scores",
+    "capturedAt": "2026-08-16T02:20:13.813Z"
+  },
+  "recordHash": "4800c4ef68dc2ca0c80e0efc4203bbcad9564ffe0a2b2155a8b60fd260e74700"
+}

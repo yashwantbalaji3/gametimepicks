@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824642,
+  "date": "2026-08-16",
+  "capturedAt": "2026-08-16T02:20:13.177Z",
+  "availableAt": "2026-08-16T02:20:13.177Z",
+  "eventStartTime": "2026-08-16T19:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 665795,
+      "name": "Edward Cabrera",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 54,
+      "lastStartDate": "2026-06-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.33,
+        "ipAvg": 4.27,
+        "kAvg": 4,
+        "bbAvg": 2.2,
+        "erAvg": 3.6,
+        "hrAvg": 1.2,
+        "kPer9": 8.44,
+        "workloadIpLast5": 21.33
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 72.33,
+        "k": 65,
+        "bb": 29,
+        "er": 41,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 690928,
+      "name": "Hunter Dobbins",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 6,
+      "lastStartDate": "2026-08-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 4.8,
+        "bbAvg": 1.8,
+        "erAvg": 1.8,
+        "hrAvg": 0.8,
+        "kPer9": 8.1,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 31,
+        "k": 28,
+        "bb": 14,
+        "er": 12,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-16&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-16T02:20:13.177Z"
+  },
+  "recordHash": "17a04fe29aa00c96808dd1edea051333b6c9a77b8668edec42a6c1db0f02fa26"
+}

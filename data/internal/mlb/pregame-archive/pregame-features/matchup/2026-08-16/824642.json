@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824642,
+  "date": "2026-08-16",
+  "capturedAt": "2026-08-16T02:20:14.584Z",
+  "availableAt": "2026-08-16T02:20:14.584Z",
+  "eventStartTime": "2026-08-16T19:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 665795,
+    "name": "Edward Cabrera",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 690928,
+    "name": "Hunter Dobbins",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-16T02:20:14.584Z"
+  },
+  "recordHash": "c9fcf59ca3d24ac5af0ca3a8351e725de7d7380decbdc09f2075b6287eb5addb"
+}

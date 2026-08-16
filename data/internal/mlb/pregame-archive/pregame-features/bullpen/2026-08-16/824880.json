@@ -1,0 +1,240 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824880,
+  "date": "2026-08-16",
+  "capturedAt": "2026-08-16T02:20:13.813Z",
+  "availableAt": "2026-08-16T02:20:13.813Z",
+  "eventStartTime": "2026-08-16T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-13",
+    "2026-08-14",
+    "2026-08-15"
+  ],
+  "home": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 110,
+      "relievers": [
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 9,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 664849,
+          "name": "Danny Young",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 4,
+          "dates": [
+            "2026-08-15"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 165,
+      "relievers": [
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 9,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 664849,
+          "name": "Danny Young",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 4,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 689266,
+          "name": "Dylan Dodd",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 800311,
+          "name": "Didier Fuentes",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 641755,
+          "name": "Tyler Kinley",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 608718,
+        "name": "Brent Suter",
+        "reason": "49 pitches yesterday"
+      },
+      {
+        "id": 664849,
+        "name": "Danny Young",
+        "reason": "32 pitches yesterday"
+      }
+    ]
+  },
+  "away": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 32,
+      "relievers": [
+        {
+          "id": 691769,
+          "name": "Philip Abner",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 642528,
+          "name": "Jonathan Loáisiga",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 62,
+      "relievers": [
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 691769,
+          "name": "Philip Abner",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 805299,
+          "name": "Brandyn Garcia",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 642528,
+          "name": "Jonathan Loáisiga",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-13,2026-08-14,2026-08-15) + feed/live box scores",
+    "capturedAt": "2026-08-16T02:20:13.813Z"
+  },
+  "recordHash": "3e7c1e99eb8735b312cbb97fefc2477a28c4c5e4705136fc70693dad2f6a2b4f"
+}
