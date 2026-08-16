@@ -3,70 +3,436 @@
  "artifact": "nfl-current-settlement",
  "dataClass": "PRIVATE_PAPER_RECORD",
  "date": "2026-08-15",
- "generatedAt": "2026-08-15T21:19:48Z",
+ "generatedAt": "2026-08-16T14:51:52Z",
  "scope": "NFL current-artifact settlement — a SEPARATE paper record. It never reads or writes MLB money, Bank Builder, Moonshot, or Mr. Dub.",
  "whatIsGraded": "the PRE-START MARKET consensus pinned in each artifact (favourite / home spread / over total). The team model ABSTAINS in preseason, so this is a market-accuracy record and is never reported as model performance.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401873279",
+   "providerEventId": "401873279",
    "matchup": "DAL @ SEA",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-08-16T00:00Z"
+   "kickoffUtc": "2026-08-16T00:00Z",
+   "artifactFile": "data/internal/nfl/current/2026-08-15/401873279-2119Z.json",
+   "lineage": {
+    "artifactGeneratedAt": "2026-08-15T21:19:48Z",
+    "marketCapturedAt": "2026-08-15T21:19:48Z",
+    "evidence": {
+     "schedule": {
+      "asOf": "2026-08-15T14:33:33Z"
+     },
+     "rosters": {
+      "asOf": "2026-08-13T02:55:00Z"
+     },
+     "injuries": {
+      "asOf": "2026-08-15T13:22:04Z"
+     },
+     "odds": {
+      "asOf": "2026-08-15T21:19:48Z"
+     },
+     "strengthCutoff": "2026-08-15T21:19:48Z"
+    },
+    "settlementContractVersion": 1,
+    "settledAt": "2026-08-16T14:51:52Z"
+   },
+   "official": {
+    "status": "STATUS_FINAL",
+    "home": 7,
+    "away": 17
+   },
+   "graded": [
+    {
+     "market": "moneyline",
+     "side": "home",
+     "line": null,
+     "label": "market favourite (57.4% no-vig)",
+     "outcome": "LOSS",
+     "reason": "final 7-17: away, leg took home"
+    },
+    {
+     "market": "point_spread",
+     "side": "home",
+     "line": -2.5,
+     "label": "home -2.5",
+     "outcome": "LOSS",
+     "reason": "margin -10 fails -2.5"
+    },
+    {
+     "market": "total_points",
+     "side": "over",
+     "line": 37.5,
+     "label": "over 37.5",
+     "outcome": "LOSS",
+     "reason": "total 24 vs 37.5"
+    }
+   ]
   },
   {
    "canonicalEventId": "nfl-401873280",
+   "providerEventId": "401873280",
    "matchup": "MIN @ NYG",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-15T17:00Z",
-   "observedStatus": "STATUS_SCHEDULED"
+   "artifactFile": "data/internal/nfl/current/2026-08-15/401873280-1527Z.json",
+   "lineage": {
+    "artifactGeneratedAt": "2026-08-15T15:27:04Z",
+    "marketCapturedAt": "2026-08-15T14:50:46Z",
+    "evidence": {
+     "schedule": {
+      "asOf": "2026-08-15T14:33:33Z"
+     },
+     "rosters": {
+      "asOf": "2026-08-13T02:55:00Z"
+     },
+     "injuries": {
+      "asOf": "2026-08-15T13:22:04Z"
+     },
+     "odds": {
+      "asOf": "2026-08-15T14:50:46Z"
+     },
+     "strengthCutoff": "2026-08-15T15:27:04Z"
+    },
+    "settlementContractVersion": 1,
+    "settledAt": "2026-08-16T14:51:52Z"
+   },
+   "official": {
+    "status": "STATUS_FINAL",
+    "home": 10,
+    "away": 13
+   },
+   "graded": [
+    {
+     "market": "moneyline",
+     "side": "away",
+     "line": null,
+     "label": "market favourite (53.2% no-vig)",
+     "outcome": "WIN",
+     "reason": "final 10-13: away"
+    },
+    {
+     "market": "point_spread",
+     "side": "home",
+     "line": 1.5,
+     "label": "home +1.5",
+     "outcome": "LOSS",
+     "reason": "margin -3 fails 1.5"
+    },
+    {
+     "market": "total_points",
+     "side": "over",
+     "line": 42.5,
+     "label": "over 42.5",
+     "outcome": "LOSS",
+     "reason": "total 23 vs 42.5"
+    }
+   ]
   },
   {
    "canonicalEventId": "nfl-401873281",
+   "providerEventId": "401873281",
    "matchup": "JAX @ NO",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-15T20:00Z",
-   "observedStatus": "STATUS_SCHEDULED"
+   "artifactFile": "data/internal/nfl/current/2026-08-15/401873281-1527Z.json",
+   "lineage": {
+    "artifactGeneratedAt": "2026-08-15T15:27:04Z",
+    "marketCapturedAt": "2026-08-15T14:50:46Z",
+    "evidence": {
+     "schedule": {
+      "asOf": "2026-08-15T14:33:33Z"
+     },
+     "rosters": {
+      "asOf": "2026-08-13T02:55:00Z"
+     },
+     "injuries": {
+      "asOf": "2026-08-15T13:22:04Z"
+     },
+     "odds": {
+      "asOf": "2026-08-15T14:50:46Z"
+     },
+     "strengthCutoff": "2026-08-15T15:27:04Z"
+    },
+    "settlementContractVersion": 1,
+    "settledAt": "2026-08-16T14:51:52Z"
+   },
+   "official": {
+    "status": "STATUS_FINAL",
+    "home": 20,
+    "away": 24
+   },
+   "graded": [
+    {
+     "market": "moneyline",
+     "side": "home",
+     "line": null,
+     "label": "market favourite (55.5% no-vig)",
+     "outcome": "LOSS",
+     "reason": "final 20-24: away, leg took home"
+    },
+    {
+     "market": "point_spread",
+     "side": "home",
+     "line": -2.5,
+     "label": "home -2.5",
+     "outcome": "LOSS",
+     "reason": "margin -4 fails -2.5"
+    },
+    {
+     "market": "total_points",
+     "side": "over",
+     "line": 35.5,
+     "label": "over 35.5",
+     "outcome": "WIN",
+     "reason": "total 44 vs 35.5"
+    }
+   ]
   },
   {
    "canonicalEventId": "nfl-401873282",
+   "providerEventId": "401873282",
    "matchup": "CAR @ BUF",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-15T17:00Z",
-   "observedStatus": "STATUS_SCHEDULED"
+   "artifactFile": "data/internal/nfl/current/2026-08-15/401873282-1527Z.json",
+   "lineage": {
+    "artifactGeneratedAt": "2026-08-15T15:27:04Z",
+    "marketCapturedAt": "2026-08-15T14:50:46Z",
+    "evidence": {
+     "schedule": {
+      "asOf": "2026-08-15T14:33:33Z"
+     },
+     "rosters": {
+      "asOf": "2026-08-13T02:55:00Z"
+     },
+     "injuries": {
+      "asOf": "2026-08-15T13:22:04Z"
+     },
+     "odds": {
+      "asOf": "2026-08-15T14:50:46Z"
+     },
+     "strengthCutoff": "2026-08-15T15:27:04Z"
+    },
+    "settlementContractVersion": 1,
+    "settledAt": "2026-08-16T14:51:52Z"
+   },
+   "official": {
+    "status": "STATUS_FINAL",
+    "home": 29,
+    "away": 14
+   },
+   "graded": [
+    {
+     "market": "moneyline",
+     "side": "home",
+     "line": null,
+     "label": "market favourite (59.5% no-vig)",
+     "outcome": "WIN",
+     "reason": "final 29-14: home"
+    },
+    {
+     "market": "point_spread",
+     "side": "home",
+     "line": -3.5,
+     "label": "home -3.5",
+     "outcome": "WIN",
+     "reason": "margin 15 covers -3.5"
+    },
+    {
+     "market": "total_points",
+     "side": "over",
+     "line": 38.5,
+     "label": "over 38.5",
+     "outcome": "WIN",
+     "reason": "total 43 vs 38.5"
+    }
+   ]
   },
   {
    "canonicalEventId": "nfl-401873283",
+   "providerEventId": "401873283",
    "matchup": "LAR @ KC",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-15T20:00Z",
-   "observedStatus": "STATUS_SCHEDULED"
+   "artifactFile": "data/internal/nfl/current/2026-08-15/401873283-1527Z.json",
+   "lineage": {
+    "artifactGeneratedAt": "2026-08-15T15:27:04Z",
+    "marketCapturedAt": "2026-08-15T14:50:46Z",
+    "evidence": {
+     "schedule": {
+      "asOf": "2026-08-15T14:33:33Z"
+     },
+     "rosters": {
+      "asOf": "2026-08-13T02:55:00Z"
+     },
+     "injuries": {
+      "asOf": "2026-08-15T13:22:04Z"
+     },
+     "odds": {
+      "asOf": "2026-08-15T14:50:46Z"
+     },
+     "strengthCutoff": "2026-08-15T15:27:04Z"
+    },
+    "settlementContractVersion": 1,
+    "settledAt": "2026-08-16T14:51:52Z"
+   },
+   "official": {
+    "status": "STATUS_FINAL",
+    "home": 12,
+    "away": 20
+   },
+   "graded": [
+    {
+     "market": "moneyline",
+     "side": "home",
+     "line": null,
+     "label": "market favourite (55.4% no-vig)",
+     "outcome": "LOSS",
+     "reason": "final 12-20: away, leg took home"
+    },
+    {
+     "market": "point_spread",
+     "side": "home",
+     "line": -2.5,
+     "label": "home -2.5",
+     "outcome": "LOSS",
+     "reason": "margin -8 fails -2.5"
+    },
+    {
+     "market": "total_points",
+     "side": "over",
+     "line": 35.5,
+     "label": "over 35.5",
+     "outcome": "LOSS",
+     "reason": "total 32 vs 35.5"
+    }
+   ]
   },
   {
    "canonicalEventId": "nfl-401873284",
+   "providerEventId": "401873284",
    "matchup": "PHI @ BAL",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-08-15T23:00Z"
+   "kickoffUtc": "2026-08-15T23:00Z",
+   "artifactFile": "data/internal/nfl/current/2026-08-15/401873284-2119Z.json",
+   "lineage": {
+    "artifactGeneratedAt": "2026-08-15T21:19:48Z",
+    "marketCapturedAt": "2026-08-15T21:19:48Z",
+    "evidence": {
+     "schedule": {
+      "asOf": "2026-08-15T14:33:33Z"
+     },
+     "rosters": {
+      "asOf": "2026-08-13T02:55:00Z"
+     },
+     "injuries": {
+      "asOf": "2026-08-15T13:22:04Z"
+     },
+     "odds": {
+      "asOf": "2026-08-15T21:19:48Z"
+     },
+     "strengthCutoff": "2026-08-15T21:19:48Z"
+    },
+    "settlementContractVersion": 1,
+    "settledAt": "2026-08-16T14:51:52Z"
+   },
+   "official": {
+    "status": "STATUS_FINAL",
+    "home": 24,
+    "away": 7
+   },
+   "graded": [
+    {
+     "market": "moneyline",
+     "side": "away",
+     "line": null,
+     "label": "market favourite (63.5% no-vig)",
+     "outcome": "LOSS",
+     "reason": "final 24-7: home, leg took away"
+    },
+    {
+     "market": "point_spread",
+     "side": "home",
+     "line": 4,
+     "label": "home +4",
+     "outcome": "WIN",
+     "reason": "margin 17 covers 4"
+    },
+    {
+     "market": "total_points",
+     "side": "over",
+     "line": 36.5,
+     "label": "over 36.5",
+     "outcome": "LOSS",
+     "reason": "total 31 vs 36.5"
+    }
+   ]
   },
   {
    "canonicalEventId": "nfl-401874393",
+   "providerEventId": "401874393",
    "matchup": "CLE @ CHI",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-15T17:00Z",
-   "observedStatus": "STATUS_SCHEDULED"
+   "artifactFile": "data/internal/nfl/current/2026-08-15/401874393-1527Z.json",
+   "lineage": {
+    "artifactGeneratedAt": "2026-08-15T15:27:04Z",
+    "marketCapturedAt": "2026-08-15T14:50:46Z",
+    "evidence": {
+     "schedule": {
+      "asOf": "2026-08-15T14:33:33Z"
+     },
+     "rosters": {
+      "asOf": "2026-08-13T02:55:00Z"
+     },
+     "injuries": {
+      "asOf": "2026-08-15T13:22:04Z"
+     },
+     "odds": {
+      "asOf": "2026-08-15T14:50:46Z"
+     },
+     "strengthCutoff": "2026-08-15T15:27:04Z"
+    },
+    "settlementContractVersion": 1,
+    "settledAt": "2026-08-16T14:51:52Z"
+   },
+   "official": {
+    "status": "STATUS_FINAL",
+    "home": 34,
+    "away": 10
+   },
+   "graded": [
+    {
+     "market": "moneyline",
+     "side": "away",
+     "line": null,
+     "label": "market favourite (61.2% no-vig)",
+     "outcome": "LOSS",
+     "reason": "final 34-10: home, leg took away"
+    },
+    {
+     "market": "point_spread",
+     "side": "home",
+     "line": 3.5,
+     "label": "home +3.5",
+     "outcome": "WIN",
+     "reason": "margin 24 covers 3.5"
+    },
+    {
+     "market": "total_points",
+     "side": "over",
+     "line": 40.5,
+     "label": "over 40.5",
+     "outcome": "WIN",
+     "reason": "total 44 vs 40.5"
+    }
+   ]
   }
  ],
+ "pending": [],
  "accounting": {
   "artifactsForDate": 7,
-  "settled": 0,
-  "pending": 7,
+  "settled": 7,
+  "pending": 0,
   "reconciles": true,
-  "legs": 0,
-  "wins": 0,
-  "losses": 0,
+  "legs": 21,
+  "wins": 8,
+  "losses": 13,
   "pushes": 0,
   "voids": 0,
-  "decisive": 0,
+  "decisive": 21,
   "note": "decisive = WIN + LOSS only; pushes and voids are reported separately and pending is never a loss"
  }
 }
