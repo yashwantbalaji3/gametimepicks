@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-15T21:19:48Z",
+ "generatedAt": "2026-08-16T05:13:59Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-preseason-public-beta-v1",
@@ -16,29 +16,29 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 18,
+  "scheduledUpcoming": 16,
   "forecastsTotal": 2,
-  "forecastsUpcoming": 2,
-  "forecastsStarted": 0,
+  "forecastsUpcoming": 0,
+  "forecastsStarted": 2,
   "marketEvents": 2,
-  "settled": 0
+  "settled": 2
  },
- "nextKickoffUtc": "2026-08-15T23:00Z",
- "nextMatchup": "PHI @ BAL",
+ "nextKickoffUtc": null,
+ "nextMatchup": null,
  "marketCapturedAt": "2026-08-15T21:19:48Z",
  "experimentalRecord": {
   "schemaVersion": 1,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-08-15T16:26:16Z",
+  "generatedAt": "2026-08-16T05:12:12Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-preseason-public-beta-v1",
-  "settledForecasts": 4,
-  "decisive": 4,
-  "winnerAccuracy": 0.75,
-  "marginMAE": 11,
-  "totalMAE": 5.25,
-  "marginInterval80Coverage": 0.75,
+  "settledForecasts": 7,
+  "decisive": 7,
+  "winnerAccuracy": 0.5714,
+  "marginMAE": 11.2857,
+  "totalMAE": 8.1429,
+  "marginInterval80Coverage": 0.7143,
   "totalInterval80Coverage": 1,
   "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger."
  },
@@ -56,15 +56,11 @@
     "name": "Philadelphia Eagles"
    },
    "kickoffUtc": "2026-08-15T23:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": 10.7,
-    "leansTo": "BAL",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
+   "lifecycle": "SETTLED",
+   "locked": true,
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
+   "lean": null,
    "projectedScore": {
     "home": 18,
     "away": 19
@@ -99,15 +95,11 @@
     "name": "Dallas Cowboys"
    },
    "kickoffUtc": "2026-08-16T00:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": -10.5,
-    "leansTo": "DAL",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
+   "lifecycle": "SETTLED",
+   "locked": true,
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
+   "lean": null,
    "projectedScore": {
     "home": 18,
     "away": 19

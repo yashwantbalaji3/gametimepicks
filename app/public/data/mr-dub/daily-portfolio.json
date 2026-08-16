@@ -4,26 +4,26 @@
   "generatedAt": "2026-08-15T14:00:00Z",
   "activeBankroll": 19065.4,
   "crownBankroll": 20465.4,
-  "openExposure": 250,
-  "availableBankroll": 18815.4,
+  "openExposure": 0,
+  "availableBankroll": 19065.4,
   "potentialReturn": 929.55,
   "products": {
     "bankBuilder": {
-      "exposure": 200,
+      "exposure": 0,
       "record": {
-        "wins": 0,
-        "losses": 0,
+        "wins": 1,
+        "losses": 1,
         "voids": 0,
-        "pending": 2
+        "pending": 0
       }
     },
     "moonshot": {
-      "exposure": 50,
+      "exposure": 0,
       "record": {
         "wins": 0,
-        "losses": 0,
+        "losses": 2,
         "voids": 0,
-        "pending": 2
+        "pending": 0
       }
     }
   },
@@ -34,10 +34,10 @@
       "productLabel": "Bank Builder",
       "lane": "A",
       "step": 1,
-      "clearedSteps": 0,
-      "status": "active",
+      "clearedSteps": 1,
+      "status": "won",
       "stake": 100,
-      "exposure": 100,
+      "exposure": 0,
       "targetReturn": 200,
       "fitsTarget": true,
       "combinedOdds": 161,
@@ -78,9 +78,10 @@
           "reviewMode": false,
           "paperOnly": true,
           "settlement": {
-            "result": null,
-            "official": null,
-            "source": "mlb_stats_api"
+            "result": "won",
+            "official": 1,
+            "source": "mlb_stats_api",
+            "gamePk": "823990"
           },
           "settlementSource": "MLB Stats API (official box score)",
           "currentGameStatus": "scheduled"
@@ -117,16 +118,19 @@
           "reviewMode": false,
           "paperOnly": true,
           "settlement": {
-            "result": null,
-            "official": null,
-            "source": "mlb_stats_api"
+            "result": "won",
+            "official": 2,
+            "source": "mlb_stats_api",
+            "gamePk": "823588"
           },
           "settlementSource": "MLB Stats API (official box score)",
           "currentGameStatus": "scheduled"
         }
       ],
       "correlationNote": "Correlation checked: 2 distinct games — legs settle independently.",
-      "shortfallNote": null
+      "shortfallNote": null,
+      "result": "won",
+      "settledAt": "2026-08-16T05:13:50Z"
     },
     {
       "id": "bank-builder-lane-b-step-1",
@@ -135,9 +139,9 @@
       "lane": "B",
       "step": 1,
       "clearedSteps": 0,
-      "status": "active",
+      "status": "lost",
       "stake": 100,
-      "exposure": 100,
+      "exposure": 0,
       "targetReturn": 200,
       "fitsTarget": true,
       "combinedOdds": 250,
@@ -179,9 +183,10 @@
           "reviewMode": false,
           "paperOnly": true,
           "settlement": {
-            "result": null,
-            "official": null,
-            "source": "mlb_stats_api"
+            "result": "lost",
+            "official": 6,
+            "source": "mlb_stats_api",
+            "gamePk": "824480"
           },
           "settlementSource": "MLB Stats API (official box score)",
           "currentGameStatus": "scheduled"
@@ -218,16 +223,19 @@
           "reviewMode": false,
           "paperOnly": true,
           "settlement": {
-            "result": null,
-            "official": null,
-            "source": "mlb_stats_api"
+            "result": "lost",
+            "official": 0,
+            "source": "mlb_stats_api",
+            "gamePk": "824400"
           },
           "settlementSource": "MLB Stats API (official box score)",
           "currentGameStatus": "scheduled"
         }
       ],
       "correlationNote": "Correlation checked: 2 distinct games — legs settle independently.",
-      "shortfallNote": null
+      "shortfallNote": null,
+      "result": "lost",
+      "settledAt": "2026-08-16T05:13:50Z"
     },
     {
       "id": "moonshot-lane-a-step-1",
@@ -236,9 +244,9 @@
       "lane": "A",
       "step": 1,
       "clearedSteps": 0,
-      "status": "active",
+      "status": "lost",
       "stake": 25,
-      "exposure": 25,
+      "exposure": 0,
       "targetReturn": 100,
       "fitsTarget": true,
       "combinedOdds": 493,
@@ -270,10 +278,11 @@
           "dataQuality": "model-simulated (10,000 runs)",
           "confidence": "Lean",
           "settlement": {
-            "result": null,
+            "result": "lost",
             "source": "mlb_stats_api",
-            "official": null,
-            "started": false
+            "official": 6,
+            "started": false,
+            "gamePk": "824480"
           },
           "why": "Ryan Gusto — model 74% vs market 51% to clear 4.5 (10,000-run simulation). Higher-variance leg. Paper-only.",
           "displaySelection": "Miami Marlins @ Cincinnati Reds — Strikeouts: Ryan Gusto Under 4.5",
@@ -303,10 +312,11 @@
           "dataQuality": "model-simulated (10,000 runs)",
           "confidence": "Watchlist",
           "settlement": {
-            "result": null,
+            "result": "lost",
             "source": "mlb_stats_api",
-            "official": null,
-            "started": false
+            "official": 0,
+            "started": false,
+            "gamePk": "824400"
           },
           "why": "Fernando Tatis Jr. — model 66% vs market 47% to clear 1.5 (10,000-run simulation). Higher-variance leg. Paper-only.",
           "displaySelection": "San Diego Padres @ Cleveland Guardians — Total Bases: Fernando Tatis Jr. Over 1.5",
@@ -336,10 +346,11 @@
           "dataQuality": "model-simulated (10,000 runs)",
           "confidence": "Lean",
           "settlement": {
-            "result": null,
+            "result": "won",
             "source": "mlb_stats_api",
-            "official": null,
-            "started": false
+            "official": 1,
+            "started": false,
+            "gamePk": "823184"
           },
           "why": "Michael Lorenzen — model 79% vs market 59% to clear 3.5 (10,000-run simulation). Higher-variance leg. Paper-only.",
           "displaySelection": "Colorado Rockies @ San Francisco Giants — Strikeouts: Michael Lorenzen Under 3.5",
@@ -348,7 +359,9 @@
         }
       ],
       "correlationNote": "Correlation checked: 3 distinct games — legs settle independently.",
-      "shortfallNote": null
+      "shortfallNote": null,
+      "result": "lost",
+      "settledAt": "2026-08-16T05:13:50Z"
     },
     {
       "id": "moonshot-lane-b-step-1",
@@ -357,9 +370,9 @@
       "lane": "B",
       "step": 1,
       "clearedSteps": 0,
-      "status": "active",
+      "status": "lost",
       "stake": 25,
-      "exposure": 25,
+      "exposure": 0,
       "targetReturn": 100,
       "fitsTarget": true,
       "combinedOdds": 584,
@@ -391,10 +404,11 @@
           "dataQuality": "model-simulated (10,000 runs)",
           "confidence": "Lean",
           "settlement": {
-            "result": null,
+            "result": "won",
             "source": "mlb_stats_api",
-            "official": null,
-            "started": false
+            "official": 5,
+            "started": false,
+            "gamePk": "823347"
           },
           "why": "Wilyer Abreu — model 71% vs market 52% to clear 1.5 (10,000-run simulation). Higher-variance leg. Paper-only.",
           "displaySelection": "Boston Red Sox @ Pittsburgh Pirates — Hits + Runs + RBIs: Wilyer Abreu Over 1.5",
@@ -424,10 +438,11 @@
           "dataQuality": "model-simulated (10,000 runs)",
           "confidence": "Lean",
           "settlement": {
-            "result": null,
+            "result": "won",
             "source": "mlb_stats_api",
-            "official": null,
-            "started": false
+            "official": 2,
+            "started": false,
+            "gamePk": "823671"
           },
           "why": "Kaelen Culpepper — model 77% vs market 58% to clear 0.5 (10,000-run simulation). Higher-variance leg. Paper-only.",
           "displaySelection": "Philadelphia Phillies @ Minnesota Twins — Hits + Runs + RBIs: Kaelen Culpepper Over 0.5",
@@ -457,10 +472,11 @@
           "dataQuality": "model-simulated (10,000 runs)",
           "confidence": "Lean",
           "settlement": {
-            "result": null,
+            "result": "lost",
             "source": "mlb_stats_api",
-            "official": null,
-            "started": false
+            "official": 6,
+            "started": false,
+            "gamePk": "823914"
           },
           "why": "Jacob Misiorowski — model 74% vs market 55% to clear 8.5 (10,000-run simulation). Higher-variance leg. Paper-only.",
           "displaySelection": "Milwaukee Brewers @ Los Angeles Dodgers — Strikeouts: Jacob Misiorowski Over 8.5",
@@ -469,7 +485,9 @@
         }
       ],
       "correlationNote": "Correlation checked: 3 distinct games — legs settle independently.",
-      "shortfallNote": null
+      "shortfallNote": null,
+      "result": "lost",
+      "settledAt": "2026-08-16T05:13:50Z"
     }
   ],
   "settlement": {
