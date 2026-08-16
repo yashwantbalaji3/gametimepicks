@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823182,
+  "date": "2026-08-16",
+  "capturedAt": "2026-08-16T11:18:40.471Z",
+  "availableAt": "2026-08-16T11:18:40.471Z",
+  "eventStartTime": "2026-08-16T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 694918,
+      "name": "Blade Tidwell",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 6,
+      "lastStartDate": "2026-08-10",
+      "last5": {
+        "starts": 2,
+        "ipSum": 10.67,
+        "ipAvg": 5.33,
+        "kAvg": 4.5,
+        "bbAvg": 1,
+        "erAvg": 1.5,
+        "hrAvg": 0,
+        "kPer9": 7.59,
+        "workloadIpLast5": 10.67
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 10.67,
+        "k": 9,
+        "bb": 2,
+        "er": 3,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 687312,
+      "name": "Gabriel Hughes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 6,
+      "lastStartDate": "2026-08-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4.6,
+        "bbAvg": 1.8,
+        "erAvg": 3.6,
+        "hrAvg": 0.4,
+        "kPer9": 8.39,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 30.67,
+        "k": 30,
+        "bb": 11,
+        "er": 21,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-16&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-16T11:18:40.471Z"
+  },
+  "recordHash": "67999982c2ae8324dfee43220e1ae5545c00ebffcd20ccab93facaaa4b785c54"
+}

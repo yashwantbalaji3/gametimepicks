@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822940,
+  "date": "2026-08-16",
+  "capturedAt": "2026-08-16T11:18:40.471Z",
+  "availableAt": "2026-08-16T11:18:40.471Z",
+  "eventStartTime": "2026-08-16T16:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 642547,
+      "name": "Freddy Peralta",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 4.6,
+        "bbAvg": 2.2,
+        "erAvg": 4.2,
+        "hrAvg": 1.2,
+        "kPer9": 8.87,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 123.33,
+        "k": 121,
+        "bb": 50,
+        "er": 73,
+        "hr": 20
+      }
+    },
+    "away": {
+      "id": 669432,
+      "name": "Trevor Rogers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 6.6,
+        "bbAvg": 0.6,
+        "erAvg": 2.2,
+        "hrAvg": 0.4,
+        "kPer9": 10.13,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 119.67,
+        "k": 102,
+        "bb": 34,
+        "er": 56,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-16&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-16T11:18:40.471Z"
+  },
+  "recordHash": "2033f7d035cf5ff9b1056c7e1434deb025b5ac994225968a68c53bf1e61c1c59"
+}
