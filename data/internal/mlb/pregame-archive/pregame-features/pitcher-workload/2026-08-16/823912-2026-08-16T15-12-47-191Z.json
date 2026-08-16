@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823912,
+  "date": "2026-08-16",
+  "capturedAt": "2026-08-16T15:12:47.191Z",
+  "availableAt": "2026-08-16T15:12:47.191Z",
+  "eventStartTime": "2026-08-16T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669373,
+      "name": "Tarik Skubal",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-08-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 7.8,
+        "bbAvg": 1.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 10.97,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 107.67,
+        "k": 128,
+        "bb": 18,
+        "er": 35,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 701656,
+      "name": "Logan Henderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 6,
+      "lastStartDate": "2026-08-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 7,
+        "bbAvg": 0.8,
+        "erAvg": 1.6,
+        "hrAvg": 1.4,
+        "kPer9": 11.25,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 56.33,
+        "k": 69,
+        "bb": 11,
+        "er": 18,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-16&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-16T15:12:47.191Z"
+  },
+  "recordHash": "d0bb30457bb8332a3682e3b9e8f646bbdf14ee66fd0b9b4da3cff4903ecd80e8"
+}
