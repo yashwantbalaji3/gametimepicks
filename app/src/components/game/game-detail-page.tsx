@@ -688,6 +688,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       deepDive={mlbReportDetails}
       awayCode={detail.fullGameSim.awayTeam}
       homeCode={detail.fullGameSim.homeTeam}
+      awayLogo={detail.awayLogo ?? null}
+      homeLogo={detail.homeLogo ?? null}
     />
   ) : (
     mlbReportDetails

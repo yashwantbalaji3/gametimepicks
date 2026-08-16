@@ -82,11 +82,20 @@ test("covered pairing without odds → READY_EXCEPT_ODDS with zero probabilities
 
 test("REAL ARTIFACTS · UFC 330's twelve bouts run the real ladder from the newest two committed captures", () => {
   const dir = path.join(process.cwd(), "public/data/ufc/schedule");
-  const files = fs.readdirSync(dir).filter((f) => f.startsWith("capture-")).sort();
-  assert.ok(files.length >= 2, "two committed captures exist");
+  // P195: this regression is ABOUT UFC 330, so it selects the newest two captures THAT CONTAIN IT
+  // rather than the newest two on disk. Once the schedule rolled to the next event the newest capture
+  // stopped carrying 330 at all — the same trap the Bank Builder regressions hit, where a test about
+  // a specific past state was reading whatever the product happens to be doing today.
+  const EVENT = "600059185";
+  const all = fs.readdirSync(dir).filter((f) => f.startsWith("capture-")).sort();
+  const files = all.filter((f) => {
+    try { return (JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).bouts ?? []).some((b) => b.eventProviderId === EVENT); }
+    catch { return false; }
+  });
+  assert.ok(files.length >= 2, "two committed captures carry UFC 330");
   const prev = JSON.parse(fs.readFileSync(path.join(dir, files[files.length - 2]), "utf8"));
   const next = JSON.parse(fs.readFileSync(path.join(dir, files[files.length - 1]), "utf8"));
-  const bouts330 = (next.bouts ?? []).filter((b) => b.eventProviderId === "600059185");
+  const bouts330 = (next.bouts ?? []).filter((b) => b.eventProviderId === EVENT);
   assert.equal(bouts330.length, 12, "UFC 330 carries twelve bouts in the newest capture");
   const nowIso = next.generatedAt; // run AT the capture instant: fresh by construction, pre-event
   const states = {};

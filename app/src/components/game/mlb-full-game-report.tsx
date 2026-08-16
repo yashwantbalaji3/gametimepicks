@@ -10,6 +10,7 @@
  */
 
 import { useId, useState, type ReactNode } from "react";
+import HeadToHead from "@/components/ui/head-to-head";
 import PlayerAvatar from "@/components/player-avatar";
 import { PlayerCard } from "@/components/entity";
 import SimulationStory from "@/components/entity/simulation-story";
@@ -91,49 +92,6 @@ function MiniHistogram({ bins, accent = "var(--vault-gold)", label }: { bins: { 
           <span key={b.value}>{b.label}</span>
         ))}
       </div>
-    </div>
-  );
-}
-
-/**
- * THE PREDICTED SCORE, for a sport that has no separate prediction layer yet.
- *
- * Every simulation must answer "what is the score going to be" at the top — a reader should not have
- * to assemble it from a list of most-likely finals. This renders that one line from the same
- * simulated games everything else on the page comes from.
- *
- * It uses the MEAN of each team's simulated points, rounded. The mode was the tempting alternative
- * because it varies game to game (20-17 here, 17-20 there) and therefore LOOKS like the model is
- * separating teams — but with no team differentiation applied that variation is Monte Carlo noise,
- * and a number that looks differentiated while being noise is worse than one that is honestly flat.
- * The sub-line says so rather than leaving a reader to infer it.
- */
-function ProjectedScoreHero({ g, awayCode, homeCode }: { g: FullGameSimGame; awayCode: string; homeCode: string }) {
-  if (!g.runs || !g.winProbability) return null;
-  const V = g.vocabulary ?? BASEBALL_VOCAB;
-  const away = Math.round(g.runs.away.mean);
-  const home = Math.round(g.runs.home.mean);
-  const lead = Math.max(g.winProbability.away, g.winProbability.home);
-  const leader = g.winProbability.home >= g.winProbability.away ? homeCode : awayCode;
-  const undifferentiated = Math.abs(away - home) <= 1 && lead < 0.55;
-  return (
-    <div className="rounded-[14px] px-4 py-4 flex flex-col gap-2" style={{ border: "1px solid var(--vault-gold)", background: "linear-gradient(180deg, rgba(217,164,65,0.07), rgba(217,164,65,0.02))" }}>
-      <div className="flex items-baseline justify-between gap-2 flex-wrap">
-        <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>Projected score</span>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
-          from {g.runCount.toLocaleString()} simulated games · not validated to out-predict the market
-        </span>
-      </div>
-      <div className="font-display" style={{ color: "var(--vault-text)", fontSize: 30, fontWeight: 800, lineHeight: 1.05 }}>
-        {awayCode} {away} – {home} {homeCode}
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        <StatTile label="Win probability" value={`${leader} ${Math.round(lead * 100)}%`} sub={`${awayCode} ${Math.round(g.winProbability.away * 100)}% · ${homeCode} ${Math.round(g.winProbability.home * 100)}%`} />
-        <StatTile label={`Projected total ${V.scoreUnit}`} value={away + home} sub={g.totalRuns ? `p10–p90 ${g.totalRuns.p10}–${g.totalRuns.p90}` : undefined} />
-      </div>
-      <p className="font-mono m-0" style={{ fontSize: 9.5, color: "var(--vault-text-faint)", lineHeight: 1.5 }}>
-        Mean simulated {V.scoreUnit} for each side, rounded.{undifferentiated ? " These two teams project level because nothing in the model separates them: no team-strength rating and no home-field advantage are applied, and the measured preseason home edge is −0.01 points. A projected score that differed game to game here would be simulation noise dressed up as a read." : ""}
-      </p>
     </div>
   );
 }
@@ -269,16 +227,59 @@ function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame
   );
 }
 
-function Overview({ g, prediction, awayCode, homeCode }: { g: FullGameSimGame; prediction: GamePredictionDecision | null; awayCode: string; homeCode: string }) {
+function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo }: { g: FullGameSimGame; prediction: GamePredictionDecision | null; awayCode: string; homeCode: string; awayLogo?: string | null; homeLogo?: string | null }) {
   const V = g.vocabulary ?? BASEBALL_VOCAB;
   if (!g.winProbability || !g.runs || !g.totalRuns) return null;
   const rl15 = g.runLine.find((r) => r.line === 1.5);
   const favHomeRL = (rl15?.homeCover ?? 0) >= (rl15?.awayCover ?? 0);
   return (
     <div className="flex flex-col gap-4">
+      {/* HEAD-TO-HEAD FIRST (P195) — the same side-by-side the fight card uses, so a reader gets the
+          two teams, the verdict and the handful of numbers that decide it before any prose. The
+          component is sport-agnostic, so MLB and NFL open identically instead of each inventing a
+          layout. */}
+      {g.winProbability && g.runs ? (
+        <HeadToHead
+          accent={(g.vocabulary ?? BASEBALL_VOCAB).scoreUnit === "points" ? "var(--sport-nfl)" : "var(--sport-mlb)"}
+          portraitSize={64}
+          left={{ name: g.awayTeamName || awayCode, imageUrl: awayLogo ?? null, favoured: g.winProbability.away > g.winProbability.home }}
+          right={{ name: g.homeTeamName || homeCode, imageUrl: homeLogo ?? null, favoured: g.winProbability.home >= g.winProbability.away }}
+          verdict={{
+            label: "Projected score",
+            value: `${awayCode} ${Math.round(g.runs.away.mean)} – ${Math.round(g.runs.home.mean)} ${homeCode}`,
+            sub: `${g.winProbability.home >= g.winProbability.away ? homeCode : awayCode} ${Math.round(Math.max(g.winProbability.away, g.winProbability.home) * 100)}% · from ${g.runCount.toLocaleString()} simulated games`,
+          }}
+          rows={[
+            { label: "Win chance",
+              left: `${Math.round(g.winProbability.away * 100)}%`,
+              right: `${Math.round(g.winProbability.home * 100)}%`,
+              better: g.winProbability.away > g.winProbability.home ? "left" : g.winProbability.home > g.winProbability.away ? "right" : null },
+            { label: `Projected ${(g.vocabulary ?? BASEBALL_VOCAB).scoreUnit}`,
+              left: one(g.runs.away.mean), right: one(g.runs.home.mean),
+              better: g.runs.away.mean > g.runs.home.mean ? "left" : g.runs.home.mean > g.runs.away.mean ? "right" : null },
+            { label: "Likely range",
+              left: `${g.runs.away.p10}–${g.runs.away.p90}`, right: `${g.runs.home.p10}–${g.runs.home.p90}` },
+            ...(g.market?.moneyline?.away != null && g.market?.moneyline?.home != null ? [{
+              label: "Sportsbook",
+              left: `${Math.round(g.market.moneyline.away * 100)}%`,
+              right: `${Math.round(g.market.moneyline.home * 100)}%`,
+              better: null,
+            }] : []),
+          ]}
+          note={
+            Math.abs(g.runs.away.mean - g.runs.home.mean) <= 1 && Math.max(g.winProbability.away, g.winProbability.home) < 0.55
+              ? "These two project level: no team-strength rating and no home-field advantage are applied, so a score that differed here would be simulation noise rather than a read."
+              : g.gameStory?.[0] ?? null
+          }
+        />
+      ) : null}
+
       {/* PREDICTION FIRST — the direct answers, before any probability evidence. */}
-      {prediction ? <PredictionHero p={prediction} runCount={g.runCount} spreadLabel={(g.vocabulary ?? BASEBALL_VOCAB).spreadLabel} />
-        : <ProjectedScoreHero g={g} awayCode={awayCode} homeCode={homeCode} />}
+      {/* P195: the standalone ProjectedScoreHero was removed here — the head-to-head above already
+          delivers the projected score, the win probability and the total, so the hero repeated the
+          same three numbers directly beneath itself. The honest "these teams project level" note it
+          carried now rides on the head-to-head. */}
+      {prediction ? <PredictionHero p={prediction} runCount={g.runCount} spreadLabel={(g.vocabulary ?? BASEBALL_VOCAB).spreadLabel} /> : null}
 
       {/* Everything below is EVIDENCE for the prediction above. */}
       <div className="flex items-center gap-2 mt-1">
@@ -528,9 +529,14 @@ export default function MlbFullGameReport({
   marketNode,
   awayCode,
   homeCode,
+  awayLogo,
+  homeLogo,
 }: {
   fullGame: FullGameSimGame;
   meta: FullGameArtifactMeta | null;
+  /** Team crests, so the head-to-head opens with the same identity the hub cards use. */
+  awayLogo?: string | null;
+  homeLogo?: string | null;
   prediction: GamePredictionDecision | null;
   deepDive: ReactNode;
   /**
@@ -598,7 +604,7 @@ export default function MlbFullGameReport({
 
       {/* Panels */}
       <div role="tabpanel">
-        {tab === "overview" && (available ? <Overview g={g} prediction={prediction} awayCode={awayCode} homeCode={homeCode} /> : <UnavailableNote g={g} />)}
+        {tab === "overview" && (available ? <Overview g={g} prediction={prediction} awayCode={awayCode} homeCode={homeCode} awayLogo={awayLogo} homeLogo={homeLogo} /> : <UnavailableNote g={g} />)}
         {tab === "box" && (available ? <BoxScore g={g} /> : <UnavailableNote g={g} />)}
         {tab === "market" && <div>{marketNode}</div>}
         {tab === "players" && <div>{deepDive}</div>}
