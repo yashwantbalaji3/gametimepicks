@@ -66,7 +66,7 @@ export default function MlbResultsPage() {
           paper-card record. The two are never combined. */}
       <div
         className="mb-6 rounded-[8px] px-4 py-3 flex flex-col gap-1"
-        style={{ background: "rgba(242,54,69,0.06)", border: "1px solid var(--vault-rule)" }}
+        style={{ background: "rgba(52, 211, 153, 0.06)", border: "1px solid var(--vault-rule)" }}
       >
         <span
           className="font-mono uppercase tracking-[0.14em]"
@@ -222,7 +222,7 @@ export default function MlbResultsPage() {
           <details
             className="group"
             style={{
-              background: "rgba(26, 16, 11,0.40)",
+              background: "rgba(11, 18, 14,0.40)",
               border: "1px dashed var(--vault-border)",
               borderRadius: 8,
               padding: "10px 14px",
@@ -310,7 +310,7 @@ export default function MlbResultsPage() {
         <div
           className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
           style={{
-            background: "rgba(26, 16, 11, 0.45)",
+            background: "rgba(11, 18, 14, 0.45)",
             border: "1px solid var(--vault-border)",
             color: "var(--vault-text-mute)",
           }}
@@ -342,7 +342,7 @@ export default function MlbResultsPage() {
         <div
           className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
           style={{
-            background: "rgba(26, 16, 11, 0.45)",
+            background: "rgba(11, 18, 14, 0.45)",
             border: "1px solid var(--vault-border)",
             color: "var(--vault-text-mute)",
           }}
@@ -484,7 +484,7 @@ function CallList({
     <div
       className="rounded-[6px]"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >

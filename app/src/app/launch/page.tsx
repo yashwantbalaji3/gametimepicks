@@ -268,7 +268,7 @@ export default function LaunchCommandCenter() {
                   { href: "#queues", label: "Founder queue", value: `${workBoard.founderQueue.length} waiting on founder`, bad: false },
                   { href: "#watches", label: "Next observation", value: watches[0] ? `${watches[0].sport.toUpperCase()} · ${watches[0].due ? "due now" : `${watches[0].hoursUntil}h`}` : "none", bad: false },
                 ].map((t) => (
-                  <a key={t.label} href={t.href} style={{ display: "block", padding: "10px 12px", borderRadius: 10, textDecoration: "none", border: `1px solid ${t.bad ? "var(--vault-danger-dim, rgba(242,54,69,0.4))" : "var(--vault-border)"}`, background: "var(--vault-panel)" }}>
+                  <a key={t.label} href={t.href} style={{ display: "block", padding: "10px 12px", borderRadius: 10, textDecoration: "none", border: `1px solid ${t.bad ? "var(--vault-danger-dim, rgba(248, 113, 113, 0.4))" : "var(--vault-border)"}`, background: "var(--vault-panel)" }}>
                     <span style={{ display: "block", fontSize: 9.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{t.label}</span>
                     <span style={{ display: "block", marginTop: 4, fontSize: 12.5, fontWeight: 600, color: t.bad ? "var(--vault-danger)" : "var(--vault-text)" }}>{t.value}</span>
                   </a>

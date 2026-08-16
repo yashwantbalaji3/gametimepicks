@@ -135,7 +135,7 @@ export default function ClimbHero({
       {/* 1 · Plain-English explainer + paper-only badge */}
       <div
         className="relative overflow-hidden rounded-2xl px-5 py-5 sm:px-6"
-        style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(242,54,69,0.08), rgba(26,16,11,0.25))" }}
+        style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(11, 18, 14,0.25))" }}
       >
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <Chip label="Paper-only · educational" color="var(--vault-gold-bright)" />
@@ -177,7 +177,7 @@ export default function ClimbHero({
             <div
               key={label}
               className="relative flex flex-col gap-1 overflow-hidden rounded-[10px] px-3 py-2.5 min-w-0"
-              style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}
+              style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}
             >
               <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ background: accent }} />
               <span className="font-mono uppercase tracking-[0.12em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
@@ -223,7 +223,7 @@ export default function ClimbHero({
       {completedLadders.length > 0 ? (
         <div
           className="mt-4 rounded-2xl px-5 py-4"
-          style={{ border: "1px solid rgba(110,231,168,0.30)", background: "linear-gradient(135deg, rgba(110,231,168,0.07), rgba(26,16,11,0.25))" }}
+          style={{ border: "1px solid rgba(110,231,168,0.30)", background: "linear-gradient(135deg, rgba(110,231,168,0.07), rgba(11, 18, 14,0.25))" }}
         >
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <span className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-success)" }}>Completed ladders</span>

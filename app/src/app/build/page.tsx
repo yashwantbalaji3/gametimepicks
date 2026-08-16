@@ -55,7 +55,7 @@ export default function BuildPage() {
       {pool.length > 0 ? (
         <BuildExperience pool={pool} productDate={currentEtDate()} />
       ) : (
-        <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No eligible legs right now</p>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
             Legs appear here only when a real projection clears the suggested-card gates. Check back closer to game time.
@@ -91,7 +91,7 @@ export default function BuildPage() {
         {suggestedCards.length > 0 ? (
           <PicksExperience cards={suggestedCards} />
         ) : (
-          <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+          <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
             <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No suggested cards for today</p>
             <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
               The slate was assessed and nothing cleared the card gates. That is the model&rsquo;s answer for

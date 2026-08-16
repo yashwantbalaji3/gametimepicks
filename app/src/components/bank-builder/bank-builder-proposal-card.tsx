@@ -21,7 +21,7 @@ const LEG_STATUS: Record<string, { label: string; tone: string }> = {
 function LaneCard({ lane }: { lane: ProposalLane }) {
   // Neutral, identical styling for both lanes — Bank Builder has no survival/value risk modes.
   return (
-    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(26,16,11,0.5)", borderLeft: "2px solid var(--vault-gold)" }}>
+    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(11, 18, 14,0.5)", borderLeft: "2px solid var(--vault-gold)" }}>
       <div className="px-4 py-3 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
         <div className="flex items-center justify-between gap-2">
           <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{lane.label}</span>
@@ -77,7 +77,7 @@ function LaneCard({ lane }: { lane: ProposalLane }) {
 export default function BankBuilderProposalCard({ proposal }: { proposal: BankBuilderProposal }) {
   if (!proposal.available || !proposal.lanes.length) return null;
   return (
-    <div className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(26,16,11,0.45)", border: "1px solid var(--vault-gold)", borderLeft: "3px solid var(--vault-gold-bright)" }}>
+    <div className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.45)", border: "1px solid var(--vault-gold)", borderLeft: "3px solid var(--vault-gold-bright)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{proposal.approved ? "Active daily Bank Builder" : "Fresh daily Bank Builder"}</span>
         <span className="rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 8.5, color: proposal.approved ? "var(--vault-success)" : "var(--vault-gold-bright)", background: proposal.approved ? "rgba(110,231,168,0.12)" : "rgba(217,164,65,0.12)", border: `1px solid color-mix(in srgb, ${proposal.approved ? "var(--vault-success)" : "var(--vault-gold-bright)"} 40%, transparent)` }}>{proposal.approved ? "active paper ladder" : "proposal"} · {proposal.date}</span>

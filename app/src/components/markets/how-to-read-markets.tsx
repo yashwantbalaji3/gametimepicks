@@ -79,7 +79,7 @@ export default function HowToReadMarkets() {
   return (
     <details
       className="rounded-xl"
-      style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.45)" }}
+      style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.45)" }}
     >
       <summary
         className="font-mono uppercase tracking-[0.14em] cursor-pointer px-4 py-3"

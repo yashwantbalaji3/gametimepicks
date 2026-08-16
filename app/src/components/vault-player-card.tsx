@@ -580,7 +580,7 @@ function MarketRowView({ row }: { row: MarketRow }) {
               style={{
                 color: "var(--vault-warn)",
                 background: "var(--vault-warn-dim)",
-                border: "1px solid rgba(242, 54, 69, 0.30)",
+                border: "1px solid rgba(52, 211, 153, 0.30)",
               }}
             >
               {riskFlagLabel(flag)}
@@ -695,7 +695,7 @@ function ProjectionLineRow({
         : "var(--vault-text-mute)";
   const edgeGlow = !edgeIsFinite || suspicious || dampedEdge
     ? "none"
-    : "0 0 14px rgba(242, 54, 69, 0.30)";
+    : "0 0 14px rgba(52, 211, 153, 0.30)";
 
   return (
     <div>
@@ -783,7 +783,7 @@ function ScoreboardTile({
     <div
       className="rounded-[5px] px-2.5 py-2 flex flex-col items-start justify-center"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-border)",
         minHeight: 56,
       }}
@@ -801,7 +801,7 @@ function ScoreboardTile({
           fontSize: "clamp(20px, 3vw, 26px)",
           lineHeight: 1.05,
           textShadow: glow
-            ? "0 0 12px rgba(242, 54, 69, 0.35)"
+            ? "0 0 12px rgba(52, 211, 153, 0.35)"
             : "none",
         }}
       >
@@ -981,7 +981,7 @@ function EdgeTag({
         style={{
           color: "var(--vault-warn)",
           background: "var(--vault-warn-dim)",
-          border: "1px solid rgba(242, 54, 69, 0.30)",
+          border: "1px solid rgba(52, 211, 153, 0.30)",
         }}
         title="Edge above 25% — visually capped because the model flagged this as an anomaly."
       >

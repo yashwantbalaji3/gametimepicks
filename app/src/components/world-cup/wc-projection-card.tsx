@@ -59,7 +59,7 @@ function MarketRow({ p }: { p: WcProjection }) {
               key={o.side}
               className="rounded-[5px] px-1.5 py-1.5 flex flex-col items-center gap-0.5"
               style={{
-                background: isTop ? "rgba(242, 54, 69,0.08)" : "rgba(0,0,0,0.25)",
+                background: isTop ? "rgba(52, 211, 153, 0.08)" : "rgba(0,0,0,0.25)",
                 border: `1px solid ${isTop ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
               }}
             >
@@ -103,7 +103,7 @@ export default function WcProjectionCard({
   return (
     <article
       className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
-      style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>

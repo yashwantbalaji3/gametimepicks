@@ -304,7 +304,7 @@ export default function TeamGameProjectionCard({ projection }: Props) {
         <div
           className="mt-3 rounded-[6px] px-3 py-2"
           style={{
-            background: "rgba(26, 16, 11, 0.45)",
+            background: "rgba(11, 18, 14, 0.45)",
             border: "1px solid var(--vault-border)",
           }}
         >
@@ -389,9 +389,9 @@ function TeamSide({
     <div
       className="flex flex-col gap-1.5 rounded-[8px] px-3 py-3"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: favored && !partial
-          ? "1px solid rgba(242, 54, 69, 0.40)"
+          ? "1px solid rgba(52, 211, 153, 0.40)"
           : "1px solid var(--vault-border)",
       }}
     >
@@ -427,7 +427,7 @@ function TeamSide({
                 className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
                 style={{
                   background: "var(--vault-gold-bright)",
-                  boxShadow: "0 0 6px rgba(242, 54, 69, 0.6)",
+                  boxShadow: "0 0 6px rgba(52, 211, 153, 0.6)",
                 }}
               />
             )}
@@ -485,7 +485,7 @@ function MarketCell({
     <div
       className="rounded-[6px] px-3 py-2.5"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >

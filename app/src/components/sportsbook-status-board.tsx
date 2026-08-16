@@ -87,7 +87,7 @@ export default function SportsbookStatusBoard({
             className={`inline-block w-2 h-2 rounded-full ${steady ? "" : "gtp-neon-pulse"}`}
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 10px rgba(242, 54, 69, 0.7)",
+              boxShadow: "0 0 10px rgba(52, 211, 153, 0.7)",
             }}
           />
           <span

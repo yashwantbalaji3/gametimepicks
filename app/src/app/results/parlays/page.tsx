@@ -61,7 +61,7 @@ export default function ResultsParlaysPage() {
                 ? "var(--vault-gold-bright)"
                 : "var(--vault-text-faint)",
               boxShadow: hasGradedHistory
-                ? "0 0 8px rgba(242, 54, 69, 0.5)"
+                ? "0 0 8px rgba(52, 211, 153, 0.5)"
                 : "none",
             }}
           />
@@ -81,7 +81,7 @@ export default function ResultsParlaysPage() {
                 color: "var(--vault-gold-bright)",
                 fontSize: "clamp(48px, 10vw, 96px)",
                 textShadow:
-                  "0 0 24px rgba(242, 54, 69, 0.45), 0 0 8px rgba(242, 54, 69, 0.55)",
+                  "0 0 24px rgba(52, 211, 153, 0.45), 0 0 8px rgba(52, 211, 153, 0.55)",
               }}
             >
               {((lifetime!.hitRate as number) * 100).toFixed(1)}%
@@ -143,7 +143,7 @@ export default function ResultsParlaysPage() {
         <section
           className="mt-8 rounded-[6px] px-4 py-4"
           style={{
-            background: "rgba(26, 16, 11, 0.45)",
+            background: "rgba(11, 18, 14, 0.45)",
             border: "1px solid var(--vault-border)",
           }}
         >
@@ -153,7 +153,7 @@ export default function ResultsParlaysPage() {
               className="inline-block w-1.5 h-1.5 rounded-full"
               style={{
                 background: "var(--vault-warn)",
-                boxShadow: "0 0 6px rgba(242, 54, 69, 0.55)",
+                boxShadow: "0 0 6px rgba(52, 211, 153, 0.55)",
               }}
             />
             <span
@@ -207,7 +207,7 @@ export default function ResultsParlaysPage() {
         <section
           className="mt-10 rounded-[8px] px-5 py-5"
           style={{
-            background: "rgba(26, 16, 11,0.55)",
+            background: "rgba(11, 18, 14,0.55)",
             border: "1px solid var(--vault-border)",
           }}
         >
@@ -254,7 +254,7 @@ export default function ResultsParlaysPage() {
                 key={d.date}
                 className="rounded-[5px] px-3 py-2.5"
                 style={{
-                  background: "rgba(26, 16, 11,0.55)",
+                  background: "rgba(11, 18, 14,0.55)",
                   border: "1px solid var(--vault-border)",
                 }}
               >

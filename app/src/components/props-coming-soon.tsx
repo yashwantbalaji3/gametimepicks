@@ -32,7 +32,7 @@ export default function PropsComingSoon({ gameCount, gameLabels }: Props) {
         background:
           "linear-gradient(180deg, var(--vault-panel) 0%, var(--vault-panel-elevated) 100%)",
         border: "1px solid var(--vault-border-strong)",
-        boxShadow: "0 0 60px rgba(242, 54, 69, 0.04)",
+        boxShadow: "0 0 60px rgba(52, 211, 153, 0.04)",
       }}
     >
       {/* Faint grid texture */}
@@ -50,7 +50,7 @@ export default function PropsComingSoon({ gameCount, gameLabels }: Props) {
         className="absolute inset-0 -z-10 pointer-events-none opacity-50"
         style={{
           background:
-            "radial-gradient(circle at 30% 20%, rgba(242, 54, 69, 0.10), transparent 55%)",
+            "radial-gradient(circle at 30% 20%, rgba(52, 211, 153, 0.10), transparent 55%)",
         }}
         aria-hidden
       />

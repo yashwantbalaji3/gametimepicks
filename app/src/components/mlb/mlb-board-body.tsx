@@ -228,7 +228,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
               <div
                 className="rounded-[6px] px-4 py-4 text-[13px]"
                 style={{
-                  background: "rgba(26, 16, 11, 0.5)",
+                  background: "rgba(11, 18, 14, 0.5)",
                   border: "1px solid var(--vault-border)",
                   color: "var(--vault-text-mute)",
                 }}
@@ -286,7 +286,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                     style={{
                       padding: "12px 14px",
                       border: "1px solid var(--vault-border)",
-                      background: "rgba(26, 16, 11, 0.45)",
+                      background: "rgba(11, 18, 14, 0.45)",
                     }}
                   >
                     <div
@@ -376,7 +376,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                 className="inline-block w-2 h-2 rounded-full"
                 style={{
                   background: "var(--vault-warn)",
-                  boxShadow: "0 0 10px rgba(242, 54, 69, 0.55)",
+                  boxShadow: "0 0 10px rgba(52, 211, 153, 0.55)",
                 }}
               />
               <span
@@ -415,7 +415,7 @@ function OffDayPanel() {
       <div
         className="rounded-[6px] px-5 py-6 text-[13px] leading-relaxed"
         style={{
-          background: "rgba(26, 16, 11, 0.55)",
+          background: "rgba(11, 18, 14, 0.55)",
           border: "1px solid var(--vault-border)",
           color: "var(--vault-text-mute)",
         }}

@@ -40,7 +40,7 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
   const winnerFreq = p?.moneyline ? frequency(p.moneyline.simulationProbability, g.runCount) : null;
 
   return (
-    <article className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
+    <article className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
       {/* ── Identity ── */}
       <GameHeader
         homeName={g.homeTeamName}

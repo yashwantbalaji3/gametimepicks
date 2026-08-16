@@ -74,7 +74,7 @@ export default function UfcArchivePage() {
           </h1>
           <span
             className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
-            style={{ color: "var(--vault-gold)", border: "1px solid var(--vault-gold)", background: "rgba(217,164,65,0.08)" }}
+            style={{ color: "var(--sport-ufc)", border: "1px solid var(--sport-ufc)", background: "rgba(217,164,65,0.08)" }}
           >
             Predictions · experimental
           </span>
@@ -123,7 +123,7 @@ export default function UfcArchivePage() {
           </h2>
           <span
             className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
-            style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.5)" }}
+            style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.5)" }}
           >
             Archive · no live coverage
           </span>
@@ -137,7 +137,7 @@ export default function UfcArchivePage() {
           </p>
         </section>
       ) : (
-        <section className="rounded-[10px] px-4 py-5 font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.45)" }}>
+        <section className="rounded-[10px] px-4 py-5 font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.45)" }}>
           No officially settled UFC record is available. Nothing renders here until an official settlement exists.
         </section>
       )}

@@ -19,7 +19,7 @@ function Row({
   return (
     <div
       className="flex items-center justify-between gap-3 rounded-[6px] px-3 py-2.5"
-      style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex flex-col min-w-0">
         <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{label}</span>

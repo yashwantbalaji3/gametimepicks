@@ -171,7 +171,7 @@ function ModelMarketCard({ r }: { r: MlbLeanRow }) {
   return (
     <div
       className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-start justify-between gap-2">
         <LeanHeadline r={r} />
@@ -231,7 +231,7 @@ function BiggestLeanCard({ r, rank }: { r: MlbLeanRow; rank: number }) {
   return (
     <div
       className="flex flex-col gap-1.5 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-baseline gap-2 min-w-0">
@@ -326,7 +326,7 @@ function RecentFormCard({ r }: { r: MlbLeanRow }) {
   return (
     <div
       className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(26, 16, 11,0.6)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <LeanHeadline r={r} />
@@ -403,7 +403,7 @@ export default function MlbGameLabReport({ view }: { view: MlbGameLabView }) {
         style={{
           border: "1px solid var(--vault-border-strong)",
           background:
-            "radial-gradient(120% 150% at 0% 0%, rgba(242, 54, 69,0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(26, 16, 11,0.97) 100%)",
+            "radial-gradient(120% 150% at 0% 0%, rgba(52, 211, 153, 0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(11, 18, 14,0.97) 100%)",
         }}
       >
         <div className="flex flex-wrap items-center gap-2">
@@ -559,7 +559,7 @@ export default function MlbGameLabReport({ view }: { view: MlbGameLabView }) {
               href={p.href}
               className="flex flex-col gap-1 rounded-[12px] px-3.5 py-3"
               style={{
-                background: "rgba(26, 16, 11,0.6)",
+                background: "rgba(11, 18, 14,0.6)",
                 border: "1px solid var(--vault-border)",
                 textDecoration: "none",
               }}

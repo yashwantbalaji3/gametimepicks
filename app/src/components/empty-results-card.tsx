@@ -33,7 +33,7 @@ export default function EmptyResultsCard({ latestScoredDate }: Props) {
             className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
+              boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
             }}
           />
           <span
@@ -132,7 +132,7 @@ export default function EmptyResultsCard({ latestScoredDate }: Props) {
             background: "var(--vault-gold)",
             color: "#0A0705",
             boxShadow:
-              "0 0 0 1px rgba(242, 54, 69, 0.45), 0 10px 24px -12px rgba(242, 54, 69, 0.35)",
+              "0 0 0 1px rgba(52, 211, 153, 0.45), 0 10px 24px -12px rgba(52, 211, 153, 0.35)",
           }}
         >
           View the live model board
@@ -173,7 +173,7 @@ function TimelineStep({
     <li
       className="relative px-3.5 py-3.5 rounded-[6px]"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -185,7 +185,7 @@ function TimelineStep({
             background: "var(--vault-gold-dim)",
             border: "1px solid var(--vault-border-strong)",
             color: "var(--vault-gold-bright)",
-            boxShadow: "0 0 10px -3px rgba(242, 54, 69, 0.35)",
+            boxShadow: "0 0 10px -3px rgba(52, 211, 153, 0.35)",
           }}
         >
           {n}
@@ -212,7 +212,7 @@ function PreviewCell({ title, body }: { title: string; body: string }) {
     <div
       className="px-4 py-4 rounded-[6px]"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >

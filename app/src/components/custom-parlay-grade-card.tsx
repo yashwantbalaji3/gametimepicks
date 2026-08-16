@@ -35,7 +35,7 @@ interface Props {
 
 const _GRADE_TONE: Record<CustomParlayGrade["grade"], { fg: string; bg: string; border: string }> = {
   A: { fg: "var(--vault-success)", bg: "var(--vault-success-dim)", border: "rgba(80, 180, 120, 0.40)" },
-  B: { fg: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)", border: "rgba(242, 54, 69, 0.40)" },
+  B: { fg: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)", border: "rgba(52, 211, 153, 0.40)" },
   C: { fg: "var(--vault-text)", bg: "rgba(120, 120, 120, 0.10)", border: "var(--vault-rule)" },
   D: { fg: "var(--vault-warn)", bg: "var(--vault-warn-dim)", border: "rgba(220, 150, 60, 0.45)" },
   F: { fg: "var(--vault-danger)", bg: "var(--vault-danger-dim)", border: "rgba(240, 138, 138, 0.45)" },

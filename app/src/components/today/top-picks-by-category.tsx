@@ -38,11 +38,11 @@ export default function TodayTopPicksByCategory({ categories }: { categories: Ca
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {categories.map((c) => (
-          <div key={c.market} className="rounded-[12px] px-3 py-3 flex flex-col gap-2" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
+          <div key={c.market} className="rounded-[12px] px-3 py-3 flex flex-col gap-2" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
             <span className="flex items-center gap-2 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-mute)", fontSize: 9.5 }}>
               {c.label}
               {c.calibrationFailed ? (
-                <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(242,54,69,0.12)", color: "var(--vault-text-faint)", fontSize: 8 }}>settled record: model behind market</span>
+                <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(52, 211, 153, 0.12)", color: "var(--vault-text-faint)", fontSize: 8 }}>settled record: model behind market</span>
               ) : null}
             </span>
             <div className="flex flex-col gap-1.5">

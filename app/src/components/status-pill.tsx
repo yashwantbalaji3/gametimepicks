@@ -69,8 +69,8 @@ const KIND_COLOR: Record<
   // settled = authoritative. Crisp gold treatment, no animation.
   settled: {
     fg: "var(--vault-gold-bright)",
-    bg: "rgba(242, 54, 69, 0.12)",
-    border: "rgba(242, 54, 69, 0.42)",
+    bg: "rgba(52, 211, 153, 0.12)",
+    border: "rgba(52, 211, 153, 0.42)",
     dot: "var(--vault-gold-bright)",
     pulse: false,
   },

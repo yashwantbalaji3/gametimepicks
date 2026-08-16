@@ -48,7 +48,7 @@ function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer
     <Link
       href={s.href}
       className="vault-glow-hover vault-press flex flex-col gap-2.5 rounded-[12px] px-3.5 py-3.5"
-      style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none", minHeight: 44 }}
+      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none", minHeight: 44 }}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="flex min-w-0 items-center gap-2">

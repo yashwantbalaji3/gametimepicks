@@ -111,7 +111,7 @@ export default function ProjectionsExperience({
       <section
         className="rounded-[8px] px-5 py-5"
         style={{
-          background: "rgba(26, 16, 11,0.55)",
+          background: "rgba(11, 18, 14,0.55)",
           border: "1px solid var(--vault-border)",
         }}
       >
@@ -239,7 +239,7 @@ function SportNav({
             aria-pressed={active}
             className="inline-flex items-center gap-2 px-3 py-2 rounded-full"
             style={{
-              background: active ? "var(--vault-gold-bright)" : "rgba(26, 16, 11,0.55)",
+              background: active ? "var(--vault-gold-bright)" : "rgba(11, 18, 14,0.55)",
               border: active
                 ? "1px solid var(--vault-gold-bright)"
                 : "1px solid var(--vault-border)",
@@ -291,7 +291,7 @@ function GameCardGroups({
       <section
         className="rounded-[8px] p-5"
         style={{
-          background: "rgba(26, 16, 11,0.55)",
+          background: "rgba(11, 18, 14,0.55)",
           border: "1px dashed var(--vault-border)",
         }}
       >
@@ -469,7 +469,7 @@ function SlateModeNote({
     <aside
       className="rounded-[8px] px-3.5 py-2.5 text-[12px] leading-snug"
       style={{
-        background: "rgba(26, 16, 11,0.55)",
+        background: "rgba(11, 18, 14,0.55)",
         border: "1px solid var(--vault-border)",
         color: "var(--vault-text-mute)",
       }}
@@ -685,7 +685,7 @@ function MarketChip({ label, value }: { label: string; value: string }) {
     <span
       className="inline-flex items-baseline gap-1.5 px-2 py-1 rounded-[5px]"
       style={{
-        background: "rgba(26, 16, 11,0.55)",
+        background: "rgba(11, 18, 14,0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -745,7 +745,7 @@ function GameDetailView({
         className="rounded-[10px] px-4 py-4 sm:px-5 sm:py-5"
         style={{
           background:
-            "linear-gradient(180deg, rgba(26,16,11,0.92) 0%, rgba(26, 16, 11,0.62) 100%)",
+            "linear-gradient(180deg, rgba(11, 18, 14,0.92) 0%, rgba(11, 18, 14,0.62) 100%)",
           border: "1px solid var(--vault-border)",
         }}
       >
@@ -940,7 +940,7 @@ function BigMarketCell({
     <div
       className="flex flex-col gap-0.5 rounded-[6px] px-2.5 py-1.5"
       style={{
-        background: "rgba(26, 16, 11,0.55)",
+        background: "rgba(11, 18, 14,0.55)",
         border: "1px solid var(--vault-border)",
         minWidth: 92,
       }}
@@ -1070,7 +1070,7 @@ function PlayerAccordionList({
       <div
         className="rounded-[8px] px-4 py-4 text-[13px]"
         style={{
-          background: "rgba(26, 16, 11,0.55)",
+          background: "rgba(11, 18, 14,0.55)",
           border: "1px solid var(--vault-border)",
           color: "var(--vault-text-mute)",
         }}
@@ -1254,7 +1254,7 @@ function PlayerMarketRow({ group }: { group: ProjectionsMarketGroup }) {
     <div
       className="gtp-proj-row grid grid-cols-[1fr_1fr_1fr_72px] gap-2 items-baseline px-2 py-1.5 rounded-[5px]"
       style={{
-        background: "rgba(26, 16, 11,0.55)",
+        background: "rgba(11, 18, 14,0.55)",
         border: "1px solid var(--vault-rule)",
       }}
     >

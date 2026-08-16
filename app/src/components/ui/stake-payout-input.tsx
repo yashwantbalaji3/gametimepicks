@@ -60,7 +60,7 @@ export default function StakePayoutInput({
               onChange={(e) => setRaw(e.target.value)}
               className="w-full rounded-[6px] px-2.5 py-1.5 font-display tabular"
               style={{
-                background: "rgba(26, 16, 11,0.7)",
+                background: "rgba(11, 18, 14,0.7)",
                 border: "1px solid var(--vault-rule)",
                 color: "var(--vault-text)",
                 fontSize: 16,

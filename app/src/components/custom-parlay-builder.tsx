@@ -273,7 +273,7 @@ function EvaluationCard({
   );
   return (
     <article
-      className="rounded-md border border-[color:var(--vault-divider)] bg-[color:var(--vault-surface-1,rgba(26, 16, 11,0.45))] p-3 flex flex-col gap-2"
+      className="rounded-md border border-[color:var(--vault-divider)] bg-[color:var(--vault-surface-1,rgba(11, 18, 14,0.45))] p-3 flex flex-col gap-2"
       aria-label="Custom evaluation"
     >
       <header className="flex items-center justify-between gap-2">

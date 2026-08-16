@@ -159,7 +159,7 @@ export default function BoardDateStatusBanner({
                 "linear-gradient(180deg, var(--vault-gold-bright), #d6a945)",
               padding: "7px 11px",
               borderRadius: 4,
-              boxShadow: "0 0 14px rgba(242, 54, 69, 0.30)",
+              boxShadow: "0 0 14px rgba(52, 211, 153, 0.30)",
             }}
           >
             View audit →
@@ -176,9 +176,9 @@ const STATE_CONFIG = {
   settled: {
     eyebrow: "Settled · graded against final box scores",
     fg: "var(--vault-gold-bright)",
-    bg: "linear-gradient(155deg, rgba(242, 54, 69, 0.12), rgba(242, 54, 69, 0.04))",
-    border: "rgba(242, 54, 69, 0.40)",
-    shadow: "0 6px 22px rgba(0, 0, 0, 0.30), 0 0 0 1px rgba(242, 54, 69, 0.10)",
+    bg: "linear-gradient(155deg, rgba(52, 211, 153, 0.12), rgba(52, 211, 153, 0.04))",
+    border: "rgba(52, 211, 153, 0.40)",
+    shadow: "0 6px 22px rgba(0, 0, 0, 0.30), 0 0 0 1px rgba(52, 211, 153, 0.10)",
   },
   // Live = energetic green with surrounding pulse glow (gtp-status-live-glow).
   live: {

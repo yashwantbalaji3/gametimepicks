@@ -31,7 +31,7 @@ function fmtShort(iso: string | null): string {
 const chipCls = "inline-flex items-center gap-1.5 rounded-full px-3 py-1 whitespace-nowrap";
 const chipStyle = (accent?: string): React.CSSProperties => ({
   border: `1px solid ${accent ? `color-mix(in srgb, ${accent} 45%, transparent)` : "var(--vault-rule)"}`,
-  background: "rgba(26, 16, 11,0.5)",
+  background: "rgba(11, 18, 14,0.5)",
   color: "var(--vault-text-mute)",
   fontSize: 12,
   textDecoration: "none",

@@ -18,7 +18,7 @@ export default function WcParlayCard({ card }: { card: Card }) {
   return (
     <article
       className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
-      style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-center justify-between gap-2">
         <span

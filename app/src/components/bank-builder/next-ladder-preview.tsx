@@ -30,7 +30,7 @@ export default function NextLadderPreview() {
   return (
     <section
       className="mt-5 overflow-hidden rounded-2xl px-5 py-5"
-      style={{ border: "1px dashed var(--vault-border)", background: "linear-gradient(135deg, rgba(217,164,65,0.05), rgba(26,16,11,0.20))" }}
+      style={{ border: "1px dashed var(--vault-border)", background: "linear-gradient(135deg, rgba(217,164,65,0.05), rgba(11, 18, 14,0.20))" }}
       aria-label="Next Ladder System — the 7-step lower-risk ladder (preview, not live)"
     >
       <div className="mb-2 flex flex-wrap items-center gap-2">

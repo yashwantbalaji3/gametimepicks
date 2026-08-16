@@ -40,7 +40,7 @@ export default function SportShell({ tabs }: { tabs: ShellTab[] }) {
       <nav
         aria-label="Sport sections"
         className="sticky top-0 z-20 -mx-4 sm:-mx-8 px-4 sm:px-8 py-2 mb-5 overflow-x-auto"
-        style={{ background: "rgba(26, 16, 11,0.92)", backdropFilter: "blur(8px)", borderBottom: "1px solid var(--vault-border)" }}
+        style={{ background: "rgba(11, 18, 14,0.92)", backdropFilter: "blur(8px)", borderBottom: "1px solid var(--vault-border)" }}
       >
         <div className="flex items-center gap-1.5 min-w-max" role="tablist">
           {tabs.map((t) => {

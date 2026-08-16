@@ -53,7 +53,7 @@ function ProductRow({ p, totalExposure }: { p: ProductAllocation; totalExposure:
     <Link
       href={p.href}
       className="vault-glow-hover vault-press rounded-[12px] px-3.5 py-3 flex flex-col gap-2 min-w-0"
-      style={{ background: "rgba(12,8,6,0.45)", border: "1px solid var(--vault-rule)", borderLeft: `2px solid ${p.accent}`, textDecoration: "none" }}
+      style={{ background: "rgba(7, 11, 9,0.45)", border: "1px solid var(--vault-rule)", borderLeft: `2px solid ${p.accent}`, textDecoration: "none" }}
     >
       <div className="flex items-center justify-between gap-2 min-w-0">
         <span className="flex items-center gap-2 min-w-0">

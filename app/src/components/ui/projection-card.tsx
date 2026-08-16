@@ -12,7 +12,7 @@ export default function ProjectionCard({ p, hideModel = false }: { p: PublicProj
   const edgePos = (p.edgePct ?? 0) >= 0;
   return (
     <article className="rounded-[8px] px-3.5 py-3 flex flex-col gap-2"
-             style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+             style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2 min-w-0">
         <span className="font-mono uppercase tracking-[0.1em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
           {p.sportLabel} · {p.marketLabel}

@@ -22,7 +22,7 @@ const dash = (s: string | null | undefined) => (s && String(s).trim() ? String(s
 
 const RUNG: Record<ClimbRung["status"], { label: string; color: string; ring: string; fill: string }> = {
   completed: { label: "Cleared", color: "var(--vault-success)", ring: "rgba(110,231,168,0.5)", fill: "rgba(110,231,168,0.12)" },
-  active:    { label: "You are here", color: "var(--gtp-bank-heat)", ring: "rgba(242,54,69,0.6)", fill: "var(--gtp-bank-heat-dim)" },
+  active:    { label: "You are here", color: "var(--gtp-bank-heat)", ring: "rgba(52, 211, 153, 0.6)", fill: "var(--gtp-bank-heat-dim)" },
   awaiting:  { label: "Awaiting", color: "var(--vault-gold-bright)", ring: "rgba(217,164,65,0.5)", fill: "rgba(217,164,65,0.10)" },
   upcoming:  { label: "Upcoming", color: "var(--vault-text-faint)", ring: "var(--vault-rule)", fill: "rgba(255,255,255,0.02)" },
   stopped:   { label: "Stopped", color: "var(--vault-text-faint)", ring: "var(--vault-rule)", fill: "rgba(255,255,255,0.02)" },
@@ -90,7 +90,7 @@ function RungRow({ rung, legs, isCurrent, isReview }: { rung: ClimbRung; legs: C
   const REVIEW = { label: "Review · Paper $0", color: "var(--vault-gold-bright)", ring: "rgba(217,164,65,0.55)", fill: "rgba(217,164,65,0.10)" };
   const m = isCurrent ? (isReview ? REVIEW : RUNG.active) : RUNG[rung.status];
   const isActive = isCurrent;
-  const glow = isReview ? "rgba(217,164,65,0.5)" : "rgba(242,54,69,0.5)";
+  const glow = isReview ? "rgba(217,164,65,0.5)" : "rgba(52, 211, 153, 0.5)";
   const isCleared = rung.status === "completed" && !isCurrent;
   return (
     <div className="relative flex gap-3 pb-3 last:pb-0">

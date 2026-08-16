@@ -206,7 +206,7 @@ export default function ModelPicksTable({ table }: { table: ModelPicksTable }) {
       {/* MOBILE: per-game cards, markets stacked, up to 3 picks per market — full names, no overflow */}
       <div className="lg:hidden flex flex-col gap-3">
         {table.rows.map((row) => (
-          <div key={row.gameId} className="rounded-[12px] overflow-hidden" style={{ border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.4)" }}>
+          <div key={row.gameId} className="rounded-[12px] overflow-hidden" style={{ border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.4)" }}>
             <div className="px-3 py-2.5 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
               <span className="flex items-center gap-1.5 min-w-0">
                 <MatchupFlags matchup={row.matchup} />

@@ -321,7 +321,7 @@ function CarouselHeader({
           boxShadow:
             source === "graded"
               ? "0 0 6px rgba(74, 222, 128, 0.45)"
-              : "0 0 6px rgba(242, 54, 69, 0.45)",
+              : "0 0 6px rgba(52, 211, 153, 0.45)",
         }}
       />
       <span
@@ -366,7 +366,7 @@ function SportTabs({
     <div
       className="inline-flex items-center gap-1 p-1 rounded-full"
       style={{
-        background: "rgba(26, 16, 11,0.55)",
+        background: "rgba(11, 18, 14,0.55)",
         border: "1px solid var(--vault-border)",
       }}
       role="tablist"
@@ -455,7 +455,7 @@ function EmptyCarouselCard({
       className="snap-start shrink-0 w-[88vw] sm:w-[420px] max-w-[420px] rounded-[6px] p-6 flex flex-col gap-2 justify-center items-center text-center"
       style={{
         border: "1px dashed var(--vault-border)",
-        background: "rgba(26, 16, 11,0.4)",
+        background: "rgba(11, 18, 14,0.4)",
         minHeight: 220,
       }}
     >
@@ -509,7 +509,7 @@ function HighVarianceBadge() {
       style={{
         color: "var(--vault-warn)",
         border: "1px solid var(--vault-warn)",
-        background: "rgba(26, 16, 11,0.85)",
+        background: "rgba(11, 18, 14,0.85)",
         fontSize: 10,
       }}
       aria-label="High variance — historically 4.5% hit rate"

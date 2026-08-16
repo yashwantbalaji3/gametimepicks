@@ -175,7 +175,7 @@ export default function KnockoutPickBoard({ rows, serverToday }: { rows: Knockou
         const sm = STATUS_META[r.status];
         const isOpen = open === r.slug;
         return (
-          <div key={r.slug} className="overflow-hidden rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, rgba(26,16,11,0.35))" }}>
+          <div key={r.slug} className="overflow-hidden rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, rgba(11, 18, 14,0.35))" }}>
             <button onClick={() => setOpen(isOpen ? null : r.slug)} aria-expanded={isOpen} className="flex w-full flex-col gap-2 px-3.5 py-2.5 text-left lg:grid lg:grid-cols-[1.3fr_1fr_1fr_1fr_1fr_auto] lg:items-center lg:gap-3" style={{ cursor: "pointer", background: "transparent" }}>
               {/* Game / kickoff / status */}
               <span className="flex min-w-0 flex-col gap-1">

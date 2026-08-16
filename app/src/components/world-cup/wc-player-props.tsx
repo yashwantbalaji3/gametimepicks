@@ -33,7 +33,7 @@ function PlayerChip({ p }: { p: WcPlayerProjection }) {
              className="rounded-full shrink-0" style={{ objectFit: "cover", border: "1px solid var(--vault-rule)" }} />
       ) : (
         <div className="rounded-full shrink-0 flex items-center justify-center"
-             style={{ width: 34, height: 34, background: "rgba(242, 54, 69,0.12)", border: "1px solid var(--vault-rule)", color: "var(--vault-gold-bright)", fontSize: 11, fontWeight: 700 }}>
+             style={{ width: 34, height: 34, background: "rgba(52, 211, 153, 0.12)", border: "1px solid var(--vault-rule)", color: "var(--vault-gold-bright)", fontSize: 11, fontWeight: 700 }}>
           {initials(p.player.name)}
         </div>
       )}

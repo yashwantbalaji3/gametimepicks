@@ -88,7 +88,7 @@ export default function BuildExperience({ pool, productDate = null }: { pool: Bu
   const bankEligible = selected.length >= 2 && selected.every((l) => l.bankBuilderEligible);
 
   const betslipCard = (
-    <div className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>3 · Your card &amp; paper stake</span>
         <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{selected.length} leg{selected.length === 1 ? "" : "s"}</span>
@@ -199,7 +199,7 @@ export default function BuildExperience({ pool, productDate = null }: { pool: Bu
           {/* Search is secondary (v4): pills are the primary control. */}
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search team or player…"
             className="rounded-[8px] px-3 py-2"
-            style={{ background: "rgba(26, 16, 11,0.7)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }} />
+            style={{ background: "rgba(11, 18, 14,0.7)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }} />
 
         </div>
 

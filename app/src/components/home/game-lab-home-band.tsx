@@ -30,7 +30,7 @@ function GameCard({ g }: { g: GameLabHomeGame }) {
     <Link
       href={href}
       className="vault-glow-hover flex items-center gap-2.5 rounded-[10px] px-3 py-2.5"
-      style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
+      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
     >
       <span className="flex shrink-0 items-center gap-1">
         {g.sport === "world_cup" ? (
@@ -82,7 +82,7 @@ function SportColumn({ label, sport, games, emptyNote }: { label: string; sport:
 export default function GameLabHomeBand({ mlb, wc }: { mlb: GameLabHomeGame[]; wc: GameLabHomeGame[] }) {
   return (
     <section className="mt-6 overflow-hidden rounded-2xl px-5 py-5 sm:px-6" aria-label="Game Lab — multi-sport model reports"
-      style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(217,164,65,0.06), rgba(26,16,11,0.25))" }}>
+      style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(217,164,65,0.06), rgba(11, 18, 14,0.25))" }}>
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)" }}>Simulate</span>
         <span className="inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]"

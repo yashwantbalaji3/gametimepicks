@@ -78,9 +78,9 @@ export default function PicksSurfaceHeader({
     <section
       className="gtp-fade-up relative overflow-hidden rounded-[14px] gtp-cinematic-bg-accent gtp-neon-rule"
       aria-label={`${title} header`}
-      style={{ padding: "22px 20px 24px", ["--accent-glow"]: "rgba(242,54,69,0.18)", ["--accent-glow-secondary"]: "rgba(242,54,69,0.10)" } as React.CSSProperties}
+      style={{ padding: "22px 20px 24px", ["--accent-glow"]: "rgba(52, 211, 153, 0.18)", ["--accent-glow-secondary"]: "rgba(52, 211, 153, 0.10)" } as React.CSSProperties}
     >
-      <div aria-hidden className="gtp-hero-halo" style={{ background: "radial-gradient(circle at 92% 0%, rgba(242,54,69,0.26), transparent 45%)" }} />
+      <div aria-hidden className="gtp-hero-halo" style={{ background: "radial-gradient(circle at 92% 0%, rgba(52, 211, 153, 0.26), transparent 45%)" }} />
       <div className="relative flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-2">
           <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse" style={{ background: accentColor, boxShadow: `0 0 10px ${accentColor}` }} />

@@ -117,7 +117,7 @@ export default function ResultsDatePage({ params }: PageProps) {
             className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
+              boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
             }}
           />
           <span
@@ -134,7 +134,7 @@ export default function ResultsDatePage({ params }: PageProps) {
               color: "var(--vault-gold-bright)",
               fontSize: "clamp(48px, 10vw, 96px)",
               textShadow:
-                "0 0 24px rgba(242, 54, 69, 0.45), 0 0 8px rgba(242, 54, 69, 0.55)",
+                "0 0 24px rgba(52, 211, 153, 0.45), 0 0 8px rgba(52, 211, 153, 0.55)",
             }}
           >
             {totalHit !== null ? formatPercent(totalHit) : "—"}
@@ -319,7 +319,7 @@ function AtAGlanceCard({
         className="rounded-[6px] px-5 py-5 sm:px-6 sm:py-6"
         style={{
           background:
-            "linear-gradient(180deg, rgba(10, 6, 4,0.55) 0%, rgba(26, 16, 11,0.55) 100%)",
+            "linear-gradient(180deg, rgba(10, 6, 4,0.55) 0%, rgba(11, 18, 14,0.55) 100%)",
           border: "1px solid var(--vault-border)",
         }}
       >
@@ -542,7 +542,7 @@ function BigCallsCard({
     <div
       className="rounded-[6px] px-4 py-4 sm:px-5 sm:py-5"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -649,7 +649,7 @@ function SportScoreCard({
     <div
       className="rounded-[6px] px-5 py-5"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >

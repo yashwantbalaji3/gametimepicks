@@ -26,7 +26,7 @@ const am = (p: number) => (p > 0 ? `+${p}` : `${p}`);
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
-    <div className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(12,8,6,0.55)", border: "1px solid var(--vault-rule)" }}>
+    <div className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(7, 11, 9,0.55)", border: "1px solid var(--vault-rule)" }}>
       <div className="font-display tabular" style={{ color: accent ?? "var(--vault-text)", fontSize: 17, fontWeight: 700 }}>{value}</div>
       <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{label}</div>
     </div>
@@ -52,7 +52,7 @@ export default function UfcEventResultsRecap({ s }: { s: UfcSettlement }) {
       <div className="flex flex-col gap-2">
         <span className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>Pick vs official result</span>
         {s.fights.map((f, i) => (
-          <div key={i} className="flex items-center gap-3 rounded-[8px] px-3 py-2.5" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+          <div key={i} className="flex items-center gap-3 rounded-[8px] px-3 py-2.5" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
             <span aria-hidden style={{ color: f.moneyline.result === "win" ? "var(--vault-success)" : "var(--vault-danger)", fontSize: 13 }}>{f.moneyline.result === "win" ? "✓" : "✕"}</span>
             <div className="flex min-w-0 flex-1 flex-col">
               <span className="truncate text-[12.5px] font-semibold" style={{ color: "var(--vault-text)" }}>
@@ -73,14 +73,14 @@ export default function UfcEventResultsRecap({ s }: { s: UfcSettlement }) {
       <div className="flex flex-col gap-2">
         <span className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>Suggested cards · {s.suggestedCards.record}</span>
         {s.suggestedCards.cards.map((c, i) => (
-          <div key={i} className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+          <div key={i} className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
             <div className="flex items-center justify-between gap-2">
               <span className="text-[12px] font-semibold" style={{ color: "var(--vault-text)" }}>{c.riskLabel} <span style={{ color: "var(--vault-text-faint)", fontWeight: 400 }}>· {c.legCount} legs</span></span>
               <span className="shrink-0 rounded px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-[0.08em]" style={{ color: c.result === "won" ? "var(--vault-success)" : "var(--vault-danger)", background: c.result === "won" ? "rgba(110,231,168,0.14)" : "rgba(240,138,138,0.14)" }}>{c.result.toUpperCase()}</span>
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
               {c.legs.map((l, j) => (
-                <span key={j} className="font-mono text-[10px] rounded px-1.5 py-0.5" style={{ color: l.result === "win" ? "var(--vault-success)" : "var(--vault-danger)", border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.5)" }}>
+                <span key={j} className="font-mono text-[10px] rounded px-1.5 py-0.5" style={{ color: l.result === "win" ? "var(--vault-success)" : "var(--vault-danger)", border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.5)" }}>
                   {l.fighter} {l.result === "win" ? "✓" : "✕"}
                 </span>
               ))}

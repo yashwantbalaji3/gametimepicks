@@ -109,7 +109,7 @@ function PageHero({ artifact }: { artifact: ModelAuditArtifact }) {
           className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
           style={{
             background: "var(--vault-gold-bright)",
-            boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
+            boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
           }}
         />
         <span
@@ -197,7 +197,7 @@ function SummaryTile({
     <article
       className="rounded-[6px] px-5 py-4 flex flex-col gap-1"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -348,7 +348,7 @@ function DispersionRow({ sport }: { sport: ModelAuditSport }) {
     <article
       className="mt-3 rounded-[6px] px-4 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >

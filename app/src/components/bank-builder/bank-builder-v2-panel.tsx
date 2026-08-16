@@ -22,7 +22,7 @@ function ScoreBar({ score, threshold }: { score: number; threshold: number }) {
 function LegRow({ leg, threshold }: { leg: V2Leg; threshold: number }) {
   const eligible = leg.eligible;
   return (
-    <div className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(12,8,6,0.5)", border: "1px solid var(--vault-rule)" }}>
+    <div className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(7, 11, 9,0.5)", border: "1px solid var(--vault-rule)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>{leg.pick}</span>
         <span className="font-mono tabular shrink-0" style={{ color: eligible ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 12, fontWeight: 700 }}>
@@ -56,7 +56,7 @@ export default function BankBuilderV2Panel({ v2 }: { v2: V2Evaluation }) {
       style={{
         border: "1px solid var(--lava-border-strong)",
         background: "radial-gradient(120% 140% at 100% 0%, rgba(212,175,55,0.08) 0%, transparent 55%)," +
-          "linear-gradient(135deg, rgba(26,20,14,0.95) 0%, var(--vault-bg) 72%)",
+          "linear-gradient(135deg, rgba(13, 21, 17,0.95) 0%, var(--vault-bg) 72%)",
       }}
     >
       <div className="relative flex flex-wrap items-center justify-between gap-2">

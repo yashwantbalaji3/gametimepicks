@@ -41,8 +41,8 @@ export default function LandingHero({ readyCount }: LandingHeroProps) {
         style={{
           border: "1px solid var(--vault-border-strong)",
           background:
-            "radial-gradient(120% 140% at 0% 0%, rgba(242,54,69,0.10) 0%, transparent 55%)," +
-            "linear-gradient(135deg, rgba(26,20,14,0.96) 0%, var(--vault-bg) 72%)",
+            "radial-gradient(120% 140% at 0% 0%, rgba(52, 211, 153, 0.10) 0%, transparent 55%)," +
+            "linear-gradient(135deg, rgba(13, 21, 17,0.96) 0%, var(--vault-bg) 72%)",
         }}
       >
         <div className="flex flex-wrap items-center gap-2">

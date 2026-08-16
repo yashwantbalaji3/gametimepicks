@@ -25,7 +25,7 @@ export default function HowToRead({
   return (
     <details
       className="gtp-how-to-read rounded-[10px] my-3"
-      style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.5)" }}
+      style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.5)" }}
     >
       <summary
         className="cursor-pointer select-none px-4 py-2.5 flex items-center gap-2 font-mono uppercase tracking-[0.14em]"

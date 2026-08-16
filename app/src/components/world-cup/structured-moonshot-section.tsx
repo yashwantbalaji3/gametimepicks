@@ -24,7 +24,7 @@ function Badge({ label, value, tone }: { label: string; value: string; tone: str
 function GameGroup({ pair, index }: { pair: MoonshotGamePair; index: number }) {
   const letter = String.fromCharCode(65 + index); // A, B, C…
   return (
-    <div className="rounded-[9px] px-3 py-2.5 flex flex-col gap-2" style={{ background: "rgba(12,8,6,0.45)", border: "1px solid var(--vault-rule)" }}>
+    <div className="rounded-[9px] px-3 py-2.5 flex flex-col gap-2" style={{ background: "rgba(7, 11, 9,0.45)", border: "1px solid var(--vault-rule)" }}>
       <div className="flex items-center justify-between gap-2 min-w-0">
         <span className="flex items-center gap-1.5 min-w-0">
           <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "#a99bf5", fontSize: 8.5 }}>Game {letter}</span>
@@ -56,14 +56,14 @@ function GameGroup({ pair, index }: { pair: MoonshotGamePair; index: number }) {
 function TicketCard({ ticket }: { ticket: MoonshotTicket }) {
   if (!ticket.available) {
     return (
-      <div className="rounded-[12px] px-4 py-3.5 flex flex-col gap-1.5" style={{ background: "rgba(26,16,11,0.4)", border: "1px dashed var(--vault-rule)", borderLeft: "2px solid #8b7bf0" }}>
+      <div className="rounded-[12px] px-4 py-3.5 flex flex-col gap-1.5" style={{ background: "rgba(11, 18, 14,0.4)", border: "1px dashed var(--vault-rule)", borderLeft: "2px solid #8b7bf0" }}>
         <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>{ticket.label}</span>
         <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{ticket.reason}</p>
       </div>
     );
   }
   return (
-    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(26,16,11,0.5)", borderLeft: "2px solid #8b7bf0" }}>
+    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(11, 18, 14,0.5)", borderLeft: "2px solid #8b7bf0" }}>
       <div className="px-4 py-3 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
         <div className="flex items-center justify-between gap-2">
           <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{ticket.label}</span>
@@ -93,7 +93,7 @@ export default function StructuredMoonshotSection({ data }: { data: StructuredMo
   const anyAvailable = data.tickets.some((t) => t.available);
   if (!data.gameCount || !anyAvailable) {
     return (
-      <div className="rounded-[12px] px-5 py-6 text-center" style={{ background: "rgba(26,16,11,0.45)", border: "1px dashed var(--vault-rule)" }}>
+      <div className="rounded-[12px] px-5 py-6 text-center" style={{ background: "rgba(11, 18, 14,0.45)", border: "1px dashed var(--vault-rule)" }}>
         <span aria-hidden style={{ fontSize: 22 }}>🌙</span>
         <p className="mt-1.5" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>No qualified Moonshot today</p>
         <p className="mt-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>The slate has no game with a usable result + total pair yet — the model is holding rather than forcing a thin longshot.</p>

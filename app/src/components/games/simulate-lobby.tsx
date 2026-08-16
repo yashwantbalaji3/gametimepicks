@@ -398,7 +398,7 @@ export default function SimulateLobby() {
         className="relative overflow-hidden rounded-[16px] px-5 sm:px-8 py-7 sm:py-9 flex flex-col gap-5"
         style={{
           background:
-            "radial-gradient(130% 130% at 0% 0%, rgba(242,54,69,0.13) 0%, transparent 52%), radial-gradient(120% 120% at 100% 0%, rgba(217,164,65,0.08) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.94) 0%, rgba(10,10,11,0.97) 100%)",
+            "radial-gradient(130% 130% at 0% 0%, rgba(52, 211, 153, 0.13) 0%, transparent 52%), radial-gradient(120% 120% at 100% 0%, rgba(217,164,65,0.08) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.94) 0%, rgba(10,10,11,0.97) 100%)",
           border: "1px solid var(--vault-border-strong)",
           boxShadow: "0 24px 60px -30px rgba(0,0,0,0.8)",
         }}
@@ -409,7 +409,7 @@ export default function SimulateLobby() {
           className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(242,54,69,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(242,54,69,0.05) 1px, transparent 1px)",
+              "linear-gradient(rgba(52, 211, 153, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(52, 211, 153, 0.05) 1px, transparent 1px)",
             backgroundSize: "30px 30px",
             opacity: 0.5,
             maskImage: "radial-gradient(120% 100% at 0% 0%, #000 25%, transparent 80%)",
@@ -514,7 +514,7 @@ export default function SimulateLobby() {
                   {/* Top strip — Simulation Ready badge + sport tag over a subtle ember wash. */}
                   <div
                     className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-2.5"
-                    style={{ background: "radial-gradient(120% 140% at 0% 0%, rgba(242,54,69,0.10) 0%, transparent 60%)" }}
+                    style={{ background: "radial-gradient(120% 140% at 0% 0%, rgba(52, 211, 153, 0.10) 0%, transparent 60%)" }}
                   >
                     <span
                       className="inline-flex items-center gap-1 font-mono font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full"

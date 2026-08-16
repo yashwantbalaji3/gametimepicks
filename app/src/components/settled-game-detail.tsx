@@ -90,16 +90,16 @@ export default function SettledGameDetail({
 }: Props) {
   const accent = tone === "success" ? "var(--vault-success)" : "var(--vault-gold-bright)";
   const accentRim =
-    tone === "success" ? "rgba(74, 222, 128, 0.30)" : "rgba(242, 54, 69, 0.30)";
+    tone === "success" ? "rgba(74, 222, 128, 0.30)" : "rgba(52, 211, 153, 0.30)";
   const accentBg =
-    tone === "success" ? "rgba(74, 222, 128, 0.08)" : "rgba(242, 54, 69, 0.06)";
+    tone === "success" ? "rgba(74, 222, 128, 0.08)" : "rgba(52, 211, 153, 0.06)";
   const smallBucket = decisive < 5;
 
   return (
     <details
       className="group rounded-[6px]"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
       open={defaultOpen}

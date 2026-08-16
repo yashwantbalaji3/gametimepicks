@@ -74,7 +74,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
         aria-label="Top clean MLB leans"
         className="mt-2 rounded-[6px] px-4 py-4 text-[12px]"
         style={{
-          background: "rgba(26, 16, 11, 0.5)",
+          background: "rgba(11, 18, 14, 0.5)",
           border: "1px solid var(--vault-border)",
           color: "var(--vault-text-mute)",
         }}
@@ -101,7 +101,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
             className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
+              boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
             }}
           />
           <span
@@ -131,10 +131,10 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
                 border: `1px solid ${
                   isHigh
                     ? "rgba(74, 222, 128, 0.30)"
-                    : "rgba(242, 54, 69, 0.25)"
+                    : "rgba(52, 211, 153, 0.25)"
                 }`,
                 background:
-                  "linear-gradient(180deg, rgba(10, 6, 4, 0.55) 0%, rgba(26, 16, 11, 0.62) 100%)",
+                  "linear-gradient(180deg, rgba(10, 6, 4, 0.55) 0%, rgba(11, 18, 14, 0.62) 100%)",
                 scrollMarginTop: 80,
               }}
               aria-label={`Jump to ${lean.playerName} ${mlbMarketLabel(lean.marketKey)} ${lean.lean} ${lean.line}`}
@@ -174,13 +174,13 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
                     textTransform: "uppercase",
                     background: isHigh
                       ? "rgba(74, 222, 128, 0.10)"
-                      : "rgba(242, 54, 69, 0.10)",
+                      : "rgba(52, 211, 153, 0.10)",
                     borderRadius: 2,
                     padding: "2px 6px",
                     border: `1px solid ${
                       isHigh
                         ? "rgba(74, 222, 128, 0.30)"
-                        : "rgba(242, 54, 69, 0.30)"
+                        : "rgba(52, 211, 153, 0.30)"
                     }`,
                   }}
                 >

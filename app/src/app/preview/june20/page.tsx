@@ -39,7 +39,7 @@ const kickoff = (iso: string | null) => {
 
 function StatusCard({ title, accent, lines, badge }: { title: string; accent: string; lines: React.ReactNode[]; badge: string }) {
   return (
-    <div className="rounded-[12px] px-3.5 py-3" style={{ border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.5)" }}>
+    <div className="rounded-[12px] px-3.5 py-3" style={{ border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.5)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>{title}</span>
         <span className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em]" style={{ color: accent, background: "rgba(255,255,255,0.05)", border: `1px solid ${accent}` }}>{badge}</span>
@@ -62,7 +62,7 @@ export default function June20PreviewPage() {
       {/* Internal preview banner */}
       <section
         className="rounded-[14px] px-4 py-3.5"
-        style={{ border: "1px solid var(--vault-gold, #D4AF37)", background: "linear-gradient(135deg, rgba(212,175,55,0.14), rgba(26,16,11,0.4))" }}
+        style={{ border: "1px solid var(--vault-gold, #D4AF37)", background: "linear-gradient(135deg, rgba(212,175,55,0.14), rgba(11, 18, 14,0.4))" }}
       >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>
@@ -85,11 +85,11 @@ export default function June20PreviewPage() {
       </section>
 
       {/* June 20 slate status */}
-      <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.4)" }}>
+      <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.4)" }}>
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>Saturday June 20 · World Cup slate</span>
         <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-2">
           {(data?.games ?? []).map((g) => (
-            <div key={g.fixture} className="rounded-[10px] px-3 py-2" style={{ background: "rgba(12,8,6,0.55)", border: "1px solid var(--vault-rule)" }}>
+            <div key={g.fixture} className="rounded-[10px] px-3 py-2" style={{ background: "rgba(7, 11, 9,0.55)", border: "1px solid var(--vault-rule)" }}>
               <span className="block truncate font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>{g.fixture}</span>
               <span className="block font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>{kickoff(g.kickoffUtc)}</span>
             </div>
@@ -105,7 +105,7 @@ export default function June20PreviewPage() {
       <WorldCupSpecialsPreviewBox data={data} />
 
       {/* June 20 coverage summary */}
-      <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.4)" }}>
+      <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.4)" }}>
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>June 20 suggested-card coverage</span>
         <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[11px]">
           {[
@@ -126,7 +126,7 @@ export default function June20PreviewPage() {
       </section>
 
       {/* Bank Builder + Moonshot + Mr. Dub — current pending state (settlement gates the live launch) */}
-      <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.4)" }}>
+      <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.4)" }}>
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>Ladders &amp; exposure · June 19 settlement pending</span>
         <p className="mt-1.5 text-[11.5px] font-semibold" style={{ color: HEAT }}>
           June 19 Bank Builder + Moonshot settlement is pending official finals. June 20 recommendations are preview-only until grading completes — nothing is advanced or stopped here.
@@ -166,7 +166,7 @@ export default function June20PreviewPage() {
 
       {/* Diagnostics */}
       {d && (
-        <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.4)" }}>
+        <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.4)" }}>
           <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>Role-quality diagnostics</span>
           <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[11px]">
             {[
@@ -202,7 +202,7 @@ export default function June20PreviewPage() {
       )}
 
       {/* Review instructions */}
-      <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px dashed var(--vault-rule)", background: "rgba(26,16,11,0.3)" }}>
+      <section className="rounded-[14px] px-4 py-3.5" style={{ border: "1px dashed var(--vault-rule)", background: "rgba(11, 18, 14,0.3)" }}>
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>What to review</span>
         <ul className="mt-2 list-disc space-y-1 pl-4 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
           <li>Each card&apos;s player legs should be projected starters / key attackers — no bench or rotation-risk names.</li>

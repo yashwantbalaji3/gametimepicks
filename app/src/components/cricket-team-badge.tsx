@@ -49,9 +49,9 @@ const SIZE_PX: Record<NonNullable<Props["size"]>, { box: number; font: number }>
 export default function CricketTeamBadge({ abbr, name, size = "md" }: Props) {
   const key = (abbr ?? "").toUpperCase();
   const colors = IPL_BADGE_COLORS[key] ?? {
-    bg: "rgba(242, 54, 69,0.18)",
+    bg: "rgba(52, 211, 153, 0.18)",
     fg: "var(--vault-gold-bright)",
-    border: "rgba(242, 54, 69,0.45)",
+    border: "rgba(52, 211, 153, 0.45)",
   };
   const dims = SIZE_PX[size];
   return (

@@ -44,6 +44,8 @@ export type SportScheduleProps = {
    */
   blocker: string;
   totalEvents?: number;
+  /** This sport's accent token, so the page reads as its own place on the shared green chrome. */
+  accent?: string;
 };
 
 const ET = (iso: string) =>
@@ -75,7 +77,7 @@ function Participant({ side, logoSport }: { side: Side; logoSport?: SportSchedul
  * The day-grouped event list on its own, so a page that owns its shell (/ufc keeps a settled
  * archive) renders the SAME rows instead of a second copy that drifts away from this one.
  */
-export function ScheduleList({ events, sides, joiner, logoSport }: Pick<SportScheduleProps, "events" | "sides" | "joiner" | "logoSport">) {
+export function ScheduleList({ events, sides, joiner, logoSport, accent = "var(--vault-gold)" }: Pick<SportScheduleProps, "events" | "sides" | "joiner" | "logoSport" | "accent">) {
   const byDay = new Map<string, ScheduleEvent[]>();
   for (const e of events) {
     if (!e.scheduledStartUtc) continue;
@@ -94,7 +96,7 @@ export function ScheduleList({ events, sides, joiner, logoSport }: Pick<SportSch
     <div className="flex flex-col gap-5">
       {days.map((d) => (
         <section key={d}>
-          <h2 className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: "var(--vault-gold)", margin: "0 0 8px" }}>
+          <h2 className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: accent, margin: "0 0 8px" }}>
             {dayLabel(byDay.get(d)![0].scheduledStartUtc!)}
           </h2>
           <ul className="flex flex-col gap-1.5" style={{ listStyle: "none", padding: 0, margin: 0 }}>
@@ -124,6 +126,7 @@ export function ScheduleList({ events, sides, joiner, logoSport }: Pick<SportSch
 }
 
 export default function SportSchedulePage(p: SportScheduleProps) {
+  const accent = p.accent ?? "var(--vault-gold)";
 
   return (
     <main style={{ maxWidth: 860, margin: "0 auto", padding: "32px 20px 64px" }}>
@@ -150,14 +153,14 @@ export default function SportSchedulePage(p: SportScheduleProps) {
       </p>
 
       <div className="mt-6">
-        <ScheduleList events={p.events} sides={p.sides} joiner={p.joiner} logoSport={p.logoSport} />
+        <ScheduleList events={p.events} sides={p.sides} joiner={p.joiner} logoSport={p.logoSport} accent={accent} />
       </div>
 
       <p className="mt-7" style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
         The sports that are simulated today are{" "}
-        <Link href="/mlb/" style={{ color: "var(--vault-gold)" }}>MLB</Link> and{" "}
-        <Link href="/nfl/" style={{ color: "var(--vault-gold)" }}>NFL</Link>. Every sport&apos;s coverage
-        state is listed on <Link href="/sports/" style={{ color: "var(--vault-gold)" }}>Sports · Schedules</Link>.
+        <Link href="/mlb/" style={{ color: accent }}>MLB</Link> and{" "}
+        <Link href="/nfl/" style={{ color: accent }}>NFL</Link>. Every sport&apos;s coverage
+        state is listed on <Link href="/sports/" style={{ color: accent }}>Sports · Schedules</Link>.
       </p>
     </main>
   );

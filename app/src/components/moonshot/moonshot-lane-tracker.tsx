@@ -112,7 +112,7 @@ export default function MoonshotLaneTracker({
 
   return (
     <section aria-label="Moonshot Lane Tracker" className="flex flex-col gap-4">
-      <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid #8b7bf0", background: "linear-gradient(135deg, rgba(139,123,240,0.10), rgba(26,16,11,0.42))" }}>
+      <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid #8b7bf0", background: "linear-gradient(135deg, rgba(139,123,240,0.10), rgba(11, 18, 14,0.42))" }}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "#b9a8ff", fontSize: 10 }}>🌙 Moonshot Lane · daily tracker</span>
           <StatusPill status={laneStatusPill(lane.status)} dot />

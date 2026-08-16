@@ -97,7 +97,7 @@ function StageChecklist({ stage }: { stage: number }) {
             key={label}
             className="flex items-center gap-2.5 rounded-[7px] px-2 py-1"
             style={{
-              background: active ? "rgba(242,54,69,0.08)" : "transparent",
+              background: active ? "rgba(52, 211, 153, 0.08)" : "transparent",
               transition: "background 200ms ease",
             }}
           >
@@ -108,7 +108,7 @@ function StageChecklist({ stage }: { stage: number }) {
                 width: 16,
                 height: 16,
                 borderRadius: "50%",
-                background: done ? "rgba(46,160,102,0.18)" : active ? "rgba(242,54,69,0.18)" : "transparent",
+                background: done ? "rgba(46,160,102,0.18)" : active ? "rgba(52, 211, 153, 0.18)" : "transparent",
                 border: `1px solid ${done ? "rgba(46,160,102,0.5)" : active ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
                 boxShadow: active ? "0 0 9px -1px var(--vault-gold-bright)" : "none",
                 transition: "all 200ms ease",
@@ -347,8 +347,8 @@ export function BaseballSimulationAnimation({
       style={{
         border: "1px solid var(--vault-border-strong)",
         background:
-          "radial-gradient(130% 150% at 50% 0%, rgba(242,54,69,0.13) 0%, transparent 58%), linear-gradient(140deg, rgba(20,20,22,0.96) 0%, rgba(10,10,11,0.99) 100%)",
-        boxShadow: "0 22px 56px -26px rgba(0,0,0,0.8), 0 0 0 1px rgba(242,54,69,0.08)",
+          "radial-gradient(130% 150% at 50% 0%, rgba(52, 211, 153, 0.13) 0%, transparent 58%), linear-gradient(140deg, rgba(20,20,22,0.96) 0%, rgba(10,10,11,0.99) 100%)",
+        boxShadow: "0 22px 56px -26px rgba(0,0,0,0.8), 0 0 0 1px rgba(52, 211, 153, 0.08)",
       }}
     >
       <BackdropGrid />
@@ -448,7 +448,7 @@ function NeutralSimulationAnimation({
   return (
     <div
       className="flex flex-col gap-3.5 rounded-[14px] px-4 py-4"
-      style={{ border: "1px solid var(--vault-border)", background: "rgba(26, 16, 11,0.6)" }}
+      style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.6)" }}
     >
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center justify-center rounded-[10px] shrink-0" style={{ width: 40, height: 40, background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-border)" }}>

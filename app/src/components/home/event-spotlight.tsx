@@ -13,7 +13,7 @@ export default function EventSpotlight({ event }: { event: SpotlightEvent | null
   return (
     <section
       className="relative overflow-hidden rounded-[16px] px-5 py-5 sm:px-8 sm:py-6"
-      style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 160% at 100% 0%, rgba(242,54,69,0.16) 0%, transparent 55%), linear-gradient(150deg, rgba(18,12,10,0.96) 0%, rgba(26,16,11,0.98) 100%)" }}
+      style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 160% at 100% 0%, rgba(52, 211, 153, 0.16) 0%, transparent 55%), linear-gradient(150deg, rgba(18,12,10,0.96) 0%, rgba(11, 18, 14,0.98) 100%)" }}
       aria-label={`${event.title} — ${event.trustLabel}`}
     >
       {/* Subtle cage/grid texture — original vector art, no brand assets. */}
@@ -38,7 +38,7 @@ export default function EventSpotlight({ event }: { event: SpotlightEvent | null
           <p style={{ color: "var(--vault-text-mute)", fontSize: 13.5, lineHeight: 1.4, maxWidth: 560 }}>{event.subtitle}</p>
           <div className="flex flex-wrap gap-1.5">
             {event.chips.map((c, i) => (
-              <span key={i} className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-mute)", background: "rgba(26,16,11,0.6)", border: "1px solid var(--vault-rule)", fontSize: 8.5 }}>{c}</span>
+              <span key={i} className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-mute)", background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-rule)", fontSize: 8.5 }}>{c}</span>
             ))}
           </div>
         </div>

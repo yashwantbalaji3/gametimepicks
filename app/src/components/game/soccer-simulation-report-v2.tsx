@@ -69,7 +69,7 @@ export default function SoccerSimulationReportV2(props: SoccerSimulationReportV2
   return (
     <div className="flex flex-col gap-3">
       {/* 1 — Match header */}
-      <section className="rounded-[16px] px-4 sm:px-6 py-5 flex flex-col gap-3" style={{ background: "rgba(26,16,11,0.6)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold)" }}>
+      <section className="rounded-[16px] px-4 sm:px-6 py-5 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold)" }}>
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
             <Monogram code={homeCode} name={home} />

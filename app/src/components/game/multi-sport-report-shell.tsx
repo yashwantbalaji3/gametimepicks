@@ -61,7 +61,7 @@ function SectionHead({ n, title, hint }: { n: number; title: string; hint?: stri
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <section className="rounded-[12px] px-4 py-3.5" style={{ background: "rgba(26, 16, 11,0.5)", border: `1px solid var(--vault-border)` }}>
+    <section className="rounded-[12px] px-4 py-3.5" style={{ background: "rgba(11, 18, 14,0.5)", border: `1px solid var(--vault-border)` }}>
       {children}
     </section>
   );
@@ -94,7 +94,7 @@ function MarketSnapshotPanel({ markets }: { markets: ReportMarket[] }) {
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: faint, fontSize: 8.5 }}>Provider-needed</span>
           {roadmap.map((m, i) => (
             <span key={`${m.key}-${i}`} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]"
-                  style={{ color: faint, background: "rgba(26, 16, 11,0.6)", border: `1px dashed ${rule}`, fontSize: 8.5 }}>
+                  style={{ color: faint, background: "rgba(11, 18, 14,0.6)", border: `1px dashed ${rule}`, fontSize: 8.5 }}>
               <span aria-hidden>🔒</span> {m.label}
             </span>
           ))}
@@ -210,7 +210,7 @@ function ReportDetailsDisclosure({ details, sourceLabel, advanced }: {
   advanced?: React.ReactNode;
 }) {
   return (
-    <details className="rounded-[12px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.5)", border: `1px solid var(--vault-border)` }}>
+    <details className="rounded-[12px] px-4 py-3" style={{ background: "rgba(11, 18, 14,0.5)", border: `1px solid var(--vault-border)` }}>
       <summary className="cursor-pointer list-none">
         <span className="font-mono" style={{ color: gold, fontSize: 10 }}>06</span>
         <span className="ml-2 font-display" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Expandable Details</span>

@@ -218,7 +218,7 @@ function LaneLadder({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B" }) 
   const pct = Math.round((clearedCount / totalSteps) * 100);
   const currentStep = steps.find((s) => s.status === "pending" || s.status === "evaluating");
   return (
-    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(58,18,12,0.5), rgba(20,10,8,0.5))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}>
+    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(58,18,12,0.5), rgba(9, 15, 12,0.5))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}>
       <div className="flex items-center justify-between">
         <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
           Lane {laneId} · {laneId === "A" ? "survival" : "diversified"}
@@ -261,7 +261,7 @@ function RestartLaneCard({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B
   const queued = lane.restart?.status === "queued";
   const stake = lane.restart?.stake ?? 100;
   return (
-    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(20,14,8,0.6), rgba(20,10,8,0.5))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)" }}>
+    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(20,14,8,0.6), rgba(9, 15, 12,0.5))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)" }}>
       <div className="flex items-center justify-between">
         <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
           Lane {laneId} · {laneId === "A" ? "survival" : "diversified"}
@@ -283,7 +283,7 @@ function SingleStepLane({ lane, laneId, live }: { lane: LaneDisplay; laneId: "A"
   const dec = lane.combinedOdds == null ? null : lane.combinedOdds > 0 ? 1 + lane.combinedOdds / 100 : 1 + 100 / Math.abs(lane.combinedOdds);
   const projected = dec == null ? "—" : money(100 * dec);
   return (
-    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(58,18,12,0.5), rgba(20,10,8,0.5))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}>
+    <div className="rounded-xl p-3.5" style={{ background: "linear-gradient(180deg, rgba(58,18,12,0.5), rgba(9, 15, 12,0.5))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}>
       <div className="flex items-center justify-between">
         <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>Lane {laneId} · {laneId === "A" ? "survival" : "diversified"}</span>
         <span className="font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>survival {lane.survivalScore}</span>

@@ -188,7 +188,7 @@ export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
         {rows.map((p, i) => {
           const m = tierMeta(tierForProp(p));
           return (
-          <div key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2.5 flex items-start gap-2.5 min-w-0" style={{ background: "rgba(12,8,6,0.45)", border: "1px solid var(--vault-rule)" }}>
+          <div key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2.5 flex items-start gap-2.5 min-w-0" style={{ background: "rgba(7, 11, 9,0.45)", border: "1px solid var(--vault-rule)" }}>
             <span className="mt-0.5 relative shrink-0"><PlayerAvatar name={p.player} photo={p.photoUrl} size={28} />{p.teamAbbr ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={p.teamAbbr} sport="mlb" size="sm" /></span> : null}</span>
             <span className="min-w-0 flex-1">
               <span className="flex items-center justify-between gap-2">

@@ -168,7 +168,7 @@ export default function SearchableSelect({
         onClick={() => !disabled && setOpen((v) => !v)}
         className="w-full inline-flex items-center justify-between gap-2 px-3 rounded-[6px]"
         style={{
-          background: "rgba(26, 16, 11,0.55)",
+          background: "rgba(11, 18, 14,0.55)",
           border: "1px solid var(--vault-border)",
           color: selected
             ? "var(--vault-text)"
@@ -209,7 +209,7 @@ export default function SearchableSelect({
           role="listbox"
           className="absolute z-50 mt-1 left-0 right-0 rounded-[6px] overflow-hidden shadow-lg"
           style={{
-            background: "rgba(26, 16, 11,0.96)",
+            background: "rgba(11, 18, 14,0.96)",
             border: "1px solid var(--vault-border)",
             maxWidth: "100%",
           }}
@@ -264,7 +264,7 @@ export default function SearchableSelect({
                     className="w-full text-left px-3 py-2 flex items-center gap-2.5"
                     style={{
                       background: isActive
-                        ? "rgba(242, 54, 69,0.10)"
+                        ? "rgba(52, 211, 153, 0.10)"
                         : "transparent",
                       borderLeft: isSelected
                         ? "3px solid var(--vault-gold-bright)"

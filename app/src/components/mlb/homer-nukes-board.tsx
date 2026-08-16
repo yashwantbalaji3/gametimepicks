@@ -60,7 +60,7 @@ function TierChip({ prob }: { prob: number }) {
 /** One Homer Nukes lane: $10 / 3-leg HR parlay with per-leg portraits + team logos. */
 function LaneBlock({ lane }: { lane: HomerNukesParlay }) {
   return (
-    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.4)" }}>
+    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.4)" }}>
       <div className="px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap" style={{ borderBottom: "1px solid var(--vault-rule)", background: "radial-gradient(120% 140% at 100% 0%, rgba(225,29,42,0.10) 0%, transparent 55%)" }}>
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 800 }}>Lane {lane.lane} · {money(lane.stake)} · {lane.legs.length} legs</span>
         <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{american(lane.combinedOdds)} · <span style={{ color: "var(--vault-success)" }}>{money(lane.projectedReturn)}</span> · {pct1(lane.impliedProbability)} all-hit</span>
@@ -102,7 +102,7 @@ function LaneBlock({ lane }: { lane: HomerNukesParlay }) {
 export default function HomerNukesBoard({ board }: { board: HomerNukesResult }) {
   if (!board.available || !board.lanes.length) {
     return (
-      <div className="rounded-[14px] px-5 py-10 text-center" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
+      <div className="rounded-[14px] px-5 py-10 text-center" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
         <div aria-hidden style={{ fontSize: 34 }}>💣⚾</div>
         <p className="mt-2 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>Today&rsquo;s Homer Nukes parlay isn&rsquo;t posted yet</p>
         <p className="mx-auto mt-1.5 max-w-md text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{board.note}</p>
@@ -116,7 +116,7 @@ export default function HomerNukesBoard({ board }: { board: HomerNukesResult }) 
 
   const model = homerModelInputStatus();
   return (
-    <div className="rounded-[14px] overflow-hidden flex flex-col" style={{ background: "rgba(12,8,6,0.5)", border: "1px solid var(--lava-border-strong)", borderLeft: "3px solid var(--gtp-bank-heat)" }}>
+    <div className="rounded-[14px] overflow-hidden flex flex-col" style={{ background: "rgba(7, 11, 9,0.5)", border: "1px solid var(--lava-border-strong)", borderLeft: "3px solid var(--gtp-bank-heat)" }}>
       {/* Hero */}
       <div className="px-4 py-3.5 flex flex-col gap-3" style={{ borderBottom: "1px solid var(--vault-rule)", background: "radial-gradient(120% 140% at 100% 0%, rgba(225,29,42,0.12) 0%, transparent 55%)" }}>
         <div className="flex items-start justify-between gap-2 flex-wrap">
@@ -167,7 +167,7 @@ export default function HomerNukesBoard({ board }: { board: HomerNukesResult }) 
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Historical performance</span>
         <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
           {["Last 7 days", "Last 30 days"].map((window) => (
-            <div key={window} className="rounded-[10px] px-3 py-2" style={{ background: "rgba(12,8,6,0.45)", border: "1px solid var(--vault-rule)" }}>
+            <div key={window} className="rounded-[10px] px-3 py-2" style={{ background: "rgba(7, 11, 9,0.45)", border: "1px solid var(--vault-rule)" }}>
               <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{window}</span>
               <div className="mt-1 grid grid-cols-4 gap-1">
                 {[["Record", "—"], ["Win %", "—"], ["ROI", "—"], ["Units", "—"]].map(([k, v]) => (

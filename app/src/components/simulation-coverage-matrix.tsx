@@ -75,7 +75,7 @@ export default function SimulationCoverageMatrix({ sport }: { sport?: "mlb" | "n
             <div
               key={g.key}
               className="rounded-[12px] px-4 py-4 flex flex-col"
-              style={{ background: "rgba(26,16,11,0.5)", border: "1px solid var(--vault-border)" }}
+              style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border)" }}
             >
               <div className="flex flex-col gap-0.5 pb-1">
                 <span style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>{g.label}</span>

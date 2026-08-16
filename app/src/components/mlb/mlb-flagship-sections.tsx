@@ -24,7 +24,7 @@ const impliedPct = (a: number) => Math.round((1 / dec(a)) * 100);
 
 function SectionCard({ id, tag, title, sub, children }: { id: string; tag: string; title: string; sub: string; children: React.ReactNode }) {
   return (
-    <section id={id} className="rounded-[14px] p-4 flex flex-col gap-2.5 scroll-mt-[60px]" style={{ background: "rgba(26,16,11,0.5)", border: "1px solid var(--vault-border)" }}>
+    <section id={id} className="rounded-[14px] p-4 flex flex-col gap-2.5 scroll-mt-[60px]" style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border)" }}>
       <div className="flex flex-col gap-0.5">
         <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 9 }}>{tag}</span>
         <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{title}</h3>
@@ -57,7 +57,7 @@ function TopList({ props, n }: { props: BoardProp[]; n: number }) {
   return (
     <ol className="flex flex-col gap-1.5 list-none">
       {top.map((p, i) => (
-        <li key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2 flex items-center gap-2.5 min-w-0" style={{ background: "rgba(12,8,6,0.45)", border: "1px solid var(--vault-rule)" }}>
+        <li key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2 flex items-center gap-2.5 min-w-0" style={{ background: "rgba(7, 11, 9,0.45)", border: "1px solid var(--vault-rule)" }}>
           <span className="font-display tabular shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 12, fontWeight: 800, width: 14 }}>{i + 1}</span>
           <span className="relative shrink-0">
             <PlayerAvatar name={p.player} photo={p.photoUrl} size={22} />

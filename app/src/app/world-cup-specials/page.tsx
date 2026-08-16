@@ -54,7 +54,7 @@ export default function WorldCupSpecialsPage() {
       {result ? (
         <WorldCupSpecialsTracker result={result} nowIso={nowIso} mode="full" />
       ) : (
-        <div className="rounded-xl px-4 py-8 text-center" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-xl px-4 py-8 text-center" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>World Cup Specials — retired</p>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
             The 2026 World Cup is complete, so no new specials post. The settled record lives in the <Link href="/results" style={{ color: "var(--vault-gold-bright)" }}>results</Link>.

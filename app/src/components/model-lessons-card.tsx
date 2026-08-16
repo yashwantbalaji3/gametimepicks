@@ -39,7 +39,7 @@ export default function ModelLessonsCard({
       <div
         className="rounded-[6px] px-5 py-5"
         style={{
-          background: "rgba(26, 16, 11, 0.55)",
+          background: "rgba(11, 18, 14, 0.55)",
           border: "1px solid var(--vault-border)",
         }}
       >
@@ -49,7 +49,7 @@ export default function ModelLessonsCard({
             className="inline-block w-1.5 h-1.5 rounded-full"
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 6px rgba(242, 54, 69, 0.4)",
+              boxShadow: "0 0 6px rgba(52, 211, 153, 0.4)",
             }}
           />
           <span
@@ -72,7 +72,7 @@ export default function ModelLessonsCard({
                 key={i}
                 className="rounded-[4px] px-4 py-3"
                 style={{
-                  background: "rgba(26, 16, 11, 0.45)",
+                  background: "rgba(11, 18, 14, 0.45)",
                   border: "1px solid var(--vault-rule)",
                 }}
               >

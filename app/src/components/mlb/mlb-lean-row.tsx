@@ -48,15 +48,15 @@ function confidenceMeta(tier: MlbBoardLean["confidence"]): {
       return {
         label: "Medium",
         fg: "var(--vault-gold-bright)",
-        bg: "rgba(242, 54, 69, 0.10)",
-        rim: "rgba(242, 54, 69, 0.30)",
+        bg: "rgba(52, 211, 153, 0.10)",
+        rim: "rgba(52, 211, 153, 0.30)",
       };
     case "Low":
       return {
         label: "Low",
         fg: "var(--vault-warn)",
-        bg: "rgba(242, 54, 69, 0.06)",
-        rim: "rgba(242, 54, 69, 0.18)",
+        bg: "rgba(52, 211, 153, 0.06)",
+        rim: "rgba(52, 211, 153, 0.18)",
       };
     case "insufficient_data":
       return {
@@ -127,8 +127,8 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
     padding: density === "scan" ? "8px 12px" : "14px 16px",
     border: `1px solid ${meta.rim}`,
     background: isInsufficient
-      ? "linear-gradient(180deg, rgba(10, 6, 4, 0.30) 0%, rgba(26, 16, 11, 0.38) 100%)"
-      : "linear-gradient(180deg, rgba(10, 6, 4, 0.55) 0%, rgba(26, 16, 11, 0.62) 100%)",
+      ? "linear-gradient(180deg, rgba(10, 6, 4, 0.30) 0%, rgba(11, 18, 14, 0.38) 100%)"
+      : "linear-gradient(180deg, rgba(10, 6, 4, 0.55) 0%, rgba(11, 18, 14, 0.62) 100%)",
     minWidth: 0,
     maxWidth: "100%",
     opacity: isInsufficient ? 0.78 : 1,
@@ -192,7 +192,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
                 color: "var(--vault-warn)",
                 fontSize: 10,
                 padding: "1px 4px",
-                border: "1px solid rgba(242, 54, 69, 0.30)",
+                border: "1px solid rgba(52, 211, 153, 0.30)",
                 borderRadius: 2,
               }}
             >
@@ -291,7 +291,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
                 color: "var(--vault-warn)",
                 fontSize: 10,
                 padding: "1px 4px",
-                border: "1px solid rgba(242, 54, 69, 0.30)",
+                border: "1px solid rgba(52, 211, 153, 0.30)",
                 borderRadius: 2,
               }}
             >
@@ -338,10 +338,10 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
                   style={{
                     color: "var(--vault-warn)",
                     fontSize: 10,
-                    background: "rgba(242, 54, 69, 0.10)",
+                    background: "rgba(52, 211, 153, 0.10)",
                     borderRadius: 2,
                     padding: "1px 6px",
-                    border: "1px solid rgba(242, 54, 69, 0.30)",
+                    border: "1px solid rgba(52, 211, 153, 0.30)",
                   }}
                 >
                   R5 anomaly
@@ -515,7 +515,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
  * earlier in PR #55 so both sports' projection cards read with the
  * same sportsbook rhythm:
  *
- *   - rgba(26, 16, 11, 0.55) neon-bordered surface
+ *   - rgba(11, 18, 14, 0.55) neon-bordered surface
  *   - minHeight 56 so the trio aligns at every breakpoint
  *   - mono uppercase eyebrow label
  *   - big tabular value at clamp(20px, 3vw, 26px)
@@ -560,7 +560,7 @@ function StatTile({
           : "var(--vault-text-faint)";
   const glow =
     accent === "gold" || (accent === "success" && !isDash)
-      ? "0 0 12px rgba(242, 54, 69, 0.30)"
+      ? "0 0 12px rgba(52, 211, 153, 0.30)"
       : "none";
   return (
     <div
@@ -568,7 +568,7 @@ function StatTile({
       style={{
         padding: "8px 10px",
         border: "1px solid var(--vault-border)",
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         minHeight: 56,
       }}
     >

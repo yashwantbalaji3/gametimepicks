@@ -48,7 +48,7 @@ export default function WcStickyTabs({ tabs }: { tabs: WcTabDef[] }) {
       aria-label="World Cup sections"
       className="sticky top-0 z-20 -mx-4 sm:-mx-8 px-4 sm:px-8 py-2 mb-4 overflow-x-auto"
       style={{
-        background: "rgba(26, 16, 11,0.92)",
+        background: "rgba(11, 18, 14,0.92)",
         backdropFilter: "blur(8px)",
         borderBottom: "1px solid var(--vault-border)",
       }}

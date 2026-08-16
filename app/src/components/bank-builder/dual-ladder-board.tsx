@@ -285,7 +285,7 @@ function ActiveSlipLegRow({ leg }: { leg: EnrichedLeg }) {
 
 const STATUS_META: Record<PublicStepStatus, { label: string; color: string; bg: string; border: string }> = {
   cleared: { label: "Cleared", color: "#6EE7A8", bg: "rgba(110,231,168,0.12)", border: "rgba(110,231,168,0.4)" },
-  active: { label: "Active", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", border: "rgba(242,54,69,0.4)" },
+  active: { label: "Active", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", border: "rgba(52, 211, 153, 0.4)" },
   awaiting: { label: "Awaiting next card", color: "var(--vault-gold-bright)", bg: "rgba(217,164,65,0.12)", border: "rgba(217,164,65,0.4)" },
   queued: { label: "Starting path", color: "var(--vault-gold-bright)", bg: "rgba(217,164,65,0.10)", border: "rgba(217,164,65,0.35)" },
   upcoming: { label: "Upcoming", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.03)", border: "var(--vault-rule)" },
@@ -300,7 +300,7 @@ function RailNode({ status, step }: { status: PublicStepStatus; step: number }) 
     <span
       className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-[11px] font-bold ${glow ? "gtp-heat-pulse" : ""}`}
       style={{
-        background: cleared ? "rgba(110,231,168,0.18)" : glow ? m.bg : "rgba(26,16,11,0.9)",
+        background: cleared ? "rgba(110,231,168,0.18)" : glow ? m.bg : "rgba(11, 18, 14,0.9)",
         border: `1px solid ${m.border}`,
         color: m.color,
         boxShadow: glow ? `0 0 10px ${m.bg}` : "none",
@@ -384,7 +384,7 @@ function CardDrawer({ step, stepMeta, dailyStep }: { step: PublicLadderStep; ste
           {crossSlate ? <span className="rounded px-1.5 py-0.5" style={{ color: "var(--vault-gold-bright)", background: "rgba(217,164,65,0.14)", border: "1px solid rgba(217,164,65,0.4)" }}>Cross-slate</span> : null}
           {eventDates.map((d) => <span key={d} className="rounded px-1.5 py-0.5" style={{ color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>{d.toUpperCase()}</span>)}
           {slateLabel ? <span className="rounded px-1.5 py-0.5 normal-case" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)", letterSpacing: 0 }}>{slateLabel}</span> : null}
-          {riskNote ? <span className="rounded px-1.5 py-0.5" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)", border: "1px solid rgba(242,54,69,0.32)" }}>Approved broader criteria</span> : null}
+          {riskNote ? <span className="rounded px-1.5 py-0.5" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)", border: "1px solid rgba(52, 211, 153, 0.32)" }}>Approved broader criteria</span> : null}
         </div>
       ) : null}
       {allEnriched ? (
@@ -450,7 +450,7 @@ function LaneLadderCard({ view, enrichment, daily }: { view: PublicDualLadderVie
     : view.currentStatus === "queued_restart" ? "Starting path" : view.currentStatus === "active" ? "Active" : view.currentStatus;
   const headline = laneHasDailyCard ? view.headline.replace(/awaiting next qualified card/i, "active · today's card") : view.headline;
   return (
-    <div className="flex flex-col rounded-2xl p-4" style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
+    <div className="flex flex-col rounded-2xl p-4" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
       <div className="mb-1 flex items-center justify-between gap-2">
         <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{view.label}</h3>
         <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: accent, background: "rgba(255,255,255,0.05)", border: `1px solid ${accent}` }}>

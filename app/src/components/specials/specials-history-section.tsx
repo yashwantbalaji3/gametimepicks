@@ -41,7 +41,7 @@ export default function SpecialsHistorySection({ days }: { days: SpecialsHistory
         const won = day.cards.filter((c) => c.result === "won").length;
         const summary = settled.length ? `${won}-${settled.length - won} settled` : "archived candidates";
         return (
-          <details key={day.date} className="rounded-[10px]" style={{ background: "rgba(12,8,6,0.4)", border: "1px solid var(--vault-rule)" }}>
+          <details key={day.date} className="rounded-[10px]" style={{ background: "rgba(7, 11, 9,0.4)", border: "1px solid var(--vault-rule)" }}>
             <summary className="cursor-pointer list-none px-3 py-2.5 flex items-center justify-between gap-2">
               <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{fmtDate(day.date)}</span>
               <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{day.cardCount} cards · {summary}</span>

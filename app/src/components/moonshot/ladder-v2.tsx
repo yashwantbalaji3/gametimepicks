@@ -41,7 +41,7 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
   return (
     <section
       className={`moon-ladder-v2 gtp-fade-up overflow-hidden rounded-2xl ${className}`}
-      style={{ border: "1px solid #6d5fd0", background: "linear-gradient(160deg, rgba(139,123,240,0.10), rgba(26,16,11,0.35))" }}
+      style={{ border: "1px solid #6d5fd0", background: "linear-gradient(160deg, rgba(139,123,240,0.10), rgba(11, 18, 14,0.35))" }}
       aria-label="Moonshot 3-step ladder"
     >
       <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-4 sm:px-5">
@@ -49,7 +49,7 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
           <div className="font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "#b9a8ff" }}>🚀 The 3-step ladder</div>
           <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(19px, 3.2vw, 26px)", fontWeight: 700 }}>$25 → $1,500 in 3 days</h2>
         </div>
-        <span className="rounded-full px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em]" style={{ border: "1px solid rgba(242,54,69,0.45)", color: "var(--gtp-bank-heat)", background: "rgba(242,54,69,0.08)" }}>
+        <span className="rounded-full px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em]" style={{ border: "1px solid rgba(52, 211, 153, 0.45)", color: "var(--gtp-bank-heat)", background: "rgba(52, 211, 153, 0.08)" }}>
           ⚠ high variance
         </span>
       </div>

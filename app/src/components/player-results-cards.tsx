@@ -143,7 +143,7 @@ function PlayerResultRow({ group }: { group: PlayerGroup }) {
       className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
       style={{
         background:
-          "linear-gradient(180deg, rgba(26, 16, 11,0.85) 0%, rgba(26, 16, 11,0.55) 100%)",
+          "linear-gradient(180deg, rgba(11, 18, 14,0.85) 0%, rgba(11, 18, 14,0.55) 100%)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -234,7 +234,7 @@ function MarketRow({
       <div
         className="grid grid-cols-[40px_1fr_1fr_1fr_64px] gap-2 items-center px-2.5 py-1.5"
         style={{
-          background: "rgba(26, 16, 11,0.55)",
+          background: "rgba(11, 18, 14,0.55)",
           borderTop: "1px solid var(--vault-rule)",
           color: "var(--vault-text-faint)",
           fontSize: 11,
@@ -273,7 +273,7 @@ function MarketRow({
     <div
       className="grid grid-cols-[36px_1fr_1fr_1fr_64px] gap-2 items-end px-2.5 py-2"
       style={{
-        background: "rgba(26, 16, 11,0.45)",
+        background: "rgba(11, 18, 14,0.45)",
         borderTop: "1px solid var(--vault-rule)",
       }}
     >

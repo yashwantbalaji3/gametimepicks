@@ -204,7 +204,7 @@ export default function WorldCupSpecialsTracker({
 
   return (
     <section aria-label="World Cup Specials Tracker" className="flex flex-col gap-4">
-      <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid color-mix(in srgb, var(--vault-gold) 45%, transparent)", background: "linear-gradient(135deg, rgba(212,175,55,0.08), rgba(26,16,11,0.42))" }}>
+      <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid color-mix(in srgb, var(--vault-gold) 45%, transparent)", background: "linear-gradient(135deg, rgba(212,175,55,0.08), rgba(11, 18, 14,0.42))" }}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>🏆 World Cup Specials · daily tracker</span>
           <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>no exposure · suggested cards</span>

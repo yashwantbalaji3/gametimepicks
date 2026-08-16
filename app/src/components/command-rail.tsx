@@ -111,7 +111,7 @@ export default function CommandRail() {
       className="gtp-command-rail hidden lg:flex fixed inset-y-0 left-0 z-30 flex-col"
       style={{
         width: "var(--gtp-rail-w, 232px)",
-        background: "rgba(26, 16, 11, 0.94)",
+        background: "rgba(11, 18, 14, 0.94)",
         borderRight: "1px solid var(--vault-border)",
         backdropFilter: "blur(12px)",
       }}

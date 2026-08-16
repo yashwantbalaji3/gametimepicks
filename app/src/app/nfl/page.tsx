@@ -226,7 +226,7 @@ export default function NflHubPage() {
   const identity = getSportIdentity("nfl");
   const slateLabel = slateDay ? etDayLabel(`${slateDay}T18:00:00Z`) : "the next slate";
   const experimentalChip = (
-    <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-gold)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px", verticalAlign: "middle" }}>
+    <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--sport-nfl)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px", verticalAlign: "middle" }}>
       EXPERIMENTAL
     </span>
   );
@@ -312,7 +312,7 @@ export default function NflHubPage() {
                   started ? (
                     <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--vault-text-faint)" }}>KICKED OFF</span>
                   ) : sim ? (
-                    <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--vault-gold)" }}>SIMULATED</span>
+                    <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--sport-nfl)" }}>SIMULATED</span>
                   ) : null
                 }
                 href={sim ? `/games/nfl/${g.away.abbr.toLowerCase()}-vs-${g.home.abbr.toLowerCase()}-${etDaySlug(g.dateUtc)}` : undefined}
@@ -371,7 +371,7 @@ export default function NflHubPage() {
             eyebrow="Players"
             title="End Zone Vault"
             rightSlot={
-              <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-gold)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px" }}>
+              <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--sport-nfl)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px" }}>
                 {vault.state === "ACTIVE" ? "CARD" : "WATCHLIST"}
               </span>
             }
@@ -738,8 +738,8 @@ export default function NflHubPage() {
         The NFL simulations on this page are published as experimental and are never presented as
         picks. Player markets and the End Zone Vault stay gated on their own separate evidence —
         team readiness never auto-publishes a player market. See{" "}
-        <Link href="/methodology" style={{ color: "var(--vault-gold)" }}>methodology</Link> and{" "}
-        <Link href="/sports" style={{ color: "var(--vault-gold)" }}>all sports coverage</Link>.
+        <Link href="/methodology" style={{ color: "var(--sport-nfl)" }}>methodology</Link> and{" "}
+        <Link href="/sports" style={{ color: "var(--sport-nfl)" }}>all sports coverage</Link>.
       </p>
     </div>
   );

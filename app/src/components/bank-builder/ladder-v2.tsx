@@ -45,7 +45,7 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
         <div className="mt-2 flex items-center gap-1 overflow-x-auto">
           {steps.map((p, i) => (
             <div key={p.step} className="flex items-center gap-1 shrink-0">
-              <span className="rounded px-1.5 py-1 font-mono text-[9px] tabular" style={{ border: `1px solid ${p.step === liveStep ? "rgba(242,54,69,0.5)" : "var(--vault-rule)"}`, color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-mute)", background: p.step === liveStep ? "rgba(242,54,69,0.08)" : "transparent" }}>
+              <span className="rounded px-1.5 py-1 font-mono text-[9px] tabular" style={{ border: `1px solid ${p.step === liveStep ? "rgba(52, 211, 153, 0.5)" : "var(--vault-rule)"}`, color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-mute)", background: p.step === liveStep ? "rgba(52, 211, 153, 0.08)" : "transparent" }}>
                 ${p.target.toLocaleString("en-US")}{p.lock > 0 ? ` ·lock $${p.lock.toLocaleString("en-US")}` : ""}
               </span>
               {i < steps.length - 1 ? <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>→</span> : null}
@@ -96,8 +96,8 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
               className="gtp-fade-up flex items-stretch gap-3 rounded-xl px-3 py-2.5"
               style={{
                 animationDelay: `${i * 55}ms`,
-                border: isLive ? "1px solid rgba(242,54,69,0.45)" : "1px solid var(--vault-rule)",
-                background: isLive ? "rgba(242,54,69,0.07)" : "rgba(26,16,11,0.35)",
+                border: isLive ? "1px solid rgba(52, 211, 153, 0.45)" : "1px solid var(--vault-rule)",
+                background: isLive ? "rgba(52, 211, 153, 0.07)" : "rgba(11, 18, 14,0.35)",
               }}
             >
               {/* Step badge + rail */}
@@ -108,7 +108,7 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
                     color: isLive ? "var(--vault-bg)" : "var(--vault-text)",
                     background: isLive ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.05)",
                     border: `1px solid ${accent}`,
-                    boxShadow: isLive ? "0 0 12px rgba(242,54,69,0.5)" : "none",
+                    boxShadow: isLive ? "0 0 12px rgba(52, 211, 153, 0.5)" : "none",
                   }}
                 >
                   {p.step}

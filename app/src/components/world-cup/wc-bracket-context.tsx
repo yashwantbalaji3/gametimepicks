@@ -25,7 +25,7 @@ export interface WcBracketContextProps {
 function Node({ title, line, sub, tone = "text" }: { title: string; line: string; sub?: string; tone?: "text" | "gold" | "faint" }) {
   const color = tone === "gold" ? "var(--vault-gold)" : tone === "faint" ? "var(--vault-text-faint)" : "var(--vault-text)";
   return (
-    <div className="rounded-[10px] px-3 py-2.5 flex flex-col gap-0.5" style={{ background: "rgba(26,16,11,0.5)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-[10px] px-3 py-2.5 flex flex-col gap-0.5" style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border)" }}>
       <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{title}</span>
       <span style={{ color, fontSize: 13, fontWeight: 600 }}>{line}</span>
       {sub ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{sub}</span> : null}

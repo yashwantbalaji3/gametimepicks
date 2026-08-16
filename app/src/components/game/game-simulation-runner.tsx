@@ -427,7 +427,7 @@ export default function GameSimulationRunner({
           style={{
             border: "1px solid var(--vault-border-strong)",
             background:
-              "radial-gradient(130% 150% at 50% 0%, rgba(242,54,69,0.13) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.96) 0%, rgba(10,10,11,0.99) 100%)",
+              "radial-gradient(130% 150% at 50% 0%, rgba(52, 211, 153, 0.13) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.96) 0%, rgba(10,10,11,0.99) 100%)",
             boxShadow: "0 22px 56px -28px rgba(0,0,0,0.78)",
           }}
         >
@@ -437,7 +437,7 @@ export default function GameSimulationRunner({
             className="pointer-events-none absolute inset-0"
             style={{
               backgroundImage:
-                "linear-gradient(rgba(242,54,69,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(242,54,69,0.05) 1px, transparent 1px)",
+                "linear-gradient(rgba(52, 211, 153, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(52, 211, 153, 0.05) 1px, transparent 1px)",
               backgroundSize: "28px 28px",
               opacity: 0.55,
               maskImage: "radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 82%)",

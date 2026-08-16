@@ -9,7 +9,7 @@ export const pct = (p: number | null | undefined) => (typeof p === "number" ? `$
 export function Section({ n, title, subtitle, tone = "default", children }: { n: number; title: string; subtitle?: string; tone?: "default" | "muted"; children: React.ReactNode }) {
   const muted = tone === "muted";
   return (
-    <section className="rounded-[16px] px-4 sm:px-6 py-5 flex flex-col gap-3" style={{ background: muted ? "rgba(20,13,9,0.4)" : "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}>
+    <section className="rounded-[16px] px-4 sm:px-6 py-5 flex flex-col gap-3" style={{ background: muted ? "rgba(10, 17, 13,0.4)" : "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-baseline gap-2.5">
         <span className="font-mono shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{String(n).padStart(2, "0")}</span>
         <div className="flex flex-col gap-0.5">

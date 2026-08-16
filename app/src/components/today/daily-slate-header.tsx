@@ -42,7 +42,7 @@ export default function TodayDailySlateHeader({
     <section
       aria-label="Today's slate"
       className="flex flex-col gap-3 rounded-[16px] px-5 py-5 sm:px-6"
-      style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}
+      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>

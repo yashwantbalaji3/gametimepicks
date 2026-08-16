@@ -55,7 +55,7 @@ function HitLeg({ leg }: { leg: Leg }) {
   return (
     <li
       className="flex items-center gap-2.5 rounded-[10px] px-3 py-2.5"
-      style={{ background: "rgba(12,8,6,0.55)", border: "1px solid var(--vault-rule)" }}
+      style={{ background: "rgba(7, 11, 9,0.55)", border: "1px solid var(--vault-rule)" }}
     >
       {/* Portrait / flags */}
       <span className="flex shrink-0 items-center gap-1.5">

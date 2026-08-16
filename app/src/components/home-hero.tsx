@@ -30,7 +30,7 @@ function ProofTile({ value, label }: { value: string; label: string }) {
   return (
     <div
       className="flex flex-col gap-0.5 rounded-[12px] px-3 py-2.5"
-      style={{ background: "rgba(26,16,11,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}
     >
       <span
         className="font-display tabular tracking-tight"
@@ -64,8 +64,8 @@ export default function HomeHero({
         style={{
           border: "1px solid var(--vault-border-strong)",
           background:
-            "radial-gradient(120% 140% at 0% 0%, rgba(242,54,69,0.10) 0%, transparent 55%)," +
-            "linear-gradient(135deg, rgba(26,20,14,0.96) 0%, var(--vault-bg) 72%)",
+            "radial-gradient(120% 140% at 0% 0%, rgba(52, 211, 153, 0.10) 0%, transparent 55%)," +
+            "linear-gradient(135deg, rgba(13, 21, 17,0.96) 0%, var(--vault-bg) 72%)",
         }}
       >
         <span
@@ -159,7 +159,7 @@ export default function HomeHero({
       {/* WHY TRUST THIS — four short, honest reasons. */}
       <div
         className="rounded-[12px] px-4 py-3"
-        style={{ background: "rgba(26,16,11,0.4)", border: "1px solid var(--vault-rule)" }}
+        style={{ background: "rgba(11, 18, 14,0.4)", border: "1px solid var(--vault-rule)" }}
       >
         <span
           className="font-mono uppercase tracking-[0.12em]"

@@ -139,7 +139,7 @@ export default function WorldCupSpecialsPreviewBox({ data }: { data: June20Speci
   return (
     <section className="gtp-fade-up" aria-label="World Cup Specials (June 20 preview)">
       <div className="overflow-hidden rounded-2xl p-4 sm:p-5"
-        style={{ border: `1px solid ${GOLD}`, background: "linear-gradient(135deg, rgba(212,175,55,0.10), rgba(225,29,42,0.06) 55%, rgba(26,16,11,0.30))" }}>
+        style={{ border: `1px solid ${GOLD}`, background: "linear-gradient(135deg, rgba(212,175,55,0.10), rgba(225,29,42,0.06) 55%, rgba(11, 18, 14,0.30))" }}>
         <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>🏆 World Cup Specials</h2>

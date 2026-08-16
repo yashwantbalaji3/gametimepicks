@@ -118,7 +118,7 @@ export default function PlayerAvatar({
         width: px,
         height: px,
         boxShadow: role
-          ? `inset 0 0 0 1px ${role === "pitcher" ? "rgba(242, 54, 69, 0.40)" : "rgba(111, 230, 255, 0.30)"}`
+          ? `inset 0 0 0 1px ${role === "pitcher" ? "rgba(52, 211, 153, 0.40)" : "rgba(111, 230, 255, 0.30)"}`
           : undefined,
         // Provide the team abbreviation as a CSS custom prop so the
         // fallback ::after can render it without extra DOM.

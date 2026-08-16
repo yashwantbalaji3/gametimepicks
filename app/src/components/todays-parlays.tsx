@@ -52,7 +52,7 @@ function Chip({ active, label, count, onClick }: { active: boolean; label: strin
         fontSize: 10.5, fontWeight: 700, cursor: count === 0 && !active ? "not-allowed" : "pointer",
         border: `1px solid ${active ? "var(--gtp-bank-heat)" : "var(--vault-border)"}`,
         color: active ? "#1A0E06" : count === 0 ? "var(--vault-text-faint)" : "var(--vault-text)",
-        background: active ? "var(--gtp-bank-heat)" : "rgba(26,16,11,0.5)",
+        background: active ? "var(--gtp-bank-heat)" : "rgba(11, 18, 14,0.5)",
         opacity: count === 0 && !active ? 0.4 : 1,
       }}
     >

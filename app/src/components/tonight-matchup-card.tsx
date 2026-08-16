@@ -86,7 +86,7 @@ export default function TonightMatchupCard({
       className="gtp-aurora-halo rounded-[12px] relative overflow-hidden"
       style={{
         background:
-          "linear-gradient(180deg, rgba(26, 16, 11,0.92) 0%, rgba(26, 16, 11,0.55) 100%)",
+          "linear-gradient(180deg, rgba(11, 18, 14,0.92) 0%, rgba(11, 18, 14,0.55) 100%)",
         border: "1px solid var(--vault-border)",
       }}
       aria-label={`${sportLabel}: ${awayTeam ?? "TBD"} at ${homeTeam ?? "TBD"} tonight`}
@@ -136,7 +136,7 @@ export default function TonightMatchupCard({
                     ? "rgba(74, 222, 128, 0.10)"
                     : status === "upcoming"
                       ? "var(--vault-warn-dim)"
-                      : "rgba(26, 16, 11,0.55)",
+                      : "rgba(11, 18, 14,0.55)",
                 color: statusColor,
                 fontSize: 10,
                 border: `1px solid ${statusColor}`,
@@ -295,7 +295,7 @@ function MarketChip({ label, value }: { label: string; value: string }) {
     <span
       className="inline-flex items-baseline gap-2 px-3 py-1.5 rounded-[5px]"
       style={{
-        background: "rgba(26, 16, 11,0.55)",
+        background: "rgba(11, 18, 14,0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >

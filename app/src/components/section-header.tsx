@@ -37,7 +37,7 @@ export default function SectionHeader({
               className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
               style={{
                 background: "var(--vault-gold-bright)",
-                boxShadow: "0 0 10px rgba(242, 54, 69, 0.65)",
+                boxShadow: "0 0 10px rgba(52, 211, 153, 0.65)",
               }}
             />
             <span

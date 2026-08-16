@@ -27,7 +27,7 @@ function AttentionRow({ g }: { g: BriefSpotlightGame }) {
       href={g.href}
       aria-label={`${g.teams.away} at ${g.teams.home} — ${g.note}${range ? `. ${range}` : ""}`}
       className="vault-glow-hover vault-press flex items-center justify-between gap-3 rounded-[10px] px-3 py-2"
-      style={{ background: "rgba(26,16,11,0.5)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
+      style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
     >
       <div className="flex items-center gap-2.5 min-w-0">
         <MatchupIdentity homeName={g.teams.home} awayName={g.teams.away} homeLogo={g.homeLogo} awayLogo={g.awayLogo} size="sm" />
@@ -47,7 +47,7 @@ export default function TodayMlbBrief({ brief, recapHref }: { brief: DailyBrief;
   const updated = formatEtTime(lastUpdatedIso);
   const spotlightRange = spotlight ? rangeLabel(spotlight) : null;
   return (
-    <section aria-label="Today's MLB brief" className="flex flex-col gap-3 rounded-[16px] px-5 py-4" style={{ border: "1px solid var(--vault-border)", background: "rgba(26,16,11,0.6)", borderTop: "2px solid var(--vault-gold-bright)" }}>
+    <section aria-label="Today's MLB brief" className="flex flex-col gap-3 rounded-[16px] px-5 py-4" style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.6)", borderTop: "2px solid var(--vault-gold-bright)" }}>
       <div className="flex items-baseline justify-between gap-2">
         <div className="flex flex-col gap-0.5">
           <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>Today&rsquo;s MLB brief</h2>

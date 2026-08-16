@@ -38,7 +38,7 @@ export default function OddsTickerRail({ cells, eyebrow }: Props) {
             className="shrink-0 flex items-center px-4"
             style={{
               borderRight: "1px solid var(--vault-rule)",
-              background: "rgba(18, 12, 8, 0.6)",
+              background: "rgba(10, 16, 13, 0.6)",
             }}
           >
             <span
@@ -46,7 +46,7 @@ export default function OddsTickerRail({ cells, eyebrow }: Props) {
               className="inline-block w-1.5 h-1.5 rounded-full mr-2 gtp-neon-pulse"
               style={{
                 background: "var(--vault-gold-bright)",
-                boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
+                boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
               }}
             />
             <span

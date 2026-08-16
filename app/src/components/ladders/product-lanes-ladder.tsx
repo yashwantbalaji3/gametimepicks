@@ -155,7 +155,7 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
   return (
     <div
       className="rounded-[12px] overflow-hidden flex flex-col min-w-0"
-      style={{ border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.4)", borderLeft: `2px solid ${accentColor}` }}
+      style={{ border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.4)", borderLeft: `2px solid ${accentColor}` }}
     >
       {/* Header */}
       <div className="px-3.5 py-3 flex flex-col gap-2.5" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>

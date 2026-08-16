@@ -54,11 +54,11 @@
      carry the energy while gold stays a premium highlight. */
   --vault-bg: var(--lava-bg);
   --vault-panel: var(--lava-panel);
-  --vault-panel-elevated: #1C1C20;
-  --vault-panel-hover: #26262B;
+  --vault-panel-elevated: #18231D;
+  --vault-panel-hover: #1F2D26;
   --vault-border: var(--lava-border);
   --vault-border-strong: var(--lava-border-strong);
-  --vault-border-active: rgba(242, 54, 69, 0.72);
+  --vault-border-active: rgba(52, 211, 153, 0.72);
 
   /* V1 revamp: --vault-gold-bright is the site-wide ACCENT (eyebrows, links, headers, chips) —
      now crimson so the whole app reads V1 fight-card. --vault-gold stays true gold for the
@@ -66,12 +66,12 @@
   --vault-gold: #D4AF37;
   /* Program 137: was #F23645, which measured 3.21-4.49:1 as TEXT on the dark surfaces —
      under AA everywhere it was used for a label (293 inline call sites + 17 CSS rules).
-     #FA4A5A is the smallest lightening that clears 4.5:1 on the standard surfaces.
+     #34D399 is the smallest lightening that clears 4.5:1 on the standard surfaces.
      The ambient glow is UNAFFECTED: --vault-gold-dim/-glow/--vault-border-active and
-     --gtp-bank-heat-dim are hardcoded rgba(242,54,69,...) and keep the original crimson. */
-  --vault-gold-bright: #FA4A5A;
-  --vault-gold-dim: rgba(242, 54, 69, 0.12);
-  --vault-gold-glow: rgba(242, 54, 69, 0.20);
+     --gtp-bank-heat-dim are hardcoded rgba(52, 211, 153, ...) and keep the original crimson. */
+  --vault-gold-bright: #34D399;
+  --vault-gold-dim: rgba(52, 211, 153, 0.12);
+  --vault-gold-glow: rgba(52, 211, 153, 0.20);
 
   /* Readability rebrand (2026-06-12): primary text nearer white; mute/faint
      brightened off the muddy dark-gold so metadata stays legible on navy
@@ -82,14 +82,17 @@
      elements across every route (timestamps, source chips, the disclaimer). #838391 cleared the
      surfaces I had measured at that point but still read 4.02:1 on the darkest cards once the
      probe composited gradient alpha correctly; #8E8E9C clears 4.5:1 on all of them. */
-  --vault-text-faint: #8E8E9C;
+  /* 4.5:1 on EVERY surface it lands on, hover included — the first green value cleared the base at
+     5.5:1 but only 4.0:1 on a hovered card, which the contrast gate caught. Pick faint text against
+     the LIGHTEST surface it can sit on, never against the page background. */
+  --vault-text-faint: #8B978F;
 
-  --vault-success: #6EE7A8;
-  --vault-success-dim: rgba(110, 231, 168, 0.12);
+  --vault-success: #4ADE80;
+  --vault-success-dim: rgba(74, 222, 128, 0.14);
   --vault-warn: #F0C75E;
   --vault-warn-dim: rgba(240, 199, 94, 0.12);
-  --vault-danger: #F08A8A;
-  --vault-danger-dim: rgba(240, 138, 138, 0.12);
+  --vault-danger: #F87171;
+  --vault-danger-dim: rgba(248, 113, 113, 0.14);
 
   /* Risk-tier accent system (premium "sportsbook board" color-coded lanes).
      Distinct hues so Low / Medium / High / Longshot read as a risk escalation
@@ -117,8 +120,14 @@
   --sport-mixed: #2DD4BF;     /* teal — cross-sport */
   /* Identity-system additions (sport-identity.ts). Established hues above
      are preserved; these fill the sports that previously had no token. */
-  --sport-soccer: #34D399;    /* emerald — pitch / World Cup */
-  --sport-ufc: #F87171;       /* fight red — octagon */
+  /* P193: was #34D399 emerald, which the green base has since claimed as the BRAND accent — soccer
+     would have been indistinguishable from ordinary chrome. Magenta keeps the pitch its own hue and
+     stays clear of violet (NFL), rose (NBA) and fight red (UFC). 6.9:1 on the base. */
+  --sport-soccer: #F472B6;    /* magenta — pitch / Premier League */
+  /* P193: was #F87171, byte-identical to --vault-danger — a UFC chip was indistinguishable from a
+     LOSS chip. Ember orange keeps the fight-night warmth, stays clear of danger red and NBA rose,
+     and measures 8.8:1 on the base. */
+  --sport-ufc: #FB923C;       /* ember — octagon */
   --sport-nhl: #93C5FD;       /* ice blue — rink */
   --sport-ipl: #FBBF24;       /* amber — cricket */
   --sport-nfl: #A78BFA;       /* violet — gridiron (distinct from every hue above) */
@@ -127,16 +136,19 @@
      gets magma energy — heat for chips/pulses, lava for progress fills. */
   /* V1 immersive revamp (crimson-black fight-card system): the primary "heat" accent is now
      crimson; gold stays only for the Bank Builder crown via --vault-gold / --lava-gold. */
-  --gtp-bank-heat: #FA4A5A;              /* text-safe crimson — see --vault-gold-bright */
-  --gtp-bank-heat-dim: rgba(242, 54, 69, 0.16);
-  --gtp-bank-lava: linear-gradient(90deg, #9B1B16 0%, #E11D2A 45%, #FF5A3C 80%, #F0C75E 100%);
-  /* Text-safe lava (Program 137). --gtp-bank-lava spans relative luminance 0.078 (#9B1B16) to
+  --gtp-bank-heat: #34D399;              /* text-safe brand green — see --vault-gold-bright */
+  --gtp-bank-heat-dim: rgba(52, 211, 153, 0.16);
+  --gtp-bank-lava: linear-gradient(90deg, #0B5138 0%, #10794E 45%, #22C55E 80%, #4ADE80 100%);
+  /* Text-safe lava (Program 137). --gtp-bank-lava spans relative luminance 0.078 (#10794E) to
      0.602 (#F0C75E) — an 8x range — so NO single label colour clears AA across it: near-black
      hits 2.31:1 on the blood-red end, white hits 1.61:1 on the gold end. Buttons that carry a
      label therefore use this ramp instead, whose darkest stop is bright enough that the #1A0E06
-     label clears 4.5:1 at every stop (worst 5.05:1 at #FF2A20). The full-range ramp above is
+     label clears 4.5:1 at every stop (worst 5.05:1 at #10794E). The full-range ramp above is
      still correct for DECORATIVE fills with no text on them. */
-  --gtp-bank-lava-cta: linear-gradient(90deg, #FF2A20 0%, #FF5A3C 45%, #FF8A3C 75%, #F0C75E 100%);
+  /* Every stop MEASURED against the #06140D label, not assumed: the first green ramp opened on
+     #10794E, which read 3.47:1 — the same mistake the red ramp made with its blood-red stop. This
+     ramp's darkest stop is 8.28:1. */
+  --gtp-bank-lava-cta: linear-gradient(90deg, #22C55E 0%, #34D399 45%, #4ADE80 75%, #7BEFB5 100%);
 
   /* ================================================================
      Hot-lava casino design system — the canonical sitewide palette.
@@ -144,27 +156,39 @@
      site reads volcanic-obsidian + ember, never the old navy/graphite.
      Gold is reserved for crown/Bank-Builder/success moments only.
      ================================================================ */
-  --lava-bg: #0A0A0B;            /* V1 neutral fight-night near-black */
-  --lava-panel: #141416;          /* dark panel */
-  --lava-card: #17171A;           /* card surface */
+  /*
+   * TURF — the site's base palette (P193). Red was the structural colour, which fought the product:
+   * in a paper-trading context red reads as a LOSS, so every border, rule and call-to-action was
+   * quietly signalling failure. Green is the base now, and red is reserved for one job — a losing
+   * result. The `--lava-*` names are kept as aliases so nothing downstream had to be rewritten.
+   *
+   * Green as the base does not collide with "green = win": both mean the same thing here, so the
+   * brand reinforces the outcome language instead of competing with it. What separates a WIN from
+   * ordinary chrome is saturation and weight, not hue — structure sits at low alpha, a settled win
+   * is the bright value.
+   */
+  --lava-bg: #070B09;            /* near-black with a green cast */
+  --lava-panel: #0F1512;          /* dark panel */
+  --lava-card: #121A16;           /* card surface */
   --lava-card-2: #1F1F23;         /* elevated card */
-  --lava-border: rgba(225, 29, 42, 0.20);
-  --lava-border-strong: rgba(225, 29, 42, 0.40);
-  --lava-heat: #FA4A5A;           /* crimson accent (text-safe — see --vault-gold-bright) */
-  --lava-ember: #E11D2A;          /* deep crimson */
-  --lava-magma: #9B1B16;          /* blood red */
-  --lava-glow: radial-gradient(60% 100% at 50% 0%, rgba(225, 29, 42, 0.16) 0%, transparent 70%);
-  --lava-text: #F5F5F7;           /* high-contrast white */
-  --lava-text-muted: #B6B6BE;
-  --lava-text-faint: #7E7E88;
+  --lava-border: rgba(52, 211, 153, 0.20);
+  --lava-border-strong: rgba(52, 211, 153, 0.40);
+  --lava-heat: #34D399;           /* brand accent — 10.3:1 on the base, safe for text */
+  --lava-ember: #22C55E;          /* deeper brand green */
+  --lava-magma: #10794E;          /* darkest green, for gradient anchors */
+  --lava-glow: radial-gradient(60% 100% at 50% 0%, rgba(52, 211, 153, 0.14) 0%, transparent 70%);
+  --lava-text: #F5F7F6;           /* high-contrast white, faintly green-shifted */
+  --lava-text-muted: #B4BEB8;
+  --lava-text-faint: #8B978F;
   --lava-gold: #F0C75E;           /* crown accent only (Bank Builder) */
-  --lava-success: #6EE7A8;
-  --lava-danger: #F08A8A;
+
+  --lava-success: #4ADE80;
+  --lava-danger: #F87171;
 
   /* Phase 7B-7 — refinement tokens for spacing, dividers, focus */
-  --vault-rule: rgba(225, 29, 42, 0.12);     /* internal section dividers */
+  --vault-rule: rgba(52, 211, 153, 0.12);    /* internal section dividers */
   --vault-shadow-soft: 0 1px 0 rgba(212, 175, 55, 0.04);
-  --vault-focus-ring: 0 0 0 1px var(--vault-gold), 0 0 0 4px rgba(212, 175, 55, 0.18);
+  --vault-focus-ring: 0 0 0 1px var(--lava-heat), 0 0 0 4px rgba(52, 211, 153, 0.22);
 
   /* PR #124 — premium-gold/cream tokens. Activated as a scoped theme
      in the [data-theme="premium-gold"] block below. Components keep
@@ -213,21 +237,21 @@
      ========================================================================== */
 
   /* Shell surfaces — dark premium */
-  --gtp-shell:           #0D0907;
-  --gtp-shell-elevated:  #1B130E;
-  --gtp-shell-rail:      #120D0A;
-  --gtp-shell-overlay:   rgba(26, 16, 11, 0.92);
-  --gtp-shell-border:    rgba(225, 29, 42, 0.20);
-  --gtp-shell-rule:      rgba(255, 120, 60, 0.12);
+  --gtp-shell:           #070B09;
+  --gtp-shell-elevated:  #101A15;
+  --gtp-shell-rail:      #0B120E;
+  --gtp-shell-overlay:   rgba(11, 18, 14, 0.92);
+  --gtp-shell-border:    rgba(52, 211, 153, 0.20);
+  --gtp-shell-rule:      rgba(74, 222, 128, 0.12);
 
   /* Default content surfaces — DARK (elevated charcoal cards on the
      deep navy shell). Overridden inside `.gtp-canvas` to light cream
      for any future page that opts into a light reading surface. */
-  --gtp-card:            #17171A;
-  --gtp-card-elevated:   #1F1F23;
-  --gtp-card-sunken:     #101012;
-  --gtp-card-border:     rgba(225, 29, 42, 0.18);
-  --gtp-card-border-strong: rgba(255, 120, 60, 0.32);
+  --gtp-card:            #121A16;
+  --gtp-card-elevated:   #18231D;
+  --gtp-card-sunken:     #0C120F;
+  --gtp-card-border:     rgba(52, 211, 153, 0.18);
+  --gtp-card-border-strong: rgba(74, 222, 128, 0.32);
   --gtp-card-shadow:     0 1px 0 rgba(255, 255, 255, 0.03) inset,
                          0 6px 18px -8px rgba(0, 0, 0, 0.5);
 
@@ -397,9 +421,9 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 100% 58% at 50% -8%, rgba(225, 29, 42, 0.15), transparent 60%),
+    radial-gradient(ellipse 100% 58% at 50% -8%, rgba(52, 211, 153, 0.15), transparent 60%),
     radial-gradient(ellipse 85% 52% at 100% 104%, rgba(155, 27, 22, 0.12), transparent 64%),
-    radial-gradient(ellipse 65% 45% at 0% 100%, rgba(242, 54, 69, 0.07), transparent 68%);
+    radial-gradient(ellipse 65% 45% at 0% 100%, rgba(52, 211, 153, 0.07), transparent 68%);
   pointer-events: none;
   z-index: 0;
 }
@@ -410,7 +434,7 @@ body::after {
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(rgba(225, 29, 42, 0.05) 1px, transparent 1px);
+    radial-gradient(rgba(52, 211, 153, 0.05) 1px, transparent 1px);
   background-size: 22px 22px;
   pointer-events: none;
   z-index: 0;
@@ -1372,7 +1396,7 @@ body {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   border-radius: 3px;
-  background: rgba(26, 16, 11, 0.55);
+  background: rgba(11, 18, 14, 0.55);
   border: 1px solid var(--vault-rule);
   transition: border-color 200ms ease, background 200ms ease;
 }
@@ -1392,7 +1416,7 @@ body {
   overflow: hidden;
   border-top: 1px solid var(--vault-rule);
   border-bottom: 1px solid var(--vault-rule);
-  background: linear-gradient(180deg, rgba(26, 16, 11, 0) 0%, rgba(20, 24, 38, 0.5) 100%);
+  background: linear-gradient(180deg, rgba(11, 18, 14, 0) 0%, rgba(20, 24, 38, 0.5) 100%);
   mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
   -webkit-mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
 }
@@ -2182,7 +2206,7 @@ body {
   gap: 4px;
   padding: 10px 12px;
   border-radius: 6px;
-  background: rgba(26, 16, 11, 0.55);
+  background: rgba(11, 18, 14, 0.55);
   border: 1px solid var(--vault-rule);
 }
 .gtp-anatomy-note .gtp-anatomy-eyebrow {
@@ -2273,7 +2297,7 @@ body {
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--vault-gold-bright);
-  background: rgba(26, 16, 11, 0.75);
+  background: rgba(11, 18, 14, 0.75);
   border-left: 1px solid var(--vault-rule);
   border-right: 1px solid var(--vault-rule);
   text-shadow: 0 0 6px rgba(240, 199, 94, 0.55);
@@ -2548,8 +2572,8 @@ body {
   pointer-events: none;
   border-radius: inherit;
   background-image:
-    radial-gradient(circle at 0 50%, rgba(26, 16, 11, 0.95) 4px, transparent 5px),
-    radial-gradient(circle at 100% 50%, rgba(26, 16, 11, 0.95) 4px, transparent 5px);
+    radial-gradient(circle at 0 50%, rgba(11, 18, 14, 0.95) 4px, transparent 5px),
+    radial-gradient(circle at 100% 50%, rgba(11, 18, 14, 0.95) 4px, transparent 5px);
   background-repeat: no-repeat;
   z-index: 0;
 }
@@ -2767,7 +2791,7 @@ body {
 }
 .gtp-player-avatar.gtp-player-avatar-flat {
   box-shadow: inset 0 0 0 1px var(--vault-rule);
-  background: rgba(26, 16, 11, 0.65);
+  background: rgba(11, 18, 14, 0.65);
 }
 .gtp-player-avatar.gtp-player-avatar-flat:hover {
   box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.45);
@@ -2793,7 +2817,7 @@ body {
   right: -1px;
   padding: 1px 4px 2px;
   border-radius: 999px;
-  background: rgba(26, 16, 11, 0.92);
+  background: rgba(11, 18, 14, 0.92);
   border: 1px solid var(--vault-border-strong);
   font-family: var(--font-mono);
   font-weight: 600;
@@ -2951,7 +2975,7 @@ body {
 
 /* Dossier graph cell — frames the sparkline and the stat readouts. */
 .gtp-dossier-graph {
-  background: rgba(26, 16, 11, 0.72);
+  background: rgba(11, 18, 14, 0.72);
   border: 1px solid var(--vault-rule);
   box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.05);
 }
@@ -3043,11 +3067,11 @@ body {
   border-radius: 4px;
   user-select: none;
   transition: filter 220ms ease, transform 220ms ease;
-  filter: drop-shadow(0 0 7px rgba(242, 54, 69, 0.22));
+  filter: drop-shadow(0 0 7px rgba(52, 211, 153, 0.22));
 }
 .gtp-brand-lockup:hover .gtp-logo-img,
 .gtp-brand-lockup:focus-visible .gtp-logo-img {
-  filter: drop-shadow(0 0 14px rgba(242, 54, 69, 0.45));
+  filter: drop-shadow(0 0 14px rgba(52, 211, 153, 0.45));
   transform: translateY(-0.5px);
 }
 @media (prefers-reduced-motion: reduce) {
@@ -3115,7 +3139,7 @@ body {
   align-items: center;
   padding: 8px 10px;
   border-radius: 4px;
-  background: rgba(26, 16, 11, 0.55);
+  background: rgba(11, 18, 14, 0.55);
   border: 1px solid var(--vault-rule);
   font-size: 12px;
   color: var(--vault-text-mute);
@@ -3268,7 +3292,7 @@ body {
   color: var(--vault-text-faint);
   padding: 3px 8px;
   border-radius: 999px;
-  background: rgba(26, 16, 11, 0.7);
+  background: rgba(11, 18, 14, 0.7);
   border: 1px solid var(--vault-rule);
 }
 .gtp-awaiting-result-dot {
@@ -3438,18 +3462,18 @@ body {
   flex-wrap: wrap;
   padding: 8px 10px;
   border-radius: 4px;
-  background: rgba(26, 16, 11, 0.55);
+  background: rgba(11, 18, 14, 0.55);
   border: 1px solid var(--vault-rule);
   font-size: 12px;
   color: var(--vault-text-mute);
 }
 .gtp-scorecard-row[data-tone="win"] {
   border-color: rgba(110, 231, 168, 0.30);
-  background: linear-gradient(180deg, rgba(110, 231, 168, 0.06), rgba(26, 16, 11, 0.55));
+  background: linear-gradient(180deg, rgba(110, 231, 168, 0.06), rgba(11, 18, 14, 0.55));
 }
 .gtp-scorecard-row[data-tone="miss"] {
   border-color: rgba(240, 138, 138, 0.28);
-  background: linear-gradient(180deg, rgba(240, 138, 138, 0.05), rgba(26, 16, 11, 0.55));
+  background: linear-gradient(180deg, rgba(240, 138, 138, 0.05), rgba(11, 18, 14, 0.55));
 }
 .gtp-scorecard-row-label {
   font-family: var(--font-mono);
@@ -3760,7 +3784,7 @@ body {
     ),
     linear-gradient(
       155deg,
-      rgba(26, 16, 11, 0.96) 0%,
+      rgba(11, 18, 14, 0.96) 0%,
       rgba(12, 18, 40, 0.94) 100%
     );
   background-size: 200% 200%, 200% 200%, auto;
@@ -3791,7 +3815,7 @@ body {
     ),
     linear-gradient(
       155deg,
-      rgba(26, 16, 11, 0.96) 0%,
+      rgba(11, 18, 14, 0.96) 0%,
       rgba(12, 18, 40, 0.94) 100%
     );
   background-size: 200% 200%, 200% 200%, auto;
@@ -3858,7 +3882,7 @@ body {
   background: linear-gradient(
     155deg,
     rgba(13, 19, 41, 0.78) 0%,
-    rgba(26, 16, 11, 0.78) 100%
+    rgba(11, 18, 14, 0.78) 100%
   );
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -3924,7 +3948,7 @@ body {
   background: linear-gradient(
     160deg,
     rgba(15, 22, 47, 0.82) 0%,
-    rgba(26, 16, 11, 0.78) 100%
+    rgba(11, 18, 14, 0.78) 100%
   );
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
@@ -4117,7 +4141,7 @@ body {
   min-width: 78px;
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(26, 16, 11, 0.55);
+  background: rgba(11, 18, 14, 0.55);
   border: 1px solid var(--vault-border);
   color: var(--vault-text-mute);
   scroll-snap-align: start;
@@ -4152,7 +4176,7 @@ body {
   background: linear-gradient(
     180deg,
     rgba(20, 24, 35, 0.92) 0%,
-    rgba(26, 16, 11, 0.68) 100%
+    rgba(11, 18, 14, 0.68) 100%
   );
   border: 1px solid var(--vault-border);
   transition: border-color 180ms ease, transform 180ms cubic-bezier(0.22, 0.61, 0.36, 1),
@@ -4190,7 +4214,7 @@ body {
 }
 
 .gtp-player-accordion {
-  background: rgba(26, 16, 11, 0.55);
+  background: rgba(11, 18, 14, 0.55);
   border: 1px solid var(--vault-border);
   border-radius: 8px;
   overflow: hidden;
@@ -4237,7 +4261,7 @@ body {
   background:
     linear-gradient(180deg,
       rgba(20, 24, 35, 0.95) 0%,
-      rgba(26, 16, 11, 0.88) 100%);
+      rgba(11, 18, 14, 0.88) 100%);
   border: 1px solid var(--vault-border);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.03) inset,
@@ -4393,9 +4417,9 @@ body {
   border-bottom: 1px solid var(--vault-rule);
   background: linear-gradient(
     90deg,
-    rgba(26, 16, 11, 0.55) 0%,
-    rgba(26, 16, 11, 0.30) 50%,
-    rgba(26, 16, 11, 0.55) 100%
+    rgba(11, 18, 14, 0.55) 0%,
+    rgba(11, 18, 14, 0.30) 50%,
+    rgba(11, 18, 14, 0.55) 100%
   );
   /* Edge fade so items scroll under the borders cleanly. */
   mask-image: linear-gradient(
@@ -4564,7 +4588,7 @@ body {
 .gtp-sport-orb {
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 9999px; line-height: 1;
-  background: var(--orb-grad, radial-gradient(circle at 30% 30%, rgba(240,199,94,0.30), rgba(26, 16, 11,0.6)));
+  background: var(--orb-grad, radial-gradient(circle at 30% 30%, rgba(240,199,94,0.30), rgba(11, 18, 14,0.6)));
   border: 1px solid var(--vault-border);
 }
 
@@ -4604,14 +4628,14 @@ body {
 /* Lava primary CTA — the global "action" treatment (casino final rebuild): magma
    gradient with dark text. Use for the single primary action on a surface;
    secondary actions stay ghost/outline.
-   The gradient is the TEXT-SAFE ramp: on the full --gtp-bank-lava the #1A0E06 label
-   measured 2.31:1 over the blood-red stop, so "high-contrast text" was an assumption,
-   not a measurement. --gtp-bank-lava-cta clears 4.5:1 at every stop. */
+   The gradient is the TEXT-SAFE ramp: contrast is MEASURED at every stop, never assumed. The red
+   era learned this when a #1A0E06 label read 2.31:1 over the blood-red stop; the green rebuild
+   repeated it with a #10794E opening stop at 3.47:1. Darkest stop now measures 8.28:1. */
 .gtp-cta-lava {
   background: var(--gtp-bank-lava-cta);
-  color: #1A0E06;
+  color: #06140D;
   border: none;
-  box-shadow: 0 1px 0 rgba(255,177,60,0.4), 0 6px 18px -6px rgba(255,106,42,0.55);
+  box-shadow: 0 1px 0 rgba(123,239,181,0.4), 0 6px 18px -6px rgba(34,197,94,0.55);
 }
 .gtp-cta-lava:hover { filter: brightness(1.06); }
 
@@ -4676,8 +4700,8 @@ body {
 
 /* Active rung: a light breathing glow (no transform → no reflow). */
 @keyframes climb-rung-breathe {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(242, 54, 69, 0.0); }
-  50%      { box-shadow: 0 0 9px 1px rgba(242, 54, 69, 0.45); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.0); }
+  50%      { box-shadow: 0 0 9px 1px rgba(52, 211, 153, 0.45); }
 }
 .climb-rung-pulse { animation: climb-rung-breathe 2.6s ease-in-out infinite; }
 
@@ -4702,8 +4726,8 @@ body {
 .climb-tab-input#climb-tab-a:checked ~ div label[for="climb-tab-a"],
 .climb-tab-input#climb-tab-b:checked ~ div label[for="climb-tab-b"] {
   color: var(--vault-text);
-  background: rgba(242, 54, 69, 0.12);
-  box-shadow: inset 0 0 0 1px rgba(242, 54, 69, 0.4);
+  background: rgba(52, 211, 153, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(52, 211, 153, 0.4);
 }
 /* Keyboard focus ring on the (visually hidden) radios — ring the matching label. */
 .climb-tab-input#climb-tab-a:focus-visible ~ div label[for="climb-tab-a"],

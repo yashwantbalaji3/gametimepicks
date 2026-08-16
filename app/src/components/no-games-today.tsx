@@ -36,9 +36,9 @@ export default function NoGamesToday({
       style={{
         textAlign: align,
         background:
-          "linear-gradient(180deg, rgba(26, 16, 11, 0.85) 0%, rgba(14, 10, 7, 0.85) 100%)",
+          "linear-gradient(180deg, rgba(11, 18, 14, 0.85) 0%, rgba(14, 10, 7, 0.85) 100%)",
         border: `1px solid ${
-          isFailure ? "rgba(242, 54, 69, 0.30)" : "var(--vault-border)"
+          isFailure ? "rgba(248, 113, 113, 0.30)" : "var(--vault-border)"
         }`,
         ...(isFailure
           ? {

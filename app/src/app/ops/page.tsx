@@ -119,7 +119,7 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 function LaneRow({ l }: { l: Lane }) {
   const live = l.status === "active";
   return (
-    <div className="rounded-lg px-3 py-2" style={{ border: `1px solid ${live ? "rgba(242,54,69,0.4)" : "var(--vault-rule)"}`, background: live ? "rgba(242,54,69,0.06)" : "rgba(255,255,255,0.015)" }}>
+    <div className="rounded-lg px-3 py-2" style={{ border: `1px solid ${live ? "rgba(52, 211, 153, 0.4)" : "var(--vault-rule)"}`, background: live ? "rgba(52, 211, 153, 0.06)" : "rgba(255,255,255,0.015)" }}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <span className="text-[12.5px] font-semibold" style={{ color: "var(--vault-text)" }}>Lane {l.lane} · <span className="font-mono text-[10px] uppercase" style={{ color: live ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)" }}>{l.status}</span>{l.step ? <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}> · Step {l.step}</span> : null}</span>
         <span className="font-mono text-[11px] tabular" style={{ color: "var(--vault-text-mute)" }}>{usd(l.stake)} → {usd(l.potentialReturn)} · {odds(l.combinedOdds)}</span>
@@ -197,7 +197,7 @@ export default function OpsPage() {
             ))}
           </div>
           {s.warnings && s.warnings.length ? (
-            <div className="mt-3 flex flex-col gap-1">{s.warnings.map((w, i) => <div key={i} className="rounded px-2 py-1 text-[11px]" style={{ background: "rgba(242,54,69,0.08)", color: "var(--gtp-bank-heat)" }}>⚠ {w}</div>)}</div>
+            <div className="mt-3 flex flex-col gap-1">{s.warnings.map((w, i) => <div key={i} className="rounded px-2 py-1 text-[11px]" style={{ background: "rgba(52, 211, 153, 0.08)", color: "var(--gtp-bank-heat)" }}>⚠ {w}</div>)}</div>
           ) : <div className="mt-3 text-[11px]" style={{ color: "var(--vault-success)" }}>✓ No missing-data warnings.</div>}
         </Card>
 
@@ -278,7 +278,7 @@ export default function OpsPage() {
       {/* ── GROWTH + MEASUREMENT (Sprint 006) ── */}
       <Card title={`Production health · slate ${growth.health.slateFreshness.toUpperCase()}`}>
         {growth.health.incident ? (
-          <div className="mb-2 rounded px-2 py-1.5 text-[11.5px]" style={{ background: "rgba(242,54,69,0.1)", color: "var(--gtp-bank-heat)" }}>⚠ INCIDENT — {growth.health.incident}</div>
+          <div className="mb-2 rounded px-2 py-1.5 text-[11.5px]" style={{ background: "rgba(52, 211, 153, 0.1)", color: "var(--gtp-bank-heat)" }}>⚠ INCIDENT — {growth.health.incident}</div>
         ) : (
           <div className="mb-2 text-[11px]" style={{ color: "var(--vault-success)" }}>✓ Daily production within/at expectation.</div>
         )}
@@ -320,7 +320,7 @@ export default function OpsPage() {
       <Card title={`Social operations · ${opsBoard.launchable}/${opsBoard.slots.length} launchable · review only (never auto-posted)`}>
         <div className="flex flex-col gap-2">
           {opsBoard.slots.map((slot) => (
-            <div key={slot.slot} className="rounded-lg px-3 py-2" style={{ border: `1px solid ${slot.blocked ? "rgba(242,54,69,0.4)" : "var(--vault-rule)"}`, background: slot.blocked ? "rgba(242,54,69,0.05)" : "rgba(255,255,255,0.015)" }}>
+            <div key={slot.slot} className="rounded-lg px-3 py-2" style={{ border: `1px solid ${slot.blocked ? "rgba(52, 211, 153, 0.4)" : "var(--vault-rule)"}`, background: slot.blocked ? "rgba(52, 211, 153, 0.05)" : "rgba(255,255,255,0.015)" }}>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-[12px] font-semibold" style={{ color: "var(--vault-text)" }}>{slot.title}</span>
                 <span className="font-mono text-[9px] uppercase tracking-[0.06em]" style={{ color: slot.blocked ? "var(--gtp-bank-heat)" : slot.approvalState === "approved" ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{slot.blocked ? `blocked · ${slot.blocked}` : slot.approvalState}</span>

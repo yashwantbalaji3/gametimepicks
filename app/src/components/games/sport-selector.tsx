@@ -101,10 +101,10 @@ export default function SportSelector({ sports, rows }: { sports: SportState[]; 
                 minWidth: 132,
                 minHeight: 76,
                 background: on
-                  ? "radial-gradient(120% 130% at 0% 0%, rgba(242,54,69,0.12) 0%, transparent 60%), var(--vault-panel-elevated)"
+                  ? "radial-gradient(120% 130% at 0% 0%, rgba(52, 211, 153, 0.12) 0%, transparent 60%), var(--vault-panel-elevated)"
                   : "var(--vault-panel)",
                 border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-border)"}`,
-                boxShadow: on ? "0 10px 30px -18px rgba(242,54,69,0.6)" : "none",
+                boxShadow: on ? "0 10px 30px -18px rgba(52, 211, 153, 0.6)" : "none",
                 opacity: on || live ? 1 : 0.82,
               }}
             >
@@ -116,7 +116,7 @@ export default function SportSelector({ sports, rows }: { sports: SportState[]; 
                 <span
                   aria-hidden
                   className="inline-flex items-center justify-center rounded-[9px] shrink-0"
-                  style={{ width: 30, height: 30, fontSize: 16, background: on ? "rgba(242,54,69,0.14)" : "rgba(10,10,11,0.5)", border: `1px solid ${on ? "color-mix(in srgb, var(--vault-gold-bright) 40%, transparent)" : "var(--vault-rule)"}` }}
+                  style={{ width: 30, height: 30, fontSize: 16, background: on ? "rgba(52, 211, 153, 0.14)" : "rgba(10,10,11,0.5)", border: `1px solid ${on ? "color-mix(in srgb, var(--vault-gold-bright) 40%, transparent)" : "var(--vault-rule)"}` }}
                 >
                   {s.icon}
                 </span>

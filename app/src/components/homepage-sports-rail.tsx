@@ -76,7 +76,7 @@ export default function HomepageSportsRail() {
           className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
           style={{
             background: "var(--vault-gold-bright)",
-            boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
+            boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
           }}
         />
         <span
@@ -110,7 +110,7 @@ export default function HomepageSportsRail() {
           <article
             className="rounded-[12px] px-5 py-5 col-span-full"
             style={{
-              background: "rgba(26, 16, 11,0.55)",
+              background: "rgba(11, 18, 14,0.55)",
               border: "1px solid var(--vault-border)",
             }}
           >
@@ -261,7 +261,7 @@ function PendingTile({
       href={href}
       className="vault-glow-hover rounded-[8px] px-4 py-3 flex items-center gap-3"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-border)",
         textDecoration: "none",
       }}

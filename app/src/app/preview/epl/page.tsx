@@ -56,7 +56,7 @@ function LifecycleBadge({ view }: { view: EplFixtureView }) {
 
 function FixtureCard({ view }: { view: EplFixtureView }) {
   return (
-    <section className="rounded-[12px] px-4 py-3.5" style={{ border: RULE, background: "rgba(12,8,6,0.5)" }}>
+    <section className="rounded-[12px] px-4 py-3.5" style={{ border: RULE, background: "rgba(7, 11, 9,0.5)" }}>
       <header className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-display text-[15px] font-bold tracking-tight" style={{ color: "var(--vault-text)" }}>
           {view.homeClub} <span style={{ color: MUTE }}>v</span> {view.awayClub}

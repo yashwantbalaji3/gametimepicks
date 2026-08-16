@@ -26,7 +26,7 @@ export default function AchievementBanner() {
     <section
       aria-label="Track record"
       className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4"
-      style={{ border: "1px solid rgba(217,164,65,0.45)", background: "linear-gradient(135deg, rgba(217,164,65,0.14), rgba(26,16,11,0.5))" }}
+      style={{ border: "1px solid rgba(217,164,65,0.45)", background: "linear-gradient(135deg, rgba(217,164,65,0.14), rgba(11, 18, 14,0.5))" }}
     >
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="min-w-0">

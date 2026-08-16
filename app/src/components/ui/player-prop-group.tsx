@@ -39,7 +39,7 @@ export default function PlayerPropGroup({ group, defaultOpen }: { group: ReturnT
   const n = group.items.length;
   const edge = group.bestEdge;
   return (
-    <details className="gtp-card-hover rounded-[9px] min-w-0 group" open={defaultOpen} style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+    <details className="gtp-card-hover rounded-[9px] min-w-0 group" open={defaultOpen} style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
       <summary className="px-3 py-2.5 flex items-center gap-2.5 min-w-0 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
         <PlayerAvatar name={group.name} photo={group.photo} size={32} />
         <div className="flex flex-col min-w-0 flex-1">

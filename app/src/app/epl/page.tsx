@@ -21,6 +21,7 @@ export default function EplPage() {
   return (
     <SportSchedulePage
       title="Premier League"
+      accent="var(--sport-soccer)"
       blurb="The 2026-27 Premier League fixture list, kept current so the season is ready to model the moment it can be."
       logoSport="soccer"
       sides={["home", "away"]}

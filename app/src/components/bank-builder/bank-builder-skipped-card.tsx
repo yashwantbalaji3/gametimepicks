@@ -20,7 +20,7 @@ export default function BankBuilderSkippedCard({
   return (
     <div
       className="rounded-[14px] px-5 py-4 flex flex-col gap-3"
-      style={{ background: "rgba(26,16,11,0.5)", border: "1px solid var(--vault-gold)", borderLeft: "3px solid var(--vault-gold-bright)" }}
+      style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-gold)", borderLeft: "3px solid var(--vault-gold-bright)" }}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: variant === "full" ? 18 : 15, fontWeight: 800 }}>
@@ -40,7 +40,7 @@ export default function BankBuilderSkippedCard({
           <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Meanwhile — the model&rsquo;s strongest single legs today</span>
           <div className="flex flex-col gap-1">
             {alternatives.map((a) => (
-              <div key={a.gameSlug + a.selection} className="flex items-center justify-between gap-2 rounded-[7px] px-2.5 py-1.5" style={{ background: "rgba(12,8,6,0.45)", border: "1px solid var(--vault-rule)" }}>
+              <div key={a.gameSlug + a.selection} className="flex items-center justify-between gap-2 rounded-[7px] px-2.5 py-1.5" style={{ background: "rgba(7, 11, 9,0.45)", border: "1px solid var(--vault-rule)" }}>
                 <span className="flex items-center gap-1.5 min-w-0">
                   {a.homeCode ? <FlagBadge code={a.homeCode} size="sm" /> : null}
                   <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 11.5, fontWeight: 600 }}>{a.selection}</span>

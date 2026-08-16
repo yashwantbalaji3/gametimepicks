@@ -28,7 +28,7 @@ export default function BankBuilderFeaturedCard({ card }: { card: FeaturedBuilde
       aria-label="Featured NBA Finals paper card"
       className="mt-6 rounded-[10px] p-4 sm:p-5 flex flex-col gap-3"
       style={{
-        background: "linear-gradient(180deg, rgba(26,16,11,0.92) 0%, rgba(26, 16, 11,0.62) 100%)",
+        background: "linear-gradient(180deg, rgba(11, 18, 14,0.92) 0%, rgba(11, 18, 14,0.62) 100%)",
         border: `1px solid ${hit ? "var(--vault-success)" : "var(--sport-nba, var(--vault-border))"}`,
       }}
     >

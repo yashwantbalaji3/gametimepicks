@@ -307,7 +307,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
       </nav>
 
       {/* 1 — Matchup header + status */}
-      <section id="mlbr-summary" className="rounded-[16px] px-4 sm:px-6 py-5 flex flex-col gap-3" style={{ background: "rgba(26,16,11,0.6)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold)" }}>
+      <section id="mlbr-summary" className="rounded-[16px] px-4 sm:px-6 py-5 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold)" }}>
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
             <Monogram code={awayCode} name={away} />

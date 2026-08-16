@@ -139,7 +139,7 @@ export default function MlbLandingPage() {
               key={tileKey}
               href={detailHref}
               className="vault-glow-hover flex items-center justify-between gap-3 rounded-[6px]"
-              style={{ padding: "12px 14px", border: "1px solid var(--vault-border)", background: "rgba(26, 16, 11, 0.55)", color: "inherit", textDecoration: "none" }}
+              style={{ padding: "12px 14px", border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14, 0.55)", color: "inherit", textDecoration: "none" }}
               aria-label={`View props for ${g.awayTeamAbbr ?? "?"} at ${g.homeTeamAbbr ?? "?"}`}
             >
               <span className="inline-flex items-center gap-1 shrink-0" aria-hidden>
@@ -254,7 +254,7 @@ export default function MlbLandingPage() {
   const resultsTab = (
     <div className="flex flex-col gap-4">
       <SectionHeader eyebrow="Results" title="MLB track record" sub="Settled model projections and their outcomes. Full cross-sport history lives on the Results page." />
-      <div className="flex items-center gap-3 flex-wrap rounded-[8px] px-4 py-3" style={{ background: "rgba(26, 16, 11,0.55)", border: "1px solid var(--vault-border)" }}>
+      <div className="flex items-center gap-3 flex-wrap rounded-[8px] px-4 py-3" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
         <StatusChip label={mlbLifetime?.hitRate != null ? "Settled" : "Pending settlement"} />
         <span style={{ color: "var(--vault-text)", fontSize: 13 }}>
           {mlbLifetime?.hitRate != null ? `${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive} settled decisions` : "Pending first settlement."}

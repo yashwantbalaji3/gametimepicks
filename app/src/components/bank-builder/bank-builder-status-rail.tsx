@@ -58,7 +58,7 @@ export default function BankBuilderStatusRail({
       style={{
         border: "1px solid var(--lava-border-strong)",
         background: "radial-gradient(120% 140% at 0% 0%, rgba(225,29,42,0.10) 0%, transparent 55%)," +
-          "linear-gradient(135deg, rgba(26,20,14,0.95) 0%, var(--vault-bg) 72%)",
+          "linear-gradient(135deg, rgba(13, 21, 17,0.95) 0%, var(--vault-bg) 72%)",
       }}
     >
       <div className="relative flex flex-wrap items-center justify-between gap-2">

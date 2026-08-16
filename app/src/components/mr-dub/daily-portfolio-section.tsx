@@ -78,7 +78,7 @@ function StatusPill({ status }: { status: DailyPortfolioCard["status"] }) {
 function LaneCard({ card }: { card: DailyPortfolioCard }) {
   const moonshot = card.product === "moonshot";
   return (
-    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(12,8,6,0.4)", borderLeft: `2px solid ${moonshot ? "#8b7bf0" : "var(--vault-gold-bright)"}` }}>
+    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.4)", borderLeft: `2px solid ${moonshot ? "#8b7bf0" : "var(--vault-gold-bright)"}` }}>
       <div className="px-3.5 py-3 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
         <div className="flex items-center justify-between gap-2 min-w-0">
           <span className="font-semibold truncate" style={{ color: "var(--vault-text)", fontSize: 13 }}>
@@ -159,7 +159,7 @@ function SkippedProductCard({ product }: { product: "bank-builder" | "moonshot" 
       ? "No 2-leg team-market combo cleared the model's ladder-step target on today's thin knockout slate — the model skipped it instead of forcing a weak ladder off low-value player props."
       : "No qualified longshot card cleared the +700 floor with a coherent story today — the model is holding rather than forcing a thin moonshot.";
   return (
-    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px dashed var(--vault-rule)", background: "rgba(12,8,6,0.3)", borderLeft: `2px solid ${product === "moonshot" ? "#8b7bf0" : "var(--vault-gold-bright)"}` }}>
+    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px dashed var(--vault-rule)", background: "rgba(7, 11, 9,0.3)", borderLeft: `2px solid ${product === "moonshot" ? "#8b7bf0" : "var(--vault-gold-bright)"}` }}>
       <div className="px-3.5 py-3 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
         <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>{label}</span>
         <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8.5, color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>no qualified play</span>

@@ -113,7 +113,7 @@ function SectionHeader({
           className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
           style={{
             background: "var(--vault-gold-bright)",
-            boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
+            boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
           }}
         />
         <span
@@ -165,7 +165,7 @@ function NoteCard({ note }: { note: AuditNote }) {
     <article
       className="rounded-[6px] px-4 py-4 sm:px-5 sm:py-5 flex flex-col gap-2"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -220,8 +220,8 @@ const WEIGHT_STYLES: Record<
   },
   lean: {
     fg: "var(--vault-gold-bright)",
-    bg: "rgba(242, 54, 69, 0.10)",
-    border: "rgba(242, 54, 69, 0.30)",
+    bg: "rgba(52, 211, 153, 0.10)",
+    border: "rgba(52, 211, 153, 0.30)",
   },
   "small-sample": {
     fg: "var(--vault-text-faint)",
@@ -264,7 +264,7 @@ function BucketTable({
     <div
       className="rounded-[6px] px-4 py-4"
       style={{
-        background: "rgba(26, 16, 11, 0.55)",
+        background: "rgba(11, 18, 14, 0.55)",
         border: "1px solid var(--vault-border)",
       }}
     >

@@ -22,7 +22,7 @@ export default function MrDubTodayCard() {
   const pl = latest?.pl ?? 0;
   const plColor = pl > 0 ? "var(--vault-success)" : pl < 0 ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)";
   return (
-    <Link href="/mr-dub" className="gtp-card-hover flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)", background: "linear-gradient(135deg, rgba(217,164,65,0.08), rgba(26,16,11,0.3))", textDecoration: "none" }}>
+    <Link href="/mr-dub" className="gtp-card-hover flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", borderTop: "2px solid var(--vault-gold-bright)", background: "linear-gradient(135deg, rgba(217,164,65,0.08), rgba(11, 18, 14,0.3))", textDecoration: "none" }}>
       <MrDubAvatar size={40} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">

@@ -137,7 +137,7 @@ export default function NbaResultsPage() {
             className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 8px rgba(242, 54, 69, 0.6)",
+              boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
             }}
           />
           <span
@@ -154,7 +154,7 @@ export default function NbaResultsPage() {
               color: "var(--vault-gold-bright)",
               fontSize: "clamp(48px, 10vw, 96px)",
               textShadow:
-                "0 0 24px rgba(242, 54, 69, 0.45), 0 0 8px rgba(242, 54, 69, 0.55)",
+                "0 0 24px rgba(52, 211, 153, 0.45), 0 0 8px rgba(52, 211, 153, 0.55)",
             }}
           >
             {lifetime.hitRate !== null ? formatPercent(lifetime.hitRate) : "—"}
@@ -195,7 +195,7 @@ export default function NbaResultsPage() {
           className="mt-6 px-4 py-3 rounded-[3px] flex items-start gap-3"
           style={{
             background: "var(--vault-warn-dim)",
-            border: "1px solid rgba(242, 54, 69, 0.30)",
+            border: "1px solid rgba(52, 211, 153, 0.30)",
           }}
         >
           <span
@@ -303,7 +303,7 @@ export default function NbaResultsPage() {
           <details
             className="group"
             style={{
-              background: "rgba(26, 16, 11,0.40)",
+              background: "rgba(11, 18, 14,0.40)",
               border: "1px dashed var(--vault-border)",
               borderRadius: 8,
               padding: "10px 14px",

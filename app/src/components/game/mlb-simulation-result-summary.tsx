@@ -75,7 +75,7 @@ export default function MlbSimulationResultSummary({ headline, picks, runCount, 
   const runLabel = allowsRunCountClaim && runCount != null && runCount > 0 ? `${runCount.toLocaleString()}-run` : "deterministic";
 
   return (
-    <section aria-label="Simulation result" className="rounded-[14px] px-4 sm:px-5 py-4 flex flex-col gap-3" style={{ background: "rgba(26,16,11,0.5)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold-bright)" }}>
+    <section aria-label="Simulation result" className="rounded-[14px] px-4 sm:px-5 py-4 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold-bright)" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>Simulation result</h2>
         {isPreviousSlate ? (

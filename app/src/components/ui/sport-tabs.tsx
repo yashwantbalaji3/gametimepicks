@@ -22,7 +22,7 @@ export default function SportTabs({ tabs }: { tabs: SportTabDef[] }) {
   const go = (k: string) => { const el = document.getElementById(k); if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); setActive(k); } };
   return (
     <nav aria-label="Sections" className="sticky top-0 z-20 -mx-4 sm:-mx-8 px-4 sm:px-8 py-2 mb-4 overflow-x-auto"
-         style={{ background: "rgba(26, 16, 11,0.92)", backdropFilter: "blur(8px)", borderBottom: "1px solid var(--vault-border)" }}>
+         style={{ background: "rgba(11, 18, 14,0.92)", backdropFilter: "blur(8px)", borderBottom: "1px solid var(--vault-border)" }}>
       <div className="flex items-center gap-1.5 min-w-max">
         {tabs.map((t) => {
           const on = active === t.key;
