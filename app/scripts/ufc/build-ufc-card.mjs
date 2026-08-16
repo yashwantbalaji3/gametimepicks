@@ -69,7 +69,7 @@ const V = evaluation.verdicts ?? {};
 
 const corpus = loadCorpus(RAW);
 if (!corpus) { console.error("ufc card: fight corpus absent — cannot build"); process.exit(1); }
-const { rowsOut, rec, recByKey, wcRec, baseMethod, fights } = corpus;
+const { rowsOut, rec, recByKey, logByKey, wcRec, baseMethod, fights } = corpus;
 
 const winModel = fitBinary(rowsOut.map((r) => ({ feat: r.feat, y: r.f.aWon })), WIN_F);
 const methodModel = fitSoftmax(rowsOut.map((r) => ({ feat: r.feat, k: METHODS.indexOf(r.f.method) })), CLS_F, 3);
@@ -105,6 +105,72 @@ function featuresFor(nameA, nameB, weightClass, scheduled) {
     },
     priorFights: { a: A.n, b: B.n },
   };
+}
+
+/**
+ * The reader-facing profile for one fighter: recent form, a short read on how they win and how they
+ * lose, all derived from the corpus. Nothing here is written by hand — a claim like "dangerous early"
+ * has to fall out of that fighter's own finish distribution or it does not appear.
+ */
+function profileFor(name) {
+  const key = nameKey(name);
+  const log = logByKey.get(key) ?? [];
+  const r = recByKey.get(key);
+  if (!r || r.n === 0) return { bouts: 0, last5: [], strengths: [], weaknesses: [], summary: null };
+
+  const last5 = log.slice(-5).reverse().map((b) => ({
+    date: b.date, opponent: b.opponent, result: b.won ? "W" : "L",
+    method: b.method, round: b.round, weightClass: b.weightClass,
+  }));
+
+  const pct = (num, den) => (den > 0 ? num / den : 0);
+  const finishRate = pct(r.koW + r.subW, r.w);
+  const koShare = pct(r.koW, r.koW + r.subW);
+  const finishedRate = pct(r.koL + r.subL, r.n - r.w);
+  const distanceRate = pct(r.dist, r.n);
+  const winRate = pct(r.w, r.n);
+
+  const strengths = [];
+  if (r.w >= 3 && finishRate >= 0.6) strengths.push(koShare >= 0.6 ? "Finishes fights — mostly by knockout" : "Finishes fights — mostly by submission");
+  if (r.subW >= 3) strengths.push(`${r.subW} career submission wins in this corpus`);
+  if (r.koW >= 3) strengths.push(`${r.koW} career knockouts in this corpus`);
+  if (winRate >= 0.7 && r.n >= 5) strengths.push(`${Math.round(winRate * 100)}% win rate across ${r.n} tracked bouts`);
+  if (distanceRate >= 0.6 && r.n >= 5) strengths.push("Durable — most of his fights reach the judges");
+
+  const weaknesses = [];
+  if (r.n - r.w >= 2 && finishedRate >= 0.6) weaknesses.push("When he loses, he tends to get finished rather than out-pointed");
+  if (r.n >= 5 && winRate <= 0.45) weaknesses.push(`${Math.round((1 - winRate) * 100)}% of his tracked bouts are losses`);
+  if (r.w >= 3 && finishRate <= 0.2) weaknesses.push("Rarely finishes — needs the judges");
+  if (!strengths.length) strengths.push(`${r.n} tracked bouts — too few clear tendencies to call out`);
+  if (!weaknesses.length) weaknesses.push("No consistent weakness stands out in the tracked record");
+
+  const recent = last5.filter((b) => b.result === "W").length;
+  return {
+    bouts: r.n, record: { wins: r.w, losses: r.n - r.w },
+    last5, strengths: strengths.slice(0, 3), weaknesses: weaknesses.slice(0, 2),
+    summary: `${recent}-${last5.length - recent} in his last ${last5.length}. ${Math.round(finishRate * 100)}% of his wins come by finish; ${Math.round(distanceRate * 100)}% of his fights reach the judges.`,
+  };
+}
+
+/**
+ * WHY this fighter, in one line — assembled from the features that actually moved the prediction,
+ * never from a template. If nothing separates them, it says that instead of inventing a reason.
+ */
+function reasonFor(pickName, otherName, pWin, method, rounds) {
+  const A = recByKey.get(nameKey(pickName)), B = recByKey.get(nameKey(otherName));
+  if (!A || !B) return null;
+  const rate = (num, den, fallback) => (den > 0 ? num / den : fallback);
+  const bits = [];
+  const winA = rate(A.w, A.n, 0.5), winB = rate(B.w, B.n, 0.5);
+  if (winA - winB >= 0.12) bits.push(`wins ${Math.round(winA * 100)}% of his bouts to ${otherName.split(" ").pop()}'s ${Math.round(winB * 100)}%`);
+  const finA = rate(A.koW + A.subW, A.w, 0), finishedB = rate(B.koL + B.subL, B.n - B.w, 0);
+  if (finA >= 0.55 && finishedB >= 0.5) bits.push(`he finishes ${Math.round(finA * 100)}% of his wins and ${otherName.split(" ").pop()} has been finished in ${Math.round(finishedB * 100)}% of his losses`);
+  else if (finA >= 0.6) bits.push(`${Math.round(finA * 100)}% of his wins come by finish`);
+  const expEdge = A.n - B.n;
+  if (Math.abs(expEdge) >= 8) bits.push(expEdge > 0 ? `${A.n} tracked bouts against ${B.n}` : `the shorter record belongs to him (${A.n} vs ${B.n}), so the read leans on his opponent's history`);
+  if (!bits.length) return `The model separates these two by very little — ${Math.round(pWin * 100)}% is close to a coin flip, and nothing in either record breaks the tie cleanly.`;
+  const tail = method === "DEC" ? "and the matchup profiles as one that reaches the judges" : `and the finish profile points to a ${method === "KO" ? "knockout" : "submission"}`;
+  return `${pickName} ${bits.slice(0, 2).join(", ")} — ${tail}.`;
 }
 
 // ── Card ────────────────────────────────────────────────────────────────────────────────────────
@@ -166,14 +232,22 @@ for (const c of event.competitions ?? []) {
     };
   }
 
+  const redProfile = profileFor(red.name);
+  const blueProfile = profileFor(blue.name);
+  const reason = prediction?.winner
+    ? reasonFor(prediction.winner.name, prediction.winner.name === red.name ? blue.name : red.name,
+                prediction.winner.probability, prediction.method?.most ?? "DEC", prediction.rounds?.endsIn ?? "3+")
+    : null;
+
   card.push({
     boutId: String(c.id ?? ""),
     weightClass: wc,
     scheduledRounds: scheduled,
     startUtc: c.date ?? event.date,
     titleFight: scheduled === 5,
-    red, blue,
-    prediction,
+    red: { ...red, profile: redProfile },
+    blue: { ...blue, profile: blueProfile },
+    prediction: prediction ? { ...prediction, reason } : null,
     unmodelledReason: prediction ? null : "Neither fighter has enough UFC history in our corpus to build a read from.",
   });
 }

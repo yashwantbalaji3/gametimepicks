@@ -105,6 +105,7 @@ export function loadCorpus(RAW) {
 
   // ── Features, replayed forward ─────────────────────────────────────────────────────────────────
   const rec = new Map(); // fighter -> counters over PRIOR fights only
+  const boutLog = new Map(); // fighter -> every bout, oldest first
   const blank = () => ({ n: 0, w: 0, koW: 0, subW: 0, decW: 0, koL: 0, subL: 0, decL: 0, dist: 0 });
   const get = (k) => rec.get(k) ?? blank();
   const wcRec = new Map();
@@ -138,7 +139,15 @@ export function loadCorpus(RAW) {
     rowsOut.push({ date: f.date, f, feat, seen: Math.min(A.n, B.n) });
 
     // advance state AFTER the row is emitted
-    for (const [self, other, won] of [[f.a, f.b, f.aWon], [f.b, f.a, 1 - f.aWon]]) {
+    // Keep a per-fighter BOUT LOG alongside the counters. Same forward replay, so a fighter's log
+  // only ever contains fights that already happened — the recent-form panel inherits the leakage
+  // discipline for free instead of needing its own.
+  for (const [self, other, won] of [[f.a, f.b, f.aWon], [f.b, f.a, 1 - f.aWon]]) {
+    const log = boutLog.get(self) ?? [];
+    log.push({ date: f.date.toISOString().slice(0, 10), opponent: other, won: Boolean(won), method: f.method, round: f.round, weightClass: f.weightClass });
+    boutLog.set(self, log);
+  }
+  for (const [self, other, won] of [[f.a, f.b, f.aWon], [f.b, f.a, 1 - f.aWon]]) {
       const s = get(self); const c = { ...s };
       c.n++; if (won) c.w++;
       if (won) { if (f.method === "KO") c.koW++; else if (f.method === "SUB") c.subW++; else c.decW++; }
@@ -155,7 +164,9 @@ export function loadCorpus(RAW) {
   // A folded-key index alongside the exact-name map, so callers can resolve provider spellings.
   const recByKey = new Map();
   for (const [name, v] of rec) recByKey.set(nameKey(name), v);
-  return { fights, excluded, rowsOut, rec, recByKey, wcRec, baseMethod, aWinRate };
+  const logByKey = new Map();
+  for (const [name, log] of boutLog) logByKey.set(nameKey(name), log);
+  return { fights, excluded, rowsOut, rec, recByKey, boutLog, logByKey, wcRec, baseMethod, aWinRate };
 }
 
 export const WIN_F = ["winDiff", "finishDiff", "durabilityDiff", "expDiff"];

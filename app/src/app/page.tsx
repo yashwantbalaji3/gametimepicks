@@ -173,7 +173,7 @@ export default function HomePage() {
     slateDate: serverToday,
     artifactDate: ufcSlateDate || "2026-06-15",
     leans: ufcPredicted,
-    inSeason: ufcBouts > 0,
+    inSeason: ufcPredicted > 0,   // bouts alone are a schedule; predictions are what make it live
   });
 
   const allSports = [
@@ -209,11 +209,11 @@ export default function HomePage() {
       card: {
         href: "/ufc",
         label: "UFC",
-        blurb: "Winner, method of victory and finishing round for every bout on the card.",
-        status: ufcBouts > 0 ? `${ufcPredicted} of ${ufcBouts} bouts predicted` : stateLabel(ufcState, { artifactDate: "2026-06-15" }),
-        statusSub: ufcBouts > 0 ? "experimental · paper-only" : "official settlement · paper-only",
-        cta: ufcBouts > 0 ? "Enter" : "View the record",
-        accent: ufcBouts > 0 ? "var(--gtp-bank-lava-cta, var(--vault-gold))" : "var(--vault-text-mute)",
+        blurb: ufcPredicted > 0 ? "Winner, method of victory and finishing round for every bout on the card." : "The next card is a prospect show — no fighter has enough UFC history to model yet.",
+        status: ufcPredicted > 0 ? `${ufcPredicted} of ${ufcBouts} bouts predicted` : stateLabel(ufcState, { artifactDate: ufcSlateDate || "2026-06-15" }),
+        statusSub: ufcPredicted > 0 ? "experimental · paper-only" : "schedule only · no fighter history yet",
+        cta: ufcPredicted > 0 ? "Enter" : "View the card",
+        accent: ufcPredicted > 0 ? "var(--sport-ufc)" : "var(--vault-text-mute)",
       },
     },
   ];

@@ -80,8 +80,10 @@ test("WIRING · the homepage hub feeds ONLY mlb + the ufc archive; schedule spor
   // P191: the door this guarded was "a mere SCHEDULE must not promote UFC". A published FIGHT MODEL
   // is a different thing, so inSeason is now driven by whether bouts actually carry predictions —
   // never by a date, and never by the existence of a card alone.
-  assert.match(ufcStateBlock, /inSeason: ufcBouts > 0/, "UFC is in season for hub purposes only when its card artifact holds bouts");
-  const boutsDerivation = src.slice(src.indexOf("const ufcBouts ="), src.indexOf("const ufcSlateDate"));
+    // P194: tightened from "has bouts" to "has PREDICTIONS". A Contender Series card of debutants has
+  // bouts but nothing modelled — a schedule, not live coverage — so bouts alone must not promote it.
+  assert.match(ufcStateBlock, /inSeason: ufcPredicted > 0/, "UFC is in season for hub purposes only when its card carries PREDICTIONS");
+  const boutsDerivation = src.slice(src.indexOf("const ufcBouts ="), src.indexOf("const nflState"));
   assert.match(boutsDerivation, /card-latest\.json/, "the bout count is read from the card artifact, not asserted");
 });
 

@@ -171,8 +171,11 @@
   --lava-panel: #0F1512;          /* dark panel */
   --lava-card: #121A16;           /* card surface */
   --lava-card-2: #1F1F23;         /* elevated card */
-  --lava-border: rgba(52, 211, 153, 0.20);
-  --lava-border-strong: rgba(52, 211, 153, 0.40);
+  /* P194: alpha raised from the values the RED palette used. Green at 0.20 on a near-black base is
+     far fainter than crimson was at the same alpha — card edges had all but vanished. These are set
+     by legibility of the EDGE, not by matching the old numbers. */
+  --lava-border: rgba(52, 211, 153, 0.34);
+  --lava-border-strong: rgba(52, 211, 153, 0.58);
   --lava-heat: #34D399;           /* brand accent — 10.3:1 on the base, safe for text */
   --lava-ember: #22C55E;          /* deeper brand green */
   --lava-magma: #10794E;          /* darkest green, for gradient anchors */
@@ -186,7 +189,7 @@
   --lava-danger: #F87171;
 
   /* Phase 7B-7 — refinement tokens for spacing, dividers, focus */
-  --vault-rule: rgba(52, 211, 153, 0.12);    /* internal section dividers */
+  --vault-rule: rgba(52, 211, 153, 0.22);    /* internal section dividers */
   --vault-shadow-soft: 0 1px 0 rgba(212, 175, 55, 0.04);
   --vault-focus-ring: 0 0 0 1px var(--lava-heat), 0 0 0 4px rgba(52, 211, 153, 0.22);
 
@@ -241,8 +244,8 @@
   --gtp-shell-elevated:  #101A15;
   --gtp-shell-rail:      #0B120E;
   --gtp-shell-overlay:   rgba(11, 18, 14, 0.92);
-  --gtp-shell-border:    rgba(52, 211, 153, 0.20);
-  --gtp-shell-rule:      rgba(74, 222, 128, 0.12);
+  --gtp-shell-border:    rgba(52, 211, 153, 0.32);
+  --gtp-shell-rule:      rgba(74, 222, 128, 0.20);
 
   /* Default content surfaces — DARK (elevated charcoal cards on the
      deep navy shell). Overridden inside `.gtp-canvas` to light cream
@@ -250,8 +253,8 @@
   --gtp-card:            #121A16;
   --gtp-card-elevated:   #18231D;
   --gtp-card-sunken:     #0C120F;
-  --gtp-card-border:     rgba(52, 211, 153, 0.18);
-  --gtp-card-border-strong: rgba(74, 222, 128, 0.32);
+  --gtp-card-border:     rgba(52, 211, 153, 0.30);
+  --gtp-card-border-strong: rgba(74, 222, 128, 0.50);
   --gtp-card-shadow:     0 1px 0 rgba(255, 255, 255, 0.03) inset,
                          0 6px 18px -8px rgba(0, 0, 0, 0.5);
 

@@ -15,7 +15,7 @@ const tw = fs.readFileSync("tailwind.config.ts", "utf8");
 test("canonical design system is the GREEN base palette (P193)", () => {
   assert.ok(css.includes("--lava-bg: #070B09;"), "base is near-black with a green cast");
   assert.ok(css.includes("--lava-card: #121A16;"), "card surface is the green-cast dark");
-  assert.ok(css.includes("--lava-border: rgba(52, 211, 153, 0.20);"), "border is brand green");
+  assert.ok(css.includes("--lava-border: rgba(52, 211, 153, 0.34);"), "border is brand green at legible alpha");
   assert.ok(css.includes("--lava-text: #F5F7F6;"), "text is high-contrast white");
 });
 
@@ -26,9 +26,9 @@ test("legacy --vault-* tokens reference the lava system (lava is the source of t
   assert.ok(!css.includes("--vault-bg: #0A0B10;"), "old cool graphite base removed");
 });
 
-test("universal section rule + shell border are crimson (V1 sitewide), gold kept only as crown", () => {
-  assert.ok(css.includes("--vault-rule: rgba(52, 211, 153, 0.12);"), "section rule is brand green");
-  assert.ok(css.includes("--gtp-shell-border:    rgba(52, 211, 153, 0.20);"), "shell border is brand green");
+test("universal section rule + shell border are BRAND GREEN (P193 sitewide), gold kept only as crown", () => {
+  assert.ok(css.includes("--vault-rule: rgba(52, 211, 153, 0.22);"), "section rule is brand green at legible alpha");
+  assert.ok(css.includes("--gtp-shell-border:    rgba(52, 211, 153, 0.32);"), "shell border is brand green at legible alpha");
   // Program 137 lightened this crimson #F23645 -> #FA4A5A: as a TEXT colour the original
   // measured 3.21-4.49:1 on the dark surfaces, under WCAG AA everywhere it labelled
   // something. The guard still asserts what it always meant — the site accent is CRIMSON,

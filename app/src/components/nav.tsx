@@ -23,8 +23,15 @@ import { MOBILE_NAV_ITEMS } from "@/lib/nav-active-route";
 const NAV_ITEMS: Array<{
   href: string;
   label: string;
-  /** When true, render a faint gold divider chip BEFORE this item. */
+  /** When true, render a faint divider chip BEFORE this item. */
   beforeDivider?: boolean;
+  /**
+   * Which cluster this destination belongs to (P194). The spine was thirteen flat items mixing five
+   * different KINDS of thing — a time ("Today"), actions ("Simulate", "Build"), sports, products and
+   * trust pages — all rendered as peers. That is the tangle: nothing told a reader which items were
+   * alternatives to each other. Grouping is the whole fix; the destinations are unchanged.
+   */
+  group?: "now" | "sports" | "products" | "record";
 }> = [
   // Product spine — clean, user-facing labels only (no implementation routes
   // like "Projections"/"Parlay Lab" in primary nav; those stay reachable as
@@ -38,23 +45,23 @@ const NAV_ITEMS: Array<{
   // PRIMARY — the simulation-product spine a first-time visitor scans (Adoption Sprint IA prune; founder-
   // adjustable): the daily hub, the core action, the honest track record, and how it works. The paper-bankroll
   // products (Bank Builder / Moonshot) are real + reachable but move to SECONDARY so the sim product leads.
-  { href: "/today", label: "Today" },
-  { href: "/simulate", label: "Simulate" },
-  { href: "/markets", label: "Market Center" },
-  { href: "/results", label: "Results" },
-  { href: "/learn", label: "How It Works" },
+  { href: "/today", label: "Today", group: "now" },
+  { href: "/simulate", label: "Simulate", group: "now" },
+  { href: "/markets", label: "Market Center", group: "now" },
+  { href: "/results", label: "Results", group: "record" },
+  { href: "/learn", label: "How It Works", group: "record" },
   // SECONDARY — still reachable, de-emphasized after the divider: the flagship paper products, the one
   // live sport hub, and the card surfaces.
-  { href: "/bank-builder", label: "Bank Builder", beforeDivider: true },
-  { href: "/moonshot", label: "Moonshot" },
-  { href: "/mlb", label: "MLB" },
-  { href: "/nfl", label: "NFL" },
-  { href: "/epl", label: "Premier League" },
-  { href: "/ufc", label: "UFC" },
+  { href: "/bank-builder", label: "Bank Builder", beforeDivider: true, group: "products" },
+  { href: "/moonshot", label: "Moonshot", group: "products" },
+  { href: "/mlb", label: "MLB", group: "sports" },
+  { href: "/nfl", label: "NFL", group: "sports" },
+  { href: "/epl", label: "Premier League", group: "sports" },
+  { href: "/ufc", label: "UFC", group: "sports" },
   // ONE Sports destination, not four league links (Program 158 IA decision): /sports carries real
   // verified schedules for EPL/NFL/NBA/UFC with coverage stated in words. The label says
   // "Schedules" so the item can never read as a second model hub beside MLB.
-  { href: "/sports", label: "Sports · Schedules" },
+  { href: "/sports", label: "Sports · Schedules", group: "sports" },
   { href: "/mr-dub", label: "Mr. Dub's Portfolio" },
 ];
 // The old "More Sports" directory of equal model-ish tiles stays gone. What exists instead is the
@@ -79,6 +86,12 @@ const SPORT_HREFS = new Set(["/mlb"]);
 // window; the command rail owns lg+.
 const BOTTOM_NAV_HREFS = new Set(MOBILE_NAV_ITEMS.map((i) => i.href));
 const MOBILE_TOP_ITEMS = NAV_ITEMS.filter((i) => !BOTTOM_NAV_HREFS.has(i.href));
+
+/** The four clusters, in the order a reader needs them: what's on now, which sport, which product,
+ *  and how it has done. Rendered as a quiet label at each boundary. */
+const GROUP_LABEL: Record<string, string> = {
+  now: "Now", sports: "Sports", products: "Products", record: "Track record",
+};
 
 export default function Nav() {
   const pathname = usePathname() || "/";
@@ -155,6 +168,11 @@ export default function Nav() {
             const isSport = SPORT_HREFS.has(item.href);
             return (
               <span key={item.href} className="inline-flex items-center">
+                {idx > 0 && NAV_ITEMS[idx - 1]?.group !== item.group && item.group && (
+                  <span className="font-mono uppercase tracking-[0.16em] select-none px-1.5" aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 8.5, alignSelf: "center" }}>
+                    {GROUP_LABEL[item.group]}
+                  </span>
+                )}
                 {item.beforeDivider && idx > 0 && (
                   <span
                     aria-hidden
@@ -210,6 +228,11 @@ export default function Nav() {
             const isSport = SPORT_HREFS.has(item.href);
             return (
               <span key={item.href} className="inline-flex items-center">
+                {idx > 0 && MOBILE_TOP_ITEMS[idx - 1]?.group !== item.group && item.group && (
+                  <span className="font-mono uppercase tracking-[0.16em] select-none px-1.5" aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 8.5, alignSelf: "center" }}>
+                    {GROUP_LABEL[item.group]}
+                  </span>
+                )}
                 {item.beforeDivider && idx > 0 && (
                   <span
                     aria-hidden

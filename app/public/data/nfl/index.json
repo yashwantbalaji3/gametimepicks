@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-16T05:13:59Z",
+ "generatedAt": "2026-08-16T05:25:25Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-preseason-public-beta-v1",
@@ -17,14 +17,14 @@
  },
  "counts": {
   "scheduledUpcoming": 16,
-  "forecastsTotal": 2,
-  "forecastsUpcoming": 0,
-  "forecastsStarted": 2,
+  "forecastsTotal": 15,
+  "forecastsUpcoming": 15,
+  "forecastsStarted": 0,
   "marketEvents": 2,
-  "settled": 2
+  "settled": 0
  },
- "nextKickoffUtc": null,
- "nextMatchup": null,
+ "nextKickoffUtc": "2026-08-21T00:00Z",
+ "nextMatchup": "LV @ HOU",
  "marketCapturedAt": "2026-08-15T21:19:48Z",
  "experimentalRecord": {
   "schemaVersion": 1,
@@ -44,81 +44,588 @@
  },
  "events": [
   {
-   "providerEventId": "401873284",
-   "canonicalEventId": "nfl-401873284",
-   "matchup": "PHI @ BAL",
+   "providerEventId": "401873286",
+   "canonicalEventId": "nfl-401873286",
+   "matchup": "LV @ HOU",
    "home": {
+    "abbr": "HOU",
+    "name": "Houston Texans"
+   },
+   "away": {
+    "abbr": "LV",
+    "name": "Las Vegas Raiders"
+   },
+   "kickoffUtc": "2026-08-21T00:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4648,
+    "away": 0.5352
+   },
+   "total": {
+    "median": 37,
+    "p10": 23,
+    "p90": 52
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "3eefa6fa54f769ff",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873285",
+   "canonicalEventId": "nfl-401873285",
+   "matchup": "SF @ LAC",
+   "home": {
+    "abbr": "LAC",
+    "name": "Los Angeles Chargers"
+   },
+   "away": {
+    "abbr": "SF",
+    "name": "San Francisco 49ers"
+   },
+   "kickoffUtc": "2026-08-21T02:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4596,
+    "away": 0.5404
+   },
+   "total": {
+    "median": 37,
+    "p10": 23,
+    "p90": 52
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "8d3b991bbd236785",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873288",
+   "canonicalEventId": "nfl-401873288",
+   "matchup": "NYJ @ PIT",
+   "home": {
+    "abbr": "PIT",
+    "name": "Pittsburgh Steelers"
+   },
+   "away": {
+    "abbr": "NYJ",
+    "name": "New York Jets"
+   },
+   "kickoffUtc": "2026-08-21T23:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4613,
+    "away": 0.5387
+   },
+   "total": {
+    "median": 37,
+    "p10": 23,
+    "p90": 52
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "62824ffaf789429e",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873287",
+   "canonicalEventId": "nfl-401873287",
+   "matchup": "CAR @ JAX",
+   "home": {
+    "abbr": "JAX",
+    "name": "Jacksonville Jaguars"
+   },
+   "away": {
+    "abbr": "CAR",
+    "name": "Carolina Panthers"
+   },
+   "kickoffUtc": "2026-08-21T23:30Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.471,
+    "away": 0.529
+   },
+   "total": {
+    "median": 37,
+    "p10": 23,
+    "p90": 51
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "040fdb092c7c5c8a",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873613",
+   "canonicalEventId": "nfl-401873613",
+   "matchup": "GB @ DEN",
+   "home": {
+    "abbr": "DEN",
+    "name": "Denver Broncos"
+   },
+   "away": {
+    "abbr": "GB",
+    "name": "Green Bay Packers"
+   },
+   "kickoffUtc": "2026-08-22T01:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4654,
+    "away": 0.5346
+   },
+   "total": {
+    "median": 37,
+    "p10": 23,
+    "p90": 52
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "38832e7beb5a7633",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873601",
+   "canonicalEventId": "nfl-401873601",
+   "matchup": "WSH @ DET",
+   "home": {
+    "abbr": "DET",
+    "name": "Detroit Lions"
+   },
+   "away": {
+    "abbr": "WSH",
+    "name": "Washington Commanders"
+   },
+   "kickoffUtc": "2026-08-22T16:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4721,
+    "away": 0.5279
+   },
+   "total": {
+    "median": 37,
+    "p10": 23,
+    "p90": 52
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "a190075fc4c4daf6",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873294",
+   "canonicalEventId": "nfl-401873294",
+   "matchup": "BUF @ CLE",
+   "home": {
+    "abbr": "CLE",
+    "name": "Cleveland Browns"
+   },
+   "away": {
+    "abbr": "BUF",
+    "name": "Buffalo Bills"
+   },
+   "kickoffUtc": "2026-08-22T17:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4698,
+    "away": 0.5302
+   },
+   "total": {
+    "median": 37,
+    "p10": 24,
+    "p90": 52
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "559863fc9944d09e",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873295",
+   "canonicalEventId": "nfl-401873295",
+   "matchup": "ATL @ IND",
+   "home": {
+    "abbr": "IND",
+    "name": "Indianapolis Colts"
+   },
+   "away": {
+    "abbr": "ATL",
+    "name": "Atlanta Falcons"
+   },
+   "kickoffUtc": "2026-08-22T17:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4625,
+    "away": 0.5375
+   },
+   "total": {
+    "median": 37,
+    "p10": 23,
+    "p90": 52
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "7e7ec88aef1ea652",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873291",
+   "canonicalEventId": "nfl-401873291",
+   "matchup": "BAL @ MIN",
+   "home": {
+    "abbr": "MIN",
+    "name": "Minnesota Vikings"
+   },
+   "away": {
     "abbr": "BAL",
     "name": "Baltimore Ravens"
+   },
+   "kickoffUtc": "2026-08-22T17:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4647,
+    "away": 0.5353
+   },
+   "total": {
+    "median": 37,
+    "p10": 23,
+    "p90": 52
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "55e965f01662b160",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873290",
+   "canonicalEventId": "nfl-401873290",
+   "matchup": "NO @ LAR",
+   "home": {
+    "abbr": "LAR",
+    "name": "Los Angeles Rams"
+   },
+   "away": {
+    "abbr": "NO",
+    "name": "New Orleans Saints"
+   },
+   "kickoffUtc": "2026-08-22T20:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4552,
+    "away": 0.5448
+   },
+   "total": {
+    "median": 37,
+    "p10": 24,
+    "p90": 52
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "95f106e71c9881b3",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873292",
+   "canonicalEventId": "nfl-401873292",
+   "matchup": "NYG @ MIA",
+   "home": {
+    "abbr": "MIA",
+    "name": "Miami Dolphins"
+   },
+   "away": {
+    "abbr": "NYG",
+    "name": "New York Giants"
+   },
+   "kickoffUtc": "2026-08-22T20:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4514,
+    "away": 0.5486
+   },
+   "total": {
+    "median": 37,
+    "p10": 23,
+    "p90": 52
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "0b8e5ee3ed260fbd",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873289",
+   "canonicalEventId": "nfl-401873289",
+   "matchup": "CHI @ CIN",
+   "home": {
+    "abbr": "CIN",
+    "name": "Cincinnati Bengals"
+   },
+   "away": {
+    "abbr": "CHI",
+    "name": "Chicago Bears"
+   },
+   "kickoffUtc": "2026-08-22T23:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 18,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4684,
+    "away": 0.5316
+   },
+   "total": {
+    "median": 37,
+    "p10": 23,
+    "p90": 51
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "feffde018f63d57a",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401873293",
+   "canonicalEventId": "nfl-401873293",
+   "matchup": "PHI @ NE",
+   "home": {
+    "abbr": "NE",
+    "name": "New England Patriots"
    },
    "away": {
     "abbr": "PHI",
     "name": "Philadelphia Eagles"
    },
-   "kickoffUtc": "2026-08-15T23:00Z",
-   "lifecycle": "SETTLED",
-   "locked": true,
-   "state": "SETTLED",
-   "stateMeaning": "The official result is in and the original forecast has been graded.",
+   "kickoffUtc": "2026-08-22T23:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
    "lean": null,
    "projectedScore": {
     "home": 18,
     "away": 19
    },
    "winProbability": {
-    "home": 0.4723,
-    "away": 0.5277
+    "home": 0.4667,
+    "away": 0.5333
    },
    "total": {
-    "median": 37,
+    "median": 38,
     "p10": 23,
     "p90": 52
    },
-   "hasMarket": true,
+   "hasMarket": false,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "52c55b188629167c",
-    "generatedAt": "2026-08-15T21:19:48Z"
+    "inputHash": "7cc8920789f3fda5",
+    "generatedAt": "2026-08-16T05:25:25Z"
    }
   },
   {
-   "providerEventId": "401873279",
-   "canonicalEventId": "nfl-401873279",
-   "matchup": "DAL @ SEA",
+   "providerEventId": "401873296",
+   "canonicalEventId": "nfl-401873296",
+   "matchup": "KC @ TB",
    "home": {
-    "abbr": "SEA",
-    "name": "Seattle Seahawks"
+    "abbr": "TB",
+    "name": "Tampa Bay Buccaneers"
+   },
+   "away": {
+    "abbr": "KC",
+    "name": "Kansas City Chiefs"
+   },
+   "kickoffUtc": "2026-08-22T23:30Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
+   "lean": null,
+   "projectedScore": {
+    "home": 19,
+    "away": 19
+   },
+   "winProbability": {
+    "home": 0.4716,
+    "away": 0.5284
+   },
+   "total": {
+    "median": 38,
+    "p10": 23,
+    "p90": 52
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "inputHash": "efca2eebe77d49a8",
+    "generatedAt": "2026-08-16T05:25:25Z"
+   }
+  },
+  {
+   "providerEventId": "401874101",
+   "canonicalEventId": "nfl-401874101",
+   "matchup": "DAL @ ARI",
+   "home": {
+    "abbr": "ARI",
+    "name": "Arizona Cardinals"
    },
    "away": {
     "abbr": "DAL",
     "name": "Dallas Cowboys"
    },
-   "kickoffUtc": "2026-08-16T00:00Z",
-   "lifecycle": "SETTLED",
-   "locked": true,
-   "state": "SETTLED",
-   "stateMeaning": "The official result is in and the original forecast has been graded.",
+   "kickoffUtc": "2026-08-23T02:00Z",
+   "lifecycle": "UPCOMING",
+   "locked": false,
+   "state": "PUBLIC_EXPERIMENTAL",
+   "stateMeaning": "An early model forecast. Not proven to beat the market.",
    "lean": null,
    "projectedScore": {
     "home": 18,
     "away": 19
    },
    "winProbability": {
-    "home": 0.4691,
-    "away": 0.5309
+    "home": 0.4645,
+    "away": 0.5355
    },
    "total": {
     "median": 37,
     "p10": 23,
     "p90": 52
    },
-   "hasMarket": true,
+   "hasMarket": false,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "8307aadc163082ad",
-    "generatedAt": "2026-08-15T21:19:48Z"
+    "inputHash": "65c564d0e12f7ba0",
+    "generatedAt": "2026-08-16T05:25:25Z"
    }
   }
  ],

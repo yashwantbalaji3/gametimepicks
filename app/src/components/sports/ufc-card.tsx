@@ -7,14 +7,24 @@
  * named as NOT modelled with the reason, so their absence reads as a decision rather than an
  * oversight — the model block below renders those refusals from the artifact itself.
  */
-import Image from "next/image";
+import HeadToHead from "@/components/ui/head-to-head";
 
+type Bout = { date: string; opponent: string; result: "W" | "L"; method: string; round: number };
+type Profile = {
+  bouts: number;
+  record?: { wins: number; losses: number };
+  last5: Bout[];
+  strengths: string[];
+  weaknesses: string[];
+  summary: string | null;
+};
 type Fighter = {
   athleteId: string;
   name: string;
   record: string | null;
   photoUrl: string | null;
   priorBoutsInCorpus: number;
+  profile?: Profile;
 };
 
 export type UfcBout = {
@@ -30,6 +40,10 @@ export type UfcBout = {
     method: { most: string; probabilities: { ko: number; submission: number; decision: number } } | null;
     rounds: { endsIn: string; probabilities: { round1: number; round2: number; round3plus: number }; goesTheDistance: number } | null;
     priorFights: { a: number; b: number };
+    /** One line on WHY this fighter, assembled from the features that moved the prediction. */
+    reason?: string | null;
+    basis?: string;
+    basisNote?: string | null;
   } | null;
   unmodelledReason: string | null;
 };
@@ -55,37 +69,6 @@ export type UfcCardArtifact = {
 const ET = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
     .format(new Date(iso));
-
-function Portrait({ f }: { f: Fighter }) {
-  if (!f.photoUrl) {
-    return (
-      <span className="inline-flex items-center justify-center shrink-0 rounded-full font-mono"
-        style={{ width: 46, height: 46, background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-faint)", fontSize: 13 }}>
-        {f.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center justify-center shrink-0 overflow-hidden rounded-full"
-      style={{ width: 46, height: 46, background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>
-      <Image src={f.photoUrl} alt="" width={46} height={46} unoptimized style={{ objectFit: "cover", width: 46, height: 46 }} />
-    </span>
-  );
-}
-
-function Corner({ f, align }: { f: Fighter; align: "left" | "right" }) {
-  const text = (
-    <span className="flex flex-col min-w-0" style={{ alignItems: align === "right" ? "flex-end" : "flex-start" }}>
-      <span className="truncate" style={{ color: "var(--vault-text)", fontWeight: 700, fontSize: 13.5 }}>{f.name}</span>
-      {f.record ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{f.record}</span> : null}
-    </span>
-  );
-  return (
-    <span className="flex items-center gap-2.5 min-w-0 flex-1" style={{ justifyContent: align === "right" ? "flex-end" : "flex-start" }}>
-      {align === "left" ? <><Portrait f={f} />{text}</> : <>{text}<Portrait f={f} /></>}
-    </span>
-  );
-}
 
 const METHOD_LABEL: Record<string, string> = { KO: "KO / TKO", SUB: "Submission", DEC: "Decision" };
 
@@ -116,46 +99,79 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
         </span>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        {bouts.map((b, i) => (
-          <div key={b.boutId} className="rounded-[12px] px-3 py-2.5 flex flex-col gap-2"
-            style={{ border: `1px solid ${i === 0 ? "var(--vault-gold)" : "var(--vault-rule)"}`, background: i === 0 ? "rgba(217,164,65,0.05)" : "rgba(255,255,255,0.015)" }}>
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <span className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 9, color: i === 0 ? "var(--vault-gold)" : "var(--vault-text-faint)" }}>
-                {i === 0 ? "Main event · " : ""}{b.weightClass} · {b.scheduledRounds} rounds
-              </span>
-              {b.prediction?.rounds ? (
-                <span className="font-mono" style={{ fontSize: 10, color: "var(--vault-text-mute)" }}>
-                  Goes the distance <strong style={{ color: "var(--vault-text)" }}>{Math.round(b.prediction.rounds.goesTheDistance * 100)}%</strong>
+      <div className="flex flex-col gap-2.5">
+        {bouts.map((b, i) => {
+          const pickedRed = b.prediction?.winner?.name === b.red.name;
+          const rp = b.red.profile, bp = b.blue.profile;
+          const form = (p?: Profile) => (p?.last5?.length
+            ? p.last5.map((f) => f.result).join(" ")
+            : "—");
+          const rows = [
+            { label: "Record", left: b.red.record ?? "—", right: b.blue.record ?? "—" },
+            { label: "Last 5", left: form(rp), right: form(bp),
+              better: (rp?.last5.filter((f) => f.result === "W").length ?? 0) > (bp?.last5.filter((f) => f.result === "W").length ?? 0) ? "left" as const
+                : (bp?.last5.filter((f) => f.result === "W").length ?? 0) > (rp?.last5.filter((f) => f.result === "W").length ?? 0) ? "right" as const : null },
+            ...(b.prediction?.winner ? [{
+              label: "Win chance",
+              left: `${Math.round((b.prediction.winner.byFighter[b.red.name] ?? 0) * 100)}%`,
+              right: `${Math.round((b.prediction.winner.byFighter[b.blue.name] ?? 0) * 100)}%`,
+              better: (pickedRed ? "left" : "right") as "left" | "right",
+            }] : []),
+          ];
+          return (
+            <div key={b.boutId} className="flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <span className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 9, color: i === 0 ? "var(--sport-ufc)" : "var(--vault-text-faint)" }}>
+                  {i === 0 ? "Main event · " : ""}{b.weightClass} · {b.scheduledRounds} rounds
                 </span>
-              ) : null}
-            </div>
-            <div className="flex items-center gap-2">
-              <Corner f={b.red} align="left" />
-              <span className="font-mono shrink-0" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>vs</span>
-              <Corner f={b.blue} align="right" />
-            </div>
-
-            {b.prediction ? (
-              <div className="grid gap-1.5" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))" }}>
-                {b.prediction.winner ? (
-                  <Head label="Predicted winner" value={b.prediction.winner.name}
-                    sub={`${Math.round(b.prediction.winner.probability * 100)}% · model only, no market price`} />
-                ) : null}
-                {b.prediction.method ? (
-                  <Head label="Method" value={METHOD_LABEL[b.prediction.method.most] ?? b.prediction.method.most}
-                    sub={`KO ${Math.round(b.prediction.method.probabilities.ko * 100)}% · SUB ${Math.round(b.prediction.method.probabilities.submission * 100)}% · DEC ${Math.round(b.prediction.method.probabilities.decision * 100)}%`} />
-                ) : null}
-                {b.prediction.rounds ? (
-                  <Head label="Ends in" value={b.prediction.rounds.endsIn === "3+" ? `Round 3${b.scheduledRounds === 5 ? "+" : ""}` : `Round ${b.prediction.rounds.endsIn}`}
-                    sub={`R1 ${Math.round(b.prediction.rounds.probabilities.round1 * 100)}% · R2 ${Math.round(b.prediction.rounds.probabilities.round2 * 100)}% · R3+ ${Math.round(b.prediction.rounds.probabilities.round3plus * 100)}%`} />
+                {b.prediction?.rounds ? (
+                  <span className="font-mono" style={{ fontSize: 10, color: "var(--vault-text-mute)" }}>
+                    Goes the distance <strong style={{ color: "var(--vault-text)" }}>{Math.round(b.prediction.rounds.goesTheDistance * 100)}%</strong>
+                  </span>
                 ) : null}
               </div>
-            ) : b.unmodelledReason ? (
-              <p className="font-mono m-0" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>{b.unmodelledReason}</p>
-            ) : null}
-          </div>
-        ))}
+
+              <HeadToHead
+                accent="var(--sport-ufc)"
+                left={{ name: b.red.name, imageUrl: b.red.photoUrl, subtitle: rp?.summary ? undefined : b.red.record ?? undefined, favoured: pickedRed }}
+                right={{ name: b.blue.name, imageUrl: b.blue.photoUrl, subtitle: bp?.summary ? undefined : b.blue.record ?? undefined, favoured: b.prediction?.winner ? !pickedRed : false }}
+                rows={rows}
+                verdict={b.prediction?.winner ? {
+                  label: "Model pick",
+                  value: `${b.prediction.winner.name} · ${Math.round(b.prediction.winner.probability * 100)}%`,
+                  sub: b.prediction.method && b.prediction.rounds
+                    ? `${METHOD_LABEL[b.prediction.method.most] ?? b.prediction.method.most} · ${b.prediction.rounds.endsIn === "3+" ? "round 3 or later" : `round ${b.prediction.rounds.endsIn}`}`
+                    : undefined,
+                } : null}
+                note={b.prediction?.reason ?? b.unmodelledReason ?? undefined}
+              />
+
+              {(rp?.strengths?.length || bp?.strengths?.length) ? (
+                <div className="grid gap-1.5" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))" }}>
+                  {[["red", b.red, rp] as const, ["blue", b.blue, bp] as const].map(([k, f, p]) => p?.bouts ? (
+                    <div key={k} className="rounded-[10px] px-2.5 py-2" style={{ border: "1px solid var(--vault-rule)", background: "rgba(0,0,0,0.18)" }}>
+                      <div className="font-mono uppercase tracking-[0.1em] mb-1" style={{ fontSize: 8.5, color: "var(--vault-text-faint)" }}>{f.name}</div>
+                      {p.summary ? <p className="m-0 mb-1" style={{ fontSize: 10.5, lineHeight: 1.5, color: "var(--vault-text-mute)" }}>{p.summary}</p> : null}
+                      {p.strengths.map((x) => <div key={x} style={{ fontSize: 10.5, color: "var(--vault-success)" }}>+ {x}</div>)}
+                      {p.weaknesses.map((x) => <div key={x} style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>− {x}</div>)}
+                      {p.last5.length ? (
+                        <div className="mt-1.5 flex flex-col gap-0.5">
+                          {p.last5.map((f2) => (
+                            <div key={f2.date + f2.opponent} className="font-mono flex items-center gap-1.5" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>
+                              <span style={{ color: f2.result === "W" ? "var(--vault-success)" : "var(--vault-danger)", fontWeight: 700, width: 10 }}>{f2.result}</span>
+                              <span className="truncate">{f2.opponent}</span>
+                              <span>· {f2.method} R{f2.round}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null)}
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
       </div>
 
       <div className="rounded-[12px] px-3 py-2.5 flex flex-col gap-1.5" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>

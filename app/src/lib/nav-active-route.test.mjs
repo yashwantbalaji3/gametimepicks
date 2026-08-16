@@ -13,9 +13,12 @@ import {
 } from "./nav-active-route.ts";
 
 test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank Builder); explore cluster demoted; no routes removed", () => {
+  // P194: every nav item now carries a `group` so the thirteen destinations render as four clusters.
+  // These assertions match on href+label and stay group-agnostic — they are about WHICH destinations
+  // lead the spine, not about the shape of the object that describes them.
   const nav = fs.readFileSync("src/components/nav.tsx", "utf8");
   // Simulate leads the primary nav (the game-simulation lobby); the old "Game Lab" primary label is gone.
-  assert.match(nav, /\{ href: "\/simulate", label: "Simulate" \}/, "Simulate is a nav item");
+  assert.match(nav, /\{ href: "\/simulate", label: "Simulate"/, "Simulate is a nav item");
   assert.ok(!/label: "Games"/.test(nav) && !/label: "Game Lab"/.test(nav), "the old 'Games'/'Game Lab' primary label is gone");
   const dividerIdx = nav.indexOf("beforeDivider: true");
   const idx = (s) => nav.indexOf(s);
