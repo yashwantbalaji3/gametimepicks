@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824320,
+  "date": "2026-08-17",
+  "capturedAt": "2026-08-17T22:52:32.457Z",
+  "availableAt": "2026-08-17T22:52:32.457Z",
+  "eventStartTime": "2026-08-18T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608372,
+      "name": "Tomoyuki Sugano",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-08-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 3.6,
+        "bbAvg": 0.6,
+        "erAvg": 2.2,
+        "hrAvg": 1.6,
+        "kPer9": 5.52,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 113.67,
+        "k": 66,
+        "bb": 26,
+        "er": 56,
+        "hr": 24
+      }
+    },
+    "away": {
+      "id": 605483,
+      "name": "Blake Snell",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 6,
+      "lastStartDate": "2026-08-11",
+      "last5": {
+        "starts": 2,
+        "ipSum": 9,
+        "ipAvg": 4.5,
+        "kAvg": 7.5,
+        "bbAvg": 1.5,
+        "erAvg": 2.5,
+        "hrAvg": 0,
+        "kPer9": 15,
+        "workloadIpLast5": 9
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 9,
+        "k": 15,
+        "bb": 3,
+        "er": 5,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-17&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-17T22:52:32.457Z"
+  },
+  "recordHash": "c084295570b762ac4243880ba1aeb0d1c0c7c889a59fada3dbe15a11e559431a"
+}
