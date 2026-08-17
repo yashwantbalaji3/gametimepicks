@@ -19,6 +19,9 @@ const DATE = "2026-06-23";
 const NOW = "2026-06-23T10:00:00Z";
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 
+// P196: the surfaces DERIVE their destinations from src/lib/navigation.ts, so a reachability check
+// must read the canonical list too — the href no longer appears literally in the surface file. The
+// assertion is unchanged; it now looks where the answer actually lives.
 test("Homer Nukes V2: two $10 lanes × 3 legs each ($20/day total)", () => {
   assert.equal(HOMER_NUKES_LEGS_PER_LANE, 3);
   assert.equal(HOMER_NUKES_LANE_COUNT, 2);
@@ -94,8 +97,8 @@ test("UI wiring: Homer Nukes is RETIRED everywhere (removed from nav / Today / a
   const today = read("src/app/today/page.tsx");
   assert.ok(!/href: "\/homer-nukes"/.test(today), "Today flashcards no longer include Homer Nukes");
 
-  const rail = read("src/components/command-rail.tsx");
-  const nav = read("src/components/nav.tsx");
+  const rail = read("src/components/command-rail.tsx") + read("src/lib/navigation.ts");
+  const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
   const route = read("src/lib/nav-active-route.ts");
   for (const [name, src] of [["command rail", rail], ["top nav", nav]]) {
     assert.ok(!/href: "\/homer-nukes"/.test(src), `${name} no longer links Homer Nukes`);

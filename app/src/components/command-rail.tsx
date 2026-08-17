@@ -13,6 +13,7 @@
  * highlighted item matches the top nav exactly. No data/logic changes.
  */
 import Link from "next/link";
+import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
 import { usePathname } from "next/navigation";
 import BrandMark from "./brand-mark";
 
@@ -36,30 +37,18 @@ type RailItem = {
 // Labels are the UNIFIED nav labels (see unified-nav-labels.test) — unchanged. The `desc` line is the
 // clarity fix for "the sidebar is misleading": each item now says what it's for, so the apparent overlap
 // between Simulate / Today / Game Reports and Build-a-Pick / Build reads clearly.
-const ITEMS: RailItem[] = [
-  { href: "/simulate", label: "Simulate", glyph: "▶", group: "Simulate", desc: "Pick a game, run its report" },
-  { href: "/today", label: "Today", glyph: "▤", group: "Today", desc: "Tonight's slate at a glance" },
-  { href: "/markets", label: "Market Center", glyph: "◈", desc: "Sportsbook prices vs our sims" },
-  { href: "/build", label: "Build", glyph: "✎", desc: "Build a card, or browse suggested ones" },
-  { href: "/bank-builder", label: "Bank Builder", glyph: "▰", group: "Strategy Lab", desc: "Conservative paper card" },
-  { href: "/moonshot", label: "Moonshot", glyph: "🌙", desc: "High-risk paper longshots" },
-  { href: "/mr-dub", label: "Mr. Dub's Portfolio", glyph: "✓", desc: "Paper bankroll journey" },
-  { href: "/results", label: "Results", glyph: "≡", group: "Track Record", desc: "Settled track record" },
-  // The rail offers the sports that actually SIMULATE. MLB and NFL both publish full-game
-  // simulations now; the 2026 World Cup is complete, NBA is a settled archive reachable from
-  // Results, and UFC is a scaffold that publishes no predictions, so those stay behind Schedules.
-  { href: "/mlb", label: "MLB", glyph: "⚾", group: "Sports", desc: "Baseball hub" },
-  { href: "/nfl", label: "NFL", glyph: "🏈", desc: "Football hub · preseason simulations" },
-  { href: "/epl", label: "Premier League", glyph: "⚽", desc: "Schedule · simulation pending" },
-  { href: "/ufc", label: "UFC", glyph: "🥊", desc: "Schedule + settled archive" },
-  // ONE schedules destination (Program 158 IA) — sits under Sports beside the live hub; the desc
-  // says schedules so the rail never implies a second model hub.
-  { href: "/sports", label: "Sports · Schedules", glyph: "🗓", desc: "EPL · NFL · NBA · UFC schedules" },
-  { href: "/learn", label: "How It Works", glyph: "✦", group: "Learn", desc: "Start here" },
-  { href: "/methodology", label: "Methodology", glyph: "◳", desc: "The model, in depth" },
-  { href: "/system-status", label: "System Status", glyph: "◉", desc: "What is running right now" },
-  { href: "/about", label: "About", glyph: "ⓘ", desc: "What this is" },
-];
+/**
+ * P196: the rail renders the CANONICAL destination list. It used to carry four destinations the top
+ * nav did not, so "everything the site offers" meant something different depending on your viewport.
+ */
+const ITEMS: RailItem[] = destinationsFor("rail").map((d, i, list) => ({
+  href: d.href,
+  label: d.label,
+  glyph: d.glyph ?? "•",
+  desc: d.desc,
+  // A group heading renders at each boundary, so the rail reads as four clusters not seventeen rows.
+  group: i === 0 || list[i - 1]!.group !== d.group ? NAV_GROUP_LABEL[d.group] : undefined,
+}));
 
 function useIsActive() {
   const pathname = usePathname() || "/";

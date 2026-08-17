@@ -5,11 +5,15 @@ import { loadTodaySlate } from "./parlays/ui-loader.ts";
 
 const r = (p) => fs.readFileSync(p, "utf8");
 
+// P196: the spine is grouped by the QUESTION a reader is asking — Now · Sports · Products · Track
+// record — instead of a hand-picked lead order maintained separately on three surfaces. What these
+// guards exist to protect is that the SIMULATION product leads and the paper-bankroll products
+// never do. That still holds, and is asserted against the canonical list below.
 test("Mr. Dub is a first-class nav item (desktop nav + sidebar + mobile bottom nav)", () => {
-  assert.match(r("src/components/nav.tsx"), /href:\s*"\/mr-dub"/, "desktop nav has Mr. Dub");
-  assert.match(r("src/components/command-rail.tsx"), /href:\s*"\/mr-dub"/, "sidebar has Mr. Dub");
+  assert.match(r("src/lib/navigation.ts"), /href: "\/mr-dub"/, "desktop nav has Mr. Dub");
+  assert.match(r("src/lib/navigation.ts"), /href: "\/mr-dub"[\s\S]*?surfaces: \[[^\]]*"rail"/, "sidebar has Mr. Dub");
   const navRoute = r("src/lib/nav-active-route.ts");
-  assert.match(navRoute, /href:\s*"\/mr-dub"/, "mobile bottom nav has Mr. Dub");
+  assert.match(r("src/lib/navigation.ts"), /href: "\/mr-dub"[\s\S]*?surfaces: \[[^\]]*"mobile"/, "mobile bottom nav has Mr. Dub");
   assert.ok(navRoute.includes('"/mr-dub"') && navRoute.includes('"mrdub"'), "mobile route maps /mr-dub → mrdub bucket");
 });
 

@@ -8,6 +8,9 @@ import { candidateReadiness, ACTIVATION_CUTOFF_MIN } from "./moonshot/activation
 
 const read = (p) => fs.readFileSync(p, "utf8");
 
+// P196: the surfaces DERIVE their destinations from src/lib/navigation.ts, so a reachability check
+// must read the canonical list too — the href no longer appears literally in the surface file. The
+// assertion is unchanged; it now looks where the answer actually lives.
 test("World Cup Specials tracker derives candidate/pending/settled from the slate (no exposure)", () => {
   const result = loadWorldCupSpecials();
   assert.ok(result, "specials snapshot loads");
@@ -67,8 +70,8 @@ test("/world-cup-specials route renders the tracker via shared primitives", () =
 
 test("World Cup Specials is RETIRED — the completed 2026 WC is not an active nav/product surface", () => {
   // The 2026 World Cup is complete: WC Specials is not a live rail/nav destination anymore.
-  assert.doesNotMatch(read("src/components/command-rail.tsx"), /href: "\/world-cup-specials"/, "no active WC Specials rail entry");
-  assert.doesNotMatch(read("src/components/nav.tsx"), /href: "\/world-cup-specials"/, "WC Specials is not in the primary nav");
+  assert.doesNotMatch(read("src/components/command-rail.tsx") + read("src/lib/navigation.ts"), /href: "\/world-cup-specials"/, "no active WC Specials rail entry");
+  assert.doesNotMatch(read("src/components/nav.tsx") + read("src/lib/navigation.ts"), /href: "\/world-cup-specials"/, "WC Specials is not in the primary nav");
   // The product registry records the retirement (id retained so history stays intact).
   assert.match(read("src/lib/products/registry.ts"), /id: "wc-specials"[\s\S]*?status: "retired"/, "wc-specials is retired in the registry");
 });

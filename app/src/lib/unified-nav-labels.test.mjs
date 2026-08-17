@@ -13,8 +13,8 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 import { MOBILE_NAV_ITEMS } from "./nav-active-route.ts";
 
-const NAV = fs.readFileSync("src/components/nav.tsx", "utf8");
-const RAIL = fs.readFileSync("src/components/command-rail.tsx", "utf8");
+const NAV = fs.readFileSync("src/components/nav.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
+const RAIL = fs.readFileSync("src/components/command-rail.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
 const FOOTER = fs.readFileSync("src/components/footer.tsx", "utf8");
 const mobileByHref = Object.fromEntries(MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]));
 
@@ -33,6 +33,9 @@ const UNIFIED = {
 };
 
 // ── 1 · desktop top nav uses the unified labels ──────────────────────────────────────────────────
+// P196: the surfaces DERIVE their destinations from src/lib/navigation.ts, so a reachability check
+// must read the canonical list too — the href no longer appears literally in the surface file. The
+// assertion is unchanged; it now looks where the answer actually lives.
 test("desktop top nav (nav.tsx) uses the unified labels", () => {
   for (const [href, label] of Object.entries(UNIFIED)) {
     if (!NAV.includes(`href: "${href}"`)) continue; // only assert on routes this surface carries

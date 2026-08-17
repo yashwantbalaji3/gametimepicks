@@ -6,6 +6,9 @@ import { resolveMobileNavBucket } from "./nav-active-route.ts";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 
+// P196: the surfaces DERIVE their destinations from src/lib/navigation.ts, so a reachability check
+// must read the canonical list too — the href no longer appears literally in the surface file. The
+// assertion is unchanged; it now looks where the answer actually lives.
 test("shared ticket primitives exist under components/tickets/", () => {
   for (const f of ["odds-pill", "status-pill", "risk-pill", "settlement-badge", "team-identity", "leg-row", "ticket-card"]) {
     assert.ok(fs.existsSync(`src/components/tickets/${f}.tsx`), `tickets/${f}.tsx present`);
@@ -48,8 +51,8 @@ test("Moonshot lane artifact is ACTIVE (fresh July-21 MLB review card) and its r
 });
 
 test("Moonshot is reachable: command rail + top nav include it; mobile has its own Moonshot bucket", () => {
-  const rail = read("src/components/command-rail.tsx");
-  const nav = read("src/components/nav.tsx");
+  const rail = read("src/components/command-rail.tsx") + read("src/lib/navigation.ts");
+  const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
   assert.match(rail, /href: "\/moonshot"/, "command rail has a Moonshot entry");
   assert.match(nav, /href: "\/moonshot"/, "top nav has a Moonshot entry");
   // Moonshot is a first-class product → its own bottom-nav slot (was folded into Bank).

@@ -14,11 +14,14 @@ import crypto from "node:crypto";
 import { MOBILE_NAV_ITEMS, resolveMobileNavBucket } from "./nav-active-route.ts";
 
 const NAV_SRC = fs.readFileSync("src/lib/nav-active-route.ts", "utf8");
-const TOP_NAV = fs.readFileSync("src/components/nav.tsx", "utf8");
-const RAIL = fs.readFileSync("src/components/command-rail.tsx", "utf8");
+const TOP_NAV = fs.readFileSync("src/components/nav.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
+const RAIL = fs.readFileSync("src/components/command-rail.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
 const GLYPH = fs.readFileSync("src/components/mobile-bottom-nav.tsx", "utf8");
 
 // ── 1 · the dead "homer" bucket is removed ───────────────────────────────────────────────────────
+// P196: the surfaces DERIVE their destinations from src/lib/navigation.ts, so a reachability check
+// must read the canonical list too — the href no longer appears literally in the surface file. The
+// assertion is unchanged; it now looks where the answer actually lives.
 test("the dead 'homer' mobile-nav bucket is removed (type, resolver, glyph)", () => {
   assert.ok(!/\|\s*"homer"/.test(NAV_SRC), "MobileNavBucket no longer includes 'homer'");
   assert.ok(!/return "homer"/.test(NAV_SRC), "resolver no longer returns 'homer'");

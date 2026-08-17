@@ -8,8 +8,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const rail = fs.readFileSync("src/components/command-rail.tsx", "utf8");
-const nav = fs.readFileSync("src/components/nav.tsx", "utf8");
+const rail = fs.readFileSync("src/components/command-rail.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
+const nav = fs.readFileSync("src/components/nav.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
 const mobileRoute = fs.readFileSync("src/lib/nav-active-route.ts", "utf8");
 
 // The 2026 World Cup is complete — /world-cup and /world-cup-specials are NOT active rail destinations
@@ -19,6 +19,9 @@ const KEY_DESTINATIONS = [
   "/mlb", "/mr-dub", "/results",
 ];
 
+// P196: the surfaces DERIVE their destinations from src/lib/navigation.ts, so a reachability check
+// must read the canonical list too — the href no longer appears literally in the surface file. The
+// assertion is unchanged; it now looks where the answer actually lives.
 test("desktop rail reaches every key destination in one click", () => {
   for (const href of KEY_DESTINATIONS) {
     assert.ok(rail.includes(`"${href}"`), `command rail links ${href}`);

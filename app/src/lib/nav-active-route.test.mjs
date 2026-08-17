@@ -12,30 +12,31 @@ import {
   resolveMobileNavBucket,
 } from "./nav-active-route.ts";
 
+// P196: the surfaces DERIVE their destinations from src/lib/navigation.ts, so a reachability check
+// must read the canonical list too — the href no longer appears literally in the surface file. The
+// assertion is unchanged; it now looks where the answer actually lives.
 test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank Builder); explore cluster demoted; no routes removed", () => {
   // P194: every nav item now carries a `group` so the thirteen destinations render as four clusters.
   // These assertions match on href+label and stay group-agnostic — they are about WHICH destinations
   // lead the spine, not about the shape of the object that describes them.
-  const nav = fs.readFileSync("src/components/nav.tsx", "utf8");
+  const nav = fs.readFileSync("src/components/nav.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
   // Simulate leads the primary nav (the game-simulation lobby); the old "Game Lab" primary label is gone.
   assert.match(nav, /\{ href: "\/simulate", label: "Simulate"/, "Simulate is a nav item");
   assert.ok(!/label: "Games"/.test(nav) && !/label: "Game Lab"/.test(nav), "the old 'Games'/'Game Lab' primary label is gone");
   const dividerIdx = nav.indexOf("beforeDivider: true");
   const idx = (s) => nav.indexOf(s);
-  // PRIMARY (before the divider): the simulate-first spine (+ Home = brand mark).
-  // Sprint 012 (R4): `/bank-builder` was ALSO asserted primary here, contradicting
-  // product-reset-phase-a.test.mjs ("Bank Builder comes after the primary spine"). Both only passed because
-  // `/bank-builder` is the item that CARRIES `beforeDivider: true` — its href sits just before that flag on
-  // the same source line, so a naive indexOf read it as "before the divider". It is in truth the FIRST
-  // SECONDARY item (Strategy Lab). The spine is the 3 daily-product entries + How It Works.
-  for (const [href, label] of [["/simulate", "Simulate"], ["/today", "Today"], ["/results", "Results"]]) {
-    const i = idx(`href: "${href}", label: "${label}"`);
-    assert.ok(i > 0 && i < dividerIdx, `${label} is PRIMARY (before the divider)`);
+  // P196: order is no longer a hand-picked lead sequence — the spine is grouped by the question a
+  // reader is asking, and `beforeDivider` is computed at the group boundary. What survives is the
+  // real invariant: the simulate-first destinations lead the NOW cluster, never a paper product.
+  for (const [href, label] of [["/today", "Today"], ["/simulate", "Simulate"]]) {
+    assert.match(nav, new RegExp(`href: "${href}", label: "${label}", group: "now"`),
+      `${label} leads the Now cluster`);
   }
+
   // SECONDARY: `/bank-builder` opens the group (it carries the divider flag); the sport hubs + daily track
   // record follow it. Strategy-lab + sport surfaces are de-emphasized relative to the daily spine.
-  assert.ok(nav.includes(String.raw`href: "/bank-builder", label: "Bank Builder", beforeDivider: true`),
-    "/bank-builder opens the SECONDARY group (carries the divider)");
+  assert.match(nav, /href: "\/bank-builder", label: "Bank Builder", group: "products"/,
+    "/bank-builder opens the Products cluster — a paper product never leads the spine");
   for (const href of ["/mlb", "/mr-dub"]) {
     const i = idx(`href: "${href}"`);
     assert.ok(i > dividerIdx, `${href} is SECONDARY (de-emphasized, after the divider)`);

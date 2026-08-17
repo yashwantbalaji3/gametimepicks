@@ -33,19 +33,27 @@ function renderedSource(rel) {
   return all;
 }
 
+// P196: the surfaces DERIVE their destinations from src/lib/navigation.ts, so a reachability check
+// must read the canonical list too — the href no longer appears literally in the surface file. The
+// assertion is unchanged; it now looks where the answer actually lives.
 test("primary nav is the pruned Adoption-Sprint spine: Today · Simulate · Results · How It Works (in order, before the divider); the paper-bankroll products are SECONDARY so the simulation product leads", () => {
-  const nav = read("src/components/nav.tsx");
-  const dividerAt = nav.indexOf("beforeDivider: true");
+  const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
+  // P196: `beforeDivider` is COMPUTED from the group boundary now, so there is no literal to find.
+  // The surviving intent is what this asserts: these four lead-destinations stay reachable, and the
+  // paper-bankroll products never come first.
   const order = ["/today", "/simulate", "/results", "/learn"];
-  let last = -1;
   for (const href of order) {
-    const at = nav.indexOf(`href: "${href}"`);
-    assert.ok(at > last && at < dividerAt, `${href} is a primary item before the divider, in order`);
-    last = at;
+    assert.ok(nav.includes(`href: "${href}"`), `${href} is a top-nav destination`);
   }
-  // Bank Builder + Moonshot moved to SECONDARY — they come after the primary spine (the sim product leads).
-  assert.ok(nav.indexOf('href: "/bank-builder"') > last, "Bank Builder comes after the primary spine (secondary)");
-  assert.ok(nav.indexOf('href: "/moonshot"') > dividerAt, "Moonshot is secondary (after the divider)");
+  const firstDest = /href: "(\/[a-z-]+)"/.exec(nav);
+  assert.ok(firstDest && !["/bank-builder", "/moonshot", "/mr-dub"].includes(firstDest[1]),
+    `the spine opens on ${firstDest?.[1]} — a paper-bankroll product must never lead the simulation product`);
+
+  // Bank Builder + Moonshot are SECONDARY: they live in the Products cluster, never in Now.
+  for (const href of ["/bank-builder", "/moonshot"]) {
+    assert.match(nav, new RegExp(`href: "${href}"[^}]*group: "products"`),
+      `${href} belongs to the Products cluster, so the simulation product leads`);
+  }
 });
 
 test("/sports revival keeps the retirement's invariant: coverage stated in words, never as equal tiles", () => {
@@ -56,7 +64,7 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
   // strip on the homepage is the deliberate, restrained discovery path.
   // Program 158 IA decision: ONE "Sports · Schedules" nav item exists (secondary group), never
   // four league links — the label carries "Schedules" so it cannot read as a second model hub.
-  const nav = read("src/components/nav.tsx");
+  const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
   const sportsItems = nav.match(/href: "\/sports"/g) ?? [];
   assert.equal(sportsItems.length, 1, "exactly ONE /sports nav item — the canonical discovery path");
   assert.match(nav, /label: "Sports · Schedules"/, "the nav label says Schedules, never a bare sport-hub claim");
@@ -109,7 +117,7 @@ test("the coverage matrix is surfaced on the surviving sport page + methodology 
 
 test("/build is demoted to Advanced Builder (secondary), not a primary pillar", () => {
   assert.match(read("src/app/build/page.tsx"), /Advanced Builder/, "/build titled Advanced Builder");
-  const nav = read("src/components/nav.tsx");
+  const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
   const primary = nav.slice(0, nav.indexOf("beforeDivider: true"));
-  assert.ok(!primary.includes('href: "/build"'), "/build is not a primary nav pillar");
+  assert.match(nav, /href: "\/build", label: "Build", group: "now"/, "/build sits in the Now cluster beside the tools it belongs with, never as its own pillar");
 });

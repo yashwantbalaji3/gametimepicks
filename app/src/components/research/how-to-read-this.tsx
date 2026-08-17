@@ -56,6 +56,19 @@ export default function HowToReadThis({ terminal }: { terminal: TerminalView }) 
         cannot drift from the numbers it describes.
       </p>
 
+      {/*
+        P196: the seven answers below are COLLAPSED by default. They are worth keeping — a number a
+        reader cannot interpret is not transparency — but they were rendering inline on a results
+        page, ahead of the results themselves, and accounted for the largest single block of prose on
+        the site. Collapsed, they are still in the DOM, still findable by search, still read by
+        assistive tech; they simply stop competing with the record a visitor came to see.
+      */}
+      <details className="group mt-4">
+        <summary className="cursor-pointer list-none inline-flex items-center gap-1.5 font-mono"
+          style={{ color: "var(--vault-text-faint)", fontSize: 11, letterSpacing: "0.04em" }}>
+          <span aria-hidden className="transition-transform group-open:rotate-90" style={{ display: "inline-block", fontSize: 8 }}>▶</span>
+          Seven questions people ask about these numbers
+        </summary>
       <div className="mt-6 space-y-5">
         <QA q="Why is the calibrated estimate different from the raw one?">
           {mu ? (
@@ -177,6 +190,7 @@ export default function HowToReadThis({ terminal }: { terminal: TerminalView }) 
           </p>
         </QA>
       </div>
+      </details>
     </section>
   );
 }

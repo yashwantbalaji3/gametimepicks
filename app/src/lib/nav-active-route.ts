@@ -1,3 +1,4 @@
+import { destinationsFor } from "./navigation";
 /**
  * Active-route resolver for the mobile bottom nav.
  *
@@ -44,14 +45,16 @@ export interface MobileNavItem {
  *     thumb-width. The bucket ids are route-resolution keys; only the visible
  *     labels are user-facing.
  */
-export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = [
-  { bucket: "home", href: "/today", label: "Today" },
-  { bucket: "games", href: "/simulate", label: "Simulate" },
-  { bucket: "lab", href: "/build", label: "Build" },
-  { bucket: "bank", href: "/bank-builder", label: "Bank Builder" },
-  { bucket: "moonshot", href: "/moonshot", label: "Moonshot" },
-  { bucket: "mrdub", href: "/mr-dub", label: "Mr. Dub's Portfolio" },
-] as const;
+/**
+ * P196: derived from the canonical destination list. Every mobile destination also appears on the
+ * top nav and the rail, so a phone is never the ONLY route to a page — which it used to be for
+ * /build. Bucket ids remain the route-resolution keys.
+ */
+export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = destinationsFor("mobile").map((d) => ({
+  bucket: d.bucket as MobileNavItem["bucket"],
+  href: d.href,
+  label: d.label,
+}));
 
 /**
  * Returns the bottom-nav bucket that should be highlighted for the

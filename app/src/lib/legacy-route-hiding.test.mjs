@@ -14,8 +14,11 @@ import crypto from "node:crypto";
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
 const footer = read("src/components/footer.tsx");
-const nav = read("src/components/nav.tsx");
+const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
 
+// P196: the surfaces DERIVE their destinations from src/lib/navigation.ts, so a reachability check
+// must read the canonical list too — the href no longer appears literally in the surface file. The
+// assertion is unchanged; it now looks where the answer actually lives.
 test("footer leads with the ACTIVE sport (MLB); the completed World Cup is NOT an active footer sport", () => {
   const mlb = footer.indexOf('href="/mlb"');
   const nbaArchive = footer.indexOf('href="/results/nba"');
@@ -51,7 +54,7 @@ test("the primary nav stays a clean simulate-first spine (no non-live sport prom
     if (at === -1) continue;
     assert.ok(at > dividerIdx, `${href} is secondary, not the primary spine`);
   }
-  assert.ok(nav.indexOf('href: "/simulate"') > 0 && nav.indexOf('href: "/simulate"') < dividerIdx, "/simulate is primary");
+  assert.ok(/href: "\/simulate", label: "Simulate", group: "now"/.test(nav), "/simulate leads the Now cluster");
 });
 
 test("Results, Bank Builder, and Simulate remain reachable (trust/record never hidden)", () => {

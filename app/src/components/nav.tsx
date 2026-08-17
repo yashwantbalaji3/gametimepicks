@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
 import { usePathname } from "next/navigation";
 import BrandMark from "./brand-mark";
 import SportsbookLightRail from "./sportsbook-light-rail";
@@ -20,50 +21,16 @@ import { MOBILE_NAV_ITEMS } from "@/lib/nav-active-route";
  * Board · Power Board · Parlays · Results) live INSIDE each sport
  * section, not here.
  */
-const NAV_ITEMS: Array<{
-  href: string;
-  label: string;
-  /** When true, render a faint divider chip BEFORE this item. */
-  beforeDivider?: boolean;
-  /**
-   * Which cluster this destination belongs to (P194). The spine was thirteen flat items mixing five
-   * different KINDS of thing — a time ("Today"), actions ("Simulate", "Build"), sports, products and
-   * trust pages — all rendered as peers. That is the tangle: nothing told a reader which items were
-   * alternatives to each other. Grouping is the whole fix; the destinations are unchanged.
-   */
-  group?: "now" | "sports" | "products" | "record";
-}> = [
-  // Product spine — clean, user-facing labels only (no implementation routes
-  // like "Projections"/"Parlay Lab" in primary nav; those stay reachable as
-  // routes and fold into Build/Sports active states). Brand mark links Home.
-  // PRIMARY — the clean user-facing spine (Home = brand mark, left). Lead with the product story.
-  // "Track Record" opens the polished trust center (/mr-dub: money path + bankroll calendar + receipts);
-  // the older parlay-hit-rate dashboard at /results stays reachable below as "Results".
-  // LEAD with the multi-sport EXPLORE cluster so every sport gets equal weight (not soccer-first): the
-  // Game Lab hub + the sport hubs sit right after Today, ABOVE the flagship products. Game Lab is the core
-  // "browse any game → model report" experience; the flagship ladders stay primary but no longer dominate.
-  // PRIMARY — the simulation-product spine a first-time visitor scans (Adoption Sprint IA prune; founder-
-  // adjustable): the daily hub, the core action, the honest track record, and how it works. The paper-bankroll
-  // products (Bank Builder / Moonshot) are real + reachable but move to SECONDARY so the sim product leads.
-  { href: "/today", label: "Today", group: "now" },
-  { href: "/simulate", label: "Simulate", group: "now" },
-  { href: "/markets", label: "Market Center", group: "now" },
-  { href: "/results", label: "Results", group: "record" },
-  { href: "/learn", label: "How It Works", group: "record" },
-  // SECONDARY — still reachable, de-emphasized after the divider: the flagship paper products, the one
-  // live sport hub, and the card surfaces.
-  { href: "/bank-builder", label: "Bank Builder", beforeDivider: true, group: "products" },
-  { href: "/moonshot", label: "Moonshot", group: "products" },
-  { href: "/mlb", label: "MLB", group: "sports" },
-  { href: "/nfl", label: "NFL", group: "sports" },
-  { href: "/epl", label: "Premier League", group: "sports" },
-  { href: "/ufc", label: "UFC", group: "sports" },
-  // ONE Sports destination, not four league links (Program 158 IA decision): /sports carries real
-  // verified schedules for EPL/NFL/NBA/UFC with coverage stated in words. The label says
-  // "Schedules" so the item can never read as a second model hub beside MLB.
-  { href: "/sports", label: "Sports · Schedules", group: "sports" },
-  { href: "/mr-dub", label: "Mr. Dub's Portfolio" },
-];
+/**
+ * P196: the spine is DERIVED from the canonical destination list, not hand-maintained here. Three
+ * surfaces each keeping their own copy is how /build ended up reachable on a phone and nowhere else.
+ */
+const NAV_ITEMS = destinationsFor("top").map((d, i, list) => ({
+  href: d.href,
+  label: d.label,
+  group: d.group,
+  beforeDivider: i > 0 && list[i - 1]!.group !== d.group,
+}));
 // The old "More Sports" directory of equal model-ish tiles stays gone. What exists instead is the
 // honest schedules directory at /sports (real EPL/NFL/NBA/UFC data, "Schedule only — not modelled"
 // in words) — one nav item, secondary group, beside the one live sport hub. NBA's settled archive
@@ -89,9 +56,7 @@ const MOBILE_TOP_ITEMS = NAV_ITEMS.filter((i) => !BOTTOM_NAV_HREFS.has(i.href));
 
 /** The four clusters, in the order a reader needs them: what's on now, which sport, which product,
  *  and how it has done. Rendered as a quiet label at each boundary. */
-const GROUP_LABEL: Record<string, string> = {
-  now: "Now", sports: "Sports", products: "Products", record: "Track record",
-};
+const GROUP_LABEL = NAV_GROUP_LABEL;
 
 export default function Nav() {
   const pathname = usePathname() || "/";
