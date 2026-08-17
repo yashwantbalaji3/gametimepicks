@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824478,
+  "date": "2026-08-17",
+  "capturedAt": "2026-08-17T02:18:39.457Z",
+  "availableAt": "2026-08-17T02:18:39.457Z",
+  "eventStartTime": "2026-08-17T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 695076,
+      "name": "Rhett Lowder",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 3.6,
+        "bbAvg": 1,
+        "erAvg": 3.2,
+        "hrAvg": 0.6,
+        "kPer9": 6.57,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 87.33,
+        "k": 74,
+        "bb": 35,
+        "er": 53,
+        "hr": 11
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-17&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-17T02:18:39.457Z"
+  },
+  "recordHash": "7603ab8f50342b220df25d286141e060b55106105bb23d22783485f2801f7370"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823343,
+  "date": "2026-08-17",
+  "capturedAt": "2026-08-17T02:18:39.457Z",
+  "availableAt": "2026-08-17T02:18:39.457Z",
+  "eventStartTime": "2026-08-17T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669387,
+      "name": "Carmen Mlodzinski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 5,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.33,
+        "ipAvg": 4.27,
+        "kAvg": 1.2,
+        "bbAvg": 1.6,
+        "erAvg": 2.4,
+        "hrAvg": 0.6,
+        "kPer9": 2.53,
+        "workloadIpLast5": 21.33
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 49.33,
+        "k": 41,
+        "bb": 19,
+        "er": 30,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 664285,
+      "name": "Framber Valdez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 3.8,
+        "bbAvg": 2.8,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 6.75,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 133,
+        "k": 106,
+        "bb": 50,
+        "er": 63,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-17&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-17T02:18:39.457Z"
+  },
+  "recordHash": "5c800ba232f951ddef42e5e7ce3d85b9972f714b66ef117680a06214c0cf0f0e"
+}

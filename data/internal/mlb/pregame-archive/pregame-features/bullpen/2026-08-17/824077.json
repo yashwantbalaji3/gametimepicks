@@ -1,0 +1,223 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824077,
+  "date": "2026-08-17",
+  "capturedAt": "2026-08-17T02:18:40.187Z",
+  "availableAt": "2026-08-17T02:18:40.187Z",
+  "eventStartTime": "2026-08-17T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-14",
+    "2026-08-15",
+    "2026-08-16"
+  ],
+  "home": {
+    "teamId": 118,
+    "teamName": "Kansas City Royals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 97,
+      "relievers": [
+        {
+          "id": 663878,
+          "name": "Nate Pearson",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-08-14",
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 670167,
+          "name": "John Schreiber",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 656638,
+          "name": "Alex Lange",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 518886,
+          "name": "Craig Kimbrel",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 4,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 674444,
+          "name": "Steven Cruz",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-14"
+          ]
+        },
+        {
+          "id": 621016,
+          "name": "Jose Cuas",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 1,
+          "dates": [
+            "2026-08-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 133,
+    "teamName": "Athletics",
+    "last1Day": {
+      "appearances": 4,
+      "pitches": 51,
+      "relievers": [
+        {
+          "id": 665622,
+          "name": "Luis Medina",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 665660,
+          "name": "Elvis Alvarado",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 663687,
+          "name": "Hogan Harris",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 680723,
+          "name": "Drew Rom",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-08-16"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 10,
+      "pitches": 177,
+      "relievers": [
+        {
+          "id": 665622,
+          "name": "Luis Medina",
+          "appearances": 2,
+          "pitches": 47,
+          "outs": 7,
+          "dates": [
+            "2026-08-14",
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 663687,
+          "name": "Hogan Harris",
+          "appearances": 2,
+          "pitches": 41,
+          "outs": 6,
+          "dates": [
+            "2026-08-14",
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 665660,
+          "name": "Elvis Alvarado",
+          "appearances": 2,
+          "pitches": 29,
+          "outs": 4,
+          "dates": [
+            "2026-08-14",
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 669620,
+          "name": "Brady Basso",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 5,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 656240,
+          "name": "Scott Blewett",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 680723,
+          "name": "Drew Rom",
+          "appearances": 2,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-14",
+            "2026-08-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-14,2026-08-15,2026-08-16) + feed/live box scores",
+    "capturedAt": "2026-08-17T02:18:40.187Z"
+  },
+  "recordHash": "0a6c5320b7a93dc132e92731f2cfc006012944a31c6906a5639b550902227548"
+}
