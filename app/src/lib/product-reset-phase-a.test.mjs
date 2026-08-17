@@ -96,7 +96,12 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
 });
 
 test("the ONE modelled sport keeps 'Simulation Center' framing; retired sport routes claim none", () => {
-  assert.match(read("src/app/mlb/page.tsx"), /MLB Simulation Center/, "/mlb framed as a Simulation Center (FULL_MODEL)");
+  // The compact hero takes the sport NAME and the eyebrow as separate props, so "MLB" and
+  // "Simulation Center" are no longer one literal in the source even though the reader still sees
+  // them together. Assert both halves rather than the concatenation a refactor happened to break.
+  const mlbPageSrc = read("src/app/mlb/page.tsx");
+  assert.match(mlbPageSrc, /sport="MLB"/, "/mlb names the sport on its hero");
+  assert.match(mlbPageSrc, /Simulation Center/, "/mlb framed as a Simulation Center (FULL_MODEL)");
   // The World Cup is closed — a redirect stub that must not present itself as a simulation center.
   // /ufc is different: it is a dated ARCHIVE of the one settled card, kept because that record had
   // no other public surface (accountability outranks minimalism). It must claim no simulation

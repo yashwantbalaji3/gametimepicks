@@ -84,6 +84,11 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     surfaces: ["top", "rail", "mobile"], bucket: "bank" },
   { href: "/moonshot", label: "Moonshot", group: "products", glyph: "🌙", desc: "High-risk paper longshots",
     surfaces: ["top", "rail", "mobile"], bucket: "moonshot" },
+  // Revived 2026-08-17. The route was a retired redirect stub for six weeks because the provider
+  // home-run feed it read had gone away; it now computes its own probability from StatsAPI, so it
+  // is a destination again rather than a name in the archive.
+  { href: "/homer-nukes", label: "Homer Nukes", group: "products", glyph: "💣", desc: "Today's five likeliest home runs",
+    surfaces: ["top", "rail"] },
   { href: "/mr-dub", label: "Mr. Dub's Portfolio", group: "products", glyph: "✓", desc: "Paper bankroll journey",
     surfaces: ["top", "rail", "mobile"], bucket: "mrdub" },
 

@@ -46,7 +46,12 @@ const REMOVED = {
   // Sports schedule directory. The retirement's invariant (no overstated coverage, no liveness
   // claims) did not lapse — it moved to rendered-text guards in product-reset-phase-a.test.mjs and
   // slate-liveness.test.mjs. It stays in NEVER_IN_NAV below: discovery is the homepage strip.
-  "/homer-nukes": "stub",
+  // "/homer-nukes" left this list on 2026-08-17. It was retired on 2026-06-30 because the provider
+  // anytime-home-run feed it read stopped existing, and a product with no inputs is not a product.
+  // It now computes its own P(>=1 HR) from free StatsAPI season totals and confirmed starters, so
+  // it is a live destination again — a list of five independent probabilities, never the retired
+  // five-leg parlay. The retirement's invariant was "publish nothing you cannot source"; that is
+  // satisfied by owning the input, not by staying dark.
   "/mlb/parlays": "stub",
   "/nhl/board": "gone",
   "/nhl/parlays": "gone",
@@ -73,6 +78,7 @@ const APPROVED_DESTINATIONS = new Set([
   "/bank-builder",
   "/moonshot",
   "/mr-dub",
+  "/homer-nukes",
   "/results",
   "/results/model-audit",
   "/results/nba",
@@ -100,11 +106,21 @@ const NEVER_IN_NAV = [
   // above holds it to publishing nothing predictive. "/nba" stays — it is still a redirect to its
   // settled results archive, with no schedule hub of its own.
   "/nba", "/nhl", "/ipl", "/board", "/projections", "/events",
-  "/trends", "/homer-nukes", "/world-cup", "/world-cup-specials", "/mlb/parlays",
+  "/trends", "/world-cup", "/world-cup-specials", "/mlb/parlays",
   "/parlays", "/parlay-lab", "/games", "/ops", "/preview",
 ];
 
+/*
+ * The canonical destination list is a NAV SURFACE now, and the load-bearing one.
+ *
+ * When the top nav and the command rail were rewritten to derive from `navigation.ts`, their own
+ * files stopped containing hrefs — one literal each. These guards grep hrefs out of a surface, so
+ * both were still "passing" while inspecting nothing: a retired route could have been re-listed in
+ * navigation.ts and the NEVER_IN_NAV assertion would not have seen it. Scanning the list itself
+ * puts every derived surface back under the guard at once.
+ */
 const NAV_SURFACES = {
+  "canonical destinations": "src/lib/navigation.ts",
   "top nav": "src/components/nav.tsx",
   "command rail": "src/components/command-rail.tsx",
   footer: "src/components/footer.tsx",

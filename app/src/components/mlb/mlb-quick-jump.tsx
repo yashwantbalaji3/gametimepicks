@@ -6,9 +6,11 @@ import { useEffect, useState } from "react";
  *  highlights the section currently in view (scroll-spy via IntersectionObserver). Horizontally
  *  scrollable on mobile so it never overflows. Purely presentational — no data, no fabrication. */
 const SECTIONS = [
-  { id: "mlb-featured", label: "Featured" },
-  { id: "mlb-player-props", label: "Player Props" },
-  { id: "mlb-pitcher-props", label: "Pitcher Props" },
+  // Order follows the page: the three prop columns, then the market's own ranking, then games.
+  { id: "mlb-player-props", label: "Batters" },
+  { id: "mlb-pitcher-props", label: "Pitchers" },
+  { id: "mlb-team-props", label: "Teams" },
+  { id: "mlb-featured", label: "Market favourites" },
   { id: "mlb-game-explorer", label: "Games" },
 ] as const;
 

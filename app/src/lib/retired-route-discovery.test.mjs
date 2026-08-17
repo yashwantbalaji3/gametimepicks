@@ -26,13 +26,17 @@ test("the dead 'homer' mobile-nav bucket is removed (type, resolver, glyph)", ()
   assert.ok(!/\|\s*"homer"/.test(NAV_SRC), "MobileNavBucket no longer includes 'homer'");
   assert.ok(!/return "homer"/.test(NAV_SRC), "resolver no longer returns 'homer'");
   assert.ok(!/case "homer"/.test(GLYPH), "the mobile glyph no longer has a 'homer' case");
-  assert.equal(resolveMobileNavBucket("/homer-nukes"), null, "retired /homer-nukes → no bucket");
+  // Still no MOBILE bucket: the phone bar is a six-item thumb spine and Homer Nukes lives in the
+  // rail and top nav. Reachability is asserted in nav-three-click.test.mjs.
+  assert.equal(resolveMobileNavBucket("/homer-nukes"), null, "/homer-nukes has no mobile bottom-bar bucket");
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.bucket === "homer"), "no 'homer' item in the mobile spine");
 });
 
 // ── 2 · retired routes are not promoted in any nav surface ───────────────────────────────────────
-test("retired routes (/homer-nukes, /trends) are not linked in any nav surface", () => {
-  for (const href of ["/homer-nukes", "/trends"]) {
+// "/homer-nukes" left this list on 2026-08-17 — revived as a live product that computes its own
+// home-run probabilities rather than reading the dead provider feed. "/trends" is still retired.
+test("retired routes (/trends) are not linked in any nav surface", () => {
+  for (const href of ["/trends"]) {
     assert.ok(!TOP_NAV.includes(`href: "${href}"`), `top nav does not link ${href}`);
     assert.ok(!RAIL.includes(`href: "${href}"`), `command rail does not link ${href}`);
     assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === href), `mobile nav does not link ${href}`);

@@ -40,7 +40,9 @@ test("MOBILE reaches every key destination from nav chrome (top strip + bottom b
   assert.ok(nav.includes('"/learn"'), "mobile links the Learn hub (→ /methodology within 3 clicks)");
 });
 
-test("no retired product in primary nav (Homer Nukes stays retired)", () => {
-  assert.ok(!nav.includes('"/homer-nukes"'), "mobile/top nav has no Homer Nukes entry");
-  assert.ok(!rail.includes('"/homer-nukes"'), "desktop rail has no Homer Nukes entry");
+// Revived 2026-08-17 as a live product with its own StatsAPI-derived board (see
+// homer-nukes-product.test.mjs). A signature product a reader cannot reach from the chrome is not
+// a product, so the assertion flips: it must BE in the rail and the canonical list.
+test("Homer Nukes is reachable from the primary nav", () => {
+  assert.ok(rail.includes('"/homer-nukes"'), "desktop rail links Homer Nukes");
 });

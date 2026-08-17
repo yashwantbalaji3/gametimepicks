@@ -15,6 +15,9 @@ import GameExplorer, { type ExplorerGame } from "@/components/mlb/game-explorer"
 import MlbQuickJump from "@/components/mlb/mlb-quick-jump";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
+import TeamMarketsBox, { type TeamMarketRow } from "@/components/mlb/team-markets-box";
+import HomerNukesBoardSection from "@/components/mlb/homer-nukes-board";
+import type { HomerNukesBoard } from "@/lib/mlb/homer-nukes-board";
 
 const dec = (a: number) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const impliedPct = (a: number) => Math.round((1 / dec(a)) * 100);
@@ -68,7 +71,13 @@ function TopList({ props, n }: { props: BoardProp[]; n: number }) {
   );
 }
 
-export default function MlbFlagshipSections({ props, games }: { props: BoardProp[]; games: ExplorerGame[] }) {
+export default function MlbFlagshipSections({ props, games, teamRows, homerBoard, simHref }: {
+  props: BoardProp[];
+  games: ExplorerGame[];
+  teamRows: readonly TeamMarketRow[];
+  homerBoard: HomerNukesBoard | null;
+  simHref: string | null;
+}) {
   const live = props.length > 0;
   const batter = props.filter((p) => p.group !== "pitchers");
   const pitchers = props.filter((p) => p.group === "pitchers");
@@ -76,7 +85,7 @@ export default function MlbFlagshipSections({ props, games }: { props: BoardProp
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>MLB — today&rsquo;s board</h2>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Market favourites · Player props · Pitcher props · Games — paper-only</span>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Home runs · batters · pitchers · teams · games — paper-only</span>
       </div>
 
       <MlbQuickJump />
@@ -93,21 +102,63 @@ export default function MlbFlagshipSections({ props, games }: { props: BoardProp
        * stays — under a name that says whose opinion it is. The model's own read now leads the page
        * as Homer Nukes.
        */}
-      <SectionCard id="mlb-featured" tag="1 · Market favourites" title="Where the sportsbook is most confident" sub="Shortest prices on the slate, de-vigged. This is the market's ranking, not ours — our model's read is the Homer Nukes board above.">
+      {/*
+       * THE SHAPE OF THE PAGE.
+       *
+       * These sections used to stack: four full-width cards, each a tall scrolling board, so reaching
+       * pitcher props meant paging past a hundred batter rows and the model's own read sat below the
+       * sportsbook's. The order encoded no priority and the width bought nothing — the boards are
+       * narrow lists inside a wide card.
+       *
+       * Now: the model's own board leads at full width, the three MARKET views sit beside each other
+       * as peers (they answer different questions, none is a follow-on from another), and the
+       * full-game simulation closes as its own destination. One screen, three columns, no scrolling
+       * to discover that a section exists.
+       */}
+      {homerBoard ? <HomerNukesBoardSection board={homerBoard} /> : null}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start">
+        <SectionCard id="mlb-player-props" tag="Batters" title="Batter props" sub="Hits · total bases · hits+runs+RBIs, filterable.">
+          {batter.length ? <MlbPropsBoard props={batter} /> : <GatedSlot label="Batter props post when MLB markets are live" />}
+        </SectionCard>
+
+        <SectionCard id="mlb-pitcher-props" tag="Pitchers" title="Pitcher props" sub="Strikeouts · outs recorded · earned runs, same filters.">
+          {pitchers.length ? <MlbPropsBoard props={pitchers} /> : <GatedSlot label="Pitcher props post when MLB markets are live" />}
+        </SectionCard>
+
+        <SectionCard id="mlb-team-props" tag="Teams" title="Team markets" sub="Win probability, run line and total for every game — de-vigged.">
+          <TeamMarketsBox rows={teamRows} />
+        </SectionCard>
+      </div>
+
+      <SectionCard id="mlb-featured" tag="Market favourites" title="Where the sportsbook is most confident" sub="Shortest prices on the slate, de-vigged. This is the market's ranking, not ours — our model's read is the Homer Nukes board above.">
         {live ? <TopList props={props} n={6} /> : <GatedSlot label="Market favourites post when MLB markets are live" />}
       </SectionCard>
 
-      <SectionCard id="mlb-player-props" tag="2 · Player props" title="Best player props" sub="Quick filters by market · game · odds · confidence; sort by probability, price, confidence, team or game.">
-        {batter.length ? <MlbPropsBoard props={batter} /> : <GatedSlot label="Player props post when MLB markets are live" />}
-      </SectionCard>
-
-      <SectionCard id="mlb-pitcher-props" tag="3 · Pitcher props" title="Pitcher props" sub="Strikeouts · Outs recorded · Earned runs — the same filterable board, pitcher markets.">
-        {pitchers.length ? <MlbPropsBoard props={pitchers} /> : <GatedSlot label="Pitcher props post when MLB markets are live" />}
-      </SectionCard>
-
-      <SectionCard id="mlb-game-explorer" tag="4 · Games" title="Game Explorer" sub="Every game on the slate — tap a card for first pitch, featured props & pitchers on the board.">
+      <SectionCard id="mlb-game-explorer" tag="Games" title="Game Explorer" sub="Every game on the slate — tap a card for first pitch, featured props & pitchers on the board.">
         {games.length ? <GameExplorer games={games} props={props} /> : <GatedSlot label="The slate's games appear once posted" />}
       </SectionCard>
+
+      {/* The simulation is the deepest thing on this page, so it closes it as a destination of its
+          own rather than being one link among many inside a game card. */}
+      {simHref ? (
+        <a href={simHref} className="gtp-sim-cta group flex items-center gap-4 rounded-[14px] px-4 py-4 no-underline"
+          style={{ border: "1px solid var(--sport-theme-rule)", background: "var(--sport-theme-wash)" }}>
+          <span aria-hidden className="shrink-0" style={{ fontSize: 26 }}>⚾</span>
+          <span className="flex flex-col gap-0.5 min-w-0">
+            <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--sport-theme-ink)", fontSize: 9 }}>
+              Full-game simulation
+            </span>
+            <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>
+              Run a game 10,000 times
+            </span>
+            <span style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }}>
+              Score distribution, win probability and every player market for one matchup.
+            </span>
+          </span>
+          <span aria-hidden className="ml-auto shrink-0 font-mono" style={{ color: "var(--sport-theme-ink)", fontSize: 15 }}>→</span>
+        </a>
+      ) : null}
     </div>
   );
 }

@@ -87,26 +87,33 @@ test("BANKROLL INTEGRITY: the allocation never mutates portfolio.json", () => {
   assert.ok(Math.abs(a.availableBankroll - (a.activeBankroll - a.totalOpenExposure)) < 0.01, "available = active − exposure");
 });
 
-test("UI wiring: Homer Nukes is RETIRED everywhere (removed from nav / Today / allocation; page is a retired notice)", () => {
-  // Retired 2026-06-30: the route stays as a "retired" landing (no board), and Homer Nukes no longer
-  // appears in the primary nav surfaces, Today's flashcards or the portfolio allocation.
+/*
+ * REVIVED 2026-08-17, so this guard now pins the opposite state — and pins the reason the
+ * retirement happened in the first place.
+ *
+ * Homer Nukes was retired on 2026-06-30 because the anytime-home-run provider feed it read stopped
+ * existing. The revival did not restore that dependency: the probability is computed from free
+ * StatsAPI season totals and confirmed starters, so the product owns its own input. What must not
+ * come back is the SHAPE it had — a five-leg parlay that paid only if every leg landed, which hid
+ * which leg was wrong. Five independent probabilities is the claim; a ticket is not.
+ */
+test("UI wiring: Homer Nukes is a LIVE product — its own page, its own board, never a parlay", () => {
   const homerPage = read("src/app/homer-nukes/page.tsx");
-  assert.match(homerPage, /retired/i, "homer-nukes page is a retired notice");
-  assert.ok(!/HomerNukesBoard/.test(homerPage), "no active board on the retired page");
+  assert.ok(!/ClientRedirect/.test(homerPage), "the route is a real page, not a redirect stub");
+  assert.match(homerPage, /HomerNukesBoardSection/, "the page renders the live board");
+  assert.match(homerPage, /loadHomerNukesBoard/, "the page reads the model artifact");
 
-  const today = read("src/app/today/page.tsx");
-  assert.ok(!/href: "\/homer-nukes"/.test(today), "Today flashcards no longer include Homer Nukes");
+  // The retired product's shape must not return. A parlay has ONE combined price and ONE outcome;
+  // this publishes a probability per pick and settles each on its own.
+  // NOT a bare-word check on "parlay": the page's own honest sentence is "this is a list, not a
+  // parlay", and a guard that forbids the word forbids the denial too — the trap this repo keeps
+  // walking into. What actually constitutes presenting a parlay is TICKET ECONOMICS: one combined
+  // price, one stake, one payout across the set. Those are what must be absent.
+  assert.doesNotMatch(homerPage, /combinedOdds|projectedPayout|projectedReturn|potentialReturn/i,
+    "no combined price or payout — each pick settles on its own");
+  assert.doesNotMatch(homerPage, /StakePayoutInput|\bstakeā\b/i, "no stake input on a probability list");
+  assert.match(homerPage, /list, not a parlay/i, "the page says plainly which of the two it is");
 
-  const rail = read("src/components/command-rail.tsx") + read("src/lib/navigation.ts");
-  const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
-  const route = read("src/lib/nav-active-route.ts");
-  for (const [name, src] of [["command rail", rail], ["top nav", nav]]) {
-    assert.ok(!/href: "\/homer-nukes"/.test(src), `${name} no longer links Homer Nukes`);
-  }
-  // MOBILE_NAV_ITEMS dropped the Homer Nukes tab.
-  assert.ok(!/bucket: "homer"/.test(route), "MOBILE_NAV_ITEMS dropped the Homer Nukes tab");
-
-  // Registry keeps the id for history but marks it retired (route null).
-  const registry = read("src/lib/products/registry.ts");
-  assert.match(registry, /id: "homer-nukes"[\s\S]*?status: "retired"/, "registry marks Homer Nukes retired");
+  const board = read("src/components/mlb/homer-nukes-board.tsx");
+  assert.doesNotMatch(board, /combinedOdds/, "the board carries per-pick probabilities, never a combined price");
 });

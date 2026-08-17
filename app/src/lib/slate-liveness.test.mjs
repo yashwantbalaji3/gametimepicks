@@ -195,7 +195,7 @@ test("safe-fix · the /today header + /mlb eyebrow read 'latest slate' when the 
   const mlbPage = fs.readFileSync(path.join(APP, "src/app/mlb/page.tsx"), "utf8");
   // The page derives "is this slate today's?" ONCE and every present-tense claim hangs off it.
   assert.match(mlbPage, /const isTodaysSlate = date >= currentEtDate\(\)/, "/mlb derives today-ness from the real ET clock");
-  assert.match(mlbPage, /isTodaysSlate \? "MLB Simulation Center" : "MLB Simulation Center · latest slate"/, "/mlb eyebrow flips to 'latest slate' when the board is behind today");
+  assert.match(mlbPage, /isTodaysSlate \? "Simulation Center" : "Simulation Center · latest slate"/, "/mlb eyebrow flips to 'latest slate' when the board is behind today");
   /*
    * The eyebrow was the ONLY claim gated on the date; the status pill, the stat label and the CTA
    * all stayed in the present tense. On 2026-08-17 that put "Live · 15 games", "Games today 15" and
@@ -203,7 +203,10 @@ test("safe-fix · the /today header + /mlb eyebrow read 'latest slate' when the 
    */
   assert.match(mlbPage, /!isTodaysSlate\s*\n?\s*\? "settled"/, "/mlb status pill reads Settled, never Live, on a past slate");
   assert.match(mlbPage, /isTodaysSlate \? "Games today" : "Games on this slate"/, "/mlb stat label stops calling a past slate 'today'");
-  assert.match(mlbPage, /!isTodaysSlate \? "Open the latest board"/, "/mlb primary CTA stops promising today's projections on a past slate");
+  // The compact hero leads with Homer Nukes, so the board CTA is secondary now — but it must still
+  // stop calling a past slate's board "today's".
+  assert.match(mlbPage, /!isTodaysSlate \? "Latest board"/, "/mlb board CTA stops promising today's projections on a past slate");
+  assert.doesNotMatch(mlbPage, /label: "View today's projections"/, "no CTA promises today's projections unconditionally");
 });
 
 test("safe-fix · the revived /sports directory renders NO liveness claim of any kind", () => {

@@ -32,6 +32,8 @@ import {
 import { gameHrefByMatchId, buildAllGameDetails } from "@/lib/game-detail";
 import { slateGames } from "@/lib/today/slate-games";
 import MlbSlateAvailability from "@/components/mlb/mlb-slate-availability";
+import { getTeamMarketsForDate, buildMlbGameCenter } from "@/lib/mlb-team-markets";
+import type { TeamMarketRow } from "@/components/mlb/team-markets-box";
 
 import path from "node:path";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
@@ -101,6 +103,41 @@ export default function MlbLandingPage() {
   const gameCount = summary.scheduledGames || games.length || 0;
   const gameOutlook = getGameOutlook("mlb");
   const homerNukesBoard = loadHomerNukesBoard(path.join(process.cwd(), "public", "data"), date);
+
+  /*
+   * TEAM MARKETS for the third column, and the simulation destination for the closing card.
+   *
+   * Abbreviations come from the BOARD's own homeTeamName/homeTeamAbbr pairs. The team-markets feed
+   * carries full club names only, and the alternative — a name→abbr table written into the
+   * component — is exactly the kind of lookup that rots silently on a rebrand. Where the board has
+   * no answer the crest falls back rather than guessing.
+   */
+  const teamAbbrByName = new Map<string, string>();
+  for (const r of (board as { leans?: { homeTeamName?: string; homeTeamAbbr?: string; awayTeamName?: string; awayTeamAbbr?: string }[] }).leans ?? []) {
+    if (r.homeTeamName && r.homeTeamAbbr) teamAbbrByName.set(r.homeTeamName, r.homeTeamAbbr);
+    if (r.awayTeamName && r.awayTeamAbbr) teamAbbrByName.set(r.awayTeamName, r.awayTeamAbbr);
+  }
+  const teamMarketRows: TeamMarketRow[] = Object.values(getTeamMarketsForDate(flagshipDate)?.games ?? {}).map((g) => {
+    const gc = buildMlbGameCenter(g);
+    return {
+      gameId: String(g.gameId ?? ""),
+      homeTeam: g.homeTeam, awayTeam: g.awayTeam,
+      homeAbbr: teamAbbrByName.get(g.homeTeam) ?? null,
+      awayAbbr: teamAbbrByName.get(g.awayTeam) ?? null,
+      firstPitch: g.commenceTime ?? null,
+      homeWinProb: gc?.moneyline?.homeWinProb ?? null,
+      awayWinProb: gc?.moneyline?.awayWinProb ?? null,
+      totalLine: gc?.total?.line ?? null,
+      totalLean: gc?.total?.lean ?? null,
+      runLine: gc?.runLine?.line ?? null,
+      runLineFavorite: gc?.runLine?.favorite ?? null,
+      reportHref: gameHrefByMatchId("mlb", String(g.gameId ?? "")) ?? null,
+    };
+  }).sort((a, b) => String(a.firstPitch ?? "").localeCompare(String(b.firstPitch ?? "")));
+
+  /** The closing simulation card points at the richest game we actually published a sim for. */
+  const featuredSimHref = mlbSlate.groups
+    .find((grp) => grp.level === "simulation")?.games[0]?.href ?? "/simulate/";
 
   // Normalized model output.
   const leans = normalizeMlbLeans(board as Parameters<typeof normalizeMlbLeans>[0]);
@@ -331,12 +368,15 @@ export default function MlbLandingPage() {
         />
       </div>
 
+      {/* Compact identity strip. The tall shared hero — big glyph, tagline, framing paragraph and
+          three stat CARDS — spent most of the first screen introducing a page the reader already
+          chose, pushing the board itself below the fold. Same facts, one strip. The framing moved
+          down to the methodology panel, where someone who wants it goes looking. */}
       <SportOverviewHero
+        compact
         badge={<CompetitionBadge sport="mlb" size="sm" />}
         icon={getSportIdentity("mlb").icon}
-        iconGradient={getSportIdentity("mlb").gradient}
-        iconLabel={getSportIdentity("mlb").ballLabel}
-        eyebrow={isTodaysSlate ? "MLB Simulation Center" : "MLB Simulation Center · latest slate"}
+        eyebrow={isTodaysSlate ? "Simulation Center" : "Simulation Center · latest slate"}
         sport="MLB"
         tagline="projections · track record · power board"
         statusKind={statusKind}
@@ -345,11 +385,12 @@ export default function MlbLandingPage() {
         stats={heroStats}
         accent="mlb"
         ctas={[
-          { href: "/mlb/board", label: !isTodaysSlate ? "Open the latest board" : propsAvailable ? "View today's projections" : "Open model board", primary: true },
-          { href: "/results/mlb", label: "Latest results" },
+          { href: "/homer-nukes", label: "Homer Nukes", primary: true },
+          { href: "/mlb/board", label: !isTodaysSlate ? "Latest board" : "Full model board" },
+          { href: "/results/mlb", label: "Results" },
         ]}
-        framing="Pitcher strikeouts and batter hits / total bases projected from MLB Stats API game logs and compared to the bookmaker line. Home runs live on a separate Power Board because they're higher-variance."
       />
+
 
       {/* Honest slate freshness — always visible (the tabbed board below is deferred/client-rendered). */}
       <div className="mt-4 flex items-center justify-end gap-2">
@@ -365,11 +406,16 @@ export default function MlbLandingPage() {
        * actually computed. This board is the only surface on /mlb carrying a probability the model
        * produced end-to-end rather than de-vigged off a posted price.
        */}
-      <HomerNukesBoardSection board={homerNukesBoard} />
-
-      {/* Market favourites / Props Board / Pitcher props / Game Explorer (data-gated). */}
+      {/* The board is rendered INSIDE MlbFlagshipSections now, so it leads the same grid the three
+          market columns sit in rather than floating above an unrelated block. */}
       <div className="mt-4">
-        <MlbFlagshipSections props={mlbProps} games={flagshipGames} />
+        <MlbFlagshipSections
+          props={mlbProps}
+          games={flagshipGames}
+          teamRows={teamMarketRows}
+          homerBoard={homerNukesBoard}
+          simHref={featuredSimHref}
+        />
       </div>
 
       {/* Simulation methodology + honest per-market coverage — how the MLB sim works and every gap. */}

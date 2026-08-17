@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import TeamLogo from "@/components/team-logo";
 import type { BoardProp } from "@/components/mlb/props-board";
+import PlayerAvatar from "@/components/ui/player-avatar";
 
 /**
  * GameExplorer — a scannable, collapsible card per MLB game. Shows ONLY real data: team logos (resolved
@@ -31,7 +32,7 @@ interface GameModel {
   awayAbbr: string | null;
   total: number;
   featured: BoardProp[];
-  pitchers: string[];
+  pitchers: { player: string; photoUrl: string | null; teamAbbr: string | null }[];
 }
 
 function buildModel(games: ExplorerGame[], props: BoardProp[]): GameModel[] {
@@ -48,7 +49,12 @@ function buildModel(games: ExplorerGame[], props: BoardProp[]): GameModel[] {
       if (p.homeAway === "away" && p.opponentAbbr && !homeAbbr) homeAbbr = p.opponentAbbr;
     }
     const featured = [...gp].sort((a, b) => impliedPct(b.americanOdds) - impliedPct(a.americanOdds)).slice(0, 3);
-    const pitchers = Array.from(new Set(gp.filter((p) => p.group === "pitchers").map((p) => p.player)));
+    const seenP = new Set<string>();
+    const pitchers = gp.filter((p) => p.group === "pitchers").flatMap((p) => {
+      if (seenP.has(p.player)) return [];
+      seenP.add(p.player);
+      return [{ player: p.player, photoUrl: p.photoUrl ?? null, teamAbbr: p.teamAbbr ?? null }];
+    });
     return { game, homeAbbr, awayAbbr, total: gp.length, featured, pitchers };
   }).sort((a, b) => (a.game.commenceTime ?? "").localeCompare(b.game.commenceTime ?? ""));
 }
@@ -80,7 +86,11 @@ function GameCard({ m }: { m: GameModel }) {
               <ul className="mt-1 flex flex-col gap-1 list-none">
                 {m.featured.map((p, i) => (
                   <li key={`${p.player}:${p.market}:${i}`} className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)" }}>
-                    <span className="min-w-0 truncate" style={{ color: "var(--vault-text)", fontSize: 11.5 }}>{p.player} <span style={{ color: "var(--vault-text-faint)" }}>· {p.marketLabel}{p.point != null ? ` ${p.point}` : ""}</span></span>
+                    <span className="relative shrink-0">
+                      <PlayerAvatar name={p.player} photo={p.photoUrl} size={20} />
+                      {p.teamAbbr ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={p.teamAbbr} sport="mlb" size="sm" /></span> : null}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate" style={{ color: "var(--vault-text)", fontSize: 11.5 }}>{p.player} <span style={{ color: "var(--vault-text-faint)" }}>· {p.marketLabel}{p.point != null ? ` ${p.point}` : ""}</span></span>
                     <span className="shrink-0 flex items-center gap-1.5">
                       <span className="font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 11.5 }}>{american(p.americanOdds)}</span>
                       <span className="font-mono" style={{ color: "var(--gtp-bank-heat)", fontSize: 9.5 }}>{impliedPct(p.americanOdds)}%</span>
@@ -93,7 +103,19 @@ function GameCard({ m }: { m: GameModel }) {
           {m.pitchers.length ? (
             <div>
               <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Pitchers on the board</span>
-              <p className="mt-0.5 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{m.pitchers.join(" · ")}</p>
+              {/* Was `pitchers.join(" · ")` — a run-on line of names. Faces make the same list
+                  scannable, and the portrait is the thing a reader recognises first. */}
+              <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1.5 list-none">
+                {m.pitchers.map((pi) => (
+                  <li key={pi.player} className="flex items-center gap-1.5">
+                    <span className="relative shrink-0">
+                      <PlayerAvatar name={pi.player} photo={pi.photoUrl} size={20} />
+                      {pi.teamAbbr ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={pi.teamAbbr} sport="mlb" size="sm" /></span> : null}
+                    </span>
+                    <span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pi.player}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ) : null}
           <p className="text-[9.5px] font-mono" style={{ color: "var(--vault-text-faint)" }}>Starting pitchers, weather, park & records are not in the slate feed yet — shown only when a real source is wired.</p>

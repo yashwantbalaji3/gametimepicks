@@ -62,6 +62,18 @@ interface Props {
   iconLabel?: string;
   /** Optional competition/league badge rendered beside the status pill. */
   badge?: React.ReactNode;
+  /**
+   * COMPACT: one identity row, one row of numbers, one row of actions.
+   *
+   * The full hero introduces a sport — big glyph, tagline, framing paragraph, three stat CARDS.
+   * That is right for a hub a reader is meeting, and wrong for /mlb, where it spent most of the
+   * first screen on a page the reader deliberately chose and pushed the board below the fold.
+   *
+   * This lives HERE rather than as an /mlb-specific hero on purpose: /mlb and /nfl sharing their
+   * component owners is what makes their parity real instead of coincidental, and a fork would
+   * re-open exactly the divergence that parity work closed. A variant keeps one owner.
+   */
+  compact?: boolean;
 }
 
 const ACCENT: Record<NonNullable<Props["accent"]>, string> = {
@@ -92,6 +104,7 @@ export default function SportOverviewHero({
   iconGradient,
   iconLabel,
   badge,
+  compact = false,
 }: Props) {
   const accentColor = ACCENT[accent];
   // Translate accent color into rgba glow values that the cinematic
@@ -107,6 +120,61 @@ export default function SportOverviewHero({
     "--accent-glow": glowAlpha(0.18),
     "--accent-glow-secondary": glowAlpha(0.10),
   } as React.CSSProperties;
+
+  if (compact) {
+    return (
+      <header
+        className="rounded-[16px] px-4 py-3.5 flex flex-col gap-3"
+        style={{
+          border: "1px solid var(--sport-theme-rule)",
+          background: "linear-gradient(135deg, var(--sport-theme-wash) 0%, rgba(11,18,14,0.5) 62%)",
+        }}
+      >
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          {icon ? <span aria-hidden style={{ fontSize: 22, lineHeight: 1 }}>{icon}</span> : null}
+          <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 21, fontWeight: 800, lineHeight: 1 }}>
+            {sport}
+          </span>
+          <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--sport-theme-ink)", fontSize: 9.5 }}>
+            {eyebrow}
+          </span>
+          <StatusPill kind={statusKind} label={statusLabel} caption={statusCaption} />
+          {badge}
+          {matchupLine ? (
+            <span className="ml-auto font-mono tabular-nums" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+              {matchupLine}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1.5">
+          {(stats ?? []).map((s) => (
+            <span key={s.label} className="flex items-baseline gap-1.5">
+              <span className="font-display tabular-nums" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800, lineHeight: 1 }}>{s.value}</span>
+              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-mute)", fontSize: 9.5 }}>{s.label}</span>
+              {s.sub ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>· {s.sub}</span> : null}
+            </span>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {(ctas ?? []).map((c) => (
+            <Link key={c.href} href={c.href}
+              className="gtp-team-row rounded-[8px] px-3 py-1.5 font-mono uppercase tracking-[0.12em] no-underline"
+              style={{
+                fontSize: 9.5,
+                color: c.primary ? "#1A0E06" : "var(--vault-text-mute)",
+                background: c.primary ? "var(--gtp-bank-lava-cta)" : "rgba(255,255,255,0.02)",
+                border: c.primary ? "1px solid transparent" : "1px solid var(--vault-rule)",
+                fontWeight: c.primary ? 700 : 500,
+              }}>
+              {c.label} →
+            </Link>
+          ))}
+        </div>
+      </header>
+    );
+  }
 
   return (
     <section

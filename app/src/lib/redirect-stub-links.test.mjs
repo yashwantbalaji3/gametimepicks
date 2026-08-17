@@ -40,7 +40,8 @@ const STUBS = {
   // "/sports" removed in Program 158: no longer a stub — it is a real destination (schedules directory).
   "/nba": "/results/nba",
   "/mlb/parlays": "/picks",
-  "/homer-nukes": "/results",
+  // "/homer-nukes" was a stub redirecting to /results while the product was retired. It is a real
+  // page again (2026-08-17), so linking it is correct rather than a wasted hop.
 };
 
 /** The stub's own page.tsx is allowed to mention itself; nothing else is. */

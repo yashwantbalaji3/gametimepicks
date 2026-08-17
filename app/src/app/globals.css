@@ -4904,3 +4904,40 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .gtp-hr-gauge-fill, .gtp-hr-row { animation: none; }
 }
+
+/* ── MLB hub furniture (Program 197) ───────────────────────────────────────────
+   Two interaction affordances for the restructured /mlb grid. Both are sport-
+   themed through the --sport-theme-* layer, so the same markup dropped on /nfl
+   or /ufc picks up that sport's accent with no per-sport branch.
+
+   MOTION: transform/opacity only, and nothing loops. A looping animation next
+   to a probability reads as "live", and every number on these cards is fixed
+   for the slate — it updates when the board is rebuilt, not continuously. */
+.gtp-team-row {
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+.gtp-team-row:hover,
+.gtp-team-row:focus-visible {
+  border-color: var(--sport-theme-rule) !important;
+  background: var(--sport-theme-wash) !important;
+  transform: translateY(-1px);
+}
+.gtp-sim-cta {
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+.gtp-sim-cta:hover,
+.gtp-sim-cta:focus-visible {
+  border-color: var(--sport-theme) !important;
+  box-shadow: 0 0 0 1px var(--sport-theme-rule), 0 8px 28px -18px var(--sport-theme-glow);
+  transform: translateY(-1px);
+}
+.gtp-sim-cta:hover span[aria-hidden]:last-child {
+  transform: translateX(3px);
+}
+.gtp-sim-cta span[aria-hidden]:last-child {
+  transition: transform 180ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gtp-team-row, .gtp-sim-cta, .gtp-sim-cta span[aria-hidden]:last-child { transition: none; }
+  .gtp-team-row:hover, .gtp-sim-cta:hover { transform: none; }
+}
