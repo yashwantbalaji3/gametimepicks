@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824725,
+  "date": "2026-08-17",
+  "capturedAt": "2026-08-17T19:21:23.486Z",
+  "availableAt": "2026-08-17T19:21:23.486Z",
+  "eventStartTime": "2026-08-17T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687941,
+      "name": "Alec Gamboa",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 683352,
+      "name": "Mitch Bratt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 6,
+      "lastStartDate": "2026-08-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 4.4,
+        "bbAvg": 2.8,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 7.16,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 33.67,
+        "k": 25,
+        "bb": 19,
+        "er": 14,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-17&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-17T19:21:23.486Z"
+  },
+  "recordHash": "16e6f9d0c717400e95cd2b1f05708c01ecd0e073f8368448cf0d22fecd08ae23"
+}
