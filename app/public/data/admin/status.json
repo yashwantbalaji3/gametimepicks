@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-08-17T05:59:44.236Z",
+  "generatedAt": "2026-08-17T08:08:49.503Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -19,7 +19,7 @@
     "date": "2026-08-16",
     "dailyPortfolioDate": "2026-08-16",
     "activeBankroll": 19065.4,
-    "openExposure": 410.53,
+    "openExposure": 0,
     "worldCupGames": 0,
     "mlbGames": 15,
     "mlbSlate": "2026-08-16"
@@ -44,8 +44,8 @@
     ]
   },
   "productReadiness": {
-    "bankBuilder": "active · 2 lane(s)",
-    "moonshot": "active · 2 lane(s)",
+    "bankBuilder": "awaiting approval",
+    "moonshot": "awaiting approval",
     "top10": "live",
     "worldCup": "dormant (no board)",
     "mlb": "live · 15 game(s)",
@@ -53,11 +53,11 @@
   },
   "products": {
     "bankBuilder": {
-      "activeLanes": 2,
+      "activeLanes": 0,
       "lanes": [
         {
           "lane": "A",
-          "status": "active",
+          "status": "lost",
           "step": 2,
           "legs": 2,
           "combinedOdds": 169,
@@ -67,7 +67,7 @@
         },
         {
           "lane": "B",
-          "status": "active",
+          "status": "won",
           "step": 1,
           "legs": 2,
           "combinedOdds": 245,
@@ -78,11 +78,11 @@
       ]
     },
     "moonshot": {
-      "activeLanes": 2,
+      "activeLanes": 0,
       "lanes": [
         {
           "lane": "A",
-          "status": "active",
+          "status": "lost",
           "step": 1,
           "legs": 3,
           "combinedOdds": 503,
@@ -92,7 +92,7 @@
         },
         {
           "lane": "B",
-          "status": "active",
+          "status": "lost",
           "step": 1,
           "legs": 3,
           "combinedOdds": 560,
@@ -104,11 +104,11 @@
     }
   },
   "counts": {
-    "activeProducts": 3,
-    "pendingApprovals": 0
+    "activeProducts": 1,
+    "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-08-17T05:59:43.458Z",
+    "lastRunAt": "2026-08-17T08:08:48.745Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
@@ -117,7 +117,7 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-08-17",
-    "etTime": "01:59",
+    "etTime": "04:08",
     "stages": [
       {
         "stage": "schedule",
@@ -216,7 +216,7 @@
     },
     {
       "step": "Bank Builder card decided (active or no-play)",
-      "done": true
+      "done": false
     },
     {
       "step": "No missing-data warnings",
@@ -229,7 +229,7 @@
   },
   "nextSettlementDate": "2026-08-16",
   "nextRefreshDate": "2026-08-17",
-  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-08-16's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
+  "nextAction": "No active Bank Builder lane for 2026-08-16 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
