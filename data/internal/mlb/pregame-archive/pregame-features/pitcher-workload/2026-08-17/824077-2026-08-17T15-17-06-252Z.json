@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824077,
+  "date": "2026-08-17",
+  "capturedAt": "2026-08-17T15:17:06.252Z",
+  "availableAt": "2026-08-17T15:17:06.252Z",
+  "eventStartTime": "2026-08-17T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608379,
+      "name": "Michael Wacha",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31.33,
+        "ipAvg": 6.27,
+        "kAvg": 4.2,
+        "bbAvg": 1.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 6.03,
+        "workloadIpLast5": 31.33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 150.67,
+        "k": 117,
+        "bb": 41,
+        "er": 58,
+        "hr": 18
+      }
+    },
+    "away": {
+      "id": 686930,
+      "name": "Mason Barnett",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-08-11",
+      "last5": {
+        "starts": 3,
+        "ipSum": 13.33,
+        "ipAvg": 4.44,
+        "kAvg": 4.33,
+        "bbAvg": 2.33,
+        "erAvg": 4.33,
+        "hrAvg": 2,
+        "kPer9": 8.78,
+        "workloadIpLast5": 13.33
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 13.33,
+        "k": 13,
+        "bb": 7,
+        "er": 13,
+        "hr": 6
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-17&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-17T15:17:06.252Z"
+  },
+  "recordHash": "a0d6bbe3a02029e8935cf5df392a4d23f2f9460b03340c440d3e91d2ad8e622c"
+}
