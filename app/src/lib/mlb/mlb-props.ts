@@ -5,6 +5,46 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { BoardProp } from "@/components/mlb/props-board";
+import { mlbHeadshotUrl } from "@/lib/player-headshots";
+
+/**
+ * IDENTITY ENRICHMENT — where the faces and crests come from.
+ *
+ * The ingested props artifact carries a player's NAME and nothing else: no playerId, no photo, no
+ * team abbreviation, on all 1,064 rows. So every avatar on the batter and pitcher boards fell back
+ * to two grey initials and every crest was absent, while the Homer Nukes board two sections above
+ * showed real portraits — because that artifact happens to carry playerId.
+ *
+ * The model board already holds the missing fields for the same slate, keyed by the same gameId.
+ * So identity is JOINED from it rather than invented: 158 of 168 players on today's board resolve.
+ * A player the board cannot answer for keeps a null photo and renders initials — which is the
+ * honest fallback, not a broken image.
+ *
+ * Joined on gameId + name, not name alone: a bare name join would silently cross games in a
+ * doubleheader, and this repo has already paid for one identity collision.
+ */
+interface Identity { playerId: number | null; teamAbbr: string | null; opponentAbbr: string | null; homeAway: "home" | "away" | null }
+
+function identityIndex(root: string, date: string): Map<string, Identity> {
+  const out = new Map<string, Identity>();
+  try {
+    const board = JSON.parse(fs.readFileSync(path.join(root, "mlb", "boards", `${date}.json`), "utf8"));
+    for (const r of board.leans ?? []) {
+      const name = r.playerName;
+      const gameId = String(r.gameId ?? "");
+      if (!name || !gameId) continue;
+      const abbr = r.playerTeamAbbr ?? null;
+      const isHome = abbr != null && abbr === r.homeTeamAbbr;
+      out.set(`${gameId}|${name}`, {
+        playerId: typeof r.playerId === "number" ? r.playerId : null,
+        teamAbbr: abbr,
+        opponentAbbr: abbr == null ? null : isHome ? r.awayTeamAbbr ?? null : r.homeTeamAbbr ?? null,
+        homeAway: abbr == null ? null : isHome ? "home" : "away",
+      });
+    }
+  } catch { /* no board for this slate — every row keeps its initials fallback */ }
+  return out;
+}
 
 /**
  * Latest MLB board date that actually has ingested props AND is on/before `today` (ET). Lets the MLB
@@ -24,6 +64,7 @@ export function latestMlbBoardDate(root: string, today: string): string | null {
 }
 
 export function loadMlbPropsBoard(root: string, date: string): BoardProp[] {
+  const identity = identityIndex(root, date);
   let raw: { date?: string; props?: Array<Record<string, any>> } | null = null;
   for (const rel of [["mlb", "player-props", `${date}.json`], ["mlb", "player-props", "latest.json"]]) {
     try { raw = JSON.parse(fs.readFileSync(path.join(root, ...rel), "utf8")); break; } catch { /* next */ }
@@ -34,8 +75,15 @@ export function loadMlbPropsBoard(root: string, date: string): BoardProp[] {
     group: String(p.group ?? ""), selection: String(p.selection ?? ""), point: typeof p.point === "number" ? p.point : null,
     americanOdds: Number(p.americanOdds ?? p.odds ?? 0), provider: p.provider ?? null,
     matchup: String(p.matchup ?? ""), gameId: String(p.gameId ?? ""),
-    photoUrl: p.photoUrl ?? null, teamAbbr: p.teamAbbr ?? null,
-    opponentAbbr: p.opponentAbbr ?? null, homeAway: p.homeAway ?? null,
+    ...(() => {
+      const id = identity.get(`${String(p.gameId ?? "")}|${String(p.player ?? "")}`);
+      return {
+        photoUrl: p.photoUrl ?? (id?.playerId ? mlbHeadshotUrl(id.playerId) : null),
+        teamAbbr: p.teamAbbr ?? id?.teamAbbr ?? null,
+        opponentAbbr: p.opponentAbbr ?? id?.opponentAbbr ?? null,
+        homeAway: p.homeAway ?? id?.homeAway ?? null,
+      };
+    })(),
   })).filter((p) => p.player && Number.isFinite(p.americanOdds) && p.americanOdds !== 0);
 
   // Cap the board payload: top N per market group by market-implied probability, so the page stays

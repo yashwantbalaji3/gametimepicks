@@ -80,6 +80,15 @@ export default function TeamMarketsBox({ rows }: { rows: readonly TeamMarketRow[
               <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
                 {time ? `${time} ET` : "TBD"}
               </span>
+              {/* Name the favourite instead of leaving two percentages to be compared. "Reds
+                  favoured" is the answer; the split below is the evidence for it. */}
+              {(r.homeWinProb != null || r.awayWinProb != null) && (
+                <span className="font-mono uppercase tracking-[0.1em] truncate" style={{ color: "var(--sport-theme-ink)", fontSize: 9 }}>
+                  {Math.abs((r.homeWinProb ?? 0) - (r.awayWinProb ?? 0)) < 0.04
+                    ? "Coin flip"
+                    : `${homeFav ? (r.homeAbbr ?? r.homeTeam) : (r.awayAbbr ?? r.awayTeam)} favoured`}
+                </span>
+              )}
               {r.totalLine != null && (
                 <span className="font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
                   O/U {r.totalLine}
@@ -89,10 +98,31 @@ export default function TeamMarketsBox({ rows }: { rows: readonly TeamMarketRow[
             </div>
             <Side team={r.awayTeam} abbr={r.awayAbbr} prob={r.awayWinProb} favoured={!homeFav} />
             <Side team={r.homeTeam} abbr={r.homeAbbr} prob={r.homeWinProb} favoured={homeFav} />
+            {/*
+             * The run line, in the notation people actually read.
+             *
+             * This said "Run line 1.5 · Cincinnati Reds", which does not say which side of the 1.5
+             * Cincinnati is on — a reader cannot tell whether they are giving or getting the runs.
+             * The FAVOURITE lays them, so it renders as "CIN −1.5" and the underdog as "STL +1.5",
+             * which is how every book prints it and needs no explanation.
+             */}
             {r.runLine != null && r.runLineFavorite && (
-              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-                Run line {r.runLine} · {r.runLineFavorite === "home" ? r.homeTeam : r.awayTeam}
-              </span>
+              <div className="flex items-center justify-between gap-2 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+                  Run line
+                </span>
+                <span className="font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+                  <strong style={{ color: "var(--vault-text)" }}>
+                    {r.runLineFavorite === "home" ? (r.homeAbbr ?? r.homeTeam) : (r.awayAbbr ?? r.awayTeam)}
+                  </strong>{" "}
+                  −{Math.abs(r.runLine)}
+                  <span style={{ color: "var(--vault-text-faint)" }}>
+                    {" · "}
+                    {r.runLineFavorite === "home" ? (r.awayAbbr ?? r.awayTeam) : (r.homeAbbr ?? r.homeTeam)}
+                    {" +"}{Math.abs(r.runLine)}
+                  </span>
+                </span>
+              </div>
             )}
           </>
         );

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Nav from "@/components/nav";
 import Footer from "@/components/footer";
+import SlipDrawer from "@/components/slip/slip-drawer";
 import DisclaimerBanner from "@/components/disclaimer-banner";
 import MobileBottomNav from "@/components/mobile-bottom-nav";
 import CommandRail from "@/components/command-rail";
@@ -83,6 +84,9 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          {/* The slip follows the reader across every route — a shortlist assembled on /mlb should
+              still be there on /build. Renders nothing until something is on it. */}
+          <SlipDrawer />
         </div>
         {/* Mobile bottom nav — fixed bottom, hidden at md+. */}
         <MobileBottomNav />

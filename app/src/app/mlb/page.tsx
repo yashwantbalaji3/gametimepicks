@@ -346,7 +346,7 @@ export default function MlbLandingPage() {
     { key: "overview", label: "Overview", content: overviewTab },
     { key: "projections", label: "Projections", badge: pitcherLeans.length || null, content: projectionsTab },
     { key: "player-props", label: "Player Props", badge: batterLeans.length || null, content: playerPropsTab },
-    { key: "cards", label: "Suggested Cards", badge: mlbCards.length || null, content: cardsTab },
+    { key: "cards", label: "Parlay Lab", badge: mlbCards.length || null, content: cardsTab },
     { key: "results", label: "Results", badge: null, content: resultsTab },
     { key: "methodology", label: "Methodology", badge: null, content: methodologyTab },
   ];

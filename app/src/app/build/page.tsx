@@ -48,7 +48,7 @@ export default function BuildPage() {
         title="Advanced Builder"
         status={pool.length > 0 ? "pregame" : "data_pending"}
         counts={{ eligibleLegs: pool.length }}
-        primaryAction={{ label: "Suggested cards", href: "#suggested-cards" }}
+        primaryAction={{ label: "Parlay Lab", href: "#suggested-cards" }}
         secondaryAction={{ label: "How it works", href: "/methodology" }}
         note="The advanced, full-leg builder — start with Picks Lab for the model's top picks, or use this to add legs across sports to a paper card and see the projected paper return — model-qualified legs only (odds-backed, pre-event, role-quality screened); raw sportsbook inventory and research-only views are intentionally excluded. Paper-only."
       />
@@ -80,12 +80,13 @@ export default function BuildPage() {
             className="font-semibold"
             style={{ color: "var(--vault-text)", fontSize: 17 }}
           >
-            Suggested cards
+            Parlay Lab
           </h2>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6, maxWidth: "72ch" }}>
-            Cards the model already assembled for today, by sport and risk tier. Enter any stake to see
-            the projected paper return. Paper-only and educational — nothing here is placed, and a
-            projected return is arithmetic on the odds, not an expectation of profit.
+            Cards the model already assembled for today, by sport and risk tier. Swap out any leg you
+            do not like, or add legs to your slip and size them yourself. Paper-only and educational —
+            nothing here is placed, and a projected return is arithmetic on the odds, not an
+            expectation of profit.
           </p>
         </div>
         {suggestedCards.length > 0 ? (

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
+import AddToSlip from "@/components/slip/add-to-slip";
 import { tierFromProb, homerTierFromProb, tierMeta, type ConfTier } from "@/lib/mlb/confidence";
 
 export interface BoardProp {
@@ -197,6 +198,7 @@ export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
               </span>
               <span className="block font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>{p.marketLabel}{p.point != null ? ` ${p.point}` : ""}</span>
               <span className="mt-1 flex flex-wrap items-center gap-1.5">
+                <AddToSlip leg={{ sport: "mlb", player: p.player, photoUrl: p.photoUrl ?? null, teamAbbr: p.teamAbbr ?? null, opponentAbbr: p.opponentAbbr ?? null, marketLabel: p.marketLabel, side: p.selection, line: p.point, americanOdds: p.americanOdds, matchup: p.matchup }} />
                 <span className="inline-block rounded-[4px] px-1.5 py-0.5 font-mono tabular" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)", fontSize: 9.5 }}>{impliedPct(p.americanOdds)}% mkt</span>
                 <span className="inline-flex items-center gap-1 rounded-[4px] px-1.5 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 8.5, color: m.fg, background: m.bg }}><span aria-hidden style={{ width: 4, height: 4, borderRadius: 999, background: m.fg }} />{m.label}</span>
                 {p.provider ? <span className="inline-block rounded-[4px] px-1.5 py-0.5 font-mono" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)", fontSize: 8.5 }}>{p.provider}</span> : null}
