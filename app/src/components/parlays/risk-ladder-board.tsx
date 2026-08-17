@@ -6,7 +6,7 @@ import { mlbHeadshotUrl } from "@/lib/player-headshots";
 import AddToSlip from "@/components/slip/add-to-slip";
 import LegSwapPanel from "@/components/parlays/leg-swap-panel";
 import { decimalOdds, toAmerican, type SwapCandidate } from "@/lib/parlays/leg-swap";
-import ParlayLabEntry, { type BettorTier } from "@/components/parlays/parlay-lab-entry";
+import ParlayLabEntry, { type BettorTier, type LabLedgerView } from "@/components/parlays/parlay-lab-entry";
 import { useReaderPrefs, unitStake } from "@/lib/prefs/reader-prefs";
 
 /**
@@ -178,7 +178,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
 }
 
 export default function RiskLadderBoard({
-  cards, skipped, overallRoi, gradedDays, pool = [], bettorTiers = [],
+  cards, skipped, overallRoi, gradedDays, pool = [], bettorTiers = [], ledger = null,
 }: {
   cards: readonly LadderCard[];
   skipped: readonly LadderSkip[];
@@ -188,6 +188,8 @@ export default function RiskLadderBoard({
   pool?: readonly SwapCandidate[];
   /** Backtested bettor-tier policies, each carrying its own measured record. */
   bettorTiers?: readonly BettorTier[];
+  /** The live ledger since the policy restart, plus the prior policy for context. */
+  ledger?: LabLedgerView | null;
 }) {
   const { prefs } = useReaderPrefs();
   const unit = unitStake(prefs);
@@ -213,14 +215,16 @@ export default function RiskLadderBoard({
           Today&rsquo;s card at each risk level
         </h2>
         <p className="m-0 max-w-[70ch]" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
-          The highest-scoring card the optimizer built in each price band. Every tier is tracked on
-          its own and every tier is <strong style={{ color: "var(--vault-text)" }}>losing money on
-          paper</strong> — {gradedDays} graded days, {signedPct(overallRoi)} overall. Shown so the
-          record is visible, not because the model beats these prices.
+          {/* Re-worded at the restart. "Every tier is losing money — 48 graded days, −9.4%" was
+              accurate of the PREVIOUS selection policy and is not a statement this ledger can make
+              yet. The prior result is still shown, in the entry panel, labelled as prior. */}
+          The highest-scoring card the optimizer built in each price band, one per tier, tracked
+          separately from every money product here. The live record restarted when the selection
+          rules changed; what the previous policy did is shown above rather than carried forward.
         </p>
       </div>
 
-      <ParlayLabEntry tiers={bettorTiers} />
+      <ParlayLabEntry tiers={bettorTiers} ledger={ledger} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 items-start">
         {ordered.map((c) => <LadderCardView key={c.slipId} card={c} pool={pool} unit={unit} />)}

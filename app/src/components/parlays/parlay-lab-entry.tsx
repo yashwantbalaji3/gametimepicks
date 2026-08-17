@@ -56,11 +56,21 @@ const RISKS: { key: RiskTolerance; label: string }[] = [
   { key: "longshot", label: "Longshot" },
 ];
 
-export default function ParlayLabEntry({ tiers }: { tiers: readonly BettorTier[] }) {
+export interface LabLedgerView {
+  readonly policy: { readonly version: number; readonly since: string; readonly summary: string };
+  readonly streams: readonly { readonly id: string; readonly label: string; readonly live: boolean; readonly blocked?: string;
+    readonly settledDays: number;
+    readonly record: { readonly wins: number; readonly losses: number; readonly hitRate: number | null; readonly roi: number | null } }[];
+  readonly priorPolicy: { readonly label: string; readonly summary: string; readonly gradedDays: number;
+    readonly wins: number; readonly losses: number; readonly roi: number | null; readonly note: string };
+}
+
+export default function ParlayLabEntry({ tiers, ledger }: { tiers: readonly BettorTier[]; ledger?: LabLedgerView | null }) {
   const { prefs, ready, update, clear } = useReaderPrefs();
   const [draft, setDraft] = useState("");
   const unit = unitStake(prefs);
   const matched = prefs.risk ? tiers.find((t) => t.id === RISK_TO_TIER[prefs.risk!]) ?? null : null;
+  const live = ledger?.streams.find((s) => s.id === "mlb") ?? null;
   const answered = prefs.bankroll != null && prefs.risk != null;
 
   /*
@@ -172,29 +182,35 @@ export default function ParlayLabEntry({ tiers }: { tiers: readonly BettorTier[]
             <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{matched.blurb}</span>
           </div>
 
-          {/* The hit rate — measured, and stated with its uncertainty. */}
-          <p className="m-0" style={{ color: "var(--vault-text)", fontSize: 13.5, lineHeight: 1.6 }}>
-            This tier&rsquo;s cards landed{" "}
-            <strong>{pct(matched.hitRate)}</strong> of the time
-            {matched.hitRateSe != null ? ` (±${(matched.hitRateSe * 100).toFixed(1)})` : ""} —{" "}
-            {matched.wins} of {matched.settledCards} settled cards over the graded run.
-          </p>
-
-          {/* The ROI — shown, but never as a result at this sample. */}
-          <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
-            Return over the same cards is {signed(matched.roi)}
-            {matched.roiSe != null ? ` ± ${(matched.roiSe * 100).toFixed(1)}` : ""}.{" "}
-            {matched.roiDetermined ? (
-              "That clears two standard errors."
-            ) : (
-              <span style={{ color: "var(--vault-warn)" }}>
-                At {matched.settledCards} cards that is <strong>not distinguishable from zero</strong>
-                {matched.roiT != null ? ` (t = ${matched.roiT})` : ""} — the sample fixes the hit rate
-                well and the return not at all. Every card in these price bands, taken together, is
-                negative.
-              </span>
-            )}
-          </p>
+          {/*
+           * THE LIVE RECORD COMES FIRST, even when it is empty.
+           *
+           * The selection policy changed on 2026-08-17, so the ladder restarted at 0-0: the 48 days
+           * behind it measure a different product (six cards a tier, legs reused across tiers, up to
+           * six legs). Carrying that forward as this policy's record would misattribute it.
+           *
+           * The prior result is NOT deleted — it sits below, labelled. A −9.4% that vanishes on the
+           * day the policy changes is the oldest trick there is, and a reader meeting an empty
+           * ledger deserves to know what the previous version of this did.
+           */}
+          {live && (
+            <p className="m-0" style={{ color: "var(--vault-text)", fontSize: 13.5, lineHeight: 1.6 }}>
+              {live.record.wins + live.record.losses === 0 ? (
+                <>
+                  This tier has <strong>no settled cards yet</strong>. The Lab restarted on{" "}
+                  {ledger?.policy.since} when its selection rules changed, and the record below
+                  begins from zero.
+                </>
+              ) : (
+                <>
+                  Since the restart this stream is{" "}
+                  <strong>{live.record.wins}&ndash;{live.record.losses}</strong>
+                  {live.record.hitRate != null ? ` (${pct(live.record.hitRate)})` : ""} across{" "}
+                  {live.settledDays} settled day{live.settledDays === 1 ? "" : "s"}.
+                </>
+              )}
+            </p>
+          )}
 
           {prefs.bankroll != null && prefs.bankroll < matched.minBankroll && (
             <div className="rounded-[10px] px-3 py-2.5"
@@ -209,6 +225,20 @@ export default function ParlayLabEntry({ tiers }: { tiers: readonly BettorTier[]
                 That threshold is our judgement about who should start here, not something the maths
                 produced — at a flat stake a dry spell costs the same fraction of any bankroll. It is
                 still selected; nothing is locked.
+              </p>
+            </div>
+          )}
+
+          {ledger?.priorPolicy && ledger.priorPolicy.gradedDays > 0 && (
+            <div className="rounded-[10px] px-3 py-2"
+              style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-rule)" }}>
+              <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 11.5, lineHeight: 1.6 }}>
+                <strong style={{ color: "var(--vault-text)" }}>{ledger.priorPolicy.label}:</strong>{" "}
+                {ledger.priorPolicy.wins}&ndash;{ledger.priorPolicy.losses} over{" "}
+                {ledger.priorPolicy.gradedDays} graded days, ROI{" "}
+                <span style={{ color: (ledger.priorPolicy.roi ?? 0) < 0 ? "var(--vault-danger)" : "var(--vault-success)" }}>
+                  {signed(ledger.priorPolicy.roi)}
+                </span>. {ledger.priorPolicy.summary}. {ledger.priorPolicy.note}
               </p>
             </div>
           )}

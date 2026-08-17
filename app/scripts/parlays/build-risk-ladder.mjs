@@ -117,6 +117,23 @@ const BANDS = [
 ];
 const bucketFor = (american) => BANDS.find(([, fits]) => fits(american))?.[0] ?? null;
 
+/*
+ * SETTLEMENT IDENTITY TRAVELS WITH THE CARD.
+ *
+ * Legs carry the provider's `gameId`; grading needs MLB's `gamePk`. Resolving that at settlement
+ * time would mean re-joining a board that may have moved on, so the gamePk is stamped onto the card
+ * when it is PUBLISHED — the same lineage rule the rest of this repo settles under. A leg whose
+ * gamePk cannot be resolved is published without one and simply never grades, rather than grading
+ * against a guess.
+ */
+const gamePkByGameId = new Map();
+try {
+  const board = readJson(path.join(APP, "public", "data", "mlb", "boards", `${DATE}.json`));
+  for (const r of board?.leans ?? []) {
+    if (r.gameId && r.gamePk) gamePkByGameId.set(String(r.gameId), r.gamePk);
+  }
+} catch { /* no board — legs publish without a gamePk and stay ungraded */ }
+
 const gradedToday = readJson(path.join(GRADED, `${DATE}.json`));
 const snapshotToday = readJson(path.join(SNAPSHOTS, `${DATE}.json`));
 
@@ -191,6 +208,7 @@ for (const tier of TIERS) {
     legs: (best.legs ?? []).map((l) => ({
       player: l.playerName, team: l.team ?? null, opponent: l.opponent ?? null,
       playerId: l.playerId ?? null, gameId: l.gameId ?? null,
+      gamePk: gamePkByGameId.get(String(l.gameId ?? "")) ?? null,
       market: l.market, marketLabel: l.marketLabel, side: l.side, line: l.line,
       odds: l.oddsForSide, result: l.result ?? null,
     })),

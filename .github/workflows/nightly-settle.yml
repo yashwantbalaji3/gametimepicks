@@ -172,6 +172,19 @@ jobs:
       # It writes a dated receipt under app/public/data/mr-dub/settled/, which is the durable record
       # the ladder reads to decide whether a lane advances. Re-running a settled date is a no-op when
       # the grades match and a hard refusal when they differ, so a rerun can never rewrite history.
+      # PARLAY LAB — grade yesterday's published ladder, then rebuild the ledger FROM the receipts.
+      # Two steps on purpose: settlement writes a write-once dated receipt, and the ledger is
+      # re-derived from those receipts, so a bad settle run can never silently rewrite the record.
+      # That separation is exactly what the NFL experimental record lacked when it got wiped.
+      - name: Parlay Lab settlement + ledger
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          TARGET="${SETTLE_DATE:-$(TZ=America/New_York date -d 'yesterday' +%F)}"
+          npx tsx app/scripts/parlays/settle-lab-cards.mjs --now "$NOW" --date "$TARGET" --apply
+          node app/scripts/parlays/build-lab-ledger.mjs --now "$NOW"
+
       - name: MLB player-prop settlement (paper lanes)
         run: |
           # ET-yesterday, matching every other settlement step in this workflow. The first live run
@@ -418,6 +431,10 @@ jobs:
           # NOTE the deliberate omission: portfolio.json / banked-ladders.json are the protected money
           # authority and are NEVER auto-committed. Only the dated receipt and today's working copy.
           git add app/public/data/mr-dub/settled/ 2>/dev/null || true
+          # Without these two the Lab would grade every night and have its output dropped — the same
+          # shape as the 62-hour freshness outage, where a step ran green and its result never landed.
+          git add app/public/data/parlays/lab-settled/ 2>/dev/null || true
+          git add app/public/data/parlays/lab-ledger.json 2>/dev/null || true
           git add app/public/data/mr-dub/daily-portfolio.json 2>/dev/null || true
           # PR #118: confirmed-signal policy aggregated over the
           # rolling window. Single JSON file rewritten every run.

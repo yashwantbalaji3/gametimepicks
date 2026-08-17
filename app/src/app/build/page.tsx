@@ -17,6 +17,10 @@ import { loadSuggestedCards } from "@/lib/picks/suggested-cards";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
+import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
+import { loadRiskLadder, loadLabLedger } from "@/lib/parlays/risk-ladder";
+import { loadMlbPropsBoard } from "@/lib/mlb/mlb-props";
+import path from "node:path";
 
 export const metadata = {
   title: "Build · GameTime Picks",
@@ -40,18 +44,58 @@ export default function BuildPage() {
   const suggestedCards = loadSuggestedCards(currentSlateDate() ?? currentEtDate());
   // Same canonical slate the optimizer marketplace read on /picks — one loader, not a rebuild.
   const engineSlate = engineSlateForLegs;
+  const dataRoot = path.join(process.cwd(), "public", "data");
+  const ladderDate = currentSlateDate() ?? currentEtDate();
+  const riskLadder = loadRiskLadder(dataRoot, ladderDate);
+  const labLedger = loadLabLedger(dataRoot);
+  /* Substitution bench: the same eligible legs the boards render, so a swap can only reach a leg
+     the site already publishes. */
+  const swapPool = loadMlbPropsBoard(dataRoot, ladderDate).map((p) => ({
+    player: p.player, photoUrl: p.photoUrl ?? null, teamAbbr: p.teamAbbr ?? null, opponentAbbr: p.opponentAbbr ?? null,
+    market: p.marketLabel, marketLabel: p.marketLabel, side: p.selection, line: p.point,
+    americanOdds: p.americanOdds, gameId: p.gameId, matchup: p.matchup,
+  }));
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
+      {/*
+       * PARLAY LAB LEADS THIS PAGE.
+       *
+       * The header used to introduce an "Advanced Builder" and offer the Lab as a jump link at the
+       * bottom — which put a 180-leg marketplace in front of everyone and the guided two-question
+       * entry behind a scroll. That is backwards: the Lab is the way most readers should arrive, and
+       * the full leg pool is the tool you graduate to.
+       */}
       <PicksSurfaceHeader
-        eyebrow="Advanced builder · secondary tool"
-        title="Advanced Builder"
+        eyebrow="Parlay Lab"
+        title="Parlay Lab"
         status={pool.length > 0 ? "pregame" : "data_pending"}
         counts={{ eligibleLegs: pool.length }}
-        primaryAction={{ label: "Parlay Lab", href: "#suggested-cards" }}
+        primaryAction={{ label: "Advanced builder", href: "#advanced-builder" }}
         secondaryAction={{ label: "How it works", href: "/methodology" }}
-        note="The advanced, full-leg builder — start with Picks Lab for the model's top picks, or use this to add legs across sports to a paper card and see the projected paper return — model-qualified legs only (odds-backed, pre-event, role-quality screened); raw sportsbook inventory and research-only views are intentionally excluded. Paper-only."
+        note="Tell it your daily paper bankroll and how much variance you can sit through, and it leads with the tier that matches — each carrying its own settled record. Swap any leg you do not like. Paper-only, and no stake is ever filled in for you."
       />
+
+      {/* The guided entry, first. */}
+      <RiskLadderBoard
+        cards={riskLadder?.cards ?? []}
+        skipped={riskLadder?.skipped ?? []}
+        overallRoi={riskLadder?.record.overall.roi ?? null}
+        gradedDays={riskLadder?.record.gradedDays ?? 0}
+        bettorTiers={riskLadder?.bettorTiers ?? []}
+        ledger={labLedger}
+        pool={swapPool}
+      />
+
+      <section id="advanced-builder" aria-labelledby="advanced-builder-heading" className="flex flex-col gap-2 scroll-mt-6">
+        <h2 id="advanced-builder-heading" className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 800 }}>
+          Advanced builder
+        </h2>
+        <p className="m-0 max-w-[70ch]" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
+          Every leg here is model-qualified legs only — odds-backed, pre-event, role-quality screened.
+          Build a card leg by leg when the Lab&rsquo;s tiers are not what you are after.
+        </p>
+      </section>
       {pool.length > 0 ? (
         <BuildExperience pool={pool} productDate={currentEtDate()} />
       ) : (

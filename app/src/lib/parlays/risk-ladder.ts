@@ -25,6 +25,26 @@ export interface TierRecord {
   readonly returned: number | null;
 }
 
+/** The live ledger — restarted at the policy change, with the prior policy preserved beside it. */
+export interface LabLedger {
+  readonly policy: { readonly version: number; readonly since: string; readonly summary: string };
+  readonly streams: readonly {
+    readonly id: string; readonly label: string; readonly live: boolean; readonly blocked?: string;
+    readonly settledDays: number;
+    readonly record: { readonly wins: number; readonly losses: number; readonly hitRate: number | null; readonly roi: number | null };
+  }[];
+  readonly priorPolicy: {
+    readonly label: string; readonly summary: string; readonly gradedDays: number;
+    readonly wins: number; readonly losses: number; readonly roi: number | null; readonly note: string;
+    readonly firstDay: string | null; readonly lastDay: string | null;
+  };
+}
+
+export function loadLabLedger(root: string): LabLedger | null {
+  try { return JSON.parse(fs.readFileSync(path.join(root, "parlays", "lab-ledger.json"), "utf8")); }
+  catch { return null; }
+}
+
 export interface RiskLadder {
   readonly date: string;
   readonly generatedAt: string;

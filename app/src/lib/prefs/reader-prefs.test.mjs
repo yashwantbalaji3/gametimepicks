@@ -70,9 +70,12 @@ test("the measured outcome is a completed past applied to their number, never a 
   assert.equal(bankrollOutcome({ bankroll: 500, risk: "medium", unitPct: 2 }, -0.066, 234), -154.44);
   assert.equal(bankrollOutcome({ bankroll: 500, risk: "low", unitPct: 2 }, null, 100), null, "no record, no claim");
 
+  /* After the 2026-08-17 restart the entry leads with the LIVE record, which has settled nothing.
+     The invariant is unchanged — a record is a completed past, never a forecast — so it is asserted
+     against the copy that now carries it. */
   const prose = read(PANEL).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
-  assert.match(prose, /landed/i, "the hit rate is phrased as a completed past");
-  assert.match(prose, /not distinguishable from zero/i, "and an undetermined return says so");
+  assert.match(prose, /no settled cards yet|Since the restart this stream is/i, "the record is stated as what has settled");
+  assert.match(prose, /restarted on/i, "and names when the count began");
   for (const projection of [/expected (return|profit)/i, /you (will|can expect)/i, /projected profit/i]) {
     assert.doesNotMatch(prose, projection, "no forward-looking claim");
   }

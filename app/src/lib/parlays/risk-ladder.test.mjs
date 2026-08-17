@@ -140,9 +140,15 @@ test("an UNDETERMINED return is never presented as a result", () => {
   const src = code("scripts/parlays/build-risk-ladder.mjs");
   assert.match(src, /Math\.abs\(mean\) > 2 \* roiSe/, "the threshold is two standard errors");
 
+  /*
+   * After the restart the entry leads with the LIVE record, which has settled nothing, so no tier
+   * ROI is printed at all — the strongest possible form of "never presented as a result". The
+   * assertion is therefore that the surface does not print a tier's return as a bare fact; the flag
+   * itself stays pinned above so it cannot drift while unused.
+   */
   const entry = read("src/components/parlays/parlay-lab-entry.tsx");
-  assert.match(entry, /roiDetermined \?/, "the surface branches on the flag rather than always printing the number as fact");
-  assert.match(entry, /not distinguishable from zero/i, "and says so plainly when it is not");
+  assert.doesNotMatch(entry, /\{signed\(matched\.roi\)\}/, "a tier ROI is never rendered unguarded");
+  assert.match(entry, /no settled cards yet/i, "an empty live record says so instead");
 });
 
 test("the stream is NEVER money — no bankroll, no settled product record", () => {
@@ -170,7 +176,18 @@ test("both surfaces state the separation in words a reader sees", () => {
   // The honest headline: while every tier is negative, both surfaces must say so.
   const allNegative = TIERS.every((t) => (latest.record.byTier[t].roi ?? 0) < 0);
   if (allNegative) {
-    assert.match(prose("src/components/parlays/risk-ladder-board.tsx"), /losing money on\s+paper/i, "the board leads with the negative record");
+    /* The board used to lead with "every tier is losing money — 48 graded days, −9.4%". That was a
+       claim about the PREVIOUS selection policy; after the 2026-08-17 restart the live ledger has
+       settled nothing and cannot make it. The invariant this guard exists for is the SEPARATION
+       from money, which is unchanged and must stay in words a reader sees — the prior policy's
+       result is still shown, in the entry panel, labelled as prior. */
+    assert.match(prose("src/components/parlays/risk-ladder-board.tsx"), /tracked\s+separately from every money product/i, "the board states the separation");
+    /* The sentence lives in the ARTIFACT and is rendered from it, so it is asserted where it is
+       written — and separately that the surface actually renders that field. Grepping the component
+       for the words would pass only while someone had retyped them into the JSX. */
+    const ledgerDoc = JSON.parse(read("public/data/parlays/lab-ledger.json"));
+    assert.match(ledgerDoc.priorPolicy.note, /does not describe what the Lab publishes now/i, "the prior policy is labelled as prior");
+    assert.match(read("src/components/parlays/parlay-lab-entry.tsx"), /ledger\.priorPolicy\.note/, "and the surface renders that label");
     assert.match(stream, /Every tier is negative/i, "the stream states it plainly");
   }
 });

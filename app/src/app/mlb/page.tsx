@@ -40,7 +40,7 @@ import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import MlbFlagshipSections from "@/components/mlb/mlb-flagship-sections";
 import HomerNukesBoardSection from "@/components/mlb/homer-nukes-board";
 import { loadHomerNukesBoard } from "@/lib/mlb/homer-nukes-board";
-import { loadRiskLadder } from "@/lib/parlays/risk-ladder";
+import { loadRiskLadder, loadLabLedger } from "@/lib/parlays/risk-ladder";
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
 import DeferUntilVisible from "@/components/defer-until-visible";
 import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
@@ -106,6 +106,7 @@ export default function MlbLandingPage() {
   const gameOutlook = getGameOutlook("mlb");
   const homerNukesBoard = loadHomerNukesBoard(path.join(process.cwd(), "public", "data"), date);
   const riskLadder = loadRiskLadder(path.join(process.cwd(), "public", "data"), flagshipDate);
+  const labLedger = loadLabLedger(path.join(process.cwd(), "public", "data"));
 
   /*
    * TEAM MARKETS for the third column, and the simulation destination for the closing card.
@@ -432,6 +433,7 @@ export default function MlbLandingPage() {
             overallRoi={riskLadder.record.overall.roi}
             gradedDays={riskLadder.record.gradedDays}
             bettorTiers={riskLadder.bettorTiers}
+            ledger={labLedger}
             /* The whole eligible slate is the bench. benchFor narrows it to same-market,
                comparable-price, no-game-already-on-the-card candidates. */
             pool={mlbProps.map((p) => ({
