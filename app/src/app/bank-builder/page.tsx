@@ -14,6 +14,7 @@ import { loadOfficialPublishedCandidate } from "@/lib/bank-builder-official-cand
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
+import { latestMlbBoardDate } from "@/lib/mlb/mlb-props";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { deriveProductState, productStateLabel, productStateExplanation, isLive } from "@/lib/products/product-state.mjs";
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
@@ -193,10 +194,30 @@ export default function BankBuilderPage() {
       return { date: null, cards: 0 };
     }
   })();
+  /*
+   * "NO QUALIFIED CARD" CLAIMS THE SLATE WAS CHECKED. Pass the evidence for that claim.
+   *
+   * deriveProductState has carried INPUTS_MISSING/INPUTS_STALE — "today's source data has not
+   * arrived yet, so no card has been assessed" — since it was written, and no caller has ever
+   * passed `inputsMissing` or `inputsDate`. Both branches were unreachable, so EVERY cardless day
+   * fell through to "Today's slate was checked in full and nothing met the card's qualification
+   * policy", including days where nothing was checked because there was nothing to check.
+   *
+   * On 2026-08-17 the morning board had not published by 09:40 ET. The daily portfolio existed and
+   * was dated today (CI regenerates it regardless), so the artifact looked present while its INPUT
+   * was absent — and the page told visitors the day's eleven games had been assessed and rejected.
+   *
+   * MLB is the only sport currently cleared to place live paper cards, so its board IS this
+   * product's input; when the board is behind today, the honest answer is that the data has not
+   * arrived, not that the slate lost on merit.
+   */
+  const bbInputsDate = latestMlbBoardDate(path.join(process.cwd(), "public", "data"), currentEtDate());
   const bbProductState = deriveProductState({
     productDate: currentEtDate(),
     artifactDate: bbArtifact.date,
     publishedCards: bbArtifact.cards,
+    inputsMissing: bbInputsDate == null,
+    inputsDate: bbInputsDate,
   });
   // The real ET hour lets the label distinguish "the morning generator has not run YET" (expected
   // overnight) from "it missed its window" (alarming) — same NOT_RUN state, honest framing.

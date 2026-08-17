@@ -26,8 +26,11 @@ const etDay = (iso) =>
 
 test("the slate day is DERIVED from the canonical index, never pinned", () => {
   assert.match(hub, /index\?\.nextKickoffUtc/, "the anchor is the index's own next kickoff");
-  // no hard-coded calendar day anywhere in the hub
-  const pinned = hub.match(/\b20\d\d-\d\d-\d\d\b/g) ?? [];
+  // No hard-coded calendar day anywhere in the hub's CODE. Scanned against the comment-stripped
+  // copy for the same reason it exists two assertions below: a comment recording the date of an
+  // incident is documentation, not a pinned slate, and tripping on it teaches the next author to
+  // delete the explanation rather than the pin. Code is held to exactly the same standard.
+  const pinned = hubProse.match(/\b20\d\d-\d\d-\d\d\b/g) ?? [];
   assert.deepEqual(pinned, [], `the hub must not pin a date, found ${pinned.join(", ")}`);
   assert.ok(index.nextKickoffUtc, "the index publishes an anchor to derive from");
 });
