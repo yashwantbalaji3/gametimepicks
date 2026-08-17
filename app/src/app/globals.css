@@ -4941,3 +4941,83 @@ body {
   .gtp-team-row, .gtp-sim-cta, .gtp-sim-cta span[aria-hidden]:last-child { transition: none; }
   .gtp-team-row:hover, .gtp-sim-cta:hover { transform: none; }
 }
+
+/* ── PARLAY LAB · the vault door ───────────────────────────────────────────────
+   Two leaves part to reveal the Lab, once, on entry. The brand is a vault, so
+   the door is the one place a flourish is on-message rather than decoration.
+
+   RULES IT KEEPS
+   · It plays ONCE and ends open. A looping vault would read as a live process,
+     and nothing behind it is live — the tiers are fixed for the slate.
+   · It animates transform and opacity only, so it composites on the GPU and
+     never reflows the board underneath.
+   · It never gates content. The panel is in the DOM and readable from the first
+     frame; the leaves sit ON TOP and retract. If the animation never runs — old
+     browser, reduced motion, JS off — the reader sees the Lab, not a closed door.
+   · aria-hidden throughout: this is scenery, and a screen reader should meet the
+     two questions, not a description of a door. */
+@keyframes gtp-vault-left  { from { transform: translateX(0);     } to { transform: translateX(-101%); } }
+@keyframes gtp-vault-right { from { transform: translateX(0);     } to { transform: translateX(101%);  } }
+@keyframes gtp-vault-wheel { from { transform: rotate(0deg);      } to { transform: rotate(-140deg);   } }
+@keyframes gtp-vault-seam  { 0% { opacity: 0; } 35% { opacity: 1; } 100% { opacity: 0; } }
+
+.gtp-vault {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  pointer-events: none;         /* the panel underneath stays usable throughout */
+  z-index: 2;
+}
+.gtp-vault-leaf {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;                 /* a hair over half so no seam pixel shows */
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.2) 100%),
+    var(--gtp-vault-door, #0E1A14);
+  border: 1px solid var(--sport-theme-rule);
+  will-change: transform;
+}
+.gtp-vault-leaf--l { left: 0;  animation: gtp-vault-left  900ms cubic-bezier(0.7, 0, 0.2, 1) 220ms both; }
+.gtp-vault-leaf--r { right: 0; animation: gtp-vault-right 900ms cubic-bezier(0.7, 0, 0.2, 1) 220ms both; }
+
+/* The handwheel, centred on the seam, turning as the leaves release. */
+.gtp-vault-wheel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  border-radius: 50%;
+  border: 2px solid var(--sport-theme-ink);
+  opacity: 0.85;
+  animation: gtp-vault-wheel 1120ms cubic-bezier(0.6, 0, 0.3, 1) both;
+}
+.gtp-vault-wheel::before,
+.gtp-vault-wheel::after {
+  content: "";
+  position: absolute;
+  inset: 24px 6px;
+  border-top: 2px solid var(--sport-theme-ink);
+}
+.gtp-vault-wheel::after { transform: rotate(90deg); }
+
+/* A line of light down the seam as it cracks. */
+.gtp-vault-seam {
+  position: absolute;
+  top: 0; bottom: 0; left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--gtp-bank-heat);
+  filter: blur(1px);
+  animation: gtp-vault-seam 1000ms ease-out 180ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No door at all — not a faster door. Someone who asked for less motion is
+     shown the Lab directly. */
+  .gtp-vault { display: none; }
+}

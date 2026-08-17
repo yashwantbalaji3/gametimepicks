@@ -224,14 +224,31 @@ for (const tier of TIERS) {
  * may print the hit rate as measured; it may not present the ROI as established until the flag says
  * the sample supports it.
  */
+/*
+ * ── The bankroll gate is a GUARDRAIL, not a statistic ───────────────────────────────────────────
+ * Worth stating plainly, because the opposite is easy to imply: under flat-percentage staking a
+ * drawdown measured in UNITS is bankroll-independent. A $100 bankroll and a $10,000 one both ride
+ * out the same 28-card losing run at 2% a card, and both end it down the same fraction. There is no
+ * dollar figure the maths hands you.
+ *
+ * What the data does give is how brutal each tier's dry spells have been, and the gate is keyed to
+ * that: the tiers that miss for weeks at a time are not offered as a starting point to someone
+ * putting aside a few pounds a day. The figures below are a product judgement about who should be
+ * nudged where, and are labelled as one — never as a threshold the numbers produced.
+ *
+ * A gated tier is still SHOWN, with its record and the streak that gated it. Hiding it would make
+ * it aspirational, which is the exact opposite of the intent: Longshot is the worst-performing
+ * thing on this site (4.7% hit, 28 straight losers, a median of a fortnight between wins) and the
+ * gate exists to slow someone down, not to make it feel like a reward for a bigger balance.
+ */
 const BETTOR_TIERS = [
   { id: "steady", label: "Steady", bands: ["low"], cardsPerDay: 1, minBankroll: 0,
     blurb: "The shortest prices we publish, one card a day." },
-  { id: "balanced", label: "Balanced", bands: ["low", "medium"], cardsPerDay: 2, minBankroll: 100,
+  { id: "balanced", label: "Balanced", bands: ["low", "medium"], cardsPerDay: 2, minBankroll: 50,
     blurb: "Short and mid prices, two cards a day." },
-  { id: "adventurous", label: "Adventurous", bands: ["medium", "high"], cardsPerDay: 2, minBankroll: 250,
+  { id: "adventurous", label: "Adventurous", bands: ["medium", "high"], cardsPerDay: 2, minBankroll: 150,
     blurb: "Mid and long prices, two cards a day." },
-  { id: "longshot", label: "Longshot", bands: ["longshot"], cardsPerDay: 1, minBankroll: 0,
+  { id: "longshot", label: "Longshot", bands: ["longshot"], cardsPerDay: 1, minBankroll: 500,
     blurb: "The longest price on the board, one card a day." },
 ];
 
@@ -254,13 +271,19 @@ for (const f of fs.readdirSync(GRADED).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/
 const bettorTiers = BETTOR_TIERS.map((t) => {
   const pnl = [];
   let wins = 0, losses = 0;
+  const outcomes = [];
   for (const day of gradedByDay.values()) {
     const pool = t.bands.flatMap((b) => day[b] ?? []);
     for (const c of pool.slice(0, t.cardsPerDay)) {
       pnl.push(c.won ? c.d - 1 : -1);
+      outcomes.push(c.won);
       if (c.won) wins++; else losses++;
     }
   }
+  /* The streak facts the gate is keyed to, measured rather than asserted: the longest run of
+     losers this policy actually produced, and how long a reader typically waits for a win. */
+  let run = 0, worstLosingRun = 0;
+  for (const x of outcomes) { run = x ? 0 : run + 1; if (run > worstLosingRun) worstLosingRun = run; }
   const n = pnl.length;
   const mean = n ? pnl.reduce((a, b) => a + b, 0) / n : null;
   const sd = n > 1 ? Math.sqrt(pnl.reduce((a, x) => a + (x - mean) ** 2, 0) / (n - 1)) : null;
@@ -272,6 +295,10 @@ const bettorTiers = BETTOR_TIERS.map((t) => {
     cardsPerDay: t.cardsPerDay, minBankroll: t.minBankroll,
     settledCards: n, wins, losses,
     hitRate: round(hitRate), hitRateSe: round(hitSe),
+    worstLosingRun,
+    /* Median cards to a win at the measured rate, expressed in DAYS at this tier's cadence. */
+    medianDaysToWin: hitRate && hitRate > 0 && hitRate < 1
+      ? round(Math.log(0.5) / Math.log(1 - hitRate) / t.cardsPerDay, 1) : null,
     roi: round(mean), roiSe: round(roiSe),
     /*
      * TWO standard errors, the conventional bar — not one.

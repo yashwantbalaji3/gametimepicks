@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useReaderPrefs, unitStake, type RiskTolerance } from "@/lib/prefs/reader-prefs";
 
 /**
@@ -37,6 +37,8 @@ export interface BettorTier {
   readonly roiSe: number | null;
   readonly roiDetermined: boolean;
   readonly roiT: number | null;
+  readonly worstLosingRun: number;
+  readonly medianDaysToWin: number | null;
 }
 
 const RISK_TO_TIER: Record<RiskTolerance, string> = {
@@ -61,11 +63,42 @@ export default function ParlayLabEntry({ tiers }: { tiers: readonly BettorTier[]
   const matched = prefs.risk ? tiers.find((t) => t.id === RISK_TO_TIER[prefs.risk!]) ?? null : null;
   const answered = prefs.bankroll != null && prefs.risk != null;
 
+  /*
+   * The door opens ONCE per visit, and only for a reader who has not already been inside. Someone
+   * returning with a tier saved is not arriving at the Lab for the first time, and replaying the
+   * flourish on every page load would turn a piece of theatre into a toll.
+   *
+   * Mounted state, not a CSS-only reveal, because it must be REMOVED after it plays — a persistent
+   * overlay above an interactive panel is a hit-testing hazard waiting to happen, even with
+   * pointer-events off.
+   */
+  const [doorOpen, setDoorOpen] = useState(false);
+  const doorRan = useRef(false);
+  useEffect(() => {
+    if (doorRan.current || !ready) return;
+    doorRan.current = true;
+    if (answered) return;                                   // already been inside
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    setDoorOpen(true);
+    const t = window.setTimeout(() => setDoorOpen(false), 1400);
+    return () => window.clearTimeout(t);
+  }, [ready, answered]);
+
   if (!ready) return null;
 
   return (
-    <section aria-labelledby="lab-entry" className="flex flex-col gap-3 rounded-[16px] p-4"
+    <section aria-labelledby="lab-entry" className="relative flex flex-col gap-3 rounded-[16px] p-4"
       style={{ border: "1px solid var(--sport-theme-rule)", background: "linear-gradient(135deg, var(--sport-theme-wash) 0%, rgba(11,18,14,0.5) 62%)" }}>
+      {/* Scenery. The panel below is in the DOM and readable from the first frame; these leaves sit
+          on top and retract, so a reader who never sees the animation loses nothing. */}
+      {doorOpen && (
+        <span className="gtp-vault" aria-hidden>
+          <span className="gtp-vault-leaf gtp-vault-leaf--l" />
+          <span className="gtp-vault-leaf gtp-vault-leaf--r" />
+          <span className="gtp-vault-seam" />
+          <span className="gtp-vault-wheel" />
+        </span>
+      )}
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 id="lab-entry" className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>
           Parlay Lab
@@ -103,18 +136,24 @@ export default function ParlayLabEntry({ tiers }: { tiers: readonly BettorTier[]
           <div className="flex flex-wrap gap-1.5">
             {RISKS.map((r) => {
               const on = prefs.risk === r.key;
+              const tier = tiers.find((t) => t.id === RISK_TO_TIER[r.key]);
+              /* Gated tiers stay SELECTABLE and stay visible. The gate is a nudge with a reason
+                 attached, not a locked door — a tier you cannot reach becomes a tier you want. */
+              const gated = tier != null && prefs.bankroll != null && prefs.bankroll < tier.minBankroll;
               return (
                 <button key={r.key} type="button" aria-pressed={on}
                   onClick={() => update({ risk: on ? null : r.key })}
+                  title={gated ? `Suggested from ${money(tier!.minBankroll)} a day — ${tier!.worstLosingRun} straight losers in the graded run` : tier?.blurb}
                   className="gtp-slip-btn rounded-[7px] font-mono uppercase tracking-[0.1em]"
                   style={{
                     padding: "5px 10px", fontSize: 10, cursor: "pointer",
-                    color: on ? "#06140D" : "var(--vault-text-mute)",
+                    color: on ? "#06140D" : gated ? "var(--vault-text-faint)" : "var(--vault-text-mute)",
                     background: on ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.03)",
-                    border: `1px solid ${on ? "transparent" : "var(--vault-rule)"}`,
+                    border: `1px solid ${on ? "transparent" : gated ? "var(--vault-rule)" : "var(--vault-rule)"}`,
                     fontWeight: on ? 700 : 500,
+                    opacity: gated && !on ? 0.62 : 1,
                   }}>
-                  {r.label}
+                  {r.label}{gated ? " ·" : ""}{gated ? <span aria-hidden> ⚠</span> : null}
                 </button>
               );
             })}
@@ -156,6 +195,23 @@ export default function ParlayLabEntry({ tiers }: { tiers: readonly BettorTier[]
               </span>
             )}
           </p>
+
+          {prefs.bankroll != null && prefs.bankroll < matched.minBankroll && (
+            <div className="rounded-[10px] px-3 py-2.5"
+              style={{ background: "color-mix(in srgb, var(--vault-warn) 10%, transparent)", border: "1px solid var(--vault-warn)" }}>
+              <p className="m-0" style={{ color: "var(--vault-text)", fontSize: 12.5, lineHeight: 1.6 }}>
+                We suggest this tier from <strong>{money(matched.minBankroll)}</strong> a day, and you
+                entered {money(prefs.bankroll)}. It went <strong>{matched.worstLosingRun} cards</strong>{" "}
+                without a win in the graded run
+                {matched.medianDaysToWin != null ? `, and typically waits about ${matched.medianDaysToWin} days between wins` : ""}.
+              </p>
+              <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 11, lineHeight: 1.55 }}>
+                That threshold is our judgement about who should start here, not something the maths
+                produced — at a flat stake a dry spell costs the same fraction of any bankroll. It is
+                still selected; nothing is locked.
+              </p>
+            </div>
+          )}
 
           {unit != null && (
             <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 11.5, lineHeight: 1.55 }}>
