@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-08-17T08:08:49.503Z",
+  "generatedAt": "2026-08-17T13:05:53.058Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -17,7 +17,7 @@
   },
   "slate": {
     "date": "2026-08-16",
-    "dailyPortfolioDate": "2026-08-16",
+    "dailyPortfolioDate": "2026-08-17",
     "activeBankroll": 19065.4,
     "openExposure": 0,
     "worldCupGames": 0,
@@ -57,22 +57,22 @@
       "lanes": [
         {
           "lane": "A",
-          "status": "lost",
-          "step": 2,
-          "legs": 2,
-          "combinedOdds": 169,
-          "stake": 260.53,
-          "potentialReturn": 699.56,
+          "status": "awaiting",
+          "step": 1,
+          "legs": 0,
+          "combinedOdds": 0,
+          "stake": 100,
+          "potentialReturn": 100,
           "selections": []
         },
         {
           "lane": "B",
-          "status": "won",
+          "status": "awaiting",
           "step": 1,
-          "legs": 2,
-          "combinedOdds": 245,
+          "legs": 0,
+          "combinedOdds": 0,
           "stake": 100,
-          "potentialReturn": 345.14,
+          "potentialReturn": 100,
           "selections": []
         }
       ]
@@ -82,22 +82,22 @@
       "lanes": [
         {
           "lane": "A",
-          "status": "lost",
+          "status": "awaiting",
           "step": 1,
-          "legs": 3,
-          "combinedOdds": 503,
+          "legs": 0,
+          "combinedOdds": 0,
           "stake": 25,
-          "potentialReturn": 150.68,
+          "potentialReturn": 25,
           "selections": []
         },
         {
           "lane": "B",
-          "status": "lost",
+          "status": "awaiting",
           "step": 1,
-          "legs": 3,
-          "combinedOdds": 560,
+          "legs": 0,
+          "combinedOdds": 0,
           "stake": 25,
-          "potentialReturn": 164.91,
+          "potentialReturn": 25,
           "selections": []
         }
       ]
@@ -109,7 +109,7 @@
   },
   "workflowHealth": {
     "lastRunAt": "2026-08-17T08:08:48.745Z",
-    "ageHours": 0,
+    "ageHours": 5,
     "ok": true,
     "status": "pass",
     "phase": "nightly-settle"
@@ -117,7 +117,7 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-08-17",
-    "etTime": "04:08",
+    "etTime": "09:05",
     "stages": [
       {
         "stage": "schedule",
@@ -170,12 +170,12 @@
   },
   "learningLoop": {
     "signal": "GREEN",
-    "summary": "learning data complete through 2026-08-16 (30805 rows)",
+    "summary": "learning data complete through 2026-07-27 (22660 rows)",
     "freshness": {
       "healthy": true,
-      "asOfSettledDate": "2026-08-16",
-      "corpusRows": 30805,
-      "ledgerRows": 30805,
+      "asOfSettledDate": "2026-07-27",
+      "corpusRows": 22660,
+      "ledgerRows": 22660,
       "lagDays": 0,
       "problems": []
     },
@@ -227,9 +227,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-08-16",
-  "nextRefreshDate": "2026-08-17",
-  "nextAction": "No active Bank Builder lane for 2026-08-16 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-08-17",
+  "nextRefreshDate": "2026-08-18",
+  "nextAction": "No active Bank Builder lane for 2026-08-17 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
