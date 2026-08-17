@@ -6,6 +6,8 @@ import { mlbHeadshotUrl } from "@/lib/player-headshots";
 import AddToSlip from "@/components/slip/add-to-slip";
 import LegSwapPanel from "@/components/parlays/leg-swap-panel";
 import { decimalOdds, toAmerican, type SwapCandidate } from "@/lib/parlays/leg-swap";
+import ReaderPrefsPanel from "@/components/prefs/reader-prefs-panel";
+import { useReaderPrefs, unitStake } from "@/lib/prefs/reader-prefs";
 
 /**
  * THE RISK LADDER — today's card at each risk level, each shown with that tier's own record.
@@ -90,7 +92,7 @@ function LegRow({ leg, right }: { leg: LadderLeg; right?: React.ReactNode }) {
  * untouched and the tier record below still describes the card as published. So an edited card
  * says so, rather than quietly borrowing the record of a card it is no longer identical to.
  */
-function LadderCardView({ card, pool }: { card: LadderCard; pool: readonly SwapCandidate[] }) {
+function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly SwapCandidate[]; unit: number | null }) {
   const [legs, setLegs] = useState<LadderLeg[]>([...card.legs]);
   const edited = legs.some((l, i) => l.player !== card.legs[i]?.player || l.line !== card.legs[i]?.line);
   const priced = legs.every((l) => l.odds != null);
@@ -160,6 +162,13 @@ function LadderCardView({ card, pool }: { card: LadderCard; pool: readonly SwapC
         ))}
       </ul>
 
+      {/* Arithmetic on the reader's own two numbers — a unit at this price returns this much.
+          Never phrased as what they should stake. */}
+      {unit != null && priced ? (
+        <span className="font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+          One unit (${unit.toFixed(2)}) returns ${(unit * legs.reduce((d, l) => d * decimalOdds(l.odds as number), 1)).toFixed(2)} if every leg lands
+        </span>
+      ) : null}
       <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
         {legs.length} legs · all must land
         {edited ? " · your edit, not the published card" : ""}
@@ -178,7 +187,23 @@ export default function RiskLadderBoard({
   /** Eligible legs for substitutions — same slate, all markets. */
   pool?: readonly SwapCandidate[];
 }) {
+  const { prefs } = useReaderPrefs();
+  const unit = unitStake(prefs);
+
   if (cards.length === 0 && skipped.length === 0) return null;
+
+  /*
+   * A stated tolerance REORDERS; it never hides. Filtering the other tiers out would let a reader
+   * who picked Longshot forget that three calmer bands exist, and this stream's worst record by far
+   * is the one someone choosing "Longshot" is asking for.
+   */
+  const ordered = prefs.risk
+    ? [...cards].sort((a, b) => Number(b.tier === prefs.risk) - Number(a.tier === prefs.risk))
+    : cards;
+
+  const tierRecords = Object.fromEntries(
+    cards.map((c) => [c.tier, { wins: c.tierRecord.wins, losses: c.tierRecord.losses, roi: c.tierRecord.roi }]),
+  );
 
   return (
     <section aria-labelledby="risk-ladder-heading" className="flex flex-col gap-3">
@@ -197,8 +222,10 @@ export default function RiskLadderBoard({
         </p>
       </div>
 
+      <ReaderPrefsPanel tierRecords={tierRecords} />
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 items-start">
-        {cards.map((c) => <LadderCardView key={c.slipId} card={c} pool={pool} />)}
+        {ordered.map((c) => <LadderCardView key={c.slipId} card={c} pool={pool} unit={unit} />)}
         {[].map((c: LadderCard) => (
           <article key={c.slipId} className="flex flex-col gap-2.5 rounded-[14px] p-3.5"
             style={{ background: "rgba(11,18,14,0.5)", border: "1px solid var(--vault-border)" }}>
