@@ -65,7 +65,13 @@ export interface LabLedgerView {
     readonly wins: number; readonly losses: number; readonly roi: number | null; readonly note: string };
 }
 
-export default function ParlayLabEntry({ tiers, ledger }: { tiers: readonly BettorTier[]; ledger?: LabLedgerView | null }) {
+export default function ParlayLabEntry({ tiers, ledger, showTitle = true }: {
+  tiers: readonly BettorTier[];
+  ledger?: LabLedgerView | null;
+  /* False where the PAGE is already titled "Parlay Lab" (i.e. /build). Repeating it gave that page
+     two identical headings and no way to tell which one you had reached. */
+  showTitle?: boolean;
+}) {
   const { prefs, ready, update, clear } = useReaderPrefs();
   const [draft, setDraft] = useState("");
   const unit = unitStake(prefs);
@@ -110,9 +116,15 @@ export default function ParlayLabEntry({ tiers, ledger }: { tiers: readonly Bett
         </span>
       )}
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 id="lab-entry" className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>
-          Parlay Lab
-        </h2>
+        {showTitle ? (
+          <h2 id="lab-entry" className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>
+            Parlay Lab
+          </h2>
+        ) : (
+          <span id="lab-entry" className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 800 }}>
+            Start here
+          </span>
+        )}
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
           Two questions · stays in your browser
         </span>

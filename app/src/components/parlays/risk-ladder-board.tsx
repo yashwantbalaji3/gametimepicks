@@ -178,7 +178,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
 }
 
 export default function RiskLadderBoard({
-  cards, skipped, overallRoi, gradedDays, pool = [], bettorTiers = [], ledger = null,
+  cards, skipped, overallRoi, gradedDays, pool = [], bettorTiers = [], ledger = null, entryShowsTitle = true,
 }: {
   cards: readonly LadderCard[];
   skipped: readonly LadderSkip[];
@@ -190,6 +190,8 @@ export default function RiskLadderBoard({
   bettorTiers?: readonly BettorTier[];
   /** The live ledger since the policy restart, plus the prior policy for context. */
   ledger?: LabLedgerView | null;
+  /** False on /build, whose page title is already "Parlay Lab". */
+  entryShowsTitle?: boolean;
 }) {
   const { prefs } = useReaderPrefs();
   const unit = unitStake(prefs);
@@ -224,7 +226,7 @@ export default function RiskLadderBoard({
         </p>
       </div>
 
-      <ParlayLabEntry tiers={bettorTiers} ledger={ledger} />
+      <ParlayLabEntry tiers={bettorTiers} ledger={ledger} showTitle={entryShowsTitle} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 items-start">
         {ordered.map((c) => <LadderCardView key={c.slipId} card={c} pool={pool} unit={unit} />)}

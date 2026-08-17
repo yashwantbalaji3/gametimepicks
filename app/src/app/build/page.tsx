@@ -67,7 +67,7 @@ export default function BuildPage() {
        * the full leg pool is the tool you graduate to.
        */}
       <PicksSurfaceHeader
-        eyebrow="Parlay Lab"
+        eyebrow="Build"
         title="Parlay Lab"
         status={pool.length > 0 ? "pregame" : "data_pending"}
         counts={{ eligibleLegs: pool.length }}
@@ -78,6 +78,7 @@ export default function BuildPage() {
 
       {/* The guided entry, first. */}
       <RiskLadderBoard
+        entryShowsTitle={false}
         cards={riskLadder?.cards ?? []}
         skipped={riskLadder?.skipped ?? []}
         overallRoi={riskLadder?.record.overall.roi ?? null}
@@ -119,15 +120,19 @@ export default function BuildPage() {
           client-side routing state. */}
       <section id="suggested-cards" aria-labelledby="suggested-cards-heading" className="flex flex-col gap-3 scroll-mt-6">
         <div>
+          {/* Named for what it is RELATIVE to the ladder above. Calling this "Parlay Lab" too left
+              the page with three headings of that name — the title, the entry panel, and this — and
+              no way to tell which one a reader had arrived at. The ladder is the curated few; this
+              is everything the optimizer built. */}
           <h2
             id="suggested-cards-heading"
             className="font-semibold"
             style={{ color: "var(--vault-text)", fontSize: 17 }}
           >
-            Parlay Lab
+            Every card the optimizer built
           </h2>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6, maxWidth: "72ch" }}>
-            Cards the model already assembled for today, by sport and risk tier. Swap out any leg you
+            The full pool behind the ladder above, by sport and risk tier. Swap out any leg you
             do not like, or add legs to your slip and size them yourself. Paper-only and educational —
             nothing here is placed, and a projected return is arithmetic on the odds, not an
             expectation of profit.
