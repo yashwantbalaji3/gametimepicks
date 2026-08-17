@@ -20,18 +20,21 @@ import { isMlbAllStarBreak, mlbBreakNote, MLB_ALL_STAR_BREAK_2026 } from "./mlb-
 const APP = process.cwd(); // app/
 
 // ── computeSlateLiveness ──────────────────────────────────────────────────────
-test("liveness · stale slate (07-11) on real 07-12 is NOT live — honest no-games headline", () => {
+test("liveness · stale slate (07-11) on real 07-12 is NOT live — and does NOT claim there are no games", () => {
   const v = computeSlateLiveness({
     today: "2026-07-12",
     latestSlate: "2026-07-11",
     hasGamesToday: false,
   });
-  assert.equal(v.status, "latest-available");
+  assert.equal(v.status, "slate-pending");
   assert.equal(v.isLiveToday, false);
   assert.equal(v.daysBehind, 1);
-  assert.match(v.headline, /No games today/);
+  // No artifact exists for 07-12, so the page may say the slate is unpublished — never that the
+  // day is empty. On 2026-08-17 the old copy asserted "No games today" over an 11-game slate.
+  assert.doesNotMatch(v.headline, /No games today/);
+  assert.match(v.headline, /isn't published yet/);
   assert.match(v.headline, /Jul 12/); // frames on the REAL date, not the slate date
-  assert.match(v.detail, /Most recent slate/);
+  assert.match(v.detail, /Most recent published slate/);
   assert.match(v.detail, /Jul 11/);
   assert.match(v.detail, /1 day ago/);
 });
@@ -48,15 +51,33 @@ test("liveness · a real slate ON today WITH games is live", () => {
   assert.match(v.headline, /Today's slate/);
 });
 
-test("liveness · today's date but ZERO games is still NOT live (no fake action)", () => {
+test("liveness · a multi-day-old slate is NOT live and stays a publishing state (no fake action)", () => {
   const v = computeSlateLiveness({
     today: "2026-07-13",
     latestSlate: "2026-07-11",
     hasGamesToday: false,
   });
-  assert.equal(v.status, "latest-available");
+  assert.equal(v.status, "slate-pending");
   assert.equal(v.isLiveToday, false);
   assert.equal(v.daysBehind, 2);
+});
+
+/*
+ * The genuine no-games day — the All-Star break this module was built for. It had NO coverage: the
+ * test above carried the name "today's date but ZERO games" while passing a slate two days stale,
+ * so the branch that still says "No games today" was never exercised. This is that branch.
+ */
+test("liveness · a slate published FOR TODAY that is empty is a proven no-games day", () => {
+  const v = computeSlateLiveness({
+    today: "2026-07-13",
+    latestSlate: "2026-07-13",
+    hasGamesToday: false,
+  });
+  assert.equal(v.status, "latest-available");
+  assert.equal(v.isLiveToday, false);
+  assert.equal(v.daysBehind, 0);
+  // We hold an artifact for today and it is empty — the claim is earned here, and only here.
+  assert.match(v.headline, /No games today/);
 });
 
 test("liveness · no slate at all → no-data, honest empty copy", () => {
@@ -172,7 +193,17 @@ test("safe-fix · the /today header + /mlb eyebrow read 'latest slate' when the 
   const todayPage = fs.readFileSync(path.join(APP, "src/app/today/page.tsx"), "utf8");
   assert.match(todayPage, /slateRelative=\{today < serverToday \? "Latest slate"/, "/today passes 'Latest slate' when the slate date is before the real ET clock");
   const mlbPage = fs.readFileSync(path.join(APP, "src/app/mlb/page.tsx"), "utf8");
-  assert.match(mlbPage, /date < currentEtDate\(\) \? "MLB Simulation Center · latest slate"/, "/mlb eyebrow flips to 'latest slate' (Simulation Center framing) when the board is behind today");
+  // The page derives "is this slate today's?" ONCE and every present-tense claim hangs off it.
+  assert.match(mlbPage, /const isTodaysSlate = date >= currentEtDate\(\)/, "/mlb derives today-ness from the real ET clock");
+  assert.match(mlbPage, /isTodaysSlate \? "MLB Simulation Center" : "MLB Simulation Center · latest slate"/, "/mlb eyebrow flips to 'latest slate' when the board is behind today");
+  /*
+   * The eyebrow was the ONLY claim gated on the date; the status pill, the stat label and the CTA
+   * all stayed in the present tense. On 2026-08-17 that put "Live · 15 games", "Games today 15" and
+   * "View today's projections" over a settled Aug-16 slate. Each one is pinned here now.
+   */
+  assert.match(mlbPage, /!isTodaysSlate\s*\n?\s*\? "settled"/, "/mlb status pill reads Settled, never Live, on a past slate");
+  assert.match(mlbPage, /isTodaysSlate \? "Games today" : "Games on this slate"/, "/mlb stat label stops calling a past slate 'today'");
+  assert.match(mlbPage, /!isTodaysSlate \? "Open the latest board"/, "/mlb primary CTA stops promising today's projections on a past slate");
 });
 
 test("safe-fix · the revived /sports directory renders NO liveness claim of any kind", () => {

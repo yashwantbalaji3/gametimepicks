@@ -113,12 +113,22 @@ export default function MlbLandingPage() {
     date,
   });
 
-  const statusKind: "live" | "linesPending" | "upcoming" =
-    propsAvailable && summary.leans > 0 ? "live" : gameCount > 0 ? "linesPending" : "upcoming";
+  /*
+   * Is the slate on screen actually TODAY's? The hero already branched on this for its eyebrow, but
+   * the pill, the stat label and the CTA all kept speaking in the present tense regardless. On the
+   * morning of 2026-08-17, before the day's board published, this page showed the Aug 16 slate under
+   * "Live · 15 games", "Games today 15" and "View today's projections" — three separate claims that
+   * yesterday's finished baseball was happening now.
+   */
+  const isTodaysSlate = date >= currentEtDate();
+
+  const statusKind: "live" | "settled" | "linesPending" | "upcoming" = !isTodaysSlate
+    ? "settled"
+    : propsAvailable && summary.leans > 0 ? "live" : gameCount > 0 ? "linesPending" : "upcoming";
   const statusCaption = gameCount > 0 ? `${gameCount} game${gameCount === 1 ? "" : "s"}` : undefined;
 
   const heroStats = [
-    { label: "Games today", value: String(gameCount), sub: date },
+    { label: isTodaysSlate ? "Games today" : "Games on this slate", value: String(gameCount), sub: date },
     { label: "Projections", value: String(summary.leans), sub: propsAvailable ? "real prop lines" : "lines pending" },
     {
       label: "Category A · Category C",
@@ -322,7 +332,7 @@ export default function MlbLandingPage() {
         icon={getSportIdentity("mlb").icon}
         iconGradient={getSportIdentity("mlb").gradient}
         iconLabel={getSportIdentity("mlb").ballLabel}
-        eyebrow={date < currentEtDate() ? "MLB Simulation Center · latest slate" : "MLB Simulation Center"}
+        eyebrow={isTodaysSlate ? "MLB Simulation Center" : "MLB Simulation Center · latest slate"}
         sport="MLB"
         tagline="projections · track record · power board"
         statusKind={statusKind}
@@ -331,7 +341,7 @@ export default function MlbLandingPage() {
         stats={heroStats}
         accent="mlb"
         ctas={[
-          { href: "/mlb/board", label: propsAvailable ? "View today's projections" : "Open model board", primary: true },
+          { href: "/mlb/board", label: !isTodaysSlate ? "Open the latest board" : propsAvailable ? "View today's projections" : "Open model board", primary: true },
           { href: "/results/mlb", label: "Latest results" },
         ]}
         framing="Pitcher strikeouts and batter hits / total bases projected from MLB Stats API game logs and compared to the bookmaker line. Home runs live on a separate Power Board because they're higher-variance."

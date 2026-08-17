@@ -83,7 +83,11 @@ export default function SlateLivenessBanner({
           className="font-mono text-[10px] uppercase tracking-[0.18em] shrink-0"
           style={{ color: "var(--vault-gold)" }}
         >
-          {liveness.status === "no-data" ? "No slate" : "No games today"}
+          {liveness.status === "no-data"
+            ? "No slate"
+            : liveness.status === "slate-pending"
+              ? "Publishing"
+              : "No games today"}
         </span>
         <span className="text-[14px] font-semibold" style={{ color: "var(--vault-text)" }}>
           {liveness.headline}

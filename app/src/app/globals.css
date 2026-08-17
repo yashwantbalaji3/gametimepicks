@@ -84,8 +84,13 @@
      probe composited gradient alpha correctly; #8E8E9C clears 4.5:1 on all of them. */
   /* 4.5:1 on EVERY surface it lands on, hover included — the first green value cleared the base at
      5.5:1 but only 4.0:1 on a hovered card, which the contrast gate caught. Pick faint text against
-     the LIGHTEST surface it can sit on, never against the page background. */
-  --vault-text-faint: #8B978F;
+     the LIGHTEST surface it can sit on, never against the page background.
+     #8B978F then cleared ten routes and still read 4.25:1 on the status chips of /moonshot and
+     /simulate, whose panels sit a step above the cards I had measured. The lesson keeps being
+     re-learned because "the lightest surface" is discovered, not known: the gate enumerates real
+     used colours across every route, so this value is now set from ITS measurement, not from mine.
+     #939F97 measures 4.8:1 there, leaving headroom for the next surface that turns up. */
+  --vault-text-faint: #939F97;
 
   --vault-success: #4ADE80;
   --vault-success-dim: rgba(74, 222, 128, 0.14);

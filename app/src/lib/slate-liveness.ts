@@ -52,7 +52,8 @@ export interface SlateLivenessInput {
 
 export type SlateLivenessStatus =
   | "live-today" // latest slate is today and has games
-  | "latest-available" // showing the most-recent completed slate; today has none
+  | "latest-available" // a slate EXISTS for today and is empty — proven no-games day
+  | "slate-pending" // no slate artifact for today yet — we do not know whether games are on
   | "no-data"; // no slate exists at all
 
 export interface SlateLiveness {
@@ -139,6 +140,35 @@ export function computeSlateLiveness(input: SlateLivenessInput): SlateLiveness {
   }
 
   const daysBehind = Math.max(0, daysOldVs(latestSlate, today));
+
+  /*
+   * "NO GAMES TODAY" IS A CLAIM ABOUT THE WORLD. Only make it on evidence.
+   *
+   * A slate that exists FOR TODAY and carries zero games is real evidence of a no-games day (the
+   * All-Star break this module was written for). A slate dated EARLIER than today is not evidence of
+   * anything except that today's slate has not been published yet — and those two states were
+   * collapsed into one line here.
+   *
+   * The cost of collapsing them is not cosmetic. On 2026-08-17 the morning publish had not run by
+   * 09:40 ET, and /mlb told visitors "No games today · Mon, Aug 17" while the official schedule
+   * carried ELEVEN games, the first at 1:40 PM ET. Every morning has that window.
+   *
+   * So absence of an artifact now says so, and says nothing more.
+   */
+  if (latestSlate < today) {
+    return {
+      today,
+      latestSlate,
+      status: "slate-pending",
+      isLiveToday: false,
+      daysBehind,
+      headline: `Today's slate isn't published yet · ${prettyEtLabel(today)}`,
+      detail: `Most recent published slate: ${prettyEtLabel(latestSlate)} (${daysAgoLabel(daysBehind)}). Any games on today appear here once the morning run publishes them.`,
+      nextFocus,
+      leagueNotes,
+    };
+  }
+
   return {
     today,
     latestSlate,
