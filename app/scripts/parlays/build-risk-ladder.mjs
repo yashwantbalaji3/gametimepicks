@@ -133,12 +133,54 @@ if (gradedToday?.publicRiskSections) {
   }
 }
 
+/*
+ * SELECTION POLICY — set from the 48-day backtest of this stream, not from taste.
+ *
+ * ── Legs are DISJOINT across tiers ──────────────────────────────────────────────────────────────
+ * Measured over 43 days of top cards, High and Longshot shared 2.33 legs on average (Jaccard 0.40)
+ * and overlapped on 79% of days; Medium/Longshot 1.47 on 74%. Outcome agreement ran above
+ * independence in all six tier pairs. A reader taking the whole ladder was therefore making ONE
+ * concentrated bet wearing four labels — four tickets that mostly die to the same miss. Tiers are
+ * now filled in order and a leg already used is not reused, so the ladder is four genuinely
+ * different opinions or it is fewer cards.
+ *
+ * ── Fewer legs wins ties ────────────────────────────────────────────────────────────────────────
+ * Hit rate and ROI fall monotonically with leg count: 2 legs 41.1% / +3.0%, 3 legs 18.3% / −4.3%,
+ * 5 legs 7.1% / −14.5%, 6 legs 1.6% / −76.2%. Six-leg cards are near-lottery. Score still leads —
+ * it is the one input that predicted, holding within every leg count — but among cards within a
+ * hair of each other on score, the shorter one is taken.
+ *
+ * What is NOT done here: selecting by model edge. Edge does not predict leg outcomes (58.1% / 59.2%
+ * / 57.9% across the 0-5 / 5-10 / 10-20pp buckets, 1,407 graded legs), which matches the standing
+ * finding that this model adds nothing beyond the market price.
+ */
+const MAX_LEGS = 5;                 // 6-leg cards returned −76.2% over 62 of them; they do not ship
+const SCORE_TIE = 0.02;             // within 2% of the best score counts as a tie on score
+
 const cards = [];
 const skipped = [];
+const usedLegs = new Set();
+const legKey = (l) => `${l.playerName}|${l.market}|${l.side}|${l.line}`;
+
 for (const tier of TIERS) {
-  const pool = poolByTier[tier].filter((s) => combinedDecimal(s) != null);
-  if (!pool.length) { skipped.push({ tier, reason: "no priced card in this tier on today's slate" }); continue; }
-  const best = [...pool].sort((a, b) => (b.score ?? 0) - (a.score ?? 0))[0];
+  const pool = poolByTier[tier]
+    .filter((s) => combinedDecimal(s) != null)
+    .filter((s) => (s.legs ?? []).length <= MAX_LEGS)
+    .filter((s) => (s.legs ?? []).every((l) => !usedLegs.has(legKey(l))));
+  if (!pool.length) {
+    skipped.push({
+      tier,
+      reason: poolByTier[tier].length
+        ? "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
+        : "no priced card in this tier on today's slate",
+    });
+    continue;
+  }
+  const ranked = [...pool].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const topScore = ranked[0].score ?? 0;
+  const tied = ranked.filter((s) => (s.score ?? 0) >= topScore * (1 - SCORE_TIE));
+  const best = tied.sort((a, b) => (a.legs?.length ?? 0) - (b.legs?.length ?? 0))[0];
+  for (const l of best.legs ?? []) usedLegs.add(legKey(l));
   const d = combinedDecimal(best);
   cards.push({
     tier,

@@ -47,6 +47,31 @@ test("the ladder publishes at most one card per tier, each from its own price ba
   for (const t of TIERS) assert.ok(accounted.has(t), `${t} is either carded or has a stated reason`);
 });
 
+test("legs are DISJOINT across tiers — the ladder is not one bet wearing four labels", () => {
+  /*
+   * Measured before this rule existed: High and Longshot shared 2.33 legs on average (Jaccard 0.40)
+   * and overlapped on 79% of 43 days, and outcome agreement beat independence in all six tier
+   * pairs. A reader taking the whole ladder was making one concentrated bet, not four.
+   */
+  const seen = new Map();
+  for (const c of latest.cards) {
+    for (const l of c.legs) {
+      const k = `${l.player}|${l.marketLabel}|${l.side}|${l.line}`;
+      assert.ok(!seen.has(k), `${l.player} ${l.side} ${l.line} appears in both ${seen.get(k)} and ${c.tier}`);
+      seen.set(k, c.tier);
+    }
+  }
+});
+
+test("no card ships past the leg cap — six-leg cards returned −76% over 62 of them", () => {
+  for (const c of latest.cards) {
+    assert.ok(c.legs.length <= 5, `${c.tier} card has ${c.legs.length} legs; the cap is 5`);
+    assert.ok(c.legs.length >= 2, `${c.tier} card must be a real parlay`);
+  }
+  const src = code("scripts/parlays/build-risk-ladder.mjs");
+  assert.match(src, /MAX_LEGS = 5/, "the cap is stated once, as a constant");
+});
+
 test("every card carries its own tier's record — a pick is never shown without its history", () => {
   for (const c of latest.cards) {
     assert.ok(c.tierRecord, `${c.tier} card carries a tier record`);
