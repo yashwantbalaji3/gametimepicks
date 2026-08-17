@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { loadMoonshotLane } from "./moonshot/moonshot-lane.ts";
 import { resolveMobileNavBucket } from "./nav-active-route.ts";
+import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
 
 const read = (p) => fs.readFileSync(p, "utf8");
 
@@ -32,8 +33,16 @@ test("Moonshot tracker shows the stopped/LOST state with hit/miss/pending legs, 
   assert.match(tracker, /not backfilled|known Moonshot runs only/, "honest about un-backfilled history (no fabrication)");
 });
 
+/*
+ * The July-21 card's COMPOSITION is a fact about that card, so it is asserted against the pinned
+ * snapshot — not against whatever the lane is running today. Read live, this test made the product
+ * unable to move: it pinned "two MLB pitcher_strikeouts legs", and the 2026-08-17 slate qualified
+ * one. That is a different card, not a defect, and it is exactly the coupling the pinned root was
+ * introduced to break for the other thirty-three lane regressions. This one only survived because
+ * the intervening cards happened to match.
+ */
 test("Moonshot lane artifact is ACTIVE (fresh July-21 MLB review card) and its record stays separate (0-1, not in core)", () => {
-  const lane = loadMoonshotLane();
+  const lane = loadMoonshotLane(pinnedLaneRoot());
   assert.ok(lane, "moonshot lane present");
   assert.equal(lane.status, "active", "lane active (July-21 MLB review)");
   const card = lane.ladder[0].card;
@@ -48,6 +57,69 @@ test("Moonshot lane artifact is ACTIVE (fresh July-21 MLB review card) and its r
   assert.deepEqual(portfolio.moonshot.record, { wins: 0, losses: 1, voids: 0, pending: 0 }, "moonshot 0-1, separate");
   assert.equal(portfolio.moonshot.exposure, 0, "moonshot exposure 0 (paper review, nothing placed)");
   assert.deepEqual(portfolio.record, { wins: 19, losses: 14, voids: 0, pending: 0 }, "core record after Lane A WON its July-6 cycle-8 Step-1 and its July-7 Step-2 (record +2 → 19-14; July-5 losses remain in priorLane) — moonshot not blended in");
+});
+
+/*
+ * What must hold of WHATEVER card is live today. The test above moved to the pinned July-21 root so
+ * the product can change; this one keeps the live artifact guarded, asserting shape and honesty
+ * rather than a particular slate's picks — so it stays true tomorrow without being edited.
+ */
+test("the LIVE Moonshot lane is structurally sound and never ships a pre-graded leg", () => {
+  const lane = loadMoonshotLane();
+  assert.ok(lane, "a live moonshot lane is published");
+
+  /*
+   * EVERY lane, not just the back-compat alias. The document stores lane A's ladder twice — once
+   * under `lanes[0]` and again at the top level for readers that predate multi-lane — so a guard
+   * written against `lane.ladder` silently checks lane A and leaves lane B unguarded. That is not
+   * a hypothetical: the first version of this test did exactly that, and a probe that mutated
+   * `lanes[0]` passed clean because the test was reading the other copy.
+   */
+  const lanes = Array.isArray(lane.lanes) && lane.lanes.length ? lane.lanes : [lane];
+  const cards = lanes.map((l) => l.ladder?.[0]?.card).filter(Boolean);
+  if (!cards.length) return; // open lanes with no qualifying card are a legitimate state
+
+  // The duplicate must stay a duplicate; two readers of the same lane must never see two cards.
+  if (Array.isArray(lane.lanes) && lane.lanes.length && lane.ladder?.[0]?.card) {
+    assert.deepEqual(lane.ladder[0].card, lane.lanes[0].ladder?.[0]?.card,
+      "the top-level ladder alias still mirrors lane A exactly");
+  }
+
+  const legs = cards.flatMap((c) => c.legs ?? []);
+  assert.ok(legs.length > 0, "a placed card carries its legs");
+  for (const l of legs) {
+    assert.ok(l.participant, "every leg names its selection");
+    assert.ok(l.market, "every leg names the market it settles on");
+    assert.equal(l.settlement?.result, null, `${l.participant} is ungraded until official results arrive`);
+  }
+
+  /*
+   * The team beside a pick must be the player's OWN side. Until 2026-08-17 it was the fixture's
+   * home team for every leg, which filed three away-team players under their opponent's name.
+   *
+   * Checking the team merely APPEARS in the fixture string does not catch that — "Arizona
+   * Diamondbacks @ Boston Red Sox" contains "Boston Red Sox", so a mislabelled away player passes
+   * a containment test cleanly. The only real check is against an independent answer, so this
+   * compares each leg to the board's own `playerTeamAbbr` for the same gamePk and player.
+   */
+  const boardPath = `public/data/mlb/boards/${lane.slateDate}.json`;
+  if (!fs.existsSync(boardPath)) return;
+  const board = JSON.parse(read(boardPath));
+  const truth = new Map();
+  for (const r of board.leans ?? []) {
+    if (!r.playerTeamAbbr || !r.playerName) continue;
+    const full = r.playerTeamAbbr === r.homeTeamAbbr ? r.homeTeamName : r.playerTeamAbbr === r.awayTeamAbbr ? r.awayTeamName : null;
+    if (full) truth.set(`${r.gamePk}|${r.playerName}`, full);
+  }
+  let checked = 0;
+  for (const l of legs) {
+    const name = String(l.participant).split(/ (?:Over|Under) /)[0];
+    const expected = truth.get(`${l.legId.split(":")[2]}|${name}`);
+    if (!expected) continue; // the board has no answer for this player — the leg carries null, not a guess
+    assert.equal(l.team, expected, `${name} plays for ${expected}, not ${l.team}`);
+    checked++;
+  }
+  assert.ok(checked > 0, "at least one leg was cross-checked against the board's own player-team answer");
 });
 
 test("Moonshot is reachable: command rail + top nav include it; mobile has its own Moonshot bucket", () => {

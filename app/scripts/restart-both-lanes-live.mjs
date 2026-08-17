@@ -121,6 +121,42 @@ function selectLegs(pool, n, score, filter = () => true) {
 }
 
 const matchupOf = (g) => `${g.teams?.away ?? "?"} @ ${g.teams?.home ?? "?"}`;
+
+/**
+ * WHICH TEAM DOES THIS PLAYER ACTUALLY PLAY FOR?
+ *
+ * The Moonshot leg used to answer `g.teams.home` — the fixture's home side, whoever the player was.
+ * That is right for home players and wrong for every away player, so half of the 2026-08-17 card
+ * shipped mislabelled: Gabriel Moreno (Arizona) filed under Boston, Luis Campusano (San Diego) under
+ * the Mets, Jakob Marsee (Miami) under Philadelphia. It never broke settlement — that joins on
+ * player name and gamePk against the official box score — but the team line and crest a reader sees
+ * beside the pick named the opponent.
+ *
+ * The board already carries `playerTeamAbbr` per lean, which is the provider's own answer, and it
+ * agrees with the StatsAPI box score on every leg checked. So the team is LOOKED UP, and when the
+ * board has no answer (42 of 463 leans today) the field is null. A missing crest is a smaller lie
+ * than a confident wrong one.
+ */
+const teamByPlayer = (() => {
+  const map = new Map();
+  const boardPath = path.join(APP, "public", "data", "mlb", "boards", `${DATE}.json`);
+  let board;
+  try { board = JSON.parse(fs.readFileSync(boardPath, "utf8")); } catch { return map; }
+  for (const r of board.leans ?? []) {
+    const abbr = r.playerTeamAbbr;
+    if (!abbr || !r.playerName) continue;
+    // The row carries both sides' abbr and full name, so the abbr resolves without a lookup table.
+    const full = abbr === r.homeTeamAbbr ? r.homeTeamName : abbr === r.awayTeamAbbr ? r.awayTeamName : null;
+    if (!full) continue;
+    map.set(`${r.gamePk}|${r.playerName}`, { team: full, opponent: full === r.homeTeamName ? r.awayTeamName : r.homeTeamName });
+  }
+  return map;
+})();
+
+/** The player's own side of the fixture, or nulls when the board cannot say. Never a guess. */
+function sidesFor(g, playerName) {
+  return teamByPlayer.get(`${g.gamePk ?? g.gameId}|${playerName}`) ?? { team: null, opponent: null };
+}
 const MARKET_LABEL = {
   pitcher_strikeouts: "Strikeouts", batter_hits: "Hits",
   batter_total_bases: "Total Bases", batter_hits_runs_rbis: "Hits + Runs + RBIs",
@@ -159,7 +195,7 @@ function msLeg({ g, p, snap }) {
     legId: `moonshot:mlb:${g.gamePk ?? g.gameId}:${p.market}:${String(p.player).replace(/\s+/g, "_")}`,
     kind: "player", sport: "MLB", fixture: matchup,
     participant: `${p.player} ${sideLabel} ${p.line} ${MARKET_LABEL[p.market] ?? p.market}`,
-    team: g.teams?.home ?? null, opponent: g.teams?.away ?? null,
+    ...sidesFor(g, p.player),
     countryCode: null, playerId: null, photoUrl: null,
     market: p.market, marketLabel: MARKET_LABEL[p.market] ?? p.market,
     side: p.side, line: p.line, odds: snap.americanOdds,
@@ -209,10 +245,27 @@ const doc = JSON.parse(fs.readFileSync(LADDER, "utf8"));
 const run = doc.run ?? doc;
 const bbCards = { laneA: bbCard(laneAPicks, "A"), laneB: bbCard(laneBPicks, "B") };
 
+/*
+ * RE-RUNNING A DAY MUST NOT INVENT A CYCLE.
+ *
+ * Each lane's cycle counter increments on every run, and the outgoing lane is pushed into
+ * `priorLane`. Run twice for the same slate — which is exactly what happens when a card has to be
+ * rebuilt, as it did on 2026-08-17 after the Moonshot legs were found carrying the wrong team — and
+ * the day's real cycle is buried under a duplicate, with a phantom cycle in the history that never
+ * had a card of its own.
+ *
+ * So a re-run for a date the lane is ALREADY on replaces that cycle in place: same number, and the
+ * prior chain is inherited from the cycle being replaced rather than growing by one. A genuinely
+ * new slate still advances normally.
+ */
+const bbReplacing = (cur) => cur?.cycleStartedAt?.slice(0, 10) === DATE;
+
 for (const [k, letter] of [["laneA", "A"], ["laneB", "B"]]) {
   const cur = run[k] ?? {};
-  const prior = JSON.parse(JSON.stringify(cur));
-  const newCycle = (cur.cycle ?? 1) + 1;
+  const replacing = bbReplacing(cur);
+  const prior = replacing ? (cur.priorLane ?? null) : JSON.parse(JSON.stringify(cur));
+  const newCycle = replacing ? cur.cycle : (cur.cycle ?? 1) + 1;
+  if (replacing) console.log(`  BB ${k} · already on ${DATE} — replacing cycle ${newCycle} in place, not stacking a new one`);
   const card = bbCards[k];
   run[k] = {
     laneId: letter,
@@ -259,7 +312,10 @@ function msCard(laneLetter) {
 }
 
 const ms = JSON.parse(fs.readFileSync(MOONSHOT, "utf8"));
-const priorRun = JSON.parse(JSON.stringify(ms));
+/* Same rule as the Bank Builder chain above: re-running today's slate replaces today's run, it does
+ * not stack a duplicate on top of it and push the real one down the priorRun chain. */
+const priorRun = ms.slateDate === DATE ? (ms.priorRun ?? null) : JSON.parse(JSON.stringify(ms));
+if (ms.slateDate === DATE) console.log(`  MS · already on ${DATE} — replacing this run in place, not stacking a new one`);
 const msLanes = ["A", "B"].map((letter) => {
   const card = msCard(letter);
   return {
