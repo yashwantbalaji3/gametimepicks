@@ -30,6 +30,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { labEligibility } from "./lab-eligibility.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const GRADED = path.join(APP, "public", "data", "parlays", "optimizer-graded");
@@ -50,14 +51,14 @@ const POLICY = {
   summary: "Legs disjoint across tiers · five-leg cap · ties on score resolve to the shorter card",
 };
 
-/** Streams the Lab publishes. Declared up front so a new sport is data, never a schema change. */
-const STREAMS = [
-  { id: "mlb", label: "MLB", live: true },
-  { id: "nfl", label: "NFL", live: false, blocked: "the NFL model has not met its own promotion bar" },
-  { id: "ufc", label: "UFC", live: false, blocked: "only one UFC head has passed its bar; no card market is modelled" },
-  { id: "epl", label: "Premier League", live: false, blocked: "schedule only — no simulation is published" },
-  { id: "multi", label: "Multi-sport", live: false, blocked: "needs a second sport cleared for live cards" },
-];
+/*
+ * Streams are MEASURED, not declared. The previous version of this file hard-coded which sports were
+ * live and why — which meant the reasons were a human's summary, drifted the moment a feed changed,
+ * and could not notice a sport becoming eligible. `labEligibility` derives all of it from the
+ * artifacts on disk each run, so a stale capture closes a sport instead of publishing yesterday's
+ * prices under today's heading.
+ */
+const STREAMS = labEligibility(path.join(APP, "public", "data"), NOW.slice(0, 10), NOW);
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
@@ -153,6 +154,7 @@ const payload = {
   policy: POLICY,
   streams: STREAMS.map((s) => ({
     ...s,
+    evidence: s.evidence,
     settledDays: live[s.id].settledDays.length,
     record: live[s.id].overall,
     byTier: live[s.id].byTier,
