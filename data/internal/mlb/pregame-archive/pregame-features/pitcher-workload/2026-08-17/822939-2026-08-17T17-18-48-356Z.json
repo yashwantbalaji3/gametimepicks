@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822939,
+  "date": "2026-08-17",
+  "capturedAt": "2026-08-17T17:18:48.356Z",
+  "availableAt": "2026-08-17T17:18:48.356Z",
+  "eventStartTime": "2026-08-17T22:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663556,
+      "name": "Shane McClanahan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 18,
+      "lastStartDate": "2026-07-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 3.6,
+        "bbAvg": 1.4,
+        "erAvg": 1.4,
+        "hrAvg": 0.2,
+        "kPer9": 6.39,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 99,
+        "k": 91,
+        "bb": 35,
+        "er": 34,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 687064,
+      "name": "Brandon Young",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-08-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 5.2,
+        "bbAvg": 2,
+        "erAvg": 2,
+        "hrAvg": 0.6,
+        "kPer9": 7.98,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 113.67,
+        "k": 93,
+        "bb": 41,
+        "er": 42,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-17&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-17T17:18:48.356Z"
+  },
+  "recordHash": "8742c1eb1f5c63a803a72d0396122cd9b7a2caedbdd784e111cdd4c008cf065c"
+}
