@@ -431,6 +431,15 @@ export default function MlbLandingPage() {
             skipped={riskLadder.skipped}
             overallRoi={riskLadder.record.overall.roi}
             gradedDays={riskLadder.record.gradedDays}
+            /* The whole eligible slate is the bench. benchFor narrows it to same-market,
+               comparable-price, no-game-already-on-the-card candidates. */
+            pool={mlbProps.map((p) => ({
+              player: p.player, photoUrl: p.photoUrl ?? null,
+              teamAbbr: p.teamAbbr ?? null, opponentAbbr: p.opponentAbbr ?? null,
+              market: p.marketLabel, marketLabel: p.marketLabel,
+              side: p.selection, line: p.point, americanOdds: p.americanOdds,
+              gameId: p.gameId, matchup: p.matchup,
+            }))}
           />
         </div>
       ) : null}

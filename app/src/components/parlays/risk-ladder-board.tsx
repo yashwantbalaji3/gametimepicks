@@ -1,6 +1,11 @@
+"use client";
+import { useState } from "react";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import { mlbHeadshotUrl } from "@/lib/player-headshots";
+import AddToSlip from "@/components/slip/add-to-slip";
+import LegSwapPanel from "@/components/parlays/leg-swap-panel";
+import { decimalOdds, toAmerican, type SwapCandidate } from "@/lib/parlays/leg-swap";
 
 /**
  * THE RISK LADDER — today's card at each risk level, each shown with that tier's own record.
@@ -54,7 +59,7 @@ const TIER_TONE: Record<string, string> = {
   longshot: "var(--vault-danger)",
 };
 
-function LegRow({ leg }: { leg: LadderLeg }) {
+function LegRow({ leg, right }: { leg: LadderLeg; right?: React.ReactNode }) {
   return (
     <li className="flex items-center gap-2 min-w-0">
       <span className="relative shrink-0">
@@ -73,17 +78,105 @@ function LegRow({ leg }: { leg: LadderLeg }) {
       <span className="shrink-0 font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
         {american(leg.odds)}
       </span>
+      {right}
     </li>
   );
 }
 
+/**
+ * ONE CARD, with its own edited state.
+ *
+ * A substitution changes only the card it was made on, and it is LOCAL: the published artifact is
+ * untouched and the tier record below still describes the card as published. So an edited card
+ * says so, rather than quietly borrowing the record of a card it is no longer identical to.
+ */
+function LadderCardView({ card, pool }: { card: LadderCard; pool: readonly SwapCandidate[] }) {
+  const [legs, setLegs] = useState<LadderLeg[]>([...card.legs]);
+  const edited = legs.some((l, i) => l.player !== card.legs[i]?.player || l.line !== card.legs[i]?.line);
+  const priced = legs.every((l) => l.odds != null);
+  const price = priced
+    ? toAmerican(legs.reduce((d, l) => d * decimalOdds(l.odds as number), 1))
+    : card.combinedAmerican;
+
+  const swapTargets = legs.map((l) => ({
+    player: l.player, market: l.marketLabel, gameId: String(l.opponent ?? ""), americanOdds: l.odds ?? 0,
+    marketLabel: l.marketLabel, side: l.side, line: l.line,
+    photoUrl: l.playerId ? mlbHeadshotUrl(l.playerId) : null, teamAbbr: l.team,
+  }));
+
+  return (
+    <article className="flex flex-col gap-2.5 rounded-[14px] p-3.5"
+      style={{ background: "rgba(11,18,14,0.5)", border: "1px solid var(--vault-border)" }}>
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="font-mono uppercase tracking-[0.14em]" style={{ color: TIER_TONE[card.tier] ?? "var(--vault-text-mute)", fontSize: 9.5 }}>
+          {card.tierLabel}{edited ? " · edited" : ""}
+        </span>
+        <span className="font-display tabular-nums" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 800 }}>
+          {american(price)}
+        </span>
+      </div>
+
+      <div className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5"
+        style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+          {edited ? "Tier as published" : "This tier"}
+        </span>
+        <span className="font-mono tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
+          {card.tierRecord.wins}&ndash;{card.tierRecord.losses} ·{" "}
+          <span style={{ color: (card.tierRecord.roi ?? 0) < 0 ? "var(--vault-danger)" : "var(--vault-success)" }}>
+            {signedPct(card.tierRecord.roi)}
+          </span>
+        </span>
+      </div>
+
+      <ul className="flex flex-col gap-2 list-none m-0 p-0">
+        {legs.map((l, i) => (
+          <li key={`${l.player}:${i}`} className="flex flex-col">
+            <LegRow
+              leg={l}
+              right={
+                <span className="flex items-center gap-1 shrink-0">
+                  <LegSwapPanel
+                    legs={swapTargets}
+                    index={i}
+                    pool={pool}
+                    onSwap={(inc) => setLegs((prev) => prev.map((x, j) => j === i ? {
+                      player: inc.player, team: inc.teamAbbr, opponent: inc.opponentAbbr,
+                      playerId: null, marketLabel: inc.marketLabel, side: inc.side,
+                      line: inc.line, odds: inc.americanOdds, result: null,
+                    } : x))}
+                  />
+                  {l.odds != null ? (
+                    <AddToSlip leg={{
+                      sport: "mlb", player: l.player, photoUrl: l.playerId ? mlbHeadshotUrl(l.playerId) : null,
+                      teamAbbr: l.team, opponentAbbr: l.opponent, marketLabel: l.marketLabel,
+                      side: l.side, line: l.line, americanOdds: l.odds, matchup: l.opponent,
+                    }} />
+                  ) : null}
+                </span>
+              }
+            />
+          </li>
+        ))}
+      </ul>
+
+      <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+        {legs.length} legs · all must land
+        {edited ? " · your edit, not the published card" : ""}
+      </span>
+    </article>
+  );
+}
+
 export default function RiskLadderBoard({
-  cards, skipped, overallRoi, gradedDays,
+  cards, skipped, overallRoi, gradedDays, pool = [],
 }: {
   cards: readonly LadderCard[];
   skipped: readonly LadderSkip[];
   overallRoi: number | null;
   gradedDays: number;
+  /** Eligible legs for substitutions — same slate, all markets. */
+  pool?: readonly SwapCandidate[];
 }) {
   if (cards.length === 0 && skipped.length === 0) return null;
 
@@ -105,7 +198,8 @@ export default function RiskLadderBoard({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 items-start">
-        {cards.map((c) => (
+        {cards.map((c) => <LadderCardView key={c.slipId} card={c} pool={pool} />)}
+        {[].map((c: LadderCard) => (
           <article key={c.slipId} className="flex flex-col gap-2.5 rounded-[14px] p-3.5"
             style={{ background: "rgba(11,18,14,0.5)", border: "1px solid var(--vault-border)" }}>
             <div className="flex items-baseline justify-between gap-2">
