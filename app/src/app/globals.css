@@ -4832,3 +4832,75 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================================
+   SPORT THEMES — a page-scoped accent layer over the green brand
+   ============================================================================
+   Set `data-sport="mlb"` on a page shell and everything inside can reach for
+   --sport-theme-* without any component knowing which sport it is in. The base
+   palette is untouched: the greens still carry brand, status and money, and a
+   sport only tints its own furniture (rules, glows, section eyebrows, the
+   Homer Nukes gauge). That keeps one visual system instead of four, and it
+   means a shared component dropped on /nfl inherits football violet with no
+   per-sport branch.
+
+   CONTRAST: --sport-theme-ink is the only one of these that ever sits under
+   text, and each is chosen to clear 4.5:1 on the page base. The tints are for
+   borders, fills and glows — never for the text itself. The green era already
+   learned that lesson twice (see --vault-text-faint above). */
+:root {
+  --sport-theme: var(--vault-gold);
+  --sport-theme-ink: var(--vault-text);
+  --sport-theme-glow: rgba(240, 199, 94, 0.18);
+  --sport-theme-rule: rgba(240, 199, 94, 0.28);
+  --sport-theme-wash: rgba(240, 199, 94, 0.06);
+}
+[data-sport="mlb"] {
+  --sport-theme: var(--sport-mlb);
+  --sport-theme-ink: #9BDCF7;                    /* 8.4:1 on the base — safe for a label */
+  --sport-theme-glow: rgba(99, 200, 242, 0.20);
+  --sport-theme-rule: rgba(99, 200, 242, 0.30);
+  --sport-theme-wash: rgba(99, 200, 242, 0.06);
+}
+[data-sport="nfl"] {
+  --sport-theme: var(--sport-nfl, #A78BFA);
+  --sport-theme-ink: #C9B8FD;
+  --sport-theme-glow: rgba(167, 139, 250, 0.20);
+  --sport-theme-rule: rgba(167, 139, 250, 0.30);
+  --sport-theme-wash: rgba(167, 139, 250, 0.06);
+}
+[data-sport="ufc"] {
+  --sport-theme: var(--sport-ufc, #FB923C);
+  --sport-theme-ink: #FCC08A;
+  --sport-theme-glow: rgba(251, 146, 60, 0.20);
+  --sport-theme-rule: rgba(251, 146, 60, 0.30);
+  --sport-theme-wash: rgba(251, 146, 60, 0.06);
+}
+[data-sport="soccer"] {
+  --sport-theme: var(--sport-soccer);
+  --sport-theme-ink: #F9A8D4;
+  --sport-theme-glow: rgba(244, 114, 182, 0.20);
+  --sport-theme-rule: rgba(244, 114, 182, 0.30);
+  --sport-theme-wash: rgba(244, 114, 182, 0.06);
+}
+
+/* Homer Nukes — the probability gauge fills once on mount, then holds. The bar
+   IS the number, so it must never animate on a loop: motion that repeats reads
+   as "live/updating" and this figure is fixed for the slate. */
+@keyframes gtp-hr-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.gtp-hr-gauge-fill {
+  transform-origin: left center;
+  animation: gtp-hr-fill 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* Staggered entrance so the five picks read top-down as a ranking, not a block. */
+@keyframes gtp-hr-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.gtp-hr-row { animation: gtp-hr-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.gtp-hr-row:nth-child(1) { animation-delay: 0ms; }
+.gtp-hr-row:nth-child(2) { animation-delay: 70ms; }
+.gtp-hr-row:nth-child(3) { animation-delay: 140ms; }
+.gtp-hr-row:nth-child(4) { animation-delay: 210ms; }
+.gtp-hr-row:nth-child(5) { animation-delay: 280ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gtp-hr-gauge-fill, .gtp-hr-row { animation: none; }
+}

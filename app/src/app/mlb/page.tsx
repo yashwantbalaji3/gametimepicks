@@ -16,6 +16,7 @@ import {
   getMlbAvailableScheduleDates,
   getMlbBoardForDate,
   getMlbScheduleForDate,
+  getMlbPowerForDate,
 } from "@/lib/data-mlb";
 import { getMlbLifetimeSummary } from "@/lib/data-mlb-results";
 import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
@@ -35,6 +36,8 @@ import MlbSlateAvailability from "@/components/mlb/mlb-slate-availability";
 import path from "node:path";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import MlbFlagshipSections from "@/components/mlb/mlb-flagship-sections";
+import HomerNukesBoardSection from "@/components/mlb/homer-nukes-board";
+import { loadHomerNukesBoard } from "@/lib/mlb/homer-nukes-board";
 import DeferUntilVisible from "@/components/defer-until-visible";
 import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
 import { loadMlbPropsBoard, latestMlbBoardDate } from "@/lib/mlb/mlb-props";
@@ -97,6 +100,7 @@ export default function MlbLandingPage() {
   const games = schedule.games ?? [];
   const gameCount = summary.scheduledGames || games.length || 0;
   const gameOutlook = getGameOutlook("mlb");
+  const homerNukesBoard = loadHomerNukesBoard(path.join(process.cwd(), "public", "data"), date);
 
   // Normalized model output.
   const leans = normalizeMlbLeans(board as Parameters<typeof normalizeMlbLeans>[0]);
@@ -211,7 +215,7 @@ export default function MlbLandingPage() {
         <SectionHeader eyebrow={`Slate · ${date}`} title={`${games.length} game${games.length === 1 ? "" : "s"} today`} rightSlot={games.length > 0 ? <Link href="/mlb/board" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>Open board →</Link> : undefined} />
         {slateTiles}
       </section>
-      <GameOutlookSection outlook={gameOutlook} />
+      <GameOutlookSection outlook={gameOutlook} slateDate={date} />
       <UpcomingSlateStrip title="Upcoming · next 7 days" days={buildMlbUpcomingDays(date)} boardHrefBase="/mlb/board" emptyMessage="No upcoming MLB slates on disk yet. The next refresh will pull the rolling window." />
     </div>
   );
@@ -308,7 +312,7 @@ export default function MlbLandingPage() {
   ];
 
   return (
-    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
+    <div data-sport="mlb" className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <div className="mb-6">
         <MlbSectionTabs />
       </div>
@@ -353,7 +357,17 @@ export default function MlbLandingPage() {
         {freshnessSlot}
       </div>
 
-      {/* MLB flagship sections — Homer Nukes / Props Board / Premium Plays / Game Explorer (data-gated). */}
+      {/*
+       * HOMER NUKES LEADS. The model's own read comes before the market's.
+       *
+       * Until now the top of this hub was "Today's featured MLB plays" — the sportsbook's shortest
+       * prices, sorted. Whatever else is true of our model, the page should open with something we
+       * actually computed. This board is the only surface on /mlb carrying a probability the model
+       * produced end-to-end rather than de-vigged off a posted price.
+       */}
+      <HomerNukesBoardSection board={homerNukesBoard} />
+
+      {/* Market favourites / Props Board / Pitcher props / Game Explorer (data-gated). */}
       <div className="mt-4">
         <MlbFlagshipSections props={mlbProps} games={flagshipGames} />
       </div>
@@ -381,21 +395,32 @@ function buildMlbUpcomingDays(_activeDate: string): UpcomingSlateDay[] {
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
   const forward = allDates.filter((d) => d >= today).slice(0, 8);
   return forward.map((d) => {
-    const sched = getMlbScheduleForDate(d);
+    /*
+     * THE SLATE COMES FROM THE StatsAPI-DERIVED ARTIFACT, NOT THE ODDS FEED.
+     *
+     * Two bugs met here. This read `schedule/<date>.json`, whose games carry `home` / `away` full
+     * names — not the `homeTeamAbbr` / `awayTeamAbbr` this code asked for — so every tile rendered
+     * a literal "? @ ?" with the count beside it. And that file is built from the provider's EVENTS
+     * feed, which only lists games with odds posted: on 2026-08-17 it held 9 while the board held
+     * 11, so the same page showed two different sizes for the same slate.
+     *
+     * The power artifact is the official schedule (gamePk, both abbreviations, venue, probable
+     * pitchers) and agrees with the board. One source, correct names, honest count.
+     */
+    const power = getMlbPowerForDate(d);
     const board = getMlbBoardForDate(d);
-    const games = sched.games ?? [];
+    const games = power.games ?? [];
     const propsLive = board.propsAvailable && (board.leans?.length ?? 0) > 0;
     const status: UpcomingSlateDay["status"] = games.length === 0 ? "off-day" : propsLive ? "live" : "pending";
-    let teaser: string;
-    if (games.length === 0) {
-      teaser = "No games scheduled";
-    } else if (games.length === 1 && games[0]) {
-      const g = games[0];
-      teaser = `${g.awayTeamAbbr ?? "?"} @ ${g.homeTeamAbbr ?? "?"}`;
-    } else {
-      const first = games[0];
-      teaser = `${games.length} games · ${first?.awayTeamAbbr ?? "?"} @ ${first?.homeTeamAbbr ?? "?"} +${games.length - 1} more`;
-    }
+    const label = (g: (typeof games)[number] | undefined) =>
+      g?.awayTeamAbbr && g?.homeTeamAbbr ? `${g.awayTeamAbbr} @ ${g.homeTeamAbbr}` : null;
+    const first = label(games[0]);
+    const teaser =
+      games.length === 0 ? "No games scheduled"
+      : games.length === 1 ? (first ?? "1 game")
+      // Never "? @ ?": when the matchup cannot be named, say the count and nothing more.
+      : first ? `${games.length} games · ${first} +${games.length - 1} more`
+      : `${games.length} games`;
     return { date: d, gameCount: games.length, label: shortDateLabel(d), teaser, status };
   });
 }

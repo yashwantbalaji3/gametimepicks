@@ -138,10 +138,27 @@ function GameCard({ g }: { g: GameOutlookGame }) {
 
 export default function GameOutlookSection({
   outlook,
+  slateDate,
 }: {
   outlook: GameOutlook | null;
+  /** The slate this page is showing. The outlook renders ONLY if it is for that slate. */
+  slateDate?: string | null;
 }) {
   if (!outlook || outlook.gameCount === 0) return null;
+
+  /*
+   * "CURRENT SPORTSBOOK PRICES" MUST BE CURRENT.
+   *
+   * This section had no date gate. On 2026-08-17 it rendered the 2026-06-10 artifact — thirteen
+   * June games, none of them on the eleven-game slate above it — under the heading "Implied by
+   * current sportsbook prices", with a footnote reading "Odds as of 2026-06-10". A reader scrolling
+   * /mlb saw Washington @ San Francisco presented as tonight's market.
+   *
+   * The artifact simply stopped being regenerated and nothing noticed, because nothing checked. So
+   * the check is here: prices for a different day are not this day's market, and the honest move is
+   * to render nothing rather than a confident wrong answer.
+   */
+  if (slateDate && outlook.date && outlook.date !== slateDate) return null;
 
   const asOf = oddsAsOf(outlook.oddsGeneratedAt ?? outlook.generatedAt);
 

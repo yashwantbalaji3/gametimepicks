@@ -188,6 +188,21 @@ jobs:
           fi
         continue-on-error: true
 
+      # Homer Nukes — grade the day's five home-run picks from the official box score and rebuild
+      # the cumulative record. Uses the SAME ET-yesterday target as the step above; a published
+      # probability that is never checked is an opinion, not a model.
+      - name: Settle Homer Nukes (official box score)
+        run: |
+          set -euo pipefail
+          TARGET="${SETTLE_DATE:-$(TZ=America/New_York date -d 'yesterday' +%F)}"
+          cd app
+          if [ "${DRY_RUN_SETTLE}" = "1" ]; then
+            node scripts/mlb/settle-homer-nukes.mjs --date "$TARGET" --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          else
+            node scripts/mlb/settle-homer-nukes.mjs --date "$TARGET" --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write
+          fi
+        continue-on-error: true
+
       # ---- Daily learning loop (PR `update-learning-after-settlement`) ----
       # Runs ONLY here, AFTER settlement+grading — never in generation. Reads
       # settled outcomes only (no same-day leakage) and rewrites the conservative
@@ -360,6 +375,9 @@ jobs:
           # secrets, build artifacts, or session docs.
           git add app/public/data/results/ 2>/dev/null || true
           git add app/public/data/mlb/results/ 2>/dev/null || true
+          # Homer Nukes receipts + cumulative record. Without this line the settler would grade the
+          # board and have its output dropped at the commit — the same shape as the 62-hour outage.
+          git add app/public/data/mlb/homer-nukes/ 2>/dev/null || true
           git add pipeline/validation/settled_leans.jsonl 2>/dev/null || true
           git add pipeline/validation/mlb_settled_leans.jsonl 2>/dev/null || true
           git add pipeline/validation/comparison_report_*.json 2>/dev/null || true

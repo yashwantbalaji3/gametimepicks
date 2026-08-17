@@ -1,7 +1,6 @@
 /**
  * MlbFlagshipSections — the MLB landing IA, surfaced at the top of /mlb in sportsbook order:
- *   1) Featured Plays    — the slate's likeliest plays by de-vigged market probability
- *   2) Homer Nukes Parlay — the daily 5-leg home-run parlay (flagship)
+ *   1) Market favourites  — shortest de-vigged prices (the BOOK's ranking, labelled as such)
  *   3) Best Player Props  — the full filterable batter props board
  *   4) Pitcher Props      — the full filterable pitcher props board (K / outs / ER)
  *   5) Game Explorer      — every MLB game as a collapsible card
@@ -11,13 +10,11 @@
  * an empty slate shows data-gated states. Server component; never fabricates picks.
  */
 import Link from "next/link";
-import HomerNukesBoard from "@/components/mlb/homer-nukes-board";
 import MlbPropsBoard, { type BoardProp } from "@/components/mlb/props-board";
 import GameExplorer, { type ExplorerGame } from "@/components/mlb/game-explorer";
 import MlbQuickJump from "@/components/mlb/mlb-quick-jump";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
-import type { HomerNukesResult } from "@/lib/mlb/homer-nukes";
 
 const dec = (a: number) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const impliedPct = (a: number) => Math.round((1 / dec(a)) * 100);
@@ -78,14 +75,26 @@ export default function MlbFlagshipSections({ props, games }: { props: BoardProp
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
-        <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>MLB — today&rsquo;s best plays</h2>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Featured · Player props · Pitcher props · Games — paper-only</span>
+        <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>MLB — today&rsquo;s board</h2>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Market favourites · Player props · Pitcher props · Games — paper-only</span>
       </div>
 
       <MlbQuickJump />
 
-      <SectionCard id="mlb-featured" tag="1 · Featured plays" title="Today's featured MLB plays" sub="The slate's likeliest plays by de-vigged market probability.">
-        {live ? <TopList props={props} n={6} /> : <GatedSlot label="Featured plays post when MLB markets are live" />}
+      {/*
+       * RENAMED, because the old title was a claim this section does not support.
+       *
+       * It was "Today's featured MLB plays" with the subtitle "the slate's likeliest plays by
+       * de-vigged market probability" — which is to say, the sportsbook's biggest favourites, sorted.
+       * There is no model content in it at all. Calling that our FEATURED PLAYS, at the top of the
+       * MLB hub, presented the book's own opinion as the house read.
+       *
+       * The content is genuinely useful (short prices are where the market is most confident), so it
+       * stays — under a name that says whose opinion it is. The model's own read now leads the page
+       * as Homer Nukes.
+       */}
+      <SectionCard id="mlb-featured" tag="1 · Market favourites" title="Where the sportsbook is most confident" sub="Shortest prices on the slate, de-vigged. This is the market's ranking, not ours — our model's read is the Homer Nukes board above.">
+        {live ? <TopList props={props} n={6} /> : <GatedSlot label="Market favourites post when MLB markets are live" />}
       </SectionCard>
 
       <SectionCard id="mlb-player-props" tag="2 · Player props" title="Best player props" sub="Quick filters by market · game · odds · confidence; sort by probability, price, confidence, team or game.">
