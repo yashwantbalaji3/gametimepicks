@@ -3,7 +3,7 @@
  "artifact": "parlay-risk-ladder",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-08-17",
- "generatedAt": "2026-08-17T18:47:40Z",
+ "generatedAt": "2026-08-17T20:08:47Z",
  "moneyClass": "PAPER_TRACKED_NOT_BANKROLL",
  "note": "Tracked paper cards with their own ledger. These never touch the Bank Builder / Moonshot bankroll or the settled product record.",
  "cards": [
@@ -177,6 +177,86 @@
   {
    "tier": "low",
    "reason": "no priced card in this tier on today's slate"
+  }
+ ],
+ "bettorTiers": [
+  {
+   "id": "steady",
+   "label": "Steady",
+   "blurb": "The shortest prices we publish, one card a day.",
+   "bands": [
+    "low"
+   ],
+   "cardsPerDay": 1,
+   "minBankroll": 0,
+   "settledCards": 43,
+   "wins": 18,
+   "losses": 25,
+   "hitRate": 0.4186,
+   "hitRateSe": 0.0762,
+   "roi": 0.1802,
+   "roiSe": 0.2217,
+   "roiDetermined": false,
+   "roiT": 0.81
+  },
+  {
+   "id": "balanced",
+   "label": "Balanced",
+   "blurb": "Short and mid prices, two cards a day.",
+   "bands": [
+    "low",
+    "medium"
+   ],
+   "cardsPerDay": 2,
+   "minBankroll": 100,
+   "settledCards": 86,
+   "wins": 40,
+   "losses": 46,
+   "hitRate": 0.4651,
+   "hitRateSe": 0.0539,
+   "roi": 0.2425,
+   "roiSe": 0.1509,
+   "roiDetermined": false,
+   "roiT": 1.61
+  },
+  {
+   "id": "adventurous",
+   "label": "Adventurous",
+   "blurb": "Mid and long prices, two cards a day.",
+   "bands": [
+    "medium",
+    "high"
+   ],
+   "cardsPerDay": 2,
+   "minBankroll": 250,
+   "settledCards": 86,
+   "wins": 21,
+   "losses": 65,
+   "hitRate": 0.2442,
+   "hitRateSe": 0.0539,
+   "roi": 0.3544,
+   "roiSe": 0.2647,
+   "roiDetermined": false,
+   "roiT": 1.34
+  },
+  {
+   "id": "longshot",
+   "label": "Longshot",
+   "blurb": "The longest price on the board, one card a day.",
+   "bands": [
+    "longshot"
+   ],
+   "cardsPerDay": 1,
+   "minBankroll": 0,
+   "settledCards": 43,
+   "wins": 2,
+   "losses": 41,
+   "hitRate": 0.0465,
+   "hitRateSe": 0.0762,
+   "roi": -0.4457,
+   "roiSe": 0.3878,
+   "roiDetermined": false,
+   "roiT": -1.15
   }
  ],
  "record": {

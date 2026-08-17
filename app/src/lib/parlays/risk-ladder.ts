@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { LadderCard, LadderSkip } from "@/components/parlays/risk-ladder-board";
+import type { BettorTier } from "@/components/parlays/parlay-lab-entry";
 
 export interface TierRecord {
   readonly wins: number;
@@ -29,6 +30,7 @@ export interface RiskLadder {
   readonly generatedAt: string;
   readonly cards: readonly LadderCard[];
   readonly skipped: readonly LadderSkip[];
+  readonly bettorTiers: readonly BettorTier[];
   readonly record: {
     readonly gradedDays: number;
     readonly firstDay: string | null;

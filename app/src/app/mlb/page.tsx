@@ -431,6 +431,7 @@ export default function MlbLandingPage() {
             skipped={riskLadder.skipped}
             overallRoi={riskLadder.record.overall.roi}
             gradedDays={riskLadder.record.gradedDays}
+            bettorTiers={riskLadder.bettorTiers}
             /* The whole eligible slate is the bench. benchFor narrows it to same-market,
                comparable-price, no-game-already-on-the-card candidates. */
             pool={mlbProps.map((p) => ({

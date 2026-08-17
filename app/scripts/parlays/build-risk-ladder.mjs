@@ -203,6 +203,89 @@ for (const tier of TIERS) {
   });
 }
 
+// ── 2b · BETTOR TIERS ────────────────────────────────────────────────────────────────────────────
+/*
+ * A bettor tier is a POLICY — which price bands are in scope, and how many cards a day — so its
+ * record is exactly computable: replay the policy over every graded day and report what it did.
+ * That is the only way a per-tier hit rate can be honest, because the number shown belongs to the
+ * set actually shown.
+ *
+ * The policies are defined by PRINCIPLE, not chosen by searching for flattering numbers: risk
+ * tolerance picks the bands, daily bankroll decides how many cards it supports at a flat unit.
+ *
+ * ── The sample-size problem, stated rather than hidden ──────────────────────────────────────────
+ * One or two cards a day over 48 graded days is 43-86 settled cards per tier. At that size a HIT
+ * RATE is well determined (standard error 3-8pp) and an ROI is not (15-39pp). Three of the four
+ * policies currently show a positive ROI and NOT ONE is distinguishable from zero — while the full
+ * pool of cards in those same bands is clearly negative. Publishing the positive number as the
+ * tier's performance would be publishing noise.
+ *
+ * So each tier carries its n, both standard errors, and an explicit `roiDetermined` flag. A surface
+ * may print the hit rate as measured; it may not present the ROI as established until the flag says
+ * the sample supports it.
+ */
+const BETTOR_TIERS = [
+  { id: "steady", label: "Steady", bands: ["low"], cardsPerDay: 1, minBankroll: 0,
+    blurb: "The shortest prices we publish, one card a day." },
+  { id: "balanced", label: "Balanced", bands: ["low", "medium"], cardsPerDay: 2, minBankroll: 100,
+    blurb: "Short and mid prices, two cards a day." },
+  { id: "adventurous", label: "Adventurous", bands: ["medium", "high"], cardsPerDay: 2, minBankroll: 250,
+    blurb: "Mid and long prices, two cards a day." },
+  { id: "longshot", label: "Longshot", bands: ["longshot"], cardsPerDay: 1, minBankroll: 0,
+    blurb: "The longest price on the board, one card a day." },
+];
+
+/** Every graded day, each band ranked the way the ladder ranks it. */
+const gradedByDay = new Map();
+for (const f of fs.readdirSync(GRADED).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort()) {
+  const doc = readJson(path.join(GRADED, f));
+  if (!doc) continue;
+  const day = {};
+  for (const tier of TIERS) {
+    day[tier] = (doc.publicRiskSections?.[tier]?.all ?? [])
+      .filter((s) => ["win", "loss"].includes(String(s.status ?? "").toLowerCase()))
+      .filter((s) => combinedDecimal(s) != null)
+      .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+      .map((s) => ({ won: String(s.status).toLowerCase() === "win", d: combinedDecimal(s) }));
+  }
+  gradedByDay.set(doc.date ?? f.slice(0, 10), day);
+}
+
+const bettorTiers = BETTOR_TIERS.map((t) => {
+  const pnl = [];
+  let wins = 0, losses = 0;
+  for (const day of gradedByDay.values()) {
+    const pool = t.bands.flatMap((b) => day[b] ?? []);
+    for (const c of pool.slice(0, t.cardsPerDay)) {
+      pnl.push(c.won ? c.d - 1 : -1);
+      if (c.won) wins++; else losses++;
+    }
+  }
+  const n = pnl.length;
+  const mean = n ? pnl.reduce((a, b) => a + b, 0) / n : null;
+  const sd = n > 1 ? Math.sqrt(pnl.reduce((a, x) => a + (x - mean) ** 2, 0) / (n - 1)) : null;
+  const roiSe = sd != null && n ? sd / Math.sqrt(n) : null;
+  const hitRate = n ? wins / n : null;
+  const hitSe = n ? Math.sqrt(0.25 / n) : null;
+  return {
+    id: t.id, label: t.label, blurb: t.blurb, bands: t.bands,
+    cardsPerDay: t.cardsPerDay, minBankroll: t.minBankroll,
+    settledCards: n, wins, losses,
+    hitRate: round(hitRate), hitRateSe: round(hitSe),
+    roi: round(mean), roiSe: round(roiSe),
+    /*
+     * TWO standard errors, the conventional bar — not one.
+     *
+     * My first pass used one SE and duly labelled Adventurous "sign determined" at t = 1.34, which
+     * no conventional standard calls determined. A flag that certifies noise is worse than no flag,
+     * because a surface will print it. At 2 SE every tier currently fails (t = 0.81, 1.60, 1.34,
+     * −1.15) and that is the honest state: these samples fix a HIT RATE well and an ROI not at all.
+     */
+    roiDetermined: mean != null && roiSe != null && Math.abs(mean) > 2 * roiSe,
+    roiT: mean != null && roiSe ? round(mean / roiSe, 2) : null,
+  };
+});
+
 const totalStaked = TIERS.reduce((n, t) => n + record[t].staked, 0);
 const totalReturned = TIERS.reduce((n, t) => n + (record[t].returned ?? 0), 0);
 
@@ -217,6 +300,7 @@ const payload = {
   note: "Tracked paper cards with their own ledger. These never touch the Bank Builder / Moonshot bankroll or the settled product record.",
   cards,
   skipped,
+  bettorTiers,
   record: {
     gradedDays: gradedDays.size,
     firstDay: [...gradedDays].sort()[0] ?? null,
@@ -236,6 +320,9 @@ fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, `${DATE}.json`), JSON.stringify(payload, null, 1) + "\n");
 fs.writeFileSync(path.join(OUT, "latest.json"), JSON.stringify(payload, null, 1) + "\n");
 
+for (const t of bettorTiers) {
+  console.log(`  ${t.label.padEnd(12)} ${String(t.settledCards).padStart(3)} cards · hit ${(t.hitRate * 100).toFixed(1)}% ±${(t.hitRateSe * 100).toFixed(1)} · roi ${(t.roi * 100).toFixed(1)}% ±${(t.roiSe * 100).toFixed(1)} · ${t.roiDetermined ? "roi sign determined" : `roi NOT determined (t=${t.roiT})`}`);
+}
 console.log(`risk ladder ${DATE}: ${cards.length}/4 tiers carded${skipped.length ? ` · skipped ${skipped.map((s) => s.tier).join(", ")}` : ""}`);
 for (const c of cards) {
   console.log(`  ${c.tierLabel.padEnd(12)} ${String(c.combinedAmerican > 0 ? "+" : "") + c.combinedAmerican} · ${c.legs.length} legs · tier record ${c.tierRecord.wins}-${c.tierRecord.losses} (roi ${c.tierRecord.roi == null ? "—" : (c.tierRecord.roi * 100).toFixed(1) + "%"})`);

@@ -107,6 +107,44 @@ test("ROI is published beside every hit rate — a hit rate alone is unreadable 
   assert.match(stream, /cannot be read without the price/, "and says why hit rate alone is not enough");
 });
 
+test("a bettor tier's record belongs to the set that tier actually shows", () => {
+  /*
+   * A tier is a POLICY (these bands, this many cards a day), so its record is exactly computable by
+   * replaying it. That is the whole basis for showing a per-tier hit rate: the number belongs to the
+   * set shown. If the two ever came from different populations the figure would be decoration.
+   */
+  for (const t of latest.bettorTiers ?? []) {
+    assert.ok(t.bands.length > 0, `${t.id} declares its bands`);
+    assert.ok(t.cardsPerDay >= 1, `${t.id} declares its cards per day`);
+    assert.equal(t.wins + t.losses, t.settledCards, `${t.id}: W+L must equal the sample it reports`);
+    if (t.settledCards > 0) {
+      // 1e-4, matching the artifact's stored precision — it rounds to four decimals, so an exact
+      // comparison fails on the rounding rather than on any real disagreement.
+      assert.ok(Math.abs(t.hitRate - t.wins / t.settledCards) < 1e-4, `${t.id}: the hit rate is that sample's`);
+    }
+  }
+});
+
+test("an UNDETERMINED return is never presented as a result", () => {
+  /*
+   * 1-2 cards a day over 48 graded days is 43-86 settled cards. At that size a hit rate is well
+   * determined (±3-8pp) and an ROI is not (±15-39pp). Three tiers currently show a POSITIVE ROI and
+   * none clears two standard errors, while the full pool in those same bands is clearly negative.
+   * The bar is 2 SE, not 1 — my first pass used 1 and duly labelled t = 1.34 "determined".
+   */
+  for (const t of latest.bettorTiers ?? []) {
+    if (t.roi == null || t.roiSe == null) continue;
+    const clears = Math.abs(t.roi) > 2 * t.roiSe;
+    assert.equal(t.roiDetermined, clears, `${t.id}: the flag must match the 2-SE test (t=${t.roiT})`);
+  }
+  const src = code("scripts/parlays/build-risk-ladder.mjs");
+  assert.match(src, /Math\.abs\(mean\) > 2 \* roiSe/, "the threshold is two standard errors");
+
+  const entry = read("src/components/parlays/parlay-lab-entry.tsx");
+  assert.match(entry, /roiDetermined \?/, "the surface branches on the flag rather than always printing the number as fact");
+  assert.match(entry, /not distinguishable from zero/i, "and says so plainly when it is not");
+});
+
 test("the stream is NEVER money — no bankroll, no settled product record", () => {
   assert.equal(latest.moneyClass, "PAPER_TRACKED_NOT_BANKROLL");
 

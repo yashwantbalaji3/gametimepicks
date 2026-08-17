@@ -6,7 +6,7 @@ import { mlbHeadshotUrl } from "@/lib/player-headshots";
 import AddToSlip from "@/components/slip/add-to-slip";
 import LegSwapPanel from "@/components/parlays/leg-swap-panel";
 import { decimalOdds, toAmerican, type SwapCandidate } from "@/lib/parlays/leg-swap";
-import ReaderPrefsPanel from "@/components/prefs/reader-prefs-panel";
+import ParlayLabEntry, { type BettorTier } from "@/components/parlays/parlay-lab-entry";
 import { useReaderPrefs, unitStake } from "@/lib/prefs/reader-prefs";
 
 /**
@@ -178,7 +178,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
 }
 
 export default function RiskLadderBoard({
-  cards, skipped, overallRoi, gradedDays, pool = [],
+  cards, skipped, overallRoi, gradedDays, pool = [], bettorTiers = [],
 }: {
   cards: readonly LadderCard[];
   skipped: readonly LadderSkip[];
@@ -186,6 +186,8 @@ export default function RiskLadderBoard({
   gradedDays: number;
   /** Eligible legs for substitutions — same slate, all markets. */
   pool?: readonly SwapCandidate[];
+  /** Backtested bettor-tier policies, each carrying its own measured record. */
+  bettorTiers?: readonly BettorTier[];
 }) {
   const { prefs } = useReaderPrefs();
   const unit = unitStake(prefs);
@@ -200,10 +202,6 @@ export default function RiskLadderBoard({
   const ordered = prefs.risk
     ? [...cards].sort((a, b) => Number(b.tier === prefs.risk) - Number(a.tier === prefs.risk))
     : cards;
-
-  const tierRecords = Object.fromEntries(
-    cards.map((c) => [c.tier, { wins: c.tierRecord.wins, losses: c.tierRecord.losses, roi: c.tierRecord.roi }]),
-  );
 
   return (
     <section aria-labelledby="risk-ladder-heading" className="flex flex-col gap-3">
@@ -222,7 +220,7 @@ export default function RiskLadderBoard({
         </p>
       </div>
 
-      <ReaderPrefsPanel tierRecords={tierRecords} />
+      <ParlayLabEntry tiers={bettorTiers} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 items-start">
         {ordered.map((c) => <LadderCardView key={c.slipId} card={c} pool={pool} unit={unit} />)}

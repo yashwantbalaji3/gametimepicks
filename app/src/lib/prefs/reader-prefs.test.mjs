@@ -21,7 +21,9 @@ const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 /** Source minus commentary — a comment explaining a rule must not satisfy or trip the rule. */
 const code = (rel) => read(rel).replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 const STORE = "src/lib/prefs/reader-prefs.ts";
-const PANEL = "src/components/prefs/reader-prefs-panel.tsx";
+/* The generic prefs panel became the Parlay Lab entry point: same two questions, but it is now the
+   way IN to the product rather than a settings box beside it. The rules follow the copy. */
+const PANEL = "src/components/parlays/parlay-lab-entry.tsx";
 
 test("a unit is flat arithmetic on the reader's own two numbers", () => {
   assert.equal(unitStake({ ...DEFAULT_PREFS, bankroll: 500, unitPct: 2 }), 10);
@@ -69,8 +71,8 @@ test("the measured outcome is a completed past applied to their number, never a 
   assert.equal(bankrollOutcome({ bankroll: 500, risk: "low", unitPct: 2 }, null, 100), null, "no record, no claim");
 
   const prose = read(PANEL).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
-  assert.match(prose, /would have turned/i, "phrased as a completed past");
-  assert.match(prose, /what already happened, not a forecast/i, "and says it is not a forecast");
+  assert.match(prose, /landed/i, "the hit rate is phrased as a completed past");
+  assert.match(prose, /not distinguishable from zero/i, "and an undetermined return says so");
   for (const projection of [/expected (return|profit)/i, /you (will|can expect)/i, /projected profit/i]) {
     assert.doesNotMatch(prose, projection, "no forward-looking claim");
   }
@@ -81,8 +83,9 @@ test("stating a bankroll makes the record MORE prominent, not less", () => {
   // panel produces. A personalisation feature on a negative stream that made it feel better would
   // be the most misleading thing on the site.
   const src = read(PANEL);
-  assert.match(src, /outcome != null && rec/, "the measured consequence is gated on having a bankroll");
-  assert.match(src, /vault-danger/, "a negative outcome is styled as a loss, not neutral");
+  assert.match(src, /matched && \(/, "the measured record renders as soon as a tier is matched");
+  assert.match(src, /settled cards/, "and names the sample it is measured on");
+  assert.match(src, /vault-warn/, "an undetermined return is flagged, not shown flat");
 });
 
 test("nothing leaves the browser", () => {

@@ -95,7 +95,13 @@ export function useSlip() {
     const cur = read();
     if (cur.legs.some((l) => l.key === leg.key)) return;      // adding twice is a no-op, not a duplicate
     if (cur.legs.length >= SLIP_MAX_LEGS) return;
-    write({ legs: [...cur.legs, leg], stakes: { ...cur.stakes, [leg.key]: cur.stakes[leg.key] ?? 10 } });
+    /*
+     * NO DEFAULT STAKE. A leg lands on the slip at zero and stays there until the reader types a
+     * number. Pre-filling one — $10, or a unit derived from a stated bankroll — is the site
+     * choosing a stake on their behalf and calling it their own, which is the thing this whole
+     * feature is careful not to do.
+     */
+    write({ legs: [...cur.legs, leg], stakes: { ...cur.stakes, [leg.key]: cur.stakes[leg.key] ?? 0 } });
   }, [write]);
 
   const remove = useCallback((key: string) => {
