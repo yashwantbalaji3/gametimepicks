@@ -174,7 +174,12 @@ jobs:
       # the grades match and a hard refusal when they differ, so a rerun can never rewrite history.
       - name: MLB player-prop settlement (paper lanes)
         run: |
-          DATE_ARG=""; [ -n "${SETTLE_DATE}" ] && DATE_ARG="--date ${SETTLE_DATE}"
+          # ET-yesterday, matching every other settlement step in this workflow. The first live run
+          # passed NO date, so the script fell back to the UTC calendar day — and at 01:59 ET the UTC
+          # clock already reads TOMORROW. It refused the slate and settled nothing, silently, because
+          # this step is continue-on-error.
+          TARGET="${SETTLE_DATE:-$(TZ=America/New_York date -d 'yesterday' +%F)}"
+          DATE_ARG="--date ${TARGET}"
           cd app
           if [ "${DRY_RUN_SETTLE}" = "1" ]; then
             npx tsx scripts/settle-mlb-player-props.mjs $DATE_ARG

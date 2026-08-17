@@ -33,7 +33,17 @@ const DP = path.join(APP, "public", "data", "mr-dub", "daily-portfolio.json");
  */
 const RECEIPTS = path.join(APP, "public", "data", "mr-dub", "settled");
 const arg = (n, d) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
-const DATE = arg("--date", new Date().toISOString().slice(0, 10));
+/**
+ * Default to YESTERDAY IN ET, not the UTC calendar day. Settlement runs after midnight ET, when UTC
+ * has already rolled over — so `toISOString().slice(0,10)` names a slate that has not been played.
+ * The first automated run did exactly that, refused the date mismatch, and settled nothing.
+ */
+const etYesterday = () => {
+  const et = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+  et.setDate(et.getDate() - 1);
+  return `${et.getFullYear()}-${String(et.getMonth() + 1).padStart(2, "0")}-${String(et.getDate()).padStart(2, "0")}`;
+};
+const DATE = arg("--date", etYesterday());
 const apply = process.argv.includes("--apply");
 
 const get = async (url) => {
