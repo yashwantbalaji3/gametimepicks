@@ -279,9 +279,19 @@ export default function NflHubPage() {
         {/* The coin-flip limit stays in the LEAD, not behind a disclosure: it changes how every
             number on this page should be read, and a guard holds it here on purpose. Only the
             provenance detail folds away. */}
+        {/* The honest limit is READ FROM THE MODEL ARTIFACT, not retyped here.
+         *
+         * This paragraph used to carry its own copy, and the copy had drifted into a kinder claim:
+         * the page said the model picked winners "barely better than a coin flip" while the model's
+         * own recorded honestLimit says "no better than a coin flip". A hand-maintained caveat that
+         * flatters the model past its measured result is worse than no caveat, and it can only drift
+         * in that direction. Rendering the artifact's own sentence makes that impossible.
+         *
+         * It stays in the LEAD, not behind a disclosure — it changes how every number on this page
+         * should be read, and a guard holds it here on purpose.
+         */}
         <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))" }}>
-          Experimental preseason simulations — not picks. Tested on a season it had never seen, this
-          model picked winners barely better than a coin flip, so the percentages stay near even.
+          Experimental preseason simulations — not picks. {index?.model?.plainEnglish?.honestLimit}
         </p>
         <Explain label="Where the data comes from">
           Everything on this page derives from committed public captures, and the coverage table

@@ -194,13 +194,62 @@ if (!receipt.accounting.reconciles) { console.error(`REFUSED: population gap —
 
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
 fs.writeFileSync(outPath, JSON.stringify(receipt, null, 1));
+
+/*
+ * THE SUMMARY IS A LIFETIME RECORD, SO IT IS BUILT FROM EVERY DATED RECEIPT.
+ *
+ * `metrics` above is scoped to ONE DATE — `allEvents` is that date's prior receipt plus what this
+ * run graded. Writing those per-date numbers into summary.json meant a run on a day with no
+ * forecasts published `settledForecasts: 0` and "No experimental forecast has been settled yet",
+ * erasing the whole record.
+ *
+ * That is not hypothetical. The record held 7 settled forecasts at 57.14% winner accuracy; the
+ * 2026-08-17 14:55Z run — a day whose next NFL kickoff is Aug 20 — reset it to zero. It had flapped
+ * between 7 and 0 for two days, because a stale local copy kept getting committed back over it.
+ * It is the same failure the MLB player-prop settlement hit: a DAILY job rewriting a CUMULATIVE
+ * file from one day's view of the world.
+ *
+ * Re-derived from the receipts on disk every run, so it is reconstructible and can never depend on
+ * whatever the previous summary happened to say.
+ */
+const lifetime = (() => {
+  const dir = path.dirname(outPath);
+  /*
+   * Keyed by canonicalEventId, NOT concatenated. The receipts are very nearly disjoint but not
+   * exactly: nfl-401874392 is graded in both 2026-08-13 and 2026-08-14 (a late final landing after
+   * the first day's run). Summing the files would count it twice and quietly inflate the record —
+   * the one direction an accuracy ledger must never drift. Later dates win, so the newest grade for
+   * an event is the one that counts.
+   */
+  const byId = new Map();
+  for (const f of fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort()) {
+    try {
+      for (const e of JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).events ?? []) {
+        if (e?.canonicalEventId) byId.set(e.canonicalEventId, e);
+      }
+    } catch { /* a malformed day never erases the rest */ }
+  }
+  // The date just written is on disk already, so it is included above — no double count.
+  const evs = [...byId.values()];
+  const dec = evs.filter((e) => e?.grade?.winner?.correct !== null && e?.grade?.winner?.correct !== undefined);
+  return {
+    settledForecasts: evs.length,
+    decisive: dec.length,
+    winnerAccuracy: round(dec.length ? dec.filter((e) => e.grade.winner.correct).length / dec.length : null),
+    marginMAE: round(mean(evs.map((e) => e.grade?.margin?.absError).filter((v) => v != null))),
+    totalMAE: round(mean(evs.map((e) => e.grade?.total?.absError).filter((v) => v != null))),
+    marginInterval80Coverage: round(mean(evs.map((e) => (e.grade?.margin?.insideInterval80 ? 1 : 0)))),
+    totalInterval80Coverage: round(mean(evs.map((e) => (e.grade?.total?.insideInterval80 ? 1 : 0)))),
+  };
+})();
+
 fs.writeFileSync(path.join(path.dirname(outPath), "summary.json"), JSON.stringify({
   schemaVersion: 1, artifact: "nfl-experimental-record", dataClass: "PUBLIC_DERIVED", generatedAt: NOW,
   ledger: "experimental-forecast", modelVersion: receipt.modelVersion,
-  settledForecasts: metrics.settledForecasts, decisive: metrics.decisive,
-  winnerAccuracy: metrics.winnerAccuracy, marginMAE: metrics.marginMAE, totalMAE: metrics.totalMAE,
-  marginInterval80Coverage: metrics.marginInterval80Coverage, totalInterval80Coverage: metrics.totalInterval80Coverage,
-  note: metrics.settledForecasts === 0
+  settledForecasts: lifetime.settledForecasts, decisive: lifetime.decisive,
+  winnerAccuracy: lifetime.winnerAccuracy, marginMAE: lifetime.marginMAE, totalMAE: lifetime.totalMAE,
+  marginInterval80Coverage: lifetime.marginInterval80Coverage, totalInterval80Coverage: lifetime.totalInterval80Coverage,
+  note: lifetime.settledForecasts === 0
     ? "No experimental forecast has been settled yet. A record appears here once the first slate's official results land."
     : "Experimental forecast accuracy only — not a betting record, and separate from every product ledger.",
 }, null, 1));

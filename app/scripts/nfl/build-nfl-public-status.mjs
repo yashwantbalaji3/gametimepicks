@@ -52,7 +52,11 @@ if (!preseason || !regular) {
       state: "PUBLIC_EXPERIMENTAL",
       headline: "Experimental preseason simulations are published",
       detail:
-        `We publish a simulated score range and win chance for every game, clearly marked experimental. Tested on a full held-out preseason this model picked winners barely better than a coin flip (${beta.forecasts.length} games forecast today under ${beta.model.id}), so its win percentages stay close to 50% on purpose and it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.`,
+        // "no better", not "barely better". The model's own recorded honestLimit in index.json says
+        // NO better than a coin flip; this artifact said BARELY better, so the two public artifacts
+        // described the same held-out result differently and this one was the flattering version.
+        // A caveat is only worth printing if it matches the measurement it is caveating.
+        `We publish a simulated score range and win chance for every game, clearly marked experimental. Tested on a full held-out preseason this model picked winners no better than a coin flip (${beta.forecasts.length} games forecast today under ${beta.model.id}), so its win percentages stay close to 50% on purpose and it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.`,
       nextGate: "A validated pick additionally needs performance, calibration, a current price, and settlement evidence — bars this version has not met.",
       checkable: { forecasts: beta.forecasts.length, model: beta.model.id, heldOutWinnerLogLoss: w.model.logLoss, coinLogLoss: w.baselines.coin.logLoss },
     }

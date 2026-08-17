@@ -104,7 +104,17 @@ export default function StakePayoutInput({
           </span>
         </div>
       </div>
-      <span style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Paper only — not betting advice.</span>
+      {/* No per-instance "Paper only — not betting advice." here.
+       *
+       * This component renders once per card, so the line printed SEVENTEEN times on /build and
+       * repeatedly on /mlb — under every single card. A disclaimer at that density stops being read;
+       * it becomes wallpaper, which makes the page less honest in practice, not more.
+       *
+       * The disclosure is not weakened by removing it: every page carries the persistent top banner
+       * ("Educational analytics · Not betting advice. For modeling and research purposes only.") and
+       * the sub-header ("Paper-only · educational"), and the global footer states it again — that
+       * one is pinned by footer-identity.test.mjs. Said clearly twice beats said faintly twenty times.
+       */}
     </div>
   );
 }

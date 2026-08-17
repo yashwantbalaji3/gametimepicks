@@ -169,9 +169,14 @@ export default function PreviousHits({ hits, recordLabel }: { hits: PublicBuilde
                 <span className="text-[10.5px] italic" style={{ color: "var(--vault-text-faint)" }}>card details unavailable</span>
               )}
 
+              {/* "· paper-only tracking" dropped from the per-step stamp. Every completed rung
+                  repeated it, so a five-step ladder said it five times inside one card, under a
+                  page that already opens with "Bank Builder is a paper-only ladder" and a header
+                  reading "Paper-only · educational". The load-bearing half of this line is the
+                  OFFICIAL-RESULT confirmation, which is per-step and stays. */}
               {e.officialResultConfirmed && (
                 <span className="font-mono text-[9.5px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>
-                  ✓ official result confirmed · paper-only tracking
+                  ✓ official result confirmed
                 </span>
               )}
             </li>

@@ -50,7 +50,11 @@ export default function Footer() {
             className="text-[12px]"
             style={{ color: "var(--vault-text-faint)" }}
           >
-            Simulation-first model picks · paper-only, educational.
+            {/* Just what this is. The About block below describes the product and the legal line
+                under it states the paper-only, not-advice position (pinned by footer-identity.test).
+                Saying "paper-only, educational" a third time inside one footer — on all 16 routes —
+                added no disclosure, only noise. */}
+            Simulation-first model picks.
           </span>
         </div>
 

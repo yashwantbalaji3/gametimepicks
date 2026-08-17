@@ -196,7 +196,20 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   assert.doesNotMatch(nflHub, /No NFL predictions, picks, or\s+simulations are published/, "that line is no longer true and must not linger");
   assert.match(nflHub, /experimental\s+preseason simulations/i, "the page says plainly what it publishes");
   assert.match(nflHub, /not a claim to beat the sportsbook market/i, "and what it does not claim");
-  assert.match(nflHub, /coin flip/i, "the honest limit is in the lead copy, not buried");
+  /*
+   * The coin-flip limit is now RENDERED FROM THE MODEL ARTIFACT rather than retyped in the page, so
+   * the literal no longer appears in this source file. That change was made because the page's own
+   * copy had drifted to the kinder "barely better than a coin flip" while the artifact said "no
+   * better" — a hand-maintained caveat can only drift toward flattery.
+   *
+   * So the assertion follows the text to where it actually lives, and gets STRICTER on the way: the
+   * page must render the artifact's honestLimit in the lead, and that honestLimit must state the
+   * coin-flip result. Pinning the string in the page file could not have caught the drift; this can.
+   */
+  assert.match(nflHub, /plainEnglish\?\.honestLimit/, "the lead renders the model's own honest limit, not a retyped copy");
+  const nflModel = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/index.json"), "utf8"))?.model;
+  assert.match(nflModel?.plainEnglish?.honestLimit ?? "", /coin flip/i, "the honest limit states the coin-flip result");
+  assert.doesNotMatch(nflModel?.plainEnglish?.honestLimit ?? "", /barely better/i, "and never softens it to 'barely better'");
   assert.doesNotMatch(nflHub, /\b(edge|lock|best bet|profitable|guaranteed)\b/i, "no validated-tier vocabulary");
   // P172-C: the literal "PRIVATE_ONLY" moved out of typed prose into the DERIVED status artifact.
   // The invariant is unchanged and now checked against the artifact the page actually renders:

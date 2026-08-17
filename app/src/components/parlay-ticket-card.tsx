@@ -173,6 +173,19 @@ export default function ParlayTicketCard({
   onToggleSelect,
 }: Props) {
   const accent = statusColor(slip.status);
+  /*
+   * A GRADED CARD CANNOT BE STAKED.
+   *
+   * `showStakeFooter` defaults to true and none of the four result call sites overrode it, so every
+   * settled slip on /results rendered a stake-and-projected-payout calculator underneath a result
+   * that had already happened. On 2026-08-17 that was 514 bet-sizing forms on a page whose entire
+   * job is reporting what is already final — offering to size a wager on a card that lost last
+   * Tuesday. It also dominated the page weight the "newest 10 days" cap below was fighting.
+   *
+   * Gated on the data rather than on a prop, so it cannot be reintroduced by a new caller
+   * forgetting to pass the flag: only a pending card can still take a stake.
+   */
+  const stakeFooterVisible = showStakeFooter && slip.status === "pending";
   // PR `feature/parlay-risk-section-simplification` (2026-05-28) —
   // The public chip on each card now shows the odds-derived risk
   // section (Low / Medium / High / Longshot), not the internal lane
@@ -389,7 +402,7 @@ export default function ParlayTicketCard({
         </div>
       )}
 
-      {showStakeFooter && (
+      {stakeFooterVisible && (
         <footer
           className="mx-4 mb-3 mt-1 pt-2.5 flex flex-wrap items-end justify-between gap-3"
           style={{ borderTop: "1px solid var(--vault-rule)" }}
