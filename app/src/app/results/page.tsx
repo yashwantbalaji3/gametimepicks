@@ -31,6 +31,9 @@
 import Link from "next/link";
 
 import ResultsAccountingSection from "@/components/research/results-accounting-section";
+import RiskLadderStream from "@/components/results/risk-ladder-stream";
+import { loadRiskLadderRecord } from "@/lib/parlays/risk-ladder";
+import path from "node:path";
 import ResultsMarketBenchmark from "@/components/research/results-market-benchmark";
 import { loadTerminal } from "@/lib/research/public-contract-adapter";
 import { loadRecentAccounting } from "@/lib/research/results-accounting-loader";
@@ -207,6 +210,11 @@ export default function ResultsPage() {
          the count with a reason — dropping any of them would quietly improve every number beside
          them. */}
       <ResultsAccountingSection rows={loadRecentAccounting(8)} />
+
+      {/* The risk-ladder stream, in its own lane. Deliberately AFTER the settled product record and
+          visibly separate: these paper cards never move the bankroll, and the bankroll's record
+          never lends them credibility. */}
+      <RiskLadderStream record={loadRiskLadderRecord(path.join(process.cwd(), "public", "data"))} />
 
       <div className="mt-12 mb-5 flex items-center gap-3">
         <h2

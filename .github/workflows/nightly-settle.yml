@@ -185,6 +185,13 @@ jobs:
             npx tsx scripts/settle-mlb-player-props.mjs $DATE_ARG
           else
             npx tsx scripts/settle-mlb-player-props.mjs $DATE_ARG --apply
+
+      # The risk ladder re-derives its whole record from every graded day, so it runs AFTER
+      # settlement and never carries a number forward from the previous file.
+      - name: Rebuild the risk-ladder record
+        if: always()
+        working-directory: app
+        run: node scripts/parlays/build-risk-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
           fi
         continue-on-error: true
 
@@ -378,6 +385,7 @@ jobs:
           # Homer Nukes receipts + cumulative record. Without this line the settler would grade the
           # board and have its output dropped at the commit — the same shape as the 62-hour outage.
           git add app/public/data/mlb/homer-nukes/ 2>/dev/null || true
+          git add app/public/data/parlays/risk-ladder/ 2>/dev/null || true
           git add pipeline/validation/settled_leans.jsonl 2>/dev/null || true
           git add pipeline/validation/mlb_settled_leans.jsonl 2>/dev/null || true
           git add pipeline/validation/comparison_report_*.json 2>/dev/null || true

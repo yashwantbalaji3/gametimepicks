@@ -40,6 +40,8 @@ import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import MlbFlagshipSections from "@/components/mlb/mlb-flagship-sections";
 import HomerNukesBoardSection from "@/components/mlb/homer-nukes-board";
 import { loadHomerNukesBoard } from "@/lib/mlb/homer-nukes-board";
+import { loadRiskLadder } from "@/lib/parlays/risk-ladder";
+import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
 import DeferUntilVisible from "@/components/defer-until-visible";
 import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
 import { loadMlbPropsBoard, latestMlbBoardDate } from "@/lib/mlb/mlb-props";
@@ -103,6 +105,7 @@ export default function MlbLandingPage() {
   const gameCount = summary.scheduledGames || games.length || 0;
   const gameOutlook = getGameOutlook("mlb");
   const homerNukesBoard = loadHomerNukesBoard(path.join(process.cwd(), "public", "data"), date);
+  const riskLadder = loadRiskLadder(path.join(process.cwd(), "public", "data"), flagshipDate);
 
   /*
    * TEAM MARKETS for the third column, and the simulation destination for the closing card.
@@ -417,6 +420,20 @@ export default function MlbLandingPage() {
           simHref={featuredSimHref}
         />
       </div>
+
+      {/* The risk ladder — "give me today's card at each risk level", which is the question the
+          18-card Suggested Cards tab never answered directly. Every tier ships with its own
+          measured record because every tier of this stream is negative. */}
+      {riskLadder ? (
+        <div className="mt-8">
+          <RiskLadderBoard
+            cards={riskLadder.cards}
+            skipped={riskLadder.skipped}
+            overallRoi={riskLadder.record.overall.roi}
+            gradedDays={riskLadder.record.gradedDays}
+          />
+        </div>
+      ) : null}
 
       {/* Simulation methodology + honest per-market coverage — how the MLB sim works and every gap. */}
       <div className="mt-8 flex flex-col gap-6">

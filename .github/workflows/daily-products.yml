@@ -95,6 +95,10 @@ jobs:
           # contradiction detection. Network-free like everything else in this workflow. Exit 1 on
           # a NEW contradiction stops the commit — a contradictory dashboard must not publish.
           node app/scripts/build-evidence-ledger.mjs
+          # Today's card per risk tier + the tier record. Network-free like everything else in this
+          # job: it reads only committed parlay artifacts. Non-fatal — a day with no snapshot simply
+          # publishes no cards and says so.
+          (cd app && node scripts/parlays/build-risk-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --date "$DATE") || true
 
       - name: Protected money must be byte-identical
         # A DISPLAY refresh that moved the bankroll would be a serious defect. The orchestrator has
@@ -135,6 +139,7 @@ jobs:
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
           git add app/public/data/mr-dub/ app/public/data/admin/ data/internal/products/receipts/ || true
+          git add app/public/data/parlays/risk-ladder/ 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no change — products already current for ${{ steps.d.outputs.date }}"
             exit 0
