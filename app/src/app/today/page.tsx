@@ -18,8 +18,6 @@ import path from "node:path";
 import fs from "node:fs";
 
 import { currentEtDate } from "@/lib/freshness";
-import ProbabilityLayersSection from "@/components/research/probability-layers-section";
-import { loadProbabilityRows } from "@/lib/research/probability-rows-loader";
 import { currentSlateDate, loadTodaySlate } from "@/lib/parlays/ui-loader";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
@@ -255,11 +253,21 @@ export default function TodayPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-7">
-      {/* The probability layers. Calibrated first, raw last: the raw number is the largest and the
-         least trustworthy (about nine points hot), so leading with it would give the most prominence
-         to the least defensible figure. Ordered by start time, never by probability — the measured
-         record shows our most confident calls are our worst. */}
-      <ProbabilityLayersSection rows={loadProbabilityRows(today, 12)} slateDate={today} />
+      {/* REMOVED 2026-08-17: the three-layer probability dump ("Three estimates for the same
+         question") used to open this page, above even the slate header.
+     *
+     * It was built as research transparency and it was honest, but as the FIRST thing a visitor met
+     * it was the wrong content in the wrong place. Ordering by start time — right, because ranking
+     * by our own confidence would promote the numbers we are least entitled to — combined with a
+     * 12-row cap meant the section only ever showed the earliest game: on 2026-08-17 all twelve
+     * rows were STL @ CIN. And every row carried "RECALIBRATE — does not out-score the sportsbook
+     * here", so the page opened with a wall of markets where we have no edge, three decimal columns
+     * at a time, before saying what was on tonight.
+     *
+     * Nothing honest was lost. That we do not out-score the book is stated by /results, derived in
+     * /methodology, and said in this page's own intro line. This removed a redundant research dump,
+     * not a disclosure. The layers themselves still power the learning loop.
+     */}
 
       {/* 0 — Slate liveness (real ET clock): on a no-games day this says so plainly and points at the next
           scheduled focus, so the most-recent slate is never presented as live. Hidden on a live day. */}
