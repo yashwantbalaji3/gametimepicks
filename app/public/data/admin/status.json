@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-08-17T14:08:07.582Z",
+  "generatedAt": "2026-08-17T14:50:09.156Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -19,7 +19,7 @@
     "date": "2026-08-17",
     "dailyPortfolioDate": "2026-08-17",
     "activeBankroll": 19065.4,
-    "openExposure": 0,
+    "openExposure": 495.14,
     "worldCupGames": 0,
     "mlbGames": 11,
     "mlbSlate": "2026-08-17"
@@ -31,21 +31,21 @@
         "source": "mlb/team-markets",
         "state": "CURRENT",
         "artifactDate": "2026-08-17",
-        "generatedAt": "2026-08-17T14:04:28.565Z",
+        "generatedAt": "2026-08-17T14:46:24.903Z",
         "ageDays": 0
       },
       {
         "source": "mlb/player-props",
         "state": "CURRENT",
         "artifactDate": "2026-08-17",
-        "generatedAt": "2026-08-17T14:04:29.410Z",
+        "generatedAt": "2026-08-17T14:46:25.754Z",
         "ageDays": 0
       }
     ]
   },
   "productReadiness": {
-    "bankBuilder": "awaiting approval",
-    "moonshot": "awaiting approval",
+    "bankBuilder": "active · 2 lane(s)",
+    "moonshot": "active · 2 lane(s)",
     "top10": "live",
     "worldCup": "dormant (no board)",
     "mlb": "live · 11 game(s)",
@@ -53,62 +53,62 @@
   },
   "products": {
     "bankBuilder": {
-      "activeLanes": 0,
+      "activeLanes": 2,
       "lanes": [
         {
           "lane": "A",
-          "status": "awaiting",
+          "status": "active",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 2,
+          "combinedOdds": -110,
           "stake": 100,
-          "potentialReturn": 100,
+          "potentialReturn": 191.13,
           "selections": []
         },
         {
           "lane": "B",
-          "status": "awaiting",
-          "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
-          "stake": 100,
-          "potentialReturn": 100,
+          "status": "active",
+          "step": 2,
+          "legs": 2,
+          "combinedOdds": 364,
+          "stake": 345.14,
+          "potentialReturn": 1602.52,
           "selections": []
         }
       ]
     },
     "moonshot": {
-      "activeLanes": 0,
+      "activeLanes": 2,
       "lanes": [
         {
           "lane": "A",
-          "status": "awaiting",
+          "status": "active",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 3,
+          "combinedOdds": 742,
           "stake": 25,
-          "potentialReturn": 25,
+          "potentialReturn": 210.45,
           "selections": []
         },
         {
           "lane": "B",
-          "status": "awaiting",
+          "status": "active",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 3,
+          "combinedOdds": 632,
           "stake": 25,
-          "potentialReturn": 25,
+          "potentialReturn": 182.99,
           "selections": []
         }
       ]
     }
   },
   "counts": {
-    "activeProducts": 1,
-    "pendingApprovals": 4
+    "activeProducts": 3,
+    "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-08-17T14:08:06.786Z",
+    "lastRunAt": "2026-08-17T14:50:08.374Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
@@ -117,7 +117,7 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-08-17",
-    "etTime": "10:08",
+    "etTime": "10:50",
     "stages": [
       {
         "stage": "schedule",
@@ -213,7 +213,7 @@
     },
     {
       "step": "Bank Builder card decided (active or no-play)",
-      "done": false
+      "done": true
     },
     {
       "step": "No missing-data warnings",
@@ -226,7 +226,7 @@
   },
   "nextSettlementDate": "2026-08-17",
   "nextRefreshDate": "2026-08-18",
-  "nextAction": "No active Bank Builder lane for 2026-08-17 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-08-17's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
