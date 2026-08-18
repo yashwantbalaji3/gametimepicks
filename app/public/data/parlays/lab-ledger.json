@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-18T02:07:13Z",
+ "generatedAt": "2026-08-18T11:08:36Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -23,15 +23,15 @@
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
-   "settledDays": 0,
+   "settledDays": 1,
    "record": {
     "wins": 0,
-    "losses": 0,
+    "losses": 3,
     "pushes": 0,
-    "staked": 0,
+    "staked": 3,
     "returned": 0,
-    "hitRate": null,
-    "roi": null
+    "hitRate": 0,
+    "roi": -1
    },
    "byTier": {
     "low": {
@@ -45,30 +45,30 @@
     },
     "medium": {
      "wins": 0,
-     "losses": 0,
+     "losses": 1,
      "pushes": 0,
-     "staked": 0,
+     "staked": 1,
      "returned": 0,
-     "hitRate": null,
-     "roi": null
+     "hitRate": 0,
+     "roi": -1
     },
     "high": {
      "wins": 0,
-     "losses": 0,
+     "losses": 1,
      "pushes": 0,
-     "staked": 0,
+     "staked": 1,
      "returned": 0,
-     "hitRate": null,
-     "roi": null
+     "hitRate": 0,
+     "roi": -1
     },
     "longshot": {
      "wins": 0,
-     "losses": 0,
+     "losses": 1,
      "pushes": 0,
-     "staked": 0,
+     "staked": 1,
      "returned": 0,
-     "hitRate": null,
-     "roi": null
+     "hitRate": 0,
+     "roi": -1
     }
    }
   },
@@ -80,7 +80,7 @@
    "evidence": {
     "pricedGames": 2,
     "pricesCapturedAt": "2026-08-15T21:19:48Z",
-    "priceAgeDays": 2.2,
+    "priceAgeDays": 2.58,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -137,11 +137,11 @@
    "id": "ufc",
    "label": "UFC",
    "live": false,
-   "blocked": "the last price capture is 38.5 days old",
+   "blocked": "the last price capture is 38.8 days old",
    "evidence": {
     "pricedGames": 20,
     "pricesCapturedAt": "2026-07-10T14:49:59+00:00",
-    "priceAgeDays": 38.47,
+    "priceAgeDays": 38.85,
     "settlementSource": "official UFC bout results",
     "settlementProven": true
    },
@@ -318,11 +318,11 @@
   "label": "Before the 2026-08-17 selection change",
   "summary": "Up to six cards per tier, legs reused across tiers, cards up to six legs",
   "firstDay": "2026-05-25",
-  "lastDay": "2026-08-16",
-  "gradedDays": 48,
-  "wins": 172,
-  "losses": 765,
-  "roi": -0.0945,
+  "lastDay": "2026-08-17",
+  "gradedDays": 49,
+  "wins": 175,
+  "losses": 786,
+  "roi": -0.1079,
   "note": "A measurement of the previous selection policy, kept because it is real. It does not describe what the Lab publishes now."
  }
 }
