@@ -97,6 +97,22 @@ export function loadCorpus(RAW) {
   }
   fights.sort((x, y) => x.date - y.date);
 
+  /*
+   * TALE OF THE TAPE — reach, height, stance, age.
+   *
+   * Optional by construction. Most of the corpus predates the coverage we have, so every physical
+   * feature is paired with `hasTott`: when a fight has no physicals on either side the diffs are
+   * zero AND the flag is zero, so the fit can learn to ignore them there rather than reading a
+   * missing reach as "equal reach". Silently zero-filling without the flag would tell the model the
+   * two fighters matched exactly, which is a different and false claim.
+   */
+  const tott = new Map();
+  try {
+    const doc = JSON.parse(fs.readFileSync(path.join(RAW, "ufc_fighter_tott.json"), "utf8"));
+    for (const f of doc.fighters ?? []) tott.set(nameKey(f.name), f);
+  } catch { /* no physicals on disk — every fight simply carries hasTott = 0 */ }
+  const ageAt = (dob, when) => (dob ? (when - Date.parse(dob)) / (365.25 * 86400_000) : null);
+
   const aWinRate = fights.reduce((s, f) => s + f.aWon, 0) / fights.length;
 
   const baseMethod = { KO: 0, SUB: 0, DEC: 0 };
@@ -136,6 +152,21 @@ export function loadCorpus(RAW) {
       five: f.scheduled === 5 ? 1 : 0,
       experience: Math.log1p(Math.min(A.n, B.n)),
     };
+
+    // Physicals, when both corners are known. Southpaw-vs-orthodox is the classic stylistic
+    // mismatch, so stance enters as a MISMATCH flag rather than as two separate indicators.
+    // Keyed through nameKey on BOTH sides. The corpus carries raw names ("Kauê Fernandes") and the
+    // map is built from folded ones, so a raw lookup silently misses every fighter — which it did,
+    // reporting 0% coverage while 388 fighters sat on disk.
+    const ta = tott.get(nameKey(f.a)), tb = tott.get(nameKey(f.b));
+    const bothTott = ta && tb;
+    const aAge = bothTott ? ageAt(ta.dateOfBirth, f.date) : null;
+    const bAge = bothTott ? ageAt(tb.dateOfBirth, f.date) : null;
+    feat.hasTott = bothTott ? 1 : 0;
+    feat.reachDiff = bothTott && ta.reachIn != null && tb.reachIn != null ? (ta.reachIn - tb.reachIn) / 6 : 0;
+    feat.heightDiff = bothTott && ta.heightIn != null && tb.heightIn != null ? (ta.heightIn - tb.heightIn) / 6 : 0;
+    feat.ageDiff = aAge != null && bAge != null ? (aAge - bAge) / 5 : 0;
+    feat.stanceMismatch = bothTott && ta.stance && tb.stance && ta.stance !== tb.stance ? 1 : 0;
     rowsOut.push({ date: f.date, f, feat, seen: Math.min(A.n, B.n) });
 
     // advance state AFTER the row is emitted
@@ -171,6 +202,15 @@ export function loadCorpus(RAW) {
 
 export const WIN_F = ["winDiff", "finishDiff", "durabilityDiff", "expDiff"];
 export const CLS_F = ["koTend", "subTend", "decTend", "finishable", "wcKO", "wcSUB", "five", "experience"];
+
+/*
+ * The SAME heads plus the tale of the tape. Kept as separate exports so the two can be fitted on
+ * identical walk-forward splits and compared like for like — the published model stays on WIN_F /
+ * CLS_F until the augmented one is shown to beat it on the preregistered bars, not merely to differ.
+ */
+export const TOTT_F = ["hasTott", "reachDiff", "heightDiff", "ageDiff", "stanceMismatch"];
+export const WIN_F_TOTT = [...WIN_F, ...TOTT_F];
+export const CLS_F_TOTT = [...CLS_F, ...TOTT_F];
 export const vec = (feat, keys) => keys.map((k) => feat[k]);
 
 export function fitBinary(rows, keys, iters = 500, lr = 0.15) {
