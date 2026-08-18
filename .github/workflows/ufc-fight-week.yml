@@ -26,6 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      # Stamped before any step runs, so "was this written by THIS run" has an anchor.
+      - name: Record the run start
+        run: echo "RUN_STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
@@ -99,6 +102,14 @@ jobs:
             node app/scripts/parlays/build-tier-grid.mjs --sport "$SPORT" --now "$NOW" || \
               echo "tier grid $SPORT: refused this run"
           done
+
+      # A zero exit code means the command returned; it does not mean the pipeline ran. This run
+      # produced these or it failed — the class fix for three green-but-broken jobs in one day.
+      - name: Assert this run produced its artifacts
+        run: |
+          set -euo pipefail
+          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" \
+            app/public/data/ufc/card-latest.json
 
       - name: Commit if anything changed
         run: |

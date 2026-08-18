@@ -34,6 +34,8 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Record the run start
+        run: echo "RUN_STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
@@ -92,6 +94,13 @@ jobs:
             node app/scripts/parlays/build-tier-grid.mjs --sport "$SPORT" --now "$NOW" || \
               echo "tier grid $SPORT: refused this run"
           done
+
+      # See ufc-fight-week: a green step is not evidence the pipeline ran.
+      - name: Assert this run produced its artifacts
+        run: |
+          set -euo pipefail
+          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --allow-missing \
+            app/public/data/soccer/epl/odds/latest.json
 
       - name: Commit if anything changed
         run: |

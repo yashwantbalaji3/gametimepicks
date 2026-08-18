@@ -51,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Record the run start
+        run: echo "RUN_STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -131,6 +133,23 @@ jobs:
           set -euo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           npx tsx app/scripts/products/build-daily-product-receipts.mjs --now "$NOW" --date "${{ steps.d.outputs.date }}"
+
+      # The Parlay Lab silently showed nothing for a full day because this job rebuilt the ladder
+
+      # against a candidate pool that did not exist yet, and no step checked the result. A green
+
+      # run is not evidence the pipeline ran.
+
+      - name: Assert this run produced its artifacts
+
+        run: |
+
+          set -euo pipefail
+
+          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --allow-missing \
+
+            app/public/data/parlays/risk-ladder/latest.json
+
 
       - name: Commit if anything changed
         if: github.event.inputs.dry_run != 'true'
