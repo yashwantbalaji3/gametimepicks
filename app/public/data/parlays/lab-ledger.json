@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-17T22:22:16Z",
+ "generatedAt": "2026-08-18T02:07:13Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -14,11 +14,12 @@
   {
    "id": "mlb",
    "label": "MLB",
-   "live": true,
+   "live": false,
+   "blocked": "no odds capture is ingested for this sport; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "evidence": {
-    "pricedGames": 9,
-    "pricesCapturedAt": "2026-08-17T14:46:25.754Z",
-    "priceAgeDays": 0.32,
+    "pricedGames": 0,
+    "pricesCapturedAt": null,
+    "priceAgeDays": null,
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
@@ -79,7 +80,7 @@
    "evidence": {
     "pricedGames": 2,
     "pricesCapturedAt": "2026-08-15T21:19:48Z",
-    "priceAgeDays": 2.04,
+    "priceAgeDays": 2.2,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -136,11 +137,11 @@
    "id": "ufc",
    "label": "UFC",
    "live": false,
-   "blocked": "the last price capture is 38.3 days old",
+   "blocked": "the last price capture is 38.5 days old",
    "evidence": {
     "pricedGames": 20,
     "pricesCapturedAt": "2026-07-10T14:49:59+00:00",
-    "priceAgeDays": 38.31,
+    "priceAgeDays": 38.47,
     "settlementSource": "official UFC bout results",
     "settlementProven": true
    },
@@ -258,11 +259,9 @@
    "id": "multi",
    "label": "Multi-sport",
    "live": false,
-   "blocked": "a cross-sport card needs two live sports; only MLB is cleared",
+   "blocked": "a cross-sport card needs two live sports; none is cleared",
    "evidence": {
-    "liveSports": [
-     "MLB"
-    ]
+    "liveSports": []
    },
    "settledDays": 0,
    "record": {

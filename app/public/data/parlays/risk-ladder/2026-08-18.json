@@ -1,0 +1,174 @@
+{
+ "schemaVersion": 1,
+ "artifact": "parlay-risk-ladder",
+ "dataClass": "PUBLIC_DERIVED",
+ "date": "2026-08-18",
+ "generatedAt": "2026-08-18T02:07:12Z",
+ "moneyClass": "PAPER_TRACKED_NOT_BANKROLL",
+ "note": "Tracked paper cards with their own ledger. These never touch the Bank Builder / Moonshot bankroll or the settled product record.",
+ "cards": [],
+ "skipped": [
+  {
+   "tier": "low",
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "medium",
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "high",
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "longshot",
+   "reason": "no priced card in this tier on today's slate"
+  }
+ ],
+ "bettorTiers": [
+  {
+   "id": "steady",
+   "label": "Low",
+   "blurb": "The shortest prices we publish, one card a day.",
+   "bands": [
+    "low"
+   ],
+   "cardsPerDay": 1,
+   "minBankroll": 0,
+   "settledCards": 43,
+   "wins": 18,
+   "losses": 25,
+   "hitRate": 0.4186,
+   "hitRateSe": 0.0762,
+   "worstLosingRun": 6,
+   "medianDaysToWin": 1.3,
+   "roi": 0.1802,
+   "roiSe": 0.2217,
+   "roiDetermined": false,
+   "roiT": 0.81
+  },
+  {
+   "id": "balanced",
+   "label": "Medium",
+   "blurb": "Short and mid prices, two cards a day.",
+   "bands": [
+    "low",
+    "medium"
+   ],
+   "cardsPerDay": 2,
+   "minBankroll": 50,
+   "settledCards": 86,
+   "wins": 40,
+   "losses": 46,
+   "hitRate": 0.4651,
+   "hitRateSe": 0.0539,
+   "worstLosingRun": 7,
+   "medianDaysToWin": 0.6,
+   "roi": 0.2425,
+   "roiSe": 0.1509,
+   "roiDetermined": false,
+   "roiT": 1.61
+  },
+  {
+   "id": "adventurous",
+   "label": "High",
+   "blurb": "Mid and long prices, two cards a day.",
+   "bands": [
+    "medium",
+    "high"
+   ],
+   "cardsPerDay": 2,
+   "minBankroll": 150,
+   "settledCards": 86,
+   "wins": 21,
+   "losses": 65,
+   "hitRate": 0.2442,
+   "hitRateSe": 0.0539,
+   "worstLosingRun": 17,
+   "medianDaysToWin": 1.2,
+   "roi": 0.3544,
+   "roiSe": 0.2647,
+   "roiDetermined": false,
+   "roiT": 1.34
+  },
+  {
+   "id": "longshot",
+   "label": "Longshot",
+   "blurb": "The longest price on the board, one card a day.",
+   "bands": [
+    "longshot"
+   ],
+   "cardsPerDay": 1,
+   "minBankroll": 500,
+   "settledCards": 43,
+   "wins": 2,
+   "losses": 41,
+   "hitRate": 0.0465,
+   "hitRateSe": 0.0762,
+   "worstLosingRun": 28,
+   "medianDaysToWin": 14.6,
+   "roi": -0.4457,
+   "roiSe": 0.3878,
+   "roiDetermined": false,
+   "roiT": -1.15
+  }
+ ],
+ "record": {
+  "gradedDays": 48,
+  "firstDay": "2026-05-25",
+  "lastDay": "2026-08-16",
+  "byTier": {
+   "low": {
+    "wins": 90,
+    "losses": 140,
+    "pushes": 1,
+    "pending": 19,
+    "staked": 230,
+    "returned": 225.61,
+    "decisive": 230,
+    "hitRate": 0.3913,
+    "roi": -0.0191
+   },
+   "medium": {
+    "wins": 41,
+    "losses": 193,
+    "pushes": 0,
+    "pending": 16,
+    "staked": 234,
+    "returned": 218.5,
+    "decisive": 234,
+    "hitRate": 0.1752,
+    "roi": -0.0662
+   },
+   "high": {
+    "wins": 27,
+    "losses": 208,
+    "pushes": 0,
+    "pending": 15,
+    "staked": 235,
+    "returned": 225.91,
+    "decisive": 235,
+    "hitRate": 0.1149,
+    "roi": -0.0387
+   },
+   "longshot": {
+    "wins": 14,
+    "losses": 224,
+    "pushes": 0,
+    "pending": 12,
+    "staked": 238,
+    "returned": 178.43,
+    "decisive": 238,
+    "hitRate": 0.0588,
+    "roi": -0.2503
+   }
+  },
+  "overall": {
+   "wins": 172,
+   "losses": 765,
+   "staked": 937,
+   "returned": 848.45,
+   "roi": -0.0945
+  }
+ }
+}

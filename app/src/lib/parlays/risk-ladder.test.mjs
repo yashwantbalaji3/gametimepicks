@@ -107,6 +107,17 @@ test("ROI is published beside every hit rate — a hit rate alone is unreadable 
   assert.match(stream, /cannot be read without the price/, "and says why hit rate alone is not enough");
 });
 
+test("the slate day is the ET day, not the UTC day", () => {
+  /*
+   * `NOW.slice(0,10)` is the UTC calendar day, so from 8pm ET it names TOMORROW. Run at 22:07 ET
+   * the builder produced a ladder for the next date, found no snapshot, published zero cards and
+   * overwrote latest.json — blanking the live ladder every evening. Baseball's day is an ET day.
+   */
+  const src = code("scripts/parlays/build-risk-ladder.mjs");
+  assert.match(src, /timeZone: "America\/New_York"/, "the slate day is resolved in ET");
+  assert.doesNotMatch(src, /arg\("--date", NOW\.slice\(0, 10\)\)/, "never the raw UTC slice");
+});
+
 test("a bettor tier's record belongs to the set that tier actually shows", () => {
   /*
    * A tier is a POLICY (these bands, this many cards a day), so its record is exactly computable by

@@ -49,10 +49,17 @@ const pct = (v: number | null) => (v == null ? "—" : `${(v * 100).toFixed(1)}%
 const signed = (v: number | null) => (v == null ? "—" : `${v > 0 ? "+" : ""}${(v * 100).toFixed(1)}%`);
 const money = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+/*
+ * The risk levels are named for the RISK, not for the bettor.
+ *
+ * They read "Steady / Balanced / Adventurous / Longshot", which describes a temperament and quietly
+ * flatters the choice — "Adventurous" sounds like a personality, "High" sounds like what it is. The
+ * bands themselves are unchanged; only the labels stop editorialising.
+ */
 const RISKS: { key: RiskTolerance; label: string }[] = [
-  { key: "low", label: "Steady" },
-  { key: "medium", label: "Balanced" },
-  { key: "high", label: "Adventurous" },
+  { key: "low", label: "Low" },
+  { key: "medium", label: "Medium" },
+  { key: "high", label: "High" },
   { key: "longshot", label: "Longshot" },
 ];
 

@@ -119,11 +119,11 @@ export default function MlbFlagshipSections({ props, games, teamRows, homerBoard
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start">
         <SectionCard id="mlb-player-props" tag="Batters" title="Batter props" sub="Hits · total bases · hits+runs+RBIs, filterable.">
-          {batter.length ? <MlbPropsBoard props={batter} /> : <GatedSlot label="Batter props post when MLB markets are live" />}
+          {batter.length ? <MlbPropsBoard props={batter} dense initialRows={10} /> : <GatedSlot label="Batter props post when MLB markets are live" />}
         </SectionCard>
 
         <SectionCard id="mlb-pitcher-props" tag="Pitchers" title="Pitcher props" sub="Strikeouts · outs recorded · earned runs, same filters.">
-          {pitchers.length ? <MlbPropsBoard props={pitchers} /> : <GatedSlot label="Pitcher props post when MLB markets are live" />}
+          {pitchers.length ? <MlbPropsBoard props={pitchers} dense initialRows={10} /> : <GatedSlot label="Pitcher props post when MLB markets are live" />}
         </SectionCard>
 
         <SectionCard id="mlb-team-props" tag="Teams" title="Team markets" sub="Win probability, run line and total for every game — de-vigged.">

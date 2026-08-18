@@ -34,7 +34,20 @@ const OUT = path.join(APP, "public", "data", "parlays", "risk-ladder");
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(1); }
-const DATE = arg("--date", NOW.slice(0, 10));
+/*
+ * THE SLATE DAY IS THE ET DAY, never `NOW.slice(0,10)`.
+ *
+ * That slice is the UTC calendar day, so from 8pm ET onward it names TOMORROW. Run at 22:07 ET this
+ * script duly built a ladder for 2026-08-18, found no snapshot for a slate that has not happened,
+ * published zero cards, and overwrote latest.json — blanking the live ladder every single evening.
+ *
+ * This is the same ET/UTC confusion that has now bitten settlement, the board generator and the
+ * freshness copy in this repo. Baseball's day is an ET day; the clock that names it has to be too.
+ */
+const etDay = (iso) => new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit",
+}).format(new Date(iso));
+const DATE = arg("--date", etDay(NOW));
 
 const TIERS = ["low", "medium", "high", "longshot"];
 const TIER_LABEL = { low: "Low risk", medium: "Medium risk", high: "High risk", longshot: "Longshot" };
@@ -260,11 +273,11 @@ for (const tier of TIERS) {
  * gate exists to slow someone down, not to make it feel like a reward for a bigger balance.
  */
 const BETTOR_TIERS = [
-  { id: "steady", label: "Steady", bands: ["low"], cardsPerDay: 1, minBankroll: 0,
+  { id: "steady", label: "Low", bands: ["low"], cardsPerDay: 1, minBankroll: 0,
     blurb: "The shortest prices we publish, one card a day." },
-  { id: "balanced", label: "Balanced", bands: ["low", "medium"], cardsPerDay: 2, minBankroll: 50,
+  { id: "balanced", label: "Medium", bands: ["low", "medium"], cardsPerDay: 2, minBankroll: 50,
     blurb: "Short and mid prices, two cards a day." },
-  { id: "adventurous", label: "Adventurous", bands: ["medium", "high"], cardsPerDay: 2, minBankroll: 150,
+  { id: "adventurous", label: "High", bands: ["medium", "high"], cardsPerDay: 2, minBankroll: 150,
     blurb: "Mid and long prices, two cards a day." },
   { id: "longshot", label: "Longshot", bands: ["longshot"], cardsPerDay: 1, minBankroll: 500,
     blurb: "The longest price on the board, one card a day." },

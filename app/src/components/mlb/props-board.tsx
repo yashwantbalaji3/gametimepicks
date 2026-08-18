@@ -65,8 +65,23 @@ const CONFS: Array<{ key: string; label: string }> = [
 
 const selStyle = { background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)", color: "var(--vault-text)" } as const;
 
-export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
+export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }: {
+  props: BoardProp[];
+  /*
+   * DENSE = this board is inside a narrow column, not across the page.
+   *
+   * The wide layout is an eight-column table gated on `lg:` — a VIEWPORT query. Once these boards
+   * moved into a three-column grid that stopped being the right question: at 1280px the viewport is
+   * "large" while each column is about 400px, so the table rendered at a third of the width it was
+   * designed for and its last columns were simply cut off. The layout has to follow the CONTAINER,
+   * and the container is something only the caller knows.
+   */
+  dense?: boolean;
+  /** Rows shown before "show more". 150 batter props in a column is not a list, it is a scroll. */
+  initialRows?: number;
+}) {
   const [market, setMarket] = useState("all");
+  const [expanded, setExpanded] = useState(false);
   const [game, setGame] = useState("all");
   const [sort, setSort] = useState("prob");
   const [oddsRange, setOddsRange] = useState("all");
@@ -151,7 +166,7 @@ export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
       </div>
 
       {/* Desktop table — sticky header, striped rows, pill badges. */}
-      <div className="hidden lg:block overflow-auto rounded-[12px]" style={{ border: "1px solid var(--vault-rule)", maxHeight: 560 }}>
+      {!dense && <div className="hidden lg:block overflow-auto rounded-[12px]" style={{ border: "1px solid var(--vault-rule)", maxHeight: 560 }}>
         <table className="w-full" style={{ borderCollapse: "separate", borderSpacing: 0, fontSize: 12 }}>
           <thead>
             <tr>
@@ -182,11 +197,11 @@ export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
             );})}
           </tbody>
         </table>
-      </div>
+      </div>}
 
-      {/* Mobile cards — native feel: headshot + team/opp logos, badges row. */}
-      <div className="lg:hidden flex flex-col gap-2">
-        {rows.map((p, i) => {
+      {/* Card layout — always in a narrow column, and on small screens everywhere. */}
+      <div className={`${dense ? "" : "lg:hidden "}flex flex-col gap-2`}>
+        {(expanded ? rows : rows.slice(0, initialRows)).map((p, i) => {
           const m = tierMeta(tierForProp(p));
           return (
           <div key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2.5 flex items-start gap-2.5 min-w-0" style={{ background: "rgba(7, 11, 9,0.45)", border: "1px solid var(--vault-rule)" }}>
@@ -209,6 +224,16 @@ export default function MlbPropsBoard({ props }: { props: BoardProp[] }) {
         );})}
         {rows.length === 0 ? <p className="text-center text-[12px] py-4" style={{ color: "var(--vault-text-faint)" }}>No props match these filters.</p> : null}
       </div>
+
+      {/* A column is not a place to scroll 150 rows. The count stays visible so trimming the view
+          never reads as trimming the data. */}
+      {rows.length > initialRows && (
+        <button type="button" onClick={() => setExpanded((v) => !v)}
+          className="gtp-team-row self-start rounded-[8px] px-3 py-1.5 font-mono uppercase tracking-[0.12em]"
+          style={{ fontSize: 9.5, color: "var(--sport-theme-ink)", background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-rule)", cursor: "pointer" }}>
+          {expanded ? `Show first ${initialRows}` : `Show all ${rows.length}`}
+        </button>
+      )}
     </div>
   );
 }
