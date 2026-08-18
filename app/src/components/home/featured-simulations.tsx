@@ -23,11 +23,31 @@ export interface FeaturedSimulationsProps {
   answers?: Record<string, HomeGameAnswer>;
 }
 
-/** Crest: MLB uses the ESPN-CDN TeamLogo; World Cup uses the real provider logo URL (never fabricated). */
-function Crest({ team, abbr, logo, isWc }: { team: string; abbr: string | null; logo: string | null; isWc: boolean }) {
+/**
+ * The card's sport, as a value the rest of the UI can use.
+ *
+ * The artifact writes its own keys ("world_cup"), the logo CDN wants ESPN's ("soccer"), and the
+ * label wants a human's ("World Cup"). Deriving all three from ONE place is the point: the card
+ * previously hardcoded MLB for both the crest and the label, so when NFL simulations started
+ * appearing here every NFL game rendered a broken crest from the MLB logo path AND was labelled
+ * "MLB" on the homepage — "Las Vegas Raiders @ Houston Texans · MLB". The crest 404 was the visible
+ * half; the wrong sport name beside a real matchup was the half that mattered.
+ */
+const LOGO_SPORT: Record<string, "mlb" | "nfl" | "nba" | "nhl" | "soccer"> = {
+  mlb: "mlb", nfl: "nfl", nba: "nba", nhl: "nhl", world_cup: "soccer", epl: "soccer", soccer: "soccer",
+};
+const SPORT_LABEL: Record<string, string> = {
+  mlb: "MLB", nfl: "NFL", nba: "NBA", nhl: "NHL", world_cup: "World Cup", epl: "Premier League", ufc: "UFC",
+};
+/* An unknown sport gets its own key upper-cased rather than someone else's name — a card that says
+   nothing recognisable is honest; a card that says "MLB" over a football game is not. */
+const sportLabelFor = (sport: string) => SPORT_LABEL[sport] ?? sport.replace(/_/g, " ").toUpperCase();
+
+/** Crest: the ESPN-CDN TeamLogo per sport; World Cup uses the real provider logo URL (never fabricated). */
+function Crest({ team, abbr, logo, isWc, sport }: { team: string; abbr: string | null; logo: string | null; isWc: boolean; sport: string }) {
   // The CDN resolves abbreviations; `team` may be the sim artifact's full display name. Without an
   // abbr the monogram fallback still renders, so nothing looks broken — but nothing 404s either.
-  if (!isWc) return <TeamLogo team={abbr ?? team} sport="mlb" size="sm" ariaLabel={`${team} logo`} />;
+  if (!isWc) return <TeamLogo team={abbr ?? team} sport={LOGO_SPORT[sport] ?? "mlb"} size="sm" ariaLabel={`${team} logo`} />;
   if (logo) {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={logo} alt={`${team} crest`} width={24} height={24} style={{ borderRadius: 4, objectFit: "contain" }} />;
@@ -43,7 +63,7 @@ function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer
   const away = s.teams?.away?.trim() || "—";
   const home = s.teams?.home?.trim() || "—";
   const isWc = s.sport === "world_cup";
-  const sportLabel = isWc ? "World Cup" : "MLB";
+  const sportLabel = sportLabelFor(s.sport);
   return (
     <Link
       href={s.href}
@@ -52,11 +72,11 @@ function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer
     >
       <div className="flex items-center justify-between gap-2">
         <span className="flex min-w-0 items-center gap-2">
-          <Crest team={away} abbr={s.teamAbbrs?.away ?? null} logo={s.awayLogo} isWc={isWc} />
+          <Crest team={away} abbr={s.teamAbbrs?.away ?? null} logo={s.awayLogo} isWc={isWc} sport={s.sport} />
           <span className="truncate text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
             {away} <span style={{ color: "var(--vault-text-faint)" }}>{isWc ? "vs" : "@"}</span> {home}
           </span>
-          <Crest team={home} abbr={s.teamAbbrs?.home ?? null} logo={s.homeLogo} isWc={isWc} />
+          <Crest team={home} abbr={s.teamAbbrs?.home ?? null} logo={s.homeLogo} isWc={isWc} sport={s.sport} />
         </span>
         {/* Honest mode badge: an MLB run-sim reads "Simulation Ready"; a WC card reads "Market-implied". */}
         <span

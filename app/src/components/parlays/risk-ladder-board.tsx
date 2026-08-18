@@ -146,9 +146,20 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
       </div>
 
       <ul className="flex flex-col gap-2 list-none m-0 p-0">
+        {/*
+          * NO <li> WRAPPER HERE — LegRow renders its own, and an <li> inside an <li> is invalid HTML.
+          *
+          * This was the whole hydration failure. The browser's parser silently repairs illegal
+          * nesting by closing the outer element, so the tree React finds in the DOM is not the tree
+          * it serialised, and hydration fails for the entire page — React discards the server HTML
+          * and re-renders the document client-side. Six errors on /mlb and / came from this one
+          * wrapper. The other LegRow call site was always correct: a direct child of the <ul>.
+          *
+          * The wrapper also did nothing: `flex flex-col` around a single child is a no-op.
+          */}
         {legs.map((l, i) => (
-          <li key={`${l.player}:${i}`} className="flex flex-col">
             <LegRow
+              key={`${l.player}:${i}`}
               leg={l}
               right={
                 <span className="flex items-center gap-1 shrink-0">
@@ -172,7 +183,6 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
                 </span>
               }
             />
-          </li>
         ))}
       </ul>
 
