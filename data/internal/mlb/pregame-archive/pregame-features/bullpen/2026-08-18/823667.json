@@ -1,0 +1,170 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823667,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T02:14:25.950Z",
+  "availableAt": "2026-08-18T02:14:25.950Z",
+  "eventStartTime": "2026-08-18T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-15",
+    "2026-08-16",
+    "2026-08-17"
+  ],
+  "home": {
+    "teamId": 142,
+    "teamName": "Minnesota Twins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 130,
+      "relievers": [
+        {
+          "id": 702193,
+          "name": "Andrew Morris",
+          "appearances": 2,
+          "pitches": 51,
+          "outs": 6,
+          "dates": [
+            "2026-08-15",
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 621345,
+          "name": "A.J. Minter",
+          "appearances": 2,
+          "pitches": 26,
+          "outs": 6,
+          "dates": [
+            "2026-08-15",
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 681892,
+          "name": "Kody Funderburk",
+          "appearances": 2,
+          "pitches": 20,
+          "outs": 5,
+          "dates": [
+            "2026-08-15",
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 656546,
+          "name": "Jeff Hoffman",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 573124,
+          "name": "Taylor Rogers",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 167,
+      "relievers": [
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 9,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 664849,
+          "name": "Danny Young",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 4,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 800311,
+          "name": "Didier Fuentes",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 628452,
+          "name": "Raisel Iglesias",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-15,2026-08-16,2026-08-17) + feed/live box scores",
+    "capturedAt": "2026-08-18T02:14:25.950Z"
+  },
+  "recordHash": "7ce792951f33ff5b102b33e41bf04ac8de77d824f642be26d843e114189582be"
+}

@@ -1,0 +1,233 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824803,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T02:14:25.950Z",
+  "availableAt": "2026-08-18T02:14:25.950Z",
+  "eventStartTime": "2026-08-18T22:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-15",
+    "2026-08-16",
+    "2026-08-17"
+  ],
+  "home": {
+    "teamId": 110,
+    "teamName": "Baltimore Orioles",
+    "last1Day": {
+      "appearances": 4,
+      "pitches": 69,
+      "relievers": [
+        {
+          "id": 676742,
+          "name": "Cam Sanders",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 670329,
+          "name": "Rico Garcia",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 666974,
+          "name": "Yennier Cano",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 0,
+          "dates": [
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 677020,
+          "name": "Josh Walker",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-17"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 12,
+      "pitches": 178,
+      "relievers": [
+        {
+          "id": 676742,
+          "name": "Cam Sanders",
+          "appearances": 2,
+          "pitches": 44,
+          "outs": 9,
+          "dates": [
+            "2026-08-15",
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 670329,
+          "name": "Rico Garcia",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-15",
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 695380,
+          "name": "Alex Hoppe",
+          "appearances": 2,
+          "pitches": 21,
+          "outs": 5,
+          "dates": [
+            "2026-08-15",
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 552640,
+          "name": "Andrew Kittredge",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 664991,
+          "name": "Grant Wolfram",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 544150,
+          "name": "Albert Suárez",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 666974,
+          "name": "Yennier Cano",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 0,
+          "dates": [
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 677020,
+          "name": "Josh Walker",
+          "appearances": 2,
+          "pitches": 14,
+          "outs": 4,
+          "dates": [
+            "2026-08-15",
+            "2026-08-17"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 99,
+      "relievers": [
+        {
+          "id": 657612,
+          "name": "Tim Hill",
+          "appearances": 2,
+          "pitches": 38,
+          "outs": 5,
+          "dates": [
+            "2026-08-15",
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 5,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 687396,
+          "name": "Brent Headrick",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 660787,
+          "name": "Yerry De los Santos",
+          "appearances": 1,
+          "pitches": 1,
+          "outs": 1,
+          "dates": [
+            "2026-08-15"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-15,2026-08-16,2026-08-17) + feed/live box scores",
+    "capturedAt": "2026-08-18T02:14:25.950Z"
+  },
+  "recordHash": "93ce9e1ef0d4942aeca8e9c1991b9bd9774836c3d61f0dc3c68be60abec7e8e4"
+}

@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822859,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T02:14:25.950Z",
+  "availableAt": "2026-08-18T02:14:25.950Z",
+  "eventStartTime": "2026-08-19T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-15",
+    "2026-08-16",
+    "2026-08-17"
+  ],
+  "home": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 105,
+      "relievers": [
+        {
+          "id": 656641,
+          "name": "Jacob Latz",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 6,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 596001,
+          "name": "Jakob Junis",
+          "appearances": 2,
+          "pitches": 26,
+          "outs": 6,
+          "dates": [
+            "2026-08-15",
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 681217,
+          "name": "Chase Silseth",
+          "appearances": 2,
+          "pitches": 16,
+          "outs": 4,
+          "dates": [
+            "2026-08-15",
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 682608,
+          "name": "Peyton Gray",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 1,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 668390,
+          "name": "Cole Winn",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 2,
+          "dates": [
+            "2026-08-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 120,
+    "teamName": "Washington Nationals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 167,
+      "relievers": [
+        {
+          "id": 702021,
+          "name": "Will Dion",
+          "appearances": 1,
+          "pitches": 64,
+          "outs": 13,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 672442,
+          "name": "Yovanny Cruz",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 1,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 690925,
+          "name": "Clayton Beeter",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 668820,
+          "name": "Max Kranick",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 687377,
+          "name": "Orlando Ribalta",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        },
+        {
+          "id": 656234,
+          "name": "Jake Bird",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 676680,
+          "name": "Tom Cosgrove",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-15"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-15,2026-08-16,2026-08-17) + feed/live box scores",
+    "capturedAt": "2026-08-18T02:14:25.950Z"
+  },
+  "recordHash": "e57e745fe99542a7f085b2f6d2039f99c47ef303d23d6a74579e4926f76f5314"
+}

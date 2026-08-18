@@ -3,16 +3,16 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-research-progress",
-  "lastUpdated": "2026-08-17T23:14:45.483Z",
+  "lastUpdated": "2026-08-18T02:14:47.581Z",
   "datasetHealth": {
-    "totalObservations": 7339,
-    "validObservations": 7339,
+    "totalObservations": 5978,
+    "validObservations": 5978,
     "invalidObservations": 0,
     "qualityStatus": "PASS",
-    "averageFeatureCoverage": 0.939,
-    "marketProbabilityCoveragePct": 79.2,
+    "averageFeatureCoverage": 0.94,
+    "marketProbabilityCoveragePct": 81.4,
     "marketsCovered": 12,
-    "datesCovered": 4,
+    "datesCovered": 3,
     "latestSettlementDate": "2026-08-17",
     "readyForResearch": false,
     "readyReason": "modeling BLOCKED: needs 30 distinct observation dates AND 500 settled observations AND out-of-sample validation AND founder approval"
@@ -21,11 +21,11 @@
     "qualifyingObservationDates": 4,
     "requiredObservationDates": 30,
     "remainingObservationDates": 26,
-    "observations": 7339,
+    "observations": 5978,
     "remainingObservations": 0,
     "observationTargetMet": true,
     "dateTargetMet": false,
-    "dailyObservationRate": 1835,
+    "dailyObservationRate": 1495,
     "latestQualifyingDate": "2026-08-17",
     "consecutiveHealthyCaptureDates": 4,
     "estimatedCompletion": {
@@ -36,41 +36,41 @@
     "bindingConstraint": "dates",
     "note": "Dataset readiness only — NOT model readiness. Modeling stays BLOCKED past the gate until out-of-sample validation + founder approval. A projected completion date never implies a model exists."
   },
-  "datesCollected": 25,
-  "gamesObserved": 3592,
-  "observations": 7339,
-  "observationDates": 4,
+  "datesCollected": 26,
+  "gamesObserved": 3639,
+  "observations": 5978,
+  "observationDates": 3,
   "lastSuccessfulObservation": "2026-08-17",
-  "capturedMarketLeans": 46604,
-  "teamMarketLeans": 3350,
-  "playerPropLeans": 43254,
+  "capturedMarketLeans": 46876,
+  "teamMarketLeans": 3452,
+  "playerPropLeans": 43424,
   "marketDistribution": {
-    "h2h": 668,
-    "spreads": 956,
-    "totals": 1726
+    "h2h": 698,
+    "spreads": 986,
+    "totals": 1768
   },
   "propDistribution": {
-    "pitcher_outs": 895,
-    "pitcher_strikeouts": 818,
-    "batter_hits": 6576,
-    "batter_hits_runs_rbis": 6600,
-    "batter_rbis": 5881,
-    "batter_total_bases": 8083,
-    "pitcher_earned_runs": 726,
+    "pitcher_outs": 903,
+    "pitcher_strikeouts": 826,
+    "batter_hits": 6644,
+    "batter_hits_runs_rbis": 6604,
+    "batter_rbis": 5885,
+    "batter_total_bases": 8127,
+    "pitcher_earned_runs": 730,
     "batter_runs_scored": 5816,
-    "batter_home_runs": 7859
+    "batter_home_runs": 7889
   },
   "settlementStatuses": {
-    "win": 17704,
-    "loss": 24602,
-    "push": 84,
-    "unavailable": 2353,
-    "pending": 1861
+    "win": 18125,
+    "loss": 25164,
+    "push": 86,
+    "unavailable": 2412,
+    "pending": 1089
   },
   "settledOutcomes": {
-    "win": 17704,
-    "loss": 24602,
-    "push": 84
+    "win": 18125,
+    "loss": 25164,
+    "push": 86
   },
   "markets": {
     "h2h": 0,
@@ -87,17 +87,17 @@
     "batter_hits_runs_rbis": 0
   },
   "featureCoverage": {
-    "featureCoveragePct": 95.9,
-    "lineupCoveragePct": 90.7,
+    "featureCoveragePct": 94,
+    "lineupCoveragePct": 87,
     "marketCoveragePct": 100,
     "byFamily": {
-      "confirmed_lineup": 90.7,
+      "confirmed_lineup": 87,
       "pitcher_status": 100,
       "bullpen": 0,
       "plate_appearance_opportunity": 0,
       "markets": 0,
       "environment": 100,
-      "umpire": 92.9
+      "umpire": 89.2
     }
   },
   "missingFeatures": [
@@ -106,9 +106,9 @@
     "markets"
   ],
   "settlement": {
-    "joinDates": 26,
-    "joinedGames": 354,
-    "finalGames": 343,
+    "joinDates": 27,
+    "joinedGames": 369,
+    "finalGames": 348,
     "perDate": {
       "2026-07-21": {
         "games": 15,
@@ -287,30 +287,37 @@
       },
       "2026-08-17": {
         "games": 11,
-        "final": 1,
+        "final": 6,
         "marketLeans": 2056,
-        "settledEligible": 201,
-        "pending": 1851
+        "settledEligible": 1156,
+        "pending": 807
+      },
+      "2026-08-18": {
+        "games": 15,
+        "final": 0,
+        "marketLeans": 272,
+        "settledEligible": 0,
+        "pending": 272
       }
     }
   },
   "dailyHealth": {
-    "date": "2026-08-17",
-    "capturedGames": 11,
-    "finalGames": 1,
-    "marketLeansCaptured": 2056,
-    "settledEligible": 201,
-    "observationsCreated": 201,
+    "date": "2026-08-18",
+    "capturedGames": 15,
+    "finalGames": 0,
+    "marketLeansCaptured": 272,
+    "settledEligible": 0,
+    "observationsCreated": 0,
     "hasFreeze": true,
     "hasMarketSnapshots": true,
-    "note": "final + market-covered — observations should be produced"
+    "note": "games not final yet — captured leans stay pending until finalization"
   },
   "gate": {
     "datesTarget": 30,
     "observationsTarget": 500,
-    "datesCollected": 26,
-    "observations": 40783,
-    "datesRemaining": 4,
+    "datesCollected": 27,
+    "observations": 41738,
+    "datesRemaining": 3,
     "observationsRemaining": 0,
     "met": false,
     "modelingStatus": "BLOCKED"

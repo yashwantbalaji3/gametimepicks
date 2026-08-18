@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824319,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T02:14:24.761Z",
+  "availableAt": "2026-08-18T02:14:24.761Z",
+  "eventStartTime": "2026-08-19T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663372,
+      "name": "Ryan Feltner",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 2.8,
+        "bbAvg": 2.4,
+        "erAvg": 4.4,
+        "hrAvg": 1.4,
+        "kPer9": 5.32,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 87,
+        "k": 61,
+        "bb": 36,
+        "er": 54,
+        "hr": 18
+      }
+    },
+    "away": {
+      "id": 641778,
+      "name": "Eric Lauer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 3.8,
+        "bbAvg": 1.2,
+        "erAvg": 2.6,
+        "hrAvg": 1,
+        "kPer9": 6.18,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 82.33,
+        "k": 53,
+        "bb": 25,
+        "er": 42,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-18T02:14:24.761Z"
+  },
+  "recordHash": "c0d1b2edc881a5a6496b350364bcb22823538dd689fbe187b86d05722b2a8572"
+}
