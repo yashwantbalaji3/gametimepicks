@@ -3,26 +3,149 @@
  "artifact": "parlay-risk-ladder",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-08-18",
- "generatedAt": "2026-08-18T13:07:21Z",
+ "generatedAt": "2026-08-18T22:50:29Z",
  "moneyClass": "PAPER_TRACKED_NOT_BANKROLL",
  "note": "Tracked paper cards with their own ledger. These never touch the Bank Builder / Moonshot bankroll or the settled product record.",
- "cards": [],
+ "cards": [
+  {
+   "tier": "medium",
+   "tierLabel": "Medium risk",
+   "slipId": "slip_2026-08-18_conservative_9cbc273e3512",
+   "combinedAmerican": 145,
+   "combinedDecimal": 2.452,
+   "legs": [
+    {
+     "player": "Pete Alonso",
+     "team": "BAL",
+     "opponent": "NYY",
+     "playerId": 624413,
+     "gameId": "125ac4ae06bb1ca6b1fcc189bd321490",
+     "gamePk": 824803,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -198,
+     "result": null
+    },
+    {
+     "player": "Keibert Ruiz",
+     "team": "WSH",
+     "opponent": "TEX",
+     "playerId": 660688,
+     "gameId": "096d5e043fbd3287be8f69948955c5dd",
+     "gamePk": 822859,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -159,
+     "result": null
+    }
+   ],
+   "status": "pending",
+   "tierRecord": {
+    "wins": 42,
+    "losses": 198,
+    "hitRate": 0.175,
+    "roi": -0.071
+   }
+  },
+  {
+   "tier": "longshot",
+   "tierLabel": "Longshot",
+   "slipId": "slip_2026-08-18_aggressive_af68ff78ce5c",
+   "combinedAmerican": 5228,
+   "combinedDecimal": 53.278,
+   "legs": [
+    {
+     "player": "Kyle Schwarber",
+     "team": "PHI",
+     "opponent": "MIA",
+     "playerId": 656941,
+     "gameId": "a573344b838cf527e969e7065ee6a4e7",
+     "gamePk": 823423,
+     "market": "batter_total_bases",
+     "marketLabel": "Total Bases",
+     "side": "Over",
+     "line": 1.5,
+     "odds": 123,
+     "result": null
+    },
+    {
+     "player": "Royce Lewis",
+     "team": "MIN",
+     "opponent": "ATL",
+     "playerId": 668904,
+     "gameId": "020653ceed65201c49a3b6e0c3f3cbec",
+     "gamePk": 823667,
+     "market": "batter_hits_runs_rbis",
+     "marketLabel": "Hits + Runs + RBIs",
+     "side": "Over",
+     "line": 1.5,
+     "odds": -101,
+     "result": null
+    },
+    {
+     "player": "Alec Bohm",
+     "team": "PHI",
+     "opponent": "MIA",
+     "playerId": 664761,
+     "gameId": "a573344b838cf527e969e7065ee6a4e7",
+     "gamePk": 823423,
+     "market": "batter_total_bases",
+     "marketLabel": "Total Bases",
+     "side": "Over",
+     "line": 1.5,
+     "odds": 142,
+     "result": null
+    },
+    {
+     "player": "Keibert Ruiz",
+     "team": "WSH",
+     "opponent": "TEX",
+     "playerId": 660688,
+     "gameId": "096d5e043fbd3287be8f69948955c5dd",
+     "gamePk": 822859,
+     "market": "batter_hits_runs_rbis",
+     "marketLabel": "Hits + Runs + RBIs",
+     "side": "Over",
+     "line": 1.5,
+     "odds": 134,
+     "result": null
+    },
+    {
+     "player": "Xavier Edwards",
+     "team": "MIA",
+     "opponent": "PHI",
+     "playerId": 669364,
+     "gameId": "a573344b838cf527e969e7065ee6a4e7",
+     "gamePk": 823423,
+     "market": "batter_hits_runs_rbis",
+     "marketLabel": "Hits + Runs + RBIs",
+     "side": "Over",
+     "line": 1.5,
+     "odds": 112,
+     "result": null
+    }
+   ],
+   "status": "pending",
+   "tierRecord": {
+    "wins": 14,
+    "losses": 230,
+    "hitRate": 0.0574,
+    "roi": -0.2687
+   }
+  }
+ ],
  "skipped": [
   {
    "tier": "low",
    "reason": "no priced card in this tier on today's slate"
   },
   {
-   "tier": "medium",
-   "reason": "no priced card in this tier on today's slate"
-  },
-  {
    "tier": "high",
-   "reason": "no priced card in this tier on today's slate"
-  },
-  {
-   "tier": "longshot",
-   "reason": "no priced card in this tier on today's slate"
+   "reason": "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
   }
  ],
  "bettorTiers": [

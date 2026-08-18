@@ -388,6 +388,28 @@ const payload = {
   },
 };
 
+/*
+ * REFUSE TO PUBLISH AN EMPTY DAY THAT ONLY LOOKS EMPTY.
+ *
+ * "No candidates yet" and "no cards today" render identically and mean opposite things. This job
+ * runs from daily-products at 12:10 UTC and from nightly-settle at 05:30/07:30, while the candidate
+ * snapshot for the same ET day is not generated until ~14:09. So every morning the ladder was
+ * rebuilt against a pool that did not exist yet, published four skipped bands, and overwrote
+ * latest.json — and nothing rebuilt it afterwards, so the Parlay Lab showed nothing all day.
+ *
+ * The ET-day fix that precedes this one stopped the ladder building for TOMORROW. This is the other
+ * half: building for TODAY before today's candidates exist.
+ *
+ * So an empty result is only published when there was a real pool to be empty of. With no pool at
+ * all the previous artifact stands, which is correct — it is the last thing that was actually true.
+ */
+const hadPool = Boolean(gradedToday?.publicRiskSections) || (snapshotToday?.slips ?? []).length > 0;
+if (!hadPool && cards.length === 0) {
+  console.log(`risk ladder ${DATE}: no candidate pool exists yet — refusing to overwrite the published ladder with an empty day.`);
+  console.log("  (the card factory writes its snapshot later in the morning; this job will produce cards once it has)");
+  process.exit(0);
+}
+
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, `${DATE}.json`), JSON.stringify(payload, null, 1) + "\n");
 fs.writeFileSync(path.join(OUT, "latest.json"), JSON.stringify(payload, null, 1) + "\n");
