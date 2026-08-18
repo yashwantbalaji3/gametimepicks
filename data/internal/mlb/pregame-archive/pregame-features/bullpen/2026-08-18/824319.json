@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824319,
   "date": "2026-08-18",
-  "capturedAt": "2026-08-18T02:14:25.950Z",
-  "availableAt": "2026-08-18T02:14:25.950Z",
+  "capturedAt": "2026-08-18T11:23:40.702Z",
+  "availableAt": "2026-08-18T11:23:40.702Z",
   "eventStartTime": "2026-08-19T00:40:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,44 @@
     "teamId": 115,
     "teamName": "Colorado Rockies",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 88,
+      "relievers": [
+        {
+          "id": 669298,
+          "name": "TJ Shook",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 3,
+          "dates": [
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 687859,
+          "name": "Troy Johnston",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-17"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 6,
-      "pitches": 165,
+      "appearances": 9,
+      "pitches": 253,
       "relievers": [
         {
           "id": 685299,
@@ -36,6 +67,26 @@
           "outs": 12,
           "dates": [
             "2026-08-15"
+          ]
+        },
+        {
+          "id": 669298,
+          "name": "TJ Shook",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 3,
+          "dates": [
+            "2026-08-17"
           ]
         },
         {
@@ -70,6 +121,16 @@
           ]
         },
         {
+          "id": 687859,
+          "name": "Troy Johnston",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-17"
+          ]
+        },
+        {
           "id": 623474,
           "name": "Jimmy Herget",
           "appearances": 1,
@@ -81,19 +142,61 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 669298,
+        "name": "TJ Shook",
+        "reason": "34 pitches yesterday"
+      },
+      {
+        "id": 675848,
+        "name": "Juan Mejia",
+        "reason": "33 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 119,
     "teamName": "Los Angeles Dodgers",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 39,
+      "relievers": [
+        {
+          "id": 621242,
+          "name": "Edwin Díaz",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 681911,
+          "name": "Alex Vesia",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 623465,
+          "name": "Evan Phillips",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-08-17"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 5,
-      "pitches": 99,
+      "appearances": 8,
+      "pitches": 138,
       "relievers": [
         {
           "id": 642546,
@@ -116,21 +219,32 @@
           ]
         },
         {
-          "id": 676263,
-          "name": "Jack Dreyer",
+          "id": 621242,
+          "name": "Edwin Díaz",
           "appearances": 1,
-          "pitches": 18,
-          "outs": 2,
+          "pitches": 23,
+          "outs": 3,
           "dates": [
-            "2026-08-16"
+            "2026-08-17"
           ]
         },
         {
           "id": 681911,
           "name": "Alex Vesia",
+          "appearances": 2,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-08-16",
+            "2026-08-17"
+          ]
+        },
+        {
+          "id": 676263,
+          "name": "Jack Dreyer",
           "appearances": 1,
-          "pitches": 9,
-          "outs": 1,
+          "pitches": 18,
+          "outs": 2,
           "dates": [
             "2026-08-16"
           ]
@@ -144,6 +258,16 @@
           "dates": [
             "2026-08-16"
           ]
+        },
+        {
+          "id": 623465,
+          "name": "Evan Phillips",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-08-17"
+          ]
         }
       ]
     },
@@ -152,7 +276,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-15,2026-08-16,2026-08-17) + feed/live box scores",
-    "capturedAt": "2026-08-18T02:14:25.950Z"
+    "capturedAt": "2026-08-18T11:23:40.702Z"
   },
-  "recordHash": "08ab1e7618d603bece81844922443cb5431dd7cdfa9af64bc324c01f29c61adf"
+  "recordHash": "5ecda0c4b7b6872dae5a13b6dbffda0ea37b45f28bd9f7acb10dc24301f09325"
 }

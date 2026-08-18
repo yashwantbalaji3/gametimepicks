@@ -8,11 +8,11 @@
     "teamMarketCapture": {
       "status": "captured",
       "date": "2026-08-18",
-      "records": 892,
-      "eligible": 892,
-      "creditsSpent": 6472,
-      "creditsRemaining": 13531,
-      "skippedStarted": 5
+      "records": 958,
+      "eligible": 958,
+      "creditsSpent": 6491,
+      "creditsRemaining": 13512,
+      "skippedStarted": 0
     },
     "playerPropCapture": {
       "status": "captured",
@@ -22,30 +22,26 @@
       "eventsOnDate": 11,
       "maxEvents": 3,
       "marketsCaptured": [
+        "pitcher_outs",
         "pitcher_strikeouts",
         "batter_hits",
         "batter_hits_runs_rbis",
         "batter_rbis",
         "batter_total_bases",
         "pitcher_earned_runs",
-        "pitcher_outs",
+        "batter_runs_scored",
         "batter_home_runs"
       ],
-      "records": 307,
-      "eligibleRecords": 307,
-      "paired": 288,
-      "overOnly": 19,
-      "deVigCoveragePct": 93.8,
+      "records": 1824,
+      "eligibleRecords": 1824,
+      "paired": 1682,
+      "overOnly": 142,
+      "deVigCoveragePct": 92.2,
       "estimatedCredits": 27,
-      "actualCreditsSpent": 16,
-      "creditsRemaining": 13512,
+      "actualCreditsSpent": 27,
+      "creditsRemaining": 13482,
       "skippedGames": 8,
-      "providerUnavailable": [
-        {
-          "event": "62de22eed3e75e821935c107e38ad8a7",
-          "reason": "no player-prop markets returned"
-        }
-      ],
+      "providerUnavailable": [],
       "stoppedEarly": null
     }
   },
@@ -62,7 +58,7 @@
     "datesCollected": 27,
     "marketDatesCollected": 26,
     "playerPropDatesCollected": 26,
-    "avgEligiblePlayerPropRecordsPerDay": 11254,
+    "avgEligiblePlayerPropRecordsPerDay": 11325,
     "estimatedDaysTo30DateGate": 3,
     "pathTo500SettledEligibleRows": "settledEligibleObs=0 until a separate settlement-join mission runs; then each settled prop-lean that was captured pregame becomes 1 eligible row. At current per-day capture, a month of daily collection yields ample raw eligible records; the 500 SETTLED-eligible threshold is measurable only after the settlement join + official grading."
   },
@@ -96,30 +92,30 @@
       "2026-08-17",
       "2026-08-18"
     ],
-    "gamesFinal": 348,
-    "gamesPending": 21,
-    "joinRows": 46876,
-    "settledEligibleRows": 41738,
-    "marketPendingRows": 1089,
+    "gamesFinal": 353,
+    "gamesPending": 16,
+    "joinRows": 47409,
+    "settledEligibleRows": 42525,
+    "marketPendingRows": 815,
     "ambiguousRows": 0,
     "unsupportedRows": 0,
     "joinCoverageByMarket": {
-      "totals": 1276,
-      "spreads": 658,
-      "h2h": 420,
-      "pitcher_outs": 799,
-      "pitcher_strikeouts": 740,
-      "batter_hits": 5958,
-      "batter_hits_runs_rbis": 5980,
-      "batter_rbis": 5375,
-      "batter_total_bases": 7329,
-      "pitcher_earned_runs": 664,
-      "batter_runs_scored": 5326,
-      "batter_home_runs": 7213
+      "totals": 1304,
+      "spreads": 672,
+      "h2h": 428,
+      "pitcher_outs": 816,
+      "pitcher_strikeouts": 754,
+      "batter_hits": 6074,
+      "batter_hits_runs_rbis": 6090,
+      "batter_rbis": 5473,
+      "batter_total_bases": 7458,
+      "pitcher_earned_runs": 676,
+      "batter_runs_scored": 5424,
+      "batter_home_runs": 7356
     },
     "earliestValidResearchDate": {
       "dateGate": "27/30 distinct dates · ~3 more daily runs",
-      "settledEligibleGate": "41738/500 · ~0 market-settled days at the observed 1670 settled-eligible rows/day",
+      "settledEligibleGate": "42525/500 · ~0 market-settled days at the observed 1701 settled-eligible rows/day",
       "bindingConstraint": "whichever of dates / settled-eligible clears last",
       "note": "Not a promise — recomputed each run from observed collection. First settled-eligible rows accrue when the earliest market-capture date's games are final and re-joined."
     }
@@ -128,7 +124,7 @@
     "minDistinctDates": 30,
     "minSettledEligibleObs": 500,
     "dates": "27/30",
-    "settledEligible": "41738/500",
+    "settledEligible": "42525/500",
     "met": false
   }
 }
