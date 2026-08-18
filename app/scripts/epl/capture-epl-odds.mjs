@@ -117,13 +117,80 @@ if (cls.class !== "OK") {
   process.exit(1);
 }
 
-// ── 3 · CONSENSUS + DE-VIG ──────────────────────────────────────────────────────────────────────
+// ── 3 · JOIN TO THE INTERNAL FIXTURE IDS ────────────────────────────────────────────────────────
+/*
+ * THE PROVIDER'S EVENT ID IS NOT OUR EVENT ID.
+ *
+ * runEplShadow matches an odds row to a fixture on `fixture.eventId`, which is our own
+ * "soccer:epl:arsenal-v-coventry-city:20260821t1900". The provider supplies its own opaque id and
+ * club NAMES. Publishing the provider id would make every row fail that match silently — the model
+ * would keep reporting "no authorized odds snapshot" with a full price capture sitting on disk,
+ * which is precisely the kind of failure this repo keeps finding after the fact.
+ *
+ * So the join is on folded club names within a kickoff window, and it REFUSES rather than guesses:
+ * a provider event that matches no fixture, or more than one, is quarantined with its reason. An
+ * ambiguous join is how one club's prices end up on another club's match.
+ */
+const foldClub = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+  .replace(/\b(fc|afc|association football club)\b/g, "").replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
+
+/*
+ * DELIBERATELY EMPTY UNTIL THERE IS EVIDENCE.
+ *
+ * An alias is a CLAIM that two names are the same club, and a wrong one silently puts one match's
+ * prices on another. The first draft of this table was populated from memory and was backwards: it
+ * mapped full official names to abbreviations, while the committed fixture source writes the full
+ * forms ("manchester united", "wolverhampton wanderers"). Every one of those aliases would have
+ * broken a join that otherwise worked.
+ *
+ * The provider's own club strings have never been observed here — no EPL capture has succeeded yet.
+ * So this stays empty and the quarantine below names any club that fails to join, which turns
+ * Thursday's first run into the evidence this table should be built from. Guessing now would mean
+ * shipping an alias nobody has checked, in the one place where a wrong guess is invisible.
+ */
+const CLUB_ALIASES = {};
+const clubKey = (s) => { const f = foldClub(s); return CLUB_ALIASES[f] ?? f; };
+
+const fixtures = (() => {
+  const dir = path.join(APP, "public", "data", "soccer", "epl", "fixtures");
+  try {
+    const f = fs.readdirSync(dir).filter((n) => n.startsWith("capture-") && n.endsWith(".json")).sort().pop();
+    return f ? (readJson(path.join(dir, f))?.rows ?? []) : [];
+  } catch { return []; }
+})();
+
+const quarantined = [];
+function fixtureFor(ev) {
+  const home = clubKey(ev.home_team), away = clubKey(ev.away_team);
+  const kick = Date.parse(ev.commence_time ?? "");
+  const hits = fixtures.filter((f) => {
+    if (clubKey(f.homeClub) !== home || clubKey(f.awayClub) !== away) return false;
+    const fk = Date.parse(f.kickoffIso ?? "");
+    return !Number.isFinite(kick) || !Number.isFinite(fk) || Math.abs(fk - kick) <= 36 * 3600_000;
+  });
+  if (hits.length === 1) return hits[0];
+  quarantined.push({
+    providerEventId: ev.id, home: ev.home_team, away: ev.away_team, commenceUtc: ev.commence_time,
+    reason: hits.length === 0
+      ? "no fixture matches these clubs within 36h of the provider kickoff — an unrecognised club name is naming drift, never a silent new fixture"
+      : `${hits.length} fixtures match these clubs — an ambiguous join is how one match's prices land on another`,
+  });
+  return null;
+}
+
+// ── 4 · CONSENSUS + DE-VIG ──────────────────────────────────────────────────────────────────────
 const median = (xs) => { const s = [...xs].sort((a, z) => a - z); return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2; };
 const toDec = (american) => (american > 0 ? 1 + american / 100 : 1 + 100 / Math.abs(american));
 const toAm = (dec) => (dec >= 2 ? Math.round((dec - 1) * 100) : Math.round(-100 / (dec - 1)));
 
 const rows = [];
+/* Per-bookmaker rows, in the shape runEplShadow consumes. It de-vigs EACH book separately — a
+   consensus median cannot be de-vigged as a book, because the median of three books is not a price
+   any book posted and its implied sum means nothing. */
+const shadowRows = [];
 for (const ev of Array.isArray(body) ? body : []) {
+  const fixture = fixtureFor(ev);
+  if (!fixture) continue;                       // quarantined above, with its reason
   /* Consensus = the median across books per outcome. One book's number is that book's opinion. */
   const acc = new Map();  // `${marketKey}|${outcomeName}|${point ?? ""}` -> [decimal, ...]
   for (const bk of ev.bookmakers ?? []) {
@@ -159,9 +226,24 @@ for (const ev of Array.isArray(body) ? body : []) {
     }));
   };
 
+  for (const bk of ev.bookmakers ?? []) {
+    for (const m of bk.markets ?? []) {
+      if (m.key !== "h2h") continue;            // the shadow's three-way path only
+      const price = (name) => (m.outcomes ?? []).find((o) => clubKey(o.name) === clubKey(name) || String(o.name).toLowerCase() === name)?.price ?? null;
+      shadowRows.push({
+        eventId: fixture.eventId,               // OUR id — this is the whole point of the join
+        marketType: "h2h",
+        bookmaker: bk.key,
+        capturedAt: NOW,
+        home: price(ev.home_team), draw: price("draw"), away: price(ev.away_team),
+      });
+    }
+  }
+
   rows.push({
+    eventId: fixture.eventId,
     providerEventId: ev.id,
-    kickoffIso: ev.commence_time,
+    kickoffIso: fixture.kickoffIso ?? ev.commence_time,
     home: ev.home_team, away: ev.away_team,
     matchResult: h2h.length ? devig(h2h) : null,
     /* Totals de-vig per LINE, not across every line at once — over 2.5 and over 3.5 are separate
@@ -185,8 +267,16 @@ const snapshot = {
   sportKey: SPORT_KEY,
   markets: MARKETS,
   regions: REGIONS,
+  /* `capturedAt` because that is the field runEplShadow reads for staleness. `generatedAt` above is
+     kept for the artifact conventions the rest of the repo uses; they are the same instant. */
+  capturedAt: NOW,
   eventCount: rows.length,
   rows,
+  /* The per-book three-way rows the shadow consumes, joined to OUR fixture ids. */
+  shadowRows,
+  /* Provider events that could not be joined, with the reason. Never dropped silently: an unjoined
+     event is a fact about our alias table, not about the market. */
+  quarantined,
   creditCost: ledger.requests.at(-1)?.creditsUsed ?? WORST_CASE_CREDITS,
   creditsRemaining: Number(headers["x-requests-remaining"]) || null,
   authorization: { receipt: "docs/receipts/ODDS_AUTHORIZATION_EPL.md", ceiling: auth.ceiling, cumulative: ledger.cumulativeCredits },
