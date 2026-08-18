@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823667,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T22:53:14.765Z",
+  "availableAt": "2026-08-18T22:53:14.765Z",
+  "eventStartTime": "2026-08-18T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 805673,
+      "name": "Zebby Matthews",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4.6,
+        "bbAvg": 2.4,
+        "erAvg": 4,
+        "hrAvg": 0.8,
+        "kPer9": 8.63,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 91,
+        "k": 77,
+        "bb": 30,
+        "er": 54,
+        "hr": 18
+      }
+    },
+    "away": {
+      "id": 641816,
+      "name": "Tyler Mahle",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 6.4,
+        "bbAvg": 1.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 10.05,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 106.67,
+        "k": 105,
+        "bb": 39,
+        "er": 55,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-18T22:53:14.765Z"
+  },
+  "recordHash": "0250a3cda2d83436473d70e0c231467a6ada6f22479d784d9f5426c319fff655"
+}

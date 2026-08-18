@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823586,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T22:53:14.765Z",
+  "availableAt": "2026-08-18T22:53:14.765Z",
+  "eventStartTime": "2026-08-18T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 804267,
+      "name": "Zac Thornton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 2.8,
+        "bbAvg": 1.6,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 4.5,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 45.33,
+        "k": 29,
+        "bb": 13,
+        "er": 14,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 592662,
+      "name": "Robbie Ray",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 4.6,
+        "bbAvg": 2.6,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 8.28,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 125.33,
+        "k": 105,
+        "bb": 63,
+        "er": 48,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-18T22:53:14.765Z"
+  },
+  "recordHash": "ad65183d698b46b67d61107ba924a87565ae6047a58a5c88771595e05e8332f3"
+}

@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "824723-da26f8243548b289d782e202f317160d",
+  "snapshotCreatedAt": "2026-08-18T22:53:14.636Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-18",
+  "eventId": "824723",
+  "gamePk": 824723,
+  "eventStartTime": "2026-08-18T23:10:00Z",
+  "homeTeam": "BOS",
+  "awayTeam": "AZ",
+  "venue": "Fenway Park",
+  "statusState": "Warmup",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "d7f2a08b2f2119cc02e6ea9d2da3a9f7",
+  "normalizedPayloadHash": "411969fe2677e7b801874d7d09a686e2",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          686765,
+          678882,
+          677800,
+          575929,
+          668939,
+          702332,
+          680776,
+          655316,
+          681508
+        ],
+        "away": [
+          545121,
+          682998,
+          672515,
+          672695,
+          694374,
+          691783,
+          543510,
+          699912,
+          814439
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-18T22:53:14.636Z",
+      "availableAt": "2026-08-18T22:53:14.636Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-18T22:53:14.636Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824723/feed/live",
+        "requestedAt": "2026-08-18T22:53:14.636Z",
+        "receivedAt": "2026-08-18T22:53:14.636Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Ranger Suarez",
+        "awayProbable": "Merrill Kelly",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-18T22:53:14.636Z",
+      "availableAt": "2026-08-18T22:53:14.636Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-18T22:53:14.636Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824723/feed/live",
+        "requestedAt": "2026-08-18T22:53:14.636Z",
+        "receivedAt": "2026-08-18T22:53:14.636Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "77",
+        "wind": "5 mph, In From RF",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-18T22:53:14.636Z",
+      "availableAt": "2026-08-18T22:53:14.636Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-18T22:53:14.636Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824723/feed/live",
+        "requestedAt": "2026-08-18T22:53:14.636Z",
+        "receivedAt": "2026-08-18T22:53:14.636Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "D.J. Reyburn",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Louie Krupa",
+            "type": "First Base"
+          },
+          {
+            "name": "Adam Beck",
+            "type": "Second Base"
+          },
+          {
+            "name": "Dan Iassogna",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-18T22:53:14.636Z",
+      "availableAt": "2026-08-18T22:53:14.636Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-18T22:53:14.636Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824723/feed/live",
+        "requestedAt": "2026-08-18T22:53:14.636Z",
+        "receivedAt": "2026-08-18T22:53:14.636Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
