@@ -1,0 +1,75 @@
+name: ufc-fight-week
+
+# A UFC week has a rhythm, and this follows it rather than a generic daily tick:
+#   Tuesday    the next card is the story — full model read published for the week
+#   Thursday   mid-week refresh; replacements and late bookings land here
+#   Saturday   the last look before the card walks
+#
+# 11:00 UTC = 7am ET, so each refresh is on the site before the US morning. GitHub crons are
+# best-effort and drift 20-60 minutes in this repo; that is fine for a cadence measured in days.
+on:
+  schedule:
+    - cron: "0 11 * * 2"   # Tuesday
+    - cron: "0 11 * * 4"   # Thursday
+    - cron: "0 11 * * 6"   # Saturday
+  workflow_dispatch:
+
+concurrency:
+  group: gtp-generated-artifacts     # the one queue every generated-data writer shares
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm ci
+
+      # ── FREE SOURCES ONLY ──────────────────────────────────────────────────
+      # ESPN's MMA scoreboard is a public JSON endpoint with no key. The card and
+      # every model head are computed from it plus the committed fight corpus, so
+      # this whole job costs nothing and can run three times a week indefinitely.
+      #
+      # It deliberately does NOT refresh odds: the standing paid-provider
+      # authorisation is NFL-only, and a UFC odds call under it would spend
+      # budget nobody approved. Prices refresh only when that is authorised
+      # separately, and the eligibility gate closes UFC's Lab stream on its own
+      # while they are stale.
+      - name: Capture the next card (auto-advances past a finished event)
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node app/scripts/ufc/capture-ufc-events.mjs --now "$NOW"
+
+      - name: Rebuild the card with the three model heads
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node app/scripts/ufc/build-ufc-card.mjs --now "$NOW"
+
+      - name: Settle any card that has now been fought
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node app/scripts/ufc/capture-ufc-results.mjs --now "$NOW" || \
+            echo "no newly-settled UFC card — the honest state between events"
+
+      - name: Commit if anything changed
+        run: |
+          set -euo pipefail
+          git config user.name  "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          # Allowlisted paths only. A generated-data job never touches money artifacts.
+          git add app/public/data/ufc/schedule app/public/data/ufc/card-latest.json \
+                  app/public/data/ufc/schedule-latest.json app/public/data/ufc/graded-moneylines-latest.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
+          git commit -m "auto: ufc fight-week refresh $(date -u +%Y-%m-%d) [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main

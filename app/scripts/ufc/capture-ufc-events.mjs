@@ -68,8 +68,29 @@ for (const [label, list, key] of [["event", events, "providerEventId"], ["bout",
   if (dupes > 0) { console.error(`REFUSED: ${dupes} duplicate ${label} provider ids in one window`); process.exit(1); }
 }
 
+/*
+ * THE NEXT EVENT IS THE NEXT UPCOMING ONE — never simply the first the provider listed.
+ *
+ * This called `events[0]` "next", which is whatever order ESPN returned. A card that has already
+ * been fought stays in the scoreboard window for days, so the site went on pointing at UFC 329 for
+ * five weeks after it happened: the moment a card finished, nothing advanced.
+ *
+ * A UFC week has a rhythm — the card ends Saturday night and the next one is the story by Tuesday —
+ * so the capture resolves it explicitly: drop anything already final, sort by start time, take the
+ * earliest. If every event in the window has been fought, `nextEvent` is null and the surface says
+ * the schedule is between cards rather than showing a finished one as upcoming.
+ */
+const FINAL_STATUSES = new Set(["STATUS_FINAL", "STATUS_FULL_TIME", "STATUS_CANCELED", "STATUS_POSTPONED"]);
+const upcoming = events
+  .filter((e) => !FINAL_STATUSES.has(String(e.statusRaw ?? "").toUpperCase()))
+  .filter((e) => Date.parse(e.dateUtc) > Date.parse(NOW) - 6 * 3600_000)   // a live card is still "next"
+  .sort((a, b) => Date.parse(a.dateUtc) - Date.parse(b.dateUtc));
+const nextEvent = upcoming[0] ?? null;
+
 const artifact = {
   schemaVersion: 1,
+  nextEvent,
+  upcomingCount: upcoming.length,
   sport: "ufc",
   dataClass: "SCHEDULE_CAPTURE",
   generatedAt: NOW,
@@ -90,4 +111,6 @@ fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, `capture-${NOW.replace(/[:]/g, "").slice(0, 15)}.json`), JSON.stringify(artifact, null, 1));
 fs.writeFileSync(path.join(OUT, "latest.json"), JSON.stringify(artifact, null, 1));
 console.log(`captured ${events.length} events / ${bouts.length} named bouts (${artifact.droppedUnnamedBouts} unnamed dropped), window ${DAYS}d`);
-console.log(`next: ${events[0].name} @ ${events[0].dateUtc}`);
+console.log(nextEvent
+  ? `next upcoming: ${nextEvent.name} @ ${nextEvent.dateUtc} (${upcoming.length} upcoming in window)`
+  : "no upcoming event in the window — between cards, and the surface says so rather than showing a finished one");

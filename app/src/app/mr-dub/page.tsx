@@ -14,6 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
+import SignatureProductsBand from "@/components/products/signature-products-band";
 import SectionHeader from "@/components/section-header";
 import MrDubAvatar from "@/components/mr-dub/mr-dub-avatar";
 import AchievementBanner from "@/components/achievement-banner";
@@ -65,6 +66,9 @@ export default function MrDubPage() {
     <main className="mx-auto w-full max-w-4xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
       {/* 0 — Completed ladders, stated factually from the canonical ledger. Not framed as proof of skill:
           two ladders is a sample of two, and the banner copy says so. */}
+      {/* The flagship read per sport, including the two that are named but not built. */}
+      <SignatureProductsBand />
+
       <AchievementBanner />
 
       {/* 1 — Flagship brand header (slim) — the avatar + who Mr. Dub is, then straight into the terminal. */}
