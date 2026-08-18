@@ -87,3 +87,32 @@ export function loadRiskLadderRecord(root: string): RiskLadder["record"] | null 
     return null;
   }
 }
+
+/**
+ * The precomputed 4x4 tier grid for one sport.
+ *
+ * Returns null for any sport whose stream is closed as well as for a missing file — a page that
+ * cannot show a grid behaves the same either way, and the REASON a stream is closed belongs on the
+ * artifact for a surface that reports coverage, not in the render path.
+ */
+export interface TierGridDoc {
+  readonly state: string;
+  readonly tiers: readonly {
+    readonly id: string;
+    readonly cardsPerDay: number;
+    readonly bands: readonly string[];
+    readonly offered: number;
+    readonly emptyToday: boolean;
+    readonly substitute: { readonly band: string; readonly slipId: string | null; readonly reason: string } | null;
+  }[];
+  readonly cells: readonly { readonly tier: string; readonly band: string; readonly state: string; readonly slipId: string | null; readonly reason: string | null }[];
+}
+
+export function loadTierGrid(root: string, sport: string): TierGridDoc | null {
+  try {
+    const doc = JSON.parse(fs.readFileSync(path.join(root, "parlays", "tier-grid", `${sport}-latest.json`), "utf8")) as TierGridDoc;
+    return doc?.state === "PUBLISHED" ? doc : null;
+  } catch {
+    return null;
+  }
+}

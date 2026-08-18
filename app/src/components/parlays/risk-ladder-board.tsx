@@ -22,6 +22,19 @@ import { tierForBankroll, risksForTier } from "@/lib/prefs/bettor-tier";
  * whichever number catches the eye first, the other is already in view.
  */
 
+/** The shipped shape of parlays/tier-grid/<sport>-latest.json, narrowed to what this renders. */
+export interface TierGridView {
+  readonly state: string;
+  readonly tiers: readonly {
+    readonly id: string;
+    readonly cardsPerDay: number;
+    readonly bands: readonly string[];
+    readonly offered: number;
+    readonly emptyToday: boolean;
+    readonly substitute: { readonly band: string; readonly slipId: string | null; readonly reason: string } | null;
+  }[];
+}
+
 export interface LadderLeg {
   readonly player: string;
   readonly team: string | null;
@@ -180,6 +193,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
 
 export default function RiskLadderBoard({
   cards, skipped, overallRoi, gradedDays, pool = [], bettorTiers = [], ledger = null, entryShowsTitle = true,
+  grid = null,
 }: {
   cards: readonly LadderCard[];
   skipped: readonly LadderSkip[];
@@ -191,6 +205,15 @@ export default function RiskLadderBoard({
   bettorTiers?: readonly BettorTier[];
   /** The live ledger since the policy restart, plus the prior policy for context. */
   ledger?: LabLedgerView | null;
+  /**
+   * The PRECOMPUTED 4x4 grid (parlays/tier-grid/<sport>-latest.json).
+   *
+   * The tier a reader falls into and the bands it is shown are resolved server-side and shipped, so
+   * every reader with the same bankroll sees the identical set and the mapping can be graded. This
+   * component still derives the same thing client-side to render, and a guard asserts the two agree
+   * — the artifact is the truth, the derivation is the renderer.
+   */
+  grid?: TierGridView | null;
   /** False on /build, whose page title is already "Parlay Lab". */
   entryShowsTitle?: boolean;
 }) {
@@ -252,9 +275,11 @@ export default function RiskLadderBoard({
           background: "color-mix(in srgb, var(--vault-warn) 8%, transparent)",
           border: "1px solid var(--vault-warn)",
         }}>
-          Nothing on today&rsquo;s slate landed in the calmer bands your bankroll points at. The cards
-          below are longer-priced than that — shown so the day is not blank, not because they were
-          picked for you.
+          {/* The precomputed grid states this case in its own words, including WHY the substitute is
+              longer-priced than the reader's range. Falling back to the local wording keeps the page
+              working when the artifact is absent. */}
+          {grid?.tiers.find((t) => t.id === bettorTier?.id)?.substitute?.reason
+            ?? "Nothing on today's slate landed in the calmer bands your bankroll points at. The cards below are longer-priced than that — shown so the day is not blank, not because they were picked for you."}
         </p>
       )}
 

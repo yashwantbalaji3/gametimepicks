@@ -34,32 +34,24 @@ export interface BettorTierSpec {
   readonly cardsPerDay: number;
 }
 
-export const BETTOR_TIERS: readonly BettorTierSpec[] = [
-  { id: "bronze", minBankroll: 0, maxBankroll: 50, cardsPerDay: 1 },
-  { id: "silver", minBankroll: 50, maxBankroll: 100, cardsPerDay: 2 },
-  { id: "gold", minBankroll: 100, maxBankroll: 250, cardsPerDay: 3 },
-  { id: "diamond", minBankroll: 250, maxBankroll: null, cardsPerDay: 4 },
-];
+/*
+ * The table itself lives in bettor-tiers.mjs so the grid generator — a plain node script that cannot
+ * import TypeScript — reads the SAME bounds this file types. Two copies would drift.
+ */
+import {
+  BETTOR_TIERS as TIERS_DATA,
+  RISK_ORDER as RISK_ORDER_DATA,
+  tierForBankroll as tierForBankrollImpl,
+  risksForTier as risksForTierImpl,
+} from "./bettor-tiers.mjs";
+
+export const BETTOR_TIERS = TIERS_DATA as readonly BettorTierSpec[];
+export const RISK_ORDER = RISK_ORDER_DATA as readonly string[];
 
 /** The tier a stated daily bankroll falls in. Null bankroll → null tier; the page behaves as before. */
-export function tierForBankroll(bankroll: number | null): BettorTierSpec | null {
-  if (bankroll == null || !Number.isFinite(bankroll) || bankroll <= 0) return null;
-  return (
-    BETTOR_TIERS.find((t) => bankroll >= t.minBankroll && (t.maxBankroll == null || bankroll < t.maxBankroll)) ??
-    BETTOR_TIERS[BETTOR_TIERS.length - 1]
-  );
-}
+export const tierForBankroll = tierForBankrollImpl as (b: number | null) => BettorTierSpec | null;
 
 /**
- * The risk levels a tier is shown, CALMEST FIRST.
- *
- * The order is not cosmetic. A tier that sees one card sees the low-risk one — the band with the
- * best measured hit rate by a distance (41.1% against longshot's 4.7%). Ordering by anything else
- * would hand the smallest bankroll the wildest card.
+ * The risk levels a tier is shown, CALMEST FIRST — see bettor-tiers.mjs for why the order matters.
  */
-export const RISK_ORDER = ["low", "medium", "high", "longshot"] as const;
-
-export function risksForTier(tier: BettorTierSpec | null): readonly string[] {
-  if (!tier) return RISK_ORDER;                 // no bankroll stated: show everything, hide nothing
-  return RISK_ORDER.slice(0, tier.cardsPerDay);
-}
+export const risksForTier = risksForTierImpl as (t: BettorTierSpec | null) => readonly string[];

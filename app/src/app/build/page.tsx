@@ -18,7 +18,7 @@ import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
-import { loadRiskLadder, loadLabLedger } from "@/lib/parlays/risk-ladder";
+import { loadRiskLadder, loadLabLedger, loadTierGrid } from "@/lib/parlays/risk-ladder";
 import { loadMlbPropsBoard } from "@/lib/mlb/mlb-props";
 import path from "node:path";
 
@@ -47,6 +47,9 @@ export default function BuildPage() {
   const dataRoot = path.join(process.cwd(), "public", "data");
   const ladderDate = currentSlateDate() ?? currentEtDate();
   const riskLadder = loadRiskLadder(dataRoot, ladderDate);
+  /* The precomputed 4x4 tier grid — server-resolved, so every reader with the same bankroll sees
+     the same set and the mapping is auditable rather than re-derived per browser. */
+  const tierGrid = loadTierGrid(dataRoot, "mlb");
   const labLedger = loadLabLedger(dataRoot);
   /* Substitution bench: the same eligible legs the boards render, so a swap can only reach a leg
      the site already publishes. */
@@ -86,6 +89,7 @@ export default function BuildPage() {
         bettorTiers={riskLadder?.bettorTiers ?? []}
         ledger={labLedger}
         pool={swapPool}
+        grid={tierGrid}
       />
 
       <section id="advanced-builder" aria-labelledby="advanced-builder-heading" className="flex flex-col gap-2 scroll-mt-6">
