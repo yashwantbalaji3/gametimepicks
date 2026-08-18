@@ -40,7 +40,7 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
   {
     sport: "nfl",
     sportLabel: "Football",
-    name: "End Zone Vault",
+    name: "Endzone Vault",
     href: "/nfl",
     state: "live",
     question: "Who reaches the end zone?",
@@ -58,14 +58,12 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
      * method and round heads say HOW and WHEN a fight ends, which is the part a fight fan argues
      * about all week.
      *
-     * "Canvas Call" over the earlier "Finish Line": the canvas is where a fight actually ends, and
-     * a "call" is both our prediction and the official verdict. It covers a knockout, a submission
-     * AND a decision — where "finish" in MMA means specifically NOT a decision, so the old name
-     * quietly excluded the most common outcome the model predicts.
+     * Named "Cage Chaos" by the founder. It covers every way a fight ends — knockout, submission
+     * and decision alike — which matters because the model's method head predicts all three.
      */
     sport: "ufc",
     sportLabel: "UFC",
-    name: "Canvas Call",
+    name: "Cage Chaos",
     href: "/ufc",
     state: "live",
     question: "How does this fight end — and in which round?",
@@ -76,13 +74,10 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
   {
     sport: "soccer",
     sportLabel: "Soccer",
-    name: "Top Bins",
+    name: "Goal Rush",
     href: null,
     state: "coming-soon",
-    /* "Top Bins" — the top corner, and the register a fan actually speaks in. "Golden Boot" was a
-       borrowed trophy name for a SEASON-long scoring race, which is not what a match-day product
-       reads; this one is about the goal itself. */
-    question: "Who finds the top corner?",
+    question: "Who finds the net today?",
     basis:
       "Not built. No odds feed is ingested for the Premier League and no scorer model has been " +
       "fitted, so there is nothing to publish. The schedule is live; the product is not.",
@@ -90,12 +85,9 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
   {
     sport: "nba",
     sportLabel: "Basketball",
-    name: "Bucket Brigade",
+    name: "Bucket Blitz",
     href: null,
     state: "coming-soon",
-    /* "Bucket Brigade" carries the plural-and-vivid shape Homer Nukes established. "Heat Check" is
-       real basketball slang but it is everywhere — half the analytics sites use it, so it names
-       nothing of ours. */
     question: "Who is filling it up tonight?",
     basis:
       "Not built. The NBA surface is a settled archive — the league is out of season and no live " +

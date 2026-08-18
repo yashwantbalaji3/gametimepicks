@@ -1,5 +1,5 @@
 /**
- * End Zone Vault — NFL touchdown-scorer intelligence product (Program 169 · Release G).
+ * Endzone Vault — NFL touchdown-scorer intelligence product (Program 169 · Release G).
  *
  * NOT a renamed Moonshot, NOT a promise of profit: a paper-only, versioned research surface over
  * the TD engine with its OWN ledger (never blended into Bank Builder, Moonshot, or Mr. Dub's

@@ -42,7 +42,7 @@ const WHAT_WOULD_QUALIFY = Object.freeze([
  * @param {object} p
  * @param {Array<object>} p.events   canonical index events (each carries `state` and `lifecycle`)
  * @param {string} p.nowIso
- * @param {{state: string, reason: string}|null} [p.vault] the End Zone Vault's own current outcome
+ * @param {{state: string, reason: string}|null} [p.vault] the Endzone Vault's own current outcome
  */
 export function evaluateNflProductEligibility({ events, nowIso, vault = null }) {
   const now = Date.parse(nowIso);
@@ -104,10 +104,10 @@ export function evaluateNflProductEligibility({ events, nowIso, vault = null }) 
   // source of truth for the same product, which is the failure the canonical index exists to stop.
   products.push(
     vault
-      ? { product: "end-zone-vault", label: "End Zone Vault", state: "PRODUCT_GATED", eligible: vault.state === "ACTIVE",
+      ? { product: "end-zone-vault", label: "Endzone Vault", state: "PRODUCT_GATED", eligible: vault.state === "ACTIVE",
           consideredEvents: considered.length, qualifyingEvents: vault.state === "ACTIVE" ? 1 : 0,
           reason: `the Vault reports ${vault.state} on its own evaluation: ${vault.reason}`, whatWouldQualify: [] }
-      : { product: "end-zone-vault", label: "End Zone Vault", state: "NO_EVENTS", eligible: false,
+      : { product: "end-zone-vault", label: "Endzone Vault", state: "NO_EVENTS", eligible: false,
           consideredEvents: 0, qualifyingEvents: 0,
           reason: "the Vault produced no outcome for this window", whatWouldQualify: [] },
   );

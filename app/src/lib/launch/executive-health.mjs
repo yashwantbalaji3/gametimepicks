@@ -39,7 +39,7 @@ export function buildExecutiveHealth(a) {
 
   // 2/3/4. the three signature products, straight off the dated receipt
   const receiptFor = (product) => (a.productReceipt?.products ?? []).find((p) => p.product === product) ?? null;
-  for (const [id, label, product] of [["bank-builder", "Bank Builder", "bank-builder"], ["moonshot", "Moonshot", "moonshot"], ["vault", "End Zone Vault", "end-zone-vault"]]) {
+  for (const [id, label, product] of [["bank-builder", "Bank Builder", "bank-builder"], ["moonshot", "Moonshot", "moonshot"], ["vault", "Endzone Vault", "end-zone-vault"]]) {
     const p = receiptFor(product);
     if (!p) { lanes.push(lane(id, label, "UNKNOWN", `no receipt for ${etDate}`, `data/internal/products/receipts/${etDate}.json`, "run the daily product receipt")); continue; }
     const state = p.state === "ACTIVE" ? "HEALTHY"

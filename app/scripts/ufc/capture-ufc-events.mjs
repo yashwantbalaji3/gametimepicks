@@ -52,8 +52,19 @@ for (const e of data.events ?? []) {
       providerBoutId: String(c.id),
       eventProviderId: String(e.id),
       red, blue,
-      redProviderId: c.competitors?.[0]?.athlete?.id != null ? String(c.competitors[0].athlete.id) : null,
-      blueProviderId: c.competitors?.[1]?.athlete?.id != null ? String(c.competitors[1].athlete.id) : null,
+      /*
+       * THE ID IS ON THE COMPETITOR, not on the nested athlete.
+       *
+       * The scoreboard's `athlete` object carries only fullName / displayName / shortName / flag —
+       * no id — so this read null for every bout on every capture and the tale-of-the-tape ingest
+       * had nothing to join on. The competitor wrapper is where the id lives, and it is the id the
+       * core athlete endpoint accepts. Falls back to the athlete id in case a future payload moves
+       * it back.
+       */
+      redProviderId: c.competitors?.[0]?.id != null ? String(c.competitors[0].id)
+        : c.competitors?.[0]?.athlete?.id != null ? String(c.competitors[0].athlete.id) : null,
+      blueProviderId: c.competitors?.[1]?.id != null ? String(c.competitors[1].id)
+        : c.competitors?.[1]?.athlete?.id != null ? String(c.competitors[1].athlete.id) : null,
       weightClass: c.type?.abbreviation ?? c.type?.text ?? null,
       dateUtc: c.date ?? e.date,
       statusRaw: c.status?.type?.name ?? null,

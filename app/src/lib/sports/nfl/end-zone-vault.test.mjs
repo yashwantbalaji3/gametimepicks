@@ -1,5 +1,5 @@
 /**
- * End Zone Vault guards (Program 169 · Release G).
+ * Endzone Vault guards (Program 169 · Release G).
  * Run: npx tsx --test src/lib/sports/nfl/end-zone-vault.test.mjs
  */
 import { test } from "node:test";

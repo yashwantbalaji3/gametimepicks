@@ -188,7 +188,7 @@ export default function NflHubPage() {
       .map((f) => [f.providerEventId, f.forecastSummary.winProbability.calibration]),
   );
 
-  // P174-E: End Zone Vault. Renders only when the evaluator produced candidates; a NO_VAULT or
+  // P174-E: Endzone Vault. Renders only when the evaluator produced candidates; a NO_VAULT or
   // INCIDENT window shows nothing here rather than an empty table pretending to be a product.
   type VaultRow = { playerId: string; name: string; position: string | null; team: string; event: string; tdProbability: number; roleState: string };
   const vault = read("nfl/end-zone-vault/latest.json") as
@@ -212,7 +212,7 @@ export default function NflHubPage() {
     layerRow("Team game simulation", modelStatus?.teamSimulation, "no model evaluation is readable — no claim is made"),
     layerRow("Moneyline / spread / total prices", modelStatus?.market, "no price capture is readable"),
     ...((modelStatus?.playerFamilies ?? []) as Array<StatusLayer & { label: string }>).map((f) => layerRow(f.label, f, "no evaluation on file")),
-    layerRow("Anytime touchdown · End Zone Vault", modelStatus?.anytimeTd, "no calibration receipt on file"),
+    layerRow("Anytime touchdown · Endzone Vault", modelStatus?.anytimeTd, "no calibration receipt on file"),
     { layer: "Settlement", state: "DEPLOYED", detail: "team and scorer settlement contracts are deployed and tested; the first matching pre-event artifacts settle exactly once when they exist" },
     ...(productEligibility
       ? productEligibility.products.map((p) => ({
@@ -389,7 +389,7 @@ export default function NflHubPage() {
         <section aria-labelledby="nfl-vault" id="nfl-vault">
           <SectionHeader
             eyebrow="Players"
-            title="End Zone Vault"
+            title="Endzone Vault"
             rightSlot={
               <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--sport-nfl)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px" }}>
                 {vault.state === "ACTIVE" ? "CARD" : "WATCHLIST"}
@@ -756,7 +756,7 @@ export default function NflHubPage() {
           its own contents is exactly the failure the canonical index exists to prevent. */}
       <p style={{ margin: 0, fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 680 }}>
         The NFL simulations on this page are published as experimental and are never presented as
-        picks. Player markets and the End Zone Vault stay gated on their own separate evidence —
+        picks. Player markets and the Endzone Vault stay gated on their own separate evidence —
         team readiness never auto-publishes a player market. See{" "}
         <Link href="/methodology" style={{ color: "var(--sport-nfl)" }}>methodology</Link> and{" "}
         <Link href="/sports" style={{ color: "var(--sport-nfl)" }}>all sports coverage</Link>.
