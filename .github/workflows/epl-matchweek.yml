@@ -1,0 +1,107 @@
+name: epl-matchweek
+
+# Premier League matchweek refresh — fixtures, prices, and the parlay grids.
+#
+# TIMING IS PRE-KICKOFF BY CONSTRUCTION. The receipt permits captures before kickoff only, and
+# EPL's earliest regular kickoff is Saturday 12:30 UK (11:30 UTC in summer). GitHub crons are
+# best-effort and routinely drift an hour or more, so these fire at 07:00 UTC — 08:00 UK — which
+# still lands ahead of the earliest kickoff even after a 90-minute drift.
+#
+#   Thursday  previews the whole weekend once the fixtures are settled
+#   Saturday  refreshes before the Saturday matches
+#   Sunday    refreshes before the Sunday matches
+#
+# Three captures a matchweek at 2 credits each is 6 credits, against a 500-credit ceiling.
+on:
+  schedule:
+    - cron: "0 7 * * 4"   # Thursday
+    - cron: "0 7 * * 6"   # Saturday
+    - cron: "0 7 * * 0"   # Sunday
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Plan the capture without spending"
+        type: boolean
+        default: false
+
+concurrency:
+  group: epl-matchweek
+  cancel-in-progress: false
+
+jobs:
+  matchweek:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20", cache: "npm", cache-dependency-path: app/package-lock.json }
+      - run: npm ci
+        working-directory: app
+
+      # Fixtures come from a public-domain source with no key, so this half costs nothing and is
+      # safe to run whether or not the priced step below is authorised or configured.
+      - name: Refresh the fixture list
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node app/scripts/epl/capture-epl-fixtures.mjs --now "$NOW" || \
+            echo "fixtures unchanged or unavailable this run"
+
+      # Prices, under docs/receipts/ODDS_AUTHORIZATION_EPL.md: EPL only, h2h + totals, us region,
+      # bulk endpoint only, 500-credit cumulative ceiling, its own ledger. The receipt cannot fund an
+      # NFL or UFC call and neither of theirs can fund this — the parser refuses a receipt naming
+      # another sport key in every direction.
+      #
+      # `|| echo` keeps a refusal from failing the job: no prices is a legitimate state, and the
+      # Parlay Lab's eligibility gate closes the EPL stream on its own while they are stale.
+      - name: Capture match result + total goals (2 credits)
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            node app/scripts/epl/capture-epl-odds.mjs --now "$NOW"
+            exit 0
+          fi
+          if [ -z "${ODDS_API_KEY:-}" ]; then
+            echo "ODDS_API_KEY is not configured — skipping the priced step; fixtures still refreshed"
+            exit 0
+          fi
+          node app/scripts/epl/capture-epl-odds.mjs --now "$NOW" --apply || \
+            echo "epl odds: refused or unavailable this run — see the step log; nothing was spent beyond what the ledger records"
+
+      - name: Settle any match that has finished
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node app/scripts/epl/capture-epl-results.mjs --now "$NOW" || \
+            echo "no newly-settled EPL match — the honest state between matchweeks"
+
+      # With real prices EPL can clear the Parlay Lab's eligibility gate, so the grids are
+      # re-resolved. `multi` is included deliberately: a second live sport is what opens the
+      # cross-sport lane, and it must not wait a day.
+      - name: Re-resolve the parlay tier grids
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          for SPORT in mlb ufc nfl epl multi; do
+            node app/scripts/parlays/build-tier-grid.mjs --sport "$SPORT" --now "$NOW" || \
+              echo "tier grid $SPORT: refused this run"
+          done
+
+      - name: Commit if anything changed
+        run: |
+          set -euo pipefail
+          git config user.name  "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          # Allowlisted paths only. A generated-data job never touches money artifacts.
+          git add app/public/data/soccer/epl app/public/data/parlays/tier-grid \
+                  data/internal/research/odds/epl/authorization-ledger.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
+          git commit -m "auto: epl matchweek refresh $(date -u +%Y-%m-%d) [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main

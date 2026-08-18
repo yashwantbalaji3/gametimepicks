@@ -21,6 +21,7 @@ export const P171_LEDGER_RELPATH = "data/internal/research/odds/nfl/p171-ledger.
 export const LEDGER_RELPATH = {
   nfl: P171_LEDGER_RELPATH,
   ufc: "data/internal/research/odds/ufc/authorization-ledger.json",
+  epl: "data/internal/research/odds/epl/authorization-ledger.json",
 };
 
 /**
@@ -33,6 +34,7 @@ export const LEDGER_RELPATH = {
 export const AUTHORIZED_SPORTS = {
   nfl: { sportKey: "americanfootball_nfl", scopeRe: /NFL[- ]only/i },
   ufc: { sportKey: "mma_mixed_martial_arts", scopeRe: /UFC[- /]?(?:\/\s*MMA[- ])?only|MMA[- ]only/i },
+  epl: { sportKey: "soccer_epl", scopeRe: /Premier League only|EPL[- ]only/i },
 };
 
 /**
