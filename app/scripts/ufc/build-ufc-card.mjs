@@ -13,7 +13,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, fitPlatt, applyPlatt, nameKey } from "./lib/fight-model.mjs";
+import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, fitPlatt, applyPlatt, nameKey, tottFeat } from "./lib/fight-model.mjs";
 
 
 const APP = process.cwd();
@@ -46,14 +46,32 @@ for (let i = 0; i < 21; i++) {
   scan.push(`${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}${String(d.getUTCDate()).padStart(2, "0")}`);
 }
 
+/*
+ * THE NEXT CARD THE MODEL CAN ACTUALLY READ.
+ *
+ * Taking the literal next event put Dana White's Contender Series on the page: five bouts, every
+ * fighter making their debut, zero predictions. The engine was refusing correctly, but a hub whose
+ * headline card says nothing is not worth the visit — and the real card four days later had
+ * thirteen bouts of fighters with years of history.
+ *
+ * So the scan keeps going until it finds a card with enough fighters in the corpus to say something
+ * about, and remembers what it skipped. This is a COVERAGE test, not a name filter: a Fight Night
+ * of unknowns would be skipped on the same rule, and a Contender Series where several fighters have
+ * returned would qualify on it. Nothing is hidden — `skippedForCoverage` ships in the artifact so
+ * the page can say the nearer card exists and why it carries no read.
+ */
+const MIN_MODELLABLE_BOUTS = 3;
+
 let event = null;
+const skippedForCoverage = [];
+const candidates = [];
 for (const day of scan) {
   const sb = await get(`https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${day}`).catch(() => null);
   const ev = (sb?.events ?? []).find((e) => (e.competitions ?? []).length > 0);
-  if (ev) { event = ev; break; }
+  if (ev && !candidates.some((c) => c.id === ev.id)) candidates.push(ev);
 }
 
-if (!event) {
+if (candidates.length === 0) {
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, "card-latest.json"), JSON.stringify({
     generatedAt: NOW, state: "NO_UPCOMING_CARD",
@@ -69,7 +87,32 @@ const V = evaluation.verdicts ?? {};
 
 const corpus = loadCorpus(RAW);
 if (!corpus) { console.error("ufc card: fight corpus absent — cannot build"); process.exit(1); }
-const { rowsOut, rec, recByKey, logByKey, wcRec, baseMethod, fights } = corpus;
+const { rowsOut, rec, recByKey, logByKey, wcRec, baseMethod, fights, tott } = corpus;
+
+/* Now the corpus is loaded, pick the first upcoming card with enough fighters in it to read. */
+for (const ev of candidates) {
+  const modellable = (ev.competitions ?? []).filter((c) => {
+    const a = c.competitors?.[0]?.athlete?.displayName;
+    const b = c.competitors?.[1]?.athlete?.displayName;
+    return a && b && recByKey.has(nameKey(a)) && recByKey.has(nameKey(b));
+  }).length;
+  if (modellable >= MIN_MODELLABLE_BOUTS) { event = ev; break; }
+  skippedForCoverage.push({
+    name: ev.name,
+    dateUtc: ev.date,
+    bouts: (ev.competitions ?? []).length,
+    modellableBouts: modellable,
+    reason: `only ${modellable} of ${(ev.competitions ?? []).length} bouts have both fighters in the corpus`,
+  });
+}
+if (!event) {
+  event = candidates[0];
+  skippedForCoverage.length = 0;   // nothing was skipped in favour of something better
+  console.log("no card in the window clears the coverage floor — building the next one as-is");
+}
+if (skippedForCoverage.length) {
+  for (const s of skippedForCoverage) console.log(`  skipped ${s.name} (${s.dateUtc.slice(0, 10)}) — ${s.reason}`);
+}
 
 /*
  * THE WINNER HEAD TAKES THE TALE OF THE TAPE, WITH A NESTED CALIBRATION LAYER.
@@ -117,11 +160,13 @@ const pKO = baseMethod.KO / fights.length, pSUB = baseMethod.SUB / fights.length
 const rateOf = (num, den, prior, w = 5) => (num + prior * w) / (den + w);
 const lg = (p) => Math.log(Math.max(1e-6, p) / Math.max(1e-6, 1 - p));
 
-function featuresFor(nameA, nameB, weightClass, scheduled) {
+function featuresFor(nameA, nameB, weightClass, scheduled, whenMs) {
   const A = recByKey.get(nameKey(nameA)) ?? blankRec, B = recByKey.get(nameKey(nameB)) ?? blankRec;
   const wc = wcRec.get(weightClass) ?? { n: 0, KO: 0, SUB: 0, DEC: 0 };
   return {
     feat: {
+      // Physicals through the SHARED constructor — omitting them here is what published "NaN%".
+      ...tottFeat(tott.get(nameKey(nameA)), tott.get(nameKey(nameB)), whenMs),
       winDiff: lg(rateOf(A.w, A.n, 0.5)) - lg(rateOf(B.w, B.n, 0.5)),
       finishDiff: lg(rateOf(A.koW + A.subW, A.n, pKO + pSUB)) - lg(rateOf(B.koW + B.subW, B.n, pKO + pSUB)),
       durabilityDiff: lg(rateOf(A.koL + A.subL, A.n, pKO + pSUB)) - lg(rateOf(B.koL + B.subL, B.n, pKO + pSUB)),
@@ -225,7 +270,7 @@ for (const c of event.competitions ?? []) {
   // Corner canonicalisation must match the training convention EXACTLY — alphabetical, never the
   // order the provider happens to list. Getting this backwards silently inverts every win figure.
   const [nameA, nameB] = [red.name, blue.name].slice().sort((x, y) => x.localeCompare(y));
-  const { feat, priorFights } = featuresFor(nameA, nameB, WC_MAP[wc] ?? wc, scheduled);
+  const { feat, priorFights } = featuresFor(nameA, nameB, WC_MAP[wc] ?? wc, scheduled, Date.parse(event.date));
   // A UFC DEBUTANT is a real thing, not a data gap: the model still knows the established fighter,
   // and the newcomer is genuinely an unknown quantity. Publishing with that stated is more useful
   // than blanking the bout — the alternative was four fights on this card showing nothing at all.
@@ -235,6 +280,24 @@ for (const c of event.competitions ?? []) {
 
   let prediction = null;
   if (informed) {
+    /*
+     * REFUSE TO PUBLISH A NUMBER THAT IS NOT A NUMBER.
+     *
+     * The card builder once shipped thirteen bouts reading "NaN%": training grew the tale-of-the-tape
+     * features and this path did not, so a weight multiplied `undefined`. Nothing threw — NaN is a
+     * float, it survives the sigmoid, `toFixed` renders it, JSON writes it as null. The whole gate
+     * suite was green over a page of NaN.
+     *
+     * A missing feature is a code defect, not a data gap, so this ABORTS rather than degrading to a
+     * blank bout — a silent blank would look exactly like the honest "no history" state and hide it.
+     */
+    const missing = [...WIN_F_TOTT, ...CLS_F].filter((k) => !Number.isFinite(feat[k]));
+    if (missing.length) {
+      console.error(`ufc card: ${nameA} vs ${nameB} — feature(s) ${missing.join(", ")} absent or non-finite.`);
+      console.error("The live construction has drifted from the training construction. Not publishing.");
+      process.exit(1);
+    }
+
     const pA = winProb(feat);   // calibrated — see the nested-Platt note above
     const pm = predSoftmax(methodModel, feat);
     const pr = predSoftmax(roundModel, feat);
@@ -298,6 +361,13 @@ const artifact = {
     venue: event.competitions?.[0]?.venue?.fullName ?? null,
     boutCount: card.length,
   },
+  /*
+   * Cards nearer than this one that the model cannot read, so the page can say so instead of
+   * looking like it missed them. Empty on a normal week; on a Contender Series week it carries the
+   * DWCS card and the count of bouts we have history for — which is what makes the skip auditable
+   * rather than a quiet preference for the card we happen to like.
+   */
+  skippedForCoverage,
   model: {
     id: "ufc-fight-v1",
     publishes: ["winner", "method", "rounds"].filter((h) => V[h === "rounds" ? "round" : h] === "PASS"),

@@ -111,7 +111,6 @@ export function loadCorpus(RAW) {
     const doc = JSON.parse(fs.readFileSync(path.join(RAW, "ufc_fighter_tott.json"), "utf8"));
     for (const f of doc.fighters ?? []) tott.set(nameKey(f.name), f);
   } catch { /* no physicals on disk — every fight simply carries hasTott = 0 */ }
-  const ageAt = (dob, when) => (dob ? (when - Date.parse(dob)) / (365.25 * 86400_000) : null);
 
   const aWinRate = fights.reduce((s, f) => s + f.aWon, 0) / fights.length;
 
@@ -153,20 +152,8 @@ export function loadCorpus(RAW) {
       experience: Math.log1p(Math.min(A.n, B.n)),
     };
 
-    // Physicals, when both corners are known. Southpaw-vs-orthodox is the classic stylistic
-    // mismatch, so stance enters as a MISMATCH flag rather than as two separate indicators.
-    // Keyed through nameKey on BOTH sides. The corpus carries raw names ("Kauê Fernandes") and the
-    // map is built from folded ones, so a raw lookup silently misses every fighter — which it did,
-    // reporting 0% coverage while 388 fighters sat on disk.
-    const ta = tott.get(nameKey(f.a)), tb = tott.get(nameKey(f.b));
-    const bothTott = ta && tb;
-    const aAge = bothTott ? ageAt(ta.dateOfBirth, f.date) : null;
-    const bAge = bothTott ? ageAt(tb.dateOfBirth, f.date) : null;
-    feat.hasTott = bothTott ? 1 : 0;
-    feat.reachDiff = bothTott && ta.reachIn != null && tb.reachIn != null ? (ta.reachIn - tb.reachIn) / 6 : 0;
-    feat.heightDiff = bothTott && ta.heightIn != null && tb.heightIn != null ? (ta.heightIn - tb.heightIn) / 6 : 0;
-    feat.ageDiff = aAge != null && bAge != null ? (aAge - bAge) / 5 : 0;
-    feat.stanceMismatch = bothTott && ta.stance && tb.stance && ta.stance !== tb.stance ? 1 : 0;
+    // Physicals, through the SHARED constructor the card builder also calls. See tottFeat.
+    Object.assign(feat, tottFeat(tott.get(nameKey(f.a)), tott.get(nameKey(f.b)), f.date));
     rowsOut.push({ date: f.date, f, feat, seen: Math.min(A.n, B.n) });
 
     // advance state AFTER the row is emitted
@@ -197,7 +184,7 @@ export function loadCorpus(RAW) {
   for (const [name, v] of rec) recByKey.set(nameKey(name), v);
   const logByKey = new Map();
   for (const [name, log] of boutLog) logByKey.set(nameKey(name), log);
-  return { fights, excluded, rowsOut, rec, recByKey, boutLog, logByKey, wcRec, baseMethod, aWinRate };
+  return { fights, excluded, rowsOut, rec, recByKey, boutLog, logByKey, wcRec, baseMethod, aWinRate, tott };
 }
 
 export const WIN_F = ["winDiff", "finishDiff", "durabilityDiff", "expDiff"];
@@ -247,6 +234,36 @@ export function fitPlatt(rows, iters = 400, lr = 0.08) {
 export function applyPlatt(cal, p) {
   const x = Math.log(Math.max(1e-6, p) / Math.max(1e-6, 1 - p));
   return 1 / (1 + Math.exp(-(cal.a * x + cal.b)));
+}
+
+/**
+ * TALE-OF-THE-TAPE FEATURES FOR ONE PAIRING — the single construction, used by BOTH sides.
+ *
+ * Training built these inline while the card builder's `featuresFor` predated them, so live bouts
+ * reached `predBinary` with `reachDiff` undefined. A weight times undefined is NaN, NaN propagates
+ * through the sigmoid, and thirteen bouts published "NaN%" — the arithmetic never threw, so no
+ * gate caught it. Anything the two paths must agree on now has exactly one definition.
+ *
+ * Optional by construction. Every physical is paired with `hasTott`: when a corner is unknown the
+ * diffs are zero AND the flag is zero, so the fit learns to ignore them there rather than reading a
+ * missing reach as "equal reach". Zero-filling without the flag would assert the two fighters
+ * matched exactly, which is a different and false claim.
+ *
+ * Southpaw-vs-orthodox is the classic stylistic mismatch, so stance enters as a MISMATCH flag
+ * rather than as two separate indicators.
+ */
+export function tottFeat(ta, tb, when) {
+  const both = Boolean(ta && tb);
+  const ageAt = (dob) => (dob ? (when - Date.parse(dob)) / (365.25 * 86400_000) : null);
+  const aAge = both ? ageAt(ta.dateOfBirth) : null;
+  const bAge = both ? ageAt(tb.dateOfBirth) : null;
+  return {
+    hasTott: both ? 1 : 0,
+    reachDiff: both && ta.reachIn != null && tb.reachIn != null ? (ta.reachIn - tb.reachIn) / 6 : 0,
+    heightDiff: both && ta.heightIn != null && tb.heightIn != null ? (ta.heightIn - tb.heightIn) / 6 : 0,
+    ageDiff: aAge != null && bAge != null ? (aAge - bAge) / 5 : 0,
+    stanceMismatch: both && ta.stance && tb.stance && ta.stance !== tb.stance ? 1 : 0,
+  };
 }
 
 export const TOTT_F = ["hasTott", "reachDiff", "heightDiff", "ageDiff", "stanceMismatch"];

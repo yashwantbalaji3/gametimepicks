@@ -101,6 +101,24 @@ export default function UfcArchivePage() {
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700, margin: 0 }}>Next card</h2>
         </div>
+        {/* A nearer card the model cannot read. Contender Series is five debutants — the engine
+            correctly says nothing about it, but a hub that just showed the later card would look
+            like it had missed this one. Naming it, with the real counts, makes the skip auditable. */}
+        {(card?.skippedForCoverage ?? []).map((s) => (
+          <p
+            key={s.name}
+            className="rounded-lg px-3 py-2 text-[11.5px] leading-relaxed"
+            style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(7,11,9,0.5)", margin: 0 }}
+          >
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>
+              Sooner, but not read ·{" "}
+            </span>
+            <strong style={{ color: "var(--vault-text)", fontWeight: 600 }}>{s.name}</strong> is on{" "}
+            {new Date(s.dateUtc).toLocaleDateString("en-US", { timeZone: "America/New_York", month: "long", day: "numeric" })}.
+            We have UFC history for both fighters in {s.modellableBouts} of its {s.bouts} bouts, so the model has nothing
+            to say about it and we publish no read. The card below is the next one it can read.
+          </p>
+        ))}
         {card?.bouts?.length
           ? <UfcCard card={card} />
           : <ScheduleList events={(feed?.events ?? []) as never[]} sides={["red", "blue"]} joiner="vs" />}

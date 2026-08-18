@@ -71,12 +71,29 @@ test("WIRING · the homepage hub feeds ONLY mlb + the ufc archive; schedule spor
   for (const banned of ['id: "nba"', 'id: "epl"']) {
     assert.ok(!allSportsBlock.includes(banned), `${banned} must not be a hub entry — schedules live on /sports`);
   }
-  // The UFC STATE derivation must not carry nextEventDate — the ONE selector vector by which an
-  // upcoming card could promote via EVENT_THIS_WEEK. Its absence is the closed door.
+  /*
+   * nextEventDate is the ONE vector by which an upcoming UFC card can promote into the hub via
+   * EVENT_THIS_WEEK. This guard originally banned the token outright, because at the time there was
+   * no fight model: any scheduled card would have promoted UFC to "live" while the site could say
+   * nothing whatsoever about it.
+   *
+   * Program 187 built that model and it passed its preregistered bars, so the door now opens on
+   * EVIDENCE rather than staying bolted by name. The invariant never was "UFC may not promote" — it
+   * was "a SCHEDULE alone may not promote". So this asserts the gate instead of the token: if
+   * nextEventDate is passed at all, it must be conditioned on predictions actually existing.
+   *
+   * Weakening this to "nextEventDate may be passed" would restore the original defect exactly.
+   */
   const ufcStateStart = src.indexOf("const ufcState = deriveSportState(");
-  const ufcStateBlock = src.slice(ufcStateStart, src.indexOf("});", ufcStateStart) + 3);
   assert.ok(ufcStateStart > -1, "the ufcState derivation exists");
-  assert.ok(!/nextEventDate/.test(ufcStateBlock), "the UFC state derivation passes no nextEventDate — an upcoming card alone can never promote");
+  const ufcStateBlock = src.slice(ufcStateStart, src.indexOf("});", ufcStateStart) + 3);
+  const nextEventLine = ufcStateBlock.split("\n").find((l) => /nextEventDate/.test(l) && !/^\s*\/\//.test(l));
+  if (nextEventLine) {
+    assert.match(nextEventLine, /ufcPredicted\s*>\s*0/,
+      "nextEventDate is passed ungated — a card with no model read would promote UFC into the hub");
+    assert.match(nextEventLine, /:\s*null|\?\?\s*null|:\s*undefined/,
+      "the ungated branch must resolve to null so deriveSportState sees no upcoming event at all");
+  }
   // P191: the door this guarded was "a mere SCHEDULE must not promote UFC". A published FIGHT MODEL
   // is a different thing, so inSeason is now driven by whether bouts actually carry predictions —
   // never by a date, and never by the existence of a card alone.

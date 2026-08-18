@@ -174,6 +174,10 @@ export default function HomePage() {
     artifactDate: ufcSlateDate || "2026-06-15",
     leans: ufcPredicted,
     inSeason: ufcPredicted > 0,   // bouts alone are a schedule; predictions are what make it live
+    // UFC runs on cards, not on daily slates: the read is published days before fight night and
+    // holds until it. Without this the classifier fell through to "in season · no qualified slate",
+    // which reads as a quiet day when in fact a full card is five days out.
+    nextEventDate: ufcPredicted > 0 && ufcSlateDate ? ufcSlateDate : null,
   });
 
   const allSports = [
@@ -209,7 +213,7 @@ export default function HomePage() {
       card: {
         href: "/ufc",
         label: "UFC",
-        blurb: ufcPredicted > 0 ? "Winner, method of victory and finishing round for every bout on the card." : "The next card is a prospect show — no fighter has enough UFC history to model yet.",
+        blurb: ufcPredicted > 0 ? "Winner, method of victory and finishing round for every bout on the card." : "No upcoming card has enough fighter history to model — the schedule is published without a read.",
         status: ufcPredicted > 0 ? `${ufcPredicted} of ${ufcBouts} bouts predicted` : stateLabel(ufcState, { artifactDate: ufcSlateDate || "2026-06-15" }),
         statusSub: ufcPredicted > 0 ? "experimental · paper-only" : "schedule only · no fighter history yet",
         cta: ufcPredicted > 0 ? "Enter" : "View the card",

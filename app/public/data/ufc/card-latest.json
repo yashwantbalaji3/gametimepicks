@@ -1,15 +1,24 @@
 {
- "generatedAt": "2026-08-18T03:25:28Z",
+ "generatedAt": "2026-08-18T03:35:18Z",
  "sport": "ufc",
  "state": "SCHEDULED_CARD",
  "event": {
-  "providerEventId": "600060733",
-  "name": "Dana White's Contender Series: Season 10, Week 2",
-  "startUtc": "2026-08-18T23:00Z",
-  "slateDate": "2026-08-18",
-  "venue": "Meta APEX",
-  "boutCount": 5
+  "providerEventId": "600060493",
+  "name": "UFC Fight Night: Hernandez vs. Rodrigues",
+  "startUtc": "2026-08-22T21:00Z",
+  "slateDate": "2026-08-22",
+  "venue": "Golden 1 Center",
+  "boutCount": 13
  },
+ "skippedForCoverage": [
+  {
+   "name": "Dana White's Contender Series: Season 10, Week 2",
+   "dateUtc": "2026-08-18T23:00Z",
+   "bouts": 5,
+   "modellableBouts": 0,
+   "reason": "only 0 of 5 bouts have both fighters in the corpus"
+  }
+ ],
  "model": {
   "id": "ufc-fight-v1",
   "publishes": [
@@ -62,127 +71,806 @@
  },
  "bouts": [
   {
-   "boutId": "401903502",
-   "weightClass": "Welterweight",
-   "scheduledRounds": 3,
-   "startUtc": "2026-08-18T23:00Z",
-   "titleFight": false,
-   "red": {
-    "athleteId": "5056138",
-    "name": "Kaik Brito",
-    "record": "19-6-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5056138.png",
-    "priorBoutsInCorpus": 0,
-    "profile": {
-     "bouts": 0,
-     "last5": [],
-     "strengths": [],
-     "weaknesses": [],
-     "summary": null
-    }
-   },
-   "blue": {
-    "athleteId": "5215178",
-    "name": "Namo Fazil",
-    "record": "10-1-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5215178.png",
-    "priorBoutsInCorpus": 0,
-    "profile": {
-     "bouts": 0,
-     "last5": [],
-     "strengths": [],
-     "weaknesses": [],
-     "summary": null
-    }
-   },
-   "prediction": null,
-   "unmodelledReason": "Neither fighter has enough UFC history in our corpus to build a read from."
-  },
-  {
-   "boutId": "401903492",
+   "boutId": "401881939",
    "weightClass": "Middleweight",
-   "scheduledRounds": 3,
-   "startUtc": "2026-08-18T23:00Z",
-   "titleFight": false,
+   "scheduledRounds": 5,
+   "startUtc": "2026-08-23T00:00Z",
+   "titleFight": true,
    "red": {
-    "athleteId": "5216997",
-    "name": "Trent Miller",
-    "record": "9-3-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5216997.png",
-    "priorBoutsInCorpus": 0,
+    "athleteId": "4290956",
+    "name": "Anthony Hernandez",
+    "record": "15-3-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4290956.png",
+    "priorBoutsInCorpus": 12,
     "profile": {
-     "bouts": 0,
-     "last5": [],
-     "strengths": [],
-     "weaknesses": [],
-     "summary": null
+     "bouts": 12,
+     "record": {
+      "wins": 9,
+      "losses": 3
+     },
+     "last5": [
+      {
+       "date": "2026-02-21",
+       "opponent": "Sean Strickland",
+       "result": "L",
+       "method": "KO",
+       "round": 3,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-08-09",
+       "opponent": "Roman Dolidze",
+       "result": "W",
+       "method": "SUB",
+       "round": 4,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-02-22",
+       "opponent": "Brendan Allen",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2024-10-19",
+       "opponent": "Michel Pereira",
+       "result": "W",
+       "method": "KO",
+       "round": 5,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2024-02-17",
+       "opponent": "Roman Kopylov",
+       "result": "W",
+       "method": "SUB",
+       "round": 2,
+       "weightClass": "Middleweight"
+      }
+     ],
+     "strengths": [
+      "Finishes fights — mostly by submission",
+      "5 career submission wins in this corpus",
+      "75% win rate across 12 tracked bouts"
+     ],
+     "weaknesses": [
+      "When he loses, he tends to get finished rather than out-pointed"
+     ],
+     "summary": "4-1 in his last 5. 78% of his wins come by finish; 17% of his fights reach the judges."
     }
    },
    "blue": {
-    "athleteId": "5369435",
-    "name": "Douglas Rodrigues",
-    "record": "7-1-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5369435.png",
-    "priorBoutsInCorpus": 0,
+    "athleteId": "4690541",
+    "name": "Gregory Rodrigues",
+    "record": "19-6-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4690541.png",
+    "priorBoutsInCorpus": 13,
     "profile": {
-     "bouts": 0,
-     "last5": [],
-     "strengths": [],
-     "weaknesses": [],
-     "summary": null
+     "bouts": 13,
+     "record": {
+      "wins": 10,
+      "losses": 3
+     },
+     "last5": [
+      {
+       "date": "2026-03-07",
+       "opponent": "Brunno Ferreira",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-11-15",
+       "opponent": "Roman Kopylov",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-06-28",
+       "opponent": "Jack Hermansson",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-02-15",
+       "opponent": "Jared Cannonier",
+       "result": "L",
+       "method": "KO",
+       "round": 4,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2024-07-27",
+       "opponent": "Christian Leroy Duncan",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Middleweight"
+      }
+     ],
+     "strengths": [
+      "Finishes fights — mostly by knockout",
+      "7 career knockouts in this corpus",
+      "77% win rate across 13 tracked bouts"
+     ],
+     "weaknesses": [
+      "When he loses, he tends to get finished rather than out-pointed"
+     ],
+     "summary": "4-1 in his last 5. 70% of his wins come by finish; 31% of his fights reach the judges."
     }
    },
-   "prediction": null,
-   "unmodelledReason": "Neither fighter has enough UFC history in our corpus to build a read from."
+   "prediction": {
+    "winner": {
+     "name": "Gregory Rodrigues",
+     "probability": 0.5307,
+     "byFighter": {
+      "Anthony Hernandez": 0.4693,
+      "Gregory Rodrigues": 0.5307
+     }
+    },
+    "method": {
+     "most": "KO",
+     "probabilities": {
+      "ko": 0.4839,
+      "submission": 0.2092,
+      "decision": 0.3069
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.2925,
+      "round2": 0.2109,
+      "round3plus": 0.4966
+     },
+     "goesTheDistance": 0.3069
+    },
+    "priorFights": {
+     "a": 12,
+     "b": 13
+    },
+    "basis": "BOTH_FIGHTERS",
+    "basisNote": null,
+    "reason": "Gregory Rodrigues he finishes 70% of his wins and Hernandez has been finished in 100% of his losses — and the finish profile points to a knockout."
+   },
+   "unmodelledReason": null
   },
   {
-   "boutId": "401903490",
-   "weightClass": "Lightweight",
+   "boutId": "401887540",
+   "weightClass": "Heavyweight",
    "scheduledRounds": 3,
-   "startUtc": "2026-08-18T23:00Z",
+   "startUtc": "2026-08-23T00:00Z",
    "titleFight": false,
    "red": {
-    "athleteId": "5139609",
-    "name": "Logan Paxton",
-    "record": "10-1-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5139609.png",
-    "priorBoutsInCorpus": 0,
+    "athleteId": "4421246",
+    "name": "Serghei Spivac",
+    "record": "18-6-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4421246.png",
+    "priorBoutsInCorpus": 15,
     "profile": {
-     "bouts": 0,
-     "last5": [],
-     "strengths": [],
-     "weaknesses": [],
-     "summary": null
+     "bouts": 15,
+     "record": {
+      "wins": 9,
+      "losses": 6
+     },
+     "last5": [
+      {
+       "date": "2026-02-21",
+       "opponent": "Ante Delija",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2025-06-07",
+       "opponent": "Waldo Cortes Acosta",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2025-01-18",
+       "opponent": "Jailton Almeida",
+       "result": "L",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2024-08-10",
+       "opponent": "Marcin Tybura",
+       "result": "W",
+       "method": "SUB",
+       "round": 1,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2023-09-02",
+       "opponent": "Ciryl Gane",
+       "result": "L",
+       "method": "KO",
+       "round": 2,
+       "weightClass": "Heavyweight"
+      }
+     ],
+     "strengths": [
+      "Finishes fights — mostly by submission",
+      "3 career submission wins in this corpus",
+      "3 career knockouts in this corpus"
+     ],
+     "weaknesses": [
+      "When he loses, he tends to get finished rather than out-pointed"
+     ],
+     "summary": "2-3 in his last 5. 67% of his wins come by finish; 33% of his fights reach the judges."
     }
    },
    "blue": {
-    "athleteId": "5180489",
-    "name": "Cristian Pérez",
+    "athleteId": "5060483",
+    "name": "Vitor Petrino",
     "record": "14-2-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5180489.png",
-    "priorBoutsInCorpus": 0,
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5060483.png",
+    "priorBoutsInCorpus": 9,
     "profile": {
-     "bouts": 0,
-     "last5": [],
-     "strengths": [],
-     "weaknesses": [],
-     "summary": null
+     "bouts": 9,
+     "record": {
+      "wins": 7,
+      "losses": 2
+     },
+     "last5": [
+      {
+       "date": "2026-03-14",
+       "opponent": "Steven Asplund",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2025-10-11",
+       "opponent": "Thomas Petersen",
+       "result": "W",
+       "method": "KO",
+       "round": 3,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2025-07-12",
+       "opponent": "Austen Lane",
+       "result": "W",
+       "method": "SUB",
+       "round": 1,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2024-12-14",
+       "opponent": "Dustin Jacoby",
+       "result": "L",
+       "method": "KO",
+       "round": 3,
+       "weightClass": "Light Heavyweight"
+      },
+      {
+       "date": "2024-05-04",
+       "opponent": "Anthony Smith",
+       "result": "L",
+       "method": "SUB",
+       "round": 1,
+       "weightClass": "Light Heavyweight"
+      }
+     ],
+     "strengths": [
+      "78% win rate across 9 tracked bouts"
+     ],
+     "weaknesses": [
+      "When he loses, he tends to get finished rather than out-pointed"
+     ],
+     "summary": "3-2 in his last 5. 57% of his wins come by finish; 33% of his fights reach the judges."
     }
    },
-   "prediction": null,
-   "unmodelledReason": "Neither fighter has enough UFC history in our corpus to build a read from."
+   "prediction": {
+    "winner": {
+     "name": "Vitor Petrino",
+     "probability": 0.6344,
+     "byFighter": {
+      "Serghei Spivac": 0.3656,
+      "Vitor Petrino": 0.6344
+     }
+    },
+    "method": {
+     "most": "KO",
+     "probabilities": {
+      "ko": 0.4118,
+      "submission": 0.1957,
+      "decision": 0.3925
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.3165,
+      "round2": 0.1973,
+      "round3plus": 0.4862
+     },
+     "goesTheDistance": 0.3925
+    },
+    "priorFights": {
+     "a": 15,
+     "b": 9
+    },
+    "basis": "BOTH_FIGHTERS",
+    "basisNote": null,
+    "reason": "Vitor Petrino wins 78% of his bouts to Spivac's 60%, he finishes 57% of his wins and Spivac has been finished in 67% of his losses — and the finish profile points to a knockout."
+   },
+   "unmodelledReason": null
   },
   {
-   "boutId": "401903489",
+   "boutId": "401887539",
    "weightClass": "Light Heavyweight",
    "scheduledRounds": 3,
-   "startUtc": "2026-08-18T23:00Z",
+   "startUtc": "2026-08-23T00:00Z",
    "titleFight": false,
    "red": {
-    "athleteId": "5220971",
-    "name": "Alik Lorenz",
-    "record": "7-2-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5220971.png",
+    "athleteId": "4411508",
+    "name": "Roman Dolidze",
+    "record": "15-5-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4411508.png",
+    "priorBoutsInCorpus": 14,
+    "profile": {
+     "bouts": 14,
+     "record": {
+      "wins": 9,
+      "losses": 5
+     },
+     "last5": [
+      {
+       "date": "2026-03-21",
+       "opponent": "Christian Leroy Duncan",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-08-09",
+       "opponent": "Anthony Hernandez",
+       "result": "L",
+       "method": "SUB",
+       "round": 4,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-03-15",
+       "opponent": "Marvin Vettori",
+       "result": "W",
+       "method": "DEC",
+       "round": 5,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2024-10-05",
+       "opponent": "Kevin Holland",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2024-06-29",
+       "opponent": "Anthony Smith",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Light Heavyweight"
+      }
+     ],
+     "strengths": [
+      "5 career knockouts in this corpus"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "3-2 in his last 5. 56% of his wins come by finish; 57% of his fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "4423880",
+    "name": "Reinier de Ridder",
+    "record": "21-4-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4423880.png",
+    "priorBoutsInCorpus": 6,
+    "profile": {
+     "bouts": 6,
+     "record": {
+      "wins": 4,
+      "losses": 2
+     },
+     "last5": [
+      {
+       "date": "2026-03-07",
+       "opponent": "Caio Borralho",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-10-18",
+       "opponent": "Brendan Allen",
+       "result": "L",
+       "method": "KO",
+       "round": 4,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-07-26",
+       "opponent": "Robert Whittaker",
+       "result": "W",
+       "method": "DEC",
+       "round": 5,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-05-03",
+       "opponent": "Bo Nickal",
+       "result": "W",
+       "method": "KO",
+       "round": 2,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-01-18",
+       "opponent": "Kevin Holland",
+       "result": "W",
+       "method": "SUB",
+       "round": 1,
+       "weightClass": "Middleweight"
+      }
+     ],
+     "strengths": [
+      "Finishes fights — mostly by submission"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "3-2 in his last 5. 75% of his wins come by finish; 33% of his fights reach the judges."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Roman Dolidze",
+     "probability": 0.5118,
+     "byFighter": {
+      "Reinier de Ridder": 0.4882,
+      "Roman Dolidze": 0.5118
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.4033,
+      "submission": 0.1225,
+      "decision": 0.4742
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.2533,
+      "round2": 0.1729,
+      "round3plus": 0.5738
+     },
+     "goesTheDistance": 0.4742
+    },
+    "priorFights": {
+     "a": 6,
+     "b": 14
+    },
+    "basis": "BOTH_FIGHTERS",
+    "basisNote": null,
+    "reason": "Roman Dolidze he finishes 56% of his wins and Ridder has been finished in 50% of his losses, 14 tracked bouts against 6 — and the matchup profiles as one that reaches the judges."
+   },
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401911624",
+   "weightClass": "Lightweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-08-23T00:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "4419470",
+    "name": "Mason Jones",
+    "record": "18-2-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4419470.png",
+    "priorBoutsInCorpus": 6,
+    "profile": {
+     "bouts": 6,
+     "record": {
+      "wins": 4,
+      "losses": 2
+     },
+     "last5": [
+      {
+       "date": "2026-03-21",
+       "opponent": "Axel Sola",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2025-09-06",
+       "opponent": "Bolaji Oki",
+       "result": "W",
+       "method": "KO",
+       "round": 2,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2025-05-03",
+       "opponent": "Jeremy Stephens",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2022-07-23",
+       "opponent": "Ludovit Klein",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2021-10-23",
+       "opponent": "David Onama",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      }
+     ],
+     "strengths": [
+      "Durable — most of his fights reach the judges"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "4-1 in his last 5. 25% of his wins come by finish; 83% of his fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "5157668",
+    "name": "MarQuel Mederos",
+    "record": "11-1-1",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5157668.png",
+    "priorBoutsInCorpus": 3,
+    "profile": {
+     "bouts": 3,
+     "record": {
+      "wins": 3,
+      "losses": 0
+     },
+     "last5": [
+      {
+       "date": "2025-06-07",
+       "opponent": "Mark Choinski",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2025-03-29",
+       "opponent": "Austin Hubbard",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2024-02-03",
+       "opponent": "Landon Quinones",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      }
+     ],
+     "strengths": [
+      "3 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "Rarely finishes — needs the judges"
+     ],
+     "summary": "3-0 in his last 3. 0% of his wins come by finish; 100% of his fights reach the judges."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "MarQuel Mederos",
+     "probability": 0.5201,
+     "byFighter": {
+      "MarQuel Mederos": 0.5201,
+      "Mason Jones": 0.4799
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.2244,
+      "submission": 0.0869,
+      "decision": 0.6888
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.1243,
+      "round2": 0.1147,
+      "round3plus": 0.761
+     },
+     "goesTheDistance": 0.6888
+    },
+    "priorFights": {
+     "a": 3,
+     "b": 6
+    },
+    "basis": "BOTH_FIGHTERS",
+    "basisNote": null,
+    "reason": "MarQuel Mederos wins 100% of his bouts to Jones's 67% — and the matchup profiles as one that reaches the judges."
+   },
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401881940",
+   "weightClass": "W Flyweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-08-23T00:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "5172179",
+    "name": "Carli Judice",
+    "record": "6-2-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5172179.png",
+    "priorBoutsInCorpus": 4,
+    "profile": {
+     "bouts": 4,
+     "record": {
+      "wins": 3,
+      "losses": 1
+     },
+     "last5": [
+      {
+       "date": "2026-02-21",
+       "opponent": "Juliana Miller",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Women's Flyweight"
+      },
+      {
+       "date": "2025-07-19",
+       "opponent": "Nicolle Caliari",
+       "result": "W",
+       "method": "KO",
+       "round": 3,
+       "weightClass": "Women's Flyweight"
+      },
+      {
+       "date": "2025-03-15",
+       "opponent": "Yuneisy Duben",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Women's Flyweight"
+      },
+      {
+       "date": "2024-06-15",
+       "opponent": "Gabriella Fernandes",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Women's Flyweight"
+      }
+     ],
+     "strengths": [
+      "Finishes fights — mostly by knockout"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "3-1 in his last 4. 67% of his wins come by finish; 50% of his fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "5308769",
+    "name": "Jeisla Chaves",
+    "record": "8-0-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5308769.png",
+    "priorBoutsInCorpus": 1,
+    "profile": {
+     "bouts": 1,
+     "record": {
+      "wins": 1,
+      "losses": 0
+     },
+     "last5": [
+      {
+       "date": "2026-06-06",
+       "opponent": "Yuneisy Duben",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Women's Flyweight"
+      }
+     ],
+     "strengths": [
+      "1 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "1-0 in his last 1. 0% of his wins come by finish; 100% of his fights reach the judges."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Carli Judice",
+     "probability": 0.6131,
+     "byFighter": {
+      "Carli Judice": 0.6131,
+      "Jeisla Chaves": 0.3869
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.2403,
+      "submission": 0.1328,
+      "decision": 0.6269
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.171,
+      "round2": 0.1266,
+      "round3plus": 0.7024
+     },
+     "goesTheDistance": 0.6269
+    },
+    "priorFights": {
+     "a": 4,
+     "b": 1
+    },
+    "basis": "ONE_FIGHTER_DEBUT",
+    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
+    "reason": "Carli Judice 67% of his wins come by finish — and the matchup profiles as one that reaches the judges."
+   },
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401911625",
+   "weightClass": "Heavyweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-08-23T00:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "3128853",
+    "name": "Anthony Wint",
+    "record": "7-0-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/3128853.png",
     "priorBoutsInCorpus": 0,
     "profile": {
      "bouts": 0,
@@ -193,10 +881,10 @@
     }
    },
    "blue": {
-    "athleteId": "5307811",
-    "name": "Mahamed Aly",
+    "athleteId": "5397621",
+    "name": "Terrance Chatman",
     "record": "5-1-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5307811.png",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5397621.png",
     "priorBoutsInCorpus": 0,
     "profile": {
      "bouts": 0,
@@ -210,30 +898,512 @@
    "unmodelledReason": "Neither fighter has enough UFC history in our corpus to build a read from."
   },
   {
-   "boutId": "401903488",
+   "boutId": "401911629",
    "weightClass": "Featherweight",
    "scheduledRounds": 3,
-   "startUtc": "2026-08-18T23:00Z",
+   "startUtc": "2026-08-22T21:00Z",
    "titleFight": false,
    "red": {
-    "athleteId": "5116187",
-    "name": "Roman Puga",
-    "record": "5-1-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5116187.png",
-    "priorBoutsInCorpus": 0,
+    "athleteId": "3915502",
+    "name": "Jamall Emmers",
+    "record": "22-8-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/3915502.png",
+    "priorBoutsInCorpus": 9,
     "profile": {
-     "bouts": 0,
-     "last5": [],
-     "strengths": [],
-     "weaknesses": [],
-     "summary": null
+     "bouts": 9,
+     "record": {
+      "wins": 5,
+      "losses": 4
+     },
+     "last5": [
+      {
+       "date": "2025-11-08",
+       "opponent": "Hyder Amil",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Featherweight"
+      },
+      {
+       "date": "2025-03-29",
+       "opponent": "Gabriel Miranda",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Featherweight"
+      },
+      {
+       "date": "2024-03-30",
+       "opponent": "Nate Landwehr",
+       "result": "L",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Featherweight"
+      },
+      {
+       "date": "2023-11-11",
+       "opponent": "Dennis Buzukja",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Featherweight"
+      },
+      {
+       "date": "2023-06-24",
+       "opponent": "Jack Jenkins",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Featherweight"
+      }
+     ],
+     "strengths": [
+      "9 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "3-2 in his last 5. 40% of his wins come by finish; 56% of his fights reach the judges."
     }
    },
    "blue": {
-    "athleteId": "5369439",
-    "name": "Taner Trembley",
-    "record": "7-0-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5369439.png",
+    "athleteId": "4958170",
+    "name": "Lerryan Douglas",
+    "record": "14-5-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4958170.png",
+    "priorBoutsInCorpus": 1,
+    "profile": {
+     "bouts": 1,
+     "record": {
+      "wins": 1,
+      "losses": 0
+     },
+     "last5": [
+      {
+       "date": "2026-03-28",
+       "opponent": "Julian Erosa",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Featherweight"
+      }
+     ],
+     "strengths": [
+      "1 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "1-0 in his last 1. 100% of his wins come by finish; 0% of his fights reach the judges."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Lerryan Douglas",
+     "probability": 0.6143,
+     "byFighter": {
+      "Jamall Emmers": 0.3857,
+      "Lerryan Douglas": 0.6143
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.3516,
+      "submission": 0.1214,
+      "decision": 0.527
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.2459,
+      "round2": 0.14,
+      "round3plus": 0.6141
+     },
+     "goesTheDistance": 0.527
+    },
+    "priorFights": {
+     "a": 9,
+     "b": 1
+    },
+    "basis": "ONE_FIGHTER_DEBUT",
+    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
+    "reason": "Lerryan Douglas wins 100% of his bouts to Emmers's 56%, he finishes 100% of his wins and Emmers has been finished in 50% of his losses — and the matchup profiles as one that reaches the judges."
+   },
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401887541",
+   "weightClass": "Heavyweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-08-22T21:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "4245094",
+    "name": "Kennedy Nzechukwu",
+    "record": "14-6-1",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4245094.png",
+    "priorBoutsInCorpus": 14,
+    "profile": {
+     "bouts": 14,
+     "record": {
+      "wins": 8,
+      "losses": 6
+     },
+     "last5": [
+      {
+       "date": "2025-07-12",
+       "opponent": "Valter Walker",
+       "result": "L",
+       "method": "SUB",
+       "round": 1,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2024-12-07",
+       "opponent": "Lukasz Brzeski",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2024-10-26",
+       "opponent": "Chris Barnett",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2024-03-16",
+       "opponent": "Ovince Saint Preux",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Light Heavyweight"
+      },
+      {
+       "date": "2023-08-05",
+       "opponent": "Dustin Jacoby",
+       "result": "L",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Light Heavyweight"
+      }
+     ],
+     "strengths": [
+      "Finishes fights — mostly by knockout",
+      "6 career knockouts in this corpus"
+     ],
+     "weaknesses": [
+      "When he loses, he tends to get finished rather than out-pointed"
+     ],
+     "summary": "2-3 in his last 5. 88% of his wins come by finish; 21% of his fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "5145498",
+    "name": "Shamil Gaziev",
+    "record": "14-3-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5145498.png",
+    "priorBoutsInCorpus": 6,
+    "profile": {
+     "bouts": 6,
+     "record": {
+      "wins": 3,
+      "losses": 3
+     },
+     "last5": [
+      {
+       "date": "2026-05-02",
+       "opponent": "Brando Pericic",
+       "result": "L",
+       "method": "KO",
+       "round": 2,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2025-11-22",
+       "opponent": "Waldo Cortes Acosta",
+       "result": "L",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2025-02-01",
+       "opponent": "Thomas Petersen",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2024-08-03",
+       "opponent": "Don'Tale Mayes",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Heavyweight"
+      },
+      {
+       "date": "2024-03-02",
+       "opponent": "Jairzinho Rozenstruik",
+       "result": "L",
+       "method": "KO",
+       "round": 4,
+       "weightClass": "Heavyweight"
+      }
+     ],
+     "strengths": [
+      "Finishes fights — mostly by knockout"
+     ],
+     "weaknesses": [
+      "When he loses, he tends to get finished rather than out-pointed"
+     ],
+     "summary": "2-3 in his last 5. 67% of his wins come by finish; 17% of his fights reach the judges."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Kennedy Nzechukwu",
+     "probability": 0.6614,
+     "byFighter": {
+      "Kennedy Nzechukwu": 0.6614,
+      "Shamil Gaziev": 0.3386
+     }
+    },
+    "method": {
+     "most": "KO",
+     "probabilities": {
+      "ko": 0.5786,
+      "submission": 0.1329,
+      "decision": 0.2885
+     }
+    },
+    "rounds": {
+     "endsIn": "1",
+     "probabilities": {
+      "round1": 0.4327,
+      "round2": 0.1893,
+      "round3plus": 0.378
+     },
+     "goesTheDistance": 0.2885
+    },
+    "priorFights": {
+     "a": 14,
+     "b": 6
+    },
+    "basis": "BOTH_FIGHTERS",
+    "basisNote": null,
+    "reason": "Kennedy Nzechukwu he finishes 88% of his wins and Gaziev has been finished in 100% of his losses, 14 tracked bouts against 6 — and the finish profile points to a knockout."
+   },
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401911627",
+   "weightClass": "Lightweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-08-22T21:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "3163772",
+    "name": "Chris Padilla",
+    "record": "17-6-1",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/3163772.png",
+    "priorBoutsInCorpus": 4,
+    "profile": {
+     "bouts": 4,
+     "record": {
+      "wins": 4,
+      "losses": 0
+     },
+     "last5": [
+      {
+       "date": "2025-11-08",
+       "opponent": "Ismael Bonfim",
+       "result": "W",
+       "method": "KO",
+       "round": 2,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2025-03-22",
+       "opponent": "Jai Herbert",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2024-09-07",
+       "opponent": "Rongzhu",
+       "result": "W",
+       "method": "KO",
+       "round": 2,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2024-04-27",
+       "opponent": "James Llontop",
+       "result": "W",
+       "method": "SUB",
+       "round": 1,
+       "weightClass": "Lightweight"
+      }
+     ],
+     "strengths": [
+      "Finishes fights — mostly by knockout"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "4-0 in his last 4. 75% of his wins come by finish; 25% of his fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "4277795",
+    "name": "Nasrat Haqparast",
+    "record": "18-6-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4277795.png",
+    "priorBoutsInCorpus": 15,
+    "profile": {
+     "bouts": 15,
+     "record": {
+      "wins": 10,
+      "losses": 5
+     },
+     "last5": [
+      {
+       "date": "2025-10-25",
+       "opponent": "Quillan Salkilld",
+       "result": "L",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2025-03-01",
+       "opponent": "Esteban Ribovics",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2024-06-22",
+       "opponent": "Jared Gordon",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2023-12-09",
+       "opponent": "Jamie Mullarkey",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2023-09-09",
+       "opponent": "Landon Quinones",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      }
+     ],
+     "strengths": [
+      "Durable — most of his fights reach the judges"
+     ],
+     "weaknesses": [
+      "Rarely finishes — needs the judges"
+     ],
+     "summary": "4-1 in his last 5. 20% of his wins come by finish; 73% of his fights reach the judges."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Chris Padilla",
+     "probability": 0.5627,
+     "byFighter": {
+      "Chris Padilla": 0.5627,
+      "Nasrat Haqparast": 0.4373
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.2632,
+      "submission": 0.1045,
+      "decision": 0.6323
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.1572,
+      "round2": 0.1329,
+      "round3plus": 0.7098
+     },
+     "goesTheDistance": 0.6323
+    },
+    "priorFights": {
+     "a": 4,
+     "b": 15
+    },
+    "basis": "BOTH_FIGHTERS",
+    "basisNote": null,
+    "reason": "Chris Padilla wins 100% of his bouts to Haqparast's 67%, 75% of his wins come by finish — and the matchup profiles as one that reaches the judges."
+   },
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401911628",
+   "weightClass": "Featherweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-08-22T21:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "5099679",
+    "name": "Marcio Barbosa",
+    "record": "18-2-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5099679.png",
+    "priorBoutsInCorpus": 1,
+    "profile": {
+     "bouts": 1,
+     "record": {
+      "wins": 1,
+      "losses": 0
+     },
+     "last5": [
+      {
+       "date": "2026-04-18",
+       "opponent": "Dennis Buzukja",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Featherweight"
+      }
+     ],
+     "strengths": [
+      "1 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "1-0 in his last 1. 100% of his wins come by finish; 0% of his fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "5243186",
+    "name": "Ryan Kuse",
+    "record": "9-2-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5243186.png",
     "priorBoutsInCorpus": 0,
     "profile": {
      "bouts": 0,
@@ -245,6 +1415,374 @@
    },
    "prediction": null,
    "unmodelledReason": "Neither fighter has enough UFC history in our corpus to build a read from."
+  },
+  {
+   "boutId": "401911626",
+   "weightClass": "Lightweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-08-22T21:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "5085318",
+    "name": "Gauge Young",
+    "record": "11-3-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5085318.png",
+    "priorBoutsInCorpus": 3,
+    "profile": {
+     "bouts": 3,
+     "record": {
+      "wins": 2,
+      "losses": 1
+     },
+     "last5": [
+      {
+       "date": "2026-04-18",
+       "opponent": "Thiago Moises",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2025-08-23",
+       "opponent": "Maheshate",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2025-04-26",
+       "opponent": "Evan Elder",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      }
+     ],
+     "strengths": [
+      "3 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "2-1 in his last 3. 0% of his wins come by finish; 100% of his fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "5397038",
+    "name": "Stan Dorsainvil",
+    "record": "5-0-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5397038.png",
+    "priorBoutsInCorpus": 0,
+    "profile": {
+     "bouts": 0,
+     "last5": [],
+     "strengths": [],
+     "weaknesses": [],
+     "summary": null
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Gauge Young",
+     "probability": 0.9037,
+     "byFighter": {
+      "Gauge Young": 0.9037,
+      "Stan Dorsainvil": 0.0963
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.2664,
+      "submission": 0.1573,
+      "decision": 0.5763
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.2152,
+      "round2": 0.1394,
+      "round3plus": 0.6455
+     },
+     "goesTheDistance": 0.5763
+    },
+    "priorFights": {
+     "a": 3,
+     "b": 0
+    },
+    "basis": "ONE_FIGHTER_DEBUT",
+    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
+    "reason": null
+   },
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401887542",
+   "weightClass": "Middleweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-08-22T21:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "5057023",
+    "name": "Wes Schultz",
+    "record": "9-3-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5057023.png",
+    "priorBoutsInCorpus": 2,
+    "profile": {
+     "bouts": 2,
+     "record": {
+      "wins": 1,
+      "losses": 1
+     },
+     "last5": [
+      {
+       "date": "2026-05-02",
+       "opponent": "Ben Johnston",
+       "result": "W",
+       "method": "SUB",
+       "round": 3,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2026-02-28",
+       "opponent": "Damian Pinas",
+       "result": "L",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Middleweight"
+      }
+     ],
+     "strengths": [
+      "2 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "1-1 in his last 2. 100% of his wins come by finish; 0% of his fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "5291733",
+    "name": "Jackson McVey",
+    "record": "7-2-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5291733.png",
+    "priorBoutsInCorpus": 3,
+    "profile": {
+     "bouts": 3,
+     "record": {
+      "wins": 1,
+      "losses": 2
+     },
+     "last5": [
+      {
+       "date": "2026-04-25",
+       "opponent": "Sedriques Dumas",
+       "result": "W",
+       "method": "SUB",
+       "round": 1,
+       "weightClass": "Middleweight"
+      },
+      {
+       "date": "2025-11-08",
+       "opponent": "Zach Reese",
+       "result": "L",
+       "method": "SUB",
+       "round": 2,
+       "weightClass": "Catch Weight"
+      },
+      {
+       "date": "2025-07-19",
+       "opponent": "Brunno Ferreira",
+       "result": "L",
+       "method": "SUB",
+       "round": 1,
+       "weightClass": "Middleweight"
+      }
+     ],
+     "strengths": [
+      "3 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "When he loses, he tends to get finished rather than out-pointed"
+     ],
+     "summary": "1-2 in his last 3. 100% of his wins come by finish; 0% of his fights reach the judges."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Wes Schultz",
+     "probability": 0.5106,
+     "byFighter": {
+      "Jackson McVey": 0.4894,
+      "Wes Schultz": 0.5106
+     }
+    },
+    "method": {
+     "most": "SUB",
+     "probabilities": {
+      "ko": 0.311,
+      "submission": 0.3981,
+      "decision": 0.2909
+     }
+    },
+    "rounds": {
+     "endsIn": "1",
+     "probabilities": {
+      "round1": 0.4473,
+      "round2": 0.2014,
+      "round3plus": 0.3513
+     },
+     "goesTheDistance": 0.2909
+    },
+    "priorFights": {
+     "a": 3,
+     "b": 2
+    },
+    "basis": "BOTH_FIGHTERS",
+    "basisNote": null,
+    "reason": "Wes Schultz wins 50% of his bouts to McVey's 33%, he finishes 100% of his wins and McVey has been finished in 100% of his losses — and the finish profile points to a submission."
+   },
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401887543",
+   "weightClass": "W Strawweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-08-22T21:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "4836482",
+    "name": "Elise Reed",
+    "record": "8-5-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4836482.png",
+    "priorBoutsInCorpus": 9,
+    "profile": {
+     "bouts": 9,
+     "record": {
+      "wins": 4,
+      "losses": 5
+     },
+     "last5": [
+      {
+       "date": "2025-05-17",
+       "opponent": "Denise Gomes",
+       "result": "L",
+       "method": "KO",
+       "round": 2,
+       "weightClass": "Women's Strawweight"
+      },
+      {
+       "date": "2024-10-19",
+       "opponent": "Jessica Penne",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Women's Strawweight"
+      },
+      {
+       "date": "2023-09-16",
+       "opponent": "Loopy Godinez",
+       "result": "L",
+       "method": "SUB",
+       "round": 2,
+       "weightClass": "Women's Strawweight"
+      },
+      {
+       "date": "2023-06-03",
+       "opponent": "Jinh Yu Frey",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Women's Strawweight"
+      },
+      {
+       "date": "2023-02-11",
+       "opponent": "Loma Lookboonmee",
+       "result": "L",
+       "method": "SUB",
+       "round": 2,
+       "weightClass": "Women's Strawweight"
+      }
+     ],
+     "strengths": [
+      "9 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "When he loses, he tends to get finished rather than out-pointed",
+      "56% of his tracked bouts are losses"
+     ],
+     "summary": "2-3 in his last 5. 0% of his wins come by finish; 44% of his fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "5157674",
+    "name": "Shanelle Dyer",
+    "record": "7-1-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5157674.png",
+    "priorBoutsInCorpus": 1,
+    "profile": {
+     "bouts": 1,
+     "record": {
+      "wins": 1,
+      "losses": 0
+     },
+     "last5": [
+      {
+       "date": "2026-03-21",
+       "opponent": "Ravena Oliveira",
+       "result": "W",
+       "method": "KO",
+       "round": 2,
+       "weightClass": "Women's Strawweight"
+      }
+     ],
+     "strengths": [
+      "1 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "1-0 in his last 1. 100% of his wins come by finish; 0% of his fights reach the judges."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Shanelle Dyer",
+     "probability": 0.785,
+     "byFighter": {
+      "Elise Reed": 0.215,
+      "Shanelle Dyer": 0.785
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.2104,
+      "submission": 0.1921,
+      "decision": 0.5975
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.2067,
+      "round2": 0.1226,
+      "round3plus": 0.6707
+     },
+     "goesTheDistance": 0.5975
+    },
+    "priorFights": {
+     "a": 9,
+     "b": 1
+    },
+    "basis": "ONE_FIGHTER_DEBUT",
+    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
+    "reason": "Shanelle Dyer wins 100% of his bouts to Reed's 44%, he finishes 100% of his wins and Reed has been finished in 100% of his losses — and the matchup profiles as one that reaches the judges."
+   },
+   "unmodelledReason": null
   }
  ]
 }

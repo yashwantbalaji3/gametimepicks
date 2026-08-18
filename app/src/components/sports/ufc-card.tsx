@@ -51,6 +51,8 @@ export type UfcBout = {
 export type UfcCardArtifact = {
   state?: string;
   event?: { name?: string; startUtc?: string; venue?: string | null; boutCount?: number; slateDate?: string };
+  /** Nearer cards the model has too little history to read — disclosed by /ufc, never dropped. */
+  skippedForCoverage?: Array<{ name: string; dateUtc: string; bouts: number; modellableBouts: number; reason: string }>;
   model?: {
     publishes?: string[];
     verdicts?: Record<string, string>;
