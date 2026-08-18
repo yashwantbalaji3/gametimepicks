@@ -37,11 +37,16 @@ jobs:
       # every model head are computed from it plus the committed fight corpus, so
       # this whole job costs nothing and can run three times a week indefinitely.
       #
-      # It deliberately does NOT refresh odds: the standing paid-provider
-      # authorisation is NFL-only, and a UFC odds call under it would spend
-      # budget nobody approved. Prices refresh only when that is authorised
-      # separately, and the eligibility gate closes UFC's Lab stream on its own
-      # while they are stale.
+      # Prices are now refreshed too, under a SEPARATE committed receipt
+      # (docs/receipts/ODDS_AUTHORIZATION_UFC.md, founder-authorised 2026-08-18):
+      # UFC/MMA only, h2h only, us region only, bulk endpoint only, 500-credit
+      # cumulative ceiling. That receipt cannot fund an NFL call and the NFL one
+      # cannot fund this — the parser refuses a receipt naming another sport key
+      # in both directions, and each sport keeps its own cumulative ledger.
+      #
+      # One bulk call prices the whole card for ONE credit (markets x regions =
+      # 1 x 1). Three runs a week is ~3 credits, so the ceiling is roughly three
+      # years of this cadence: a circuit breaker, not a budget.
       - name: Capture the next card (auto-advances past a finished event)
         run: |
           set -euo pipefail
@@ -54,12 +59,42 @@ jobs:
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           node app/scripts/ufc/build-ufc-card.mjs --now "$NOW"
 
+      # Fight-winner prices. Fail-closed on the receipt, the cumulative ledger and
+      # the duplicate-request window, so a re-run inside 30 minutes cannot re-buy
+      # prices we already hold. `|| echo` keeps a refusal from failing the whole
+      # job: no prices is a legitimate state, and the eligibility gate closes the
+      # Lab stream on its own while they are stale.
+      - name: Refresh fight-winner prices (1 credit, UFC receipt)
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if [ -z "${ODDS_API_KEY:-}" ]; then
+            echo "ODDS_API_KEY is not configured — skipping the priced step, card and model heads still refreshed"
+            exit 0
+          fi
+          node app/scripts/ufc/capture-ufc-odds.mjs --now "$NOW" --apply || \
+            echo "ufc odds: refused or unavailable this run — see the step log; nothing was spent beyond what the ledger records"
+
       - name: Settle any card that has now been fought
         run: |
           set -euo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           node app/scripts/ufc/capture-ufc-results.mjs --now "$NOW" || \
             echo "no newly-settled UFC card — the honest state between events"
+
+      # With fresh prices UFC can clear the Lab's eligibility gate, so the grids
+      # are re-resolved here. Multi is included deliberately: a second live sport
+      # is exactly what opens the cross-sport lane, and it must not wait a day.
+      - name: Re-resolve the parlay tier grids
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          for SPORT in mlb ufc nfl epl multi; do
+            node app/scripts/parlays/build-tier-grid.mjs --sport "$SPORT" --now "$NOW" || \
+              echo "tier grid $SPORT: refused this run"
+          done
 
       - name: Commit if anything changed
         run: |
@@ -68,7 +103,9 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           # Allowlisted paths only. A generated-data job never touches money artifacts.
           git add app/public/data/ufc/schedule app/public/data/ufc/card-latest.json \
-                  app/public/data/ufc/schedule-latest.json app/public/data/ufc/graded-moneylines-latest.json 2>/dev/null || true
+                  app/public/data/ufc/schedule-latest.json app/public/data/ufc/graded-moneylines-latest.json \
+                  app/public/data/ufc/odds-latest.json app/public/data/parlays/tier-grid \
+                  data/internal/research/odds/ufc/authorization-ledger.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
           git commit -m "auto: ufc fight-week refresh $(date -u +%Y-%m-%d) [skip ci]"
           git pull --rebase --autostash origin main

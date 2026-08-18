@@ -17,6 +17,68 @@
 export const P171_AUTHORIZATION_VERSION = 1;
 export const P171_LEDGER_RELPATH = "data/internal/research/odds/nfl/p171-ledger.json";
 
+/** Each authorized sport keeps its OWN cumulative ledger — one ceiling must never fund another. */
+export const LEDGER_RELPATH = {
+  nfl: P171_LEDGER_RELPATH,
+  ufc: "data/internal/research/odds/ufc/authorization-ledger.json",
+};
+
+/**
+ * The sports a committed receipt can authorize, and what its scope terms must literally say.
+ *
+ * A receipt is only ever read against ONE of these. That is the point: a UFC receipt cannot widen
+ * the NFL allowance and an NFL receipt cannot buy a fight card, because the parser is told which
+ * sport it is validating and refuses a receipt whose scope names a different one.
+ */
+export const AUTHORIZED_SPORTS = {
+  nfl: { sportKey: "americanfootball_nfl", scopeRe: /NFL[- ]only/i },
+  ufc: { sportKey: "mma_mixed_martial_arts", scopeRe: /UFC[- /]?(?:\/\s*MMA[- ])?only|MMA[- ]only/i },
+};
+
+/**
+ * Parse a committed receipt for ONE named sport. Fail-closed in both directions.
+ *
+ * "Fail-closed in both directions" is the load-bearing part. A missing term refuses, as before —
+ * but so does a receipt whose scope names a sport OTHER than the one being asked about. Without
+ * that second check a second receipt on disk would silently satisfy the first sport's gate, and the
+ * whole guarantee ("this ceiling funds this sport") would be worth nothing.
+ *
+ * @param {string} markdown the receipt as committed
+ * @param {string} sport    which allowance is being validated — must be a key of AUTHORIZED_SPORTS
+ */
+export function parseSportAuthorizationReceipt(markdown, sport) {
+  const spec = AUTHORIZED_SPORTS[sport];
+  if (!spec) return { ok: false, errors: [`no authorization is defined for "${sport}"`] };
+
+  const errors = [];
+  // blockquote markers are markdown formatting, not content
+  const text = String(markdown ?? "").replace(/^>\s?/gm, "");
+
+  if (!spec.scopeRe.test(text) || !text.includes(`\`${spec.sportKey}\``)) {
+    errors.push(`scope: this receipt does not restrict itself to ${sport} + \`${spec.sportKey}\``);
+  }
+  // A receipt naming ANOTHER authorized sport key cannot be read as covering this one.
+  for (const [other, o] of Object.entries(AUTHORIZED_SPORTS)) {
+    if (other !== sport && text.includes(`\`${o.sportKey}\``)) {
+      errors.push(`scope: this receipt also names \`${o.sportKey}\` — one receipt authorizes one sport`);
+    }
+  }
+  const ceilingMatch = text.match(/(?:Cumulative ceiling|cumulative maximum)[^0-9]*?([\d,]+)\s*credits/i);
+  const ceiling = ceilingMatch ? Number(ceilingMatch[1].replace(/,/g, "")) : null;
+  if (!(ceiling > 0)) errors.push("ceiling: no cumulative credit ceiling found");
+  if (!/do not retry\s+blindly/i.test(text.replace(/\n/g, " "))) errors.push("discipline: no-blind-retry term not found");
+
+  if (errors.length) return { ok: false, errors };
+  return {
+    ok: true,
+    sport,
+    sportKey: spec.sportKey,
+    ceiling,
+    floor: 0,
+    ledgerRelPath: LEDGER_RELPATH[sport] ?? null,
+  };
+}
+
 /** Parse the committed receipt. Fail-closed: every operative term must be present and exact. */
 export function parseAuthorizationReceipt(markdown) {
   const errors = [];
@@ -79,12 +141,15 @@ export function isDuplicateRequest(ledger, { fingerprint, nowIso, freshnessMinut
 }
 
 /** A fresh ledger (first authorized run creates it). */
-export function emptyLedger(receiptPath) {
+export function emptyLedger(receiptPath, { sport = "nfl", program = "P171" } = {}) {
   return {
     schemaVersion: 1,
-    artifact: "nfl-odds-p171-ledger",
+    // Named for the sport it funds. A ledger labelled "nfl" holding UFC spend would make the one
+    // guarantee this file exists to give — this ceiling funds this sport — unreadable after the fact.
+    artifact: `${sport}-odds-authorization-ledger`,
     dataClass: "PRIVATE_RESEARCH",
-    program: "P171",
+    sport,
+    program,
     receiptPath,
     openingBalance: null,
     requests: [],
