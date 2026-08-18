@@ -43,6 +43,42 @@ const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 const get = async (url) => { const r = await fetch(url); if (!r.ok) throw new Error(`${r.status} ${url}`); return r.json(); };
 const norm = (s) => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
 
+/**
+ * UFC BOUT OUTCOMES, from the official results capture.
+ *
+ * A fight-winner leg does not settle on a stat line — it settles on who won — so it needs its own
+ * path rather than a special case bolted into the box-score reader. Until this existed the settler
+ * could only grade MLB, which meant a cross-sport card was publishable and ungradeable: it would
+ * have sat pending forever and never entered the record, quietly computing the published hit rate
+ * over only the cards that happened to be settleable.
+ *
+ * Matching is on the FOLDED fighter name, both sides. The results capture writes "Kaue Fernandes"
+ * where a card may carry "Kauê Fernandes", and an unfolded compare silently reads a real result as
+ * "no result yet" — which grades as pending, i.e. as if the fight had not happened.
+ */
+function loadUfcResults() {
+  const byFighter = new Map();   // folded name -> { won, boutId, eventDate }
+  try {
+    const doc = JSON.parse(fs.readFileSync(path.join(APP, "public", "data", "ufc", "results-latest.json"), "utf8"));
+    for (const r of doc.results ?? []) {
+      // Only DECISIVE bouts settle a moneyline. A draw or no-contest voids the leg rather than
+      // losing it, so those are deliberately not indexed as a win for anybody.
+      if (!r.winner || !r.loser) continue;
+      byFighter.set(norm(r.winner), { won: true, boutId: r.boutId, eventDate: r.eventDate });
+      byFighter.set(norm(r.loser), { won: false, boutId: r.boutId, eventDate: r.eventDate });
+    }
+  } catch { /* no results on disk — every UFC leg stays pending, which is the honest state */ }
+  return byFighter;
+}
+const ufcResults = loadUfcResults();
+
+/** Grade one fight-winner leg: did the named fighter win a decisive bout? */
+function gradeUfcLeg(leg) {
+  const r = ufcResults.get(norm(leg.player));
+  if (!r) return "pending";                       // not fought yet, or a draw/no-contest — never a loss
+  return r.won ? "win" : "loss";
+}
+
 /** The stat a market settles on, from one player's official box-score line. */
 function actualFor(market, stats) {
   const b = stats?.batting ?? {}, p = stats?.pitching ?? {};
@@ -90,6 +126,11 @@ for (const card of ladder.cards ?? []) {
   let combined = 1;
   for (const leg of card.legs ?? []) {
     if (leg.odds != null) combined *= dec(leg.odds);
+
+    /* Route by the leg's OWN sport. A cross-sport card carries legs from more than one, so the
+       grading path is a property of the leg, never of the card. */
+    if ((leg.sport ?? "mlb") === "ufc") { results.push(gradeUfcLeg(leg)); continue; }
+
     const box = await boxFor(leg.gamePk);
     if (!box.final) { results.push("pending"); continue; }
     const stats = box.byPlayer.get(norm(leg.player));
@@ -104,14 +145,22 @@ for (const card of ladder.cards ?? []) {
     : decisive.includes("loss") ? "loss"
     : decisive.length && decisive.every((r) => r === "win") ? "win"
     : "pending";
-  cards.push({ sport: "mlb", tier: card.tier, slipId: card.slipId, result, combinedDecimal: Number(combined.toFixed(6)), legs: results });
+  /* Derived, never hardcoded: a card stamped "mlb" while holding a fight leg makes the receipt
+     lie about what was graded, and the attribution is what the record is built from. */
+  const sports = [...new Set((card.legs ?? []).map((l) => l.sport ?? "mlb"))].sort();
+  cards.push({
+    sport: sports.length === 1 ? sports[0] : "multi",
+    sports,
+    tier: card.tier, slipId: card.slipId, result,
+    combinedDecimal: Number(combined.toFixed(6)), legs: results,
+  });
   console.log(`  ${card.tierLabel.padEnd(12)} ${result.toUpperCase()}`);
 }
 
 const receipt = {
   schemaVersion: 1, artifact: "parlay-lab-settlement", dataClass: "PUBLIC_DERIVED",
   date: DATE, settledAt: NOW.replace(/\.\d{3}Z$/, "Z"),
-  source: "MLB Stats API official box score (feed/live), joined by gamePk",
+  source: "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name",
   policyVersion: 2,
   cards,
 };
