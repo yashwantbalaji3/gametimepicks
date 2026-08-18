@@ -13,7 +13,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { loadCorpus, METHODS, WIN_F, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, nameKey } from "./lib/fight-model.mjs";
+import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, nameKey } from "./lib/fight-model.mjs";
 
 
 const APP = process.cwd();
@@ -71,6 +71,28 @@ const corpus = loadCorpus(RAW);
 if (!corpus) { console.error("ufc card: fight corpus absent — cannot build"); process.exit(1); }
 const { rowsOut, rec, recByKey, logByKey, wcRec, baseMethod, fights } = corpus;
 
+/*
+ * THE WINNER HEAD DOES NOT TAKE THE TALE OF THE TAPE. It was adopted, measured, and reverted.
+ *
+ * On identical walk-forward folds at 95.8% physicals coverage the winner head got sharply BETTER by
+ * every accuracy measure — gain 0.0147 -> 0.0311, accuracy 57.6% -> 61.1% — and the improvement is
+ * significant on the correct paired test: McNemar over 1,001 discordant fights gives chi2 = 13.44,
+ * z = 3.67, p < 0.01. (Fold-to-fold spread called it noise, but that test treats two arms predicting
+ * the SAME fights as independent samples, which is wrong and conservative.)
+ *
+ * It still fails, on CALIBRATION: maxCalibrationZ 2.014 against a preregistered bar of 2.0. The
+ * augmented head is overconfident at the extremes — in the 0-0.4 bucket it predicts 35.2% and
+ * observes 31.1%.
+ *
+ * Missing by 0.014 is exactly the margin that invites moving the bar, which is why it is not moved.
+ * The bar was set before any of this existed, and a bar honoured only when it is convenient is
+ * decoration. There is also a product reason: this site publishes PROBABILITIES, and Cage Chaos
+ * showing "65% to win" is a claim about frequency, not a ranking. A model that orders fights better
+ * while stating probabilities that are wrong is worse for what we actually publish.
+ *
+ * WIN_F_TOTT stays exported and the physicals stay ingested. The route back is calibration — an
+ * isotonic or Platt layer on the augmented head — not a softer bar.
+ */
 const winModel = fitBinary(rowsOut.map((r) => ({ feat: r.feat, y: r.f.aWon })), WIN_F);
 const methodModel = fitSoftmax(rowsOut.map((r) => ({ feat: r.feat, k: METHODS.indexOf(r.f.method) })), CLS_F, 3);
 const roundModel = fitSoftmax(rowsOut.map((r) => ({ feat: r.feat, k: Math.min(r.f.round, 3) - 1 })), CLS_F, 3);

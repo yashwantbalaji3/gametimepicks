@@ -21,7 +21,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { loadCorpus, METHODS, WIN_F, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax } from "./lib/fight-model.mjs";
+import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax } from "./lib/fight-model.mjs";
 
 const APP = process.cwd();
 const RAW = path.join(APP, "..", "data", "internal", "research", "ufc", "raw", "stats");
