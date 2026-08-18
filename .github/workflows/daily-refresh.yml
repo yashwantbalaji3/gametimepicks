@@ -144,7 +144,17 @@ jobs:
           # messages, but this prevents recursion if push triggers are added later.
           MSG="auto: Phase 10 daily refresh ($(date -u +%Y-%m-%dT%H:%MZ)) [skip ci]"
           git commit -m "$MSG"
-          git push origin HEAD:main
+          # Rebase-then-push, with retries. A bare `git push` fails whenever anything else
+          # pushed to main first, which is routine here: several bots and every human commit
+          # land on the same branch. auto-refresh failed exactly this way tonight — it built
+          # the artifact correctly, committed it, and then lost the whole run on
+          # "! [rejected] (fetch first)". The work was done and thrown away.
+          for a in 1 2 3 4 5; do
+            git push origin HEAD:main && break
+            echo "push rejected (attempt $a) — rebasing onto origin/main and retrying"
+            git pull --rebase --autostash origin main || exit 1
+            if [ "$a" = "5" ]; then echo "still rejected after 5 attempts"; exit 1; fi
+          done
           echo "Pushed: $MSG"
 
       - name: Upload build artifacts (debug)

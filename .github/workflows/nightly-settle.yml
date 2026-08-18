@@ -472,7 +472,14 @@ jobs:
           ET=$(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')
           MSG="auto: nightly settle ${ET} [skip ci]"
           git commit -m "$MSG"
-          git push origin HEAD:main
+          # Rebase-then-push, with retries. A bare push loses the whole run when anything else has
+          # landed on main first, and settlement is the one job whose output must not be discarded.
+          for a in 1 2 3 4 5; do
+            git push origin HEAD:main && break
+            echo "push rejected (attempt $a) — rebasing onto origin/main and retrying"
+            git pull --rebase --autostash origin main || exit 1
+            if [ "$a" = "5" ]; then echo "still rejected after 5 attempts"; exit 1; fi
+          done
           echo "Pushed: $MSG"
 
       - name: Upload failure logs

@@ -214,3 +214,34 @@ test("a script is never invoked from a directory it cannot run in", () => {
   assert.ok(pairs > 0, "no path-invoked scripts found — the scan is probably broken");
   assert.deepEqual(offenders, [], `script(s) invoked from a directory they cannot run in:\n  ${offenders.join("\n  ")}`);
 });
+
+test("no workflow pushes to main without being able to rebase", () => {
+  /*
+   * auto-refresh's latest scheduled run failed on "! [rejected] (fetch first)". It had built the
+   * artifact correctly and committed it — then lost the entire run because something else had
+   * pushed to main in the meantime. That is not an edge case here: several bots and every human
+   * commit land on the same branch, so a bare `git push` is a coin flip that gets worse the busier
+   * the day is.
+   *
+   * A push must therefore be able to recover: either it retries around a fetch/rebase, or a rebase
+   * precedes it. The retry-loop form most of these workflows already use satisfies both.
+   */
+  if (!fs.existsSync(DIR)) return;
+  const offenders = [];
+  let pushes = 0;
+  for (const f of fs.readdirSync(DIR).filter((n) => n.endsWith(".yml") || n.endsWith(".yaml"))) {
+    const lines = fs.readFileSync(path.join(DIR, f), "utf8").split("\n");
+    lines.forEach((l, i) => {
+      if (!/\bgit push\b/.test(l) || /^\s*#/.test(l.trim())) return;
+      pushes++;
+      // Recovery may sit just before the push (rebase-then-push) or just after it inside a retry
+      // loop (push-then-fetch-then-retry), so look both ways.
+      const window = lines.slice(Math.max(0, i - 12), i + 8).join("\n");
+      if (/git pull --rebase|git fetch/.test(window)) return;
+      offenders.push(`${f}:${i + 1} — ${l.trim().slice(0, 66)}`);
+    });
+  }
+  assert.ok(pushes > 5, `only ${pushes} pushes found — the scan is probably broken, not the workflows`);
+  assert.deepEqual(offenders, [],
+    `push(es) to main with no way to recover from a concurrent push:\n  ${offenders.join("\n  ")}`);
+});

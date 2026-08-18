@@ -80,6 +80,30 @@ export interface UfcPredictionRowV1 {
 
 // ── inputs (loosely typed — the real artifacts are validated by the readers) ──
 export interface EngineFight { boutId?: string; fighterA?: string; fighterB?: string }
+
+/** One bout as the card artifact writes it — corners named, not A/B. */
+export interface CardBout { boutId?: string; red?: { name?: string | null }; blue?: { name?: string | null } }
+
+/**
+ * The card artifact's bouts, as fights this engine can read.
+ *
+ * WHY THIS EXISTS. The engine used to be fed from `schedule-latest.json`, which turned out to have
+ * NO PRODUCER — an orphan last written 2026-07-10 that nothing regenerates. Its tests passed only
+ * because the schedule and the odds were equally stale, so the join between them was vacuous and
+ * looked fine; the first fresh price capture broke it and reported "0 market-backed moneylines",
+ * which sounds like an odds problem and was not.
+ *
+ * `card-latest.json` is rebuilt by the fight-week job every run and is the same artifact the odds
+ * capture prices, so the two cannot drift apart. Adapting here rather than at each call site means
+ * a second consumer cannot quietly reintroduce the orphan.
+ */
+export function eventFightsFromCard(bouts: readonly CardBout[] | null | undefined): EngineFight[] {
+  return (bouts ?? [])
+    .map((b) => ({ boutId: b.boutId, fighterA: b.red?.name ?? undefined, fighterB: b.blue?.name ?? undefined }))
+    // A bout missing a corner cannot be joined to a price or a fighter record, and a row built from
+    // one would render a half-empty prediction rather than an honest absence.
+    .filter((f) => Boolean(f.fighterA && f.fighterB));
+}
 export interface EngineOddsSide { name: string; price: number }
 export interface EngineOddsBout { sides?: EngineOddsSide[] }
 /** The per-fighter stats we consume from fighters-latest.json (all optional / null-safe). */

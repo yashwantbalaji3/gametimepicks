@@ -11,10 +11,18 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { buildUfcCardPredictions, buildUfcPredictionV1, buildFighterIndex, impliedFromAmerican, deVig, moneylineConfidence, keyForNames } from "./ufc-prediction-engine.ts";
+import { buildUfcCardPredictions, buildUfcPredictionV1, buildFighterIndex, impliedFromAmerican, deVig, moneylineConfidence, keyForNames, eventFightsFromCard } from "./ufc-prediction-engine.ts";
 
 const loadUfc = (n) => JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", n), "utf8"));
-const sched = loadUfc("schedule-latest.json");
+/*
+ * card-latest.json, NOT schedule-latest.json.
+ *
+ * The schedule artifact has no producer — an orphan last written 2026-07-10 — and these tests
+ * passed only because it and the odds were equally stale, which made every join below vacuous. The
+ * card is rebuilt every fight-week run and is the same artifact the odds capture prices.
+ */
+const card = loadUfc("card-latest.json");
+const fights = eventFightsFromCard(card.bouts);
 const odds = loadUfc("odds-latest.json");
 const fdb = loadUfc("fighters-latest.json");
 
@@ -24,7 +32,7 @@ for (const bt of odds.bouts ?? []) {
   if (names.length >= 2) oddsIndex.set(keyForNames(names[0], names[1]), bt);
 }
 const fighterByName = buildFighterIndex(fdb.fighters);
-const rows = buildUfcCardPredictions(sched.fights, oddsIndex, fighterByName);
+const rows = buildUfcCardPredictions(fights, oddsIndex, fighterByName);
 
 /*
  * DO THE TWO ARTIFACTS EVEN DESCRIBE THE SAME CARD?
@@ -38,15 +46,15 @@ const rows = buildUfcCardPredictions(sched.fights, oddsIndex, fighterByName);
  * accurate sentence, and it fails rather than skips because a stale schedule feeding the public
  * /ufc report is a real defect, not a test-environment quirk.
  */
-const schedDates = [...new Set((sched.fights ?? []).map((f) => String(f.boutId ?? "").slice(0, 10)))];
+const schedDates = [...new Set(fights.map((f) => String(f.boutId ?? "").slice(0, 10)))];
 const oddsDates = [...new Set((odds.bouts ?? []).map((b) => String(b.boutId ?? "").slice(0, 10)))];
 const sameCard = schedDates.some((d) => oddsDates.includes(d));
 
 test("0 · the schedule and the odds describe the same card", () => {
   assert.ok(sameCard,
-    `schedule-latest covers ${schedDates.join(", ") || "nothing"} while odds-latest covers ` +
-    `${oddsDates.join(", ") || "nothing"} — the schedule artifact is stale, so every join below is ` +
-    `vacuous. Refresh the schedule capture; the odds are current.`);
+    `card-latest covers ${schedDates.join(", ") || "nothing"} while odds-latest covers ` +
+    `${oddsDates.join(", ") || "nothing"} — the two artifacts describe different events, so every ` +
+    `join below is vacuous. They are written by the same job and must not drift.`);
 });
 
 test("1 · odds → implied → de-vig math is correct", () => {
@@ -65,7 +73,7 @@ test("2 · moneyline confidence bands match the documented thresholds", () => {
 });
 
 test("3 · the whole card builds; a mix of odds-backed + model-derived + insufficient rows", () => {
-  assert.equal(rows.length, sched.fights.length, "one row per scheduled fight");
+  assert.equal(rows.length, fights.length, "one row per bout on the card");
   const oddsBacked = rows.filter((r) => r.moneyline.source === "market_implied");
   const modelReads = rows.filter((r) => r.fightType.source === "model_derived");
   assert.ok(oddsBacked.length >= 5, `market-backed moneylines (${oddsBacked.length})`);
@@ -121,7 +129,7 @@ test("8 · every fight emits a DISPLAY-SAFE row — no empty cells, no forbidden
 });
 
 test("9 · every fight has an explicit Predicted Winner + Method of Victory; winner is a name or 'No clear winner'", () => {
-  const fighterNames = new Set(sched.fights.flatMap((f) => [f.fighterA, f.fighterB]));
+  const fighterNames = new Set(fights.flatMap((f) => [f.fighterA, f.fighterB]));
   for (const r of rows) {
     const w = r.prediction.predictedWinner;
     assert.ok(w === "No clear winner" || fighterNames.has(w), `${r.eventName ?? r.fightId}: winner is a real fighter name or "No clear winner" (got "${w}")`);
@@ -152,8 +160,25 @@ test("7 · diacritic folding matches accented fighters; genuine unknowns stay ho
       assert.equal(r.dataCoverage.fighterBMatchQuality, "matched");
     }
   }
-  // At least 12 of 14 fights now carry a model read (diacritic fold recovered one).
-  assert.ok(rows.filter((r) => r.fightType.source === "model_derived").length >= 12, "≥12/14 model reads after matching fix");
+  /*
+   * THE MECHANISM, not one card's count.
+   *
+   * This asserted ">= 12 of 14 model reads", a number tuned to the July card that was on disk when
+   * it was written. It failed the moment a different card was published — 13 bouts, 9 reads, 4 with
+   * a corner not in the stats DB — even though nothing was wrong. A test pinned to today's data
+   * fails on the day the data changes, which teaches everyone to edit the number rather than read
+   * the test.
+   *
+   * The real invariant is exact and card-independent: a model read exists for precisely those
+   * fights where BOTH corners matched a fighter record, and for no others. That catches a silent
+   * matching regression (reads drop while matches hold) AND a fabricated read (a read appears
+   * without a match), which the count never could.
+   */
+  const bothMatched = rows.filter((r) => r.dataCoverage.fighterAMatchQuality === "matched" && r.dataCoverage.fighterBMatchQuality === "matched");
+  const modelReads = rows.filter((r) => r.fightType.source === "model_derived");
+  assert.equal(modelReads.length, bothMatched.length,
+    `${modelReads.length} model reads against ${bothMatched.length} fully-matched fights — a read without a match is fabricated, a match without a read is a regression`);
+  assert.ok(bothMatched.length > 0, "no fight on this card matched both corners — the fighter index is not joining at all");
 });
 
 test("6 · confidence lowers with coverage; no-data fight is honest", () => {

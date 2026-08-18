@@ -188,9 +188,12 @@ for (const b of card.bouts ?? []) {
      * without the market read it exists to show. Same data, in the shape each consumer already
      * expects; a rename here is a silent regression somewhere else.
      */
+    /* `price` is the field the prediction engine reads (EngineOddsSide.price). `american` is kept
+       alongside it because that is what every other artifact here calls an American number — one
+       consumer's field name is not a reason to rename it for the rest. */
     sides: [
-      { name: b.red?.name ?? null, american: side(b.red?.name)?.american ?? null, books: side(b.red?.name)?.books ?? 0 },
-      { name: b.blue?.name ?? null, american: side(b.blue?.name)?.american ?? null, books: side(b.blue?.name)?.books ?? 0 },
+      { name: b.red?.name ?? null, price: side(b.red?.name)?.american ?? null, american: side(b.red?.name)?.american ?? null, books: side(b.red?.name)?.books ?? 0 },
+      { name: b.blue?.name ?? null, price: side(b.blue?.name)?.american ?? null, american: side(b.blue?.name)?.american ?? null, books: side(b.blue?.name)?.books ?? 0 },
     ],
   });
 }
