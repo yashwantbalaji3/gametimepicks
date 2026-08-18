@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822859,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T21:14:48.755Z",
+  "availableAt": "2026-08-18T21:14:48.755Z",
+  "eventStartTime": "2026-08-19T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 615698,
+      "name": "Cal Quantrill",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 4.2,
+        "bbAvg": 1.4,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 7.18,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 37.33,
+        "k": 29,
+        "bb": 9,
+        "er": 13,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 800600,
+      "name": "Jackson Kent",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 1,
+        "ipSum": 4,
+        "ipAvg": 4,
+        "kAvg": 6,
+        "bbAvg": 5,
+        "erAvg": 3,
+        "hrAvg": 0,
+        "kPer9": 13.5,
+        "workloadIpLast5": 4
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 4,
+        "k": 6,
+        "bb": 5,
+        "er": 3,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-18T21:14:48.755Z"
+  },
+  "recordHash": "48c0c394cbebaf64f654af331c47feb2216885e868ee8e468e7139fd3939bc28"
+}

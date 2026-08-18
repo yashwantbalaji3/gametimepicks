@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824154,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T21:14:48.755Z",
+  "availableAt": "2026-08-18T21:14:48.755Z",
+  "eventStartTime": "2026-08-19T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 664299,
+      "name": "Cristian Javier",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 9,
+      "lastStartDate": "2026-08-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 18.67,
+        "ipAvg": 3.73,
+        "kAvg": 2.2,
+        "bbAvg": 1.8,
+        "erAvg": 3.4,
+        "hrAvg": 0.6,
+        "kPer9": 5.3,
+        "workloadIpLast5": 18.67
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 23.33,
+        "k": 12,
+        "bb": 13,
+        "er": 23,
+        "hr": 5
+      }
+    },
+    "away": {
+      "id": 691946,
+      "name": "George Klassen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 4,
+        "ipSum": 14.67,
+        "ipAvg": 3.67,
+        "kAvg": 3.5,
+        "bbAvg": 3.75,
+        "erAvg": 2.25,
+        "hrAvg": 0.5,
+        "kPer9": 8.59,
+        "workloadIpLast5": 14.67
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 14.67,
+        "k": 14,
+        "bb": 15,
+        "er": 9,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-18T21:14:48.755Z"
+  },
+  "recordHash": "d31ffe03dc7659d5257b90ba24f38f8591c001b3ad51b5a45a1cc13a723e94fd"
+}

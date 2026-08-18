@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823423,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T21:14:48.755Z",
+  "availableAt": "2026-08-18T21:14:48.755Z",
+  "eventStartTime": "2026-08-18T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 554430,
+      "name": "Zack Wheeler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 5.8,
+        "bbAvg": 1.4,
+        "erAvg": 3,
+        "hrAvg": 0.8,
+        "kPer9": 11.69,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 115.33,
+        "k": 137,
+        "bb": 29,
+        "er": 37,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 806188,
+      "name": "Cade Gibson",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-18T21:14:48.755Z"
+  },
+  "recordHash": "dceb1bfb8091c01b69f5e7e50a4d095ba7a1db3b27206a0d5210218c0b06703c"
+}
