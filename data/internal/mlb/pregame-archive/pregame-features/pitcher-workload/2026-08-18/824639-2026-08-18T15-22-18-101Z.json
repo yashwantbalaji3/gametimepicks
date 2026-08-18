@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824639,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T15:22:18.101Z",
+  "availableAt": "2026-08-18T15:22:18.101Z",
+  "eventStartTime": "2026-08-19T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 592332,
+      "name": "Kevin Gausman",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 5,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 4.4,
+        "bbAvg": 1.2,
+        "erAvg": 3.2,
+        "hrAvg": 0.4,
+        "kPer9": 7.42,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 139,
+        "k": 138,
+        "bb": 38,
+        "er": 70,
+        "hr": 17
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-18T15:22:18.101Z"
+  },
+  "recordHash": "8d8894dca67e91d2e10502996e1e4f498c39b03a5813bc9e2bb8f87b421f6110"
+}
