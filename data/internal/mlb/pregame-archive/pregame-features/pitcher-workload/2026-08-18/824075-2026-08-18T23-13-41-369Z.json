@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824075,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T23:13:41.369Z",
+  "availableAt": "2026-08-18T23:13:41.369Z",
+  "eventStartTime": "2026-08-18T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663738,
+      "name": "Daniel Lynch IV",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 2,
+        "ipSum": 4,
+        "ipAvg": 2,
+        "kAvg": 2.5,
+        "bbAvg": 1,
+        "erAvg": 3,
+        "hrAvg": 1,
+        "kPer9": 11.25,
+        "workloadIpLast5": 4
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 4,
+        "k": 5,
+        "bb": 2,
+        "er": 6,
+        "hr": 2
+      }
+    },
+    "away": {
+      "id": 669620,
+      "name": "Brady Basso",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 24,
+      "lastStartDate": "2026-07-25",
+      "last5": {
+        "starts": 1,
+        "ipSum": 2.33,
+        "ipAvg": 2.33,
+        "kAvg": 3,
+        "bbAvg": 1,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 11.57,
+        "workloadIpLast5": 2.33
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 2.33,
+        "k": 3,
+        "bb": 1,
+        "er": 0,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-18T23:13:41.369Z"
+  },
+  "recordHash": "760ed61d5ab20c8d058ce51db0910d1ce0c71a76b30c5df70309d87e5537160f"
+}
