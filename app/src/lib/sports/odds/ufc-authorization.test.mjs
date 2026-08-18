@@ -169,3 +169,22 @@ test("every AUTHORIZED_SPORTS entry has a ledger of its own", () => {
     assert.ok(LEDGER_RELPATH[sport], `${sport} can be authorized but has nowhere to count its spend`);
   }
 });
+
+test("no unguarded path can spend UFC credits outside the receipt", () => {
+  /*
+   * The receipt guards app/scripts/ufc/capture-ufc-odds.mjs. It does not, by itself, guard the
+   * LEGACY python path — pipeline/ufc/build_odds.py predates it, buys one credit PER BOUT, and
+   * consults no receipt, ledger or ceiling. Three manual workflows still carry ODDS_API_KEY and can
+   * invoke it. Authorising a sport without closing its older spender is how a 500-credit circuit
+   * breaker gets bypassed by a route nobody remembered.
+   */
+  const legacy = path.join(REPO, "pipeline", "ufc", "build_odds.py");
+  if (!fs.existsSync(legacy)) return;
+  const src = fs.readFileSync(legacy, "utf8");
+
+  const fetchAt = src.indexOf("fetch_event_odds(e.get(");
+  if (fetchAt === -1) return;                       // the per-event loop is gone entirely — fine
+  const refuseAt = src.indexOf("REFUSED: the per-event UFC odds path is out of scope");
+  assert.ok(refuseAt > -1, "the per-event UFC path must refuse to spend under the bulk-only receipt");
+  assert.ok(refuseAt < fetchAt, "the refusal must precede the paid loop, not follow it");
+});

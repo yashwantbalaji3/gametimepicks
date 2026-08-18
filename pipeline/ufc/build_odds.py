@@ -61,6 +61,24 @@ def build(max_events: int, dry_run: bool, regions: str = "us") -> dict:
                      "home": e.get("home_team"), "away": e.get("away_team")} for e in upcoming],
         )
 
+    # ── SUPERSEDED: this per-event path may no longer spend ─────────────────────────────────────
+    #
+    # UFC odds acquisition was authorised on 2026-08-18 under docs/receipts/ODDS_AUTHORIZATION_UFC.md,
+    # and that receipt names the BULK endpoint as the only route in scope. This function predates it
+    # and buys one credit PER BOUT: the July 2026 capture paid 20 credits for a card the bulk route
+    # prices for 1. It also carries no receipt check, no cumulative ledger and no ceiling, so a run
+    # here spends entirely outside the guarantee the receipt exists to give.
+    #
+    # It is left in place (its parsing and artifact shape are still referenced) but refuses to make
+    # a paid call. The authorised path is app/scripts/ufc/capture-ufc-odds.mjs.
+    raise SystemExit(
+        "REFUSED: the per-event UFC odds path is out of scope under "
+        "docs/receipts/ODDS_AUTHORIZATION_UFC.md (bulk endpoint only, h2h only, 500-credit ceiling).\n"
+        "It costs one credit per bout where the authorised bulk call prices the whole card for one, "
+        "and it consults neither the receipt nor the cumulative ledger.\n"
+        "Use: node app/scripts/ufc/capture-ufc-odds.mjs --apply"
+    )
+
     bouts: list[dict] = []
     credit_cost = 0
     remaining = None
