@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824075,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T19:21:43.148Z",
+  "availableAt": "2026-08-18T19:21:43.148Z",
+  "eventStartTime": "2026-08-18T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 678022,
+      "name": "Jack Perkins",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 6,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4.4,
+        "bbAvg": 1.8,
+        "erAvg": 4.4,
+        "hrAvg": 1.2,
+        "kPer9": 8.25,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 50.67,
+        "k": 59,
+        "bb": 23,
+        "er": 46,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-18T19:21:43.148Z"
+  },
+  "recordHash": "0e2945d3ff57d499550026813ef92cb5415f5830806bb737047fa3c84dc470f1"
+}
