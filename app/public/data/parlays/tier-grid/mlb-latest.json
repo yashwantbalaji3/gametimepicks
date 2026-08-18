@@ -5,16 +5,185 @@
  "moneyClass": "NON_MONEY",
  "sport": "mlb",
  "date": "2026-08-18",
- "generatedAt": "2026-08-18T11:23:28Z",
- "state": "NOT_ELIGIBLE",
- "reason": "no odds capture is ingested for this sport; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
- "evidence": {
-  "pricedGames": 0,
-  "pricesCapturedAt": null,
-  "priceAgeDays": null,
-  "settlementSource": "MLB Stats API official box score",
-  "settlementProven": true
- },
- "tiers": [],
- "cells": []
+ "generatedAt": "2026-08-18T22:46:40Z",
+ "state": "PUBLISHED",
+ "bandsUnreachable": [
+  "low",
+  "medium",
+  "high",
+  "longshot"
+ ],
+ "calmestAvailable": null,
+ "tiers": [
+  {
+   "id": "bronze",
+   "minBankroll": 0,
+   "maxBankroll": 50,
+   "cardsPerDay": 1,
+   "bands": [
+    "low"
+   ],
+   "offered": 0,
+   "emptyToday": true,
+   "substitute": null
+  },
+  {
+   "id": "silver",
+   "minBankroll": 50,
+   "maxBankroll": 100,
+   "cardsPerDay": 2,
+   "bands": [
+    "low",
+    "medium"
+   ],
+   "offered": 0,
+   "emptyToday": true,
+   "substitute": null
+  },
+  {
+   "id": "gold",
+   "minBankroll": 100,
+   "maxBankroll": 250,
+   "cardsPerDay": 3,
+   "bands": [
+    "low",
+    "medium",
+    "high"
+   ],
+   "offered": 0,
+   "emptyToday": true,
+   "substitute": null
+  },
+  {
+   "id": "diamond",
+   "minBankroll": 250,
+   "maxBankroll": null,
+   "cardsPerDay": 4,
+   "bands": [
+    "low",
+    "medium",
+    "high",
+    "longshot"
+   ],
+   "offered": 0,
+   "emptyToday": true,
+   "substitute": null
+  }
+ ],
+ "cells": [
+  {
+   "tier": "bronze",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "bronze",
+   "band": "medium",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "silver",
+   "band": "medium",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "silver",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "gold",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "gold",
+   "band": "medium",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "gold",
+   "band": "high",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "gold",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 3 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "diamond",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "diamond",
+   "band": "medium",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "diamond",
+   "band": "high",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "diamond",
+   "band": "longshot",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  }
+ ],
+ "cards": [],
+ "note": "A policy view of cards published by the risk ladder. No stake is baked in: bankroll is entered in the reader's own browser and never leaves it. Paper-only, educational; not advice."
 }
