@@ -109,3 +109,47 @@ test("no step silently swallows a failure with a trailing token after || true", 
   }
   assert.deepEqual(offenders, [], `a shell keyword drifted onto a || true line:\n  ${offenders.join("\n  ")}`);
 });
+
+test("every npm step runs where the lockfile actually is", async () => {
+  /*
+   * ufc-fight-week failed on its FIRST scheduled run — 24 minutes after the cron, one minute in —
+   * on `npm ci can only install with an existing package-lock.json`. The lockfile lives in app/, not
+   * at the repo root, and that step had no working-directory.
+   *
+   * The shell-syntax guard above could not see it: `npm ci` parses perfectly. This is the adjacent
+   * class — a step that is valid shell and still cannot run in the directory it was given. Every
+   * other workflow in the repo already gets this right, so the invariant is real and only the new
+   * one broke it.
+   */
+  if (!fs.existsSync(DIR)) return;
+  const { default: yaml } = await import("js-yaml").catch(() => ({ default: null }));
+
+  const offenders = [];
+  let checked = 0;
+  for (const f of fs.readdirSync(DIR).filter((n) => n.endsWith(".yml") || n.endsWith(".yaml"))) {
+    const src = fs.readFileSync(path.join(DIR, f), "utf8");
+    if (!/npm (ci|install)/.test(src)) continue;
+
+    /*
+     * Parsed by hand rather than with a YAML dependency, so this guard has no install to depend on.
+     * For each `npm ci`/`npm install` occurrence, look for app/ context: the step's own
+     * working-directory, a job-level default, or a `cd app` in the same run block.
+     */
+    const lines = src.split("\n");
+    const jobDefaultsApp = /defaults:\s*\n\s*run:\s*\n\s*working-directory:\s*\.?\/?app/.test(src);
+    lines.forEach((l, i) => {
+      if (!/npm (ci|install)/.test(l)) return;
+      if (/^\s*#/.test(l)) return;                       // a comment mentioning npm ci is not a step
+      checked++;
+      if (jobDefaultsApp) return;
+      // Look back for the step's working-directory and forward a couple of lines for a trailing one.
+      const window = lines.slice(Math.max(0, i - 12), i + 3).join("\n");
+      if (/working-directory:\s*\.?\/?app/.test(window)) return;
+      if (/cd app|app &&/.test(window)) return;
+      offenders.push(`${f}:${i + 1} — ${l.trim().slice(0, 70)}`);
+    });
+  }
+  assert.ok(checked > 5, `only ${checked} npm steps found — the scan is probably broken, not the workflows`);
+  assert.deepEqual(offenders, [],
+    `npm step(s) that would run outside app/, where there is no lockfile:\n  ${offenders.join("\n  ")}`);
+});
