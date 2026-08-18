@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823341,
+  "date": "2026-08-18",
+  "capturedAt": "2026-08-18T17:19:07.195Z",
+  "availableAt": "2026-08-18T17:19:07.195Z",
+  "eventStartTime": "2026-08-18T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 677952,
+      "name": "Braxton Ashcraft",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.4,
+        "bbAvg": 1.2,
+        "erAvg": 3.2,
+        "hrAvg": 1.2,
+        "kPer9": 8.68,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 141.33,
+        "k": 155,
+        "bb": 33,
+        "er": 60,
+        "hr": 20
+      }
+    },
+    "away": {
+      "id": 672456,
+      "name": "Keider Montero",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 3.2,
+        "bbAvg": 1.4,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 5.14,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 114.33,
+        "k": 70,
+        "bb": 25,
+        "er": 42,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-18&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-18T17:19:07.195Z"
+  },
+  "recordHash": "9b91e456f1b9e2c0b82fa287ee17733007e4db6c53d2d1b90db08c36816cd026"
+}
