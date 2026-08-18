@@ -6,16 +6,23 @@
  */
 import type { RiskBucket } from "@/lib/parlays/risk-taxonomy";
 
+/*
+ * The band table and the bucket function live in risk-odds-bands.mjs so the cross-sport ladder — a
+ * plain node script that cannot import TypeScript — reads the SAME boundaries this file types.
+ * It previously could not, and silently bucketed by leg count instead; see that file.
+ */
+import {
+  PARLAY_ODDS_BANDS as BANDS_DATA,
+  INDIVIDUAL_LEG_ODDS_GUARDS as GUARDS_DATA,
+  getRiskBucketForCombinedOdds as bucketImpl,
+  isCombinedOddsInRiskBucket as inBucketImpl,
+} from "./risk-odds-bands.mjs";
+
 /** Non-overlapping combined-odds bands. Low includes its endpoints; the rest are (prev, max]. */
-export const PARLAY_ODDS_BANDS: Record<RiskBucket, { label: string; minAmerican: number; maxAmerican: number | null }> = {
-  low: { label: "Low Risk", minAmerican: -200, maxAmerican: 100 },
-  medium: { label: "Medium Risk", minAmerican: 100, maxAmerican: 300 },
-  high: { label: "High Risk", minAmerican: 300, maxAmerican: 600 },
-  longshot: { label: "Longshot", minAmerican: 600, maxAmerican: null },
-};
+export const PARLAY_ODDS_BANDS = BANDS_DATA as Record<RiskBucket, { label: string; minAmerican: number; maxAmerican: number | null }>;
 
 /** Individual-leg sanity guards (defaults; the longshot underdog ceiling lifts only for Longshot). */
-export const INDIVIDUAL_LEG_ODDS_GUARDS = { minFavoriteAmerican: -500, maxUnderdogAmerican: 1200 };
+export const INDIVIDUAL_LEG_ODDS_GUARDS = GUARDS_DATA;
 
 export type OddsBandRejectReason = "leg_too_short_price" | "leg_too_long_price" | "combined_odds_out_of_bucket";
 
@@ -24,18 +31,10 @@ export type OddsBandRejectReason = "leg_too_short_price" | "leg_too_long_price" 
  * (-200) — too short to be a sensible parlay. Non-overlapping:
  *   Low: -200 ≤ odds ≤ +100 · Medium: +100 < odds ≤ +300 · High: +300 < odds ≤ +600 · Longshot: > +600
  */
-export function getRiskBucketForCombinedOdds(americanOdds: number): RiskBucket | null {
-  if (americanOdds < -200) return null;
-  if (americanOdds <= 100) return "low";
-  if (americanOdds <= 300) return "medium";
-  if (americanOdds <= 600) return "high";
-  return "longshot";
-}
+export const getRiskBucketForCombinedOdds = bucketImpl as (a: number) => RiskBucket | null;
 
 /** Whether a combined price fits the given bucket exactly (non-overlapping). */
-export function isCombinedOddsInRiskBucket(americanOdds: number, risk: RiskBucket): boolean {
-  return getRiskBucketForCombinedOdds(americanOdds) === risk;
-}
+export const isCombinedOddsInRiskBucket = inBucketImpl as (a: number, r: RiskBucket) => boolean;
 
 /**
  * Whether an individual leg's price is allowed. Rejects extreme favorites shorter than -500 (they

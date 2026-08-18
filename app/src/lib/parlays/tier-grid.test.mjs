@@ -155,6 +155,9 @@ test("MULTI · the ladder that runs on the day a second sport goes live, run tod
   const out = buildMultiLadder({
     liveSports: ["mlb", "ufc"], riskOrder: RISK_ORDER, date: "2026-08-17",
     ladderFor: (sport) => ladders[sport] ?? null,
+    // This test is about the day-one LADDER MECHANICS. Settleability is a separate precondition
+    // with its own test, so it is granted here rather than silently gating this one.
+    settleableSports: ["mlb", "ufc"],
   });
 
   assert.ok(out.cards.length > 0, "two live sports with priced legs must produce at least one card");
@@ -175,7 +178,7 @@ test("MULTI · an unpriced leg is dropped rather than defaulted to even money", 
     ufc: { cards: [{ tier: "medium", legs: [{ eventId: "b1", player: "D", market: "ml", side: "win", odds: -140 },
                                             { eventId: "b2", player: "E", market: "ml", side: "win", odds: 150 }] }] },
   };
-  const out = buildMultiLadder({ liveSports: ["mlb", "ufc"], riskOrder: RISK_ORDER, date: "2026-08-17", ladderFor: (s) => ladders[s] ?? null });
+  const out = buildMultiLadder({ liveSports: ["mlb", "ufc"], riskOrder: RISK_ORDER, date: "2026-08-17", ladderFor: (s) => ladders[s] ?? null, settleableSports: ["mlb", "ufc"] });
   // Dropping MLB's only leg leaves one sport, so every band must refuse rather than publish a
   // single-sport card or price the missing leg at something convenient.
   assert.equal(out.cards.length, 0);
@@ -265,5 +268,92 @@ test("the bankroll ranges cover the number line with no gap and no overlap", () 
   // invert the whole design.
   for (let i = 0; i < sorted.length - 1; i++) {
     assert.ok(sorted[i].cardsPerDay <= sorted[i + 1].cardsPerDay, "cards per day must not fall as bankroll rises");
+  }
+});
+
+test("MULTI · a card's band is decided by its PRICE, never by its leg count", async () => {
+  /*
+   * The defect this pins. The first cross-sport ladder built one card per band using that band's
+   * leg CAP and labelled the result with the band's name — nothing checked the price. Against a
+   * real two-sport slate it published a +203 card as "Low risk" (low ends at +100), and three of
+   * its four cards were mislabelled, every one understating the risk. The worst case landed on
+   * bronze, which is shown ONE card precisely because that band is meant to be the calmest.
+   */
+  const { getRiskBucketForCombinedOdds } = await import("./risk-odds-bands.mjs");
+
+  // Two sports, prices that make a 2-leg card land outside `low` — the real situation.
+  const ladders = {
+    mlb: { cards: [{ tier: "medium", legs: [
+      { gameId: "g1", player: "A", market: "hits", side: "over", line: 0.5, odds: -185 },
+      { gameId: "g2", player: "B", market: "hits", side: "over", line: 0.5, odds: 150 },
+      { gameId: "g3", player: "C", market: "tb", side: "over", line: 1.5, odds: 180 },
+    ] }] },
+    ufc: { cards: [{ tier: "medium", legs: [
+      { eventId: "b1", player: "D", market: "ml", side: "win", odds: -105 },
+      { eventId: "b2", player: "E", market: "ml", side: "win", odds: 140 },
+      { eventId: "b3", player: "F", market: "ml", side: "win", odds: 165 },
+    ] }] },
+  };
+  const out = buildMultiLadder({
+    liveSports: ["mlb", "ufc"], riskOrder: RISK_ORDER, date: "2026-08-18",
+    ladderFor: (s) => ladders[s] ?? null,
+    // Grade both, so this test isolates the BAND question from the settleability question.
+    settleableSports: ["mlb", "ufc"],
+  });
+
+  assert.ok(out.cards.length > 0, "two sports with real prices should produce at least one card");
+  for (const c of out.cards) {
+    const actual = getRiskBucketForCombinedOdds(c.combinedAmerican);
+    assert.equal(actual, c.tier,
+      `a card at ${c.combinedAmerican} is labelled "${c.tier}" but prices into "${actual}"`);
+  }
+  // A band that cannot be filled must say what it reached, not be filled with the wrong card.
+  for (const s of out.skipped) {
+    assert.ok(s.reason && s.reason.length > 10, `${s.tier} was skipped with no usable reason`);
+  }
+});
+
+test("MULTI · a card the settler cannot grade is never published", async () => {
+  const { SETTLEABLE_SPORTS } = await import("./multi-sport.mjs");
+  const ladders = {
+    mlb: { cards: [{ tier: "medium", legs: [{ gameId: "g1", player: "A", market: "hits", side: "over", line: 0.5, odds: -120 }] }] },
+    ufc: { cards: [{ tier: "medium", legs: [{ eventId: "b1", player: "D", market: "ml", side: "win", odds: 140 }] }] },
+  };
+  const out = buildMultiLadder({
+    liveSports: ["mlb", "ufc"], riskOrder: RISK_ORDER, date: "2026-08-18",
+    ladderFor: (s) => ladders[s] ?? null,
+  });
+
+  // With UFC ungradeable today, every band must refuse and say so — a card that cannot be graded
+  // would sit pending forever and never enter the record, flattering the published hit rate.
+  if (!SETTLEABLE_SPORTS.includes("ufc")) {
+    assert.equal(out.cards.length, 0, "a cross-sport card containing an ungradeable leg was published");
+    assert.ok(out.skipped.every((s) => /cannot grade/.test(s.reason)), "the refusal must name the real cause");
+  }
+});
+
+test("MULTI · the settleable-sports list matches what the settler implements", () => {
+  /*
+   * A hardcoded capability list drifts from the capability. Adding a sport here without teaching
+   * settle-lab-cards.mjs to grade it re-opens the exact hole the list closes, so this checks the
+   * settler for evidence of each declared sport rather than trusting the declaration.
+   */
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts", "parlays", "settle-lab-cards.mjs"), "utf8");
+  const declared = /export const SETTLEABLE_SPORTS = \[([^\]]*)\]/.exec(
+    fs.readFileSync(path.join(process.cwd(), "src", "lib", "parlays", "multi-sport.mjs"), "utf8"),
+  )?.[1] ?? "";
+  const sports = [...declared.matchAll(/"([a-z]+)"/g)].map((m) => m[1]);
+  assert.ok(sports.length > 0, "no settleable sports declared at all");
+
+  const EVIDENCE = {
+    mlb: /statsapi\.mlb\.com/,
+    ufc: /graded-moneylines|ufc/i,
+    nfl: /nfl/i,
+    epl: /epl|soccer/i,
+  };
+  for (const sp of sports) {
+    assert.ok(EVIDENCE[sp], `"${sp}" is declared settleable but this guard has no way to verify it`);
+    assert.match(src, EVIDENCE[sp],
+      `"${sp}" is declared settleable but settle-lab-cards.mjs shows no sign of grading it`);
   }
 });

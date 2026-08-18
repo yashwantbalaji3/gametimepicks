@@ -58,7 +58,25 @@ test("every sport is a declared stream — a new sport is data, not a schema cha
   for (const s of ledger.streams) {
     if (s.live) continue;
     assert.ok(s.blocked && s.blocked.length > 8, `${s.id} names WHY it is not live`);
-    assert.equal(s.record.wins + s.record.losses, 0, `${s.id} carries no record it did not earn`);
+    /*
+     * `live` is a claim about TODAY — can this stream publish a card right now — and `record` is a
+     * claim about HISTORY. The first version conflated them and asserted that a non-live stream had
+     * no record at all, which broke the first morning MLB had both: it settled three cards on the
+     * 17th and then read not-live on the 18th, because the 18th's props had not been published yet.
+     * That is the ordinary state of every sport for several hours a day.
+     *
+     * The invariant that was actually wanted is narrower and still closes the hole it was written
+     * for: a stream may only carry a record it EARNED, meaning settled days of its own. A sport
+     * that has never settled anything cannot show wins or losses, whatever it borrows from.
+     */
+    const settled = s.settledDays ?? 0;
+    if (settled === 0) {
+      assert.equal(s.record.wins + s.record.losses, 0,
+        `${s.id} has settled nothing but reports ${s.record.wins}-${s.record.losses} — a record it did not earn`);
+    } else {
+      assert.ok(s.record.wins + s.record.losses > 0,
+        `${s.id} reports ${settled} settled day(s) but an empty record — results were graded and then lost`);
+    }
   }
   const multi = ledger.streams.find((s) => s.id === "multi");
   assert.equal(multi.live, false, "multi-sport stays closed until a second sport is cleared");

@@ -31,6 +31,8 @@
 /** Fewest distinct sports on a card before it may be called cross-sport. */
 export const MIN_SPORTS = 2;
 
+import { getRiskBucketForCombinedOdds } from "./risk-odds-bands.mjs";
+
 /**
  * Build cross-sport cards for one band.
  *
@@ -107,6 +109,27 @@ export function buildCrossSportCard({ legs, maxLegs, usedLegKeys = new Set() }) 
 /** Per-band leg caps. Set by the BAND from the backtest — identical in every sport, and for multi. */
 export const BAND_MAX_LEGS = { low: 2, medium: 3, high: 4, longshot: 5 };
 
+/** Fewest legs a parlay can have. A one-leg "parlay" is a single bet wearing the wrong label. */
+const MIN_LEGS = 2;
+
+/**
+ * SPORTS THE LAB SETTLER CAN ACTUALLY GRADE.
+ *
+ * The Parlay Lab's entire claim is that it quotes real posted prices AND grades them. A card it
+ * cannot grade is not a weaker version of that claim, it is a different one — the card sits pending
+ * forever and quietly never enters the record, so the published hit rate is computed over only the
+ * cards that happened to be settleable. That is how a record flatters itself without anyone lying.
+ *
+ * settle-lab-cards.mjs grades from the MLB Stats API via each leg's gamePk. A UFC leg has no
+ * gamePk; boxFor(null) returns "not final" and the leg never resolves. So a cross-sport card built
+ * today would be published and never graded.
+ *
+ * This list is therefore a PRECONDITION, not a preference, and a guard asserts it against what the
+ * settler actually implements. Adding UFC here without teaching the settler to read the graded
+ * moneylines artifact would re-open exactly the hole it closes.
+ */
+export const SETTLEABLE_SPORTS = ["mlb"];
+
 /**
  * Build the multi-sport ladder: one cross-sport card per band, from every live sport's own cards.
  *
@@ -122,7 +145,7 @@ export const BAND_MAX_LEGS = { low: 2, medium: 3, high: 4, longshot: 5 };
  * @param {string} o.date
  * @param {(sport: string, date: string) => {cards?: object[]}|null} o.ladderFor
  */
-export function buildMultiLadder({ liveSports, riskOrder, date, ladderFor }) {
+export function buildMultiLadder({ liveSports, riskOrder, date, ladderFor, settleableSports = SETTLEABLE_SPORTS }) {
   const legs = [];
   for (const sport of liveSports) {
     for (const card of ladderFor(sport, date)?.cards ?? []) {
@@ -144,9 +167,55 @@ export function buildMultiLadder({ liveSports, riskOrder, date, ladderFor }) {
 
   const cards = [], skipped = [], used = new Set();
   const legKey = (l) => `${l.sport}|${l.player ?? l.eventId}|${l.market}|${l.side}|${l.line ?? ""}`;
+
+  /*
+   * ══ A BAND IS A PRICE RANGE, NOT A LEG COUNT ══════════════════════════════════════════════════
+   *
+   * The first version of this loop built one card per band using that band's leg CAP and then
+   * labelled the result with the band's name. Nothing ever checked the price. Against a real
+   * two-sport slate it published a +203 card as "Low risk" — low ends at +100 — and three of its
+   * four cards were mislabelled, every one of them understating the risk.
+   *
+   * The worst case landed exactly where it does most harm: bronze is shown ONE card, and it is the
+   * low-risk one precisely because that band is meant to be the calmest thing on the board.
+   *
+   * So a card is assigned to a band by its COMBINED PRICE, through the same canonical function the
+   * single-sport ladder and the grader use. The leg cap stays a cap — the backtest is unambiguous
+   * that longer is worse within every band — but it no longer decides the label. Where no leg count
+   * lands a card inside a band, that band is SKIPPED with the prices it did reach, rather than
+   * filled with a card that does not belong in it.
+   */
   for (const band of riskOrder) {
-    const { card, refused } = buildCrossSportCard({ legs, maxLegs: BAND_MAX_LEGS[band] ?? 5, usedLegKeys: used });
-    if (!card) { skipped.push({ tier: band, reason: refused }); continue; }
+    const cap = BAND_MAX_LEGS[band] ?? 5;
+    let card = null, refused = null;
+    const reached = [];
+
+    // Shortest first: within a band the shorter card wins on every measured axis, so the first
+    // card that lands in the band is also the best one available for it.
+    for (let n = MIN_LEGS; n <= cap; n++) {
+      const attempt = buildCrossSportCard({ legs, maxLegs: n, usedLegKeys: used });
+      if (!attempt.card) { refused = attempt.refused; continue; }
+      if (attempt.card.legs.length < MIN_LEGS) continue;
+      /* Refuse before pricing: an ungradeable leg disqualifies the card whatever it costs. */
+      const ungradeable = [...new Set(attempt.card.legs.map((l) => l.sport))].filter((sp) => !settleableSports.includes(sp));
+      if (ungradeable.length) {
+        refused = `the lab settler cannot grade ${ungradeable.join(" or ")} legs yet, and a card that cannot be graded must not be published`;
+        continue;
+      }
+      const bucket = getRiskBucketForCombinedOdds(attempt.card.combinedAmerican);
+      reached.push(`${attempt.card.legs.length} legs → ${attempt.card.combinedAmerican > 0 ? "+" : ""}${attempt.card.combinedAmerican} (${bucket ?? "shorter than the low floor"})`);
+      if (bucket === band) { card = attempt.card; break; }
+    }
+
+    if (!card) {
+      skipped.push({
+        tier: band,
+        reason: reached.length
+          ? `no cross-sport card priced into this band today — ${reached.join("; ")}`
+          : (refused ?? "no cross-sport card could be built"),
+      });
+      continue;
+    }
     for (const l of card.legs) used.add(legKey(l));
     cards.push({
       tier: band, slipId: `multi-${band}-${date}`,
