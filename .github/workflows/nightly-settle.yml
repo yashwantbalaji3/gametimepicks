@@ -198,6 +198,7 @@ jobs:
             npx tsx scripts/settle-mlb-player-props.mjs $DATE_ARG
           else
             npx tsx scripts/settle-mlb-player-props.mjs $DATE_ARG --apply
+          fi
 
       # The risk ladder re-derives its whole record from every graded day, so it runs AFTER
       # settlement and never carries a number forward from the previous file.
@@ -205,7 +206,6 @@ jobs:
         if: always()
         working-directory: app
         run: node scripts/parlays/build-risk-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || true
-          fi
         continue-on-error: true
 
       # Homer Nukes — grade the day's five home-run picks from the official box score and rebuild
