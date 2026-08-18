@@ -13,10 +13,21 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, fitPlatt, applyPlatt, nameKey, tottFeat } from "./lib/fight-model.mjs";
 
 
-const APP = process.cwd();
+/*
+ * SCRIPT-RELATIVE, not cwd-relative.
+ *
+ * This read `process.cwd()`, so it only worked when invoked from app/. The fight-week workflow runs
+ * `node app/scripts/ufc/build-ufc-card.mjs` from the repo ROOT — the same way it runs the capture
+ * script beside it, which resolves from its own location and was therefore fine. So the card build
+ * died on a path one directory too high, after the capture had already succeeded.
+ *
+ * A script that depends on where it is called from is a script that works in exactly one harness.
+ */
+const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const RAW = path.join(APP, "..", "data", "internal", "research", "ufc", "raw", "stats");
 const OUT = path.join(APP, "public", "data", "ufc");
 const nowArg = process.argv.indexOf("--now");

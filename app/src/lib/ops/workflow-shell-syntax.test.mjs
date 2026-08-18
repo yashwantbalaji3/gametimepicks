@@ -153,3 +153,64 @@ test("every npm step runs where the lockfile actually is", async () => {
   assert.deepEqual(offenders, [],
     `npm step(s) that would run outside app/, where there is no lockfile:\n  ${offenders.join("\n  ")}`);
 });
+
+test("a script is never invoked from a directory it cannot run in", () => {
+  /*
+   * The third failure of the same shape in two days, and the one that got furthest: `npm ci` fixed,
+   * the schedule capture succeeded, and then the card builder died on a path one directory too
+   * high. It read `process.cwd()` while the workflow ran it as `node app/scripts/...` from the repo
+   * ROOT — and the capture script beside it, which resolves from its own location, was fine.
+   *
+   * The invariant is about the PAIRING, not the script. Anchoring on cwd is perfectly safe when the
+   * step sets `working-directory: app`, which is how a dozen long-running MLB jobs invoke these
+   * scripts every day. It is only a defect when the step runs from somewhere else. Flagging the
+   * script alone would condemn working code and teach everyone to ignore this guard.
+   */
+  if (!fs.existsSync(DIR)) return;
+
+  /*
+   * A BARE cwd anchor, not merely a mention of cwd.
+   *
+   * Several long-running MLB scripts use a deliberately cwd-TOLERANT idiom:
+   *   const APP = process.cwd().endsWith("/app") ? process.cwd() : path.join(process.cwd(), "app");
+   * That resolves correctly from either directory and is not a defect. The first version of this
+   * check matched `const APP = process.cwd()` as a PREFIX of exactly that line and condemned three
+   * jobs that have been running green for months — which is how a guard gets ignored.
+   *
+   * So the anchor statement is read whole, and only one with no tolerance in it counts.
+   */
+  const cwdAnchored = (rel) => {
+    const full = path.join(REPO, rel);
+    if (!fs.existsSync(full)) return false;
+    const body = fs.readFileSync(full, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    for (const m of body.matchAll(/const\s+(?:APP|ROOT|BASE|REPO|OUT|RAW|DIR)\s*=\s*([^;\n]*)/g)) {
+      const rhs = m[1];
+      if (!rhs.includes("process.cwd()")) continue;
+      if (/endsWith|dirname\(process\.cwd/.test(rhs)) continue;   // tolerant of either directory
+      return true;
+    }
+    return false;
+  };
+
+  const offenders = [];
+  let pairs = 0;
+  for (const f of fs.readdirSync(DIR).filter((n) => n.endsWith(".yml") || n.endsWith(".yaml"))) {
+    const src = fs.readFileSync(path.join(DIR, f), "utf8");
+    const lines = src.split("\n");
+    const jobDefaultsApp = /defaults:\s*\n\s*run:\s*\n\s*working-directory:\s*\.?\/?app/.test(src);
+
+    lines.forEach((l, i) => {
+      const m = /\b(?:node|npx tsx)\s+(app\/scripts\/[\w./-]+\.mjs)/.exec(l);
+      if (!m || /^\s*#/.test(l)) return;
+      pairs++;
+      // Invoked with the `app/` prefix, so cwd is the repo root UNLESS the step says otherwise.
+      const window = lines.slice(Math.max(0, i - 14), i + 3).join("\n");
+      const runsInApp = jobDefaultsApp || /working-directory:\s*\.?\/?app/.test(window) || /cd app/.test(window);
+      if (runsInApp) return;                       // cwd is app/, so a cwd anchor resolves correctly
+      if (!cwdAnchored(m[1])) return;              // script resolves from its own location — fine
+      offenders.push(`${f}:${i + 1} — runs ${m[1]} from the repo root, but that script anchors on process.cwd()`);
+    });
+  }
+  assert.ok(pairs > 0, "no path-invoked scripts found — the scan is probably broken");
+  assert.deepEqual(offenders, [], `script(s) invoked from a directory they cannot run in:\n  ${offenders.join("\n  ")}`);
+});
