@@ -73,7 +73,10 @@ test("the EPL capture cannot be widened past what the receipt authorizes", () =>
   assert.ok(body.indexOf("assertCallAllowed") < body.indexOf("await fetch"), "the ceiling is checked before the call, never after");
   assert.match(body, /const APPLY = has\("--apply"\)/, "the default must be a dry run");
   assert.ok(body.indexOf("if (!APPLY)") < body.indexOf("await fetch"), "the dry-run exit must precede any network call");
-  assert.match(body, /assertNoSecretLeak\(snapshot, \[KEY\]\)/, "the snapshot must be scanned against the real key before it is written");
+  /* A STRING, and the verdict READ — see the UFC incident: passing the object crashed after the
+     credit was spent, discarding a real capture inside the safeguard itself. */
+  assert.match(body, /assertNoSecretLeak\(payload, \[KEY\]\)/, "the leak scan must receive the serialized payload, not an object");
+  assert.match(body, /if \(!leak\.ok\)/, "the leak verdict must be READ — an unchecked fail-closed helper is a no-op");
 
   // Only markets we paid for may be recorded — a market key arriving in the payload that we did not
   // buy must not be silently persisted as though it were part of the capture.

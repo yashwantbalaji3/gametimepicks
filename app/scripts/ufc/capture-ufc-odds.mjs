@@ -194,11 +194,20 @@ const snapshot = {
 };
 
 /* Nothing leaves this process carrying the key or the account. */
-assertNoSecretLeak(snapshot, [KEY]);
+/*
+ * assertNoSecretLeak takes a STRING and RETURNS a verdict — it does not throw, and it cannot scan
+ * an object. Passing the snapshot itself crashed on `payload.includes` AFTER the paid call had
+ * already succeeded and the credit was already spent, so a real capture was discarded by the very
+ * check meant to protect it. Calling a fail-closed helper without reading its answer is a no-op
+ * wearing the shape of a safeguard.
+ */
+const payload = JSON.stringify(snapshot, null, 1) + "\n";
+const leak = assertNoSecretLeak(payload, [KEY]);
+if (!leak.ok) { console.error(`ufc odds: REFUSED — ${leak.reason}`); process.exit(1); }
 
 fs.mkdirSync(OUT, { recursive: true });
-fs.writeFileSync(path.join(OUT, "odds-latest.json"), JSON.stringify(snapshot, null, 1) + "\n");
-fs.writeFileSync(path.join(OUT, `odds-${card.event.slateDate}.json`), JSON.stringify(snapshot, null, 1) + "\n");
+fs.writeFileSync(path.join(OUT, "odds-latest.json"), payload);
+fs.writeFileSync(path.join(OUT, `odds-${card.event.slateDate}.json`), payload);
 
 console.log(`ufc odds: ${bouts.length}/${card.bouts.length} bouts priced · ${snapshot.creditCost} credit(s) · cumulative ${ledger.cumulativeCredits}/${auth.ceiling}`);
 if (unjoined.length) console.log(`  unjoined: ${unjoined.join(" · ")}`);

@@ -193,10 +193,16 @@ const snapshot = {
   note: "Consensus prices across posted US books, de-vigged proportionally within each market. No model claim is attached: the EPL model card requires this snapshot BEFORE its comparison can run, and that comparison is the bar it must still pass.",
 };
 
-assertNoSecretLeak(snapshot, [KEY]);
+/*
+ * A STRING, and the verdict is READ. See the UFC capture for the incident: passing the object
+ * crashed after the credit was spent, discarding a real capture inside the safeguard itself.
+ */
+const payload = JSON.stringify(snapshot, null, 1) + "\n";
+const leak = assertNoSecretLeak(payload, [KEY]);
+if (!leak.ok) { console.error(`epl odds: REFUSED — ${leak.reason}`); process.exit(1); }
 
 fs.mkdirSync(OUT, { recursive: true });
-fs.writeFileSync(path.join(OUT, "latest.json"), JSON.stringify(snapshot, null, 1) + "\n");
-fs.writeFileSync(path.join(OUT, `capture-${etDay(NOW)}.json`), JSON.stringify(snapshot, null, 1) + "\n");
+fs.writeFileSync(path.join(OUT, "latest.json"), payload);
+fs.writeFileSync(path.join(OUT, `capture-${etDay(NOW)}.json`), payload);
 
 console.log(`epl odds: ${rows.length} fixtures priced · ${snapshot.creditCost} credit(s) · cumulative ${ledger.cumulativeCredits}/${auth.ceiling}`);

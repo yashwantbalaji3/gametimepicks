@@ -142,8 +142,11 @@ test("the published snapshot never carries a key or a raw payload", () => {
    */
   const src = fs.readFileSync(path.join(process.cwd(), "scripts", "ufc", "capture-ufc-odds.mjs"), "utf8");
   const body = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  assert.match(body, /assertNoSecretLeak\(snapshot, \[KEY\]\)/,
-    "the snapshot must be scanned against the real key before it is written");
+  /* The leak check takes a STRING and RETURNS a verdict. Asserting only that it is CALLED was not
+     enough: the first version passed the object and ignored the result, which crashed after the
+     credit was spent. So the guard requires the serialized payload and a read of `.ok`. */
+  assert.match(body, /assertNoSecretLeak\(payload, \[KEY\]\)/, "the leak scan must receive the serialized payload, not an object");
+  assert.match(body, /if \(!leak\.ok\)/, "the leak verdict must be READ — an unchecked fail-closed helper is a no-op");
   assert.ok(body.indexOf("assertNoSecretLeak") < body.indexOf("writeFileSync(path.join(OUT"),
     "the leak scan must run BEFORE the snapshot is written to a public path");
 });
