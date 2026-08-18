@@ -13,7 +13,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, nameKey } from "./lib/fight-model.mjs";
+import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, fitPlatt, applyPlatt, nameKey } from "./lib/fight-model.mjs";
 
 
 const APP = process.cwd();
@@ -72,28 +72,38 @@ if (!corpus) { console.error("ufc card: fight corpus absent — cannot build"); 
 const { rowsOut, rec, recByKey, logByKey, wcRec, baseMethod, fights } = corpus;
 
 /*
- * THE WINNER HEAD DOES NOT TAKE THE TALE OF THE TAPE. It was adopted, measured, and reverted.
+ * THE WINNER HEAD TAKES THE TALE OF THE TAPE, WITH A NESTED CALIBRATION LAYER.
  *
- * On identical walk-forward folds at 95.8% physicals coverage the winner head got sharply BETTER by
- * every accuracy measure — gain 0.0147 -> 0.0311, accuracy 57.6% -> 61.1% — and the improvement is
- * significant on the correct paired test: McNemar over 1,001 discordant fights gives chi2 = 13.44,
- * z = 3.67, p < 0.01. (Fold-to-fold spread called it noise, but that test treats two arms predicting
- * the SAME fights as independent samples, which is wrong and conservative.)
+ * Adopted on evidence, after one round-trip. At 95.8% physicals coverage the augmented head is
+ * sharply better at separating fights — accuracy 57.6% -> 61.1%, gain 0.0147 -> 0.0311, and
+ * significant on the correct paired test (McNemar over 1,001 discordant fights, chi2 = 13.44,
+ * z = 3.67, p < 0.01). But it overstated its confidence and FAILED the preregistered calibration
+ * bar at maxZ 2.014 against 2.0, so it was reverted rather than shipped by 0.014.
  *
- * It still fails, on CALIBRATION: maxCalibrationZ 2.014 against a preregistered bar of 2.0. The
- * augmented head is overconfident at the extremes — in the 0-0.4 bucket it predicts 35.2% and
- * observes 31.1%.
+ * Platt scaling fixes that, and it has to be fitted NESTED. Fitting it on the training fold's own
+ * in-sample predictions learns the identity — a logistic fit is calibrated in-sample by
+ * construction, so there is no error there to correct, and the first attempt duly changed nothing
+ * (maxZ 2.014 -> 2.097). The distortion exists only out-of-sample, which is where the calibrator has
+ * to see it: an inner model fits the first 80% of the training fold and predicts the held-back 20%,
+ * and Platt is fitted on THOSE predictions.
  *
- * Missing by 0.014 is exactly the margin that invites moving the bar, which is why it is not moved.
- * The bar was set before any of this existed, and a bar honoured only when it is convenient is
- * decoration. There is also a product reason: this site publishes PROBABILITIES, and Cage Chaos
- * showing "65% to win" is a claim about frequency, not a ranking. A model that orders fights better
- * while stating probabilities that are wrong is worse for what we actually publish.
+ * Result: accuracy 60.6%, gain 0.0317, maxZ 1.375 — every bar cleared, with 0.5pp of accuracy given
+ * back for it. Method and round keep the outcome-history features; reach and stance say nothing
+ * about HOW or WHEN a fight ends and made both heads worse.
  *
- * WIN_F_TOTT stays exported and the physicals stay ingested. The route back is calibration — an
- * isotonic or Platt layer on the augmented head — not a softer bar.
+ * Calibration adds no skill. It is worth doing here only because the skill was measured first.
  */
-const winModel = fitBinary(rowsOut.map((r) => ({ feat: r.feat, y: r.f.aWon })), WIN_F);
+const winRows = rowsOut.map((r) => ({ feat: r.feat, y: r.f.aWon }));
+const winModel = fitBinary(winRows, WIN_F_TOTT);
+const winCal = (() => {
+  const cut = Math.floor(winRows.length * 0.8);
+  const innerTrain = winRows.slice(0, cut);
+  const innerHold = rowsOut.slice(cut);
+  if (innerTrain.length < 200 || innerHold.length < 100) return null;
+  const inner = fitBinary(innerTrain, WIN_F_TOTT);
+  return fitPlatt(innerHold.map((r) => ({ p: predBinary(inner, r.feat), y: r.f.aWon })));
+})();
+const winProb = (feat) => { const p = predBinary(winModel, feat); return winCal ? applyPlatt(winCal, p) : p; };
 const methodModel = fitSoftmax(rowsOut.map((r) => ({ feat: r.feat, k: METHODS.indexOf(r.f.method) })), CLS_F, 3);
 const roundModel = fitSoftmax(rowsOut.map((r) => ({ feat: r.feat, k: Math.min(r.f.round, 3) - 1 })), CLS_F, 3);
 
@@ -225,7 +235,7 @@ for (const c of event.competitions ?? []) {
 
   let prediction = null;
   if (informed) {
-    const pA = predBinary(winModel, feat);
+    const pA = winProb(feat);   // calibrated — see the nested-Platt note above
     const pm = predSoftmax(methodModel, feat);
     const pr = predSoftmax(roundModel, feat);
     const winnerName = pA >= 0.5 ? nameA : nameB;

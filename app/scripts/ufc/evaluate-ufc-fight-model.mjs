@@ -21,7 +21,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax } from "./lib/fight-model.mjs";
+import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, fitPlatt, applyPlatt } from "./lib/fight-model.mjs";
 
 const APP = process.cwd();
 const RAW = path.join(APP, "..", "data", "internal", "research", "ufc", "raw", "stats");
@@ -67,7 +67,41 @@ for (let fold = 0; fold < FOLDS; fold++) {
   if (!testRows.length) continue;
 
   const winTrain = trainRows.map((r) => ({ feat: r.feat, y: r.f.aWon }));
-  const winModel = fitBinary(winTrain, WIN_F);
+  /*
+   * The winner head, with the tale of the tape and a walk-forward Platt layer.
+   *
+   * The augmented head separates fights better (McNemar z = 3.67 over 1,001 discordant fights) and
+   * overstates its confidence, failing the calibration bar at maxZ 2.014. Platt is monotone in logit
+   * space, so it rescales how loudly the model speaks without touching the ordering that earned the
+   * accuracy.
+   *
+   * Fitted on the TRAINING fold's own predictions only. A calibrator fitted on the slice it is
+   * scored against drives the z to zero and proves nothing.
+   */
+  const winKeys = process.env.GTP_UFC_WIN_FEATURES === "baseline" ? WIN_F : WIN_F_TOTT;
+  const winModel = fitBinary(winTrain, winKeys);
+
+  /*
+   * NESTED calibration. The calibrator is fitted on predictions the inner model has NOT seen.
+   *
+   * My first attempt fitted Platt on the training fold's own in-sample predictions and learned the
+   * identity — a logistic fit is calibrated in-sample by construction, so there was no miscalibration
+   * there to correct. The distortion only exists out-of-sample, which is precisely where a calibrator
+   * has to be shown it.
+   *
+   * So the training fold is split: an inner model fits on the first 80%, predicts the held-back 20%,
+   * and Platt is fitted on THOSE. The outer model still trains on the whole fold — only the
+   * calibration curve comes from unseen predictions.
+   */
+  const winCal = (() => {
+    if (process.env.GTP_UFC_WIN_CALIBRATE === "off") return null;
+    const innerCut = Math.floor(trainRows.length * 0.8);
+    const innerTrain = trainRows.slice(0, innerCut);
+    const innerHold = trainRows.slice(innerCut);
+    if (innerTrain.length < 200 || innerHold.length < 100) return null;
+    const innerModel = fitBinary(innerTrain.map((r) => ({ feat: r.feat, y: r.f.aWon })), winKeys);
+    return fitPlatt(innerHold.map((r) => ({ p: predBinary(innerModel, r.feat), y: r.f.aWon })));
+  })();
   const winBase = 0.5; // canonical corners make the honest no-information answer exactly 0.5
 
   const mTrain = trainRows.map((r) => ({ feat: r.feat, k: METHODS.indexOf(r.f.method) }));
@@ -82,7 +116,8 @@ for (let fold = 0; fold < FOLDS; fold++) {
   const ll = (p) => -Math.log(Math.max(1e-9, p));
   for (const r of testRows) {
     // winner
-    const p = predBinary(winModel, r.feat);
+    const p0 = predBinary(winModel, r.feat);
+    const p = winCal ? applyPlatt(winCal, p0) : p0;
     res.winner.m += ll(r.f.aWon ? p : 1 - p);
     res.winner.b += ll(winBase);
     res.winner.correct += (p >= 0.5 ? 1 : 0) === r.f.aWon ? 1 : 0;

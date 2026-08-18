@@ -208,6 +208,47 @@ export const CLS_F = ["koTend", "subTend", "decTend", "finishable", "wcKO", "wcS
  * identical walk-forward splits and compared like for like — the published model stays on WIN_F /
  * CLS_F until the augmented one is shown to beat it on the preregistered bars, not merely to differ.
  */
+/**
+ * PLATT SCALING — a two-parameter monotone recalibration of a probability.
+ *
+ * ── Why Platt and not isotonic ──────────────────────────────────────────────────────────────────
+ * The augmented winner head is MORE accurate and LESS calibrated: it separates fights better and
+ * overstates its confidence at the extremes. Platt is monotone in logit space, so it cannot undo the
+ * ordering that produced the accuracy — it only rescales how loudly the model speaks. Isotonic is
+ * more flexible and would fit the calibration curve tighter, but with a free knot per bucket it also
+ * fits the training fold's noise, and the failure it would hide is the same one we are trying to fix.
+ *
+ * ── It fixes the CLAIM, not the capability ──────────────────────────────────────────────────────
+ * Calibration adds no skill. A model with no signal, perfectly calibrated, still tells you nothing —
+ * it just says "50%" honestly. This is only worth doing because the signal is already there and
+ * measured (McNemar z = 3.67, p < 0.01); the layer makes the published number mean what it says.
+ *
+ * MUST be fitted on training data only. Fitting it on the slice it is scored against is leakage that
+ * would drive the calibration z to zero and prove nothing.
+ */
+export function fitPlatt(rows, iters = 400, lr = 0.08) {
+  // p' = sigmoid(a * logit(p) + b). Starts at the identity (a = 1, b = 0).
+  let a = 1, b = 0;
+  const L = (p) => Math.log(Math.max(1e-6, p) / Math.max(1e-6, 1 - p));
+  for (let it = 0; it < iters; it++) {
+    let ga = 0, gb = 0;
+    for (const { p, y } of rows) {
+      const x = L(p);
+      const q = 1 / (1 + Math.exp(-(a * x + b)));
+      const e = q - y;
+      ga += e * x; gb += e;
+    }
+    a -= (lr * ga) / rows.length;
+    b -= (lr * gb) / rows.length;
+  }
+  return { a, b };
+}
+
+export function applyPlatt(cal, p) {
+  const x = Math.log(Math.max(1e-6, p) / Math.max(1e-6, 1 - p));
+  return 1 / (1 + Math.exp(-(cal.a * x + cal.b)));
+}
+
 export const TOTT_F = ["hasTott", "reachDiff", "heightDiff", "ageDiff", "stanceMismatch"];
 export const WIN_F_TOTT = [...WIN_F, ...TOTT_F];
 export const CLS_F_TOTT = [...CLS_F, ...TOTT_F];
