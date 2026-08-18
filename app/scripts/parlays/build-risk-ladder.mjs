@@ -184,7 +184,21 @@ if (gradedToday?.publicRiskSections) {
  * / 57.9% across the 0-5 / 5-10 / 10-20pp buckets, 1,407 graded legs), which matches the standing
  * finding that this model adds nothing beyond the market price.
  */
-const MAX_LEGS = 5;                 // 6-leg cards returned −76.2% over 62 of them; they do not ship
+/*
+ * LEG COUNT IS SET BY THE BAND, not by the bankroll — measured within each band separately:
+ *
+ *   low        2 legs  41.1% hit  +3.0%
+ *   medium     3 legs  19.4%      +1.7%   ·  4 legs  11.9%  −31.3%
+ *   high       4 legs  12.9%      +6.0%   ·  5 legs   6.1%  −41.4%
+ *   longshot   5 legs   7.4%      −7.0%   ·  6 legs   1.6%  −76.2%
+ *
+ * In EVERY band the shorter card wins, and going one leg longer is catastrophic rather than merely
+ * worse. So the cap is per-band, and it is the shortest length that band can actually reach — the
+ * same for a $20 bankroll and a $2,000 one, because nothing about a bankroll makes a longer card
+ * behave better.
+ */
+const BAND_MAX_LEGS = { low: 2, medium: 3, high: 4, longshot: 5 };
+const MAX_LEGS = 5;
 const SCORE_TIE = 0.02;             // within 2% of the best score counts as a tie on score
 
 const cards = [];
@@ -195,7 +209,7 @@ const legKey = (l) => `${l.playerName}|${l.market}|${l.side}|${l.line}`;
 for (const tier of TIERS) {
   const pool = poolByTier[tier]
     .filter((s) => combinedDecimal(s) != null)
-    .filter((s) => (s.legs ?? []).length <= MAX_LEGS)
+    .filter((s) => (s.legs ?? []).length <= (BAND_MAX_LEGS[tier] ?? MAX_LEGS))
     .filter((s) => (s.legs ?? []).every((l) => !usedLegs.has(legKey(l))));
   if (!pool.length) {
     skipped.push({

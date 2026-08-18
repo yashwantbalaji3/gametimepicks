@@ -105,7 +105,13 @@ test("a stated tolerance REORDERS the ladder — it never hides the calmer tiers
    * Longshot is this stream's worst record by a distance (−25.0%). Someone selecting it is exactly
    * the reader who most needs the others still on screen.
    */
+  /* The ordering now folds in the bankroll tier as well as the tolerance, so it is expressed as a
+     rank rather than a single comparison. The invariant is unchanged and asserted harder: the board
+     SORTS by rank, and the rendered list is never derived from a filter on either preference. */
   const board = code("src/components/parlays/risk-ladder-board.tsx");
-  assert.match(board, /sort\(\(a, b\) => Number\(b\.tier === prefs\.risk\)/, "the tolerance sorts");
-  assert.doesNotMatch(board, /cards\.filter\(\(c\) => c\.tier === prefs\.risk\)/, "and never filters the rest away");
+  assert.match(board, /const ordered = \[\.\.\.cards\]\.sort\(\(a, b\) => rank\(a\) - rank\(b\)\)/, "the ladder is ordered by rank");
+  assert.match(board, /prefs\.risk && c\.tier === prefs\.risk \? -1 : 0/, "a stated tolerance lifts its band");
+  assert.match(board, /suggested\.has\(c\.tier\) \? 0 : 10/, "and the bankroll tier lifts its bands");
+  assert.doesNotMatch(board, /const ordered = [^;]*\.filter\(/, "ordering never filters a band away");
+  assert.match(board, /ordered\.map\(/, "and the rendered list is the ordered one, not a subset");
 });

@@ -8,6 +8,7 @@ import LegSwapPanel from "@/components/parlays/leg-swap-panel";
 import { decimalOdds, toAmerican, type SwapCandidate } from "@/lib/parlays/leg-swap";
 import ParlayLabEntry, { type BettorTier, type LabLedgerView } from "@/components/parlays/parlay-lab-entry";
 import { useReaderPrefs, unitStake } from "@/lib/prefs/reader-prefs";
+import { tierForBankroll, risksForTier } from "@/lib/prefs/bettor-tier";
 
 /**
  * THE RISK LADDER — today's card at each risk level, each shown with that tier's own record.
@@ -203,9 +204,18 @@ export default function RiskLadderBoard({
    * who picked Longshot forget that three calmer bands exist, and this stream's worst record by far
    * is the one someone choosing "Longshot" is asking for.
    */
-  const ordered = prefs.risk
-    ? [...cards].sort((a, b) => Number(b.tier === prefs.risk) - Number(a.tier === prefs.risk))
-    : cards;
+  /*
+   * A stated bankroll decides HOW MANY risk levels lead, calmest first; a stated tolerance decides
+   * which one is first among them. Neither ever removes a band — the remaining cards drop below a
+   * divider rather than out of the page, because a reader who cannot see the calmer options is a
+   * reader who cannot choose them.
+   */
+  const bettorTier = tierForBankroll(prefs.bankroll);
+  const suggested = new Set(risksForTier(bettorTier));
+  const rank = (c: LadderCard) =>
+    (suggested.has(c.tier) ? 0 : 10) + (prefs.risk && c.tier === prefs.risk ? -1 : 0);
+  const ordered = [...cards].sort((a, b) => rank(a) - rank(b));
+  const suggestedCount = cards.filter((c) => suggested.has(c.tier)).length;
 
   return (
     <section aria-labelledby="risk-ladder-heading" className="flex flex-col gap-3">
@@ -227,6 +237,26 @@ export default function RiskLadderBoard({
       </div>
 
       <ParlayLabEntry tiers={bettorTiers} ledger={ledger} showTitle={entryShowsTitle} />
+
+      {/*
+       * When a reader's bankroll points at bands that produced no card today, say it.
+       *
+       * Bronze is suggested the low-risk card and today the slate produced none, so its whole
+       * suggested set is empty. Silently showing three cards it did not suggest reads as a
+       * recommendation it never made — and this stream's calmest band is the one with by far the
+       * best hit rate, so its absence is the most useful thing to know.
+       */}
+      {prefs.bankroll != null && suggestedCount === 0 && cards.length > 0 && (
+        <p className="m-0 rounded-[10px] px-3 py-2.5" style={{
+          color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6,
+          background: "color-mix(in srgb, var(--vault-warn) 8%, transparent)",
+          border: "1px solid var(--vault-warn)",
+        }}>
+          Nothing on today&rsquo;s slate landed in the calmer bands your bankroll points at. The cards
+          below are longer-priced than that — shown so the day is not blank, not because they were
+          picked for you.
+        </p>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 items-start">
         {ordered.map((c) => <LadderCardView key={c.slipId} card={c} pool={pool} unit={unit} />)}
