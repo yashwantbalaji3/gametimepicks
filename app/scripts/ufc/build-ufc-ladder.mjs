@@ -26,7 +26,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { getRiskBucketForCombinedOdds } from "../../src/lib/parlays/risk-odds-bands.mjs";
+import { getRiskBucketForCombinedOdds, INDIVIDUAL_LEG_ODDS_GUARDS } from "../../src/lib/parlays/risk-odds-bands.mjs";
 import { RISK_ORDER } from "../../src/lib/prefs/bettor-tiers.mjs";
 import { BAND_MAX_LEGS } from "../../src/lib/parlays/multi-sport.mjs";
 
@@ -76,11 +76,22 @@ for (const b of odds.bouts ?? []) {
   const name = read.prediction.winner.name;
   const side = [b.red, b.blue].find((c) => c?.name === name);
   if (!side?.price?.american) continue;                   // the book posts no price for that side
+
+  /*
+   * THE SAME LEG-PRICE FLOOR THE MLB LADDER USES.
+   *
+   * An extreme favourite barely moves the payout while still being able to lose the whole card —
+   * it is filler that buys nothing, which is why the canonical guard exists. The first build put a
+   * -750 fighter on a cross-sport card; that price is shorter than the -500 floor, and the only
+   * reason it got through is that this ladder was not consulting the guard the other one does.
+   */
+  const am = side.price.american;
+  if (am < INDIVIDUAL_LEG_ODDS_GUARDS.minFavoriteAmerican || am > INDIVIDUAL_LEG_ODDS_GUARDS.maxUnderdogAmerican) continue;
   legs.push({
     sport: "ufc", eventId: b.boutId, player: name,
     market: "fight_winner", marketLabel: "Fight winner", side: "win", line: null,
-    odds: side.price.american,
-    decimal: side.price.american > 0 ? 1 + side.price.american / 100 : 1 + 100 / Math.abs(side.price.american),
+    odds: am,
+    decimal: am > 0 ? 1 + am / 100 : 1 + 100 / Math.abs(am),
     modelProbability: read.prediction.winner.probability,
     opponent: (read.red?.name === name ? read.blue?.name : read.red?.name) ?? null,
   });

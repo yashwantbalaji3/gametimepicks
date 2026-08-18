@@ -47,6 +47,8 @@ const SPORT = arg("--sport", "mlb");
 const LADDERS = {
   mlb: (date) => readJson(path.join(ROOT, "parlays", "risk-ladder", `${date}.json`))
               ?? readJson(path.join(ROOT, "parlays", "risk-ladder", "latest.json")),
+  ufc: (date) => readJson(path.join(ROOT, "parlays", "risk-ladder-ufc", `${date}.json`))
+              ?? readJson(path.join(ROOT, "parlays", "risk-ladder-ufc", "latest.json")),
 };
 
 const write = (payload) => {

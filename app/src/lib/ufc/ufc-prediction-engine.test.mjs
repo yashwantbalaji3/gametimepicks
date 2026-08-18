@@ -26,6 +26,29 @@ for (const bt of odds.bouts ?? []) {
 const fighterByName = buildFighterIndex(fdb.fighters);
 const rows = buildUfcCardPredictions(sched.fights, oddsIndex, fighterByName);
 
+/*
+ * DO THE TWO ARTIFACTS EVEN DESCRIBE THE SAME CARD?
+ *
+ * Everything below asserts that the schedule joins to the odds. That is only a meaningful claim
+ * when both cover the same event — and for a long time they did only by coincidence, because both
+ * were equally stale (a July 11 card in each). The first fresh August capture broke the join and
+ * the failures read "market-backed moneylines (0)", which sounds like the odds are wrong.
+ *
+ * They are not. The SCHEDULE is stale. Saying so here turns three confusing failures into one
+ * accurate sentence, and it fails rather than skips because a stale schedule feeding the public
+ * /ufc report is a real defect, not a test-environment quirk.
+ */
+const schedDates = [...new Set((sched.fights ?? []).map((f) => String(f.boutId ?? "").slice(0, 10)))];
+const oddsDates = [...new Set((odds.bouts ?? []).map((b) => String(b.boutId ?? "").slice(0, 10)))];
+const sameCard = schedDates.some((d) => oddsDates.includes(d));
+
+test("0 · the schedule and the odds describe the same card", () => {
+  assert.ok(sameCard,
+    `schedule-latest covers ${schedDates.join(", ") || "nothing"} while odds-latest covers ` +
+    `${oddsDates.join(", ") || "nothing"} — the schedule artifact is stale, so every join below is ` +
+    `vacuous. Refresh the schedule capture; the odds are current.`);
+});
+
 test("1 · odds → implied → de-vig math is correct", () => {
   assert.ok(Math.abs(impliedFromAmerican(-200) - 2 / 3) < 1e-9, "-200 ⇒ 0.667");
   assert.ok(Math.abs(impliedFromAmerican(150) - 0.4) < 1e-9, "+150 ⇒ 0.40");

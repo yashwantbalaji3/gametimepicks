@@ -357,3 +357,25 @@ test("MULTI · the settleable-sports list matches what the settler implements", 
       `"${sp}" is declared settleable but settle-lab-cards.mjs shows no sign of grading it`);
   }
 });
+
+test("PRODUCTION TRUTH · every published leg carries a posted price", () => {
+  /*
+   * The cross-sport lane published three cards whose every leg read `odds: undefined`. The combined
+   * price was right — the builder had the numbers, it just never put them on the leg — so the card
+   * looked complete and quoted nothing. On a lane whose entire claim is that it quotes REAL POSTED
+   * PRICES, a leg with no price is the one thing it must not ship.
+   */
+  const dir = path.join(process.cwd(), "public", "data", "parlays", "tier-grid");
+  if (!fs.existsSync(dir)) return;
+  for (const f of fs.readdirSync(dir).filter((n) => n.endsWith("-latest.json"))) {
+    const g = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    if (g.state !== "PUBLISHED") continue;
+    for (const c of g.cards ?? []) {
+      for (const l of c.legs ?? []) {
+        assert.ok(Number.isFinite(l.odds) && l.odds !== 0,
+          `${f}: ${c.band} card leg "${l.player}" publishes odds=${l.odds}`);
+      }
+      assert.ok(Number.isFinite(c.combinedAmerican), `${f}: ${c.band} card has no combined price`);
+    }
+  }
+});

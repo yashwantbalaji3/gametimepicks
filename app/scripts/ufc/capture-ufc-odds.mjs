@@ -168,9 +168,30 @@ for (const b of card.bouts ?? []) {
   };
 
   bouts.push({
-    boutId: b.boutId, eventId: card.event.providerEventId,
+    /*
+     * `eventId` IS THE BOUT, not the card.
+     *
+     * Downstream, "one event per card" means one BOUT per card — two legs from the same fight are
+     * the same event twice, which is the correlation a parlay must not contain. Stamping the card's
+     * id on every bout collapsed twelve priced fights into a single "game" and read as a card too
+     * thin to build a ladder from. The card's own id is on the snapshot, once, where it belongs.
+     */
+    boutId: b.boutId, eventId: b.boutId,
     red: { name: b.red?.name ?? null, price: side(b.red?.name) },
     blue: { name: b.blue?.name ?? null, price: side(b.blue?.name) },
+    /*
+     * `sides` as well as red/blue, because this artifact has TWO consumers.
+     *
+     * The prediction engine behind /ufc's report indexes bouts by `sides[].name`. Publishing only
+     * the corner-named shape replaced an artifact it could read with one it could not, and the
+     * report silently fell back to zero market-backed moneylines — the page still rendered, just
+     * without the market read it exists to show. Same data, in the shape each consumer already
+     * expects; a rename here is a silent regression somewhere else.
+     */
+    sides: [
+      { name: b.red?.name ?? null, american: side(b.red?.name)?.american ?? null, books: side(b.red?.name)?.books ?? 0 },
+      { name: b.blue?.name ?? null, american: side(b.blue?.name)?.american ?? null, books: side(b.blue?.name)?.books ?? 0 },
+    ],
   });
 }
 

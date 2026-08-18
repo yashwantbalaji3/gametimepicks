@@ -123,13 +123,26 @@ export function labEligibility(root, date, now) {
     });
   }
 
-  const liveSports = out.filter((s) => s.live).map((s) => s.label);
+  /*
+   * IDS, not labels.
+   *
+   * `liveSports` is consumed as a KEY — the cross-sport builder looks each entry up in its ladder
+   * table — so returning display labels ("MLB", "UFC") meant every lookup missed and the lane
+   * reported "legs from 0 sports" with two fully-built ladders sitting on disk. The same shape as
+   * the registry keying soccer as "soccer" against a gate keying it "epl": a mismatch between two
+   * spellings of the same thing, silent because the miss looks like absence.
+   *
+   * Labels are kept separately for the sentence below, which is the only place a human reads them.
+   */
+  const live = out.filter((s) => s.live);
+  const liveSports = live.map((s) => s.id);
+  const liveLabels = live.map((s) => s.label);
   out.push({
     id: "multi", label: "Multi-sport",
     live: liveSports.length >= 2,
     blocked: liveSports.length >= 2 ? undefined
-      : `a cross-sport card needs two live sports; ${liveSports.length === 1 ? `only ${liveSports[0]} is` : "none is"} cleared`,
-    evidence: { liveSports },
+      : `a cross-sport card needs two live sports; ${liveLabels.length === 1 ? `only ${liveLabels[0]} is` : "none is"} cleared`,
+    evidence: { liveSports, liveLabels },
   });
   return out;
 }

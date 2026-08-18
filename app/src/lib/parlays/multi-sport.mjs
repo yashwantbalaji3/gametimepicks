@@ -125,10 +125,14 @@ const MIN_LEGS = 2;
  * today would be published and never graded.
  *
  * This list is therefore a PRECONDITION, not a preference, and a guard asserts it against what the
- * settler actually implements. Adding UFC here without teaching the settler to read the graded
- * moneylines artifact would re-open exactly the hole it closes.
+ * settler actually implements — adding a sport here without teaching the settler re-opens exactly
+ * the hole it closes.
+ *
+ * UFC was added once settle-lab-cards could grade a fight leg from the official results capture
+ * (1,545 bouts, decisive-only, folded names on both sides of the join). The guard checks the
+ * settler for evidence of each declared sport, so this line cannot run ahead of the capability.
  */
-export const SETTLEABLE_SPORTS = ["mlb"];
+export const SETTLEABLE_SPORTS = ["mlb", "ufc"];
 
 /**
  * Build the multi-sport ladder: one cross-sport card per band, from every live sport's own cards.
@@ -157,6 +161,11 @@ export function buildMultiLadder({ liveSports, riskOrder, date, ladderFor, settl
           eventId: String(leg.gameId ?? leg.eventId ?? ""),
           player: leg.player ?? null,
           market: leg.market, side: leg.side, line: leg.line ?? null,
+          /* Carry the POSTED price, not only the decimal used for arithmetic. Without it every
+             published leg read "odds: undefined" — a card quoting no prices, on a lane whose whole
+             claim is that it quotes real posted prices. The combined number was right, which is
+             what made it look complete. */
+          odds: american,
           decimal: american > 0 ? 1 + american / 100 : 1 + 100 / Math.abs(american),
           score: 0,
           team: leg.team ?? null, opponent: leg.opponent ?? null, marketLabel: leg.marketLabel ?? null,

@@ -128,7 +128,15 @@ test("the published snapshot never carries a key or a raw payload", () => {
   const raw = fs.readFileSync(p, "utf8");
   assert.doesNotMatch(raw, /apiKey/i, "the snapshot names the key parameter");
   assert.doesNotMatch(raw, /"bookmakers"/, "a raw provider payload must never be republished");
-  assert.doesNotMatch(raw, /"(secret|token|password|authorization)"\s*:/i, "a credential-shaped FIELD is in the snapshot");
+  /*
+   * `authorization` is NOT banned outright: these snapshots carry an `authorization` PROVENANCE
+   * block — the receipt path, the ceiling, the cumulative spend — which is exactly the audit trail
+   * the receipt requires them to carry. Banning the word condemned that block on its first real
+   * capture. What must never appear is a credential VALUE, so the check is on a string-valued
+   * authorization (an HTTP-header shape) rather than the provenance object.
+   */
+  assert.doesNotMatch(raw, /"(secret|token|password)"\s*:/i, "a credential-shaped FIELD is in the snapshot");
+  assert.doesNotMatch(raw, /"authorization"\s*:\s*"/i, "a string-valued authorization field looks like a header credential");
 
   /*
    * DELIBERATELY NOT a bare-hex scan. The first version asserted no 28+ character hex run and
