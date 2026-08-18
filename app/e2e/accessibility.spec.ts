@@ -33,6 +33,9 @@ const FIRST_NFL_GAME = fs.existsSync(NFL_GAME_DIR)
   ? fs.readdirSync(NFL_GAME_DIR).filter((d) => /^\d+$/.test(d)).sort()[0]
   : null;
 const ROUTES = ["/", "/today/", "/markets/", "/results/", "/methodology/", "/learn/", "/moonshot/", "/bank-builder/", "/mlb/", "/nfl/", "/simulate/", "/sports/",
+  // P196: /ufc/ gained the skipped-card disclosure; the two in-development product pages are new
+  // public routes and introduce their own status palette, which is exactly what contrast catches.
+  "/ufc/", "/goal-rush/", "/bucket-blitz/",
   ...(FIRST_NFL_GAME ? [`/nfl/game/${FIRST_NFL_GAME}/`] : [])];
 
 const VIEWPORTS = [

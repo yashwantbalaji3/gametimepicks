@@ -45,20 +45,28 @@ export default function SignatureProductsBand() {
               </span>
               <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.5 }}>{p.question}</span>
               <span style={{ color: "var(--vault-text-faint)", fontSize: 11, lineHeight: 1.55 }}>{p.basis}</span>
-              {live && (
+              {live ? (
                 <span className="font-mono uppercase tracking-[0.12em] mt-0.5" style={{ color: "var(--gtp-bank-heat)", fontSize: 9 }}>
                   Open →
                 </span>
-              )}
+              ) : p.href ? (
+                /* An unbuilt product can have a destination that documents the gap. The wording has
+                   to keep the two apart: a live product says "Open", this says what the page is. */
+                <span className="font-mono uppercase tracking-[0.12em] mt-0.5" style={{ color: "var(--vault-text-mute)", fontSize: 9 }}>
+                  What&rsquo;s left to build →
+                </span>
+              ) : null}
             </>
           );
           const style = {
             background: live ? "rgba(11,18,14,0.5)" : "rgba(255,255,255,0.015)",
             border: live ? "1px solid var(--vault-border)" : "1px dashed var(--vault-rule)",
           } as const;
-          return live && p.href ? (
+          // A coming-soon card may link, but never through the live CTA treatment — the dashed
+          // border and the label carry the difference, so the two never read the same.
+          return p.href ? (
             <Link key={p.sport} href={p.href} data-sport={p.sport}
-              className="gtp-sim-cta flex flex-col gap-1.5 rounded-[14px] p-3.5 no-underline" style={style}>
+              className={`${live ? "gtp-sim-cta " : "gtp-pressable "}flex flex-col gap-1.5 rounded-[14px] p-3.5 no-underline`} style={style}>
               {body}
             </Link>
           ) : (

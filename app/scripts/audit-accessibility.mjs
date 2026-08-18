@@ -38,6 +38,7 @@ const firstNflGame = fs.existsSync(NFL_GAME_DIR)
   ? fs.readdirSync(NFL_GAME_DIR).filter((d) => /^\d+$/.test(d)).sort()[0]
   : null;
 const ROUTES = ["", "today", "markets", "results", "methodology", "learn", "moonshot", "bank-builder", "mlb", "nfl", "simulate", "sports",
+  "ufc", "goal-rush", "bucket-blitz",   // kept in sync with ROUTES in e2e/accessibility.spec.ts
   ...(firstNflGame ? [`nfl/game/${firstNflGame}`] : [])];
 
 const strip = (h) => h.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");

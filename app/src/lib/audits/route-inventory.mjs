@@ -71,6 +71,8 @@ export const ROUTE_TABLE = Object.freeze({
   "/nba/results": { classification: "redirect", owner: "settlement", purpose: "alias", redirectTo: "/results/nba" },
   "/nhl": { classification: "redirect", owner: "product", purpose: "retired NHL hub", redirectTo: "/" },
   "/ipl": { classification: "redirect", owner: "product", purpose: "retired IPL hub", redirectTo: "/" },
+  "/goal-rush": { classification: "product", owner: "product", purpose: "Goal Rush (Premier League signature product) — NAMED AND UNBUILT. Publishes no pick: states what is captured today and which of the twelve gate stages remain, both derived from lib/products/product-readiness. Flips on its own when the stages go green", dataOwner: "derived from sport-assessments + the committed EPL fixture capture", freshness: "no freshness claim — the page makes no time-sensitive claim to be stale" },
+  "/bucket-blitz": { classification: "product", owner: "product", purpose: "Bucket Blitz (NBA signature product) — NAMED AND UNBUILT. Same contract as /goal-rush: derived gate stages, captured-schedule facts, no pick", dataOwner: "derived from sport-assessments + the committed NBA schedule capture", freshness: "no freshness claim — the page makes no time-sensitive claim to be stale" },
   "/homer-nukes": { classification: "redirect", owner: "product", purpose: "retired product", redirectTo: "/results" },
   "/world-cup": { classification: "redirect", owner: "product", purpose: "closed WC destination", redirectTo: "/results" },
   "/world-cup-specials": { classification: "redirect", owner: "product", purpose: "closed WC product", redirectTo: "/results" },

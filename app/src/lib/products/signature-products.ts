@@ -15,6 +15,14 @@ export type SignatureState = "live" | "coming-soon";
 
 export interface SignatureProduct {
   readonly sport: string;
+  /**
+   * The key this sport has in the readiness gate (lib/sports/sport-assessments.mjs), where it is
+   * the COMPETITION rather than the sport: soccer is assessed as "epl". They were separate strings
+   * hardcoded in separate files, which is a silent failure waiting to happen — a lookup under the
+   * wrong key returns no stages, and no stages reads as "nothing proven", which looks plausible.
+   * Defaults to `sport` where the two already agree.
+   */
+  readonly gateKey?: string;
   readonly sportLabel: string;
   readonly name: string;
   readonly href: string | null;
@@ -73,9 +81,12 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
   },
   {
     sport: "soccer",
+    gateKey: "epl",   // assessed as a competition, not a sport
     sportLabel: "Soccer",
     name: "Goal Rush",
-    href: null,
+    // A destination, but NOT a product: /goal-rush publishes no pick. It states what is captured
+    // and what the twelve-stage gate still wants, both derived. `state` stays coming-soon.
+    href: "/goal-rush",
     state: "coming-soon",
     question: "Who finds the net today?",
     basis:
@@ -86,7 +97,8 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
     sport: "nba",
     sportLabel: "Basketball",
     name: "Bucket Blitz",
-    href: null,
+    // Same as Goal Rush: a page that documents the gap, not a product. `state` stays coming-soon.
+    href: "/bucket-blitz",
     state: "coming-soon",
     question: "Who is filling it up tonight?",
     basis:
@@ -97,3 +109,5 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
 
 export const liveSignatureProducts = () => SIGNATURE_PRODUCTS.filter((p) => p.state === "live");
 export const signatureFor = (sport: string) => SIGNATURE_PRODUCTS.find((p) => p.sport === sport) ?? null;
+/** The gate key for a product, falling back to its sport where the two agree. */
+export const gateKeyFor = (p: SignatureProduct) => p.gateKey ?? p.sport;
