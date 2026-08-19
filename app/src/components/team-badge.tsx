@@ -101,9 +101,9 @@ export default function TeamBadge({
         fontSize: dim.font,
         letterSpacing: dim.font > 12 ? "-0.02em" : "0.02em",
         boxShadow: highlight
-          ? `0 0 0 1px rgba(52, 211, 153, 0.65), 0 0 12px rgba(52, 211, 153, 0.30)`
-          : "inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
-        textShadow: "0 1px 2px rgba(0, 0, 0, 0.45)",
+          ? `0 0 0 1px color-mix(in srgb, var(--vault-accent) 65%, transparent), 0 0 12px color-mix(in srgb, var(--vault-accent) 30%, transparent)`
+          : "inset 0 0 0 1px color-mix(in srgb, var(--vault-wash-base) 5%, transparent)",
+        textShadow: "0 1px 2px color-mix(in srgb, var(--vault-ink-black) 45%, transparent)",
         flexShrink: 0,
         ...style,
       }}

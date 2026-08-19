@@ -112,9 +112,9 @@ function ProductChip({ tag }: { tag: ProductTag | null }) {
       </span>
     );
   }
-  const tone = tag.product === "moonshot" ? "#b9a8ff" : "var(--vault-gold-bright)";
+  const tone = tag.product === "moonshot" ? "var(--product-moonshot)" : "var(--vault-gold-bright)";
   return (
-    <span className="inline-flex items-center gap-1 font-mono uppercase tracking-[0.04em] rounded-full px-2 py-0.5" style={{ fontSize: 9, fontWeight: 700, color: tone, border: `1px solid ${tone}`, background: "color-mix(in srgb, " + (tag.product === "moonshot" ? "#b9a8ff" : "var(--vault-gold-bright)") + " 12%, transparent)", whiteSpace: "nowrap" }} title="Paper · review · $0 exposure — not a placed bet">
+    <span className="inline-flex items-center gap-1 font-mono uppercase tracking-[0.04em] rounded-full px-2 py-0.5" style={{ fontSize: 9, fontWeight: 700, color: tone, border: `1px solid ${tone}`, background: "color-mix(in srgb, " + (tag.product === "moonshot" ? "var(--product-moonshot)" : "var(--vault-gold-bright)") + " 12%, transparent)", whiteSpace: "nowrap" }} title="Paper · review · $0 exposure — not a placed bet">
       {tag.label}<span style={{ opacity: 0.7, fontWeight: 400 }}>· $0</span>
     </span>
   );
@@ -124,8 +124,8 @@ function ProductChip({ tag }: { tag: ProductTag | null }) {
  *  "supported / opposed" (reads like betting advice). "Model lead" = model above market; "Watchlist" = model
  *  fades the posted line or the read is high-variance. */
 const SIGNAL_DISPLAY: Record<string, { label: string; color: string; bg: string }> = {
-  supported: { label: "Model lead", color: "var(--gtp-success-on-dark, #7ee2a8)", bg: "rgba(46,160,102,0.14)" },
-  neutral: { label: "Aligned", color: "var(--vault-text-mute)", bg: "rgba(255,255,255,0.04)" },
+  supported: { label: "Model lead", color: "var(--gtp-success-on-dark)", bg: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)" },
+  neutral: { label: "Aligned", color: "var(--vault-text-mute)", bg: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)" },
   opposed: { label: "Watchlist", color: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)" },
 };
 function SignalCell({ signal }: { signal: string }) {
@@ -137,7 +137,7 @@ function SignalCell({ signal }: { signal: string }) {
 /** Compact key for the model board — what each signal / tag means. */
 function SignalLegend() {
   const items: Array<[string, string, string]> = [
-    ["Model lead", "model above market", "var(--gtp-success-on-dark, #7ee2a8)"],
+    ["Model lead", "model above market", "var(--gtp-success-on-dark)"],
     ["Aligned", "model ≈ market", "var(--vault-text-mute)"],
     ["Watchlist", "model fades the line / high variance", "var(--vault-gold-bright)"],
     ["Product card", "used in a paper card ($0)", "var(--vault-gold-bright)"],
@@ -298,7 +298,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
   return (
     <div className="flex flex-col gap-4">
       {/* Report mini-nav — sticky index; horizontal scroll on mobile. Anchors to the sections below. */}
-      <nav aria-label="Report sections" className="flex gap-1.5 overflow-x-auto rounded-[12px] px-2 py-1.5" style={{ background: "rgba(15,10,7,0.75)", border: "1px solid var(--vault-border)", position: "sticky", top: 0, zIndex: 5, backdropFilter: "blur(6px)" }}>
+      <nav aria-label="Report sections" className="flex gap-1.5 overflow-x-auto rounded-[12px] px-2 py-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-warm) 75%, transparent)", border: "1px solid var(--vault-border)", position: "sticky", top: 0, zIndex: 5, backdropFilter: "blur(6px)" }}>
         {NAV.map(([id, label]) => (
           <a key={id} href={`#mlbr-${id}`} className="shrink-0 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", textDecoration: "none", whiteSpace: "nowrap" }}>
             {label}
@@ -307,7 +307,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
       </nav>
 
       {/* 1 — Matchup header + status */}
-      <section id="mlbr-summary" className="rounded-[16px] px-4 sm:px-6 py-5 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold)" }}>
+      <section id="mlbr-summary" className="rounded-[16px] px-4 sm:px-6 py-5 flex flex-col gap-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold)" }}>
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
             <Monogram code={awayCode} name={away} />
@@ -318,19 +318,19 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
             <Monogram code={homeCode} name={home} />
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono uppercase tracking-[0.1em] rounded-full px-2.5 py-1" style={{ fontSize: 9, color: isPreviousSlate ? "var(--vault-warn)" : "var(--gtp-success-on-dark, #7ee2a8)", background: isPreviousSlate ? "rgba(234,88,12,0.10)" : "rgba(46,160,102,0.12)", border: `1px solid ${isPreviousSlate ? "rgba(234,88,12,0.35)" : "rgba(46,160,102,0.4)"}` }}>
+            <span className="font-mono uppercase tracking-[0.1em] rounded-full px-2.5 py-1" style={{ fontSize: 9, color: isPreviousSlate ? "var(--vault-warn)" : "var(--gtp-success-on-dark)", background: isPreviousSlate ? "color-mix(in srgb, var(--vault-risk) 10%, transparent)" : "color-mix(in srgb, var(--vault-accent-deep) 12%, transparent)", border: `1px solid ${isPreviousSlate ? "color-mix(in srgb, var(--vault-risk) 35%, transparent)" : "color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)"}` }}>
               {isPreviousSlate ? `Previous slate · ${date}` : "Pregame"}
             </span>
-            <span className="font-mono uppercase tracking-[0.1em] rounded-full px-3 py-1.5" style={{ fontSize: 9.5, color: "var(--vault-gold)", background: "rgba(217,164,65,0.10)", border: "1px solid rgba(217,164,65,0.35)" }}>{runLabel} · player-prop sim</span>
+            <span className="font-mono uppercase tracking-[0.1em] rounded-full px-3 py-1.5" style={{ fontSize: 9.5, color: "var(--vault-gold)", background: "color-mix(in srgb, var(--vault-crown) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 35%, transparent)" }}>{runLabel} · player-prop sim</span>
           </div>
         </div>
         {/* What happened / what to look at / what is not shown — the fast orientation. */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <div className="rounded-[10px] px-3 py-2" style={{ background: "rgba(46,160,102,0.08)", border: "1px solid rgba(46,160,102,0.25)" }}>
-            <span className="font-mono uppercase tracking-[0.1em] block" style={{ color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 8.5 }}>What happened</span>
+          <div className="rounded-[10px] px-3 py-2" style={{ background: "color-mix(in srgb, var(--vault-accent-deep) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 25%, transparent)" }}>
+            <span className="font-mono uppercase tracking-[0.1em] block" style={{ color: "var(--gtp-success-on-dark)", fontSize: 8.5 }}>What happened</span>
             <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{runsPill} player-prop simulation complete · {picks.length} picks</span>
           </div>
-          <div className="rounded-[10px] px-3 py-2" style={{ background: "rgba(217,164,65,0.07)", border: "1px solid rgba(217,164,65,0.22)" }}>
+          <div className="rounded-[10px] px-3 py-2" style={{ background: "color-mix(in srgb, var(--vault-crown) 7%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 22%, transparent)" }}>
             <span className="font-mono uppercase tracking-[0.1em] block" style={{ color: "var(--vault-gold)", fontSize: 8.5 }}>What to look at</span>
             <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
               {takeawayLead
@@ -338,7 +338,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                 : <>Player board · market agreement · product eligibility</>}
             </span>
           </div>
-          <div className="rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+          <div className="rounded-[10px] px-3 py-2" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-border)" }}>
             <span className="font-mono uppercase tracking-[0.1em] block" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>What is not shown</span>
             <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Projected score / win probability — full-game model still validating</span>
           </div>
@@ -363,7 +363,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
       {/* Calibration disclosure — the honest, audit-backed truth about the model probabilities. Prominent + high
           so nobody reads the "model %"/gap below as a proven advantage. Only hidden if a market is ever validated. */}
       {!anyModeledMarketBeatsMarket() ? (
-        <div className="rounded-[12px] px-4 py-3 flex items-start gap-2.5" style={{ background: "rgba(234,88,12,0.08)", border: "1px solid rgba(234,88,12,0.4)" }}>
+        <div className="rounded-[12px] px-4 py-3 flex items-start gap-2.5" style={{ background: "color-mix(in srgb, var(--vault-risk) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-risk) 40%, transparent)" }}>
           <span aria-hidden style={{ color: "var(--vault-warn)", fontSize: 14, lineHeight: 1.2 }}>⚠</span>
           <div className="flex flex-col gap-0.5">
             <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-warn)", fontSize: 9.5 }}>Model calibration notice</span>
@@ -415,7 +415,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                 </div>
                 <table className="w-full border-collapse" style={{ fontSize: 11.5 }}>
                   <thead style={{ position: "sticky", top: 0, zIndex: 1 }}>
-                    <tr style={{ color: "var(--vault-text-faint)", background: "var(--gtp-card-sunken, rgba(15,10,7,0.96))" }}>
+                    <tr style={{ color: "var(--vault-text-faint)", background: "var(--gtp-card-sunken)" }}>
                       {([["Player", "left", true], ["Market", "left", true], ["Proj", "right", false], ["Model %", "right", true], ["Mkt %", "right", false], ["Gap", "right", true], ["Signal", "left", true], ["Product", "left", false]] as Array<[string, "left" | "right", boolean]>).map(([h, align, mobile]) => (
                         <th key={h} className={`font-mono uppercase tracking-[0.06em] py-1.5 px-1.5${mobile ? "" : " hidden sm:table-cell"}`} style={{ fontSize: 8.5, textAlign: align, borderBottom: "1px solid var(--vault-border-strong)", whiteSpace: "nowrap" }}>{h}</th>
                       ))}
@@ -423,7 +423,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                   </thead>
                   <tbody>
                     {grp.rows.map((r, i) => (
-                      <tr key={r.key || i} style={{ borderBottom: "1px solid var(--vault-rule)", background: i % 2 ? "rgba(255,255,255,0.014)" : "transparent" }}>
+                      <tr key={r.key || i} style={{ borderBottom: "1px solid var(--vault-rule)", background: i % 2 ? "color-mix(in srgb, var(--vault-wash-base) 1.4%, transparent)" : "transparent" }}>
                         <td className="py-1.5 px-1.5" style={{ color: "var(--vault-text)", fontWeight: 600, whiteSpace: "nowrap" }}>{r.player}</td>
                         <td className="py-1.5 px-1.5 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10, whiteSpace: "nowrap" }}>{marketLabel(r.market)} {cap(r.side)} {r.line ?? ""}</td>
                         <td className="py-1.5 px-1.5 font-mono tabular text-right hidden sm:table-cell" style={{ color: "var(--vault-text-faint)" }}>{num1(r.projection)}</td>
@@ -446,7 +446,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
               {/* Header row is sticky so it stays visible while scanning a long board; low-priority columns
                   (Proj / Mkt % / Risk) collapse away on mobile so Player · Market · Model · Gap · Product read first. */}
               <thead style={{ position: "sticky", top: 0, zIndex: 1 }}>
-                <tr style={{ color: "var(--vault-text-faint)", background: "var(--gtp-card-sunken, rgba(15,10,7,0.96))" }}>
+                <tr style={{ color: "var(--vault-text-faint)", background: "var(--gtp-card-sunken)" }}>
                   {([
                     ["Player", "left", true], ["Market", "left", true], ["Proj", "right", false],
                     ["Model %", "right", true], ["Mkt %", "right", false], ["Gap", "right", true],
@@ -460,7 +460,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                 {boardPicks.map((p, i) => {
                   const tag = tagFor(p);
                   return (
-                    <tr key={p.id || i} style={{ borderBottom: "1px solid var(--vault-rule)", background: i % 2 ? "rgba(255,255,255,0.014)" : "transparent" }}>
+                    <tr key={p.id || i} style={{ borderBottom: "1px solid var(--vault-rule)", background: i % 2 ? "color-mix(in srgb, var(--vault-wash-base) 1.4%, transparent)" : "transparent" }}>
                       <td className="py-2 px-1.5" style={{ color: "var(--vault-text)", fontWeight: 600, whiteSpace: "nowrap" }}>
                         <span className="inline-flex items-center gap-2">
                           {p.player ? <PlayerAvatar photoUrl={(p as { photoUrl?: string | null }).photoUrl ?? null} playerName={p.player} size="xs" flat /> : null}
@@ -502,7 +502,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                   <span className="font-mono shrink-0 flex items-center gap-2" style={{ fontSize: 11 }}>
                     <span style={{ color: "var(--vault-text-mute)" }}>Model <span style={{ color: "var(--vault-text)", fontWeight: 700 }}>{pct(p.modelProbability)}</span></span>
                     <span style={{ color: "var(--vault-text-faint)" }}>vs Mkt {pct(p.marketProbability)}</span>
-                    <span className="rounded-full px-1.5 py-0.5" style={{ color: "var(--vault-gold)", background: "rgba(217,164,65,0.10)", border: "1px solid rgba(217,164,65,0.25)", fontSize: 9.5 }}>+{(p.edgePct ?? 0).toFixed(0)} pt lead</span>
+                    <span className="rounded-full px-1.5 py-0.5" style={{ color: "var(--vault-gold)", background: "color-mix(in srgb, var(--vault-crown) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 25%, transparent)", fontSize: 9.5 }}>+{(p.edgePct ?? 0).toFixed(0)} pt lead</span>
                   </span>
                 </div>
               );
@@ -510,7 +510,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           </div>
         ) : <p className="text-[12.5px] m-0" style={{ color: "var(--vault-text-mute)" }}>No positive model-vs-market gaps in this game's simulation.</p>}
         {topExplanation && topLead ? (
-          <div className="mt-3 rounded-[10px] px-3 py-2.5" style={{ border: "1px solid var(--vault-border)", background: "rgba(15,10,7,0.5)" }}>
+          <div className="mt-3 rounded-[10px] px-3 py-2.5" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-warm) 50%, transparent)" }}>
             <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
               Why this gap? · {topLead.player ?? topLead.team ?? ""} {marketLabel(topLead.market)}
             </span>
@@ -540,13 +540,13 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         {agreementScore != null ? (
           <div className="flex flex-col gap-2.5">
             {/* Agreement score hero — one clean focal number + a bar, with the two gaps as compact context. */}
-            <div className="rounded-[12px] px-4 py-3.5 flex items-center gap-4 flex-wrap" style={{ background: "rgba(15,10,7,0.55)", border: "1px solid var(--vault-border)" }}>
+            <div className="rounded-[12px] px-4 py-3.5 flex items-center gap-4 flex-wrap" style={{ background: "color-mix(in srgb, var(--vault-scrim-warm) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
               <div className="flex items-baseline gap-1">
                 <span className="font-display tabular" style={{ color: "var(--vault-gold-bright)", fontSize: 40, fontWeight: 800, lineHeight: 1 }}>{agreementScore}</span>
                 <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 13 }}>/100</span>
               </div>
               <div className="flex-1 min-w-[160px] flex flex-col gap-1.5">
-                <div className="relative w-full rounded-full" style={{ height: 8, background: "rgba(255,255,255,0.07)" }}>
+                <div className="relative w-full rounded-full" style={{ height: 8, background: "color-mix(in srgb, var(--vault-wash-base) 7%, transparent)" }}>
                   <div className="absolute left-0 top-0 h-full rounded-full" style={{ width: `${agreementScore}%`, background: "linear-gradient(90deg, var(--vault-gold), var(--vault-gold-bright))" }} />
                 </div>
                 <div className="flex items-center justify-between font-mono" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>
@@ -561,7 +561,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                 {statAgreement.map((r) => (
                   <div key={r.market} className="flex items-center gap-2">
                     <span className="font-mono shrink-0" style={{ color: "var(--vault-text-mute)", fontSize: 10, width: 110 }}>{r.market}</span>
-                    <div className="relative flex-1 rounded-full" style={{ height: 6, background: "rgba(255,255,255,0.06)" }}>
+                    <div className="relative flex-1 rounded-full" style={{ height: 6, background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" }}>
                       <div className="absolute left-0 top-0 h-full rounded-full" style={{ width: `${Math.min(100, r.mean * 400)}%`, background: "var(--vault-gold-bright)", opacity: 0.75 }} />
                     </div>
                     <span className="font-mono shrink-0 text-right" style={{ color: "var(--vault-text-faint)", fontSize: 9.5, width: 66 }}>{(r.mean * 100).toFixed(0)} pt · n{r.count}</span>
@@ -587,7 +587,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
               // Numeric band from the SAME real mass the histogram draws (median + p10–p90). Null-safe: no band ⇒ no line.
               const band = distributionBand(d.bins, d.sampleCount ?? null);
               return (
-                <div key={key} className="flex flex-col gap-1.5 rounded-[10px] px-3 py-2.5" style={{ background: "rgba(15,10,7,0.5)", border: "1px solid var(--vault-border)" }}>
+                <div key={key} className="flex flex-col gap-1.5 rounded-[10px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-warm) 50%, transparent)", border: "1px solid var(--vault-border)" }}>
                   <span className="text-[12px]" style={{ color: "var(--vault-text)", fontWeight: 600 }}>{d.label}</span>
                   <div className="flex items-end gap-0.5" style={{ height: 42 }}>
                     {d.bins.map((b, i) => (
@@ -616,7 +616,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
       <Section n={8} title="Settlement support" subtitle="How every pick here settles">
         <div className="flex flex-wrap gap-1.5 mb-1">
           {simMarkets.map((m) => (
-            <span key={m} className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9.5, color: "var(--vault-success)", background: "rgba(46,160,102,0.10)", border: "1px solid rgba(46,160,102,0.3)" }}>{m} ✓</span>
+            <span key={m} className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9.5, color: "var(--vault-success)", background: "color-mix(in srgb, var(--vault-accent-deep) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 30%, transparent)" }}>{m} ✓</span>
           ))}
         </div>
         <p className="text-[12px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
@@ -637,7 +637,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         {/* Calibration flag — honest, audit-backed. The candidate markets did NOT out-predict the market, so a
             "model above market" read is NOT a proven advantage. Only shown while no market passes the gate. */}
         {!anyModeledMarketBeatsMarket() ? (
-          <p className="text-[12px] leading-relaxed m-0 mb-1.5 rounded-[8px] px-3 py-2" style={{ color: "var(--vault-text-mute)", background: "rgba(234,88,12,0.07)", border: "1px solid rgba(234,88,12,0.28)" }}>
+          <p className="text-[12px] leading-relaxed m-0 mb-1.5 rounded-[8px] px-3 py-2" style={{ color: "var(--vault-text-mute)", background: "color-mix(in srgb, var(--vault-risk) 7%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-risk) 28%, transparent)" }}>
             <span className="font-mono uppercase tracking-[0.1em] mr-1.5" style={{ color: "var(--vault-warn)", fontSize: 9.5 }}>Calibration flag</span>
             These candidate markets (Strikeouts · Hits · Total bases · H+R+RBI) did <strong>not</strong> out-predict
             the market in the settled-history audit — a &quot;model above market&quot; read is <strong>not</strong> a
@@ -677,7 +677,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
 
       {/* 11 — Full-game model status (validating) + why no projected score / win probability */}
       <Section n={11} title="Full-game simulation" subtitle="Why no projected score or win probability" tone="muted">
-        <div className="rounded-[10px] px-4 py-4 flex flex-col gap-1.5 mb-2" style={{ background: "rgba(15,10,7,0.5)", border: "1px dashed var(--vault-border-strong)" }}>
+        <div className="rounded-[10px] px-4 py-4 flex flex-col gap-1.5 mb-2" style={{ background: "color-mix(in srgb, var(--vault-scrim-warm) 50%, transparent)", border: "1px dashed var(--vault-border-strong)" }}>
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Full-game model · validating</span>
           <p className="text-[13px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
             The 10k simulation above is a <strong>player-prop</strong> simulation — it does not produce a game score,
@@ -698,7 +698,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
         <div className="flex flex-wrap gap-1.5 mb-2">
           <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>slate {date}</span>
           {modelVersion ? <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)" }}>model {modelVersion}</span> : null}
-          {isPreviousSlate ? <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-warn)", border: "1px solid rgba(234,88,12,0.35)" }}>previous slate</span> : null}
+          {isPreviousSlate ? <span className="font-mono rounded-full px-2 py-0.5" style={{ fontSize: 9, color: "var(--vault-warn)", border: "1px solid color-mix(in srgb, var(--vault-risk) 35%, transparent)" }}>previous slate</span> : null}
         </div>
         {/* Data freshness — honest ET provenance: sim generated time + when the compared market line was captured
             relative to first pitch. A post-first-pitch capture is never labelled pregame; a missing time reads

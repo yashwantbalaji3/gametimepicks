@@ -75,7 +75,7 @@ function SpotlightTile({ eyebrow, title, sub, meta, accent, foot }: {
   eyebrow: string; title: string; sub?: string; meta?: React.ReactNode; accent?: string; foot?: string;
 }) {
   return (
-    <div className="flex flex-col gap-1.5 rounded-[12px] px-4 py-3.5" style={{ background: "rgba(11, 18, 14,0.6)", border: `1px solid ${accent ?? "var(--vault-border)"}` }}>
+    <div className="flex flex-col gap-1.5 rounded-[12px] px-4 py-3.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: `1px solid ${accent ?? "var(--vault-border)"}` }}>
       <span className="font-mono uppercase tracking-[0.13em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>{eyebrow}</span>
       <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700, lineHeight: 1.1 }}>{title}</span>
       {sub ? <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{sub}</span> : null}
@@ -87,7 +87,7 @@ function SpotlightTile({ eyebrow, title, sub, meta, accent, foot }: {
 
 function EmptyTile({ eyebrow, note }: { eyebrow: string; note: string }) {
   return (
-    <div className="flex flex-col gap-1.5 rounded-[12px] px-4 py-3.5" style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-border)" }}>
+    <div className="flex flex-col gap-1.5 rounded-[12px] px-4 py-3.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-border)" }}>
       <span className="font-mono uppercase tracking-[0.13em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{eyebrow}</span>
       <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>{note}</span>
     </div>
@@ -98,7 +98,7 @@ function EmptyTile({ eyebrow, note }: { eyebrow: string; note: string }) {
 function MarketPickRow({ p }: { p: PublicProjection }) {
   const name = p.player?.name ?? "—";
   return (
-    <div className="flex items-center gap-2.5 rounded-[8px] px-3 py-2.5 min-w-0" style={{ background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-rule)" }}>
+    <div className="flex items-center gap-2.5 rounded-[8px] px-3 py-2.5 min-w-0" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 28%, transparent)", border: "1px solid var(--vault-rule)" }}>
       <PlayerAvatar name={name} photo={p.player?.photo} size={30} />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="font-display tracking-tight break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{name}</span>
@@ -132,7 +132,7 @@ function MarketSection({ label, picks }: { label: string; picks: PublicProjectio
 const TH: React.CSSProperties = {
   textAlign: "left", padding: "6px 8px", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.08em",
   textTransform: "uppercase", color: "var(--vault-text-faint)", whiteSpace: "nowrap",
-  borderBottom: "1px solid var(--vault-rule)", background: "rgba(11, 18, 14,0.7)", position: "sticky", top: 0,
+  borderBottom: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)", position: "sticky", top: 0,
 };
 const TD: React.CSSProperties = {
   padding: "6px 8px", fontSize: 11.5, color: "var(--vault-text)", borderBottom: "1px solid var(--vault-rule)",
@@ -157,7 +157,7 @@ function ModelPicksTable({ rows }: { rows: ModelPickRow[] }) {
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.rowLabel} style={{ background: r.available ? "transparent" : "rgba(255,255,255,0.015)" }}>
+            <tr key={r.rowLabel} style={{ background: r.available ? "transparent" : "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
               <td style={{ ...TD, fontWeight: 600, color: r.available ? "var(--vault-text)" : "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{r.rowLabel}</td>
               <td style={{ ...TD, color: r.available ? "var(--vault-text)" : "var(--vault-text-faint)" }}>{r.pick}</td>
               <td style={{ ...TD, fontFamily: "var(--font-mono, monospace)", color: r.available ? "var(--vault-gold-bright)" : "var(--vault-text-faint)", whiteSpace: "nowrap" }}>{r.odds}</td>
@@ -250,7 +250,7 @@ const CORR_TONE: Record<GamePropEditorial["correlation"]["direction"], string> =
 /** A small labelled chip used in the editorial strip (confidence / volatility). */
 function EditorialChip({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-[6px] px-2 py-0.5" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-border)" }}>
+    <span className="inline-flex items-center gap-1 rounded-[6px] px-2 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)", border: "1px solid var(--vault-border)" }}>
       <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{label}</span>
       <span className="font-mono" style={{ color, fontSize: 11, fontWeight: 600 }}>{value}</span>
     </span>
@@ -267,7 +267,7 @@ function EditorialParlayCard({ card }: { card: EditorialCard }) {
   if (!ed) return <ParlayCard card={card} />;
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-col gap-1.5 rounded-t-xl px-3.5 pt-3 pb-2.5" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", borderBottom: "none" }}>
+      <div className="flex flex-col gap-1.5 rounded-t-xl px-3.5 pt-3 pb-2.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", borderBottom: "none" }}>
         <div className="flex flex-wrap items-center gap-1.5">
           <EditorialChip label="confidence" value={ed.confidence} color={CONF_TONE[ed.confidence]} />
           <EditorialChip label="volatility" value={ed.volatility} color={VOL_TONE[ed.volatility]} />
@@ -402,11 +402,11 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         {topProj ? (
           <SpotlightTile eyebrow={`Top team model pick · ${topProj.marketLabel}`} title={topProj.pickLabel}
             meta={`${american(topProj.americanOdds)} · model ${pct(topProj.modelProbability)} · market ${pct(topProj.marketProbability)} · edge ${(topProj.edgePct ?? 0) >= 0 ? "+" : ""}${(topProj.edgePct ?? 0).toFixed(1)}%`}
-            accent="rgba(52, 211, 153, 0.35)" foot="Team & game props tab" />
+            accent="color-mix(in srgb, var(--vault-accent) 35%, transparent)" foot="Team & game props tab" />
         ) : <EmptyTile eyebrow="Top team model pick" note="No team projection posted for this fixture yet." />}
 
         {topPlayer ? (
-          <div className="flex items-center gap-3 rounded-[12px] px-4 py-3.5" style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid rgba(217,164,65,0.35)" }}>
+          <div className="flex items-center gap-3 rounded-[12px] px-4 py-3.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 35%, transparent)" }}>
             <PlayerAvatar name={topPlayer.player?.name ?? "—"} photo={topPlayer.player?.photo} size={40} />
             <div className="flex min-w-0 flex-col gap-0.5">
               <span className="font-mono uppercase tracking-[0.13em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Top player model pick · {topPlayer.marketLabel}</span>
@@ -446,12 +446,12 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
               <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} · {cards.length}</div>
               {cards.length > 0
                 ? cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)
-                : <div className="rounded-lg px-3 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>No {RISK_LABEL[lvl].toLowerCase()} card passed the gates for this match.</div>}
+                : <div className="rounded-lg px-3 py-2 text-[12px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>No {RISK_LABEL[lvl].toLowerCase()} card passed the gates for this match.</div>}
             </div>
           );
         })
       ) : (
-        <div className="rounded-xl px-4 py-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+        <div className="rounded-xl px-4 py-4" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)" }}>
           <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No game-specific cards passed the gate for this match{detail.homeTeam ? ` (${detail.homeTeam} vs ${detail.awayTeam})` : ""}. Build your own from this game&apos;s eligible legs, or browse all of today&apos;s cards in the <Link href="/build#suggested-cards" style={{ color: "var(--vault-gold-bright)" }}>Parlay Lab</Link>.</p>
           <Link href={detail.buildUrl} className="mt-2 inline-flex font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Build from this game →</Link>
         </div>
@@ -491,7 +491,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       {playerPropParlaysTotal > 0 ? (
         <TieredEditorialCards cards={(playerPropParlays?.cards ?? []) as EditorialCard[]} />
       ) : (
-        <div className="rounded-xl px-4 py-4 flex flex-col gap-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+        <div className="rounded-xl px-4 py-4 flex flex-col gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)" }}>
           <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>No quality parlay available yet</span>
           <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>Not enough quality player props are posted to build a slip for this match yet — we never pad a parlay with weak legs. Soccer player props post near lineup time; check back closer to kickoff.</p>
         </div>
@@ -507,7 +507,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       {teamPropParlaysTotal > 0 ? (
         <TieredEditorialCards cards={(teamPropParlays?.cards ?? []) as EditorialCard[]} />
       ) : (
-        <div className="rounded-xl px-4 py-4 flex flex-col gap-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+        <div className="rounded-xl px-4 py-4 flex flex-col gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)" }}>
           <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>No quality parlay available yet</span>
           <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>Not enough sensible team markets are posted to build a same-game combo for this match yet. See the Team &amp; game props tab for the individual projections.</p>
         </div>
@@ -530,7 +530,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
             {marketGroups.map((g) => <MarketSection key={g.label} label={g.label} picks={g.picks} />)}
           </div>
         ) : (
-          <div className="rounded-[10px] px-4 py-8 text-center flex flex-col items-center gap-1.5" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+          <div className="rounded-[10px] px-4 py-8 text-center flex flex-col items-center gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
             <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-warn)", fontSize: 9.5 }}>Player props pending</span>
             <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No model player picks yet</p>
             <p className="max-w-md" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.5 }}>Player props will appear when this game enters the active betting window — soccer props post near lineup time. We never show a pick without real posted odds behind it.</p>
@@ -538,7 +538,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         )}
       </div>
       {detail.playerProps.length > modelPicks.length ? (
-        <details className="rounded-[10px]" style={{ background: "rgba(255,255,255,0.015)", border: "1px solid var(--vault-border)" }}>
+        <details className="rounded-[10px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px solid var(--vault-border)" }}>
           <summary className="cursor-pointer px-4 py-3 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11, listStyle: "none" }}>
             View full prop inventory · {detail.playerProps.length} ▾
           </summary>
@@ -570,7 +570,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       <SectionHeader eyebrow="Markets" title="What's available for this game" sub="We only show markets a real book is pricing. Pending/unavailable markets are labeled, never faked." />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {detail.dataStatus.map((d) => (
-          <div key={d.label} className="flex items-center justify-between gap-2 rounded-[8px] px-3 py-2.5" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+          <div key={d.label} className="flex items-center justify-between gap-2 rounded-[8px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
             <div className="flex flex-col min-w-0">
               <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{d.label}</span>
               {d.detail ? <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{d.detail}</span> : null}
@@ -704,7 +704,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         <div className="mb-2">
           <Link href="/simulate" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
         </div>
-        <div className="mx-auto max-w-xl mt-8 rounded-[10px] px-5 py-6" style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.55)" }}>
+        <div className="mx-auto max-w-xl mt-8 rounded-[10px] px-5 py-6" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)" }}>
           <p className="font-mono uppercase tracking-[0.12em] mb-1" style={{ fontSize: 10, color: "var(--vault-warn)" }}>Unavailable</p>
           <h1 className="text-[18px] font-semibold mb-1" style={{ color: "var(--vault-text)" }}>Game data could not be reconciled</h1>
           <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
@@ -738,11 +738,11 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           return (
             <div className="mb-4 -mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }} aria-label={`Other ${detail.sportLabel} games today`}>
               <span className="shrink-0 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Today&apos;s {detail.sportLabel}</span>
-              <span className="shrink-0 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: "var(--vault-gold-bright)", background: "rgba(217,164,65,0.12)", border: "1px solid var(--vault-gold-bright)", whiteSpace: "nowrap" }} aria-current="page">{detail.title}</span>
+              <span className="shrink-0 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: "var(--vault-gold-bright)", background: "color-mix(in srgb, var(--vault-crown) 12%, transparent)", border: "1px solid var(--vault-gold-bright)", whiteSpace: "nowrap" }} aria-current="page">{detail.title}</span>
               {siblings.map((s) => (
                 <Link key={s.slug} href={`/games/${s.urlSport}/${s.slug}`} className="shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", textDecoration: "none", whiteSpace: "nowrap" }}>
                   {s.title}
-                  {s.simReady ? <span aria-hidden style={{ color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 7 }}>● sim</span> : null}
+                  {s.simReady ? <span aria-hidden style={{ color: "var(--gtp-success-on-dark)", fontSize: 7 }}>● sim</span> : null}
                 </Link>
               ))}
             </div>
@@ -751,13 +751,13 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
 
         {/* CLEAN matchup hero — always visible, NO posted prices/picks. Large team crests (away @ home),
             title, MLB, date/venue, a Simulation Ready badge, and honest run/pick counts (run count gated). */}
-        <section className="relative overflow-hidden rounded-[16px] px-5 sm:px-7 py-6 sm:py-8 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(130% 150% at 0% 0%, rgba(52, 211, 153, 0.13) 0%, transparent 52%), radial-gradient(120% 130% at 100% 0%, rgba(217,164,65,0.07) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.95) 0%, rgba(10,10,11,0.98) 100%)", boxShadow: "0 22px 56px -30px rgba(0,0,0,0.8)" }}>
+        <section className="relative overflow-hidden rounded-[16px] px-5 sm:px-7 py-6 sm:py-8 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(130% 150% at 0% 0%, color-mix(in srgb, var(--vault-accent) 13%, transparent) 0%, transparent 52%), radial-gradient(120% 130% at 100% 0%, color-mix(in srgb, var(--vault-crown) 7%, transparent) 0%, transparent 55%), linear-gradient(140deg, color-mix(in srgb, var(--vault-scrim-slate) 95%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-neutral) 98%, transparent) 100%)", boxShadow: "0 22px 56px -30px color-mix(in srgb, var(--vault-ink-black) 80%, transparent)" }}>
           {/* faint field-grid texture (decorative, motion-free) */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0"
             style={{
-              backgroundImage: "linear-gradient(rgba(52, 211, 153, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(52, 211, 153, 0.05) 1px, transparent 1px)",
+              backgroundImage: "linear-gradient(color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px)",
               backgroundSize: "30px 30px",
               opacity: 0.5,
               maskImage: "radial-gradient(120% 100% at 0% 0%, #000 25%, transparent 80%)",
@@ -778,11 +778,11 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
               const simIsReady =
                 !!sim && sim.status !== "unavailable" && sim.status !== "error" && (sim.generatedPicks?.length ?? 0) > 0;
               return simIsReady ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>
+                <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", color: "var(--gtp-success-on-dark)", fontSize: 9 }}>
                   <span aria-hidden>▶</span> Simulation Ready
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(255,255,255,0.04)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)", fontSize: 9 }}>
+                <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)", fontSize: 9 }}>
                   Awaiting Simulation
                 </span>
               );
@@ -791,11 +791,11 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <div className="relative mt-3.5 flex items-center gap-3.5 sm:gap-4 min-w-0">
             {/* Large away @ home crests — each mark framed on a rounded plate so the logos read instantly. */}
             <span className="inline-flex items-center gap-2.5 shrink-0" aria-label={`${detail.awayTeam} at ${detail.homeTeam}`}>
-              <span className="inline-flex items-center justify-center rounded-[12px] shrink-0" style={{ width: 58, height: 58, background: "rgba(10,10,11,0.6)", border: "1px solid var(--vault-border)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
+              <span className="inline-flex items-center justify-center rounded-[12px] shrink-0" style={{ width: 58, height: 58, background: "color-mix(in srgb, var(--vault-scrim-neutral) 60%, transparent)", border: "1px solid var(--vault-border)", boxShadow: "inset 0 1px 0 color-mix(in srgb, var(--vault-wash-base) 5%, transparent)" }}>
                 <TeamMark name={detail.awayTeam} logoUrl={detail.awayLogo} size="xl" />
               </span>
               <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 13 }}>@</span>
-              <span className="inline-flex items-center justify-center rounded-[12px] shrink-0" style={{ width: 58, height: 58, background: "rgba(10,10,11,0.6)", border: "1px solid var(--vault-border)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}>
+              <span className="inline-flex items-center justify-center rounded-[12px] shrink-0" style={{ width: 58, height: 58, background: "color-mix(in srgb, var(--vault-scrim-neutral) 60%, transparent)", border: "1px solid var(--vault-border)", boxShadow: "inset 0 1px 0 color-mix(in srgb, var(--vault-wash-base) 5%, transparent)" }}>
                 <TeamMark name={detail.homeTeam} logoUrl={detail.homeLogo} size="xl" />
               </span>
             </span>
@@ -808,7 +808,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
               ...(sim.allowsRunCountClaim && sim.runCount != null ? [{ k: "Runs", v: sim.runCount.toLocaleString() }] : []),
               { k: "Generated picks", v: String(sim.generatedPicks.length) },
             ].map((m) => (
-              <span key={m.k} className="inline-flex items-baseline gap-1.5 rounded-full px-3 py-1.5" style={{ background: "rgba(10,10,11,0.5)", border: "1px solid var(--vault-rule)" }}>
+              <span key={m.k} className="inline-flex items-baseline gap-1.5 rounded-full px-3 py-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-neutral) 50%, transparent)", border: "1px solid var(--vault-rule)" }}>
                 <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{m.k}</span>
                 <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 12.5, fontWeight: 700 }}>{m.v}</span>
               </span>
@@ -910,7 +910,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
           <CompetitionBadge sport="world_cup" size="sm" />
-          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]" style={{ background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", color: "var(--gtp-success-on-dark)", fontSize: 9 }}>
             <span aria-hidden>▶</span> Simulation Report · Market-Implied
           </span>
         </div>
@@ -937,7 +937,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         <Link href="/simulate" className="inline-flex items-center -ml-1 px-1 py-2 font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)", fontSize: 10, minHeight: 40 }}>← All games</Link>
       </div>
       {/* Hero / matchup */}
-      <section className="relative overflow-hidden rounded-[14px] px-5 py-6 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 150% at 0% 0%, rgba(52, 211, 153, 0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(11, 18, 14,0.97) 100%)" }}>
+      <section className="relative overflow-hidden rounded-[14px] px-5 py-6 mb-5" style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 150% at 0% 0%, color-mix(in srgb, var(--vault-accent) 10%, transparent) 0%, transparent 55%), linear-gradient(135deg, color-mix(in srgb, var(--vault-scrim-navy) 94%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-base) 97%, transparent) 100%)" }}>
         <span className="flex items-center gap-2">
           <span className="gtp-sport-orb shrink-0" style={{ width: 26, height: 26, fontSize: 14, ["--orb-grad" as string]: identity.gradient }} role="img" aria-label={identity.ballLabel}>{identity.icon}</span>
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{detail.date}{detail.venue ? " · " + detail.venue : ""}</span>
@@ -956,8 +956,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         {detail.regulationNote ? <p className="mt-1 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>{detail.regulationNote}</p> : null}
         {/* Hero quick reads — the two strongest picks only; full reads (incl. cards) are in the spotlight below. */}
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          {topProj ? <span className="rounded-full px-2.5 py-1 font-mono" style={{ background: "rgba(52, 211, 153, 0.12)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5 }}>Top pick · {topProj.pickLabel} {american(topProj.americanOdds)}</span> : null}
-          {topPlayer ? <span className="rounded-full px-2.5 py-1 font-mono" style={{ background: "rgba(217,164,65,0.12)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5 }}>Top prop · {topPlayer.player?.name} {american(topPlayer.americanOdds)}</span> : null}
+          {topProj ? <span className="rounded-full px-2.5 py-1 font-mono" style={{ background: "color-mix(in srgb, var(--vault-accent) 12%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5 }}>Top pick · {topProj.pickLabel} {american(topProj.americanOdds)}</span> : null}
+          {topPlayer ? <span className="rounded-full px-2.5 py-1 font-mono" style={{ background: "color-mix(in srgb, var(--vault-crown) 12%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10.5 }}>Top prop · {topPlayer.player?.name} {american(topPlayer.americanOdds)}</span> : null}
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Link href={detail.buildUrl} className="gtp-cta-lava vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 11, fontWeight: 700, textDecoration: "none", minHeight: 42 }}>Build from this game</Link>

@@ -23,48 +23,162 @@ import path from "node:path";
 const APP = process.cwd();
 
 /**
- * Measured 2026-08-19 by scripts/uiux/baseline.mjs on main @ 8cf568d96.
- * This is a CEILING, not a target. It only ever moves down.
+ * Measured by scripts/uiux/baseline.mjs. These are CEILINGS, not targets. They only move down.
+ *
+ * P185 SPLIT THE COUNT, because a single number could be lowered the wrong way. Migrating a
+ * component nobody can reach, or converting a team's brand colour into a semantic token, both
+ * lower a flat count while making the product worse. So each class is pinned separately and the
+ * one that matters — drift on a live route — is pinned on its own:
+ *
+ *   themeDrift       literals that SHOULD be a semantic token          (migrate these)
+ *   identityData     a team's/club's own brand colour                  (never migrate; relocate)
+ *   maskStops        #000 as a mask alpha stop                         (not a colour at all)
+ *
+ * Because all three are pinned, reclassifying a literal cannot lower any ceiling: moving a literal
+ * out of themeDrift raises identityData or maskStops, and those fail too.
+ *
+ * Measured 2026-08-19 on main @ eeff42d61 + this release.
  */
-const CEILING = { rawColorLiterals: 1616, filesWithRawColors: 266 };
+const CEILING = {
+  rawColorLiterals: 1464,
+  filesWithRawColors: 264,
+  themeDrift: 1367,
+  themeDriftReachable: 959,
+  identityData: 89,
+  maskStops: 8,
+};
 
 /** The same scan the baseline script performs, so the two cannot disagree about what counts. */
 const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
 
-function walk(dir, acc = []) {
+function walk(dir, exts, acc = []) {
   let entries = [];
   try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return acc; }
   for (const e of entries) {
     const p = path.join(dir, e.name);
-    if (e.isDirectory()) { if (e.name !== "node_modules") walk(p, acc); }
-    else if (e.name.endsWith(".tsx")) acc.push(p);
+    if (e.isDirectory()) { if (e.name !== "node_modules") walk(p, exts, acc); }
+    else if (exts.some((x) => e.name.endsWith(x))) acc.push(p);
   }
   return acc;
 }
 
-function scan() {
-  let literals = 0; const files = [];
-  for (const f of walk(path.join(APP, "src"))) {
-    const hits = [...stripComments(fs.readFileSync(f, "utf8")).matchAll(/#[0-9a-fA-F]{3,8}\b|rgba?\(\s*\d+\s*,/g)].length;
-    if (hits) { literals += hits; files.push({ file: path.relative(APP, f), hits }); }
+const COLOR = /#[0-9a-fA-F]{3,8}\b|rgba?\(\s*\d+\s*,/g;
+const IDENTITY_LINE = /\b(primary|secondary|ink|bg|fg|border)\s*:\s*["'`]#/;
+const MASK_LINE = /[Mm]ask[Ii]mage|mask-image/;
+
+/** Files a route can actually pull in, by following imports from every route entrypoint. */
+function reachableFiles() {
+  const SRC = path.join(APP, "src");
+  const all = walk(SRC, [".tsx", ".ts"]).filter((f) => !/\.test\./.test(f));
+  const resolve = (from, spec) => {
+    let base;
+    if (spec.startsWith("@/")) base = path.join(SRC, spec.slice(2));
+    else if (spec.startsWith(".")) base = path.join(path.dirname(from), spec);
+    else return null;
+    for (const c of [base + ".tsx", base + ".ts", path.join(base, "index.tsx"), path.join(base, "index.ts")]) {
+      if (fs.existsSync(c)) return path.normalize(c);
+    }
+    return null;
+  };
+  const graph = new Map();
+  for (const f of all) {
+    const body = stripComments(fs.readFileSync(f, "utf8"));
+    const out = new Set();
+    for (const m of body.matchAll(/from\s+["']([^"']+)["']/g)) { const r = resolve(f, m[1]); if (r) out.add(r); }
+    for (const m of body.matchAll(/import\(\s*["']([^"']+)["']\s*\)/g)) { const r = resolve(f, m[1]); if (r) out.add(r); }
+    graph.set(path.normalize(f), out);
   }
-  return { literals, files };
+  const roots = all.filter((f) => /[\\/]app[\\/].*(page|layout|template|not-found|error)\.tsx$/.test(f)).map((f) => path.normalize(f));
+  const seen = new Set(); const stack = [...roots];
+  while (stack.length) {
+    const f = stack.pop();
+    if (seen.has(f)) continue;
+    seen.add(f);
+    for (const n of graph.get(f) ?? []) if (!seen.has(n)) stack.push(n);
+  }
+  return seen;
+}
+
+function scan() {
+  const reach = reachableFiles();
+  let themeDrift = 0, identityData = 0, maskStops = 0, unreachable = 0;
+  const files = [];
+  for (const f of walk(path.join(APP, "src"), [".tsx"])) {
+    const body = stripComments(fs.readFileSync(f, "utf8"));
+    let d = 0, i = 0, m = 0;
+    for (const line of body.split("\n")) {
+      const hits = (line.match(COLOR) ?? []).length;
+      if (!hits) continue;
+      if (IDENTITY_LINE.test(line)) i += hits;
+      else if (MASK_LINE.test(line)) m += hits;
+      else d += hits;
+    }
+    if (!(d || i || m)) continue;
+    themeDrift += d; identityData += i; maskStops += m;
+    if (!reach.has(path.normalize(f))) unreachable += d;
+    files.push({ file: path.relative(APP, f), hits: d + i + m });
+  }
+  return { literals: themeDrift + identityData + maskStops, themeDrift, identityData, maskStops,
+           themeDriftReachable: themeDrift - unreachable, files };
 }
 
 test("raw colour literals only ever decrease", () => {
-  const { literals, files } = scan();
-  assert.ok(literals <= CEILING.rawColorLiterals,
-    `raw colour literals rose to ${literals} from a ceiling of ${CEILING.rawColorLiterals}. ` +
+  const s = scan();
+  assert.ok(s.literals <= CEILING.rawColorLiterals,
+    `raw colour literals rose to ${s.literals} from a ceiling of ${CEILING.rawColorLiterals}. ` +
     `A new component was written with hardcoded colour instead of a semantic token — fix the ` +
     `component, do not raise the ceiling.`);
-  assert.ok(files.length <= CEILING.filesWithRawColors,
-    `${files.length} files carry raw colours, up from ${CEILING.filesWithRawColors}.`);
+  assert.ok(s.files.length <= CEILING.filesWithRawColors,
+    `${s.files.length} files carry raw colours, up from ${CEILING.filesWithRawColors}.`);
 
   // Keep the ceiling honest: once real migration lands, a stale ceiling stops measuring anything.
-  const slack = CEILING.rawColorLiterals - literals;
+  const slack = CEILING.rawColorLiterals - s.literals;
   assert.ok(slack < 150,
-    `the ceiling is ${slack} above the real count (${literals}) — lower CEILING to ${literals} so it ` +
+    `the ceiling is ${slack} above the real count (${s.literals}) — lower CEILING to ${s.literals} so it ` +
     `keeps ratcheting instead of drifting into decoration.`);
+});
+
+test("each class ratchets on its own, so a literal cannot be reclassified into a pass", () => {
+  /*
+   * The failure this prevents: relabel a hex as identity data (or move it onto a mask line) and a
+   * single flat ceiling falls without a single component improving. Every class is pinned, so the
+   * only way down is to actually remove a literal.
+   */
+  const s = scan();
+  for (const k of ["themeDrift", "themeDriftReachable", "identityData", "maskStops"]) {
+    assert.ok(s[k] <= CEILING[k],
+      `${k} rose to ${s[k]} from ${CEILING[k]}. If a literal moved between classes, that is not a ` +
+      `migration — the class it moved INTO is pinned too.`);
+  }
+});
+
+test("the migration target is drift on a live route, and it is shrinking", () => {
+  /*
+   * Charter ranking: literal count x route reach x user visibility. dual-ladder-board.tsx carries
+   * 44 literals and is unreachable — DualLadderBoard was removed from /bank-builder and a test
+   * asserts it stays removed. Migrating it would lower a flat count and change nothing anyone can
+   * see. So the number that has to move is drift a user can actually reach.
+   */
+  const s = scan();
+  assert.ok(s.themeDriftReachable <= CEILING.themeDriftReachable,
+    `live-route drift rose to ${s.themeDriftReachable} from ${CEILING.themeDriftReachable}`);
+  assert.ok(s.themeDriftReachable < s.themeDrift,
+    "reachable drift cannot exceed total drift — the reachability walk is broken");
+});
+
+test("a team's own brand colour is identity, not drift", () => {
+  /*
+   * team-badge.tsx ranked #1 in the P184 baseline with 72 literals. 68 of them are the Yankees'
+   * navy and the Dodgers' blue. #003087 is a fact about the Yankees; a migration that replaces it
+   * with a semantic token destroys team identity. The flat count invited exactly that, the same way
+   * the first orphan list invited deleting live routes.
+   */
+  const badge = fs.readFileSync(path.join(APP, "src", "components", "team-badge.tsx"), "utf8");
+  assert.match(badge, /NYY:\s*\{\s*primary:\s*"#003087"/,
+    "the Yankees' navy must stay a literal — it is identity data, not a themeable value");
+  assert.doesNotMatch(badge, /primary:\s*"var\(--/,
+    "a team's primary colour was replaced with a semantic token; that is not a migration, it is " +
+    "identity loss");
 });
 
 test("the semantic token layer exists and is what components should consume", () => {

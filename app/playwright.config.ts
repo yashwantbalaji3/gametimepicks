@@ -48,12 +48,12 @@ export default defineConfig({
     {
       name: "webkit-a11y",
       use: { ...devices["Desktop Safari"] },
-      testMatch: /accessibility\.spec\.ts|route-assurance\.spec\.ts/,
+      testMatch: /accessibility\.spec\.ts|route-assurance\.spec\.ts|p185-color-mix\.spec\.ts/,
     },
     {
       name: "firefox-a11y",
       use: { ...devices["Desktop Firefox"] },
-      testMatch: /accessibility\.spec\.ts|route-assurance\.spec\.ts/,
+      testMatch: /accessibility\.spec\.ts|route-assurance\.spec\.ts|p185-color-mix\.spec\.ts/,
     },
   ],
   webServer: {

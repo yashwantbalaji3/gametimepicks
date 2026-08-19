@@ -130,16 +130,90 @@ const deadLinks = [...linkTargets.keys()]
  * The charter asks for a COUNT of drift, then a ratchet that only shrinks. Raw hex/rgb literals in
  * components are the measurable form: a component consuming a semantic token can be re-themed, and
  * one carrying #1A0E06 cannot.
+ *
+ * P185 — THE SCANNER WAS WRONG A THIRD TIME, in the same way it was wrong about routes. A flat
+ * count of every hex in every .tsx ranked four files as the worst offenders. Checked against the
+ * boundaries below, two of the four should never be migrated at all:
+ *
+ *   IDENTITY DATA is not drift. team-badge.tsx ranked #1 with 72 literals, of which 68 are the
+ *   Yankees' navy and the Dodgers' blue. #003087 is a FACT ABOUT THE YANKEES, not a theme value.
+ *   Migrating it to a semantic token destroys team identity — the migration the flat count invites
+ *   is actively wrong, the same way the first orphan list invited deleting live routes.
+ *
+ *   ROUTE REACH decides what is worth migrating. dual-ladder-board.tsx (44) and
+ *   bank-builder-preview-panel.tsx (35) are unreachable from any route: DualLadderBoard was
+ *   deliberately removed from /bank-builder and a test asserts it stays removed. Migrating them
+ *   lowers the number and changes nothing a user can see. The charter ranks by literal count x
+ *   route reach x user visibility, so reach has to be measured, not assumed.
+ *
+ *   MASK STOPS are not colours. `mask-image: radial-gradient(..., #000 25%, transparent 80%)` uses
+ *   #000 as an alpha stop. There is no theme in which that black should follow the brand.
+ *
+ * So the count is split three ways. All three are reported and ratcheted; none can be made to
+ * disappear by moving a literal from one class to another, because the classes are all pinned.
  */
 const componentFiles = walk(SRC, [".tsx"]);
-let rawColorHits = 0;
+
+/* Reachability: which files a route can actually pull in. Imports are followed from every route
+   entrypoint. A component nobody can reach is not user-visible, whatever its literal count. */
+const resolveImport = (from, spec) => {
+  let base;
+  if (spec.startsWith("@/")) base = path.join(SRC, spec.slice(2));
+  else if (spec.startsWith(".")) base = path.join(path.dirname(from), spec);
+  else return null;
+  for (const c of [base + ".tsx", base + ".ts", path.join(base, "index.tsx"), path.join(base, "index.ts")]) {
+    if (fs.existsSync(c)) return path.normalize(c);
+  }
+  return null;
+};
+const importGraph = new Map();
+for (const f of allSource) {
+  const body = stripComments(fs.readFileSync(f, "utf8"));
+  const out = new Set();
+  for (const m of body.matchAll(/from\s+["']([^"']+)["']/g)) { const r = resolveImport(f, m[1]); if (r) out.add(r); }
+  for (const m of body.matchAll(/import\(\s*["']([^"']+)["']\s*\)/g)) { const r = resolveImport(f, m[1]); if (r) out.add(r); }
+  importGraph.set(path.normalize(f), out);
+}
+const routeRoots = allSource.filter((f) => /[\\/]app[\\/].*(page|layout|template|not-found|error)\.tsx$/.test(f)).map((f) => path.normalize(f));
+const reachable = new Set();
+{
+  const stack = [...routeRoots];
+  while (stack.length) {
+    const f = stack.pop();
+    if (reachable.has(f)) continue;
+    reachable.add(f);
+    for (const n of importGraph.get(f) ?? []) if (!reachable.has(n)) stack.push(n);
+  }
+}
+
+const COLOR = /#[0-9a-fA-F]{3,8}\b|rgba?\(\s*\d+\s*,/g;
+/* A line that assigns a brand colour to a team/club key. The keys are the identity registry's own
+   field names, so this cannot drift away from what the registry actually declares. */
+const IDENTITY_LINE = /\b(primary|secondary|ink|bg|fg|border)\s*:\s*["'`]#/;
+const MASK_LINE = /[Mm]ask[Ii]mage|mask-image/;
+
+let themeDrift = 0, identityData = 0, maskStops = 0, unreachableDrift = 0;
 const rawColorByFile = [];
 for (const f of componentFiles) {
   const body = stripComments(fs.readFileSync(f, "utf8"));
-  const hits = [...body.matchAll(/#[0-9a-fA-F]{3,8}\b|rgba?\(\s*\d+\s*,/g)].length;
-  if (hits) { rawColorHits += hits; rawColorByFile.push({ file: rel(f), rawColors: hits }); }
+  let drift = 0, ident = 0, mask = 0;
+  for (const line of body.split("\n")) {
+    const hits = (line.match(COLOR) ?? []).length;
+    if (!hits) continue;
+    if (IDENTITY_LINE.test(line)) ident += hits;
+    else if (MASK_LINE.test(line)) mask += hits;
+    else drift += hits;
+  }
+  if (!(drift || ident || mask)) continue;
+  const reach = reachable.has(path.normalize(f));
+  themeDrift += drift; identityData += ident; maskStops += mask;
+  if (!reach) unreachableDrift += drift;
+  rawColorByFile.push({ file: rel(f), rawColors: drift + ident + mask, themeDrift: drift, identityData: ident, maskStops: mask, routeReachable: reach });
 }
-rawColorByFile.sort((a, b) => b.rawColors - a.rawColors);
+const rawColorHits = themeDrift + identityData + maskStops;
+rawColorByFile.sort((a, b) => b.themeDrift - a.themeDrift);
+/* What migration should actually target, in the charter's own ranking: drift, on a live route. */
+const migrationQueue = rawColorByFile.filter((r) => r.routeReachable && r.themeDrift > 0).slice(0, 20);
 
 /** The semantic tokens that DO exist, from globals.css. */
 const globals = (() => { try { return fs.readFileSync(path.join(SRC, "app", "globals.css"), "utf8"); } catch { return ""; } })();
@@ -188,6 +262,14 @@ const baseline = {
     semanticTokensDeclared: tokens.length,
     rawColorLiterals: rawColorHits,
     filesWithRawColors: rawColorByFile.length,
+    /* The three classes. Only themeDrift is migratable; the other two are pinned so a literal
+       cannot be reclassified to make a ceiling fall. */
+    themeDrift,
+    identityData,
+    maskStops,
+    themeDriftUnreachable: unreachableDrift,
+    themeDriftReachable: themeDrift - unreachableDrift,
+    migrationQueue,
     worstOffenders: rawColorByFile.slice(0, 15),
   },
   components: {
@@ -215,5 +297,8 @@ console.log(`  orphan routes     ${orphans.length}${orphans.length ? ": " + orph
 console.log(`  dead links        ${deadLinks.length}${deadLinks.length ? ": " + deadLinks.slice(0, 8).join(", ") : ""}`);
 console.log(`  semantic tokens   ${tokens.length}`);
 console.log(`  raw colour hits   ${rawColorHits} across ${rawColorByFile.length} files`);
+console.log(`    theme drift     ${themeDrift} (${themeDrift - unreachableDrift} on live routes, ${unreachableDrift} unreachable)`);
+console.log(`    identity data   ${identityData} (team/club brand colours — NOT drift)`);
+console.log(`    mask stops      ${maskStops} (alpha stops — NOT colours)`);
 console.log(`  components        ${components.length} (${baseline.components.singleCallSite} with <=1 call site)`);
 console.log(`  motion            ${motionKeyframes.length} keyframes, ${reducedMotionBlocks} reduced-motion blocks, ${animatedComponents} components with motion`);

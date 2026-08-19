@@ -69,7 +69,9 @@
      #34D399 is the smallest lightening that clears 4.5:1 on the standard surfaces.
      The ambient glow is UNAFFECTED: --vault-gold-dim/-glow/--vault-border-active and
      --gtp-bank-heat-dim are hardcoded rgba(52, 211, 153, ...) and keep the original crimson. */
-  --vault-gold-bright: #34D399;
+  /* P185: repointed to the honest name. Same computed value (#34D399), so every
+     existing consumer is unaffected; new work uses --vault-accent. */
+  --vault-gold-bright: var(--vault-accent);
   --vault-gold-dim: rgba(52, 211, 153, 0.12);
   --vault-gold-glow: rgba(52, 211, 153, 0.20);
 
@@ -211,6 +213,89 @@
   --gtp-ink: #1B1408;             /* primary text on paper */
   --gtp-ink-mute: #5B4A28;
   --gtp-surface-light: #FAF6EE;
+
+
+  /* ==========================================================================
+     PROGRAM 185 · B1 — THE CANONICAL HUE CONTRACT
+     ==========================================================================
+     The measured drift is 1,527 raw colour literals in components against 143
+     tokens. Reading them shows the shape: they are not 1,527 different colours,
+     they are a handful of ROLES re-typed at dozens of alphas — a white wash at
+     eight alphas, a green-black scrim at seven, the brand green at ten, the
+     crown gold at nine.
+
+     So the fix is not a token per literal (that is the "wrapper token whose
+     value is another unexplained raw colour" the charter forbids). It is one
+     token per HUE plus `color-mix()` for the alpha at the call site:
+
+         rgba(52, 211, 153, 0.18)
+           -> color-mix(in srgb, var(--vault-accent) 18%, transparent)
+
+     That is EXACTLY equal. `color-mix(in srgb, C p%, transparent)` premultiplies
+     to alpha = p and colour = C, so this migration is pixel-identical by
+     construction rather than by inspection — which is why it can be applied
+     mechanically to live routes without a visual-review gate. The hue becomes
+     re-themeable in one place, which is the whole point the raw literals defeat.
+
+     NAMES DESCRIBE MEANING. The existing --vault-gold-bright holds #34D399 and
+     is documented in this file as "the site-wide ACCENT". A token whose name
+     says gold and whose value is green is how a red/black/gold premise survived
+     into a green/black product. --vault-accent is the honest name; the old name
+     is kept below as a proven-identical alias so no consumer breaks, and its
+     use is ratcheted down rather than swept in one risky rename. */
+
+  /* Brand greens. Three DISTINCT values, not three names for one — merging them
+     would change pixels and needs its own screenshot review, so they stay
+     separate and are merely named. */
+  --vault-accent: #34D399;        /* canonical brand green (== --lava-heat) */
+  --vault-accent-deep: #2EA066;   /* deeper green — simulation surfaces */
+  --vault-accent-mint: #7EE2A8;   /* light mint — emphasis text on dark */
+  --vault-accent-mint-deep: #6EE7A8; /* the second mint already in use; kept
+                                        distinct because merging it into
+                                        --vault-accent-mint moves 16/255 in R
+                                        and is a visual change, not a migration */
+
+  /* Crown gold. Bank Builder ladders only — NOT a general accent. */
+  --vault-crown: #D9A441;
+
+  /* Ink that sits ON the bright accent (active chips, CTA fills).
+     #170F0A on #34D399 measures 9.9:1 — AAA. */
+  --vault-on-accent: #170F0A;
+
+  /* Product accents. A lane's identity, not a status. */
+  --product-moonshot: #B9A8FF;
+
+  /* Status hues, as hues rather than as pre-mixed surfaces. */
+  --vault-risk: #EA580C;          /* caution orange */
+  --vault-danger-hue: #E11D2A;    /* risk red */
+
+  /* Overlays. A wash lightens a surface, a scrim darkens it. */
+  --vault-wash-base: #FFFFFF;
+  --vault-scrim-base: #0B120E;    /* green-black — matches --lava-bg family */
+  --vault-scrim-neutral: #0A0A0B; /* untinted near-black */
+  --vault-ink-black: #000000;     /* text shadows / hard scrims */
+
+  /* LEGACY HUES — pending unification, named so they can be found.
+     These are real, distinct values still in live components. They are NOT
+     merged into the canonical hues above in this release because merging them
+     changes pixels, and a pixel change needs a screenshot review this migration
+     deliberately does not smuggle in. Naming them makes the remaining work
+     visible instead of leaving it as anonymous literals. */
+  --vault-scrim-warm: #0F0A07;      /* brown-black scrim from the red/black era;
+                                       unify with --vault-scrim-base (green-black) */
+  --vault-accent-signal: #34A853;   /* simulation-arc green; unify with --vault-accent-deep */
+  --vault-accent-muted: #46825A;    /* muted lane green; unify with --vault-accent-deep */
+  --vault-scrim-slate: #141416;     /* neutral card-gradient head */
+  --vault-scrim-navy: #161E3E;      /* NAVY, from the pre-green card palette. Live on the
+                                       game report hero. Flagged for visual review — a navy
+                                       gradient head on a green/black product is the stale
+                                       premise surviving as a literal. */
+
+  /* The three wash steps that actually recur, as a named ladder. Anything
+     outside these steps uses color-mix at the call site. */
+  --vault-wash-faint: color-mix(in srgb, var(--vault-wash-base) 2%, transparent);
+  --vault-wash-soft: color-mix(in srgb, var(--vault-wash-base) 4%, transparent);
+  --vault-wash: color-mix(in srgb, var(--vault-wash-base) 5%, transparent);
 
   /* Phase 8.4 — premium polish tokens. Used by .vault-card-elevated and
      .vault-hero-eyebrow only. Existing surfaces unchanged. */
@@ -788,6 +873,7 @@ table,
   --vault-text-mute: var(--gtp-on-card-muted);
   --vault-text-faint: var(--gtp-on-card-faint);
   --vault-gold: var(--gtp-gold-on-light);
+  --vault-accent: var(--gtp-gold-on-light);
   --vault-gold-bright: var(--gtp-gold-on-light);
   --vault-gold-dim: var(--gtp-gold-soft);
   --vault-gold-glow: var(--gtp-gold-soft);

@@ -55,7 +55,7 @@ function LegIdentity({ leg, size = "sm" }: { leg: ParlayLegDisplay; size?: "xs" 
 function Chip({ label, tone = "mute" }: { label: string; tone?: "mute" | "good" | "warn" | "text" }) {
   const color = tone === "good" ? "var(--vault-success)" : tone === "warn" ? "var(--gtp-bank-heat)" : tone === "text" ? "var(--vault-text)" : "var(--vault-text-faint)";
   return (
-    <span className="inline-flex items-center rounded-[5px] px-1.5 py-0.5 font-mono text-[11px]" style={{ color, background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-border)" }}>
+    <span className="inline-flex items-center rounded-[5px] px-1.5 py-0.5 font-mono text-[11px]" style={{ color, background: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)", border: "1px solid var(--vault-border)" }}>
       {label}
     </span>
   );
@@ -68,7 +68,7 @@ function Last5Mini({ leg }: { leg: ParlayLegDisplay }) {
   if (l5.unavailable) return <div className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>Last 5: data unavailable</div>;
   const games = l5.games ?? [];
   return (
-    <div className="rounded-lg px-2 py-1.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-lg px-2 py-1.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
         <span>Last 5 · {l5.stat === "strikeouts" ? "K" : "H+R+RBI"} vs {leg.side ? `${leg.side[0].toUpperCase()}${leg.side.slice(1)}` : ""} {l5.line}</span>
         {l5.hitRate && <span style={{ color: l5.hitRate.pct >= 60 ? "var(--vault-success)" : "var(--vault-text-mute)" }}>{l5.hitRate.hits}/{l5.hitRate.total} · {l5.hitRate.pct}%</span>}
@@ -76,7 +76,7 @@ function Last5Mini({ leg }: { leg: ParlayLegDisplay }) {
       <div className="mt-1 flex flex-wrap gap-1">
         {games.map((g, i) => (
           <span key={i} title={`${g.date} vs ${g.opp}: ${g.value}`} className="flex h-6 min-w-[26px] items-center justify-center rounded font-mono text-[11px]"
-            style={{ background: g.hit ? "rgba(70,130,90,0.22)" : "rgba(225,29,42,0.15)", color: g.hit ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>{g.value}</span>
+            style={{ background: g.hit ? "color-mix(in srgb, var(--vault-accent-muted) 22%, transparent)" : "color-mix(in srgb, var(--vault-danger-hue) 15%, transparent)", color: g.hit ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>{g.value}</span>
         ))}
       </div>
     </div>
@@ -119,11 +119,11 @@ function LegRow({ leg }: { leg: ParlayLegDisplay }) {
       </summary>
       <div className="mt-2 space-y-1.5 pl-8 text-[11.5px]">
         <div className="flex flex-wrap gap-1.5 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
-          {leg.modelProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)" }}>model {pctStr(leg.modelProbability)}</span>}
-          {leg.marketImpliedProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)" }}>implied {pctStr(leg.marketImpliedProbability)}</span>}
-          {leg.edge != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: leg.edge > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{leg.edge >= 0 ? "+" : ""}{leg.edge.toFixed(1)}pp edge</span>}
-          {leg.survivalScore != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)" }}>survival {leg.survivalScore}</span>}
-          <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)" }}>risk {leg.riskScore.toFixed(2)}</span>
+          {leg.modelProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)" }}>model {pctStr(leg.modelProbability)}</span>}
+          {leg.marketImpliedProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)" }}>implied {pctStr(leg.marketImpliedProbability)}</span>}
+          {leg.edge != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: leg.edge > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{leg.edge >= 0 ? "+" : ""}{leg.edge.toFixed(1)}pp edge</span>}
+          {leg.survivalScore != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)" }}>survival {leg.survivalScore}</span>}
+          <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)" }}>risk {leg.riskScore.toFixed(2)}</span>
         </div>
         {leg.last5 && <Last5Mini leg={leg} />}
         {leg.topPositiveFactors[0] && <div style={{ color: "var(--vault-text-mute)" }}><span style={{ color: "var(--vault-success)" }}>Why:</span> {leg.topPositiveFactors[0]}</div>}
@@ -139,7 +139,7 @@ function LegRow({ leg }: { leg: ParlayLegDisplay }) {
 
 export function ParlayCard({ card }: { card: SuggestedParlayCard }) {
   return (
-    <div className="rounded-xl p-4" style={{ background: "var(--vault-surface, rgba(255,255,255,0.02))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}>
+    <div className="rounded-xl p-4" style={{ background: "var(--vault-surface, color-mix(in srgb, var(--vault-wash-base) 2%, transparent))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Chip label={RISK_LABEL[card.riskLevel]} tone="text" />
@@ -177,7 +177,7 @@ export function ParlayCard({ card }: { card: SuggestedParlayCard }) {
 
 function NoQualified({ status }: { status: SportSlateStatus }) {
   return (
-    <div className="rounded-xl p-4 text-center" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+    <div className="rounded-xl p-4 text-center" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)" }}>
       <div className="text-[13px] font-medium" style={{ color: "var(--vault-text)" }}>No Qualified Parlays</div>
       <div className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>{status.noQualified?.message}</div>
       <div className="mt-1 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>extractor: {status.extractorStatus} · candidates: {status.totalCandidates}</div>
@@ -189,7 +189,7 @@ function Accordion({ title, subtitle, children, defaultOpen = false }: { title: 
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--vault-border)" }}>
-      <button onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between px-3.5 py-3 text-left" style={{ background: "rgba(255,255,255,0.02)" }}>
+      <button onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between px-3.5 py-3 text-left" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)" }}>
         <span>
           <span className="text-[13.5px] font-medium" style={{ color: "var(--vault-text)" }}>{title}</span>
           {subtitle && <span className="ml-2 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>{subtitle}</span>}
@@ -204,7 +204,7 @@ function Accordion({ title, subtitle, children, defaultOpen = false }: { title: 
 /** Readable card-coverage grid: every sport (+ Mixed) × every risk level, with counts. Makes it
  *  obvious which risk levels actually have cards today vs which are empty — no guessing from tabs. */
 const STATUS_DOT: Record<"filled" | "underfilled" | "empty", string> = {
-  filled: "#6EE7A8", underfilled: "var(--vault-gold-bright)", empty: "var(--vault-text-faint)",
+  filled: "var(--vault-accent-mint-deep)", underfilled: "var(--vault-gold-bright)", empty: "var(--vault-text-faint)",
 };
 
 function CoverageMatrix({ data }: { data?: CoverageMatrixData }) {
@@ -225,7 +225,7 @@ function CoverageMatrix({ data }: { data?: CoverageMatrixData }) {
         <table className="w-full border-collapse" style={{ minWidth: 420 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--vault-border)" }}>
-              <th className="sticky left-0 px-2 py-1.5 text-left font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-faint)", fontSize: 10, background: "var(--lava-panel, #14100c)" }}>Scope</th>
+              <th className="sticky left-0 px-2 py-1.5 text-left font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-faint)", fontSize: 10, background: "var(--lava-panel)" }}>Scope</th>
               {(["Low Risk", "Medium Risk", "High Risk", "Longshot"]).map((l) => (
                 <th key={l} className="px-2 py-1.5 text-center font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{l}</th>
               ))}
@@ -234,8 +234,8 @@ function CoverageMatrix({ data }: { data?: CoverageMatrixData }) {
           </thead>
           <tbody>
             {data.rows.map((r) => (
-              <tr key={r.scope} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                <td className="sticky left-0 px-2 py-1.5 text-left" style={{ fontSize: 12.5, fontWeight: 600, background: "var(--lava-panel, #14100c)" }}>
+              <tr key={r.scope} style={{ borderBottom: "1px solid color-mix(in srgb, var(--vault-wash-base) 4%, transparent)" }}>
+                <td className="sticky left-0 px-2 py-1.5 text-left" style={{ fontSize: 12.5, fontWeight: 600, background: "var(--lava-panel)" }}>
                   <Link href={r.href} style={{ color: "var(--vault-text)", textDecoration: "none" }}>{r.displayName}</Link>
                 </td>
                 {RB.map((rb) => cell(r.cells.find((c) => c.risk === rb)))}
@@ -243,7 +243,7 @@ function CoverageMatrix({ data }: { data?: CoverageMatrixData }) {
               </tr>
             ))}
             <tr style={{ borderTop: "2px solid var(--vault-border)" }}>
-              <td className="sticky left-0 px-2 py-1.5 text-left font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-mute)", fontSize: 10, background: "var(--lava-panel, #14100c)" }}>Total</td>
+              <td className="sticky left-0 px-2 py-1.5 text-left font-mono uppercase tracking-wide" style={{ color: "var(--vault-text-mute)", fontSize: 10, background: "var(--lava-panel)" }}>Total</td>
               {RB.map((rb) => <td key={rb} className="px-2 py-1.5 text-center font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 12, fontWeight: 700 }}>{data.riskTotals[rb]}</td>)}
               <td className="px-2 py-1.5 text-center font-mono tabular" style={{ color: "var(--vault-gold-bright)", fontSize: 13, fontWeight: 800 }}>{data.grandTotal}</td>
             </tr>
@@ -300,7 +300,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
       <CoverageMatrix data={coverage} />
       {/* Honest "why empty" diagnostics drawer — public-friendly reasons, never a vague empty state. */}
       {emptyCells.length ? (
-        <details className="rounded-xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+        <details className="rounded-xl" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-border)" }}>
           <summary className="cursor-pointer px-3.5 py-2.5 text-[12.5px]" style={{ color: "var(--vault-text-mute)", listStyle: "none" }}>
             Why are some buckets empty? · {emptyCells.length} ▾
           </summary>
@@ -321,8 +321,8 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
           <button key={s.sport} onClick={() => setSport(s.sport)}
             className="shrink-0 rounded-full px-3 py-1.5 text-[12.5px] font-medium"
             style={{
-              background: s.sport === sport ? "var(--vault-gold-bright, #d9a441)" : "rgba(255,255,255,0.04)",
-              color: s.sport === sport ? "#170f0a" : "var(--vault-text-mute)",
+              background: s.sport === sport ? "var(--vault-accent)" : "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)",
+              color: s.sport === sport ? "var(--vault-on-accent)" : "var(--vault-text-mute)",
               border: "1px solid var(--vault-border)",
             }}>
             {SPORT_LABEL[s.sport] ?? s.sport}{s.eligibleCount > 0 ? ` · ${s.eligibleCount}` : ""}
@@ -332,8 +332,8 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
           <button onClick={() => setSport("MIXED")}
             className="shrink-0 rounded-full px-3 py-1.5 text-[12.5px] font-medium"
             style={{
-              background: isMixed ? "var(--vault-gold-bright, #d9a441)" : "rgba(255,255,255,0.04)",
-              color: isMixed ? "#170f0a" : "var(--vault-text-mute)",
+              background: isMixed ? "var(--vault-accent)" : "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)",
+              color: isMixed ? "var(--vault-on-accent)" : "var(--vault-text-mute)",
               border: "1px solid var(--vault-border)",
             }}>
             Mixed · {mixedTotal}
@@ -347,7 +347,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
             Cross-sport cards — each blends a World Cup leg with a leg from another game, from distinct, non-correlated games.
           </p>
           {RISK_ORDER.every((lvl) => (byRisk[lvl]?.length ?? 0) === 0) ? (
-            <div className="rounded-xl p-4 text-center" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+            <div className="rounded-xl p-4 text-center" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)" }}>
               <div className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No qualified cross-sport cards right now.</div>
             </div>
           ) : RISK_ORDER.map((lvl) => {
@@ -369,7 +369,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
           <div className="flex gap-2">
             {([["suggested", "Suggested"], ["game", `Same-game (${gameGroups.length})`], ["legs", `Legs (${sportLegs.length})`]] as const).map(([v, label]) => (
               <button key={v} onClick={() => setView(v)} className="rounded-lg px-3 py-1.5 text-[12.5px]"
-                style={{ background: view === v ? "rgba(255,255,255,0.06)" : "transparent", color: view === v ? "var(--vault-text)" : "var(--vault-text-faint)", border: "1px solid var(--vault-border)" }}>
+                style={{ background: view === v ? "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" : "transparent", color: view === v ? "var(--vault-text)" : "var(--vault-text-faint)", border: "1px solid var(--vault-border)" }}>
                 {label}
               </button>
             ))}
@@ -384,7 +384,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
                     <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} risk · {cards.length}</div>
                     {cards.length > 0
                       ? cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)
-                      : <div className="rounded-lg px-3 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>{emptyReason(lvl)}</div>}
+                      : <div className="rounded-lg px-3 py-2 text-[12px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>{emptyReason(lvl)}</div>}
                   </div>
                 );
               })}
@@ -405,7 +405,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
           {view === "legs" && (
             <Accordion title="Eligible-leg marketplace" subtitle={`${sportLegs.length} legs`} defaultOpen>
               {sportLegs.slice(0, 60).map((l) => (
-                <div key={l.legId} className="rounded-lg px-2" style={{ background: "rgba(255,255,255,0.02)" }}><LegRow leg={l} /></div>
+                <div key={l.legId} className="rounded-lg px-2" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)" }}><LegRow leg={l} /></div>
               ))}
               {sportLegs.length > 60 && <div className="text-center text-[12px]" style={{ color: "var(--vault-text-faint)" }}>+{sportLegs.length - 60} more eligible legs</div>}
             </Accordion>

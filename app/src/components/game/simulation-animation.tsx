@@ -97,7 +97,7 @@ function StageChecklist({ stage }: { stage: number }) {
             key={label}
             className="flex items-center gap-2.5 rounded-[7px] px-2 py-1"
             style={{
-              background: active ? "rgba(52, 211, 153, 0.08)" : "transparent",
+              background: active ? "color-mix(in srgb, var(--vault-accent) 8%, transparent)" : "transparent",
               transition: "background 200ms ease",
             }}
           >
@@ -108,8 +108,8 @@ function StageChecklist({ stage }: { stage: number }) {
                 width: 16,
                 height: 16,
                 borderRadius: "50%",
-                background: done ? "rgba(46,160,102,0.18)" : active ? "rgba(52, 211, 153, 0.18)" : "transparent",
-                border: `1px solid ${done ? "rgba(46,160,102,0.5)" : active ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
+                background: done ? "color-mix(in srgb, var(--vault-accent-deep) 18%, transparent)" : active ? "color-mix(in srgb, var(--vault-accent) 18%, transparent)" : "transparent",
+                border: `1px solid ${done ? "color-mix(in srgb, var(--vault-accent-deep) 50%, transparent)" : active ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
                 boxShadow: active ? "0 0 9px -1px var(--vault-gold-bright)" : "none",
                 transition: "all 200ms ease",
               }}
@@ -221,33 +221,33 @@ function DiamondGraphic() {
       <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Baseball diamond">
         <defs>
           <radialGradient id="gtp-sim-field" cx="50%" cy="80%" r="92%">
-            <stop offset="0%" stopColor="rgba(52,168,83,0.20)" />
-            <stop offset="55%" stopColor="rgba(52,168,83,0.08)" />
-            <stop offset="100%" stopColor="rgba(52,168,83,0)" />
+            <stop offset="0%" stopColor="color-mix(in srgb, var(--vault-accent-signal) 20%, transparent)" />
+            <stop offset="55%" stopColor="color-mix(in srgb, var(--vault-accent-signal) 8%, transparent)" />
+            <stop offset="100%" stopColor="color-mix(in srgb, var(--vault-accent-signal) 0%, transparent)" />
           </radialGradient>
           <radialGradient id="gtp-sim-infield" cx="50%" cy="50%" r="55%">
-            <stop offset="0%" stopColor="rgba(217,164,65,0.10)" />
-            <stop offset="100%" stopColor="rgba(217,164,65,0)" />
+            <stop offset="0%" stopColor="color-mix(in srgb, var(--vault-crown) 10%, transparent)" />
+            <stop offset="100%" stopColor="color-mix(in srgb, var(--vault-crown) 0%, transparent)" />
           </radialGradient>
           <radialGradient id="gtp-sim-ballglow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(255,255,255,0.95)" />
-            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+            <stop offset="0%" stopColor="color-mix(in srgb, var(--vault-wash-base) 95%, transparent)" />
+            <stop offset="100%" stopColor="color-mix(in srgb, var(--vault-wash-base) 0%, transparent)" />
           </radialGradient>
         </defs>
         {/* outfield / field wedge — graded fill behind the infield */}
         <path d="M150 252 L18 118 A 187 187 0 0 1 282 118 Z" fill="url(#gtp-sim-field)" stroke="none" />
         {/* outfield arc — a clean grass boundary line */}
-        <path d="M30 124 A 170 170 0 0 1 270 124" fill="none" stroke="rgba(52,168,83,0.28)" strokeWidth="1.4" opacity="0.7" />
+        <path d="M30 124 A 170 170 0 0 1 270 124" fill="none" stroke="color-mix(in srgb, var(--vault-accent-signal) 28%, transparent)" strokeWidth="1.4" opacity="0.7" />
         {/* foul lines from home plate to the corners */}
         <line x1="150" y1="244" x2="18" y2="116" stroke="var(--vault-text-faint)" strokeWidth="1.4" strokeDasharray="4 5" opacity="0.5" />
         <line x1="150" y1="244" x2="282" y2="116" stroke="var(--vault-text-faint)" strokeWidth="1.4" strokeDasharray="4 5" opacity="0.5" />
         {/* infield dirt fill + ring around the mound */}
         <circle cx="150" cy="150" r="104" fill="url(#gtp-sim-infield)" stroke="none" />
-        <circle cx="150" cy="150" r="104" fill="none" stroke="rgba(217,164,65,0.16)" strokeWidth="1" strokeDasharray="2 7" />
+        <circle cx="150" cy="150" r="104" fill="none" stroke="color-mix(in srgb, var(--vault-crown) 16%, transparent)" strokeWidth="1" strokeDasharray="2 7" />
         {/* the diamond (base paths): home → 1st → 2nd → 3rd → home */}
         <polygon
           points="150,242 242,150 150,58 58,150"
-          fill="rgba(217,164,65,0.05)"
+          fill="color-mix(in srgb, var(--vault-crown) 5%, transparent)"
           stroke="var(--vault-gold)"
           strokeWidth="2.2"
           strokeLinejoin="round"
@@ -256,7 +256,7 @@ function DiamondGraphic() {
         {/* the ball's travelling trail along the base paths (animated dashes) */}
         <polygon className="gtp-sim-trail" points="150,242 242,150 150,58 58,150" fill="none" stroke="var(--vault-gold-bright)" strokeWidth="1.8" strokeLinejoin="round" opacity="0.55" />
         {/* pitcher's mound */}
-        <circle className="gtp-sim-mound-glow" cx="150" cy="150" r="18" fill="rgba(217,164,65,0.12)" stroke="var(--vault-gold-bright)" strokeWidth="1.6" />
+        <circle className="gtp-sim-mound-glow" cx="150" cy="150" r="18" fill="color-mix(in srgb, var(--vault-crown) 12%, transparent)" stroke="var(--vault-gold-bright)" strokeWidth="1.6" />
         <circle cx="150" cy="150" r="3.5" fill="var(--vault-gold-bright)" opacity="0.95" />
         {/* the three bases (squares), crisper with a subtle outline */}
         <rect className="gtp-sim-base gtp-sim-base-1" x="235" y="143" width="15" height="15" rx="2.5" transform="rotate(45 242 150)" fill="var(--vault-text)" stroke="var(--vault-gold)" strokeWidth="0.75" opacity="0.92" />
@@ -273,7 +273,7 @@ function DiamondGraphic() {
         <g className="gtp-sim-ball">
           <circle className="gtp-sim-spark" r="15" fill="url(#gtp-sim-ballglow)" />
           <circle r="11" fill="url(#gtp-sim-ballglow)" opacity="0.8" />
-          <circle r="6.5" fill="#ffffff" stroke="var(--gtp-bank-heat)" strokeWidth="1.4" />
+          <circle r="6.5" fill="var(--vault-wash-base)" stroke="var(--gtp-bank-heat)" strokeWidth="1.4" />
           <path d="M-3.4 -3.2 A 6.5 6.5 0 0 1 -3.4 3.2" fill="none" stroke="var(--gtp-bank-heat)" strokeWidth="0.9" opacity="0.8" />
           <path d="M3.4 -3.2 A 6.5 6.5 0 0 0 3.4 3.2" fill="none" stroke="var(--gtp-bank-heat)" strokeWidth="0.9" opacity="0.8" />
         </g>
@@ -300,15 +300,15 @@ function BackdropGrid() {
 .gtp-sim-backdrop {
   position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none;
   background-image:
-    linear-gradient(rgba(217,164,65,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(217,164,65,0.05) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--vault-crown) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--vault-crown) 5%, transparent) 1px, transparent 1px);
   background-size: 26px 26px, 26px 26px;
   opacity: 0.5; mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 85%);
   -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 85%);
 }
 .gtp-sim-scan {
   position: absolute; left: 0; right: 0; height: 40%; top: -40%;
-  background: linear-gradient(180deg, transparent, rgba(217,164,65,0.10), transparent);
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--vault-crown) 10%, transparent), transparent);
   animation: gtp-sim-scan 4.5s ease-in-out infinite;
 }
 @keyframes gtp-sim-scan { 0% { top: -40%; } 100% { top: 100%; } }
@@ -347,8 +347,8 @@ export function BaseballSimulationAnimation({
       style={{
         border: "1px solid var(--vault-border-strong)",
         background:
-          "radial-gradient(130% 150% at 50% 0%, rgba(52, 211, 153, 0.13) 0%, transparent 58%), linear-gradient(140deg, rgba(20,20,22,0.96) 0%, rgba(10,10,11,0.99) 100%)",
-        boxShadow: "0 22px 56px -26px rgba(0,0,0,0.8), 0 0 0 1px rgba(52, 211, 153, 0.08)",
+          "radial-gradient(130% 150% at 50% 0%, color-mix(in srgb, var(--vault-accent) 13%, transparent) 0%, transparent 58%), linear-gradient(140deg, color-mix(in srgb, var(--vault-scrim-slate) 96%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-neutral) 99%, transparent) 100%)",
+        boxShadow: "0 22px 56px -26px color-mix(in srgb, var(--vault-ink-black) 80%, transparent), 0 0 0 1px color-mix(in srgb, var(--vault-accent) 8%, transparent)",
       }}
     >
       <BackdropGrid />
@@ -384,14 +384,14 @@ export function BaseballSimulationAnimation({
         </h2>
 
         {/* the staging checklist */}
-        <div className="rounded-[12px] px-3.5 py-3" style={{ background: "rgba(10,10,11,0.4)", border: "1px solid var(--vault-rule)" }}>
+        <div className="rounded-[12px] px-3.5 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-neutral) 40%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <StageChecklist stage={stage} />
         </div>
 
         {/* end-state handoff — becomes prominent as the final stage lands, then the runner reveals. */}
         <div className="flex items-center justify-center min-h-[18px]">
           {complete ? (
-            <span className="inline-flex items-center gap-1.5 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 10 }}>
+            <span className="inline-flex items-center gap-1.5 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--gtp-success-on-dark)", fontSize: 10 }}>
               <span aria-hidden>✓</span> Simulation ready — opening the dashboard
             </span>
           ) : (
@@ -412,7 +412,7 @@ function TeamSide({ name, logoUrl, align }: { name: string; logoUrl?: string | n
     <div className={`flex shrink-0 flex-col items-center gap-2 ${align === "end" ? "sm:items-end" : "sm:items-start"}`} style={{ width: 64 }}>
       <span
         className="inline-flex items-center justify-center rounded-[13px]"
-        style={{ width: 58, height: 58, background: "rgba(10,10,11,0.6)", border: "1px solid var(--vault-border-strong)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}
+        style={{ width: 58, height: 58, background: "color-mix(in srgb, var(--vault-scrim-neutral) 60%, transparent)", border: "1px solid var(--vault-border-strong)", boxShadow: "inset 0 1px 0 color-mix(in srgb, var(--vault-wash-base) 5%, transparent)" }}
       >
         <TeamMark name={name} logoUrl={logoUrl} size="xl" />
       </span>
@@ -448,14 +448,14 @@ function NeutralSimulationAnimation({
   return (
     <div
       className="flex flex-col gap-3.5 rounded-[14px] px-4 py-4"
-      style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.6)" }}
+      style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)" }}
     >
       <div className="flex items-center gap-3">
-        <span className="inline-flex items-center justify-center rounded-[10px] shrink-0" style={{ width: 40, height: 40, background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-border)" }}>
+        <span className="inline-flex items-center justify-center rounded-[10px] shrink-0" style={{ width: 40, height: 40, background: "color-mix(in srgb, var(--vault-ink-black) 28%, transparent)", border: "1px solid var(--vault-border)" }}>
           <TeamMark name={away} logoUrl={awayLogo} size="md" />
         </span>
         <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>@</span>
-        <span className="inline-flex items-center justify-center rounded-[10px] shrink-0" style={{ width: 40, height: 40, background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-border)" }}>
+        <span className="inline-flex items-center justify-center rounded-[10px] shrink-0" style={{ width: 40, height: 40, background: "color-mix(in srgb, var(--vault-ink-black) 28%, transparent)", border: "1px solid var(--vault-border)" }}>
           <TeamMark name={home} logoUrl={homeLogo} size="md" />
         </span>
         <div className="flex min-w-0 flex-col gap-0.5">

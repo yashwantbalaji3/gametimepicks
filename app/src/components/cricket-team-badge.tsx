@@ -49,9 +49,9 @@ const SIZE_PX: Record<NonNullable<Props["size"]>, { box: number; font: number }>
 export default function CricketTeamBadge({ abbr, name, size = "md" }: Props) {
   const key = (abbr ?? "").toUpperCase();
   const colors = IPL_BADGE_COLORS[key] ?? {
-    bg: "rgba(52, 211, 153, 0.18)",
+    bg: "color-mix(in srgb, var(--vault-accent) 18%, transparent)",
     fg: "var(--vault-gold-bright)",
-    border: "rgba(52, 211, 153, 0.45)",
+    border: "color-mix(in srgb, var(--vault-accent) 45%, transparent)",
   };
   const dims = SIZE_PX[size];
   return (
@@ -65,11 +65,11 @@ export default function CricketTeamBadge({ abbr, name, size = "md" }: Props) {
         borderRadius: 8,
         background: colors.bg,
         color: colors.fg,
-        border: `1px solid ${colors.border ?? "rgba(255,255,255,0.08)"}`,
+        border: `1px solid ${colors.border ?? "color-mix(in srgb, var(--vault-wash-base) 8%, transparent)"}`,
         fontSize: dims.font,
         letterSpacing: "-0.02em",
         boxShadow:
-          "inset 0 1px 0 rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.4)",
+          "inset 0 1px 0 color-mix(in srgb, var(--vault-wash-base) 12%, transparent), 0 1px 2px color-mix(in srgb, var(--vault-ink-black) 40%, transparent)",
       }}
     >
       {key || "?"}

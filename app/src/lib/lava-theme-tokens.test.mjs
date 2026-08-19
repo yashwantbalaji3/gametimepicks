@@ -33,7 +33,16 @@ test("universal section rule + shell border are BRAND GREEN (P193 sitewide), gol
   // measured 3.21-4.49:1 on the dark surfaces, under WCAG AA everywhere it labelled
   // something. The guard still asserts what it always meant — the site accent is CRIMSON,
   // not the legacy gold — against the value that is now actually shipped.
-  assert.ok(css.includes("--vault-gold-bright: #34D399;"), "site accent is brand green");
+  /*
+   * P185 repointed this token to the honest name. The guard's INTENT is unchanged and is now
+   * checked against the wiring rather than one literal string: the site accent must still be the
+   * brand green #34D399, and --vault-gold-bright must still resolve to it. Asserting BOTH halves
+   * is stricter than the old single-line check — the accent cannot be changed by editing either
+   * the alias or the value it points at.
+   */
+  assert.ok(css.includes("--vault-accent: #34D399;"), "site accent is brand green");
+  assert.ok(css.includes("--vault-gold-bright: var(--vault-accent);"),
+    "the legacy accent name must resolve to the canonical accent, not carry its own value");
   assert.ok(css.includes("--vault-gold: #D4AF37;"), "true gold preserved for the Bank Builder crown");
 });
 
