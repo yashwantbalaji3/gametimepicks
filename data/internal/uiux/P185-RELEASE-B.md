@@ -1109,3 +1109,52 @@ So Release G's decision holds and is now explained rather than merely cautious: 
 was the fixable part, and the *state* could not be made accurate without a new axis value. Adding
 one is a schedule-contract change, which is the owner's call — and it would also give NFL and EPL a
 truthful state, since both are `SCAFFOLDED` too.
+
+---
+
+# Pending decision · the 408 unreachable literals — ADJUDICATED
+
+The ticket asked for a **retire-or-rewire ruling per component**, not a recolour. Done mechanically,
+over all 75 files rather than the top-15 slice the artifact stores.
+
+## Method
+
+Reachability from every route entrypoint, then for each unreachable file with drift: does any
+**non-test** file still reference it, and does any **guard** assert it stays removed?
+
+| ruling | meaning | files | literals |
+|---|---|---|---|
+| **WIRING** | imported by live code, but no route reaches it | 25 | **132** |
+| **DEAD · guarded** | unreferenced in prod, and a test asserts its removal or content | 14 | **115** |
+| **DEAD · unreferenced** | nothing references it at all | 36 | **161** |
+| | | **75** | **408** |
+
+## What each ruling means for the next session
+
+**WIRING (132) is the interesting third.** These are *not* dead — something in live code still
+imports them, but no route can reach that importer either. They are the tail of a chain whose head
+was cut. Each needs the chain walked: if the capability should be reachable, restoring the route
+wiring turns 132 literals into ordinary migration work; if not, the whole chain retires together.
+`bank-builder-preview-panel` (35) is the clearest case — its only importer is `dual-ladder-board`,
+which is itself guarded as removed.
+
+**DEAD · guarded (115) must not be deleted casually.** A guard asserting removal is load-bearing:
+`dual-ladder-board` alone is referenced by five tests, and `bank-builder-cross-lane.test.mjs`
+asserts it *stays* removed from `/bank-builder`. Deleting the component without repointing that
+guard deletes the proof that the removal was deliberate. Retire the file **and** rewrite the guard
+to assert the invariant against whatever now owns it.
+
+**DEAD · unreferenced (161) is the safe majority.** Nothing references these at all — not prod, not
+tests. They can be retired on their own evidence, one commit per cluster, with the census lowering
+as the receipt.
+
+## What I did NOT do
+
+I did not delete anything. Retiring 75 components is a capability decision across Bank Builder,
+Moonshot, Mr. Dub and World Cup surfaces — several of them money-adjacent — and the charter's rule
+stands: *"A low call-site count is not permission to delete or merge."* This turns a 408-literal
+number into 75 named files with a ruling each, which is the input that decision needed and was
+missing.
+
+Reproduce with the classifier logic in `scripts/uiux/baseline.mjs` (reachability) plus a
+non-test-reference check; the artifact's `worstOffenders[].routeReachable` carries the first half.
