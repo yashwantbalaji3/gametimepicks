@@ -1,0 +1,229 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824394,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T02:17:04.089Z",
+  "availableAt": "2026-08-19T02:17:04.089Z",
+  "eventStartTime": "2026-08-19T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-16",
+    "2026-08-17",
+    "2026-08-18"
+  ],
+  "home": {
+    "teamId": 114,
+    "teamName": "Cleveland Guardians",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 44,
+      "relievers": [
+        {
+          "id": 670036,
+          "name": "Matt Festa",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 682120,
+          "name": "Tim Herrin",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 684974,
+          "name": "Craig Yoho",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-08-18"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 96,
+      "relievers": [
+        {
+          "id": 670036,
+          "name": "Matt Festa",
+          "appearances": 2,
+          "pitches": 36,
+          "outs": 7,
+          "dates": [
+            "2026-08-16",
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 682120,
+          "name": "Tim Herrin",
+          "appearances": 2,
+          "pitches": 33,
+          "outs": 5,
+          "dates": [
+            "2026-08-16",
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 671106,
+          "name": "Logan Allen",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 684974,
+          "name": "Craig Yoho",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 671922,
+          "name": "Cade Smith",
+          "appearances": 1,
+          "pitches": 2,
+          "outs": 1,
+          "dates": [
+            "2026-08-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 63,
+      "relievers": [
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 805345,
+          "name": "Trent Harris",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 6,
+          "dates": [
+            "2026-08-18"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 164,
+      "relievers": [
+        {
+          "id": 805345,
+          "name": "Trent Harris",
+          "appearances": 2,
+          "pitches": 48,
+          "outs": 9,
+          "dates": [
+            "2026-08-16",
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 2,
+          "pitches": 44,
+          "outs": 8,
+          "dates": [
+            "2026-08-16",
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 656529,
+          "name": "Sam Hentges",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 4,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 676775,
+          "name": "Keaton Winn",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 664141,
+          "name": "JT Brubaker",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 0,
+          "dates": [
+            "2026-08-16"
+          ]
+        },
+        {
+          "id": 671345,
+          "name": "Jason Foley",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-16"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 665665,
+        "name": "Reiver Sanmartin",
+        "reason": "34 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-16,2026-08-17,2026-08-18) + feed/live box scores",
+    "capturedAt": "2026-08-19T02:17:04.089Z"
+  },
+  "recordHash": "a76d43ea45d6e5b7f82816517fe92a9c411f44289e43d358a8b476d862b09966"
+}
