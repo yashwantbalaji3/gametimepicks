@@ -92,11 +92,41 @@ function systemStatus({ freshness, registry, brief, manifest, quarantined }) {
     brief == null ? "UNAVAILABLE" : "READY",
     brief == null ? "no brief artifact" : `newest settled date ${brief.date}`);
 
+  /*
+   * P185 — CURRENT quarantine reddens; a HISTORICAL one does not, and the difference is the point.
+   *
+   * This stage used to go QUARANTINED whenever `quarantined.length > 0` — any refused slate
+   * anywhere in history. 2026-07-28 is permanently quarantined (its board predates the doubleheader
+   * integrity guard, so two halves could not be told apart), which pinned this stage, and therefore
+   * the WORST-OF overall signal, at "Withheld" forever. Four stages reported OK and settlement was
+   * current through the newest slate, and the headline could never go green again.
+   *
+   * A headline that can never be green stops carrying information: a reader cannot separate "one
+   * historical date is permanently withheld, everything current is fine" from "settlement is broken
+   * right now", which is the exact confusion this page exists to prevent.
+   *
+   * The reframe that resolves it without weakening anything: a permanently withheld historical date
+   * is the integrity gate SUCCEEDING. Reporting it as a standing failure inverts the meaning of the
+   * thing it is reporting. What must still redden is a quarantine that is BLOCKING — one at or
+   * after the newest settled date, meaning settlement has not moved past it.
+   *
+   * Fail-closed is preserved in both directions: a current quarantine still reports QUARANTINED and
+   * still dominates worst-of, and the historical dates stay fully disclosed — named in this stage's
+   * detail line and listed in full in the contract's `quarantines` block, which the page renders as
+   * its own "Withheld slates" section.
+   */
+  const settledThrough = freshness?.asOfSettledDate ?? null;
+  const isBlocking = (q) => settledThrough == null || String(q.date) >= String(settledThrough);
+  const blocking = quarantined.filter(isBlocking);
+  const historical = quarantined.filter((q) => !isBlocking(q));
+
   add("latestSettlement",
-    quarantined.length > 0 ? "QUARANTINED" : freshness?.healthy ? "READY" : "UNAVAILABLE",
-    quarantined.length > 0
-      ? `${quarantined.map((q) => q.date).join(", ")} refused by the settlement integrity gate`
-      : `settled through ${freshness?.asOfSettledDate ?? "unknown"}`);
+    blocking.length > 0 ? "QUARANTINED" : freshness?.healthy ? "READY" : "UNAVAILABLE",
+    blocking.length > 0
+      ? `${blocking.map((q) => q.date).join(", ")} refused by the settlement integrity gate — settlement has not moved past it`
+      : historical.length > 0
+        ? `settled through ${settledThrough ?? "unknown"}; ${historical.length} earlier date${historical.length === 1 ? "" : "s"} permanently withheld by the integrity gate (${historical.map((q) => q.date).join(", ")}) and excluded from every rate`
+        : `settled through ${settledThrough ?? "unknown"}`);
 
   // Worst-of, deliberately. An average would let one failure hide behind four successes.
   const RANK = { UNAVAILABLE: 4, FAILED: 4, STALE: 3, QUARANTINED: 2, DELAYED_WITHIN_GRACE: 1, DUE: 1, READY: 0 };
@@ -255,6 +285,44 @@ export function selfTest() {
   const worstRank = { UNAVAILABLE: 4, FAILED: 4, STALE: 3, QUARANTINED: 2, READY: 0 };
   const anyBad = status.stages.some((s) => (worstRank[s.state] ?? 0) > 0);
   ok(!anyBad || status.overall !== "READY", "one bad stage must not be hidden behind an overall READY");
+
+  /*
+   * P185 — the quarantine split, proven in both directions on synthetic inputs.
+   *
+   * The risk in letting a historical quarantine stop reddening the headline is obvious: it is one
+   * edit away from letting a CURRENT one stop reddening it too. So both directions are exercised
+   * here rather than trusted, against the same function the real contract uses.
+   */
+  {
+    const fresh = { healthy: true, asOfSettledDate: "2026-08-17", stats: {} };
+    const base = { freshness: fresh, registry: { asOfSettledDate: "x", totalDecisiveRows: 1 },
+                   brief: { date: "2026-08-17" }, manifest: { calibratorVersion: "v", fitWindow: {}, heldOutWindow: { rows: 1 } } };
+
+    // HISTORICAL: settlement has moved past it → the gate worked, the headline is not pinned.
+    const hist = systemStatus({ ...base, quarantined: [{ date: "2026-07-28" }] });
+    const histStage = hist.stages.find((x) => x.stage === "latestSettlement");
+    ok(histStage.state === "READY", "a quarantine older than the newest settled date must not pin the stage");
+    ok(hist.overall === "READY", "a historical quarantine must not redden the headline forever");
+    ok(/permanently withheld/.test(histStage.detail), "a historical quarantine must still be NAMED in the detail line");
+    ok(/2026-07-28/.test(histStage.detail), "the withheld date itself must still be disclosed");
+
+    // BLOCKING: at or after the newest settled date → settlement has NOT moved past it.
+    for (const d of ["2026-08-17", "2026-08-18"]) {
+      const cur = systemStatus({ ...base, quarantined: [{ date: d }] });
+      const curStage = cur.stages.find((x) => x.stage === "latestSettlement");
+      ok(curStage.state === "QUARANTINED", `a quarantine at/after the settled date (${d}) must report QUARANTINED`);
+      ok(cur.overall !== "READY", `a blocking quarantine (${d}) must still redden the headline`);
+    }
+
+    // Mixed: one blocking beside one historical still reddens.
+    const mixed = systemStatus({ ...base, quarantined: [{ date: "2026-07-28" }, { date: "2026-08-18" }] });
+    ok(mixed.overall !== "READY", "a blocking quarantine must redden even when a historical one is present");
+
+    // No settled date known → cannot prove a quarantine is historical, so it must be treated as blocking.
+    const unknown = systemStatus({ ...base, freshness: { healthy: true, asOfSettledDate: null, stats: {} },
+                                  quarantined: [{ date: "2026-07-28" }] });
+    ok(unknown.overall !== "READY", "with no settled date, a quarantine must be assumed blocking (fail closed)");
+  }
   for (const s of status.stages) ok(s.detail && s.detail.length > 5, `${s.stage} needs a detail line`);
 
   // Calibration copy must state the limitation.

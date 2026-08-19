@@ -1209,3 +1209,62 @@ Recomputed against the values actually shipped:
 
 Brace balance checked after every edit · typecheck clean · suite **4,617 / 0** · build exit 0, 253
 exported HTML · **`gtp-canvas` appears 0 times in the built CSS** · `/launch` still pruned.
+
+---
+
+# Pending decision · system status — I WAS WRONG, AND THE PAGE WAS RIGHT
+
+Recorded 2026-08-19 06:41 ET.
+
+## The premise I filed the ticket on
+
+*"2026-07-28 is permanently quarantined, so the headline reads Withheld forever while four stages
+report OK and the newest settled slate is current. A headline that can never be green stops carrying
+information."*
+
+**The second half of that was false.** I read *"Newest fully settled slate: 2026-08-17"* off the page
+as the settlement pipeline's position. It is not — that line comes from the **daily research brief**.
+The research corpus's own position is `freshness.asOfSettledDate`, and it is **2026-07-27**.
+
+    predictionHistory   READY        complete through 2026-07-27
+    latestSettlement    QUARANTINED  2026-07-28 … settlement has not moved past it
+
+2026-07-28 is the **very next date**. Settlement genuinely has not moved past it. The headline is not
+a stale badge pinned by ancient history — **it is true**, and it should be red.
+
+Two different artifacts, two different "settled through" dates, on the same page. I conflated them.
+
+## What shipped anyway, and why it is still worth having
+
+The distinction the ticket reached for is real even though today's case falls on the other side of
+it: **a quarantine that blocks is not the same as one settlement has moved past.**
+
+    blocking     date >= newest settled date   → QUARANTINED, dominates worst-of
+    historical   date <  newest settled date   → the gate SUCCEEDING, named but not pinning
+    unknown      no settled date at all        → assumed blocking (fail closed)
+
+The reframe that makes this safe: **a permanently withheld historical date is the integrity gate
+working.** Reporting it as a standing failure inverts the meaning of the thing it reports. What must
+redden is a quarantine that is *blocking*.
+
+Today's state is **unchanged and still QUARANTINED**, correctly. What changes is later: when
+settlement moves past 2026-07-28, the headline will go green on its own instead of staying pinned —
+and a genuinely historical quarantine will never pin it in the first place.
+
+Disclosure is not reduced in either branch: the withheld dates are named in the stage's own detail
+line and listed in full in the contract's `quarantines` block, which the page renders as its own
+"Withheld slates" section.
+
+## Guarded in both directions, on synthetic inputs
+
+Letting a historical quarantine stop reddening the headline is one edit away from letting a current
+one stop reddening it too, so the self-test exercises both against the same function the real
+contract uses: historical → READY and still named; `2026-08-17` and `2026-08-18` → QUARANTINED and
+overall non-READY; mixed → still red; **no settled date → assumed blocking.**
+
+## The lesson
+
+I filed this ticket confident enough to phrase it as "a headline that can never be green". Reading
+one number off a rendered page and assuming which artifact produced it is the same mistake as
+reading a raw colour count and assuming every literal is drift. **Two numbers on a page that look
+like the same fact usually are not.**
