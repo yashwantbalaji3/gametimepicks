@@ -29,14 +29,14 @@ export default function MrDubAvatar({ size = 56, title = "Mr. Dub — paper-port
       {/* lab coat body */}
       <path d="M20 52c0-9 4-15 12-15s12 6 12 15z" fill="#f4f6f8" stroke="rgba(0,0,0,0.2)" strokeWidth="0.6" />
       {/* lapels */}
-      <path d="M32 37l-4 7 4 3 4-3z" fill="#e9edf1" stroke="var(--gtp-bank-heat,#e11d2a)" strokeWidth="0.8" />
+      <path d="M32 37l-4 7 4 3 4-3z" fill="#e9edf1" stroke="var(--gtp-bank-heat)" strokeWidth="0.8" />
       {/* clipboard / ledger */}
       <g>
-        <rect x="36" y="40" width="11" height="14" rx="1.5" fill="#1a120c" stroke="var(--vault-gold-bright,#d9a441)" strokeWidth="1" transform="rotate(8 41 47)" />
-        <path d="M39 45h7M39 48h7M39 51h4" stroke="var(--vault-gold-bright,#d9a441)" strokeWidth="0.9" transform="rotate(8 41 47)" />
+        <rect x="36" y="40" width="11" height="14" rx="1.5" fill="#1a120c" stroke="var(--vault-gold-bright)" strokeWidth="1" transform="rotate(8 41 47)" />
+        <path d="M39 45h7M39 48h7M39 51h4" stroke="var(--vault-gold-bright)" strokeWidth="0.9" transform="rotate(8 41 47)" />
       </g>
       {/* lava flask accent */}
-      <path d="M16 44l1.5-3v-3h3v3l1.5 3a1.4 1.4 0 0 1-1.3 2h-3.4a1.4 1.4 0 0 1-1.3-2z" fill="var(--gtp-bank-heat,#e11d2a)" opacity="0.85" />
+      <path d="M16 44l1.5-3v-3h3v3l1.5 3a1.4 1.4 0 0 1-1.3 2h-3.4a1.4 1.4 0 0 1-1.3-2z" fill="var(--gtp-bank-heat)" opacity="0.85" />
     </svg>
   );
 }

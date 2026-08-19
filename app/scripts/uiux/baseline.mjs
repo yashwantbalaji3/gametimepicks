@@ -191,26 +191,36 @@ const COLOR = /#[0-9a-fA-F]{3,8}\b|rgba?\(\s*\d+\s*,/g;
    field names, so this cannot drift away from what the registry actually declares. */
 const IDENTITY_LINE = /\b(primary|secondary|ink|bg|fg|border)\s*:\s*["'`]#/;
 const MASK_LINE = /[Mm]ask[Ii]mage|mask-image/;
+/*
+ * ILLUSTRATION ART is not drift either — the fourth boundary, found the same way as the first
+ * three. mr-dub-avatar.tsx is a first-party inline-SVG character mark: #f2d3a8 is a skin tone,
+ * #3a2a1a is hair, #f4f6f8 is a lab coat. An SVG presentation attribute carrying a raw hex is a
+ * DRAWING INSTRUCTION. Migrating it to a semantic token recolours the mascot — the same category of
+ * wrong as theming the Yankees' navy. Art that should follow the theme uses currentColor or a var
+ * already, so this rule does not capture it.
+ */
+const ART_ATTR = /(?:fill|stroke|stopColor|stop-color|flood-color|lighting-color)=["'`]#/;
 
-let themeDrift = 0, identityData = 0, maskStops = 0, unreachableDrift = 0;
+let themeDrift = 0, identityData = 0, maskStops = 0, illustrationArt = 0, unreachableDrift = 0;
 const rawColorByFile = [];
 for (const f of componentFiles) {
   const body = stripComments(fs.readFileSync(f, "utf8"));
-  let drift = 0, ident = 0, mask = 0;
+  let drift = 0, ident = 0, mask = 0, art = 0;
   for (const line of body.split("\n")) {
     const hits = (line.match(COLOR) ?? []).length;
     if (!hits) continue;
     if (IDENTITY_LINE.test(line)) ident += hits;
     else if (MASK_LINE.test(line)) mask += hits;
+    else if (ART_ATTR.test(line)) art += hits;
     else drift += hits;
   }
-  if (!(drift || ident || mask)) continue;
+  if (!(drift || ident || mask || art)) continue;
   const reach = reachable.has(path.normalize(f));
-  themeDrift += drift; identityData += ident; maskStops += mask;
+  themeDrift += drift; identityData += ident; maskStops += mask; illustrationArt += art;
   if (!reach) unreachableDrift += drift;
-  rawColorByFile.push({ file: rel(f), rawColors: drift + ident + mask, themeDrift: drift, identityData: ident, maskStops: mask, routeReachable: reach });
+  rawColorByFile.push({ file: rel(f), rawColors: drift + ident + mask + art, themeDrift: drift, identityData: ident, maskStops: mask, illustrationArt: art, routeReachable: reach });
 }
-const rawColorHits = themeDrift + identityData + maskStops;
+const rawColorHits = themeDrift + identityData + maskStops + illustrationArt;
 rawColorByFile.sort((a, b) => b.themeDrift - a.themeDrift);
 /* What migration should actually target, in the charter's own ranking: drift, on a live route. */
 const migrationQueue = rawColorByFile.filter((r) => r.routeReachable && r.themeDrift > 0).slice(0, 20);
@@ -267,6 +277,7 @@ const baseline = {
     themeDrift,
     identityData,
     maskStops,
+    illustrationArt,
     themeDriftUnreachable: unreachableDrift,
     themeDriftReachable: themeDrift - unreachableDrift,
     migrationQueue,
@@ -300,5 +311,6 @@ console.log(`  raw colour hits   ${rawColorHits} across ${rawColorByFile.length}
 console.log(`    theme drift     ${themeDrift} (${themeDrift - unreachableDrift} on live routes, ${unreachableDrift} unreachable)`);
 console.log(`    identity data   ${identityData} (team/club brand colours — NOT drift)`);
 console.log(`    mask stops      ${maskStops} (alpha stops — NOT colours)`);
+console.log(`    illustration    ${illustrationArt} (SVG art fills — NOT themeable)`);
 console.log(`  components        ${components.length} (${baseline.components.singleCallSite} with <=1 call site)`);
 console.log(`  motion            ${motionKeyframes.length} keyframes, ${reducedMotionBlocks} reduced-motion blocks, ${animatedComponents} components with motion`);

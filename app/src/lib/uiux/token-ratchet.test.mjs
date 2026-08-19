@@ -40,12 +40,13 @@ const APP = process.cwd();
  * Measured 2026-08-19 on main @ eeff42d61 + this release.
  */
 const CEILING = {
-  rawColorLiterals: 1356,
-  filesWithRawColors: 259,
-  themeDrift: 1259,
-  themeDriftReachable: 851,
+  rawColorLiterals: 1278,
+  filesWithRawColors: 255,
+  themeDrift: 1174,
+  themeDriftReachable: 766,
   identityData: 89,
   maskStops: 8,
+  illustrationArt: 7,
 };
 
 /** The same scan the baseline script performs, so the two cannot disagree about what counts. */
@@ -65,6 +66,10 @@ function walk(dir, exts, acc = []) {
 const COLOR = /#[0-9a-fA-F]{3,8}\b|rgba?\(\s*\d+\s*,/g;
 const IDENTITY_LINE = /\b(primary|secondary|ink|bg|fg|border)\s*:\s*["'`]#/;
 const MASK_LINE = /[Mm]ask[Ii]mage|mask-image/;
+/* An SVG presentation attribute carrying a raw hex is a DRAWING INSTRUCTION, not a theme value.
+   mr-dub-avatar.tsx is a first-party character mark: #f2d3a8 is a skin tone. Theming it recolours
+   the mascot — the same category of wrong as theming the Yankees' navy. */
+const ART_ATTR = /(?:fill|stroke|stopColor|stop-color|flood-color|lighting-color)=["'`]#/;
 
 /** Files a route can actually pull in, by following imports from every route entrypoint. */
 function reachableFiles() {
@@ -101,24 +106,25 @@ function reachableFiles() {
 
 function scan() {
   const reach = reachableFiles();
-  let themeDrift = 0, identityData = 0, maskStops = 0, unreachable = 0;
+  let themeDrift = 0, identityData = 0, maskStops = 0, illustrationArt = 0, unreachable = 0;
   const files = [];
   for (const f of walk(path.join(APP, "src"), [".tsx"])) {
     const body = stripComments(fs.readFileSync(f, "utf8"));
-    let d = 0, i = 0, m = 0;
+    let d = 0, i = 0, m = 0, a = 0;
     for (const line of body.split("\n")) {
       const hits = (line.match(COLOR) ?? []).length;
       if (!hits) continue;
       if (IDENTITY_LINE.test(line)) i += hits;
       else if (MASK_LINE.test(line)) m += hits;
+      else if (ART_ATTR.test(line)) a += hits;
       else d += hits;
     }
-    if (!(d || i || m)) continue;
-    themeDrift += d; identityData += i; maskStops += m;
+    if (!(d || i || m || a)) continue;
+    themeDrift += d; identityData += i; maskStops += m; illustrationArt += a;
     if (!reach.has(path.normalize(f))) unreachable += d;
-    files.push({ file: path.relative(APP, f), hits: d + i + m });
+    files.push({ file: path.relative(APP, f), hits: d + i + m + a });
   }
-  return { literals: themeDrift + identityData + maskStops, themeDrift, identityData, maskStops,
+  return { literals: themeDrift + identityData + maskStops + illustrationArt, themeDrift, identityData, maskStops, illustrationArt,
            themeDriftReachable: themeDrift - unreachable, files };
 }
 
@@ -145,7 +151,7 @@ test("each class ratchets on its own, so a literal cannot be reclassified into a
    * only way down is to actually remove a literal.
    */
   const s = scan();
-  for (const k of ["themeDrift", "themeDriftReachable", "identityData", "maskStops"]) {
+  for (const k of ["themeDrift", "themeDriftReachable", "identityData", "maskStops", "illustrationArt"]) {
     assert.ok(s[k] <= CEILING[k],
       `${k} rose to ${s[k]} from ${CEILING[k]}. If a literal moved between classes, that is not a ` +
       `migration — the class it moved INTO is pinned too.`);

@@ -262,8 +262,14 @@
      #170F0A on #34D399 measures 9.9:1 — AAA. */
   --vault-on-accent: #170F0A;
 
-  /* Product accents. A lane's identity, not a status. */
-  --product-moonshot: #B9A8FF;
+  /* Product accents. A lane's identity, not a status.
+     Moonshot is a three-step SCALE, not one colour typed three ways — the steps are 10-13 dE
+     apart, so they are structure rather than drift. */
+  --product-moonshot: #B9A8FF;        /* light — text/emphasis on dark */
+  --product-moonshot-mid: #8B7BF0;    /* mid — borders, fills */
+  --product-moonshot-deep: #6D5FD0;   /* deep — gradient anchors */
+  --product-moonshot-electric: #7C4DFF;
+  --product-moonshot-soft: #A99BF5;
 
   /* Status hues, as hues rather than as pre-mixed surfaces. */
   --vault-risk: #EA580C;          /* caution orange */
@@ -289,6 +295,8 @@
   --vault-warn-alt: #F5C35F;
   --vault-crown-alt: #D6A945;
   --vault-scrim-cocoa: #0A0604;     /* brown-black, red/black era */
+  --vault-scrim-espresso: #120A07;  /* another brown-black, 1.52 dE from --vault-scrim-warm */
+  --vault-crown-warm: #E7B15A;      /* warmer crown, 4.11 dE from --vault-crown */
   --vault-scrim-midnight: #06091A;  /* navy-black, pre-green era */
 
   /* Overlays. A wash lightens a surface, a scrim darkens it. */

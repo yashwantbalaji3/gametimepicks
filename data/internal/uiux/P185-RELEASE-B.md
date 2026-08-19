@@ -194,3 +194,64 @@ had drifted to a *different colour than the token it backs up*:
 
 Every one is a snapshot of a palette the product has since left. None could ever render, so removing
 them changes nothing and deletes a trap for the next reader.
+
+---
+
+# Release B4 — ladders/products and Mr. Dub, and a fourth boundary
+
+| measure | after B3 | after B4 | delta |
+|---|---|---|---|
+| raw colour literals | 1,356 | 1,278 | **−78** |
+| theme drift | 1,259 | 1,174 | −85 |
+| · on live routes | 851 | 766 | −85 |
+| files carrying literals | 259 | 255 | −4 |
+| semantic tokens | 170 | 176 | +6 |
+
+Cumulative from the P184 baseline: **1,616 → 1,278, −338 literals (−20.9%)**.
+Live-route drift, the number that matters: **−193 since the split was introduced.**
+
+`vertical-ladder-climb`, `moonshot/ladder-v2` and `ladders/product-lanes-ladder` are now at **zero**
+raw literals.
+
+## ILLUSTRATION ART — the fourth boundary
+
+Found the same way as the first three. `mr-dub/mr-dub-avatar.tsx` is a first-party inline-SVG
+character mark. Its literals are:
+
+    #f2d3a8   skin tone        #3a2a1a   hair
+    #f4f6f8   lab coat         #e9edf1   goggles       #1a120c   clipboard
+
+An SVG presentation attribute carrying a raw hex is a **drawing instruction**. Migrating it to a
+semantic token recolours the mascot — the same category of wrong as theming the Yankees' navy. Art
+that *should* follow the theme already uses `currentColor` or a `var()`, so the rule does not catch
+it. Now counted as `illustrationArt` (7), pinned, and probe-tested: a literal disguised as an SVG
+fill fails the ratchet.
+
+That makes four classes the flat count conflated:
+
+    themeDrift        migrate           1,174  (766 reachable)
+    identityData      never migrate        89
+    maskStops         not a colour          8
+    illustrationArt   not themeable         7
+
+## Moonshot is a scale, not drift
+
+`#B9A8FF` / `#A99BF5` / `#8B7BF0` / `#6D5FD0` / `#7C4DFF` read like one purple typed five ways. They
+are 10–13 dE apart — that is deliberate structure (text / soft / borders / gradient anchors), so
+they became a named product scale rather than a merge target.
+
+| pair | dE |
+|---|---|
+| `#8B7BF0` vs `#B9A8FF` | 13.52 |
+| `#7C4DFF` vs `#8B7BF0` | 12.37 |
+| `#6D5FD0` vs `#8B7BF0` | 10.84 |
+| `#E7B15A` vs `--vault-crown` | 4.11 |
+| `#120A07` vs `--vault-scrim-warm` | 1.52 |
+
+## A brand defect found, named, not changed blind
+
+`mr-dub-avatar.tsx` says in its own docstring that it is drawn "in GameTime Picks **lava** colors",
+and its badge ring is still a **red → gold** gradient (`rgba(225,29,42,.30)` → `rgba(212,175,55,.18)`)
+on a green/black product. Its two `var()` fallbacks pointed at the same retired palette
+(`var(--gtp-bank-heat,#e11d2a)` — token is green, fallback is RED). The dead fallbacks are removed;
+the ring itself is a visible change and is ticketed, not altered under cover of a token migration.

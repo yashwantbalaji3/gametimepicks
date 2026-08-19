@@ -18,15 +18,15 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
   // Compact preview (Home / Today) — a slim always-visible 3-day strip.
   if (compact) {
     return (
-      <div className={`moon-ladder-v2-compact rounded-xl px-3.5 py-3 ${className}`} style={{ border: "1px solid #6d5fd0", background: "rgba(139,123,240,0.06)" }} aria-label="Moonshot 3-step ladder preview">
+      <div className={`moon-ladder-v2-compact rounded-xl px-3.5 py-3 ${className}`} style={{ border: "1px solid var(--product-moonshot-deep)", background: "color-mix(in srgb, var(--product-moonshot-mid) 6%, transparent)" }} aria-label="Moonshot 3-step ladder preview">
         <div className="flex flex-wrap items-center justify-between gap-1.5">
-          <span className="font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "#b9a8ff" }}>🚀 3-step ladder · $25 → $1,500</span>
+          <span className="font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "var(--product-moonshot)" }}>🚀 3-step ladder · $25 → $1,500</span>
           <span className="font-mono text-[8.5px] uppercase" style={{ color: "var(--gtp-bank-heat)" }}>⚠ high variance</span>
         </div>
         <div className="mt-2 flex items-center gap-1">
           {days.map((p, i) => (
             <div key={p.day} className="flex items-center gap-1 shrink-0">
-              <span className="rounded px-1.5 py-1 font-mono text-[9px] tabular" style={{ border: `1px solid ${live && p.day === currentDay ? "#8b7bf0" : "var(--vault-rule)"}`, color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-mute)", background: live && p.day === currentDay ? "rgba(139,123,240,0.12)" : "transparent" }}>
+              <span className="rounded px-1.5 py-1 font-mono text-[9px] tabular" style={{ border: `1px solid ${live && p.day === currentDay ? "var(--product-moonshot-mid)" : "var(--vault-rule)"}`, color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-mute)", background: live && p.day === currentDay ? "color-mix(in srgb, var(--product-moonshot-mid) 12%, transparent)" : "transparent" }}>
                 D{p.day} ${p.target.toLocaleString("en-US")}{p.lock > 0 ? ` ·bank $${p.lock}` : ""}
               </span>
               {i < days.length - 1 ? <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>→</span> : null}
@@ -41,15 +41,15 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
   return (
     <section
       className={`moon-ladder-v2 gtp-fade-up overflow-hidden rounded-2xl ${className}`}
-      style={{ border: "1px solid #6d5fd0", background: "linear-gradient(160deg, rgba(139,123,240,0.10), rgba(11, 18, 14,0.35))" }}
+      style={{ border: "1px solid var(--product-moonshot-deep)", background: "linear-gradient(160deg, color-mix(in srgb, var(--product-moonshot-mid) 10%, transparent), color-mix(in srgb, var(--vault-scrim-base) 35%, transparent))" }}
       aria-label="Moonshot 3-step ladder"
     >
       <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-4 sm:px-5">
         <div>
-          <div className="font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "#b9a8ff" }}>🚀 The 3-step ladder</div>
+          <div className="font-mono uppercase tracking-[0.14em] text-[10px]" style={{ color: "var(--product-moonshot)" }}>🚀 The 3-step ladder</div>
           <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(19px, 3.2vw, 26px)", fontWeight: 700 }}>$25 → $1,500 in 3 days</h2>
         </div>
-        <span className="rounded-full px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em]" style={{ border: "1px solid rgba(52, 211, 153, 0.45)", color: "var(--gtp-bank-heat)", background: "rgba(52, 211, 153, 0.08)" }}>
+        <span className="rounded-full px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em]" style={{ border: "1px solid color-mix(in srgb, var(--vault-accent) 45%, transparent)", color: "var(--gtp-bank-heat)", background: "color-mix(in srgb, var(--vault-accent) 8%, transparent)" }}>
           ⚠ high variance
         </span>
       </div>
@@ -65,13 +65,13 @@ export default function MoonshotLadderV2({ currentDay = 1, live = false, compact
               style={{
                 animationDelay: `${i * 70}ms`,
                 marginTop: `${(2 - i) * 6}px`, // day 1 lowest, day 3 highest — a climb
-                border: isLive ? "1px solid #8b7bf0" : "1px solid var(--vault-rule)",
-                background: isLive ? "rgba(139,123,240,0.14)" : "rgba(255,255,255,0.02)",
-                boxShadow: isLive ? "0 0 16px rgba(139,123,240,0.35)" : "none",
+                border: isLive ? "1px solid var(--product-moonshot-mid)" : "1px solid var(--vault-rule)",
+                background: isLive ? "color-mix(in srgb, var(--product-moonshot-mid) 14%, transparent)" : "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)",
+                boxShadow: isLive ? "0 0 16px color-mix(in srgb, var(--product-moonshot-mid) 35%, transparent)" : "none",
               }}
             >
               <div className="flex items-center justify-between">
-                <span className="font-mono uppercase tracking-[0.08em] text-[9px]" style={{ color: isLive ? "#b9a8ff" : "var(--vault-text-faint)" }}>
+                <span className="font-mono uppercase tracking-[0.08em] text-[9px]" style={{ color: isLive ? "var(--product-moonshot)" : "var(--vault-text-faint)" }}>
                   Day {p.day}{isLive ? " · LIVE" : p.day === 1 ? "" : " · unlocks on a win"}
                 </span>
                 <span className="font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>{p.targetMultiple}×</span>

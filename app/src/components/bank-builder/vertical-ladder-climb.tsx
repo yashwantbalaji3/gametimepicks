@@ -21,12 +21,12 @@ const american = (o: number | null | undefined) =>
 const dash = (s: string | null | undefined) => (s && String(s).trim() ? String(s) : "—");
 
 const RUNG: Record<ClimbRung["status"], { label: string; color: string; ring: string; fill: string }> = {
-  completed: { label: "Cleared", color: "var(--vault-success)", ring: "rgba(110,231,168,0.5)", fill: "rgba(110,231,168,0.12)" },
-  active:    { label: "You are here", color: "var(--gtp-bank-heat)", ring: "rgba(52, 211, 153, 0.6)", fill: "var(--gtp-bank-heat-dim)" },
-  awaiting:  { label: "Awaiting", color: "var(--vault-gold-bright)", ring: "rgba(217,164,65,0.5)", fill: "rgba(217,164,65,0.10)" },
-  upcoming:  { label: "Upcoming", color: "var(--vault-text-faint)", ring: "var(--vault-rule)", fill: "rgba(255,255,255,0.02)" },
-  stopped:   { label: "Stopped", color: "var(--vault-text-faint)", ring: "var(--vault-rule)", fill: "rgba(255,255,255,0.02)" },
-  lost:      { label: "Reset", color: "var(--vault-text-faint)", ring: "var(--vault-rule)", fill: "rgba(255,255,255,0.02)" },
+  completed: { label: "Cleared", color: "var(--vault-success)", ring: "color-mix(in srgb, var(--vault-accent-mint-deep) 50%, transparent)", fill: "color-mix(in srgb, var(--vault-accent-mint-deep) 12%, transparent)" },
+  active:    { label: "You are here", color: "var(--gtp-bank-heat)", ring: "color-mix(in srgb, var(--vault-accent) 60%, transparent)", fill: "var(--gtp-bank-heat-dim)" },
+  awaiting:  { label: "Awaiting", color: "var(--vault-gold-bright)", ring: "color-mix(in srgb, var(--vault-crown) 50%, transparent)", fill: "color-mix(in srgb, var(--vault-crown) 10%, transparent)" },
+  upcoming:  { label: "Upcoming", color: "var(--vault-text-faint)", ring: "var(--vault-rule)", fill: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)" },
+  stopped:   { label: "Stopped", color: "var(--vault-text-faint)", ring: "var(--vault-rule)", fill: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)" },
+  lost:      { label: "Reset", color: "var(--vault-text-faint)", ring: "var(--vault-rule)", fill: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)" },
 };
 const TONE: Record<ClimbLane["statusTone"], string> = {
   active: "var(--gtp-bank-heat)", advanced: "var(--vault-success)", awaiting: "var(--vault-gold-bright)", completed: "var(--vault-gold-bright)",
@@ -35,7 +35,7 @@ const TONE: Record<ClimbLane["statusTone"], string> = {
 function Chip({ label, color }: { label: string; color: string }) {
   return (
     <span className="inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]"
-      style={{ color, background: "rgba(255,255,255,0.05)", border: `1px solid ${color}` }}>{label}</span>
+      style={{ color, background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", border: `1px solid ${color}` }}>{label}</span>
   );
 }
 
@@ -49,7 +49,7 @@ function LegAvatar({ leg }: { leg: ClimbLeg }) {
   if (code) return <FlagBadge code={code} size="md" ariaLabel={sel} />;
   const hc = wcTeamCodeFromName(home), ac = wcTeamCodeFromName(away);
   if (hc || ac) return <span className="inline-flex items-center gap-0.5">{hc ? <FlagBadge code={hc} size="md" ariaLabel={home ?? ""} /> : null}{ac ? <FlagBadge code={ac} size="md" ariaLabel={away ?? ""} /> : null}</span>;
-  return <span className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-[6px] text-[12px]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>;
+  return <span className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-[6px] text-[12px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>;
 }
 
 const pct = (p: number | null | undefined) => (p == null || !Number.isFinite(p) ? null : `${Math.round(p * 100)}%`);
@@ -63,7 +63,7 @@ function LegRow({ leg }: { leg: ClimbLeg }) {
   const market = pct(leg.marketProb);
   const hasRead = model != null || market != null;
   return (
-    <li className="flex items-start gap-2.5 rounded-[10px] px-3 py-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-rule)" }}>
+    <li className="flex items-start gap-2.5 rounded-[10px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-rule)" }}>
       <span className="mt-0.5 shrink-0"><LegAvatar leg={leg} /></span>
       <div className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>{dash(leg.player ?? leg.selection)}</span>
@@ -87,10 +87,10 @@ function LegRow({ leg }: { leg: ClimbLeg }) {
  *  card legs attach to it; rungs below it read cleared, rungs above read upcoming. */
 function RungRow({ rung, legs, isCurrent, isReview }: { rung: ClimbRung; legs: ClimbLeg[]; isCurrent: boolean; isReview?: boolean }) {
   // A review card's current rung uses the gold "paper review" palette (never the red live-money heat).
-  const REVIEW = { label: "Review · Paper $0", color: "var(--vault-gold-bright)", ring: "rgba(217,164,65,0.55)", fill: "rgba(217,164,65,0.10)" };
+  const REVIEW = { label: "Review · Paper $0", color: "var(--vault-gold-bright)", ring: "color-mix(in srgb, var(--vault-crown) 55%, transparent)", fill: "color-mix(in srgb, var(--vault-crown) 10%, transparent)" };
   const m = isCurrent ? (isReview ? REVIEW : RUNG.active) : RUNG[rung.status];
   const isActive = isCurrent;
-  const glow = isReview ? "rgba(217,164,65,0.5)" : "rgba(52, 211, 153, 0.5)";
+  const glow = isReview ? "color-mix(in srgb, var(--vault-crown) 50%, transparent)" : "color-mix(in srgb, var(--vault-accent) 50%, transparent)";
   const isCleared = rung.status === "completed" && !isCurrent;
   return (
     <div className="relative flex gap-3 pb-3 last:pb-0">
@@ -131,14 +131,14 @@ function RungRow({ rung, legs, isCurrent, isReview }: { rung: ClimbRung; legs: C
               <span className="transition-transform group-open:rotate-90" aria-hidden>▸</span>
               How Step {rung.step} cleared · {rung.cleared.date}
             </summary>
-            <div className="mt-2 rounded-[10px] px-3 py-2.5" style={{ background: "rgba(110,231,168,0.06)", border: "1px solid rgba(110,231,168,0.25)" }}>
+            <div className="mt-2 rounded-[10px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-accent-mint-deep) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-mint-deep) 25%, transparent)" }}>
               <div className="mb-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className="font-display tabular font-bold" style={{ color: "var(--vault-text)", fontSize: 14 }}>{money(rung.cleared.stake)} → {money(rung.cleared.returned)}</span>
                 <span className="font-mono text-[10px]" style={{ color: "var(--vault-success)" }}>WON · {american(rung.cleared.combinedOdds)}</span>
               </div>
               <ul className="flex flex-col gap-1">
                 {rung.cleared.legs.map((l, i) => (
-                  <li key={i} className="flex items-start gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+                  <li key={i} className="flex items-start gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-rule)" }}>
                     <span aria-hidden style={{ color: "var(--vault-success)", fontSize: 11 }}>✓</span>
                     <div className="min-w-0 flex-1">
                       <span className="block truncate text-[12px] font-semibold" style={{ color: "var(--vault-text)" }}>{l.selection}</span>
@@ -172,7 +172,7 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
   return (
     <div className="flex flex-col rounded-2xl p-4"
       style={{
-        background: showsCard ? `linear-gradient(180deg, ${tone}14, rgba(255,255,255,0.02) 46%)` : "rgba(255,255,255,0.02)",
+        background: showsCard ? `linear-gradient(180deg, ${tone}14, color-mix(in srgb, var(--vault-wash-base) 2%, transparent) 46%)` : "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)",
         border: `1px solid ${showsCard ? tone + "55" : "var(--vault-border)"}`, borderTop: `3px solid ${tone}`,
         boxShadow: showsCard ? `0 0 0 1px ${tone}22, 0 10px 34px -20px ${tone}` : "none",
       }}>
@@ -191,7 +191,7 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
         <span className="gtp-progress-rail absolute" style={{ left: 15, top: 10, bottom: 10, width: 2, borderRadius: 2 }} aria-hidden />
         {/* Crown / goal marker */}
         <div className="relative flex items-center gap-3 pb-3">
-          <span className="relative z-[1] flex shrink-0 items-center justify-center rounded-full" style={{ width: 32, height: 32, background: "rgba(217,164,65,0.14)", border: "1.5px solid var(--vault-gold-bright)" }} aria-hidden>🏆</span>
+          <span className="relative z-[1] flex shrink-0 items-center justify-center rounded-full" style={{ width: 32, height: 32, background: "color-mix(in srgb, var(--vault-crown) 14%, transparent)", border: "1.5px solid var(--vault-gold-bright)" }} aria-hidden>🏆</span>
           <span className="font-display tabular font-bold" style={{ color: "var(--vault-gold-bright)", fontSize: 15 }}>
             {money0(goalTop)} <span className="font-mono text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>crown</span>
           </span>
@@ -210,7 +210,7 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
             ["Stake", "$0.00", "var(--vault-text)"],
             ["Combined", american(lane.combinedOdds), "var(--vault-gold-bright)"],
           ] as Array<[string, string, string]>).map(([k, v, c]) => (
-            <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+            <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)", border: "1px solid var(--vault-rule)" }}>
               <div className="font-mono tabular font-bold leading-tight" style={{ color: c, fontSize: 12.5 }}>{v}</div>
               <div className="mt-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8 }}>{k}</div>
             </div>
@@ -226,7 +226,7 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
               ["Profit", profit != null ? `+${money(profit)}` : "—", "var(--vault-success)"],
               ["Seed", money0(isActive ? 100 : null), "var(--gtp-bank-heat)"],
             ] as Array<[string, string, string]>).map(([k, v, c]) => (
-              <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+              <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)", border: "1px solid var(--vault-rule)" }}>
                 <div className="font-mono tabular font-bold leading-tight" style={{ color: c, fontSize: 12.5 }}>{v}</div>
                 <div className="mt-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8 }}>{k}</div>
               </div>
@@ -239,14 +239,14 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
       )}
 
       {isReview ? (
-        <div className="mt-2 rounded-[10px] px-3 py-3 text-[12px] leading-snug" style={{ background: "rgba(217,164,65,0.06)", border: "1px solid rgba(217,164,65,0.25)", color: "var(--vault-text-mute)" }}>
+        <div className="mt-2 rounded-[10px] px-3 py-3 text-[12px] leading-snug" style={{ background: "color-mix(in srgb, var(--vault-crown) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 25%, transparent)", color: "var(--vault-text-mute)" }}>
           <span className="font-semibold" style={{ color: "var(--vault-gold-bright)" }}>Review Mode · paper · $0 placed.</span>{" "}
           {dash(lane.reviewNote) !== "—"
             ? lane.reviewNote
             : "These legs are shown for review only — nothing is placed and no real money is at risk. Deterministic settlement from the official box score."}
         </div>
       ) : !isActive ? (
-        <div className="mt-2 rounded-[10px] px-3 py-3 text-[12px] leading-snug" style={{ background: "rgba(217,164,65,0.06)", border: "1px solid rgba(217,164,65,0.25)", color: "var(--vault-text-mute)" }}>
+        <div className="mt-2 rounded-[10px] px-3 py-3 text-[12px] leading-snug" style={{ background: "color-mix(in srgb, var(--vault-crown) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 25%, transparent)", color: "var(--vault-text-mute)" }}>
           <span className="font-semibold" style={{ color: "var(--vault-gold-bright)" }}>Model pass — holding for a stronger slate.</span>{" "}
           No qualified card today, so the ladder waits rather than force a weak card. A pass protects the seed; the lane re-arms the moment a qualified card appears.
         </div>

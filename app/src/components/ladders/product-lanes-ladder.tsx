@@ -29,13 +29,13 @@ const DESCRIPTOR: Record<DailyPortfolioCard["product"], string> = {
 };
 
 type Accent = "gold" | "violet";
-const ACCENT_COLOR: Record<Accent, string> = { gold: "var(--vault-gold-bright)", violet: "#8b7bf0" };
+const ACCENT_COLOR: Record<Accent, string> = { gold: "var(--vault-gold-bright)", violet: "var(--product-moonshot-mid)" };
 
 function StatusPill({ status }: { status: DailyPortfolioCard["status"] }) {
   const map = {
-    active: { label: "ACTIVE", color: "var(--vault-success)", bg: "rgba(110,231,168,0.12)" },
-    candidate: { label: "CANDIDATE", color: "var(--vault-gold-bright)", bg: "rgba(217,164,65,0.12)" },
-    awaiting: { label: "AWAITING", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.05)" },
+    active: { label: "ACTIVE", color: "var(--vault-success)", bg: "color-mix(in srgb, var(--vault-accent-mint-deep) 12%, transparent)" },
+    candidate: { label: "CANDIDATE", color: "var(--vault-gold-bright)", bg: "color-mix(in srgb, var(--vault-crown) 12%, transparent)" },
+    awaiting: { label: "AWAITING", color: "var(--vault-text-faint)", bg: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)" },
   } as const;
   const t = status === "active" ? map.active : status === "candidate" ? map.candidate : map.awaiting;
   return (
@@ -81,8 +81,8 @@ function StepRail({ currentStep, totalSteps, accentColor }: { currentStep: numbe
                   width: 18,
                   height: 18,
                   fontSize: 9.5,
-                  color: isCleared ? success : isCurrent ? "#120A07" : "var(--vault-text-faint)",
-                  background: isCleared ? "color-mix(in srgb, var(--vault-success) 16%, transparent)" : isCurrent ? accentColor : "rgba(255,255,255,0.04)",
+                  color: isCleared ? success : isCurrent ? "var(--vault-scrim-espresso)" : "var(--vault-text-faint)",
+                  background: isCleared ? "color-mix(in srgb, var(--vault-success) 16%, transparent)" : isCurrent ? accentColor : "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)",
                   border: `1px solid ${isCleared ? "color-mix(in srgb, var(--vault-success) 45%, transparent)" : dotColor}`,
                   boxShadow: isCurrent ? `0 0 9px color-mix(in srgb, ${accentColor} 55%, transparent)` : "none",
                 }}
@@ -126,7 +126,7 @@ function LegAvatar({ leg }: { leg: DailyPortfolioLeg }) {
     );
   }
   return (
-    <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
+    <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
   );
 }
 
@@ -142,7 +142,7 @@ function volatilityScore(card: DailyPortfolioCard): { score: number; band: "Lowe
 }
 
 const VOL_COLOR: Record<"Lower" | "Medium" | "Higher", string> = {
-  Lower: "var(--vault-success)", Medium: "#e7b15a", Higher: "var(--gtp-bank-heat)",
+  Lower: "var(--vault-success)", Medium: "var(--vault-crown-warm)", Higher: "var(--gtp-bank-heat)",
 };
 
 function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; accent: Accent; accentColor: string }) {
@@ -155,15 +155,15 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
   return (
     <div
       className="rounded-[12px] overflow-hidden flex flex-col min-w-0"
-      style={{ border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.4)", borderLeft: `2px solid ${accentColor}` }}
+      style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--lava-bg) 40%, transparent)", borderLeft: `2px solid ${accentColor}` }}
     >
       {/* Header */}
-      <div className="px-3.5 py-3 flex flex-col gap-2.5" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
+      <div className="px-3.5 py-3 flex flex-col gap-2.5" style={{ borderBottom: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)" }}>
         <div className="flex items-center justify-between gap-2 min-w-0">
           <span className="flex items-center gap-2 min-w-0">
             <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>Lane {card.lane}</span>
             {card.legs.length ? (
-              <span className="shrink-0 rounded-full px-1.5 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 8, color: VOL_COLOR[vol.band], background: "rgba(255,255,255,0.05)", border: `1px solid color-mix(in srgb, ${VOL_COLOR[vol.band]} 35%, transparent)` }} title={`Volatility score ${vol.score}/100`}>
+              <span className="shrink-0 rounded-full px-1.5 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 8, color: VOL_COLOR[vol.band], background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", border: `1px solid color-mix(in srgb, ${VOL_COLOR[vol.band]} 35%, transparent)` }} title={`Volatility score ${vol.score}/100`}>
                 {vol.band} vol · {vol.score}
               </span>
             ) : null}
@@ -199,14 +199,14 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
             {active ? `${money(card.stake)} at risk · open exposure` : "$0 placed · not activated"}
           </span>
           {card.legCount < card.targetLegs ? (
-            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "#e7b15a", fontSize: 8.5 }}>{card.legCount}/{card.targetLegs} legs</span>
+            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-crown-warm)", fontSize: 8.5 }}>{card.legCount}/{card.targetLegs} legs</span>
           ) : null}
         </div>
       </div>
 
       {/* Moonshot narrative — the story this longshot tells (display-only; derived from the legs) */}
       {isMoonshot && card.narrative && card.legs.length ? (
-        <div className="px-3.5 py-2.5" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(124,77,255,0.06)" }}>
+        <div className="px-3.5 py-2.5" style={{ borderBottom: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--product-moonshot-electric) 6%, transparent)" }}>
           <div className="font-mono uppercase tracking-[0.08em]" style={{ color: accentColor, fontSize: 9.5, fontWeight: 700 }}>
             🌙 {card.narrative.title}
           </div>
@@ -243,7 +243,7 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
         <div className="px-3.5 py-2.5 flex flex-col gap-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
           {card.correlationNote ? (
             <span className="text-[10px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
-              <span aria-hidden style={{ color: "#e7b15a" }}>⚠ </span>{card.correlationNote}
+              <span aria-hidden style={{ color: "var(--vault-crown-warm)" }}>⚠ </span>{card.correlationNote}
             </span>
           ) : null}
           {card.shortfallNote ? (
@@ -287,7 +287,7 @@ export default function ProductLanesLadder({
           ))}
         </div>
       ) : (
-        <div className="rounded-[12px] px-4 py-6 text-center" style={{ border: "1px dashed var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+        <div className="rounded-[12px] px-4 py-6 text-center" style={{ border: "1px dashed var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
           <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>No {productLabel} lanes for this slate</span>
         </div>
       )}

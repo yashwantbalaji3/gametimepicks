@@ -40,7 +40,7 @@ function LegAvatar({ leg }: { leg: DailyPortfolioLeg }) {
     );
   }
   return (
-    <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
+    <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
   );
 }
 
@@ -49,7 +49,7 @@ function StatChip({ label, value, accent, faint }: { label: string; value: strin
     <div
       className="rounded-[8px] px-3 py-2.5 min-w-0"
       style={{
-        background: faint ? "rgba(255,255,255,0.015)" : "rgba(255,255,255,0.02)",
+        background: faint ? "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" : "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)",
         border: faint ? "1px dashed var(--vault-rule)" : "1px solid var(--vault-border)",
       }}
     >
@@ -64,7 +64,7 @@ function StatusPill({ status }: { status: DailyPortfolioCard["status"] }) {
   const active = status === "active";
   const candidate = status === "candidate";
   const color = active ? "var(--vault-success)" : candidate ? "var(--vault-gold-bright)" : "var(--vault-text-mute)";
-  const bg = active ? "rgba(110,231,168,0.12)" : candidate ? "rgba(217,164,65,0.12)" : "rgba(255,255,255,0.05)";
+  const bg = active ? "color-mix(in srgb, var(--vault-accent-mint-deep) 12%, transparent)" : candidate ? "color-mix(in srgb, var(--vault-crown) 12%, transparent)" : "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)";
   return (
     <span
       className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]"
@@ -78,8 +78,8 @@ function StatusPill({ status }: { status: DailyPortfolioCard["status"] }) {
 function LaneCard({ card }: { card: DailyPortfolioCard }) {
   const moonshot = card.product === "moonshot";
   return (
-    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.4)", borderLeft: `2px solid ${moonshot ? "#8b7bf0" : "var(--vault-gold-bright)"}` }}>
-      <div className="px-3.5 py-3 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
+    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--lava-bg) 40%, transparent)", borderLeft: `2px solid ${moonshot ? "var(--product-moonshot-mid)" : "var(--vault-gold-bright)"}` }}>
+      <div className="px-3.5 py-3 flex flex-col gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)" }}>
         <div className="flex items-center justify-between gap-2 min-w-0">
           <span className="font-semibold truncate" style={{ color: "var(--vault-text)", fontSize: 13 }}>
             {card.productLabel} <span style={{ color: "var(--vault-text-faint)" }}>· Lane {card.lane}</span>
@@ -100,7 +100,7 @@ function LaneCard({ card }: { card: DailyPortfolioCard }) {
             {card.status === "active" ? `${money(card.stake)} at risk · open exposure` : "$0 placed · not activated"}
           </span>
           {card.legCount < card.targetLegs ? (
-            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "#e7b15a", fontSize: 8.5 }}>{card.legCount}/{card.targetLegs} legs</span>
+            <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-crown-warm)", fontSize: 8.5 }}>{card.legCount}/{card.targetLegs} legs</span>
           ) : null}
         </div>
       </div>
@@ -132,13 +132,13 @@ function LaneCard({ card }: { card: DailyPortfolioCard }) {
         <div className="px-3.5 py-2.5 flex flex-col gap-1.5" style={{ borderTop: "1px solid var(--vault-rule)" }}>
           {card.narrative ? (
             <div className="flex flex-col gap-0.5">
-              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: moonshot ? "#a99bf5" : "var(--vault-gold-bright)", fontSize: 8.5 }}>Why it can hit · {card.narrative.title}</span>
+              <span className="font-mono uppercase tracking-[0.1em]" style={{ color: moonshot ? "var(--product-moonshot-soft)" : "var(--vault-gold-bright)", fontSize: 8.5 }}>Why it can hit · {card.narrative.title}</span>
               <span className="text-[10.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{card.narrative.story}</span>
             </div>
           ) : null}
           {/* Why it can fail — the honest correlation / variance read (every leg has to land). */}
           <span className="text-[10px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>
-            <span aria-hidden style={{ color: "#e7b15a" }}>⚠ Why it can miss · </span>
+            <span aria-hidden style={{ color: "var(--vault-crown-warm)" }}>⚠ Why it can miss · </span>
             {card.correlationNote ?? `Every one of the ${card.legCount} legs must land — a longshot by design; one miss loses the card.`}
           </span>
           {card.shortfallNote ? (
@@ -159,10 +159,10 @@ function SkippedProductCard({ product }: { product: "bank-builder" | "moonshot" 
       ? "No 2-leg team-market combo cleared the model's ladder-step target on today's thin knockout slate — the model skipped it instead of forcing a weak ladder off low-value player props."
       : "No qualified longshot card cleared the +700 floor with a coherent story today — the model is holding rather than forcing a thin moonshot.";
   return (
-    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px dashed var(--vault-rule)", background: "rgba(7, 11, 9,0.3)", borderLeft: `2px solid ${product === "moonshot" ? "#8b7bf0" : "var(--vault-gold-bright)"}` }}>
-      <div className="px-3.5 py-3 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+    <div className="rounded-[12px] overflow-hidden flex flex-col" style={{ border: "1px dashed var(--vault-rule)", background: "color-mix(in srgb, var(--lava-bg) 30%, transparent)", borderLeft: `2px solid ${product === "moonshot" ? "var(--product-moonshot-mid)" : "var(--vault-gold-bright)"}` }}>
+      <div className="px-3.5 py-3 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
         <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>{label}</span>
-        <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8.5, color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>no qualified play</span>
+        <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8.5, color: "var(--vault-text-mute)", background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", border: "1px solid var(--vault-rule)" }}>no qualified play</span>
       </div>
       <div className="px-3.5 py-4 flex flex-col gap-1.5">
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>No qualified {label} today</span>
