@@ -1158,3 +1158,54 @@ missing.
 
 Reproduce with the classifier logic in `scripts/uiux/baseline.mjs` (reachability) plus a
 non-test-reference check; the artifact's `worstOffenders[].routeReachable` carries the first half.
+
+---
+
+# Pending decision · the theme islands — RETIRED
+
+## The ticket said two. There was one.
+
+`[data-theme="premium-gold"]` **did not exist**. All that remained was a comment saying the tokens
+were "activated as a scoped theme in the `[data-theme="premium-gold"]` block below" — pointing at a
+block that had already been deleted. That is how a reader concludes a theme is available when it is
+not, and it is the same lying-artifact family as `--vault-gold-bright` holding green and
+`var(--vault-warn, #ea580c)` backing gold with orange.
+
+`.gtp-canvas` was real but was **7 rule blocks scattered across 3,500 lines**, not the single block
+the ticket implied — which is why the earlier session correctly declined to do it in the context it
+had left.
+
+## Removed
+
+- 7 `.gtp-canvas` rule blocks
+- 11 orphaned token declarations, each verified at **zero references** in both CSS and TSX first:
+  `--gtp-canvas`, `--gtp-canvas-edge`, `--gtp-paper`, `--gtp-paper-deep`, `--gtp-champagne`,
+  `--gtp-gold-soft` (declared **twice**, with different values), `--gtp-ink`, `--gtp-ink-mute`,
+  `--gtp-surface-light`, `--gtp-gold-on-light`
+- 4 comment blocks describing scopes that no longer exist
+
+**Capability check:** neither scope had a single opt-in anywhere in `src/` — no component used the
+class, nothing set the attribute, no guard referenced either. A scope nothing can enter is not
+latent capability; it is a second palette to keep in sync. That is what changed since the charter's
+"stop for capability removal without parity" applied — parity is trivial when the other side is
+empty.
+
+## A third stale artifact, found on the way
+
+The `:root` block carried a **hand-verified contrast table** citing `--gtp-card (#161E3E)` — the
+navy the token held *before* the green rebrand. Every ratio in it was measured against a colour the
+file no longer defines. A stale contrast table is worse than none, because it reads as verification.
+
+Recomputed against the values actually shipped:
+
+    on --gtp-card (#121A16):
+      --vault-text      (#F5F7F6)  16.47:1  AA
+      --vault-text-mute (#B4BEB8)   9.28:1  AA
+      --vault-gold      (#D4AF37)   8.43:1  AA
+      --vault-success   (#4ADE80)  10.17:1  AA
+      --vault-accent    (#34D399)   9.22:1  AA
+
+## Verification
+
+Brace balance checked after every edit · typecheck clean · suite **4,617 / 0** · build exit 0, 253
+exported HTML · **`gtp-canvas` appears 0 times in the built CSS** · `/launch` still pruned.
