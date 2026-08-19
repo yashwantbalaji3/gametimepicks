@@ -763,3 +763,67 @@ weakened to make a badge look better. Ticketed for a decision rather than adjust
 **No changes shipped in Release H.** Recording a release as "audited, nothing to fix" is a real
 outcome; manufacturing a change to show activity would be the failure mode this charter names when
 it says not to relitigate what already reconciles.
+
+---
+
+# Release I — the UI/UX audit lands on the operator console
+
+The console already exists and is substantial: an eleven-group IA contract, health strip, executive
+overview, today queue, completion matrix, 30-day roadmap, work board, watches, founder actions,
+release history, runbooks and transition readiness. Release I did **not** rebuild it.
+
+What it was missing is the thing the charter names explicitly for this section:
+
+> Render the UI/UX route matrix, drift counts, migration progress and screenshots/evidence
+> references here so an operator can understand remaining work without reading code or handoff prose.
+
+None of that was on the console. Nine releases of measured work lived only in an artifact and a
+markdown file — exactly the "handoff prose" the charter says an operator should not have to read.
+
+## What shipped
+
+A `uiux` section in the **Evidence** group, whose declared authority is already *"committed audit
+artifacts, rendered verbatim"*. It renders:
+
+- **Headline tiles** — literals now vs baseline with the delta and percentage, files carrying them,
+  semantic tokens added, dead links.
+- **Drift by class**, with the disposition of each: only *theme drift on live routes* is migration
+  work. Unreachable drift says ADJUDICATE, identity data says NEVER MIGRATE, mask stops say NOT A
+  COLOUR, illustration art says NOT THEMEABLE. An operator reading the raw total would otherwise
+  size the remaining work at 1,276 when it is 764.
+- **Route matrix** — totals, exports, redirects, and the internal routes pruned from the public
+  export, named.
+- **The ranked next work**, reachable files only.
+- **Evidence references** — the scanner, the ratchet, the e2e guards and the audit, by path.
+
+## Every figure derives; nothing is typed
+
+The one hard-coded measurement is the **P184 origin** (1,616 literals, 143 tokens, 2026-08-18,
+`eeff42d61`) — a delta needs a fixed origin, and that origin is a historical fact rather than a
+current claim. Everything beside it is read from `data/internal/uiux/baseline.json`.
+
+A hand-typed percentage on an operator console is worse than no console: it is the same drift the
+audit exists to measure, wearing a dashboard's clothes. The guard fails if any current figure is
+inlined into the page or the builder.
+
+## Two design decisions worth stating
+
+- **One shape, always.** `buildUiuxEvidence` returns identical keys whether or not the artifact
+  exists. A union return makes every consumer narrow before reading a figure, and the first one that
+  forgets is how a dashboard starts rendering `undefined`.
+- **Absent is not zero.** With no artifact the section says so and renders no figures — `now` is
+  `null`, never `0`. Zero is a claim; absent evidence is a different claim, and the console makes
+  the second one.
+
+## Boundary preserved
+
+`/launch` stays host-protected, `noindex`/`no-store` and **absent from the public export** —
+re-verified in the build, and asserted by the guard. The artifact it reads lives under
+`data/internal/` for the same reason: it inventories internal routes.
+
+## Not done in Release I
+
+The charter's fuller ask — filterable, drillable cards with owner, priority, dependency, age and
+acceptance test per item, and completion percentages derived from receipts — is a larger build on
+top of the existing work board. This release added the evidence the console was missing about the
+UI/UX programme itself, which is the part it named specifically.

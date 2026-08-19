@@ -12,6 +12,7 @@ import { withCountdown } from "@/lib/launch/watches.mjs";
 import { founderActionSheet } from "@/lib/launch/shared-blockers.mjs";
 import { ALLOWED_CHOICES } from "@/lib/launch/founder-response.mjs";
 import { IA_SECTIONS } from "@/lib/launch/ia-contract.mjs";
+import { buildUiuxEvidence, P184_BASELINE } from "@/lib/launch/uiux-evidence.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
@@ -96,6 +97,8 @@ export default function LaunchCommandCenter() {
     catch { return null; }
   })();
 
+  /* Program 185 · the UI/UX audit, derived from its committed artifact — never typed here. */
+  const uiux = buildUiuxEvidence();
   const routeInventory = (() => {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/audits/route-inventory-v1.json"), "utf8")); }
     catch { return null; }
@@ -997,6 +1000,87 @@ export default function LaunchCommandCenter() {
                   <li key={r.route}><code>{r.route}</code> — {r.proves}</li>
                 ))}
               </ul>
+            </section>
+
+            {/* ── UI/UX audit — Program 185. Every figure DERIVES from the committed baseline
+                   artifact; nothing here is typed. The charter asks that an operator can see the
+                   route matrix, the drift counts and the migration progress WITHOUT reading code
+                   or handoff prose, so the reasoning stays in the artifact and the numbers come
+                   here. If the artifact is absent the section says so and shows no figures. ── */}
+            <section aria-labelledby="uiux" style={{ marginBottom: 30 }}>
+              <h2 id="uiux" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>UI/UX audit &amp; migration</h2>
+              {!uiux.available ? (
+                <p style={{ fontSize: 12, color: "var(--vault-warn)" }}>{uiux.note}</p>
+              ) : (
+                <>
+                  <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+                    Derived from <code>data/internal/uiux/baseline.json</code>
+                    {uiux.generatedAt ? ` · generated ${String(uiux.generatedAt).slice(0, 10)}` : ""} ·
+                    baseline measured {P184_BASELINE.measuredAt} @ <code>{P184_BASELINE.commit}</code>
+                  </p>
+
+                  <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", marginBottom: 14 }}>
+                    {[
+                      { l: "Raw colour literals", v: `${uiux.literals.now}`, s: uiux.literals.removed != null ? `${uiux.literals.removed} removed · −${uiux.literals.pctRemoved}% from ${uiux.literals.baseline}` : "" },
+                      { l: "Files carrying them", v: `${uiux.literals.files}`, s: `from ${P184_BASELINE.filesWithRawColors}` },
+                      { l: "Semantic tokens", v: `${uiux.literals.tokens}`, s: uiux.literals.tokensAdded != null ? `+${uiux.literals.tokensAdded} since baseline` : "" },
+                      { l: "Dead links", v: `${uiux.routeMatrix.deadLinks}`, s: `from ${P184_BASELINE.deadLinks}` },
+                    ].map((t) => (
+                      <div key={t.l} style={{ border: "1px solid var(--vault-rule)", borderRadius: 8, padding: "10px 12px" }}>
+                        <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--vault-text-faint)" }}>{t.l}</div>
+                        <div style={{ fontSize: 20, fontWeight: 700, color: "var(--vault-text)" }}>{t.v}</div>
+                        {t.s ? <div style={{ fontSize: 11, color: "var(--vault-text-mute)" }}>{t.s}</div> : null}
+                      </div>
+                    ))}
+                  </div>
+
+                  <h3 style={{ fontSize: 12.5, fontWeight: 700, margin: "4px 0 6px" }}>
+                    Drift by class — only the first row is migration work
+                  </h3>
+                  <div style={{ overflowX: "auto", marginBottom: 14 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
+                      <thead><tr><Head>Class</Head><Head align="right">Count</Head><Head>Disposition</Head></tr></thead>
+                      <tbody>
+                        {uiux.classes.map((c: { key: string; label: string; value: number; action: string }) => (
+                          <tr key={c.key}>
+                            <Cell>{c.label}</Cell>
+                            <Cell>{c.value}</Cell>
+                            <Cell>{c.action}</Cell>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <h3 style={{ fontSize: 12.5, fontWeight: 700, margin: "4px 0 6px" }}>Route matrix</h3>
+                  <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+                    {uiux.routeMatrix.total} routes · {uiux.routeMatrix.exported} exported ·{" "}
+                    {uiux.routeMatrix.redirects} redirects · {uiux.routeMatrix.internalPruned} internal pruned from the
+                    public export ({uiux.routeMatrix.internalRoutes.join(", ")}) ·{" "}
+                    {uiux.routeMatrix.navSources} navigation sources,{" "}
+                    {uiux.routeMatrix.navOffContract} off the shared contract ·{" "}
+                    {uiux.routeMatrix.orphans} orphans (internal by design)
+                  </p>
+
+                  {uiux.queue.length > 0 ? (
+                    <>
+                      <h3 style={{ fontSize: 12.5, fontWeight: 700, margin: "4px 0 6px" }}>
+                        Next migration work — reachable files only, ranked
+                      </h3>
+                      <ul style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: "0 0 14px", paddingLeft: 18 }}>
+                        {uiux.queue.map((q: { file: string; drift: number }) => (
+                          <li key={q.file}><code>{q.file}</code> — {q.drift}</li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : null}
+
+                  <h3 style={{ fontSize: 12.5, fontWeight: 700, margin: "4px 0 6px" }}>Evidence</h3>
+                  <ul style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: 0, paddingLeft: 18 }}>
+                    {uiux.evidenceRefs.map((r: string) => (<li key={r}>{r}</li>))}
+                  </ul>
+                </>
+              )}
             </section>
 
             {/* ── Model registry — the four-sport private research index, rendered VERBATIM ── */}
