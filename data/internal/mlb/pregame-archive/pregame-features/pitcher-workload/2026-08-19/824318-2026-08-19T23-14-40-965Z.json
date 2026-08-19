@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824318,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T23:14:40.965Z",
+  "availableAt": "2026-08-19T23:14:40.965Z",
+  "eventStartTime": "2026-08-20T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607536,
+      "name": "Kyle Freeland",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 5,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32.67,
+        "ipAvg": 6.53,
+        "kAvg": 3.8,
+        "bbAvg": 1.8,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 5.23,
+        "workloadIpLast5": 32.67
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 120.67,
+        "k": 98,
+        "bb": 27,
+        "er": 84,
+        "hr": 22
+      }
+    },
+    "away": {
+      "id": 808963,
+      "name": "Roki Sasaki",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 5.6,
+        "bbAvg": 2.4,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 8.4,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 111,
+        "k": 108,
+        "bb": 45,
+        "er": 55,
+        "hr": 21
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T23:14:40.965Z"
+  },
+  "recordHash": "9c24cfe7ee0dbd1205338400f0cf7435ec90dedc1b170cb79544870c6d4260eb"
+}
