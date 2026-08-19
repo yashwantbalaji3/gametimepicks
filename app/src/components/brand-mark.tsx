@@ -44,6 +44,19 @@ interface Props {
 }
 
 const LOGO_SRC = "/brand/gametime-picks-logo.png";
+/* WebP first: same 600px mark at 88 KB against the PNG's 383 KB, on an asset that loads on every
+   page. The PNG stays the canonical source and the <img> fallback, so nothing depends on WebP. */
+const LOGO_SRC_WEBP = "/brand/gametime-picks-logo.webp";
+
+/*
+ * The mark's own proportions, from the committed asset (600x450).
+ *
+ * Hardcoding a ratio means a new logo silently renders stretched or leaves a gap until someone
+ * remembers this line — the previous mark was 1672x941 (1.78) and this one is 1.33, a stacked
+ * lockup rather than a wide one. A guard asserts these numbers against the real file.
+ */
+const LOGO_W = 600;
+const LOGO_H = 450;
 
 export default function BrandMark({
   variant = "lockup",
@@ -62,21 +75,27 @@ export default function BrandMark({
   const showImage = !isMonogramOnly && !useFallback && !imgErrored;
 
   if (showImage) {
-    // Heights tuned per variant. Width derived from the real 1672x941
-    // logo aspect ratio to avoid layout shift.
-    const height = isRail ? 88 : isHero ? 72 : isCompact ? 30 : 42;
-    const width = Math.round((height * 1672) / 941);
+    /*
+     * Heights tuned per variant. The mark is a STACKED lockup — vault above wordmark — so it needs
+     * more height than the previous wide one to keep the wordmark legible: at the old 42px the
+     * words sat at roughly 18px of that, which is under-set for a brand mark.
+     */
+    const height = isRail ? 104 : isHero ? 88 : isCompact ? 40 : 54;
+    const width = Math.round((height * LOGO_W) / LOGO_H);
     return (
       <span className="gtp-brand-lockup inline-flex items-center gap-2 align-middle">
-        <img
-          src={LOGO_SRC}
-          alt="GameTime Picks"
-          width={width}
-          height={height}
-          className="gtp-logo-img"
-          onError={() => setImgErrored(true)}
-          draggable={false}
-        />
+        <picture>
+          <source srcSet={LOGO_SRC_WEBP} type="image/webp" />
+          <img
+            src={LOGO_SRC}
+            alt="GameTime Picks"
+            width={width}
+            height={height}
+            className="gtp-logo-img"
+            onError={() => setImgErrored(true)}
+            draggable={false}
+          />
+        </picture>
         {marker && (
           <span
             className="font-mono tracking-[0.18em] uppercase"

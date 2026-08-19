@@ -33,9 +33,11 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/brand/gametime-picks-logo.png",
-        width: 1672,
-        height: 941,
+        /* The flattened social card, not the transparent mark: scrapers composite transparency
+           onto WHITE, where a dark chrome logo with a green glow largely disappears. */
+        url: "/brand/gametime-picks-og.png",
+        width: 1200,
+        height: 630,
         alt: "GameTimePicks — simulation-powered sports analytics (public beta)",
       },
     ],
@@ -45,7 +47,7 @@ export const metadata: Metadata = {
     title: "GameTimePicks — Simulation-Powered Sports Analytics",
     description:
       "10,000-run game simulations and market comparisons. Explore probabilities — paper-only, educational, public beta.",
-    images: ["/brand/gametime-picks-logo.png"],
+    images: ["/brand/gametime-picks-og.png"],
   },
   robots: {
     index: true,
