@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824155,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T19:18:32.609Z",
+  "availableAt": "2026-08-19T19:18:32.609Z",
+  "eventStartTime": "2026-08-20T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 814490,
+      "name": "Ethan Pecko",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 700712,
+      "name": "Walbert Ureña",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 4.8,
+        "bbAvg": 2.2,
+        "erAvg": 1.2,
+        "hrAvg": 0.2,
+        "kPer9": 8.2,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 106,
+        "k": 100,
+        "bb": 54,
+        "er": 32,
+        "hr": 6
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T19:18:32.609Z"
+  },
+  "recordHash": "d023568e4b3658a81061fb8420b5f35e3b64852f60aa5bd3d6ced4232d5c7999"
+}

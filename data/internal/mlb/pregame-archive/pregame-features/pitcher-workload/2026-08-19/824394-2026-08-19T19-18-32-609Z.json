@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824394,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T19:18:32.609Z",
+  "availableAt": "2026-08-19T19:18:32.609Z",
+  "eventStartTime": "2026-08-19T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 800048,
+      "name": "Parker Messick",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 6.4,
+        "bbAvg": 0.8,
+        "erAvg": 1.4,
+        "hrAvg": 0.8,
+        "kPer9": 9.49,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 142.33,
+        "k": 142,
+        "bb": 40,
+        "er": 41,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 683363,
+      "name": "Matt Wilkinson",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T19:18:32.609Z"
+  },
+  "recordHash": "14628716fb7ff87405558864436b3335841516494789b4130bf7572e46848d19"
+}
