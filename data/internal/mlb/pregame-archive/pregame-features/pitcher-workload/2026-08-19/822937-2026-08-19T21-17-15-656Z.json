@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822937,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T21:17:15.656Z",
+  "availableAt": "2026-08-19T21:17:15.656Z",
+  "eventStartTime": "2026-08-19T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656876,
+      "name": "Drew Rasmussen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 7,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 7,
+        "bbAvg": 1.2,
+        "erAvg": 0.8,
+        "hrAvg": 0,
+        "kPer9": 10.5,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 129.33,
+        "k": 133,
+        "bb": 23,
+        "er": 40,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 453286,
+      "name": "Max Scherzer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 6,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.33,
+        "ipAvg": 4.47,
+        "kAvg": 4.2,
+        "bbAvg": 1.8,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 8.46,
+        "workloadIpLast5": 22.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 41,
+        "k": 31,
+        "bb": 17,
+        "er": 30,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T21:17:15.656Z"
+  },
+  "recordHash": "d30c6033f4ba8794316b1908652e2903e26d52439091f6274ebff1b30401a24c"
+}

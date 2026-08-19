@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823424,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T21:17:15.656Z",
+  "availableAt": "2026-08-19T21:17:15.656Z",
+  "eventStartTime": "2026-08-19T22:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 605400,
+      "name": "Aaron Nola",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 6,
+        "bbAvg": 2.2,
+        "erAvg": 2.4,
+        "hrAvg": 1.4,
+        "kPer9": 10,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 130,
+        "k": 138,
+        "bb": 46,
+        "er": 77,
+        "hr": 30
+      }
+    },
+    "away": {
+      "id": 645261,
+      "name": "Sandy Alcantara",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 5,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 34,
+        "ipAvg": 6.8,
+        "kAvg": 4.6,
+        "bbAvg": 1.8,
+        "erAvg": 1.2,
+        "hrAvg": 0.6,
+        "kPer9": 6.09,
+        "workloadIpLast5": 34
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 170.67,
+        "k": 130,
+        "bb": 46,
+        "er": 65,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T21:17:15.656Z"
+  },
+  "recordHash": "5f998f626d501e9fbc200ba14a2668c8c20c817f44fd84a11e9d1b9e93c131f5"
+}
