@@ -590,17 +590,18 @@ not hide the settlement.**
 | 7 | F — settled receipts keep their outcome on a phone | `13a92671a` |
 | 8 | G — the schedules directory stops overclaiming absence | `55dc07e93` |
 | 9 | H — learn/trust cluster audited, nothing to fix | `a3d1f6504` |
+| 10 | I — UI/UX audit rendered on the operator console | `f625616b4` |
 
 ## Not started
 
-**I** protected operator console · **J** cross-site assurance and reset.
+**J** cross-site assurance and reset.
 
-Release I is a substantial build — an Azure-style operator console with global health, incidents,
-sprint lanes, a department x sport completion matrix, drillable evidence cards and a 1280/1440
-working-session layout. It is not something to start without the context to finish, test, deploy
-and verify it, so it was not started.
+Release I shipped the part the charter names specifically — the UI/UX evidence the console was
+missing. Its fuller ask (filterable, drillable cards with owner, priority, dependency, age and
+acceptance test; completion percentages derived from receipts) is a larger build on the existing
+work board and was not attempted.
 
-**The one part of I and J that WAS verified** is the public/private boundary they share, because it
+**The boundary I and J share, verified** is the public/private boundary they share, because it
 is a P0 and the check is cheap:
 
     /launch   present in source · ABSENT from out/ · noindex
