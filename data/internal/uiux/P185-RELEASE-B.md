@@ -588,11 +588,12 @@ not hide the settlement.**
 | 5 | D — Home / Simulate availability truth | `42a0856b4` |
 | 6 | E — Market Center reading key + Build header scope | `a1c426095` |
 | 7 | F — settled receipts keep their outcome on a phone | `13a92671a` |
+| 8 | G — the schedules directory stops overclaiming absence | `55dc07e93` |
 
 ## Not started
 
-**G** sport hubs · **H** Learn, trust, support · **I** protected operator console ·
-**J** cross-site assurance and reset.
+**H** Learn, trust, support · **I** protected operator console · **J** cross-site assurance and
+reset.
 
 ## Start here
 
@@ -613,7 +614,12 @@ not hide the settlement.**
    token; dE < 1.0 is the imperceptibility threshold. Each merge owes a screenshot review.
 4. `--vault-scrim-navy` (#161E3E) sits on a **conditional branch** of the game-report hero that did
    not render on the game inspected. Find the state that renders it first.
-5. **An internal audit label truncates 146px** on `/results` at 360
+5. **UFC's sport gate disagrees with what /ufc publishes.** The directory calls it SCHEDULE_ONLY
+   because its gate says so; the hub publishes a trained three-market model. P185 fixed the false
+   *sentence* and deliberately did NOT promote the gated state — `SIMULATION_READY and beyond
+   require their sport-gate stages`. Either the gate is behind or the hub is ahead; that is an
+   engineering/founder call.
+6. **An internal audit label truncates 146px** on `/results` at 360
    (`AUDIT SIGNAL · MARKET:BATTER_TOTAL_BASES`). Real, but not settlement-bearing, so the Release F
    guard deliberately does not cover it.
 
@@ -633,6 +639,10 @@ not hide the settlement.**
   invariant was stated exactly.
 - **Repoint failing guards, never weaken them.** Nine did this session; two caught real regressions.
 - **Assert against the BUILT export** where the claim is about what a visitor sees.
+- **A closed axis is closed for a reason.** Release G's first fix invented a coverage word to
+  describe UFC honestly — and thereby routed around the sport gate the axis exists to enforce. The
+  guard that caught it was right, and the correct fix was smaller: narrow the false sentence, leave
+  the gated claim alone, and raise the mismatch.
 
 ---
 
