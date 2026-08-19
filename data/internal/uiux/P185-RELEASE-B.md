@@ -1047,3 +1047,65 @@ first, then sport motifs; the shared layer now exists for them to build on.
 **Adoption.** These are primitives, not placements. Nothing on a route consumes them yet — putting
 `StadiumLights` behind a hero is a visual change on a live surface and owes the before/after
 screenshot review this programme has required of every visible change.
+
+---
+
+# B4 — the sport motifs
+
+All six the charter names, in the order it names them, now that the shared layer exists:
+**MLB diamond + pitch trail · NFL yard-line + drive path · NBA court + shot arc · EPL pitch +
+three-way · UFC octagon + tale-of-the-tape · NHL rink**.
+
+Same contract as the shared layer: SVG only, semantic tokens only, motion roles only. Each reads its
+own `--sport-*` accent, so a hub gets native character without any file inventing a colour. **Zero
+raw literals** — the census is unchanged.
+
+## A field diagram is geometry, not data
+
+All six are decoration and say so. None takes a score, a probability or a player: the guard asserts
+the **props type** contains no datum. The moment a motif renders a number it stops being a motif and
+has to be labelled and behave like `ProbabilityArc`, and keeping that line bright is the point.
+
+Each motif draws the *shape of its sport's question* rather than an outcome — a pitch trail going
+nowhere, a shot arc with no basket, a 1X2 bar group that is the shape a three-way market has.
+
+**NHL is deliberately the plainest, and that is measured.** The charter asks for "restrained
+NHL/rink treatment" because the sport is off-season with no live board, so a guard counts strokes
+and fails if the rink is ever busier than any other motif. A motif richer than the product behind it
+is the visual polish this programme spent nine releases removing.
+
+## A guard that false-positived on itself
+
+The "no data" check first matched any identifier and flagged `line(accent, pct)` — a local geometry
+helper. A guard that fires on its own file's internals teaches the next author to delete it, so it
+is scoped to the props type, which is the actual invariant.
+
+---
+
+# Pending decision · UFC's gate vs its hub — RESOLVED, and neither option was right
+
+The ticket offered two readings: the gate is behind, or `/ufc` publishes ahead of it. **Ran the
+gate. Neither.**
+
+    mlb   LIVE_ELIGIBLE
+    nfl   SCAFFOLDED
+    ufc   SCAFFOLDED      ← every stage PARTIAL, each with its own "PARTIAL, deliberately" note
+    epl   SCAFFOLDED
+    nba   SCAFFOLDED
+
+UFC's five gate stages — markets, schedule, identity, settlement, data, model — are **all PARTIAL,
+none PROVEN**, each with an explicit reason (paid ingests are CI-only so no capture has succeeded;
+replacement/cancellation lineage still unobserved; model activation OFF). `SCAFFOLDED` is exactly
+right, and `/ufc` publishing an experimental model that names its own baseline is *consistent* with
+it.
+
+**The real gap is in the coverage axis, not either surface.** `COVERAGE_STATES` offers
+`SCHEDULE_ONLY`, `DATA_READY`, `SHADOW_MODEL`, `SIMULATION_READY`, `PICKS_ELIGIBLE`,
+`PUBLIC_ACTIVE`, `OFF_SEASON`, `SOURCE_STALE`, `INCIDENT` — and **none of them means "published,
+experimental, pre-simulation-ready"**. `SHADOW_MODEL` ("internal research only") is wrong because
+the model is public; `SIMULATION_READY` is wrong because the gate says otherwise.
+
+So Release G's decision holds and is now explained rather than merely cautious: the false *sentence*
+was the fixable part, and the *state* could not be made accurate without a new axis value. Adding
+one is a schedule-contract change, which is the owner's call — and it would also give NFL and EPL a
+truthful state, since both are `SCAFFOLDED` too.
