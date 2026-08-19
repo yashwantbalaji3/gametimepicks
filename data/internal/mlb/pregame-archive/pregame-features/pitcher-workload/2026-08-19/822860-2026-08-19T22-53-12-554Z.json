@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822860,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T22:53:12.554Z",
+  "availableAt": "2026-08-19T22:53:12.554Z",
+  "eventStartTime": "2026-08-20T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 677958,
+      "name": "Kumar Rocker",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 5.2,
+        "bbAvg": 2.6,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 9,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 103.33,
+        "k": 90,
+        "bb": 44,
+        "er": 56,
+        "hr": 16
+      }
+    },
+    "away": {
+      "id": 676917,
+      "name": "Cade Cavalli",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 6.4,
+        "bbAvg": 1.8,
+        "erAvg": 1.4,
+        "hrAvg": 1.2,
+        "kPer9": 9,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 136.67,
+        "k": 151,
+        "bb": 41,
+        "er": 51,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T22:53:12.554Z"
+  },
+  "recordHash": "83334f4a518e145a4cc8e67a256326b9c9edbb250732debd7a3d8ad38854de74"
+}
