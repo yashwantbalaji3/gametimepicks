@@ -828,3 +828,87 @@ The charter's fuller ask — filterable, drillable cards with owner, priority, d
 acceptance test per item, and completion percentages derived from receipts — is a larger build on
 top of the existing work board. This release added the evidence the console was missing about the
 UI/UX programme itself, which is the part it named specifically.
+
+---
+
+# Release J — cross-site assurance and final acceptance
+
+## Classification: MATERIAL_PROGRESS
+
+Not COMPLETE. The charter reserves COMPLETE for *"every active public route passing route,
+responsive, comprehension, visual-system, motion/reduced-motion, asset, accessibility, truth and
+production gates"*. Ten of the programme's releases shipped; the visual-system gate is
+**21% migrated, not closed**, and four decisions remain open that are not mine to make. Claiming
+COMPLETE would be the exact overstatement this programme spent ten releases removing from the
+product.
+
+## Gate matrix — all green
+
+| gate | result |
+|---|---|
+| typecheck (cleared `.next`) | clean |
+| serial suite | **4,596 / 0** · 4 skipped |
+| production build | exit 0 · **253 exported HTML** |
+| public/private boundary | `/launch`, `/ops`, `/preview` **all pruned** from the export |
+| P185 e2e (3 engines) | **15 / 15** — shell, product viewports, color-mix on Chromium + WebKit + Firefox |
+
+## Every census rebuilt from the final tree
+
+| measure | P184 `eeff42d61` | final | delta |
+|---|---|---|---|
+| raw colour literals | 1,616 | **1,268** | **−348 (−21.5%)** |
+| · theme drift, live routes | *unmeasured* | 756 | the migration queue |
+| · theme drift, unreachable | *unmeasured* | 408 | adjudicate, not recolour |
+| · identity data | *counted as drift* | 89 | never migrate |
+| · mask stops | *counted as drift* | 8 | not a colour |
+| · illustration art | *counted as drift* | 7 | not themeable |
+| files carrying literals | 266 | 253 | −13 |
+| semantic tokens | 143 | 176 | +33 |
+| routes / exported | 55 / 47 | 55 / 47 | unchanged |
+| dead links | 1 | **0** | closed |
+| orphan routes | 4 | 4 | all internal, by design |
+| nav sources on the shared contract | 3 of 4 | **4 of 4** | footer joined |
+| components / single-call-site | 305 / 232 | 305 / 232 | unchanged — census is a lead, not a defect |
+| motion keyframes / reduced-motion blocks | 42 / 77 | 42 / 77 | unchanged |
+| suite | 4,564 / 0 | **4,596 / 0** | +32 tests |
+
+The ratchet ceiling was lowered to the final count in this release, so the artifact, the ceiling and
+the tree all reconcile.
+
+## Premises corrected by evidence
+
+1. **team-badge was not the worst offender.** 68 of its 72 literals are team brand colours.
+2. **Two of the four named offenders were unreachable dead code** — migrating them would have moved
+   a number and changed nothing a user sees.
+3. **Mask stops and SVG illustration fills are not theme values** — two further boundaries the flat
+   count conflated.
+4. **`--vault-gold-bright` held green.** A token whose name says gold and whose value is green is how
+   a retired palette survives a rebrand.
+5. **Every "obviously identical" hue pair was perceptible** — 1.5–13.5 dE, against a 1.0 threshold.
+6. **The mobile bar's abbreviation had existed and was silently lost** when the surface was derived
+   from the registry.
+7. **The homepage's "30 games simulation-ready today" was a pool size**, not an availability count.
+8. **A settled receipt truncated away its own outcome** on the record page at phone width.
+9. **`/sports` said UFC publishes nothing** while `/ufc` publishes a three-market model.
+
+## What is NOT closed
+
+**P1 — visual system.** 756 theme-drift literals remain on live routes. Ranked queue in the
+artifact; every reachable offender above 16 is migrated.
+
+**P1 — four open decisions, each with an owner who is not me.**
+
+| item | why it is not mine |
+|---|---|
+| 408 literals in unreachable components | retire-or-rewire is a capability decision |
+| two zero-opt-in theme islands | the charter stops for capability removal without parity |
+| UFC's gate vs its hub | promoting a gated coverage state needs the gate, or founder activation |
+| one quarantined date reddening system status forever | weakening a fail-closed integrity gate |
+
+**P2 — five named legacy hues** pending merge with screenshot review; one navy scrim on an
+unrendered conditional branch; an internal audit label truncating 146px on `/results` at 360.
+
+**Not attempted:** Release I's drillable-card build (owner/priority/dependency/age/acceptance per
+item, completion from receipts). Release B4's graphics-and-motion foundation — sport motifs, named
+motion roles — was not built; motion counts are unchanged from the baseline and this is the largest
+untouched section of the charter.
