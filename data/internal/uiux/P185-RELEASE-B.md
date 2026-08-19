@@ -589,11 +589,26 @@ not hide the settlement.**
 | 6 | E — Market Center reading key + Build header scope | `a1c426095` |
 | 7 | F — settled receipts keep their outcome on a phone | `13a92671a` |
 | 8 | G — the schedules directory stops overclaiming absence | `55dc07e93` |
+| 9 | H — learn/trust cluster audited, nothing to fix | `a3d1f6504` |
 
 ## Not started
 
-**H** Learn, trust, support · **I** protected operator console · **J** cross-site assurance and
-reset.
+**I** protected operator console · **J** cross-site assurance and reset.
+
+Release I is a substantial build — an Azure-style operator console with global health, incidents,
+sprint lanes, a department x sport completion matrix, drillable evidence cards and a 1280/1440
+working-session layout. It is not something to start without the context to finish, test, deploy
+and verify it, so it was not started.
+
+**The one part of I and J that WAS verified** is the public/private boundary they share, because it
+is a P0 and the check is cheap:
+
+    /launch   present in source · ABSENT from out/ · noindex
+    /ops      present in source · ABSENT from out/ · noindex
+    /preview  present in source · ABSENT from out/
+
+Capability intact, export clean. `prune-internal-routes.mjs` runs in the build and reports what it
+removed on every run.
 
 ## Start here
 
