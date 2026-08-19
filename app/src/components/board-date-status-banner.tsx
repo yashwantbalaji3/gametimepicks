@@ -149,17 +149,17 @@ export default function BoardDateStatusBanner({
             href={`/results/date/${date}`}
             className="font-mono shrink-0 transition-all hover:brightness-110"
             style={{
-              color: "#06091a",
+              color: "var(--vault-scrim-midnight)",
               fontSize: 10.5,
               textTransform: "uppercase",
               letterSpacing: "0.16em",
               textDecoration: "none",
               fontWeight: 600,
               background:
-                "linear-gradient(180deg, var(--vault-gold-bright), #d6a945)",
+                "linear-gradient(180deg, var(--vault-gold-bright), var(--vault-crown-alt))",
               padding: "7px 11px",
               borderRadius: 4,
-              boxShadow: "0 0 14px rgba(52, 211, 153, 0.30)",
+              boxShadow: "0 0 14px color-mix(in srgb, var(--vault-accent) 30%, transparent)",
             }}
           >
             View audit →
@@ -176,32 +176,32 @@ const STATE_CONFIG = {
   settled: {
     eyebrow: "Settled · graded against final box scores",
     fg: "var(--vault-gold-bright)",
-    bg: "linear-gradient(155deg, rgba(52, 211, 153, 0.12), rgba(52, 211, 153, 0.04))",
-    border: "rgba(52, 211, 153, 0.40)",
-    shadow: "0 6px 22px rgba(0, 0, 0, 0.30), 0 0 0 1px rgba(52, 211, 153, 0.10)",
+    bg: "linear-gradient(155deg, color-mix(in srgb, var(--vault-accent) 12%, transparent), color-mix(in srgb, var(--vault-accent) 4%, transparent))",
+    border: "color-mix(in srgb, var(--vault-accent) 40%, transparent)",
+    shadow: "0 6px 22px color-mix(in srgb, var(--vault-ink-black) 30%, transparent), 0 0 0 1px color-mix(in srgb, var(--vault-accent) 10%, transparent)",
   },
   // Live = energetic green with surrounding pulse glow (gtp-status-live-glow).
   live: {
     eyebrow: "Live tonight · today's slate",
     fg: "var(--vault-success)",
-    bg: "linear-gradient(155deg, rgba(74, 222, 128, 0.14), rgba(74, 222, 128, 0.04))",
-    border: "rgba(74, 222, 128, 0.42)",
-    shadow: "0 6px 22px rgba(0, 0, 0, 0.30)",
+    bg: "linear-gradient(155deg, color-mix(in srgb, var(--vault-success) 14%, transparent), color-mix(in srgb, var(--vault-success) 4%, transparent))",
+    border: "color-mix(in srgb, var(--vault-success) 42%, transparent)",
+    shadow: "0 6px 22px color-mix(in srgb, var(--vault-ink-black) 30%, transparent)",
   },
   // Upcoming = cool blue, calm.
   upcoming: {
     eyebrow: "Upcoming slate · projections arriving soon",
-    fg: "rgba(170, 205, 255, 1)",
-    bg: "linear-gradient(155deg, rgba(120, 175, 255, 0.10), rgba(120, 175, 255, 0.03))",
-    border: "rgba(120, 175, 255, 0.30)",
-    shadow: "0 6px 22px rgba(0, 0, 0, 0.30)",
+    fg: "var(--vault-info-bright)",
+    bg: "linear-gradient(155deg, color-mix(in srgb, var(--vault-info) 10%, transparent), color-mix(in srgb, var(--vault-info) 3%, transparent))",
+    border: "color-mix(in srgb, var(--vault-info) 30%, transparent)",
+    shadow: "0 6px 22px color-mix(in srgb, var(--vault-ink-black) 30%, transparent)",
   },
   // Lines pending = warm amber, calm.
   pending: {
     eyebrow: "Lines pending · projections arriving soon",
     fg: "var(--vault-warn-amber)",
-    bg: "linear-gradient(155deg, rgba(245, 195, 95, 0.10), rgba(245, 195, 95, 0.03))",
-    border: "rgba(245, 195, 95, 0.32)",
-    shadow: "0 6px 22px rgba(0, 0, 0, 0.30)",
+    bg: "linear-gradient(155deg, color-mix(in srgb, var(--vault-warn-alt) 10%, transparent), color-mix(in srgb, var(--vault-warn-alt) 3%, transparent))",
+    border: "color-mix(in srgb, var(--vault-warn-alt) 32%, transparent)",
+    shadow: "0 6px 22px color-mix(in srgb, var(--vault-ink-black) 30%, transparent)",
   },
 } as const;

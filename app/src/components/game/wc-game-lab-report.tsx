@@ -114,7 +114,7 @@ function SignalPill({ signal }: { signal: WcLeanSignal }) {
         color: SIGNAL_TONE[signal],
         border: `1px solid ${SIGNAL_TONE[signal]}`,
         fontSize: 8.5,
-        background: "rgba(255,255,255,0.02)",
+        background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)",
       }}
     >
       {SIGNAL_LABEL[signal]}
@@ -172,7 +172,7 @@ function ModelMarketCard({ r }: { r: WcLeanRow }) {
   return (
     <div
       className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-start justify-between gap-2">
         <LeanHeadline r={r} />
@@ -199,7 +199,7 @@ function SnapshotRow({ r }: { r: WcLeanRow }) {
   return (
     <div
       className="flex flex-col gap-1.5 rounded-[8px] px-3 py-2"
-      style={{ background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-rule)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-ink-black) 28%, transparent)", border: "1px solid var(--vault-rule)" }}
     >
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <div className="flex min-w-0 flex-col">
@@ -241,7 +241,7 @@ function BiggestLeanCard({ r, rank }: { r: WcLeanRow; rank: number }) {
   return (
     <div
       className="flex flex-col gap-1.5 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-baseline gap-2 min-w-0">
@@ -276,7 +276,7 @@ function SignalBucket({ label, tone, rows }: { label: string; tone: string; rows
   return (
     <div
       className="flex flex-col gap-1.5 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(255,255,255,0.015)", border: `1px solid ${tone}` }}
+      style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: `1px solid ${tone}` }}
     >
       <div className="flex items-baseline justify-between">
         <span
@@ -342,19 +342,19 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
         style={{
           border: "1px solid var(--vault-border-strong)",
           background:
-            "radial-gradient(120% 150% at 0% 0%, rgba(52, 211, 153, 0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(11, 18, 14,0.97) 100%)",
+            "radial-gradient(120% 150% at 0% 0%, color-mix(in srgb, var(--vault-accent) 10%, transparent) 0%, transparent 55%), linear-gradient(135deg, color-mix(in srgb, var(--vault-scrim-navy) 94%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-base) 97%, transparent) 100%)",
         }}
       >
         <div className="flex flex-wrap items-center gap-2">
           <span
             className="inline-flex items-center rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.12em]"
-            style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)", fontSize: 9, background: "rgba(217,164,65,0.10)" }}
+            style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)", fontSize: 9, background: "color-mix(in srgb, var(--vault-crown) 10%, transparent)" }}
           >
             Paper-only · educational
           </span>
           <span
             className="inline-flex items-center rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.12em]"
-            style={{ color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", fontSize: 9, background: "rgba(255,255,255,0.02)" }}
+            style={{ color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", fontSize: 9, background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)" }}
           >
             Odds-only · market read
           </span>
@@ -406,7 +406,7 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
       {view.marketCount === 0 ? (
         <div
           className="rounded-[12px] px-4 py-4"
-          style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}
+          style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)" }}
         >
           <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
             No priced markets are posted for this game yet — treated as a no-play here, never padded to look active. Markets post as the books price this slate.
@@ -476,7 +476,7 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
             {/* Prominent odds-only + regulation callout, above the bullets */}
             <div
               className="flex flex-col gap-1.5 rounded-[12px] px-3.5 py-3"
-              style={{ background: "rgba(52, 211, 153, 0.06)", border: "1px solid var(--gtp-bank-heat)" }}
+              style={{ background: "color-mix(in srgb, var(--vault-accent) 6%, transparent)", border: "1px solid var(--gtp-bank-heat)" }}
             >
               <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 9.5, fontWeight: 700 }}>
                 Odds-only model — market-implied, not an independent stat model
@@ -508,7 +508,7 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
               href={p.href}
               className="flex flex-col gap-1 rounded-[12px] px-3.5 py-3"
               style={{
-                background: "rgba(11, 18, 14,0.6)",
+                background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)",
                 border: "1px solid var(--vault-border)",
                 textDecoration: "none",
               }}
@@ -535,7 +535,7 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
       {/* 9 · Unavailable placeholders (intentional, premium — not broken) */}
       <section
         className="flex flex-col gap-2.5 rounded-[14px] px-4 py-4"
-        style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-border)" }}
+        style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-border)" }}
       >
         <div className="flex flex-col gap-0.5">
           <span className="font-mono uppercase tracking-[0.13em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
@@ -553,7 +553,7 @@ export default function WcGameLabReport({ view }: { view: WcGameLabView }) {
             <div
               key={u.label}
               className="flex flex-col gap-0.5 rounded-[10px] px-3 py-2.5"
-              style={{ background: "rgba(0,0,0,0.22)", border: "1px dashed var(--vault-rule)" }}
+              style={{ background: "color-mix(in srgb, var(--vault-ink-black) 22%, transparent)", border: "1px dashed var(--vault-rule)" }}
             >
               <span style={{ color: "var(--vault-text-mute)", fontSize: 12, fontWeight: 600 }}>
                 {dash(u.label)}

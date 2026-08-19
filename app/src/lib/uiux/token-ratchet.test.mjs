@@ -40,10 +40,10 @@ const APP = process.cwd();
  * Measured 2026-08-19 on main @ eeff42d61 + this release.
  */
 const CEILING = {
-  rawColorLiterals: 1464,
-  filesWithRawColors: 264,
-  themeDrift: 1367,
-  themeDriftReachable: 959,
+  rawColorLiterals: 1356,
+  filesWithRawColors: 259,
+  themeDrift: 1259,
+  themeDriftReachable: 851,
   identityData: 89,
   maskStops: 8,
 };

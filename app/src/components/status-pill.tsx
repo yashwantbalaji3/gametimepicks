@@ -60,8 +60,8 @@ const KIND_COLOR: Record<
   // live = energetic. Brighter dot, surrounding ring glow.
   live: {
     fg: "var(--vault-success)",
-    bg: "rgba(74, 222, 128, 0.14)",
-    border: "rgba(74, 222, 128, 0.42)",
+    bg: "color-mix(in srgb, var(--vault-success) 14%, transparent)",
+    border: "color-mix(in srgb, var(--vault-success) 42%, transparent)",
     dot: "var(--vault-success)",
     pulse: true,
     extraClass: "gtp-status-live-glow",
@@ -69,46 +69,46 @@ const KIND_COLOR: Record<
   // settled = authoritative. Crisp gold treatment, no animation.
   settled: {
     fg: "var(--vault-gold-bright)",
-    bg: "rgba(52, 211, 153, 0.12)",
-    border: "rgba(52, 211, 153, 0.42)",
+    bg: "color-mix(in srgb, var(--vault-accent) 12%, transparent)",
+    border: "color-mix(in srgb, var(--vault-accent) 42%, transparent)",
     dot: "var(--vault-gold-bright)",
     pulse: false,
   },
   // lines pending = warm amber. Dim, calm.
   linesPending: {
     fg: "var(--vault-warn-amber)",
-    bg: "rgba(245, 195, 95, 0.10)",
-    border: "rgba(245, 195, 95, 0.32)",
+    bg: "color-mix(in srgb, var(--vault-warn-alt) 10%, transparent)",
+    border: "color-mix(in srgb, var(--vault-warn-alt) 32%, transparent)",
     dot: "var(--vault-warn-amber)",
     pulse: false,
   },
   // upcoming = cool blue. Subtle.
   upcoming: {
-    fg: "rgba(170, 205, 255, 1)",
-    bg: "rgba(120, 175, 255, 0.10)",
-    border: "rgba(120, 175, 255, 0.30)",
-    dot: "rgba(170, 205, 255, 1)",
+    fg: "var(--vault-info-bright)",
+    bg: "color-mix(in srgb, var(--vault-info) 10%, transparent)",
+    border: "color-mix(in srgb, var(--vault-info) 30%, transparent)",
+    dot: "var(--vault-info-bright)",
     pulse: false,
   },
   // provider pending = neutral / muted. Reads "intentionally empty".
   providerPending: {
     fg: "var(--vault-text-mute)",
-    bg: "rgba(255, 255, 255, 0.05)",
-    border: "rgba(255, 255, 255, 0.12)",
+    bg: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)",
+    border: "color-mix(in srgb, var(--vault-wash-base) 12%, transparent)",
     dot: "var(--vault-text-mute)",
     pulse: false,
   },
   neutral: {
     fg: "var(--vault-text)",
-    bg: "rgba(255, 255, 255, 0.05)",
+    bg: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)",
     border: "var(--vault-border)",
     dot: "var(--vault-text)",
     pulse: false,
   },
   warn: {
     fg: "var(--vault-warn-amber)",
-    bg: "rgba(245, 195, 95, 0.12)",
-    border: "rgba(245, 195, 95, 0.34)",
+    bg: "color-mix(in srgb, var(--vault-warn-alt) 12%, transparent)",
+    border: "color-mix(in srgb, var(--vault-warn-alt) 34%, transparent)",
     dot: "var(--vault-warn-amber)",
     pulse: false,
   },

@@ -269,6 +269,28 @@
   --vault-risk: #EA580C;          /* caution orange */
   --vault-danger-hue: #E11D2A;    /* risk red */
 
+  /* Informational blue. The charter names "informational" as a semantic role and the product
+     had one in use as a raw literal on status banners and pills — never as a token. */
+  --vault-info: #78AFFF;
+  --vault-info-bright: #AACDFF;
+
+  /* MORE LEGACY HUES, from the status/badge cluster. Every one of these was measured against its
+     nearest canonical token with CIEDE2000 before being kept separate, because "close enough to
+     merge" is exactly the judgement that should not be made by eye:
+
+       --vault-warn-alt      vs --vault-warn     dE 2.87
+       --vault-crown-alt     vs --vault-crown    dE 2.54
+       --vault-scrim-cocoa   vs --vault-scrim-base   dE 5.70
+       --vault-scrim-midnight vs --vault-scrim-base  dE 11.69
+
+     dE < 1.0 is the threshold for "not perceptible to the human eye". NONE of these clear it, so
+     none can be silently folded into its neighbour — each merge is a visible change owing a
+     screenshot review. Naming them migrates the components without smuggling that change in. */
+  --vault-warn-alt: #F5C35F;
+  --vault-crown-alt: #D6A945;
+  --vault-scrim-cocoa: #0A0604;     /* brown-black, red/black era */
+  --vault-scrim-midnight: #06091A;  /* navy-black, pre-green era */
+
   /* Overlays. A wash lightens a surface, a scrim darkens it. */
   --vault-wash-base: #FFFFFF;
   --vault-scrim-base: #0B120E;    /* green-black — matches --lava-bg family */

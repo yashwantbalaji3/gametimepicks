@@ -130,3 +130,67 @@ and ticketed rather than changed blind.
 3. 408 drift literals sit in unreachable components. Classify before migrating: a component no
    route can reach is either dead code to retire deliberately or a wiring defect. Neither is fixed
    by recolouring it.
+
+---
+
+# Release B3 — status/badge and game/simulation clusters
+
+Migrated by cluster rather than by file count, per the charter.
+
+| measure | after B2 | after B3 | delta |
+|---|---|---|---|
+| raw colour literals | 1,464 | 1,356 | **−108** |
+| theme drift | 1,367 | 1,259 | −108 |
+| · on live routes | 959 | 851 | −108 |
+| files carrying literals | 264 | 259 | −5 |
+| semantic tokens | 164 | 170 | +6 |
+
+Cumulative from the P184 baseline: **1,616 → 1,356, −260 literals (−16.1%)**.
+
+| cluster | files | drift removed |
+|---|---|---|
+| status / badges | `board-date-status-banner`, `mlb/mlb-lean-row`, `status-pill` | 56 |
+| game / simulation | `game/mlb-full-game-report`, `game/game-simulation-runner`, `game/wc-game-lab-report` | 52 |
+
+## A role the product used but never named
+
+The status cluster carried an **informational blue** (`#78AFFF`, `#AACDFF`) as raw literals on
+status banners and pills. The charter lists "informational" among the semantic roles a token layer
+must cover; the product had the role in use and no token for it. Now `--vault-info` /
+`--vault-info-bright`.
+
+## Near-duplicate hues were measured, not eyeballed
+
+The obvious move in this cluster was to fold `#F5C35F` into `--vault-warn` (`#F0C75E`) and
+`#D6A945` into `--vault-crown` (`#D9A441`) — they look like the same colour typed twice. They are
+not. CIEDE2000 against the nearest canonical token, where dE < 1.0 is the threshold for "not
+perceptible to the human eye":
+
+| pair | dE | verdict |
+|---|---|---|
+| `#F5C35F` vs `--vault-warn` | 2.87 | visible |
+| `#D6A945` vs `--vault-crown` | 2.54 | visible |
+| `#7EE2A8` vs `#6EE7A8` | 2.10 | visible |
+| `#34A853` vs `--vault-accent-deep` | 5.62 | visible |
+| `#0A0604` vs `--vault-scrim-base` | 5.70 | visible |
+| `#46825A` vs `--vault-accent-deep` | 10.69 | visible |
+| `#06091A` vs `--vault-scrim-base` | 11.69 | visible |
+| `--vault-success` vs `--vault-accent` | 7.28 | visible |
+
+**Not one candidate clears the threshold.** Every merge that looked free is a visible change owing a
+screenshot review. So all of them were named and migrated pixel-identically, and none were folded.
+This is the measurement that turns "close enough" from a judgement into a number.
+
+## More stale fallbacks removed
+
+`var(--token, #fallback)` where the token is defined: the fallback is dead code, and in this repo it
+had drifted to a *different colour than the token it backs up*:
+
+    var(--vault-warn, #ea580c)          token is #F0C75E (gold) — fallback is ORANGE
+    var(--vault-success, #7ee2a8)       token is #4ADE80        — fallback is a different mint
+    var(--gtp-success-on-dark, #7ee2a8) token is #6EE7A8        — fallback is a different mint
+    var(--vault-gold-bright, #d9a441)   token is #34D399 (green)— fallback is GOLD
+    var(--lava-panel, #14100c)          token is #0F1512 (green-black) — fallback is BROWN-black
+
+Every one is a snapshot of a palette the product has since left. None could ever render, so removing
+them changes nothing and deletes a trap for the next reader.

@@ -382,7 +382,7 @@ export default function GameSimulationRunner({
     return (
       <section
         className="flex flex-col gap-1.5 rounded-[14px] px-4 py-4"
-        style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-border)" }}
+        style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-border)" }}
       >
         <Eyebrow color="var(--vault-text-faint)">Generate Simulation</Eyebrow>
         <span style={{ color: "var(--vault-text-mute)", fontSize: 13, fontWeight: 600 }}>
@@ -408,7 +408,7 @@ export default function GameSimulationRunner({
       {view.status === "stale" ? (
         <div
           className="flex flex-col gap-0.5 rounded-[12px] px-3.5 py-2.5"
-          style={{ background: "rgba(217,164,65,0.10)", border: "1px solid var(--vault-gold-bright)" }}
+          style={{ background: "color-mix(in srgb, var(--vault-crown) 10%, transparent)", border: "1px solid var(--vault-gold-bright)" }}
         >
           <Eyebrow>Stale simulation</Eyebrow>
           <span style={{ color: "var(--vault-text-mute)", fontSize: 11.5, lineHeight: 1.5 }}>
@@ -427,8 +427,8 @@ export default function GameSimulationRunner({
           style={{
             border: "1px solid var(--vault-border-strong)",
             background:
-              "radial-gradient(130% 150% at 50% 0%, rgba(52, 211, 153, 0.13) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.96) 0%, rgba(10,10,11,0.99) 100%)",
-            boxShadow: "0 22px 56px -28px rgba(0,0,0,0.78)",
+              "radial-gradient(130% 150% at 50% 0%, color-mix(in srgb, var(--vault-accent) 13%, transparent) 0%, transparent 55%), linear-gradient(140deg, color-mix(in srgb, var(--vault-scrim-slate) 96%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-neutral) 99%, transparent) 100%)",
+            boxShadow: "0 22px 56px -28px color-mix(in srgb, var(--vault-ink-black) 78%, transparent)",
           }}
         >
           {/* faint field-grid texture behind the CTA (decorative, motion-free) */}
@@ -437,7 +437,7 @@ export default function GameSimulationRunner({
             className="pointer-events-none absolute inset-0"
             style={{
               backgroundImage:
-                "linear-gradient(rgba(52, 211, 153, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(52, 211, 153, 0.05) 1px, transparent 1px)",
+                "linear-gradient(color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px)",
               backgroundSize: "28px 28px",
               opacity: 0.55,
               maskImage: "radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 82%)",
@@ -466,7 +466,7 @@ export default function GameSimulationRunner({
                 <span
                   key={label}
                   className="inline-flex items-center gap-1.5 rounded-[8px] px-2.5 py-1.5 font-mono uppercase tracking-[0.08em]"
-                  style={{ background: "rgba(10,10,11,0.5)", border: "1px dashed var(--vault-rule)", color: "var(--vault-text-faint)", fontSize: 9.5 }}
+                  style={{ background: "color-mix(in srgb, var(--vault-scrim-neutral) 50%, transparent)", border: "1px dashed var(--vault-rule)", color: "var(--vault-text-faint)", fontSize: 9.5 }}
                 >
                   <span aria-hidden style={{ fontSize: 8.5, opacity: 0.85 }}>🔒</span>
                   {label}
@@ -525,12 +525,12 @@ export default function GameSimulationRunner({
               are labelled explicitly as a MODEL PROJECTION, never a final/actual score. */}
           <section
             className="flex flex-col gap-2 rounded-[14px] px-5 py-4"
-            style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 140% at 0% 0%, rgba(46,160,102,0.10) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.94) 0%, rgba(10,10,11,0.98) 100%)" }}
+            style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--vault-accent-deep) 10%, transparent) 0%, transparent 55%), linear-gradient(140deg, color-mix(in srgb, var(--vault-scrim-slate) 94%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-neutral) 98%, transparent) 100%)" }}
           >
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.12em]"
-                style={{ color: "var(--gtp-success-on-dark, #7ee2a8)", border: "1px solid rgba(46,160,102,0.4)", fontSize: 9, background: "rgba(46,160,102,0.14)" }}
+                style={{ color: "var(--gtp-success-on-dark)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", fontSize: 9, background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)" }}
               >
                 <span aria-hidden>✓</span> Simulation complete
               </span>

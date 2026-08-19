@@ -31,8 +31,8 @@ const pct = (p: number | null | undefined): string => (typeof p === "number" ? `
 const one = (n: number | null | undefined): string => (typeof n === "number" && Number.isFinite(n) ? n.toFixed(1) : "—");
 
 function Chip({ children, tone = "mute" }: { children: ReactNode; tone?: "ok" | "warn" | "mute" }) {
-  const color = tone === "ok" ? "var(--vault-success, #7ee2a8)" : tone === "warn" ? "var(--vault-warn, #ea580c)" : "var(--vault-text-mute)";
-  const border = tone === "ok" ? "rgba(46,160,102,0.4)" : tone === "warn" ? "rgba(234,88,12,0.4)" : "var(--vault-rule)";
+  const color = tone === "ok" ? "var(--vault-success)" : tone === "warn" ? "var(--vault-warn)" : "var(--vault-text-mute)";
+  const border = tone === "ok" ? "color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)" : tone === "warn" ? "color-mix(in srgb, var(--vault-risk) 40%, transparent)" : "var(--vault-rule)";
   return (
     <span className="font-mono uppercase tracking-[0.1em] rounded-full px-2.5 py-1" style={{ fontSize: 9, color, border: `1px solid ${border}` }}>
       {children}
@@ -98,7 +98,7 @@ function MiniHistogram({ bins, accent = "var(--vault-gold)", label }: { bins: { 
 
 function StatTile({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
-    <div className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-[10px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-border)" }}>
       <span className="font-mono uppercase tracking-[0.1em] block" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{label}</span>
       <span className="font-display block" style={{ color: "var(--vault-text)", fontSize: 20, fontWeight: 800, lineHeight: 1.1 }}>{value}</span>
       {sub ? <span className="font-mono block mt-0.5" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>{sub}</span> : null}
@@ -109,7 +109,7 @@ function StatTile({ label, value, sub }: { label: string; value: ReactNode; sub?
 /** One of the three primary market prediction cards (Moneyline / Total / Run Line). */
 function PredictionCard({ label, pick, prob, strength, unavailable }: { label: string; pick: string; prob: string; strength: string; unavailable?: string }) {
   return (
-    <div className="rounded-[12px] px-3 py-3 flex flex-col gap-1" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-[12px] px-3 py-3 flex flex-col gap-1" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-border)" }}>
       <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{label}</span>
       {unavailable ? (
         <>
@@ -135,7 +135,7 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
   const total = p.total;
   const rl = p.runLine;
   return (
-    <section className="rounded-[16px] px-4 py-4 flex flex-col gap-3" style={{ background: "linear-gradient(180deg, rgba(217,164,65,0.10), rgba(217,164,65,0.03))", border: "1px solid rgba(217,164,65,0.35)" }}>
+    <section className="rounded-[16px] px-4 py-4 flex flex-col gap-3" style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--vault-crown) 10%, transparent), color-mix(in srgb, var(--vault-crown) 3%, transparent))", border: "1px solid color-mix(in srgb, var(--vault-crown) 35%, transparent)" }}>
       <div className="flex items-baseline justify-between gap-2 flex-wrap">
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>GameTimePicks simulation read</span>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>from 10,000 simulated games · not validated to out-predict the market</span>
@@ -203,7 +203,7 @@ function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame
   const V = g.vocabulary ?? BASEBALL_VOCAB;
   const extras = g.extraInningsProbability != null ? Math.round(g.extraInningsProbability * N) : null;
   return (
-    <section className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+    <section className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Simulation outcomes · {int0(N)} complete games</div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         <StatTile label={`${awayCode} wins`} value={int0(awayWins)} sub={`of ${int0(N)} games`} />
@@ -215,7 +215,7 @@ function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame
           <div className="font-mono uppercase tracking-[0.1em] mb-1.5" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Most likely final scores</div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
             {g.finalScores.slice(0, 6).map((fs) => (
-              <div key={`${fs.away}-${fs.home}`} className="flex items-center justify-between rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+              <div key={`${fs.away}-${fs.home}`} className="flex items-center justify-between rounded-[8px] px-2.5 py-1.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-rule)" }}>
                 <span className="font-mono text-[12px]" style={{ color: "var(--vault-text)" }}>{awayCode} {fs.away} – {fs.home} {homeCode}</span>
                 <span className="font-mono" style={{ color: "var(--vault-gold)", fontSize: 10 }}>{Math.round(fs.probability * 100)}%</span>
               </div>
@@ -288,7 +288,7 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo }: { g
       </div>
 
       {/* Win probability */}
-      <section className="rounded-[14px] px-4 py-4" style={{ background: "rgba(217,164,65,0.05)", border: "1px solid rgba(217,164,65,0.25)" }}>
+      <section className="rounded-[14px] px-4 py-4" style={{ background: "color-mix(in srgb, var(--vault-crown) 5%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 25%, transparent)" }}>
         <div className="font-mono uppercase tracking-[0.12em] mb-2.5" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Win probability · 10,000 simulated games</div>
         <WinBar awayCode={awayCode} homeCode={homeCode} away={g.winProbability.away} home={g.winProbability.home} />
       </section>
@@ -306,13 +306,13 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo }: { g
 
       {/* Run line + team totals */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <div className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-border)" }}>
           <span className="font-mono uppercase tracking-[0.1em] block mb-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{V.spreadLabel} (from simulated margins)</span>
           <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>
             {favHomeRL ? homeCode : awayCode} −1.5 covers <strong style={{ color: "var(--vault-gold)" }}>{pct(favHomeRL ? rl15?.homeCover : rl15?.awayCover)}</strong> of the time
           </span>
         </div>
-        <div className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-border)" }}>
           <span className="font-mono uppercase tracking-[0.1em] block mb-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{V.overtimeLabel}</span>
           <span className="text-[13px]" style={{ color: "var(--vault-text)" }}>{pct(g.extraInningsProbability)} {V.overtimeClause}</span>
         </div>
@@ -334,10 +334,10 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo }: { g
       {g.market ? (
         <section className="rounded-[12px] overflow-hidden" style={{ border: "1px solid var(--vault-border)" }}>
           <div className="grid grid-cols-2">
-            <div className="px-4 py-2" style={{ background: "rgba(217,164,65,0.08)" }}>
+            <div className="px-4 py-2" style={{ background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)" }}>
               <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold)", fontSize: 9 }}>Our simulation</span>
             </div>
-            <div className="px-4 py-2" style={{ background: "rgba(255,255,255,0.03)", borderLeft: "1px solid var(--vault-border)" }}>
+            <div className="px-4 py-2" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", borderLeft: "1px solid var(--vault-border)" }}>
               <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-mute)", fontSize: 9 }}>Market snapshot (the book)</span>
             </div>
           </div>
@@ -358,7 +358,7 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo }: { g
             </div>
           ))}
           {prediction?.moneyline ? (
-            <div className="px-4 py-2 flex items-center justify-between" style={{ borderTop: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+            <div className="px-4 py-2 flex items-center justify-between" style={{ borderTop: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
               <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Relationship</span>
               <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>{prediction.moneyline.marketAgreement}</span>
             </div>
@@ -504,7 +504,7 @@ function Methodology({ g, meta }: { g: FullGameSimGame; meta: FullGameArtifactMe
         <strong style={{ color: "var(--vault-text)" }}>Inputs (all pregame, leakage-safe).</strong> Plate-appearance rates are derived from the public board&apos;s per-player projections: a batter&apos;s expected hits and total bases set the hit rate and extra-base split; the starting pitcher&apos;s strikeout projection sets the strikeout rate; walks use a league prior. Nothing is read from the sportsbook market or from any post-first-pitch source.
       </p>
       <p className="m-0">
-        <strong style={{ color: "var(--vault-warn, #ea580c)" }}>Honest limitations.</strong> Batting order is a documented fallback (lineups are not posted pregame); batter strikeout and walk rates use league priors; park, weather, and handedness effects are not modeled (they do not exist pregame on the public surface). This is a transparent, internally-consistent simulation — it has <strong>not</strong> been validated to out-predict the market, and no such claim is made.
+        <strong style={{ color: "var(--vault-warn)" }}>Honest limitations.</strong> Batting order is a documented fallback (lineups are not posted pregame); batter strikeout and walk rates use league priors; park, weather, and handedness effects are not modeled (they do not exist pregame on the public surface). This is a transparent, internally-consistent simulation — it has <strong>not</strong> been validated to out-predict the market, and no such claim is made.
       </p>
       {g.completeness.notes.length ? (
         <div className="rounded-[10px] px-3 py-2" style={{ border: "1px solid var(--vault-rule)" }}>
@@ -616,8 +616,8 @@ export default function MlbFullGameReport({
 
 function UnavailableNote({ g }: { g: FullGameSimGame }) {
   return (
-    <div className="rounded-[12px] px-4 py-4" style={{ border: "1px solid rgba(234,88,12,0.35)", background: "rgba(234,88,12,0.06)" }}>
-      <span className="font-mono uppercase tracking-[0.12em] block mb-1" style={{ color: "var(--vault-warn, #ea580c)", fontSize: 9.5 }}>Full-game simulation not available</span>
+    <div className="rounded-[12px] px-4 py-4" style={{ border: "1px solid color-mix(in srgb, var(--vault-risk) 35%, transparent)", background: "color-mix(in srgb, var(--vault-risk) 6%, transparent)" }}>
+      <span className="font-mono uppercase tracking-[0.12em] block mb-1" style={{ color: "var(--vault-warn)", fontSize: 9.5 }}>Full-game simulation not available</span>
       <p className="text-[12px] m-0" style={{ color: "var(--vault-text-mute)" }}>{g.gameStory[0] ?? "Not enough pregame data to simulate this game."} The player-prop board is still available under Players &amp; Props.</p>
     </div>
   );
