@@ -40,11 +40,13 @@ export default function UpcomingSportsPage() {
       <p style={{ margin: "12px 0 0", fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))", maxWidth: 640 }}>
         Four sports we track toward coverage. Each section says exactly what exists today — the
         schedule source, when it was captured, or the specific reason nothing is published yet.
-        Two sports are simulated so far: the{" "}
-        <Link href="/mlb/" style={{ color: "var(--vault-gold)" }}>MLB Simulation Center</Link> and the{" "}
-        <Link href="/nfl/" style={{ color: "var(--vault-gold)" }}>NFL hub</Link>. Premier League, NBA
-        and UFC carry schedules only — simulation for those is not published yet, and each section
-        below names the specific blocker rather than promising a date.
+        The{" "}
+        <Link href="/mlb/" style={{ color: "var(--vault-gold)" }}>MLB Simulation Center</Link> is the
+        one fully modelled sport. The{" "}
+        <Link href="/nfl/" style={{ color: "var(--vault-gold)" }}>NFL</Link> and{" "}
+        <Link href="/ufc/" style={{ color: "var(--vault-gold)" }}>UFC</Link> hubs each state what
+        they publish and how experimental it is. Premier League and NBA carry schedules only, and
+        each section below names the specific blocker rather than promising a date.
       </p>
       <div style={{ marginTop: 24 }}>
         <UpcomingSportsSections sports={sports} />

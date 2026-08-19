@@ -88,11 +88,25 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
   }
   const page = read("src/app/sports/page.tsx");
   const shared = read("src/components/sports/upcoming-sports.tsx");
-  assert.match(page, /simulation for those is not published yet/, "the page still says which sports are not modelled");
+  assert.match(page, /schedules only/, "the page still says which sports are not modelled");
   assert.match(shared, /Schedule only — not modelled/, "coverage state is rendered in words, not implied by layout");
-  assert.match(shared, /no simulations, no predictions and no picks/, "every sport section closes with the explicit no-model line");
+  /*
+   * P185-G: this asserted the literal sentence "no simulations, no predictions and no picks ON THIS
+   * SITE" on every sport section. That sentence rendered under UFC, where /ufc publishes a
+   * three-market fight model — so the guard was pinning a claim that had become false for one sport.
+   *
+   * The INTENT is unchanged and is what is asserted now: every section states its coverage in
+   * rendered words rather than implying it by layout, and it does so WITHOUT making a site-wide
+   * negative claim the directory cannot vouch for. Where a sport has its own hub, it links there.
+   */
+  assert.match(shared, /This section is the schedule only\./,
+    "every sport section still closes with an explicit scope line");
+  assert.doesNotMatch(shared, /no simulations, no predictions and no picks on this site/,
+    "the directory may not assert site-wide that a sport publishes nothing");
+  assert.match(shared, /SPORT_HUB\[s\.sport\]/,
+    "a sport with its own hub links to it rather than being written off here");
   assert.match(page, /MLB Simulation Center/, "the modelled products are named so the contrast is explicit");
-  assert.match(page, /NFL hub/, "NFL is named as modelled now that it publishes simulations");
+  assert.match(page, /href="\/nfl\/"/, "NFL is named, now that it publishes simulations");
 });
 
 test("the ONE modelled sport keeps 'Simulation Center' framing; retired sport routes claim none", () => {

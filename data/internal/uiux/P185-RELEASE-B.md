@@ -633,3 +633,65 @@ not hide the settlement.**
   invariant was stated exactly.
 - **Repoint failing guards, never weaken them.** Nine did this session; two caught real regressions.
 - **Assert against the BUILT export** where the claim is about what a visitor sees.
+
+---
+
+# Release G — sport hubs
+
+The charter's rule here is that *"a schedule-only sport remains useful but does not masquerade as a
+simulation product."* The defect found was the **mirror** of it — and the fix is smaller than the
+defect, deliberately.
+
+## /sports contradicted /ufc
+
+| surface | says |
+|---|---|
+| `/sports` | UFC tile: **"Schedule only — not modelled"** and *"This sport has no simulations, no predictions and no picks on this site."* |
+| `/ufc` | *"Winner, method and finishing round for every bout on the next card"* — from *"a fight model trained on 8,642 decisive bouts, with each of its three markets tested separately against a base-rate baseline."* |
+
+Understating is safer than overstating, and it is still two public surfaces disagreeing.
+
+## What I nearly did, and why I did not
+
+My first fix promoted UFC's `coverage` out of `SCHEDULE_ONLY` and invented a state word for it.
+**A guard caught it** — `adapters.test.mjs` asserts *"coverage values from the closed axis only"* —
+and reading the contract showed exactly why that guard exists:
+
+> `SCHEDULE_ONLY` is a legitimate public state; **SIMULATION_READY and beyond require their
+> sport-gate stages**; `PUBLIC_ACTIVE` additionally requires founder activation.
+> — `src/lib/sports/schedule-contract.mjs`
+
+Coverage is a **gated** claim, and inventing a word outside the closed axis is precisely the route
+around the gate that closing the axis prevents. I had no evidence UFC had cleared those stages. The
+promotion was reverted in full.
+
+## What actually shipped
+
+The **sentence** was the falsifiable part, and it claimed something the page cannot vouch for:
+*"…no picks ON THIS SITE."* A schedules directory knows what is on the schedules directory:
+
+    This section is the schedule only. What is published for this sport, if anything,
+    is on its UFC hub.
+
+The intro no longer counts UFC among the schedule-only sports; it names MLB as the one fully
+modelled sport and says the NFL and UFC hubs each state what they publish and how experimental it
+is. **No coverage state changed.**
+
+## Raised, not papered over
+
+The gate-versus-hub mismatch is ticketed: either UFC's gate is behind and it should be run through
+its stages, or `/ufc` is publishing ahead of its gate. That is an engineering/founder call, not a UI
+release's.
+
+## Verified rather than changed
+
+- `/mlb` — Simulation Center, 15 games, 686 projections, category track record inline.
+- `/nfl` — "public beta", and *"this model picked winners no better than a coin flip"* on the hub.
+- `/epl` — *"publishing a number here would be a guess wearing a model's clothes."*
+- `/sports` NBA — off-season, reason named.
+
+## Guard
+
+`coverage-truth.test.mjs` — the directory makes no site-wide negative claim; the coverage axis stays
+closed and ungamed; and the built directory and built UFC hub do not contradict each other,
+conditional on the hub still publishing.

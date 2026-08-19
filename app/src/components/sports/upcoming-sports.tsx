@@ -55,6 +55,9 @@ const SOURCE_DISPLAY: Record<string, string> = {
   "committed-fixture-capture": "committed fixture capture",
 };
 
+/** Sports with their own hub, so a schedule section can point at what actually publishes. */
+const SPORT_HUB: Record<string, string> = { ufc: "/ufc/", nfl: "/nfl/", epl: "/epl/" };
+
 /** Coverage state → rendered words. State is carried by TEXT; color never carries meaning alone. */
 const COVERAGE_WORDS: Record<string, string> = {
   SCHEDULE_ONLY: "Schedule only — not modelled",
@@ -122,8 +125,33 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
         <p style={{ margin: "12px 0 0", fontSize: 12, color: "var(--text-mute)" }}>{s.resultsNote}</p>
       ) : null}
 
+      {/*
+        P185-G · THE SENTENCE MADE A SITE-WIDE CLAIM THIS PAGE CANNOT VERIFY.
+
+        It read "This sport has no simulations, no predictions and no picks ON THIS SITE" — and
+        rendered under UFC, where /ufc publishes winner, method and finishing round for every bout
+        on the next card from a model trained on 8,642 decisive bouts. Understating is the safer
+        direction than overstating and it is still a contradiction between two public surfaces.
+
+        The coverage STATE above is deliberately NOT touched. It is a gated claim — the schedule
+        contract says "SIMULATION_READY and beyond require their sport-gate stages" — and promoting
+        a sport past its gate from a UI release is precisely what that contract exists to prevent.
+        The mismatch between UFC's gate and UFC's hub is a real finding and is raised, not papered
+        over here.
+
+        What this sentence can honestly say is what THIS PAGE contains. Where a sport has its own
+        hub, the reader is sent there to see what it publishes.
+      */}
       <p style={{ margin: "12px 0 0", fontSize: 11.5, color: "var(--text-mute)" }}>
-        Schedule information only. This sport has no simulations, no predictions and no picks on this site.
+        This section is the schedule only.
+        {SPORT_HUB[s.sport] ? (
+          <>
+            {" "}What is published for this sport, if anything, is on its{" "}
+            <a href={SPORT_HUB[s.sport]} style={{ color: "var(--vault-gold)" }}>
+              {s.competitionLabel} hub
+            </a>.
+          </>
+        ) : null}
       </p>
     </section>
   );
