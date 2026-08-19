@@ -705,3 +705,46 @@ release's.
 `coverage-truth.test.mjs` — the directory makes no site-wide negative claim; the coverage axis stays
 closed and ungamed; and the built directory and built UFC hub do not contradict each other,
 conditional on the hub still publishing.
+
+---
+
+# Release H — Learn, trust and support
+
+**Audited, and almost entirely verified rather than changed.** All six surfaces already open with a
+plain-English purpose and the paper-only framing, and the charter's requirement that this cluster be
+a progressive learning path with a canonical glossary is already met by `/learn` → `/market-guide` →
+`/methodology`.
+
+| surface | opens with |
+|---|---|
+| `/learn` | *"A 2-minute guide for everyone — no betting background needed."* Numbered path: Today → Simulate → … |
+| `/market-guide` | *"What every number on the site means — in plain English."* |
+| `/methodology` | *"The models are intentionally explainable — no deep learning, no black boxes."* |
+| `/about` | *"…no sports-betting background required."* |
+| `/responsible-use` | *"not a tipster · not a betting advisory"* |
+| `/system-status` | *"Every stage below reports for itself. The overall state is the worst of them — we do not average a failure away behind four successes."* |
+
+`/system-status` meets the charter's state-vocabulary rule outright. It distinguishes healthy from
+withheld per stage, and the withheld state is explained in full:
+
+> This slate's board was built before a data-integrity guard was in place, and two halves of a
+> doubleheader could not be told apart. Rather than grade predictions against the wrong game, we
+> left the date unsettled. It has no win/loss record and is excluded from every rate on this site.
+
+That names the date, the cause and the consequence. It is the standard the rest of the site is
+measured against, not a defect.
+
+## One structural observation, raised not changed
+
+2026-07-28 is **permanently** quarantined, so the "Latest settlement" stage reports Withheld forever
+— and under worst-of aggregation the **overall** status is Withheld forever, while the other four
+stages report OK and the newest settled slate is current.
+
+A headline that can never be green stops carrying information: a reader cannot separate *"a
+historical date is quarantined, everything current is fine"* from *"settlement is broken right
+now"*. But worst-of on an integrity gate is exactly the fail-closed behaviour that must not be
+weakened to make a badge look better. Ticketed for a decision rather than adjusted here.
+
+**No changes shipped in Release H.** Recording a release as "audited, nothing to fix" is a real
+outcome; manufacturing a change to show activity would be the failure mode this charter names when
+it says not to relitigate what already reconciles.
