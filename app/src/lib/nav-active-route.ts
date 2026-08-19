@@ -25,7 +25,10 @@ export type MobileNavBucket =
 export interface MobileNavItem {
   bucket: MobileNavBucket;
   href: string;
+  /** Full name. Stays the ACCESSIBLE name even when a shorter one is painted. */
   label: string;
+  /** What the thumb bar paints. Falls back to `label`. */
+  shortLabel: string;
 }
 
 /**
@@ -37,13 +40,13 @@ export interface MobileNavItem {
  *     a bottom-nav slot: they are the flagship money journeys and the user
  *     reaches each one-handed. Moonshot is a first-class product, not a
  *     sub-tab of Bank, so it carries its own bucket (was folded into "bank").
- *   - 7 items exceeds a single 360px row, so the bar is horizontally
- *     scrollable (see MobileBottomNav): the spine through Moonshot is visible
- *     without scrolling and Mr. Dub scrolls in at the trailing edge.
- *   - Labels MATCH the mobile top nav where the destination is the same:
- *     "Parlay Lab" (/picks), "Moonshot" (/moonshot). "Bank" is abbreviated for
- *     thumb-width. The bucket ids are route-resolution keys; only the visible
- *     labels are user-facing.
+ *   - SIX items, and they must FIT. P185 measured the bar at 390px: it overflowed by 75px with
+ *     "MR. DUB'S PORTFOLIO" rendering 132px against a 58px basis, so the trailing label sat
+ *     permanently half-cut behind a hidden scrollbar. The old hand-written list abbreviated
+ *     "Bank" for exactly this reason; deriving from the canonical list in P196 took `label`
+ *     verbatim and silently undid it. `shortLabel` carries that intent in the registry now.
+ *   - The bucket ids are route-resolution keys; only the visible labels are user-facing, and the
+ *     ACCESSIBLE name stays the full label.
  */
 /**
  * P196: derived from the canonical destination list. Every mobile destination also appears on the
@@ -54,6 +57,7 @@ export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = destinationsFor("m
   bucket: d.bucket as MobileNavItem["bucket"],
   href: d.href,
   label: d.label,
+  shortLabel: d.shortLabel ?? d.label,
 }));
 
 /**

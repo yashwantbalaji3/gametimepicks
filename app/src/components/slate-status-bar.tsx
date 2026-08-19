@@ -162,9 +162,14 @@ export default function SlateStatusBar() {
         <span style={{ color: "var(--vault-success)" }}>Settled</span>
         <span>· {fmtShort(latestSettled)}</span>
       </Chip>
-      <span className="ml-auto hidden sm:inline" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
-        Paper-only · educational
-      </span>
+      {/*
+        "Paper-only · educational" was dropped from this bar. DisclaimerBanner states the same thing
+        in the layout, directly ABOVE this strip — the two sat about forty pixels apart, so the first
+        viewport said "educational" twice before saying anything about tonight's games. The framing
+        is not weakened: it is still global, still above every page, and still repeated in context on
+        every product surface that makes a claim. This is the same call previous-hits.tsx made when
+        it dropped a per-rung "· paper-only tracking" under a page that already opened with it.
+      */}
     </div>
   );
 }

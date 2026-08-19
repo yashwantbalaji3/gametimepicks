@@ -16,6 +16,13 @@
  * lives here ONCE, each destination declares which surfaces carry it, and the surfaces render a
  * filtered view. Adding a page is one line, and it cannot land on one surface by accident.
  *
+ * ── The footer was the last surface off the list ─────────────────────────────────────────────────
+ * P185 found it still hand-maintained, and it had drifted exactly the way the three shells had
+ * before P196: it omitted UFC — a LIVE sport — along with EPL, Moonshot, Homer Nukes and Mr. Dub.
+ * Its own comment justified a short Coverage column by saying schedule-only leagues should not be
+ * listed, which is right and does NOT apply to sports that have real public destinations. So the
+ * footer derives from here too, and the sitemap the footer promises is the site that exists.
+ *
  * ── The four groups ─────────────────────────────────────────────────────────────────────────────
  * Ordered by the question a reader is actually asking:
  *   NOW      — what is on today, and what does the model say about it
@@ -27,7 +34,7 @@
 export type NavGroup = "now" | "sports" | "products" | "record";
 
 /** Which surfaces carry a destination. A destination must appear on at least one. */
-export type NavSurface = "top" | "rail" | "mobile";
+export type NavSurface = "top" | "rail" | "mobile" | "footer";
 
 export type NavDestination = {
   href: string;
@@ -40,6 +47,27 @@ export type NavDestination = {
   surfaces: readonly NavSurface[];
   /** Mobile bottom-bar bucket key, for active-route resolution. */
   bucket?: string;
+  /**
+   * Coverage state, painted beside the label in the footer sitemap.
+   *
+   * P185: the hand-written footer annotated its sports — "MLB · live", "NBA · settled archive",
+   * "Sports · schedules". Deriving the footer dropped those, and a guard caught it: a sitemap that
+   * lists MLB and UFC and EPL identically implies they are the same kind of thing, and they are not.
+   * The state is product truth, so it lives in the canonical list where every surface can read it
+   * rather than in one surface's markup. Every value here is sourced from what the tree already
+   * declares — the prior footer labels and each destination's own `desc`.
+   */
+  note?: string;
+  /**
+   * Short form for the mobile bottom bar ONLY, where six items share a thumb-width row.
+   * Measured at 390px: "Mr. Dub's Portfolio" renders 132px against a 58px basis and alone caused
+   * 74px of the bar's 75px overflow, leaving its own label permanently half-cut behind a hidden
+   * scrollbar — an affordance nobody can see is not an affordance.
+   *
+   * MUST be a prefix-or-subset of `label`, never a different word: the accessible name stays the
+   * full label, and WCAG 2.5.3 (Label in Name) requires the visible text to appear within it.
+   */
+  shortLabel?: string;
 };
 
 export const NAV_GROUP_LABEL: Record<NavGroup, string> = {
@@ -59,50 +87,71 @@ export const NAV_GROUP_LABEL: Record<NavGroup, string> = {
 export const NAV_DESTINATIONS: readonly NavDestination[] = [
   // ── NOW ────────────────────────────────────────────────────────────────────────────────────────
   { href: "/today", label: "Today", group: "now", glyph: "▤", desc: "Tonight's slate at a glance",
-    surfaces: ["top", "rail", "mobile"], bucket: "home" },
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "home" },
   { href: "/simulate", label: "Simulate", group: "now", glyph: "▶", desc: "Pick a game, run its report",
-    surfaces: ["top", "rail", "mobile"], bucket: "games" },
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "games" },
   { href: "/markets", label: "Market Center", group: "now", glyph: "◈", desc: "Sportsbook prices vs our sims",
-    surfaces: ["top", "rail"] },
+    surfaces: ["top", "rail", "footer"] },
   { href: "/build", label: "Build", group: "now", glyph: "✎", desc: "Build a card, or browse suggested ones",
-    surfaces: ["top", "rail", "mobile"], bucket: "lab" },
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "lab" },
 
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
-  { href: "/mlb", label: "MLB", group: "sports", glyph: "⚾", desc: "Baseball hub",
-    surfaces: ["top", "rail"] },
-  { href: "/nfl", label: "NFL", group: "sports", glyph: "🏈", desc: "Football hub · preseason simulations",
-    surfaces: ["top", "rail"] },
-  { href: "/ufc", label: "UFC", group: "sports", glyph: "🥊", desc: "Fight card + settled archive",
-    surfaces: ["top", "rail"] },
-  { href: "/epl", label: "Premier League", group: "sports", glyph: "⚽", desc: "Schedule · simulation pending",
-    surfaces: ["top", "rail"] },
+  { href: "/mlb", label: "MLB", note: "live", group: "sports", glyph: "⚾", desc: "Baseball hub",
+    surfaces: ["top", "rail", "footer"] },
+  { href: "/nfl", label: "NFL", note: "preseason", group: "sports", glyph: "🏈", desc: "Football hub · preseason simulations",
+    surfaces: ["top", "rail", "footer"] },
+  { href: "/ufc", label: "UFC", note: "fight card + archive", group: "sports", glyph: "🥊", desc: "Fight card + settled archive",
+    surfaces: ["top", "rail", "footer"] },
+  { href: "/epl", label: "Premier League", note: "schedule", group: "sports", glyph: "⚽", desc: "Schedule · simulation pending",
+    surfaces: ["top", "rail", "footer"] },
+  /* No `note`: the label already ends in "Schedules", and "Sports · Schedules · schedules" is
+     what a note that repeats its own label looks like. */
   { href: "/sports", label: "Sports · Schedules", group: "sports", glyph: "🗓", desc: "EPL · NFL · NBA · UFC schedules",
-    surfaces: ["top", "rail"] },
+    surfaces: ["top", "rail", "footer"] },
 
   // ── PRODUCTS ───────────────────────────────────────────────────────────────────────────────────
-  { href: "/bank-builder", label: "Bank Builder", group: "products", glyph: "▰", desc: "Conservative paper card",
-    surfaces: ["top", "rail", "mobile"], bucket: "bank" },
+  { href: "/bank-builder", label: "Bank Builder", shortLabel: "Bank", group: "products", glyph: "▰", desc: "Conservative paper card",
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "bank" },
   { href: "/moonshot", label: "Moonshot", group: "products", glyph: "🌙", desc: "High-risk paper longshots",
-    surfaces: ["top", "rail", "mobile"], bucket: "moonshot" },
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "moonshot" },
   // Revived 2026-08-17. The route was a retired redirect stub for six weeks because the provider
   // home-run feed it read had gone away; it now computes its own probability from StatsAPI, so it
   // is a destination again rather than a name in the archive.
   { href: "/homer-nukes", label: "Homer Nukes", group: "products", glyph: "💣", desc: "Today's five likeliest home runs",
-    surfaces: ["top", "rail"] },
-  { href: "/mr-dub", label: "Mr. Dub's Portfolio", group: "products", glyph: "✓", desc: "Paper bankroll journey",
-    surfaces: ["top", "rail", "mobile"], bucket: "mrdub" },
+    surfaces: ["top", "rail", "footer"] },
+  { href: "/mr-dub", label: "Mr. Dub's Portfolio", shortLabel: "Mr. Dub", group: "products", glyph: "✓", desc: "Paper bankroll journey",
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "mrdub" },
 
   // ── RECORD ─────────────────────────────────────────────────────────────────────────────────────
   { href: "/results", label: "Results", group: "record", glyph: "≡", desc: "Settled track record",
-    surfaces: ["top", "rail"] },
+    surfaces: ["top", "rail", "footer"] },
   { href: "/learn", label: "How It Works", group: "record", glyph: "✦", desc: "Start here",
-    surfaces: ["top", "rail"] },
+    surfaces: ["top", "rail", "footer"] },
   { href: "/methodology", label: "Methodology", group: "record", glyph: "◳", desc: "The model, in depth",
-    surfaces: ["rail"] },
+    surfaces: ["rail", "footer"] },
   { href: "/system-status", label: "System Status", group: "record", glyph: "◉", desc: "What is running right now",
-    surfaces: ["rail"] },
+    surfaces: ["rail", "footer"] },
   { href: "/about", label: "About", group: "record", glyph: "ⓘ", desc: "What this is",
-    surfaces: ["rail"] },
+    surfaces: ["rail", "footer"] },
+
+  // ── FOOTER-ONLY ────────────────────────────────────────────────────────────────────────────────
+  /*
+   * Depth, not wayfinding. These are destinations a reader goes looking for once — the market
+   * glossary, the research engine, the responsible-use statement, the deep audit, the settled NBA
+   * archive. Putting them in the top nav or the rail would dilute the four questions those surfaces
+   * answer; leaving them OUT of the canonical list is how the footer drifted in the first place.
+   */
+  { href: "/results/nba", label: "NBA", note: "settled archive", group: "sports",
+    desc: "NBA is HISTORICAL_ONLY — the record is real, the source is not live",
+    surfaces: ["footer"] },
+  { href: "/results/model-audit", label: "Deep-dive track record", group: "record",
+    desc: "Every settled receipt, in depth", surfaces: ["footer"] },
+  { href: "/market-guide", label: "Market Guide", group: "record",
+    desc: "How to read a price", surfaces: ["footer"] },
+  { href: "/research", label: "Research engine", group: "record",
+    desc: "What the model is being tested against", surfaces: ["footer"] },
+  { href: "/responsible-use", label: "Responsible use", group: "record",
+    desc: "Paper-only, educational, no stake is ever filled", surfaces: ["footer"] },
 ];
 
 /** Destinations carried by one surface, in canonical order. */

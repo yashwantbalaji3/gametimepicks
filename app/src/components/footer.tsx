@@ -4,9 +4,20 @@ import { formatTimestamp } from "@/lib/format";
 import FooterFreshness from "./footer-freshness";
 import BrandMark from "./brand-mark";
 import SupportEntry from "./support-entry";
+import { resolveSupportConfig } from "@/lib/support/support-config.mjs";
+import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
+
+const FOOTER_DESTINATIONS = destinationsFor("footer");
 
 export default function Footer() {
   const meta = getMeta();
+  /*
+   * Support is fail-closed by design: SupportEntry returns null unless a real destination is
+   * configured. Wrapping it in an unconditional <li> therefore shipped an EMPTY list item into the
+   * exported markup on every page. Read the same config the component reads, so the row is omitted
+   * rather than emptied.
+   */
+  const supportConfigured = resolveSupportConfig(process.env).enabled;
   // Phase 13: when the site is running in live mode, hide any "demo data"
   // entries from meta.dataSources so users don't see "demo data" listed
   // alongside a "live data" status — the previous behavior was confusing.
@@ -58,85 +69,56 @@ export default function Footer() {
           </span>
         </div>
 
-        {/* Secondary navigation — every destination not in the slim primary nav.
-            Casual users don't need to see these in the header; power users
-            still want them one click away. */}
+        {/*
+          Sitemap, DERIVED. P185 put the footer on the canonical destination list — it was the last
+          navigation surface still hand-maintained, and it had drifted the same way the three shells
+          had before P196: it omitted UFC, a LIVE sport, along with EPL, Moonshot, Homer Nukes and
+          Mr. Dub. A footer that promises a sitemap and lists two thirds of the site is worse than
+          no footer, because it reads as the complete answer.
+
+          Grouped by the registry's own four questions, so the footer, the rail and the top nav
+          describe one site rather than three.
+        */}
         <nav
           aria-label="Site map"
-          className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8 mb-10 text-[13px]"
+          className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 mb-10 text-[13px]"
           style={{ color: "var(--vault-text-mute)" }}
         >
-          <div>
-            <div
-              className="vault-quiet-label mb-3"
-              style={{ color: "var(--vault-text-faint)", letterSpacing: "0.06em" }}
-            >
-              Coverage
-            </div>
-            {/* One live sport, one settled archive — and nothing else. The schedule-only leagues (NHL,
-                IPL, WNBA, MLS) no longer have public destinations, so there is nothing here to label
-                "pending": a link that promises future coverage is still a promise. */}
-            <ul className="space-y-2 list-none p-0">
-              <li>
-                <Link href="/mlb" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
-                  MLB <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· live</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/results/nba" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
-                  NBA <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· settled archive</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/sports" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
-                  Sports <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· schedules</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/nfl" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
-                  NFL <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>· hub</span>
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <div
-              className="vault-quiet-label mb-3"
-              style={{ color: "var(--vault-text-faint)", letterSpacing: "0.06em" }}
-            >
-              Products
-            </div>
-            <ul className="space-y-2 list-none p-0">
-              <li><Link href="/simulate" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Simulate</Link></li>
-              <li><Link href="/today" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Today</Link></li>
-              <li><Link href="/bank-builder" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Bank Builder</Link></li>
-              <li><Link href="/results" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Results</Link></li>
-              <li>
-                <Link href="/results/model-audit" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
-                  Deep-dive track record
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <div
-              className="vault-quiet-label mb-3"
-              style={{ color: "var(--vault-text-faint)", letterSpacing: "0.06em" }}
-            >
-              Explore &amp; learn
-            </div>
-            <ul className="space-y-2 list-none p-0">
-              <li><Link href="/learn" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>How It Works</Link></li>
-              <li><Link href="/methodology" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Methodology</Link></li>
-              <li><Link href="/market-guide" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Market Guide</Link></li>
-              <li><Link href="/system-status" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>System status</Link></li>
-              <li><Link href="/research" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Research engine</Link></li>
-              <li><Link href="/responsible-use" style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>Responsible use</Link></li>
-              {/* Renders nothing unless a real support destination is configured — see SupportEntry.
-                  A dead "Contact support" link is worse than none, so there is no placeholder here. */}
-              <li><SupportEntry compact /></li>
-            </ul>
-          </div>
+          {(["now", "sports", "products", "record"] as const).map((group) => {
+            const items = FOOTER_DESTINATIONS.filter((d) => d.group === group);
+            if (!items.length) return null;
+            return (
+              <div key={group}>
+                <div
+                  className="vault-quiet-label mb-3"
+                  style={{ color: "var(--vault-text-faint)", letterSpacing: "0.06em" }}
+                >
+                  {NAV_GROUP_LABEL[group]}
+                </div>
+                <ul className="space-y-2 list-none p-0">
+                  {items.map((d) => (
+                    <li key={d.href}>
+                      <Link href={d.href} style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
+                        {d.label}
+                        {d.note ? (
+                          /* Coverage state. MLB and EPL are both sports and are NOT the same kind
+                             of thing; a sitemap that lists them identically implies they are. */
+                          <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{` \u00b7 ${d.note}`}</span>
+                        ) : null}
+                      </Link>
+                    </li>
+                  ))}
+                  {group === "record" && supportConfigured ? (
+                    /* Renders nothing unless a real support destination is configured — see
+                       SupportEntry. A dead "Contact support" link is worse than none, so there is
+                       no placeholder here — and no empty <li> either, which is what an
+                       unconditional wrapper left behind in the exported markup. */
+                    <li><SupportEntry compact /></li>
+                  ) : null}
+                </ul>
+              </div>
+            );
+          })}
         </nav>
 
         <div

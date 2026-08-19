@@ -1,6 +1,6 @@
 /**
  * MrDubAvatar — Mr. Dub's first-party character mark: a lab-coat scientist with goggles and a ledger
- * clipboard, in GameTime Picks lava colors. Pure inline SVG (no external/unlicensed assets), themable
+ * clipboard, on the GameTime Picks green/black identity. Pure inline SVG (no external/unlicensed assets), themable
  * via CSS variables, accessible (role=img + title). Used on the /mr-dub hero, nav, and link cards.
  */
 export default function MrDubAvatar({ size = 56, title = "Mr. Dub — paper-portfolio scientist" }: { size?: number; title?: string }) {
@@ -8,9 +8,16 @@ export default function MrDubAvatar({ size = 56, title = "Mr. Dub — paper-port
     <svg width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={title} xmlns="http://www.w3.org/2000/svg">
       <title>{title}</title>
       <defs>
+        {/*
+          P185 · the badge ring was RED -> GOLD, from the retired red/black/gold palette this file's
+          own docstring still named. The product is green/black and the ring's own stroke is already
+          --vault-accent, so the fill was arguing with its own outline. Only the red end changed:
+          gold is a real brand token here (Mr. Dub is the bankroll journey), red was the survivor.
+          Both stops are tokens now, so the ring follows the theme instead of pinning a dead one.
+        */}
         <linearGradient id="mrdub-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="rgba(225,29,42,0.30)" />
-          <stop offset="100%" stopColor="rgba(212,175,55,0.18)" />
+          <stop offset="0%" stopColor="color-mix(in srgb, var(--vault-accent) 30%, transparent)" />
+          <stop offset="100%" stopColor="color-mix(in srgb, var(--vault-crown) 18%, transparent)" />
         </linearGradient>
       </defs>
       {/* badge ring */}

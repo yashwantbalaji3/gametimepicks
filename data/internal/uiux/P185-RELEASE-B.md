@@ -255,3 +255,111 @@ and its badge ring is still a **red → gold** gradient (`rgba(225,29,42,.30)` �
 on a green/black product. Its two `var()` fallbacks pointed at the same retired palette
 (`var(--gtp-bank-heat,#e11d2a)` — token is green, fallback is RED). The dead fallbacks are removed;
 the ring itself is a visible change and is ticketed, not altered under cover of a token migration.
+
+---
+
+# Release C — global shell and navigation presentation
+
+The P184 baseline said navigation was "substantially healthy" and told this release to improve
+presentation rather than manufacture a rewrite. That held: the route graph needed no restructuring.
+What it did need was the two things the graph cannot see.
+
+## 1 · The footer was the last surface off the canonical list
+
+P196 put the top nav, command rail and mobile bar on one destination registry
+(`src/lib/navigation.ts`) precisely because three hand-maintained lists had drifted into different
+products. **The footer was never migrated**, and it had drifted the same way — while labelled
+`aria-label="Site map"`:
+
+| omitted from the "sitemap" | what it is |
+|---|---|
+| `/ufc` | **a LIVE sport** |
+| `/epl` | a live schedule hub |
+| `/moonshot` | a paper product |
+| `/homer-nukes` | a paper product |
+| `/mr-dub` | the bankroll journey |
+
+A footer that promises a sitemap and lists two thirds of the site is worse than no footer, because
+it reads as the complete answer.
+
+Its own comment justified the short Coverage column — *"a link that promises future coverage is
+still a promise"* — and that reasoning is right, but it is about **schedule-only leagues with no
+public destinations** (NHL, IPL, WNBA, MLS). It never justified omitting sports that have real live
+hubs. Adding them completes the footer's stated principle rather than overriding it.
+
+The footer now derives from `destinationsFor("footer")`, grouped by the registry's own four
+questions, so the footer, the rail and the top nav describe one site. Five footer-only destinations
+(`/market-guide`, `/research`, `/responsible-use`, `/results/model-audit`, `/results/nba`) joined the
+registry rather than staying hand-listed — leaving them out is how the drift started.
+
+Two guards added: the "surfaces are DERIVED" test now covers `footer.tsx`, and a new test fails if
+any canonical destination is missing from the sitemap.
+
+## 2 · The mobile bar clipped its last label, and no gate could see it
+
+Measured at 390px on the built export:
+
+    bar overflow          75px
+    "MR. DUB'S PORTFOLIO" 132px rendered, against a 58px basis  ← 74 of the 75px
+    "BANK BUILDER"         84px
+    tap targets            48px  (passing)
+
+The trailing label sat **permanently half-cut behind a hidden scrollbar** (`scrollbarWidth: none`).
+An affordance nobody can see is not an affordance.
+
+Every existing gate missed it, and each for a good reason: the page does **not** scroll horizontally
+(the bar is its own scroll container, so `scrollWidth == clientWidth` on the document), the
+structural a11y audit checks names and roles rather than geometry, and unit tests cannot measure
+pixels. It took a viewport measurement.
+
+**The abbreviation had existed and was silently lost.** `nav-active-route.ts` still documents
+*"'Bank' is abbreviated for thumb-width"* — the hand-written list had it. When P196 derived the bar
+from the registry it took `label` verbatim and undid it, and the comment describing the intent
+survived while the behaviour did not.
+
+So `shortLabel` now lives in the registry: `Bank Builder → Bank`, `Mr. Dub's Portfolio → Mr. Dub`.
+The **accessible name stays the full label** — WCAG 2.5.3 (Label in Name) requires the visible text
+to appear within the accessible name, or a voice-control user saying what they can see would not
+match the control. A guard asserts the short form is always a substring of the real one.
+
+Three guards added, and `e2e/p185-shell.spec.ts` asserts the real thing at real viewports:
+bar fits at 360 and 390, tap targets clear 44px, visible label ⊂ accessible name, the rendered
+sitemap carries every live sport and product, and no page scrolls horizontally at 360/390/768/1280/1440.
+
+## 3 · The one dead link, and the worse half of it
+
+`/nba/board` — a live CTA in `homepage-sports-rail.tsx` reading **"Open NBA projections"**. The
+route was retired with `/nba/power` when NBA became `HISTORICAL_ONLY`: the source has been failing
+since 2026-06-13 and there is no live projection capability.
+
+The broken href was the *lesser* defect. A working link to a live-looking NBA hub would have been a
+bigger lie than a 404. Both halves fixed: `→ /results/nba`, "See NBA settled results".
+
+**Dead links: 1 → 0.**
+
+## 4 · The first viewport said "educational" twice
+
+`DisclaimerBanner` renders globally in `app/layout.tsx`. `slate-status-bar` added
+"Paper-only · educational" about forty pixels below it — so the first viewport said it twice before
+saying anything about tonight's games. The status-bar copy is dropped; the framing is not weakened
+(still global, still above every page, still repeated in context on every product surface that makes
+a claim). This is the same call `previous-hits.tsx` already made when it dropped a per-rung
+"· paper-only tracking" under a page that already opened with it.
+
+## 5 · Not removed — two theme islands
+
+Release C lists "remove legacy theme islands". `.gtp-canvas` (a full warm light reading surface) and
+`[data-theme="premium-gold"]` have **zero opt-ins**. They were left in place anyway: the same charter
+says to preserve capability and to STOP for "destructive capability removal without parity", and a
+light reading theme is latent capability rather than dead decoration. Ticketed for an owner's call.
+
+## Acceptance
+
+| gate | result |
+|---|---|
+| route graph reconciled | 55 routes, 47 exported, unchanged |
+| dead links | **1 → 0** |
+| orphans | 4, all internal (`/launch`, `/ops`, `/preview/*`) — correct |
+| redirects one hop | 15/15, no chains |
+| internal leak | `/launch`, `/ops`, `/preview` pruned from export |
+| surfaces derived | 4/4 (top, rail, mobile, **footer**) |

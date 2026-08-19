@@ -196,8 +196,13 @@ function NbaTonight({
       spread={gameMarket?.spread ?? null}
       total={gameMarket?.total ?? null}
       moneyline={gameMarket?.moneyline ?? null}
-      ctaHref={`/nba/board?date=${date}`}
-      ctaLabel="Open NBA projections"
+      /* P185 · the baseline's ONE dead link. /nba/board was retired with /nba/power when NBA
+         became HISTORICAL_ONLY — the source has been failing since 2026-06-13 and there is no live
+         projection capability. The label was the worse half of the defect: "Open NBA projections"
+         promised a capability that does not exist, and a working href to a live-looking hub would
+         have been a bigger lie than the broken one. The honest destination is the settled archive. */
+      ctaHref="/results/nba"
+      ctaLabel="See NBA settled results"
       status="live"
     />
   );

@@ -146,9 +146,10 @@ export default function MobileBottomNav() {
     >
       <ul
         className="flex items-stretch gap-0.5 list-none px-1 py-1 overflow-x-auto"
-        // 7 buckets exceed one 360px row, so the bar scrolls horizontally: the
-        // spine through Moonshot is visible and Mr. Dub scrolls in at the edge.
-        // grow+shrink-0 lets the row fill wider screens yet scroll on narrow ones.
+        // Six buckets that FIT. Scrolling stays as the overflow escape hatch for very narrow
+        // screens, but it is no longer the design: a trailing label permanently half-cut behind a
+        // hidden scrollbar reads as a bug, not an affordance. grow+shrink-0 lets the row fill
+        // wider screens; shortLabel keeps each item near its 58px basis so it does not have to.
         style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
       >
         {MOBILE_NAV_ITEMS.map((item) => {
@@ -179,7 +180,7 @@ export default function MobileBottomNav() {
                     lineHeight: 1,
                   }}
                 >
-                  {item.label}
+                  {item.shortLabel}
                 </span>
               </Link>
             </li>

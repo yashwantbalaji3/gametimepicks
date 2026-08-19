@@ -6,9 +6,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import path from "node:path";
 import crypto from "node:crypto";
 
 const FOOTER = fs.readFileSync("src/components/footer.tsx", "utf8");
+const app = process.cwd();
+/** The rendered sitemap from the built export, when one exists. Null on a source-only run. */
+function builtSitemap() {
+  const f = path.join(app, "out", "today", "index.html");
+  if (!fs.existsSync(f)) return null;
+  const html = fs.readFileSync(f, "utf8");
+  const i = html.indexOf('aria-label="Site map"');
+  return i === -1 ? null : html.slice(i, i + 6000);
+}
 // House banned copy (whole words where ambiguous). "block"/"unlock" are fine.
 const BANNED = /\bguaranteed\b|\block\b|\bsafe\b|\bsafest\b|free money|can'?t lose|sure thing|risk-?free|easy money/i;
 
@@ -22,13 +32,31 @@ test("footer identity is no longer NBA-only", () => {
 
 // ── 2 · the footer surfaces the flagship products ────────────────────────────────────────────────
 test("footer links the flagship products (Simulate, Today, Bank Builder, Results)", () => {
-  assert.match(FOOTER, /href="\/simulate"[^>]*>Simulate</, "links Simulate");
-  assert.match(FOOTER, /href="\/today"[^>]*>Today</, "links Today");
-  assert.match(FOOTER, /href="\/bank-builder"[^>]*>Bank Builder</, "links Bank Builder");
-  assert.match(FOOTER, /href="\/results"[^>]*>Results</, "links Results");
-  // Methodology / How It Works stay reachable.
-  assert.match(FOOTER, /href="\/methodology"[^>]*>Methodology</, "links Methodology");
-  assert.match(FOOTER, /href="\/learn"[^>]*>How It Works</, "links How It Works");
+  /*
+   * P185 derived the footer from the canonical destination list, so these hrefs no longer appear
+   * literally in footer.tsx — the same move P196 made for the top nav, rail and mobile bar. The
+   * assertion is unchanged in intent and STRONGER in reach: it now checks the rendered sitemap
+   * where one exists, which proves what a visitor is served rather than what a source file says.
+   */
+  const built = builtSitemap();
+  const expected = [
+    ["/simulate", "Simulate"], ["/today", "Today"], ["/bank-builder", "Bank Builder"],
+    ["/results", "Results"], ["/methodology", "Methodology"], ["/learn", "How It Works"],
+  ];
+  if (built) {
+    for (const [href, label] of expected) {
+      // The static export writes trailing slashes.
+      assert.match(built, new RegExp(`href="${href}/?"[^>]*>${label}`), `links ${label}`);
+    }
+    return;
+  }
+  const registry = fs.readFileSync(path.join(app, "src/lib/navigation.ts"), "utf8");
+  for (const [href, label] of expected) {
+    assert.match(registry, new RegExp(`href: "${href}", label: "${label}"`), `${label} is a destination`);
+    // A destination the footer does not carry cannot appear in the sitemap.
+    const decl = registry.slice(registry.indexOf(`href: "${href}"`));
+    assert.match(decl.slice(0, decl.indexOf("},")), /"footer"/, `${label} carries the footer surface`);
+  }
 });
 
 // ── 3 · simulation-first, paper-only, same-output identity copy present ───────────────────────────

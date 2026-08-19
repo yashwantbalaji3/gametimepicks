@@ -29,13 +29,22 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
   // reader is asking, and `beforeDivider` is computed at the group boundary. What survives is the
   // real invariant: the simulate-first destinations lead the NOW cluster, never a paper product.
   for (const [href, label] of [["/today", "Today"], ["/simulate", "Simulate"]]) {
-    assert.match(nav, new RegExp(`href: "${href}", label: "${label}", group: "now"`),
-      `${label} leads the Now cluster`);
+    const decl = nav.slice(nav.indexOf(`href: "${href}"`));
+    const body = decl.slice(0, decl.indexOf("},"));
+    assert.match(body, new RegExp(`label: "${label}"`), `${label} keeps its label`);
+    assert.match(body, /group: "now"/, `${label} leads the Now cluster`);
   }
 
   // SECONDARY: `/bank-builder` opens the group (it carries the divider flag); the sport hubs + daily track
   // record follow it. Strategy-lab + sport surfaces are de-emphasized relative to the daily spine.
-  assert.match(nav, /href: "\/bank-builder", label: "Bank Builder", group: "products"/,
+  /*
+   * Matched on the FIELD, not on field ORDER. P185 added `shortLabel` between `label` and `group`
+   * and this regex broke — it was asserting the shape of the declaration rather than the invariant,
+   * which is that /bank-builder is a PRODUCT and therefore never leads the spine. That is what it
+   * checks now, so the next field to arrive does not fail it either.
+   */
+  const bankDecl = nav.slice(nav.indexOf('href: "/bank-builder"'));
+  assert.match(bankDecl.slice(0, bankDecl.indexOf("},")), /group: "products"/,
     "/bank-builder opens the Products cluster — a paper product never leads the spine");
   for (const href of ["/mlb", "/mr-dub"]) {
     const i = idx(`href: "${href}"`);
