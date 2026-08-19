@@ -503,3 +503,65 @@ support) · I (protected operator console) · J (cross-site assurance).
   stronger. Seven did this session. One of them (`legacy-route-hiding`) caught a genuine regression.
 - **Assert against the BUILT export where the claim is about what a visitor sees.** "File exists" is
   not "page says".
+
+---
+
+# Release E — Market Center and Build
+
+Most of what this release asks for was **already there and was left alone.** Market Center already
+opens by naming what each market can honestly show ("both sides, one side, or neither"), already
+labels rows `Model + market` / `Market only`, already renders a zero as a named answer — *"No ranked
+picks for 2026-08-18. That is the model's answer for this slate, not a missing update."* — and
+already carries a glossary covering every term on the page. Build already explains each empty tier
+in its own words (*"every card in this tier reused a leg already on the ladder, or ran past the
+five-leg cap"*). The charter says to preserve what works; two things did not.
+
+## 1 · The beginner comparison was one click away, at every viewport
+
+`how-to-read-markets.tsx` rendered as a single `<details>` with **no `open` attribute**. Its own
+file header says *"The worked example is the important part"* — and it was closed by default on
+desktop and mobile alike, together with the **only definition of `pp`** on a page where every
+difference cell renders a `pp` figure.
+
+The charter is explicit on both counts: the page must "open with a beginner comparison", and must
+not "leave unexplained 'pts' or columns". A collapsed disclosure fails the same way hover does — the
+reader has to already know to go looking.
+
+P141's density reasoning is preserved rather than argued with: **the full glossary stays collapsed**,
+so a returning reader still pays nothing for it. What moved out is the one sentence that makes the
+column legible, with the unit folded into it:
+
+    model 58.6% − market 66.6% = −8.0 pp
+    … the model is 8.0 percentage points lower than the market here — pp is the gap between two
+    percentages, not scoring points.
+
+Verified in the export by document order: the example now sits at byte 32,214 and the first
+`<details>` at 33,036.
+
+## 2 · A page header that described one section of the page
+
+`/build` derived **both** its status badge and its count chip from `pool` — the **advanced
+builder's** gated leg pool. That pool is legitimately empty on a slate where nothing clears the
+suggested-card gates, and the advanced builder says exactly that further down the page.
+
+Read at page level it badged the whole surface **"Data pending"** and printed **"0 Eligible legs"**
+directly above a risk ladder rendering **seven real legs across two tiers**. The reader is told the
+page is empty while looking at its cards.
+
+This is the same shape as both Release D findings: a number built for one scope, reused for a
+broader claim.
+
+| | before | after |
+|---|---|---|
+| status | `pool.length > 0 ? pregame : data_pending` | also considers the ladder's own card count |
+| chip | `Eligible legs` (page-level verdict) | `Advanced-builder legs` + `Suggested cards` |
+
+"Data pending" is now **absent** from the built page, and the advanced builder keeps its own honest
+empty state — which was always the right place for that fact.
+
+## Guards
+
+`reading-key-visibility.test.mjs` (4) and `build-header-scope.test.mjs` (3), comments stripped
+before scanning. Two assert against the BUILT export, including one checking the worked example
+precedes the first `<details>` in document order — `<details>` content is in the HTML whether open
+or closed, so a naive grep cannot tell the difference.

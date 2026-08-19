@@ -77,37 +77,52 @@ const TERMS: Term[] = [
 
 export default function HowToReadMarkets() {
   return (
+    <div className="flex flex-col gap-3">
+      {/*
+        P185-E · THE WORKED EXAMPLE IS NO LONGER BEHIND THE DISCLOSURE.
+
+        This file's own header says "the worked example is the important part" — and it was
+        collapsed by default at every viewport, desktop included. Meanwhile every row on the page
+        renders a `pp` figure whose ONLY definition lived inside the same closed element. The
+        charter's rule for this surface is that the page must OPEN with the beginner comparison and
+        must not "leave unexplained 'pts' or columns", and a reader who does not know to click a
+        summary never meets either.
+
+        P141's density reasoning still holds and is kept: the full glossary stays collapsed, so a
+        returning reader pays nothing for it. What moved out is the one sentence that makes the
+        column legible, plus the unit it is measured in.
+      */}
+      <div
+        className="rounded-lg px-3 py-3"
+        style={{ background: "color-mix(in srgb, var(--vault-ink-black) 28%, transparent)", border: "1px solid var(--vault-border)" }}
+      >
+        <p className="font-mono" style={{ color: "var(--vault-text)", fontSize: 12.5, lineHeight: 1.7 }}>
+          model <strong>58.6%</strong> − market <strong>66.6%</strong> = <strong>−8.0 pp</strong>
+        </p>
+        <p className="mt-2" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.6, maxWidth: "62ch" }}>
+          Our simulation puts this outcome at 58.6%. The sportsbook&rsquo;s price implies 66.6% once their
+          margin is removed. The model is 8.0 percentage points <em>lower</em> than the market here —
+          <strong> pp</strong> is the gap between two percentages, not scoring points.
+        </p>
+        <p className="mt-2" style={{ color: "var(--vault-text-faint)", fontSize: 11.5, lineHeight: 1.6, maxWidth: "62ch" }}>
+          A large difference is <strong>not</strong> automatically a good bet. It usually means our model is
+          missing something the market knows — our own settled record shows the model does not beat the
+          market overall. Treat the difference as a question worth asking, not an answer.
+        </p>
+      </div>
+
     <details
       className="rounded-xl"
-      style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.45)" }}
+      style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)" }}
     >
       <summary
         className="font-mono uppercase tracking-[0.14em] cursor-pointer px-4 py-3"
         style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
       >
-        How to read this page
+        Full reading key · every term on this page
       </summary>
 
       <div className="px-4 pb-4 pt-1 flex flex-col gap-4">
-        {/* The worked example first. It answers the question the glossary only answers piecemeal. */}
-        <div
-          className="rounded-lg px-3 py-3"
-          style={{ background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-border)" }}
-        >
-          <p className="font-mono" style={{ color: "var(--vault-text)", fontSize: 12.5, lineHeight: 1.7 }}>
-            model <strong>58.6%</strong> − market <strong>66.6%</strong> = <strong>−8.0 pp</strong>
-          </p>
-          <p className="mt-2" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.6, maxWidth: "62ch" }}>
-            Our simulation puts this outcome at 58.6%. The sportsbook&rsquo;s price implies 66.6% once their
-            margin is removed. The model is 8.0 percentage points <em>lower</em> than the market here.
-          </p>
-          <p className="mt-2" style={{ color: "var(--vault-text-faint)", fontSize: 11.5, lineHeight: 1.6, maxWidth: "62ch" }}>
-            A large difference is <strong>not</strong> automatically a good bet. It usually means our model is
-            missing something the market knows — our own settled record shows the model does not beat the
-            market overall. Treat the difference as a question worth asking, not an answer.
-          </p>
-        </div>
-
         <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
           {TERMS.map((t) => (
             <div key={t.term}>
@@ -122,6 +137,7 @@ export default function HowToReadMarkets() {
         </dl>
       </div>
     </details>
+    </div>
   );
 }
 

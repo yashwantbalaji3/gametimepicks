@@ -47,6 +47,8 @@ export default function BuildPage() {
   const dataRoot = path.join(process.cwd(), "public", "data");
   const ladderDate = currentSlateDate() ?? currentEtDate();
   const riskLadder = loadRiskLadder(dataRoot, ladderDate);
+  /* What the page can actually show today, independent of the advanced builder's own pool. */
+  const ladderCardCount = riskLadder?.cards?.length ?? 0;
   /* The precomputed 4x4 tier grid — server-resolved, so every reader with the same bankroll sees
      the same set and the mapping is auditable rather than re-derived per browser. */
   const tierGrid = loadTierGrid(dataRoot, "mlb");
@@ -69,11 +71,25 @@ export default function BuildPage() {
        * entry behind a scroll. That is backwards: the Lab is the way most readers should arrive, and
        * the full leg pool is the tool you graduate to.
        */}
+      {/*
+        P185-E · THE PAGE HEADER DESCRIBES THE PAGE, NOT ONE SECTION OF IT.
+
+        Both the status badge and the count were derived from `pool` — the ADVANCED BUILDER's gated
+        leg pool. That pool is legitimately empty on a slate where no projection clears the
+        suggested-card gates, and the advanced builder already says so in its own words further down
+        ("No eligible legs right now"). But reading it at page level badged the whole surface
+        "Data pending" and printed "0 Eligible legs" directly above a risk ladder rendering seven
+        real legs across two tiers. A reader is told the page has nothing while looking at its cards.
+
+        The status now reflects whether the PAGE has something to show, and the count says which
+        pool it is counting. The advanced builder's empty state is unchanged — it is the right place
+        for that fact.
+      */}
       <PicksSurfaceHeader
         eyebrow="Build"
         title="Parlay Lab"
-        status={pool.length > 0 ? "pregame" : "data_pending"}
-        counts={{ eligibleLegs: pool.length }}
+        status={pool.length > 0 || ladderCardCount > 0 ? "pregame" : "data_pending"}
+        counts={{ builderLegs: pool.length, suggestedCards: ladderCardCount }}
         primaryAction={{ label: "Advanced builder", href: "#advanced-builder" }}
         secondaryAction={{ label: "How it works", href: "/methodology" }}
         note="Tell it your daily paper bankroll and how much variance you can sit through, and it leads with the tier that matches — each carrying its own settled record. Swap any leg you do not like. Paper-only, and no stake is ever filled in for you."

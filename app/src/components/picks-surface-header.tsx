@@ -22,6 +22,8 @@ export interface PicksSurfaceHeaderProps {
     playerProps?: number;
     suggestedCards?: number;
     specials?: number;
+    /** The ADVANCED BUILDER's gated pool, labelled so a zero does not read as a page-level verdict. */
+    builderLegs?: number;
     eligibleLegs?: number;
     active?: number;
     pending?: number;
@@ -50,6 +52,10 @@ const COUNT_LABELS: Array<[keyof NonNullable<PicksSurfaceHeaderProps["counts"]>,
   ["playerProps", "Player props"],
   ["suggestedCards", "Suggested cards"],
   ["specials", "Specials"],
+  /* P185-E: "Eligible legs" read as a page-level verdict. It counts the ADVANCED BUILDER's pool,
+     which is empty on many slates while the page still has cards to show, so the label says which
+     pool it means. The old key stays for any surface still passing it. */
+  ["builderLegs", "Advanced-builder legs"],
   ["eligibleLegs", "Eligible legs"],
   ["active", "Active"],
   ["pending", "Pending"],
@@ -121,7 +127,7 @@ export default function PicksSurfaceHeader({
         <div className="relative mt-4 flex flex-wrap gap-2.5">
           {primaryAction ? (
             <Link href={primaryAction.href} className="vault-press rounded-full px-4 py-2 font-mono uppercase tracking-[0.1em]"
-              style={{ background: "var(--gtp-bank-heat)", color: "#170f0a", fontWeight: 700, fontSize: 11, textDecoration: "none" }}>
+              style={{ background: "var(--gtp-bank-heat)", color: "var(--vault-on-accent)", fontWeight: 700, fontSize: 11, textDecoration: "none" }}>
               {primaryAction.label}
             </Link>
           ) : null}
