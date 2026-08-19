@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824476,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T17:19:18.309Z",
+  "availableAt": "2026-08-19T17:19:18.309Z",
+  "eventStartTime": "2026-08-19T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 695505,
+      "name": "Chase Burns",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 6.6,
+        "bbAvg": 1.8,
+        "erAvg": 1.4,
+        "hrAvg": 0.2,
+        "kPer9": 10.48,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 131,
+        "k": 151,
+        "bb": 46,
+        "er": 36,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 669461,
+      "name": "Matthew Liberatore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 5.6,
+        "bbAvg": 1.6,
+        "erAvg": 3,
+        "hrAvg": 0.6,
+        "kPer9": 9.95,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 119,
+        "k": 116,
+        "bb": 44,
+        "er": 67,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T17:19:18.309Z"
+  },
+  "recordHash": "a80ac1fc461b16ff7593eec0004e15f20d73daf1d3105199e3ef2da2544b0148"
+}

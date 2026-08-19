@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824722,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T17:19:18.309Z",
+  "availableAt": "2026-08-19T17:19:18.309Z",
+  "eventStartTime": "2026-08-19T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 801139,
+      "name": "Payton Tolle",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 8.2,
+        "bbAvg": 1.2,
+        "erAvg": 1.8,
+        "hrAvg": 1,
+        "kPer9": 11.9,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 115,
+        "k": 128,
+        "bb": 31,
+        "er": 38,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 694297,
+      "name": "Brandon Pfaadt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 5,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33.67,
+        "ipAvg": 6.73,
+        "kAvg": 3.4,
+        "bbAvg": 1.2,
+        "erAvg": 0.4,
+        "hrAvg": 0,
+        "kPer9": 4.54,
+        "workloadIpLast5": 33.67
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 71.33,
+        "k": 41,
+        "bb": 13,
+        "er": 18,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T17:19:18.309Z"
+  },
+  "recordHash": "f8282ad9ae4b2fc2e77bc3317796367998a633eaf415947b21808b6824074b91"
+}

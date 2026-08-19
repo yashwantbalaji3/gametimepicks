@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823664,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T17:19:18.309Z",
+  "availableAt": "2026-08-19T17:19:18.309Z",
+  "eventStartTime": "2026-08-19T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 671737,
+      "name": "Taj Bradley",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.4,
+        "bbAvg": 3.2,
+        "erAvg": 2.8,
+        "hrAvg": 0.6,
+        "kPer9": 8.68,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 135.67,
+        "k": 151,
+        "bb": 59,
+        "er": 60,
+        "hr": 19
+      }
+    },
+    "away": {
+      "id": 700363,
+      "name": "AJ Smith-Shawver",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 21,
+      "lastStartDate": "2026-07-29",
+      "last5": {
+        "starts": 1,
+        "ipSum": 4.33,
+        "ipAvg": 4.33,
+        "kAvg": 4,
+        "bbAvg": 2,
+        "erAvg": 2,
+        "hrAvg": 0,
+        "kPer9": 8.31,
+        "workloadIpLast5": 4.33
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 4.33,
+        "k": 4,
+        "bb": 2,
+        "er": 2,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T17:19:18.309Z"
+  },
+  "recordHash": "5e81925d933dc489a3e40aea2adfa9a2ae53651aab9b178eeca9f5fcaf9cfb8d"
+}
