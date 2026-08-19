@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824640,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T15:21:59.476Z",
+  "availableAt": "2026-08-19T15:21:59.476Z",
+  "eventStartTime": "2026-08-19T18:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 605280,
+      "name": "Clay Holmes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 5,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 4.8,
+        "bbAvg": 2,
+        "erAvg": 2.2,
+        "hrAvg": 0.2,
+        "kPer9": 7.9,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 63.33,
+        "k": 49,
+        "bb": 21,
+        "er": 18,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 656794,
+      "name": "Sean Newcomb",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 5,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 2,
+        "ipSum": 4.33,
+        "ipAvg": 2.17,
+        "kAvg": 3,
+        "bbAvg": 0.5,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 12.46,
+        "workloadIpLast5": 4.33
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 4.33,
+        "k": 6,
+        "bb": 1,
+        "er": 0,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T15:21:59.476Z"
+  },
+  "recordHash": "ae802e2b6468f849ae6b35adaa5a0696ef67178881057964f83355d1f6a02ef4"
+}
