@@ -5213,3 +5213,25 @@ body {
      shown the Lab directly. */
   .gtp-vault { display: none; }
 }
+
+
+/* ==========================================================================
+   PROGRAM 185 · B4 — SHARED MOTIF KEYFRAMES
+   ==========================================================================
+   The only two keyframes the shared motifs need. Both are driven by MOTION ROLE
+   tokens rather than their own timings, so the reduced-motion contract reaches
+   them without a per-motif media query — the 77 hand-added blocks this
+   programme found are exactly what that avoids.
+
+   `gtp-motif-arc-draw` runs ONCE (`both`, no iteration count). A published
+   probability is a fixed artifact; an arc that redraws on every render implies
+   the number was resampled, which the charter bans outright. */
+@keyframes gtp-motif-breathe {
+  from { opacity: 0.72; }
+  to   { opacity: 1; }
+}
+
+@keyframes gtp-motif-arc-draw {
+  from { stroke-dasharray: 0 var(--gtp-arc-total); }
+  to   { stroke-dasharray: var(--gtp-arc-len) var(--gtp-arc-total); }
+}

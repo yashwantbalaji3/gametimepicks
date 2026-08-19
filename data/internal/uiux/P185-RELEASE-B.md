@@ -993,3 +993,57 @@ texture, data-grid depth) and **sport motifs** (MLB diamond, NFL yard-line, NBA 
 UFC octagon, NHL rink). The charter orders them "build shared motifs, *then* define sport motifs" —
 both sit on top of this foundation and neither is started. The 44 existing keyframes are also not
 yet migrated onto the roles; the contract exists and the next author has somewhere to migrate *to*.
+
+---
+
+# B4 — the shared graphic motifs
+
+All five the charter names, in one file, CSS and SVG only: **stadium-light ambience, score ribbon,
+probability arc, particle/noise texture, data-grid depth**. No image assets — a motif that needs a
+file is a motif that breaks when the file 404s, and there is no licensing surface.
+
+## They obey the systems this programme built
+
+- **Zero raw colour literals.** Every hue is a semantic token. The ratchet would have caught it
+  repo-wide, but decoration is the file most tempted, so the guard checks it directly.
+- **No invented timings.** Every animation names a motion role from the B4 contract; a guard fails
+  on any bare `ms`/`s` inside an `animation` shorthand. That is how the four near-identical easing
+  curves happened the first time.
+- **Reduced motion reaches them for free.** Because they read role tokens rather than their own
+  durations, the contract applies without a per-motif media query — which is precisely what the 77
+  hand-added blocks were.
+
+## The line between decoration and data
+
+Four are decoration: `aria-hidden`, `pointer-events: none`, no announcement.
+
+**`ProbabilityArc` is not.** It renders a real number, so it carries `role="img"` and an accessible
+label containing the value. And it repeats the distinction this programme kept finding:
+
+> A null probability draws **no fill at all** and renders an em dash. A zero-length arc reads as
+> "0% chance"; the honest statement for a missing value is "we do not have this".
+>
+> **Absent is not zero.**
+
+## Determinism, protected in the code
+
+The product publishes fixed artifacts, and the charter bans "fake reroll animation, arbitrary jitter
+or cosmetic differentiation". So:
+
+- No `Math.random`, no `Date.now` anywhere in the motifs.
+- The grain uses **`seed={7}`** — a fixed `feTurbulence` seed, so every reader sees the identical
+  texture, like everything else the product publishes.
+- The arc draws **once** (`both`, never `infinite`). An arc that redraws on every render implies the
+  number was resampled.
+
+A guard asserts each of those three.
+
+## Still not built
+
+**Sport motifs** — MLB diamond/pitch trail, NFL yard-line/drive path, NBA court/shot arc, EPL
+pitch/three-way, UFC octagon/tale-of-the-tape, restrained NHL rink. The charter orders shared motifs
+first, then sport motifs; the shared layer now exists for them to build on.
+
+**Adoption.** These are primitives, not placements. Nothing on a route consumes them yet — putting
+`StadiumLights` behind a hero is a visual change on a live surface and owes the before/after
+screenshot review this programme has required of every visible change.
