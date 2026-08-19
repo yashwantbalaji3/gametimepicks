@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824801,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T11:23:20.905Z",
+  "availableAt": "2026-08-19T11:23:20.905Z",
+  "eventStartTime": "2026-08-19T22:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 605135,
+      "name": "Chris Bassitt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 5,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 2.6,
+        "bbAvg": 2,
+        "erAvg": 2.8,
+        "hrAvg": 0.6,
+        "kPer9": 5.01,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 51.33,
+        "k": 30,
+        "bb": 24,
+        "er": 31,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 701542,
+      "name": "Will Warren",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 7,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4.4,
+        "bbAvg": 1.8,
+        "erAvg": 3,
+        "hrAvg": 1,
+        "kPer9": 8.25,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 117.33,
+        "k": 116,
+        "bb": 40,
+        "er": 58,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T11:23:20.905Z"
+  },
+  "recordHash": "262659084b2f9e1a655252ba7b5505d2a14c35cde2c8caa6bb08394ba1047cc8"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823342,
+  "date": "2026-08-19",
+  "capturedAt": "2026-08-19T11:23:20.905Z",
+  "availableAt": "2026-08-19T11:23:20.905Z",
+  "eventStartTime": "2026-08-19T16:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 694973,
+      "name": "Paul Skenes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 8,
+      "lastStartDate": "2026-08-11",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 7.2,
+        "bbAvg": 2.6,
+        "erAvg": 3,
+        "hrAvg": 0.6,
+        "kPer9": 12.3,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 134.67,
+        "k": 166,
+        "bb": 37,
+        "er": 58,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 695549,
+      "name": "Jackson Jobe",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 5,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 2,
+        "ipSum": 8.67,
+        "ipAvg": 4.33,
+        "kAvg": 4,
+        "bbAvg": 1,
+        "erAvg": 3,
+        "hrAvg": 1,
+        "kPer9": 8.31,
+        "workloadIpLast5": 8.67
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 8.67,
+        "k": 8,
+        "bb": 2,
+        "er": 6,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-19&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-19T11:23:20.905Z"
+  },
+  "recordHash": "1ad0dc9e624cbe975e91b698bbd982ec414faeb47bee22ea25779a8331e6a8ec"
+}

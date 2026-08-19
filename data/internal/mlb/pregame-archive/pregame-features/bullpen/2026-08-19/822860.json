@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 822860,
   "date": "2026-08-19",
-  "capturedAt": "2026-08-19T02:17:04.089Z",
-  "availableAt": "2026-08-19T02:17:04.089Z",
+  "capturedAt": "2026-08-19T11:23:21.971Z",
+  "availableAt": "2026-08-19T11:23:21.971Z",
   "eventStartTime": "2026-08-20T00:05:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,22 +20,75 @@
     "teamId": 140,
     "teamName": "Texas Rangers",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
-      "appearances": 5,
-      "pitches": 60,
+      "appearances": 3,
+      "pitches": 43,
       "relievers": [
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 695239,
+          "name": "Robby Ahlstrom",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
         {
           "id": 596001,
           "name": "Jakob Junis",
           "appearances": 1,
-          "pitches": 18,
-          "outs": 3,
+          "pitches": 3,
+          "outs": 1,
           "dates": [
-            "2026-08-16"
+            "2026-08-18"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 103,
+      "relievers": [
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-08-16",
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 596001,
+          "name": "Jakob Junis",
+          "appearances": 2,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-08-16",
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 695239,
+          "name": "Robby Ahlstrom",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-08-18"
           ]
         },
         {
@@ -59,16 +112,6 @@
           ]
         },
         {
-          "id": 641302,
-          "name": "Tyler Alexander",
-          "appearances": 1,
-          "pitches": 9,
-          "outs": 3,
-          "dates": [
-            "2026-08-16"
-          ]
-        },
-        {
           "id": 668390,
           "name": "Cole Winn",
           "appearances": 1,
@@ -86,14 +129,45 @@
     "teamId": 120,
     "teamName": "Washington Nationals",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 65,
+      "relievers": [
+        {
+          "id": 592866,
+          "name": "Trevor Williams",
+          "appearances": 1,
+          "pitches": 51,
+          "outs": 10,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 672442,
+          "name": "Yovanny Cruz",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 2,
-      "pitches": 35,
+      "appearances": 4,
+      "pitches": 100,
       "relievers": [
+        {
+          "id": 592866,
+          "name": "Trevor Williams",
+          "appearances": 1,
+          "pitches": 51,
+          "outs": 10,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
         {
           "id": 668820,
           "name": "Max Kranick",
@@ -113,15 +187,31 @@
           "dates": [
             "2026-08-16"
           ]
+        },
+        {
+          "id": 672442,
+          "name": "Yovanny Cruz",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 592866,
+        "name": "Trevor Williams",
+        "reason": "51 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-16,2026-08-17,2026-08-18) + feed/live box scores",
-    "capturedAt": "2026-08-19T02:17:04.089Z"
+    "capturedAt": "2026-08-19T11:23:21.971Z"
   },
-  "recordHash": "2a6a9203b96e446293c460b45cb3c00db82e49c9eb65a527a40959b880a0154d"
+  "recordHash": "18eef7ed05b235a43ec530fe632611bb37fda23f0a7932a7dee3909057156529"
 }
