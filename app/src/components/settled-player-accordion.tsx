@@ -68,7 +68,7 @@ export default function SettledPlayerAccordion({
     <details
       className="group rounded-[6px]"
       style={{
-        background: "rgba(11, 18, 14,0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
       open={defaultOpen}
@@ -215,7 +215,7 @@ function Chip({
       aria-label={ariaLabel}
       className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-[3px]"
       style={{
-        background: "rgba(11, 18, 14,0.45)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
         border: "1px solid var(--vault-rule)",
         color: tone,
         minWidth: 32,
@@ -299,7 +299,7 @@ function PickRow({ group }: { group: SettledPickGroup }) {
     <div
       className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_auto_auto] gap-2 items-center px-2 py-1.5 rounded-[4px]"
       style={{
-        background: kind === "pending" ? "rgba(11, 18, 14,0.30)" : "rgba(11, 18, 14,0.55)",
+        background: kind === "pending" ? "color-mix(in srgb, var(--vault-scrim-base) 30%, transparent)" : "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-rule)",
         opacity: kind === "pending" ? 0.85 : 1,
       }}
@@ -312,7 +312,7 @@ function PickRow({ group }: { group: SettledPickGroup }) {
           height: 22,
           borderRadius: 4,
           color: meta.tone,
-          background: "rgba(11, 18, 14,0.45)",
+          background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
           border: `1px solid ${meta.tone}`,
           fontSize: 11,
           lineHeight: 1,
@@ -321,8 +321,20 @@ function PickRow({ group }: { group: SettledPickGroup }) {
         {meta.icon}
       </span>
       <div className="min-w-0">
+        {/*
+          P185-F · WRAPS ON A PHONE, TRUNCATES ON A LAPTOP.
+
+          This line is a settled RECEIPT: player · matchup · market/threshold · final result. It was
+          `truncate` at every width, and measured on the built export it hid 111px at 390 and 141px
+          at 360 — enough to cut "Hits Over 0.5 · final 1" down to the player and the matchup. The
+          settlement outcome is the whole point of the row, and on the record page it was the part
+          that disappeared first.
+
+          Truncation is still right where the row fits on one line, so it applies from `sm` up; below
+          that the line wraps and keeps every field. No page-level horizontal scroll either way.
+        */}
         <div
-          className="font-mono truncate"
+          className="font-mono sm:truncate"
           style={{
             color: "var(--vault-text)",
             fontSize: 12,
@@ -345,8 +357,9 @@ function PickRow({ group }: { group: SettledPickGroup }) {
             </span>
           ) : null}
         </div>
+        {/* The second receipt line carries Actual — the settled number. Same rule as the first. */}
         <div
-          className="font-mono truncate"
+          className="font-mono sm:truncate"
           style={{
             color: "var(--vault-text-mute)",
             fontSize: 10,

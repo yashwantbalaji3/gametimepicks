@@ -565,3 +565,69 @@ empty state — which was always the right place for that fact.
 before scanning. Two assert against the BUILT export, including one checking the worked example
 precedes the first `<details>` in document order — `<details>` content is in the HTML whether open
 or closed, so a naive grep cannot tell the difference.
+
+---
+
+# Release F — products, portfolio, Results
+
+Most of this release was **already true and was left alone**, and one thing I nearly "fixed" was
+correct by design.
+
+## Verified rather than changed
+
+- Bank Builder opens with *"No qualified card today — Today's slate was checked in full and nothing
+  met the card's qualification policy. No card is published rather than forcing one."*
+- Moonshot states its own lifetime record as **0–7**: *"every Moonshot card settled so far has
+  lost … published as a transparent record of a high-variance approach that has not worked."*
+- Homer Nukes: *"this is a list, not a parlay. A 30% pick that does not land is the model behaving
+  as described."*
+- Results keeps pending / settled / exposure distinct and says *"a pending card is never counted as
+  a loss."*
+- The charter's "remove vague 'paused for days' copy" found nothing on a reachable surface. The one
+  live "paused" string is cycle-scoped with a reason.
+
+**The near-miss.** `/mr-dub` shows *"Latest settlement · 42 days ago"* beside *"No qualified card
+today"*, which looks like a stale product next to a site that settled through Aug 17. It is not:
+P144 built that pairing deliberately — the badge is the **protected history** (the last official
+grading of the $100→$10K journey) and the second marker is **current operations**. That is exactly
+the charter's *"current operations separate from protected history"*. This is money-adjacent display
+logic and it was verified before touching, not after.
+
+## The real finding: a receipt that hid its own outcome
+
+Measured across five viewports and seven product routes on the built export. Page-level horizontal
+scroll: **clean everywhere**. Inner clipping told a different story:
+
+    /results/ @360   a settled receipt hid 240px
+    /results/ @390   the same row hid ~111px
+
+The row is `player · matchup · market/threshold · final result`, and `· final N` is the **last
+child** — so it is the first thing `truncate` removes. On the record page, at phone width, the
+settlement outcome was the part that disappeared:
+
+    "Jackson Merrill · SD vs NYM · Hits + Runs + RBIs Over 1.5 · final 1"
+     └──────────────── visible ────────────────┘└─── hidden ───┘
+
+Fixed in `risk-section-drilldown.tsx` (and the same pattern in `settled-player-accordion.tsx`) by
+making truncation apply from `sm` up and letting the row **wrap** below it. Truncation is still
+right once the line fits; it is not right when it eats the result.
+
+## Two mistakes worth recording
+
+1. **I fixed the wrong component first.** `settled-player-accordion.tsx` had the same defect and was
+   worth fixing, but it was not the row rendering on `/results` — the DOM path showed a `<span>`
+   inside an `<li>`, and I had edited a `<div>`. A rebuild proved it: still 240px. The lesson is the
+   one this session keeps relearning — locate against the rendered DOM, not against a plausible
+   source match.
+2. **My first guard passed for the wrong reason.** It queried `div.font-mono` while the real element
+   is a `span`, so it went green against an export that still had the defect. Widening the selector
+   made it fail correctly at 240px. A guard that has never failed against the bug it describes has
+   not been tested.
+
+Then it over-caught: matching any dot-separated mono text flagged an internal audit label
+(`AUDIT SIGNAL · MARKET:BATTER_TOTAL_BASES`, 146px) — real truncation, but not the claim the test
+makes. The assertion now names its invariant exactly: **a row that reports how something settled may
+not hide the settlement.**
+
+`e2e/p185-product-viewports.spec.ts` — 6 tests: no horizontal scroll on five product routes at
+360/390/768/1280/1440, plus the settlement-line rule at both phone widths.

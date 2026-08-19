@@ -272,8 +272,17 @@ function LegLine({ leg, date }: { leg: DrilldownLeg; date: string | undefined })
       >
         {(leg.result ?? "—").slice(0, 6).toUpperCase()}
       </span>
+      {/*
+        P185-F · WRAPS ON A PHONE, TRUNCATES ON A LAPTOP.
+
+        This is a settled RECEIPT: player · matchup · market/threshold · final result. `· final N`
+        is the LAST child, so it is the first thing truncation removes — and measured on the built
+        export this row hid 240px at 360 and ~111px at 390, cutting the settled outcome off the
+        record page entirely. Truncation is still right once the line fits, so it applies from `sm`
+        up; below that the row wraps and keeps every field.
+      */}
       <span
-        className="font-mono truncate"
+        className="font-mono sm:truncate"
         style={{ color: "var(--vault-text)" }}
       >
         <span style={{ fontWeight: 600 }}>{leg.playerName}</span>
