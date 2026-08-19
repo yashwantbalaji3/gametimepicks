@@ -428,3 +428,78 @@ the denial trap repeatedly — reading prose that describes a refusal as though 
 - the built homepage may not claim more simulation-ready games than the built hub counts
 
 The last two read the BUILT export, because "file exists" is not "page says".
+
+---
+
+# RESUME ARTIFACT — exact state at the end of this session
+
+## Where the numbers stand
+
+| measure | P184 baseline | now | delta |
+|---|---|---|---|
+| raw colour literals | 1,616 | **1,276** | **−340 (−21.0%)** |
+| · theme drift | *(unsplit)* | 1,172 | — |
+| ·· **on live routes** | *(unmeasured)* | **764** | the number that matters |
+| ·· unreachable | *(unmeasured)* | 408 | do not migrate — adjudicate |
+| · identity data | *(counted as drift)* | 89 | never migrate |
+| · mask stops | *(counted as drift)* | 8 | not colours |
+| · illustration art | *(counted as drift)* | 7 | not themeable |
+| files carrying literals | 266 | 255 | −11 |
+| semantic tokens | 143 | 176 | +33 |
+| dead links | 1 | **0** | closed |
+| nav surfaces on the canonical list | 3 of 4 | **4 of 4** | footer joined |
+| suite | 4,564 / 0 | **4,580 / 0** | +16 tests |
+
+## Releases shipped
+
+| # | release | commit |
+|---|---|---|
+| 1 | B1/B2 — hue contract + four-offender proving batch | `3f055abf7` |
+| 2 | B3 — status/badge + game/simulation clusters | `739f2999f` |
+| 3 | B4 — ladders/products + illustration boundary | `dfaa4e8a8` |
+| 4 | C — global shell and navigation presentation | `a87f211ba` |
+| 5 | D — Home / Simulate availability truth | `42a0856b4` |
+
+## Start here next session
+
+1. Run `node scripts/uiux/baseline.mjs`. Compare to the table above; explain any movement.
+2. Run `npx tsx --test $(find src -name '*.test.mjs')` **serially**. Read `# fail`, not the exit code.
+3. `designSystem.migrationQueue` in the artifact is the ranked, REACHABLE work — it already
+   excludes dead components, identity data, mask stops and illustration art.
+
+Top of that queue: `game/mlb-game-lab-report` (14), `mlb/mlb-game-section` (14),
+`world-cup/structured-moonshot-section` (14), `board-date-rail` (13), `games/simulate-lobby` (13),
+`mlb/props-board` (13), `nav` (13). Every reachable offender **above 16** is already migrated.
+
+## Releases not started
+
+E (Market Center / Build) · F (products, portfolio, Results) · G (sport hubs) · H (Learn, trust,
+support) · I (protected operator console) · J (cross-site assurance).
+
+## Open, recorded rather than silently dropped
+
+1. **408 drift literals in unreachable components.** Each needs a retire-or-rewire decision, not a
+   recolour. `DualLadderBoard` (44) was deliberately removed from `/bank-builder` and a test asserts
+   it stays removed; removing the component must repoint that guard, never weaken it.
+2. **Two theme islands with zero opt-ins** — `.gtp-canvas`, `[data-theme="premium-gold"]`. Release C
+   lists "remove legacy theme islands", but the same charter stops for capability removal without
+   parity, and a light reading theme is latent capability. Owner's call: retire or adopt.
+3. **Five legacy hues named but not merged** — every candidate measured 1.5–13.5 dE against its
+   nearest canonical token, and dE < 1.0 is the imperceptibility threshold. Each merge is a visible
+   change owing a screenshot review.
+4. `--vault-scrim-navy` (#161E3E) is live on a **conditional branch** of the game report hero that
+   did not render on the game inspected. Find the state that renders it before deciding.
+
+## Method notes worth keeping
+
+- **Migrate with one token per HUE plus `color-mix()` at the call site**, never one token per
+  literal. `color-mix(in srgb, C p%, transparent)` is exactly `rgba(C, p/100)`, so the migration is
+  pixel-identical by construction. Guarded on all three engines by `e2e/p185-color-mix.spec.ts`.
+- **Measure CIEDE2000 before merging two hues.** Every "obviously the same colour" pair in this
+  repo failed the test.
+- **Strip comments before scanning source.** This repo's own guards say it has hit that trap
+  repeatedly; two more were added this session that would have tripped it.
+- **A guard that fails after a real improvement gets repointed, not deleted** — and usually ends up
+  stronger. Seven did this session. One of them (`legacy-route-hiding`) caught a genuine regression.
+- **Assert against the BUILT export where the claim is about what a visitor sees.** "File exists" is
+  not "page says".
