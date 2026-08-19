@@ -912,3 +912,84 @@ unrendered conditional branch; an internal audit label truncating 146px on `/res
 item, completion from receipts). Release B4's graphics-and-motion foundation — sport motifs, named
 motion roles — was not built; motion counts are unchanged from the baseline and this is the largest
 untouched section of the charter.
+
+---
+
+# B4 — the graphics and motion foundation
+
+Named in the Release J acceptance as the largest untouched section of the charter. Built now.
+
+## Measured first
+
+    44 keyframes                    (two duplicated outright)
+    0  named motion tokens          ← every animation hard-coded its own timing
+    77 reduced-motion blocks        added one at a time, reactively
+
+The same shape as the colour problem this programme opened with. Six interaction durations
+(120/160/180/200/220/240ms) that are **one intent typed six ways**, and **four near-identical
+decelerate curves**:
+
+    cubic-bezier(0.22, 0.61, 0.36, 1)   ×11
+    cubic-bezier(0.2,  0.8,  0.2,  1)   ×5
+    cubic-bezier(0.22, 1,    0.36, 1)   ×4
+
+## The role system
+
+Eleven roles, each carrying the five fields the charter asks for — duration, easing, distance,
+performance budget, reason to exist — plus a sixth: **`forbidden`**, what the role may *not* do. That
+field is load-bearing, because a role without a stated limit is one a future author will overuse.
+
+A role names the *reason* to move; the timing follows from the reason rather than from whoever wrote
+the component. It is the motion equivalent of one token per hue. `EASING` collapses the four
+decelerate curves to the one that was already most used.
+
+**`progress` has no constant duration on purpose** — its duration is *data*. A progress animation
+with a hard-coded length is a loading bar that lies.
+
+## Reduced motion is a contract, not an off-switch
+
+The charter's wording is precise and easy to half-follow: reduced mode *"removes nonessential
+spatial/looping movement but **keeps focus, progress, state and loading feedback understandable**"*.
+Blanket-disabling everything fails the second half — a user who asked for less motion still needs to
+know a control took focus and that work is running.
+
+| behaviour | roles |
+|---|---|
+| **keep** | `hover-focus`, `state-change`, `progress` — the motion *is* the feedback |
+| **shorten** | `disclosure` — direction survives, distance goes (220ms → 80ms) |
+| **remove** | entrance, exit, emphasis, number-transition, chart-draw, ambient, route-transition |
+
+## Determinism is protected in the contract
+
+This product publishes fixed artifacts, so the two roles that could smuggle in a false impression
+say so in their own definition, and a guard asserts the wording stays:
+
+> `number-transition` — **NEVER count up to a deterministic published number.** It implies the value
+> is being computed now; it was computed once and committed.
+>
+> `chart-draw` — never redraw on every re-render; repeated drawing implies resampling.
+>
+> `progress` — never loop on a finished or unavailable artifact to imply live work.
+
+## Guards
+
+- `motion-roles.test.mjs` — 7 tests: all eleven roles present with every field; **CSS is generated
+  from the contract so the two cannot drift**; reduced motion follows each role's declared
+  behaviour; progress has no constant duration; the determinism bans are still worded; one
+  decelerate curve; tokens live on `:root`.
+- `e2e/p185-motion-roles.spec.ts` — **9 assertions across Chromium, WebKit and Firefox**, with
+  reduced motion actually applied via a browser context rather than asserted from source.
+
+## A false pass, caught
+
+The easing test first passed on all three engines against an export built *before* the tokens
+existed — because an all-empty result is trivially "unique". Same failure as Release F's selector.
+The test now asserts each value is non-empty *before* asserting they agree.
+
+## Not built
+
+**Shared graphic motifs** (stadium-light ambience, score ribbon, probability arc, particle/noise
+texture, data-grid depth) and **sport motifs** (MLB diamond, NFL yard-line, NBA court, EPL pitch,
+UFC octagon, NHL rink). The charter orders them "build shared motifs, *then* define sport motifs" —
+both sit on top of this foundation and neither is started. The 44 existing keyframes are also not
+yet migrated onto the roles; the contract exists and the next author has somewhere to migrate *to*.

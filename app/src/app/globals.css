@@ -305,6 +305,82 @@
   --vault-scrim-neutral: #0A0A0B; /* untinted near-black */
   --vault-ink-black: #000000;     /* text shadows / hard scrims */
 
+  /* ==========================================================================
+     PROGRAM 185 · B4 — THE MOTION ROLE CONTRACT
+     ==========================================================================
+     Measured before it was written: 44 keyframes, ZERO named motion tokens, and
+     77 reduced-motion blocks added one at a time. Every animation hard-coded its
+     own timing, which is the same shape as the colour problem — six interaction
+     durations that are one intent typed six ways, and FOUR near-identical
+     decelerate curves (0.22/0.61/0.36/1 x11, 0.2/0.8/0.2/1 x5, 0.22/1/0.36/1 x4).
+
+     A role names the REASON to move; the timing follows from the reason instead
+     of from whoever wrote the component. Generated from
+     src/lib/uiux/motion-roles.mjs, which also carries each role's distance,
+     performance budget, reason to exist and — the load-bearing field — what it
+     is FORBIDDEN from doing. A guard fails if these drift apart.
+
+     `progress` has no constant duration on purpose: its duration is DATA. A
+     progress animation with a hard-coded length is a loading bar that lies. */
+  --motion-hover-focus-duration: 160ms;
+  --motion-hover-focus-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-state-change-duration: 200ms;
+  --motion-state-change-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-progress-duration: 0ms;
+  --motion-progress-easing: linear;
+  --motion-disclosure-duration: 220ms;
+  --motion-disclosure-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-entrance-duration: 420ms;
+  --motion-entrance-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-exit-duration: 160ms;
+  --motion-exit-easing: cubic-bezier(0.6, 0, 0.3, 1);
+  --motion-emphasis-duration: 900ms;
+  --motion-emphasis-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-number-transition-duration: 480ms;
+  --motion-number-transition-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-chart-draw-duration: 700ms;
+  --motion-chart-draw-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --motion-ambient-duration: 3200ms;
+  --motion-ambient-easing: cubic-bezier(0.6, 0, 0.3, 1);
+  --motion-route-transition-duration: 240ms;
+  --motion-route-transition-easing: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* ==========================================================================
+     REDUCED MOTION — a contract, not a blanket off-switch.
+     ==========================================================================
+     The charter: reduced mode "removes nonessential spatial/looping movement but
+     keeps focus, progress, state and loading feedback understandable". Turning
+     everything off fails the second half of that sentence — a user who asked for
+     less motion still needs to know a control took focus and that work is
+     running. So each role declares its own behaviour and this block follows it.
+
+     keep    → hover-focus, state-change, progress   (the motion IS the feedback)
+     shorten → disclosure                            (direction survives, distance goes)
+     remove  → everything spatial or looping */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    /* REMOVE — spatial and looping decoration. Nothing is lost but the flourish. */
+    --motion-entrance-duration: 0.01ms;
+    --motion-exit-duration: 0.01ms;
+    --motion-emphasis-duration: 0.01ms;
+    --motion-number-transition-duration: 0.01ms;
+    --motion-chart-draw-duration: 0.01ms;
+    --motion-ambient-duration: 0.01ms;
+    --motion-route-transition-duration: 0.01ms;
+
+    /* SHORTEN — the direction still says what opened; the distance was the flourish. */
+    --motion-disclosure-duration: 80ms;
+
+    /* KEEP — hover-focus, state-change and progress are unchanged ABOVE this block.
+       A user who asked for less motion still needs to know a control took focus and
+       that work is running. Removing those would fail the half of the rule that says
+       "keeps focus, progress, state and loading feedback understandable". */
+  }
+}
+
+:root {
   /* LEGACY HUES — pending unification, named so they can be found.
      These are real, distinct values still in live components. They are NOT
      merged into the canonical hues above in this release because merging them
