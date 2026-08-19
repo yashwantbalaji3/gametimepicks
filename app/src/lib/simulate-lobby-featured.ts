@@ -15,6 +15,12 @@
  *   • Ordering: current/upcoming by soonest date, then simulation coverage; the stale fallback by coverage.
  *     (Sprint 035 removed model-vs-market difference from ordering — it is inverted on settled results.)
  *   • Capped at `FEATURED_CAP` (5). `readyCount` is the total featurable count for honest "+N more" copy.
+ *   • `simulationsToday` is a DIFFERENT number and exists because the two were conflated. readyCount
+ *     is a POOL SIZE — it spans current AND upcoming, and it counts market-implied World Cup cards
+ *     beside genuine run-count simulations, both of which are correct for "+N more below". The
+ *     homepage reused it for the sentence "N games simulation-ready TODAY", where it was wrong twice
+ *     over: on 2026-08-18 it read 30, which was 15 MLB games today plus 15 NFL games on the 22nd
+ *     that were every one of them BASELINE ONLY. A pool size is not an availability claim.
  *
  * No React/Next imports so tsx can unit-test it directly and the server component can import it as-is.
  */
@@ -97,6 +103,11 @@ export interface FeaturedResult {
   featured: FeaturedSimulation[];
   /** Total number of featurable games across all details (may exceed `featured.length`). */
   readyCount: number;
+  /**
+   * Genuine run-count simulations dated EXACTLY today. This is the only number that may back a
+   * sentence containing the word "today". Zero is a real answer and must render as one.
+   */
+  simulationsToday: number;
   /** True when every featured card is current/upcoming (date >= today); false on a stale fallback. */
   allCurrent: boolean;
 }
@@ -171,5 +182,9 @@ export function featuredSimulations(details: readonly FeaturedDetailInput[], tod
     return (b.pickCount - a.pickCount) || a.slug.localeCompare(b.slug);
   });
 
-  return { featured: pool.slice(0, FEATURED_CAP), readyCount: pool.length, allCurrent };
+  const simulationsToday = today
+    ? cards.filter((c) => c.mode === "simulation" && c.date === today).length
+    : 0;
+
+  return { featured: pool.slice(0, FEATURED_CAP), readyCount: pool.length, simulationsToday, allCurrent };
 }

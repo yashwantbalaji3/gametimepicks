@@ -363,3 +363,68 @@ light reading theme is latent capability rather than dead decoration. Ticketed f
 | redirects one hop | 15/15, no chains |
 | internal leak | `/launch`, `/ops`, `/preview` pruned from export |
 | surfaces derived | 4/4 (top, rail, mobile, **footer**) |
+
+---
+
+# Release D — Home, Today, Simulate and game reports
+
+The charter's sharpest rule for this release: *"Simulation Hub shows only sports with active current
+simulations. Schedule-only, archive-only and off-season sports remain discoverable under
+Sports/Schedules and cannot look active through visual polish."* Tested against the built export,
+two surfaces failed it — and both failed the same way P179 had already diagnosed for the NFL badge:
+**ARTIFACT_READY is not SIMULATION_READY.**
+
+## 1 · The hub called a schedule "active"
+
+Rendered on `/simulate` before this release:
+
+    2 sports live · 15 simulation-ready · 30 games across 2 sports
+    ⚾ MLB  active  15 games · 15 ready
+    🏈 NFL  active  15 games                    ← same word, zero ready
+
+Every one of those fifteen NFL games was `BASELINE ONLY` — scheduled, with no event-specific signal.
+
+The source made the intent explicit and the code did not enforce it. The comment reads *"NFL: active
+ONLY when the canonical eligible set carries simulations"*; the condition was `nflRows.length > 0`,
+which is true for a slate of games that are all baseline. **The same failure shape as the mobile
+bar: a comment describing an invariant the code had stopped honouring.**
+
+The state word now follows the READY count. NFL keeps its games, its note and its place on the
+board — it stops claiming a kind of readiness it does not have:
+
+    1 sport simulating · 15 simulation-ready · 30 games across 2 sports
+    ⚾ MLB  active         15 games · 15 ready
+    🏈 NFL  baseline only  15 games
+
+`activeSports` (sports with a row) also backed the headline chip "2 sports live" beside "15
+simulation-ready" — a pairing that invites reading the other sport's games as *pending* rather than
+as a different product. The chip now counts sports that are actually simulating.
+
+## 2 · The homepage overstated availability by 2x
+
+    "30 games simulation-ready today"        ← rendered on 2026-08-18
+
+Only 15 were. The 30 was `readyCount`, which the selector's own documentation defines as *"the total
+featurable count for honest '+N more' copy"*. That number is right for the sentence it was built
+for and wrong for this one, on **two** independent axes:
+
+| | |
+|---|---|
+| it spans current **and upcoming** | the other 15 were NFL games on **Aug 22**, four days out |
+| it counts market-implied cards as simulations | correct for "+N more below", not for a run-count claim |
+
+A pool size is not an availability claim. `simulationsToday` is now a separate number requiring
+*both* `mode === "simulation"` and `date === today`, and the hero reads it. **30 → 15.**
+
+## Guards
+
+`simulate-lobby-honesty.test.mjs`, five tests, comments stripped before scanning (this repo has hit
+the denial trap repeatedly — reading prose that describes a refusal as though it performed it):
+
+- a sport's state word is derived from its ready count, never its row count
+- the headline counts sports that are SIMULATING, filtered by `simReady`
+- the built page renders no "sports live" count
+- a sentence containing "today" is backed by `simulationsToday`, which requires both conditions
+- the built homepage may not claim more simulation-ready games than the built hub counts
+
+The last two read the BUILT export, because "file exists" is not "page says".

@@ -85,7 +85,17 @@ test("ONE SET · the card count, the ready count and the rendered rows cannot di
   // the lobby builds its rows from that same call, and its card reads the row count back
   assert.match(lobby, /const nflEligibility = nflSimulateEligibility\(\)/);
   assert.match(lobby, /for \(const e of nflEligibility\.events\)/);
-  assert.match(lobby, /mk\("nfl", nflId\.label, nflId\.icon, "active", "active", nflRows\.length, simReadyCountFor\("nfl"\)/);
+  /*
+   * The ONE SET invariant is that the NFL card's two numbers come from the SAME call the rows were
+   * built from. It is asserted on those numbers, not on the literal state words that used to sit
+   * beside them: P185-D made the state word follow the ready count, because "active" on fifteen
+   * BASELINE ONLY games is the very claim the comment above says readyCount exists to prevent.
+   * Pinning the words would have made this guard argue against its own reasoning.
+   */
+  assert.match(lobby, /mk\("nfl", nflId\.label, nflId\.icon,[\s\S]{0,200}?nflRows\.length, simReadyCountFor\("nfl"\)/,
+    "the NFL card's counts come from the rows and the same eligibility call");
+  assert.match(lobby, /simReadyCountFor\("nfl"\) > 0 \? "active" : "conditional"/,
+    "a sport with zero SIMULATION_READY events does not wear the active tone");
   // Today's aggregate is derived from the same rows, not from an MLB-only artifact count
   // ONE derived total, read by both the hero proof chip and the Today card
   assert.match(lobby, /const boardReadyCount = rows\.filter\(\(r\) => r\.simReady\)\.length;/);

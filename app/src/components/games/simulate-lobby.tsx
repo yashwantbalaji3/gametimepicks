@@ -248,6 +248,13 @@ export default function SimulateLobby() {
   }
 
   const activeSports = new Set(rows.map((r) => r.sport)).size;
+  /*
+   * Sports that are actually SIMULATING, which is not the same as sports on the board. The header
+   * chip read `activeSports` beside "15 simulation-ready" and said "2 sports live" while one sport
+   * carried every one of those fifteen — the pair invited the reading that the other sport's games
+   * were pending rather than a different product.
+   */
+  const simulatingSports = new Set(rows.filter((r) => r.simReady).map((r) => r.sport)).size;
 
   // Featured simulations — the deterministic short list of games with a READY artifact, sorted by
   // their strongest generated-pick edge (see @/lib/simulate-lobby-featured). Currently MLB is the only
@@ -350,8 +357,20 @@ export default function SimulateLobby() {
     // the SAME numbers the rows above were built from, so the card, the chip and the list agree by
     // construction rather than by three call sites happening to compute the same thing. An outage
     // reads as an outage; an empty slate reads as an empty slate; they are never merged.
+    /*
+     * P185-D: the comment above says NFL is active "ONLY when the canonical eligible set carries
+     * simulations", and the condition is `nflRows.length > 0` — which is TRUE for a slate of games
+     * that are all BASELINE ONLY. Today that is exactly the state: 15 scheduled games, zero with an
+     * event-specific signal, badged with the same word as MLB's 15-of-15. The charter's rule for
+     * this hub is that a schedule-only sport "cannot look active through visual polish", so the
+     * state word now follows the READY COUNT rather than the row count. The sport stays listed,
+     * keeps its games and its note — it just stops claiming a kind of readiness it does not have.
+     */
     nflRows.length > 0
-      ? mk("nfl", nflId.label, nflId.icon, "active", "active", nflRows.length, simReadyCountFor("nfl"),
+      ? mk("nfl", nflId.label, nflId.icon,
+          simReadyCountFor("nfl") > 0 ? "active" : "conditional",
+          simReadyCountFor("nfl") > 0 ? "active" : "baseline only",
+          nflRows.length, simReadyCountFor("nfl"),
           "Experimental preseason simulations — every NFL game here carries a deterministic team distribution. The model has not been shown to beat the sportsbook market.")
       : nflEligibility.state === "ARTIFACT_UNAVAILABLE"
         ? mk("nfl", nflId.label, nflId.icon, "provider_pending", "data unavailable", 0, 0, nflEligibility.note)
@@ -433,7 +452,7 @@ export default function SimulateLobby() {
         {/* proof chips — active-sport count · simulation-ready count · paper-only · deterministic (all real). */}
         <div className="relative flex flex-wrap items-center gap-2">
           {[
-            { v: `${activeSports}`, l: `sport${activeSports === 1 ? "" : "s"} live`, accent: true },
+            { v: `${simulatingSports}`, l: `sport${simulatingSports === 1 ? "" : "s"} simulating`, accent: true },
             // P178-A: the SAME derived number the Today card shows. It read `readyCount` (joined MLB
             // game-detail artifacts only), so the hero and the sport card printed two different
             // "simulation-ready" totals on one page the moment a second modeled sport appeared.

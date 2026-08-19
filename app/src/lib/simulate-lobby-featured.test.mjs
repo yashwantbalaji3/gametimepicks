@@ -141,7 +141,11 @@ test("7 · source: an honest zero-ready empty state branch exists (no fabricated
   assert.match(lobby, /featured\.length === 0 \?/, "the render branches on zero featured");
   // Selector returns an empty result when nothing is ready (drives the empty branch).
   const none = featuredSimulations([detail("x", sim({ status: "unavailable" }))]);
-  assert.deepEqual(none, { featured: [], readyCount: 0, allCurrent: false }, "no ready games ⇒ empty featured, zero count");
+  // P185-D added `simulationsToday` — a SEPARATE number from readyCount, because the homepage was
+  // reusing a featurable-pool size for the sentence "N games simulation-ready today". Both must be
+  // zero here; asserting the whole shape keeps a future field from arriving unnoticed.
+  assert.deepEqual(none, { featured: [], readyCount: 0, simulationsToday: 0, allCurrent: false },
+    "no ready games ⇒ empty featured, zero count, zero today");
 });
 
 test("8 · no banned copy in simulate-lobby.tsx", () => {

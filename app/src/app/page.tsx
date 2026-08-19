@@ -84,7 +84,7 @@ export default function HomePage() {
 
   // ── Featured simulations — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
-  const { featured, readyCount } = featuredSimulations(details, currentEtDate());
+  const { featured, readyCount, simulationsToday } = featuredSimulations(details, currentEtDate());
   // What each featured simulation CONCLUDED — a lookup over the canonical objects.
   const gameAnswers = buildHomeGameAnswers(details);
   // Daily-MLB destination hook — the SAME brief overview /today leads with (factual counts, no picks).
@@ -279,7 +279,7 @@ export default function HomePage() {
       {/* 1 — Simulation-first hero. It carries no money figure: a paper bankroll beside a paper record
           on the front door reads as a return, and the ONE claim above it is that we are behind the
           market. The record and every settled card live on /results. */}
-      <LandingHero readyCount={readyCount} />
+      <LandingHero readyCount={simulationsToday} />
 
       {/* 2 — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}
       <HomeTodayMlb
