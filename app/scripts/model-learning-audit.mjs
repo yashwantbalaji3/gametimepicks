@@ -506,8 +506,21 @@ function main() {
 
   const rows = loadRows();
   if (rows.length === 0) {
-    console.error("no decisive rows — boards and/or settled_leans.jsonl are missing or empty");
-    process.exit(2);
+    /*
+     * NO ROWS IS A STATE, NOT A FAILURE — and which one it is depends on the sport.
+     *
+     * Exit 2 was right while this script was MLB-only: baseball settles daily, so an empty corpus
+     * meant something broke. Now that it runs per sport, ufc/nfl/epl have settled nothing yet, and
+     * exit 2 made the nightly loop log "model-learning audit failed" for three sports every single
+     * night — a permanent warning, which is one nobody reads. Only the sport we know should have
+     * data can fail on the absence of it.
+     */
+    if (SPORT === "mlb") {
+      console.error(`no decisive rows for ${SPORT} — boards and/or settled_leans.jsonl are missing or empty`);
+      process.exit(2);
+    }
+    console.log(`model-learning ${SPORT}: no settled rows yet — nothing to audit (this is expected until the sport settles)`);
+    process.exit(0);
   }
 
   const out = {

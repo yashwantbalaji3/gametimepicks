@@ -249,7 +249,10 @@ jobs:
           # is a fact to record rather than a failure to alarm on.
           for SPORT in mlb ufc nfl epl; do
             if npx --yes tsx scripts/update-selection-learning.mjs --sport "$SPORT" --write-report; then
-              echo "::notice::selection-learning policy updated ($SPORT)"
+              # "completed", not "updated": a sport with no settled ledger exits 0 having done
+              # nothing, and the first per-sport run announced "policy updated (ufc)" for three
+              # sports that have never settled a thing. The script'"'"'s own stdout carries which it was.
+              echo "::notice::selection-learning completed ($SPORT)"
             else
               # Never fatal, and never silent: a sport failing must not cost the other sports their
               # update, but it must still be visible rather than swallowed by the loop.
