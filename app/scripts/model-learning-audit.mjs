@@ -32,8 +32,17 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { sportLearningPaths } from "../src/lib/sports/learning-paths.mjs";
+
 const APP = process.cwd();
-const CAL_DIR = path.join(APP, "public/data/mlb/results/calibration");
+/*
+ * The sport this audit is FOR. It defaults to mlb because mlb is what the nightly loop already runs
+ * and this refactor must be a no-op for it; an unknown sport is refused by the resolver rather than
+ * defaulted, so a run can never report success while auditing a sport it was not asked for.
+ */
+const SPORT = (() => { const i = process.argv.indexOf("--sport"); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : "mlb"; })();
+const PATHS = sportLearningPaths(SPORT, APP);
+const CAL_DIR = PATHS.calDir;
 
 // ── scoring ────────────────────────────────────────────────────────────────────
 
@@ -146,8 +155,11 @@ export function fitIsotonic(rows) {
  * market baseline.
  */
 export function loadRows() {
-  const BOARDS = path.join(APP, "public/data/mlb/boards");
-  const LEDGER = path.join(APP, "public/data/mlb/results/settled_leans.jsonl");
+  const BOARDS = PATHS.boards;
+  const LEDGER = PATHS.ledger;
+  // A sport with no ledger declared returns no rows — the same empty result as a missing file, and
+  // reported the same way, rather than throwing deep inside the loader.
+  if (LEDGER == null) return [];
   if (!fs.existsSync(BOARDS) || !fs.existsSync(LEDGER)) return [];
 
   // The LEDGER's date is authoritative for settlement. A lean also carries its own `date`, which is
