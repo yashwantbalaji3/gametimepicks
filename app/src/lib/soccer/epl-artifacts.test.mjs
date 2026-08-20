@@ -163,6 +163,16 @@ test("every committed EPL artifact validates clean; samples stay non-public, cap
     for (const name of fs.readdirSync(dir).filter((f) => f.endsWith(".json"))) {
       const data = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8"));
       assert.equal(data.competition, "epl", name);
+      if (data.dataClass === "ODDS_CAPTURE") {
+        /*
+         * Paid per-book market data, added when EPL odds went live (2026-08-20). It is NOT a
+         * fixture artifact and never becomes display-eligible: the first live capture shipped with
+         * `public` merely UNDEFINED, which sweepInternalData does not match, so paid prices reached
+         * the public export. Absent is not false wherever a deletion rule keys on the value.
+         */
+        assert.equal(data.public, false, `${name}: a paid odds capture is never public`);
+        continue;
+      }
       if (data.dataClass === "FIXTURE_CAPTURE") {
         captures += 1;
         assert.equal(data.public, true, `${name}: a verified capture is display-eligible`);

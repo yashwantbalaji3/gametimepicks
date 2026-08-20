@@ -263,6 +263,15 @@ const snapshot = {
   artifact: "epl-odds-capture",
   competition: "epl",
   dataClass: "ODDS_CAPTURE",
+  /*
+   * NOT PUBLIC — and it must say so EXPLICITLY, not merely omit the flag.
+   *
+   * sweepInternalData deletes out/data JSON whose `public` is literally false. This artifact left
+   * the field undefined, so the sweep did not match it and the first live capture (2026-08-20) put
+   * PAID per-book prices on the public export. Absent is not the same as false anywhere a deletion
+   * rule keys on the value.
+   */
+  public: false,
   generatedAt: NOW,
   sportKey: SPORT_KEY,
   markets: MARKETS,

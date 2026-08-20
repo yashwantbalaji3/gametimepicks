@@ -65,7 +65,17 @@ export interface EplLoadedArtifacts {
 /** Load and validate every committed EPL artifact. Rejected rows never reach a surface. */
 export function loadEplArtifacts(): EplLoadedArtifacts {
   const fixtureFiles = readJsonFiles<EplFixtureArtifact>("fixtures");
-  const oddsFiles = readJsonFiles<EplOddsArtifact>("odds");
+  /*
+   * ODDS_CAPTURE is EXCLUDED here, deliberately.
+   *
+   * This loader feeds the public preview. An ODDS_CAPTURE is paid per-book market data written for
+   * the shadow run — different row shape, and never display-eligible. When EPL odds went live
+   * (2026-08-20) the capture landed in this directory and was validated as if it were a sample odds
+   * artifact, so every row was rejected and the preview reported unclean. The boundary is the fix:
+   * a display loader loads display artifacts.
+   */
+  const oddsFiles = readJsonFiles<EplOddsArtifact>("odds")
+    .filter(({ data }) => (data as { dataClass?: string }).dataClass !== "ODDS_CAPTURE");
 
   const fixtureValidations = fixtureFiles.map(({ file, data }) => ({
     file,

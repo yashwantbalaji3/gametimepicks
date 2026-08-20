@@ -181,7 +181,8 @@ test("the preview copy makes no claim about a model, and states the no-model pos
 test("the committed artifacts load and build a preview — samples AND the 2026-27 capture", () => {
   const artifacts = loadEplArtifacts();
   assert.equal(artifacts.empty, false, "the artifacts must be readable from disk");
-  // Program 149: the first real capture joined the samples. Both classes, nothing else.
+  // Program 149: the first real capture joined the samples. Both classes, nothing else — ODDS_CAPTURE
+  // is paid model input and is filtered out by the loader, so it must NOT appear on a display surface.
   assert.deepEqual(artifacts.dataClasses, ["FIXTURE_CAPTURE", "FIXTURE_SAMPLE"]);
   assert.equal(artifacts.oddsValidations.every((v) => v.validation.clean), true);
   assert.equal(artifacts.fixtureValidations.every((v) => v.validation.clean), true);

@@ -154,6 +154,10 @@ jobs:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
           WC_API_FOOTBALL_LEAGUE: "1"
           WC_API_FOOTBALL_SEASON: "2026"
+          # This step is continue-on-error, so anything inside it may silently not happen. The
+          # portfolio roll-forward is money state and a later step DEPENDS on it, so it moved out to
+          # its own fail-loud step below.
+          GTP_SKIP_ROLL: "1"
         run: |
           DATE_ARG=""; [ -n "${SETTLE_DATE}" ] && DATE_ARG="--date ${SETTLE_DATE}"
           if [ "${DRY_RUN_SETTLE}" = "1" ]; then
@@ -190,7 +194,9 @@ jobs:
           # ET-yesterday, matching every other settlement step in this workflow. The first live run
           # passed NO date, so the script fell back to the UTC calendar day — and at 01:59 ET the UTC
           # clock already reads TOMORROW. It refused the slate and settled nothing, silently, because
-          # this step is continue-on-error.
+          # this step WAS continue-on-error at the time. It is not any more — a refusal here now
+          # fails the run, which is why the frozen-portfolio bug above surfaced as a red run instead
+          # of another silent night.
           TARGET="${SETTLE_DATE:-$(TZ=America/New_York date -d 'yesterday' +%F)}"
           DATE_ARG="--date ${TARGET}"
           cd app
@@ -199,6 +205,24 @@ jobs:
           else
             npx tsx scripts/settle-mlb-player-props.mjs $DATE_ARG --apply
           fi
+
+      # ---- Roll the daily portfolio forward to TODAY (ET) ----
+      #
+      # Was step 5/6 inside settle_soccer_day.sh, which is invoked above under continue-on-error. The
+      # World Cup is retired, that script now fails, the step still reported SUCCESS, and the roll
+      # never ran — so daily-portfolio.json froze at 2026-08-18 and every scheduled run after that
+      # refused with "daily-portfolio is dated 2026-08-18, not 2026-08-19". A dependency of a
+      # fail-loud step must not live inside a fail-tolerant one.
+      #
+      # It also has to run HERE, after the prop settler: the roll dates the portfolio TODAY, while
+      # the settler requires it to still be dated YESTERDAY to grade the slate that just finished.
+      - name: Roll the daily portfolio forward (money state — fail loud)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          ROLL_DATE="$(TZ=America/New_York date +%F)"
+          npx tsx app/scripts/activate-daily-portfolio.mjs --date "$ROLL_DATE" --apply
+          echo "::notice::daily portfolio rolled forward to $ROLL_DATE"
 
       # The risk ladder re-derives its whole record from every graded day, so it runs AFTER
       # settlement and never carries a number forward from the previous file.

@@ -116,7 +116,13 @@ fi
 # genuinely active today (an empty/no-play portfolio until today's card is approved). Fatal on failure:
 # a stale daily portfolio must never slip past to the money gate.
 step "5/6  Roll daily portfolio forward (activeBankroll ← new canonical bankroll)"
-if [ "$APPLY" = 1 ]; then
+if [ "${GTP_SKIP_ROLL:-0}" = "1" ]; then
+  # The CALLER owns the roll. nightly-settle sets this because the roll must happen AFTER the MLB
+  # prop settler (which requires daily-portfolio to still be dated YESTERDAY), and because this
+  # script runs under continue-on-error there — a roll buried in a step that is allowed to fail is
+  # a roll that silently does not happen, which is exactly how the portfolio froze at 2026-08-18.
+  info "roll-forward skipped — the caller performs it after settlement (GTP_SKIP_ROLL=1)"
+elif [ "$APPLY" = 1 ]; then
   ROLL_DATE=$(TZ=America/New_York date +%F)
   npx tsx app/scripts/activate-daily-portfolio.mjs --date "$ROLL_DATE" --apply \
     || { err "daily-portfolio roll-forward FAILED for $ROLL_DATE — refusing to gate on a stale portfolio."; exit 1; }
