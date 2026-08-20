@@ -215,7 +215,19 @@ for (const b of card.bouts ?? []) {
  *
  * Private, not public: these are per-book prices, and the public surface already has the consensus.
  */
-const shadowSnapshot = buildUfcOddsSnapshot({ capturedAt: NOW, bouts });
+const shadowSnapshot = buildUfcOddsSnapshot({
+  capturedAt: NOW,
+  bouts: bouts.map((b) => ({ boutId: b.boutId, books: b._books })),
+});
+/*
+ * A priced card that yields no rows is a WIRING failure, not an empty market — the first cut of this
+ * shipped `_books` to an adapter reading `books` and wrote a 0-row snapshot while the run reported
+ * success. Fail loudly rather than persist an empty file that reads as "the market had nothing".
+ */
+if (bouts.length > 0 && shadowSnapshot.rows.length === 0) {
+  console.error(`ufc odds: REFUSED — ${bouts.length} bout(s) priced but 0 per-book rows built (per-book markets did not reach the snapshot builder)`);
+  process.exit(1);
+}
 const shadowPayload = JSON.stringify(shadowSnapshot, null, 1) + "\n";
 const shadowLeak = assertNoSecretLeak(shadowPayload, [KEY]);
 if (!shadowLeak.ok) { console.error(`ufc odds: REFUSED — ${shadowLeak.reason}`); process.exit(1); }
