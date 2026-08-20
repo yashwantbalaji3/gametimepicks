@@ -378,6 +378,12 @@ jobs:
           done
           # 3) Freshness + drift monitor. Non-fatal by design: a stale corpus must be VISIBLE on /ops,
           #    not a reason to abort a settlement that already succeeded.
+          # Row-lineage envelopes. build-research-row-lineage.mjs was in NO workflow, so the artifact
+          # set froze at 2026-07-28 and three weeks of settled dates had no lineage receipt at all.
+          # Non-fatal: a missing envelope must be VISIBLE, not a reason to abort a settlement that
+          # already succeeded.
+          npx --yes tsx scripts/build-research-row-lineage.mjs --write --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            || echo "::warning::row-lineage build failed — prior envelopes retained"
           npx --yes tsx scripts/check-learning-freshness.mjs --write \
             || echo "::warning::learning freshness check reported a problem — see admin status"
           # 4) SPRINT 050 — the public research contract every user-facing surface reads. Built here so
@@ -488,6 +494,10 @@ jobs:
           # dropped at the commit every time — the tracked copies were frozen at whatever a human
           # last committed by hand. Globbed per sport now that the audit runs per sport.
           git add data/internal/*/model-learning/ 2>/dev/null || true
+          # The lineage builder writes BOTH a public envelope set and an internal one. Only the
+          # public path was allowlisted, so the internal receipts would have been regenerated and
+          # dropped every night — the same shape that hid the model-learning audit for weeks.
+          git add data/internal/mlb/research-row-lineage/ 2>/dev/null || true
           git add data/internal/mlb/linescores/ 2>/dev/null || true
           git add data/internal/mlb/product-settlement/ 2>/dev/null || true
           git add data/internal/product-cards/settlements/ 2>/dev/null || true
