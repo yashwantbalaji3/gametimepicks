@@ -23,7 +23,10 @@ const APP = process.cwd();
 // src/lib/sports/research joined in Program 149: the shared replay harness uses the EPL Poisson
 // module as its reference sport adapter — a deliberate research-lane consumer, not a World Cup
 // surface. The guard's purpose (no closed WC-era surface reads EPL artifacts) is unchanged.
-const LANE_DIRS = ["src/lib/soccer", "src/app/preview/epl", "src/lib/sports/research", "src/lib/sports/epl"];
+// src/app/epl joined the lane on P185: it was SCHEDULE_ONLY and read no EPL artifact, and now it
+// renders the public forecast set. The rule this guard enforces is unchanged — no WORLD CUP
+// surface may reach EPL data — and the EPL lane's own public page is not that.
+const LANE_DIRS = ["src/lib/soccer", "src/app/epl", "src/app/preview/epl", "src/lib/sports/research", "src/lib/sports/epl"];
 // Cross-lane AUDITORS may READ EPL artifact paths to reconcile copies of public figures — they are
 // exempt from the readers check ONLY (Program 160). They are NOT lane members: the lane-ownership
 // rules (no MLB reads, no world-cup paths) do not apply to reconciliation code whose whole job is

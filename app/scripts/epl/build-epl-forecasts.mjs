@@ -108,6 +108,46 @@ const artifact = {
   note: "Forecast distributions only. publicActivation is OFF on every row; nothing here is a recommendation.",
 };
 
+/*
+ * THE PUBLIC VIEW.
+ *
+ * The private artifact above is the full research record. This is the reader's copy, and it carries
+ * the limitation WITH each number rather than in a footer a later edit can drop: no EPL match has
+ * ever been graded under this model, so there is no track record and nothing here is a pick.
+ *
+ * Deliberately absent: any pick, confidence, rating, or comparison to a price. The distribution IS
+ * the product. A cold-start club is flagged on the row it affects, not summarised away.
+ */
+const publicRows = rows.map((r) => ({
+  eventId: r.eventId,
+  matchup: r.matchup,
+  kickoffUtc: r.kickoffUtc,
+  matchweek: r.matchweek,
+  state: r.state,
+  /* A fixture we could not price says so, with its reason, instead of vanishing from the list. */
+  unavailableReason: r.state === "CURRENT_PRE_EVENT" ? null : (r.reason ?? r.rule ?? "not priced"),
+  probs: r.model?.probs ?? null,
+  expectedGoals: r.model?.totals?.expected ?? null,
+  over25: r.model?.totals?.over25 ?? null,
+  coldStart: r.model?.coldStart ?? null,
+}));
+
+const publicArtifact = {
+  schemaVersion: 1,
+  artifact: "epl-forecast-public",
+  dataClass: "FORECAST_PUBLIC",
+  public: true,
+  competition: "epl",
+  generatedAt: NOW,
+  oddsCapturedAt: oddsSnapshot?.capturedAt ?? null,
+  counts,
+  /* These two strings are the contract with the reader. A guard pins them. */
+  validation: "NOT_VALIDATED_OUT_OF_SAMPLE",
+  trackRecord: "No Premier League match has been graded under this model. There is no win/loss record, no accuracy figure, and no track record to cite.",
+  note: "Model distributions only — not picks, not advice, and not compared against a price.",
+  rows: publicRows,
+};
+
 const date = NOW.slice(0, 10);
 const outDir = path.join(REPO, "data/internal/research/epl/forecasts");
 if (WRITE) {
@@ -115,6 +155,12 @@ if (WRITE) {
   const payload = JSON.stringify(artifact, null, 1) + "\n";
   fs.writeFileSync(path.join(outDir, `${date}.json`), payload);
   fs.writeFileSync(path.join(outDir, "latest.json"), payload);
+
+  const pubDir = path.join(EPL, "forecasts");
+  fs.mkdirSync(pubDir, { recursive: true });
+  const pubPayload = JSON.stringify(publicArtifact, null, 1) + "\n";
+  fs.writeFileSync(path.join(pubDir, "latest.json"), pubPayload);
+  fs.writeFileSync(path.join(pubDir, `${date}.json`), pubPayload);
 }
 
 for (const r of rows) console.log(`  ${r.state.padEnd(18)} ${r.matchup}${r.threeWay ? ` · H ${r.threeWay.H} D ${r.threeWay.D} A ${r.threeWay.A}` : ""}`);
