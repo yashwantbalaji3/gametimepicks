@@ -99,6 +99,23 @@ jobs:
       # forecast is frozen against the inputs that existed pre-kickoff, and never after a start.
       # P175-A: event-bound role evidence. Runs BEFORE the forecasts so player families have a
       # per-player availability verdict to consume rather than an assumption.
+      # ---- Roster capture ----
+      #
+      # capture-nfl-rosters.mjs existed and NO job ran it. The roster artifact therefore froze at
+      # 2026-08-13T02:55 — whenever it was last run by hand — and on 2026-08-20 it crossed the 168h
+      # freshness threshold, so role evidence began reporting rosters STALE. The refusal to publish
+      # player families was still correct, but for the wrong reason: our own feed was old rather
+      # than the evidence genuinely absent, and "silence from a stale feed proves nothing" is the
+      # rule that distinction exists to protect.
+      #
+      # It runs BEFORE the role-evidence build, which reads the freshness stamp it writes.
+      - name: Capture NFL rosters (freshness input for role evidence)
+        if: steps.window.outputs.events != '0'
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/capture-nfl-rosters.mjs --now "${{ steps.window.outputs.now }}"
+
       - name: Build NFL role evidence
         if: steps.window.outputs.events != '0'
         working-directory: app
