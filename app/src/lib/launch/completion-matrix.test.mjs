@@ -37,8 +37,12 @@ test("percentages derive from stages — MLB all-proven is 100 everywhere, empty
   // The invariant is unchanged and still enforced: percentage counts PROVEN only, so every
   // bucket whose stages are merely PARTIAL stays 0. Any stage OUTSIDE the receipted set
   // claiming evidence is still a defect this guard catches.
-  const NFL_EVIDENCE_STAGES = ["schedule", "data", "model", "settlement", "identity", "markets", "publication"];
-  const NFL_PROVEN_STAGES = ["identity", "markets"];
+  // P185 added owner + qualification: shared machinery, each verified against real artifacts (the
+  // owning workflow must exist, carry a cron and reach a human; the ladder is read from the shadow
+  // module's own state literals). Listed explicitly so a stage still cannot claim evidence without
+  // a reviewed entry here — the invariant this guard exists for is untouched.
+  const NFL_EVIDENCE_STAGES = ["schedule", "data", "model", "settlement", "identity", "markets", "publication", "owner", "qualification"];
+  const NFL_PROVEN_STAGES = ["identity", "markets", "owner", "qualification"];
   const nfl = sportColumn(SPORT_ASSESSMENTS.nfl);
   for (const b of DEPARTMENT_BUCKETS) {
     assert.ok(nfl[b.id].stages.every((s) => s.status === "UNPROVEN" || NFL_EVIDENCE_STAGES.includes(s.id)),
@@ -52,9 +56,23 @@ test("percentages derive from stages — MLB all-proven is 100 everywhere, empty
   // price table must never read as model or settlement progress.
   assert.equal(nfl["data-ingestion"].pct, 33);
   assert.equal(nfl["identity-assets"].pct, 100);
-  for (const id of ["model-validation", "product-generation", "settlement", "operations"]) {
+  for (const id of ["product-generation", "settlement"]) {
     assert.equal(nfl[id].pct, 0, `nfl.${id} must stay 0 — P171 published prices, not models or settled results`);
   }
+  /*
+   * These two buckets moved off 0 on P185, and the SUBSTANTIVE claim is asserted instead of the
+   * total. model-validation contains [model, calibration, qualification]; a proven qualification
+   * policy is genuinely one of three, so 33 is arithmetically honest — but the thing this guard
+   * exists to protect is "NFL has no validated model", which is unchanged and now pinned directly.
+   * Asserting the bucket total would have forced a choice between a false 0 and deleting the check.
+   */
+  assert.equal(nfl["model-validation"].pct, 33, "qualification is proven; model and calibration are not");
+  assert.notEqual(SPORT_ASSESSMENTS.nfl.stages.model.status, "PROVEN", "NFL has no validated model");
+  assert.notEqual(SPORT_ASSESSMENTS.nfl.stages.calibration?.status, "PROVEN", "NFL has no calibration receipt");
+  // operations = [monitoring, owner]. The owner is real and paged; monitoring is NOT — nothing yet
+  // watches whether an NFL run happened, so this must not read as fully covered.
+  assert.equal(nfl["operations"].pct, 50, "owner proven, monitoring not");
+  assert.notEqual(SPORT_ASSESSMENTS.nfl.stages.monitoring?.status, "PROVEN", "NFL is not yet monitored");
   for (const id of NFL_EVIDENCE_STAGES) {
     const st = DEPARTMENT_BUCKETS.flatMap((b) => nfl[b.id].stages).find((s) => s.id === id);
     const expected = NFL_PROVEN_STAGES.includes(id) ? "PROVEN" : "PARTIAL";

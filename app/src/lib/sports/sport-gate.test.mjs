@@ -75,9 +75,12 @@ test("THE COMMITTED ASSESSMENTS · maturity derives to the honest current pictur
   // 1,001 corpus finals, then Program 171's durable-id registry consumed by a real odds join
   // (identity), the receipt-gated authorized capture (markets), and the public price layer
   // (publication). Exactly these seven, nothing else.
+  // P185 added `owner` and `qualification` — shared machinery built once on the factory spine and
+  // inherited, not re-argued per sport. The set stays EXACT: this list is a ratchet, so a new stage
+  // is a reviewed change here, never one that appears in the assessments unnoticed.
   assert.deepEqual(Object.keys(SPORT_ASSESSMENTS.nfl.stages).sort(),
-    ["data", "identity", "markets", "model", "publication", "schedule", "settlement"],
-    "NFL evidence = the P148/P151/P161 four plus P171's identity + markets + publication");
+    ["data", "identity", "markets", "model", "owner", "publication", "qualification", "schedule", "settlement"],
+    "NFL evidence = the P148/P151/P161 four plus P171's identity + markets + publication, plus P185's owner + qualification");
   // identity and markets earned PROVEN on Program 171 receipts; everything else is honestly
   // PARTIAL — and publication CANNOT be PROVEN on a price table, because no model layer is public.
   assert.equal(SPORT_ASSESSMENTS.nfl.stages.identity.status, "PROVEN");
@@ -85,8 +88,14 @@ test("THE COMMITTED ASSESSMENTS · maturity derives to the honest current pictur
   assert.match(SPORT_ASSESSMENTS.nfl.stages.markets.evidence, /cumulative 12 of 3,000/, "the markets claim carries its actual credit spend");
   assert.equal(SPORT_ASSESSMENTS.nfl.stages.publication.status, "PARTIAL");
   assert.match(SPORT_ASSESSMENTS.nfl.stages.publication.evidence, /no MODEL layer is public/);
+  // Everything outside this set stays PARTIAL. `owner` and `qualification` joined it on P185 —
+  // both are verified against real artifacts rather than asserted: the owner guard requires the
+  // workflow to exist, carry a cron and reach a human, and the qualification guard reads the shadow
+  // module's own state literals. The blanket rule is intact; only the reviewed exceptions grew.
+  const NFL_PROVEN = new Set(["identity", "markets", "owner", "qualification"]);
   for (const [name, st] of Object.entries(SPORT_ASSESSMENTS.nfl.stages)) {
-    if (name !== "identity" && name !== "markets") assert.equal(st.status, "PARTIAL", `${name} stays PARTIAL`);
+    if (!NFL_PROVEN.has(name)) assert.equal(st.status, "PARTIAL", `${name} stays PARTIAL`);
+    else assert.equal(st.status, "PROVEN", `${name} is one of the reviewed PROVEN stages`);
   }
   // The live window is PRESEASON: every P171 model receipt is regular-season evidence, and the
   // model stage must say so rather than let a preseason slate imply promotion.
