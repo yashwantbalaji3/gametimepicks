@@ -29,12 +29,15 @@ import {
   assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, LEDGER_RELPATH,
 } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { nameKey } from "./lib/fight-model.mjs";
+import { buildUfcOddsSnapshot } from "../../src/lib/sports/ufc/odds-snapshot.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
 const RECEIPT = path.join(REPO, "docs", "receipts", "ODDS_AUTHORIZATION_UFC.md");
 const LEDGER = path.join(REPO, LEDGER_RELPATH.ufc);
 const OUT = path.join(APP, "public", "data", "ufc");
+/* Per-book prices are research input, not a public surface — they live beside the credit ledger. */
+const PRIVATE_OUT = path.join(REPO, "data", "internal", "research", "odds", "ufc");
 
 const has = (f) => process.argv.includes(f);
 const arg = (f, d) => { const i = process.argv.indexOf(f); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -177,6 +180,9 @@ for (const b of card.bouts ?? []) {
      * thin to build a ladder from. The card's own id is on the snapshot, once, where it belongs.
      */
     boutId: b.boutId, eventId: b.boutId,
+    /* Per-book markets ride along in memory only — they are stripped before the PUBLIC write below
+       and persisted to the private research path, where the model reads them. */
+    _books: p.books,
     red: { name: b.red?.name ?? null, price: side(b.red?.name) },
     blue: { name: b.blue?.name ?? null, price: side(b.blue?.name) },
     /*
@@ -197,6 +203,29 @@ for (const b of card.bouts ?? []) {
     ],
   });
 }
+
+/*
+ * THE PRIVATE PER-BOOK SNAPSHOT — built BEFORE the public artifact, from the same paid response.
+ *
+ * The public artifact publishes the MEDIAN across books, which is the right read for a person. The
+ * model needs the per-book markets it was written against: runUfcShadow de-vigs each bookmaker
+ * separately and quarantines any two-way market that does not de-vig. Until now the capture threw
+ * those rows away, so the de-vig path had no input and every bout reported READY_EXCEPT_ODDS while
+ * the capture itself reported success.
+ *
+ * Private, not public: these are per-book prices, and the public surface already has the consensus.
+ */
+const shadowSnapshot = buildUfcOddsSnapshot({ capturedAt: NOW, bouts });
+const shadowPayload = JSON.stringify(shadowSnapshot, null, 1) + "\n";
+const shadowLeak = assertNoSecretLeak(shadowPayload, [KEY]);
+if (!shadowLeak.ok) { console.error(`ufc odds: REFUSED — ${shadowLeak.reason}`); process.exit(1); }
+fs.mkdirSync(PRIVATE_OUT, { recursive: true });
+fs.writeFileSync(path.join(PRIVATE_OUT, "shadow-snapshot-latest.json"), shadowPayload);
+fs.writeFileSync(path.join(PRIVATE_OUT, `shadow-snapshot-${card.event.slateDate}.json`), shadowPayload);
+console.log(`ufc odds: private per-book snapshot → ${shadowSnapshot.rows.length} h2h row(s) across ${bouts.length} bout(s)`);
+
+/* The per-book markets are the model's input, not the reader's — strip them from the public shape. */
+for (const b of bouts) delete b._books;
 
 const snapshot = {
   generatedAt: NOW,
