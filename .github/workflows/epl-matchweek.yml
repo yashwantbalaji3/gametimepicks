@@ -96,6 +96,22 @@ jobs:
           node app/scripts/epl/capture-epl-results.mjs --now "$NOW" || \
             echo "no newly-settled EPL match — the honest state between matchweeks"
 
+      # ---- Forecasts ----
+      #
+      # Runs AFTER the odds capture (it consumes odds/latest.json) and AFTER settlement (so a match
+      # that just finished is no longer in the forward window). Without this step the chain captured
+      # prices and predicted nothing: capture, evaluate, replay and simulate all existed while
+      # NOTHING turned fixtures + odds + strength into a published forecast.
+      #
+      # Fail-loud: the builder REFUSES its whole set if any row claims CURRENT_PRE_EVENT without
+      # probabilities, and that refusal must fail the run rather than be swallowed. A forecast set
+      # that looks like coverage and carries no prediction is worse than an absent one.
+      - name: Build EPL forecasts
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node app/scripts/epl/build-epl-forecasts.mjs --now "$NOW" --lookahead-hours 96 --write
+
       # With real prices EPL can clear the Parlay Lab's eligibility gate, so the grids are
       # re-resolved. `multi` is included deliberately: a second live sport is what opens the
       # cross-sport lane, and it must not wait a day.
@@ -112,8 +128,12 @@ jobs:
       - name: Assert this run produced its artifacts
         run: |
           set -euo pipefail
+          # The forecast set is asserted alongside the odds: a run that captured prices and produced
+          # no forecast is the exact failure this chain had before the builder existed, and it must
+          # not pass silently just because the capture half worked.
           node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --allow-missing \
-            app/public/data/soccer/epl/odds/latest.json
+            app/public/data/soccer/epl/odds/latest.json \
+            data/internal/research/epl/forecasts/latest.json
 
       - name: Commit if anything changed
         run: |
@@ -121,7 +141,11 @@ jobs:
           git config user.name  "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
           # Allowlisted paths only. A generated-data job never touches money artifacts.
+          # The forecast set is a generated artifact; an artifact that is not allowlisted is
+          # regenerated and dropped at the end of every run, which is the shape that hid the
+          # model-learning audit for weeks.
           git add app/public/data/soccer/epl app/public/data/parlays/tier-grid \
+                  data/internal/research/epl/forecasts \
                   data/internal/research/odds/epl/authorization-ledger.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
           git commit -m "auto: epl matchweek refresh $(date -u +%Y-%m-%d) [skip ci]"
