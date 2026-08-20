@@ -22,13 +22,43 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { sportLearningPaths } from "../src/lib/sports/learning-paths.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA = resolve(__dirname, "..", "public", "data");
 const DOCS = resolve(__dirname, "..", "..", "docs", "audits");
 const LEARN = resolve(DATA, "learning");
 const GRADED = resolve(DATA, "parlays", "optimizer-graded");
-const SETTLED = resolve(DATA, "mlb", "results", "settled_leans.jsonl");
+/*
+ * The sport this policy is FOR. Defaults to mlb, which is what the nightly loop already runs, so
+ * this refactor is a no-op for it. The resolver refuses an unknown sport rather than defaulting —
+ * a run must never learn a selection policy from a sport it was not asked about.
+ */
+const SPORT = (() => { const i = process.argv.indexOf("--sport"); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : "mlb"; })();
+const SETTLED = sportLearningPaths(SPORT, resolve(__dirname, "..")).ledger;
+/*
+ * OUTPUT NAMES ARE SPORT-SCOPED, AND MLB KEEPS ITS ORIGINAL ONES.
+ *
+ * The policy was written to a single selection-policy-latest.json with no sport in the name. Running
+ * this per sport against that path would have each sport silently overwrite the last, so the loop
+ * would end every night holding whichever sport happened to run final — a policy learned from UFC
+ * sitting where the MLB reader expects to find its own. MLB keeps the exact filenames other code
+ * already reads; every other sport is suffixed.
+ */
+/*
+ * A sport that has settled nothing yet is a FACT to report, not a crash. Reading the ledger blind
+ * threw a raw ENOENT for UFC, which in the nightly loop would look like a broken job rather than a
+ * sport that has simply not produced results — and the per-sport loop below tolerates the former.
+ */
+if (!SETTLED || !existsSync(SETTLED)) {
+  console.log(`selection-learning ${SPORT}: no settled ledger yet — nothing to learn from, prior policy retained`);
+  process.exit(0);
+}
+
+const isMlb = SPORT === "mlb";
+const POLICY_LATEST = isMlb ? "selection-policy-latest.json" : `selection-policy-${SPORT}-latest.json`;
+const POLICY_DATED = (through) => (isMlb ? `selection-policy-${through}.json` : `selection-policy-${SPORT}-${through}.json`);
+const REPORT_NAME = isMlb ? "daily-selection-learning-latest.md" : `daily-selection-learning-${SPORT}-latest.md`;
 
 const argv = process.argv;
 const arg = (k, d) => { const i = argv.indexOf(k); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -273,9 +303,9 @@ if (DRY) {
 } else {
   mkdirSync(LEARN, { recursive: true });
   const json = JSON.stringify(policy, null, 2);
-  writeFileSync(resolve(LEARN, "selection-policy-latest.json"), json);
-  writeFileSync(resolve(LEARN, `selection-policy-${through}.json`), json);
-  console.log("wrote", resolve(LEARN, "selection-policy-latest.json"));
-  if (WRITE) { mkdirSync(DOCS, { recursive: true }); writeFileSync(resolve(DOCS, "daily-selection-learning-latest.md"), report); console.log("wrote report"); }
+  writeFileSync(resolve(LEARN, POLICY_LATEST), json);
+  writeFileSync(resolve(LEARN, POLICY_DATED(through)), json);
+  console.log("wrote", resolve(LEARN, POLICY_LATEST));
+  if (WRITE) { mkdirSync(DOCS, { recursive: true }); writeFileSync(resolve(DOCS, REPORT_NAME), report); console.log("wrote report"); }
 }
 console.log(`\nthrough=${through} universe=${universe.length} pubLegs=${pubLegs.length} noLiveWire=${noLiveWire} edgeInverted=${invertedEdge} confPredictive=${confidencePredictive}`);

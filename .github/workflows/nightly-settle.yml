@@ -243,11 +243,19 @@ jobs:
           # Deps were already installed by "Install app dependencies" above; reinstalling here
           # doubled the npm work per run. Verify instead of reinstall; install only if missing.
           [ -d node_modules ] || npm ci --no-audit --no-fund || { echo "npm ci failed — skipping learning update (conservative fallback retained)"; exit 0; }
-          if npx --yes tsx scripts/update-selection-learning.mjs --write-report; then
-            echo "::notice::selection-learning policy updated"
-          else
-            echo "::warning::selection-learning update failed — prior policy retained (conservative fallback)"
-          fi
+          # PER SPORT, not MLB alone. The loop that turns settled results into a better policy read
+          # public/data/mlb literals, so no other sport could ever learn from its own hits and
+          # misses. Each sport is now scoped; one that has settled nothing exits 0 saying so, which
+          # is a fact to record rather than a failure to alarm on.
+          for SPORT in mlb ufc nfl epl; do
+            if npx --yes tsx scripts/update-selection-learning.mjs --sport "$SPORT" --write-report; then
+              echo "::notice::selection-learning policy updated ($SPORT)"
+            else
+              # Never fatal, and never silent: a sport failing must not cost the other sports their
+              # update, but it must still be visible rather than swallowed by the loop.
+              echo "::warning::selection-learning update failed for $SPORT — prior policy retained (conservative fallback)"
+            fi
+          done
 
       # ---- Bank Builder paper-bankroll ledger (settled-only, §4.2 durable history) ----
       # Runs AFTER grading; reuses the site's own selector + ladder math. Settled results
@@ -331,10 +339,16 @@ jobs:
             || echo "::warning::calibration export failed — prior corpus retained"
           # 2) Learning audit: calibration backtest + market registry. Read-only over the corpus.
           mkdir -p ../data/internal/mlb/model-learning
-          npx --yes tsx scripts/model-learning-audit.mjs \
-            --json ../data/internal/mlb/model-learning/model-learning-audit.json \
-            --markdown ../data/internal/mlb/model-learning/model-learning-audit.md \
-            || echo "::warning::model-learning audit failed — prior artifacts retained"
+          # PER SPORT. The audit read public/data/mlb literals, so only MLB was ever scored against
+          # its own settled results. Output paths are scoped per sport too — a shared filename would
+          # have each sport overwrite the last, leaving the loop holding whichever ran final.
+          for SPORT in mlb ufc nfl epl; do
+            mkdir -p "../data/internal/$SPORT/model-learning"
+            npx --yes tsx scripts/model-learning-audit.mjs --sport "$SPORT" \
+              --json "../data/internal/$SPORT/model-learning/model-learning-audit.json" \
+              --markdown "../data/internal/$SPORT/model-learning/model-learning-audit.md" \
+              || echo "::warning::model-learning audit failed for $SPORT — prior artifacts retained"
+          done
           # 3) Freshness + drift monitor. Non-fatal by design: a stale corpus must be VISIBLE on /ops,
           #    not a reason to abort a settlement that already succeeded.
           npx --yes tsx scripts/check-learning-freshness.mjs --write \
@@ -443,6 +457,10 @@ jobs:
           # Internal paper-settlement lifecycle (NOT web-served, public:false, never money).
           # Deliberately excludes product-cards/{paper,approvals}/ — those are founder-gated
           # INPUTS that automation must never author or commit.
+          # The model-learning audit was in NO allowlist entry, so it ran nightly and had its output
+          # dropped at the commit every time — the tracked copies were frozen at whatever a human
+          # last committed by hand. Globbed per sport now that the audit runs per sport.
+          git add data/internal/*/model-learning/ 2>/dev/null || true
           git add data/internal/mlb/linescores/ 2>/dev/null || true
           git add data/internal/mlb/product-settlement/ 2>/dev/null || true
           git add data/internal/product-cards/settlements/ 2>/dev/null || true
