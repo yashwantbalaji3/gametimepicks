@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-forecasts",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-20T15:39:24Z",
+ "generatedAt": "2026-08-20T21:26:43Z",
  "date": "2026-08-20",
  "model": {
   "id": "nfl-preseason-public-beta-v1",
@@ -15,7 +15,7 @@
   "whatItIsGoodFor": "Seeing a plausible score range and how it compares with the sportsbook market. It is not a betting recommendation and has not been shown to beat the market.",
   "whyPublishItAtAll": "Publishing it with its results tracked is how it earns — or fails to earn — a stronger status over time."
  },
- "eventCount": 5,
+ "eventCount": 11,
  "forecasts": [
   {
    "providerEventId": "401873286",
@@ -38,7 +38,7 @@
     "id": "nfl-preseason-public-beta-v1",
     "version": 1,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "fb292a2e68e93d0b",
+    "inputHash": "651c82b45af03962",
     "simulations": 10000
    },
    "teamSignal": {
@@ -50,10 +50,10 @@
     ],
     "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
    },
-   "generatedAt": "2026-08-20T15:39:24Z",
+   "generatedAt": "2026-08-20T21:26:43Z",
    "evidence": {
     "schedule": "2026-08-20T13:37:56Z",
-    "strengthCutoff": "2026-08-20T15:39:24Z"
+    "strengthCutoff": "2026-08-20T21:26:43Z"
    },
    "forecastSummary": {
     "projectedScore": {
@@ -61,23 +61,23 @@
      "away": 19
     },
     "winProbability": {
-     "home": 0.463,
-     "away": 0.537,
-     "tieMass": 0.0295,
+     "home": 0.464,
+     "away": 0.536,
+     "tieMass": 0.0312,
      "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
     },
     "margin": {
      "median": -1,
-     "p10": -17,
-     "p90": 16
+     "p10": -18,
+     "p90": 15
     },
     "total": {
-     "median": 38,
+     "median": 37,
      "p10": 23,
-     "p90": 52
+     "p90": 51
     },
     "scoreRange": {
-     "homeP10": 8,
+     "homeP10": 7,
      "homeP90": 29,
      "awayP10": 8,
      "awayP90": 30
@@ -85,12 +85,12 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-08-20T15:07:00Z",
+    "capturedAt": "2026-08-20T21:26:43Z",
     "books": 9,
-    "marketHomeWinPct": 0.518077,
-    "marketSpreadHome": -1,
-    "marketTotal": 38,
-    "modelVsMarketTotal": 0,
+    "marketHomeWinPct": 0.46875,
+    "marketSpreadHome": 1.5,
+    "marketTotal": 38.5,
+    "modelVsMarketTotal": -1.5,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
    },
    "settlementKey": {
@@ -121,7 +121,7 @@
     "id": "nfl-preseason-public-beta-v1",
     "version": 1,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "a12115362ae8405b",
+    "inputHash": "05cd62c7c67275df",
     "simulations": 10000
    },
    "teamSignal": {
@@ -133,10 +133,10 @@
     ],
     "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
    },
-   "generatedAt": "2026-08-20T15:39:24Z",
+   "generatedAt": "2026-08-20T21:26:43Z",
    "evidence": {
     "schedule": "2026-08-20T13:37:56Z",
-    "strengthCutoff": "2026-08-20T15:39:24Z"
+    "strengthCutoff": "2026-08-20T21:26:43Z"
    },
    "forecastSummary": {
     "projectedScore": {
@@ -144,23 +144,23 @@
      "away": 19
     },
     "winProbability": {
-     "home": 0.4699,
-     "away": 0.5301,
-     "tieMass": 0.0301,
+     "home": 0.4639,
+     "away": 0.5361,
+     "tieMass": 0.0306,
      "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
     },
     "margin": {
-     "median": 0,
+     "median": -1,
      "p10": -17,
      "p90": 16
     },
     "total": {
      "median": 37,
      "p10": 23,
-     "p90": 52
+     "p90": 51
     },
     "scoreRange": {
-     "homeP10": 8,
+     "homeP10": 7,
      "homeP90": 29,
      "awayP10": 8,
      "awayP90": 30
@@ -168,12 +168,12 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-08-20T15:07:00Z",
+    "capturedAt": "2026-08-20T21:26:43Z",
     "books": 9,
-    "marketHomeWinPct": 0.478261,
+    "marketHomeWinPct": 0.489166,
     "marketSpreadHome": 1,
-    "marketTotal": 38,
-    "modelVsMarketTotal": -1,
+    "marketTotal": 38.5,
+    "modelVsMarketTotal": -1.5,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
    },
    "settlementKey": {
@@ -204,7 +204,7 @@
     "id": "nfl-preseason-public-beta-v1",
     "version": 1,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "219cb7e72a302fd9",
+    "inputHash": "34fca41814280824",
     "simulations": 10000
    },
    "teamSignal": {
@@ -216,10 +216,10 @@
     ],
     "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
    },
-   "generatedAt": "2026-08-20T15:39:24Z",
+   "generatedAt": "2026-08-20T21:26:43Z",
    "evidence": {
     "schedule": "2026-08-20T13:37:56Z",
-    "strengthCutoff": "2026-08-20T15:39:24Z"
+    "strengthCutoff": "2026-08-20T21:26:43Z"
    },
    "forecastSummary": {
     "projectedScore": {
@@ -227,20 +227,20 @@
      "away": 19
     },
     "winProbability": {
-     "home": 0.4715,
-     "away": 0.5285,
-     "tieMass": 0.0337,
+     "home": 0.4638,
+     "away": 0.5362,
+     "tieMass": 0.0307,
      "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
     },
     "margin": {
-     "median": 0,
+     "median": -1,
      "p10": -17,
      "p90": 16
     },
     "total": {
      "median": 37,
      "p10": 23,
-     "p90": 51
+     "p90": 52
     },
     "scoreRange": {
      "homeP10": 7,
@@ -251,12 +251,12 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-08-20T15:07:00Z",
+    "capturedAt": "2026-08-20T21:26:43Z",
     "books": 11,
-    "marketHomeWinPct": 0.478261,
+    "marketHomeWinPct": 0.467532,
     "marketSpreadHome": 1.5,
-    "marketTotal": 36.5,
-    "modelVsMarketTotal": 0.5,
+    "marketTotal": 37.5,
+    "modelVsMarketTotal": -0.5,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
    },
    "settlementKey": {
@@ -287,7 +287,7 @@
     "id": "nfl-preseason-public-beta-v1",
     "version": 1,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "6b82b90be7b40f33",
+    "inputHash": "57a766e5dbc14ef8",
     "simulations": 10000
    },
    "teamSignal": {
@@ -299,10 +299,10 @@
     ],
     "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
    },
-   "generatedAt": "2026-08-20T15:39:24Z",
+   "generatedAt": "2026-08-20T21:26:43Z",
    "evidence": {
     "schedule": "2026-08-20T13:37:56Z",
-    "strengthCutoff": "2026-08-20T15:39:24Z"
+    "strengthCutoff": "2026-08-20T21:26:43Z"
    },
    "forecastSummary": {
     "projectedScore": {
@@ -310,23 +310,23 @@
      "away": 19
     },
     "winProbability": {
-     "home": 0.4602,
-     "away": 0.5398,
-     "tieMass": 0.0316,
+     "home": 0.4709,
+     "away": 0.5291,
+     "tieMass": 0.0292,
      "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
     },
     "margin": {
-     "median": -1,
+     "median": 0,
      "p10": -17,
      "p90": 16
     },
     "total": {
      "median": 37,
      "p10": 23,
-     "p90": 51
+     "p90": 52
     },
     "scoreRange": {
-     "homeP10": 7,
+     "homeP10": 8,
      "homeP90": 29,
      "awayP10": 8,
      "awayP90": 30
@@ -334,7 +334,7 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-08-20T15:07:00Z",
+    "capturedAt": "2026-08-20T21:26:43Z",
     "books": 11,
     "marketHomeWinPct": 0.467532,
     "marketSpreadHome": 1.5,
@@ -370,7 +370,7 @@
     "id": "nfl-preseason-public-beta-v1",
     "version": 1,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "5aff6a898b7c08bb",
+    "inputHash": "dc30eeb944083fc5",
     "simulations": 10000
    },
    "teamSignal": {
@@ -382,10 +382,10 @@
     ],
     "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
    },
-   "generatedAt": "2026-08-20T15:39:24Z",
+   "generatedAt": "2026-08-20T21:26:43Z",
    "evidence": {
     "schedule": "2026-08-20T13:37:56Z",
-    "strengthCutoff": "2026-08-20T15:39:24Z"
+    "strengthCutoff": "2026-08-20T21:26:43Z"
    },
    "forecastSummary": {
     "projectedScore": {
@@ -393,9 +393,169 @@
      "away": 19
     },
     "winProbability": {
-     "home": 0.4544,
-     "away": 0.5456,
-     "tieMass": 0.03,
+     "home": 0.4583,
+     "away": 0.5417,
+     "tieMass": 0.0282,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": -1,
+     "p10": -17,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 51
+    },
+    "scoreRange": {
+     "homeP10": 7,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "MARKET_VIEW",
+    "capturedAt": "2026-08-20T21:26:43Z",
+    "books": 11,
+    "marketHomeWinPct": 0.680556,
+    "marketSpreadHome": -6,
+    "marketTotal": 40.5,
+    "modelVsMarketTotal": -3.5,
+    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873613",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873601",
+   "canonicalEventId": "nfl-401873601",
+   "matchup": "WSH @ DET",
+   "home": {
+    "abbr": "DET",
+    "name": "Detroit Lions"
+   },
+   "away": {
+    "abbr": "WSH",
+    "name": "Washington Commanders"
+   },
+   "kickoffUtc": "2026-08-22T16:00Z",
+   "seasonType": 1,
+   "week": 3,
+   "venue": "Ford Field",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "2cc88dd361d217fb",
+    "simulations": 10000
+   },
+   "teamSignal": {
+    "state": "NOT_SIGNIFICANT",
+    "tStatistic": -0.5746,
+    "ci95": [
+     -0.077667,
+     0.042782
+    ],
+    "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
+   },
+   "generatedAt": "2026-08-20T21:26:43Z",
+   "evidence": {
+    "schedule": "2026-08-20T13:37:56Z",
+    "strengthCutoff": "2026-08-20T21:26:43Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4697,
+     "away": 0.5303,
+     "tieMass": 0.0308,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": 0,
+     "p10": -17,
+     "p90": 16
+    },
+    "total": {
+     "median": 38,
+     "p10": 23,
+     "p90": 52
+    },
+    "scoreRange": {
+     "homeP10": 7,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "NO_MARKET",
+    "note": "No current sportsbook capture covers this game."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873601",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873294",
+   "canonicalEventId": "nfl-401873294",
+   "matchup": "BUF @ CLE",
+   "home": {
+    "abbr": "CLE",
+    "name": "Cleveland Browns"
+   },
+   "away": {
+    "abbr": "BUF",
+    "name": "Buffalo Bills"
+   },
+   "kickoffUtc": "2026-08-22T17:00Z",
+   "seasonType": 1,
+   "week": 3,
+   "venue": "Huntington Bank Field",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "8dbd826dd2fc91da",
+    "simulations": 10000
+   },
+   "teamSignal": {
+    "state": "NOT_SIGNIFICANT",
+    "tStatistic": -0.5746,
+    "ci95": [
+     -0.077667,
+     0.042782
+    ],
+    "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
+   },
+   "generatedAt": "2026-08-20T21:26:43Z",
+   "evidence": {
+    "schedule": "2026-08-20T13:37:56Z",
+    "strengthCutoff": "2026-08-20T21:26:43Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4685,
+     "away": 0.5315,
+     "tieMass": 0.0287,
      "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
     },
     "margin": {
@@ -416,17 +576,319 @@
     }
    },
    "marketComparison": {
-    "state": "MARKET_VIEW",
-    "capturedAt": "2026-08-20T15:07:00Z",
-    "books": 11,
-    "marketHomeWinPct": 0.680556,
-    "marketSpreadHome": -6,
-    "marketTotal": 40.5,
-    "modelVsMarketTotal": -3.5,
-    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market."
+    "state": "NO_MARKET",
+    "note": "No current sportsbook capture covers this game."
    },
    "settlementKey": {
-    "canonicalEventId": "nfl-401873613",
+    "canonicalEventId": "nfl-401873294",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873295",
+   "canonicalEventId": "nfl-401873295",
+   "matchup": "ATL @ IND",
+   "home": {
+    "abbr": "IND",
+    "name": "Indianapolis Colts"
+   },
+   "away": {
+    "abbr": "ATL",
+    "name": "Atlanta Falcons"
+   },
+   "kickoffUtc": "2026-08-22T17:00Z",
+   "seasonType": 1,
+   "week": 3,
+   "venue": "Lucas Oil Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "c1a11c72c75d1626",
+    "simulations": 10000
+   },
+   "teamSignal": {
+    "state": "NOT_SIGNIFICANT",
+    "tStatistic": -0.5746,
+    "ci95": [
+     -0.077667,
+     0.042782
+    ],
+    "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
+   },
+   "generatedAt": "2026-08-20T21:26:43Z",
+   "evidence": {
+    "schedule": "2026-08-20T13:37:56Z",
+    "strengthCutoff": "2026-08-20T21:26:43Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4627,
+     "away": 0.5373,
+     "tieMass": 0.0296,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": -1,
+     "p10": -17,
+     "p90": 15
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 52
+    },
+    "scoreRange": {
+     "homeP10": 7,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "NO_MARKET",
+    "note": "No current sportsbook capture covers this game."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873295",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873291",
+   "canonicalEventId": "nfl-401873291",
+   "matchup": "BAL @ MIN",
+   "home": {
+    "abbr": "MIN",
+    "name": "Minnesota Vikings"
+   },
+   "away": {
+    "abbr": "BAL",
+    "name": "Baltimore Ravens"
+   },
+   "kickoffUtc": "2026-08-22T17:00Z",
+   "seasonType": 1,
+   "week": 3,
+   "venue": "U.S. Bank Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "fd75cc48e6857c46",
+    "simulations": 10000
+   },
+   "teamSignal": {
+    "state": "NOT_SIGNIFICANT",
+    "tStatistic": -0.5746,
+    "ci95": [
+     -0.077667,
+     0.042782
+    ],
+    "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
+   },
+   "generatedAt": "2026-08-20T21:26:43Z",
+   "evidence": {
+    "schedule": "2026-08-20T13:37:56Z",
+    "strengthCutoff": "2026-08-20T21:26:43Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4648,
+     "away": 0.5352,
+     "tieMass": 0.0289,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": -1,
+     "p10": -17,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 51
+    },
+    "scoreRange": {
+     "homeP10": 7,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "NO_MARKET",
+    "note": "No current sportsbook capture covers this game."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873291",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873290",
+   "canonicalEventId": "nfl-401873290",
+   "matchup": "NO @ LAR",
+   "home": {
+    "abbr": "LAR",
+    "name": "Los Angeles Rams"
+   },
+   "away": {
+    "abbr": "NO",
+    "name": "New Orleans Saints"
+   },
+   "kickoffUtc": "2026-08-22T20:00Z",
+   "seasonType": 1,
+   "week": 3,
+   "venue": "SoFi Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "0384f9f0c87cdb72",
+    "simulations": 10000
+   },
+   "teamSignal": {
+    "state": "NOT_SIGNIFICANT",
+    "tStatistic": -0.5746,
+    "ci95": [
+     -0.077667,
+     0.042782
+    ],
+    "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
+   },
+   "generatedAt": "2026-08-20T21:26:43Z",
+   "evidence": {
+    "schedule": "2026-08-20T13:37:56Z",
+    "strengthCutoff": "2026-08-20T21:26:43Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4657,
+     "away": 0.5343,
+     "tieMass": 0.0336,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": -1,
+     "p10": -17,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 24,
+     "p90": 52
+    },
+    "scoreRange": {
+     "homeP10": 8,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "NO_MARKET",
+    "note": "No current sportsbook capture covers this game."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873290",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market."
+  },
+  {
+   "providerEventId": "401873292",
+   "canonicalEventId": "nfl-401873292",
+   "matchup": "NYG @ MIA",
+   "home": {
+    "abbr": "MIA",
+    "name": "Miami Dolphins"
+   },
+   "away": {
+    "abbr": "NYG",
+    "name": "New York Giants"
+   },
+   "kickoffUtc": "2026-08-22T20:00Z",
+   "seasonType": 1,
+   "week": 3,
+   "venue": "Hard Rock Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-preseason-public-beta-v1",
+    "version": 1,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "6c9453bbc7a65902",
+    "simulations": 10000
+   },
+   "teamSignal": {
+    "state": "NOT_SIGNIFICANT",
+    "tStatistic": -0.5746,
+    "ci95": [
+     -0.077667,
+     0.042782
+    ],
+    "note": "This model has no measurable read on which of these two teams is better in preseason: the coefficient linking team strength to margin is indistinguishable from zero (t = -0.5746, 95% interval [-0.077667,0.042782]). Rather than publish a direction it cannot support, the team term is set to zero, so this forecast reflects preseason scoring and home context only."
+   },
+   "generatedAt": "2026-08-20T21:26:43Z",
+   "evidence": {
+    "schedule": "2026-08-20T13:37:56Z",
+    "strengthCutoff": "2026-08-20T21:26:43Z"
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 18,
+     "away": 19
+    },
+    "winProbability": {
+     "home": 0.4675,
+     "away": 0.5325,
+     "tieMass": 0.0284,
+     "calibration": "Shrunk toward 50% by a factor fit before testing (λ=0.25)."
+    },
+    "margin": {
+     "median": -1,
+     "p10": -18,
+     "p90": 16
+    },
+    "total": {
+     "median": 37,
+     "p10": 23,
+     "p90": 51
+    },
+    "scoreRange": {
+     "homeP10": 7,
+     "homeP90": 29,
+     "awayP10": 8,
+     "awayP90": 30
+    }
+   },
+   "marketComparison": {
+    "state": "NO_MARKET",
+    "note": "No current sportsbook capture covers this game."
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873292",
     "settlesAgainst": "official final score",
     "ledger": "experimental-forecast"
    },
