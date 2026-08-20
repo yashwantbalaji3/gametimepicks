@@ -39,7 +39,20 @@ function buildStatusAt(nowIso) {
 }
 
 test("the slate pointer equals the newest MLB board and never lags at the daily-portfolio date", () => {
-  const now = "2026-07-24T20:00:00Z";
+  // The clock is DERIVED from the newest board on disk, never a literal. The original pinned
+  // "2026-07-24T20:00:00Z" rotted: once the boards directory advanced past it, mlbSlate became a
+  // FUTURE board relative to that clock, and the second block below — which lacks the non-future
+  // guard the first one has — demanded slate.date exceed a date the clock cannot see. Adding another
+  // guard would have bought a pass by going VACUOUS, which is exactly what the note under this test
+  // warns about. Deriving the clock keeps the July-24 shape (a board NEWER than the money-state
+  // date) exercised for real on every run, and it cannot rot again.
+  const boardsDir = path.join(app, "public", "data", "mlb", "boards");
+  const newestBoard = fs.readdirSync(boardsDir)
+    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .sort()
+    .pop();
+  assert.ok(newestBoard, "there must be at least one MLB board for the pointer to point at");
+  const now = `${newestBoard.slice(0, 10)}T20:00:00Z`;
   const s = buildStatusAt(now);
   assert.ok(typeof s.slate.date === "string" && /^2\d{3}-\d{2}-\d{2}$/.test(s.slate.date), "slate.date is a real ISO date");
 
