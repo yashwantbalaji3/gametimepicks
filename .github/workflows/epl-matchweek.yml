@@ -125,16 +125,6 @@ jobs:
           done
 
       # See ufc-fight-week: a green step is not evidence the pipeline ran.
-      - name: Assert this run produced its artifacts
-        run: |
-          set -euo pipefail
-          # The forecast set is asserted alongside the odds: a run that captured prices and produced
-          # no forecast is the exact failure this chain had before the builder existed, and it must
-          # not pass silently just because the capture half worked.
-          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --allow-missing \
-            app/public/data/soccer/epl/odds/latest.json \
-            data/internal/research/epl/forecasts/latest.json
-
       - name: Commit if anything changed
         run: |
           set -euo pipefail
@@ -151,6 +141,20 @@ jobs:
           git commit -m "auto: epl matchweek refresh $(date -u +%Y-%m-%d) [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
+
+      # Runs AFTER the commit, deliberately. It used to sit before, and a legitimate skip — the
+      # odds capture refusing a duplicate request inside its 60-minute window — failed the job
+      # BEFORE the commit step, so a forecast this run genuinely produced was generated and
+      # thrown away. A check that reports on work must never be the reason the work is lost.
+      - name: Assert this run produced its artifacts
+        run: |
+          set -euo pipefail
+          # The forecast set is asserted alongside the odds: a run that captured prices and produced
+          # no forecast is the exact failure this chain had before the builder existed, and it must
+          # not pass silently just because the capture half worked.
+          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --allow-missing \
+            app/public/data/soccer/epl/odds/latest.json \
+            data/internal/research/epl/forecasts/latest.json
 
       - name: Notify on failure
         if: failure()
