@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824474,
+  "date": "2026-08-20",
+  "capturedAt": "2026-08-20T11:24:46.105Z",
+  "availableAt": "2026-08-20T11:24:46.105Z",
+  "eventStartTime": "2026-08-20T16:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663903,
+      "name": "Brady Singer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 4.4,
+        "bbAvg": 2.2,
+        "erAvg": 3.2,
+        "hrAvg": 0.6,
+        "kPer9": 6.83,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 125.67,
+        "k": 104,
+        "bb": 42,
+        "er": 65,
+        "hr": 24
+      }
+    },
+    "away": {
+      "id": 700241,
+      "name": "Michael McGreevy",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4,
+        "bbAvg": 2,
+        "erAvg": 3.2,
+        "hrAvg": 0.8,
+        "kPer9": 7.5,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 132,
+        "k": 91,
+        "bb": 34,
+        "er": 51,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-20&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-20T11:24:46.105Z"
+  },
+  "recordHash": "38dcd92d4fedeafba50a8a3d2d5eca357ea8b94f33c0a6552709f024c624edf6"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824074,
+  "date": "2026-08-20",
+  "capturedAt": "2026-08-20T11:24:46.105Z",
+  "availableAt": "2026-08-20T11:24:46.105Z",
+  "eventStartTime": "2026-08-20T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 677976,
+      "name": "Randy Dobnak",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 6,
+      "restDays": 5,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 3.6,
+        "bbAvg": 1.6,
+        "erAvg": 1,
+        "hrAvg": 0,
+        "kPer9": 5.86,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 6,
+        "ip": 32,
+        "k": 21,
+        "bb": 12,
+        "er": 6,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 695611,
+      "name": "Gage Jump",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 6,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 5.8,
+        "bbAvg": 4,
+        "erAvg": 3.4,
+        "hrAvg": 0.8,
+        "kPer9": 10.17,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 78,
+        "k": 85,
+        "bb": 37,
+        "er": 39,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-20&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-20T11:24:46.105Z"
+  },
+  "recordHash": "b10556e27628e4bb19e3bfa12308d8cea7b5cf830c15e7495a30c4d6e1cec5db"
+}
