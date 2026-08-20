@@ -6,7 +6,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { cronMatches, expectedSlots, missedSlots } from "./cron-slots.mjs";
+import { cronMatches, expectedSlots, missedSlots, windowFloor } from "./cron-slots.mjs";
 
 const at = (iso) => new Date(iso);
 const ms = (iso) => Date.parse(iso);
@@ -72,4 +72,20 @@ test("A QUIET WEEK IS SILENT — the failure mode that would kill trust in this 
   const ran = slots.map((s) => s + 20 * 60_000);
   assert.deepEqual(missedSlots(slots, ran, { nowMs: ms("2026-08-24T00:00:00Z") }), [],
     "a sport with nothing on must not trip the watchdog");
+});
+
+test("A SLOT BEFORE THE WORKFLOW EXISTED IS NOT A MISS", () => {
+  // The first live run reported five missed slots across UFC and EPL and every one predated the
+  // workflow file — 100% false positives, on the very failure this watchdog was shaped to avoid.
+  const created = ms("2026-08-18T00:00:00Z");
+  const from = ms("2026-08-10T00:00:00Z");
+  assert.equal(windowFloor(from, created), created, "the window starts when the job started existing");
+
+  const slots = expectedSlots(["0 7 * * 4,6,0"], windowFloor(from, created), ms("2026-08-19T00:00:00Z"));
+  assert.deepEqual(slots, [], "a job created on the 18th has no slots on the 13th");
+});
+
+test("an undateable workflow does not get an invented floor", () => {
+  const from = ms("2026-08-10T00:00:00Z");
+  for (const bad of [NaN, null, undefined]) assert.equal(windowFloor(from, bad), from);
 });

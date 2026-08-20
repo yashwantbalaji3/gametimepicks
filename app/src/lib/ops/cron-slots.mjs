@@ -77,3 +77,18 @@ export function missedSlots(slots, runStartMs, { nowMs, toleranceMs = 2 * 3600_0
     .filter((s) => s <= nowMs - toleranceMs)
     .filter((s) => !runs.some((r) => r >= s - toleranceMs && r <= s + toleranceMs));
 }
+
+/**
+ * The earliest instant a workflow could possibly have run: its own creation.
+ *
+ * WHY THIS IS NOT OPTIONAL. Without it the watchdog reported five missed slots across UFC and EPL on
+ * its first run, and ALL FIVE predated the workflow files existing — a 100% false-positive rate, on
+ * the exact cry-wolf failure the run-not-output design was chosen to avoid. A slot before the job
+ * existed is not a slot anyone missed.
+ *
+ * A null/unknown creation time falls back to the requested window rather than to zero: if we cannot
+ * date the workflow we do not get to invent an earlier floor for it.
+ */
+export function windowFloor(fromMs, createdMs) {
+  return Number.isFinite(createdMs) ? Math.max(fromMs, createdMs) : fromMs;
+}

@@ -17,7 +17,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { expectedSlots, missedSlots } from "../../src/lib/ops/cron-slots.mjs";
+import { expectedSlots, missedSlots, windowFloor } from "../../src/lib/ops/cron-slots.mjs";
 import { SPORT_OWNERS } from "../../src/lib/sports/sport-owners.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -34,6 +34,15 @@ const fromMs = nowMs - LOOKBACK_H * 3600_000;
 function cronsFor(wf) {
   const src = fs.readFileSync(path.join(REPO, ".github/workflows", wf), "utf8");
   return [...src.matchAll(/^\s*-\s*cron:\s*["']([^"']+)["']/gm)].map((m) => m[1]);
+}
+
+/** When the workflow file first landed, epoch ms, or NaN when git cannot date it. */
+function createdAtFor(wf) {
+  try {
+    const out = execFileSync("git", ["log", "--diff-filter=A", "--format=%aI", "--", `.github/workflows/${wf}`], { cwd: REPO, encoding: "utf8" });
+    const first = out.trim().split("\n").filter(Boolean).pop();
+    return first ? Date.parse(first) : NaN;
+  } catch { return NaN; }
 }
 
 /** Run start times for a workflow, epoch ms. An unreachable gh is UNKNOWN, never "no runs". */
@@ -53,7 +62,10 @@ for (const [sport, owner] of Object.entries(SPORT_OWNERS)) {
   const crons = cronsFor(owner.primary);
   if (crons.length === 0) { report.sports[sport] = { workflow: owner.primary, skipped: true, reason: "workflow declares no cron" }; continue; }
 
-  const slots = expectedSlots(crons, fromMs, nowMs);
+  // A slot from before the workflow existed is not a slot anyone missed. Without this floor the
+  // first live run reported five misses across UFC and EPL and every one predated the file.
+  const createdMs = createdAtFor(owner.primary);
+  const slots = expectedSlots(crons, windowFloor(fromMs, createdMs), nowMs);
   const runs = runsFor(owner.primary);
   if (!runs.ok) {
     // Cannot see the runs => cannot claim they are missing. Reported as unknown, which is a
@@ -64,7 +76,8 @@ for (const [sport, owner] of Object.entries(SPORT_OWNERS)) {
   }
   const missed = missedSlots(slots, runs.times, { nowMs });
   report.sports[sport] = {
-    workflow: owner.primary, crons, expected: slots.length, ran: runs.times.length,
+    workflow: owner.primary, crons, createdAt: Number.isFinite(createdMs) ? new Date(createdMs).toISOString() : null,
+    expected: slots.length, ran: runs.times.length,
     missed: missed.map((t) => new Date(t).toISOString()),
     state: missed.length ? "MISSED" : "OK",
   };
