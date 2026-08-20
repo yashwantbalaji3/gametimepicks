@@ -9,10 +9,14 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 
 import { DEPARTMENT_BUCKETS, sportColumn, buildCompletionMatrix, ROADMAP_30D, MATRIX_VERSION } from "./completion-matrix.mjs";
 import { GATE_STAGES } from "../sports/sport-gate.mjs";
 import { SPORT_ASSESSMENTS } from "../sports/sport-assessments.mjs";
+
+const REPO = path.join(process.cwd(), "..");
 
 test("THE PARTITION · every gate stage lives in exactly one department bucket", () => {
   const seen = new Map();
@@ -42,7 +46,7 @@ test("percentages derive from stages — MLB all-proven is 100 everywhere, empty
   // module's own state literals). Listed explicitly so a stage still cannot claim evidence without
   // a reviewed entry here — the invariant this guard exists for is untouched.
   const NFL_EVIDENCE_STAGES = ["schedule", "data", "model", "settlement", "identity", "markets", "publication", "owner", "qualification"];
-  const NFL_PROVEN_STAGES = ["identity", "markets", "owner", "qualification"];
+  const NFL_PROVEN_STAGES = ["identity", "markets", "owner", "qualification", "settlement"];
   const nfl = sportColumn(SPORT_ASSESSMENTS.nfl);
   for (const b of DEPARTMENT_BUCKETS) {
     assert.ok(nfl[b.id].stages.every((s) => s.status === "UNPROVEN" || NFL_EVIDENCE_STAGES.includes(s.id)),
@@ -56,8 +60,22 @@ test("percentages derive from stages — MLB all-proven is 100 everywhere, empty
   // price table must never read as model or settlement progress.
   assert.equal(nfl["data-ingestion"].pct, 33);
   assert.equal(nfl["identity-assets"].pct, 100);
-  for (const id of ["product-generation", "settlement"]) {
-    assert.equal(nfl[id].pct, 0, `nfl.${id} must stay 0 — P171 published prices, not models or settled results`);
+  assert.equal(nfl["product-generation"].pct, 0,
+    "nfl.product-generation must stay 0 — P171 published prices, not generated products");
+  /*
+   * settlement moved off 0 on P185 and the reason this guard gave — "not settled results" — is now
+   * simply false: 16 preseason forecasts are settled from official scores, each carrying lineage and
+   * a self-quarantine on ambiguity. The bucket holds only that stage, so it reads 100.
+   *
+   * What must NOT drift is what the record MEANS. It grades a distribution — winner correctness,
+   * margin/total error, interval coverage — and carries no W-L or ROI. A settled NFL record must
+   * never start reading as money, so that is asserted directly rather than implied by a zero.
+   */
+  assert.equal(nfl["settlement"].pct, 100, "settlement is proven on 16 lineage-stamped forecasts");
+  const rec = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/nfl/experimental-settlement/summary.json"), "utf8"));
+  assert.equal(rec.ledger, "experimental-forecast", "the NFL record is a forecast ledger, never a money ledger");
+  for (const banned of ["roi", "wins", "losses", "bankroll", "profit"]) {
+    assert.ok(!(banned in rec), `the NFL experimental record must not carry ${banned}`);
   }
   /*
    * These two buckets moved off 0 on P185, and the SUBSTANTIVE claim is asserted instead of the

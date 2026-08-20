@@ -92,7 +92,8 @@ test("THE COMMITTED ASSESSMENTS · maturity derives to the honest current pictur
   // both are verified against real artifacts rather than asserted: the owner guard requires the
   // workflow to exist, carry a cron and reach a human, and the qualification guard reads the shadow
   // module's own state literals. The blanket rule is intact; only the reviewed exceptions grew.
-  const NFL_PROVEN = new Set(["identity", "markets", "owner", "qualification"]);
+  // settlement joined on P185 with 16 settled preseason forecasts carrying lineage + quarantine.
+  const NFL_PROVEN = new Set(["identity", "markets", "owner", "qualification", "settlement"]);
   for (const [name, st] of Object.entries(SPORT_ASSESSMENTS.nfl.stages)) {
     if (!NFL_PROVEN.has(name)) assert.equal(st.status, "PARTIAL", `${name} stays PARTIAL`);
     else assert.equal(st.status, "PROVEN", `${name} is one of the reviewed PROVEN stages`);
