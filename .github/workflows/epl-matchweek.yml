@@ -14,9 +14,22 @@ name: epl-matchweek
 # Three captures a matchweek at 2 credits each is 6 credits, against a 500-credit ceiling.
 on:
   schedule:
-    - cron: "0 7 * * 4"   # Thursday
-    - cron: "0 7 * * 6"   # Saturday
-    - cron: "0 7 * * 0"   # Sunday
+    # TIMED TO KICKOFFS. runEplShadow refuses odds older than 6h, and Thu/Sat/Sun 07:00 covered
+    # exactly ONE of matchweek 1's ten fixtures — a Thursday capture is 36h stale by the Friday
+    # 19:00 opener, and there was no Friday or Monday run at all. The engine worked and published
+    # nothing, because the prices arrived too early to use.
+    #
+    # These sit 3-5h ahead of the slots they serve. That is only safe because the capture itself now
+    # excludes any event already kicked off (excludedInProgress) — the schedule is no longer the
+    # thing keeping us off in-progress matches.
+    #
+    # Real 2026-27 slots (UTC): Fri 19:00 · Sat 11:30/14:00/16:30 · Sun 13:00/15:30 · Mon 19:00.
+    # COST: 5 runs/week x 2 markets ~= 10 credits/week (~43/month) against the receipt's 500 ceiling.
+    - cron: "0 14 * * 5"  # Friday   — serves the 19:00 opener
+    - cron: "0 9 * * 6"   # Saturday — serves 11:30 and 14:00
+    - cron: "0 13 * * 6"  # Saturday — serves 16:30
+    - cron: "0 10 * * 0"  # Sunday   — serves 13:00 and 15:30
+    - cron: "0 14 * * 1"  # Monday   — serves the 19:00 fixture
   workflow_dispatch:
     inputs:
       dry_run:

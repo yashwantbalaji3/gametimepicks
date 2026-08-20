@@ -129,10 +129,18 @@ test("the matchweek cron fires before the earliest kickoff", () => {
   const src = fs.readFileSync(wf, "utf8");
   const hours = [...src.matchAll(/- cron: "(\d+) (\d+) \* \* \d+"/g)].map((m) => Number(m[2]));
   assert.ok(hours.length >= 1, "no cron schedule found");
-  // EPL's earliest regular kickoff is Saturday 12:30 UK = 11:30 UTC in summer. GitHub crons drift
-  // an hour or more, so a capture scheduled past 09:00 UTC can land AFTER kickoff — which the
-  // receipt forbids, and which would price matches already in progress.
-  for (const h of hours) {
-    assert.ok(h <= 9, `a capture at ${h}:00 UTC can drift past the 11:30 UTC earliest kickoff`);
-  }
+  // The rule is unchanged — NEVER price a match already in progress — but it is no longer enforced
+  // by the clock. It used to be: every cron had to sit at/before 09:00 UTC so a drifting runner
+  // could not pass the earliest 11:30 UTC kickoff. That was weak (drift could still beat it) and
+  // expensive (captures landed so far ahead of afternoon and evening fixtures that runEplShadow
+  // refused the prices as stale, so 9 of matchweek 1's 10 fixtures published nothing).
+  //
+  // capture-epl-odds.mjs now EXCLUDES any event whose kickoff is at/before the capture clock and
+  // records it under excludedInProgress. Safety is a property of the code, so this asserts the
+  // filter EXISTS rather than policing the hour — and a cadence close to kickoff becomes safe.
+  const capture = fs.readFileSync(path.join(REPO, "app/scripts/epl/capture-epl-odds.mjs"), "utf8");
+  assert.match(capture, /evKick <= Date\.parse\(NOW\)/,
+    "the capture must refuse in-progress events in CODE — the schedule is not a safety mechanism");
+  assert.match(capture, /excludedInProgress/, "an excluded match must be recorded, never silently dropped");
+  assert.ok(hours.length >= 1, "a cadence must still exist");
 });

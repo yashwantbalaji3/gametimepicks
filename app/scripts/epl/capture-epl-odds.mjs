@@ -188,7 +188,27 @@ const rows = [];
    consensus median cannot be de-vigged as a book, because the median of three books is not a price
    any book posted and its implied sum means nothing. */
 const shadowRows = [];
+/*
+ * NEVER PRICE A MATCH THAT HAS ALREADY KICKED OFF.
+ *
+ * The receipt forbids it, and until now the only thing enforcing it was the SCHEDULE: every cron had
+ * to sit at or before 09:00 UTC so a run could not drift past the earliest 11:30 kickoff. That made
+ * safety a property of the clock, with two costs — a drifting runner could still land late, and it
+ * forced captures so far ahead of the afternoon and evening fixtures that runEplShadow refused the
+ * prices as stale. Nine of matchweek 1's ten fixtures published nothing for exactly that reason.
+ *
+ * The rule now lives in code, where it can be checked: an event whose kickoff is at or before the
+ * capture clock is EXCLUDED and recorded, never quietly dropped. Safety no longer depends on when
+ * the runner happens to start, so the cadence is free to sit close to kickoff.
+ */
+const started = [];
 for (const ev of Array.isArray(body) ? body : []) {
+  const evKick = Date.parse(ev.commence_time ?? "");
+  if (Number.isFinite(evKick) && evKick <= Date.parse(NOW)) {
+    started.push({ providerEventId: ev.id, home: ev.home_team, away: ev.away_team, commenceUtc: ev.commence_time,
+      reason: "kickoff at/before the capture clock — an in-progress match is never priced" });
+    continue;
+  }
   const fixture = fixtureFor(ev);
   if (!fixture) continue;                       // quarantined above, with its reason
   /* Consensus = the median across books per outcome. One book's number is that book's opinion. */
@@ -286,6 +306,8 @@ const snapshot = {
   /* Provider events that could not be joined, with the reason. Never dropped silently: an unjoined
      event is a fact about our alias table, not about the market. */
   quarantined,
+  /* Named, not silently absent — an excluded in-progress match is a fact about the clock. */
+  excludedInProgress: started,
   creditCost: ledger.requests.at(-1)?.creditsUsed ?? WORST_CASE_CREDITS,
   creditsRemaining: Number(headers["x-requests-remaining"]) || null,
   authorization: { receipt: "docs/receipts/ODDS_AUTHORIZATION_EPL.md", ceiling: auth.ceiling, cumulative: ledger.cumulativeCredits },
