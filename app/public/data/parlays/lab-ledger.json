@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-18T11:08:36Z",
+ "generatedAt": "2026-08-20T00:55:40Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -23,12 +23,12 @@
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
-   "settledDays": 1,
+   "settledDays": 2,
    "record": {
     "wins": 0,
-    "losses": 3,
+    "losses": 4,
     "pushes": 0,
-    "staked": 3,
+    "staked": 4,
     "returned": 0,
     "hitRate": 0,
     "roi": -1
@@ -63,9 +63,9 @@
     },
     "longshot": {
      "wins": 0,
-     "losses": 1,
+     "losses": 2,
      "pushes": 0,
-     "staked": 1,
+     "staked": 2,
      "returned": 0,
      "hitRate": 0,
      "roi": -1
@@ -76,11 +76,11 @@
    "id": "nfl",
    "label": "NFL",
    "live": false,
-   "blocked": "only 2 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "blocked": "the last price capture is 4.1 days old; only 2 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "evidence": {
     "pricedGames": 2,
     "pricesCapturedAt": "2026-08-15T21:19:48Z",
-    "priceAgeDays": 2.58,
+    "priceAgeDays": 4.15,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -136,12 +136,11 @@
   {
    "id": "ufc",
    "label": "UFC",
-   "live": false,
-   "blocked": "the last price capture is 38.8 days old",
+   "live": true,
    "evidence": {
-    "pricedGames": 20,
-    "pricesCapturedAt": "2026-07-10T14:49:59+00:00",
-    "priceAgeDays": 38.85,
+    "pricedGames": 12,
+    "pricesCapturedAt": "2026-08-18T23:18:13Z",
+    "priceAgeDays": 1.07,
     "settlementSource": "official UFC bout results",
     "settlementProven": true
    },
@@ -259,9 +258,14 @@
    "id": "multi",
    "label": "Multi-sport",
    "live": false,
-   "blocked": "a cross-sport card needs two live sports; none is cleared",
+   "blocked": "a cross-sport card needs two live sports; only UFC is cleared",
    "evidence": {
-    "liveSports": []
+    "liveSports": [
+     "ufc"
+    ],
+    "liveLabels": [
+     "UFC"
+    ]
    },
    "settledDays": 0,
    "record": {
@@ -318,11 +322,11 @@
   "label": "Before the 2026-08-17 selection change",
   "summary": "Up to six cards per tier, legs reused across tiers, cards up to six legs",
   "firstDay": "2026-05-25",
-  "lastDay": "2026-08-17",
-  "gradedDays": 49,
-  "wins": 175,
-  "losses": 786,
-  "roi": -0.1079,
+  "lastDay": "2026-08-19",
+  "gradedDays": 51,
+  "wins": 182,
+  "losses": 803,
+  "roi": -0.0996,
   "note": "A measurement of the previous selection policy, kept because it is real. It does not describe what the Lab publishes now."
  }
 }
