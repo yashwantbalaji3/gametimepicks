@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824589,
+  "date": "2026-08-20",
+  "capturedAt": "2026-08-20T15:25:11.005Z",
+  "availableAt": "2026-08-20T15:25:11.005Z",
+  "eventStartTime": "2026-08-20T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641743,
+      "name": "Anthony Kay",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 4.4,
+        "bbAvg": 1.2,
+        "erAvg": 2,
+        "hrAvg": 0.6,
+        "kPer9": 7.07,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 114.33,
+        "k": 97,
+        "bb": 41,
+        "er": 51,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 656550,
+      "name": "Grant Holmes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 3.8,
+        "bbAvg": 2,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 6.75,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 113.67,
+        "k": 93,
+        "bb": 51,
+        "er": 50,
+        "hr": 19
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-20&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-20T15:25:11.005Z"
+  },
+  "recordHash": "f875d5a38efd1047a02937543e141f31069f91cfd2cc8cbc2678a9e7983a347d"
+}

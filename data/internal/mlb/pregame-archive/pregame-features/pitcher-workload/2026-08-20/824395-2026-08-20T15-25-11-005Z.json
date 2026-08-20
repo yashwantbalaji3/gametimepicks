@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824395,
+  "date": "2026-08-20",
+  "capturedAt": "2026-08-20T15:25:11.005Z",
+  "availableAt": "2026-08-20T15:25:11.005Z",
+  "eventStartTime": "2026-08-20T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 668909,
+      "name": "Gavin Williams",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.67,
+        "ipAvg": 5.93,
+        "kAvg": 9,
+        "bbAvg": 1.6,
+        "erAvg": 1.8,
+        "hrAvg": 0.8,
+        "kPer9": 13.65,
+        "workloadIpLast5": 29.67
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 149,
+        "k": 190,
+        "bb": 45,
+        "er": 62,
+        "hr": 24
+      }
+    },
+    "away": {
+      "id": 694738,
+      "name": "Landen Roupp",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-14",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 4.4,
+        "bbAvg": 3,
+        "erAvg": 3.2,
+        "hrAvg": 0.6,
+        "kPer9": 7.82,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 129.33,
+        "k": 128,
+        "bb": 60,
+        "er": 62,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-20&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-20T15:25:11.005Z"
+  },
+  "recordHash": "c049435d384c3dd34bed9a7bad520a30c8c742e137437d015967eba906226095"
+}
