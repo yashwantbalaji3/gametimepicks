@@ -92,3 +92,48 @@ jobs:
           gh workflow run morning-projections
           echo "::notice::cron-watchdog [${{ steps.decide.outputs.state }}] dispatched morning-projections"
           bash scripts/ops_alert.sh
+
+      # ── Cross-sport cron-slot check (UFC / NFL / EPL / MLB) ──────────────────────────────────────
+      #
+      # The step above recovers the MLB chain and knows nothing about the other sports. This one asks
+      # a different question for all of them: did each SCHEDULED run actually fire? It deliberately
+      # does not look at output — those sports have quiet weeks (no card, a bye, an international
+      # break) and alarming on "produced nothing" would cry wolf every one of them.
+      #
+      # REPORTS ONLY, ON PURPOSE. It does not page and does not dispatch. On its first live run this
+      # check raised five missed slots and every one predated the workflow existing; the creation
+      # floor that fixed it is one commit old. A check that has never been quiet through a real week
+      # has not earned the right to wake anyone, so it writes a ::notice:: and nothing else until it
+      # has. Promoting it to ops_alert.sh is a deliberate follow-up, not an oversight.
+      #
+      # `continue-on-error` + `|| true`: this is an observer bolted onto the MLB recovery job, and it
+      # must never be the reason that job fails.
+      - name: Cron-slot coverage (report only)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Unshallow enough history to date each workflow file; the floor needs the ADD commit.
+          git fetch --deepen=1000 --quiet 2>/dev/null || true
+          OUT=app/public/data/ops/cron-slot-watchdog.json
+          node app/scripts/ops/cron-slot-watchdog.mjs \
+            --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --json "$OUT" | tee /tmp/slots.txt || true
+          MISSED="$(node -e "try{console.log(require('./$OUT').missedTotal)}catch{console.log(0)}")"
+          if [ "$MISSED" != "0" ]; then
+            echo "::notice::cron-slot watchdog: $MISSED missed slot(s) — see $OUT (report-only; not paging yet)"
+          fi
+
+      - name: Commit the coverage report
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          git config user.name  "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          # Allowlisted single file. An artifact that is generated and never committed is the
+          # 62-hour-outage shape, and this repo has hit it twice.
+          git add app/public/data/ops/cron-slot-watchdog.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "no coverage change"; exit 0; fi
+          git commit -m "auto: cron-slot coverage $(date -u +%Y-%m-%d) [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
