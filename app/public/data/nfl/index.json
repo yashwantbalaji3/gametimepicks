@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-20T15:07:00Z",
+ "generatedAt": "2026-08-20T15:39:24Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-preseason-public-beta-v1",
@@ -30,7 +30,7 @@
   "schemaVersion": 1,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-08-17T21:24:48Z",
+  "generatedAt": "2026-08-20T15:07:00Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-preseason-public-beta-v1",
   "settledForecasts": 16,
@@ -58,19 +58,23 @@
    "kickoffUtc": "2026-08-21T00:00Z",
    "lifecycle": "UPCOMING",
    "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
+   "state": "EXPERIMENTAL_LEAN",
+   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
+   "lean": {
+    "gapPp": -5.5,
+    "leansTo": "LV",
+    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
+   },
    "projectedScore": {
     "home": 18,
     "away": 19
    },
    "winProbability": {
-    "home": 0.4708,
-    "away": 0.5292
+    "home": 0.463,
+    "away": 0.537
    },
    "total": {
-    "median": 37,
+    "median": 38,
     "p10": 23,
     "p90": 52
    },
@@ -78,8 +82,8 @@
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "a70447be27bb3766",
-    "generatedAt": "2026-08-20T15:07:00Z"
+    "inputHash": "fb292a2e68e93d0b",
+    "generatedAt": "2026-08-20T15:39:24Z"
    }
   },
   {
@@ -105,8 +109,8 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.464,
-    "away": 0.536
+    "home": 0.4699,
+    "away": 0.5301
    },
    "total": {
     "median": 37,
@@ -117,8 +121,8 @@
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "459b74304ed967a8",
-    "generatedAt": "2026-08-20T15:07:00Z"
+    "inputHash": "a12115362ae8405b",
+    "generatedAt": "2026-08-20T15:39:24Z"
    }
   },
   {
@@ -144,8 +148,8 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4671,
-    "away": 0.5329
+    "home": 0.4715,
+    "away": 0.5285
    },
    "total": {
     "median": 37,
@@ -156,8 +160,8 @@
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "dca46372a8b6d318",
-    "generatedAt": "2026-08-20T15:07:00Z"
+    "inputHash": "219cb7e72a302fd9",
+    "generatedAt": "2026-08-20T15:39:24Z"
    }
   },
   {
@@ -183,20 +187,20 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4643,
-    "away": 0.5357
+    "home": 0.4602,
+    "away": 0.5398
    },
    "total": {
     "median": 37,
     "p10": 23,
-    "p90": 52
+    "p90": 51
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "af813b15e14c82f8",
-    "generatedAt": "2026-08-20T15:07:00Z"
+    "inputHash": "6b82b90be7b40f33",
+    "generatedAt": "2026-08-20T15:39:24Z"
    }
   },
   {
@@ -217,7 +221,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -21.1,
+    "gapPp": -22.6,
     "leansTo": "GB",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -226,20 +230,20 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4699,
-    "away": 0.5301
+    "home": 0.4544,
+    "away": 0.5456
    },
    "total": {
     "median": 37,
     "p10": 23,
-    "p90": 51
+    "p90": 52
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "f0e4041fad91fbe0",
-    "generatedAt": "2026-08-20T15:07:00Z"
+    "inputHash": "5aff6a898b7c08bb",
+    "generatedAt": "2026-08-20T15:39:24Z"
    }
   }
  ],
