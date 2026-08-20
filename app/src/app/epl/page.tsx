@@ -134,6 +134,7 @@ export default function EplPage() {
         source={s?.sourceVerdict?.sourceId ?? "openfootball (public domain)"}
         capturedAt={s?.sourceVerdict?.fetchedAt ?? null}
         totalEvents={s?.totals?.upcoming}
+        forecastsPublished
         /*
          * The blocker STAYS, narrowed to what is still true. It previously said the rates were
          * neither fitted nor validated; the fitting is done, the out-of-sample validation is not.

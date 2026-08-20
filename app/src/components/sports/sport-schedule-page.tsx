@@ -43,6 +43,15 @@ export type SportScheduleProps = {
    * A reader should learn what would have to exist for this sport to be modelled.
    */
   blocker: string;
+  /*
+   * Does this sport PUBLISH forecasts on the page below? Default false keeps /nba and /ufc exactly
+   * as they were. EPL flipped true on P185 and exposed the bug this prop fixes: the badge and the
+   * "no projections are published" sentence were hardcoded, so the live page read "with model
+   * forecasts ... No projections, probabilities, prices or picks are published for this sport" in a
+   * single paragraph while a forecast table sat underneath it. Two contradictory claims about the
+   * same page is worse than either one alone — a reader cannot tell which to believe.
+   */
+  forecastsPublished?: boolean;
   totalEvents?: number;
   /** This sport's accent token, so the page reads as its own place on the shared green chrome. */
   accent?: string;
@@ -139,13 +148,12 @@ export default function SportSchedulePage(p: SportScheduleProps) {
         style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.03)" }}>
         <span aria-hidden style={{ width: 7, height: 7, borderRadius: 99, background: "var(--vault-text-faint)" }} />
         <span className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: "var(--vault-text-mute)" }}>
-          Schedule only — simulation pending
+          {p.forecastsPublished ? "Schedule + model forecasts — not validated out of sample" : "Schedule only — simulation pending"}
         </span>
       </div>
 
       <p style={{ margin: "14px 0 0", fontSize: 14, lineHeight: 1.65, color: "var(--vault-text-mute)", maxWidth: 660 }}>
-        {p.blurb} No projections, probabilities, prices or picks are published for this sport — this
-        page is the schedule and nothing more. {p.blocker}
+        {p.blurb}{p.forecastsPublished ? " " : " No projections, probabilities, prices or picks are published for this sport — this page is the schedule and nothing more. "}{p.blocker}
       </p>
       <p className="font-mono" style={{ margin: "10px 0 0", fontSize: 10.5, color: "var(--vault-text-faint)" }}>
         Source: {p.source}{p.capturedAt ? ` · captured ${ET(p.capturedAt)} ET` : ""}
