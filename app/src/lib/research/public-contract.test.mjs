@@ -164,10 +164,30 @@ test("one failing stage cannot hide behind an overall READY", () => {
 
 test("the current status genuinely reflects the quarantined settlement", () => {
   const s = read("system-status.json");
+  const t = read("terminal-summary.json");
   const settlement = s.stages.find((x) => x.stage === "latestSettlement");
   assert.ok(settlement, "settlement must be its own stage");
-  assert.equal(settlement.state, "QUARANTINED", "2026-07-28 was refused — the status must say so");
-  assert.match(settlement.detail, /2026-07-28/);
+
+  // A refusal is never softened — but "blocking" and "disclosed" are different obligations, and this
+  // test used to conflate them. It pinned QUARANTINED because 2026-07-28 sat AT the settlement
+  // frontier (asOfSettledDate was 2026-07-27). Now that settlement has advanced to 2026-08-18, that
+  // date is permanently behind the frontier. Demanding QUARANTINED forever would make the stage red
+  // for the life of the project, and a status that can never be green teaches the reader to stop
+  // reading it — the same failure the page's own docstring names.
+  const quarantines = (t.quarantines ?? []).map((q) => (typeof q === "string" ? q : q.date));
+  const blocking = quarantines.filter((d) => String(d) >= String(t.asOfSettledDate));
+
+  if (blocking.length > 0) {
+    // Still at or ahead of the frontier: it MUST block, and it MUST name the date.
+    assert.equal(settlement.state, "QUARANTINED", `${blocking[0]} was refused — the status must say so`);
+    assert.match(settlement.detail, new RegExp(blocking[0]));
+  } else {
+    // Historical: it may stop blocking, but it may NEVER stop being disclosed. Dropping a refused
+    // date from the contract is the actual softening this test exists to catch.
+    assert.ok(quarantines.includes("2026-07-28"),
+      "2026-07-28 was permanently refused — it must stay disclosed even once it stops blocking");
+    assert.notEqual(settlement.state, "UNAVAILABLE", "an unreadable settlement is never a pass");
+  }
 });
 
 // ── the daily brief ────────────────────────────────────────────────────────────

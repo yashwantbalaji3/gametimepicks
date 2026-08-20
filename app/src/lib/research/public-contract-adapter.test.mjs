@@ -148,9 +148,22 @@ test("quarantine survives the adapter, and never gains a record", () => {
 
 test("the quarantined overall status is preserved, not softened", () => {
   const s = loadSystemStatus();
+  const t = loadTerminal();
   const settlement = s.stages.find((x) => x.stage === "latestSettlement");
-  assert.equal(settlement.state, "QUARANTINED");
-  assert.notEqual(s.overall, "READY", "one withheld stage must keep the overall out of READY");
+  assert.ok(settlement, "settlement must be its own stage");
+
+  // The invariant worth guarding is WORST-OF: no withheld stage may be averaged away behind healthy
+  // ones. This test used to pin latestSettlement === QUARANTINED, which was true only while
+  // 2026-07-28 sat at the settlement frontier. Settlement has since advanced to 2026-08-18, so that
+  // date is permanently historical. It must still be DISCLOSED; it need not still be BLOCKING.
+  const withheld = s.stages.filter((x) => x.state === "QUARANTINED" || x.state === "FAILED");
+  if (withheld.length > 0) {
+    assert.notEqual(s.overall, "READY", "one withheld stage must keep the overall out of READY");
+  } else {
+    const dates = (t.quarantines ?? []).map((q) => (typeof q === "string" ? q : q.date));
+    assert.ok(dates.includes("2026-07-28"),
+      "2026-07-28 was permanently refused — dropping it from the contract is the real softening");
+  }
 });
 
 // ── separation and safety ──────────────────────────────────────────────────────
