@@ -153,7 +153,18 @@ const snapshotToday = readJson(path.join(SNAPSHOTS, `${DATE}.json`));
 /** tier → candidate slips, from whichever source exists for this date. */
 const poolByTier = Object.fromEntries(TIERS.map((t) => [t, []]));
 if (gradedToday?.publicRiskSections) {
-  for (const { tier, slip } of slipsFor(gradedToday)) poolByTier[tier].push(slip);
+  // File by PRICE, never by the section the slip arrived in. These two paths used to disagree: the
+  // snapshot branch below derived the tier with bucketFor, while this branch trusted the upstream
+  // `publicRiskSections.<tier>` key. When the upstream label and the price disagreed, the ladder
+  // published the card under the wrong band — a +353 card sold as "medium" on 2026-08-19, which
+  // understates the risk to the reader. Both branches now use the one canonical band rule, so a
+  // published card always sits in the band it is filed under.
+  for (const { slip } of slipsFor(gradedToday)) {
+    const d = combinedDecimal(slip);
+    if (d == null) continue;                       // unpriced: the band cannot be verified, so it is not published
+    const tier = bucketFor(toAmerican(d));
+    if (tier) poolByTier[tier].push(slip);
+  }
 } else {
   for (const slip of snapshotToday?.slips ?? []) {
     const d = combinedDecimal(slip);
