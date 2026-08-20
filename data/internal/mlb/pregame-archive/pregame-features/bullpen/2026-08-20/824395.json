@@ -1,0 +1,220 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824395,
+  "date": "2026-08-20",
+  "capturedAt": "2026-08-20T02:16:07.753Z",
+  "availableAt": "2026-08-20T02:16:07.753Z",
+  "eventStartTime": "2026-08-20T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-17",
+    "2026-08-18",
+    "2026-08-19"
+  ],
+  "home": {
+    "teamId": 114,
+    "teamName": "Cleveland Guardians",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 32,
+      "relievers": [
+        {
+          "id": 681870,
+          "name": "Erik Sabrowski",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 671922,
+          "name": "Cade Smith",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 683769,
+          "name": "Hunter Gaddis",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-08-19"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 76,
+      "relievers": [
+        {
+          "id": 670036,
+          "name": "Matt Festa",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 681870,
+          "name": "Erik Sabrowski",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 682120,
+          "name": "Tim Herrin",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 671922,
+          "name": "Cade Smith",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 684974,
+          "name": "Craig Yoho",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 683769,
+          "name": "Hunter Gaddis",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-08-19"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 110,
+      "relievers": [
+        {
+          "id": 605288,
+          "name": "Adrian Houser",
+          "appearances": 1,
+          "pitches": 80,
+          "outs": 15,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 681916,
+          "name": "Dylan Smith",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-08-19"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 173,
+      "relievers": [
+        {
+          "id": 605288,
+          "name": "Adrian Houser",
+          "appearances": 1,
+          "pitches": 80,
+          "outs": 15,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 681916,
+          "name": "Dylan Smith",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 805345,
+          "name": "Trent Harris",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 6,
+          "dates": [
+            "2026-08-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 605288,
+        "name": "Adrian Houser",
+        "reason": "80 pitches yesterday"
+      },
+      {
+        "id": 681916,
+        "name": "Dylan Smith",
+        "reason": "30 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-17,2026-08-18,2026-08-19) + feed/live box scores",
+    "capturedAt": "2026-08-20T02:16:07.753Z"
+  },
+  "recordHash": "ef58f35c4a9a85f177a41bb7593f9f7e6620e23f6886511424c438327f3deab0"
+}

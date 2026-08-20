@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824153,
+  "date": "2026-08-20",
+  "capturedAt": "2026-08-20T02:16:07.753Z",
+  "availableAt": "2026-08-20T02:16:07.753Z",
+  "eventStartTime": "2026-08-21T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-17",
+    "2026-08-18",
+    "2026-08-19"
+  ],
+  "home": {
+    "teamId": 117,
+    "teamName": "Houston Astros",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 66,
+      "relievers": [
+        {
+          "id": 805123,
+          "name": "AJ Blubaugh",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 687911,
+          "name": "Bryan King",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 2,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 660853,
+          "name": "Enyel De Los Santos",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 699044,
+          "name": "Miguel Ullola",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 108,
+    "teamName": "Los Angeles Angels",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 33,
+      "relievers": [
+        {
+          "id": 670245,
+          "name": "Ryan Watson",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 690829,
+          "name": "Ben Joyce",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 1,
+          "dates": [
+            "2026-08-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-17,2026-08-18,2026-08-19) + feed/live box scores",
+    "capturedAt": "2026-08-20T02:16:07.753Z"
+  },
+  "recordHash": "4d69a90dd0e6e2b106995fdb296d17330c424675836b77cc3dd74f4f5184ce2b"
+}

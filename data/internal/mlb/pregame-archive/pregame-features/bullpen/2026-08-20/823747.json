@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823747,
+  "date": "2026-08-20",
+  "capturedAt": "2026-08-20T02:16:07.753Z",
+  "availableAt": "2026-08-20T02:16:07.753Z",
+  "eventStartTime": "2026-08-20T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-17",
+    "2026-08-18",
+    "2026-08-19"
+  ],
+  "home": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 62,
+      "relievers": [
+        {
+          "id": 675660,
+          "name": "Shane Drohan",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 6,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 596142,
+          "name": "Gary Sánchez",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 681982,
+          "name": "Grant Anderson",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 136,
+    "teamName": "Seattle Mariners",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 105,
+      "relievers": [
+        {
+          "id": 689546,
+          "name": "Nick Davila",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 5,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 681006,
+          "name": "Josh Simpson",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 2,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 660844,
+          "name": "Leo Rivas",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-17,2026-08-18,2026-08-19) + feed/live box scores",
+    "capturedAt": "2026-08-20T02:16:07.753Z"
+  },
+  "recordHash": "64046926c4f7eccf695db0c8c4e8f645370b03a4aee6ddf75fc26ea9357523ea"
+}
