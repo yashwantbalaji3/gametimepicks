@@ -48,7 +48,20 @@ export function runEplShadow({ fixture, nowIso, strengthState, oddsSnapshot = nu
 
   const capAt = Date.parse(oddsSnapshot?.capturedAt ?? "");
   const oddsFresh = Number.isFinite(capAt) && capAt < kickoff && capAt <= now && (now - capAt) / 3_600_000 <= oddsFreshnessHours;
-  const threeWay = (oddsSnapshot?.rows ?? []).filter((r) => (r.marketType === "h2h" || r.market === "MATCH_RESULT_1X2") && (r.eventId === fixture.eventId || r.providerEventId === fixture.eventId));
+  /*
+   * THE CAPTURE AND THIS CONSUMER SPOKE DIFFERENT SHAPES, so no EPL fixture could ever price.
+   *
+   * capture-epl-odds.mjs publishes ONE row per fixture carrying `matchResult` — a median across
+   * books, already de-vigged. This filter required `marketType`/`market`, which those rows do not
+   * have, so `threeWay` was always empty and every fixture reported READY_EXCEPT_ODDS. Proven by
+   * running the shadow against odds ONE HOUR old: still refused, so it was never staleness.
+   * Identical in kind to the UFC de-vig path being reachable from nothing.
+   *
+   * Both shapes are accepted now. The per-book form stays first-class; the consensus form is
+   * adapted below and LABELLED as what it is, never dressed up as a bookmaker that posted a price.
+   */
+  const rowsFor = (oddsSnapshot?.rows ?? []).filter((r) => r.eventId === fixture.eventId || r.providerEventId === fixture.eventId);
+  const threeWay = rowsFor.filter((r) => r.marketType === "h2h" || r.market === "MATCH_RESULT_1X2" || Array.isArray(r.matchResult));
   if (!oddsFresh || threeWay.length === 0) {
     return {
       ...base,
@@ -61,12 +74,24 @@ export function runEplShadow({ fixture, nowIso, strengthState, oddsSnapshot = nu
 
   const market = { bookmakers: [], quarantined: [] };
   for (const row of threeWay) {
-    const outcomes = row.outcomes ?? (row.prices ? [
-      { name: "HOME", price: row.prices.HOME }, { name: "DRAW", price: row.prices.DRAW }, { name: "AWAY", price: row.prices.AWAY },
-    ] : []);
+    /*
+     * `matchResult` carries the RAW median american price per outcome alongside the capture's own
+     * noVig figure. We feed the RAW price to noVigThreeWay and let this layer do its own de-vig —
+     * taking the pre-de-vigged number would de-vig it twice and quietly shrink the favourite.
+     */
+    const outcomes = row.outcomes
+      ?? (Array.isArray(row.matchResult)
+        ? row.matchResult.map((o) => ({ name: o.outcome, price: o.american }))
+        : row.prices ? [
+          { name: "HOME", price: row.prices.HOME }, { name: "DRAW", price: row.prices.DRAW }, { name: "AWAY", price: row.prices.AWAY },
+        ] : []);
     const nv = noVigThreeWay(outcomes);
-    if (nv.ok) market.bookmakers.push({ bookmaker: row.bookmaker ?? row.book, impliedSum: nv.impliedSum, noVig: nv.noVig, sourceAsOf: row.sourceAsOf ?? row.capturedAt ?? oddsSnapshot.capturedAt });
-    else market.quarantined.push({ bookmaker: row.bookmaker ?? row.book, reason: nv.reason });
+    // A consensus row is not a bookmaker. Name it for what it is, with the book count it came from,
+    // so nothing downstream can read a median as a single book's posted price.
+    const books = Array.isArray(row.matchResult) ? (row.matchResult[0]?.books ?? null) : null;
+    const source = row.bookmaker ?? row.book ?? (books ? `consensus(median of ${books} books)` : "consensus(median)");
+    if (nv.ok) market.bookmakers.push({ bookmaker: source, impliedSum: nv.impliedSum, noVig: nv.noVig, sourceAsOf: row.sourceAsOf ?? row.capturedAt ?? oddsSnapshot.capturedAt });
+    else market.quarantined.push({ bookmaker: source, reason: nv.reason });
   }
   if (market.bookmakers.length === 0) {
     return { ...base, state: "READY_EXCEPT_ODDS", reason: `every three-way row refused de-vig (${market.quarantined.map((q) => q.reason).join("; ")}) — a market without its draw or with corrupt prices never qualifies`, publicActivation: "OFF" };
