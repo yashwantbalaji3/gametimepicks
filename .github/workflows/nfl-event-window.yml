@@ -194,14 +194,18 @@ jobs:
           git pull --rebase --autostash origin main
           git push origin HEAD:main
 
-      - name: Alert on failure
+      # Was a hand-rolled curl posting its own payload straight to the webhook. It worked, but it
+      # sat OUTSIDE docs/OPS_ALERTING_CONTRACT.md: no redaction pass, a different message shape, and
+      # a second place to fix whenever the contract changes. Moved onto the shared script so every
+      # sport's failure reads the same and is redacted the same.
+      - name: Notify on failure
         if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: nfl-event-window
         run: |
+          # fail-loud like every other run block here (P066). Safe on this step specifically:
+          # ops_alert.sh never exits non-zero by design, and this step only runs after the job has
+          # already failed, so it cannot convert a passing run into a failing one.
           set -euo pipefail
-          if [ -z "${{ secrets.OPS_WEBHOOK_URL }}" ]; then
-            echo "::notice::OPS_WEBHOOK_URL unset — failure not delivered (founder action)"
-            exit 0
-          fi
-          curl -sS -X POST -H 'content-type: application/json' \
-            -d "{\"text\":\"nfl-event-window FAILED — run ${{ github.run_id }}\"}" \
-            --max-time 15 "${{ secrets.OPS_WEBHOOK_URL }}" || echo "delivery failed; primary failure stands"
+          EXIT_STATUS="${EXIT_STATUS:-1}" bash scripts/ops_alert.sh

@@ -6,8 +6,10 @@
  *
  *   · WATCHDOG — cron-watchdog.yml runs mlb-topup-classify.mjs. It notices a missed MLB primary and
  *     dispatches it. Nothing watches whether a UFC, NFL or EPL run happened at all.
- *   · ALERTING — ops_alert.sh is wired into mlb-daily-production and nightly-settle, and into NONE of
- *     the ufc/nfl/epl owning workflows. Those three can fail with nobody told.
+ *   · ALERTING — now wired into every owning workflow. UFC and EPL had none at all; NFL had a
+ *     hand-rolled curl that worked but sat outside the contract, with no redaction pass and its own
+ *     message shape, so it moved onto the shared script rather than being left as a second thing to
+ *     maintain. A FAILED run now reaches a human for every sport.
  *
  * That is the gap this stage exists to measure, so it is stated as data rather than left as a
  * surprise for whoever first asks why a fight-week run died quietly. A sport is covered only when
@@ -28,9 +30,9 @@ export const WATCHDOG = Object.freeze({ workflow: "cron-watchdog.yml", classifie
  */
 export const MONITORING = Object.freeze({
   mlb: { workflow: "mlb-daily-production.yml", watched: true, alerted: true, gap: null },
-  ufc: { workflow: "ufc-fight-week.yml", watched: false, alerted: false, gap: "no watchdog entry and no ops_alert.sh call — a failed fight-week capture is silent" },
-  nfl: { workflow: "nfl-event-window.yml", watched: false, alerted: false, gap: "no watchdog entry and no ops_alert.sh call — a failed event-window run is silent" },
-  epl: { workflow: "epl-matchweek.yml", watched: false, alerted: false, gap: "no watchdog entry and no ops_alert.sh call — a failed matchweek run is silent" },
+  ufc: { workflow: "ufc-fight-week.yml", watched: false, alerted: true, gap: "alerted, but nothing watches whether the fight-week run happened at all" },
+  nfl: { workflow: "nfl-event-window.yml", watched: false, alerted: true, gap: "alerted, but nothing watches whether the event-window run happened at all" },
+  epl: { workflow: "epl-matchweek.yml", watched: false, alerted: true, gap: "alerted, but nothing watches whether the matchweek run happened at all" },
 });
 
 export const MONITORED_SPORTS = Object.freeze(Object.keys(MONITORING));

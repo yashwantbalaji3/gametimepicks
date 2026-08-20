@@ -127,3 +127,14 @@ jobs:
           git commit -m "auto: ufc fight-week refresh $(date -u +%Y-%m-%d) [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: ufc-fight-week
+        run: |
+          # One alert per failed run, built and redacted by scripts/ops_alert.sh so every workflow
+          # reports the same contract (docs/OPS_ALERTING_CONTRACT.md). Never exits non-zero: the
+          # failing step above is what fails the run.
+          EXIT_STATUS="${EXIT_STATUS:-1}" bash scripts/ops_alert.sh
