@@ -17,6 +17,7 @@
 import Link from "next/link";
 
 import StatusPill, { type StatusPillKind } from "./status-pill";
+import { SPORT_MOTIF } from "./motifs/sport-motifs";
 
 export interface ScoreboardStat {
   label: string;
@@ -107,6 +108,9 @@ export default function SportOverviewHero({
   compact = false,
 }: Props) {
   const accentColor = ACCENT[accent];
+  // "wc" is the World Cup accent and shares the EPL pitch. An accent with no motif (gold, ipl)
+  // resolves to undefined and renders nothing — absent, never a stand-in.
+  const Motif = SPORT_MOTIF[accent === "wc" ? "epl" : accent];
   // Translate accent color into rgba glow values that the cinematic
   // background reads via custom properties.
   const glowAlpha = (alpha: number) => {
@@ -194,6 +198,19 @@ export default function SportOverviewHero({
           )}, transparent 45%)`,
         }}
       />
+      {/*
+        SPORT MOTIF GROUND (P185 adoption).
+
+        The motif primitives were built, tested and committed and then consumed by NOTHING — the
+        same orphaned shape as the UFC de-vig path. Adopting them HERE rather than per page means
+        every sport hub inherits its own ground from one edit, and a sport with no motif renders
+        none rather than a placeholder.
+
+        Decorative only: each motif is aria-hidden with pointerEvents none, carries no datum, and
+        draws from its own --sport-* token, so it themes itself and cannot imply a computation that
+        did not happen.
+      */}
+      {Motif ? <Motif opacity={0.55} /> : null}
       <div className="relative">
         {/* Eyebrow + status pill row */}
         <div className="flex items-center gap-2 flex-wrap mb-2 gtp-cinematic-rise">

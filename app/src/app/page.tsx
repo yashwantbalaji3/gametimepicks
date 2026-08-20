@@ -37,6 +37,7 @@ import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 
 import LandingHero from "@/components/home/landing-hero";
+import FeatureTriad from "@/components/home/feature-triad";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
 import PreSportsbookStrip from "@/components/home/pre-sportsbook-strip";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
@@ -280,6 +281,10 @@ export default function HomePage() {
           on the front door reads as a return, and the ONE claim above it is that we are behind the
           market. The record and every settled card live on /results. */}
       <LandingHero readyCount={simulationsToday} />
+
+      {/* 1b — What this DOES. The hero states what the product is; nothing stated its feature set, so
+          a first-time reader had to infer it from section headings further down. */}
+      <FeatureTriad />
 
       {/* 2 — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}
       <HomeTodayMlb
