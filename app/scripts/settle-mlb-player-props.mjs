@@ -21,6 +21,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { sumActiveExposure } from "../src/lib/daily-portfolio/exposure.ts";
 import { fileURLToPath } from "node:url";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -145,13 +146,19 @@ for (const lane of dp.lanes ?? []) {
   console.log(`  → ${lane.productLabel} Lane ${lane.lane}: ${lane.result.toUpperCase()}`);
 }
 
-const openExposure = Math.round((dp.lanes ?? []).reduce((n, l) => n + (l.exposure ?? 0), 0) * 100) / 100;
+// Open exposure is money AT RISK = Σ ACTIVE lane exposure, from the one shared definition. This
+// script previously summed EVERY lane, so four `awaiting` lanes with no placed card published $250
+// open on a day nothing was staked — failing the money invariant nightly and understating
+// availableBankroll by the same $250.
+const openExposure = sumActiveExposure(dp.lanes);
 dp.openExposure = openExposure;
 dp.availableBankroll = Math.round(((dp.activeBankroll ?? 0) - openExposure) * 100) / 100;
 for (const [key, product] of [["bankBuilder", "bank-builder"], ["moonshot", "moonshot"]]) {
   const ls = (dp.lanes ?? []).filter((l) => l.product === product);
   dp.products[key] = {
-    exposure: Math.round(ls.reduce((n, l) => n + (l.exposure ?? 0), 0) * 100) / 100,
+    // exposure follows the same active-only rule; `record` deliberately counts EVERY lane, because a
+    // settled win/loss belongs in the record even though its stake is no longer at risk.
+    exposure: sumActiveExposure(ls),
     record: {
       wins: ls.filter((l) => l.result === "won").length,
       losses: ls.filter((l) => l.result === "lost").length,

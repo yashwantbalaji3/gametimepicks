@@ -21,6 +21,7 @@ import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
 import { loadMlbModelPicks } from "./mlb-model-picks";
 import { loadWorldCupTeamLegs } from "./wc-team-legs";
 import { moonshotNarrative } from "../world-cup/wc-editorial";
+import { sumActiveExposure } from "./exposure";
 
 /** Activation cutoff — a lane cannot be newly activated if any leg kicks off within this many minutes. */
 export const ACTIVATION_CUTOFF_MIN = 30;
@@ -424,9 +425,11 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   applyCardLocks(lanes, locksFor(cardLock, "moonshot"), poolForMoon, "moonshot", { activate, nowMs });
 
   const active = lanes.filter((l) => l.status === "active");
-  const coreExposure = round2(active.filter((l) => l.product === "bank-builder").reduce((s, l) => s + l.exposure, 0));
-  const moonExposure = round2(active.filter((l) => l.product === "moonshot").reduce((s, l) => s + l.exposure, 0));
-  const openExposure = round2(coreExposure + moonExposure);
+  // Exposure comes from the shared definition (./exposure) so the generator and the settler can no
+  // longer drift apart the way they did — see that file for why the invariant does NOT share it.
+  const coreExposure = sumActiveExposure(lanes, (l) => (l as PortfolioLane).product === "bank-builder");
+  const moonExposure = sumActiveExposure(lanes, (l) => (l as PortfolioLane).product === "moonshot");
+  const openExposure = sumActiveExposure(lanes);
   const potentialReturn = round2(active.reduce((s, l) => s + l.potentialReturn, 0));
   const zero = { wins: 0, losses: 0, voids: 0, pending: 0 };
 
