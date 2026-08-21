@@ -227,6 +227,19 @@ jobs:
             echo "player projections: refused this run — the team forecast is unaffected"
 
       # With real prices EPL can clear the Parlay Lab's eligibility gate, so the grids are
+      # The product-state contract for this lane, built LAST so it summarises the artifacts this run
+      # actually produced rather than the previous run's. Every field is derived from a committed
+      # artifact; a missing source renders UNKNOWN rather than green. It is INTERNAL_ADMIN and is
+      # swept from the public export by build reference — declaring a lane's state is not a public
+      # claim, and this one's loudest fields are its blockers.
+      #
+      # working-directory AND tsx: it imports graded-record.ts, which reaches the "@/" alias.
+      - name: Publish the EPL lane status
+        working-directory: app
+        run: |
+          set -euo pipefail
+          npx tsx scripts/epl/build-epl-lane-status.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
       # re-resolved. `multi` is included deliberately: a second live sport is what opens the
       # cross-sport lane, and it must not wait a day.
       - name: Re-resolve the parlay tier grids
@@ -249,6 +262,7 @@ jobs:
           # regenerated and dropped at the end of every run, which is the shape that hid the
           # model-learning audit for weeks.
           git add app/public/data/soccer/epl app/public/data/parlays/tier-grid \
+                  app/public/data/admin/epl-lane.json \
                   data/internal/research/epl/forecasts \
                   data/internal/research/odds/epl/authorization-ledger.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
