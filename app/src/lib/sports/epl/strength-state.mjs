@@ -29,10 +29,25 @@ const FACT = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800];
 
 export const normalizeClubName = (n) => String(n ?? "").toLowerCase().replace(/\s+/g, " ").trim();
 
-/** Fold matches strictly before the cutoff into per-club home/away tallies. */
-export function fitEplStrength({ rows, cutoffIso }) {
+/**
+ * Fold matches strictly before the cutoff into per-club home/away tallies.
+ *
+ * `halfLifeDays` (P188/v2 research) applies exponential time-decay to each folded match:
+ * weight = 0.5 ** (ageDays / halfLifeDays). The tallies become WEIGHTED sums, which is why `hg`/`ag`
+ * are counts only in the unweighted case — every downstream ratio already divides by them, so the
+ * arithmetic is unchanged in form.
+ *
+ * DEFAULT IS NULL, meaning every match weighs 1.0 — byte-identical to v1. This parameter exists so
+ * the bake-off can measure recency weighting through the SAME lib the live path uses rather than a
+ * research fork that could drift from it; it is not enabled anywhere until a variant clears the
+ * preregistered bars in preregistration-model-v2.json.
+ */
+export function fitEplStrength({ rows, cutoffIso, halfLifeDays = null }) {
   const cutoff = Date.parse(cutoffIso ?? "");
   if (!Number.isFinite(cutoff)) throw new Error("fitEplStrength: cutoffIso required");
+  if (halfLifeDays != null && !(Number.isFinite(halfLifeDays) && halfLifeDays > 0)) {
+    throw new Error("fitEplStrength: halfLifeDays must be a positive number when supplied");
+  }
   const stats = new Map(); // normalized club → { hf,ha,hg, af,aa,ag }
   const names = new Map(); // normalized → display
   const st = (c) => { if (!stats.has(c)) stats.set(c, { hf: 0, ha: 0, hg: 0, af: 0, aa: 0, ag: 0 }); return stats.get(c); };
@@ -47,8 +62,12 @@ export function fitEplStrength({ rows, cutoffIso }) {
     if (!home || !away) continue;
     names.set(home, m.home); names.set(away, m.away);
     const h = st(home), a = st(away);
-    h.hf += m.ftHome; h.ha += m.ftAway; h.hg += 1;
-    a.af += m.ftAway; a.aa += m.ftHome; a.ag += 1;
+    /* w === 1 exactly when no half-life is supplied, so the v1 tallies are reproduced bit for bit. */
+    const w = halfLifeDays == null
+      ? 1
+      : Math.pow(0.5, ((cutoff - Date.parse(m.dateUtc)) / 86_400_000) / halfLifeDays);
+    h.hf += w * m.ftHome; h.ha += w * m.ftAway; h.hg += w;
+    a.af += w * m.ftAway; a.aa += w * m.ftHome; a.ag += w;
     folded += 1;
   }
   const agg = [...stats.values()].reduce((x, s) => ({ hf: x.hf + s.hf, hg: x.hg + s.hg, af: x.af + s.af, ag: x.ag + s.ag }), { hf: 0, hg: 0, af: 0, ag: 0 });
@@ -66,14 +85,21 @@ export function fitEplStrength({ rows, cutoffIso }) {
 }
 
 /** λ pair for one fixture under the state. Cold-start clubs use 1.0 multipliers, stated. */
-export function lambdasFor(state, homeClub, awayClub) {
+export function lambdasFor(state, homeClub, awayClub, { shrinkK = 0 } = {}) {
   const { LAMBDA_FLOOR, COLD_START_MULTIPLIER } = EPL_POISSON_PARAMS;
   const h = state.stats.get(normalizeClubName(homeClub));
   const a = state.stats.get(normalizeClubName(awayClub));
-  const attH = h?.hg ? (h.hf / h.hg) / state.muHome : COLD_START_MULTIPLIER;
-  const defH = h?.hg ? (h.ha / h.hg) / state.muAway : COLD_START_MULTIPLIER;
-  const attA = a?.ag ? (a.af / a.ag) / state.muAway : COLD_START_MULTIPLIER;
-  const defA = a?.ag ? (a.aa / a.ag) / state.muHome : COLD_START_MULTIPLIER;
+  /*
+   * Ridge shrinkage toward the league average, expressed as k pseudo-matches played exactly at that
+   * average: (goals + k·mu) / (games + k) / mu. k = 0 cancels to the v1 expression term for term,
+   * which is why the default costs nothing. A club with few folded matches is pulled toward 1.0 the
+   * hardest, which is the point — three games is not a strength estimate.
+   */
+  const mult = (goals, games, mu) => (games ? (goals + shrinkK * mu) / (games + shrinkK) / mu : COLD_START_MULTIPLIER);
+  const attH = mult(h?.hf, h?.hg, state.muHome);
+  const defH = mult(h?.ha, h?.hg, state.muAway);
+  const attA = mult(a?.af, a?.ag, state.muAway);
+  const defA = mult(a?.aa, a?.ag, state.muHome);
   return {
     lamHome: Math.max(LAMBDA_FLOOR, state.muHome * attH * defA),
     lamAway: Math.max(LAMBDA_FLOOR, state.muAway * attA * defH),
@@ -85,15 +111,36 @@ export function lambdasFor(state, homeClub, awayClub) {
  * The normalized exact-score matrix and everything derived from it. Probabilities reconcile to 1
  * by construction (tail renormalization); the caller may assert `reconciliation` anyway.
  */
-export function scoreMatrix(state, homeClub, awayClub) {
+export function scoreMatrix(state, homeClub, awayClub, { shrinkK = 0, dixonColesRho = null } = {}) {
   const { MAX_GOALS } = EPL_POISSON_PARAMS;
-  const { lamHome, lamAway, coldStart } = lambdasFor(state, homeClub, awayClub);
+  const { lamHome, lamAway, coldStart } = lambdasFor(state, homeClub, awayClub, { shrinkK });
   const pm = (lam, k) => Math.exp(-lam) * Math.pow(lam, k) / FACT[k];
+  /*
+   * Dixon-Coles (1997) low-score dependence. Independent Poisson misprices exactly four cells —
+   * 0-0, 0-1, 1-0, 1-1 — because goals in low-scoring matches are not independent. tau reweights
+   * only those four; every other cell is untouched, and the grid is renormalised below either way.
+   *
+   * Clamped at zero: for a large |rho| tau can go negative, and a negative probability is not a
+   * model output. Clamping is recorded rather than silently absorbed so a sweep cannot pick a rho
+   * that only "wins" by producing impossible cells.
+   */
+  let dcClamped = 0;
+  const tau = (x, y) => {
+    if (dixonColesRho == null) return 1;
+    const r = dixonColesRho;
+    let t = 1;
+    if (x === 0 && y === 0) t = 1 - lamHome * lamAway * r;
+    else if (x === 0 && y === 1) t = 1 + lamHome * r;
+    else if (x === 1 && y === 0) t = 1 + lamAway * r;
+    else if (x === 1 && y === 1) t = 1 - r;
+    if (t < 0) { dcClamped += 1; return 0; }
+    return t;
+  };
   const grid = [];
   let z = 0;
   for (let x = 0; x <= MAX_GOALS; x++) {
     grid.push([]);
-    for (let y = 0; y <= MAX_GOALS; y++) { const p = pm(lamHome, x) * pm(lamAway, y); grid[x].push(p); z += p; }
+    for (let y = 0; y <= MAX_GOALS; y++) { const p = pm(lamHome, x) * pm(lamAway, y) * tau(x, y); grid[x].push(p); z += p; }
   }
   for (let x = 0; x <= MAX_GOALS; x++) for (let y = 0; y <= MAX_GOALS; y++) grid[x][y] /= z;
 
@@ -149,6 +196,8 @@ export function scoreMatrix(state, homeClub, awayClub) {
     modelId: state.modelId,
     lambdas: { home: Number(lamHome.toFixed(4)), away: Number(lamAway.toFixed(4)) },
     coldStart,
+    /* Non-zero only when a Dixon-Coles rho drove a cell negative — a sweep must not hide that. */
+    dcClamped,
     oneXTwo: { home: Number(pH.toFixed(6)), draw: Number(pD.toFixed(6)), away: Number(pA.toFixed(6)) },
     reconciliation: Math.abs(pH + pD + pA - 1) < 1e-9,
     totals: {

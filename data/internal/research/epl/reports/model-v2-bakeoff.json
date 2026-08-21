@@ -1,0 +1,438 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-model-v2-bakeoff",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "generatedAt": "2026-08-21T02:15:00Z",
+ "preregistration": {
+  "file": "preregistration-model-v2.json",
+  "registeredAt": "2026-08-21T02:00:00Z"
+ },
+ "protocol": {
+  "corpus": "data/internal/research/epl/corpus-v1.json — 1,520 matches, 4 seasons, match-level final scores only",
+  "walkForward": "by calendar day; every fixture on a day shares ONE pregame state fitted strictly on earlier-dated matches; identical to the committed v1 protocol so control and variants are scored the same way",
+  "warmup": {
+   "season": "2022-23",
+   "n": 380,
+   "rule": "folds into state, NEVER scored"
+  },
+  "development": {
+   "seasons": [
+    "2023-24",
+    "2024-25"
+   ],
+   "n": 760,
+   "rule": "ALL variant selection and hyperparameter search happens here and nowhere else"
+  },
+  "holdout": {
+   "seasons": [
+    "2025-26"
+   ],
+   "n": 380,
+   "rule": "evaluated ONCE, after the variant and its hyperparameters are locked. If the holdout is consulted before locking, this preregistration is void and the season is burned as a test set."
+  },
+  "leakage": "parameters fit on strictly earlier-dated matches only; the cutoff is structural in fitEplStrength and is already guarded"
+ },
+ "parity": {
+  "reproducedCommittedControl": true,
+  "controlLogLoss": 1.0017,
+  "committedLogLoss": 1.0017
+ },
+ "control": {
+  "dev": {
+   "n": 760,
+   "logLoss": 0.98,
+   "rps": 0.2026,
+   "accuracy": 0.5434,
+   "ece": 0.028,
+   "eceByOutcome": {
+    "H": 0.0466,
+    "D": 0.0135,
+    "A": 0.0237
+   },
+   "expectedTotalMae": 1.3412,
+   "over25": {
+    "predictedRate": 0.5542,
+    "observedRate": 0.6066
+   }
+  },
+  "holdout": {
+   "n": 380,
+   "logLoss": 1.045,
+   "rps": 0.2133,
+   "accuracy": 0.4605,
+   "ece": 0.07,
+   "eceByOutcome": {
+    "H": 0.0865,
+    "D": 0.0524,
+    "A": 0.0713
+   },
+   "expectedTotalMae": 1.2644,
+   "over25": {
+    "predictedRate": 0.5455,
+    "observedRate": 0.55
+   }
+  },
+  "bySeason": {
+   "2023-24": {
+    "n": 380,
+    "logLoss": 0.9601,
+    "rps": 0.1988,
+    "accuracy": 0.5684,
+    "ece": 0.0341,
+    "eceByOutcome": {
+     "H": 0.0491,
+     "D": 0.0081,
+     "A": 0.0451
+    },
+    "expectedTotalMae": 1.3983,
+    "over25": {
+     "predictedRate": 0.5476,
+     "observedRate": 0.6474
+    }
+   },
+   "2024-25": {
+    "n": 380,
+    "logLoss": 0.9999,
+    "rps": 0.2063,
+    "accuracy": 0.5184,
+    "ece": 0.0436,
+    "eceByOutcome": {
+     "H": 0.059,
+     "D": 0.0263,
+     "A": 0.0454
+    },
+    "expectedTotalMae": 1.2842,
+    "over25": {
+     "predictedRate": 0.5609,
+     "observedRate": 0.5658
+    }
+   },
+   "2025-26": {
+    "n": 380,
+    "logLoss": 1.045,
+    "rps": 0.2133,
+    "accuracy": 0.4605,
+    "ece": 0.07,
+    "eceByOutcome": {
+     "H": 0.0865,
+     "D": 0.0524,
+     "A": 0.0713
+    },
+    "expectedTotalMae": 1.2644,
+    "over25": {
+     "predictedRate": 0.5455,
+     "observedRate": 0.55
+    }
+   }
+  }
+ },
+ "developmentSweep": [
+  {
+   "id": "decay:H=120",
+   "variant": "decay",
+   "halfLifeDays": 120,
+   "shrinkK": null,
+   "dixonColesRho": null,
+   "devLogLoss": 0.9782,
+   "deltaVsControl": -0.0018,
+   "devEce": 0.0382,
+   "dcClamped": 0
+  },
+  {
+   "id": "decay:H=180",
+   "variant": "decay",
+   "halfLifeDays": 180,
+   "shrinkK": null,
+   "dixonColesRho": null,
+   "devLogLoss": 0.9738,
+   "deltaVsControl": -0.0062,
+   "devEce": 0.0328,
+   "dcClamped": 0
+  },
+  {
+   "id": "decay:H=240",
+   "variant": "decay",
+   "halfLifeDays": 240,
+   "shrinkK": null,
+   "dixonColesRho": null,
+   "devLogLoss": 0.973,
+   "deltaVsControl": -0.007,
+   "devEce": 0.0324,
+   "dcClamped": 0
+  },
+  {
+   "id": "decay:H=365",
+   "variant": "decay",
+   "halfLifeDays": 365,
+   "shrinkK": null,
+   "dixonColesRho": null,
+   "devLogLoss": 0.9735,
+   "deltaVsControl": -0.0065,
+   "devEce": 0.0291,
+   "dcClamped": 0
+  },
+  {
+   "id": "decay:H=540",
+   "variant": "decay",
+   "halfLifeDays": 540,
+   "shrinkK": null,
+   "dixonColesRho": null,
+   "devLogLoss": 0.9748,
+   "deltaVsControl": -0.0052,
+   "devEce": 0.0304,
+   "dcClamped": 0
+  },
+  {
+   "id": "decay:H=730",
+   "variant": "decay",
+   "halfLifeDays": 730,
+   "shrinkK": null,
+   "dixonColesRho": null,
+   "devLogLoss": 0.9758,
+   "deltaVsControl": -0.0042,
+   "devEce": 0.0317,
+   "dcClamped": 0
+  },
+  {
+   "id": "shrink:k=1",
+   "variant": "shrink",
+   "halfLifeDays": null,
+   "shrinkK": 1,
+   "dixonColesRho": null,
+   "devLogLoss": 0.979,
+   "deltaVsControl": -0.001,
+   "devEce": 0.0261,
+   "dcClamped": 0
+  },
+  {
+   "id": "shrink:k=2",
+   "variant": "shrink",
+   "halfLifeDays": null,
+   "shrinkK": 2,
+   "dixonColesRho": null,
+   "devLogLoss": 0.9796,
+   "deltaVsControl": -0.0004,
+   "devEce": 0.0258,
+   "dcClamped": 0
+  },
+  {
+   "id": "shrink:k=4",
+   "variant": "shrink",
+   "halfLifeDays": null,
+   "shrinkK": 4,
+   "dixonColesRho": null,
+   "devLogLoss": 0.9814,
+   "deltaVsControl": 0.0014,
+   "devEce": 0.0215,
+   "dcClamped": 0
+  },
+  {
+   "id": "shrink:k=8",
+   "variant": "shrink",
+   "halfLifeDays": null,
+   "shrinkK": 8,
+   "dixonColesRho": null,
+   "devLogLoss": 0.9853,
+   "deltaVsControl": 0.0053,
+   "devEce": 0.0183,
+   "dcClamped": 0
+  },
+  {
+   "id": "shrink:k=16",
+   "variant": "shrink",
+   "halfLifeDays": null,
+   "shrinkK": 16,
+   "dixonColesRho": null,
+   "devLogLoss": 0.9926,
+   "deltaVsControl": 0.0126,
+   "devEce": 0.027,
+   "dcClamped": 0
+  },
+  {
+   "id": "dc:rho=-0.2",
+   "variant": "dixon-coles",
+   "halfLifeDays": null,
+   "shrinkK": null,
+   "dixonColesRho": -0.2,
+   "devLogLoss": 0.985,
+   "deltaVsControl": 0.005,
+   "devEce": 0.0384,
+   "dcClamped": 0
+  },
+  {
+   "id": "dc:rho=-0.15",
+   "variant": "dixon-coles",
+   "halfLifeDays": null,
+   "shrinkK": null,
+   "dixonColesRho": -0.15,
+   "devLogLoss": 0.9828,
+   "deltaVsControl": 0.0028,
+   "devEce": 0.0328,
+   "dcClamped": 0
+  },
+  {
+   "id": "dc:rho=-0.1",
+   "variant": "dixon-coles",
+   "halfLifeDays": null,
+   "shrinkK": null,
+   "dixonColesRho": -0.1,
+   "devLogLoss": 0.9812,
+   "deltaVsControl": 0.0012,
+   "devEce": 0.0298,
+   "dcClamped": 0
+  },
+  {
+   "id": "dc:rho=-0.05",
+   "variant": "dixon-coles",
+   "halfLifeDays": null,
+   "shrinkK": null,
+   "dixonColesRho": -0.05,
+   "devLogLoss": 0.9803,
+   "deltaVsControl": 0.0003,
+   "devEce": 0.0279,
+   "dcClamped": 0
+  },
+  {
+   "id": "dc:rho=0.05",
+   "variant": "dixon-coles",
+   "halfLifeDays": null,
+   "shrinkK": null,
+   "dixonColesRho": 0.05,
+   "devLogLoss": 0.9804,
+   "deltaVsControl": 0.0004,
+   "devEce": 0.0317,
+   "dcClamped": 0
+  }
+ ],
+ "locked": {
+  "id": "decay:H=240",
+  "halfLifeDays": 240,
+  "shrinkK": null,
+  "dixonColesRho": null
+ },
+ "holdout": {
+  "locked": {
+   "n": 380,
+   "logLoss": 1.046,
+   "rps": 0.213,
+   "accuracy": 0.4868,
+   "ece": 0.0571,
+   "eceByOutcome": {
+    "H": 0.0638,
+    "D": 0.047,
+    "A": 0.0605
+   },
+   "expectedTotalMae": 1.2785,
+   "over25": {
+    "predictedRate": 0.5297,
+    "observedRate": 0.55
+   }
+  },
+  "control": {
+   "n": 380,
+   "logLoss": 1.045,
+   "rps": 0.2133,
+   "accuracy": 0.4605,
+   "ece": 0.07,
+   "eceByOutcome": {
+    "H": 0.0865,
+    "D": 0.0524,
+    "A": 0.0713
+   },
+   "expectedTotalMae": 1.2644,
+   "over25": {
+    "predictedRate": 0.5455,
+    "observedRate": 0.55
+   }
+  },
+  "eloBaseline": {
+   "n": 380,
+   "logLoss": 1.026,
+   "brier": 0.6155,
+   "accuracy": 0.4974
+  },
+  "bySeason": {
+   "2023-24": {
+    "n": 380,
+    "logLoss": 0.9586,
+    "rps": 0.1976,
+    "accuracy": 0.5605,
+    "ece": 0.0404,
+    "eceByOutcome": {
+     "H": 0.0494,
+     "D": 0.0214,
+     "A": 0.0503
+    },
+    "expectedTotalMae": 1.3981,
+    "over25": {
+     "predictedRate": 0.5598,
+     "observedRate": 0.6474
+    }
+   },
+   "2024-25": {
+    "n": 380,
+    "logLoss": 0.9873,
+    "rps": 0.2024,
+    "accuracy": 0.5263,
+    "ece": 0.0341,
+    "eceByOutcome": {
+     "H": 0.0399,
+     "D": 0.0286,
+     "A": 0.0338
+    },
+    "expectedTotalMae": 1.3181,
+    "over25": {
+     "predictedRate": 0.5714,
+     "observedRate": 0.5658
+    }
+   },
+   "2025-26": {
+    "n": 380,
+    "logLoss": 1.046,
+    "rps": 0.213,
+    "accuracy": 0.4868,
+    "ece": 0.0571,
+    "eceByOutcome": {
+     "H": 0.0638,
+     "D": 0.047,
+     "A": 0.0605
+    },
+    "expectedTotalMae": 1.2785,
+    "over25": {
+     "predictedRate": 0.5297,
+     "observedRate": 0.55
+    }
+   }
+  }
+ },
+ "bars": [
+  {
+   "id": "B1_development_margin",
+   "pass": true,
+   "detail": "dev 0.973 vs control 0.98 — improvement 0.0070, need >= 0.005"
+  },
+  {
+   "id": "B2_holdout_generalises",
+   "pass": false,
+   "detail": "holdout 1.046 vs control 1.045 — improvement -0.0010, need >= 0.005"
+  },
+  {
+   "id": "B3_elo_floor",
+   "pass": false,
+   "detail": "holdout 1.046 vs Elo 1.026 — need <= Elo (1X2 head only)"
+  },
+  {
+   "id": "B4_calibration_does_not_degrade",
+   "pass": true,
+   "detail": "holdout ECE 0.0571 vs control 0.07 — degradation -0.0129, allowed <= 0.010"
+  },
+  {
+   "id": "B5_no_season_collapse",
+   "pass": true,
+   "detail": "worst single-season regression 0.0010, allowed <= 0.010"
+  }
+ ],
+ "verdict": "REJECTED",
+ "note": "At least one preregistered bar failed. v1 remains the live model. Recorded rather than retried with a weaker bar."
+}
