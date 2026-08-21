@@ -259,12 +259,20 @@ export default function EplPage() {
 
       {/* ── 3 · PLAYER MARKETS — the refusal, rendered ─────────────────────────────────────────── */}
       <section className="mt-8">
-        <SectionHeader eyebrow="Player markets" title="Not published — and not coming soon" />
+        {/*
+          The state changed on 2026-08-21: the data arrived, the model did not. The old copy said the
+          history did not exist, which is now false, and a stale refusal is exactly as misleading as a
+          stale claim. What must NOT change is that nothing about a player is published until a
+          backtest clears a preregistered bar.
+        */}
+        <SectionHeader eyebrow="Player markets" title="Data in hand — nothing published yet" />
         <div className="rounded-[12px] p-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
           <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>{player.reason}</p>
           <p className="mt-2" style={{ margin: 0, fontSize: 12.5, lineHeight: 1.65, color: "var(--vault-text-faint)" }}>
-            Goalscorer, shots, assists and cards would each need a player appearance history and a pre-kickoff
-            lineup feed. Neither exists here, so nothing is shown rather than something estimated.
+            Goalscorer, shots, shots on target, assists and cards are all candidates. Each one waits on the same
+            thing: a model fitted to this history and measured against a season it has not seen. Five model
+            changes have been tested that way on this site and rejected; if a player model fails the same test,
+            nothing here will appear.
           </p>
         </div>
       </section>

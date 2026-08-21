@@ -1,64 +1,82 @@
 /**
- * EPL PLAYER MARKETS — a DOCUMENTED REFUSAL, not a gap.
+ * EPL PLAYER MARKETS — the state, which CHANGED on 2026-08-21.
  *
  * This module exists so that "we do not publish EPL player props" is a stated position with a
  * reason and an exit condition, rather than an absence a reader has to infer. Program 182 established
  * the pattern for the NFL participation problem: a named module IS the refusal, because a refusal
  * nobody can find reads as an oversight, and an oversight invites someone to quietly fill it in.
  *
- * WHY IT IS REFUSED, in one sentence: there is no EPL player data in this repository.
+ * THE PREVIOUS VERSION OF THIS FILE WAS WRONG, and the way it was wrong is worth keeping.
  *
- * Not "not enough". None. The research corpus (data/internal/research/epl/corpus-v1.json) is 1,520
- * matches carrying exactly six fields — home, away, ftHome, ftAway, date, matchday — and the raw
- * provider payloads it was built from (api-football fixtures) carry only `fixture`, `goals`,
- * `league`, `score` and `teams`. No lineups, no appearances, no minutes, no events, no scorers, no
- * shots. The model card has recorded this as a scope boundary since v1:
- * "NOT_REQUIRED_FOR_TEAM_V1 — team-level forecasting only; no lineup parameter exists".
+ * It said: "there is no player-level Premier League data in this repository... Both are PAID
+ * endpoints on the providers we already use." The first half was true of what was COMMITTED. The
+ * second half was an inference, and it was false. It came from checking ONE provider's plan gates —
+ * api-football, whose free tier refuses any season after 2024 — and never asking whether ESPN, whose
+ * public endpoints this repository already reads for free on three other sports, carried the same
+ * thing. It does, for nothing, with no rate limit, for every season including the current one.
  *
- * SO THE BLOCKER IS A DATASET, NOT A MODEL. The Poisson matrix could in principle be extended to
- * player-level scoring rates; there is simply nothing to fit them on. Anything published today would
- * be a number invented from a team total and a guess about who takes the shots — which is precisely
- * what Programs 182 and 183 rejected for the NFL, twice, after measuring it.
+ * The lesson is not "we found a cheaper vendor". It is that a REFUSAL IS A CLAIM, and this one was
+ * published on a live page and used to defer a purchase, having never been tested against the
+ * sources already in the building.
  *
- * WHAT WOULD ACTUALLY LIFT THIS, stated so it is a decision rather than a mystery:
- *   1. A rights-cleared player corpus with, per match: the players who appeared, their minutes, and
- *      their goals/assists/shots. Several seasons, because a prop model needs usage history.
- *   2. A pre-kickoff LINEUP or expected-lineup feed. Minutes are the dominant term in any soccer
- *      player prop, and a player who does not start has a different distribution, not a scaled one.
- *      Without this the same defect returns that killed the NFL families: playing time is a coaching
- *      decision, and no amount of historical usage predicts a rotation.
- *   3. Both are PAID endpoints on the providers we already use. New spend and new quota are founder
- *      decisions under the charter, so nothing here can be unblocked by writing more code.
+ * WHAT NOW EXISTS (data/internal/research/epl/players/espn-players-v1.jsonl):
+ *   · 380 of 380 fixtures for 2025-26 — 15,189 player rows, 677 players, all 20 clubs
+ *   · per player per match: goals, assists, shots, shots on goal, cards, fouls, offsides,
+ *     keeper saves and goals against
+ *   · PARTICIPATION, which is the term that actually decides a soccer player prop and the one whose
+ *     absence killed the NFL player families in Programs 182 and 183: started / subbedIn /
+ *     subbedOut / formationPlace. 8,360 starts and 3,132 substitute appearances are OBSERVED.
+ *   · sanity: 2.64 goals per match and 10.6% shot conversion, both correct for this league
  *
- * Until (1) and (2) exist, every consumer must treat EPL player markets as UNAVAILABLE_NO_DATA and
- * publish nothing — not a placeholder, not a "coming soon" projection with numbers in it, and not a
- * team total divided among a squad.
+ * ALSO AVAILABLE FREE FROM THE SAME HOST, and not yet captured:
+ *   · 2026-27 squad membership (/teams/{id}/roster) — the "who is even at this club" problem that
+ *     no amount of history solves, since players transfer between seasons
+ *   · pre-kickoff lineups with starter flags (/summary?event=... rosters[]). The block is present
+ *     before kickoff and EMPTY until roughly an hour before, so that it populates in time is
+ *     STRUCTURALLY LIKELY AND STILL UNOBSERVED — it is not claimed here until seen.
+ *
+ * SO WHY IS NOTHING PUBLISHED YET. Because a corpus is not a model, and this repository has rejected
+ * five model improvements against preregistered bars. Shipping player numbers tonight, unbacktested,
+ * would break the standard that makes every other number on this site worth reading. The remaining
+ * work is a rate model, a preregistered bar, and a walk-forward backtest that the model may well
+ * fail — and if it fails, nothing ships, which is the same rule the team model lives under.
+ *
+ * Until that bar is cleared, every consumer must publish NOTHING about an individual player — not a
+ * placeholder, not a "coming soon" projection with numbers in it, and not a team total divided among
+ * a squad.
  */
 
-export const EPL_PLAYER_MARKET_STATE = "UNAVAILABLE_NO_DATA";
+/**
+ * DATA_READY_MODEL_UNVALIDATED — the corpus exists; no model has been fitted or backtested on it, so
+ * nothing is published. Deliberately NOT "coming soon": the model may fail its bar, as five before it
+ * have, and in that case nothing ships.
+ */
+export const EPL_PLAYER_MARKET_STATE = "DATA_READY_MODEL_UNVALIDATED";
 
 /** The reason, in the words a reader should see if a surface ever needs to explain the absence. */
 export const EPL_PLAYER_MARKET_REASON =
-  "No player-level Premier League data exists in this system. The model is fitted on match results only — final scores, nothing else — so it has no basis for any claim about an individual player. Publishing one would mean inventing it.";
+  "A full season of Premier League player data now exists here — every appearance, goal, shot and card from all 380 matches of 2025-26, including who started and who came off the bench. What does not exist yet is a model fitted to it and tested against results it has not seen. Until that test is run and passed, nothing about an individual player is published, because a number nobody has checked is not a prediction.";
 
 /**
- * Markets that WOULD be in scope once a player corpus and a lineup feed exist. Listed so the refusal
- * is specific about what is missing rather than vague about the whole category — and so nobody
- * re-derives the list later and quietly ships the easy-looking half of it.
+ * The candidate markets, each with what the corpus can now support and what it still cannot. Kept
+ * explicit so nobody re-derives the list later and quietly ships the easy-looking half of it.
+ * `history` is AVAILABLE across the board; every one of them still waits on the same two things.
  */
-export const EPL_PLAYER_MARKETS_OUT_OF_SCOPE = Object.freeze([
-  { market: "anytime_goalscorer", requires: ["player goals history", "expected lineup", "minutes"] },
-  { market: "shots", requires: ["player shots history", "expected lineup", "minutes"] },
-  { market: "shots_on_target", requires: ["player shots-on-target history", "expected lineup", "minutes"] },
-  { market: "assists", requires: ["player assists history", "expected lineup", "minutes"] },
-  { market: "cards", requires: ["player disciplinary history", "expected lineup", "referee assignment"] },
+export const EPL_PLAYER_MARKETS_CANDIDATE = Object.freeze([
+  { market: "anytime_goalscorer", history: "AVAILABLE", stillNeeds: ["fitted rate model", "preregistered bar cleared", "expected lineup"] },
+  { market: "shots", history: "AVAILABLE", stillNeeds: ["fitted rate model", "preregistered bar cleared", "expected lineup"] },
+  { market: "shots_on_target", history: "AVAILABLE", stillNeeds: ["fitted rate model", "preregistered bar cleared", "expected lineup"] },
+  { market: "assists", history: "AVAILABLE", stillNeeds: ["fitted rate model", "preregistered bar cleared", "expected lineup"] },
+  { market: "cards", history: "AVAILABLE", stillNeeds: ["fitted rate model", "preregistered bar cleared", "referee assignment"] },
 ]);
 
 /** The inputs that are missing, each with the state the rest of the codebase uses for such things. */
 export const EPL_PLAYER_INPUTS = Object.freeze({
-  playerCorpus: { state: "MISSING", note: "no player appearance/minutes/goals history committed anywhere in the repo" },
-  lineups: { state: "MISSING", note: "no pre-kickoff lineup or expected-lineup feed; minutes dominate every soccer player prop" },
-  playerIdentity: { state: "MISSING", note: "no EPL player identity map — clubs resolve canonically, players have never been modelled" },
+  playerCorpus: { state: "AVAILABLE", note: "ESPN, free and unmetered: 380/380 fixtures of 2025-26, 15,189 rows, 677 players, with participation flags" },
+  playerIdentity: { state: "AVAILABLE", note: "ESPN athlete ids are stable and captured verbatim on every row" },
+  squadMembership: { state: "REACHABLE", note: "ESPN /teams/{id}/roster returns the 2026-27 squad free; not yet captured" },
+  lineups: { state: "REACHABLE_UNOBSERVED", note: "the summary rosters[] block exists pre-kickoff and is empty until ~1h before; that it fills in time is structurally likely and has not yet been seen" },
+  model: { state: "MISSING", note: "no rate model fitted, no preregistered bar, no walk-forward backtest — this is the only thing between the corpus and a published projection" },
 });
 
 /**
@@ -66,6 +84,10 @@ export const EPL_PLAYER_INPUTS = Object.freeze({
  * that the day a corpus lands there is exactly one place to change and one guard to satisfy.
  */
 export function eplPlayerMarketsAvailable() {
+  /*
+   * Still false, and for a DIFFERENT reason than before: the data is here, the validated model is
+   * not. This flips when a backtest clears a preregistered bar, and not when the corpus lands.
+   */
   return false;
 }
 
@@ -76,6 +98,6 @@ export function eplPlayerMarketStatus() {
     state: EPL_PLAYER_MARKET_STATE,
     reason: EPL_PLAYER_MARKET_REASON,
     missingInputs: EPL_PLAYER_INPUTS,
-    outOfScope: EPL_PLAYER_MARKETS_OUT_OF_SCOPE,
+    candidates: EPL_PLAYER_MARKETS_CANDIDATE,
   };
 }

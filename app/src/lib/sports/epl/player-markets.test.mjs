@@ -18,15 +18,38 @@ import { eplPlayerMarketsAvailable, eplPlayerMarketStatus, EPL_PLAYER_INPUTS } f
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
 
-test("EPL player markets are unavailable, and say why in a reader's words", () => {
-  assert.equal(eplPlayerMarketsAvailable(), false);
+test("player markets stay unpublished, and the reason is the MODEL now — not the data", () => {
+  /*
+   * The state changed on 2026-08-21 and the guard changed with it. What must NOT change is that
+   * nothing is published: a corpus is not a model, and five model improvements have been rejected
+   * against preregistered bars in this repo. `available` flips when a backtest passes, never when
+   * data lands — that distinction is the whole point of this file.
+   */
+  assert.equal(eplPlayerMarketsAvailable(), false, "no player number publishes without a cleared bar");
   const s = eplPlayerMarketStatus();
-  assert.equal(s.state, "UNAVAILABLE_NO_DATA");
-  assert.match(s.reason, /no player-level/i);
+  assert.equal(s.state, "DATA_READY_MODEL_UNVALIDATED");
+  assert.match(s.reason, /tested against results it has not seen/i, "the reason names the missing step");
+  assert.equal(EPL_PLAYER_INPUTS.playerCorpus.state, "AVAILABLE");
+  assert.equal(EPL_PLAYER_INPUTS.model.state, "MISSING", "the model is the one thing still missing");
   for (const [input, v] of Object.entries(EPL_PLAYER_INPUTS)) {
-    assert.equal(v.state, "MISSING", `${input} must be MISSING while no corpus exists`);
-    assert.ok(v.note && v.note.length > 20, `${input} states what is missing`);
+    assert.ok(v.note && v.note.length > 20, `${input} states its state in words`);
   }
+});
+
+test("the corpus the new state rests on is REAL — asserted against the file, not the prose", () => {
+  const f = path.join(REPO, "data/internal/research/epl/players/espn-players-v1.jsonl");
+  assert.ok(fs.existsSync(f), "the ESPN player corpus must exist for the state to claim AVAILABLE");
+  const rows = fs.readFileSync(f, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+  assert.ok(rows.length > 10000, `expected a full season of player rows, got ${rows.length}`);
+  assert.equal(new Set(rows.map((r) => r.espnEventId)).size, 380, "a full 380-fixture season");
+  /* Participation is the term the NFL families lacked; assert it is OBSERVED, not assumed. */
+  assert.ok(rows.some((r) => r.started === true), "starts are recorded");
+  assert.ok(rows.some((r) => r.subbedIn === true), "substitute appearances are recorded");
+  assert.ok(rows.some((r) => r.appeared === false), "non-appearances are recorded — the bench is the signal");
+  /* League sanity: a corpus with the wrong scoring rate is a corpus of something else. */
+  const goals = rows.reduce((s, r) => s + (r.goals ?? 0), 0);
+  const perMatch = goals / 380;
+  assert.ok(perMatch > 2.2 && perMatch < 3.2, `goals per match ${perMatch.toFixed(2)} is outside any real EPL season`);
 });
 
 test("THE FACT THE REFUSAL RESTS ON: the corpus carries no player field", () => {

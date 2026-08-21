@@ -1,0 +1,14 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-espn-player-capture",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "provider": "espn",
+ "endpoints": [
+  "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard?dates={YYYYMMDD}",
+  "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/summary?event={id}"
+ ],
+ "licence": "ESPN public JSON endpoints, no key. Point-in-time snapshot with attribution; the same host this repo already reads for MLB, NFL and EPL results.",
+ "fixturesCaptured": 380,
+ "dateMismatches": []
+}
