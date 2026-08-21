@@ -53,9 +53,10 @@ jobs:
       # commit step, or the capture this run just made is thrown away — the lesson epl-matchweek
       # learned the hard way when a legitimate odds skip discarded nine forecasts.
       - name: Grade team forecasts
+        working-directory: app
         run: |
           set -uo pipefail
-          if npx tsx app/scripts/epl/grade-epl-forecasts.mjs --write; then
+          if npx tsx scripts/epl/grade-epl-forecasts.mjs --write; then
             echo "TEAM_GRADE=ok" >> "$GITHUB_ENV"
           else
             echo "TEAM_GRADE=refused" >> "$GITHUB_ENV"
@@ -64,9 +65,10 @@ jobs:
       # Player markets: anytime goalscorer and shots on goal, against the pre-kickoff snapshot.
       # A conditional row whose condition did not hold is VOIDED, never scored as a miss.
       - name: Grade player projections
+        working-directory: app
         run: |
           set -uo pipefail
-          if npx tsx app/scripts/epl/grade-epl-player-projections.mjs --write; then
+          if npx tsx scripts/epl/grade-epl-player-projections.mjs --write; then
             echo "PLAYER_GRADE=ok" >> "$GITHUB_ENV"
           else
             echo "PLAYER_GRADE=refused" >> "$GITHUB_ENV"

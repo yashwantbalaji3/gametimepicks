@@ -67,11 +67,17 @@ jobs:
 
       # Fixtures come from a public-domain source with no key, so this half costs nothing and is
       # safe to run whether or not the priced step below is authorised or configured.
+      # working-directory: app AND npx tsx, neither optional. This script reaches lib/soccer/epl-clubs.ts, which
+      # imports "@/lib/..." — an alias declared in app/tsconfig.json and therefore only resolvable
+      # with app/ as the working directory. Run from the repository root it dies MODULE_NOT_FOUND
+      # every single time, and the `|| echo` below caught the failure and printed "fixtures unchanged
+      # or unavailable this run" — a reassuring sentence over a step that had never once worked.
       - name: Refresh the fixture list
+        working-directory: app
         run: |
           set -euo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          node app/scripts/epl/capture-epl-fixtures.mjs --now "$NOW" || \
+          npx tsx scripts/epl/capture-epl-fixtures.mjs --now "$NOW" || \
             echo "fixtures unchanged or unavailable this run"
 
       # Prices, under docs/receipts/ODDS_AUTHORIZATION_EPL.md: EPL only, h2h + totals, us region,
@@ -121,9 +127,10 @@ jobs:
       # reports on work must never be the reason the work is lost. The status is carried forward and
       # raised after the commit.
       - name: Grade finished matches against their pre-kickoff forecasts
+        working-directory: app
         run: |
           set -uo pipefail
-          if npx tsx app/scripts/epl/grade-epl-forecasts.mjs --write; then
+          if npx tsx scripts/epl/grade-epl-forecasts.mjs --write; then
             echo "GRADE_STATUS=ok" >> "$GITHUB_ENV"
           else
             echo "GRADE_STATUS=refused" >> "$GITHUB_ENV"
@@ -143,9 +150,10 @@ jobs:
       # Same failure handling as the team grader: a broken join exits non-zero, and that is raised
       # AFTER the commit so a refusal never costs the run its artifacts.
       - name: Grade player projections against official results
+        working-directory: app
         run: |
           set -uo pipefail
-          if npx tsx app/scripts/epl/grade-epl-player-projections.mjs --write; then
+          if npx tsx scripts/epl/grade-epl-player-projections.mjs --write; then
             echo "PLAYER_GRADE_STATUS=ok" >> "$GITHUB_ENV"
           else
             echo "PLAYER_GRADE_STATUS=refused" >> "$GITHUB_ENV"

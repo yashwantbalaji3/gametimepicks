@@ -46,6 +46,15 @@ const CROSS_LANE_READERS = [
   // Prefix, so the registry AND its guard are both covered — the guard has to name the path
   // it is asserting, or it cannot assert it.
   "src/lib/sports/learning-paths",
+  /*
+   * workflow-script-cwd.test.mjs (P189): the ops guard that checks every workflow step runs its
+   * scripts from a directory where the "@/" alias resolves. It NAMES scripts/epl/grade-epl-forecasts
+   * as its calibration case — the script that actually died MODULE_NOT_FOUND on a runner — because a
+   * detector with no known-positive passes forever while finding nothing. It imports nothing from
+   * the lane and reads no EPL artifact: the path is a string it hands to a resolver, prose in the
+   * same sense as watches.mjs above. The lane rule is about surfaces reaching into EPL.
+   */
+  "src/lib/ops/workflow-script-cwd.test.mjs",
 ];
 
 /** Every source file this lane owns. */
