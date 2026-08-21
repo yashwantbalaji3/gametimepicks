@@ -108,9 +108,8 @@ data/internal/mlb/social/*.json
 app/.build-info.json
 .tmp/
 
-# P188 — RAW api-football player payloads are NOT committed. This repository is PUBLIC, and the
-# captures are a licensed provider's response bodies; three fixture-list files were already here when
-# this rule was written, but a full player backfill is redistribution at a different scale. Only our
-# own DERIVED extraction (data/internal/research/epl/players/corpus-*.json) is tracked, and even that
-# is private-research class and never reaches the public export.
+# Raw provider response bodies are never committed — this repository is PUBLIC and the payloads are a
+# licensed provider's. The api-football player backfill that wrote here was retired on 2026-08-21
+# (superseded by the free, unmetered ESPN capture), but the rule stays: any future raw capture lands
+# here and stays out of git. Only our own derived extractions are tracked.
 data/internal/research/epl/players/raw/

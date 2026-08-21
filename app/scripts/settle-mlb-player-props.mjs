@@ -99,7 +99,28 @@ async function boxFor(gamePk) {
 
 const dp = JSON.parse(fs.readFileSync(DP, "utf8"));
 if (dp.date !== DATE) {
-  console.error(`daily-portfolio is dated ${dp.date}, not ${DATE} — refusing to settle the wrong slate`);
+  /*
+   * REFUSING AND FAILING ARE DIFFERENT THINGS, and conflating them made this job cry wolf nightly.
+   *
+   * nightly-settle runs on two crons, 05:30 and 07:30 UTC. The first settles yesterday and rolls the
+   * portfolio forward to today; the second then asks for yesterday again, finds the portfolio already
+   * advanced, and — until now — exited 1. It failed at ~08:05 on the 19th, 20th and 21st. Every
+   * night. With OPS_WEBHOOK_URL wired, every one of those paged a human about a job that had done
+   * exactly what it was supposed to do two hours earlier.
+   *
+   * The refusal itself is right and stays: settling against the wrong slate is the failure this
+   * check exists to prevent. What was wrong is the direction being ignored.
+   *
+   *   portfolio AHEAD of the target  → that slate is already settled. Idempotent no-op, exit 0.
+   *   portfolio BEHIND the target    → it never caught up. Genuinely unsafe, exit 1.
+   *
+   * An alert that fires every night is one nobody reads, which costs more than the alert was worth.
+   */
+  if (dp.date > DATE) {
+    console.log(`daily-portfolio has already advanced to ${dp.date}; ${DATE} was settled by an earlier run — nothing to do.`);
+    process.exit(0);
+  }
+  console.error(`daily-portfolio is dated ${dp.date}, BEHIND the requested ${DATE} — refusing to settle the wrong slate`);
   process.exit(1);
 }
 
