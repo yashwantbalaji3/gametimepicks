@@ -5,6 +5,8 @@
  */
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 
 import { EPL_PREVIEW_COPY, buildEplPreview } from "./epl-preview.ts";
 import { MODEL_FIELD_KEYS, findModelField } from "./epl-artifacts.ts";
@@ -187,8 +189,23 @@ test("the committed artifacts load and build a preview — samples AND the 2026-
   assert.equal(artifacts.oddsValidations.every((v) => v.validation.clean), true);
   assert.equal(artifacts.fixtureValidations.every((v) => v.validation.clean), true);
 
+  /*
+   * 384 STAYS 384 AS CAPTURES ACCUMULATE.
+   *
+   * Captures are append-only snapshots of the SAME 380-fixture season, so concatenating them counts
+   * every match once per snapshot. The second capture took this to 764. It had read as correct for
+   * twelve days only because the capture step was broken on every runner during those twelve days —
+   * one defect hiding behind another — so no second snapshot ever arrived to expose it.
+   *
+   * The loader now takes the newest capture and all samples, which is what makes this number a
+   * property of the SEASON rather than of how many times the job happened to run.
+   */
+  const captureCount = fs.readdirSync(path.join(process.cwd(), "public/data/soccer/epl/fixtures"))
+    .filter((n) => n.startsWith("capture-") && n.endsWith(".json")).length;
+  assert.ok(captureCount >= 2, "this assertion is only meaningful while more than one capture is on disk");
+
   const allViews = buildEplPreview({ fixtures: artifacts.fixtures, odds: artifacts.odds });
-  assert.equal(allViews.length, 384, "4 sample fixtures + 380 captured fixtures, every one previewable");
+  assert.equal(allViews.length, 384, `4 sample fixtures + 380 captured fixtures, every one previewable — ${captureCount} captures on disk must still yield one season`);
   assert.equal(findModelField(allViews), null);
 
   // The sample-scenario assertions below run on the sample rows alone — the synthetic

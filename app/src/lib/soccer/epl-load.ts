@@ -64,7 +64,28 @@ export interface EplLoadedArtifacts {
 
 /** Load and validate every committed EPL artifact. Rejected rows never reach a surface. */
 export function loadEplArtifacts(): EplLoadedArtifacts {
-  const fixtureFiles = readJsonFiles<EplFixtureArtifact>("fixtures");
+  /*
+   * ONE CAPTURE, THE NEWEST — captures are append-only SNAPSHOTS OF THE SAME SEASON.
+   *
+   * Every capture writes a new stamped file rather than overwriting, which is right: the lineage is
+   * the record of what was known when. But it means loading all of them concatenates the same 380
+   * fixtures once per snapshot, and the preview showed each match twice the moment a second capture
+   * landed. It read as correct for twelve days only because the capture was BROKEN on every runner
+   * during those twelve days, so no second snapshot ever arrived to expose it — one defect hiding
+   * behind another.
+   *
+   * SAMPLES ARE NOT DEDUPLICATED. They are distinct hand-authored sets, not snapshots of one thing,
+   * so all of them load. The rule is about superseding, not about tidiness.
+   */
+  const fixtureFiles = (() => {
+    const all = readJsonFiles<EplFixtureArtifact>("fixtures");
+    const captures = all.filter(({ data }) => (data as { dataClass?: string }).dataClass === "FIXTURE_CAPTURE");
+    if (captures.length < 2) return all;
+    // Stamped names sort chronologically (capture-<season>-<ISO minute>.json), which is why the
+    // filename carries the stamp at all.
+    const newest = [...captures].sort((a, b) => a.file.localeCompare(b.file)).pop();
+    return all.filter((f) => captures.every((c) => c.file !== f.file) || f.file === newest?.file);
+  })();
   /*
    * ODDS_CAPTURE is EXCLUDED here, deliberately.
    *

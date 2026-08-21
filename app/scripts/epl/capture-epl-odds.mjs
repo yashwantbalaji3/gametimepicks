@@ -67,6 +67,55 @@ if (!auth.ok) {
   process.exit(1);
 }
 
+/** The newest committed season capture. Empty on any failure — see the guard below for why that matters. */
+function loadFixtures() {
+  const dir = path.join(APP, "public", "data", "soccer", "epl", "fixtures");
+  try {
+    const f = fs.readdirSync(dir).filter((n) => n.startsWith("capture-") && n.endsWith(".json")).sort().pop();
+    return f ? (readJson(path.join(dir, f))?.rows ?? []) : [];
+  } catch { return []; }
+}
+
+/*
+ * ── DO NOT BUY PRICES FOR A SLATE THAT DOES NOT EXIST ──────────────────────────────────────────
+ *
+ * There was no fixture guard here at all. Every cron slot called the provider whether or not a
+ * match was coming, so a week with no Friday and no Monday fixture still bought prices for both.
+ * Projected against the real 380-fixture season that cadence spends 892 credits; the receipt's
+ * ceiling is 500. The ledger's per-call check would have caught it — in February, as every
+ * remaining fixture quietly fell to READY_EXCEPT_ODDS with no explanation on the page.
+ *
+ * A kickoff must be STRICTLY AHEAD: the capture excludes an event already under way, so a window
+ * containing only in-progress matches has nothing purchasable in it.
+ *
+ * WHY 30 HOURS. It has to reach from the night-before slot to the next day's earliest kickoff — a
+ * 21:00 UTC run before an 11:30 Saturday is 14.5h, and before a Monday 19:00 it is 22h — while
+ * still refusing a slot whose nearest match is a different weekend. Measured across the committed
+ * season: 154 of 446 firings spend, 316 credits total, 184 under the ceiling.
+ *
+ * AN UNREADABLE FIXTURE LIST DOES NOT SPEND. Zero fixtures means the question "is a match coming?"
+ * could not be answered, and buying on an unanswered question is how a broken capture becomes a
+ * budget breach. The refusal is loud rather than a silent skip.
+ */
+const KICKOFF_WINDOW_H = Number(arg("--require-kickoff-within-hours", "30"));
+{
+  const nowMs = Date.parse(NOW);
+  const upcoming = loadFixtures()
+    .map((r) => Date.parse(r?.kickoffIso ?? ""))
+    .filter((t) => Number.isFinite(t) && t > nowMs && t <= nowMs + KICKOFF_WINDOW_H * 3_600_000);
+  if (!upcoming.length) {
+    const all = loadFixtures().map((r) => Date.parse(r?.kickoffIso ?? "")).filter(Number.isFinite);
+    if (!all.length) {
+      console.error("epl odds: REFUSED — no fixture list could be read, so there is no way to know whether a match is coming. Not spending on an unanswered question.");
+      process.exit(1);
+    }
+    const next = all.filter((t) => t > nowMs).sort((a, b) => a - b)[0];
+    const away = next ? ((next - nowMs) / 3_600_000).toFixed(1) : null;
+    console.log(`epl odds: SKIPPED — no kickoff within ${KICKOFF_WINDOW_H}h${next ? ` (next is ${away}h away, ${new Date(next).toISOString()})` : " (no fixtures remain)"}. Nothing bought.`);
+    process.exit(0);
+  }
+}
+
 let ledger = readJson(LEDGER) ?? emptyLedger(path.relative(REPO, RECEIPT), { sport: "epl", program: "EPL" });
 const allowed = assertCallAllowed({ authorization: auth, ledger, worstCaseCredits: WORST_CASE_CREDITS, purpose: "matchweek bulk h2h+totals" });
 if (!allowed.ok) { for (const e of allowed.errors) console.error(`epl odds: ${e}`); process.exit(1); }
@@ -151,13 +200,7 @@ const foldClub = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f
 const CLUB_ALIASES = {};
 const clubKey = (s) => { const f = foldClub(s); return CLUB_ALIASES[f] ?? f; };
 
-const fixtures = (() => {
-  const dir = path.join(APP, "public", "data", "soccer", "epl", "fixtures");
-  try {
-    const f = fs.readdirSync(dir).filter((n) => n.startsWith("capture-") && n.endsWith(".json")).sort().pop();
-    return f ? (readJson(path.join(dir, f))?.rows ?? []) : [];
-  } catch { return []; }
-})();
+const fixtures = loadFixtures();
 
 const quarantined = [];
 function fixtureFor(ev) {

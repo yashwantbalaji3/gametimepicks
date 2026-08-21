@@ -14,31 +14,60 @@ name: epl-matchweek
 # Three captures a matchweek at 2 credits each is 6 credits, against a 500-credit ceiling.
 on:
   schedule:
-    # TIMED TO KICKOFFS. runEplShadow refuses odds older than 6h, and Thu/Sat/Sun 07:00 covered
-    # exactly ONE of matchweek 1's ten fixtures — a Thursday capture is 36h stale by the Friday
-    # 19:00 opener, and there was no Friday or Monday run at all. The engine worked and published
-    # nothing, because the prices arrived too early to use.
+    # ── NIGHT BEFORE · the product is finished before anyone sleeps ─────────────────────────────
     #
-    # These sit 3-5h ahead of the slots they serve. That is only safe because the capture itself now
-    # excludes any event already kicked off (excludedInProgress) — the schedule is no longer the
-    # thing keeping us off in-progress matches.
+    # Each of these fires at 21:00 UTC the evening before a matchday and produces the COMPLETE
+    # publishable set for it: fresh prices, a forecast for every fixture the ladder can price, and
+    # player projections. runEplShadow measures odds freshness at BUILD time rather than against
+    # kickoff, so a 21:00 capture builds a perfectly valid forecast for an 11:30 kickoff the next
+    # morning — 14.5h ahead, and published while there is still a whole night to notice a problem.
+    #
+    # This is the answer to cron drift. GitHub's scheduler is best-effort and has drifted well over
+    # an hour in this repository; the lineup slots below sit only an hour ahead of kickoff, so one
+    # bad drift puts them past it, where the engine refuses them. When that happens the night-before
+    # set is what the page keeps showing. It is a floor under the product, not a replacement for
+    # what comes after.
+    - cron: "0 21 * * 4"  # Thursday evening — for a Friday fixture
+    - cron: "0 21 * * 5"  # Friday evening   — for the Saturday clusters
+    - cron: "0 21 * * 6"  # Saturday evening — for the Sunday clusters
+    - cron: "0 21 * * 0"  # Sunday evening   — for a Monday fixture
+    #
+    # ── LINEUP TIME · and why these CANNOT move to the night before ─────────────────────────────
+    #
+    # These are not a second opinion on the same product. They are the only slots that can produce
+    # the real one.
+    #
+    # Until a lineup is published the player model can answer only a CONDITIONAL question —
+    # P(scores | he starts) — because it does not know who is playing. Once ESPN posts the XI, the
+    # match simulation allocates the team's goal distribution across the named eleven and every
+    # player row becomes coherent with the team forecast by construction: the shares sum to one, so
+    # the players sum to the team. Lineups appear about an hour before kickoff and not before, so a
+    # run the night before cannot see one no matter how well it is written. Moving these earlier
+    # would not deliver the same product sooner; it would quietly replace it with a weaker one.
     #
     # Real 2026-27 slots (UTC): Fri 19:00 · Sat 11:30/14:00/16:30 · Sun 13:00/15:30 · Mon 19:00.
-    # COST: 5 runs/week x 2 markets ~= 10 credits/week (~43/month) against the receipt's 500 ceiling.
-    - cron: "0 14 * * 5"  # Friday   — serves the 19:00 opener
-    - cron: "0 9 * * 6"   # Saturday — serves 11:30 and 14:00
-    - cron: "0 13 * * 6"  # Saturday — serves 16:30
-    - cron: "0 10 * * 0"  # Sunday   — serves 13:00 and 15:30
-    - cron: "0 14 * * 1"  # Monday   — serves the 19:00 fixture
-    # LINEUP SLOTS. Lineups are posted about an hour before kickoff, and every slot above is hours
-    # earlier, so these exist purely so player projections resolve from CONDITIONAL to the named XI
-    # before the match rather than after it. Chosen against the real 2026-27 kickoff clusters.
+    # Every cluster is served ~1h ahead — checked mechanically against the committed fixture list by
+    # lib/sports/epl/lineup-slot-coverage.mjs, which counts MATCHES rather than clusters.
     - cron: "0 18 * * 5"  # Friday   — 19:00 kickoff
     - cron: "30 10 * * 6" # Saturday — 11:30 cluster
+    - cron: "0 13 * * 6"  # Saturday — 14:00 cluster
     - cron: "30 15 * * 6" # Saturday — 16:30 cluster
     - cron: "0 12 * * 0"  # Sunday   — 13:00 cluster
     - cron: "30 14 * * 0" # Sunday   — 15:30 cluster
     - cron: "0 18 * * 1"  # Monday   — 19:00 kickoff
+    #
+    # ── WHAT THIS COSTS, MEASURED AND NOT ESTIMATED ────────────────────────────────────────────
+    #
+    # The old cadence had no fixture guard: every slot called the provider whether or not a match
+    # was coming, so a week with no Friday and no Monday match still bought prices for both.
+    # Projected against the real 380-fixture season that spends 892 credits. The receipt's ceiling
+    # is 500. Nothing said so, because nothing multiplied the crons by the season — the ledger's
+    # per-call check would have found it in February, as every remaining fixture fell to
+    # READY_EXCEPT_ODDS with no explanation on the page.
+    #
+    # The capture now refuses to spend unless a kickoff falls within 30 hours. Guarded by
+    # lib/sports/epl/odds-budget.mjs, which reads THESE cron lines, the committed fixture list and
+    # the real ledger, and fails the suite if the cadence cannot finish the season.
   workflow_dispatch:
     inputs:
       dry_run:
