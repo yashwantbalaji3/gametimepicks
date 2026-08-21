@@ -1,144 +1,297 @@
 /**
- * /epl — Premier League fixtures AND model forecasts.
+ * /epl — the Premier League SIMULATION CENTER.
  *
- * This page was SCHEDULE_ONLY, and its blocker said simulating a fixture needs per-club scoring
- * rates "fitted to this competition and validated out of sample". Half of that is now done: the
- * rates ARE fitted to the Premier League (1,520 matches over four seasons, cross-language parity at
- * n=1140). The other half is NOT — no EPL match has ever been graded under this model.
+ * WHAT THIS PAGE USED TO DO WRONG. It opened with an <h1> reading "Schedule", a source line, and a
+ * twelve-fixture list — and the model forecasts, the thing we actually compute, sat below all of it.
+ * A reader landing here saw a fixture list and concluded there were no EPL simulations. That is the
+ * correct conclusion to draw from that page and the wrong fact about the product.
  *
- * So the forecasts are published with that limitation attached to them rather than hidden. What is
- * deliberately absent is as important as what is shown: no pick, no confidence score, no rating, and
- * no comparison against a price. The DISTRIBUTION is the product. A reader can see what the model
- * says; nothing here tells them what will happen or what to do.
+ * So the order now mirrors /mlb, for the reason /mlb is ordered that way: THE MODEL'S OWN READ COMES
+ * FIRST. Signature product, then the predictions for the matchday in question, then the per-fixture
+ * simulations, and only then the schedule — which is reference material, not the point.
  *
- * Cold-start clubs are flagged on their own row. Coventry City and Hull City are newly promoted with
- * no top-flight history, so they run at the league-average baseline — a fact that belongs beside the
- * number it affects, not in a footnote.
+ * WHAT IS DELIBERATELY ABSENT, AND SAID OUT LOUD. There are no player markets. Not "coming soon" —
+ * there is no player-level Premier League data in this system at all, so any player number would be
+ * invented. That refusal is RENDERED rather than left as a hole a reader has to notice, because an
+ * absence with no explanation reads as an oversight and invites someone to quietly fill it in.
+ *
+ * NOTHING HERE IS VALIDATED. Zero Premier League matches have been graded under this model. That
+ * statement sits above the first number and is not a footer a later edit can drop.
+ *
+ * Cold-start clubs are flagged on the row they affect. Coventry City and Hull City are newly promoted
+ * with no top-flight history, so they run at the league-average baseline.
  */
 import type { Metadata } from "next";
-
 import Link from "next/link";
-import SportSchedulePage from "@/components/sports/sport-schedule-page";
-import { loadEplForecasts, eplMatchHref, type EplForecastSet } from "@/lib/sports/epl/forecast-view";
+
+import SportOverviewHero from "@/components/sport-overview-hero";
+import SectionHeader from "@/components/section-header";
+import TeamLogo from "@/components/team-logo";
+import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
+import {
+  loadEplForecasts,
+  forecastRows,
+  unpricedRows,
+  eplMatchHref,
+  type EplForecastRow,
+  type EplForecastSet,
+} from "@/lib/sports/epl/forecast-view";
+import { eplPlayerMarketStatus } from "@/lib/sports/epl/player-markets.mjs";
 
 export const metadata: Metadata = {
-  title: "Premier League — Forecasts · GameTime Picks",
+  title: "Premier League — Simulation Center · GameTime Picks",
   description:
-    "Premier League model forecasts: match-result probabilities, expected goals and over/under 2.5 for each fixture. Distributions only — not picks. No match has been graded under this model yet.",
+    "Premier League model simulations: match-result probabilities, scorelines, goals and margin for every fixture we can price. Distributions only — not picks. No match has been graded under this model yet.",
 };
 
-/*
- * P188: the loader moved to lib/sports/epl/forecast-view so this page and the per-fixture report at
- * /epl/match/[slug] read ONE source. Two parsers would be two chances to disagree about the same
- * fixture, which is the defect shape this codebase keeps finding.
- */
-type Forecasts = EplForecastSet | null;
-const loadForecasts = loadEplForecasts;
-
 const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
+const ET_DAY = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" });
+const ET_TIME = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" });
+const ET_KEY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
 
-function ForecastTable({ f }: { f: NonNullable<Forecasts> }) {
-  const priced = f.rows.filter((r) => r.probs);
-  const unpriced = f.rows.filter((r) => !r.probs);
+/** Group priced fixtures by ET matchday, soonest first. "That specific day" is the unit here. */
+function byMatchday(rows: EplForecastRow[]): Array<{ key: string; label: string; rows: EplForecastRow[] }> {
+  const days = new Map<string, EplForecastRow[]>();
+  for (const r of [...rows].sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc))) {
+    const k = ET_KEY.format(new Date(r.kickoffUtc));
+    days.set(k, [...(days.get(k) ?? []), r]);
+  }
+  return [...days].map(([key, rs]) => ({ key, label: ET_DAY.format(new Date(rs[0].kickoffUtc)), rows: rs }));
+}
+
+/** One fixture's team prediction. Every figure is read from the artifact; none is recomputed here. */
+function PredictionRow({ r }: { r: EplForecastRow }) {
+  const home = r.homeClub ?? r.matchup.split(" v ")[0];
+  const away = r.awayClub ?? r.matchup.split(" v ")[1];
+  const cold = Boolean(r.coldStart?.home || r.coldStart?.away);
+  const body = (
+    <>
+      <div className="flex items-center gap-2 min-w-0">
+        <TeamLogo team={home} sport="soccer" size="sm" ariaLabel={`${home} crest`} />
+        <span className="truncate" style={{ fontWeight: 600 }}>{home}</span>
+        <span style={{ color: "var(--vault-text-faint)" }}>v</span>
+        <span className="truncate" style={{ fontWeight: 600 }}>{away}</span>
+        <TeamLogo team={away} sport="soccer" size="sm" ariaLabel={`${away} crest`} />
+      </div>
+      <div className="flex items-center gap-3 font-mono shrink-0" style={{ fontSize: 12.5 }}>
+        <span title={`${home} win`} style={{ color: "var(--vault-accent)" }}>{pct(r.probs!.home)}</span>
+        <span title="Draw" style={{ color: "var(--vault-text-mute)" }}>{pct(r.probs!.draw)}</span>
+        <span title={`${away} win`} style={{ color: "var(--sport-soccer)" }}>{pct(r.probs!.away)}</span>
+        <span style={{ color: "var(--vault-text-faint)" }}>·</span>
+        <span title="Expected total goals" style={{ color: "var(--vault-text-mute)" }}>{r.expectedGoals?.toFixed(2) ?? "—"} xG</span>
+      </div>
+    </>
+  );
   return (
-    <section aria-labelledby="epl-forecasts" className="mt-8">
-      <h2 id="epl-forecasts" className="text-[13px] font-semibold uppercase tracking-wide text-[var(--text-mute)]">
-        Model forecasts
-      </h2>
-
-      {/* The limitation sits ABOVE the numbers, not under them. */}
-      <div className="mt-3 rounded-[8px] border p-4" style={{ borderColor: "var(--vault-border-strong)", background: "var(--vault-panel)" }}>
-        <p className="text-[14px] leading-relaxed text-[var(--text)]">
-          <strong>No Premier League match has been graded under this model.</strong> There is no
-          win/loss record, no accuracy figure and no track record to cite. These are the model&rsquo;s
-          own probability distributions, published so you can see what it says — not picks, and not
-          compared against any price.
-        </p>
-      </div>
-
-      <div className="mt-4" style={{ overflowX: "auto" }}>
-        <table className="w-full text-[13.5px]" style={{ borderCollapse: "collapse", minWidth: 560 }}>
-          <thead>
-            <tr style={{ color: "var(--text-mute)", textAlign: "left" }}>
-              <th className="py-2 pr-3 font-semibold">Fixture</th>
-              <th className="py-2 px-2 font-semibold">Home</th>
-              <th className="py-2 px-2 font-semibold">Draw</th>
-              <th className="py-2 px-2 font-semibold">Away</th>
-              <th className="py-2 px-2 font-semibold">Exp. goals</th>
-              <th className="py-2 pl-2 font-semibold">Over 2.5</th>
-            </tr>
-          </thead>
-          <tbody>
-            {priced.map((r) => (
-              <tr key={r.eventId} style={{ borderTop: "1px solid var(--vault-border)" }}>
-                <td className="py-2 pr-3 text-[var(--text)]">
-                  {/* The fixture opens its own distribution. A row that has no slug stays plain text
-                      rather than linking to a page that would not exist. */}
-                  {r.slug ? (
-                    <Link href={eplMatchHref(r.slug)} style={{ color: "var(--sport-soccer)" }}>{r.matchup}</Link>
-                  ) : (
-                    r.matchup
-                  )}
-                  {r.coldStart && (r.coldStart.home || r.coldStart.away) ? (
-                    <span className="ml-2 text-[11px]" style={{ color: "var(--text-mute)" }}>
-                      · newly promoted side, no top-flight history — league-average baseline
-                    </span>
-                  ) : null}
-                </td>
-                <td className="py-2 px-2 font-mono">{pct(r.probs!.home)}</td>
-                <td className="py-2 px-2 font-mono">{pct(r.probs!.draw)}</td>
-                <td className="py-2 px-2 font-mono">{pct(r.probs!.away)}</td>
-                <td className="py-2 px-2 font-mono">{r.expectedGoals?.toFixed(2) ?? "—"}</td>
-                <td className="py-2 pl-2 font-mono">{r.over25 != null ? pct(r.over25) : "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* A fixture we could not price is NAMED. Dropping it would overstate coverage. */}
-      {unpriced.length > 0 ? (
-        <p className="mt-3 text-[13px] text-[var(--text-mute)]">
-          Not forecast:{" "}
-          {unpriced.map((r) => `${r.matchup} (${r.unavailableReason ?? "unavailable"})`).join(" · ")}
+    <li style={{ borderTop: "1px solid var(--vault-rule)" }}>
+      {r.slug ? (
+        <Link href={eplMatchHref(r.slug)} className="flex items-center justify-between gap-4 px-3 py-3" style={{ color: "var(--vault-text)" }}>
+          {body}
+        </Link>
+      ) : (
+        <div className="flex items-center justify-between gap-4 px-3 py-3">{body}</div>
+      )}
+      {cold ? (
+        <p className="px-3 pb-2" style={{ margin: 0, fontSize: 11, color: "var(--vault-text-faint)" }}>
+          Newly promoted side with no top-flight history — running at the league-average baseline.
         </p>
       ) : null}
+    </li>
+  );
+}
 
-      <p className="mt-3 text-[12px] text-[var(--text-mute)]">
-        Generated {f.generatedAt} · pregame inputs only; the model never sees a result from a match it
-        is forecasting.
+/** A per-fixture simulation card: what the reader opens to see the full distribution. */
+function SimulationCard({ r }: { r: EplForecastRow }) {
+  const home = r.homeClub ?? r.matchup.split(" v ")[0];
+  const away = r.awayClub ?? r.matchup.split(" v ")[1];
+  const top = r.topScorelines?.[0];
+  return (
+    <Link
+      href={eplMatchHref(r.slug as string)}
+      className="block rounded-[12px] p-4"
+      style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)" }}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <TeamLogo team={home} sport="soccer" size="sm" ariaLabel={`${home} crest`} />
+        <TeamLogo team={away} sport="soccer" size="sm" ariaLabel={`${away} crest`} />
+        <span className="font-mono ml-auto" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
+          {ET_TIME.format(new Date(r.kickoffUtc))} ET
+        </span>
+      </div>
+      <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700 }}>{home} v {away}</p>
+      <p className="font-mono mt-1" style={{ margin: 0, fontSize: 11.5, color: "var(--vault-text-mute)" }}>
+        {top ? `likeliest ${top.score.replace("-", "–")} at ${pct(top.p)}` : "distribution published"}
+        {r.totals ? ` · over 2.5 ${pct(r.totals.over25)}` : ""}
       </p>
-    </section>
+      <p className="font-mono mt-2" style={{ margin: 0, fontSize: 10.5, color: "var(--vault-accent)" }}>Open the simulation →</p>
+    </Link>
   );
 }
 
 export default function EplPage() {
   type Feed = { sport?: string; events?: unknown[]; totals?: { upcoming?: number }; sourceVerdict?: { sourceId?: string | null; fetchedAt?: string | null } };
-  const s = (allUpcoming({ nowIso: new Date().toISOString() }) as unknown as Feed[]).find((x) => x.sport === "epl");
-  const f = loadForecasts();
+  const feed = (allUpcoming({ nowIso: new Date().toISOString() }) as unknown as Feed[]).find((x) => x.sport === "epl");
+  const set: EplForecastSet | null = loadEplForecasts();
+  const priced = forecastRows(set);
+  const unpriced = unpricedRows(set);
+  const days = byMatchday(priced);
+  const next = days[0] ?? null;
+  const reportable = priced.filter((r) => r.slug);
+  /** The matchweek every priced fixture belongs to, or null when they straddle more than one. */
+  const weeks = new Set(priced.map((r) => r.matchweek).filter((w) => w != null));
+  const matchweek = weeks.size === 1 ? [...weeks][0] : null;
+  const player = eplPlayerMarketStatus();
+  const capturedAt = feed?.sourceVerdict?.fetchedAt ?? null;
+
   return (
-    <>
-      <SportSchedulePage
-        title="Premier League"
-        accent="var(--sport-soccer)"
-        blurb="The 2026-27 Premier League fixture list, with model forecasts for the fixtures we can price."
-        logoSport="soccer"
-        sides={["home", "away"]}
-        joiner="at"
-        events={(s?.events ?? []) as never[]}
-        source={s?.sourceVerdict?.sourceId ?? "openfootball (public domain)"}
-        capturedAt={s?.sourceVerdict?.fetchedAt ?? null}
-        totalEvents={s?.totals?.upcoming}
-        forecastsPublished
-        /*
-         * The blocker STAYS, narrowed to what is still true. It previously said the rates were
-         * neither fitted nor validated; the fitting is done, the out-of-sample validation is not.
-         * Removing it because forecasts now appear would delete the honest half of the sentence.
-         */
-        blocker="These forecasts have not been validated out of sample: no Premier League match has finished under this model, so nothing here has been checked against a result. Treat them as the model's stated view, not as evidence it is right."
+    <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
+      <SportOverviewHero
+        compact
+        icon="⚽"
+        eyebrow={next ? `Simulation Center · ${next.label}` : "Simulation Center"}
+        sport="Premier League"
+        tagline="match result · scorelines · goals · margin"
+        statusKind={priced.length > 0 ? "live" : "linesPending"}
+        statusCaption={priced.length > 0 ? `${priced.length} fixture${priced.length === 1 ? "" : "s"} simulated` : "no priced fixtures"}
+        matchupLine={next ? `Next matchday · ${next.label}` : "Between matchweeks"}
+        accent="wc"
+        stats={[
+          { label: "Fixtures simulated", value: String(priced.length), sub: `of ${priced.length + unpriced.length} in the window` },
+          { label: "Matches graded", value: "0", sub: "no track record yet" },
+          { label: "Season", value: "2026-27", sub: "380 fixtures" },
+        ]}
+        ctas={[
+          ...(reportable[0] ? [{ href: eplMatchHref(reportable[0].slug as string), label: "Open the next simulation", primary: true }] : []),
+          { href: "/simulate/", label: "All simulations" },
+          { href: "#schedule", label: "Full schedule" },
+        ]}
       />
-      {f ? <ForecastTable f={f} /> : null}
-    </>
+
+      {/*
+        THE LIMITATION LEADS, above the first number. A reader who stops after the headline has still
+        been told that nothing here has been checked against a result.
+      */}
+      <section
+        className="mt-5 rounded-[12px] p-4"
+        style={{ background: "var(--vault-panel)", border: "1px solid color-mix(in srgb, var(--sport-soccer) 40%, var(--vault-rule))" }}
+      >
+        <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6 }}>
+          <strong style={{ color: "var(--sport-soccer)" }}>Not validated out of sample.</strong>{" "}
+          {set?.trackRecord ?? "No Premier League match has been graded under this model."} These are the model&rsquo;s
+          own probability distributions, published so you can see what it says — not picks, not advice, and not
+          compared against any price.
+        </p>
+      </section>
+
+      {/* ── 1 · TEAM PREDICTIONS for the matchday ──────────────────────────────────────────────── */}
+      {days.length > 0 ? (
+        <section className="mt-8">
+          {/*
+            The title must cover what the SECTION contains, not just its first group. It read
+            "Friday, August 21" above a list that also held Saturday, Sunday and Monday fixtures —
+            a heading describing one day while four were rendered under it. Where every priced
+            fixture shares a matchweek, that is the honest unit; otherwise the span is stated.
+          */}
+          <SectionHeader
+            eyebrow="Team predictions"
+            title={
+              days.length === 1
+                ? days[0].label
+                : matchweek != null
+                  ? `Matchweek ${matchweek}`
+                  : `Next ${days.length} matchdays`
+            }
+            sub="Match-result probabilities and expected goals for every fixture the model can price. Open any fixture for its full distribution."
+          />
+          {days.map((d) => (
+            <div key={d.key} className="mt-4">
+              {days.length > 1 ? (
+                <p className="font-mono uppercase tracking-[0.1em]" style={{ margin: "0 0 6px", fontSize: 10, color: "var(--sport-soccer)" }}>{d.label}</p>
+              ) : null}
+              <ul
+                className="rounded-[12px] overflow-hidden"
+                style={{ listStyle: "none", margin: 0, padding: 0, background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}
+              >
+                {d.rows.map((r) => <PredictionRow key={r.eventId} r={r} />)}
+              </ul>
+            </div>
+          ))}
+          <p className="font-mono mt-2" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
+            home · draw · away, then expected total goals. Read left to right.
+          </p>
+          {unpriced.length > 0 ? (
+            <p className="mt-3" style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>
+              {/* Naming what we could NOT price. Dropping it would make 9 of 10 read as 10 of 10. */}
+              <strong>Not forecast:</strong>{" "}
+              {unpriced.map((r) => `${r.matchup} (${r.unavailableReason ?? "unavailable"})`).join(" · ")}
+            </p>
+          ) : null}
+        </section>
+      ) : (
+        <section className="mt-8">
+          <SectionHeader
+            eyebrow="Team predictions"
+            title="No fixtures inside the forecast window"
+            sub="Between matchweeks the model publishes nothing, which is the honest state rather than a stale card left up."
+          />
+        </section>
+      )}
+
+      {/* ── 2 · SIMULATIONS ────────────────────────────────────────────────────────────────────── */}
+      {reportable.length > 0 ? (
+        <section className="mt-8">
+          <SectionHeader
+            eyebrow={`Simulations · ${reportable.length} live`}
+            title="Open a fixture's full distribution"
+            sub="Ten likeliest scorelines, the goal-total ladder, each side's own goal curve, both teams to score, clean sheets and the winning margin — every figure an exact sum over one score matrix."
+          />
+          <div className="mt-4 grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))" }}>
+            {reportable.map((r) => <SimulationCard key={r.eventId} r={r} />)}
+          </div>
+          <p className="mt-3" style={{ fontSize: 12, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
+            {/* The honest method note. EPL must never borrow a run-count claim: nothing is sampled. */}
+            These are evaluated exactly rather than sampled, so there is no run count to quote — the same fixture
+            returns the same numbers for every visitor, every time.
+          </p>
+        </section>
+      ) : null}
+
+      {/* ── 3 · PLAYER MARKETS — the refusal, rendered ─────────────────────────────────────────── */}
+      <section className="mt-8">
+        <SectionHeader eyebrow="Player markets" title="Not published — and not coming soon" />
+        <div className="rounded-[12px] p-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
+          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>{player.reason}</p>
+          <p className="mt-2" style={{ margin: 0, fontSize: 12.5, lineHeight: 1.65, color: "var(--vault-text-faint)" }}>
+            Goalscorer, shots, assists and cards would each need a player appearance history and a pre-kickoff
+            lineup feed. Neither exists here, so nothing is shown rather than something estimated.
+          </p>
+        </div>
+      </section>
+
+      {/* ── 4 · SCHEDULE — reference, deliberately last ────────────────────────────────────────── */}
+      <section className="mt-8" id="schedule">
+        <SectionHeader eyebrow="Schedule" title="2026-27 fixture list" sub="Every fixture, whether or not the model can price it." />
+        <div className="mt-3">
+          <ScheduleList
+            events={(feed?.events ?? []) as never[]}
+            sides={["home", "away"]}
+            joiner="at"
+            logoSport="soccer"
+            accent="var(--sport-soccer)"
+          />
+        </div>
+        <p className="font-mono mt-3" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
+          Source: {feed?.sourceVerdict?.sourceId ?? "openfootball (public domain)"}
+          {capturedAt ? ` · captured ${new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(capturedAt))} ET` : ""}
+          {feed?.totals?.upcoming ? ` · showing the next ${(feed.events ?? []).length} of ${feed.totals.upcoming}` : ""}
+        </p>
+      </section>
+
+      <p className="mt-6" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
+        Paper-only and educational. Not betting advice. Generated {set?.generatedAt ?? "—"} from pregame inputs only;
+        the model never sees a result from a match it is forecasting.
+      </p>
+    </main>
   );
 }

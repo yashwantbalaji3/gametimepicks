@@ -473,6 +473,10 @@ export default function SimulateLobby() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <SectionHeader
+        /* The page's own title, so it is the document's h1 — /simulate had no top-level heading at
+           all, which leaves a screen-reader user pressing "1" with nowhere to land on the hub the
+           whole product points at. SectionHeader already supports the level; it was never passed. */
+        as="h1"
         eyebrow={`Simulate · ${rows.length} game${rows.length === 1 ? "" : "s"} across ${activeSports} sport${activeSports === 1 ? "" : "s"}`}
         title="Simulate Games"
         sub="Pick a game to run the model simulation — precomputed and deterministic, so everyone sees the same result. Watch a short reveal, then read the full model dashboard on the game page. Educational, paper-only."
@@ -510,9 +514,12 @@ export default function SimulateLobby() {
           <span className="inline-flex items-center gap-2 font-mono uppercase tracking-[0.22em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>
             <span className="gtp-ember-dot" aria-hidden /> The simulator · sport → game → generate
           </span>
-          <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(26px, 4.4vw, 40px)", lineHeight: 1.05, letterSpacing: "-0.02em", maxWidth: 760 }}>
+          {/* h2, not h3: the page's h1 is the section header above, and jumping a level leaves a
+              screen-reader user's heading list with a hole where this hero should be. Purely
+              semantic — the size is set by the style, not by the tag. */}
+          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(26px, 4.4vw, 40px)", lineHeight: 1.05, letterSpacing: "-0.02em", maxWidth: 760 }}>
             Simulate Today&rsquo;s Games
-          </h3>
+          </h2>
           <p style={{ color: "var(--vault-text-mute)", fontSize: "clamp(13px, 1.6vw, 15px)", lineHeight: 1.5, maxWidth: 640 }}>
             Pick a matchup to run its simulation.</p>
           <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11, letterSpacing: "0.01em" }}>

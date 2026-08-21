@@ -136,9 +136,16 @@ export default function SportOverviewHero({
       >
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           {icon ? <span aria-hidden style={{ fontSize: 22, lineHeight: 1 }}>{icon}</span> : null}
-          <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 21, fontWeight: 800, lineHeight: 1 }}>
+          {/*
+            An <h1>, matching the full hero below, which has always used one. This was a <span>, and
+            because every hub that adopted the compact variant lost its only top-level heading, /mlb,
+            /simulate and /epl all reported "page-has-heading-one: no <h1>" — a screen-reader user
+            pressing "1" landed nowhere on three of the busiest pages on the site. It carries the page
+            title in both variants, so it should be the same element in both; only the styling differs.
+          */}
+          <h1 className="font-display tracking-tight" style={{ margin: 0, color: "var(--vault-text)", fontSize: 21, fontWeight: 800, lineHeight: 1 }}>
             {sport}
-          </span>
+          </h1>
           <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--sport-theme-ink)", fontSize: 9.5 }}>
             {eyebrow}
           </span>
