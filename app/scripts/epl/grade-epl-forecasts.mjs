@@ -35,6 +35,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { gradeEplLeg } from "../../src/lib/sports/epl/settlement-contract.mjs";
+import { loadCurrentEplResults } from "../../src/lib/soccer/epl-current-results.mjs";
+import { classifyEmptyRun } from "../../src/lib/sports/epl/grade-forecasts.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -43,12 +45,30 @@ const PUBLIC_EPL = path.join(APP, "public/data/soccer/epl");
 const LEDGER = path.join(PUBLIC_EPL, "results/graded-forecasts.jsonl");
 
 const WRITE = process.argv.includes("--write");
+const NOW_ISO = (() => { const i = process.argv.indexOf("--now"); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : new Date().toISOString(); })();
 const readJson = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 
 /* ── Inputs ──────────────────────────────────────────────────────────────────────────────────── */
 const resultsPath = path.join(PUBLIC_EPL, "results/latest.json");
 if (!fs.existsSync(resultsPath)) { console.error("no results capture — nothing to grade"); process.exit(2); }
 const results = readJson(resultsPath);
+
+/*
+ * RESULTS COME THROUGH THE LANE'S OWN IDENTITY BRIDGE, not from the raw artifact.
+ *
+ * This script used to read results/latest.json directly and look for `eventId` and `status` on each
+ * row. Neither exists there: the ESPN capture writes `providerEventId` and `statusRaw`, and carries
+ * no canonical identity at all. So every finished fixture fell through the join silently and the
+ * first real settlement — Arsenal 3-0 Coventry — graded nothing.
+ *
+ * loadCurrentEplResults already did this properly and had done since P154: it joins each result to
+ * the committed fixture capture through identityFromFixture, the SAME function both sides use, and
+ * quarantines anything that cannot resolve. I duplicated a capability that existed, and did it worse.
+ */
+const bridged = loadCurrentEplResults({ nowIso: NOW_ISO });
+if (bridged.quarantined.length > 0) {
+  console.log(`  ${bridged.quarantined.length} result(s) quarantined by identity: ${bridged.quarantined.map((q) => q.reason).join("; ").slice(0, 200)}`);
+}
 
 const forecastDir = path.join(RESEARCH, "forecasts");
 const forecastFiles = fs.readdirSync(forecastDir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
@@ -91,17 +111,18 @@ const clip = (p) => Math.min(1 - 1e-15, Math.max(1e-15, p));
 const graded = [];
 const skipped = { alreadyGraded: 0, noForecast: 0, notFinal: 0, noResultRow: 0 };
 
-for (const r of results.rows ?? []) {
-  const eventId = r.eventId ?? r.canonicalEventId;
+for (const r of bridged.results) {
+  const eventId = r.canonicalEventId;
   if (!eventId) continue;
   if (alreadyGraded.has(eventId)) { skipped.alreadyGraded += 1; continue; }
 
   const fc = forecastByEvent.get(eventId);
   if (!fc) { skipped.noForecast += 1; continue; }
 
-  const status = STATUS_MAP[String(r.status ?? "").toUpperCase()] ?? "NOT_STARTED";
-  const homeGoalsFT = Number.isInteger(r.homeGoalsFT) ? r.homeGoalsFT : (Number.isInteger(r.ftHome) ? r.ftHome : null);
-  const awayGoalsFT = Number.isInteger(r.awayGoalsFT) ? r.awayGoalsFT : (Number.isInteger(r.ftAway) ? r.ftAway : null);
+  /* The bridge has already applied the FULL_TIME contract; this reads its verdict, never re-derives it. */
+  const status = r.settlementResult?.status ?? "NOT_STARTED";
+  const homeGoalsFT = Number.isInteger(r.settlementResult?.homeGoalsFT) ? r.settlementResult.homeGoalsFT : null;
+  const awayGoalsFT = Number.isInteger(r.settlementResult?.awayGoalsFT) ? r.settlementResult.awayGoalsFT : null;
 
   /* Rule 2, delegated to the committed contract rather than re-decided here. */
   const official = { fixtureId: eventId, status, homeGoalsFT, awayGoalsFT };
@@ -162,7 +183,10 @@ console.log(`  NEWLY GRADED:     ${graded.length}`);
 console.log(`  skipped: ${JSON.stringify(skipped)}`);
 
 for (const g of graded) {
-  console.log(`    ${g.hit ? "HIT " : "MISS"} ${g.matchup.padEnd(38)} ${g.actual.homeGoalsFT}-${g.actual.awayGoalsFT} ` +
+  /* g.scores.hit, not g.hit — the flag lives under scores, and reading the wrong path printed MISS
+     against a 3-0 home win the model had called at 69%. The ledger was right; the operator's view
+     of it was not, which is its own kind of wrong. */
+  console.log(`    ${g.scores.hit ? "HIT " : "MISS"} ${g.matchup.padEnd(38)} ${g.actual.homeGoalsFT}-${g.actual.awayGoalsFT} ` +
     `(${g.actual.outcome}) p=${g.scores.probabilityOfActual.toFixed(3)} logLoss=${g.scores.logLoss.toFixed(3)}`);
 }
 
@@ -172,11 +196,27 @@ if (graded.length === 0) {
    * correct. After it starts, nothing to grade means the join is broken — and those two must never
    * print the same sentence, because that is how a permanently broken loop reads as a healthy one.
    */
-  const seasonStarted = Date.parse(results.seasonStart ?? "") <= Date.parse(results.sourceAsOf ?? results.generatedAt ?? "");
-  if (!seasonStarted) {
-    console.log(`\n  PRESEASON — the season starts ${results.seasonStart}. Nothing to grade is the correct answer today.`);
-  } else if ((results.completedCount ?? 0) === 0) {
-    console.log(`\n  IN SEASON, NO COMPLETED FIXTURES YET — the capture reports ${results.rowCount} row(s), none final.`);
+  /*
+   * The script had its OWN inline version of this and it forgot the case that happens most: every
+   * finished fixture already recorded. It reported a BROKEN JOIN on the second run of the day, which
+   * would have failed epl-settle every night after the first grading — the same cry-wolf shape as
+   * nightly-settle's duplicate cron and the odds dedup refusal.
+   *
+   * classifyEmptyRun already handled all four states and is used by the player grader. One
+   * classifier, both graders.
+   */
+  const state = classifyEmptyRun({
+    results,
+    gradedCount: 0,
+    alreadyGradedCount: alreadyGraded.size,
+  });
+  const say = {
+    PRESEASON: `the season starts ${results.seasonStart}. Nothing to grade is the correct answer today.`,
+    NO_COMPLETED_FIXTURES: `the capture reports ${results.rowCount} row(s), none final.`,
+    NOTHING_NEW: "every completed fixture is already in the ledger.",
+  }[state];
+  if (say) {
+    console.log(`\n  ${state} — ${say}`);
   } else {
     console.error(`\n  REFUSED — ${results.completedCount} fixture(s) are complete and NONE could be graded.`);
     console.error(`  That is a broken join, not an empty slate. Check eventId agreement between the results`);

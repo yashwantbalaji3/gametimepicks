@@ -113,9 +113,38 @@ export function deriveEventId(input: {
   scheduledStart: string | null;
 }): string {
   const parts = [...input.participants.map((p) => slug(p.name))].sort();
-  const when = input.scheduledStart
-    ? input.scheduledStart.replace(/:\d{2}(\.\d+)?Z?$/, "").replace(/[:-]/g, "").replace("T", "t")
-    : "unscheduled";
+  /*
+   * THE ID IS A FUNCTION OF THE INSTANT, not of how the instant was spelled.
+   *
+   * This did string surgery on the ISO text — strip a trailing `:ss`, drop separators, lowercase the
+   * T. It worked only for the exact form `...THH:MM:SSZ`, and silently produced a DIFFERENT id for
+   * every other valid spelling of the same moment:
+   *
+   *   2026-08-21T19:00:00Z        -> ...t1900   (correct)
+   *   2026-08-21T19:00Z           -> ...t19     (the regex ate the MINUTES, there being no seconds)
+   *   2026-08-21T19:00:00+00:00   -> ...t190000+00
+   *   2026-08-21T20:00:00+01:00   -> ...t200000+01   (the same instant, carrying a local hour)
+   *
+   * That is not cosmetic. It is the join key every sport in this repo uses, and it broke the first
+   * real EPL settlement: the fixture capture writes full ISO and ESPN's results capture writes
+   * `19:00Z` without seconds, so the same match minted `...t1900` on one side and `...t19` on the
+   * other. The result quarantined as "no scheduled fixture with this canonical identity" and Arsenal
+   * 3-0 Coventry could not be graded at all.
+   *
+   * Parsing to a UTC instant and formatting to the minute makes every spelling of one moment yield
+   * one id. The well-formed `...THH:MM:SSZ` case is unchanged, which is what every committed id in
+   * the repo was built from.
+   */
+  const when = (() => {
+    if (!input.scheduledStart) return "unscheduled";
+    const t = Date.parse(input.scheduledStart);
+    /* Unparseable stays verbatim-ish rather than silently becoming "unscheduled" — an id that cannot
+       be built is a caller problem, and quietly relabelling it would hide the bad input. */
+    if (!Number.isFinite(t)) return slug(input.scheduledStart);
+    const d = new Date(t);
+    const p2 = (n: number) => String(n).padStart(2, "0");
+    return `${d.getUTCFullYear()}${p2(d.getUTCMonth() + 1)}${p2(d.getUTCDate())}t${p2(d.getUTCHours())}${p2(d.getUTCMinutes())}`;
+  })();
   const sport = slug(input.sport);
   const league = input.league ? slug(input.league) : null;
   // Omit the league segment when it slugs to the same token as the sport ("mlb"/"MLB"), so the id

@@ -1,0 +1,111 @@
+name: epl-settle
+
+# CLOSING THE LOOP — capture results and grade what was predicted.
+#
+# WHY THIS IS A SEPARATE WORKFLOW. Every epl-matchweek cron fires BEFORE or AT kickoff, because its
+# job is to produce forecasts and lineups. Nothing fired after a match ended. Arsenal beat Coventry
+# 3-0 on 2026-08-21 at 19:00 UTC and the result was still uncaptured at 22:35 — the next slot was
+# Saturday 09:00, fourteen hours later. Predictions were published and the answer sat unrecorded.
+#
+# It could not simply be another epl-matchweek slot. That workflow captures ODDS, which costs
+# credits against a 500-request authorised ceiling; running it daily would spend roughly 730 a year
+# to grade matches that need no odds at all. This job touches only ESPN, which is free and unmetered,
+# so it can run every day for nothing.
+#
+# 23:00 UTC covers every cluster. The latest Premier League kickoff is 19:00 UTC and a match takes
+# about two hours, so everything played on a given day is final well before this fires. A day with no
+# matches is a no-op that says so — the graders classify an empty run rather than reporting silence.
+
+on:
+  schedule:
+    - cron: "0 23 * * *"    # nightly post-match sweep — after the last kickoff of any cluster
+  workflow_dispatch:
+
+concurrency:
+  group: epl-settle
+  cancel-in-progress: false
+
+jobs:
+  settle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+        working-directory: app
+
+      - name: Record the run start
+        run: echo "RUN_STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
+      # Official results first — everything below grades from what this writes.
+      - name: Capture match results
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node app/scripts/epl/capture-epl-results.mjs --now "$NOW"
+
+      # Team markets: 1X2 and over/under, against the forecast published before kickoff.
+      #
+      # Failure is CARRIED rather than raised here. A broken join must not abort the run before the
+      # commit step, or the capture this run just made is thrown away — the lesson epl-matchweek
+      # learned the hard way when a legitimate odds skip discarded nine forecasts.
+      - name: Grade team forecasts
+        run: |
+          set -uo pipefail
+          if npx tsx app/scripts/epl/grade-epl-forecasts.mjs --write; then
+            echo "TEAM_GRADE=ok" >> "$GITHUB_ENV"
+          else
+            echo "TEAM_GRADE=refused" >> "$GITHUB_ENV"
+          fi
+
+      # Player markets: anytime goalscorer and shots on goal, against the pre-kickoff snapshot.
+      # A conditional row whose condition did not hold is VOIDED, never scored as a miss.
+      - name: Grade player projections
+        run: |
+          set -uo pipefail
+          if npx tsx app/scripts/epl/grade-epl-player-projections.mjs --write; then
+            echo "PLAYER_GRADE=ok" >> "$GITHUB_ENV"
+          else
+            echo "PLAYER_GRADE=refused" >> "$GITHUB_ENV"
+          fi
+
+      - name: Commit the results and the grades
+        run: |
+          set -euo pipefail
+          git config user.name  "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add app/public/data/soccer/epl/results 2>/dev/null || true
+          if git diff --cached --quiet; then echo "nothing new to record"; exit 0; fi
+          git commit -m "auto: epl settle $(date -u +%Y-%m-%d) [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
+      # AFTER the commit, deliberately. A refusal reports loudly without costing the run its work.
+      - name: Raise a grading refusal
+        run: |
+          set -euo pipefail
+          FAILED=0
+          if [ "${TEAM_GRADE:-ok}" != "ok" ]; then
+            echo "::error::EPL TEAM grading refused — completed fixtures could not be joined to any"
+            echo "::error::pre-kickoff forecast. A broken join, not a quiet matchday."
+            FAILED=1
+          fi
+          if [ "${PLAYER_GRADE:-ok}" != "ok" ]; then
+            echo "::error::EPL PLAYER grading refused — finished fixtures produced neither a grade nor"
+            echo "::error::a void, meaning nothing joined. Check playerId agreement."
+            FAILED=1
+          fi
+          [ "$FAILED" -eq 0 ] || exit 1
+          echo "grading: ok"
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: epl-settle
+        run: |
+          set -euo pipefail
+          EXIT_STATUS="${EXIT_STATUS:-1}" bash scripts/ops_alert.sh

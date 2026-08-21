@@ -315,3 +315,58 @@ test("buildAliasIndex returns null for unknown and empty aliases", () => {
   assert.equal(idx.resolve("nope"), null);
   assert.equal(idx.resolve(""), null);
 });
+
+test("the canonical id is a function of the INSTANT, not of its spelling", () => {
+  /*
+   * This broke the first real EPL settlement. The fixture capture writes full ISO and ESPN's results
+   * capture writes `19:00Z` without seconds, so one match minted `...t1900` on one side and `...t19`
+   * on the other — the old code stripped a trailing `:ss` by regex and ate the MINUTES when there
+   * were no seconds to eat. The result quarantined as "no scheduled fixture with this canonical
+   * identity" and Arsenal 3-0 Coventry could not be graded at all.
+   *
+   * Every spelling below is the SAME moment, including one written in UTC+1.
+   */
+  const mk = (scheduledStart) => deriveEventId({
+    sport: "soccer", league: "epl",
+    participants: [{ name: "Arsenal" }, { name: "Coventry City" }],
+    scheduledStart,
+  });
+  const canonical = "soccer:epl:arsenal-v-coventry-city:20260821t1900";
+  for (const spelling of [
+    "2026-08-21T19:00:00Z",
+    "2026-08-21T19:00Z",
+    "2026-08-21T19:00:00.000Z",
+    "2026-08-21T19:00:00+00:00",
+    "2026-08-21T20:00:00+01:00",
+    "2026-08-21T14:00:00-05:00",
+  ]) {
+    assert.equal(mk(spelling), canonical, `${spelling} must mint the canonical id`);
+  }
+});
+
+test("a local-time offset never leaks into the id", () => {
+  /* The old code produced `...t200000+01` for a 19:00 UTC kickoff written in UTC+1 — a local hour
+     and a raw offset baked into the join key. */
+  const id = deriveEventId({
+    sport: "soccer", league: "epl",
+    participants: [{ name: "Arsenal" }, { name: "Coventry City" }],
+    scheduledStart: "2026-08-21T20:00:00+01:00",
+  });
+  assert.doesNotMatch(id, /\+/, "no offset in the id");
+  assert.match(id, /t1900$/, "the UTC minute, not the local one");
+});
+
+test("an unparseable kickoff does not silently become 'unscheduled'", () => {
+  /* A missing kickoff and an unparseable one are different facts. Collapsing them would let a bad
+     input join against every other bad input. */
+  const bad = deriveEventId({
+    sport: "soccer", league: "epl", participants: [{ name: "A" }, { name: "B" }],
+    scheduledStart: "not-a-date",
+  });
+  const missing = deriveEventId({
+    sport: "soccer", league: "epl", participants: [{ name: "A" }, { name: "B" }],
+    scheduledStart: null,
+  });
+  assert.notEqual(bad, missing);
+  assert.match(missing, /unscheduled$/);
+});
