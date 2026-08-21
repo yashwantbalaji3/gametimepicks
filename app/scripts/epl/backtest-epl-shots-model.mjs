@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 /**
- * EPL SHOTS / SHOTS-ON-GOAL BACKTEST — run the bars frozen in preregistration-shots-v1.json.
+ * EPL COUNT-MARKET BACKTEST — run the bars frozen in a preregistration file.
  *
- *   node scripts/epl/backtest-epl-shots-model.mjs [--write]
+ *   node scripts/epl/backtest-epl-shots-model.mjs [--prereg <file>] [--write]
+ *
+ * Generalised rather than duplicated when assists and cards arrived: the targets declare their own
+ * field, line and (where needed) the fields a derived one is summed from, so a new pair of markets is
+ * a new preregistration rather than a new script. One code path means one set of protocol guarantees
+ * — a forked script is where a second, subtly weaker protocol gets born.
  *
  * Two targets, each swept and judged INDEPENDENTLY, both verdicts reported whichever way they fall.
  * Selection runs on DEVELOPMENT only; the holdout season is scored after the configuration is locked,
@@ -22,7 +27,10 @@ const REPO = path.resolve(APP, "..");
 const RESEARCH = path.join(REPO, "data/internal/research/epl");
 const WRITE = process.argv.includes("--write");
 
-const prereg = JSON.parse(fs.readFileSync(path.join(RESEARCH, "preregistration-shots-v1.json"), "utf8"));
+const arg = (n, d) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
+const PREREG = arg("--prereg", "preregistration-shots-v1.json");
+const prereg = JSON.parse(fs.readFileSync(path.join(RESEARCH, PREREG), "utf8"));
+console.log(`preregistration: ${PREREG} (registered ${prereg.registeredAt})`);
 const rows = fs.readFileSync(path.join(RESEARCH, "players/espn-players-v1.jsonl"), "utf8")
   .split("\n").filter(Boolean).map((l) => JSON.parse(l));
 
@@ -66,39 +74,88 @@ function metrics(preds) {
 const on = (preds, split) => metrics(preds.filter((r) => r.split === split));
 
 /** One walk-forward pass for one target and one predictor. */
-function walkForward(field, line, predictFn) {
+function walkForward(value, line, predictFn) {
   const out = [];
   const prior = [];
-  let fit = fitCountRates([], field);
+  /*
+   * The derived value is materialised ONCE per row, not on every refit. The first version mapped the
+   * whole prior pool on each date change — 380 dates against a pool growing to 45,000 rows, times
+   * seventeen predictor passes per target — and turned a two-minute backtest into one that did not
+   * finish. Same numbers, and the protocol is unchanged; only the work is done once.
+   */
+  const withValue = new Map();
+  for (const f of fixtures) for (const r of f.rows) withValue.set(r, { ...r, __v: value(r) });
+  let fit = fitCountRates([], "__v");
   let lastDate = null;
   for (const f of fixtures) {
-    if (f.date !== lastDate) { fit = fitCountRates(prior, field); lastDate = f.date; }
+    if (f.date !== lastDate) { fit = fitCountRates(prior, "__v"); lastDate = f.date; }
     if (DEV.has(f.id) || HOLD.has(f.id)) {
       for (const r of f.rows) {
         const state = participationState(r);
         if (!state) continue;
         const p = predictFn(fit, { playerId: r.playerId, position: r.position, state });
-        out.push({ split: DEV.has(f.id) ? "dev" : "holdout", y: Number(r[field] ?? 0) > line ? 1 : 0, p: p ? p.probability : null });
+        out.push({ split: DEV.has(f.id) ? "dev" : "holdout", y: value(r) > line ? 1 : 0, p: p ? p.probability : null });
       }
     }
-    prior.push(...f.rows);
+    for (const r of f.rows) prior.push(withValue.get(r));
   }
   return out;
 }
 
-const FIELD = { shots_over_0_5: "shots", sog_over_0_5: "shotsOnGoal" };
+/*
+ * The value a target is scored on. A target names its own `field`; when that field is DERIVED it also
+ * names the columns it is summed from, so "cards" can be yellow + red without a special case buried
+ * in the walk-forward loop.
+ */
+/*
+ * The shots preregistration is FROZEN and predates targets declaring their own field — the original
+ * script carried a hardcoded map. Rather than edit a committed preregistration, the map survives as a
+ * fallback for exactly those two ids.
+ *
+ * This is not a tidiness note. On the first run of the generalised script `target.field` was
+ * undefined for both shots targets, so every outcome scored as ZERO and shots-on-goal came back
+ * REJECTED — a market that had genuinely passed. Nothing errored; the backtest completed and printed
+ * a confident verdict against an all-zero truth column. It was caught only because the shots
+ * preregistration was re-run through the new code as a reproduction check before assists and cards
+ * were touched, which is why that check exists.
+ */
+const LEGACY_FIELD = { shots_over_0_5: "shots", sog_over_0_5: "shotsOnGoal" };
+const valueOf = (target) => {
+  const field = target.field ?? LEGACY_FIELD[target.id];
+  if (!target.derivedFrom && !field) {
+    console.error(`REFUSED — target ${target.id} declares no field and has no legacy mapping. Scoring it would compare predictions against a column of zeros.`);
+    process.exit(2);
+  }
+  return (row) => (target.derivedFrom
+    ? target.derivedFrom.reduce((t, f) => t + Number(row[f] ?? 0), 0)
+    : Number(row[field] ?? 0));
+};
 const results = [];
 
 for (const target of prereg.targets) {
-  const field = FIELD[target.id];
+  const value = valueOf(target);
   const line = target.line;
+  /*
+   * The truth column must actually vary. An all-zero or all-one outcome means the field resolved to
+   * nothing, and every metric below it would be arithmetic on a constant — which is precisely how
+   * the field-mapping bug produced a confident REJECTED for a market that had passed.
+   */
+  {
+    const ys = fixtures.flatMap((f) => f.rows).filter((r) => participationState(r)).map((r) => (value(r) > line ? 1 : 0));
+    const rate = ys.reduce((a, b) => a + b, 0) / Math.max(1, ys.length);
+    if (rate <= 0.001 || rate >= 0.999) {
+      console.error(`REFUSED — ${target.id}: base rate ${(rate * 100).toFixed(3)}% over the whole corpus. The outcome column is degenerate; the field almost certainly did not resolve.`);
+      process.exit(3);
+    }
+    console.log(`  corpus base rate over ${line}: ${(rate * 100).toFixed(2)}%`);
+  }
   console.log(`\n${"=".repeat(70)}\nTARGET ${target.id} — ${target.market}, line ${line}`);
 
   /* Baselines are computed under BOTH distributions and the better one is used, so the model is never
      compared against a baseline handicapped by a distribution nobody would have chosen for it. */
   const baseline = (name, fn) => {
     const best = ["poisson", "negbin"].map((distribution) => {
-      const preds = walkForward(field, line, (fit, x) => fn(fit, x, { distribution }));
+      const preds = walkForward(value, line, (fit, x) => fn(fit, x, { distribution }));
       return { distribution, preds, dev: on(preds, "dev") };
     }).reduce((a, b) => (a.dev.logLoss <= b.dev.logLoss ? a : b));
     console.log(`  baseline ${name.padEnd(11)} dev logLoss ${best.dev.logLoss} (${best.distribution})`);
@@ -111,7 +168,7 @@ for (const target of prereg.targets) {
   const sweep = [];
   for (const distribution of prereg.stoppingRule.grid.distribution) {
     for (const k of prereg.stoppingRule.grid.k) {
-      const preds = walkForward(field, line, (fit, x) => predictCount(fit, x, { k, distribution }));
+      const preds = walkForward(value, line, (fit, x) => predictCount(fit, x, { k, distribution }));
       const m = on(preds, "dev");
       sweep.push({ k, distribution, dev: m });
       console.log(`    ${distribution.padEnd(8)} k=${String(k).padEnd(3)} logLoss ${m.logLoss.toFixed(5)}  ece ${m.ece.toFixed(4)}`);
@@ -121,7 +178,7 @@ for (const target of prereg.targets) {
   console.log(`  LOCKED: ${locked.distribution} k=${locked.k} (dev logLoss ${locked.dev.logLoss})`);
   console.log(`  The holdout season has not been scored for any configuration up to this line.`);
 
-  const lockedPreds = walkForward(field, line, (fit, x) => predictCount(fit, x, { k: locked.k, distribution: locked.distribution }));
+  const lockedPreds = walkForward(value, line, (fit, x) => predictCount(fit, x, { k: locked.k, distribution: locked.distribution }));
   const mHold = on(lockedPreds, "holdout");
   const posHold = on(pos.preds, "holdout");
   const rawHold = on(raw.preds, "holdout");
@@ -158,18 +215,19 @@ for (const r of results) console.log(`${r.target.padEnd(18)} ${r.verdict}`);
 
 const report = {
   schemaVersion: 1,
-  artifact: "epl-shots-model-v1-backtest",
+  artifact: `epl-count-market-backtest`,
   dataClass: "PRIVATE_RESEARCH",
   public: false,
   generatedAt: new Date().toISOString(),
-  preregistration: { file: "preregistration-shots-v1.json", registeredAt: prereg.registeredAt },
+  preregistration: { file: PREREG, registeredAt: prereg.registeredAt },
   protocol: prereg.protocol,
   targets: results,
 };
 
 if (WRITE) {
-  fs.writeFileSync(path.join(RESEARCH, "reports/shots-model-v1-backtest.json"), JSON.stringify(report, null, 1) + "\n");
-  console.log(`\nwrote data/internal/research/epl/reports/shots-model-v1-backtest.json`);
+  const out = PREREG.replace(/^preregistration-/, "").replace(/\.json$/, "") + "-backtest.json";
+  fs.writeFileSync(path.join(RESEARCH, `reports/${out}`), JSON.stringify(report, null, 1) + "\n");
+  console.log(`\nwrote data/internal/research/epl/reports/${out}`);
 } else {
   console.log(`\ndry run — pass --write to persist.`);
 }

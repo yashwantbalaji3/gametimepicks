@@ -1,0 +1,354 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-count-market-backtest",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "generatedAt": "2026-08-21T06:49:00.824Z",
+ "preregistration": {
+  "file": "preregistration-assists-cards-v1.json",
+  "registeredAt": "2026-08-21T09:45:00Z"
+ },
+ "protocol": {
+  "walkForward": "by match date; rates fitted STRICTLY on earlier-dated matches",
+  "warmup": {
+   "season": "2022-23",
+   "rule": "folds into the rates, NEVER scored"
+  },
+  "development": {
+   "seasons": [
+    "2023-24",
+    "2024-25"
+   ],
+   "use": "ALL hyperparameter search happens here and nowhere else"
+  },
+  "holdout": {
+   "season": "2025-26",
+   "use": "scored ONCE, after the configuration is locked"
+  },
+  "holdoutDisclosure": "2025-26 has now been scored twice — once under the voided goalscorer v1 run, and once for shots and shots on goal. Those were DIFFERENT targets; no assists or cards hyperparameter has ever touched it and no assist or card outcome from it has been observed. This is the third look at that season for a third pair of targets, and it is disclosed rather than glossed so the reader can weigh it. It is also the last: after this, a new target needs a new season, not another pass over the same one."
+ },
+ "targets": [
+  {
+   "target": "assists_over_0_5",
+   "market": "player assists",
+   "line": 0.5,
+   "locked": {
+    "k": 32,
+    "distribution": "poisson"
+   },
+   "developmentSweep": [
+    {
+     "k": 1,
+     "distribution": "poisson",
+     "devLogLoss": 0.25636,
+     "devEce": 0.02236
+    },
+    {
+     "k": 2,
+     "distribution": "poisson",
+     "devLogLoss": 0.24907,
+     "devEce": 0.01943
+    },
+    {
+     "k": 4,
+     "distribution": "poisson",
+     "devLogLoss": 0.24304,
+     "devEce": 0.01512
+    },
+    {
+     "k": 8,
+     "distribution": "poisson",
+     "devLogLoss": 0.23855,
+     "devEce": 0.00985
+    },
+    {
+     "k": 16,
+     "distribution": "poisson",
+     "devLogLoss": 0.23573,
+     "devEce": 0.00451
+    },
+    {
+     "k": 32,
+     "distribution": "poisson",
+     "devLogLoss": 0.23456,
+     "devEce": 0.00242
+    },
+    {
+     "k": 1,
+     "distribution": "negbin",
+     "devLogLoss": 0.25542,
+     "devEce": 0.01857
+    },
+    {
+     "k": 2,
+     "distribution": "negbin",
+     "devLogLoss": 0.24837,
+     "devEce": 0.01551
+    },
+    {
+     "k": 4,
+     "distribution": "negbin",
+     "devLogLoss": 0.2426,
+     "devEce": 0.01176
+    },
+    {
+     "k": 8,
+     "distribution": "negbin",
+     "devLogLoss": 0.23835,
+     "devEce": 0.0067
+    },
+    {
+     "k": 16,
+     "distribution": "negbin",
+     "devLogLoss": 0.23574,
+     "devEce": 0.00461
+    },
+    {
+     "k": 32,
+     "distribution": "negbin",
+     "devLogLoss": 0.23472,
+     "devEce": 0.00396
+    }
+   ],
+   "baselines": {
+    "positional": {
+     "distribution": "poisson",
+     "holdout": {
+      "n": 11492,
+      "coverage": 1,
+      "logLoss": 0.2113,
+      "brier": 0.05325,
+      "ece": 0.00949,
+      "predictedOver": 766.1,
+      "observedOver": 657,
+      "countError": 0.166
+     }
+    },
+    "playerRaw": {
+     "distribution": "negbin",
+     "holdout": {
+      "n": 11492,
+      "coverage": 1,
+      "logLoss": 0.51473,
+      "brier": 0.05378,
+      "ece": 0.02196,
+      "predictedOver": 645.9,
+      "observedOver": 657,
+      "countError": 0.0169
+     }
+    }
+   },
+   "model": {
+    "dev": {
+     "n": 22951,
+     "coverage": 1,
+     "logLoss": 0.23456,
+     "brier": 0.06199,
+     "ece": 0.00242,
+     "predictedOver": 1583,
+     "observedOver": 1591,
+     "countError": 0.005
+    },
+    "holdout": {
+     "n": 11492,
+     "coverage": 1,
+     "logLoss": 0.20783,
+     "brier": 0.0527,
+     "ece": 0.00977,
+     "predictedOver": 769.3,
+     "observedOver": 657,
+     "countError": 0.1709
+    }
+   },
+   "bars": [
+    {
+     "id": "S1_beats_positional",
+     "pass": false,
+     "detail": "0.20783 vs 0.2113 — improvement 0.00347, need >= 0.005"
+    },
+    {
+     "id": "S2_shrinkage_earns_it",
+     "pass": true,
+     "detail": "0.20783 vs raw 0.51473"
+    },
+    {
+     "id": "S3_calibrated",
+     "pass": true,
+     "detail": "ECE 0.00977, allowed <= 0.020"
+    },
+    {
+     "id": "S4_count_sane",
+     "pass": false,
+     "detail": "predicted 769.3 vs observed 657 — 17.1%, allowed <= 10%"
+    },
+    {
+     "id": "S5_no_abstention_gaming",
+     "pass": true,
+     "detail": "coverage 100.0%"
+    }
+   ],
+   "verdict": "REJECTED"
+  },
+  {
+   "target": "cards_over_0_5",
+   "market": "player to be carded",
+   "line": 0.5,
+   "locked": {
+    "k": 32,
+    "distribution": "poisson"
+   },
+   "developmentSweep": [
+    {
+     "k": 1,
+     "distribution": "poisson",
+     "devLogLoss": 0.41863,
+     "devEce": 0.03407
+    },
+    {
+     "k": 2,
+     "distribution": "poisson",
+     "devLogLoss": 0.4098,
+     "devEce": 0.02979
+    },
+    {
+     "k": 4,
+     "distribution": "poisson",
+     "devLogLoss": 0.40279,
+     "devEce": 0.02408
+    },
+    {
+     "k": 8,
+     "distribution": "poisson",
+     "devLogLoss": 0.39782,
+     "devEce": 0.01703
+    },
+    {
+     "k": 16,
+     "distribution": "poisson",
+     "devLogLoss": 0.39494,
+     "devEce": 0.01454
+    },
+    {
+     "k": 32,
+     "distribution": "poisson",
+     "devLogLoss": 0.39392,
+     "devEce": 0.01454
+    },
+    {
+     "k": 1,
+     "distribution": "negbin",
+     "devLogLoss": 0.41863,
+     "devEce": 0.03407
+    },
+    {
+     "k": 2,
+     "distribution": "negbin",
+     "devLogLoss": 0.4098,
+     "devEce": 0.02979
+    },
+    {
+     "k": 4,
+     "distribution": "negbin",
+     "devLogLoss": 0.40279,
+     "devEce": 0.02408
+    },
+    {
+     "k": 8,
+     "distribution": "negbin",
+     "devLogLoss": 0.39782,
+     "devEce": 0.01703
+    },
+    {
+     "k": 16,
+     "distribution": "negbin",
+     "devLogLoss": 0.39494,
+     "devEce": 0.01454
+    },
+    {
+     "k": 32,
+     "distribution": "negbin",
+     "devLogLoss": 0.39392,
+     "devEce": 0.01454
+    }
+   ],
+   "baselines": {
+    "positional": {
+     "distribution": "poisson",
+     "holdout": {
+      "n": 11492,
+      "coverage": 1,
+      "logLoss": 0.3714,
+      "brier": 0.10911,
+      "ece": 0.00183,
+      "predictedOver": 1454.1,
+      "observedOver": 1465,
+      "countError": 0.0074
+     }
+    },
+    "playerRaw": {
+     "distribution": "poisson",
+     "holdout": {
+      "n": 11492,
+      "coverage": 1,
+      "logLoss": 0.77433,
+      "brier": 0.11155,
+      "ece": 0.0281,
+      "predictedOver": 1396,
+      "observedOver": 1465,
+      "countError": 0.0471
+     }
+    }
+   },
+   "model": {
+    "dev": {
+     "n": 22951,
+     "coverage": 1,
+     "logLoss": 0.39392,
+     "brier": 0.11824,
+     "ece": 0.01454,
+     "predictedOver": 2920.2,
+     "observedOver": 3254,
+     "countError": 0.1026
+    },
+    "holdout": {
+     "n": 11492,
+     "coverage": 1,
+     "logLoss": 0.36718,
+     "brier": 0.10807,
+     "ece": 0.00129,
+     "predictedOver": 1450.2,
+     "observedOver": 1465,
+     "countError": 0.0101
+    }
+   },
+   "bars": [
+    {
+     "id": "S1_beats_positional",
+     "pass": false,
+     "detail": "0.36718 vs 0.3714 — improvement 0.00422, need >= 0.005"
+    },
+    {
+     "id": "S2_shrinkage_earns_it",
+     "pass": true,
+     "detail": "0.36718 vs raw 0.77433"
+    },
+    {
+     "id": "S3_calibrated",
+     "pass": true,
+     "detail": "ECE 0.00129, allowed <= 0.020"
+    },
+    {
+     "id": "S4_count_sane",
+     "pass": true,
+     "detail": "predicted 1450.2 vs observed 1465 — 1.0%, allowed <= 10%"
+    },
+    {
+     "id": "S5_no_abstention_gaming",
+     "pass": true,
+     "detail": "coverage 100.0%"
+    }
+   ],
+   "verdict": "REJECTED"
+  }
+ ]
+}

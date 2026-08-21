@@ -77,6 +77,20 @@ const sogTarget = shotsReport.targets.find((t) => t.target === "sog_over_0_5");
 const sogAccepted = sogTarget?.verdict === "ACCEPTED";
 if (!sogAccepted) console.log("shots on goal: recorded verdict is not ACCEPTED — omitted from this artifact");
 const sogFit = sogAccepted ? fitCountRates(corpusRows, "shotsOnGoal") : null;
+
+/* Every measured-and-rejected market, gathered from the reports themselves. */
+const rejected = [];
+for (const file of ["reports/shots-model-v1-backtest.json", "reports/assists-cards-v1-backtest.json"]) {
+  const full = path.join(RESEARCH, file);
+  if (!fs.existsSync(full)) continue;
+  for (const t of readJson(full).targets ?? []) {
+    if (t.verdict === "REJECTED") {
+      const failed = (t.bars ?? []).filter((b) => !b.pass).map((b) => b.id);
+      rejected.push({ id: t.target, market: t.market, verdict: "REJECTED", failedBars: failed, detail: (t.bars ?? []).filter((b) => !b.pass).map((b) => b.detail).join("; ") });
+    }
+  }
+}
+if (rejected.length > 0) console.log(`rejected markets (absent from this artifact): ${rejected.map((r) => r.id).join(", ")}`);
 if (sogAccepted) {
   console.log(`shots-on-goal model ${sogTarget.locked.distribution} k=${sogTarget.locked.k} · line ${sogTarget.line}`);
 }
@@ -213,9 +227,13 @@ const artifact = {
     ? [{ id: "anytime_goalscorer", field: "probability" }, { id: "shots_on_goal_over_0_5", field: "shotsOnGoalOver05", line: 0.5 }]
     : [{ id: "anytime_goalscorer", field: "probability" }],
   market: "anytime_goalscorer",
-  rejectedMarkets: [
-    { id: "shots_over_0_5", verdict: "REJECTED", reason: "holdout calibration error 0.02765 against a 0.020 bar — it beat its baseline on log loss and is still not calibrated enough to publish" },
-  ],
+  /*
+   * Every market MEASURED and rejected, with the bar it failed. Recorded so an absence on the page is
+   * explained rather than mysterious — and so nobody re-derives the list later and ships the
+   * easy-looking half of it. Read from the backtest reports rather than typed here, because a
+   * hand-copied verdict is a string that rots.
+   */
+  rejectedMarkets: rejected,
   generatedAt: NOW,
   model: { id: "epl-player-v2-shrunk-rate", k: K, fittedAppearances: fit.appearancesFitted },
   /* The receipt, carried WITH the numbers so a reader never has to take the validation on trust. */
@@ -233,7 +251,7 @@ const artifact = {
     note: "Validated for ANYTIME GOALSCORER only, on players who appeared. It does not predict whether a player will play, and it has never been compared against a price.",
   },
   limitations: [
-    "Plain shots (over 0.5) was measured under identical bars and REJECTED on calibration. It is deliberately absent rather than shown with a warning.",
+    "Three markets were measured under identical bars and REJECTED — plain shots on calibration, assists and cards on margin. They are deliberately absent rather than shown with a warning; see rejectedMarkets.",
     "No injury or suspension feed exists here, so an unavailable player can still appear in a conditional list.",
     "The source carries no minutes — participation is a discrete state (started or substitute), not an expected-minutes term.",
     "Conditional rows state P(scores | he starts). They are not a claim that he will start.",
