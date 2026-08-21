@@ -218,8 +218,16 @@ if (WRITE) {
   fs.mkdirSync(dir, { recursive: true });
   const payload = JSON.stringify(artifact, null, 1) + "\n";
   fs.writeFileSync(path.join(dir, "latest.json"), payload);
-  fs.writeFileSync(path.join(dir, `${NOW.slice(0, 10)}.json`), payload);
-  console.log(`wrote public/data/soccer/epl/player-projections/latest.json`);
+  /*
+   * SNAPSHOTS ARE TIMESTAMPED TO THE MINUTE, not the date. Six crons fire on a matchday, and a
+   * date-named file would let a later run overwrite the pre-kickoff snapshot the grader needs — the
+   * 14:00 conditional set replaced by the 18:00 lineup set is fine, but any run landing after
+   * kickoff would destroy the only gradeable record of what was actually published beforehand.
+   * Immutable snapshots make "what did we say before the match" answerable forever.
+   */
+  const stamp = NOW.slice(0, 16).replace(/[:T]/g, "").replace(/-/g, "");   // 202608211800
+  fs.writeFileSync(path.join(dir, `snapshot-${stamp}.json`), payload);
+  console.log(`wrote public/data/soccer/epl/player-projections/latest.json + snapshot-${stamp}.json`);
 } else {
   console.log(`dry run — pass --write to persist.`);
 }
