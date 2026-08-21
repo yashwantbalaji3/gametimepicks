@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-model-v2-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "public": false,
+  "registeredAt": "2026-08-21T02:00:00Z",
+  "purpose": "Fix the acceptance bars for EPL model v2 BEFORE any variant is evaluated. Program 181 established why this file exists in its own commit: a bar written after seeing results is not a bar, and three NFL tracks were rejected against pre-declared bars precisely because the bars pre-existed the numbers.",
+
+  "whatIsBeingTested": {
+    "control": "epl-model-v1-split-poisson — per-club home/away goal tallies folded FLAT (every match weighted 1.0 regardless of age), independent Poisson score matrix, MAX_GOALS 10, LAMBDA_FLOOR 0.05, cold-start multiplier 1.0.",
+    "motivation": "The control has NO recency weighting, and its committed walk-forward shows the signature of that: log loss degrades 0.9601 (2023-24) -> 0.9999 (2024-25) -> 1.0450 (2025-26) as the flat fit accumulates progressively staler seasons. A plain Elo baseline beats it overall (0.9991 vs 1.0017) and in the most recent season (1.0260 vs 1.0450).",
+    "variants": [
+      { "id": "decay", "change": "exponential time-decay on match age with half-life H days; weight = 0.5 ** (ageDays / H)", "hyperparameter": "H", "searchedOver": "DEVELOPMENT ONLY" },
+      { "id": "shrink", "change": "ridge shrinkage of each club's attack/defence multiplier toward 1.0 with pseudo-count k", "hyperparameter": "k", "searchedOver": "DEVELOPMENT ONLY" },
+      { "id": "dixon-coles", "change": "Dixon-Coles low-score dependence correction tau applied to the 0-0, 0-1, 1-0 and 1-1 cells, then renormalised", "hyperparameter": "rho", "searchedOver": "DEVELOPMENT ONLY" },
+      { "id": "combined", "change": "whichever single-change variants clear their own bar, applied together", "hyperparameter": "inherited", "searchedOver": "DEVELOPMENT ONLY" }
+    ]
+  },
+
+  "protocol": {
+    "corpus": "data/internal/research/epl/corpus-v1.json — 1,520 matches, 4 seasons, match-level final scores only",
+    "walkForward": "by calendar day; every fixture on a day shares ONE pregame state fitted strictly on earlier-dated matches; identical to the committed v1 protocol so control and variants are scored the same way",
+    "warmup": { "season": "2022-23", "n": 380, "rule": "folds into state, NEVER scored" },
+    "development": {
+      "seasons": ["2023-24", "2024-25"],
+      "n": 760,
+      "rule": "ALL variant selection and hyperparameter search happens here and nowhere else"
+    },
+    "holdout": {
+      "seasons": ["2025-26"],
+      "n": 380,
+      "rule": "evaluated ONCE, after the variant and its hyperparameters are locked. If the holdout is consulted before locking, this preregistration is void and the season is burned as a test set."
+    },
+    "leakage": "parameters fit on strictly earlier-dated matches only; the cutoff is structural in fitEplStrength and is already guarded"
+  },
+
+  "primaryMetric": "multiclass log loss over the three-way outcome (H/D/A). Chosen because it is the metric the committed baselines already report, it is proper, and it punishes confident errors — which is the failure mode that matters for a published probability.",
+  "secondaryMetrics": ["ranked probability score (ordered outcomes)", "accuracy", "calibration ECE by outcome", "expected-total MAE", "over-2.5 reliability"],
+
+  "acceptanceBars": {
+    "note": "ALL of these must hold for a variant to be promoted into the live model. Any single failure is a rejection, and a rejection is recorded rather than retried with a new bar.",
+    "bars": [
+      {
+        "id": "B1_development_margin",
+        "statement": "variant DEVELOPMENT log loss must be lower than control DEVELOPMENT log loss by at least 0.005",
+        "why": "A margin, not a hair. Differences below this are not distinguishable from protocol noise at n=760."
+      },
+      {
+        "id": "B2_holdout_generalises",
+        "statement": "variant HOLDOUT log loss must be lower than control HOLDOUT log loss (control = 1.0450) by at least 0.005",
+        "why": "A gain that appears only on the data the hyperparameter was chosen on is the hyperparameter, not the model."
+      },
+      {
+        "id": "B3_elo_floor",
+        "statement": "variant HOLDOUT log loss must be less than or equal to the Elo baseline's HOLDOUT log loss (1.0260)",
+        "why": "A plain Elo currently beats this model out of sample. A model presented as advanced must at minimum match the simplest rating baseline on the same head. NOTE: this bar concerns the 1X2 head ONLY. The Poisson matrix additionally produces scorelines, totals, BTTS and margins, which Elo cannot produce at all, so failing B3 does not mean 'ship Elo' — it means the 1X2 head has not earned an advanced label."
+      },
+      {
+        "id": "B4_calibration_does_not_degrade",
+        "statement": "variant HOLDOUT calibration ECE (by outcome, mean over H/D/A) must not exceed control HOLDOUT ECE by more than 0.010",
+        "why": "A sharper model that is less honest about its own uncertainty is not an improvement for a surface that publishes probabilities."
+      },
+      {
+        "id": "B5_no_season_collapse",
+        "statement": "in NO scored season may the variant be worse than the control by more than 0.010 log loss",
+        "why": "Guards against a variant that wins on average by winning one season enormously while degrading another — an average is not a guarantee."
+      }
+    ]
+  },
+
+  "stoppingRule": {
+    "statement": "At most ONE hyperparameter sweep per variant, over the grid declared below, on DEVELOPMENT only. If no variant clears all five bars, EPL model v2 is REJECTED and v1 stays live — the model is not re-specified until the corpus changes.",
+    "grids": {
+      "decay_halfLifeDays": [120, 180, 240, 365, 540, 730],
+      "shrink_k": [1, 2, 4, 8, 16],
+      "dixonColes_rho": [-0.20, -0.15, -0.10, -0.05, 0.05]
+    },
+    "why": "Programs 058-061, 181, 182 and 183 each rejected a model against pre-declared bars. The failure mode being prevented is search-until-it-passes: with enough variants something clears any bar by chance."
+  },
+
+  "whatThisDoesNotTest": [
+    "Player-level markets. The corpus is match-level only (home, away, ftHome, ftAway) and the raw provider payloads behind it carry no lineups, events, scorers or minutes. No player prop can be modelled, validated or published from this data, and no bar here should be read as covering one.",
+    "Any claim about beating a sportsbook price. Odds are not an input to this model and no market comparison is part of this protocol."
+  ]
+}
