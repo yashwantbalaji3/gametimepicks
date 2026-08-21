@@ -128,7 +128,18 @@ test("6 · readiness monitor keeps modeling BLOCKED; artifacts internal; money m
   if (rd) {
     assert.equal(rd.public, false);
     assert.match(rd.modelingStatus, /BLOCKED/);
-    assert.equal(rd.gate.met, false, "gate not met (0/500)");
+    /*
+     * The data gate passed on 2026-08-21 (48,479 settled observations against 500). This pinned
+     * `met === false`, which was a fact about a moment rather than an invariant.
+     *
+     * The INVARIANT is the line above and it is now the one doing the work: modeling stays BLOCKED
+     * even with the gate met, because the readiness artifact's own words are "not permitted until
+     * the research gate passes AND the founder approves". The gate is one of two conditions, and
+     * a passing gate quietly becoming permission is exactly the drift this guard exists to stop.
+     */
+    assert.equal(typeof rd.gate.met, "boolean");
+    assert.match(rd.modelingStatus, /founder approves/i,
+      "a passed data gate is not authorisation — the founder condition must remain in the status");
   }
   const out = path.join(app, "out");
   if (fs.existsSync(out)) {

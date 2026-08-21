@@ -62,11 +62,26 @@ const SOURCES = {
   },
   nfl: {
     label: "NFL",
-    prices: (root) => {
+    prices: (root, date, now) => {
       const d = readJson(path.join(root, "nfl", "markets", "latest.json"));
       // One row per event, each carrying a consensus across several markets.
       const rows = d?.rows ?? [];
-      return { at: d?.capturedAt ?? d?.generatedAt ?? null, games: new Set(rows.map((r) => r.canonicalEventId)).size };
+      /*
+       * ONLY EVENTS THAT HAVE NOT KICKED OFF. This counted every row in the latest capture, so a
+       * game that started overnight still counted as a priced game the ladder could build on. On
+       * 2026-08-21 that put NFL at 5 when only 3 were still ahead — over the four-game minimum on
+       * the strength of two matches already in progress — and it opened the cross-sport stream,
+       * which needs two live sports.
+       *
+       * The freshness check above bounds when the CAPTURE happened, which is a different question
+       * from whether there is anything left to bet on. "We captured prices recently" is not "there
+       * are games."
+       */
+      const upcoming = rows.filter((r) => {
+        const k = Date.parse(r.kickoffUtc ?? r.commenceTime ?? "");
+        return Number.isFinite(k) && k > Date.parse(now);
+      });
+      return { at: d?.capturedAt ?? d?.generatedAt ?? null, games: new Set(upcoming.map((r) => r.canonicalEventId)).size };
     },
     settlement: (root) => {
       const d = readJson(path.join(root, "nfl", "results", "latest.json"));
@@ -75,10 +90,20 @@ const SOURCES = {
   },
   ufc: {
     label: "UFC",
-    prices: (root) => {
+    prices: (root, date, now) => {
       const d = readJson(path.join(root, "ufc", "odds-latest.json"));
+      /*
+       * The card must still be AHEAD. Individual bouts carry no time, so the gate is the card's own
+       * slate date: once it has passed, a fresh-looking capture describes a card that already
+       * happened. UFC was legitimately live when this was written (a card on 2026-08-22), and the
+       * check exists so that stops being true by itself the day after rather than lingering until
+       * the next capture overwrites it.
+       */
+      const slate = d?.event?.slateDate ?? null;
+      const past = slate ? slate < String(now).slice(0, 10) : false;
       // A bout is a fight card's "game" — two legs from one bout are the same event twice.
-      return { at: d?.generatedAt ?? null, games: new Set((d?.bouts ?? []).map((b) => b.eventId)).size };
+      const games = past ? 0 : new Set((d?.bouts ?? []).map((b) => b.eventId)).size;
+      return { at: d?.generatedAt ?? null, games, slateDate: slate };
     },
     settlement: (root) => {
       const d = readJson(path.join(root, "ufc", "graded-moneylines-latest.json"));
@@ -99,7 +124,7 @@ const SOURCES = {
 export function labEligibility(root, date, now) {
   const out = [];
   for (const [id, src] of Object.entries(SOURCES)) {
-    const prices = src.prices(root, date);
+    const prices = src.prices(root, date, now);
     const settle = src.settlement(root, date);
     const ageDays = prices.at ? daysBetween(prices.at, now) : null;
 

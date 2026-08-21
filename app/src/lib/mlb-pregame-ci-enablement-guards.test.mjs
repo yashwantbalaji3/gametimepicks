@@ -64,7 +64,19 @@ test("5 · the monitor report carries daily status + credit usage + 7-day progre
   for (const k of ["datesCollected", "marketDatesCollected", "playerPropDatesCollected", "avgEligiblePlayerPropRecordsPerDay", "estimatedDaysTo30DateGate"]) {
     assert.ok(k in mon.progress7d, `7-day progress has ${k}`);
   }
-  assert.equal(mon.researchGate.met, false, "gate not yet met (expected)");
+  /*
+   * THE GATE HAS NOW PASSED — 30/30 dates and 48,479 settled eligible observations against a
+   * threshold of 500. This asserted `met === false` as a fact about a moment, and the moment ended.
+   *
+   * Repointed to what the gate is FOR rather than to its not-yet state: it must keep reporting both
+   * thresholds and its own verdict honestly, and passing it must not by itself change anything.
+   * A collection target being reached is evidence that research COULD begin, not permission that it
+   * has — which is why simulation-readiness still reads BLOCKED and is asserted separately.
+   */
+  for (const k of ["minDistinctDates", "minSettledEligibleObs", "dates", "settledEligible", "met"]) {
+    assert.ok(k in mon.researchGate, `research gate reports ${k}`);
+  }
+  assert.equal(typeof mon.researchGate.met, "boolean", "the verdict is a verdict, not a hint");
 });
 
 test("6 · archive/market artifacts are NOT web-served + no product eligibility change", () => {

@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-21T05:56:15Z",
+ "generatedAt": "2026-08-21T07:00:14Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -75,11 +75,12 @@
   {
    "id": "nfl",
    "label": "NFL",
-   "live": true,
+   "live": false,
+   "blocked": "only 3 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "evidence": {
-    "pricedGames": 5,
+    "pricedGames": 3,
     "pricesCapturedAt": "2026-08-20T21:26:43Z",
-    "priceAgeDays": 0.35,
+    "priceAgeDays": 0.4,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -139,7 +140,7 @@
    "evidence": {
     "pricedGames": 12,
     "pricesCapturedAt": "2026-08-20T21:53:56Z",
-    "priceAgeDays": 0.33,
+    "priceAgeDays": 0.38,
     "settlementSource": "official UFC bout results",
     "settlementProven": true
    },
@@ -256,14 +257,13 @@
   {
    "id": "multi",
    "label": "Multi-sport",
-   "live": true,
+   "live": false,
+   "blocked": "a cross-sport card needs two live sports; only UFC is cleared",
    "evidence": {
     "liveSports": [
-     "nfl",
      "ufc"
     ],
     "liveLabels": [
-     "NFL",
      "UFC"
     ]
    },

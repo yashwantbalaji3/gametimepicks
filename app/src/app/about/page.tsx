@@ -79,7 +79,7 @@ export default function AboutPage() {
             </li>
             <li>
               <strong style={{ color: "var(--vault-text-mute)" }}>Category B</strong>{" "}
-              · differed by 2.5&ndash;5pp. Settled at 50.0%.
+              · differed by 2.5&ndash;5pp. Settled at 49.4%.
             </li>
             <li>
               <strong style={{ color: "var(--vault-text-mute)" }}>Category C</strong>{" "}
