@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824317,
+  "date": "2026-08-21",
+  "capturedAt": "2026-08-21T17:20:41.305Z",
+  "availableAt": "2026-08-21T17:20:41.305Z",
+  "eventStartTime": "2026-08-22T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 685299,
+      "name": "Tanner Gordon",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 42,
+      "lastStartDate": "2026-07-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 3.4,
+        "bbAvg": 1,
+        "erAvg": 3.2,
+        "hrAvg": 1.2,
+        "kPer9": 6.65,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 23,
+        "k": 17,
+        "bb": 5,
+        "er": 16,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 676282,
+      "name": "Joey Cantillo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 19.67,
+        "ipAvg": 3.93,
+        "kAvg": 5.4,
+        "bbAvg": 1.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 12.36,
+        "workloadIpLast5": 19.67
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 125.67,
+        "k": 139,
+        "bb": 59,
+        "er": 53,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-21&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-21T17:20:41.305Z"
+  },
+  "recordHash": "0b6db63ba437adb0e3a85b5ad16acc685bb1c4baa45021e0711769a5bcc1b1fc"
+}
