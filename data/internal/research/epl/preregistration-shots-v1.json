@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-shots-model-v1-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "public": false,
+  "registeredAt": "2026-08-21T08:30:00Z",
+  "purpose": "Fix the acceptance bars for SHOTS and SHOTS ON GOAL before either is modelled. Committed alone so the history proves the bars pre-date the numbers, as with the goalscorer model and the two team bake-offs.",
+
+  "targets": [
+    { "id": "shots_over_0_5", "market": "player shots", "definition": "did this player register one or more shots", "line": 0.5 },
+    { "id": "sog_over_0_5", "market": "player shots on goal", "definition": "did this player register one or more shots on goal", "line": 0.5 }
+  ],
+  "whyTheseLines": "Chosen from DESIGN DATA ONLY (2022-23 + 2023-24 appearances, never the holdout) as the line with the most balanced base rate: shots over 0.5 occurs 46.6% of the time and shots on goal over 0.5 21.9%. Longer lines collapse toward rare events — shots on goal over 1.5 is 5.4% and over 2.5 is 1.2% — where a scoring metric is dominated by the base rate and tells you almost nothing about the model.",
+
+  "independence": "The two targets are judged SEPARATELY against identical bars, and BOTH verdicts are recorded whichever way they fall. Passing one does not license the other, and a pass on either does not license assists or cards, which are untested.",
+
+  "population": {
+    "rule": "every player who APPEARED — started or came off the bench",
+    "honestLimitation": "As with the goalscorer model, this conditions on participation and does NOT predict whether a player will play. Published rows stay conditional on starting until a lineup exists."
+  },
+
+  "corpus": {
+    "file": "data/internal/research/epl/players/espn-players-v1.jsonl",
+    "fixtures": 1520,
+    "seasons": ["2022-23", "2023-24", "2024-25", "2025-26"]
+  },
+
+  "protocol": {
+    "walkForward": "by match date; rates are fitted STRICTLY on earlier-dated matches",
+    "warmup": { "season": "2022-23", "rule": "folds into the rates, NEVER scored" },
+    "development": { "seasons": ["2023-24", "2024-25"], "use": "ALL hyperparameter search happens here and nowhere else" },
+    "holdout": { "season": "2025-26", "use": "scored ONCE, after the configuration is locked" },
+    "holdoutDisclosure": "2025-26 was scored once before, under the VOIDED goalscorer v1 run, for a DIFFERENT target (goals) with a model whose baseline was defective. No shots or shots-on-goal hyperparameter has ever touched it, and no shots outcome from it has been observed. This is disclosed rather than glossed: it is the cleanest holdout available for these targets, and the reader is entitled to weigh that themselves."
+  },
+
+  "model": {
+    "form": "a shrunk per-appearance rate for the player's participation state, converted to P(count > line)",
+    "shrinkage": "Bayesian pseudo-count k toward the positional rate for the same state, exactly as the goalscorer model",
+    "distributionIsAHYPERPARAMETER": "Poisson OR negative binomial. This is declared rather than assumed because the design data says shots are OVERDISPERSED: variance/mean is 1.79 for shots and 1.33 for shots on goal, where Poisson requires 1.0. A Poisson fit will therefore be too tight in the tail, and the calibration bar should catch it. The negative-binomial dispersion is estimated by method of moments on the fit pool only."
+  },
+
+  "baselines": [
+    { "id": "positional", "definition": "the league base rate for (position group x participation state), fitted on prior matches only", "why": "If player history does not beat a correct positional average, the model knows nothing about individual players." },
+    { "id": "player_raw", "definition": "the player's unshrunk historical rate, positional as fallback", "why": "So shrinkage must earn its place." }
+  ],
+
+  "primaryMetric": "log loss on the binary over/under outcome",
+  "secondaryMetrics": ["Brier score", "expected calibration error over 10 bins", "predicted vs observed count of players clearing the line", "coverage"],
+
+  "acceptanceBars": {
+    "note": "ALL must hold on the HOLDOUT, per target, for that target to publish. Identical to the goalscorer bars — bars are not softened because a new market is harder.",
+    "bars": [
+      { "id": "S1_beats_positional", "statement": "model HOLDOUT log loss must be lower than the positional baseline's by at least 0.005" },
+      { "id": "S2_shrinkage_earns_it", "statement": "model HOLDOUT log loss must be lower than or equal to the raw-player baseline's" },
+      { "id": "S3_calibrated", "statement": "model HOLDOUT expected calibration error must be at most 0.020" },
+      { "id": "S4_count_sane", "statement": "summed predicted probabilities must land within 10% of the observed number of players clearing the line" },
+      { "id": "S5_no_abstention_gaming", "statement": "the model must produce a probability for at least 95% of the appeared population" }
+    ]
+  },
+
+  "stoppingRule": {
+    "statement": "ONE sweep over the declared grid per target, on DEVELOPMENT only. A target that clears all five bars publishes; a target that does not is REJECTED and stays unpublished, and it is not re-specified on this corpus.",
+    "grid": { "k": [1, 2, 4, 8, 16, 32], "distribution": ["poisson", "negbin"] }
+  },
+
+  "whatPassingDoesNotMean": [
+    "It does not mean the model beats a sportsbook price. No player-prop odds are ingested at all.",
+    "It does not license assists or cards.",
+    "It does not answer whether a player will play."
+  ]
+}
