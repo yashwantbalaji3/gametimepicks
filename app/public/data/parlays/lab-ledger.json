@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-20T10:27:04Z",
+ "generatedAt": "2026-08-21T05:56:15Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -75,12 +75,11 @@
   {
    "id": "nfl",
    "label": "NFL",
-   "live": false,
-   "blocked": "the last price capture is 4.5 days old; only 2 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "live": true,
    "evidence": {
-    "pricedGames": 2,
-    "pricesCapturedAt": "2026-08-15T21:19:48Z",
-    "priceAgeDays": 4.55,
+    "pricedGames": 5,
+    "pricesCapturedAt": "2026-08-20T21:26:43Z",
+    "priceAgeDays": 0.35,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -139,8 +138,8 @@
    "live": true,
    "evidence": {
     "pricedGames": 12,
-    "pricesCapturedAt": "2026-08-20T01:18:58Z",
-    "priceAgeDays": 0.38,
+    "pricesCapturedAt": "2026-08-20T21:53:56Z",
+    "priceAgeDays": 0.33,
     "settlementSource": "official UFC bout results",
     "settlementProven": true
    },
@@ -257,13 +256,14 @@
   {
    "id": "multi",
    "label": "Multi-sport",
-   "live": false,
-   "blocked": "a cross-sport card needs two live sports; only UFC is cleared",
+   "live": true,
    "evidence": {
     "liveSports": [
+     "nfl",
      "ufc"
     ],
     "liveLabels": [
+     "NFL",
      "UFC"
     ]
    },
@@ -322,11 +322,11 @@
   "label": "Before the 2026-08-17 selection change",
   "summary": "Up to six cards per tier, legs reused across tiers, cards up to six legs",
   "firstDay": "2026-05-25",
-  "lastDay": "2026-08-19",
-  "gradedDays": 51,
-  "wins": 187,
-  "losses": 822,
-  "roi": -0.0992,
+  "lastDay": "2026-08-20",
+  "gradedDays": 52,
+  "wins": 189,
+  "losses": 844,
+  "roi": -0.114,
   "note": "A measurement of the previous selection policy, kept because it is real. It does not describe what the Lab publishes now."
  }
 }
