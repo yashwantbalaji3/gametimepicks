@@ -102,7 +102,15 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     surfaces: ["top", "rail", "footer"] },
   { href: "/ufc", label: "UFC", note: "fight card + archive", group: "sports", glyph: "🥊", desc: "Fight card + settled archive",
     surfaces: ["top", "rail", "footer"] },
-  { href: "/epl", label: "Premier League", note: "schedule", group: "sports", glyph: "⚽", desc: "Schedule · simulation pending",
+  /*
+   * P185 published EPL forecasts on 2026-08-20; this entry still said "simulation pending" and
+   * rendered ON /epl itself, in the rail directly above that page's own heading "Schedule + model
+   * forecasts — not validated out of sample". Two contradictory claims about one page, in one
+   * viewport. The state that is still true is the VALIDATION gap, not the absence of a model, so
+   * that is what the note and descriptor now carry.
+   */
+  { href: "/epl", label: "Premier League", note: "forecasts · not validated", group: "sports", glyph: "⚽",
+    desc: "Schedule + model forecasts · not validated out of sample",
     surfaces: ["top", "rail", "footer"] },
   /* No `note`: the label already ends in "Schedules", and "Sports · Schedules · schedules" is
      what a note that repeats its own label looks like. */

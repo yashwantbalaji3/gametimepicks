@@ -45,19 +45,31 @@ test("the advanced builder keeps its own honest empty state", () => {
   if (!/Advanced-builder legs/.test(text)) return;         // the scoped chip is not on the page at all
 
   /*
-   * The page-level claim holds on EVERY slate: ladder cards and a "Data pending" badge may not be
-   * rendered together. Asserted before the split, because it is not conditional on emptiness.
+   * The page renders BOTH inputs to its own status badge — `builderLegs` as "N Advanced-builder
+   * legs" and `suggestedCards` as "N Suggested cards" — so the page-level claim is checkable
+   * against the page itself rather than against a proxy string.
+   *
+   * The original guard early-returned on the presence of the LABEL, which the scoped chip renders
+   * on every slate. So on a slate that HAD legs (78 on 2026-08-20) it demanded an empty-state
+   * sentence that would have been false, and on an empty slate it forbade a "Data pending" badge
+   * that was true. Both halves are conditional, and each is now keyed to the COUNT it is about.
    */
-  assert.doesNotMatch(text, /Data pending/,
-    "the page still badges itself Data pending while rendering ladder cards");
+  const count = (label) => {
+    const m = text.match(new RegExp(`(\\d+) ${label}`));
+    return m ? Number(m[1]) : null;
+  };
+  const legs = count("Advanced-builder legs");
+  const cards = count("Suggested cards");
 
-  /*
-   * The emptiness claim is conditional, and this is what the early return was reaching for. It
-   * tested for the LABEL, which the scoped chip renders on every slate — so on a slate that HAD
-   * legs (78 of them on 2026-08-20) the guard demanded an empty-state sentence that would have been
-   * a lie. Skip on the count, which is the fact the sentence is about.
-   */
-  if (!/\b0 Advanced-builder legs\b/.test(text)) return;  // a slate with legs has no emptiness to explain
-  assert.match(text, /No eligible legs right now/,
-    "the advanced builder must still explain its own emptiness where it happens");
+  // The defect this guard was written for: a page badged empty above its own rendered cards.
+  if (legs !== null && cards !== null && (legs > 0 || cards > 0)) {
+    assert.doesNotMatch(text, /Data pending/,
+      `the page badges itself Data pending while showing ${legs} builder legs and ${cards} ladder cards`);
+  }
+
+  // And the fact must still be stated WHERE it happens, whenever the builder is the empty one.
+  if (legs === 0) {
+    assert.match(text, /No eligible legs right now/,
+      "the advanced builder must still explain its own emptiness where it happens");
+  }
 });

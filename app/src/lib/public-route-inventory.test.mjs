@@ -193,7 +193,7 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   // The sport's capability state is unchanged: still not FULL_MODEL, still no public model.
   assert.notEqual(capabilityState("nfl"), "FULL_MODEL", "nfl is not FULL_MODEL — the hub is schedule/honesty context only");
   // ── Schedule hubs: they exist, and they must say what they are. ──
-  for (const [sport, hub] of [["epl", "src/app/epl/page.tsx"], ["ufc", "src/app/ufc/page.tsx"]]) {
+  for (const [sport, hub] of [["ufc", "src/app/ufc/page.tsx"]]) {
     assert.notEqual(capabilityState(sport), "FULL_MODEL", `${sport} is not FULL_MODEL`);
     const src = renderedSource(hub);
     // The page must state its coverage in words a reader sees, not merely omit a model.
@@ -201,6 +201,34 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
     // And it must not carry the vocabulary of a live model.
     for (const banned of ["projected score", "win probability", "our pick", "best bet", "\\bedge\\b", "\\block\\b"]) {
       assert.doesNotMatch(src, new RegExp(banned, "i"), `/${sport} must not use live-model language ("${banned}")`);
+    }
+  }
+
+  /*
+   * EPL graduated from schedule-only to a PUBLISHING hub on 2026-08-20, the same graduation /nfl
+   * made in P169-J: the invariant did not lapse, so it is enforced against what the page RENDERS.
+   *
+   * It was in the loop above until then, and it was passing VACUOUSLY. `renderedSource` concatenates
+   * a page with its imported components, and the shared schedule component still carries "Schedule
+   * only — simulation pending" as the dead FALSE branch of a ternary /epl now passes `true`. The
+   * guard matched a string the reader never saw, on a page that had said something else for a day.
+   * Source-level matching cannot tell a rendered sentence from an unreachable one — hence the built
+   * export below.
+   */
+  {
+    assert.notEqual(capabilityState("epl"), "FULL_MODEL", "epl is not FULL_MODEL — forecasts are published unvalidated");
+    const built = path.join(APP, "out", "epl", "index.html");
+    if (fs.existsSync(built)) {
+      const text = fs.readFileSync(built, "utf8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+      // A published forecast carries its limitation in the reader's words, not in a data field.
+      assert.match(text, /not validated out of sample/i,
+        "/epl publishes forecasts, so the page must state that they are unvalidated");
+      assert.match(text, /no .{0,20}track record to cite|has been graded under this model/i,
+        "/epl must state that no match has been graded, rather than let a reader assume a record");
+      // The one thing publication may never do: imply a settled record that does not exist.
+      for (const banned of ["our pick", "best bet", "\\bedge\\b", "\\block\\b"]) {
+        assert.doesNotMatch(text, new RegExp(banned, "i"), `/epl must not use pick language ("${banned}")`);
+      }
     }
   }
 

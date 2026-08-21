@@ -164,11 +164,18 @@ export default function SportSchedulePage(p: SportScheduleProps) {
         <ScheduleList events={p.events} sides={p.sides} joiner={p.joiner} logoSport={p.logoSport} accent={accent} />
       </div>
 
+      {/*
+        * This read "The sports that are simulated today are MLB and NFL" — a hardcoded coverage
+        * claim, and by 2026-08-20 a false one: /simulate derives "1 sport simulating", because every
+        * NFL preseason game is BASELINE_ONLY (no measured signal separates the two teams). A sentence
+        * naming sports cannot track a daily slate, and a second derivation here would be one more
+        * number to drift out of step with the hub's. So it points at the surfaces that derive the
+        * answer instead of asserting one.
+        */}
       <p className="mt-7" style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
-        The sports that are simulated today are{" "}
-        <Link href="/mlb/" style={{ color: accent }}>MLB</Link> and{" "}
-        <Link href="/nfl/" style={{ color: accent }}>NFL</Link>. Every sport&apos;s coverage
-        state is listed on <Link href="/sports/" style={{ color: accent }}>Sports · Schedules</Link>.
+        <Link href="/simulate/" style={{ color: accent }}>Simulate</Link> lists the sports with
+        simulations today, and <Link href="/sports/" style={{ color: accent }}>Sports · Schedules</Link>{" "}
+        lists every sport&apos;s coverage state.
       </p>
     </main>
   );

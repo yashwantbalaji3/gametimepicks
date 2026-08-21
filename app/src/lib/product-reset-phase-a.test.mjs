@@ -76,13 +76,36 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
   // a model the sport does not have. So every league in the nav must resolve to a page that states
   // its coverage in rendered words: a simulated sport says so, and a schedule-only sport carries the
   // pending line. Checked against the page source, so adding a league without the line fails here.
+  /*
+   * P185 (2026-08-20): /epl moved from the schedule-only column to the PUBLISHING column — it now
+   * carries per-fixture 1X2 distributions. It does not join SIMULATED, because that set is what the
+   * nav is allowed to present as a working model and EPL has graded zero matches; it gets its own
+   * requirement, which is the one that matters for an unvalidated model: the page must say so.
+   *
+   * Note what this guard could NOT see before. It matched the pending line in `renderedSource`,
+   * which concatenates imported components — and the shared schedule component still holds that line
+   * as the dead FALSE branch of a ternary /epl passes `true`. So /epl kept passing a schedule-only
+   * assertion for a full day after it began publishing forecasts. A nav link that implies the WRONG
+   * state is the defect this guard exists to catch, and the string it keyed on could not distinguish
+   * a rendered sentence from an unreachable one.
+   */
   const SIMULATED = new Set(["/mlb", "/nfl"]);
+  const PUBLISHED_UNVALIDATED = new Set(["/epl"]);
   const PAGE_FOR = { "/mlb": "src/app/mlb/page.tsx", "/nfl": "src/app/nfl/page.tsx", "/epl": "src/app/epl/page.tsx", "/ufc": "src/app/ufc/page.tsx", "/nba": "src/app/nba/page.tsx" };
   const leagueLinks = [...nav.matchAll(/href: "(\/(?:mlb|nfl|epl|nba|ufc))"/g)].map((m) => m[1]);
   assert.ok(leagueLinks.length > 0, "the nav links at least one league");
   for (const href of leagueLinks) {
     const src = renderedSource(PAGE_FOR[href]);
     if (SIMULATED.has(href)) continue;
+    if (PUBLISHED_UNVALIDATED.has(href)) {
+      // The nav entry and the page must agree, and both must carry the validation gap. Asserted on
+      // the nav SOURCE (the entry is the thing that could imply too much) and the page source.
+      assert.match(src, /not validated out of sample/,
+        `${href} publishes forecasts, so the page must state they are unvalidated`);
+      assert.match(nav, /href: "\/epl"[\s\S]{0,240}?not validated/,
+        `${href}'s nav entry must not imply a validated model — it said "simulation pending" while the page published forecasts`);
+      continue;
+    }
     assert.match(src, /Schedule only — simulation pending/,
       `${href} is linked in nav but never states its coverage — a nav link must not imply a model`);
   }
