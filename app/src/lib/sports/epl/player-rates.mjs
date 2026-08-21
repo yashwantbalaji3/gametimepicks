@@ -153,3 +153,114 @@ export function predictPositional(fit, { playerId, position, state }) {
   const rate = positionalRate(fit, group, state);
   return { lambda: rate, probability: 1 - Math.exp(-rate), group };
 }
+
+/* ── COUNT MARKETS (shots, shots on goal) ───────────────────────────────────────────────────────
+ *
+ * Goals are effectively binary at the player level — almost nobody scores twice — so the goalscorer
+ * model converts a rate straight to P(at least one) under a Poisson assumption and that is close
+ * enough to be invisible. Shots are NOT: the design data puts variance over mean at 1.79 for shots
+ * and 1.33 for shots on goal, where Poisson requires exactly 1.0.
+ *
+ * That overdispersion has a direction. A Poisson fitted to an overdispersed count UNDERSTATES the
+ * chance of zero and overstates the middle, so it would quietly push every "one or more shots"
+ * probability upward — a calibration failure that a log-loss-only view can easily survive.
+ *
+ * So the distribution is a parameter here, and the negative binomial is available with its
+ * dispersion estimated from the same pool the rates come from. Nothing selects between them at
+ * runtime; the preregistration says that choice is made on development data and locked.
+ */
+
+/** Fold a COUNT field into per-player and per-position tallies, plus the dispersion of the pool. */
+export function fitCountRates(rows, field) {
+  const byPlayer = new Map();
+  const byPosition = new Map();
+  const positionOf = new Map();
+  let all = 0, allSum = 0, allSq = 0;
+
+  for (const r of rows ?? []) {
+    const state = participationState(r);
+    if (!state) continue;
+    const v = Number(r[field] ?? 0);
+    const g = positionGroup(r.position);
+    positionOf.set(String(r.playerId), g);
+
+    const pk = String(r.playerId);
+    if (!byPlayer.has(pk)) byPlayer.set(pk, {});
+    const ps = byPlayer.get(pk);
+    ps[state] = ps[state] ?? { app: 0, sum: 0 };
+    ps[state].app += 1; ps[state].sum += v;
+
+    const ok = `${g}|${state}`;
+    if (!byPosition.has(ok)) byPosition.set(ok, { app: 0, sum: 0 });
+    const os = byPosition.get(ok);
+    os.app += 1; os.sum += v;
+
+    all += 1; allSum += v; allSq += v * v;
+  }
+
+  const mean = all ? allSum / all : 0;
+  const variance = all > 1 ? (allSq - all * mean * mean) / (all - 1) : mean;
+  /*
+   * Method-of-moments dispersion for the negative binomial: var = mu + mu^2 / r. When the pool is
+   * NOT overdispersed the formula has no positive solution, and the honest answer there is Poisson —
+   * so `null` is returned rather than a huge r standing in for one.
+   */
+  const dispersion = variance > mean && mean > 0 ? (mean * mean) / (variance - mean) : null;
+
+  return { byPlayer, byPosition, positionOf, leagueRate: mean, appearancesFitted: all, mean, variance, dispersion };
+}
+
+/** The positional rate for a count field, falling back to the league mean on a thin cell. */
+export function positionalCountRate(fit, group, state) {
+  const cell = fit.byPosition.get(`${group}|${state}`);
+  if (cell && cell.app >= 20) return cell.sum / cell.app;
+  return fit.leagueRate;
+}
+
+/**
+ * P(count >= 1) for a rate, under the chosen distribution.
+ *
+ * Poisson:  1 - exp(-lambda)
+ * NegBin:   1 - (r / (r + lambda))^r   — heavier at zero, which is exactly the correction an
+ *           overdispersed count needs and the reason this option exists.
+ */
+export function probAtLeastOne(lambda, { distribution = "poisson", dispersion = null } = {}) {
+  if (lambda <= 0) return 0;
+  if (distribution === "negbin" && dispersion != null && dispersion > 0) {
+    return 1 - Math.pow(dispersion / (dispersion + lambda), dispersion);
+  }
+  return 1 - Math.exp(-lambda);
+}
+
+/** Shrunk count projection for one player in one state. */
+export function predictCount(fit, { playerId, position, state }, { k = 8, distribution = "poisson" } = {}) {
+  if (!state) return null;
+  const group = positionGroup(position) !== "UNK" ? positionGroup(position) : (fit.positionOf.get(String(playerId)) ?? "UNK");
+  const prior = positionalCountRate(fit, group, state);
+  const own = fit.byPlayer.get(String(playerId))?.[state] ?? { app: 0, sum: 0 };
+  const lambda = (own.sum + k * prior) / (own.app + k);
+  return {
+    lambda,
+    probability: probAtLeastOne(lambda, { distribution, dispersion: fit.dispersion }),
+    appearances: own.app,
+    group,
+    prior,
+  };
+}
+
+/** Raw (unshrunk) count baseline. */
+export function predictCountRaw(fit, { playerId, position, state }, { distribution = "poisson" } = {}) {
+  if (!state) return null;
+  const group = positionGroup(position) !== "UNK" ? positionGroup(position) : (fit.positionOf.get(String(playerId)) ?? "UNK");
+  const own = fit.byPlayer.get(String(playerId))?.[state] ?? { app: 0, sum: 0 };
+  const lambda = own.app > 0 ? own.sum / own.app : positionalCountRate(fit, group, state);
+  return { lambda, probability: probAtLeastOne(lambda, { distribution, dispersion: fit.dispersion }), appearances: own.app, group };
+}
+
+/** Positional count baseline. */
+export function predictCountPositional(fit, { playerId, position, state }, { distribution = "poisson" } = {}) {
+  if (!state) return null;
+  const group = positionGroup(position) !== "UNK" ? positionGroup(position) : (fit.positionOf.get(String(playerId)) ?? "UNK");
+  const lambda = positionalCountRate(fit, group, state);
+  return { lambda, probability: probAtLeastOne(lambda, { distribution, dispersion: fit.dispersion }), group };
+}

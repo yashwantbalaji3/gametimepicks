@@ -32,7 +32,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { fitPlayerRates, predictPlayer, positionGroup } from "../../src/lib/sports/epl/player-rates.mjs";
+import { fitPlayerRates, predictPlayer, fitCountRates, predictCount, positionGroup } from "../../src/lib/sports/epl/player-rates.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -60,7 +60,26 @@ const corpusRows = fs.readFileSync(path.join(RESEARCH, "players/espn-players-v1.
   /* Never fit on a match at or after the run clock — the same leakage rule the team model lives under. */
   .filter((r) => Date.parse(r.dateUtc ?? "") < Date.parse(NOW));
 const fit = fitPlayerRates(corpusRows);
-console.log(`model k=${K} · fitted on ${fit.appearancesFitted} appearances from ${corpusRows.length} player-match rows`);
+console.log(`goal model k=${K} · fitted on ${fit.appearancesFitted} appearances from ${corpusRows.length} player-match rows`);
+
+/*
+ * SHOTS ON GOAL — a SECOND market with its own preregistration and its own cleared bars, so it is
+ * loaded the same way: from the recorded verdict, refusing anything not ACCEPTED.
+ *
+ * PLAIN SHOTS IS ABSENT AND STAYS ABSENT. It was measured under the same bars and REJECTED on
+ * calibration (holdout ECE 0.02765 against a 0.020 bar) despite beating its baseline comfortably on
+ * log loss. The stopping rule says a rejected target is not re-specified on this corpus, so there is
+ * no shots field anywhere in this artifact — a market that failed its bar must be absent, not
+ * present-but-flagged, because a flag is something a later surface can drop.
+ */
+const shotsReport = readJson(path.join(RESEARCH, "reports/shots-model-v1-backtest.json"));
+const sogTarget = shotsReport.targets.find((t) => t.target === "sog_over_0_5");
+const sogAccepted = sogTarget?.verdict === "ACCEPTED";
+if (!sogAccepted) console.log("shots on goal: recorded verdict is not ACCEPTED — omitted from this artifact");
+const sogFit = sogAccepted ? fitCountRates(corpusRows, "shotsOnGoal") : null;
+if (sogAccepted) {
+  console.log(`shots-on-goal model ${sogTarget.locked.distribution} k=${sogTarget.locked.k} · line ${sogTarget.line}`);
+}
 
 const squads = readJson(path.join(RESEARCH, "players/squads-2026-27.json"));
 const squadByClub = new Map(squads.squads.map((s) => [s.teamName, s]));
@@ -135,12 +154,14 @@ for (const row of priced) {
         const state = p.started ? "START" : "SUB";
         const pred = predictPlayer(fit, { playerId: p.playerId, position: p.position, state }, { k: K });
         if (!pred) continue;
+        const sog = sogFit ? predictCount(sogFit, { playerId: p.playerId, position: p.position, state }, { k: sogTarget.locked.k, distribution: sogTarget.locked.distribution }) : null;
         players.push({
           playerId: p.playerId, name: p.name, teamName: t.teamName,
           position: p.position, group: pred.group,
           state, conditional: false,
           appearances: pred.appearances,
           probability: pct(pred.probability),
+          shotsOnGoalOver05: sog ? pct(sog.probability) : null,
         });
       }
     }
@@ -153,12 +174,14 @@ for (const row of priced) {
       for (const p of squad.players) {
         const pred = predictPlayer(fit, { playerId: p.playerId, position: p.position, state: "START" }, { k: K });
         if (!pred) continue;
+        const sog = sogFit ? predictCount(sogFit, { playerId: p.playerId, position: p.position, state: "START" }, { k: sogTarget.locked.k, distribution: sogTarget.locked.distribution }) : null;
         players.push({
           playerId: p.playerId, name: p.name, teamName: squad.teamName,
           position: p.position, group: pred.group,
           state: "START", conditional: true,
           appearances: pred.appearances,
           probability: pct(pred.probability),
+          shotsOnGoalOver05: sog ? pct(sog.probability) : null,
         });
       }
     }
@@ -185,7 +208,14 @@ const artifact = {
   dataClass: "FORECAST_PUBLIC",
   public: true,
   competition: "epl",
+  /* Every market on the artifact has cleared its own preregistered bars. Plain shots is not here. */
+  markets: sogAccepted
+    ? [{ id: "anytime_goalscorer", field: "probability" }, { id: "shots_on_goal_over_0_5", field: "shotsOnGoalOver05", line: 0.5 }]
+    : [{ id: "anytime_goalscorer", field: "probability" }],
   market: "anytime_goalscorer",
+  rejectedMarkets: [
+    { id: "shots_over_0_5", verdict: "REJECTED", reason: "holdout calibration error 0.02765 against a 0.020 bar — it beat its baseline on log loss and is still not calibrated enough to publish" },
+  ],
   generatedAt: NOW,
   model: { id: "epl-player-v2-shrunk-rate", k: K, fittedAppearances: fit.appearancesFitted },
   /* The receipt, carried WITH the numbers so a reader never has to take the validation on trust. */
@@ -203,6 +233,7 @@ const artifact = {
     note: "Validated for ANYTIME GOALSCORER only, on players who appeared. It does not predict whether a player will play, and it has never been compared against a price.",
   },
   limitations: [
+    "Plain shots (over 0.5) was measured under identical bars and REJECTED on calibration. It is deliberately absent rather than shown with a warning.",
     "No injury or suspension feed exists here, so an unavailable player can still appear in a conditional list.",
     "The source carries no minutes — participation is a discrete state (started or substitute), not an expected-minutes term.",
     "Conditional rows state P(scores | he starts). They are not a claim that he will start.",

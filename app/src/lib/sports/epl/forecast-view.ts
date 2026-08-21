@@ -148,7 +148,10 @@ export interface EplPlayerRow {
   /** True when no lineup is published: the number is P(scores | he starts), not a claim he will. */
   conditional: boolean;
   appearances: number;
+  /** Anytime goalscorer. */
   probability: number;
+  /** Shots on goal over 0.5 — a SEPARATE model with its own cleared bars. Null when not published. */
+  shotsOnGoalOver05?: number | null;
 }
 
 export interface EplPlayerFixture {
@@ -167,6 +170,10 @@ export interface EplPlayerProjections {
   generatedAt: string;
   market: string;
   model: { id: string; k: number; fittedAppearances: number };
+  /** Every market on the artifact has cleared its own preregistered bars. */
+  markets?: Array<{ id: string; field: string; line?: number }>;
+  /** Markets measured under the same bars and REJECTED — recorded so the absence is explained. */
+  rejectedMarkets?: Array<{ id: string; verdict: string; reason: string }>;
   validation: {
     state: string;
     protocol: string;

@@ -21,7 +21,20 @@
  * No fs, no clock, no network. The caller supplies the artifacts.
  */
 
-export const EPL_PLAYER_GRADING_VERSION = 1;
+export const EPL_PLAYER_GRADING_VERSION = 2;
+
+/**
+ * The markets graded, and the actual field each is scored against.
+ *
+ * Driven by a table rather than hardcoded, because a second market arrived (shots on goal) and a
+ * third may not — plain shots was REJECTED on calibration and must never appear here. A market that
+ * has not cleared its preregistered bars has no entry, which makes "is this gradeable" the same
+ * question as "was this ever publishable".
+ */
+export const GRADED_MARKETS = Object.freeze([
+  { id: "anytime_goalscorer", projectionField: "probability", actualField: "goals", line: 0.5 },
+  { id: "shots_on_goal_over_0_5", projectionField: "shotsOnGoalOver05", actualField: "shotsOnGoal", line: 0.5 },
+]);
 
 /** Why a projected row could not be scored. Every one of these is recorded, never silently dropped. */
 export const VOID_REASONS = Object.freeze({
@@ -90,12 +103,20 @@ export function gradePlayerProjections({ projections, actuals, alreadyGraded = n
     const actualById = new Map((actual.players ?? []).map((p) => [String(p.playerId), p]));
 
     for (const row of rec.fixture.players ?? []) {
-      const key = `${slug}:${row.playerId}`;
+     for (const market of GRADED_MARKETS) {
+      const projected = row[market.projectionField];
+      /* A market absent from the row was never published for this player — nothing to grade. */
+      if (projected == null) continue;
+
+      /* The key carries the MARKET, or a second market would collide with the first and be skipped
+         forever as "already graded" — silently halving the record the day it was added. */
+      const key = `${slug}:${row.playerId}:${market.id}`;
       if (alreadyGraded.has(key)) { skipped.alreadyGraded += 1; continue; }
 
       const a = actualById.get(String(row.playerId));
       const state = actualState(a);
       const base = {
+        market: market.id,
         schemaVersion: 1,
         gradingVersion: EPL_PLAYER_GRADING_VERSION,
         key,
@@ -110,7 +131,7 @@ export function gradePlayerProjections({ projections, actuals, alreadyGraded = n
         teamName: row.teamName,
         projectedState: row.state,
         conditional: row.conditional === true,
-        probability: row.probability,
+        probability: projected,
       };
 
       if (!a) { voided.push({ ...base, outcome: "VOID", reason: VOID_REASONS.NOT_IN_MATCHDAY_SQUAD }); continue; }
@@ -125,18 +146,20 @@ export function gradePlayerProjections({ projections, actuals, alreadyGraded = n
         continue;
       }
 
-      const y = Number(a.goals ?? 0) > 0 ? 1 : 0;
+      const observed = Number(a[market.actualField] ?? 0);
+      const y = observed > market.line ? 1 : 0;
       graded.push({
         ...base,
         outcome: y ? "HIT" : "MISS",
         actualState: state,
-        goals: Number(a.goals ?? 0),
+        observed,
         scores: {
           y,
-          logLoss: r6(-(y * Math.log(clip(row.probability)) + (1 - y) * Math.log(1 - clip(row.probability)))),
-          brier: r6((row.probability - y) ** 2),
+          logLoss: r6(-(y * Math.log(clip(projected)) + (1 - y) * Math.log(1 - clip(projected)))),
+          brier: r6((projected - y) ** 2),
         },
       });
+     }
     }
   }
   return { graded, voided, skipped };

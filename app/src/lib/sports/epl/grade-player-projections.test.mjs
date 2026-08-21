@@ -27,7 +27,8 @@ const row = (playerId, { state = "START", conditional = true, probability = 0.3,
   ({ playerId, name, teamName: "Arsenal", state, conditional, probability, appearances: 50 });
 const snapshot = (file, generatedAt, fixtures) => ({ file, generatedAt, fixtures });
 const actual = (players, status = "FULL_TIME") => new Map([[SLUG, { status, players }]]);
-const act = (playerId, { started = false, subbedIn = false, goals = 0 } = {}) => ({ playerId, started, subbedIn, goals });
+const act = (playerId, { started = false, subbedIn = false, goals = 0, ...rest } = {}) =>
+  ({ playerId, started, subbedIn, goals, ...rest });   // ...rest so a second market's field reaches the grader
 
 const index = (snaps) => indexProjections(snaps).byFixture;
 
@@ -131,10 +132,47 @@ test("an already-graded row is skipped — the ledger is append-only", () => {
   const out = gradePlayerProjections({
     projections: p,
     actuals: actual([act("1", { started: true, goals: 1 })]),
-    alreadyGraded: new Set([`${SLUG}:1`]),
+    alreadyGraded: new Set([`${SLUG}:1:anytime_goalscorer`]),
   });
   assert.equal(out.graded.length, 0);
   assert.equal(out.skipped.alreadyGraded, 1);
+});
+
+test("THE LEDGER KEY CARRIES THE MARKET — or a second market silently never grades", () => {
+  /*
+   * When shots on goal was added, a key of slug:playerId would have collided with the goal row
+   * already in the ledger. Every SOG row would have been skipped as "already graded" from the day it
+   * shipped, and the record would have looked healthy while covering one market of two. The market is
+   * therefore part of the key, and the two markets grade independently.
+   */
+  const withSog = { ...row("1", { probability: 0.3 }), shotsOnGoalOver05: 0.6 };
+  const p = index([snapshot("s.json", "2026-08-21T09:00:00Z", [proj([withSog])])]);
+  const out = gradePlayerProjections({
+    projections: p,
+    actuals: actual([act("1", { started: true, goals: 0, shotsOnGoal: 2 })]),
+  });
+  assert.equal(out.graded.length, 2, "both markets grade from one player row");
+  const byMarket = Object.fromEntries(out.graded.map((g) => [g.market, g]));
+  assert.equal(byMarket.anytime_goalscorer.outcome, "MISS", "he did not score");
+  assert.equal(byMarket.shots_on_goal_over_0_5.outcome, "HIT", "he had two shots on goal");
+  assert.notEqual(byMarket.anytime_goalscorer.key, byMarket.shots_on_goal_over_0_5.key);
+
+  /* And grading one must never suppress the other. */
+  const second = gradePlayerProjections({
+    projections: p,
+    actuals: actual([act("1", { started: true, goals: 0, shotsOnGoal: 2 })]),
+    alreadyGraded: new Set([byMarket.anytime_goalscorer.key]),
+  });
+  assert.equal(second.graded.length, 1);
+  assert.equal(second.graded[0].market, "shots_on_goal_over_0_5");
+});
+
+test("a market absent from a row is not graded — a rejected market has nothing to score", () => {
+  /* Plain shots was REJECTED on calibration and never reaches the artifact. Nothing must grade it. */
+  const p = index([snapshot("s.json", "2026-08-21T09:00:00Z", [proj([row("1")])])]);
+  const out = gradePlayerProjections({ projections: p, actuals: actual([act("1", { started: true, goals: 1, shotsOnGoal: 3 })]) });
+  assert.equal(out.graded.length, 1, "only the market the row actually carries");
+  assert.equal(out.graded[0].market, "anytime_goalscorer");
 });
 
 test("ALL_VOID is a real state and must not read as a broken join", () => {

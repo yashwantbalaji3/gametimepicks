@@ -272,12 +272,12 @@ export default function EplPage() {
             starting eleven is a participation claim this model was never tested on.
           */}
           <SectionHeader
-            eyebrow={`Player predictions · anytime goalscorer`}
+            eyebrow={`Player predictions · ${(players?.markets ?? []).length} market${(players?.markets ?? []).length === 1 ? "" : "s"}`}
             title={awaitingLineup ? "If he starts — likeliest scorers" : "Likeliest scorers"}
             sub={
               awaitingLineup
-                ? "Lineups are posted about an hour before kickoff. Until then each figure is the chance that player scores IF he starts — not a claim that he will. Rows update to the named eleven as soon as the teams are out."
-                : "Read off the posted lineups: each figure is for the state the player is actually in, starting or off the bench."
+                ? "Two markets, each tested separately against its own bar: chance of a shot on goal, and chance of scoring. Lineups are posted about an hour before kickoff — until then both figures are conditional on that player STARTING, not a claim that he will. Rows update to the named eleven as soon as the teams are out."
+                : "Two markets, each tested separately against its own bar. Read off the posted lineups: each figure is for the state the player is actually in, starting or off the bench."
             }
           />
           <div className="rounded-[12px] overflow-hidden" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
@@ -290,7 +290,7 @@ export default function EplPage() {
                       {p.teamName} · {p.matchup}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-3 shrink-0">
                     {/*
                       Appearances are shown because they are what the number rests on. A player with
                       none is sitting on his position's league rate, and a reader deserves to see the
@@ -299,7 +299,13 @@ export default function EplPage() {
                     <span className="font-mono" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
                       {p.appearances > 0 ? `${p.appearances} apps` : "no history"}
                     </span>
-                    <span className="font-mono" style={{ fontSize: 13, fontWeight: 700, color: "var(--vault-accent)" }}>{pct(p.probability)}</span>
+                    {/* Two markets, each having cleared its OWN preregistered bars. Plain shots is
+                        absent because it failed calibration — a rejected market is not shown with a
+                        warning, it is not shown. */}
+                    <span className="font-mono" title="chance of a shot on goal" style={{ fontSize: 12, color: "var(--sport-soccer)" }}>
+                      {p.shotsOnGoalOver05 != null ? `${pct(p.shotsOnGoalOver05)} SOG` : ""}
+                    </span>
+                    <span className="font-mono" title="chance of scoring" style={{ fontSize: 13, fontWeight: 700, color: "var(--vault-accent)" }}>{pct(p.probability)}</span>
                   </div>
                 </li>
               ))}

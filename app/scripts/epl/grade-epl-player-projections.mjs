@@ -107,6 +107,9 @@ for (const [slug, rec] of byFixture) {
         started: p.starter === true,
         subbedIn: p.subbedIn === true,
         goals: st.G ?? 0,
+        /* Every field any GRADED_MARKET scores against. A market whose actual is missing here would
+           grade as a silent zero, which is worse than not grading at all. */
+        shotsOnGoal: st.SOG ?? 0,
       });
     }
   }
