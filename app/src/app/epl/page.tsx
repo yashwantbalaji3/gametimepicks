@@ -38,6 +38,7 @@ import {
   type EplForecastSet,
 } from "@/lib/sports/epl/forecast-view";
 import { eplPlayerMarketStatus } from "@/lib/sports/epl/player-markets.mjs";
+import { gradedRecordCaption, loadEplGradedRecord } from "@/lib/sports/epl/graded-record";
 import { loadEplPlayerProjections, topScorersAcross } from "@/lib/sports/epl/forecast-view";
 
 export const metadata: Metadata = {
@@ -144,6 +145,7 @@ export default function EplPage() {
   const matchweek = weeks.size === 1 ? [...weeks][0] : null;
   const player = eplPlayerMarketStatus();
   const players = loadEplPlayerProjections();
+  const gradedRecord = loadEplGradedRecord();
   const topScorers = topScorersAcross(players, 12);
   /* Every fixture still awaiting its XI ⇒ the whole board reads as conditional. */
   const awaitingLineup = (players?.counts.withLineup ?? 0) === 0;
@@ -163,7 +165,10 @@ export default function EplPage() {
         accent="wc"
         stats={[
           { label: "Fixtures simulated", value: String(priced.length), sub: `of ${priced.length + unpriced.length} in the window` },
-          { label: "Matches graded", value: "0", sub: "no track record yet" },
+          // DERIVED, never a literal. This read "0 / no track record yet" as hard-coded text, which
+          // was true until the first match was graded and false immediately afterwards. The caption
+          // is owned by the loader so the small-sample warning cannot be dropped for a tidier hero.
+          { label: "Matches graded", value: gradedRecord ? String(gradedRecord.team.matches) : "—", sub: gradedRecordCaption(gradedRecord) },
           { label: "Season", value: "2026-27", sub: "380 fixtures" },
         ]}
         ctas={[
@@ -330,6 +335,57 @@ export default function EplPage() {
           <div className="rounded-[12px] p-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
             <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>{player.reason}</p>
           </div>
+        </section>
+      )}
+
+      {/*
+        ── THE RECORD — what was actually checked against a result ──────────────────────────────
+        Rendered only once something has been graded, and framed as a LOG rather than a track
+        record. Every figure here is read from the settler's append-only ledger; nothing on this
+        page recomputes a score. The heading says "so far" and the caption says how little it means
+        on purpose: a reader who sees one green row must not come away thinking the model has been
+        shown to work, which is a separate question answered by a preregistered backtest that has
+        not been run for this sport.
+      */}
+      {gradedRecord && gradedRecord.team.matches > 0 && (
+        <section className="mt-8" id="record">
+          <SectionHeader
+            eyebrow="Settled"
+            title={`Graded so far · ${gradedRecord.team.matches} match${gradedRecord.team.matches === 1 ? "" : "es"}`}
+            sub="Read against the official result after full time. This is a log of what has been checked, not evidence the model works — that is a preregistered backtest, and it has not been run for this competition."
+          />
+          <div className="mt-3 overflow-x-auto">
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr style={{ textAlign: "left", color: "var(--vault-text-mute)" }}>
+                  <th style={{ padding: "6px 10px", fontWeight: 600 }}>Match</th>
+                  <th style={{ padding: "6px 10px", fontWeight: 600 }}>Result</th>
+                  <th style={{ padding: "6px 10px", fontWeight: 600 }}>Model gave the actual outcome</th>
+                </tr>
+              </thead>
+              <tbody>
+                {gradedRecord.team.matchesList.map((m) => (
+                  <tr key={m.eventId} style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                    <td style={{ padding: "8px 10px" }}>{m.matchup}</td>
+                    <td style={{ padding: "8px 10px" }}>
+                      {m.actual ? `${m.actual.homeGoalsFT}-${m.actual.awayGoalsFT}` : "—"}
+                    </td>
+                    <td style={{ padding: "8px 10px" }}>
+                      {typeof m.probabilityOfActual === "number" ? `${(m.probabilityOfActual * 100).toFixed(1)}%` : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {gradedRecord.player.rows > 0 && (
+            <p style={{ margin: "10px 0 0", fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>
+              {`Player markets: ${gradedRecord.player.rows} projection${gradedRecord.player.rows === 1 ? "" : "s"} graded`}
+              {gradedRecord.player.voided > 0
+                ? `, ${gradedRecord.player.voided} void because the player did not take the field the projection assumed — a condition that did not hold is never scored as a miss.`
+                : "."}
+            </p>
+          )}
         </section>
       )}
 
