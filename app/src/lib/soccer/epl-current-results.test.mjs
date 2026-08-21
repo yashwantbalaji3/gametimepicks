@@ -19,14 +19,36 @@ const FIXTURES = { rows: [
   { eventId: "soccer:epl:chelsea-v-fulham:20260824t1900", homeClub: "Fulham", awayClub: "Chelsea", kickoffIso: "2026-08-24T19:00:00Z", matchweek: 1 },
 ] };
 
-test("DISK TRUTH · the committed capture is an honest fresh PRESEASON state with zero rows", () => {
+/*
+ * DISK TRUTH — the committed capture must be honest about ITSELF.
+ *
+ * This test used to assert `state === "PRESEASON"` and `rowCount === 0` against the live artifact.
+ * That held until 2026-08-21, when Arsenal played Coventry and the capture correctly recorded a
+ * finished match. The guard then went red because THE PRODUCT WORKED — the fourth time in this
+ * codebase a test pinned to today's data has reported a success as a regression.
+ *
+ * So it no longer pins a season phase. It pins the two things that would actually be defects: the
+ * artifact disagreeing with its own row count (a fabricated or dropped match), and the adapter
+ * deriving a different state from the artifact than the artifact declares. PRESEASON is still held
+ * to zero rows — that direction of the claim never expires, because a preseason capture with
+ * results in it is a fabrication no matter what the date is.
+ */
+test("DISK TRUTH · the committed capture agrees with itself and with the adapter", () => {
   const a = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "soccer", "epl", "results", "latest.json"), "utf8"));
   assert.equal(a.dataClass, "RESULTS_CAPTURE");
-  assert.equal(a.state, "PRESEASON");
-  assert.equal(a.rowCount, 0, "no fabricated matchweek, no 0-0 placeholders");
+
+  const rows = Array.isArray(a.rows) ? a.rows : [];
+  assert.equal(a.rowCount, rows.length, "the declared row count must match the rows actually carried");
+
+  // The one-way claim that outlives any date: no matchweek invented before the season starts.
+  if (a.state === "PRESEASON") {
+    assert.equal(a.rowCount, 0, "no fabricated matchweek, no 0-0 placeholders");
+  }
+
+  // Read at the artifact's own stamp, so freshness cannot be what is under test here.
   const out = loadCurrentEplResults({ nowIso: a.generatedAt });
-  assert.equal(out.state, "PRESEASON");
-  assert.equal(out.results.length, 0);
+  assert.equal(out.state, a.state, "the adapter must not silently re-classify the committed capture");
+  if (out.state === "PRESEASON") assert.equal(out.results.length, 0);
 });
 
 test("NOT_CONFIGURED when no artifact — the adapter says so instead of inventing an empty slate", () => {

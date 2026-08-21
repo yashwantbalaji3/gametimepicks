@@ -6,7 +6,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { cronMatches, expectedSlots, missedSlots, windowFloor } from "./cron-slots.mjs";
+import { cronMatches, expectedSlots, failureStreak, missedSlots, windowFloor } from "./cron-slots.mjs";
 
 const at = (iso) => new Date(iso);
 const ms = (iso) => Date.parse(iso);
@@ -88,4 +88,41 @@ test("A SLOT BEFORE THE WORKFLOW EXISTED IS NOT A MISS", () => {
 test("an undateable workflow does not get an invented floor", () => {
   const from = ms("2026-08-10T00:00:00Z");
   for (const bad of [NaN, null, undefined]) assert.equal(windowFloor(from, bad), from);
+});
+
+/* ── FIRING IS NOT THE SAME AS WORKING ──────────────────────────────────────────────────────────
+ *
+ * The watchdog knew whether a slot fired and nothing else, so nfl-event-window could fail three
+ * consecutive daily runs and still be reported `OK`. These pin the other half of the question.
+ */
+
+test("a run that fired and FAILED is not a healthy slot", () => {
+  const streak = failureStreak([
+    { at: "2026-08-21T21:23:06Z", conclusion: "failure" },
+    { at: "2026-08-21T15:39:02Z", conclusion: "failure" },
+    { at: "2026-08-21T15:05:03Z", conclusion: "failure" },
+    { at: "2026-08-20T21:26:10Z", conclusion: "success" },
+  ]);
+  assert.equal(streak, 3, "three consecutive failures must count as three, not as three healthy runs");
+});
+
+test("the streak counts back from the NEWEST run and stops at the first non-failure", () => {
+  // A workflow that failed yesterday and succeeded today is recovered, not failing.
+  assert.equal(failureStreak([{ conclusion: "success" }, { conclusion: "failure" }, { conclusion: "failure" }]), 0);
+});
+
+test("a timeout is a failure — the job did not do its work", () => {
+  assert.equal(failureStreak([{ conclusion: "timed_out" }, { conclusion: "success" }]), 1);
+});
+
+test("a CANCELLED run breaks the streak instead of extending it", () => {
+  // An operator cancelling a run is a person doing something deliberate, not evidence of a defect.
+  // Counting it as a failure would page someone for their own click.
+  assert.equal(failureStreak([{ conclusion: "cancelled" }, { conclusion: "failure" }]), 0);
+  assert.equal(failureStreak([{ conclusion: "skipped" }]), 0);
+});
+
+test("no completed runs is not a failure — absence of evidence is not evidence of breakage", () => {
+  assert.equal(failureStreak([]), 0);
+  assert.equal(failureStreak(undefined), 0);
 });

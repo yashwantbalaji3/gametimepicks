@@ -50,11 +50,40 @@ function realSnapshot() {
   const p = path.join(APP, "public/data/soccer/epl/odds/latest.json");
   return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, "utf8")) : null;
 }
-function realFixture(snap) {
+/**
+ * A priced fixture must be one that has NOT KICKED OFF at the clock we evaluate it on.
+ *
+ * This used to take the first season row the capture mentioned, which was fine until a capture landed
+ * 42 minutes before kickoff: the first matched fixture was Arsenal v Coventry at 19:00, the clock was
+ * capturedAt + 1h = 19:18, and the engine correctly answered REFUSED_POST_START. The test read that
+ * refusal as a pricing failure. It was the opposite — pre-event pricing is undefined for a match in
+ * progress, and refusing it is the behaviour we want.
+ *
+ * So the fixture is chosen BY the clock rather than by file order: the earliest one still upcoming.
+ * Earliest, not arbitrary, so the case exercised is the tightest real one rather than a fixture a
+ * fortnight out where every window is trivially satisfied.
+ */
+function realFixture(snap, nowIso) {
   const capFile = fs.readdirSync(path.join(APP, "public/data/soccer/epl/fixtures")).find((f) => f.startsWith("capture-"));
   const season = JSON.parse(fs.readFileSync(path.join(APP, "public/data/soccer/epl/fixtures", capFile), "utf8"));
   const ids = new Set((snap.rows ?? []).map((r) => r.eventId));
-  return season.rows.find((r) => ids.has(r.eventId)) ?? null;
+  const t = Date.parse(nowIso);
+  return (season.rows ?? [])
+    .filter((r) => ids.has(r.eventId) && Date.parse(r.kickoffIso) > t)
+    .sort((a, b) => Date.parse(a.kickoffIso) - Date.parse(b.kickoffIso))[0] ?? null;
+}
+
+/** One hour past the capture — old enough that freshness can never be the explanation for a refusal. */
+const evalClock = (snap) => new Date(Date.parse(snap.capturedAt) + 3600_000).toISOString();
+
+/** The whole real path in one place: real bytes, real fixture, real clock. Null when nothing is priceable. */
+function priceRealFixture() {
+  const snap = realSnapshot();
+  if (!snap?.rows?.length) return null;               // no capture committed yet
+  const now = evalClock(snap);
+  const fixture = realFixture(snap, now);
+  if (!fixture) return null;                          // every priced fixture has already started
+  return { snap, fixture, out: runEplShadow({ fixture, nowIso: now, strengthState: state, oddsSnapshot: snap }) };
 }
 
 test("the committed capture shape is NOT discarded — the exact bug", () => {
@@ -65,31 +94,27 @@ test("the committed capture shape is NOT discarded — the exact bug", () => {
 });
 
 test("REAL committed odds price a REAL fixture end to end", () => {
-  const snap = realSnapshot();
-  if (!snap?.rows?.length) return; // no capture committed yet — nothing to assert against
-  const fixture = realFixture(snap);
-  if (!fixture) return;
-  const now = new Date(Date.parse(snap.capturedAt) + 3600_000).toISOString();
-  const out = runEplShadow({ fixture, nowIso: now, strengthState: state, oddsSnapshot: snap });
-  assert.equal(out.state, "CURRENT_PRE_EVENT", `real capture did not price: ${out.reason ?? out.rule}`);
-  assert.ok(out.artifact?.market?.bookmakers?.length > 0, "the de-vigged market must reach the artifact");
+  const real = priceRealFixture();
+  if (!real) return;
+  assert.equal(real.out.state, "CURRENT_PRE_EVENT", `real capture did not price: ${real.out.reason ?? real.out.rule}`);
+  assert.ok(real.out.artifact?.market?.bookmakers?.length > 0, "the de-vigged market must reach the artifact");
 });
 
 test("a consensus is NEVER reported as a bookmaker that posted a price", () => {
-  const snap = realSnapshot(); if (!snap?.rows?.length) return;
-  const fixture = realFixture(snap); if (!fixture) return;
-  const out = runEplShadow({ fixture, nowIso: new Date(Date.parse(snap.capturedAt) + 3600_000).toISOString(), strengthState: state, oddsSnapshot: snap });
-  const src = out.artifact.market.bookmakers[0];
+  const real = priceRealFixture();
+  if (!real) return;
+  const src = real.out.artifact.market.bookmakers[0];
   assert.match(src.bookmaker, /consensus/i, "a median across books must be labelled as such");
-  assert.match(src.bookmaker, /11/, "the book count belongs in the label, not just a bare 'consensus'");
+  // The COUNT must be there, not the specific number — how many books post a given fixture varies
+  // by fixture and by capture, and pinning "11" would make an ordinary market change look like a bug.
+  assert.match(src.bookmaker, /\d+/, "the book count belongs in the label, not just a bare 'consensus'");
 });
 
 test("the RAW price is de-vigged here — never the capture's already-de-vigged figure", () => {
   // Taking noVig as input would de-vig twice and quietly shrink the favourite.
-  const snap = realSnapshot(); if (!snap?.rows?.length) return;
-  const fixture = realFixture(snap); if (!fixture) return;
-  const out = runEplShadow({ fixture, nowIso: new Date(Date.parse(snap.capturedAt) + 3600_000).toISOString(), strengthState: state, oddsSnapshot: snap });
-  const { impliedSum, noVig } = out.artifact.market.bookmakers[0];
+  const real = priceRealFixture();
+  if (!real) return;
+  const { impliedSum, noVig } = real.out.artifact.market.bookmakers[0];
   assert.ok(impliedSum > 1.02 && impliedSum < 1.15, `vig must be visible before removal, got ${impliedSum}`);
   const total = noVig.reduce((n, o) => n + o.prob, 0);
   assert.ok(Math.abs(total - 1) < 1e-5, `de-vigged outcomes must sum to 1, got ${total}`);

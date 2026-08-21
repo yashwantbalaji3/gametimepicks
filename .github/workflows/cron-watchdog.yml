@@ -185,6 +185,21 @@ jobs:
           if [ "$MISSED" != "0" ]; then
             echo "::notice::cron-slot watchdog: $MISSED missed slot(s) — see $OUT (report-only; not paging yet)"
           fi
+          # A workflow that FIRES AND FAILS is not a quiet week. nfl-event-window failed all three of
+          # its daily slots on 2026-08-21 while this watchdog reported OK, because it only ever asked
+          # whether a run existed. This surfaces the other half at WARNING, above a missed slot: a
+          # slot that never fired may simply have had nothing to do, whereas a run that crashed had
+          # work and did not do it.
+          FAILING="$(node -e "try{console.log(require('./$OUT').failingTotal)}catch{console.log(0)}")"
+          if [ "$FAILING" != "0" ]; then
+            echo "::warning::cron-slot watchdog: $FAILING workflow(s) fired and FAILED their most recent run(s) — see $OUT"
+            node -e "
+              const r = require('./$OUT');
+              for (const [s, v] of Object.entries(r.sports ?? {}))
+                if (v && v.consecutiveFailures > 0)
+                  console.log('::warning::' + s + ' (' + v.workflow + '): last ' + v.consecutiveFailures + ' run(s) ' + v.lastConclusion);
+            " || true
+          fi
 
       - name: Commit the coverage report
         continue-on-error: true

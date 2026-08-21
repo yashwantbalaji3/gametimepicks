@@ -37,6 +37,7 @@ import TeamLogo from "@/components/team-logo";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { currentEtDate } from "@/lib/freshness";
 import { getSportIdentity } from "@/lib/sport-identity";
+import { deriveSlateAnchor } from "@/lib/sports/nfl/slate-anchor.mjs";
 import { seasonContextFor } from "@/lib/sports/nfl/season-context.mjs";
 
 export const metadata: Metadata = {
@@ -174,8 +175,9 @@ export default function NflHubPage() {
   const allScheduled: ScheduleRow[] = ((schedule?.rows ?? []) as ScheduleRow[])
     .filter((r) => r.statusRaw === "STATUS_SCHEDULED")
     .sort((a, b) => a.dateUtc.localeCompare(b.dateUtc));
-  const anchorUtc: string | null = index?.nextKickoffUtc ?? allScheduled[0]?.dateUtc ?? null;
-  const slateDay = anchorUtc ? etDay(anchorUtc) : null;
+  // The anchor rule lives in ONE place — see lib/sports/nfl/slate-anchor.mjs for why the guard must
+  // call the same function rather than keeping its own copy of the expression.
+  const { anchorUtc, slateDay } = deriveSlateAnchor(index, allScheduled);
   const slateGames = slateDay ? allScheduled.filter((r) => etDay(r.dateUtc) === slateDay) : [];
   const laterGames = slateDay ? allScheduled.filter((r) => etDay(r.dateUtc) > slateDay).slice(0, 9) : allScheduled.slice(0, 9);
   const simulatedOnSlate = slateGames.filter((g) => eventById.get(g.providerEventId)?.projectedScore).length;

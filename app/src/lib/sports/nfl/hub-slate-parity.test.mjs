@@ -18,14 +18,32 @@ const card = fs.readFileSync(path.join(APP, "src/components/event-card.tsx"), "u
 /** The hub with its own commentary stripped — a comment explaining a removed sentence must not
  *  itself trip the guard that checks the sentence is gone. */
 const hubProse = hub.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+const anchorSrc = fs.readFileSync(path.join(APP, "src/lib/sports/nfl/slate-anchor.mjs"), "utf8");
 const index = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/index.json"), "utf8"));
 const schedule = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/schedule/latest.json"), "utf8"));
 
-const etDay = (iso) =>
-  new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+/*
+ * The slate day comes from the SAME function the page calls.
+ *
+ * This guard used to compute `etDay(index.nextKickoffUtc)` in its own copy of the expression. When
+ * a failing nfl-event-window froze the index a day behind the schedule, the page rendered an empty
+ * slate and the guard reproduced the identical mistake — then reported it as "the derived slate day
+ * must contain at least one game", which names a symptom and not one word of the cause.
+ *
+ * Two copies of a rule are two chances to be wrong together. There is now one copy, in
+ * lib/sports/nfl/slate-anchor.mjs, and this file exercises it rather than restating it.
+ */
+import { deriveSlateAnchor, etDay } from "./slate-anchor.mjs";
 
 test("the slate day is DERIVED from the canonical index, never pinned", () => {
-  assert.match(hub, /index\?\.nextKickoffUtc/, "the anchor is the index's own next kickoff");
+  // The derivation moved into slate-anchor.mjs so the page and this guard share one copy of the
+  // rule. That means the claim has to be checked WHERE IT NOW LIVES: the hub must delegate, and the
+  // module it delegates to must be the thing reading the index. Asserting only that the hub calls
+  // some function would pass no matter what that function did.
+  assert.match(hub, /deriveSlateAnchor\(index, allScheduled\)/, "the hub delegates to the one anchor rule");
+  assert.match(anchorSrc, /index\?\.nextKickoffUtc/, "the anchor is the index's own next kickoff");
+  const anchorPinned = anchorSrc.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "").match(/\b20\d\d-\d\d-\d\d\b/g) ?? [];
+  assert.deepEqual(anchorPinned, [], `the anchor rule must not pin a date, found ${anchorPinned.join(", ")}`);
   // No hard-coded calendar day anywhere in the hub's CODE. Scanned against the comment-stripped
   // copy for the same reason it exists two assertions below: a comment recording the date of an
   // incident is documentation, not a pinned slate, and tripping on it teaches the next author to
@@ -36,9 +54,21 @@ test("the slate day is DERIVED from the canonical index, never pinned", () => {
 });
 
 test("EVERY game on the derived slate day renders, and every simulated one opens a full report", () => {
-  const slateDay = etDay(index.nextKickoffUtc);
-  const slate = schedule.rows.filter((r) => r.statusRaw === "STATUS_SCHEDULED" && etDay(r.dateUtc) === slateDay);
-  assert.ok(slate.length > 0, `the derived slate day ${slateDay} must contain at least one game`);
+  const scheduled = schedule.rows
+    .filter((r) => r.statusRaw === "STATUS_SCHEDULED")
+    .sort((a, b) => a.dateUtc.localeCompare(b.dateUtc));
+  const { slateDay, source } = deriveSlateAnchor(index, scheduled);
+  const slate = scheduled.filter((r) => etDay(r.dateUtc) === slateDay);
+  // The claim is about the RULE, not about today's calendar: whatever day the rule selects, the
+  // schedule must actually have games on it. That is exactly what an anchor is for, and it is the
+  // assertion that the stale index broke. Its only honest exemption is a schedule with nothing in
+  // it at all — an off-season capture is not a defect, and the state is named rather than assumed.
+  if (scheduled.length === 0) {
+    assert.equal(source, "NONE", "an empty schedule must resolve to NONE, never to a confident day");
+    return;
+  }
+  assert.notEqual(source, "INDEX_UNCORROBORATED", "a day no scheduled game corroborates must never be the slate");
+  assert.ok(slate.length > 0, `the rule selected ${slateDay} (via ${source}) and no game is scheduled on it`);
 
   const eventIds = new Set(index.events.map((e) => e.providerEventId));
   const simulated = slate.filter((g) => eventIds.has(g.providerEventId));

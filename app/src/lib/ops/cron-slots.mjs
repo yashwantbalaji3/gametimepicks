@@ -92,3 +92,28 @@ export function missedSlots(slots, runStartMs, { nowMs, toleranceMs = 2 * 3600_0
 export function windowFloor(fromMs, createdMs) {
   return Number.isFinite(createdMs) ? Math.max(fromMs, createdMs) : fromMs;
 }
+
+/**
+ * How many of the most recent COMPLETED runs failed, counting back from the newest until one did not.
+ *
+ * This lives beside the slot arithmetic because it answers the other half of the same question. A
+ * slot can be missed (nothing fired) or served-and-broken (something fired and crashed), and a
+ * watchdog that only knows the first will report `OK` through an outage — which is exactly what
+ * happened to nfl-event-window on 2026-08-21: three slots fired, three runs failed, state OK, and
+ * the public hub spent a day anchored to a stale index.
+ *
+ * `cancelled` and `skipped` BREAK the streak rather than extending it. Neither is evidence the
+ * workflow is broken, and counting an operator's cancellation as a failure would alert on a human
+ * doing something deliberate.
+ *
+ * Expects newest-first. Entries without a `conclusion` (still running) must be filtered out by the
+ * caller — an unfinished run is neither a success nor a failure and must not end the streak either.
+ */
+export function failureStreak(outcomes) {
+  let n = 0;
+  for (const o of outcomes ?? []) {
+    if (o?.conclusion === "failure" || o?.conclusion === "timed_out") n += 1;
+    else break;
+  }
+  return n;
+}

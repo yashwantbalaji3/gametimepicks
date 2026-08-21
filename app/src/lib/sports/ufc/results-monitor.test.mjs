@@ -47,15 +47,34 @@ test("regression, window mechanics, and reschedule classify as in the NFL monito
   for (const c of out.changes) assert.ok(UFC_MONITOR_CLASSES.includes(c.class));
 });
 
-test("REAL CAPTURE · tonight's five finals read as exactly five BECAME_FINAL from the committed artifact", () => {
+/*
+ * REAL CAPTURE — the monitor is exercised against the bytes on disk, not a hand-rolled shape.
+ *
+ * This pinned card 600060732 and the number five. Both rotted the moment the capture refreshed: the
+ * Contender Series card advanced to 600060733 and the pinned id vanished from the artifact, so the
+ * synthetic prior was identical to the current capture, zero transitions were produced, and the test
+ * reported the monitor as broken when the monitor had not been touched.
+ *
+ * A magic count is the same trap one step later — `>= 17` says nothing about the monitor and
+ * everything about which cards happened to be in the last capture.
+ *
+ * So the card and the count are now DERIVED from the artifact: rewind whichever real card has the
+ * fewest finals, then require exactly that many transitions back. The claim under test is unchanged
+ * and stronger for being stated in terms of the data rather than in terms of one Friday night.
+ */
+test("REAL CAPTURE · rewinding one real card's finals reads back as exactly that many BECAME_FINAL", () => {
   const current = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", "results", "latest.json"), "utf8"));
   const finals = current.rows.filter((r) => /^STATUS_FINAL/.test(r.statusRaw ?? ""));
-  assert.ok(finals.length >= 17, "the committed post-card capture holds tonight's finals");
-  // Synthetic prior: the five Contender Series bouts (card 600060732) still scheduled, winners unset.
-  const CARD = "600060732";
+  assert.ok(finals.length > 0, "the committed capture must hold at least one settled bout to monitor");
+
+  // Smallest real card, so the rewind is a genuine subset and the rest of the capture stays untouched.
+  const byCard = new Map();
+  for (const r of finals) byCard.set(r.providerCardId, (byCard.get(r.providerCardId) ?? 0) + 1);
+  const [CARD, expected] = [...byCard.entries()].sort((a, b) => a[1] - b[1] || String(a[0]).localeCompare(String(b[0])))[0];
+
   const prior = { ...current, rows: current.rows.map((r) => r.providerCardId === CARD ? { ...r, statusRaw: "STATUS_SCHEDULED", redWinner: false, blueWinner: false } : r) };
   const out = monitorUfcResults(prior, current);
-  assert.equal(out.counts.BECAME_FINAL, 5, "the five real finals surface as transitions");
+  assert.equal(out.counts.BECAME_FINAL, expected, `card ${CARD}: ${expected} rewound finals must surface as ${expected} transitions`);
   assert.equal(out.counts.OVERTURNED_RESULT, 0, "reality has supplied no overturn — the monitor must not invent one");
   assert.equal(out.reviewRequired.length, 0);
 });

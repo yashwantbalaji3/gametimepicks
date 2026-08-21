@@ -9,6 +9,13 @@
  * no run attributable to it is reported; a slot that produced nothing is not, because a quiet week
  * is not an outage. See lib/ops/cron-slots.mjs for why this watches runs and not artifacts.
  *
+ * IT ALSO WATCHES WHETHER THE RUN WORKED. Firing and failing is not a quiet week, and reporting it
+ * as OK is the failure mode this project keeps rediscovering: on 2026-08-21 nfl-event-window failed
+ * all three of its daily slots, the NFL index went a full day stale, the public hub derived its slate
+ * day from that stale anchor and rendered a day with no games in it — and this watchdog said
+ * `nfl: OK`, because three runs had fired and it never looked at how they ended. The conclusion was
+ * one field away in the same API call.
+ *
  * Exit 0 always. This reports; the caller decides whether a miss is worth alerting on, and a
  * watchdog that can fail the run it watches is its own outage.
  */
@@ -17,7 +24,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { expectedSlots, missedSlots, windowFloor } from "../../src/lib/ops/cron-slots.mjs";
+import { expectedSlots, failureStreak, missedSlots, windowFloor } from "../../src/lib/ops/cron-slots.mjs";
 import { SPORT_OWNERS } from "../../src/lib/sports/sport-owners.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -45,17 +52,36 @@ function createdAtFor(wf) {
   } catch { return NaN; }
 }
 
-/** Run start times for a workflow, epoch ms. An unreachable gh is UNKNOWN, never "no runs". */
+/**
+ * Runs for a workflow: start times for slot attribution, plus how each one ENDED.
+ *
+ * `times` deliberately includes failed runs — a run that fired and crashed still occupied its slot,
+ * and counting it as missed would blame the scheduler for a code defect. Whether it worked is a
+ * separate question, answered by `outcomes`.
+ *
+ * An unreachable gh is UNKNOWN, never "no runs".
+ */
 function runsFor(wf) {
   try {
-    const out = execFileSync("gh", ["run", "list", "--workflow", wf, "--limit", "100", "--json", "createdAt"], { cwd: REPO, encoding: "utf8" });
-    return { ok: true, times: JSON.parse(out).map((r) => Date.parse(r.createdAt)).filter(Number.isFinite) };
+    const out = execFileSync("gh", ["run", "list", "--workflow", wf, "--limit", "100", "--json", "createdAt,status,conclusion"], { cwd: REPO, encoding: "utf8" });
+    const rows = JSON.parse(out);
+    return {
+      ok: true,
+      times: rows.map((r) => Date.parse(r.createdAt)).filter(Number.isFinite),
+      // Completed runs only, newest first. An in-progress run has no verdict yet and must not be
+      // read as either a success or a failure.
+      outcomes: rows
+        .filter((r) => r.status === "completed" && Number.isFinite(Date.parse(r.createdAt)))
+        .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+        .map((r) => ({ at: r.createdAt, conclusion: r.conclusion })),
+    };
   } catch (e) {
-    return { ok: false, times: [], reason: String(e.message ?? e).slice(0, 120) };
+    return { ok: false, times: [], outcomes: [], reason: String(e.message ?? e).slice(0, 120) };
   }
 }
 
-const report = { kind: "cron-slot-watchdog", generatedAt: NOW, lookbackHours: LOOKBACK_H, sports: {}, missedTotal: 0, unknown: [] };
+
+const report = { kind: "cron-slot-watchdog", generatedAt: NOW, lookbackHours: LOOKBACK_H, sports: {}, missedTotal: 0, failingTotal: 0, unknown: [] };
 
 for (const [sport, owner] of Object.entries(SPORT_OWNERS)) {
   if (!owner.primary) { report.sports[sport] = { skipped: true, reason: owner.unownedReason ?? "no primary owner" }; continue; }
@@ -75,13 +101,28 @@ for (const [sport, owner] of Object.entries(SPORT_OWNERS)) {
     continue;
   }
   const missed = missedSlots(slots, runs.times, { nowMs });
+  const outcomes = runs.outcomes ?? [];
+  const consecutiveFailures = failureStreak(outcomes);
+  const lastConclusion = outcomes[0]?.conclusion ?? null;
+
+  /*
+   * WORST-OF, and both facts are always carried.
+   *
+   * A workflow can be missing slots AND failing the ones it fires; collapsing that into one word
+   * loses half the diagnosis, so `state` names the worse condition while `missed` and
+   * `consecutiveFailures` stay readable side by side. MISSED outranks FAILING because a job that
+   * never started cannot be diagnosed from its own logs.
+   */
+  const state = missed.length ? "MISSED" : consecutiveFailures > 0 ? "FAILING" : "OK";
   report.sports[sport] = {
     workflow: owner.primary, crons, createdAt: Number.isFinite(createdMs) ? new Date(createdMs).toISOString() : null,
     expected: slots.length, ran: runs.times.length,
     missed: missed.map((t) => new Date(t).toISOString()),
-    state: missed.length ? "MISSED" : "OK",
+    lastConclusion, consecutiveFailures,
+    state,
   };
   report.missedTotal += missed.length;
+  if (consecutiveFailures > 0) report.failingTotal += 1;
 }
 
 const out = arg("--json");
@@ -90,6 +131,7 @@ if (out) { fs.mkdirSync(path.dirname(out), { recursive: true }); fs.writeFileSyn
 for (const [sport, r] of Object.entries(report.sports)) {
   if (r.skipped) { console.log(`${sport.padEnd(4)} skipped — ${r.reason}`); continue; }
   if (r.state === "UNKNOWN") { console.log(`${sport.padEnd(4)} UNKNOWN — could not read runs (${r.reason})`); continue; }
-  console.log(`${sport.padEnd(4)} ${r.state.padEnd(6)} ${r.expected} expected slot(s), ${r.ran} run(s)${r.missed.length ? ` · MISSED ${r.missed.join(", ")}` : ""}`);
+  const fail = r.consecutiveFailures > 0 ? ` · LAST ${r.consecutiveFailures} RUN(S) ${String(r.lastConclusion).toUpperCase()}` : "";
+  console.log(`${sport.padEnd(4)} ${r.state.padEnd(7)} ${r.expected} expected slot(s), ${r.ran} run(s)${r.missed.length ? ` · MISSED ${r.missed.join(", ")}` : ""}${fail}`);
 }
-console.log(`\n${report.missedTotal} missed slot(s) across ${Object.keys(report.sports).length} sport(s)${report.unknown.length ? ` · ${report.unknown.length} unknown` : ""}`);
+console.log(`\n${report.missedTotal} missed slot(s) · ${report.failingTotal} failing workflow(s) across ${Object.keys(report.sports).length} sport(s)${report.unknown.length ? ` · ${report.unknown.length} unknown` : ""}`);
