@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-assists-cards-model-v1-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "public": false,
+  "registeredAt": "2026-08-21T09:45:00Z",
+  "purpose": "Fix the acceptance bars for ASSISTS and CARDS before either is modelled. Committed alone, as with every model measured on this repository.",
+
+  "targets": [
+    { "id": "assists_over_0_5", "market": "player assists", "definition": "did this player register one or more assists", "field": "assists", "line": 0.5 },
+    { "id": "cards_over_0_5", "market": "player to be carded", "definition": "did this player receive one or more cards, yellow or red", "field": "cards", "derivedFrom": ["yellow", "red"], "line": 0.5 }
+  ],
+  "whyTheseLines": "Over 0.5 for both, from DESIGN DATA ONLY (2022-23 + 2023-24 appearances). Any longer line is empty: assists over 1.5 occurs 0.48% of the time and cards over 1.5 0.19%, because a second yellow IS a red and the player leaves the pitch. Base rates at the chosen line are 6.75% for assists and 13.44% for cards.",
+
+  "independence": "Judged SEPARATELY against identical bars, both verdicts recorded whichever way they fall — as with shots, where one target passed and the other did not.",
+
+  "expectationsStatedUPFRONT": "Both of these are expected to be HARDER than shots on goal, and saying so before the run matters more than saying it after. Assists depend on what a teammate does with the pass and are notoriously low-repeatability at the player level. Cards depend heavily on the referee and the state of the match, and this model has neither: no referee assignment, no scoreline, no match context. In both cases the POSITIONAL baseline is already strong — assists run 0.39% for keepers against 12.63% for forwards, and cards 6.83% for substitutes against 18.28% for midfielders — so there may be little room left for player-specific history to add anything. A rejection here would be an ordinary outcome, not a surprise.",
+
+  "population": {
+    "rule": "every player who APPEARED — started or came off the bench",
+    "honestLimitation": "Conditions on participation; does not predict whether a player will play."
+  },
+
+  "corpus": { "file": "data/internal/research/epl/players/espn-players-v1.jsonl", "fixtures": 1520 },
+
+  "protocol": {
+    "walkForward": "by match date; rates fitted STRICTLY on earlier-dated matches",
+    "warmup": { "season": "2022-23", "rule": "folds into the rates, NEVER scored" },
+    "development": { "seasons": ["2023-24", "2024-25"], "use": "ALL hyperparameter search happens here and nowhere else" },
+    "holdout": { "season": "2025-26", "use": "scored ONCE, after the configuration is locked" },
+    "holdoutDisclosure": "2025-26 has now been scored twice — once under the voided goalscorer v1 run, and once for shots and shots on goal. Those were DIFFERENT targets; no assists or cards hyperparameter has ever touched it and no assist or card outcome from it has been observed. This is the third look at that season for a third pair of targets, and it is disclosed rather than glossed so the reader can weigh it. It is also the last: after this, a new target needs a new season, not another pass over the same one."
+  },
+
+  "model": {
+    "form": "a shrunk per-appearance rate for the player's participation state, converted to P(count > line)",
+    "shrinkage": "Bayesian pseudo-count k toward the positional rate for the same state",
+    "distributionNote": "Poisson and negative binomial are both in the grid for consistency with the shots protocol, with one recorded consequence: CARDS ARE UNDERDISPERSED in the design data (variance/mean 0.89, where Poisson requires 1.0), so the negative binomial has no positive method-of-moments solution and the implementation falls back to Poisson. The two grid arms therefore coincide for cards. That is stated rather than hidden, and it is the correct behaviour — an underdispersed count has no negative-binomial fit to find."
+  },
+
+  "baselines": [
+    { "id": "positional", "definition": "the league base rate for (position group x participation state), fitted on prior matches only" },
+    { "id": "player_raw", "definition": "the player's unshrunk historical rate, positional as fallback" }
+  ],
+
+  "primaryMetric": "log loss on the binary over/under outcome",
+  "secondaryMetrics": ["Brier score", "expected calibration error over 10 bins", "predicted vs observed count clearing the line", "coverage"],
+
+  "acceptanceBars": {
+    "note": "IDENTICAL to the goalscorer and shots bars. Not softened because these markets are expected to be harder — that is exactly when a bar is doing its job.",
+    "bars": [
+      { "id": "A1_beats_positional", "statement": "model HOLDOUT log loss must be lower than the positional baseline's by at least 0.005" },
+      { "id": "A2_shrinkage_earns_it", "statement": "model HOLDOUT log loss must be lower than or equal to the raw-player baseline's" },
+      { "id": "A3_calibrated", "statement": "model HOLDOUT expected calibration error must be at most 0.020" },
+      { "id": "A4_count_sane", "statement": "summed predicted probabilities must land within 10% of the observed number clearing the line" },
+      { "id": "A5_no_abstention_gaming", "statement": "the model must produce a probability for at least 95% of the appeared population" }
+    ]
+  },
+
+  "stoppingRule": {
+    "statement": "ONE sweep over the declared grid per target, on DEVELOPMENT only. A target clearing all five bars publishes; a target that does not is REJECTED, stays unpublished, and is not re-specified on this corpus.",
+    "grid": { "k": [1, 2, 4, 8, 16, 32], "distribution": ["poisson", "negbin"] }
+  },
+
+  "whatPassingDoesNotMean": [
+    "It does not mean the model beats a sportsbook price. No player-prop odds are ingested.",
+    "For cards specifically, it would not mean the model understands refereeing — it has no referee input at all.",
+    "It does not answer whether a player will play."
+  ]
+}
