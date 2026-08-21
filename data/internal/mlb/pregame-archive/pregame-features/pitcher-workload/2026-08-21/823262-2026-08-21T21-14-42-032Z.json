@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823262,
+  "date": "2026-08-21",
+  "capturedAt": "2026-08-21T21:14:42.032Z",
+  "availableAt": "2026-08-21T21:14:42.032Z",
+  "eventStartTime": "2026-08-22T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 687570,
+      "name": "Connor Prielipp",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 5.8,
+        "bbAvg": 2.6,
+        "erAvg": 3.6,
+        "hrAvg": 1.2,
+        "kPer9": 10.04,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 87.67,
+        "k": 94,
+        "bb": 36,
+        "er": 52,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-21&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-21T21:14:42.032Z"
+  },
+  "recordHash": "9e6b5888ba09033e83145146fd8916c7994884c2eb3063e4f7ee00f2d3677f83"
+}

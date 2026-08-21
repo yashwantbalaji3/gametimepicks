@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824152,
+  "date": "2026-08-21",
+  "capturedAt": "2026-08-21T21:14:42.032Z",
+  "availableAt": "2026-08-21T21:14:42.032Z",
+  "eventStartTime": "2026-08-22T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669713,
+      "name": "Hayden Wesneski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 6,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 4,
+        "ipSum": 22.67,
+        "ipAvg": 5.67,
+        "kAvg": 4.5,
+        "bbAvg": 1.75,
+        "erAvg": 3.25,
+        "hrAvg": 0.5,
+        "kPer9": 7.15,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 22.67,
+        "k": 18,
+        "bb": 7,
+        "er": 13,
+        "hr": 2
+      }
+    },
+    "away": {
+      "id": 669372,
+      "name": "J.T. Ginn",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 5.6,
+        "bbAvg": 2,
+        "erAvg": 3.2,
+        "hrAvg": 0.6,
+        "kPer9": 8.79,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 120.33,
+        "k": 110,
+        "bb": 51,
+        "er": 46,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-21&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-21T21:14:42.032Z"
+  },
+  "recordHash": "f65ddd688f2e699551b29d3da414d90fcf113cdc6c3d2a7f947f70037cb75188"
+}
