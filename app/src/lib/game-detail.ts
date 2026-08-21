@@ -33,6 +33,7 @@ import { buildGameIntelligence, type GameIntelligence } from "@/lib/markets/game
 import { resolveFreshnessReference } from "@/lib/markets/freshness";
 import { currentEtDate } from "@/lib/freshness";
 import { loadFullGameArtifact, type FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
+import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import { buildGamePredictionDecision, buildPlayerPrediction, type PlayerPickInput } from "@/lib/mlb/prediction/decision";
 import type { GamePredictionDecision, PlayerPrediction } from "@/lib/mlb/prediction/types";
@@ -104,6 +105,17 @@ export interface PublicGameDetail {
    * `status: "unavailable"` (well-formed) when no artifact/matching game. Null for non-MLB.
    */
   gameLabSimulation?: GameSimulationView | null;
+  /**
+   * The sport's own readiness verdict for THIS game, where the sport publishes one (NFL). `false` is
+   * BASELINE_ONLY: the artifact above is a real, reproducible run, but its team-level read is a shared
+   * prior rather than a measured separation between these two teams — so the game may be listed and
+   * labelled, never counted or featured as a game-specific simulation. Undefined where the sport draws
+   * no such distinction (MLB), leaving `gameLabSimulation.status` to stand alone.
+   *
+   * Declared here rather than only set through the NFL cast so the featured selector's check is a
+   * typed contract, not a property that happens to exist at runtime.
+   */
+  simulationReady?: boolean;
   /**
    * FULL-GAME simulation (Sprint 008, MLB only) — the true PA→base/out→inning Monte Carlo result: win
    * probability, score/total/run-line distributions, and the simulated box score, all from 10,000 complete
@@ -594,6 +606,17 @@ function nflDetails(): PublicGameDetail[] {
     return [];
   }
 
+  /*
+   * P179's verdict, read from the ONE place that derives it. `gameLabSimulation.status === "ready"`
+   * only ever meant "the artifact parsed"; whether this game's own inputs separated the two teams is
+   * a different question, answered by the forecast's `teamSignal` via the lobby's eligibility
+   * selector. Reading it here rather than re-deriving it is what stops the homepage and /simulate
+   * from disagreeing about the same game — they now share a source.
+   */
+  const nflReadyByMatchId = new Map<string, boolean>(
+    nflSimulateEligibility().events.map((e) => [`nfl-${e.providerEventId}`, e.simulationReady]),
+  );
+
   const out: PublicGameDetail[] = [];
   for (const file of dayFiles) {
     let art: { date?: string; modelVersion?: string; runCount?: number; generatedAt?: string; games?: Array<Record<string, unknown>> } | null = null;
@@ -632,6 +655,9 @@ function nflDetails(): PublicGameDetail[] {
         fullGameSimMeta: fg ? nflFullGame?.meta ?? null : null,
         sport: "nfl",
         sportLabel: "NFL",
+        // Absent from the eligible set (kicked off, or outside the lobby window) → no verdict to
+        // carry, and the artifact's own status stands. Fail-closed would hide finished games.
+        simulationReady: nflReadyByMatchId.get(String(d.matchId ?? "")) ?? undefined,
         gameLabSimulation: buildGameSimulationView(result, {
           modelVersion: String(art?.modelVersion ?? "nfl-preseason-public-beta-v1"),
           simulationVersion: 1,

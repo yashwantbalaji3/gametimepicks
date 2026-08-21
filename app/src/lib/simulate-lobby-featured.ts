@@ -5,9 +5,10 @@
  * deterministic short list of games to feature ABOVE the full games list. Rules (honest — nothing here
  * fabricates a simulation):
  *
- *   • Featurable = an MLB game with a genuine `gameLabSimulation.status === "ready"` run simulation, OR a World
- *     Cup game that has a real market-implied report (`wcGameCenter`/`gameLabWc` present). WC cards are
- *     labelled `mode: "market-implied"` and NEVER carry a run-count claim.
+ *   • Featurable = a game with a genuine `gameLabSimulation.status === "ready"` run simulation that the
+ *     sport has not itself flagged BASELINE_ONLY (`simulationReady === false`), OR a World Cup game that
+ *     has a real market-implied report (`wcGameCenter`/`gameLabWc` present). WC cards are labelled
+ *     `mode: "market-implied"` and NEVER carry a run-count claim.
  *   • RECENCY FIRST (the July-14 fix): when `today` is supplied, current/upcoming games (date >= today)
  *     are featured and stale games are DROPPED — a July-11 slate is never featured as "today's games"
  *     once the ET clock has passed it. Only when there is NO current/upcoming game do we fall back to the
@@ -51,6 +52,16 @@ export interface FeaturedDetailInput {
   gameLabWc?: unknown | null;
   /** MLB run-simulation view. */
   gameLabSimulation?: FeaturedSimView | null;
+  /**
+   * The sport's OWN verdict on whether this game's simulation is event-specific, when that sport
+   * publishes one. `false` means BASELINE_ONLY: a real, reproducible run whose team-level read is a
+   * shared prior rather than a measured separation between these two teams. Undefined means the
+   * sport makes no such distinction (MLB), and the artifact's `status` stands on its own.
+   *
+   * This exists because "an artifact parsed" and "this game was simulated" are different claims, and
+   * the featured row is a claim of the second kind.
+   */
+  simulationReady?: boolean | null;
 }
 
 export interface FeaturedSimulation {
@@ -122,8 +133,14 @@ export function featuredSimulations(details: readonly FeaturedDetailInput[], tod
 
   for (const d of details) {
     const sim = d.gameLabSimulation;
-    // MLB (or any) genuine ready simulation.
-    if (sim && sim.status === "ready" && sim.teams != null) {
+    // A genuine ready simulation — the artifact parsed AND, where the sport publishes a readiness
+    // verdict, that verdict says this game's own inputs moved the distribution. A sport that reports
+    // BASELINE_ONLY is excluded here rather than featured with a run-count label and a scoreline: on
+    // 2026-08-20 the two NFL preseason games were the top two cards on the homepage, badged
+    // "Simulation Ready" beside a specific projected score, while /simulate labelled the same two
+    // games "BASELINE ONLY". Both projected the identical scoreline, because that is the shared
+    // prior. They stay discoverable on /simulate and /nfl, where the label tells the truth.
+    if (sim && sim.status === "ready" && sim.teams != null && d.simulationReady !== false) {
       cards.push({
         slug: d.slug,
         href: `/games/${d.sport}/${d.slug}`,
