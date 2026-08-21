@@ -5,7 +5,8 @@
  * MLB-only, and the two halves fail differently:
  *
  *   · WATCHDOG — cron-watchdog.yml runs mlb-topup-classify.mjs. It notices a missed MLB primary and
- *     dispatches it. Nothing watches whether a UFC, NFL or EPL run happened at all.
+ *     dispatches it. P188 added the same for EPL, deriving matchday from the fixture capture rather
+ *     than the weekday. Nothing yet watches whether a UFC or NFL run happened at all.
  *   · ALERTING — now wired into every owning workflow. UFC and EPL had none at all; NFL had a
  *     hand-rolled curl that worked but sat outside the contract, with no redaction pass and its own
  *     message shape, so it moved onto the shared script rather than being left as a second thing to
@@ -32,7 +33,22 @@ export const MONITORING = Object.freeze({
   mlb: { workflow: "mlb-daily-production.yml", watched: true, alerted: true, gap: null },
   ufc: { workflow: "ufc-fight-week.yml", watched: false, alerted: true, gap: "alerted, but nothing watches whether the fight-week run happened at all" },
   nfl: { workflow: "nfl-event-window.yml", watched: false, alerted: true, gap: "alerted, but nothing watches whether the event-window run happened at all" },
-  epl: { workflow: "epl-matchweek.yml", watched: false, alerted: true, gap: "alerted, but nothing watches whether the matchweek run happened at all" },
+  /*
+   * P188: EPL became WATCHED. cron-watchdog.yml now derives matchday from the committed fixture
+   * capture, checks whether epl-matchweek ran, and dispatches + alerts when it did not — the
+   * lib/sports/epl/matchday-watch.mjs decision, guarded against fixtures rather than weekdays.
+   *
+   * `residualGap` is NOT `gap`. `gap` means "this sport can fail and nobody hears", which is no
+   * longer true. `residualGap` records what this coverage does not reach, so becoming watched cannot
+   * quietly read as becoming fully covered — the exact overstatement this registry exists to prevent.
+   */
+  epl: {
+    workflow: "epl-matchweek.yml",
+    watched: true,
+    alerted: true,
+    gap: null,
+    residualGap: "the watchdog's single 14:30 UTC slot catches a missed Friday opener with hours to spare, but cannot cover a cluster's EARLIEST kickoff when that kickoff precedes the slot (Saturday 11:30, Sunday 13:00). Full coverage needs a slot per cluster.",
+  },
 });
 
 export const MONITORED_SPORTS = Object.freeze(Object.keys(MONITORING));
@@ -43,7 +59,18 @@ export function isMonitored(sport) {
   return Boolean(m && m.watched && m.alerted);
 }
 
-/** Every sport whose chain can fail without anyone hearing, with the reason. */
+/**
+ * Every sport whose chain can fail without anyone hearing, with the reason. A sport with a
+ * `residualGap` is NOT listed here — it is watched; the residual is reported separately so partial
+ * coverage never masquerades as none, nor as complete.
+ */
 export function monitoringGaps() {
   return MONITORED_SPORTS.filter((s) => !isMonitored(s)).map((s) => ({ sport: s, gap: MONITORING[s].gap }));
+}
+
+/** Watched sports that still carry a stated limit — coverage that is real but not complete. */
+export function monitoringResiduals() {
+  return MONITORED_SPORTS
+    .filter((s) => isMonitored(s) && MONITORING[s].residualGap)
+    .map((s) => ({ sport: s, residualGap: MONITORING[s].residualGap }));
 }

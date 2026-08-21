@@ -176,15 +176,25 @@ jobs:
           # The forecast set is asserted alongside the odds: a run that captured prices and produced
           # no forecast is the exact failure this chain had before the builder existed, and it must
           # not pass silently just because the capture half worked.
-          # P188: the PUBLIC forecast artifact is asserted too. It was absent from this list while
-          # only the private research copy was checked — and the public copy is what every reader-
-          # facing surface reads: /epl, the nine per-fixture reports, and the Simulate hub's EPL
-          # card. A run that wrote the private half and not the public one would have reported
-          # success while the published product silently went stale.
-          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --allow-missing \
-            app/public/data/soccer/epl/odds/latest.json \
+          # SPLIT INTO TWO ASSERTIONS, because these artifacts have different obligations and a
+          # single call could only express the weakest of them.
+          #
+          # The forecasts MUST be written by every run. They were previously covered by
+          # --allow-missing, which meant a run that produced NO forecast at all would have passed
+          # this check — the precise failure the check exists to catch. No tolerance now.
+          # The public copy is asserted beside the private one: it is what /epl, the nine per-fixture
+          # reports and the Simulate hub actually read.
+          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" \
             data/internal/research/epl/forecasts/latest.json \
             app/public/data/soccer/epl/forecasts/latest.json
+
+          # The odds capture DEDUPLICATES inside a 60-minute window, so "not rewritten by this run"
+          # is its correct behaviour. On 2026-08-20 that legitimate skip failed the job — and because
+          # the assert then sat BEFORE the commit, nine forecasts the run had genuinely produced were
+          # discarded. The ordering is fixed; this fixes the classification. 90 minutes gives the
+          # 60-minute window slack for a long run without tolerating a capture that has stopped.
+          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --max-age-min 90 \
+            app/public/data/soccer/epl/odds/latest.json
 
       # Raised AFTER the commit, so a refusal reports loudly without costing the run its artifacts.
       - name: Raise a grading refusal

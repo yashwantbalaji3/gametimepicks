@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { MONITORING, MONITORED_SPORTS, WATCHDOG, ALERT_SCRIPT, isMonitored, monitoringGaps } from "./monitoring.mjs";
+import { MONITORING, MONITORED_SPORTS, WATCHDOG, ALERT_SCRIPT, isMonitored, monitoringGaps, monitoringResiduals } from "./monitoring.mjs";
 
 const REPO = path.join(process.cwd(), "..");
 const wf = (f) => fs.readFileSync(path.join(REPO, ".github/workflows", f), "utf8");
@@ -43,11 +43,31 @@ test("an uncovered sport must NAME its gap, never leave it blank", () => {
   }
 });
 
-test("the gaps are reported, and today only MLB is covered", () => {
-  // A FACT about today, and the point of the stage: three sports can fail silently. When a sport is
-  // wired, this list shrinks — and that shrinking is the evidence `monitoring` asks for.
+test("the gaps are reported, and the list shrinks as sports are wired", () => {
+  // A FACT about today. When a sport is wired, this list shrinks — and that shrinking is the
+  // evidence `monitoring` asks for. P188 wired EPL, so it left: cron-watchdog now derives EPL
+  // matchday from the fixture capture, checks whether the run happened, and dispatches when it
+  // did not. UFC and NFL still have nothing watching whether their runs happened at all.
   const gaps = monitoringGaps().map((g) => g.sport).sort();
-  assert.deepEqual(gaps, ["epl", "nfl", "ufc"], "uncovered sports must be exactly the ones lacking watchdog + alerting");
-  assert.ok(isMonitored("mlb"), "MLB is the covered chain");
-  for (const s of MONITORED_SPORTS) if (s !== "mlb") assert.equal(isMonitored(s), false, `${s} must not read as monitored`);
+  assert.deepEqual(gaps, ["nfl", "ufc"], "uncovered sports must be exactly the ones lacking watchdog + alerting");
+  assert.ok(isMonitored("mlb"), "MLB is a covered chain");
+  assert.ok(isMonitored("epl"), "EPL is a covered chain as of P188");
+  for (const s of ["nfl", "ufc"]) assert.equal(isMonitored(s), false, `${s} must not read as monitored`);
+});
+
+test("PARTIAL coverage must SAY so — being watched is not the same as being fully covered", () => {
+  /*
+   * The overstatement this guards: a sport flips `watched: true` and its entry becomes
+   * indistinguishable from MLB's, whose watchdog covers a daily primary. EPL's single 14:30 UTC slot
+   * genuinely catches a missed Friday opener and genuinely cannot cover a cluster's earliest kickoff
+   * when that kickoff precedes the slot. That limit is recorded rather than rounded away.
+   */
+  const residuals = monitoringResiduals().map((r) => r.sport);
+  assert.ok(residuals.includes("epl"), "EPL is watched but not completely covered, and must state it");
+  for (const r of monitoringResiduals()) {
+    assert.ok(r.residualGap.length > 40, `${r.sport}: a residual must describe what is NOT reached`);
+    assert.equal(MONITORING[r.sport].gap, null, `${r.sport}: a residual is not a gap — the sport IS watched`);
+  }
+  assert.deepEqual(monitoringResiduals().filter((r) => r.sport === "mlb"), [],
+    "MLB's daily watchdog carries no residual — it is not partial coverage");
 });

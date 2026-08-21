@@ -21,8 +21,15 @@
  *        app/public/data/parlays/risk-ladder/latest.json [more paths...]
  *
  * Options:
- *   --since <ISO>     the run's start; an artifact older than this was not produced by this run
- *   --allow-missing   report and exit 0 rather than failing (for a genuinely optional product)
+ *   --since <ISO>       the run's start; an artifact older than this was not produced by this run
+ *   --allow-missing     report and exit 0 rather than failing (for a genuinely optional product)
+ *   --max-age-min <N>   tolerate an artifact OLDER than the run start, provided it is younger than N
+ *                       minutes overall. For producers that DEDUPLICATE: the EPL odds capture refuses
+ *                       a duplicate request inside a 60-minute window, so "not rewritten by this run"
+ *                       is its correct behaviour, not a failure — while "not written for three days"
+ *                       still is. Without this the two are indistinguishable and the job goes red on
+ *                       a non-event, which is how a real alert stops being read. Use it ONLY for a
+ *                       deduplicating producer, and never for an artifact the run must always write.
  *
  * Freshness is read from the artifact's OWN `generatedAt` where it has one, and falls back to mtime.
  * The stamp is preferred deliberately: a file can be rewritten byte-identically by a job that did
@@ -39,7 +46,12 @@ const flag = (name) => {
 };
 const ALLOW_MISSING = argv.includes("--allow-missing");
 const SINCE = flag("--since");
-const paths = argv.filter((a, i) => !a.startsWith("--") && argv[i - 1] !== "--since");
+const MAX_AGE_MIN = flag("--max-age-min") ? Number(flag("--max-age-min")) : null;
+if (MAX_AGE_MIN != null && !(Number.isFinite(MAX_AGE_MIN) && MAX_AGE_MIN > 0)) {
+  console.error(`assert-run-produced: --max-age-min "${flag("--max-age-min")}" must be a positive number of minutes.`);
+  process.exit(2);
+}
+const paths = argv.filter((a, i) => !a.startsWith("--") && argv[i - 1] !== "--since" && argv[i - 1] !== "--max-age-min");
 
 if (!paths.length) {
   console.error("assert-run-produced: no artifact paths given — this guard would pass vacuously.");
@@ -77,8 +89,21 @@ for (const rel of paths) {
   if (!w) { failures.push(`${rel} — exists but its age cannot be read`); continue; }
 
   if (Number.isFinite(sinceMs) && w.at < sinceMs) {
-    const ageMin = ((sinceMs - w.at) / 60000).toFixed(1);
-    failures.push(`${rel} — last written ${ageMin} min BEFORE this run started (${w.source}); this run produced nothing`);
+    const ageMin = (Date.now() - w.at) / 60000;
+    /*
+     * A deduplicating producer legitimately leaves its artifact untouched. Tolerated ONLY when the
+     * artifact is still recent in absolute terms, so "skipped because it was fresh" passes and
+     * "nothing has written this in days" still fails.
+     */
+    if (MAX_AGE_MIN != null && ageMin <= MAX_AGE_MIN) {
+      console.log(`  ok ${rel} — not rewritten by this run, but ${ageMin.toFixed(1)} min old (within the ${MAX_AGE_MIN} min dedup window)`);
+      continue;
+    }
+    const beforeMin = ((sinceMs - w.at) / 60000).toFixed(1);
+    const why = MAX_AGE_MIN != null
+      ? `${ageMin.toFixed(1)} min old, past the ${MAX_AGE_MIN} min window — the producer is not running, not merely deduplicating`
+      : `this run produced nothing`;
+    failures.push(`${rel} — last written ${beforeMin} min BEFORE this run started (${w.source}); ${why}`);
     continue;
   }
   console.log(`  ok ${rel} — written ${new Date(w.at).toISOString()} (${w.source})`);

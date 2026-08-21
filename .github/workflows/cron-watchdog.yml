@@ -93,6 +93,68 @@ jobs:
           echo "::notice::cron-watchdog [${{ steps.decide.outputs.state }}] dispatched morning-projections"
           bash scripts/ops_alert.sh
 
+      # ── EPL matchday watch ───────────────────────────────────────────────────────────────────────
+      #
+      # The monitoring registry had EPL as `alerted: true, watched: false`, and its own gap text said
+      # "alerted, but nothing watches whether the matchweek run happened at all". Alerting covers a run
+      # that ran and broke; nothing covered a run that never started. GitHub crons are best-effort and
+      # a morning cron has already silently skipped in this repo's history — which is exactly why MLB
+      # has the watchdog above.
+      #
+      # EPL's stakes are concentrated rather than daily: a skipped run leaves the published forecast
+      # silently stale for a whole matchweek while every surface keeps rendering it confidently.
+      #
+      # This slot is 14:30 UTC and EPL's first cron is 14:00 UTC, so a missed Friday opener is caught
+      # 30 minutes later with hours to spare before a 19:00 kickoff. HONEST LIMIT: later clusters
+      # (Saturday 09:00, Sunday 10:00) are only caught by this slot if their kickoff is still more
+      # than the lead time away — full coverage would need a slot per cluster, and that is a follow-up
+      # rather than a claim made here.
+      #
+      # Matchday is DERIVED from the committed fixture capture, never from the weekday: a watchdog
+      # keyed to "it's Friday" goes quiet in precisely the weeks the schedule is unusual.
+      - name: EPL matchday watch
+        id: epl_watch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RAN_TODAY="$(gh run list --workflow=epl-matchweek --created "$(date -u +%F)" --json databaseId --jq 'length' || echo 0)"
+          export RAN_TODAY
+          node --input-type=module -e "
+            import fs from 'node:fs';
+            const { eplMatchdayWatch } = await import('./app/src/lib/sports/epl/matchday-watch.mjs');
+            const dir = 'app/public/data/soccer/epl/fixtures';
+            const cap = fs.readdirSync(dir).find((f) => f.startsWith('capture-') && f.endsWith('.json'));
+            const fixtures = cap ? (JSON.parse(fs.readFileSync(dir + '/' + cap, 'utf8')).rows ?? []) : [];
+            let gen = null;
+            try { gen = JSON.parse(fs.readFileSync('app/public/data/soccer/epl/forecasts/latest.json', 'utf8')).generatedAt ?? null; } catch {}
+            const out = eplMatchdayWatch({
+              fixtures,
+              nowIso: new Date().toISOString(),
+              ranToday: Number(process.env.RAN_TODAY || '0') > 0,
+              forecastGeneratedAt: gen,
+            });
+            console.log('epl-watch: ' + JSON.stringify(out));
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'state=' + out.state + '\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'dispatch=' + (out.shouldDispatch ? 'yes' : 'no') + '\n');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, 'reason=' + out.reason.replace(/[\r\n]+/g, ' ') + '\n');
+          "
+
+      - name: Dispatch the missed EPL matchweek and alert
+        if: steps.epl_watch.outputs.dispatch == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          OPS_ALERT_KIND: warning
+          PHASE: epl-matchday-watch
+          EXIT_STATUS: "0"
+          ERROR_LINE: "[${{ steps.epl_watch.outputs.state }}] ${{ steps.epl_watch.outputs.reason }}"
+        run: |
+          set -euo pipefail
+          gh workflow run epl-matchweek
+          echo "::notice::epl-matchday-watch [${{ steps.epl_watch.outputs.state }}] dispatched epl-matchweek"
+          bash scripts/ops_alert.sh
+
       # ── Cross-sport cron-slot check (UFC / NFL / EPL / MLB) ──────────────────────────────────────
       #
       # The step above recovers the MLB chain and knows nothing about the other sports. This one asks
