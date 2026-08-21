@@ -83,6 +83,28 @@ export function normalizeOddsEvent(raw, { sport, capturedAt, requestId }) {
       if (mkt.key !== "h2h") { quarantined.push({ providerEventId: raw.id, bookmaker: bk.key, reason: `market ${mkt.key} outside contract v${ODDS_CONTRACT_VERSION} scope (h2h only) — recorded, never guessed into a row` }); continue; }
       const nv = noVigTwoWay(mkt.outcomes ?? []);
       if (!nv.ok) { quarantined.push({ providerEventId: raw.id, bookmaker: bk.key, reason: nv.reason }); continue; }
+      /*
+       * A FUTURE-STAMPED PRICE QUARANTINES ITSELF, like every other malformed row here.
+       *
+       * This check existed only in validateOddsSnapshot, where a single bad row pushed an error and
+       * failed the WHOLE artifact — against this function's own stated contract two lines up: "one
+       * malformed bookmaker/market quarantines itself, never the event batch". On 2026-08-21 one
+       * book (mybookieag) returned a last_update ahead of our capture clock and killed the entire
+       * NFL odds capture twice, after the credits had already been spent. Quota spent, nothing kept.
+       *
+       * The refusal itself is right — a price stamped after the moment we asked for it is not a
+       * price we can reason about, and clamping it would be inventing a timestamp. What was wrong is
+       * the blast radius. The validator keeps the same check as a BACKSTOP, where it should now
+       * never fire.
+       */
+      const sourceAsOf = bk.last_update ?? mkt.last_update ?? capturedAt;
+      if (Date.parse(sourceAsOf) > Date.parse(capturedAt)) {
+        quarantined.push({
+          providerEventId: raw.id, bookmaker: bk.key,
+          reason: `sourceAsOf ${sourceAsOf} is after capturedAt ${capturedAt} — future-stamped price, quarantined rather than trusted`,
+        });
+        continue;
+      }
       rows.push({
         providerEventId: String(raw.id),
         sport,
@@ -95,7 +117,7 @@ export function normalizeOddsEvent(raw, { sport, capturedAt, requestId }) {
         impliedSum: nv.impliedSum,
         noVig: nv.noVig,
         capturedAt,
-        sourceAsOf: bk.last_update ?? mkt.last_update ?? capturedAt,
+        sourceAsOf,
         requestId,
       });
     }
@@ -117,6 +139,8 @@ export function validateOddsSnapshot(artifact) {
     errors.push(`population arithmetic broken: sourceRows ${artifact.sourceRows} ≠ ${rows.length} rows + ${q.length} quarantined`);
   }
   for (const r of rows) {
+    /* BACKSTOP. Normalisation quarantines these now, so reaching here means a row was built by some
+       other path — which is worth failing the artifact for, because it is unexplained. */
     if (Date.parse(r.sourceAsOf ?? "") > Date.parse(artifact.capturedAt)) { errors.push(`${r.providerEventId}/${r.bookmaker}: sourceAsOf after capturedAt — future-stamped price`); break; }
   }
   return { valid: errors.length === 0, errors };

@@ -76,3 +76,46 @@ test("ZERO NETWORK: the contract module contains no fetch and never embeds the k
   assert.ok(!/fetch\(|https?:\/\/api\./.test(src), "the contract judges; only the canary (authorization-gated) may call");
   assert.equal(ODDS_CONTRACT_VERSION, 1);
 });
+
+test("a future-stamped price quarantines ITSELF and never the event batch", () => {
+  /*
+   * On 2026-08-21 one bookmaker returned a last_update ahead of our capture clock and killed the
+   * entire NFL odds capture — twice, after the credits had already been spent. The refusal was
+   * correct; the blast radius was not, and it contradicted this module's own contract that a
+   * malformed bookmaker quarantines itself.
+   */
+  const capturedAt = "2026-08-21T15:00:00Z";
+  const { rows, quarantined } = normalizeOddsEvent({
+    id: "evt1", commence_time: "2026-08-21T23:00:00Z", home_team: "Home", away_team: "Away",
+    bookmakers: [
+      { key: "goodbook", last_update: "2026-08-21T14:58:00Z", markets: [{ key: "h2h", outcomes: [{ name: "Home", price: -120 }, { name: "Away", price: 100 }] }] },
+      { key: "mybookieag", last_update: "2026-08-21T15:30:00Z", markets: [{ key: "h2h", outcomes: [{ name: "Home", price: -125 }, { name: "Away", price: 105 }] }] },
+    ],
+  }, { sport: "nfl", capturedAt, requestId: "req1" });
+
+  assert.equal(rows.length, 1, "the well-stamped book survives — one bad book must not take the batch");
+  assert.equal(rows[0].bookmaker, "goodbook");
+  assert.equal(quarantined.length, 1);
+  assert.equal(quarantined[0].bookmaker, "mybookieag");
+  assert.match(quarantined[0].reason, /future-stamped/);
+
+  /* Population arithmetic must still reconcile — a quarantine is recorded, not dropped. */
+  const artifact = {
+    dataClass: "PRIVATE_RESEARCH", sport: "nfl", capturedAt, creditsUsed: 1, requestId: "req1",
+    rows, quarantined, sourceRows: rows.length + quarantined.length,
+  };
+  const v = validateOddsSnapshot(artifact);
+  assert.equal(v.valid, true, `the snapshot must now validate: ${v.errors.join("; ")}`);
+});
+
+test("the validator keeps the future-stamp check as a BACKSTOP", () => {
+  /* Normalisation quarantines them, so a row reaching validation future-stamped is unexplained. */
+  const capturedAt = "2026-08-21T15:00:00Z";
+  const v = validateOddsSnapshot({
+    dataClass: "PRIVATE_RESEARCH", sport: "nfl", capturedAt, creditsUsed: 1, requestId: "req1",
+    rows: [{ providerEventId: "e", bookmaker: "b", sourceAsOf: "2026-08-21T16:00:00Z" }],
+    quarantined: [], sourceRows: 1,
+  });
+  assert.equal(v.valid, false);
+  assert.match(v.errors.join(";"), /future-stamped price/);
+});
