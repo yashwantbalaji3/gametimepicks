@@ -30,6 +30,15 @@ on:
     - cron: "0 13 * * 6"  # Saturday — serves 16:30
     - cron: "0 10 * * 0"  # Sunday   — serves 13:00 and 15:30
     - cron: "0 14 * * 1"  # Monday   — serves the 19:00 fixture
+    # LINEUP SLOTS. Lineups are posted about an hour before kickoff, and every slot above is hours
+    # earlier, so these exist purely so player projections resolve from CONDITIONAL to the named XI
+    # before the match rather than after it. Chosen against the real 2026-27 kickoff clusters.
+    - cron: "0 18 * * 5"  # Friday   — 19:00 kickoff
+    - cron: "30 10 * * 6" # Saturday — 11:30 cluster
+    - cron: "30 15 * * 6" # Saturday — 16:30 cluster
+    - cron: "0 12 * * 0"  # Sunday   — 13:00 cluster
+    - cron: "30 14 * * 0" # Sunday   — 15:30 cluster
+    - cron: "0 18 * * 1"  # Monday   — 19:00 kickoff
   workflow_dispatch:
     inputs:
       dry_run:
@@ -135,6 +144,28 @@ jobs:
           set -euo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           node app/scripts/epl/build-epl-forecasts.mjs --now "$NOW" --lookahead-hours 96 --write
+
+      # ---- Player projections ----
+      #
+      # Runs AFTER the team forecasts because it projects the SAME priced fixture set. The model
+      # cleared its preregistered bars (holdout 2024-25, log loss 0.25062 against a 0.26043
+      # position-only baseline) and the generator REFUSES to run at all if the recorded verdict is
+      # ever anything other than ACCEPTED — a published probability beside a named person is the last
+      # place to fail open.
+      #
+      # It reads ESPN's lineup when one is posted and falls back to the CONDITIONAL quantity when it
+      # is not. That is why the extra pre-kickoff crons above exist: lineups land about an hour before
+      # kickoff, and the matchweek's own slots are hours earlier, so without a late run every row
+      # would stay conditional through the match itself.
+      #
+      # Not fail-loud: a projection set is additive. If it cannot build, the team forecasts and the
+      # odds capture still commit, and the page renders its honest empty state.
+      - name: Build EPL player projections
+        run: |
+          set -uo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node app/scripts/epl/build-epl-player-projections.mjs --now "$NOW" --write || \
+            echo "player projections: refused this run — the team forecast is unaffected"
 
       # With real prices EPL can clear the Parlay Lab's eligibility gate, so the grids are
       # re-resolved. `multi` is included deliberately: a second live sport is what opens the

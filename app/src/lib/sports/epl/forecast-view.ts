@@ -128,3 +128,93 @@ export const eplMatchHref = (slug: string) => `/epl/match/${slug}/`;
  * strength, and a reader comparing two fixtures deserves to know which one rests on a stand-in.
  */
 export const hasColdStart = (r: EplForecastRow) => Boolean(r.coldStart?.home || r.coldStart?.away);
+
+/* ── PLAYER PROJECTIONS ─────────────────────────────────────────────────────────────────────────
+ *
+ * A separate artifact from the team forecast, and a separate model with its own preregistered bars.
+ * Kept in this module because /epl and the per-fixture report must read ONE loader for each, or they
+ * will eventually disagree about the same player.
+ */
+
+/** How a row should be READ. `conditional` is the difference between a projection and a claim. */
+export interface EplPlayerRow {
+  playerId: string;
+  name: string | null;
+  teamName: string | null;
+  position: string | null;
+  group: string;
+  /** START or SUB — the participation state the probability is conditioned on. */
+  state: string;
+  /** True when no lineup is published: the number is P(scores | he starts), not a claim he will. */
+  conditional: boolean;
+  appearances: number;
+  probability: number;
+}
+
+export interface EplPlayerFixture {
+  eventId: string;
+  slug: string;
+  matchup: string;
+  homeClub: string;
+  awayClub: string;
+  kickoffUtc: string;
+  /** PUBLISHED once ESPN posts the XI (~1h pre-kickoff); AWAITING_LINEUP until then. */
+  lineupState: "PUBLISHED" | "AWAITING_LINEUP";
+  players: EplPlayerRow[];
+}
+
+export interface EplPlayerProjections {
+  generatedAt: string;
+  market: string;
+  model: { id: string; k: number; fittedAppearances: number };
+  validation: {
+    state: string;
+    protocol: string;
+    holdout: { n: number; logLoss: number; positionalBaseline: number; calibrationError: number; predictedScorers: number; observedScorers: number };
+    note: string;
+  };
+  limitations: string[];
+  counts: { fixtures: number; withLineup: number; awaitingLineup: number };
+  fixtures: EplPlayerFixture[];
+}
+
+const PLAYER_ARTIFACT = "public/data/soccer/epl/player-projections/latest.json";
+
+/**
+ * Read the committed player projections. Unreadable is ABSENT (null), and a surface must render the
+ * absence rather than an empty list — "no players shown" and "we could not read the file" are
+ * different facts, and only one of them is a product state.
+ *
+ * REFUSES anything not validated. The artifact carries its own verdict; if that ever reads something
+ * other than a cleared out-of-sample validation, nothing is returned at all. A published probability
+ * beside a named person is the last place to fail open.
+ */
+export function loadEplPlayerProjections(): EplPlayerProjections | null {
+  try {
+    const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), PLAYER_ARTIFACT), "utf8"));
+    if (!raw || !Array.isArray(raw.fixtures)) return null;
+    if (raw.validation?.state !== "VALIDATED_OUT_OF_SAMPLE") return null;
+    return raw as EplPlayerProjections;
+  } catch {
+    return null;
+  }
+}
+
+/** One fixture's player rows, by the same slug the team forecast and the report page use. */
+export function playersForFixture(set: EplPlayerProjections | null, slug: string): EplPlayerFixture | null {
+  return set?.fixtures.find((f) => f.slug === slug) ?? null;
+}
+
+/**
+ * The likeliest scorers across the whole matchday, each carrying its fixture.
+ *
+ * Deliberately capped and deliberately SORTED BY PROBABILITY, which means a handful of forwards
+ * dominate — that is what the model says and flattening it to "one per club" would be editing the
+ * output to look balanced.
+ */
+export function topScorersAcross(set: EplPlayerProjections | null, limit = 12): Array<EplPlayerRow & { matchup: string; slug: string; lineupState: string }> {
+  const all = (set?.fixtures ?? []).flatMap((f) =>
+    f.players.map((p) => ({ ...p, matchup: f.matchup, slug: f.slug, lineupState: f.lineupState })),
+  );
+  return all.sort((a, b) => b.probability - a.probability || String(a.name).localeCompare(String(b.name))).slice(0, limit);
+}

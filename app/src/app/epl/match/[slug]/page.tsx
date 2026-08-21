@@ -26,7 +26,7 @@ import { notFound } from "next/navigation";
 
 import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
-import { loadEplForecasts, reportableRows, findEplForecast } from "@/lib/sports/epl/forecast-view";
+import { loadEplForecasts, reportableRows, findEplForecast, loadEplPlayerProjections, playersForFixture } from "@/lib/sports/epl/forecast-view";
 
 /** Statically generate one page per fixture that genuinely carries a distribution. */
 export function generateStaticParams() {
@@ -116,6 +116,10 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
   const totals = row.totals;
   const soccer = "var(--sport-soccer)";
   const green = "var(--vault-accent)";
+  /* A separate artifact and a separate model — same loader module, so the two cannot drift apart. */
+  const playerFixture = playersForFixture(loadEplPlayerProjections(), params.slug);
+  const playerRows = playerFixture?.players ?? [];
+  const awaiting = playerFixture?.lineupState !== "PUBLISHED";
 
   return (
     <main className="mx-auto w-full max-w-[900px] px-4 py-8" style={{ color: "var(--vault-text)" }}>
@@ -332,6 +336,50 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           ) : null}
         </div>
       </section>
+
+      {/* ── Player predictions for THIS fixture ──────────────────────────────────────────────── */}
+      {playerRows.length > 0 ? (
+        <section className="mt-7">
+          <SectionHeader
+            eyebrow="Player predictions · anytime goalscorer"
+            title={awaiting ? "If he starts — likeliest scorers" : "Likeliest scorers"}
+            sub={
+              awaiting
+                ? "The lineup is not posted yet, so each figure is the chance that player scores IF he starts — not a claim that he will. This is a different model from the score matrix above, with its own out-of-sample test."
+                : "Read off the posted lineup: each figure is for the state the player is actually in, starting or off the bench."
+            }
+          />
+          <div style={{ ...PANEL, overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 320 }}>
+              <thead>
+                <tr style={{ textAlign: "left", color: "var(--vault-text-faint)" }}>
+                  <th style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11 }}>Player</th>
+                  <th style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11 }}>Club</th>
+                  <th style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11 }}>Appearances</th>
+                  <th style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11 }}>To score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {playerRows.slice(0, 12).map((p) => (
+                  <tr key={p.playerId} style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                    <td style={{ padding: "7px 8px", fontWeight: 600 }}>{p.name}</td>
+                    <td style={{ padding: "7px 8px", color: "var(--vault-text-mute)" }}>{p.teamName}</td>
+                    {/* What the number rests on: no history means he is sitting on his position's rate. */}
+                    <td className="font-mono" style={{ padding: "7px 8px", color: "var(--vault-text-faint)" }}>
+                      {p.appearances > 0 ? p.appearances : "none"}
+                    </td>
+                    <td className="font-mono" style={{ padding: "7px 8px", fontWeight: 700, color: green }}>{pct(p.probability)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-2" style={{ fontSize: 11.5, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
+            Showing the {Math.min(12, playerRows.length)} likeliest of {playerRows.length}. No injury or suspension
+            feed exists here, so a player who is unavailable can still appear in this list.
+          </p>
+        </section>
+      ) : null}
 
       {/* ── Provenance ───────────────────────────────────────────────────────────────────────── */}
       <section className="mt-7">

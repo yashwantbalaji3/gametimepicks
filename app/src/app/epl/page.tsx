@@ -38,6 +38,7 @@ import {
   type EplForecastSet,
 } from "@/lib/sports/epl/forecast-view";
 import { eplPlayerMarketStatus } from "@/lib/sports/epl/player-markets.mjs";
+import { loadEplPlayerProjections, topScorersAcross } from "@/lib/sports/epl/forecast-view";
 
 export const metadata: Metadata = {
   title: "Premier League — Simulation Center · GameTime Picks",
@@ -142,6 +143,10 @@ export default function EplPage() {
   const weeks = new Set(priced.map((r) => r.matchweek).filter((w) => w != null));
   const matchweek = weeks.size === 1 ? [...weeks][0] : null;
   const player = eplPlayerMarketStatus();
+  const players = loadEplPlayerProjections();
+  const topScorers = topScorersAcross(players, 12);
+  /* Every fixture still awaiting its XI ⇒ the whole board reads as conditional. */
+  const awaitingLineup = (players?.counts.withLineup ?? 0) === 0;
   const capturedAt = feed?.sourceVerdict?.fetchedAt ?? null;
 
   return (
@@ -257,25 +262,70 @@ export default function EplPage() {
         </section>
       ) : null}
 
-      {/* ── 3 · PLAYER MARKETS — the refusal, rendered ─────────────────────────────────────────── */}
-      <section className="mt-8">
-        {/*
-          The state changed on 2026-08-21: the data arrived, the model did not. The old copy said the
-          history did not exist, which is now false, and a stale refusal is exactly as misleading as a
-          stale claim. What must NOT change is that nothing about a player is published until a
-          backtest clears a preregistered bar.
-        */}
-        <SectionHeader eyebrow="Player markets" title="Data in hand — nothing published yet" />
-        <div className="rounded-[12px] p-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
-          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>{player.reason}</p>
-          <p className="mt-2" style={{ margin: 0, fontSize: 12.5, lineHeight: 1.65, color: "var(--vault-text-faint)" }}>
-            Goalscorer, shots, shots on target, assists and cards are all candidates. Each one waits on the same
-            thing: a model fitted to this history and measured against a season it has not seen. Five model
-            changes have been tested that way on this site and rejected; if a player model fails the same test,
-            nothing here will appear.
+      {/* ── 3 · PLAYER PREDICTIONS ─────────────────────────────────────────────────────────────── */}
+      {players && topScorers.length > 0 ? (
+        <section className="mt-8">
+          {/*
+            THE CONDITIONAL IS THE PRODUCT, not a caveat on it. The model was validated on players who
+            APPEARED, so what it may publish is P(scores | he plays in this state). Until the XI is
+            posted every row says "if he starts" — and that phrase is load-bearing, because assuming a
+            starting eleven is a participation claim this model was never tested on.
+          */}
+          <SectionHeader
+            eyebrow={`Player predictions · anytime goalscorer`}
+            title={awaitingLineup ? "If he starts — likeliest scorers" : "Likeliest scorers"}
+            sub={
+              awaitingLineup
+                ? "Lineups are posted about an hour before kickoff. Until then each figure is the chance that player scores IF he starts — not a claim that he will. Rows update to the named eleven as soon as the teams are out."
+                : "Read off the posted lineups: each figure is for the state the player is actually in, starting or off the bench."
+            }
+          />
+          <div className="rounded-[12px] overflow-hidden" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+              {topScorers.map((p) => (
+                <li key={`${p.slug}-${p.playerId}`} className="flex items-center justify-between gap-3 px-3 py-2.5" style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                  <div className="min-w-0">
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</span>
+                    <span className="font-mono ml-2" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
+                      {p.teamName} · {p.matchup}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {/*
+                      Appearances are shown because they are what the number rests on. A player with
+                      none is sitting on his position's league rate, and a reader deserves to see the
+                      difference between that and a rate earned over a hundred matches.
+                    */}
+                    <span className="font-mono" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
+                      {p.appearances > 0 ? `${p.appearances} apps` : "no history"}
+                    </span>
+                    <span className="font-mono" style={{ fontSize: 13, fontWeight: 700, color: "var(--vault-accent)" }}>{pct(p.probability)}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* The receipt, beside the numbers. A reader never has to take the validation on trust. */}
+          <p className="mt-3" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
+            Validated out of sample: fitted on {players.model.fittedAppearances.toLocaleString()} appearances,
+            then tested on a season it had never seen — {players.validation.holdout.n.toLocaleString()} player-matches,
+            log loss {players.validation.holdout.logLoss} against {players.validation.holdout.positionalBaseline} for a
+            position-only baseline, and it predicted {Math.round(players.validation.holdout.predictedScorers)} scorers
+            where {players.validation.holdout.observedScorers} actually scored.
           </p>
-        </div>
-      </section>
+          <ul className="mt-2" style={{ margin: 0, paddingLeft: 16, fontSize: 12, lineHeight: 1.65, color: "var(--vault-text-faint)" }}>
+            {players.limitations.map((l) => <li key={l}>{l}</li>)}
+          </ul>
+        </section>
+      ) : (
+        <section className="mt-8">
+          <SectionHeader eyebrow="Player predictions" title="Not available for this slate" />
+          <div className="rounded-[12px] p-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
+            <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>{player.reason}</p>
+          </div>
+        </section>
+      )}
 
       {/* ── 4 · SCHEDULE — reference, deliberately last ────────────────────────────────────────── */}
       <section className="mt-8" id="schedule">
