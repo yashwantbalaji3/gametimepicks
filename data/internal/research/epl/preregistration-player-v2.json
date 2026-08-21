@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-player-model-v2-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "public": false,
+  "registeredAt": "2026-08-21T06:15:00Z",
+  "supersedes": "preregistration-player-v1.json",
+
+  "whyV1IsVoid": {
+    "summary": "v1's run cleared all five bars and the result is DISCARDED, because the baseline it beat was defective.",
+    "defect": "positionGroup() misclassified the corpus. ESPN reports a substitute's position as the literal string \"SUB\" — 13,486 of 30,377 rows — and the old test `p.includes(\"B\")` matched it, so every substitute in the league was classified a DEFENDER. Separately \"CD-L\"/\"CD-R\" (centre-backs) and \"CF-L\"/\"CF-R\" (centre-forwards) both fell through to UNK, blending the lowest- and highest-scoring outfield positions into one prior across 15.6% of rows.",
+    "whyItMatters": "The positional baseline IS bar P1. A baseline that cannot tell a centre-forward from a centre-back is not 'the league base rate for position group x participation state' — it is a weaker thing wearing that name, and beating it proves less than the bar intended. The defect flattered the model, which is the direction that should always void a result rather than excuse it.",
+    "afterTheFix": "F 0.2894 goals per appearance, M 0.1223, SUB 0.0450, D 0.0398, G 0.0000, UNK down to 0.62% of rows. Forwards score roughly seven times as often as defenders, and keepers never score — separations the old buckets destroyed.",
+    "contamination": "The 2025-26 holdout was scored once under v1 and is therefore BURNED. It is excluded from this protocol entirely rather than reused, because a holdout looked at once is no longer a holdout."
+  },
+
+  "target": {
+    "market": "anytime_goalscorer",
+    "definition": "did this player score one or more goals in this match",
+    "why": "Unchanged from v1. One market, one bar, no shopping across targets until one passes."
+  },
+
+  "population": {
+    "rule": "every player who APPEARED in a scored match — started or came off the bench",
+    "honestLimitation": "Conditioning on appearance means these numbers do NOT answer 'will he play'. Where no lineup is available at publication time the model must abstain rather than assume a starter."
+  },
+
+  "corpus": {
+    "file": "data/internal/research/epl/players/espn-players-v1.jsonl",
+    "source": "ESPN public endpoints, free and unmetered",
+    "seasonsAvailable": ["2022-23", "2023-24", "2024-25", "2025-26"],
+    "fixtures": 1520,
+    "note": "No MINUTES field exists in this source — only started / subbedIn / subbedOut. Participation therefore enters as a discrete state rather than an expected-minutes term. Recorded as a limitation, not solved."
+  },
+
+  "protocol": {
+    "walkForward": "by match date; rates for a match are fitted STRICTLY on matches dated earlier. No same-day information is used.",
+    "warmup": { "season": "2022-23", "rule": "folds into the rates, NEVER scored" },
+    "development": { "season": "2023-24", "use": "ALL hyperparameter search happens here and nowhere else" },
+    "holdout": { "season": "2024-25", "use": "scored ONCE, after the configuration is locked. This season has NEVER been scored — under v1 it served only as warm-up — which is what makes it a valid holdout after v1 burned 2025-26." },
+    "excluded": { "season": "2025-26", "why": "scored under v1; contaminated and deliberately not reused" }
+  },
+
+  "model": {
+    "form": "P(scores) = 1 - exp(-lambda)",
+    "lambda": "the player's goals per appearance in his participation state, shrunk toward the positional rate for that same state",
+    "shrinkage": "Bayesian pseudo-count k toward the positional base rate",
+    "hyperparameters": { "k": "searched on DEVELOPMENT only" }
+  },
+
+  "baselines": [
+    { "id": "positional", "definition": "the league base rate for (position group x participation state), on the CORRECTED buckets, fitted on prior matches only", "why": "The bar that matters. If player history does not beat a correct positional average, the model knows nothing about individual players." },
+    { "id": "player_raw", "definition": "the player's unshrunk historical rate, positional as fallback when he has no prior appearances", "why": "So shrinkage must earn its place rather than be adopted on faith." }
+  ],
+
+  "primaryMetric": "log loss on the binary outcome",
+  "secondaryMetrics": ["Brier score", "expected calibration error over 10 bins", "predicted vs observed scorer count", "coverage"],
+
+  "acceptanceBars": {
+    "note": "UNCHANGED FROM v1, deliberately. The bars were written before any number was seen and are not renegotiated because a run failed or a defect was found — only the defective baseline is repaired and the contaminated season dropped.",
+    "bars": [
+      { "id": "P1_beats_positional", "statement": "model HOLDOUT log loss must be lower than the corrected positional baseline's by at least 0.005" },
+      { "id": "P2_shrinkage_earns_it", "statement": "model HOLDOUT log loss must be lower than or equal to the raw-player baseline's" },
+      { "id": "P3_calibrated", "statement": "model HOLDOUT expected calibration error must be at most 0.020" },
+      { "id": "P4_scorer_count_sane", "statement": "summed predicted probabilities must land within 10% of the observed number of goalscorers" },
+      { "id": "P5_no_abstention_gaming", "statement": "the model must produce a probability for at least 95% of the appeared population" }
+    ]
+  },
+
+  "stoppingRule": {
+    "statement": "ONE sweep over the declared grid, on DEVELOPMENT only. If no configuration clears all five bars, the EPL player model is REJECTED and nothing player-level is published. A THIRD attempt is not permitted on this corpus — a second repair would stop being a fix and start being a search.",
+    "grid": { "k": [1, 2, 4, 8, 16, 32] }
+  },
+
+  "whatPassingDoesNotMean": [
+    "It does not mean the model beats a sportsbook price. Odds are not an input.",
+    "It does not license shots, shots-on-target, assists or cards — each needs its own bar.",
+    "It does not answer whether a player will play."
+  ]
+}
