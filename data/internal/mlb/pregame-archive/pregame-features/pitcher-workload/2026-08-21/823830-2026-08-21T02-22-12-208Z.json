@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823830,
+  "date": "2026-08-21",
+  "capturedAt": "2026-08-21T02:22:12.208Z",
+  "availableAt": "2026-08-21T02:22:12.208Z",
+  "eventStartTime": "2026-08-21T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687473,
+      "name": "Ryan Gusto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 6,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 4.4,
+        "bbAvg": 0.8,
+        "erAvg": 2.4,
+        "hrAvg": 1,
+        "kPer9": 8.61,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 44.33,
+        "k": 40,
+        "bb": 14,
+        "er": 24,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 695418,
+      "name": "Brad Lord",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 3,
+        "ipSum": 5.67,
+        "ipAvg": 1.89,
+        "kAvg": 2,
+        "bbAvg": 2,
+        "erAvg": 1,
+        "hrAvg": 0,
+        "kPer9": 9.53,
+        "workloadIpLast5": 5.67
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 5.67,
+        "k": 6,
+        "bb": 6,
+        "er": 3,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-21&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-21T02:22:12.208Z"
+  },
+  "recordHash": "1aa424658b00f5b6bc44c14e7afdedac371a0f23d263d68dd08f3d817188be41"
+}

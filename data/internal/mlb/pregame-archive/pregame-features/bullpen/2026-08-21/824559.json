@@ -1,0 +1,231 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824559,
+  "date": "2026-08-21",
+  "capturedAt": "2026-08-21T02:22:14.089Z",
+  "availableAt": "2026-08-21T02:22:14.089Z",
+  "eventStartTime": "2026-08-21T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-18",
+    "2026-08-19",
+    "2026-08-20"
+  ],
+  "home": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 41,
+      "relievers": [
+        {
+          "id": 670950,
+          "name": "Trevor Richards",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 696146,
+          "name": "Hagen Smith",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 623211,
+          "name": "Huascar Brazobán",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 2,
+          "dates": [
+            "2026-08-20"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 256,
+      "relievers": [
+        {
+          "id": 607200,
+          "name": "Erick Fedde",
+          "appearances": 1,
+          "pitches": 78,
+          "outs": 14,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 664353,
+          "name": "José Urquidy",
+          "appearances": 1,
+          "pitches": 68,
+          "outs": 18,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 670950,
+          "name": "Trevor Richards",
+          "appearances": 2,
+          "pitches": 46,
+          "outs": 8,
+          "dates": [
+            "2026-08-18",
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 691799,
+          "name": "Grant Taylor",
+          "appearances": 2,
+          "pitches": 29,
+          "outs": 6,
+          "dates": [
+            "2026-08-18",
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 623211,
+          "name": "Huascar Brazobán",
+          "appearances": 2,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-18",
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 696146,
+          "name": "Hagen Smith",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-08-20"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 121,
+    "teamName": "New York Mets",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 130,
+      "relievers": [
+        {
+          "id": 674073,
+          "name": "Jack Weisenburger",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 4,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 673540,
+          "name": "Kodai Senga",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 673380,
+          "name": "Dedniel Núñez",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 6,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 681810,
+          "name": "Austin Warren",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 702752,
+          "name": "Jonathan Pintaro",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 650960,
+          "name": "Daniel Duarte",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 681320,
+          "name": "Nate Lavender",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 642376,
+          "name": "Jefry Yan",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 2,
+          "dates": [
+            "2026-08-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-18,2026-08-19,2026-08-20) + feed/live box scores",
+    "capturedAt": "2026-08-21T02:22:14.089Z"
+  },
+  "recordHash": "87338212e16aac38fff99e8edce09d71f449d4b17964a3e1e45dcea3ccc43a69"
+}

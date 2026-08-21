@@ -1,0 +1,237 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823420,
+  "date": "2026-08-21",
+  "capturedAt": "2026-08-21T02:22:14.089Z",
+  "availableAt": "2026-08-21T02:22:14.089Z",
+  "eventStartTime": "2026-08-21T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-18",
+    "2026-08-19",
+    "2026-08-20"
+  ],
+  "home": {
+    "teamId": 143,
+    "teamName": "Philadelphia Phillies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 106,
+      "relievers": [
+        {
+          "id": 680742,
+          "name": "Jonathan Bowlan",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 686934,
+          "name": "Alex McFarlane",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 661395,
+          "name": "Jhoan Duran",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 689147,
+          "name": "Orion Kerkering",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 621237,
+          "name": "José Alvarado",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 548384,
+          "name": "Brooks Raley",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 138,
+    "teamName": "St. Louis Cardinals",
+    "last1Day": {
+      "appearances": 4,
+      "pitches": 90,
+      "relievers": [
+        {
+          "id": 657265,
+          "name": "Peter Strzelecki",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 666277,
+          "name": "George Soriano",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 2,
+          "dates": [
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 592773,
+          "name": "Ryne Stanek",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 2,
+          "dates": [
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 676617,
+          "name": "Riley O'Brien",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 1,
+          "dates": [
+            "2026-08-20"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 10,
+      "pitches": 181,
+      "relievers": [
+        {
+          "id": 666277,
+          "name": "George Soriano",
+          "appearances": 2,
+          "pitches": 40,
+          "outs": 5,
+          "dates": [
+            "2026-08-18",
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 657265,
+          "name": "Peter Strzelecki",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 677865,
+          "name": "Justin Bruihl",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        },
+        {
+          "id": 676617,
+          "name": "Riley O'Brien",
+          "appearances": 2,
+          "pitches": 28,
+          "outs": 4,
+          "dates": [
+            "2026-08-18",
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 592773,
+          "name": "Ryne Stanek",
+          "appearances": 2,
+          "pitches": 26,
+          "outs": 5,
+          "dates": [
+            "2026-08-18",
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 700669,
+          "name": "Gordon Graceffo",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-18"
+          ]
+        },
+        {
+          "id": 703725,
+          "name": "Luis Gastelum",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-19"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 657265,
+        "name": "Peter Strzelecki",
+        "reason": "31 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-18,2026-08-19,2026-08-20) + feed/live box scores",
+    "capturedAt": "2026-08-21T02:22:14.089Z"
+  },
+  "recordHash": "6f46295d0dfc83ba5bfca108422ae2f704072ff580d7212e6fc41c72edaf6bb0"
+}

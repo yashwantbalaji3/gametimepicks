@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824559,
+  "date": "2026-08-21",
+  "capturedAt": "2026-08-21T02:22:16.354Z",
+  "availableAt": "2026-08-21T02:22:16.354Z",
+  "eventStartTime": "2026-08-21T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 680732,
+    "name": "Sean Burke",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 640455,
+    "name": "Sean Manaea",
+    "pitchHand": "L"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-21T02:22:16.354Z"
+  },
+  "recordHash": "95e73cee874834a7a8f7b721888b986a0be3566ad964a1771f42d8c4aae1d5fe"
+}
