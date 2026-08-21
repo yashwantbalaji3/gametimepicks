@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823510,
+  "date": "2026-08-21",
+  "capturedAt": "2026-08-21T11:24:39.002Z",
+  "availableAt": "2026-08-21T11:24:39.002Z",
+  "eventStartTime": "2026-08-21T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693645,
+      "name": "Cam Schlittler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 8.8,
+        "bbAvg": 1.8,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 13.66,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 152,
+        "k": 189,
+        "bb": 34,
+        "er": 37,
+        "hr": 14
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-21&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-21T11:24:39.002Z"
+  },
+  "recordHash": "f0cd45e29f4e56a749ca2bad8944c4c033ecbcca27337c047d28e7c16d978689"
+}
