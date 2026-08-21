@@ -33,6 +33,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { fitPlayerRates, predictPlayer, fitCountRates, predictCount, positionGroup } from "../../src/lib/sports/epl/player-rates.mjs";
+import { allocateGoals, coherenceRatio } from "../../src/lib/sports/epl/match-simulation.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -44,7 +45,8 @@ const NOW = arg("--now", new Date().toISOString());
 const WRITE = process.argv.includes("--write");
 if (!Number.isFinite(Date.parse(NOW))) { console.error("usage: build-epl-player-projections.mjs --now <iso>"); process.exit(1); }
 
-const readJson = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
+const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
+const normalizeClub = (n) => String(n ?? "").toLowerCase().replace(/[^a-z]/g, "");
 const SITE = "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1";
 
 /* ── The model, and the configuration its backtest locked ────────────────────────────────────── */
@@ -77,6 +79,36 @@ const sogTarget = shotsReport.targets.find((t) => t.target === "sog_over_0_5");
 const sogAccepted = sogTarget?.verdict === "ACCEPTED";
 if (!sogAccepted) console.log("shots on goal: recorded verdict is not ACCEPTED — omitted from this artifact");
 const sogFit = sogAccepted ? fitCountRates(corpusRows, "shotsOnGoal") : null;
+
+/*
+ * THE UNIFIED MATCH SIMULATION, and the one boundary it has.
+ *
+ * The team model and the player model used to contradict each other on the same fixture — 2.33
+ * expected goals against 1.61 implied by the players on one side, 0.91 against 1.30 on the other.
+ * Allocating the team's goal distribution across the men who are actually playing makes that
+ * unrepresentable: the shares sum to one, so the players sum to the team by construction. Verified
+ * across 760 sides at a worst ratio of 1.00000000, and it beat the shipped model on log loss,
+ * calibration and scorer count at the same time.
+ *
+ * IT ONLY APPLIES ONCE A LINEUP EXISTS, and that is not a shortcoming to hide. A share is a fraction
+ * of a known set; before the eleven are named there is no denominator, and allocating across a
+ * thirty-man squad would dilute every share by players who will not leave the bench. Predicting the
+ * eleven is a participation claim this model has refused from the start.
+ *
+ * So: lineup published → allocation, coherent. No lineup yet → the conditional shrunk rate exactly
+ * as before, labelled conditional as before. The artifact records which of the two produced each row
+ * so a reader is never left guessing which model they are looking at.
+ */
+const simBacktest = readJson(path.join(RESEARCH, "reports/match-sim-v1-backtest.json"));
+const simAccepted = simBacktest?.verdict === "ACCEPTED";
+if (!simAccepted) console.log("match simulation: recorded verdict is not ACCEPTED — falling back to per-player rates everywhere");
+const SIM_K = simBacktest?.locked?.k ?? K;
+const SIM_FLOOR = simBacktest?.locked?.weightFloor ?? 0;
+
+/* The team strength fit the score matrix comes from — the SAME cutoff rule the team forecasts use. */
+const matchCorpus = readJson(path.join(REPO, "data/internal/research/epl/corpus-v1.json"));
+const { fitEplStrength, scoreMatrix } = await import("../../src/lib/sports/epl/strength-state.mjs");
+const strengthState = fitEplStrength({ rows: matchCorpus.rows, cutoffIso: NOW });
 
 /* Every measured-and-rejected market, gathered from the reports themselves. */
 const rejected = [];
@@ -160,21 +192,42 @@ for (const row of priced) {
   const clubs = [row.homeClub, row.awayClub];
 
   const players = [];
+  let coherence = null;
   if (lineup) {
     withLineup += 1;
+    /* The side's own goal curve, from the same matrix the team markets on this fixture come from. */
+    let matrix = null;
+    if (simAccepted) { try { matrix = scoreMatrix(strengthState, row.homeClub, row.awayClub); } catch { matrix = null; } }
+
     for (const t of lineup) {
-      for (const p of t.players) {
-        if (!p.playerId) continue;
+      const side = normalizeClub(t.teamName) === normalizeClub(row.homeClub) ? "home" : "away";
+      const named = t.players.filter((p) => p.playerId);
+      const rated = named.map((p) => {
         const state = p.started ? "START" : "SUB";
-        const pred = predictPlayer(fit, { playerId: p.playerId, position: p.position, state }, { k: K });
-        if (!pred) continue;
+        const pred = predictPlayer(fit, { playerId: p.playerId, position: p.position, state }, { k: SIM_K });
+        return { p, state, pred };
+      }).filter((x) => x.pred);
+
+      const dist = matrix?.teamGoals?.[side]?.distribution ?? null;
+      const allocated = dist ? allocateGoals(dist, rated.map((x) => ({ playerId: x.p.playerId, rate: x.pred.lambda })), { weightFloor: SIM_FLOOR }) : null;
+      if (allocated) {
+        const r = coherenceRatio(dist, allocated);
+        if (r != null) coherence = { ...(coherence ?? {}), [side]: Number(r.toFixed(8)) };
+      }
+      const byId = new Map((allocated ?? []).map((a) => [String(a.playerId), a]));
+
+      for (const { p, state, pred } of rated) {
+        const alloc = byId.get(String(p.playerId));
         const sog = sogFit ? predictCount(sogFit, { playerId: p.playerId, position: p.position, state }, { k: sogTarget.locked.k, distribution: sogTarget.locked.distribution }) : null;
         players.push({
           playerId: p.playerId, name: p.name, teamName: t.teamName,
           position: p.position, group: pred.group,
           state, conditional: false,
           appearances: pred.appearances,
-          probability: pct(pred.probability),
+          probability: pct(alloc ? alloc.probability : pred.probability),
+          /* Which model produced the number, so a reader is never guessing. */
+          source: alloc ? "match-simulation" : "player-rate",
+          shareOfTeamGoals: alloc ? alloc.share : null,
           shotsOnGoalOver05: sog ? pct(sog.probability) : null,
         });
       }
@@ -195,6 +248,8 @@ for (const row of priced) {
           state: "START", conditional: true,
           appearances: pred.appearances,
           probability: pct(pred.probability),
+          source: "player-rate",
+          shareOfTeamGoals: null,
           shotsOnGoalOver05: sog ? pct(sog.probability) : null,
         });
       }
@@ -210,6 +265,8 @@ for (const row of priced) {
     awayClub: row.awayClub,
     kickoffUtc: row.kickoffUtc,
     lineupState: lineup ? "PUBLISHED" : "AWAITING_LINEUP",
+    /* 1.0 means the players sum to the team exactly. Null before a lineup exists to allocate across. */
+    coherence,
     espnEventId: ev?.id ?? null,
     players,
   });

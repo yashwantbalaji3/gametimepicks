@@ -150,6 +150,10 @@ export interface EplPlayerRow {
   appearances: number;
   /** Anytime goalscorer. */
   probability: number;
+  /** Which model produced it: "match-simulation" once a lineup exists, "player-rate" before. */
+  source?: string;
+  /** This player's share of his side's goals — only meaningful under the match simulation. */
+  shareOfTeamGoals?: number | null;
   /** Shots on goal over 0.5 — a SEPARATE model with its own cleared bars. Null when not published. */
   shotsOnGoalOver05?: number | null;
 }
@@ -163,6 +167,8 @@ export interface EplPlayerFixture {
   kickoffUtc: string;
   /** PUBLISHED once ESPN posts the XI (~1h pre-kickoff); AWAITING_LINEUP until then. */
   lineupState: "PUBLISHED" | "AWAITING_LINEUP";
+  /** Per side, the ratio of summed player expected goals to the team's. 1 means they reconcile. */
+  coherence?: { home?: number; away?: number } | null;
   players: EplPlayerRow[];
 }
 

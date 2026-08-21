@@ -1,0 +1,152 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-match-simulation-v1-backtest",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "generatedAt": "2026-08-21T22:02:39.505Z",
+ "preregistration": {
+  "file": "preregistration-match-sim-v1.json",
+  "registeredAt": "2026-08-21T21:30:00Z"
+ },
+ "protocol": {
+  "walkForward": "by match date; both the team strength fit and the player rate fit see only strictly earlier matches",
+  "warmup": {
+   "season": "2022-23"
+  },
+  "development": {
+   "season": "2023-24",
+   "use": "any hyperparameter search happens here and nowhere else"
+  },
+  "holdout": {
+   "season": "2024-25",
+   "use": "scored once, after the configuration is locked"
+  },
+  "holdoutDisclosure": "2024-25 is the SAME holdout preregistration-player-v2 used for the goalscorer target, and this is a second look at it for that target with a different model. That is disclosed rather than glossed. Two things make it the fairest option available: the comparison below is HEAD-TO-HEAD on identical rows, which is far more informative than either model's absolute score, and the alternative — 2025-26 — has already been scored three times for other targets. Nothing here is tuned on the holdout; the sweep is on development."
+ },
+ "shippedComparand": {
+  "model": "epl-player-v2-shrunk-rate",
+  "k": 32
+ },
+ "developmentSweep": [
+  {
+   "k": 8,
+   "weightFloor": 0,
+   "devLogLoss": 0.27941,
+   "devEce": 0.01228
+  },
+  {
+   "k": 8,
+   "weightFloor": 0.005,
+   "devLogLoss": 0.27974,
+   "devEce": 0.01211
+  },
+  {
+   "k": 8,
+   "weightFloor": 0.01,
+   "devLogLoss": 0.27964,
+   "devEce": 0.01175
+  },
+  {
+   "k": 16,
+   "weightFloor": 0,
+   "devLogLoss": 0.27649,
+   "devEce": 0.01072
+  },
+  {
+   "k": 16,
+   "weightFloor": 0.005,
+   "devLogLoss": 0.27685,
+   "devEce": 0.01036
+  },
+  {
+   "k": 16,
+   "weightFloor": 0.01,
+   "devLogLoss": 0.27715,
+   "devEce": 0.01057
+  },
+  {
+   "k": 32,
+   "weightFloor": 0,
+   "devLogLoss": 0.27512,
+   "devEce": 0.00913
+  },
+  {
+   "k": 32,
+   "weightFloor": 0.005,
+   "devLogLoss": 0.27547,
+   "devEce": 0.00931
+  },
+  {
+   "k": 32,
+   "weightFloor": 0.01,
+   "devLogLoss": 0.27583,
+   "devEce": 0.00916
+  }
+ ],
+ "locked": {
+  "k": 32,
+  "weightFloor": 0
+ },
+ "holdout": {
+  "simulation": {
+   "n": 11567,
+   "coverage": 1,
+   "logLoss": 0.24973,
+   "brier": 0.06989,
+   "ece": 0.00586,
+   "predictedScorers": 1015.8,
+   "observedScorers": 987,
+   "countError": 0.0292
+  },
+  "shipped": {
+   "n": 11567,
+   "coverage": 1,
+   "logLoss": 0.25062,
+   "brier": 0.07011,
+   "ece": 0.00676,
+   "predictedScorers": 1040.4,
+   "observedScorers": 987,
+   "countError": 0.0541
+  },
+  "positional": {
+   "n": 11567,
+   "coverage": 1,
+   "logLoss": 0.26043,
+   "brier": 0.07254,
+   "ece": 0.00201,
+   "predictedScorers": 1010.3,
+   "observedScorers": 987,
+   "countError": 0.0236
+  },
+  "coherenceSides": 760,
+  "worstCoherenceRatio": 0.9999999999999993
+ },
+ "bars": [
+  {
+   "id": "M1_coherent",
+   "pass": true,
+   "detail": "worst coherence ratio 1.00000000 across 760 sides, allowed within 1%"
+  },
+  {
+   "id": "M2_beats_shipped",
+   "pass": true,
+   "detail": "simulation 0.24973 vs shipped 0.25062 — need <="
+  },
+  {
+   "id": "M3_beats_positional",
+   "pass": true,
+   "detail": "0.24973 vs positional 0.26043 — improvement 0.01070, need >= 0.005"
+  },
+  {
+   "id": "M4_calibrated",
+   "pass": true,
+   "detail": "ECE 0.00586, allowed <= 0.020"
+  },
+  {
+   "id": "M5_count_sane",
+   "pass": true,
+   "detail": "predicted 1015.8 vs observed 987 — 2.9%, allowed <= 10%"
+  }
+ ],
+ "verdict": "ACCEPTED"
+}

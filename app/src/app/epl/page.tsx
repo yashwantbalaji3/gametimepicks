@@ -277,7 +277,7 @@ export default function EplPage() {
             sub={
               awaitingLineup
                 ? "Two markets, each tested separately against its own bar: chance of a shot on goal, and chance of scoring. Lineups are posted about an hour before kickoff — until then both figures are conditional on that player STARTING, not a claim that he will. Rows update to the named eleven as soon as the teams are out."
-                : "Two markets, each tested separately against its own bar. Read off the posted lineups: each figure is for the state the player is actually in, starting or off the bench."
+                : "Two markets, each tested separately against its own bar. Read off the posted lineups: each figure is for the state the player is actually in. Once an eleven is named, a side's goals are shared out across the men actually playing — so these add back to exactly what the match simulation expects that team to score, rather than being a second opinion about the same game."
             }
           />
           <div className="rounded-[12px] overflow-hidden" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
