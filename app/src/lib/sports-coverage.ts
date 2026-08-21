@@ -132,12 +132,36 @@ export const SPORTS_COVERAGE: ReadonlyArray<SportCoverage> = [
     links: [{ label: "Schedule", href: "/events/" }],
   },
   {
+    /*
+     * P188: this read "Not modelled yet, and no upcoming fixtures published" while /epl was
+     * publishing per-fixture distributions and nine per-match reports. A coverage registry that
+     * understates is not safer than one that overstates — both are wrong answers to the question
+     * "what does this product actually cover", and a reader who checks here and leaves has been
+     * told the wrong thing either way.
+     *
+     * "projections", not "full": the team model publishes, but nothing has been graded and there
+     * are NO player markets — see lib/sports/epl/player-markets.mjs, which is the documented
+     * refusal rather than a gap.
+     */
     key: "epl",
     label: "EPL",
     longLabel: "English Premier League",
-    level: "coming-soon",
-    blurb: "Not modelled yet, and no upcoming fixtures published — schedule coming when the season returns.",
-    links: [],
+    /*
+     * "schedule", NOT "projections" — and the reason is a vocabulary trap worth stating. In THIS
+     * registry `hasProjections` means PLAYER-PROP projections: `canShowProjections` is documented as
+     * "May this sport surface player-prop projections?". EPL publishes TEAM-level distributions and
+     * has no player data at all, so the "projections" level would have made the registry assert the
+     * exact capability that lib/sports/epl/player-markets.mjs documents as refused — and would have
+     * opened any surface gated on that flag.
+     *
+     * The four levels have no slot for "team forecasts, no player markets" (World Cup had the same
+     * shape and also sits here). Understating a FLAG is safe where overstating one is not, so the
+     * flag stays conservative and the blurb carries what actually publishes. A fifth level is the
+     * real fix and is a deliberate follow-up, not something to improvise at the registry's edge.
+     */
+    level: "schedule",
+    blurb: "Fixtures plus team-level model forecasts — match result, scorelines, goals and margin, per fixture. Not validated out of sample, and no player markets: the model is fitted on match results only.",
+    links: [{ label: "Fixtures + forecasts", href: "/epl/" }],
   },
 ];
 

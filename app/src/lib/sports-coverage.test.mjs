@@ -39,13 +39,31 @@ test("only NBA and MLB are 'full' (real projections + parlays)", () => {
 });
 
 test("coming-soon sports publish nothing — no links", () => {
-  const coming = SPORTS_COVERAGE.filter((s) => s.level === "coming-soon");
-  assert.ok(coming.length >= 1, "expected at least EPL as coming-soon");
-  for (const s of coming) {
+  /*
+   * The RULE, not a roster. This required at least one coming-soon sport and named EPL as it, which
+   * stopped being true the day EPL began publishing forecasts — the registry then said "not modelled
+   * yet" beside a live per-fixture distribution table. A rule that needs a member to be testable
+   * quietly becomes a rule about that member.
+   */
+  for (const s of SPORTS_COVERAGE.filter((x) => x.level === "coming-soon")) {
     assert.equal(s.links.length, 0, `${s.key} must not link anywhere`);
   }
-  // EPL has no sourceable fixtures yet → coming-soon (no fabricated schedule).
-  assert.equal(getSportCoverage("epl")?.level, "coming-soon");
+});
+
+test("EPL's registry entry describes what it publishes, and claims no player capability", () => {
+  /*
+   * The entry said "Not modelled yet, and no upcoming fixtures published" while /epl rendered a live
+   * per-fixture distribution table. Fixed — but deliberately NOT by moving it to the "projections"
+   * level: in this registry that flag means PLAYER-PROP projections, and EPL has no player data at
+   * all. The level stays conservative; the blurb carries the truth.
+   */
+  const epl = getSportCoverage("epl");
+  assert.notEqual(epl?.level, "coming-soon", "EPL publishes per-fixture forecasts");
+  assert.notEqual(epl?.level, "projections", "that level asserts player-prop projections, which EPL does not have");
+  assert.ok((epl?.links.length ?? 0) >= 1, "a sport that publishes must link to where");
+  assert.match(epl?.blurb ?? "", /forecast/i, "the blurb says what actually publishes");
+  assert.match(epl?.blurb ?? "", /not validated out of sample/i, "the blurb carries the limitation");
+  assert.match(epl?.blurb ?? "", /no player markets/i, "and states the player refusal rather than omitting it");
 });
 
 test("MLS now has a real sourced schedule (schedule-only, linked)", () => {

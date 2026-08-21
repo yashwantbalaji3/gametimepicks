@@ -96,6 +96,30 @@ jobs:
           node app/scripts/epl/capture-epl-results.mjs --now "$NOW" || \
             echo "no newly-settled EPL match — the honest state between matchweeks"
 
+      # ---- Grading: the loop that makes the record mean something ----
+      #
+      # Joins each finished match to the forecast that was published BEFORE its kickoff and appends
+      # the hit or the miss. Runs after settlement so results/latest.json is fresh, and before the
+      # forecast rebuild so a match that just finished is graded against what we actually said.
+      #
+      # The ledger is APPEND-ONLY and a graded row is immutable — this is a DAILY job writing to a
+      # CUMULATIVE record, which is the exact shape that wiped two ledgers in one day.
+      #
+      # Its failure is deliberately NOT raised here. The grader exits non-zero on a BROKEN JOIN
+      # (completed fixtures that none of our forecasts could be matched to), and failing at this
+      # point would abort the run BEFORE the commit step and throw away the odds capture and the
+      # forecasts this run legitimately produced. Same lesson as the assertion below: a check that
+      # reports on work must never be the reason the work is lost. The status is carried forward and
+      # raised after the commit.
+      - name: Grade finished matches against their pre-kickoff forecasts
+        run: |
+          set -uo pipefail
+          if node app/scripts/epl/grade-epl-forecasts.mjs --write; then
+            echo "GRADE_STATUS=ok" >> "$GITHUB_ENV"
+          else
+            echo "GRADE_STATUS=refused" >> "$GITHUB_ENV"
+          fi
+
       # ---- Forecasts ----
       #
       # Runs AFTER the odds capture (it consumes odds/latest.json) and AFTER settlement (so a match
@@ -161,6 +185,18 @@ jobs:
             app/public/data/soccer/epl/odds/latest.json \
             data/internal/research/epl/forecasts/latest.json \
             app/public/data/soccer/epl/forecasts/latest.json
+
+      # Raised AFTER the commit, so a refusal reports loudly without costing the run its artifacts.
+      - name: Raise a grading refusal
+        run: |
+          set -euo pipefail
+          if [ "${GRADE_STATUS:-ok}" != "ok" ]; then
+            echo "::error::EPL forecast grading REFUSED — completed fixtures could not be joined to any"
+            echo "::error::pre-kickoff forecast. This is a broken join, not a quiet matchday. Do not trust"
+            echo "::error::any calibration built on this ledger until the eventId agreement is checked."
+            exit 1
+          fi
+          echo "grading: ok"
 
       - name: Notify on failure
         if: failure()

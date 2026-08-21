@@ -43,10 +43,16 @@ import { capabilityState, FULL_MODEL_SPORTS, resultsMode } from "./sport-capabil
 // fifa-world-cup is intentionally NOT here: the 2026 World Cup is complete and removed from active sports
 // coverage (archive only). It is no longer a schedule-only active sport.
 const SCHEDULE_ONLY = ["nhl", "wnba", "ufc", "ipl", "mls"];
-// No sport is at the "projections" coverage level right now — World Cup model projections
-// are under methodology review (held from public), so World Cup is schedule-only publicly.
-const PROJECTIONS_ONLY = [];
-const COMING_SOON = ["epl"];
+/*
+ * P188: these two were hand-kept, and EPL moving from "coming-soon" to "projections" broke both —
+ * COMING_SOON still named a sport that now publishes per-fixture distributions, and PROJECTIONS_ONLY
+ * was empty while a projections sport existed. Both are now DERIVED from the same registry the
+ * capabilities themselves derive from, so membership cannot drift from the levels again. The tests
+ * below still assert the INVARIANT per level; only the membership stopped being copied by hand.
+ */
+const atLevel = (level) => SPORTS_COVERAGE.filter((s) => s.level === level).map((s) => s.key);
+const PROJECTIONS_ONLY = atLevel("projections");
+const COMING_SOON = atLevel("coming-soon");
 
 // --- modeled sports ---------------------------------------------------------
 // These assert the INVARIANT rather than the current membership list. "Exactly NBA + MLB"
@@ -111,6 +117,11 @@ test("projections-only sports show projections but not suggested/BYO/grading", (
 
 // --- coming-soon sports -----------------------------------------------------
 test("coming-soon sports cannot show projections, parlays, or schedule", () => {
+  /*
+   * The list is derived, so it is legitimately empty when no sport is coming-soon. Assert the fact
+   * that CHANGED — EPL publishes now — so an empty loop cannot quietly become the whole test.
+   */
+  assert.ok(!COMING_SOON.includes("epl"), "EPL publishes per-fixture forecasts and is no longer coming-soon");
   for (const s of COMING_SOON) {
     const caps = getSportCapabilities(s);
     assert.equal(caps.hasProjections, false);

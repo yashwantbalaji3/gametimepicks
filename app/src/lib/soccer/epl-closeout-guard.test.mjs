@@ -36,6 +36,16 @@ const CROSS_LANE_READERS = [
   // watches.mjs (P162): the command center's reality-gated watch NAMES the EPL results artifact
   // path as evidence-to-inspect for a human. It imports nothing from the lane — prose, not a read.
   "src/lib/launch/watches.mjs",
+  /*
+   * learning-paths.mjs (P188): the learning loop's layout table declares the data root of EVERY
+   * sport, so naming EPL's is its job rather than a lane violation. It previously pointed at
+   * public/data/epl, which has never existed — the loop would have reported "no settled rows yet"
+   * forever once EPL started settling. Listing it here is what lets the path be CORRECT; the lane
+   * rule is about surfaces reaching into EPL, not about the cross-sport registry that locates them.
+   */
+  // Prefix, so the registry AND its guard are both covered — the guard has to name the path
+  // it is asserting, or it cannot assert it.
+  "src/lib/sports/learning-paths",
 ];
 
 /** Every source file this lane owns. */

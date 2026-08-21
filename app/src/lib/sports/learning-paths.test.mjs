@@ -12,6 +12,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
+import fs from "node:fs";
 
 import { sportLearningPaths, LEARNING_SPORTS } from "./learning-paths.mjs";
 
@@ -54,4 +55,23 @@ test("the not-yet-producing sports are honestly reported as not ready", () => {
   const notReady = LEARNING_SPORTS.filter((s) => !sportLearningPaths(s, APP).ready);
   assert.ok(notReady.includes("epl"), "EPL has no settled corpus yet — it must not read as ready");
   assert.ok(!notReady.includes("mlb"), "MLB must be ready");
+});
+
+test("every declared sport root EXISTS in the repo — a layout may not point at a directory that is not there", () => {
+  /*
+   * P188: epl was declared at public/data/epl/*, which has never existed; the real root is
+   * public/data/soccer/epl. Nothing failed, because the loop's "no settled rows yet" message is
+   * indistinguishable from a correct pre-season zero — so the defect was invisible right up until
+   * the sport started settling, at which point it would have stayed invisible.
+   *
+   * Asserted on the ROOT rather than the leaf: leaves are legitimately absent before a sport
+   * produces anything, but the root directory is where the sport's data actually lives, and getting
+   * that wrong is a typo the loop cannot recover from.
+   */
+  for (const sport of LEARNING_SPORTS) {
+    const p = sportLearningPaths(sport, APP);
+    // The common ancestor of the three declared paths is the sport's data root.
+    const root = path.dirname(path.dirname(p.boards));
+    assert.ok(fs.existsSync(root), `${sport}: declared data root ${path.relative(APP, root)} does not exist`);
+  }
 });

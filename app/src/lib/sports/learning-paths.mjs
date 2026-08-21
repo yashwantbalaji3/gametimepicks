@@ -26,7 +26,22 @@ const LAYOUT = Object.freeze({
   mlb: { calDir: "public/data/mlb/results/calibration", boards: "public/data/mlb/boards", ledger: "public/data/mlb/results/settled_leans.jsonl" },
   ufc: { calDir: "public/data/ufc/results/calibration", boards: "public/data/ufc/schedule", ledger: "public/data/ufc/results/settled_leans.jsonl" },
   nfl: { calDir: "public/data/nfl/results/calibration", boards: "public/data/nfl/boards", ledger: "public/data/nfl/results/settled_leans.jsonl" },
-  epl: { calDir: "public/data/epl/results/calibration", boards: "public/data/epl/boards", ledger: "public/data/epl/results/settled_leans.jsonl" },
+  /*
+   * P188: these three pointed at public/data/epl/*, which HAS NEVER EXISTED — the EPL root is
+   * public/data/soccer/epl (EPL lives in the soccer lane). The consequence was invisible while the
+   * sport settled nothing: loadRows() found no files, returned no rows, and the audit printed its
+   * "no settled rows yet — expected until the sport settles" line. The moment EPL began settling,
+   * that same reassuring sentence would have kept printing forever.
+   *
+   * `boards` is the FORECAST record for this sport: EPL publishes per-fixture distributions, not
+   * MLB-shaped over/under lean boards. `ledger` is the graded-forecast ledger the EPL grader
+   * appends to. NOTE the shape gap that remains: model-learning-audit's loadRows() reads binary
+   * over/under leans, and EPL's rows are three-way outcomes, so that audit still cannot consume
+   * this sport. EPL's learning surface is lib/sports/epl/grade-forecasts.mjs. Pointing these at
+   * real paths does not close that gap — it stops the layout ASSERTING a location that is not
+   * there, which is a different and prior defect.
+   */
+  epl: { calDir: "public/data/soccer/epl/results/calibration", boards: "public/data/soccer/epl/forecasts", ledger: "public/data/soccer/epl/results/graded-forecasts.jsonl" },
   nba: { calDir: "public/data/nba/results/calibration", boards: "public/data/nba/boards", ledger: "public/data/nba/results/settled_leans.jsonl" },
 });
 
