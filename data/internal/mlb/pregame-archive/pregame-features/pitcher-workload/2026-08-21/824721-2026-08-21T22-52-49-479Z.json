@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824721,
+  "date": "2026-08-21",
+  "capturedAt": "2026-08-21T22:52:49.479Z",
+  "availableAt": "2026-08-21T22:52:49.479Z",
+  "eventStartTime": "2026-08-21T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 543243,
+      "name": "Sonny Gray",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 6,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 5.4,
+        "bbAvg": 1.2,
+        "erAvg": 2.2,
+        "hrAvg": 0.4,
+        "kPer9": 7.84,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 132.67,
+        "k": 117,
+        "bb": 34,
+        "er": 39,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 657277,
+      "name": "Logan Webb",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 5,
+        "bbAvg": 1,
+        "erAvg": 1.6,
+        "hrAvg": 0,
+        "kPer9": 7.03,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 139,
+        "k": 110,
+        "bb": 32,
+        "er": 54,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-21&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-21T22:52:49.479Z"
+  },
+  "recordHash": "d7981ce856c146b53e28fa84e76b97392d6aa21aad4b24f2d2235c8e69adf5ad"
+}
