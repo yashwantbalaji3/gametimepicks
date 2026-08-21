@@ -107,3 +107,10 @@ data/internal/mlb/social/*.json
 # Build marker (scripts/build-info.mjs --emit) — regenerated every build, never committed.
 app/.build-info.json
 .tmp/
+
+# P188 — RAW api-football player payloads are NOT committed. This repository is PUBLIC, and the
+# captures are a licensed provider's response bodies; three fixture-list files were already here when
+# this rule was written, but a full player backfill is redistribution at a different scale. Only our
+# own DERIVED extraction (data/internal/research/epl/players/corpus-*.json) is tracked, and even that
+# is private-research class and never reaches the public export.
+data/internal/research/epl/players/raw/

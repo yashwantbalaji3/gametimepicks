@@ -1,0 +1,102 @@
+name: epl-player-backfill
+
+# FREE-TIER PLAYER BACKFILL.
+#
+# api-football's /fixtures/players endpoint is not feature-gated — it works on the founder's existing
+# FREE plan. What the free plan gates is SEASONS ("Free plans do not have access to this season, try
+# from 2022 to 2024"), so three full Premier League seasons — 1,140 fixtures, all carrying committed
+# api-football ids — are reachable for $0. That is enough to test whether a player model clears a
+# preregistered bar BEFORE anyone pays for the current season and the live lineup feed.
+#
+# The cost of $0 is throughput: 100 requests/day, one request per fixture. So this job exists to make
+# the backfill finish on its own — roughly twelve daily runs — rather than depending on someone
+# remembering to run a script. The capture is RESUMABLE and QUOTA-AWARE: it asks the API what is left,
+# takes up to that, records what it got, and stops.
+#
+# IT WRITES NOTHING PUBLIC. Raw provider payloads are gitignored (this repository is public and the
+# bodies are a licensed provider's); only our own compact extraction is committed, as private-research
+# class that never reaches the site export.
+#
+# NO SPEND. This job cannot exceed the free quota — the provider stops serving at 100/day with no
+# overage, and the script caps itself below that anyway.
+
+on:
+  schedule:
+    # 03:20 UTC — well clear of the matchweek job, and after the provider's daily quota reset.
+    - cron: "20 3 * * *"
+  workflow_dispatch:
+    inputs:
+      max_requests:
+        description: "Fixtures to capture this run (free plan allows 100/day)"
+        required: false
+        default: "90"
+
+concurrency:
+  group: epl-player-backfill
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Reconstruct the provider key
+        env:
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${API_FOOTBALL_KEY:-}" ]; then
+            echo "::error::API_FOOTBALL_KEY is not set — refusing rather than running a capture that writes nothing"
+            exit 1
+          fi
+          # The capture script reads the key from .env, which is how every other founder-key script
+          # in this repo works. Written here and never committed (.env is gitignored).
+          echo "API_FOOTBALL_KEY=${API_FOOTBALL_KEY}" >> .env
+
+      # Most-recent-first, so an interrupted backfill still leaves the most useful seasons complete.
+      - name: Capture player statistics
+        run: |
+          set -euo pipefail
+          MAX="${{ github.event.inputs.max_requests || '90' }}"
+          for SEASON in 2024-25 2023-24 2022-23; do
+            echo "--- season $SEASON ---"
+            node app/scripts/epl/capture-epl-player-stats.mjs --season "$SEASON" --max-requests "$MAX" --write
+          done
+
+      # Only the derived extraction. players/raw/ is gitignored and never reaches this step.
+      - name: Commit the extraction
+        run: |
+          set -euo pipefail
+          git config user.name  "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/internal/research/epl/players/corpus-players-v1.jsonl \
+                  data/internal/research/epl/players/CAPTURE_MANIFEST.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "nothing new captured"; exit 0; fi
+          git commit -m "auto: epl player backfill $(date -u +%Y-%m-%d) [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
+      # Reports coverage AFTER the commit, so a report can never be the reason a capture is lost.
+      - name: Report coverage
+        run: |
+          set -euo pipefail
+          node -e "
+            const fs = require('node:fs');
+            const f = 'data/internal/research/epl/players/corpus-players-v1.jsonl';
+            if (!fs.existsSync(f)) { console.log('no corpus yet'); process.exit(0); }
+            const fixtures = new Set();
+            for (const l of fs.readFileSync(f, 'utf8').split('\n')) {
+              if (!l.trim()) continue;
+              try { fixtures.add(JSON.parse(l).fixtureId); } catch {}
+            }
+            const TARGET = 1140;  // three free-tier seasons x 380
+            const pct = ((fixtures.size / TARGET) * 100).toFixed(1);
+            console.log(\`player corpus: \${fixtures.size}/\${TARGET} fixtures (\${pct}%) — \${Math.ceil((TARGET - fixtures.size) / 100)} more day(s) at the free rate\`);
+            if (fixtures.size >= TARGET) console.log('BACKFILL COMPLETE — the free-tier corpus is whole.');
+          "
