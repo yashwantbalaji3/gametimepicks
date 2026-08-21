@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-player-model-v1-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "public": false,
+  "registeredAt": "2026-08-21T05:30:00Z",
+  "purpose": "Fix the acceptance bars for the EPL player model BEFORE it is fitted or evaluated. This file is committed alone so the git history proves the bars pre-date the numbers — the same discipline that rejected EPL team model v2 hours earlier, and the NFL player families twice before that.",
+
+  "target": {
+    "market": "anytime_goalscorer",
+    "definition": "did this player score one or more goals in this match",
+    "why": "It is the flagship soccer player market, it is binary, and it grades EXACTLY from the corpus with no line to argue about. Shots and shots-on-target follow the same machinery and are deliberately NOT tested here: one market, one bar, no shopping across five targets until one passes."
+  },
+
+  "population": {
+    "rule": "every player who APPEARED in a scored match — started or came off the bench",
+    "why": "This matches how the product would ship. ESPN publishes lineups roughly an hour before kickoff, so a live projection is conditioned on knowing who is playing. Scoring the non-appearing bench would be measuring a PARTICIPATION model, which is a different question and is not what this bar covers.",
+    "honestLimitation": "Conditioning on appearance means these numbers do NOT answer 'will he play'. If the lineup feed is unavailable at publication time, this model has nothing to say and must abstain rather than assume a starter."
+  },
+
+  "corpus": {
+    "file": "data/internal/research/epl/players/espn-players-v1.jsonl",
+    "source": "ESPN public endpoints, free and unmetered",
+    "seasons": ["2024-25", "2025-26"],
+    "fixtures": 760,
+    "note": "No MINUTES field exists in this source — only started / subbedIn / subbedOut. Expected minutes are therefore NOT modelled directly; participation enters as a discrete state, which is a limitation and is recorded as one rather than papered over with an assumed 90/65/20 split."
+  },
+
+  "protocol": {
+    "walkForward": "by match date; every player rate is fitted STRICTLY on matches dated earlier than the match being scored. No same-day information is used.",
+    "warmup": { "season": "2024-25", "fixtures": 380, "rule": "folds into the rates, NEVER scored" },
+    "development": { "rule": "the FIRST half of 2025-26 by date", "fixtures": 190, "use": "ALL hyperparameter search happens here and nowhere else" },
+    "holdout": { "rule": "the SECOND half of 2025-26 by date", "fixtures": 190, "use": "scored ONCE, after the configuration is locked. Consulting it before locking voids this preregistration." }
+  },
+
+  "model": {
+    "form": "P(scores) = 1 - exp(-lambda), with lambda the player's expected goals for the match",
+    "lambda": "shrunk player scoring rate for the participation state (start or substitute), optionally scaled by a team-context term",
+    "shrinkage": "Bayesian pseudo-count k toward the positional base rate for the same participation state — a player with three appearances must not be trusted like one with sixty",
+    "hyperparameters": { "k": "searched on DEVELOPMENT only", "teamContext": "on or off, decided on DEVELOPMENT only" }
+  },
+
+  "baselines": [
+    {
+      "id": "positional",
+      "definition": "the league base rate for (position group x participation state), fitted on prior matches only",
+      "why": "This is the bar that matters. If player-specific history does not beat 'forwards who start score at rate X', then the model knows nothing about players and is an expensive way to print a positional average."
+    },
+    {
+      "id": "player_raw",
+      "definition": "the player's unshrunk historical rate for that participation state, with the positional rate as fallback when he has no prior appearances",
+      "why": "Included so shrinkage has to EARN its place. If raw beats shrunk out of sample, the shrinkage is doing harm and the simpler model should ship."
+    }
+  ],
+
+  "primaryMetric": "log loss on the binary outcome",
+  "secondaryMetrics": ["Brier score", "expected calibration error over 10 bins", "observed vs predicted scorer count", "coverage of the appeared population"],
+
+  "acceptanceBars": {
+    "note": "ALL must hold on the HOLDOUT half for anything player-level to be published. Any single failure is a rejection, recorded rather than retried against a softer bar.",
+    "bars": [
+      {
+        "id": "P1_beats_positional",
+        "statement": "model HOLDOUT log loss must be lower than the positional baseline's by at least 0.005",
+        "why": "A margin, not a hair. Below this the difference is not distinguishable from protocol noise."
+      },
+      {
+        "id": "P2_shrinkage_earns_it",
+        "statement": "model HOLDOUT log loss must be lower than or equal to the raw-player baseline's",
+        "why": "If the unshrunk rate is better, ship that instead — the extra machinery is not free and must not be adopted on faith."
+      },
+      {
+        "id": "P3_calibrated",
+        "statement": "model HOLDOUT expected calibration error must be at most 0.020",
+        "why": "This publishes a probability next to a named human being. A number that says 30% must happen near 30% of the time or it should not be shown at all."
+      },
+      {
+        "id": "P4_scorer_count_sane",
+        "statement": "the sum of predicted probabilities over the HOLDOUT population must land within 10% of the observed number of goalscorers",
+        "why": "Log loss can look respectable while the model systematically under- or over-predicts how many players score. A total that is 30% off is visibly wrong on a matchday page even when the ranking is fine."
+      },
+      {
+        "id": "P5_no_abstention_gaming",
+        "statement": "the model must produce a probability for at least 95% of the appeared HOLDOUT population",
+        "why": "Abstaining on hard cases is the cheapest way to win a scoring metric. Coverage is stated so a good score cannot be bought by declining to answer."
+      }
+    ]
+  },
+
+  "stoppingRule": {
+    "statement": "ONE sweep over the declared grid, on DEVELOPMENT only. If no configuration clears all five bars, the EPL player model is REJECTED, nothing player-level is published, and the model is not re-specified until the corpus changes — for example by adding minutes, or seasons beyond the two captured.",
+    "grid": { "k": [1, 2, 4, 8, 16, 32], "teamContext": [false, true] },
+    "why": "Six model efforts have now been measured against pre-declared bars in this repository and five were rejected. The failure mode being prevented is search-until-it-passes: with enough targets and enough variants something clears any bar by chance."
+  },
+
+  "whatPassingDoesNotMean": [
+    "It does not mean the model beats a sportsbook price. Odds are not an input and no market comparison is part of this protocol.",
+    "It does not license shots, shots-on-target, assists or cards. Each is a separate target needing its own bar.",
+    "It does not answer whether a player will play. That is a participation question this population deliberately excludes."
+  ]
+}
