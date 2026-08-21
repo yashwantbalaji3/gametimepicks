@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823262,
+  "date": "2026-08-21",
+  "capturedAt": "2026-08-21T23:14:45.255Z",
+  "availableAt": "2026-08-21T23:14:45.255Z",
+  "eventStartTime": "2026-08-22T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 681190,
+      "name": "Randy Vásquez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 12,
+      "lastStartDate": "2026-08-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20,
+        "ipAvg": 4,
+        "kAvg": 0.6,
+        "bbAvg": 1.4,
+        "erAvg": 2.6,
+        "hrAvg": 0.4,
+        "kPer9": 1.35,
+        "workloadIpLast5": 20
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 94.33,
+        "k": 61,
+        "bb": 29,
+        "er": 43,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 687570,
+      "name": "Connor Prielipp",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 5.8,
+        "bbAvg": 2.6,
+        "erAvg": 3.6,
+        "hrAvg": 1.2,
+        "kPer9": 10.04,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 87.67,
+        "k": 94,
+        "bb": 36,
+        "er": 52,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-21&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-21T23:14:45.255Z"
+  },
+  "recordHash": "4c3278d0fc33749e1e739399be1ca18bec97f417a425dac8c8caea4ba2caa427"
+}

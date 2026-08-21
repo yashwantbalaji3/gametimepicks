@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 823101,
+  "teamId": 112,
+  "name": "Chicago Cubs",
+  "side": "away",
+  "date": "2026-08-21",
+  "capturedAt": "2026-08-21T23:14:52.136Z",
+  "availableAt": "2026-08-21T23:14:52.136Z",
+  "eventStartTime": "2026-08-22T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 2,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 2783.7,
+  "previousGameDate": "2026-08-19",
+  "previousVenueId": 17,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=112&startDate=2026-08-07&endDate=2026-08-20",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-21T23:14:52.136Z"
+  },
+  "recordHash": "d3b09c346b8ce58af8e11bca6aac89fd6d9ad5d204d952bc9d8c1b0a13620c25"
+}
