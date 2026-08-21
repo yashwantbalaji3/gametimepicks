@@ -40,15 +40,24 @@ test("the corpus the new state rests on is REAL — asserted against the file, n
   const f = path.join(REPO, "data/internal/research/epl/players/espn-players-v1.jsonl");
   assert.ok(fs.existsSync(f), "the ESPN player corpus must exist for the state to claim AVAILABLE");
   const rows = fs.readFileSync(f, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
-  assert.ok(rows.length > 10000, `expected a full season of player rows, got ${rows.length}`);
-  assert.equal(new Set(rows.map((r) => r.espnEventId)).size, 380, "a full 380-fixture season");
+  assert.ok(rows.length > 40000, `expected several seasons of player rows, got ${rows.length}`);
+  const fixtures = new Set(rows.map((r) => r.espnEventId)).size;
+  const seasons = new Set(rows.map((r) => r.season));
+  /*
+   * Whole seasons, not a fraction of one. A corpus 200 fixtures into a season would fit rates on a
+   * biased slice — early-season form, one half of the fixture list — and nothing downstream would
+   * show it. Asserted as a multiple of 380 rather than a fixed number so the corpus can grow.
+   */
+  assert.equal(fixtures % 380, 0, `${fixtures} fixtures is not a whole number of 380-match seasons`);
+  assert.ok(seasons.size >= 3, `expected at least three seasons, got ${[...seasons].join(", ")}`);
+  assert.equal(fixtures, seasons.size * 380, "every captured season must be complete");
   /* Participation is the term the NFL families lacked; assert it is OBSERVED, not assumed. */
   assert.ok(rows.some((r) => r.started === true), "starts are recorded");
   assert.ok(rows.some((r) => r.subbedIn === true), "substitute appearances are recorded");
   assert.ok(rows.some((r) => r.appeared === false), "non-appearances are recorded — the bench is the signal");
   /* League sanity: a corpus with the wrong scoring rate is a corpus of something else. */
   const goals = rows.reduce((s, r) => s + (r.goals ?? 0), 0);
-  const perMatch = goals / 380;
+  const perMatch = goals / fixtures;
   assert.ok(perMatch > 2.2 && perMatch < 3.2, `goals per match ${perMatch.toFixed(2)} is outside any real EPL season`);
 });
 
