@@ -37,9 +37,16 @@ const NFL_GAME_DIR = path.join(OUT, "nfl", "game");
 const firstNflGame = fs.existsSync(NFL_GAME_DIR)
   ? fs.readdirSync(NFL_GAME_DIR).filter((d) => /^\d+$/.test(d)).sort()[0]
   : null;
+/* P188: the EPL per-fixture report joins on the SAME terms — discovered, never pinned. Fixture slugs
+   change every matchweek, so a hard-coded one would audit a 404 and report "clean" for a dead page. */
+const EPL_MATCH_DIR = path.join(OUT, "epl", "match");
+const firstEplMatch = fs.existsSync(EPL_MATCH_DIR)
+  ? fs.readdirSync(EPL_MATCH_DIR).filter((d) => /-v-.+-\d{4}-\d{2}-\d{2}$/.test(d)).sort()[0]
+  : null;
 const ROUTES = ["", "today", "markets", "results", "methodology", "learn", "moonshot", "bank-builder", "mlb", "nfl", "simulate", "sports",
-  "ufc", "goal-rush", "bucket-blitz",   // kept in sync with ROUTES in e2e/accessibility.spec.ts
-  ...(firstNflGame ? [`nfl/game/${firstNflGame}`] : [])];
+  "ufc", "goal-rush", "bucket-blitz", "epl",   // kept in sync with ROUTES in e2e/accessibility.spec.ts
+  ...(firstNflGame ? [`nfl/game/${firstNflGame}`] : []),
+  ...(firstEplMatch ? [`epl/match/${firstEplMatch}`] : [])];
 
 const strip = (h) => h.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<style[\s\S]*?<\/style>/gi, "");
 const textOf = (s) => s.replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/gi, " ").replace(/\s+/g, " ").trim();

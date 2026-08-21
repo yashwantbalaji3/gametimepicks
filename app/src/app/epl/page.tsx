@@ -16,10 +16,10 @@
  * number it affects, not in a footnote.
  */
 import type { Metadata } from "next";
-import fs from "node:fs";
-import path from "node:path";
 
+import Link from "next/link";
 import SportSchedulePage from "@/components/sports/sport-schedule-page";
+import { loadEplForecasts, eplMatchHref, type EplForecastSet } from "@/lib/sports/epl/forecast-view";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 
 export const metadata: Metadata = {
@@ -28,23 +28,13 @@ export const metadata: Metadata = {
     "Premier League model forecasts: match-result probabilities, expected goals and over/under 2.5 for each fixture. Distributions only — not picks. No match has been graded under this model yet.",
 };
 
-type Row = {
-  eventId: string; matchup: string; kickoffUtc: string; state: string;
-  unavailableReason: string | null;
-  probs: { home: number; draw: number; away: number } | null;
-  expectedGoals: number | null; over25: number | null;
-  coldStart: { home: boolean; away: boolean } | null;
-};
-type Forecasts = { generatedAt: string; validation: string; trackRecord: string; rows: Row[] } | null;
-
-function loadForecasts(): Forecasts {
-  try {
-    const p = path.join(process.cwd(), "public/data/soccer/epl/forecasts/latest.json");
-    return JSON.parse(fs.readFileSync(p, "utf8")) as NonNullable<Forecasts>;
-  } catch {
-    return null; // Unreadable is ABSENT, never an empty-but-confident page.
-  }
-}
+/*
+ * P188: the loader moved to lib/sports/epl/forecast-view so this page and the per-fixture report at
+ * /epl/match/[slug] read ONE source. Two parsers would be two chances to disagree about the same
+ * fixture, which is the defect shape this codebase keeps finding.
+ */
+type Forecasts = EplForecastSet | null;
+const loadForecasts = loadEplForecasts;
 
 const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
 
@@ -83,7 +73,13 @@ function ForecastTable({ f }: { f: NonNullable<Forecasts> }) {
             {priced.map((r) => (
               <tr key={r.eventId} style={{ borderTop: "1px solid var(--vault-border)" }}>
                 <td className="py-2 pr-3 text-[var(--text)]">
-                  {r.matchup}
+                  {/* The fixture opens its own distribution. A row that has no slug stays plain text
+                      rather than linking to a page that would not exist. */}
+                  {r.slug ? (
+                    <Link href={eplMatchHref(r.slug)} style={{ color: "var(--sport-soccer)" }}>{r.matchup}</Link>
+                  ) : (
+                    r.matchup
+                  )}
                   {r.coldStart && (r.coldStart.home || r.coldStart.away) ? (
                     <span className="ml-2 text-[11px]" style={{ color: "var(--text-mute)" }}>
                       · newly promoted side, no top-flight history — league-average baseline

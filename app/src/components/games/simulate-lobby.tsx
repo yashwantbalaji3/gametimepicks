@@ -28,6 +28,7 @@ import { gameScriptFromBoard } from "@/lib/world-cup/game-script";
 import { scriptSignal, topPropSignal } from "@/lib/games-board-signal";
 import { getSportIdentity } from "@/lib/sport-identity";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
+import { loadEplForecasts, reportableRows, eplMatchHref } from "@/lib/sports/epl/forecast-view";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { mlbAvailabilityBadges, worldCupAvailabilityBadges } from "@/lib/simulate-availability";
 import type { PublicProjection } from "@/lib/normalize";
@@ -56,6 +57,10 @@ function countBy<T>(items: T[], key: (t: T) => string | number | null | undefine
 /** ET kickoff for an NFL row — same clock rule the NFL hub uses, stated once here. */
 const formatNflKickoff = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(iso)) + " ET";
+
+/* EPL fixtures span Friday to Monday, so the day is part of the label rather than just the time. */
+const formatEplKickoff = (iso: string) =>
+  new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(iso)) + " ET";
 
 export default function SimulateLobby() {
   const today = currentEtDate();
@@ -247,6 +252,56 @@ export default function SimulateLobby() {
     /* no-op */
   }
 
+  /*
+   * ── EPL (P188) ────────────────────────────────────────────────────────────────────────────────
+   * The Simulation Hub listed MLB, NBA, NFL and UFC while nine per-fixture Premier League
+   * distributions existed only behind /epl — the same absence P178-A found for NFL. Every number
+   * below comes from the SAME committed artifact /epl and /epl/match/[slug] read, through the same
+   * loader, so the hub cannot report a different fixture count from the page it links to.
+   *
+   * `simReady` is the ladder's own verdict, not the presence of a file: only CURRENT_PRE_EVENT rows
+   * carrying probabilities qualify, which is exactly the set that has a report page. The tenth
+   * opening fixture is READY_EXCEPT_ODDS and is deliberately NOT listed as ready.
+   *
+   * Unlike MLB and NFL this model is NOT sampled — it evaluates an exact score matrix — so no
+   * run-count chip is emitted for EPL anywhere. Borrowing that vocabulary would claim a method the
+   * sport does not use.
+   */
+  const eplSet = loadEplForecasts();
+  for (const r of reportableRows(eplSet)) {
+    const home = r.homeClub ?? r.matchup.split(" v ")[0];
+    const away = r.awayClub ?? r.matchup.split(" v ")[1];
+    const kickoff = Date.parse(r.kickoffUtc);
+    rows.push({
+      id: `epl_${r.slug}`,
+      sport: "epl",
+      sportLabel: "EPL",
+      matchup: `${home} v ${away}`,
+      timeLabel: formatEplKickoff(r.kickoffUtc),
+      statusLabel: Number.isFinite(kickoff) && kickoff <= Date.now() ? "Kicked off · locked" : "Upcoming",
+      /* The distribution is the product; EPL publishes no player projections, so this is honestly 0. */
+      projections: 0,
+      href: "/epl",
+      buildHref: "/build",
+      detailHref: eplMatchHref(r.slug as string),
+      /*
+       * READ FROM THE ROW, not asserted. `reportableRows` has already filtered to exactly this
+       * condition, so a literal `true` would have been correct today and still wrong — it is the
+       * shape P179 banned, where a badge stops tracking the artifact it claims to describe. The
+       * guard caught it here. Stated as the condition, it stays true only while it is true.
+       */
+      simReady: r.state === "CURRENT_PRE_EVENT" && r.probs != null,
+      signal: {
+        kind: "script",
+        pick: `${home} ${Math.round(r.probs!.home * 100)}% · draw ${Math.round(r.probs!.draw * 100)}% · ${away} ${Math.round(r.probs!.away * 100)}%`,
+        sub: r.coldStart?.home || r.coldStart?.away
+          ? "league-average baseline on one side — newly promoted club"
+          : `${r.expectedGoals?.toFixed(2) ?? "—"} expected goals · not validated out of sample`,
+        confidence: "Low",
+      },
+    });
+  }
+
   const activeSports = new Set(rows.map((r) => r.sport)).size;
   /*
    * Sports that are actually SIMULATING, which is not the same as sports on the board. The header
@@ -319,7 +374,9 @@ export default function SimulateLobby() {
   const nbaRows = rowsBySport("nba");
   const nflRows = rowsBySport("nfl");
   const ufcRows = rowsBySport("ufc");
+  const eplRows = rowsBySport("epl");
 
+  const eplId = getSportIdentity("epl");
   const mlbId = getSportIdentity("mlb");
   const wcId = getSportIdentity("world_cup");
   const nbaId = getSportIdentity("nba");
@@ -375,6 +432,20 @@ export default function SimulateLobby() {
       : nflEligibility.state === "ARTIFACT_UNAVAILABLE"
         ? mk("nfl", nflId.label, nflId.icon, "provider_pending", "data unavailable", 0, 0, nflEligibility.note)
         : mk("nfl", nflId.label, nflId.icon, "conditional", "no current slate", 0, 0, nflEligibility.note),
+    /*
+     * EPL (P188). Listed on the same terms as every other sport: the state word follows the READY
+     * count, which is the rule P185-D established after NFL wore "active" on fifteen shared-prior
+     * games. The note carries the one thing a reader must not have to hunt for — this model has
+     * graded ZERO matches, so a rich readout is not a record.
+     */
+    eplRows.length > 0
+      ? mk("epl", eplId.label, eplId.icon,
+          simReadyCountFor("epl") > 0 ? "active" : "conditional",
+          simReadyCountFor("epl") > 0 ? "active" : "no priced fixtures",
+          eplRows.length, simReadyCountFor("epl"),
+          "Per-fixture score distributions from an exact Poisson matrix — match result, scorelines, goals ladder and each side's goal curve. Not validated out of sample: no Premier League match has been graded under this model.")
+      : mk("epl", eplId.label, eplId.icon, "conditional", "no current fixtures", 0, 0,
+          "No Premier League fixtures inside the forecast window. The schedule stays on /epl."),
     // NBA: off-season unless a fresh board produced rows.
     nbaRows.length > 0
       ? mk("nba", nbaId.label, nbaId.icon, "active", "active", nbaRows.length, 0)

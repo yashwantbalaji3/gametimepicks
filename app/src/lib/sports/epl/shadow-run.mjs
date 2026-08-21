@@ -110,7 +110,28 @@ export function runEplShadow({ fixture, nowIso, strengthState, oddsSnapshot = nu
       { source: `strength state (${strengthState.matchesFitted} matches < ${strengthState.cutoffIso})`, asOfIso: strengthState.cutoffIso },
       { source: "odds snapshot (authorized, three-way)", asOfIso: oddsSnapshot.capturedAt },
     ],
-    model: { state: "PREDICTED", modelId: strengthState.modelId, probs: matrix.oneXTwo, totals: matrix.totals, topScorelines: matrix.topScorelines, lambdas: matrix.lambdas, coldStart: matrix.coldStart },
+    /*
+     * The whole matrix, not a summary of it. This carried probs/totals/topScorelines/lambdas and
+     * dropped the rest, so every derived market the grid already answered — both teams to score,
+     * clean sheets, the line ladder, each side's own goal distribution, the margin — was computed
+     * and discarded one layer before the artifact. Passing the block through costs nothing: these
+     * are the same grid sums, so they cannot disagree with `probs`.
+     */
+    model: {
+      state: "PREDICTED",
+      modelId: strengthState.modelId,
+      probs: matrix.oneXTwo,
+      totals: matrix.totals,
+      teamGoals: matrix.teamGoals,
+      btts: matrix.btts,
+      cleanSheet: matrix.cleanSheet,
+      doubleChance: matrix.doubleChance,
+      margin: matrix.margin,
+      topScorelines: matrix.topScorelines,
+      topScorelinesMass: matrix.topScorelinesMass,
+      lambdas: matrix.lambdas,
+      coldStart: matrix.coldStart,
+    },
     market,
     qualification: { lineupPolicy: base.lineupPolicy, oddsFresh: true, freshnessBoundHours: oddsFreshnessHours },
     publicActivation: "OFF",

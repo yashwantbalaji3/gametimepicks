@@ -53,11 +53,26 @@ const upcoming = (season.rows ?? []).filter((f) => {
   return Number.isFinite(k) && k > nowMs && k <= nowMs + LOOKAHEAD_H * 3600_000;
 });
 
+/*
+ * The per-fixture page needs a URL-safe identifier, and `eventId` is not one — it is
+ * "soccer:epl:arsenal-v-coventry-city:20260821t1900", colons and all. The slug is derived from the
+ * SAME fields as the canonical id (both clubs + the kickoff date) so the two cannot describe
+ * different fixtures, and a collision REFUSES the run rather than letting two matches share a page.
+ * The EPL cannot produce a same-day repeat of one pairing, so a collision here means an identity
+ * defect upstream, which is exactly the case P043 ruled must fail closed on both sides.
+ */
+const slugify = (v) => String(v ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const fixtureSlug = (f) => `${slugify(f.homeClub)}-v-${slugify(f.awayClub)}-${String(f.kickoffIso ?? "").slice(0, 10)}`;
+
 const rows = upcoming.map((fixture) => {
   const out = runEplShadow({ fixture, nowIso: NOW, strengthState, oddsSnapshot });
   return {
     eventId: fixture.eventId,
     matchup: `${fixture.homeClub} v ${fixture.awayClub}`,
+    homeClub: fixture.homeClub,
+    awayClub: fixture.awayClub,
+    slug: fixtureSlug(fixture),
     kickoffUtc: fixture.kickoffIso,
     matchweek: fixture.matchweek ?? null,
     state: out.state,
@@ -69,9 +84,7 @@ const rows = upcoming.map((fixture) => {
      * CURRENT_PRE_EVENT with `threeWay: null`: a forecast set asserting it had predicted, carrying
      * no prediction. Nothing failed, because a missing field reads exactly like a quiet one.
      */
-    model: out.artifact?.model
-      ? { probs: out.artifact.model.probs, totals: out.artifact.model.totals, lambdas: out.artifact.model.lambdas, coldStart: out.artifact.model.coldStart, modelId: out.artifact.model.modelId }
-      : null,
+    model: out.artifact?.model ? { ...out.artifact.model } : null,
     market: out.artifact?.market
       ? { books: out.artifact.market.bookmakers.length, impliedSum: out.artifact.market.bookmakers[0]?.impliedSum ?? null }
       : null,
@@ -87,6 +100,20 @@ const hollow = rows.filter((r) => r.state === "CURRENT_PRE_EVENT" && !r.model?.p
 if (hollow.length > 0) {
   console.error(`REFUSED — ${hollow.length} row(s) claim CURRENT_PRE_EVENT while carrying no probabilities: ${hollow.map((r) => r.matchup).join(", ")}`);
   process.exit(3);
+}
+
+/* Two fixtures resolving to one page is an identity defect; publish neither rather than the wrong one. */
+const bySlug = new Map();
+for (const r of rows) bySlug.set(r.slug, [...(bySlug.get(r.slug) ?? []), r.eventId]);
+const collisions = [...bySlug].filter(([, ids]) => ids.length > 1);
+if (collisions.length > 0) {
+  console.error(`REFUSED — slug collision: ${collisions.map(([sl, ids]) => `${sl} ← ${ids.join(" + ")}`).join("; ")}`);
+  process.exit(4);
+}
+const unslugged = rows.filter((r) => !/^[a-z0-9-]+-v-[a-z0-9-]+-\d{4}-\d{2}-\d{2}$/.test(r.slug));
+if (unslugged.length > 0) {
+  console.error(`REFUSED — ${unslugged.length} row(s) produced an unusable slug: ${unslugged.map((r) => `${r.matchup} → "${r.slug}"`).join("; ")}`);
+  process.exit(5);
 }
 
 const counts = {};
@@ -121,6 +148,9 @@ const artifact = {
 const publicRows = rows.map((r) => ({
   eventId: r.eventId,
   matchup: r.matchup,
+  homeClub: r.homeClub,
+  awayClub: r.awayClub,
+  slug: r.slug,
   kickoffUtc: r.kickoffUtc,
   matchweek: r.matchweek,
   state: r.state,
@@ -130,6 +160,27 @@ const publicRows = rows.map((r) => ({
   expectedGoals: r.model?.totals?.expected ?? null,
   over25: r.model?.totals?.over25 ?? null,
   coldStart: r.model?.coldStart ?? null,
+  /*
+   * THE DISTRIBUTION IS THE PRODUCT, so the reader gets the distribution — not a five-number
+   * summary of one. Every field here is an exact sum over the same grid that produced `probs`
+   * above, which is what lets a per-fixture page show a scoreline table, a totals ladder and each
+   * side's goal curve without a second derivation that could drift from the headline numbers.
+   *
+   * Still deliberately absent, and this does not change with volume: any pick, rating, confidence,
+   * or comparison against a price. A richer readout of a model that has graded ZERO matches must
+   * not start reading as evidence the model is right — which is why `validation` and `trackRecord`
+   * below stay on the artifact and the page prints them beside the numbers.
+   */
+  lambdas: r.model?.lambdas ?? null,
+  totals: r.model?.totals ?? null,
+  teamGoals: r.model?.teamGoals ?? null,
+  btts: r.model?.btts ?? null,
+  cleanSheet: r.model?.cleanSheet ?? null,
+  doubleChance: r.model?.doubleChance ?? null,
+  margin: r.model?.margin ?? null,
+  topScorelines: r.model?.topScorelines ?? null,
+  topScorelinesMass: r.model?.topScorelinesMass ?? null,
+  modelId: r.model?.modelId ?? null,
 }));
 
 const publicArtifact = {

@@ -22,6 +22,9 @@
 
 export type SportIdentityKey =
   | "soccer"
+  /* Premier League is its own identity, not an alias of `soccer` — that entry is labelled "World
+     Cup", so aliasing would have printed "World Cup" on every EPL chip on the simulation hub. */
+  | "epl"
   | "mlb"
   | "nba"
   | "ufc"
@@ -62,6 +65,15 @@ const IDENTITIES: Record<SportIdentityKey, SportIdentity> = {
     icon: "⚽",
     accentVar: "var(--sport-soccer)",
     gradient: "linear-gradient(135deg, rgba(52,211,153,0.22) 0%, rgba(45,212,191,0.10) 55%, transparent 100%)",
+    ballLabel: "soccer ball",
+  },
+  epl: {
+    key: "epl",
+    label: "Premier League",
+    shortLabel: "EPL",
+    icon: "⚽",
+    accentVar: "var(--sport-soccer)",
+    gradient: "linear-gradient(135deg, rgba(244,114,182,0.22) 0%, rgba(244,114,182,0.08) 55%, transparent 100%)",
     ballLabel: "soccer ball",
   },
   mlb: {
@@ -155,7 +167,7 @@ const ALIASES: Record<string, SportIdentityKey> = {
   "fifa-world-cup": "soccer",
   fifa_world_cup: "soccer",
   mls: "soccer",
-  epl: "soccer",
+  epl: "epl",
   // baseball
   mlb: "mlb",
   baseball: "mlb",

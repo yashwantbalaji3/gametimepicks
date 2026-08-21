@@ -33,10 +33,17 @@ test("World Cup, MLB, NBA, UFC, mixed all resolve to distinct icons", () => {
 });
 
 test("aliases map to the canonical identity", () => {
-  // soccer family
-  for (const a of ["soccer", "world_cup", "world cup", "fifa-world-cup", "wc", "mls", "epl"]) {
+  /*
+   * Soccer family — MINUS the Premier League. P188 gave EPL its own identity because the `soccer`
+   * entry is LABELLED "World Cup": while EPL aliased to it, every EPL chip on the simulation hub
+   * would have rendered "World Cup" beside a Premier League fixture. An alias is only correct when
+   * the two things are the same thing to a reader, and a competition label is not.
+   */
+  for (const a of ["soccer", "world_cup", "world cup", "fifa-world-cup", "wc", "mls"]) {
     assert.equal(getSportIdentity(a).key, "soccer", `alias ${a}`);
   }
+  assert.equal(getSportIdentity("epl").key, "epl", "the Premier League resolves to its own identity");
+  assert.equal(getSportIdentity("epl").label, "Premier League", "and carries its own label, not the World Cup's");
   // basketball family (WNBA folds into the NBA identity)
   for (const a of ["nba", "wnba", "basketball"]) {
     assert.equal(getSportIdentity(a).key, "nba", `alias ${a}`);
@@ -69,9 +76,9 @@ test("hasSportIdentity flags known vs unknown sports", () => {
   assert.equal(hasSportIdentity(""), false);
 });
 
-test("SPORT_IDENTITIES is frozen and covers all nine identities", () => {
+test("SPORT_IDENTITIES is frozen and covers all ten identities", () => {
   assert.ok(Object.isFrozen(SPORT_IDENTITIES));
-  assert.equal(SPORT_IDENTITIES.length, 9);
+  assert.equal(SPORT_IDENTITIES.length, 10);   // +epl (P188)
   const keys = SPORT_IDENTITIES.map((s) => s.key).sort();
-  assert.deepEqual(keys, ["bank_builder", "ipl", "mixed", "mlb", "nba", "nfl", "nhl", "soccer", "ufc"]);
+  assert.deepEqual(keys, ["bank_builder", "epl", "ipl", "mixed", "mlb", "nba", "nfl", "nhl", "soccer", "ufc"]);
 });

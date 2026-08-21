@@ -152,9 +152,15 @@ jobs:
           # The forecast set is asserted alongside the odds: a run that captured prices and produced
           # no forecast is the exact failure this chain had before the builder existed, and it must
           # not pass silently just because the capture half worked.
+          # P188: the PUBLIC forecast artifact is asserted too. It was absent from this list while
+          # only the private research copy was checked — and the public copy is what every reader-
+          # facing surface reads: /epl, the nine per-fixture reports, and the Simulate hub's EPL
+          # card. A run that wrote the private half and not the public one would have reported
+          # success while the published product silently went stale.
           node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --allow-missing \
             app/public/data/soccer/epl/odds/latest.json \
-            data/internal/research/epl/forecasts/latest.json
+            data/internal/research/epl/forecasts/latest.json \
+            app/public/data/soccer/epl/forecasts/latest.json
 
       - name: Notify on failure
         if: failure()

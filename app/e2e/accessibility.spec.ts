@@ -32,11 +32,18 @@ const NFL_GAME_DIR = path.join(__dirname, "..", "out", "nfl", "game");
 const FIRST_NFL_GAME = fs.existsSync(NFL_GAME_DIR)
   ? fs.readdirSync(NFL_GAME_DIR).filter((d) => /^\d+$/.test(d)).sort()[0]
   : null;
+/* P188: the EPL per-fixture report, discovered like the NFL one — slugs change every matchweek. */
+const EPL_MATCH_DIR = path.join(__dirname, "..", "out", "epl", "match");
+const FIRST_EPL_MATCH = fs.existsSync(EPL_MATCH_DIR)
+  ? fs.readdirSync(EPL_MATCH_DIR).filter((d) => /-v-.+-\d{4}-\d{2}-\d{2}$/.test(d)).sort()[0]
+  : null;
 const ROUTES = ["/", "/today/", "/markets/", "/results/", "/methodology/", "/learn/", "/moonshot/", "/bank-builder/", "/mlb/", "/nfl/", "/simulate/", "/sports/",
   // P196: /ufc/ gained the skipped-card disclosure; the two in-development product pages are new
   // public routes and introduce their own status palette, which is exactly what contrast catches.
-  "/ufc/", "/goal-rush/", "/bucket-blitz/",
-  ...(FIRST_NFL_GAME ? [`/nfl/game/${FIRST_NFL_GAME}/`] : [])];
+  // P188: /epl/ publishes forecasts and its per-fixture report introduces charts + tables.
+  "/ufc/", "/goal-rush/", "/bucket-blitz/", "/epl/",
+  ...(FIRST_NFL_GAME ? [`/nfl/game/${FIRST_NFL_GAME}/`] : []),
+  ...(FIRST_EPL_MATCH ? [`/epl/match/${FIRST_EPL_MATCH}/`] : [])];
 
 const VIEWPORTS = [
   { name: "mobile", width: 390, height: 844 },

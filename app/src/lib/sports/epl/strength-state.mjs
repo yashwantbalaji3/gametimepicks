@@ -109,6 +109,42 @@ export function scoreMatrix(state, homeClub, awayClub) {
   for (let x = 0; x <= MAX_GOALS; x++) for (let y = 0; y <= MAX_GOALS; y++) scores.push({ score: `${x}-${y}`, p: grid[x][y] });
   scores.sort((a, b) => b.p - a.p);
 
+  /*
+   * EVERYTHING BELOW IS READ OFF THE SAME NORMALIZED GRID — no second model, no sampling, no new
+   * input. These were already implied by the matrix and simply never read out, so the published
+   * forecast carried five numbers out of a distribution that answers far more. Each one is an exact
+   * sum over grid cells, which is why they reconcile against the 1X2 block by construction rather
+   * than approximately.
+   */
+  let btts = 0, csHome = 0, csAway = 0;
+  const marginDist = new Map();               // (home − away) → probability
+  const homeGoals = new Array(MAX_GOALS + 1).fill(0);
+  const awayGoals = new Array(MAX_GOALS + 1).fill(0);
+  for (let x = 0; x <= MAX_GOALS; x++) {
+    for (let y = 0; y <= MAX_GOALS; y++) {
+      const p = grid[x][y];
+      if (x >= 1 && y >= 1) btts += p;
+      if (y === 0) csHome += p;               // home keeps a clean sheet ⇔ away scores none
+      if (x === 0) csAway += p;
+      marginDist.set(x - y, (marginDist.get(x - y) ?? 0) + p);
+      homeGoals[x] += p;
+      awayGoals[y] += p;
+    }
+  }
+  const r6 = (v) => Number(v.toFixed(6));
+  const expectationOf = (dist) => Number(dist.reduce((s, p, k) => s + p * k, 0).toFixed(4));
+
+  /*
+   * The line ladder. `cdfAt(k)` is P(total ≤ k), so for a half-goal line L the under side is
+   * P(total ≤ ⌊L⌋) — no push is possible on a half line, which is why over + under is exactly 1
+   * here and why only half lines are emitted.
+   */
+  const LINES = [0.5, 1.5, 2.5, 3.5, 4.5];
+  const ladder = LINES.map((line) => {
+    const under = cdfAt(Math.floor(line));
+    return { line, over: r6(1 - under), under: r6(under) };
+  });
+
   return {
     modelId: state.modelId,
     lambdas: { home: Number(lamHome.toFixed(4)), away: Number(lamAway.toFixed(4)) },
@@ -121,7 +157,31 @@ export function scoreMatrix(state, homeClub, awayClub) {
       under25: Number(cdfAt(2).toFixed(6)),
       quantiles: { p10: quantile(0.1), p25: quantile(0.25), p50: quantile(0.5), p75: quantile(0.75), p90: quantile(0.9) },
       distribution: totalDist.map((p) => Number(p.toFixed(6))),
+      ladder,
     },
-    topScorelines: scores.slice(0, 5).map((s) => ({ ...s, p: Number(s.p.toFixed(6)) })),
+    /** Each side's own goal distribution — the marginal of the grid, not a separate fit. */
+    teamGoals: {
+      home: { expected: expectationOf(homeGoals), distribution: homeGoals.map(r6) },
+      away: { expected: expectationOf(awayGoals), distribution: awayGoals.map(r6) },
+    },
+    btts: { yes: r6(btts), no: r6(1 - btts) },
+    cleanSheet: { home: r6(csHome), away: r6(csAway) },
+    /* Two-of-three outcomes. Each is a sum of 1X2 terms, so they cannot disagree with that block. */
+    doubleChance: {
+      homeOrDraw: r6(pH + pD),
+      drawOrAway: r6(pD + pA),
+      homeOrAway: r6(pH + pA),
+    },
+    margin: {
+      expected: Number([...marginDist].reduce((s, [m, p]) => s + m * p, 0).toFixed(4)),
+      distribution: [...marginDist].sort((a, b) => a[0] - b[0]).map(([margin, p]) => ({ margin, p: r6(p) })),
+    },
+    /*
+     * Ten rather than five. A correct-score readout that stops at five shows ~40% of the mass on a
+     * typical fixture and reads as though the rest is negligible; `topScorelinesMass` states exactly
+     * how much of the distribution the list accounts for, so the page can say what it is omitting.
+     */
+    topScorelines: scores.slice(0, 10).map((s) => ({ ...s, p: r6(s.p) })),
+    topScorelinesMass: r6(scores.slice(0, 10).reduce((t, s) => t + s.p, 0)),
   };
 }

@@ -18,7 +18,7 @@ import type { GameAvailabilityBadge } from "@/lib/simulate-availability";
 
 export interface GameRow {
   id: string;
-  sport: "world_cup" | "mlb" | "nba" | "ufc" | "nfl";
+  sport: "world_cup" | "mlb" | "nba" | "ufc" | "nfl" | "epl";
   sportLabel: string;
   matchup: string;
   timeLabel: string;

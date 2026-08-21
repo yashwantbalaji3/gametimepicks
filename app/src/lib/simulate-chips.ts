@@ -10,7 +10,8 @@
  * This array decides ORDER only. A sport present in the rows but absent from it is appended rather
  * than dropped, so adding a sport can never silently lose its chip.
  */
-export const CHIP_ORDER = ["mlb", "nfl", "nba", "ufc", "world_cup"] as const;
+/* EPL sits beside MLB: as of P188 they are the two sports carrying per-fixture simulations. */
+export const CHIP_ORDER = ["mlb", "epl", "nfl", "nba", "ufc", "world_cup"] as const;
 
 export function chipsFor(games: ReadonlyArray<{ sport: string }>): string[] {
   const present = new Set(games.map((g) => g.sport));

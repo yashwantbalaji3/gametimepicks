@@ -109,7 +109,9 @@ test("the filter chips are DERIVED from the rows present — a static list is ho
   assert.ok(chipsFor([{ sport: "curling" }]).includes("curling"), "an unlisted sport is appended, never silently dropped");
   assert.doesNotMatch(experience, /const CHIPS = \[/, "the hand-kept chip list is gone");
   assert.match(experience, /import \{ chipsFor \} from "@\/lib\/simulate-chips"/);
-  assert.match(experience, /sport: "world_cup" \| "mlb" \| "nba" \| "ufc" \| "nfl";/);
+  // Widened for EPL in P188. Pinned rather than loosened: the union is what the chips derive from,
+  // so a sport added to the board without appearing here would be a chip that cannot exist.
+  assert.match(experience, /sport: "world_cup" \| "mlb" \| "nba" \| "ufc" \| "nfl" \| "epl";/);
 });
 
 test("sports are ORDERED by their own tone, not hand-ranked", () => {
