@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-match-simulation-v1-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "public": false,
+  "registeredAt": "2026-08-21T21:30:00Z",
+  "purpose": "Fix the acceptance bars for a UNIFIED match simulation before it is built. Committed alone, as every model measured here has been.",
+
+  "theProblemThisExistsToFix": {
+    "summary": "The team model and the player model are independent fits, and they disagree materially about the same match.",
+    "measurement": "On Arsenal v Coventry (2026-08-21, lineup published): the team model expects 2.33 goals from Arsenal while the summed player rates imply 1.61 across the starting eleven — 0.7x. For Coventry the team model expects 0.91 and the players imply 1.30 — 1.4x. Opposite directions, same fixture.",
+    "cause": "The player model is a positional prior with a modest player adjustment. It has no idea Arsenal are strong and Coventry are weak, so it regresses both sides toward the league middle. `teamContext` was DECLARED as a hyperparameter in preregistration-player-v1 and never swept — the grid actually run was shrinkage k only.",
+    "whyItMatters": "Two published numbers about one match that cannot both be right is a defect a reader can find with arithmetic. Scaling one model by the other would paper over it; a single simulation that produces both makes the disagreement unrepresentable."
+  },
+
+  "design": {
+    "form": "ALLOCATION, not sampling. The team's goal distribution is already exact — a Poisson score matrix. Each goal a team scores is allocated to one of its eleven, independently, with probability equal to that player's share of the eleven's fitted scoring rate.",
+    "playerProbability": "P(player i scores at least once) = 1 - SUM over k of P(team scores k) * (1 - w_i)^k, where w_i is his share. Closed-form: no sampling, so the product keeps its 'exact, no run count to quote' property.",
+    "coherenceIsStructural": "E[goals by player i] = w_i * E[team goals], so the eleven sum to the team's expected goals BY CONSTRUCTION. The 0.7x/1.4x gap cannot recur without the arithmetic being wrong.",
+    "scopeLimit": "This governs GOALS only. Shots on goal are not constrained by the scoreline and there is no team-level shots model to allocate from, so the shots-on-goal market is UNCHANGED by this work and is not re-tested here. Saying otherwise would be claiming a coherence the design does not provide."
+  },
+
+  "population": { "rule": "players who APPEARED, in the participation state they appeared in — identical to preregistration-player-v2 so the two models are scored on the same rows" },
+
+  "protocol": {
+    "walkForward": "by match date; both the team strength fit and the player rate fit see only strictly earlier matches",
+    "warmup": { "season": "2022-23" },
+    "development": { "season": "2023-24", "use": "any hyperparameter search happens here and nowhere else" },
+    "holdout": { "season": "2024-25", "use": "scored once, after the configuration is locked" },
+    "holdoutDisclosure": "2024-25 is the SAME holdout preregistration-player-v2 used for the goalscorer target, and this is a second look at it for that target with a different model. That is disclosed rather than glossed. Two things make it the fairest option available: the comparison below is HEAD-TO-HEAD on identical rows, which is far more informative than either model's absolute score, and the alternative — 2025-26 — has already been scored three times for other targets. Nothing here is tuned on the holdout; the sweep is on development."
+  },
+
+  "baselines": [
+    { "id": "positional", "definition": "league base rate for (position group x participation state)" },
+    { "id": "shipped", "definition": "the CURRENTLY LIVE goalscorer model — shrunk player rate, k=32, no team context. This is the bar that matters: the question is not whether allocation beats a positional average, which shrunk rates already do, but whether it beats what is on the site today." }
+  ],
+
+  "primaryMetric": "log loss on anytime-goalscorer",
+  "secondaryMetrics": ["Brier", "expected calibration error", "predicted vs observed scorer count", "coherence ratio"],
+
+  "acceptanceBars": {
+    "note": "ALL must hold on the HOLDOUT for the simulation to replace the shipped model. If it fails, the shipped model stays and the incoherence is documented on the page rather than fixed — an honest defect beats an unvalidated repair.",
+    "bars": [
+      { "id": "M1_coherent", "statement": "summed expected player goals must equal the team's expected goals within 1% on every scored fixture", "why": "This is the whole point. It should hold to floating-point error by construction; a violation means the allocation arithmetic is wrong, not that the model is weak." },
+      { "id": "M2_beats_shipped", "statement": "holdout log loss must be lower than or equal to the currently shipped model's on identical rows", "why": "A better-informed model that scores worse is not an improvement. Allocation knows which side is expected to score; if that does not help, the claim it is better is unfounded." },
+      { "id": "M3_beats_positional", "statement": "holdout log loss must beat the positional baseline by at least 0.005", "why": "Unchanged from the goalscorer bars — a replacement must still clear the original entry requirement." },
+      { "id": "M4_calibrated", "statement": "holdout expected calibration error at most 0.020", "why": "Unchanged. Coherence is not a licence to be less honest about uncertainty." },
+      { "id": "M5_count_sane", "statement": "summed predicted probabilities within 10% of observed scorers", "why": "Unchanged." }
+    ]
+  },
+
+  "stoppingRule": {
+    "statement": "ONE sweep over the declared grid, on development only. If the simulation fails any bar, it is REJECTED, the shipped model stays live, and the incoherence is disclosed on the page instead. It is not re-specified on this corpus.",
+    "grid": { "k": [8, 16, 32], "weightFloor": [0, 0.005, 0.01] },
+    "weightFloorNote": "A floor stops an eleven containing a zero-rate player from producing a zero share; 0 means no floor."
+  },
+
+  "whatPassingDoesNotMean": [
+    "It does not make this a minute-by-minute match engine. There is no in-play state, no red cards, no substitution effects.",
+    "It does not touch shots on goal, assists or cards.",
+    "It does not mean the model beats a price. No player-prop odds are ingested."
+  ]
+}
