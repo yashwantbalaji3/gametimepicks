@@ -2,36 +2,36 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-08-22T13:23:30Z",
+  "generatedAt": "2026-08-22T13:53:25Z",
   "nextCluster": {
     "kickoffUtc": "2026-08-22T14:00:00.000Z",
     "fixtures": 3,
-    "hoursAway": 0.61
+    "hoursAway": 0.11
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-08-22T13:23:24Z",
+      "stampedAt": "2026-08-22T13:53:18Z",
       "ageHours": 0
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-08-22T13:23:26Z",
-      "ageHours": 0
+      "ageHours": 0.5
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-08-22T13:23:28Z",
+      "stampedAt": "2026-08-22T13:53:23Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-08-22T13:23:29Z",
+      "stampedAt": "2026-08-22T13:53:24Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-08-22T13:23:26Z",
+      "stampedAt": "2026-08-22T13:53:20Z",
       "ageHours": 0
     }
   },
@@ -46,17 +46,17 @@
     "budget": {
       "state": "WITHIN_CEILING",
       "spent": 14,
-      "projectedRemaining": 300,
-      "projectedTotal": 314,
+      "projectedRemaining": 298,
+      "projectedTotal": 312,
       "ceiling": 500,
-      "headroom": 186,
+      "headroom": 188,
       "kickoffWindowHours": 30,
-      "spendingFirings": 150,
+      "spendingFirings": 149,
       "skippedFirings": 575
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-08-22T13:23:28Z",
+    "generatedAt": "2026-08-22T13:53:23Z",
     "counts": {
       "CURRENT_PRE_EVENT": 7,
       "READY_EXCEPT_ODDS": 1
@@ -64,7 +64,7 @@
     "rows": 8
   },
   "playerSet": {
-    "generatedAt": "2026-08-22T13:23:29Z",
+    "generatedAt": "2026-08-22T13:53:24Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
       "fixtures": 7,
@@ -78,11 +78,11 @@
   },
   "record": {
     "sampleState": "TOO_SMALL_TO_ASSESS",
-    "matches": 1,
-    "hits": 1,
-    "meanLogLoss": 0.368979,
-    "playerRows": 62,
-    "playerVoided": 18
+    "matches": 2,
+    "hits": 2,
+    "meanLogLoss": 0.6154735,
+    "playerRows": 126,
+    "playerVoided": 34
   },
   "gate": {
     "maturity": "SCAFFOLDED",
@@ -136,7 +136,7 @@
     {
       "id": "calibration-sample",
       "state": "REALITY_GATED",
-      "detail": "calibration needs a preregistered backtest against settled results and 1 match(es) have been graded. No amount of engineering shortens this; matches have to be played."
+      "detail": "calibration needs a preregistered backtest against settled results and 2 match(es) have been graded. No amount of engineering shortens this; matches have to be played."
     },
     {
       "id": "cold-start-clubs",
