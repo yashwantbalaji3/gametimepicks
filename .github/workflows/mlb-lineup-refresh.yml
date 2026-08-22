@@ -27,12 +27,25 @@ name: mlb-lineup-refresh
 
 on:
   schedule:
-    # After each free lineup capture (15/17/19/21/23 UTC), and after the board exists.
+    # HOURLY ACROSS THE SLATE, because a lineup posts when it posts.
+    #
+    # The pregame archive is captured every two hours (15/17/19/21/23 UTC) and this job used to run
+    # thirty minutes behind each of those. That is too coarse. Today's first pitch is 17:35 and its
+    # lineup posts around 15:45 — captured at 17:00, simulated at 17:30, five minutes before the
+    # game starts. Sides also post INDEPENDENTLY: at 15:50 one game had its home nine up and another
+    # its away nine, so the window a two-hourly cadence misses is most of the afternoon.
+    #
+    # Both steps below are free and local, so the fix is simply to look more often.
     - cron: "30 15 * * *"
+    - cron: "30 16 * * *"
     - cron: "30 17 * * *"
+    - cron: "30 18 * * *"
     - cron: "30 19 * * *"
+    - cron: "30 20 * * *"
     - cron: "30 21 * * *"
+    - cron: "30 22 * * *"
     - cron: "30 23 * * *"
+    - cron: "30 0 * * *"
   workflow_dispatch:
     inputs:
       date:
@@ -82,6 +95,24 @@ jobs:
             echo "have=false" >> "$GITHUB_OUTPUT"
             echo "no board for ${{ steps.d.outputs.date }} yet — nothing to refresh (honest no-op)."
           fi
+
+      # CAPTURE THE LINEUPS THIS RUN WILL SIMULATE FROM.
+      #
+      # Waiting for mlb-pregame-capture's own two-hourly slot is what put the simulation up to two
+      # and a half hours behind the batting order. This calls the same script against the free
+      # StatsAPI, so the rebuild below reads what is posted RIGHT NOW rather than what was posted at
+      # the last even hour.
+      #
+      # Deliberately NOT committed. mlb-pregame-capture owns that archive path, and two workflows
+      # committing the same directory is how a valid capture gets discarded in a rebase. The
+      # snapshots written here are consumed in-run by the simulation and then dropped; the artifact
+      # that matters — the simulation itself — is what this job commits.
+      - name: Capture posted lineups (free StatsAPI, in-run only)
+        if: steps.board.outputs.have == 'true'
+        run: |
+          set -uo pipefail
+          node app/scripts/capture-mlb-pregame-lineup.mjs --date "${{ steps.d.outputs.date }}" --write || \
+            echo "::warning::lineup capture refused — the rebuild will use whatever is already committed"
 
       - name: Rebuild full-game simulations and predictions
         if: steps.board.outputs.have == 'true'
