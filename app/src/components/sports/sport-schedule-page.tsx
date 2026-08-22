@@ -105,9 +105,16 @@ export function ScheduleList({ events, sides, joiner, logoSport, accent = "var(-
     <div className="flex flex-col gap-5">
       {days.map((d) => (
         <section key={d}>
-          <h2 className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: accent, margin: "0 0 8px" }}>
+          {/*
+            A DATE GROUP IS NOT A TOP-LEVEL SECTION.
+            These were h2, the same level as "2026-07 fixture list" that contains them, so a screen
+            reader's heading list and any table of contents showed four consecutive Saturdays as
+            peers of the section they sit inside. They are subdivisions of one list; h3 says so, and
+            nothing about how they look changes.
+          */}
+          <h3 className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: accent, margin: "0 0 8px" }}>
             {dayLabel(byDay.get(d)![0].scheduledStartUtc!)}
-          </h2>
+          </h3>
           <ul className="flex flex-col gap-1.5" style={{ listStyle: "none", padding: 0, margin: 0 }}>
             {byDay.get(d)!.map((e) => {
               const a = e.competitors?.[sides[0]] ?? {};

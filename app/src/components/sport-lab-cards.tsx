@@ -20,12 +20,24 @@ import SectionHeader from "@/components/section-header";
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
 
-export default function SportLabCards({ ladder, eyebrow = "Paper cards" }: { ladder: SportLabLadder; eyebrow?: string }) {
+export default function SportLabCards({
+  ladder,
+  eyebrow = "Paper cards",
+  /*
+   * Whether to name the event in the heading.
+   *
+   * On a standalone product page the event IS the context and belongs in the title. On a sport hub
+   * the section directly above already reads "UFC Fight Night: Hernandez vs. Rodrigues", so
+   * repeating it gave the page two consecutive h2s with the same words — a table of contents that
+   * looks like a duplicate rather than two different things.
+   */
+  nameEvent = true,
+}: { ladder: SportLabLadder; eyebrow?: string; nameEvent?: boolean }) {
   return (
     <section className="mt-8" id="cards">
       <SectionHeader
         eyebrow={eyebrow}
-        title={`${ladder.eventName ?? "Today's ladder"} · ${ladder.cards.length} of 4 price bands`}
+        title={`${nameEvent && ladder.eventName ? ladder.eventName : "Today's ladder"} · ${ladder.cards.length} of 4 price bands`}
         sub={`Each leg takes ${ladder.selection}. Paper-only and educational — no stake is filled in, and nothing here has been settled yet.`}
       />
       {/* THE LADDER'S OWN STAMP, not a build time and not another artifact's. A reader cannot judge

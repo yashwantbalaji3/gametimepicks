@@ -179,7 +179,7 @@ export default function UfcArchivePage() {
               Officially settled {settledOn}
             </span>
           </div>
-      {labLadder ? <SportLabCards ladder={labLadder} /> : null}
+      {labLadder ? <SportLabCards ladder={labLadder} nameEvent={false} /> : null}
 
       <section className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
