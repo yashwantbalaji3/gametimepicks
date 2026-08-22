@@ -1,0 +1,43 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-learning-report",
+ "dataClass": "INTERNAL_RESEARCH",
+ "public": false,
+ "generatedAt": "2026-08-22T00:50:00Z",
+ "corpus": {
+  "historical": 1520,
+  "currentSeason": 1,
+  "total": 1521,
+  "season": "2026-27"
+ },
+ "sample": {
+  "graded": 1,
+  "pairedWithMarket": 0,
+  "minSampleForComparison": 30
+ },
+ "model": {
+  "n": 1,
+  "logLoss": 0.368979,
+  "brier": 0.143947
+ },
+ "comparison": {
+  "state": "NO_PAIRED_MATCHES",
+  "detail": "no graded match carries a price recorded before kickoff, so the model has not been compared to anything.",
+  "onPairedMatches": {
+   "model": {
+    "logLoss": null,
+    "brier": null
+   },
+   "market": {
+    "logLoss": null,
+    "brier": null
+   },
+   "logLossDelta": null,
+   "brierDelta": null
+  }
+ },
+ "stoppingRule": {
+  "state": "NOT_YET_ASSESSABLE",
+  "detail": "the rule applies from 30 paired matches; there are 0."
+ }
+}

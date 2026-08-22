@@ -79,6 +79,57 @@ if (forecastFiles.length === 0) { console.error("no dated forecast artifacts —
  * `latest.json` is deliberately not read — it is a moving pointer, and the graded record must cite a
  * file whose contents cannot change under it.
  */
+/**
+ * THE MARKET'S ANSWER TO THE SAME QUESTION, scored the same way.
+ *
+ * Without this the ledger can only ever measure the model against itself, and a model that is
+ * improving while still losing to the closing line looks like progress. That distinction is what
+ * ended MLB model R&D here — three separate findings that the model added nothing beyond the price.
+ * EPL gets to ask the question from its first graded match rather than from its hundredth.
+ *
+ * The de-vigged probabilities are read from the forecast row that was WRITTEN BEFORE KICKOFF, never
+ * re-derived from whatever odds file is on disk now: a comparison against a price that did not exist
+ * when the model spoke is not a comparison, it is hindsight.
+ *
+ * Outcomes arrive named by club, so they are mapped through the row's own homeClub/awayClub rather
+ * than by position. Returns null on ANY ambiguity — a market baseline that quietly mislabels home as
+ * away would produce a confident, inverted verdict, which is worse than having no baseline at all.
+ */
+function marketProbs(row) {
+  const noVig = row?.market?.noVig;
+  if (!Array.isArray(noVig) || noVig.length !== 3) return null;
+  const fold = (x) => String(x ?? "").toLowerCase().trim();
+  const home = fold(row.homeClub), away = fold(row.awayClub);
+  if (!home || !away || home === away) return null;
+  let h = null, d = null, a = null;
+  for (const o of noVig) {
+    const n = fold(o?.name);
+    const p = Number(o?.prob);
+    if (!Number.isFinite(p)) return null;
+    if (n === "draw") d = p;
+    else if (n === home) h = p;
+    else if (n === away) a = p;
+    else return null;                       // an outcome we cannot place is not a baseline
+  }
+  if (h == null || d == null || a == null) return null;
+  const sum = h + d + a;
+  if (!(sum > 0.99 && sum < 1.01)) return null;   // de-vigged probabilities sum to one
+  return { home: h, draw: d, away: a };
+}
+
+/** Log loss and multiclass Brier for a three-way distribution against the outcome that happened. */
+function scoreThreeWay(p, actual) {
+  const pActual = actual === "H" ? p.home : actual === "D" ? p.draw : p.away;
+  return {
+    probabilityOfActual: Number(pActual.toFixed(6)),
+    logLoss: Number((-Math.log(clip(pActual))).toFixed(6)),
+    brier: Number((["H", "D", "A"].reduce((s, o) => {
+      const q = o === "H" ? p.home : o === "D" ? p.draw : p.away;
+      return s + (q - (o === actual ? 1 : 0)) ** 2;
+    }, 0)).toFixed(6)),
+  };
+}
+
 const forecastByEvent = new Map();
 for (const file of forecastFiles) {
   const art = readJson(path.join(forecastDir, file));
@@ -153,6 +204,15 @@ for (const r of bridged.results) {
     status,
     actual: { homeGoalsFT, awayGoalsFT, outcome: actual, totalGoals: total },
     forecast: { probs: p, over25, expectedGoals: fc.row.model.totals?.expected ?? null },
+    /*
+     * The market as it stood when the forecast was published — the baseline the model has to beat to
+     * be worth anything. null when the row carried no usable de-vigged set, which is a different
+     * fact from "the market was wrong" and must never be scored as one.
+     */
+    market: (() => {
+      const mp = marketProbs(fc.row);
+      return mp ? { probs: mp, books: fc.row.market?.books ?? null, impliedSum: fc.row.market?.impliedSum ?? null, scores: scoreThreeWay(mp, actual) } : null;
+    })(),
     /* The scores. Proper metrics only — no "confidence", no grade, no pick. */
     scores: {
       hit: predicted === actual,

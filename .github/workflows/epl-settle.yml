@@ -74,12 +74,47 @@ jobs:
             echo "PLAYER_GRADE=refused" >> "$GITHUB_ENV"
           fi
 
+      # ── THE LEARNING LOOP ──────────────────────────────────────────────────────────────────────
+      #
+      # Runs AFTER grading, on what this run just settled, and BEFORE the commit so its output ships
+      # with the grades it was derived from.
+      #
+      # Accretion is what actually makes the model better: settled results join the corpus, and the
+      # next forecast fits on them. Without it the model would spend the whole season trained on a
+      # static file ending 2026-05-24, and the promoted clubs would run at a league-average stand-in
+      # forever however many matches they played.
+      #
+      # It is safe to run the instant a result settles because fitEplStrength takes a cutoff at the
+      # run clock and ignores everything at or after it — a fixture cannot inform its own forecast,
+      # which is built before kickoff.
+      #
+      # Neither step may fail the run. A settled result that cannot be accreted is a problem for
+      # tomorrow's fit, not a reason to discard tonight's grades.
+      - name: Accrete settled results into the corpus
+        working-directory: app
+        run: |
+          set -uo pipefail
+          npx tsx scripts/epl/accrete-epl-corpus.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write || \
+            echo "::warning::EPL corpus accretion refused — tomorrow's fit will not include tonight's results"
+
+      # Reports; never adjusts. A loop that measures and tunes on the same pass will always find a
+      # tweak that helps, because it is scoring the fit on the data that produced it. The stopping
+      # rule is preregistered in lib/sports/epl/learning-report.mjs.
+      - name: Report what the ledger says about the model
+        working-directory: app
+        run: |
+          set -uo pipefail
+          npx tsx scripts/epl/report-epl-learning.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write || \
+            echo "::warning::EPL learning report refused"
+
       - name: Commit the results and the grades
         run: |
           set -euo pipefail
           git config user.name  "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add app/public/data/soccer/epl/results 2>/dev/null || true
+          git add app/public/data/soccer/epl/results \
+                  data/internal/research/epl/corpus-current-season.json \
+                  data/internal/research/epl/learning 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing new to record"; exit 0; fi
           git commit -m "auto: epl settle $(date -u +%Y-%m-%d) [skip ci]"
           git pull --rebase --autostash origin main

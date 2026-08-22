@@ -188,7 +188,11 @@ export default function EplPage() {
       >
         <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6 }}>
           <strong style={{ color: "var(--sport-soccer)" }}>Not validated out of sample.</strong>{" "}
-          {set?.trackRecord ?? "No Premier League match has been graded under this model."} These are the model&rsquo;s
+          {/* The FALLBACK fires only when the artifact is unreadable, so it must not assert a record
+              either way. It used to claim no match had been graded, which was a statement about the
+              world made from an inability to read a file — and it became false the night the first
+              match settled. */}
+          {set?.trackRecord ?? "The graded record could not be read, so no accuracy claim is made here."} These are the model&rsquo;s
           own probability distributions, published so you can see what it says — not picks, not advice, and not
           compared against any price.
         </p>

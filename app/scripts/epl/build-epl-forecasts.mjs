@@ -21,6 +21,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { fitEplStrength } from "../../src/lib/sports/epl/strength-state.mjs";
+import { loadEplCorpus } from "../../src/lib/sports/epl/corpus.mjs";
+import { loadEplGradedRecord } from "../../src/lib/sports/epl/graded-record.ts";
 import { runEplShadow } from "../../src/lib/sports/epl/shadow-run.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -43,9 +45,19 @@ const season = readJson(path.join(EPL, "fixtures", capFile));
 const oddsPath = path.join(EPL, "odds", "latest.json");
 const oddsSnapshot = fs.existsSync(oddsPath) ? readJson(oddsPath) : null;
 
-const corpus = readJson(path.join(REPO, "data/internal/research/epl/corpus-v1.json"));
+/*
+ * BASE + THIS SEASON. Previously this read corpus-v1.json alone — a static file ending 2026-05-24 —
+ * so every forecast all season would have been fit on data that stopped before the season started,
+ * and no match the model predicted ever came back to inform it.
+ *
+ * fitEplStrength still takes cutoffIso: NOW, so a settled result can sit in the corpus the instant
+ * it is graded without any risk of a fixture informing its own forecast. A forecast is built before
+ * kickoff; the match it describes has not happened.
+ */
+const corpus = loadEplCorpus(REPO);
 /* Cutoff at NOW: the fit may never see a result from a match it is about to forecast. */
 const strengthState = fitEplStrength({ rows: corpus.rows, cutoffIso: NOW });
+console.log(`corpus: ${corpus.base} historical + ${corpus.current} from ${corpus.currentSeason ?? "the current season"} = ${corpus.rows.length} matches (fit cutoff ${NOW})`);
 
 const nowMs = Date.parse(NOW);
 const upcoming = (season.rows ?? []).filter((f) => {
@@ -85,8 +97,32 @@ const rows = upcoming.map((fixture) => {
      * no prediction. Nothing failed, because a missing field reads exactly like a quiet one.
      */
     model: out.artifact?.model ? { ...out.artifact.model } : null,
+    /*
+     * THE MARKET BASELINE, PERSISTED — PRIVATE ROWS ONLY.
+     *
+     * This kept `books` and `impliedSum` and threw the de-vigged probabilities away. They exist for
+     * a moment inside runEplShadow and were never written down, which made one question permanently
+     * unanswerable after the fact: is this model better than the price it was standing next to?
+     *
+     * That is not a nice-to-have. It is the question that decided MLB — where the model turned out
+     * to add nothing beyond the market, three times, and R&D was suspended on a stopping rule. A
+     * learning loop that cannot ask it can only ever measure a model against itself and will happily
+     * report improvement while losing to a closing line.
+     *
+     * It has to be recorded AT FORECAST TIME. Re-deriving it later from whatever odds file happens
+     * to be on disk compares the model to a price that did not exist when it spoke — the rot that
+     * date-pinned fixtures keep teaching this repository.
+     *
+     * PRIVATE ONLY. Paid capture never reaches a public artifact: publicRows below selects explicit
+     * fields and market is not among them, and the odds sweep keeps captures out of out/data.
+     */
     market: out.artifact?.market
-      ? { books: out.artifact.market.bookmakers.length, impliedSum: out.artifact.market.bookmakers[0]?.impliedSum ?? null }
+      ? {
+          books: out.artifact.market.bookmakers.length,
+          impliedSum: out.artifact.market.bookmakers[0]?.impliedSum ?? null,
+          // De-vigged across the whole three-way set, as captured. Sums to 1 by construction.
+          noVig: out.artifact.market.bookmakers[0]?.noVig ?? null,
+        }
       : null,
     publicActivation: "OFF",
   };
@@ -183,6 +219,26 @@ const publicRows = rows.map((r) => ({
   modelId: r.model?.modelId ?? null,
 }));
 
+/**
+ * What may honestly be said about this model's record, from the ledger and nothing else.
+ *
+ * Deliberately refuses to quote an accuracy figure at any sample size this function can see. A hit
+ * rate over a handful of matches is noise with a percent sign on it, and putting one here would be
+ * read as a claim no matter how it were hedged.
+ */
+function trackRecordSentence() {
+  const rec = loadEplGradedRecord();
+  if (rec == null) {
+    return "The graded record could not be read, so no accuracy claim is made here.";
+  }
+  const n = rec.team.matches;
+  if (n === 0) {
+    return "No Premier League match has been graded under this model. There is no win/loss record, no accuracy figure, and no track record to cite.";
+  }
+  return `${n} Premier League match${n === 1 ? " has" : "es have"} been graded under this model — far too few to support any accuracy claim. ` +
+    "No win rate or accuracy figure is quoted, and this model has not been validated out of sample.";
+}
+
 const publicArtifact = {
   schemaVersion: 1,
   artifact: "epl-forecast-public",
@@ -192,9 +248,21 @@ const publicArtifact = {
   generatedAt: NOW,
   oddsCapturedAt: oddsSnapshot?.capturedAt ?? null,
   counts,
-  /* These two strings are the contract with the reader. A guard pins them. */
+  /*
+   * These two strings are the contract with the reader. A guard pins them.
+   *
+   * trackRecord USED TO SAY "No Premier League match has been graded under this model." That was
+   * true when it was written and stopped being true on 2026-08-21, when Arsenal v Coventry City was
+   * settled — a sentence hard-coded into an artifact that a settler was quietly making false. It is
+   * now derived from the ledger, and the derivation is what keeps it honest in BOTH directions: it
+   * cannot understate a growing record, and it cannot let a growing record read as validation.
+   *
+   * validation stays NOT_VALIDATED_OUT_OF_SAMPLE regardless of the count, because no number of
+   * graded matches on this line is a validation. That is the calibration stage — a preregistered
+   * backtest against a market baseline — and it is UNPROVEN for this competition.
+   */
   validation: "NOT_VALIDATED_OUT_OF_SAMPLE",
-  trackRecord: "No Premier League match has been graded under this model. There is no win/loss record, no accuracy figure, and no track record to cite.",
+  trackRecord: trackRecordSentence(),
   note: "Model distributions only — not picks, not advice, and not compared against a price.",
   rows: publicRows,
 };

@@ -198,11 +198,17 @@ jobs:
       # Fail-loud: the builder REFUSES its whole set if any row claims CURRENT_PRE_EVENT without
       # probabilities, and that refusal must fail the run rather than be swallowed. A forecast set
       # that looks like coverage and carries no prediction is worse than an absent one.
+      #
+      # tsx AND app/ as cwd: the builder now reads the corpus through lib/sports/epl/corpus.mjs and
+      # derives its trackRecord sentence from graded-record.ts, which plain node cannot load and
+      # which resolves its paths relative to app/. Caught by workflow-script-cwd.test.mjs before it
+      # ever reached a runner — the same defect that killed epl-settle's first real run.
       - name: Build EPL forecasts
+        working-directory: app
         run: |
           set -euo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          node app/scripts/epl/build-epl-forecasts.mjs --now "$NOW" --lookahead-hours 96 --write
+          npx tsx scripts/epl/build-epl-forecasts.mjs --now "$NOW" --lookahead-hours 96 --write
 
       # ---- Player projections ----
       #
@@ -264,6 +270,7 @@ jobs:
           git add app/public/data/soccer/epl app/public/data/parlays/tier-grid \
                   app/public/data/admin/epl-lane.json \
                   data/internal/research/epl/forecasts \
+                  data/internal/research/epl/corpus-current-season.json \
                   data/internal/research/odds/epl/authorization-ledger.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
           git commit -m "auto: epl matchweek refresh $(date -u +%Y-%m-%d) [skip ci]"
