@@ -274,6 +274,24 @@ if (WRITE) {
   const payload = JSON.stringify(artifact, null, 1) + "\n";
   fs.writeFileSync(path.join(outDir, `${date}.json`), payload);
   fs.writeFileSync(path.join(outDir, "latest.json"), payload);
+  /*
+   * ── AN IMMUTABLE SNAPSHOT PER RUN ──────────────────────────────────────────────────────────────
+   *
+   * The dated file is OVERWRITTEN by every run on that day, so the revision that existed before a
+   * fixture kicked off is destroyed by the next run a few hours later. The grader needs the latest
+   * PRE-KICKOFF forecast, and after 11:30 there is no longer one on disk for an 11:30 kickoff — only
+   * an afternoon rewrite it must reject, and last night's file it falls back to.
+   *
+   * That is not hypothetical. Hull City v Manchester United kicked off at 11:30 on 2026-08-22 with a
+   * forecast written at 11:18. It was graded against the 23:51 forecast from the night before, which
+   * predates the market-baseline field entirely — so the one comparison the learning loop exists to
+   * make came out "no baseline recorded" for a match the model called and the market did not.
+   *
+   * The player projections have written immutable snapshots all along. The team forecasts, which are
+   * the thing actually graded, did not.
+   */
+  const stamp = `${NOW.slice(0, 4)}${NOW.slice(5, 7)}${NOW.slice(8, 10)}${NOW.slice(11, 13)}${NOW.slice(14, 16)}`;
+  fs.writeFileSync(path.join(outDir, `snapshot-${stamp}.json`), payload);
 
   const pubDir = path.join(EPL, "forecasts");
   fs.mkdirSync(pubDir, { recursive: true });

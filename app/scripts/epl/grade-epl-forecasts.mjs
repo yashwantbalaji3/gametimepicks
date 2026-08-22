@@ -71,7 +71,22 @@ if (bridged.quarantined.length > 0) {
 }
 
 const forecastDir = path.join(RESEARCH, "forecasts");
-const forecastFiles = fs.readdirSync(forecastDir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
+/*
+ * DATED FILES AND PER-RUN SNAPSHOTS BOTH.
+ *
+ * A dated file is rewritten by every run that day, so for a fixture that kicked off mid-afternoon the
+ * only surviving version is one generated AFTER it started — which rule 3 correctly rejects, leaving
+ * the grader to fall back to the previous day's file. Hull City v Manchester United was graded that
+ * way: forecast of record 23:51 the night before, rather than the 11:18 revision twelve minutes
+ * before its 11:30 kickoff.
+ *
+ * Snapshots are immutable per run, so the true pre-kickoff revision survives. Both are read; the
+ * selection below already keeps the LATEST pre-kickoff generatedAt per event, so a snapshot and the
+ * dated file describing the same run simply agree.
+ */
+const forecastFiles = fs.readdirSync(forecastDir)
+  .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) || /^snapshot-\d{12}\.json$/.test(f))
+  .sort();
 if (forecastFiles.length === 0) { console.error("no dated forecast artifacts — nothing to grade"); process.exit(2); }
 
 /*
