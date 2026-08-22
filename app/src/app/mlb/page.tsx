@@ -53,6 +53,8 @@ import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import SportMethodologyPanel from "@/components/sport-methodology-panel";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
+import MlbSimulationsSection from "@/components/mlb/mlb-simulations-section";
+import { loadMlbSimCards } from "@/lib/mlb/full-game/hub-cards";
 import GameOutlookSection from "@/components/game-outlook-card";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
 import QuickActionRail from "@/components/quick-action-rail";
@@ -141,6 +143,21 @@ export default function MlbLandingPage() {
       reportHref: gameHrefByMatchId("mlb", String(g.gameId ?? "")) ?? null,
     };
   }).sort((a, b) => String(a.firstPitch ?? "").localeCompare(String(b.firstPitch ?? "")));
+
+  /*
+   * THE FLAGSHIP SIMULATIONS, ON THE HUB.
+   *
+   * All fifteen existed and refreshed hourly as batting orders posted, and the only way to reach one
+   * was to open a game report from inside a board tab — the most expensive thing this site computes
+   * was the hardest thing on it to find. /epl has published its fixture simulations on the hub for
+   * weeks; this is the same section for the sport that has the most of them.
+   *
+   * Keyed to the FLAGSHIP slate date, the same pointer the rest of this page uses, so the section
+   * cannot show one day's simulations beside another day's board. The href goes through the shared
+   * gamePk resolver rather than composing a slug, because that is what stays correct for a
+   * doubleheader — two games, one matchup, one date.
+   */
+  const simSet = loadMlbSimCards(flagshipDate);
 
   /** The closing simulation card points at the richest game we actually published a sim for. */
   const featuredSimHref = mlbSlate.groups
@@ -424,6 +441,16 @@ export default function MlbLandingPage() {
           simHref={featuredSimHref}
         />
       </div>
+
+      {/*
+        THE FULL-GAME SIMULATIONS, ABOVE THE FOLD AND SERVER-RENDERED.
+        It went into the games TAB first, which put it behind a click and a deferred client render —
+        the same burial it was being lifted out of. The tabs are the legacy board; this is the
+        flagship, and it belongs beside the other flagship sections.
+      */}
+      {simSet ? (
+        <MlbSimulationsSection set={simSet} hrefFor={(c) => gameHrefByMatchId("mlb", c.gamePk)} />
+      ) : null}
 
       {/* The risk ladder — "give me today's card at each risk level", which is the question the
           18-card Suggested Cards tab never answered directly. Every tier ships with its own
