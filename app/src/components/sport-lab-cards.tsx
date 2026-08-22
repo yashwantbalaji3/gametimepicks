@@ -17,6 +17,8 @@
 import type { SportLabLadder } from "@/lib/parlays/sport-lab-cards";
 import { fmtAmerican, legLabel } from "@/lib/parlays/sport-lab-cards";
 import SectionHeader from "@/components/section-header";
+import PlayerAvatar from "@/components/player-avatar";
+import TeamLogo from "@/components/team-logo";
 
 export default function SportLabCards({ ladder, eyebrow = "Paper cards" }: { ladder: SportLabLadder; eyebrow?: string }) {
   return (
@@ -41,9 +43,26 @@ export default function SportLabCards({ ladder, eyebrow = "Paper cards" }: { lad
             </div>
             <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
               {c.legs.map((l) => (
-                <li key={l.eventId} style={{ fontSize: 13, color: "var(--vault-text)", display: "flex", justifyContent: "space-between", gap: 10 }}>
-                  <span>{legLabel(l)}</span>
-                  <span className="font-mono" style={{ color: "var(--vault-text-mute)" }}>{fmtAmerican(l.odds)}</span>
+                <li key={l.eventId} style={{ fontSize: 13, color: "var(--vault-text)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+                  {/*
+                    A FACE OR A CREST ON EVERY LEG.
+                    These read as bare text — "Gauge Young", "Brentford" — on a site whose other
+                    surfaces all carry identity. Which one is drawn depends on what the leg IS: a
+                    fight is a person, a football match result is a club, and a draw is neither, so
+                    it gets no image rather than a borrowed one.
+                  */}
+                  <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                    {/* PlayerAvatar takes no sport here: the explicit artifact URL wins over any
+                        id-derived CDN path, and there is no MMA branch to fall back to — a missing
+                        photo lands on the initials disc rather than requesting a 404. */}
+                    {l.player ? (
+                      <PlayerAvatar playerName={l.player} photoUrl={l.photoUrl ?? undefined} size="xs" flat />
+                    ) : l.team ? (
+                      <TeamLogo team={l.team} sport="soccer" size="sm" ariaLabel={l.team} />
+                    ) : null}
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{legLabel(l)}</span>
+                  </span>
+                  <span className="font-mono" style={{ color: "var(--vault-text-mute)", flexShrink: 0 }}>{fmtAmerican(l.odds)}</span>
                 </li>
               ))}
             </ul>

@@ -107,6 +107,10 @@ for (const b of odds.bouts ?? []) {
     /* WHICH model chose this side. A settled leg that cannot name its model cannot contribute to any
        track record, because nobody can say what the record is of. */
     modelId: card.model?.id ?? null,
+    /* The fighter's portrait, carried ON the leg. A card surface should not have to re-join a name
+       back to the event artifact to draw a face — that join is exactly where a wrong photo appears
+       next to a right name. */
+    photoUrl: side?.photoUrl ?? (read.red?.name === name ? read.red?.photoUrl : read.blue?.photoUrl) ?? null,
     opponent: (read.red?.name === name ? read.blue?.name : read.red?.name) ?? null,
   });
 }

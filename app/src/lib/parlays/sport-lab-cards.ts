@@ -30,6 +30,8 @@ export interface SportLabLeg {
   marketLabel: string;
   side: string;
   odds: number;
+  /** The fighter's portrait, carried on the leg so a surface never re-joins a name to find a face. */
+  photoUrl?: string | null;
 }
 
 export interface SportLabCard {

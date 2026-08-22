@@ -297,11 +297,22 @@ export default function EplPage() {
             <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
               {topScorers.map((p) => (
                 <li key={`${p.slug}-${p.playerId}`} className="flex items-center justify-between gap-3 px-3 py-2.5" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                  <div className="min-w-0">
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</span>
-                    <span className="font-mono ml-2" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-                      {p.teamName} · {p.matchup}
-                    </span>
+                  {/*
+                    THE CLUB CREST, NOT A PORTRAIT.
+                    These rows named a player with no identity beside them at all. A face would be
+                    better and is not available: ESPN's soccer headshot CDN answers for 2 of the 30
+                    likeliest scorers on this matchday — 7% — so wiring it in would render 93%
+                    initials discs and read as broken rather than sparse. The club crest resolves for
+                    all 20 clubs, so it is the identity we can actually carry, on every row.
+                  */}
+                  <div className="min-w-0 flex items-center gap-2">
+                    {p.teamName ? <TeamLogo team={p.teamName} sport="soccer" size="sm" ariaLabel={`${p.teamName} crest`} /> : null}
+                    <div className="min-w-0">
+                      <span style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</span>
+                      <span className="font-mono ml-2" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
+                        {p.teamName} · {p.matchup}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     {/*
