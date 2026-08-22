@@ -17,6 +17,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { gradeEplLeg } from "../../src/lib/sports/epl/settlement-contract.mjs";
+import { loadCurrentEplResults } from "../../src/lib/soccer/epl-current-results.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const LADDER = path.join(APP, "public", "data", "parlays", "risk-ladder");
@@ -71,6 +73,72 @@ function loadUfcResults() {
   return byFighter;
 }
 const ufcResults = loadUfcResults();
+
+/**
+ * EPL MATCH OUTCOMES, from the official full-time capture.
+ *
+ * A match-result leg settles on a score, not a stat line, so it needs its own path for exactly the
+ * reason the UFC one above does. Without it an EPL leg would fall through to the box-score reader,
+ * ask MLB StatsAPI for an undefined gamePk, and grade "pending" forever — a card publishable and
+ * ungradeable, silently computing the published hit rate over only the cards that happened to be
+ * settleable. That failure has already happened once here; it does not get to happen again on a
+ * different sport.
+ *
+ * Joined on the CANONICAL eventId, which both the ladder and the results bridge derive from the same
+ * builder, rather than on club names. Name matching is what makes a settler quietly read a real
+ * result as "not played yet".
+ */
+function loadEplResults() {
+  const byEvent = new Map();   // canonical eventId -> official shape for gradeEplLeg
+  try {
+    /*
+     * THROUGH THE BRIDGE, NOT THE RAW CAPTURE.
+     *
+     * The first version of this read results/latest.json directly and keyed on r.canonicalEventId.
+     * That field does not exist there — the raw capture carries only the PROVIDER's id. The map
+     * came out empty, every EPL leg graded "pending", and a card would have sat unsettled forever
+     * while the published hit rate quietly computed over only the cards that happened to be
+     * settleable. Precisely the failure the UFC path above was written to end, reproduced on a new
+     * sport twelve hours after the EPL grader made the identical mistake.
+     *
+     * loadCurrentEplResults is the identity bridge that already exists for this: it derives the
+     * canonical id, refuses a duplicate, quarantines an unjoinable row, and exercises the settlement
+     * contract at ingest. Using anything else here is writing a second, worse copy of it.
+     */
+    const out = loadCurrentEplResults({ nowIso: NOW });
+    for (const r of out.results ?? []) {
+      if (!r.canonicalEventId) continue;
+      byEvent.set(r.canonicalEventId, {
+        fixtureId: r.canonicalEventId,
+        status: "FULL_TIME",                       // the bridge only emits cleanly-joined finals
+        /* The bridge names these ftHome/ftAway; the contract wants homeGoalsFT/awayGoalsFT. Both
+           spellings are read explicitly rather than relying on whichever happened to be present. */
+        homeGoalsFT: r.ftHome ?? r.settlementResult?.homeGoalsFT ?? null,
+        awayGoalsFT: r.ftAway ?? r.settlementResult?.awayGoalsFT ?? null,
+      });
+    }
+  } catch { /* no capture yet — every EPL leg stays pending, which is the honest state */ }
+  return byEvent;
+}
+const eplResults = loadEplResults();
+
+/**
+ * Grade one EPL leg through the SAME contract the results bridge exercises at ingest.
+ *
+ * VOID_PENDING_REVIEW maps to "pending", never to a loss: a postponed match reporting full time
+ * without integer goals, or a market this contract does not know, is an open question rather than a
+ * losing selection. Grading uncertainty as a loss is how a settled record acquires losses nobody
+ * ever took.
+ */
+function gradeEplLegCard(leg) {
+  const official = eplResults.get(leg.eventId);
+  if (!official) return "pending";
+  const out = gradeEplLeg({ market: leg.market, side: leg.side, line: leg.line ?? undefined }, official);
+  if (out.outcome === "WIN") return "win";
+  if (out.outcome === "LOSS") return "loss";
+  return "pending";
+}
+
 
 /** Grade one fight-winner leg: did the named fighter win a decisive bout? */
 function gradeUfcLeg(leg) {
@@ -130,6 +198,7 @@ for (const card of ladder.cards ?? []) {
     /* Route by the leg's OWN sport. A cross-sport card carries legs from more than one, so the
        grading path is a property of the leg, never of the card. */
     if ((leg.sport ?? "mlb") === "ufc") { results.push(gradeUfcLeg(leg)); continue; }
+    if ((leg.sport ?? "mlb") === "epl") { results.push(gradeEplLegCard(leg)); continue; }
 
     const box = await boxFor(leg.gamePk);
     if (!box.final) { results.push("pending"); continue; }

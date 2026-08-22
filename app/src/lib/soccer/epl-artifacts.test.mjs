@@ -201,7 +201,24 @@ test("results/ holds ONLY the honest current-capture; settlement/ stays empty un
   const a = JSON.parse(fs.readFileSync(path.join(APP, EPL_ARTIFACT_ROOT, "results", "latest.json"), "utf8"));
   assert.equal(a.dataClass, "RESULTS_CAPTURE");
   assert.ok(["PRESEASON", "NO_RESULTS_YET", "RESULTS"].includes(a.state));
-  if (a.state !== "RESULTS") assert.equal(a.rows.length, 0, "an empty state carries zero rows — no 0-0 placeholders");
+  /*
+   * "No 0-0 placeholders" is the real invariant; "zero rows" was a proxy for it that only held while
+   * the capture was preseason and empty. The scoreboard legitimately lists SCHEDULED fixtures at
+   * 0-0, and refusing those would mean refusing the capture the season actually produces.
+   *
+   * So the claim is stated directly: whatever the state, a row may only be CALLED complete if it
+   * carries integer goals, and a non-RESULTS state may carry no completed rows at all. That catches
+   * the fabrication this was guarding against and survives the season starting.
+   */
+  const complete = (r) => /^STATUS_FULL_TIME|^STATUS_FINAL/.test(r.statusRaw ?? "");
+  for (const r of a.rows ?? []) {
+    if (complete(r)) {
+      assert.ok(Number.isInteger(r.ftHome) && Number.isInteger(r.ftAway), `${r.home} v ${r.away}: called complete without integer goals`);
+    }
+  }
+  const completedRows = (a.rows ?? []).filter(complete).length;
+  if (a.state !== "RESULTS") assert.equal(completedRows, 0, "a non-RESULTS state must carry no completed rows");
+  else assert.ok(completedRows > 0, "a RESULTS state must have something to show for it");
   assert.deepEqual(
     fs.readdirSync(path.join(APP, EPL_ARTIFACT_ROOT, "settlement")).filter((f) => f.endsWith(".json")),
     [],

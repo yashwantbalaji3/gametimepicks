@@ -3,12 +3,13 @@
  "artifact": "parlay-tier-grid",
  "dataClass": "DERIVED_POLICY_VIEW",
  "moneyClass": "NON_MONEY",
- "sport": "ufc",
- "date": "2026-08-21",
- "generatedAt": "2026-08-22T00:31:27Z",
+ "sport": "epl",
+ "date": "2026-08-22",
+ "generatedAt": "2026-08-22T10:00:00Z",
  "state": "PUBLISHED",
  "bandsUnreachable": [
-  "low"
+  "low",
+  "longshot"
  ],
  "calmestAvailable": "medium",
  "tiers": [
@@ -24,7 +25,7 @@
    "emptyToday": true,
    "substitute": {
     "band": "medium",
-    "slipId": "ufc-medium-2026-08-18",
+    "slipId": "epl-medium-2026-08-22",
     "reason": "Nothing on today's board priced in this range. The calmest card available is medium risk, which is a longer price than this bankroll is normally shown — its own record is attached."
    }
   },
@@ -66,7 +67,7 @@
     "high",
     "longshot"
    ],
-   "offered": 3,
+   "offered": 2,
    "emptyToday": false,
    "substitute": null
   }
@@ -77,7 +78,7 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +282 (medium)"
+   "reason": "no card priced into this band — 2 legs → +199 (medium)"
   },
   {
    "tier": "bronze",
@@ -105,13 +106,13 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +282 (medium)"
+   "reason": "no card priced into this band — 2 legs → +199 (medium)"
   },
   {
    "tier": "silver",
    "band": "medium",
    "state": "OFFERED",
-   "slipId": "ufc-medium-2026-08-18",
+   "slipId": "epl-medium-2026-08-22",
    "reason": null
   },
   {
@@ -133,20 +134,20 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +282 (medium)"
+   "reason": "no card priced into this band — 2 legs → +199 (medium)"
   },
   {
    "tier": "gold",
    "band": "medium",
    "state": "OFFERED",
-   "slipId": "ufc-medium-2026-08-18",
+   "slipId": "epl-medium-2026-08-22",
    "reason": null
   },
   {
    "tier": "gold",
    "band": "high",
    "state": "OFFERED",
-   "slipId": "ufc-high-2026-08-18",
+   "slipId": "epl-high-2026-08-22",
    "reason": null
   },
   {
@@ -161,64 +162,66 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +282 (medium)"
+   "reason": "no card priced into this band — 2 legs → +199 (medium)"
   },
   {
    "tier": "diamond",
    "band": "medium",
    "state": "OFFERED",
-   "slipId": "ufc-medium-2026-08-18",
+   "slipId": "epl-medium-2026-08-22",
    "reason": null
   },
   {
    "tier": "diamond",
    "band": "high",
    "state": "OFFERED",
-   "slipId": "ufc-high-2026-08-18",
+   "slipId": "epl-high-2026-08-22",
    "reason": null
   },
   {
    "tier": "diamond",
    "band": "longshot",
-   "state": "OFFERED",
-   "slipId": "ufc-longshot-2026-08-18",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "not enough eligible priced fixtures to build a card"
   }
  ],
  "cards": [
   {
    "band": "medium",
-   "slipId": "ufc-medium-2026-08-18",
-   "combinedAmerican": 282,
-   "combinedDecimal": 3.817,
+   "slipId": "epl-medium-2026-08-22",
+   "combinedAmerican": 199,
+   "combinedDecimal": 2.986,
    "legs": [
     {
-     "sport": "ufc",
-     "eventId": "401911626",
-     "player": "Gauge Young",
-     "market": "fight_winner",
-     "marketLabel": "Fight winner",
-     "side": "win",
+     "sport": "epl",
+     "eventId": "soccer:epl:hull-city-v-manchester-united:20260822t1130",
+     "player": null,
+     "team": "Manchester United",
+     "matchup": "Hull City v Manchester United",
+     "market": "match_result",
+     "marketLabel": "Match result",
+     "side": "away",
      "line": null,
-     "odds": -129,
-     "decimal": 1.7751937984496124,
-     "modelProbability": 0.9037,
-     "opponent": "Stan Dorsainvil",
-     "team": null
+     "odds": -280,
+     "decimal": 1.3571428571428572,
+     "books": 11,
+     "kickoffUtc": "2026-08-22T11:30:00Z"
     },
     {
-     "sport": "ufc",
-     "eventId": "401887541",
-     "player": "Kennedy Nzechukwu",
-     "market": "fight_winner",
-     "marketLabel": "Fight winner",
-     "side": "win",
+     "sport": "epl",
+     "eventId": "soccer:epl:crystal-palace-v-everton:20260822t1400",
+     "player": null,
+     "team": "Everton",
+     "matchup": "Everton v Crystal Palace",
+     "market": "match_result",
+     "marketLabel": "Match result",
+     "side": "home",
      "line": null,
-     "odds": 115,
-     "decimal": 2.15,
-     "modelProbability": 0.6614,
-     "opponent": "Shamil Gaziev",
-     "team": null
+     "odds": 120,
+     "decimal": 2.2,
+     "books": 11,
+     "kickoffUtc": "2026-08-22T14:00:00Z"
     }
    ],
    "status": "pending",
@@ -226,89 +229,39 @@
   },
   {
    "band": "high",
-   "slipId": "ufc-high-2026-08-18",
-   "combinedAmerican": 501,
-   "combinedDecimal": 6.008,
+   "slipId": "epl-high-2026-08-22",
+   "combinedAmerican": 443,
+   "combinedDecimal": 5.429,
    "legs": [
     {
-     "sport": "ufc",
-     "eventId": "401911629",
-     "player": "Lerryan Douglas",
-     "market": "fight_winner",
-     "marketLabel": "Fight winner",
-     "side": "win",
+     "sport": "epl",
+     "eventId": "soccer:epl:leeds-united-v-nottingham-forest:20260822t1400",
+     "player": null,
+     "team": "Nottingham Forest",
+     "matchup": "Nottingham Forest v Leeds United",
+     "market": "match_result",
+     "marketLabel": "Match result",
+     "side": "home",
      "line": null,
-     "odds": -385,
-     "decimal": 1.2597402597402598,
-     "modelProbability": 0.6143,
-     "opponent": "Jamall Emmers",
-     "team": null
+     "odds": 131,
+     "decimal": 2.31,
+     "books": 11,
+     "kickoffUtc": "2026-08-22T14:00:00Z"
     },
     {
-     "sport": "ufc",
-     "eventId": "401911627",
-     "player": "Chris Padilla",
-     "market": "fight_winner",
-     "marketLabel": "Fight winner",
-     "side": "win",
+     "sport": "epl",
+     "eventId": "soccer:epl:brentford-v-tottenham-hotspur:20260822t1630",
+     "player": null,
+     "team": "Brentford",
+     "matchup": "Brentford v Tottenham Hotspur",
+     "market": "match_result",
+     "marketLabel": "Match result",
+     "side": "home",
      "line": null,
-     "odds": -103,
-     "decimal": 1.970873786407767,
-     "modelProbability": 0.5627,
-     "opponent": "Nasrat Haqparast",
-     "team": null
-    },
-    {
-     "sport": "ufc",
-     "eventId": "401881939",
-     "player": "Gregory Rodrigues",
-     "market": "fight_winner",
-     "marketLabel": "Fight winner",
-     "side": "win",
-     "line": null,
-     "odds": 142,
-     "decimal": 2.42,
-     "modelProbability": 0.5307,
-     "opponent": "Anthony Hernandez",
-     "team": null
-    }
-   ],
-   "status": "pending",
-   "record": null
-  },
-  {
-   "band": "longshot",
-   "slipId": "ufc-longshot-2026-08-18",
-   "combinedAmerican": 1212,
-   "combinedDecimal": 13.12,
-   "legs": [
-    {
-     "sport": "ufc",
-     "eventId": "401911624",
-     "player": "MarQuel Mederos",
-     "market": "fight_winner",
-     "marketLabel": "Fight winner",
-     "side": "win",
-     "line": null,
-     "odds": 220,
-     "decimal": 3.2,
-     "modelProbability": 0.5201,
-     "opponent": "Mason Jones",
-     "team": null
-    },
-    {
-     "sport": "ufc",
-     "eventId": "401887539",
-     "player": "Roman Dolidze",
-     "market": "fight_winner",
-     "marketLabel": "Fight winner",
-     "side": "win",
-     "line": null,
-     "odds": 310,
-     "decimal": 4.1,
-     "modelProbability": 0.5118,
-     "opponent": "Reinier de Ridder",
-     "team": null
+     "odds": 135,
+     "decimal": 2.35,
+     "books": 11,
+     "kickoffUtc": "2026-08-22T16:30:00Z"
     }
    ],
    "status": "pending",

@@ -156,7 +156,22 @@ export function resolveTierGrid({ tiers, riskOrder, cards, skipped = [] }) {
  */
 export function crossCardLegCollisions({ tiers, riskOrder, cards }) {
   const cardByBand = new Map(cards.map((c) => [c.tier, c]));
-  const legKey = (l) => `${l.player}|${l.market}|${l.side}|${l.line}`;
+  /*
+   * IDENTITY IS THE EVENT PLUS THE SELECTION.
+   *
+   * This was `player|market|side|line`, which works only while every leg names a person. EPL is a
+   * TEAM market: its legs carry no player, so two entirely different fixtures both keyed as
+   * "null|match_result|home|null" and the grid refused a perfectly disjoint ladder as a collision.
+   *
+   * Adding the event makes the key strictly MORE accurate rather than looser. Two legs are the same
+   * leg only when they are the same selection on the same event; the same selection on two DIFFERENT
+   * events was never a collision, and a real collision still keys identically because the event
+   * matches too. It also fixes a case that was always latent on the MLB side: in a doubleheader the
+   * same player appears in two games on one slate day, and those are genuinely different legs.
+   *
+   * Each sport supplies whichever identifier it has — eventId for soccer and UFC, gameId for MLB.
+   */
+  const legKey = (l) => `${l.eventId ?? l.gameId ?? l.gamePk ?? ""}|${l.player ?? ""}|${l.market}|${l.side}|${l.line}`;
   const collisions = [];
 
   for (const tier of tiers) {

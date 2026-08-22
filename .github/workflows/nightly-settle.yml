@@ -186,7 +186,11 @@ jobs:
           set -euo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           TARGET="${SETTLE_DATE:-$(TZ=America/New_York date -d 'yesterday' +%F)}"
-          npx tsx app/scripts/parlays/settle-lab-cards.mjs --now "$NOW" --date "$TARGET" --apply
+          # working-directory is set by the `cd app` above / the step key: this script now reaches
+          # loadCurrentEplResults, which imports through the "@/" alias declared in app/tsconfig.json.
+          # From the repository root it is MODULE_NOT_FOUND — in the settlement workflow, on a money
+          # path. Caught by workflow-script-cwd.test.mjs before it ever ran.
+          (cd app && npx tsx scripts/parlays/settle-lab-cards.mjs --now "$NOW" --date "$TARGET" --apply)
           node app/scripts/parlays/build-lab-ledger.mjs --now "$NOW"
 
       - name: MLB player-prop settlement (paper lanes)

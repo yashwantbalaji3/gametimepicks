@@ -187,11 +187,20 @@ test("every workflow step running an alias-using script declares working-directo
        */
       let cdApp = false;
       for (const line of st.text.split("\n")) {
-        if (/(^|[;&|(]|\bthen\b|\bdo\b)\s*cd\s+app\b/.test(line)) cdApp = true;
+        /*
+         * A SUBSHELL'S cd IS SCOPED TO ITS PARENTHESES.
+         *
+         * `(cd app && node …)` changes the directory for that command only; the next line is back at
+         * the repository root. Treating it as block-scoped made the guard resolve every LATER
+         * invocation from app/ and report a working step as missing its own script. A bare `cd app`
+         * on a line of its own IS block-scoped, and nightly-settle uses both forms.
+         */
+        const subshell = /^\s*\(\s*cd\s+app\b/.test(line);
+        if (!subshell && /(^|[;&|]|\bthen\b|\bdo\b)\s*cd\s+app\b/.test(line)) cdApp = true;
         const m = /\b(?:npx\s+tsx|node)\s+((?:app\/)?scripts\/[\w./-]+\.mjs)\b/.exec(line);
         if (!m) continue;
         const spec = m[1];
-        const inlineCd = cdApp;
+        const inlineCd = cdApp || subshell;
         const from = st.cwd === "app" || inlineCd ? APP : REPO;
         const abs = path.resolve(from, spec);
         if (!fs.existsSync(abs)) {

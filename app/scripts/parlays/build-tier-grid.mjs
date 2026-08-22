@@ -49,6 +49,16 @@ const LADDERS = {
               ?? readJson(path.join(ROOT, "parlays", "risk-ladder", "latest.json")),
   ufc: (date) => readJson(path.join(ROOT, "parlays", "risk-ladder-ufc", `${date}.json`))
               ?? readJson(path.join(ROOT, "parlays", "risk-ladder-ufc", "latest.json")),
+  /*
+   * DATED FILE ONLY — no latest.json fallback for this sport.
+   *
+   * The EPL ladder is built for the day of its fixtures, which is frequently NOT the day the run
+   * happens: the night-before slot fires on Friday evening to serve Saturday. Falling back to
+   * latest.json would let a Friday grid publish Saturday's cards under a Friday heading — a real
+   * ladder mislabelled with the wrong date, which is worse than an honest empty one. A day with no
+   * EPL fixtures correctly gets no EPL ladder.
+   */
+  epl: (date) => readJson(path.join(ROOT, "parlays", "risk-ladder-epl", `${date}.json`)),
 };
 
 const write = (payload) => {

@@ -112,8 +112,50 @@ const SOURCES = {
   },
   epl: {
     label: "Premier League",
-    prices: () => ({ at: null, games: 0 }),     // no odds feed is ingested for EPL at all
-    settlement: () => ({ proven: false, source: null }),
+    /*
+     * This was a stub returning zero, with the comment "no odds feed is ingested for EPL at all".
+     * That was true when it was written. It stopped being true when the EPL odds receipt was
+     * authorised and a capture started running, and it stopped being true for settlement on
+     * 2026-08-21 when Arsenal v Coventry City became the first Premier League match this project
+     * has ever graded. The gate was reporting NOT_ELIGIBLE for reasons that had expired — which is
+     * not the gate being strict, it is the gate being blind.
+     *
+     * Connecting the sensor is not lowering the bar. EPL passes or fails on exactly the three
+     * requirements every other sport is held to, computed from artifacts on disk, every run — and
+     * it closes itself again the moment a feed goes stale or a slate empties.
+     */
+    prices: (root, date, now) => {
+      const d = readJson(path.join(root, "soccer", "epl", "odds", "latest.json"));
+      /*
+       * ONLY FIXTURES THAT HAVE NOT KICKED OFF — the NFL lesson, which put that sport over the
+       * four-game minimum on the strength of two matches already in progress. A capture is a
+       * snapshot of a moment, and EPL clusters are hours apart, so a Saturday capture legitimately
+       * describes matches that have since started. "We captured prices recently" is not "there are
+       * games."
+       */
+      const upcoming = (d?.rows ?? []).filter((r) => {
+        const k = Date.parse(r.kickoffIso ?? "");
+        return Number.isFinite(k) && k > Date.parse(now);
+      });
+      return { at: d?.capturedAt ?? null, games: new Set(upcoming.map((r) => r.eventId)).size };
+    },
+    /*
+     * The graded ledger, not merely the presence of a results file. It is the only artifact that
+     * proves the WHOLE path ran: an official full-time result captured, joined to a pre-kickoff
+     * record by canonical identity, graded through the settlement contract, and appended exactly
+     * once. A directory with a file in it proves none of that.
+     *
+     * gradeEplLeg covers match_result and total_goals — precisely the two markets the authorised
+     * capture ingests (h2h + totals), so every leg the Lab could build here is settleable. A guard
+     * pins that correspondence rather than leaving it to be noticed later by an ungradeable card.
+     */
+    settlement: (root) => {
+      const p = path.join(root, "soccer", "epl", "results", "graded-forecasts.jsonl");
+      try {
+        const rows = fs.readFileSync(p, "utf8").split("\n").filter((l) => l.trim()).length;
+        return { proven: rows > 0, source: "official full-time results, graded through the EPL settlement contract" };
+      } catch { return { proven: false, source: null }; }
+    },
   },
 };
 

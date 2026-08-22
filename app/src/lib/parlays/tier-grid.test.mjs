@@ -18,7 +18,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { resolveTierGrid, crossCardLegCollisions, CELL_STATES } from "./tier-grid.mjs";
+import { CELL_STATES, crossCardLegCollisions, resolveTierGrid } from "./tier-grid.mjs";
 import { buildCrossSportCard, buildMultiLadder, MIN_SPORTS } from "./multi-sport.mjs";
 import { BETTOR_TIERS, RISK_ORDER } from "../prefs/bettor-tiers.mjs";
 
@@ -378,4 +378,39 @@ test("PRODUCTION TRUTH · every published leg carries a posted price", () => {
       assert.ok(Number.isFinite(c.combinedAmerican), `${f}: ${c.band} card has no combined price`);
     }
   }
+});
+
+/* ── LEG IDENTITY IS THE EVENT PLUS THE SELECTION ───────────────────────────────────────────────
+ *
+ * The collision key was `player|market|side|line`, which works only while every leg names a person.
+ * EPL is a TEAM market and its legs carry no player, so two entirely different fixtures both keyed
+ * as "null|match_result|home|null" and a perfectly disjoint ladder was refused as a collision.
+ *
+ * These pin that adding the event made the key MORE accurate, not looser — the direction that
+ * matters, since this guard is what stands between a reader and one bet wearing several hats.
+ */
+const legOf = (o) => ({ market: "match_result", side: "home", line: null, ...o });
+const collide = (a, b) => crossCardLegCollisions({
+  tiers: BETTOR_TIERS, riskOrder: RISK_ORDER,
+  cards: [{ tier: "low", legs: [a] }, { tier: "medium", legs: [b] }],
+});
+
+test("a REAL collision is still caught — same selection, same event, two cards", () => {
+  const hits = collide(legOf({ eventId: "E1", player: null }), legOf({ eventId: "E1", player: null }));
+  assert.ok(hits.length > 0, "the same leg on two cards must still refuse to publish");
+});
+
+test("the same selection on DIFFERENT events is not a collision — it never was", () => {
+  // This is the false positive that blocked EPL: two different fixtures, both "home".
+  assert.equal(collide(legOf({ eventId: "E1", player: null }), legOf({ eventId: "E2", player: null })).length, 0);
+});
+
+test("an MLB doubleheader is two legs, not one — a case that was always latent", () => {
+  // The same player appears in two games on one slate day. Under the old key those keyed identically
+  // and a legitimate ladder would have been refused; nobody had hit it because doubleheaders are rare.
+  const a = legOf({ gameId: "G1", player: "Pete Alonso", market: "batter_hits", side: "Over", line: 0.5 });
+  const b = legOf({ gameId: "G2", player: "Pete Alonso", market: "batter_hits", side: "Over", line: 0.5 });
+  assert.equal(collide(a, b).length, 0);
+  // ...but the SAME player in the SAME game on two cards is exactly what this guard exists for.
+  assert.ok(collide(a, { ...b, gameId: "G1" }).length > 0);
 });

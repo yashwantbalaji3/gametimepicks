@@ -248,6 +248,16 @@ jobs:
 
       # re-resolved. `multi` is included deliberately: a second live sport is what opens the
       # cross-sport lane, and it must not wait a day.
+      # The EPL risk ladder — real posted prices, the MARKET'S OWN favourite, never this model's read.
+      # Runs before the tier grids because they consume it. Non-fatal: a slate that cannot build a
+      # ladder publishes no cards and says which bands it could not reach.
+      - name: Build the EPL risk ladder
+        working-directory: app
+        run: |
+          set -uo pipefail
+          node scripts/epl/build-epl-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
+            echo "::warning::EPL risk ladder refused this run"
+
       - name: Re-resolve the parlay tier grids
         run: |
           set -euo pipefail
@@ -269,6 +279,7 @@ jobs:
           # model-learning audit for weeks.
           git add app/public/data/soccer/epl app/public/data/parlays/tier-grid \
                   app/public/data/admin/epl-lane.json \
+                  app/public/data/parlays/risk-ladder-epl \
                   data/internal/research/epl/forecasts \
                   data/internal/research/epl/corpus-current-season.json \
                   data/internal/research/odds/epl/authorization-ledger.json 2>/dev/null || true
