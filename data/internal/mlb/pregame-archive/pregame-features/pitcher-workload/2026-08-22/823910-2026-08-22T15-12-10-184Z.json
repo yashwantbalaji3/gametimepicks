@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823910,
+  "date": "2026-08-22",
+  "capturedAt": "2026-08-22T15:12:10.184Z",
+  "availableAt": "2026-08-22T15:12:10.184Z",
+  "eventStartTime": "2026-08-22T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669373,
+      "name": "Tarik Skubal",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-08-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 7.4,
+        "bbAvg": 1.8,
+        "erAvg": 2,
+        "hrAvg": 0.4,
+        "kPer9": 10.74,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 113.67,
+        "k": 135,
+        "bb": 20,
+        "er": 36,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 683003,
+      "name": "Jared Jones",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 7,
+      "lastStartDate": "2026-08-15",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4.8,
+        "bbAvg": 1.8,
+        "erAvg": 3.2,
+        "hrAvg": 1.2,
+        "kPer9": 9,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 64,
+        "k": 72,
+        "bb": 21,
+        "er": 34,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-22T15:12:10.184Z"
+  },
+  "recordHash": "220a16490272c690fb187e8f04a8e4901ba03d217b8aab186a4e26ebe59b71ea"
+}

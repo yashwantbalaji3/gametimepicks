@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 823743,
+  "teamId": 158,
+  "name": "Milwaukee Brewers",
+  "side": "home",
+  "date": "2026-08-22",
+  "capturedAt": "2026-08-22T15:13:44.783Z",
+  "availableAt": "2026-08-22T15:13:44.783Z",
+  "eventStartTime": "2026-08-22T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-21",
+  "previousVenueId": 32,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=158&startDate=2026-08-08&endDate=2026-08-21",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-22T15:13:44.783Z"
+  },
+  "recordHash": "99fa9c9025c94c33ef3b915ee59f621decd1bea6aff5d4728f1e6472c92d717b"
+}
