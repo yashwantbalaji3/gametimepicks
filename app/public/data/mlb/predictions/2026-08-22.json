@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-08-22",
-  "generatedAt": "2026-08-22T15:43:53.000Z",
+  "generatedAt": "2026-08-22T16:47:36.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.08-v1",
   "sourceArtifact": "full-game-simulations/2026-08-22.json",
   "notBettingAdvice": true,
@@ -15,24 +15,23 @@
       "homeTeam": "NYY",
       "awayTeamName": "Toronto Blue Jays",
       "homeTeamName": "New York Yankees",
-      "artifactHash": "165941cd36ec925906ff09835e6ae3db0405e4ddcdce12dc80c37c12253a852f",
+      "artifactHash": "7dfa07b5587ebbec2a8142c49de43b9c575c941bd8cd48d716c7fe09c741cf3d",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "degraded",
+        "level": "ready",
         "notes": [
-          "TOR lineup padded: 8/9 batters posted pregame (replacement-level fallback for the rest); no confirmed order was available before first pitch.",
+          "TOR confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level.",
           "NYY confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level."
         ],
-        "awayLineupSource": "prop-derived",
+        "awayLineupSource": "confirmed",
         "homeLineupSource": "confirmed",
-        "awayRatedCount": 8,
+        "awayRatedCount": 7,
         "homeRatedCount": 7,
-        "awayLineupCount": 8,
+        "awayLineupCount": 9,
         "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -54,7 +53,7 @@
           "homeCover": 0.6364
         }
       },
-      "status": "degraded",
+      "status": "ready",
       "predictedWinner": {
         "side": "away",
         "team": "TOR"
@@ -67,7 +66,7 @@
       "moneyline": {
         "side": "away",
         "team": "TOR",
-        "simulationProbability": 0.607,
+        "simulationProbability": 0.642,
         "marketImpliedProbability": 0.496,
         "marketAgreement": "MODEL HIGHER",
         "strengthLabel": "STRONG SIMULATION"
@@ -75,21 +74,21 @@
       "total": {
         "line": 6.5,
         "pick": "OVER",
-        "overProbability": 0.57,
-        "underProbability": 0.43,
+        "overProbability": 0.6,
+        "underProbability": 0.4,
         "pushProbability": 0,
         "simulationMedian": 7,
         "marketImpliedOver": 0.53,
-        "strengthLabel": "MODERATE SIMULATION"
+        "strengthLabel": "STRONG SIMULATION"
       },
       "runLine": {
         "favorite": "away",
         "line": 1.5,
-        "pick": "NYY +1.5",
-        "pickSide": "home",
-        "pickLine": 1.5,
-        "coverProbability": 0.539,
-        "opposingCoverProbability": 0.461,
+        "pick": "TOR -1.5",
+        "pickSide": "away",
+        "pickLine": -1.5,
+        "coverProbability": 0.503,
+        "opposingCoverProbability": 0.497,
         "pushProbability": 0,
         "strengthLabel": "LEAN"
       },
@@ -201,25 +200,24 @@
       "homeTeam": "MIL",
       "awayTeamName": "Atlanta Braves",
       "homeTeamName": "Milwaukee Brewers",
-      "artifactHash": "762a03da5e895ed8ddd94469e3d5b2f025fe5795b422edcb07be3b49ece89243",
+      "artifactHash": "8c5618582080b9e35197f7aba3b8300402fa986418e8bbec3060cba3f2d4c7d3",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "degraded",
+        "level": "ready",
         "notes": [
-          "ATL lineup padded: 7/9 batters posted pregame (replacement-level fallback for the rest); no confirmed order was available before first pitch.",
-          "MIL lineup padded: 8/9 batters posted pregame (replacement-level fallback for the rest); no confirmed order was available before first pitch.",
+          "ATL confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level.",
+          "MIL confirmed batting order used; 1 of 9 have no posted prop line and are priced at replacement level.",
           "ATL starter Martín Pérez has no strikeout projection — league starter rate used."
         ],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
-        "awayRatedCount": 7,
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
+        "awayRatedCount": 6,
         "homeRatedCount": 8,
-        "awayLineupCount": 7,
-        "homeLineupCount": 8,
+        "awayLineupCount": 9,
+        "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -241,7 +239,7 @@
           "homeCover": 0.4158
         }
       },
-      "status": "degraded",
+      "status": "ready",
       "predictedWinner": {
         "side": "home",
         "team": "MIL"
@@ -254,7 +252,7 @@
       "moneyline": {
         "side": "home",
         "team": "MIL",
-        "simulationProbability": 0.597,
+        "simulationProbability": 0.586,
         "marketImpliedProbability": 0.602,
         "marketAgreement": "ALIGNED",
         "strengthLabel": "MODERATE SIMULATION"
@@ -262,9 +260,9 @@
       "total": {
         "line": 8,
         "pick": "UNDER",
-        "overProbability": 0.392,
-        "underProbability": 0.528,
-        "pushProbability": 0.08,
+        "overProbability": 0.411,
+        "underProbability": 0.511,
+        "pushProbability": 0.078,
         "simulationMedian": 7,
         "marketImpliedOver": 0.483,
         "strengthLabel": "LEAN"
@@ -275,10 +273,10 @@
         "pick": "ATL +1.5",
         "pickSide": "away",
         "pickLine": 1.5,
-        "coverProbability": 0.595,
-        "opposingCoverProbability": 0.405,
+        "coverProbability": 0.604,
+        "opposingCoverProbability": 0.396,
         "pushProbability": 0,
-        "strengthLabel": "MODERATE SIMULATION"
+        "strengthLabel": "STRONG SIMULATION"
       },
       "teamTotals": [
         {
@@ -388,21 +386,21 @@
       "homeTeam": "MIA",
       "awayTeamName": "Washington Nationals",
       "homeTeamName": "Miami Marlins",
-      "artifactHash": "47071d62e11c9424a66096b9980d2f0d1d275aa7deeb4eb858b30a688c4585c6",
+      "artifactHash": "4b2cdd3778678d4062622e41a320c3fc5f49a57552a637718e95c586b22933ae",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
         "level": "degraded",
         "notes": [
           "WSH lineup padded: 8/9 batters posted pregame (replacement-level fallback for the rest); no confirmed order was available before first pitch.",
-          "MIA lineup padded: 8/9 batters posted pregame (replacement-level fallback for the rest); no confirmed order was available before first pitch.",
+          "MIA confirmed batting order used; 1 of 9 have no posted prop line and are priced at replacement level.",
           "MIA starter Eury Pérez has no strikeout projection — league starter rate used."
         ],
         "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 8,
         "homeRatedCount": 8,
         "awayLineupCount": 8,
-        "homeLineupCount": 8,
+        "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
@@ -441,7 +439,7 @@
       "moneyline": {
         "side": "away",
         "team": "WSH",
-        "simulationProbability": 0.529,
+        "simulationProbability": 0.545,
         "marketImpliedProbability": 0.374,
         "marketAgreement": "MODEL HIGHER",
         "strengthLabel": "LEAN"
@@ -462,8 +460,8 @@
         "pick": "MIA +1.5",
         "pickSide": "home",
         "pickLine": 1.5,
-        "coverProbability": 0.62,
-        "opposingCoverProbability": 0.38,
+        "coverProbability": 0.612,
+        "opposingCoverProbability": 0.388,
         "pushProbability": 0,
         "strengthLabel": "STRONG SIMULATION"
       },
