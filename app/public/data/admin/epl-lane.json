@@ -2,74 +2,74 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-08-22T11:18:13Z",
+  "generatedAt": "2026-08-22T13:23:30Z",
   "nextCluster": {
-    "kickoffUtc": "2026-08-22T11:30:00.000Z",
-    "fixtures": 1,
-    "hoursAway": 0.2
+    "kickoffUtc": "2026-08-22T14:00:00.000Z",
+    "fixtures": 3,
+    "hoursAway": 0.61
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-08-22T11:18:07Z",
+      "stampedAt": "2026-08-22T13:23:24Z",
       "ageHours": 0
     },
     "odds": {
       "state": "READ",
-      "stampedAt": "2026-08-22T10:51:35Z",
-      "ageHours": 0.44
+      "stampedAt": "2026-08-22T13:23:26Z",
+      "ageHours": 0
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-08-22T11:18:11Z",
+      "stampedAt": "2026-08-22T13:23:28Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-08-22T11:18:12Z",
+      "stampedAt": "2026-08-22T13:23:29Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-08-22T11:18:08Z",
+      "stampedAt": "2026-08-22T13:23:26Z",
       "ageHours": 0
     }
   },
   "cadence": {
     "lineupCoverage": {
       "state": "EVERY_CLUSTER_SERVED",
-      "clusters": 8,
-      "covered": 8,
+      "clusters": 7,
+      "covered": 7,
       "uncoveredMatches": 0,
       "uncovered": []
     },
     "budget": {
       "state": "WITHIN_CEILING",
-      "spent": 12,
+      "spent": 14,
       "projectedRemaining": 300,
-      "projectedTotal": 312,
+      "projectedTotal": 314,
       "ceiling": 500,
-      "headroom": 188,
+      "headroom": 186,
       "kickoffWindowHours": 30,
       "spendingFirings": 150,
-      "skippedFirings": 576
+      "skippedFirings": 575
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-08-22T11:18:11Z",
+    "generatedAt": "2026-08-22T13:23:28Z",
     "counts": {
-      "CURRENT_PRE_EVENT": 8,
+      "CURRENT_PRE_EVENT": 7,
       "READY_EXCEPT_ODDS": 1
     },
-    "rows": 9
+    "rows": 8
   },
   "playerSet": {
-    "generatedAt": "2026-08-22T11:18:12Z",
+    "generatedAt": "2026-08-22T13:23:29Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
-      "fixtures": 8,
-      "withLineup": 1,
-      "awaitingLineup": 7
+      "fixtures": 7,
+      "withLineup": 3,
+      "awaitingLineup": 4
     },
     "markets": [
       "anytime_goalscorer",
@@ -141,7 +141,7 @@
     {
       "id": "cold-start-clubs",
       "state": "REALITY_GATED",
-      "detail": "newly promoted clubs have no top-flight history and run at the league-average baseline; 1 fixture(s) in the current forecast set are flagged coldStart. Clears as those clubs accumulate real matches — never by widening what \"covered\" means."
+      "detail": "newly promoted clubs have no top-flight history and run at the league-average baseline; 0 fixture(s) in the current forecast set are flagged coldStart. Clears as those clubs accumulate real matches — never by widening what \"covered\" means."
     },
     {
       "id": "postponement-lineage",
