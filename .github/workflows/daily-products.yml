@@ -25,8 +25,19 @@ name: daily-products
 
 on:
   schedule:
-    # 12:10 UTC ≈ 08:10 ET — after the morning board generation, before the afternoon slate.
-    - cron: "10 12 * * *"
+    # 15:30 UTC ≈ 11:30 ET — AFTER the inputs this job consumes actually exist.
+    #
+    # This was 12:10 UTC, with the comment "after the morning board generation". That premise was
+    # false: mlb-daily-production generates the board at 14:15 UTC and its player props land around
+    # 14:55. Every run fired nearly three hours BEFORE either, so the risk-ladder builder correctly
+    # refused — "no candidate pool exists yet, refusing to overwrite the published ladder with an
+    # empty day" — and the job could never produce the artifact it exists to produce.
+    #
+    # It looked healthy until 2026-08-18 only because nothing checked. The post-run assertion added
+    # that day made the emptiness visible, and the job has failed every morning since; the MLB risk
+    # ladder has been rebuilt and thrown away each time, because the failing assert sits before the
+    # commit step. The ladder on disk is still dated 2026-08-19.
+    - cron: "30 15 * * *"
   workflow_dispatch:
     inputs:
       date:
