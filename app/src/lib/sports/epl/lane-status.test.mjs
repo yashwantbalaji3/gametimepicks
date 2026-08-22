@@ -66,13 +66,42 @@ test("every blocker says WHOSE move it is, and reality-gated ones are not disgui
   if (cal) assert.equal(cal.state, "REALITY_GATED");
 });
 
-test("declaring the lane state does NOT declare EPL a live product lane", () => {
+test("the product lane state is DERIVED from the gate, never asserted either way", () => {
   if (!lane) return;
-  // The whole point of the honesty boundary. This artifact exists so the state is machine-readable;
-  // whether EPL cards enter the record is money-adjacent and belongs to the founder.
-  const decision = lane.blockers.find((b) => b.id === "product-lane-decision");
-  assert.ok(decision, "the founder decision must be recorded as outstanding, not assumed away");
-  assert.equal(decision.state, "FOUNDER_ACTION");
+  /*
+   * This used to pin a hard-coded FOUNDER_ACTION blocker saying the lane decision was outstanding.
+   * The decision was taken, and a hard-coded blocker would have gone on asserting otherwise — the
+   * same shape as the track-record sentence a settler was quietly invalidating.
+   *
+   * The lane is now read from lab-eligibility, which computes it from artifacts on disk every run.
+   * That is what lets it close again by itself if the prices go stale or the slate empties, and it
+   * is why a blocker may only appear when the lane is genuinely shut.
+   */
+  assert.ok(lane.productLane !== undefined, "the artifact must report the lane state it read");
+  const closed = lane.blockers.find((b) => b.id === "product-lane-closed");
+  if (lane.productLane?.live) {
+    assert.equal(closed, undefined, "a live lane must not also carry a closed blocker");
+  } else if (lane.productLane) {
+    assert.ok(closed, "a closed lane must say so, with the gate's own reason");
+    assert.ok(closed.detail.length > 0);
+  }
+});
+
+test("alerting is checked WHERE IT IS CHECKABLE — wiring, not the secret's value", () => {
+  if (!lane) return;
+  /*
+   * The first version read process.env.OPS_WEBHOOK_URL and reported the secret unset. A local script
+   * cannot see a repository secret, so that check could only ever return "unset" — reporting an
+   * inability to look as a fact about the world. The secret has been set since 2026-07-31 and
+   * delivery is proven.
+   *
+   * The wiring IS checkable from here, and it is the half that actually fails silently: a secret
+   * that exists and is never referenced alerts nobody.
+   */
+  assert.ok(Array.isArray(lane.alerting?.wired), "the artifact must report which workflows are wired");
+  const src = fs.readFileSync(path.join(APP, "scripts/epl/build-epl-lane-status.mjs"), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  assert.doesNotMatch(src, /process\.env\.OPS_WEBHOOK_URL/, "a local script cannot see a repo secret and must not pretend to");
 });
 
 test("the cadence blocks are DERIVED — coverage and budget both resolve against real files", () => {

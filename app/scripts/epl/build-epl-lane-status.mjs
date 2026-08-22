@@ -33,6 +33,7 @@ import { deriveSportMaturity, remainingPath, GATE_STAGES } from "../../src/lib/s
 import { kickoffClusters, lineupSlotCoverage, parseCronSlots } from "../../src/lib/sports/epl/lineup-slot-coverage.mjs";
 import { parseWeeklySlots, projectSeasonSpend } from "../../src/lib/sports/epl/odds-budget.mjs";
 import { loadEplGradedRecord } from "../../src/lib/sports/epl/graded-record.ts";
+import { labEligibility } from "../parlays/lab-eligibility.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -120,13 +121,53 @@ if (stages.data?.status !== "PROVEN") {
 if (stages.schedule?.status !== "PROVEN") {
   blockers.push({ id: "postponement-lineage", state: "REALITY_GATED", detail: "the schedule stage wants a postponement handled end to end, and the season has not supplied one." });
 }
-blockers.push({
-  id: "product-lane-decision",
-  state: "FOUNDER_ACTION",
-  detail: "this artifact declares EPL's lane state; it does not make EPL a live paper-product lane. Whether EPL cards enter the record is a money-adjacent decision and is not taken here.",
-});
-if (!process.env.OPS_WEBHOOK_URL) {
-  blockers.push({ id: "ops-webhook", state: "FOUNDER_ACTION", detail: "OPS_WEBHOOK_URL unset — EPL workflow failures land in the Actions tab only." });
+/*
+ * THE PRODUCT LANE, DERIVED FROM THE GATE THAT ACTUALLY DECIDES IT.
+ *
+ * This was a hard-coded FOUNDER_ACTION saying the decision had not been taken. It has been, and a
+ * hard-coded blocker would have gone on asserting otherwise — the same shape as the track-record
+ * sentence a settler was quietly invalidating. So the state is read from lab-eligibility, which
+ * computes it from artifacts on disk every run and closes the lane again by itself if the prices go
+ * stale or the slate empties. A blocker appears only when the lane is genuinely shut.
+ */
+const lane = (() => {
+  try {
+    const all = labEligibility(path.join(APP, "public", "data"), NOW.slice(0, 10), NOW);
+    const me = all.find((x) => x.id === "epl") ?? null;
+    return me ? { live: me.live, blocked: me.blocked ?? null } : null;
+  } catch { return null; }
+})();
+if (lane == null) {
+  blockers.push({ id: "product-lane-unknown", state: "ENGINEERING", detail: "the Lab eligibility gate could not be evaluated, so this lane's state is unknown — which is not the same as closed." });
+} else if (!lane.live) {
+  blockers.push({ id: "product-lane-closed", state: "REALITY_GATED", detail: `the Lab gate has closed this lane: ${lane.blocked}. It reopens by itself when the evidence returns.` });
+}
+/*
+ * ALERTING IS CHECKED WHERE IT IS ACTUALLY CHECKABLE.
+ *
+ * This read process.env.OPS_WEBHOOK_URL and reported the secret unset. A local script cannot see a
+ * GitHub repository secret, so that check could only ever return "unset" — it was reporting an
+ * inability to look as a fact about the world, which is the same defect as the page that claimed no
+ * match had been graded because it could not read a file. The secret has been set since
+ * 2026-07-31, and delivery is proven: an ops-alert-test dispatch emitted neither the "unset" notice
+ * nor the delivery-failure warning, the only two ways ops_alert.sh reports a problem.
+ *
+ * What IS checkable from here is the wiring: does this sport's workflow pass the secret to the
+ * alert script at all? A secret that exists and is never referenced alerts nobody.
+ */
+const alerting = (() => {
+  const wired = ["epl-matchweek.yml", "epl-settle.yml"].filter((w) => {
+    const src = readText(path.join(ROOT, ".github", "workflows", w));
+    return src && /OPS_WEBHOOK_URL/.test(src) && /ops_alert\.sh/.test(src);
+  });
+  return { wired, all: wired.length === 2 };
+})();
+if (!alerting.all) {
+  blockers.push({
+    id: "ops-alerting-unwired",
+    state: "ENGINEERING",
+    detail: `an EPL workflow does not pass OPS_WEBHOOK_URL to scripts/ops_alert.sh, so its failures reach the Actions tab only (wired: ${alerting.wired.join(", ") || "none"}).`,
+  });
 }
 
 const out = {
@@ -153,6 +194,8 @@ const out = {
     ? { sampleState: record.sampleState, matches: record.team.matches, hits: record.team.hits, meanLogLoss: record.team.meanLogLoss, playerRows: record.player.rows, playerVoided: record.player.voided }
     : UNKNOWN("no graded ledger could be read"),
   gate: { maturity, proven, of: GATE_STAGES.length, remaining: remainingPath(stages, SPORT_ASSESSMENTS.epl).map((r) => ({ stage: r.stage, status: r.status, requiredProof: r.requiredProof })) },
+  alerting,
+  productLane: lane,
   blockers,
 };
 

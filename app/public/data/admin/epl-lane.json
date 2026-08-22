@@ -2,37 +2,37 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-08-22T00:20:00Z",
+  "generatedAt": "2026-08-22T00:41:12Z",
   "nextCluster": {
     "kickoffUtc": "2026-08-22T11:30:00.000Z",
     "fixtures": 1,
-    "hoursAway": 11.17
+    "hoursAway": 10.81
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
       "stampedAt": "2026-08-21T23:50:57Z",
-      "ageHours": 0.48
+      "ageHours": 0.84
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-08-21T23:51:00Z",
-      "ageHours": 0.48
+      "ageHours": 0.84
     },
     "forecasts": {
       "state": "READ",
       "stampedAt": "2026-08-22T00:30:00Z",
-      "ageHours": -0.17
+      "ageHours": 0.19
     },
     "playerProjections": {
       "state": "READ",
       "stampedAt": "2026-08-21T23:51:03Z",
-      "ageHours": 0.48
+      "ageHours": 0.84
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-08-21T23:51:00Z",
-      "ageHours": 0.48
+      "stampedAt": "2026-08-22T01:00:00Z",
+      "ageHours": -0.31
     }
   },
   "cadence": {
@@ -121,6 +121,17 @@
       }
     ]
   },
+  "alerting": {
+    "wired": [
+      "epl-matchweek.yml",
+      "epl-settle.yml"
+    ],
+    "all": true
+  },
+  "productLane": {
+    "live": true,
+    "blocked": null
+  },
   "blockers": [
     {
       "id": "calibration-sample",
@@ -136,16 +147,6 @@
       "id": "postponement-lineage",
       "state": "REALITY_GATED",
       "detail": "the schedule stage wants a postponement handled end to end, and the season has not supplied one."
-    },
-    {
-      "id": "product-lane-decision",
-      "state": "FOUNDER_ACTION",
-      "detail": "this artifact declares EPL's lane state; it does not make EPL a live paper-product lane. Whether EPL cards enter the record is a money-adjacent decision and is not taken here."
-    },
-    {
-      "id": "ops-webhook",
-      "state": "FOUNDER_ACTION",
-      "detail": "OPS_WEBHOOK_URL unset — EPL workflow failures land in the Actions tab only."
     }
   ]
 }
