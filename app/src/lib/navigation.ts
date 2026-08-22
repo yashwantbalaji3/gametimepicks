@@ -149,6 +149,13 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     desc: "Fight card ladder · paper-only", surfaces: ["top", "rail", "footer"] },
 
   // ── RECORD ─────────────────────────────────────────────────────────────────────────────────────
+  /*
+   * The Lab's OWN suggested cards, tracked separately from /results/parlays — which is saved slips,
+   * cards a reader built and kept. Two different populations answering two different questions, and
+   * only the second had a record page.
+   */
+  { href: "/results/parlay-lab", label: "Parlay Lab Record", group: "record", glyph: "▦",
+    desc: "Every card the Lab suggested, all sports", surfaces: ["rail", "footer"] },
   { href: "/results", label: "Results", group: "record", glyph: "≡", desc: "Settled track record",
     surfaces: ["top", "rail", "footer"] },
   { href: "/learn", label: "How It Works", group: "record", glyph: "✦", desc: "Start here",

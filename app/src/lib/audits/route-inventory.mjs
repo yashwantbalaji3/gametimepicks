@@ -39,6 +39,7 @@ export const ROUTE_TABLE = Object.freeze({
   "/results/mlb": { classification: "public", owner: "settlement", purpose: "MLB settled results detail", dataOwner: "settlement artifacts", freshness: "settled-through date" },
   "/results/nba": { classification: "archive", owner: "settlement", purpose: "NBA settled archive (HISTORICAL_ONLY)", dataOwner: "frozen archive", freshness: "frozen — archive is dated by design" },
   "/results/model-audit": { classification: "public", owner: "research", purpose: "deep-dive model-performance ledger (money-independent)", dataOwner: "grading artifacts", freshness: "per-artifact" },
+  "/results/parlay-lab": { classification: "public", owner: "product", purpose: "the Parlay Lab's own suggested cards, every sport, with how each settled — distinct from saved slips", dataOwner: "parlays/lab-ledger + lab-settled receipts", freshness: "ledger generatedAt; receipts dated per settled day" },
   "/results/parlays": { classification: "public", owner: "settlement", purpose: "parlay settlement history", dataOwner: "settlement artifacts", freshness: "settled-through date" },
   "/results/date/[date]": { classification: "public", owner: "settlement", purpose: "per-date settled slate", family: true, dataOwner: "settlement artifacts", freshness: "route param date" },
   "/mlb": { classification: "public", owner: "product", purpose: "MLB Simulation Center (the one FULL_MODEL sport)", dataOwner: "boards + sims", freshness: "board date, latest-slate eyebrow when behind" },

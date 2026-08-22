@@ -89,6 +89,9 @@ const APPROVED_DESTINATIONS = new Set([
   "/cards/ufc",
   "/results",
   "/results/model-audit",
+  /* The Parlay Lab's own suggested-card record, across every sport. Distinct from /results/parlays,
+     which tracks saved slips — a different population, and until now the only parlay record here. */
+  "/results/parlay-lab",
   "/results/nba",
   "/mlb",
   "/mlb/board",
