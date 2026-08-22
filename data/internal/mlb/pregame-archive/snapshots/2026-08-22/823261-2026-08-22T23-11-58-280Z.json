@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823261-23b30b4df4ff29b9976a6bf3bd96f998",
+  "snapshotCreatedAt": "2026-08-22T23:11:58.280Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-22",
+  "eventId": "823261",
+  "gamePk": 823261,
+  "eventStartTime": "2026-08-23T00:40:00Z",
+  "homeTeam": "SD",
+  "awayTeam": "MIN",
+  "venue": "Petco Park",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "2df4e88d51d6804ffaf4c83a829fa25d",
+  "normalizedPayloadHash": "f1cb6bbf72a1cc72f001830b296da4f1",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          665487,
+          630105,
+          592518,
+          664034,
+          701538,
+          650859,
+          657757,
+          593428,
+          666023
+        ],
+        "away": [
+          807712,
+          621439,
+          605137,
+          680777,
+          665019,
+          668904,
+          663616,
+          686797,
+          701785
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T23:11:58.280Z",
+      "availableAt": "2026-08-22T23:11:58.280Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T23:11:58.280Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823261/feed/live",
+        "requestedAt": "2026-08-22T23:11:58.280Z",
+        "receivedAt": "2026-08-22T23:11:58.280Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Casey Mize",
+        "awayProbable": "Dean Kremer",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T23:11:58.280Z",
+      "availableAt": "2026-08-22T23:11:58.280Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T23:11:58.280Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823261/feed/live",
+        "requestedAt": "2026-08-22T23:11:58.280Z",
+        "receivedAt": "2026-08-22T23:11:58.280Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Clear",
+        "temp": "80",
+        "wind": "8 mph, L To R",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T23:11:58.280Z",
+      "availableAt": "2026-08-22T23:11:58.280Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T23:11:58.280Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823261/feed/live",
+        "requestedAt": "2026-08-22T23:11:58.280Z",
+        "receivedAt": "2026-08-22T23:11:58.280Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Chad Fairchild",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Bill Miller",
+            "type": "First Base"
+          },
+          {
+            "name": "Chad Whitson",
+            "type": "Second Base"
+          },
+          {
+            "name": "Brian Walsh",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T23:11:58.280Z",
+      "availableAt": "2026-08-22T23:11:58.280Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T23:11:58.280Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823261/feed/live",
+        "requestedAt": "2026-08-22T23:11:58.280Z",
+        "receivedAt": "2026-08-22T23:11:58.280Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
