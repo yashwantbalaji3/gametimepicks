@@ -132,7 +132,22 @@ const MIN_LEGS = 2;
  * (1,545 bouts, decisive-only, folded names on both sides of the join). The guard checks the
  * settler for evidence of each declared sport, so this line cannot run ahead of the capability.
  */
-export const SETTLEABLE_SPORTS = ["mlb", "ufc"];
+/*
+ * EPL was added on 2026-08-22, once its settlement loop had run end to end: gradeEplLeg resolves
+ * match_result and total_goals from an official full-time score through the identity bridge, and
+ * five Premier League matches have been graded through it. It was already gradeable when the UFC
+ * entry was written and this line simply had not caught up — so EPL legs were being excluded from
+ * cross-sport cards for a capability the settler already had.
+ *
+ * NFL IS DELIBERATELY ABSENT, and it is the reason this list now has a second guard pointed at it.
+ * NFL clears the Lab's price and freshness gate — real posted prices on four or more upcoming games
+ * — and the gate ALSO called its settlement proven, on the strength of a results artifact having
+ * rows. But settle-lab-cards has no NFL branch: an NFL leg falls through to the MLB box-score path,
+ * boxFor() cannot resolve it, and the leg records "pending" forever. That is the same silence this
+ * comment was written about, arriving through the front door of the eligibility gate rather than
+ * through this list. A results file existing is not a settler existing.
+ */
+export const SETTLEABLE_SPORTS = ["mlb", "ufc", "epl"];
 
 /**
  * Build the multi-sport ladder: one cross-sport card per band, from every live sport's own cards.

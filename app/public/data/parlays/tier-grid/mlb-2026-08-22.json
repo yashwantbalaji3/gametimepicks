@@ -5,10 +5,12 @@
  "moneyClass": "NON_MONEY",
  "sport": "mlb",
  "date": "2026-08-22",
- "generatedAt": "2026-08-22T16:17:46Z",
+ "generatedAt": "2026-08-22T18:05:37.362Z",
  "state": "PUBLISHED",
- "bandsUnreachable": [],
- "calmestAvailable": "low",
+ "bandsUnreachable": [
+  "low"
+ ],
+ "calmestAvailable": "medium",
  "tiers": [
   {
    "id": "bronze",
@@ -18,9 +20,13 @@
    "bands": [
     "low"
    ],
-   "offered": 1,
-   "emptyToday": false,
-   "substitute": null
+   "offered": 0,
+   "emptyToday": true,
+   "substitute": {
+    "band": "medium",
+    "slipId": "slip_2026-08-22_conservative_f12f43ed4ecf",
+    "reason": "Nothing on today's board priced in this range. The calmest card available is medium risk, which is a longer price than this bankroll is normally shown — its own record is attached."
+   }
   },
   {
    "id": "silver",
@@ -31,7 +37,7 @@
     "low",
     "medium"
    ],
-   "offered": 2,
+   "offered": 1,
    "emptyToday": false,
    "substitute": null
   },
@@ -45,7 +51,7 @@
     "medium",
     "high"
    ],
-   "offered": 3,
+   "offered": 2,
    "emptyToday": false,
    "substitute": null
   },
@@ -60,7 +66,7 @@
     "high",
     "longshot"
    ],
-   "offered": 4,
+   "offered": 3,
    "emptyToday": false,
    "substitute": null
   }
@@ -69,9 +75,9 @@
   {
    "tier": "bronze",
    "band": "low",
-   "state": "OFFERED",
-   "slipId": "opt_2026-08-19_public_low_mlb_209431d5ae10",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
   },
   {
    "tier": "bronze",
@@ -97,15 +103,15 @@
   {
    "tier": "silver",
    "band": "low",
-   "state": "OFFERED",
-   "slipId": "opt_2026-08-19_public_low_mlb_209431d5ae10",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
   },
   {
    "tier": "silver",
    "band": "medium",
    "state": "OFFERED",
-   "slipId": "opt_2026-08-19_public_low_mlb_df57240200b9",
+   "slipId": "slip_2026-08-22_conservative_f12f43ed4ecf",
    "reason": null
   },
   {
@@ -125,22 +131,22 @@
   {
    "tier": "gold",
    "band": "low",
-   "state": "OFFERED",
-   "slipId": "opt_2026-08-19_public_low_mlb_209431d5ae10",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
   },
   {
    "tier": "gold",
    "band": "medium",
    "state": "OFFERED",
-   "slipId": "opt_2026-08-19_public_low_mlb_df57240200b9",
+   "slipId": "slip_2026-08-22_conservative_f12f43ed4ecf",
    "reason": null
   },
   {
    "tier": "gold",
    "band": "high",
    "state": "OFFERED",
-   "slipId": "opt_2026-08-19_public_medium_mlb_6f33fcc0fb0c",
+   "slipId": "slip_2026-08-22_balanced_e58186663874",
    "reason": null
   },
   {
@@ -153,259 +159,216 @@
   {
    "tier": "diamond",
    "band": "low",
-   "state": "OFFERED",
-   "slipId": "opt_2026-08-19_public_low_mlb_209431d5ae10",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
   },
   {
    "tier": "diamond",
    "band": "medium",
    "state": "OFFERED",
-   "slipId": "opt_2026-08-19_public_low_mlb_df57240200b9",
+   "slipId": "slip_2026-08-22_conservative_f12f43ed4ecf",
    "reason": null
   },
   {
    "tier": "diamond",
    "band": "high",
    "state": "OFFERED",
-   "slipId": "opt_2026-08-19_public_medium_mlb_6f33fcc0fb0c",
+   "slipId": "slip_2026-08-22_balanced_e58186663874",
    "reason": null
   },
   {
    "tier": "diamond",
    "band": "longshot",
    "state": "OFFERED",
-   "slipId": "opt_2026-08-19_public_high_mlb_17db1ad1db48",
+   "slipId": "slip_2026-08-22_aggressive_79b182e795f8",
    "reason": null
   }
  ],
  "cards": [
   {
-   "band": "low",
-   "slipId": "opt_2026-08-19_public_low_mlb_209431d5ae10",
-   "combinedAmerican": -103,
-   "combinedDecimal": 1.974,
+   "band": "medium",
+   "slipId": "slip_2026-08-22_conservative_f12f43ed4ecf",
+   "combinedAmerican": 166,
+   "combinedDecimal": 2.659,
    "legs": [
     {
      "player": "Pete Alonso",
      "team": "BAL",
-     "opponent": "NYY",
+     "opponent": "TB",
      "playerId": 624413,
-     "gameId": "e1c63fd17f608a04657ea391d6e50645",
-     "gamePk": 824801,
+     "gameId": "a724c4baba286e2f8b35bb652ee597a1",
+     "gamePk": 824798,
      "market": "batter_hits",
      "marketLabel": "Hits",
      "side": "Over",
      "line": 0.5,
-     "odds": -249,
-     "result": "unresolved"
+     "odds": -205,
+     "result": null
     },
     {
-     "player": "Kyle Tucker",
-     "team": "LAD",
-     "opponent": "COL",
-     "playerId": 663656,
-     "gameId": "322d54946bb18482b7d8348b69b6942e",
-     "gamePk": 824318,
-     "market": "batter_hits",
-     "marketLabel": "Hits",
-     "side": "Under",
-     "line": 1.5,
-     "odds": -245,
-     "result": "unresolved"
-    }
-   ],
-   "status": "pending",
-   "record": {
-    "wins": 95,
-    "losses": 147,
-    "hitRate": 0.3926,
-    "roi": -0.0202
-   }
-  },
-  {
-   "band": "medium",
-   "slipId": "opt_2026-08-19_public_low_mlb_df57240200b9",
-   "combinedAmerican": 126,
-   "combinedDecimal": 2.256,
-   "legs": [
-    {
-     "player": "Josh Naylor",
-     "team": "SEA",
-     "opponent": "MIL",
-     "playerId": 647304,
-     "gameId": "118d9a25ad5e9070a57cf4cb0b5d0314",
-     "gamePk": 823748,
-     "market": "batter_hits",
-     "marketLabel": "Hits",
-     "side": "Over",
-     "line": 0.5,
-     "odds": -170,
-     "result": "unresolved"
-    },
-    {
-     "player": "Jac Caglianone",
-     "team": "KC",
-     "opponent": "ATH",
-     "playerId": 695506,
-     "gameId": "3072a6e1e725ce3eaeb47ad41548628f",
-     "gamePk": 824076,
-     "market": "batter_hits",
-     "marketLabel": "Hits",
-     "side": "Over",
-     "line": 0.5,
-     "odds": -238,
-     "result": "unresolved"
-    }
-   ],
-   "status": "pending",
-   "record": {
-    "wins": 45,
-    "losses": 201,
-    "hitRate": 0.1829,
-    "roi": -0.0348
-   }
-  },
-  {
-   "band": "high",
-   "slipId": "opt_2026-08-19_public_medium_mlb_6f33fcc0fb0c",
-   "combinedAmerican": 353,
-   "combinedDecimal": 4.535,
-   "legs": [
-    {
-     "player": "Alec Bohm",
-     "team": "PHI",
-     "opponent": "MIA",
-     "playerId": 664761,
-     "gameId": "6d6d28fd44922349f17b60e2eb9dc487",
-     "gamePk": 823424,
-     "market": "batter_hits",
-     "marketLabel": "Hits",
-     "side": "Over",
-     "line": 0.5,
-     "odds": -233,
-     "result": "unresolved"
-    },
-    {
-     "player": "Kaelen Culpepper",
-     "team": "MIN",
-     "opponent": "ATL",
-     "playerId": 701785,
-     "gameId": "ebe3d5c684fd83932e02698e22564f7b",
-     "gamePk": 823664,
-     "market": "batter_hits",
-     "marketLabel": "Hits",
-     "side": "Over",
-     "line": 0.5,
-     "odds": -129,
-     "result": "unresolved"
-    },
-    {
-     "player": "Richie Palacios",
-     "team": "TB",
-     "opponent": "TOR",
-     "playerId": 680700,
-     "gameId": "d6738463ee902306e2e71f297603b26e",
-     "gamePk": 822937,
+     "player": "Brandon Lowe",
+     "team": "PIT",
+     "opponent": "LAD",
+     "playerId": 664040,
+     "gameId": "5099914e07241203eb3dca62ddc5318c",
+     "gamePk": 823910,
      "market": "batter_hits",
      "marketLabel": "Hits",
      "side": "Over",
      "line": 0.5,
      "odds": -127,
-     "result": "unresolved"
+     "result": null
     }
    ],
    "status": "pending",
    "record": {
-    "wins": 28,
-    "losses": 219,
-    "hitRate": 0.1134,
-    "roi": -0.0532
+    "wins": 48,
+    "losses": 216,
+    "hitRate": 0.1818,
+    "roi": -0.0422
+   }
+  },
+  {
+   "band": "high",
+   "slipId": "slip_2026-08-22_balanced_e58186663874",
+   "combinedAmerican": 570,
+   "combinedDecimal": 6.7,
+   "legs": [
+    {
+     "player": "Shohei Ohtani",
+     "team": "LAD",
+     "opponent": "PIT",
+     "playerId": 660271,
+     "gameId": "5099914e07241203eb3dca62ddc5318c",
+     "gamePk": 823910,
+     "market": "batter_total_bases",
+     "marketLabel": "Total Bases",
+     "side": "Over",
+     "line": 1.5,
+     "odds": 102,
+     "result": null
+    },
+    {
+     "player": "George Lombard Jr.",
+     "team": "NYY",
+     "opponent": "TOR",
+     "playerId": 806146,
+     "gameId": "37d5ada29cdca43791f56ead0c6f958a",
+     "gamePk": 823509,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -116,
+     "result": null
+    },
+    {
+     "player": "Oneil Cruz",
+     "team": "PIT",
+     "opponent": "LAD",
+     "playerId": 665833,
+     "gameId": "5099914e07241203eb3dca62ddc5318c",
+     "gamePk": 823910,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -128,
+     "result": null
+    }
+   ],
+   "status": "pending",
+   "record": {
+    "wins": 30,
+    "losses": 235,
+    "hitRate": 0.1132,
+    "roi": -0.0435
    }
   },
   {
    "band": "longshot",
-   "slipId": "opt_2026-08-19_public_high_mlb_17db1ad1db48",
-   "combinedAmerican": 967,
-   "combinedDecimal": 10.667,
+   "slipId": "slip_2026-08-22_aggressive_79b182e795f8",
+   "combinedAmerican": 2648,
+   "combinedDecimal": 27.477,
    "legs": [
     {
-     "player": "Ben Rice",
-     "team": "NYY",
-     "opponent": "BAL",
-     "playerId": 700250,
-     "gameId": "e1c63fd17f608a04657ea391d6e50645",
-     "gamePk": 824801,
-     "market": "batter_hits",
-     "marketLabel": "Hits",
-     "side": "Under",
-     "line": 1.5,
-     "odds": -257,
-     "result": "unresolved"
-    },
-    {
-     "player": "Sung-Mun Song",
-     "team": "SD",
-     "opponent": "NYM",
-     "playerId": 823550,
-     "gameId": "68cb74d6a042f0c12d3b2e066f58bee6",
-     "gamePk": 823587,
-     "market": "batter_hits",
-     "marketLabel": "Hits",
-     "side": "Under",
-     "line": 0.5,
-     "odds": 104,
-     "result": "unresolved"
-    },
-    {
-     "player": "Bryson Stott",
-     "team": "PHI",
-     "opponent": "MIA",
-     "playerId": 681082,
-     "gameId": "6d6d28fd44922349f17b60e2eb9dc487",
-     "gamePk": 823424,
-     "market": "batter_hits",
-     "marketLabel": "Hits",
+     "player": "Willson Contreras",
+     "team": "BOS",
+     "opponent": "SF",
+     "playerId": 575929,
+     "gameId": "9c20ecc53352a8369b35a68e8479750d",
+     "gamePk": 824718,
+     "market": "batter_total_bases",
+     "marketLabel": "Total Bases",
      "side": "Over",
-     "line": 0.5,
-     "odds": -212,
-     "result": "unresolved"
+     "line": 1.5,
+     "odds": 132,
+     "result": null
+    },
+    {
+     "player": "Alec Bohm",
+     "team": "PHI",
+     "opponent": "STL",
+     "playerId": 664761,
+     "gameId": "981879bf214542d1037319de2491b463",
+     "gamePk": 823422,
+     "market": "batter_hits_runs_rbis",
+     "marketLabel": "Hits + Runs + RBIs",
+     "side": "Over",
+     "line": 1.5,
+     "odds": -145,
+     "result": null
+    },
+    {
+     "player": "Gunnar Henderson",
+     "team": "BAL",
+     "opponent": "TB",
+     "playerId": 683002,
+     "gameId": "a724c4baba286e2f8b35bb652ee597a1",
+     "gamePk": 824798,
+     "market": "batter_hits_runs_rbis",
+     "marketLabel": "Hits + Runs + RBIs",
+     "side": "Over",
+     "line": 1.5,
+     "odds": 110,
+     "result": null
+    },
+    {
+     "player": "Jared Young",
+     "team": "NYM",
+     "opponent": "CWS",
+     "playerId": 676724,
+     "gameId": "cbde6bd02f030c8e94c35c62ed4a4044",
+     "gamePk": 824560,
+     "market": "batter_hits_runs_rbis",
+     "marketLabel": "Hits + Runs + RBIs",
+     "side": "Over",
+     "line": 1.5,
+     "odds": 115,
+     "result": null
     },
     {
      "player": "Taylor Walls",
      "team": "TB",
-     "opponent": "TOR",
+     "opponent": "BAL",
      "playerId": 670764,
-     "gameId": "d6738463ee902306e2e71f297603b26e",
-     "gamePk": 822937,
-     "market": "batter_hits",
-     "marketLabel": "Hits",
+     "gameId": "a724c4baba286e2f8b35bb652ee597a1",
+     "gamePk": 824798,
+     "market": "batter_hits_runs_rbis",
+     "marketLabel": "Hits + Runs + RBIs",
      "side": "Over",
      "line": 0.5,
-     "odds": -136,
-     "result": "unresolved"
-    },
-    {
-     "player": "Bo Bichette",
-     "team": "NYM",
-     "opponent": "SD",
-     "playerId": 666182,
-     "gameId": "68cb74d6a042f0c12d3b2e066f58bee6",
-     "gamePk": 823587,
-     "market": "batter_hits",
-     "marketLabel": "Hits",
-     "side": "Over",
-     "line": 0.5,
-     "odds": -211,
-     "result": "unresolved"
+     "odds": -181,
+     "result": null
     }
    ],
    "status": "pending",
    "record": {
-    "wins": 14,
-    "losses": 236,
+    "wins": 15,
+    "losses": 253,
     "hitRate": 0.056,
-    "roi": -0.2863
+    "roi": -0.2873
    }
   }
  ],

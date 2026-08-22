@@ -26,6 +26,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { SETTLEABLE_SPORTS } from "../../src/lib/parlays/multi-sport.mjs";
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 const daysBetween = (a, b) => Math.abs(Date.parse(a) - Date.parse(b)) / 86_400_000;
@@ -83,9 +84,32 @@ const SOURCES = {
       });
       return { at: d?.capturedAt ?? d?.generatedAt ?? null, games: new Set(upcoming.map((r) => r.canonicalEventId)).size };
     },
+    /*
+     * A RESULTS FILE IS NOT A SETTLER.
+     *
+     * This returned proven:true whenever nfl/results/latest.json had rows, and it does — so NFL
+     * cleared the whole gate and was reported LIVE. settle-lab-cards has no NFL branch: an NFL leg
+     * falls through to the MLB box-score path, boxFor() cannot resolve a gamePk it does not have,
+     * and the leg records "pending" on every run forever. The card would publish, never grade, and
+     * quietly never enter the record — so the Lab's hit rate would be computed over only the cards
+     * that happened to be settleable, which is how a record flatters itself without anyone lying.
+     *
+     * The check is now the conjunction it always meant: official results ON DISK, and a grader that
+     * can read them. Both halves are named separately in the reason so a reader can tell which one
+     * is missing — "we have no results" and "we cannot grade them" are different problems with
+     * different owners.
+     */
     settlement: (root) => {
       const d = readJson(path.join(root, "nfl", "results", "latest.json"));
-      return { proven: (d?.rows ?? []).length > 0, source: "official NFL final scores" };
+      const haveResults = (d?.rows ?? []).length > 0;
+      const haveGrader = SETTLEABLE_SPORTS.includes("nfl");
+      return {
+        proven: haveResults && haveGrader,
+        source: "official NFL final scores",
+        blockedReason: haveResults && !haveGrader
+          ? "official NFL final scores are captured, but settle-lab-cards implements no NFL grader — a published leg would never resolve and so would never enter the record"
+          : undefined,
+      };
     },
   },
   ufc: {
@@ -173,7 +197,13 @@ export function labEligibility(root, date, now) {
     const reasons = [];
     if (!prices.at) reasons.push("no odds capture is ingested for this sport");
     else if (ageDays > PRICE_MAX_AGE_DAYS) reasons.push(`the last price capture is ${ageDays.toFixed(1)} days old`);
-    if (!settle.proven) reasons.push("no official settlement path has produced a graded result yet");
+    /*
+     * The SPECIFIC reason, when the source knows one. "No official settlement path has produced a
+     * graded result yet" is the right sentence for a sport with no results on disk, and the wrong
+     * one for NFL, which has plenty — what it lacks is a grader that can read them. A generic
+     * blocker sends whoever reads it looking in the wrong place.
+     */
+    if (!settle.proven) reasons.push(settle.blockedReason ?? settle.source ?? "no official settlement path has produced a graded result yet");
     if (prices.games < MIN_GAMES) reasons.push(`only ${prices.games} priced game${prices.games === 1 ? "" : "s"} — a four-tier ladder needs at least ${MIN_GAMES} to build cards that never reuse one`);
 
     out.push({

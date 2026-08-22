@@ -40,11 +40,38 @@ const NOW = arg("--now", new Date().toISOString());
 const etDay = (iso) => new Intl.DateTimeFormat("en-CA", {
   timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit",
 }).format(new Date(iso));
-const DATE = arg("--date", etDay(NOW));
 const SPORT = arg("--sport", "mlb");
 
 /** Where each sport's published band cards live. A sport absent here cannot have a grid at all. */
 const LADDER_DIR = { mlb: "risk-ladder", ufc: "risk-ladder-ufc", epl: "risk-ladder-epl" };
+
+/*
+ * A SPORT'S GRID FOLLOWS THAT SPORT'S OWN SLATE, NOT THE RUN'S CLOCK.
+ *
+ * Every grid was keyed to the run's ET day. That works while every live sport plays every day, and
+ * EPL does not: its ladder is built for the day of its FIXTURES, so on a Saturday evening the
+ * published ladder is Sunday's. The grid asked for Saturday, found none, and wrote
+ * NOT_PLAYING_TODAY over epl-latest.json — a real Sunday card sitting on disk, and the tier surface
+ * saying the sport was not playing.
+ *
+ * So a single sport takes the date of its OWN published ladder, provided that ladder is not in the
+ * past. A stale ladder is still refused: reusing yesterday's date would republish a dead grid as
+ * current, which is worse than an honest empty one and is the exact shape of the fifteen-day
+ * freshness outage this repo has already had.
+ *
+ * MULTI DELIBERATELY KEEPS THE CLOCK. A cross-sport card needs its sports playing on the SAME day;
+ * letting it drift to one sport's slate would let it build a "multi-sport" ticket out of two
+ * different days.
+ */
+const runDay = etDay(NOW);
+const ownLadderDay = (() => {
+  if (SPORT === "multi") return null;
+  const dir = LADDER_DIR[SPORT];
+  if (!dir) return null;
+  const day = readJson(path.join(ROOT, "parlays", dir, "latest.json"))?.date;
+  return typeof day === "string" && day >= runDay ? day : null;
+})();
+const DATE = arg("--date", ownLadderDay ?? runDay);
 const LADDERS = {
   mlb: (date) => readJson(path.join(ROOT, "parlays", "risk-ladder", `${date}.json`))
               ?? readJson(path.join(ROOT, "parlays", "risk-ladder", "latest.json")),

@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { labEligibility } from "../../../scripts/parlays/lab-eligibility.mjs";
+import { SETTLEABLE_SPORTS } from "./multi-sport.mjs";
 
 const APP = process.cwd();
 const ROOT = path.join(APP, "public", "data");
@@ -92,4 +93,45 @@ test("the ledger's streams come from the gate, not a hand-kept list", () => {
   const src = read("scripts/parlays/build-lab-ledger.mjs");
   assert.match(src, /labEligibility\(/, "the ledger calls the gate");
   assert.doesNotMatch(src, /\{ id: "nfl", label: "NFL", live: false, blocked: "/, "no hard-coded stream table survives");
+});
+
+/*
+ * ── A RESULTS FILE IS NOT A SETTLER ────────────────────────────────────────────────────────────
+ *
+ * NFL cleared this entire gate and was reported LIVE. It has real posted prices on four or more
+ * upcoming games, and its settlement check returned proven:true because nfl/results/latest.json has
+ * rows. But settle-lab-cards has no NFL branch — an NFL leg falls through to the MLB box-score path,
+ * boxFor() cannot resolve a gamePk it does not have, and the leg records "pending" on every run
+ * forever. The card publishes, never grades, and quietly never enters the record, so the Lab's hit
+ * rate ends up computed over only the cards that happened to be settleable.
+ *
+ * The three places that have to agree are the canonical list, the settler's own routing, and this
+ * gate. They drifted twice: EPL was gradeable for days before the list said so, and NFL was in the
+ * gate for days before anyone checked the settler.
+ */
+test("every sport the gate can declare LIVE has a grader in settle-lab-cards", () => {
+  const settler = fs.readFileSync(path.join(process.cwd(), "scripts/parlays/settle-lab-cards.mjs"), "utf8");
+  const code = settler.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  for (const sport of SETTLEABLE_SPORTS) {
+    if (sport === "mlb") {
+      assert.match(code, /boxFor\(/, "MLB grades from the box score and that path must still exist");
+      continue;
+    }
+    assert.match(code, new RegExp(`leg\\.sport[^\\n]*"${sport}"`),
+      `${sport} is declared settleable and the settler has no branch for it — its legs would sit pending forever`);
+  }
+});
+
+test("a sport with no grader is CLOSED, and says which half is missing", () => {
+  const out = labEligibility(path.join(process.cwd(), "public", "data"), "2026-08-22", new Date().toISOString());
+  for (const s of out) {
+    if (s.id === "multi" || SETTLEABLE_SPORTS.includes(s.id)) continue;
+    assert.equal(s.live, false, `${s.id} has no grader and must not be able to go live`);
+  }
+  const nfl = out.find((s) => s.id === "nfl");
+  if (nfl && !nfl.live && nfl.evidence?.settlementProven === false) {
+    // "We have no results" and "we cannot grade them" are different problems with different owners.
+    assert.doesNotMatch(nfl.blocked ?? "", /^no official settlement path has produced a graded result yet$/,
+      "a sport whose results ARE captured must not be told it has none");
+  }
 });
