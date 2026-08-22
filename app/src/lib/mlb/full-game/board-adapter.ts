@@ -143,7 +143,25 @@ export function gameInputFromBoard(
         ? `${abbr} confirmed batting order used; ${LINEUP_SIZE - side.ratedCount} of 9 have no posted prop line and are priced at replacement level.`
         : `${abbr} confirmed batting order used, all 9 with posted prop lines.`);
     } else if (side.realCount < LINEUP_SIZE) {
-      notes.push(`${abbr} lineup padded: ${side.realCount}/9 batters posted pregame (replacement-level fallback for the rest); no confirmed order was available before first pitch.`);
+      /*
+       * TWO DIFFERENT FACTS, AND THE NOTE USED TO STATE ONLY THE WORSE ONE.
+       *
+       * This read "no confirmed order was available before first pitch" for every padded side. For
+       * an evening game simulated at lunchtime that is a claim about a past that has not happened
+       * yet: the order is not missing, it has simply not been posted, and the hourly refresh will
+       * pick it up. Ten of today's fifteen games carried that sentence at 13:44 ET.
+       *
+       * A game that HAS started and was never given a confirmed order is the genuinely degraded
+       * case, and it keeps the original wording. The two are told apart by the clock against first
+       * pitch, which is the only thing that distinguishes them.
+       */
+      const firstPitchMs = game.gameDate ? Date.parse(game.gameDate) : NaN;
+      // An unreadable first pitch is not evidence the game has started, so it stays on the
+      // pregame wording — the padded count is stated either way and nothing is overclaimed.
+      const started = Number.isFinite(firstPitchMs) && Date.now() >= firstPitchMs;
+      notes.push(started
+        ? `${abbr} lineup padded: ${side.realCount}/9 batters posted pregame (replacement-level fallback for the rest); no confirmed order was available before first pitch.`
+        : `${abbr} lineup padded: ${side.realCount}/9 batters have a posted line and the rest are at replacement level; ${abbr} have not posted a batting order yet, and this refreshes hourly until they do.`);
     }
   }
   if (!awayStarter) { notes.push(`${game.awayTeamAbbr} has no posted probable starter — simulated vs a league bullpen aggregate.`); missingFamilies.push("away_probable_starter"); }

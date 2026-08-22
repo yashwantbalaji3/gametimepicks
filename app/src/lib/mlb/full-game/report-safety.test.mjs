@@ -73,3 +73,42 @@ test("if the July-24 full-game artifact exists, it is internally consistent and 
     }
   }
 });
+
+/*
+ * ── A GAME THAT HAS NOT STARTED HAS NOT MISSED ITS LINEUP ──────────────────────────────────────
+ *
+ * Every padded side carried "no confirmed order was available before first pitch", which for an
+ * evening game simulated at lunchtime is a claim about a past that has not happened. Ten of the
+ * fifteen games on 2026-08-22 wore that sentence at 13:44 ET, when the only true statement was that
+ * the order had not been posted yet and the hourly refresh would pick it up.
+ *
+ * The wording is not the point; the two situations being told apart is. A game that HAS started
+ * with a padded lineup genuinely never got its order, and that reads differently to a reader
+ * deciding whether to wait.
+ */
+test("the padded-lineup note distinguishes NOT YET POSTED from NEVER POSTED, by first pitch", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "src/lib/mlb/full-game/board-adapter.ts"), "utf8");
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  const block = code.match(/side\.realCount < LINEUP_SIZE\)\s*\{[\s\S]*?\n {4}\}/)?.[0] ?? "";
+  assert.ok(block, "the padded-lineup branch must stay in one readable place");
+  assert.match(block, /gameDate/, "the branch must consult first pitch before choosing its wording");
+  assert.match(block, /before first pitch/, "a game that already started keeps the honest degraded wording");
+  assert.match(block, /not posted a batting order yet/, "and a game still to come says the order has not been posted YET");
+});
+
+test("LIVE ARTIFACT · no pregame game is told it missed a first pitch that has not happened", () => {
+  const dir = path.join(process.cwd(), "public/data/mlb/full-game-simulations");
+  if (!fs.existsSync(dir)) return;
+  const latest = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().at(-1);
+  if (!latest) return;
+  const set = JSON.parse(fs.readFileSync(path.join(dir, latest), "utf8"));
+  for (const g of set.games ?? []) {
+    const firstPitch = Date.parse(g.firstPitch ?? "");
+    const generated = Date.parse(set.generatedAt ?? "");
+    if (!Number.isFinite(firstPitch) || !Number.isFinite(generated) || generated >= firstPitch) continue;
+    for (const note of g.completeness?.notes ?? []) {
+      assert.doesNotMatch(note, /was available before first pitch/,
+        `${g.slug} had not started when this was written — it cannot be told its lineup never arrived`);
+    }
+  }
+});
