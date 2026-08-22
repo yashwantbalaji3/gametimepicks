@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-08-22",
-  "generatedAt": "2026-08-22T16:47:36.000Z",
+  "generatedAt": "2026-08-22T17:44:00.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.08-v1",
   "sourceArtifact": "full-game-simulations/2026-08-22.json",
   "notBettingAdvice": true,
@@ -386,25 +386,24 @@
       "homeTeam": "MIA",
       "awayTeamName": "Washington Nationals",
       "homeTeamName": "Miami Marlins",
-      "artifactHash": "4b2cdd3778678d4062622e41a320c3fc5f49a57552a637718e95c586b22933ae",
+      "artifactHash": "b90cdabbe1a005ee21b619336877d8baf9afce846cb0e0c3f74a2e9202c13eb1",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "degraded",
+        "level": "ready",
         "notes": [
-          "WSH lineup padded: 8/9 batters posted pregame (replacement-level fallback for the rest); no confirmed order was available before first pitch.",
+          "WSH confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level.",
           "MIA confirmed batting order used; 1 of 9 have no posted prop line and are priced at replacement level.",
           "MIA starter Eury Pérez has no strikeout projection — league starter rate used."
         ],
-        "awayLineupSource": "prop-derived",
+        "awayLineupSource": "confirmed",
         "homeLineupSource": "confirmed",
-        "awayRatedCount": 8,
+        "awayRatedCount": 6,
         "homeRatedCount": 8,
-        "awayLineupCount": 8,
+        "awayLineupCount": 9,
         "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -426,10 +425,10 @@
           "homeCover": 0.4369
         }
       },
-      "status": "degraded",
+      "status": "ready",
       "predictedWinner": {
-        "side": "away",
-        "team": "WSH"
+        "side": "home",
+        "team": "MIA"
       },
       "projectedScore": {
         "away": 3,
@@ -437,31 +436,31 @@
         "label": "Median simulation score"
       },
       "moneyline": {
-        "side": "away",
-        "team": "WSH",
-        "simulationProbability": 0.545,
-        "marketImpliedProbability": 0.374,
-        "marketAgreement": "MODEL HIGHER",
+        "side": "home",
+        "team": "MIA",
+        "simulationProbability": 0.502,
+        "marketImpliedProbability": 0.626,
+        "marketAgreement": "MODEL LOWER",
         "strengthLabel": "LEAN"
       },
       "total": {
         "line": 7.5,
         "pick": "UNDER",
-        "overProbability": 0.385,
-        "underProbability": 0.615,
+        "overProbability": 0.351,
+        "underProbability": 0.649,
         "pushProbability": 0,
-        "simulationMedian": 7,
+        "simulationMedian": 6,
         "marketImpliedOver": 0.51,
         "strengthLabel": "STRONG SIMULATION"
       },
       "runLine": {
-        "favorite": "away",
+        "favorite": "home",
         "line": 1.5,
-        "pick": "MIA +1.5",
-        "pickSide": "home",
+        "pick": "WSH +1.5",
+        "pickSide": "away",
         "pickLine": 1.5,
-        "coverProbability": 0.612,
-        "opposingCoverProbability": 0.388,
+        "coverProbability": 0.698,
+        "opposingCoverProbability": 0.302,
         "pushProbability": 0,
         "strengthLabel": "STRONG SIMULATION"
       },
