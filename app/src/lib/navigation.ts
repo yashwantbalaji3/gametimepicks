@@ -129,6 +129,24 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     surfaces: ["top", "rail", "footer"] },
   { href: "/mr-dub", label: "Mr. Dub's Portfolio", shortLabel: "Mr. Dub", group: "products", glyph: "✓", desc: "Paper bankroll journey",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "mrdub" },
+  /*
+   * EVERY LIVE LANE'S SIGNATURE PRODUCT, not just baseball's.
+   *
+   * The four entries above are all MLB. EPL and UFC have published card ladders of their own for
+   * days — real posted prices, a settleable leg contract, bands from the same canonical bucket
+   * function — and neither had a destination anywhere on the site. They were reachable only by
+   * scrolling the sport hub, which is not a product surface.
+   *
+   * Deliberately NOT on `mobile`: the bottom bar is a thumb-reachable six, and everything it carries
+   * has to exist elsewhere too. These are on top/rail/footer, which is every other surface.
+   *
+   * Each note names what the lane actually is, and neither claims a record: both have settled
+   * nothing, and the pages say so in words.
+   */
+  { href: "/cards/epl", label: "EPL Paper Cards", note: "market favourites", group: "products", glyph: "⚽",
+    desc: "Premier League card ladder · paper-only", surfaces: ["top", "rail", "footer"] },
+  { href: "/cards/ufc", label: "UFC Paper Cards", note: "model's own read", group: "products", glyph: "🥊",
+    desc: "Fight card ladder · paper-only", surfaces: ["top", "rail", "footer"] },
 
   // ── RECORD ─────────────────────────────────────────────────────────────────────────────────────
   { href: "/results", label: "Results", group: "record", glyph: "≡", desc: "Settled track record",

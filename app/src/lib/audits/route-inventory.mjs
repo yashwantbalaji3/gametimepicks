@@ -27,6 +27,13 @@ export const ROUTE_TABLE = Object.freeze({
   "/build": { classification: "public", owner: "product", purpose: "Advanced Builder: manual builder → suggested cards → optimizer marketplace", dataOwner: "build legs from eligible slate", freshness: "sourceDate == productDate gate" },
   "/bank-builder": { classification: "public", owner: "product", purpose: "conservative paper ladder (ONE 5-step ladder)", dataOwner: "protected locks + lanes", freshness: "product-state contract" },
   "/moonshot": { classification: "public", owner: "product", purpose: "high-volatility paper longshot lane", dataOwner: "moonshot-lane active.json", freshness: "product-state contract" },
+  /*
+   * One dynamic route serving every live lane's card ladder. Added because the Products rail was
+   * four destinations and all four were baseball, while EPL and UFC had published ladders for days
+   * that were reachable only by scrolling their sport hub. generateStaticParams enumerates only the
+   * lanes with a published ladder, so a lane between slates has no page rather than an empty one.
+   */
+  "/cards/[sport]": { classification: "public", owner: "product", purpose: "per-sport paper card ladder — one card per price band, from real posted prices", dataOwner: "parlays/risk-ladder-<sport> artifacts", freshness: "ladder generatedAt; dated by its own slate/card" },
   "/mr-dub": { classification: "public", owner: "product", purpose: "trust center: complete paper-bankroll journey + receipts", dataOwner: "protected portfolio + ledger", freshness: "settlement cutoff shown beside current-ops marker" },
   "/results": { classification: "public", owner: "settlement", purpose: "settled track record on the canonical accounting", dataOwner: "results accounting artifacts", freshness: "settled-through date" },
   "/results/mlb": { classification: "public", owner: "settlement", purpose: "MLB settled results detail", dataOwner: "settlement artifacts", freshness: "settled-through date" },

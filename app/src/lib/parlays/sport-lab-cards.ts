@@ -104,3 +104,23 @@ export function legLabel(l: SportLabLeg): string {
   if (l.side === "draw" && l.matchup) return `${l.matchup} — draw`;
   return `${l.team ?? l.matchup ?? "—"} — ${l.marketLabel.toLowerCase()}`;
 }
+
+/**
+ * The lane's CURRENT ladder, whatever day it is dated for.
+ *
+ * loadSportLabLadder refuses a ladder whose date does not match the day asked for — which is right
+ * on a sport hub, where showing another card's prices under today's heading is the defect it exists
+ * to prevent. A dedicated product page is asking a different question: "what is this lane's current
+ * ladder", not "what is today's". So it reads the date off the artifact and then goes back through
+ * the same loader, keeping every other refusal (unpublished, no selection, no cards) intact.
+ */
+export function loadCurrentSportLabLadder(sport: string): SportLabLadder | null {
+  const dir = DIRS[sport];
+  if (!dir) return null;
+  try {
+    const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/parlays", dir, "latest.json"), "utf8"));
+    return loadSportLabLadder(sport, typeof raw?.date === "string" ? raw.date : null);
+  } catch {
+    return null;
+  }
+}

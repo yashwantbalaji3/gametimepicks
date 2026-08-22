@@ -79,6 +79,14 @@ const APPROVED_DESTINATIONS = new Set([
   "/moonshot",
   "/mr-dub",
   "/homer-nukes",
+  /*
+   * Each live lane's signature card product. The Products rail was four destinations and all four
+   * were baseball, while EPL and UFC had published ladders for days that were reachable only by
+   * scrolling their sport hub. One dynamic route serves both, and a lane with no published ladder
+   * gets no page at all rather than an empty one.
+   */
+  "/cards/epl",
+  "/cards/ufc",
   "/results",
   "/results/model-audit",
   "/results/nba",
