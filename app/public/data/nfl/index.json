@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-22T15:27:24Z",
+ "generatedAt": "2026-08-22T21:20:52Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-preseason-public-beta-v1",
@@ -16,21 +16,21 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 27,
-  "forecastsTotal": 11,
-  "forecastsUpcoming": 11,
+  "scheduledUpcoming": 21,
+  "forecastsTotal": 5,
+  "forecastsUpcoming": 5,
   "forecastsStarted": 0,
-  "marketEvents": 11,
+  "marketEvents": 5,
   "settled": 0
  },
- "nextKickoffUtc": "2026-08-22T16:00Z",
- "nextMatchup": "WSH @ DET",
- "marketCapturedAt": "2026-08-22T15:27:24Z",
+ "nextKickoffUtc": "2026-08-22T23:00Z",
+ "nextMatchup": "CHI @ CIN",
+ "marketCapturedAt": "2026-08-22T21:20:52Z",
  "experimentalRecord": {
   "schemaVersion": 1,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-08-22T14:50:37Z",
+  "generatedAt": "2026-08-22T15:27:24Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-preseason-public-beta-v1",
   "settledForecasts": 16,
@@ -43,256 +43,6 @@
   "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger."
  },
  "events": [
-  {
-   "providerEventId": "401873601",
-   "canonicalEventId": "nfl-401873601",
-   "matchup": "WSH @ DET",
-   "home": {
-    "abbr": "DET",
-    "name": "Detroit Lions"
-   },
-   "away": {
-    "abbr": "WSH",
-    "name": "Washington Commanders"
-   },
-   "kickoffUtc": "2026-08-22T16:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 18,
-    "away": 19
-   },
-   "winProbability": {
-    "home": 0.4649,
-    "away": 0.5351
-   },
-   "total": {
-    "median": 37,
-    "p10": 23,
-    "p90": 51
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-preseason-public-beta-v1",
-    "version": 1,
-    "inputHash": "7323ad53151f890f",
-    "generatedAt": "2026-08-22T15:27:24Z"
-   }
-  },
-  {
-   "providerEventId": "401873294",
-   "canonicalEventId": "nfl-401873294",
-   "matchup": "BUF @ CLE",
-   "home": {
-    "abbr": "CLE",
-    "name": "Cleveland Browns"
-   },
-   "away": {
-    "abbr": "BUF",
-    "name": "Buffalo Bills"
-   },
-   "kickoffUtc": "2026-08-22T17:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": -13.4,
-    "leansTo": "BUF",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
-   "projectedScore": {
-    "home": 18,
-    "away": 19
-   },
-   "winProbability": {
-    "home": 0.4603,
-    "away": 0.5397
-   },
-   "total": {
-    "median": 37,
-    "p10": 23,
-    "p90": 52
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-preseason-public-beta-v1",
-    "version": 1,
-    "inputHash": "24c4392985d2799e",
-    "generatedAt": "2026-08-22T15:27:24Z"
-   }
-  },
-  {
-   "providerEventId": "401873295",
-   "canonicalEventId": "nfl-401873295",
-   "matchup": "ATL @ IND",
-   "home": {
-    "abbr": "IND",
-    "name": "Indianapolis Colts"
-   },
-   "away": {
-    "abbr": "ATL",
-    "name": "Atlanta Falcons"
-   },
-   "kickoffUtc": "2026-08-22T17:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": -17.6,
-    "leansTo": "ATL",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
-   "projectedScore": {
-    "home": 18,
-    "away": 19
-   },
-   "winProbability": {
-    "home": 0.4625,
-    "away": 0.5375
-   },
-   "total": {
-    "median": 37,
-    "p10": 23,
-    "p90": 52
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-preseason-public-beta-v1",
-    "version": 1,
-    "inputHash": "f3c604a104ca98ba",
-    "generatedAt": "2026-08-22T15:27:24Z"
-   }
-  },
-  {
-   "providerEventId": "401873291",
-   "canonicalEventId": "nfl-401873291",
-   "matchup": "BAL @ MIN",
-   "home": {
-    "abbr": "MIN",
-    "name": "Minnesota Vikings"
-   },
-   "away": {
-    "abbr": "BAL",
-    "name": "Baltimore Ravens"
-   },
-   "kickoffUtc": "2026-08-22T17:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": -13,
-    "leansTo": "BAL",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
-   "projectedScore": {
-    "home": 18,
-    "away": 19
-   },
-   "winProbability": {
-    "home": 0.4642,
-    "away": 0.5358
-   },
-   "total": {
-    "median": 37,
-    "p10": 23,
-    "p90": 51
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-preseason-public-beta-v1",
-    "version": 1,
-    "inputHash": "b457a61f3827778f",
-    "generatedAt": "2026-08-22T15:27:24Z"
-   }
-  },
-  {
-   "providerEventId": "401873290",
-   "canonicalEventId": "nfl-401873290",
-   "matchup": "NO @ LAR",
-   "home": {
-    "abbr": "LAR",
-    "name": "Los Angeles Rams"
-   },
-   "away": {
-    "abbr": "NO",
-    "name": "New Orleans Saints"
-   },
-   "kickoffUtc": "2026-08-22T20:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast. Not proven to beat the market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 18,
-    "away": 19
-   },
-   "winProbability": {
-    "home": 0.4627,
-    "away": 0.5373
-   },
-   "total": {
-    "median": 37,
-    "p10": 23,
-    "p90": 52
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-preseason-public-beta-v1",
-    "version": 1,
-    "inputHash": "a7080f88f0603135",
-    "generatedAt": "2026-08-22T15:27:24Z"
-   }
-  },
-  {
-   "providerEventId": "401873292",
-   "canonicalEventId": "nfl-401873292",
-   "matchup": "NYG @ MIA",
-   "home": {
-    "abbr": "MIA",
-    "name": "Miami Dolphins"
-   },
-   "away": {
-    "abbr": "NYG",
-    "name": "New York Giants"
-   },
-   "kickoffUtc": "2026-08-22T20:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": 7.9,
-    "leansTo": "MIA",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
-   "projectedScore": {
-    "home": 18,
-    "away": 19
-   },
-   "winProbability": {
-    "home": 0.4623,
-    "away": 0.5377
-   },
-   "total": {
-    "median": 37,
-    "p10": 23,
-    "p90": 52
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-preseason-public-beta-v1",
-    "version": 1,
-    "inputHash": "faf364f3f38eb200",
-    "generatedAt": "2026-08-22T15:27:24Z"
-   }
-  },
   {
    "providerEventId": "401873289",
    "canonicalEventId": "nfl-401873289",
@@ -316,20 +66,20 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4658,
-    "away": 0.5342
+    "home": 0.4672,
+    "away": 0.5328
    },
    "total": {
     "median": 37,
-    "p10": 23,
+    "p10": 24,
     "p90": 52
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "f457ae30edf8c509",
-    "generatedAt": "2026-08-22T15:27:24Z"
+    "inputHash": "d601c67249feef50",
+    "generatedAt": "2026-08-22T21:20:52Z"
    }
   },
   {
@@ -355,20 +105,20 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4676,
-    "away": 0.5324
+    "home": 0.4686,
+    "away": 0.5314
    },
    "total": {
     "median": 37,
     "p10": 23,
-    "p90": 52
+    "p90": 51
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "271df32728d76f83",
-    "generatedAt": "2026-08-22T15:27:24Z"
+    "inputHash": "911219bfb1edefe6",
+    "generatedAt": "2026-08-22T21:20:52Z"
    }
   },
   {
@@ -389,7 +139,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -19.6,
+    "gapPp": -21.4,
     "leansTo": "KC",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -398,20 +148,20 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4785,
-    "away": 0.5215
+    "home": 0.4606,
+    "away": 0.5394
    },
    "total": {
     "median": 37,
-    "p10": 23,
-    "p90": 52
+    "p10": 24,
+    "p90": 51
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "354bb6c40455c728",
-    "generatedAt": "2026-08-22T15:27:24Z"
+    "inputHash": "45095964614927ab",
+    "generatedAt": "2026-08-22T21:20:52Z"
    }
   },
   {
@@ -433,12 +183,12 @@
    "stateMeaning": "An early model forecast. Not proven to beat the market.",
    "lean": null,
    "projectedScore": {
-    "home": 19,
+    "home": 18,
     "away": 19
    },
    "winProbability": {
-    "home": 0.4683,
-    "away": 0.5317
+    "home": 0.4735,
+    "away": 0.5265
    },
    "total": {
     "median": 37,
@@ -449,8 +199,8 @@
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "8a45d64819eb7bff",
-    "generatedAt": "2026-08-22T15:27:24Z"
+    "inputHash": "58f5f4e3b28c5efb",
+    "generatedAt": "2026-08-22T21:20:52Z"
    }
   },
   {
@@ -471,7 +221,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -18.7,
+    "gapPp": -19.2,
     "leansTo": "SEA",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -480,20 +230,20 @@
     "away": 19
    },
    "winProbability": {
-    "home": 0.4712,
-    "away": 0.5288
+    "home": 0.4639,
+    "away": 0.5361
    },
    "total": {
     "median": 37,
     "p10": 23,
-    "p90": 51
+    "p90": 52
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-preseason-public-beta-v1",
     "version": 1,
-    "inputHash": "203afa8b70b5be62",
-    "generatedAt": "2026-08-22T15:27:24Z"
+    "inputHash": "781d699e9656d5c6",
+    "generatedAt": "2026-08-22T21:20:52Z"
    }
   }
  ],
