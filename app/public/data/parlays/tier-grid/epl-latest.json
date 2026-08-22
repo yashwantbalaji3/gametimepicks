@@ -5,14 +5,15 @@
  "moneyClass": "NON_MONEY",
  "sport": "epl",
  "date": "2026-08-22",
- "generatedAt": "2026-08-22T13:53:27Z",
+ "generatedAt": "2026-08-22T15:44:30Z",
  "state": "PUBLISHED",
  "bandsUnreachable": [
   "low",
   "medium",
+  "high",
   "longshot"
  ],
- "calmestAvailable": "high",
+ "calmestAvailable": null,
  "tiers": [
   {
    "id": "bronze",
@@ -24,11 +25,7 @@
    ],
    "offered": 0,
    "emptyToday": true,
-   "substitute": {
-    "band": "high",
-    "slipId": "epl-high-2026-08-22",
-    "reason": "Nothing on today's board priced in this range. The calmest card available is high risk, which is a longer price than this bankroll is normally shown — its own record is attached."
-   }
+   "substitute": null
   },
   {
    "id": "silver",
@@ -41,11 +38,7 @@
    ],
    "offered": 0,
    "emptyToday": true,
-   "substitute": {
-    "band": "high",
-    "slipId": "epl-high-2026-08-22",
-    "reason": "Nothing on today's board priced in this range. The calmest card available is high risk, which is a longer price than this bankroll is normally shown — its own record is attached."
-   }
+   "substitute": null
   },
   {
    "id": "gold",
@@ -57,8 +50,8 @@
     "medium",
     "high"
    ],
-   "offered": 1,
-   "emptyToday": false,
+   "offered": 0,
+   "emptyToday": true,
    "substitute": null
   },
   {
@@ -72,8 +65,8 @@
     "high",
     "longshot"
    ],
-   "offered": 1,
-   "emptyToday": false,
+   "offered": 0,
+   "emptyToday": true,
    "substitute": null
   }
  ],
@@ -83,7 +76,7 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +383 (high)"
+   "reason": "not enough eligible priced fixtures to build a card"
   },
   {
    "tier": "bronze",
@@ -111,14 +104,14 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +383 (high)"
+   "reason": "not enough eligible priced fixtures to build a card"
   },
   {
    "tier": "silver",
    "band": "medium",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +383 (high); 3 legs → +1083 (longshot)"
+   "reason": "not enough eligible priced fixtures to build a card"
   },
   {
    "tier": "silver",
@@ -139,21 +132,21 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +383 (high)"
+   "reason": "not enough eligible priced fixtures to build a card"
   },
   {
    "tier": "gold",
    "band": "medium",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +383 (high); 3 legs → +1083 (longshot)"
+   "reason": "not enough eligible priced fixtures to build a card"
   },
   {
    "tier": "gold",
    "band": "high",
-   "state": "OFFERED",
-   "slipId": "epl-high-2026-08-22",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "not enough eligible priced fixtures to build a card"
   },
   {
    "tier": "gold",
@@ -167,71 +160,30 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +383 (high)"
+   "reason": "not enough eligible priced fixtures to build a card"
   },
   {
    "tier": "diamond",
    "band": "medium",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +383 (high); 3 legs → +1083 (longshot)"
+   "reason": "not enough eligible priced fixtures to build a card"
   },
   {
    "tier": "diamond",
    "band": "high",
-   "state": "OFFERED",
-   "slipId": "epl-high-2026-08-22",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "not enough eligible priced fixtures to build a card"
   },
   {
    "tier": "diamond",
    "band": "longshot",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +549 (high)"
+   "reason": "not enough eligible priced fixtures to build a card"
   }
  ],
- "cards": [
-  {
-   "band": "high",
-   "slipId": "epl-high-2026-08-22",
-   "combinedAmerican": 383,
-   "combinedDecimal": 4.83,
-   "legs": [
-    {
-     "sport": "epl",
-     "eventId": "soccer:epl:brentford-v-tottenham-hotspur:20260822t1630",
-     "player": null,
-     "team": "Brentford",
-     "matchup": "Brentford v Tottenham Hotspur",
-     "market": "match_result",
-     "marketLabel": "Match result",
-     "side": "home",
-     "line": null,
-     "odds": 110,
-     "decimal": 2.1,
-     "books": 11,
-     "kickoffUtc": "2026-08-22T16:30:00Z"
-    },
-    {
-     "sport": "epl",
-     "eventId": "soccer:epl:crystal-palace-v-everton:20260822t1400",
-     "player": null,
-     "team": "Everton",
-     "matchup": "Everton v Crystal Palace",
-     "market": "match_result",
-     "marketLabel": "Match result",
-     "side": "home",
-     "line": null,
-     "odds": 130,
-     "decimal": 2.3,
-     "books": 11,
-     "kickoffUtc": "2026-08-22T14:00:00Z"
-    }
-   ],
-   "status": "pending",
-   "record": null
-  }
- ],
+ "cards": [],
  "note": "A policy view of cards published by the risk ladder. No stake is baked in: bankroll is entered in the reader's own browser and never leaves it. Paper-only, educational; not advice."
 }

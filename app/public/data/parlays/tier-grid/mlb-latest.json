@@ -5,16 +5,409 @@
  "moneyClass": "NON_MONEY",
  "sport": "mlb",
  "date": "2026-08-22",
- "generatedAt": "2026-08-22T13:53:27Z",
- "state": "NOT_ELIGIBLE",
- "reason": "no odds capture is ingested for this sport; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
- "evidence": {
-  "pricedGames": 0,
-  "pricesCapturedAt": null,
-  "priceAgeDays": null,
-  "settlementSource": "MLB Stats API official box score",
-  "settlementProven": true
- },
- "tiers": [],
- "cells": []
+ "generatedAt": "2026-08-22T15:44:30Z",
+ "state": "PUBLISHED",
+ "bandsUnreachable": [],
+ "calmestAvailable": "low",
+ "tiers": [
+  {
+   "id": "bronze",
+   "minBankroll": 0,
+   "maxBankroll": 50,
+   "cardsPerDay": 1,
+   "bands": [
+    "low"
+   ],
+   "offered": 1,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "silver",
+   "minBankroll": 50,
+   "maxBankroll": 100,
+   "cardsPerDay": 2,
+   "bands": [
+    "low",
+    "medium"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "gold",
+   "minBankroll": 100,
+   "maxBankroll": 250,
+   "cardsPerDay": 3,
+   "bands": [
+    "low",
+    "medium",
+    "high"
+   ],
+   "offered": 3,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "diamond",
+   "minBankroll": 250,
+   "maxBankroll": null,
+   "cardsPerDay": 4,
+   "bands": [
+    "low",
+    "medium",
+    "high",
+    "longshot"
+   ],
+   "offered": 4,
+   "emptyToday": false,
+   "substitute": null
+  }
+ ],
+ "cells": [
+  {
+   "tier": "bronze",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "opt_2026-08-19_public_low_mlb_209431d5ae10",
+   "reason": null
+  },
+  {
+   "tier": "bronze",
+   "band": "medium",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "opt_2026-08-19_public_low_mlb_209431d5ae10",
+   "reason": null
+  },
+  {
+   "tier": "silver",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "opt_2026-08-19_public_low_mlb_df57240200b9",
+   "reason": null
+  },
+  {
+   "tier": "silver",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "gold",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "opt_2026-08-19_public_low_mlb_209431d5ae10",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "opt_2026-08-19_public_low_mlb_df57240200b9",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "high",
+   "state": "OFFERED",
+   "slipId": "opt_2026-08-19_public_medium_mlb_6f33fcc0fb0c",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 3 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "diamond",
+   "band": "low",
+   "state": "OFFERED",
+   "slipId": "opt_2026-08-19_public_low_mlb_209431d5ae10",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "opt_2026-08-19_public_low_mlb_df57240200b9",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "high",
+   "state": "OFFERED",
+   "slipId": "opt_2026-08-19_public_medium_mlb_6f33fcc0fb0c",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "longshot",
+   "state": "OFFERED",
+   "slipId": "opt_2026-08-19_public_high_mlb_17db1ad1db48",
+   "reason": null
+  }
+ ],
+ "cards": [
+  {
+   "band": "low",
+   "slipId": "opt_2026-08-19_public_low_mlb_209431d5ae10",
+   "combinedAmerican": -103,
+   "combinedDecimal": 1.974,
+   "legs": [
+    {
+     "player": "Pete Alonso",
+     "team": "BAL",
+     "opponent": "NYY",
+     "playerId": 624413,
+     "gameId": "e1c63fd17f608a04657ea391d6e50645",
+     "gamePk": 824801,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -249,
+     "result": "unresolved"
+    },
+    {
+     "player": "Kyle Tucker",
+     "team": "LAD",
+     "opponent": "COL",
+     "playerId": 663656,
+     "gameId": "322d54946bb18482b7d8348b69b6942e",
+     "gamePk": 824318,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Under",
+     "line": 1.5,
+     "odds": -245,
+     "result": "unresolved"
+    }
+   ],
+   "status": "pending",
+   "record": {
+    "wins": 95,
+    "losses": 147,
+    "hitRate": 0.3926,
+    "roi": -0.0202
+   }
+  },
+  {
+   "band": "medium",
+   "slipId": "opt_2026-08-19_public_low_mlb_df57240200b9",
+   "combinedAmerican": 126,
+   "combinedDecimal": 2.256,
+   "legs": [
+    {
+     "player": "Josh Naylor",
+     "team": "SEA",
+     "opponent": "MIL",
+     "playerId": 647304,
+     "gameId": "118d9a25ad5e9070a57cf4cb0b5d0314",
+     "gamePk": 823748,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -170,
+     "result": "unresolved"
+    },
+    {
+     "player": "Jac Caglianone",
+     "team": "KC",
+     "opponent": "ATH",
+     "playerId": 695506,
+     "gameId": "3072a6e1e725ce3eaeb47ad41548628f",
+     "gamePk": 824076,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -238,
+     "result": "unresolved"
+    }
+   ],
+   "status": "pending",
+   "record": {
+    "wins": 45,
+    "losses": 201,
+    "hitRate": 0.1829,
+    "roi": -0.0348
+   }
+  },
+  {
+   "band": "high",
+   "slipId": "opt_2026-08-19_public_medium_mlb_6f33fcc0fb0c",
+   "combinedAmerican": 353,
+   "combinedDecimal": 4.535,
+   "legs": [
+    {
+     "player": "Alec Bohm",
+     "team": "PHI",
+     "opponent": "MIA",
+     "playerId": 664761,
+     "gameId": "6d6d28fd44922349f17b60e2eb9dc487",
+     "gamePk": 823424,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -233,
+     "result": "unresolved"
+    },
+    {
+     "player": "Kaelen Culpepper",
+     "team": "MIN",
+     "opponent": "ATL",
+     "playerId": 701785,
+     "gameId": "ebe3d5c684fd83932e02698e22564f7b",
+     "gamePk": 823664,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -129,
+     "result": "unresolved"
+    },
+    {
+     "player": "Richie Palacios",
+     "team": "TB",
+     "opponent": "TOR",
+     "playerId": 680700,
+     "gameId": "d6738463ee902306e2e71f297603b26e",
+     "gamePk": 822937,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -127,
+     "result": "unresolved"
+    }
+   ],
+   "status": "pending",
+   "record": {
+    "wins": 28,
+    "losses": 219,
+    "hitRate": 0.1134,
+    "roi": -0.0532
+   }
+  },
+  {
+   "band": "longshot",
+   "slipId": "opt_2026-08-19_public_high_mlb_17db1ad1db48",
+   "combinedAmerican": 967,
+   "combinedDecimal": 10.667,
+   "legs": [
+    {
+     "player": "Ben Rice",
+     "team": "NYY",
+     "opponent": "BAL",
+     "playerId": 700250,
+     "gameId": "e1c63fd17f608a04657ea391d6e50645",
+     "gamePk": 824801,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Under",
+     "line": 1.5,
+     "odds": -257,
+     "result": "unresolved"
+    },
+    {
+     "player": "Sung-Mun Song",
+     "team": "SD",
+     "opponent": "NYM",
+     "playerId": 823550,
+     "gameId": "68cb74d6a042f0c12d3b2e066f58bee6",
+     "gamePk": 823587,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Under",
+     "line": 0.5,
+     "odds": 104,
+     "result": "unresolved"
+    },
+    {
+     "player": "Bryson Stott",
+     "team": "PHI",
+     "opponent": "MIA",
+     "playerId": 681082,
+     "gameId": "6d6d28fd44922349f17b60e2eb9dc487",
+     "gamePk": 823424,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -212,
+     "result": "unresolved"
+    },
+    {
+     "player": "Taylor Walls",
+     "team": "TB",
+     "opponent": "TOR",
+     "playerId": 670764,
+     "gameId": "d6738463ee902306e2e71f297603b26e",
+     "gamePk": 822937,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -136,
+     "result": "unresolved"
+    },
+    {
+     "player": "Bo Bichette",
+     "team": "NYM",
+     "opponent": "SD",
+     "playerId": 666182,
+     "gameId": "68cb74d6a042f0c12d3b2e066f58bee6",
+     "gamePk": 823587,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -211,
+     "result": "unresolved"
+    }
+   ],
+   "status": "pending",
+   "record": {
+    "wins": 14,
+    "losses": 236,
+    "hitRate": 0.056,
+    "roi": -0.2863
+   }
+  }
+ ],
+ "note": "A policy view of cards published by the risk ladder. No stake is baked in: bankroll is entered in the reader's own browser and never leaves it. Paper-only, educational; not advice."
 }
