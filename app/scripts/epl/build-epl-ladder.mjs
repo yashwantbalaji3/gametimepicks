@@ -49,7 +49,16 @@ const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); }
 
 const NOW = arg("--now", new Date().toISOString());
 const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
-const odds = readJson(path.join(APP, "public", "data", "soccer", "epl", "odds", "latest.json"));
+/*
+ * `--odds <path>` overrides the capture this reads.
+ *
+ * Added for the band-coverage guard, which needs a full ten-fixture slate: by mid-afternoon most
+ * fixtures have kicked off, so the live artifact cannot answer "can four bands be built" either way.
+ * The guard used to swap the live file and restore it, which is unsafe the moment test files run in
+ * parallel — another test read the synthetic capture and reported a sport closed on a price dated
+ * 2099. An input path costs nothing and touches no shared state.
+ */
+const odds = readJson(arg("--odds", null) ?? path.join(APP, "public", "data", "soccer", "epl", "odds", "latest.json"));
 
 /*
  * THE SLATE DAY COMES FROM THE FIXTURES, NOT FROM THE CLOCK.

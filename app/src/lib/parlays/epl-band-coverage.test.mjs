@@ -58,27 +58,29 @@ function syntheticCapture(kickoffDay) {
   };
 }
 
-/** Run the real builder against a temporary odds artifact, and read back what it wrote. */
+/**
+ * Run the real builder against a TEMPORARY odds file, and read back what it wrote.
+ *
+ * The first version swapped the live capture and restored it in a finally block. That is unsafe the
+ * moment test files run in parallel: another guard read the synthetic slate mid-swap and reported a
+ * sport closed on a price dated 2099. A temp path and an --odds flag touch no shared state at all.
+ *
+ * The ladder's own output still has to be cleaned up, because the builder writes both a dated file
+ * and latest.json — and leaving a synthetic ten-fixture card on a live product path is what the
+ * published-cards guard caught the first time round.
+ */
 function buildAgainst(capture, day) {
-  const oddsPath = path.join(APP, "public/data/soccer/epl/odds/latest.json");
+  const tmp = path.join(os.tmpdir(), `gtp-epl-odds-${day}-${process.pid}.json`);
   const outPath = path.join(APP, "public/data/parlays/risk-ladder-epl", `${day}.json`);
-  /*
-   * The builder writes BOTH the dated file and latest.json. The first version of this restored only
-   * the dated one, so a synthetic ten-fixture ladder was left sitting on the live product path — the
-   * exact thing the comment above says this must not do, caught by the guard that checks the
-   * published cards reach a reader and finding a -122 card no page had ever shown.
-   */
   const latestPath = path.join(APP, "public/data/parlays/risk-ladder-epl", "latest.json");
-  const savedOdds = fs.readFileSync(oddsPath, "utf8");
   const savedOut = fs.existsSync(outPath) ? fs.readFileSync(outPath, "utf8") : null;
   const savedLatest = fs.existsSync(latestPath) ? fs.readFileSync(latestPath, "utf8") : null;
   try {
-    fs.writeFileSync(oddsPath, JSON.stringify(capture));
-    execFileSync("node", [path.join(APP, "scripts/epl/build-epl-ladder.mjs"), "--now", `${day}T09:00:00Z`, "--date", day], { cwd: APP, encoding: "utf8" });
+    fs.writeFileSync(tmp, JSON.stringify(capture));
+    execFileSync("node", [path.join(APP, "scripts/epl/build-epl-ladder.mjs"), "--now", `${day}T09:00:00Z`, "--date", day, "--odds", tmp], { cwd: APP, encoding: "utf8" });
     return JSON.parse(fs.readFileSync(outPath, "utf8"));
   } finally {
-    // Always restore: this test must not leave a synthetic ladder on a live product path.
-    fs.writeFileSync(oddsPath, savedOdds);
+    fs.rmSync(tmp, { force: true });
     if (savedOut != null) fs.writeFileSync(outPath, savedOut); else fs.rmSync(outPath, { force: true });
     if (savedLatest != null) fs.writeFileSync(latestPath, savedLatest); else fs.rmSync(latestPath, { force: true });
   }

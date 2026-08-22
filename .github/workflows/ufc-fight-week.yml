@@ -121,6 +121,22 @@ jobs:
           node scripts/ufc/build-ufc-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
             echo "::warning::UFC risk ladder refused this run"
 
+      # THE PRE-FIGHT COMPARISON: what the model said, and what the market said, on the same bouts.
+      #
+      # The gate has recorded UFC calibration as UNPROVEN because the model had "never been compared
+      # against a no-vig line". Every ingredient was already on disk — the model's winner probability,
+      # both sides' posted prices, the official results — and nothing joined them. That is a missing
+      # instrument, not a small sample, and it is the fixable half.
+      #
+      # Runs AFTER the ladder so it sees the same card the ladder was built from. Non-fatal: a week
+      # with no card, or a card with no usable price, records nothing and says so.
+      - name: Record the pre-fight model-vs-market comparison
+        working-directory: app
+        run: |
+          set -uo pipefail
+          npx tsx scripts/ufc/capture-ufc-model-vs-market.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write || \
+            echo "::warning::UFC model-vs-market snapshot refused this run"
+
       # The product-state contract for this lane. Built LAST so it summarises what this run produced,
       # and it checks the two things that silently broke the lane before: whether the published
       # ladder belongs to the card on the page, and whether the settler can grade this sport at all.
@@ -161,6 +177,7 @@ jobs:
                   app/public/data/ufc/odds-latest.json app/public/data/parlays/tier-grid \
                   app/public/data/parlays/risk-ladder-ufc app/public/data/admin/ufc-lane.json \
                   app/public/data/ufc/fight-model-evaluation.json data/internal/research/ufc/model-card-fight-v1.json \
+                  data/internal/research/ufc/model-vs-market \
                   data/internal/research/odds/ufc/authorization-ledger.json \
                   data/internal/research/odds/ufc/shadow-snapshot-latest.json \
                   "data/internal/research/odds/ufc/shadow-snapshot-"*.json 2>/dev/null || true

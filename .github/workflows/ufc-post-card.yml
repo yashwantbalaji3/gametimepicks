@@ -2,7 +2,19 @@
 # backtest dataset → calibration → readiness → ops-status. Accumulates clean rows
 # toward the public moneyline unlock. Never fakes results; no public picks unless gated.
 name: ufc-post-card
+# ── SCHEDULED, BECAUSE NOTHING WAS CATCHING A FINISHED CARD ──────────────────────────────────────
+#
+# This workflow and ufc-results-refresh were BOTH dispatch-only, and neither had ever run. So after a
+# card was fought, nothing captured its results: the settlement stage could never earn a cadence
+# receipt, the Lab's UFC cards would sit pending forever, and the model-vs-market comparison would
+# never be graded. Every one of those was waiting on somebody remembering to press a button.
+#
+# 08:00 UTC daily — 04:00 ET, after the latest main card has finished. Daily rather than on fight
+# nights because a card can move and a weekday card exists; the pipeline is idempotent and free, so a
+# day with nothing new to grade is a no-op that costs nothing.
 on:
+  schedule:
+    - cron: "0 8 * * *"
   workflow_dispatch:
     inputs:
       dry_run: { description: "Build+print only", type: boolean, required: false, default: false }
@@ -20,6 +32,12 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: "pip" }
       - run: pip install requests
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+        working-directory: app
+
       - name: Post-card pipeline (results → grade → backtest → readiness)
         run: |
           set -e
@@ -29,6 +47,18 @@ jobs:
           python -m pipeline.ufc.backtest_moneyline_model
           python -m pipeline.ufc.build_readiness
           python -m pipeline.ufc.build_ops_status
+      # THE MODEL AGAINST THE PRICE, on the bouts just settled.
+      #
+      # The pre-fight snapshot recorded both probabilities before the card; this scores them on the
+      # same bouts. Append-only, so a bout is graded exactly once. Non-fatal: a night with no settled
+      # bout reports NOTHING_NEW and exits clean.
+      - name: Grade the model-vs-market comparison
+        working-directory: app
+        run: |
+          set -uo pipefail
+          npx tsx scripts/ufc/grade-ufc-model-vs-market.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write || \
+            echo "::warning::UFC model-vs-market grading refused this run"
+
       - name: Summary (graded rows + backtestReady)
         run: |
           python -c "import json;d=json.load(open('app/public/data/ufc/backtest-summary-latest.json'));print('cleanRows',d['rowCount'],'brier',d.get('marketImpliedBrier'),'decision',d['launchDecision'])"
@@ -36,7 +66,7 @@ jobs:
       - name: Commit derived UFC artifacts
         if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.commit_artifacts != 'false' }}
         run: |
-          git add app/public/data/ufc/ 2>/dev/null || true
+          git add app/public/data/ufc/ data/internal/research/ufc/model-vs-market 2>/dev/null || true
           git reset -q app/public/data/ufc/*.csv 2>/dev/null || true
           if git diff --staged --quiet; then echo "no changes"; exit 0; fi
           git config user.name "GametimePicks Bot"; git config user.email "noreply@github.com"
