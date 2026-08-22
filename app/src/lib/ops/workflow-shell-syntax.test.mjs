@@ -245,3 +245,32 @@ test("no workflow pushes to main without being able to rebase", () => {
   assert.deepEqual(offenders, [],
     `push(es) to main with no way to recover from a concurrent push:\n  ${offenders.join("\n  ")}`);
 });
+
+/*
+ * ── A BLANK LINE AFTER A CONTINUATION SILENTLY EATS THE ARGUMENTS ───────────────────────────────
+ *
+ * bash -n cannot catch this, because nothing is malformed. `cmd --flag \` followed by an EMPTY line
+ * is valid shell: the backslash escapes the newline, joins the command to an empty line, and the
+ * command ends — without the arguments that were meant to follow. The next line then runs as a
+ * command in its own right.
+ *
+ * daily-products broke exactly this way on 2026-08-18, in the commit that ADDED the assertion —
+ * "Post-run artifact assertions: a green step is not evidence the pipeline ran". The assert was
+ * called with no paths at all, refused as vacuous, and failed the job every morning for four days
+ * before anyone looked. The guard written to catch silent failure failed silently.
+ *
+ * It is a formatting accident with no visible symptom in the file: the path sits right there on the
+ * next line, indented, looking exactly like an argument.
+ */
+test("no run block ends a line with a continuation followed by a blank line", () => {
+  const offenders = [];
+  for (const wf of fs.readdirSync(DIR).filter((f) => /\.ya?ml$/.test(f))) {
+    const lines = fs.readFileSync(path.join(DIR, wf), "utf8").split("\n");
+    for (let i = 0; i < lines.length - 1; i++) {
+      if (lines[i].replace(/\s+$/, "").endsWith("\\") && lines[i + 1].trim() === "") {
+        offenders.push(`${wf}:${i + 1} — "${lines[i].trim().slice(0, 70)}" continues into a blank line, so its arguments never arrive`);
+      }
+    }
+  }
+  assert.deepEqual(offenders, [], `line continuations swallowed by a blank line:\n  ${offenders.join("\n  ")}`);
+});
