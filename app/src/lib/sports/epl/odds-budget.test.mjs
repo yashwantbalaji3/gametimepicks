@@ -92,3 +92,47 @@ test("a weekly slot fires on its own weekday and no other", () => {
     assert.equal(new Date(t).getUTCHours(), 21);
   }
 });
+
+/* ── THE PROVIDER DEDUPE IS PART OF THE COST ────────────────────────────────────────────────────
+ *
+ * capture-epl-odds refuses a same-fingerprint request inside 60 minutes and exits without spending.
+ * A model that ignored it priced a second lineup attempt as a full extra capture — 426 of 500
+ * credits across the season instead of 312 — and would have argued against a change that costs
+ * almost nothing. Overstating is not "safely conservative" when the decision it informs is whether
+ * the product can catch a team sheet.
+ */
+
+test("a firing inside the dedupe window costs nothing", () => {
+  const fixtures = [{ kickoffIso: "2026-08-22T14:00:00Z" }];
+  const base = { fromIso: "2026-08-22T00:00:00Z", creditsPerCall: 2, windowHours: 30, alreadySpent: 0, ceiling: 500 };
+  // Two Saturday slots 30 minutes apart: the second is a duplicate and is refused.
+  const paired = projectSeasonSpend(fixtures, [{ hour: 13, minute: 0, dow: 6 }, { hour: 13, minute: 30, dow: 6 }], base);
+  assert.equal(paired.spendingFirings, 1, "the second firing is refused as a duplicate");
+  assert.equal(paired.firings, 2, "but it still FIRED — the two are different facts");
+});
+
+test("a firing OUTSIDE the window is a real second capture", () => {
+  const fixtures = [{ kickoffIso: "2026-08-22T14:00:00Z" }];
+  const base = { fromIso: "2026-08-22T00:00:00Z", creditsPerCall: 2, windowHours: 30, alreadySpent: 0, ceiling: 500 };
+  // 90 minutes apart — past the 60-minute dedupe, so both spend.
+  const apart = projectSeasonSpend(fixtures, [{ hour: 11, minute: 30, dow: 6 }, { hour: 13, minute: 0, dow: 6 }], base);
+  assert.equal(apart.spendingFirings, 2);
+});
+
+test("the dedupe is a property of the CLOCK, not of which cron asked", () => {
+  // Firings must be walked in time order across every slot. Slot-by-slot accounting would let two
+  // different cron lines each spend inside the same 60 minutes, which the provider would refuse.
+  const fixtures = [{ kickoffIso: "2026-08-22T14:00:00Z" }];
+  const base = { fromIso: "2026-08-22T00:00:00Z", creditsPerCall: 2, windowHours: 30, alreadySpent: 0, ceiling: 500 };
+  const three = projectSeasonSpend(fixtures, [
+    { hour: 13, minute: 0, dow: 6 }, { hour: 13, minute: 20, dow: 6 }, { hour: 13, minute: 40, dow: 6 },
+  ], base);
+  assert.equal(three.spendingFirings, 1, "three firings inside one hour are one capture");
+});
+
+test("dedupeMinutes: 0 recovers the naive model, so the option is doing real work", () => {
+  const fixtures = [{ kickoffIso: "2026-08-22T14:00:00Z" }];
+  const base = { fromIso: "2026-08-22T00:00:00Z", creditsPerCall: 2, windowHours: 30, alreadySpent: 0, ceiling: 500, dedupeMinutes: 0 };
+  const naive = projectSeasonSpend(fixtures, [{ hour: 13, minute: 0, dow: 6 }, { hour: 13, minute: 30, dow: 6 }], base);
+  assert.equal(naive.spendingFirings, 2);
+});

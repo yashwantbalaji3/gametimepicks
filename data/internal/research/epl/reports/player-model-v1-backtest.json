@@ -1,0 +1,162 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-player-model-v1-backtest",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "generatedAt": "2026-08-21T04:43:05.271Z",
+ "preregistration": {
+  "file": "preregistration-player-v1.json",
+  "registeredAt": "2026-08-21T05:30:00Z"
+ },
+ "protocol": {
+  "walkForward": "by match date; every player rate is fitted STRICTLY on matches dated earlier than the match being scored. No same-day information is used.",
+  "warmup": {
+   "season": "2024-25",
+   "fixtures": 380,
+   "rule": "folds into the rates, NEVER scored"
+  },
+  "development": {
+   "rule": "the FIRST half of 2025-26 by date",
+   "fixtures": 190,
+   "use": "ALL hyperparameter search happens here and nowhere else"
+  },
+  "holdout": {
+   "rule": "the SECOND half of 2025-26 by date",
+   "fixtures": 190,
+   "use": "scored ONCE, after the configuration is locked. Consulting it before locking voids this preregistration."
+  },
+  "devFixtures": 190,
+  "holdoutFixtures": 190
+ },
+ "developmentSweep": [
+  {
+   "k": 1,
+   "devLogLoss": 0.26478,
+   "devEce": 0.03085
+  },
+  {
+   "k": 2,
+   "devLogLoss": 0.25722,
+   "devEce": 0.02604
+  },
+  {
+   "k": 4,
+   "devLogLoss": 0.25135,
+   "devEce": 0.0195
+  },
+  {
+   "k": 8,
+   "devLogLoss": 0.24743,
+   "devEce": 0.01315
+  },
+  {
+   "k": 16,
+   "devLogLoss": 0.24554,
+   "devEce": 0.00848
+  },
+  {
+   "k": 32,
+   "devLogLoss": 0.24548,
+   "devEce": 0.00908
+  }
+ ],
+ "locked": {
+  "k": 32
+ },
+ "baselines": {
+  "positional": {
+   "dev": {
+    "n": 5782,
+    "coverage": 1,
+    "logLoss": 0.25338,
+    "brier": 0.06886,
+    "ece": 0.00618,
+    "predictedScorers": 488.7,
+    "observedScorers": 453,
+    "countError": 0.0788
+   },
+   "holdout": {
+    "n": 5710,
+    "coverage": 1,
+    "logLoss": 0.25592,
+    "brier": 0.06983,
+    "ece": 0.00407,
+    "predictedScorers": 482.3,
+    "observedScorers": 459,
+    "countError": 0.0507
+   }
+  },
+  "playerRaw": {
+   "dev": {
+    "n": 5782,
+    "coverage": 1,
+    "logLoss": 0.74691,
+    "brier": 0.07176,
+    "ece": 0.03963,
+    "predictedScorers": 475.4,
+    "observedScorers": 453,
+    "countError": 0.0494
+   },
+   "holdout": {
+    "n": 5710,
+    "coverage": 1,
+    "logLoss": 0.60571,
+    "brier": 0.06988,
+    "ece": 0.0206,
+    "predictedScorers": 468.8,
+    "observedScorers": 459,
+    "countError": 0.0213
+   }
+  }
+ },
+ "model": {
+  "dev": {
+   "n": 5782,
+   "coverage": 1,
+   "logLoss": 0.24548,
+   "brier": 0.06726,
+   "ece": 0.00908,
+   "predictedScorers": 501.3,
+   "observedScorers": 453,
+   "countError": 0.1066
+  },
+  "holdout": {
+   "n": 5710,
+   "coverage": 1,
+   "logLoss": 0.24614,
+   "brier": 0.06793,
+   "ece": 0.00931,
+   "predictedScorers": 494.4,
+   "observedScorers": 459,
+   "countError": 0.077
+  }
+ },
+ "bars": [
+  {
+   "id": "P1_beats_positional",
+   "pass": true,
+   "detail": "model 0.24614 vs positional 0.25592 — improvement 0.00978, need >= 0.005"
+  },
+  {
+   "id": "P2_shrinkage_earns_it",
+   "pass": true,
+   "detail": "model 0.24614 vs raw 0.60571 — need <= raw"
+  },
+  {
+   "id": "P3_calibrated",
+   "pass": true,
+   "detail": "holdout ECE 0.00931, allowed <= 0.020"
+  },
+  {
+   "id": "P4_scorer_count_sane",
+   "pass": true,
+   "detail": "predicted 494.4 vs observed 459 — error 7.7%, allowed <= 10%"
+  },
+  {
+   "id": "P5_no_abstention_gaming",
+   "pass": true,
+   "detail": "coverage 100.0%, need >= 95%"
+  }
+ ],
+ "verdict": "ACCEPTED"
+}

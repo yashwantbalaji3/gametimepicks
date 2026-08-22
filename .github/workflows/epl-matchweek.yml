@@ -56,6 +56,26 @@ on:
     - cron: "30 14 * * 0" # Sunday   — 15:30 cluster
     - cron: "0 18 * * 1"  # Monday   — 19:00 kickoff
     #
+    # ── A SECOND ATTEMPT AT THE TEAM SHEET, FOR ALMOST NOTHING ─────────────────────────────────
+    #
+    # The slots above sit at T-1h because that is roughly when an XI appears. "Roughly" is the
+    # problem: ESPN posts some at T-70min and some at T-50min, and a single attempt that fires
+    # before the sheet exists gets nothing and cannot try again. That is a likelier way to lose the
+    # coherent simulation than cron drift, and it fails silently — the run succeeds and publishes
+    # conditional rows, which look almost identical.
+    #
+    # These cost almost nothing because the capture refuses a duplicate request inside 60 minutes,
+    # so a run 30 minutes after its partner spends zero credits and still fetches lineups, which are
+    # free. Measured across the committed season with that dedupe modelled: 312 of 500 credits, 188
+    # under the ceiling, against 252 without them.
+    - cron: "0 19 * * 5"  # Friday   — second look at the 19:00 kickoff
+    - cron: "0 11 * * 6"  # Saturday — second look at 11:30
+    - cron: "30 13 * * 6" # Saturday — second look at 14:00
+    - cron: "0 16 * * 6"  # Saturday — second look at 16:30
+    - cron: "30 12 * * 0" # Sunday   — second look at 13:00
+    - cron: "0 15 * * 0"  # Sunday   — second look at 15:30
+    - cron: "30 18 * * 1" # Monday   — second look at 19:00
+    #
     # ── WHAT THIS COSTS, MEASURED AND NOT ESTIMATED ────────────────────────────────────────────
     #
     # The old cadence had no fixture guard: every slot called the provider whether or not a match
@@ -248,6 +268,16 @@ jobs:
 
       # re-resolved. `multi` is included deliberately: a second live sport is what opens the
       # cross-sport lane, and it must not wait a day.
+      # The operator's model read — every fixture's distribution beside the price it stands next to.
+      # PRIVATE: it is derived from a paid capture, and the model's calibration is UNPROVEN, so a
+      # public "where the model disagrees" would be a pick from something never shown to be right.
+      - name: Publish the operator model read
+        working-directory: app
+        run: |
+          set -uo pipefail
+          npx tsx scripts/epl/build-epl-model-read.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write || \
+            echo "::warning::EPL model read refused this run"
+
       # The EPL risk ladder — real posted prices, the MARKET'S OWN favourite, never this model's read.
       # Runs before the tier grids because they consume it. Non-fatal: a slate that cannot build a
       # ladder publishes no cards and says which bands it could not reach.
@@ -281,6 +311,7 @@ jobs:
                   app/public/data/admin/epl-lane.json \
                   app/public/data/parlays/risk-ladder-epl \
                   data/internal/research/epl/forecasts \
+                  data/internal/research/epl/model-read \
                   data/internal/research/epl/corpus-current-season.json \
                   data/internal/research/odds/epl/authorization-ledger.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi

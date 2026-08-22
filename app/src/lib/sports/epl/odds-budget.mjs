@@ -59,20 +59,36 @@ export function firingSpends(atMs, kickoffsMs, windowHours) {
  * @param slots           weekly cron slots, parsed from the workflow
  * @param creditsPerCall  the provider's own formula: markets x regions. Never hardcoded upstream.
  * @param windowHours     null models the CURRENT behaviour — no fixture guard, every slot spends
+ * @param dedupeMinutes   the capture's own duplicate-request window; a firing inside it costs nothing
  */
-export function projectSeasonSpend(fixtures, slots, { fromIso, creditsPerCall, windowHours = null, alreadySpent = 0, ceiling }) {
+export function projectSeasonSpend(fixtures, slots, { fromIso, creditsPerCall, windowHours = null, alreadySpent = 0, ceiling, dedupeMinutes = 60 }) {
   const kickoffs = (fixtures ?? []).map((f) => Date.parse(f?.kickoffIso ?? "")).filter(Number.isFinite).sort((a, b) => a - b);
   if (!kickoffs.length) return null;
   const from = Date.parse(fromIso);
   const to = kickoffs[kickoffs.length - 1];
 
+  /*
+   * THE PROVIDER DEDUPE IS PART OF THE COST MODEL.
+   *
+   * capture-epl-odds refuses a request with the same fingerprint inside 60 minutes and exits without
+   * spending. Ignoring that made a second lineup attempt 30 minutes after the first look like a full
+   * extra capture — 426 of 500 credits across the season instead of the truth, which is that it
+   * costs nothing at all. A budget model that overstates is not "safely conservative" when the
+   * decision it informs is whether the product can catch a team sheet.
+   *
+   * Firings are therefore walked in TIME ORDER across all slots, not slot by slot, because the
+   * dedupe is a property of the clock and not of which cron line asked.
+   */
+  const all = slots.flatMap((s) => slotFirings(s, from, to)).sort((a, b) => a - b);
   let firings = 0;
   let spending = 0;
-  for (const s of slots) {
-    for (const at of slotFirings(s, from, to)) {
-      firings += 1;
-      if (windowHours == null || firingSpends(at, kickoffs, windowHours)) spending += 1;
-    }
+  let lastSpendAt = -Infinity;
+  for (const at of all) {
+    firings += 1;
+    if (windowHours != null && !firingSpends(at, kickoffs, windowHours)) continue;
+    if (at - lastSpendAt < dedupeMinutes * 60_000) continue;   // the provider call is refused as a duplicate
+    spending += 1;
+    lastSpendAt = at;
   }
   const projectedCredits = spending * creditsPerCall;
   const total = alreadySpent + projectedCredits;
