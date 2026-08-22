@@ -21,6 +21,7 @@
  * state sits above the first figure rather than in a footer a later edit can drop.
  */
 import type { Metadata } from "next";
+import { Histogram, ProbabilityBar as Bar } from "@/components/distribution-chart";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -60,46 +61,6 @@ const PANEL: React.CSSProperties = {
   borderRadius: 12,
   padding: "clamp(14px, 2vw, 20px)",
 };
-
-/** A horizontal probability bar. Width is the probability; the figure is always printed as text too. */
-function Bar({ label, p, color, sub }: { label: string; p: number; color: string; sub?: string }) {
-  return (
-    <div style={{ display: "grid", gap: 4 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
-        <span style={{ fontSize: 13, color: "var(--vault-text)" }}>{label}</span>
-        <span className="font-mono" style={{ fontSize: 13, fontWeight: 700, color }}>{pct(p)}</span>
-      </div>
-      <div style={{ height: 8, borderRadius: 999, background: "var(--vault-rule)", overflow: "hidden" }}>
-        <div style={{ width: `${Math.max(0, Math.min(1, p)) * 100}%`, height: "100%", background: color, borderRadius: 999 }} />
-      </div>
-      {sub ? <span className="font-mono" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>{sub}</span> : null}
-    </div>
-  );
-}
-
-/** A compact column chart over a discrete distribution, with the modal bucket emphasised. */
-function Histogram({ values, labelFor, accent }: { values: number[]; labelFor: (i: number) => string; accent: string }) {
-  const max = Math.max(...values, 1e-9);
-  return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 96 }}>
-      {values.map((v, i) => (
-        <div key={i} style={{ flex: 1, display: "grid", gap: 4, justifyItems: "center" }}>
-          <span className="font-mono" style={{ fontSize: 9, color: "var(--vault-text-faint)" }}>
-            {v >= 0.01 ? Math.round(v * 100) : ""}
-          </span>
-          <div
-            title={`${labelFor(i)}: ${pct(v)}`}
-            style={{
-              width: "100%", height: Math.max(2, (v / max) * 64), borderRadius: 3,
-              background: v === max ? accent : "color-mix(in srgb, " + accent + " 38%, transparent)",
-            }}
-          />
-          <span className="font-mono" style={{ fontSize: 9.5, color: "var(--vault-text-mute)" }}>{labelFor(i)}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export default function EplMatchPage({ params }: { params: { slug: string } }) {
   const set = loadEplForecasts();

@@ -8,6 +8,7 @@
  * oversight — the model block below renders those refusals from the artifact itself.
  */
 import HeadToHead from "@/components/ui/head-to-head";
+import { Histogram, ProbabilityBar } from "@/components/distribution-chart";
 
 type Bout = { date: string; opponent: string; result: "W" | "L"; method: string; round: number };
 type Profile = {
@@ -149,6 +150,46 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
                 } : null}
                 note={b.prediction?.reason ?? b.unmodelledReason ?? undefined}
               />
+
+              {/*
+                THE DISTRIBUTIONS, DRAWN.
+                The model publishes three markets and all three passed their preregistered bars, but
+                only the winner had any visual — method and round were a single word each in the
+                verdict line, when what the model actually produces is a full distribution over
+                KO/submission/decision and over which round it ends in. A reader could not see that
+                a 48% KO read sits beside a 31% decision read rather than dominating it.
+                Drawn with the same chart every other sport uses, and every figure is printed as text
+                as well, because a bar is a comparison and the number is the claim.
+              */}
+              {b.prediction?.method && b.prediction?.rounds ? (
+                <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))" }}>
+                  <div>
+                    <div className="font-mono uppercase tracking-[0.1em] mb-1.5" style={{ fontSize: 9, color: "var(--vault-text-faint)" }}>
+                      How it ends
+                    </div>
+                    <div className="grid gap-1.5">
+                      <ProbabilityBar label="KO / TKO" p={b.prediction.method.probabilities.ko} color="var(--sport-ufc)" />
+                      <ProbabilityBar label="Submission" p={b.prediction.method.probabilities.submission} color="var(--sport-ufc)" />
+                      <ProbabilityBar label="Decision" p={b.prediction.method.probabilities.decision} color="var(--sport-ufc)" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="font-mono uppercase tracking-[0.1em] mb-1.5" style={{ fontSize: 9, color: "var(--vault-text-faint)" }}>
+                      Which round
+                    </div>
+                    <Histogram
+                      accent="var(--sport-ufc)"
+                      height={78}
+                      values={[
+                        b.prediction.rounds.probabilities.round1,
+                        b.prediction.rounds.probabilities.round2,
+                        b.prediction.rounds.probabilities.round3plus,
+                      ]}
+                      labelFor={(i) => (i === 0 ? "R1" : i === 1 ? "R2" : "R3+")}
+                    />
+                  </div>
+                </div>
+              ) : null}
 
               {(rp?.strengths?.length || bp?.strengths?.length) ? (
                 <div className="grid gap-1.5" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))" }}>
