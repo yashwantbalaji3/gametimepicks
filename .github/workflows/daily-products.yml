@@ -173,18 +173,40 @@ jobs:
             echo "no change — products already current for ${{ steps.d.outputs.date }}"
             exit 0
           fi
-          # The generator is CONTENT-idempotent but stamps a fresh `generatedAt` every run, so a
-          # byte comparison would commit every single day even when nothing about the products
-          # changed. Compare with that stamp removed and skip the commit if only the clock moved —
-          # otherwise this workflow becomes daily noise in the history for no information.
-          if node -e "
+          # ── DROP THE STAMP-ONLY FILES, NOT THE WHOLE COMMIT ─────────────────────────────────
+          #
+          # The generator is CONTENT-idempotent but stamps a fresh `generatedAt` every run, so a byte
+          # comparison would commit every day even when nothing changed. The previous filter answered
+          # that by comparing ONE file — mr-dub/daily-portfolio.json — and, if that file was unchanged,
+          # running `git reset` over everything else.
+          #
+          # The portfolio legitimately does not move on a day when nothing settles. The MLB risk
+          # ladder changes every day. So on 2026-08-22 this workflow built a fresh ladder, reported
+          # "3/4 tiers carded", and then discarded it because a different artifact had not moved —
+          # leaving the live ladder dated 2026-08-19, three days stale on a product surface.
+          #
+          # A one-file proxy cannot speak for a staged set. Each file is now compared on its own and
+          # only the stamp-only ones are unstaged; whatever genuinely changed still commits.
+          node -e "
             const { execSync } = require('child_process');
-            const strip = (j) => { const o = JSON.parse(j); delete o.generatedAt; return JSON.stringify(o); };
-            const f = 'app/public/data/mr-dub/daily-portfolio.json';
-            let head; try { head = execSync('git show HEAD:' + f, { encoding: 'utf8' }); } catch { process.exit(1); }
-            process.exit(strip(head) === strip(require('fs').readFileSync(f, 'utf8')) ? 0 : 1);
-          "; then
-            echo "only the generatedAt stamp moved — nothing to publish"
+            const fs = require('fs');
+            const staged = execSync('git diff --cached --name-only', { encoding: 'utf8' }).split('\n').filter(Boolean);
+            const stampOnly = [];
+            for (const f of staged) {
+              if (!f.endsWith('.json')) continue;
+              let head;
+              try { head = execSync('git show HEAD:' + f, { encoding: 'utf8' }); } catch { continue; }
+              const strip = (j) => { try { const o = JSON.parse(j); delete o.generatedAt; return JSON.stringify(o); } catch { return null; } };
+              const a = strip(head), b = strip(fs.readFileSync(f, 'utf8'));
+              if (a !== null && a === b) stampOnly.push(f);
+            }
+            for (const f of stampOnly) {
+              execSync('git restore --staged ' + JSON.stringify(f));
+              console.log('  stamp-only, not published: ' + f);
+            }
+          "
+          if git diff --cached --quiet; then
+            echo "every staged artifact differed only by its generatedAt stamp — nothing to publish"
             git reset
             exit 0
           fi
