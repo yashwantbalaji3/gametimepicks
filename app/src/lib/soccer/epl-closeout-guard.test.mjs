@@ -63,6 +63,13 @@ const CROSS_LANE_READERS = [
    * writes and puts back.
    */
   "src/lib/parlays/epl-band-coverage.test.mjs",
+  /*
+   * top-reads.ts: the cross-sport "strongest reads" aggregator. It NAMES the EPL artifact paths
+   * because it reads every live sport's model output into one ranked list — that is a cross-sport
+   * registry doing its job, the same case as learning-paths above, not a World Cup surface reaching
+   * into the lane. It imports nothing from the lane and writes nothing.
+   */
+  "src/lib/top-reads.ts",
 ];
 
 /** Every source file this lane owns. */

@@ -25,6 +25,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import SportOverviewHero from "@/components/sport-overview-hero";
+import TopReadsPanel from "@/components/top-reads-panel";
+import { loadTopReads, topForSport } from "@/lib/top-reads";
 import SectionHeader from "@/components/section-header";
 import TeamLogo from "@/components/team-logo";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
@@ -137,6 +139,7 @@ export default function EplPage() {
   type Feed = { sport?: string; events?: unknown[]; totals?: { upcoming?: number }; sourceVerdict?: { sourceId?: string | null; fetchedAt?: string | null } };
   const feed = (allUpcoming({ nowIso: new Date().toISOString() }) as unknown as Feed[]).find((x) => x.sport === "epl");
   const set: EplForecastSet | null = loadEplForecasts();
+  const topReads = loadTopReads();
   const priced = forecastRows(set);
   const unpriced = unpricedRows(set);
   const days = byMatchday(priced);
@@ -409,6 +412,18 @@ export default function EplPage() {
       )}
 
       {labLadder ? <SportLabCards ladder={labLadder} /> : null}
+
+      {/* The five reads this sport's model is most confident about today — team markets and player
+          markets both, interleaved rather than sorted together, because a match favourite always
+          outranks any single player and a plain sort would make the list all-team. */}
+      {topReads ? (
+        <TopReadsPanel
+          set={topReads}
+          reads={topForSport(topReads, "epl", 5)}
+          eyebrow="Premier League · model reads"
+          title="What the model is most confident about today"
+        />
+      ) : null}
 
       {/* ── 4 · SCHEDULE — reference, deliberately last ────────────────────────────────────────── */}
       <section className="mt-8" id="schedule">

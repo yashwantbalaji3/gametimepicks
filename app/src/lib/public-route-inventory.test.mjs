@@ -157,6 +157,26 @@ function hrefsIn(source) {
  * serving several sports). Following the import keeps the assertion about what a READER sees rather
  * than about which file a sentence happens to live in.
  */
+/**
+ * A page's source plus every module it imports — WITH COMMENTS STRIPPED.
+ *
+ * This scans for vocabulary a reader must not be shown ("projected score", "best bet"). A comment is
+ * never shown to anyone, and concatenating imported modules means every explanatory header in every
+ * shared component is scanned too. That is how a cross-sport reads panel — whose module comment
+ * explains WHY NFL is excluded, using the words "projected score" — made /ufc fail a check about
+ * what /ufc displays.
+ *
+ * Stripping is the fix rather than rewording the comment, because the alternative teaches the next
+ * author to delete an explanation to appease a guard. This is the fourth time a check in this
+ * repository has matched prose it was never meant to read.
+ *
+ * The phrases these assertions REQUIRE are rendered string literals, not comments, so nothing that
+ * should pass stops passing.
+ */
+function stripComments(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+}
+
 function renderedSource(rel) {
   const src = read(rel);
   let all = src;
@@ -166,7 +186,7 @@ function renderedSource(rel) {
       if (fs.existsSync(p) && fs.statSync(p).isFile()) { all += "\n" + fs.readFileSync(p, "utf8"); break; }
     }
   }
-  return all;
+  return stripComments(all);
 }
 
 test("every removed route has no page body left in the source tree", () => {

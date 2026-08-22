@@ -26,6 +26,8 @@ import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { deriveSportState, stateLabel, partitionSports } from "@/lib/home/simulation-hub.mjs";
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
+import TopReadsPanel from "@/components/top-reads-panel";
+import { loadTopReads, topOverall } from "@/lib/top-reads";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildMarketCoverage } from "@/lib/today/market-coverage";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
@@ -86,6 +88,7 @@ export default function HomePage() {
   // ── Featured simulations — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
   const { featured, readyCount, simulationsToday } = featuredSimulations(details, currentEtDate());
+  const topReads = loadTopReads();
   // What each featured simulation CONCLUDED — a lookup over the canonical objects.
   const gameAnswers = buildHomeGameAnswers(details);
   // Daily-MLB destination hook — the SAME brief overview /today leads with (factual counts, no picks).
@@ -322,6 +325,21 @@ export default function HomePage() {
       {/* Upcoming Sports schedules (Program 148 · Release B) — a deliberately quiet strip, OUTSIDE the
           Simulation Hub by contract: schedule availability is not simulation coverage, and these four
           sports must never render as hub peers of MLB. One line per sport, status in words. */}
+      {/*
+        THE MODEL'S STRONGEST READS, ACROSS EVERY SPORT.
+        Ranked by the model's own probability rather than by any gap against a price: a gap asserts
+        the market is wrong and no model here has established that. Each sport's proven state renders
+        with its reads, and a sport excluded for having no event-specific signal is named.
+      */}
+      {topReads ? (
+        <TopReadsPanel
+          set={topReads}
+          reads={topOverall(topReads, 10)}
+          eyebrow="Across every sport"
+          title="The model's strongest reads today"
+        />
+      ) : null}
+
       <section aria-label="Upcoming sports schedule status" style={{ marginTop: 8 }}>
         <UpcomingSportsStrip sports={allUpcoming({ nowIso: new Date().toISOString() }) as SportSchedule[]} />
       </section>

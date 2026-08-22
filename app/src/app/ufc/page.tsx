@@ -13,6 +13,8 @@
  */
 import fs from "node:fs";
 import Explain from "@/components/ui/explain";
+import TopReadsPanel from "@/components/top-reads-panel";
+import { loadTopReads, topForSport } from "@/lib/top-reads";
 import UfcCard, { type UfcCardArtifact } from "@/components/sports/ufc-card";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
@@ -66,6 +68,7 @@ export default function UfcArchivePage() {
   // The full card (bouts, portraits, records, the one modelled prop) when a card artifact exists;
   // the generic schedule list is the fallback so the page never renders empty.
   const card = loadJSONUfc<UfcCardArtifact>("card-latest.json");
+  const topReads = loadTopReads();
   /* Keyed to the CARD'S OWN date. A ladder built for another event must never appear under this one:
      the UFC ladder previously carried three dates at once — written 08-18, fighting 08-22, published
      as 08-21 — and a reader could not have told which fights they were looking at. */
@@ -215,6 +218,18 @@ export default function UfcArchivePage() {
           is claimed for it.
         </p>
       ) : null}
+      {/* The five reads this sport's model is most confident about today — team markets and player
+          markets both, interleaved rather than sorted together, because a match favourite always
+          outranks any single player and a plain sort would make the list all-team. */}
+      {topReads ? (
+        <TopReadsPanel
+          set={topReads}
+          reads={topForSport(topReads, "ufc", 5)}
+          eyebrow="UFC · model reads"
+          title="What the model is most confident about today"
+        />
+      ) : null}
+
     </div>
   );
 }

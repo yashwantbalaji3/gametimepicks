@@ -9,6 +9,8 @@
  */
 import Link from "next/link";
 import CompetitionBadge from "@/components/ui/competition-badge";
+import TopReadsPanel from "@/components/top-reads-panel";
+import { loadTopReads, topForSport } from "@/lib/top-reads";
 import { getSportIdentity } from "@/lib/sport-identity";
 
 import {
@@ -79,6 +81,7 @@ function byEdge(a: PublicProjection, b: PublicProjection) {
 export default function MlbLandingPage() {
   const date = activeMlbDate() ?? currentEtDate();
   const board = getMlbBoardForDate(date);
+  const topReads = loadTopReads();
   // The flagship sections align to the freshest ingested MODEL BOARD (activeMlbDate → mlb/boards). The old
   // resolver keyed off mlb/home-run-props — the RETIRED Homer Nukes feed — which froze the whole MLB hub on
   // that product's last date (June-28). Prefer the live board date; fall back to the retired-props resolver
@@ -460,6 +463,18 @@ export default function MlbLandingPage() {
           <SportShell tabs={tabs} />
         </DeferUntilVisible>
       </div>
+      {/* The five reads this sport's model is most confident about today — team markets and player
+          markets both, interleaved rather than sorted together, because a match favourite always
+          outranks any single player and a plain sort would make the list all-team. */}
+      {topReads ? (
+        <TopReadsPanel
+          set={topReads}
+          reads={topForSport(topReads, "mlb", 5)}
+          eyebrow="MLB · model reads"
+          title="What the model is most confident about today"
+        />
+      ) : null}
+
     </div>
   );
 }
