@@ -14,6 +14,7 @@
  * the page the honest and dishonest versions look identical. So `selection` arrives from the
  * artifact, and a ladder that does not state one is never loaded at all.
  */
+import { deriveBandSubstitutes } from "@/lib/parlays/sport-lab-cards";
 import type { SportLabLadder } from "@/lib/parlays/sport-lab-cards";
 import { fmtAmerican, legLabel } from "@/lib/parlays/sport-lab-cards";
 import SectionHeader from "@/components/section-header";
@@ -33,6 +34,7 @@ export default function SportLabCards({
    */
   nameEvent = true,
 }: { ladder: SportLabLadder; eyebrow?: string; nameEvent?: boolean }) {
+  const substitutes = deriveBandSubstitutes(ladder);
   return (
     <section className="mt-8" id="cards">
       <SectionHeader
@@ -84,12 +86,29 @@ export default function SportLabCards({
         ))}
       </div>
       {ladder.skipped.length > 0 ? (
-        <p className="mt-2" style={{ fontSize: 11.5, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
-          {/* Named rather than hidden: a band we could not reach is a different fact from one we
-              chose not to offer, and widening the limits to fill it would be the dishonest fix. */}
-          Not built today: {ladder.skipped.map((s) => s.tier).join(", ")} — no combination of today&rsquo;s prices
-          lands in {ladder.skipped.length === 1 ? "that band" : "those bands"}, and the band limits are not widened to fill them.
-        </p>
+        <div className="mt-2">
+          <p style={{ fontSize: 11.5, color: "var(--vault-text-faint)", lineHeight: 1.6, margin: 0 }}>
+            {/* Named rather than hidden: a band we could not reach is a different fact from one we
+                chose not to offer, and widening the limits to fill it would be the dishonest fix. */}
+            Not built today: {ladder.skipped.map((s) => s.tier).join(", ")} — no combination of today&rsquo;s prices
+            lands in {ladder.skipped.length === 1 ? "that band" : "those bands"}, and the band limits are not widened to fill them.
+          </p>
+          {/*
+            A LABELLED SUBSTITUTE, WHICH IS NOT THE SAME AS FILLING THE BAND.
+            The card offered here is still stamped with its OWN band everywhere it appears; this only
+            tells a reader who wanted an empty band what the closest thing on the board is, and in
+            which risk direction it sits. Relabelling it would be the dishonest version.
+          */}
+          {substitutes.length > 0 ? (
+            <ul className="mt-1" style={{ listStyle: "none", margin: "6px 0 0", padding: 0 }}>
+              {substitutes.map((sub) => (
+                <li key={sub.band} style={{ fontSize: 11.5, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
+                  {sub.note}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       ) : null}
     </section>
   );

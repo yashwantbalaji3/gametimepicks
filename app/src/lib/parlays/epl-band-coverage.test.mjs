@@ -69,21 +69,40 @@ function syntheticCapture(kickoffDay) {
  * and latest.json — and leaving a synthetic ten-fixture card on a live product path is what the
  * published-cards guard caught the first time round.
  */
-function buildAgainst(capture, day) {
-  const tmp = path.join(os.tmpdir(), `gtp-epl-odds-${day}-${process.pid}.json`);
-  const outPath = path.join(APP, "public/data/parlays/risk-ladder-epl", `${day}.json`);
-  const latestPath = path.join(APP, "public/data/parlays/risk-ladder-epl", "latest.json");
-  const savedOut = fs.existsSync(outPath) ? fs.readFileSync(outPath, "utf8") : null;
-  const savedLatest = fs.existsSync(latestPath) ? fs.readFileSync(latestPath, "utf8") : null;
+function withLadderDirRestored(fn) {
+  const dir = path.join(APP, "public/data/parlays/risk-ladder-epl");
+  const before = new Map(fs.readdirSync(dir).map((n) => [n, fs.readFileSync(path.join(dir, n), "utf8")]));
+  try {
+    return fn(dir);
+  } finally {
+    for (const n of fs.readdirSync(dir)) if (!before.has(n)) fs.rmSync(path.join(dir, n), { force: true });
+    for (const [n, body] of before) fs.writeFileSync(path.join(dir, n), body);
+  }
+}
+
+function runBuilder(capture, extraArgs, now) {
+  const tmp = path.join(os.tmpdir(), `gtp-epl-odds-${process.pid}-${Math.abs(now.length * 31 + extraArgs.length)}.json`);
   try {
     fs.writeFileSync(tmp, JSON.stringify(capture));
-    execFileSync("node", [path.join(APP, "scripts/epl/build-epl-ladder.mjs"), "--now", `${day}T09:00:00Z`, "--date", day, "--odds", tmp], { cwd: APP, encoding: "utf8" });
-    return JSON.parse(fs.readFileSync(outPath, "utf8"));
+    execFileSync("node", [path.join(APP, "scripts/epl/build-epl-ladder.mjs"), "--now", now, "--odds", tmp, ...extraArgs], { cwd: APP, encoding: "utf8" });
   } finally {
     fs.rmSync(tmp, { force: true });
-    if (savedOut != null) fs.writeFileSync(outPath, savedOut); else fs.rmSync(outPath, { force: true });
-    if (savedLatest != null) fs.writeFileSync(latestPath, savedLatest); else fs.rmSync(latestPath, { force: true });
   }
+}
+
+function buildAgainst(capture, day) {
+  return withLadderDirRestored((dir) => {
+    runBuilder(capture, ["--date", day], `${day}T09:00:00Z`);
+    return JSON.parse(fs.readFileSync(path.join(dir, `${day}.json`), "utf8"));
+  });
+}
+
+/** Build with NO --date, so the run has to work out its own slate day, and read back what it chose. */
+function buildDeriving(capture, now) {
+  return withLadderDirRestored((dir) => {
+    runBuilder(capture, [], now);
+    return JSON.parse(fs.readFileSync(path.join(dir, "latest.json"), "utf8"));
+  });
 }
 
 const DAY = "2099-01-15";                    // far future: cannot collide with a real slate
@@ -141,4 +160,56 @@ test("the ladder still claims no model read", () => {
   assert.match(ladder.selection, /market price|market's own/i);
   assert.match(ladder.selection, /never this model's read/i);
   for (const c of ladder.cards) for (const l of c.legs) assert.equal(l.modelProbability, undefined);
+});
+
+/*
+ * ── THE SLATE DAY A RUN CHOOSES ────────────────────────────────────────────────────────────────
+ *
+ * On 2026-08-22 the 16:17 run found exactly one fixture still upcoming, scoped itself to that day,
+ * and skipped all four bands for "not enough eligible priced fixtures" — while a fully priced
+ * Sunday sat in the same capture. The lane published an empty day it could never have filled.
+ */
+const rowsFor = (day, count, hour) =>
+  syntheticCapture(day).rows.slice(0, count).map((r) => ({ ...r, kickoffIso: `${day}T${hour}:00:00Z` }));
+
+test("a day with only ONE fixture left is not the slate day — the run rolls to the next servable one", () => {
+  const today = "2099-03-06", tomorrow = "2099-03-07";
+  const capture = { capturedAt: `${today}T16:00:00Z`, rows: [...rowsFor(today, 1, "20"), ...rowsFor(tomorrow, 4, "14")] };
+  const out = buildDeriving(capture, `${today}T16:17:00Z`);
+  assert.equal(out.date, tomorrow, "one upcoming fixture cannot fill a card — the run must serve the day it can");
+  assert.ok(out.cards.length > 0, "the servable day must actually produce a card");
+});
+
+test("the card it publishes is stamped with ITS OWN day, never the run's", () => {
+  const today = "2099-03-06", tomorrow = "2099-03-07";
+  const capture = { capturedAt: `${today}T16:00:00Z`, rows: [...rowsFor(today, 1, "20"), ...rowsFor(tomorrow, 4, "14")] };
+  const out = buildDeriving(capture, `${today}T16:17:00Z`);
+  for (const c of out.cards) {
+    for (const l of c.legs) {
+      assert.equal(l.kickoffUtc.slice(0, 10), tomorrow, "a Sunday leg must never be presented under a Saturday date");
+    }
+  }
+});
+
+test("rolling forward NEVER skips a day that could be served", () => {
+  const today = "2099-03-06", tomorrow = "2099-03-07";
+  const capture = { capturedAt: `${today}T09:00:00Z`, rows: [...rowsFor(today, 3, "20"), ...rowsFor(tomorrow, 6, "14")] };
+  const out = buildDeriving(capture, `${today}T09:00:00Z`);
+  assert.equal(out.date, today, "three upcoming fixtures today can fill a card — tomorrow must wait its turn");
+});
+
+test("when NO day can be served the empty state still publishes — the roll-forward is not a machine for always finding something", () => {
+  const today = "2099-03-06";
+  const capture = { capturedAt: `${today}T16:00:00Z`, rows: rowsFor(today, 1, "20") };
+  const out = buildDeriving(capture, `${today}T16:17:00Z`);
+  assert.equal(out.date, today, "with nothing servable anywhere it must fall back to the earliest upcoming day");
+  assert.equal(out.cards.length, 0);
+  assert.equal(out.skipped.length, RISK_ORDER.length, "and say so for every band, rather than publishing nothing at all");
+});
+
+test("a capture with nothing upcoming at all does not crash and does not invent a slate", () => {
+  const past = "2099-03-06";
+  const capture = { capturedAt: `${past}T09:00:00Z`, rows: rowsFor(past, 4, "14") };
+  const out = buildDeriving(capture, `${past}T23:00:00Z`);
+  assert.equal(out.cards.length, 0, "every fixture has kicked off — there is no card to offer");
 });

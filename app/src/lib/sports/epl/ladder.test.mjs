@@ -51,7 +51,24 @@ test("the slate day is derived from the FIXTURES, never from the run's own clock
    * one slot that exists to have the product ready in advance produced nothing at all. Same defect
    * as an /nfl hub anchored to a stale index day: a slate day no fixture shares is not a slate day.
    */
-  assert.match(SRC, /nextKickoff/, "the date must come from the next upcoming fixture");
+  /*
+   * This pinned the identifier `nextKickoff`, and broke the moment the derivation got BETTER — the
+   * run now walks forward to the first day it can actually serve, because scoping to a day with one
+   * fixture left skipped all four bands while a fully priced Sunday sat in the same capture. A guard
+   * that fails on an improvement is pinning spelling, not behaviour.
+   *
+   * So it asserts the claim instead: the run's own clock may appear only as the LAST fallback in the
+   * date decision, never as the thing it reads first. The derivation itself is proven behaviourally
+   * against synthetic captures in parlays/epl-band-coverage.test.mjs — roll-forward, never skipping
+   * a servable day, and the empty state staying reachable when no day can be served.
+   */
+  const decision = SRC.match(/const DATE = arg\("--date",([\s\S]*?)\);/)?.[1];
+  assert.ok(decision, "the slate day must be decided in one readable place");
+  assert.match(decision, /kickoff/i, "the date must be derived from the fixtures' kickoff times");
+  const clockAt = decision.indexOf("etDay(NOW)");
+  if (clockAt > -1) {
+    assert.ok(clockAt > decision.search(/kickoff/i), "the run's own clock may only be the final fallback, never the first source");
+  }
   if (!ladder?.cards?.length) return;
   const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
   for (const l of allLegs) {

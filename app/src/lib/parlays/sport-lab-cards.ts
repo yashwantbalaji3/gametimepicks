@@ -19,6 +19,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { RISK_ORDER } from "../prefs/bettor-tiers.mjs";
+
 export interface SportLabLeg {
   eventId: string;
   /** The named participant, where the sport has one. Null for a team market like a draw. */
@@ -54,6 +56,54 @@ export interface SportLabLadder {
   moneyClass: string;
   /** Named event, where the sport has one (a fight card does; a football slate does not). */
   eventName: string | null;
+}
+
+/** One band that produced nothing, and the card a reader is pointed at instead. */
+export interface BandSubstitute {
+  /** The band that came up empty. */
+  band: string;
+  /** The band whose card is offered in its place. */
+  offered: string;
+  slipId: string | null;
+  /** Reader-facing. States the DIRECTION of the swap, because that is the whole content of it. */
+  note: string;
+}
+
+/*
+ * A BAND THAT CAME UP EMPTY GETS A LABELLED SUBSTITUTE — NOT A WIDENED THRESHOLD.
+ *
+ * `low` is -200 to +100, so a two-leg card has to combine to 2.00 decimal or shorter: both legs at
+ * roughly -242 or shorter. No slate reaches that at the leg-quality bar, and the honest reading is
+ * that a genuinely low-risk PARLAY mostly does not exist. Moving the boundary to make one appear
+ * would relabel a medium card as low, which is the one thing that must never happen: the band IS
+ * the risk statement.
+ *
+ * The tier grid already settled this shape for MLB bankroll tiers, and the rule is reused verbatim
+ * rather than re-derived: offer the CALMEST card on the board, never the next rung up. A reader
+ * handed a fallback should land on the mildest thing available instead of being walked up the
+ * ladder. That means a substitute is sometimes calmer than the band asked for and sometimes longer,
+ * so the note is DERIVED from the actual comparison — a hardcoded "this is riskier" would be a lie
+ * half the time, and a wrong risk direction is worse than no substitute at all.
+ */
+export function deriveBandSubstitutes(ladder: SportLabLadder): BandSubstitute[] {
+  const order = RISK_ORDER as readonly string[];
+  const byBand = new Map(ladder.cards.map((c) => [c.tier, c]));
+  const calmest = order.find((b) => byBand.has(b)) ?? null;
+  if (!calmest) return [];                       // nothing was built: there is nothing to substitute
+  return ladder.skipped
+    .filter((s) => !byBand.has(s.tier) && s.tier !== calmest)
+    .map((s) => {
+      const wanted = order.indexOf(s.tier), got = order.indexOf(calmest);
+      const direction = got > wanted
+        ? "a longer price, and a longer price is more risk, than this band describes"
+        : "a shorter price, and less risk, than this band describes";
+      return {
+        band: s.tier,
+        offered: calmest,
+        slipId: (byBand.get(calmest) as { slipId?: string } | undefined)?.slipId ?? null,
+        note: `Nothing on this slate priced into ${s.tier}. The calmest card built today is ${calmest} — ${direction}.`,
+      };
+    });
 }
 
 const DIRS: Record<string, string> = {

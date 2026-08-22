@@ -86,11 +86,70 @@ test("BUILT EXPORT · each sport's page carries its OWN sentence and not the oth
   const ufcPage = read(path.join(APP, "out/ufc/index.html"));
   if (!eplPage || !ufcPage) return;   // export not built in this run
   if (eplPage.includes("Paper cards")) {
-    assert.match(eplPage, /market&rsquo;s own favourite|market's own favourite/i);
+    /*
+     * This pinned "the market's own favourite", which stopped being the whole truth the day the
+     * ladder started using totals as well as the three-way — a book's over/under line is a market
+     * price and is not a favourite. The sister guard in sports/epl/ladder.test.mjs was restated
+     * then; this one was missed, so it failed on a sentence that had become MORE accurate.
+     *
+     * The claim is what matters, and it has two halves that must BOTH be present: the side is the
+     * market's, and it is explicitly not the model's. Either half alone is the dangerous version.
+     */
+    assert.match(eplPage, /market price|market&rsquo;s own|market's own/i, "EPL's cards must say the side comes from the market");
+    assert.match(eplPage, /never this model&rsquo;s read|never this model's read/i, "and must disclaim the model in the same breath");
     assert.doesNotMatch(eplPage, /passed its preregistered bar/i, "EPL must never claim a cleared bar");
   }
   if (ufcPage.includes("Paper cards")) {
     assert.match(ufcPage, /passed its preregistered bar/i);
     assert.doesNotMatch(ufcPage, /market&rsquo;s own favourite|market's own favourite/i, "UFC's cards are its model's read, not the price's");
   }
+});
+
+/*
+ * ── A BAND THAT CAME UP EMPTY ──────────────────────────────────────────────────────────────────
+ *
+ * `low` is unreachable on nearly every slate: -200 to +100 means a two-leg card must combine to
+ * 2.00 decimal, both legs at roughly -242 or shorter, which the leg-quality bar does not produce.
+ * The fix that must NEVER ship is moving the boundary, because the band is the risk statement.
+ */
+import { deriveBandSubstitutes } from "./sport-lab-cards.ts";
+
+const ladderWith = (cards, skipped) => ({
+  sport: "epl", date: "2099-01-01", generatedAt: "2099-01-01T00:00:00Z",
+  cards, skipped, selection: "market favourite", moneyClass: "NON_MONEY", eventName: null,
+});
+
+test("an empty band is pointed at the CALMEST card built, not the next rung up", () => {
+  const subs = deriveBandSubstitutes(ladderWith(
+    [{ tier: "medium", slipId: "m1" }, { tier: "high", slipId: "h1" }],
+    [{ tier: "low", reason: "x" }, { tier: "longshot", reason: "y" }],
+  ));
+  assert.equal(subs.length, 2);
+  assert.ok(subs.every((s) => s.offered === "medium"), "a reader handed a fallback lands on the mildest card available");
+});
+
+test("the note states the RISK DIRECTION, and gets it right in both directions", () => {
+  const [low] = deriveBandSubstitutes(ladderWith([{ tier: "medium", slipId: "m1" }], [{ tier: "low", reason: "x" }]));
+  assert.match(low.note, /longer price/, "a medium card offered to a low reader is MORE risk and must say so");
+  const [shot] = deriveBandSubstitutes(ladderWith([{ tier: "medium", slipId: "m1" }], [{ tier: "longshot", reason: "y" }]));
+  assert.match(shot.note, /shorter price/, "a medium card offered to a longshot reader is LESS risk and must say so");
+});
+
+test("a substitute never relabels the card — the offered band is named as itself", () => {
+  const [low] = deriveBandSubstitutes(ladderWith([{ tier: "medium", slipId: "m1" }], [{ tier: "low", reason: "x" }]));
+  assert.equal(low.band, "low");
+  assert.equal(low.offered, "medium");
+  assert.notEqual(low.band, low.offered, "the empty band and the card's own band must stay distinct");
+});
+
+test("no cards at all means no substitutes — there is nothing to point at", () => {
+  assert.deepEqual(deriveBandSubstitutes(ladderWith([], [{ tier: "low", reason: "x" }])), []);
+});
+
+test("a band that HAS a card is never given a substitute", () => {
+  const subs = deriveBandSubstitutes(ladderWith(
+    [{ tier: "medium", slipId: "m1" }],
+    [{ tier: "medium", reason: "stale entry" }, { tier: "high", reason: "y" }],
+  ));
+  assert.deepEqual(subs.map((s) => s.band), ["high"]);
 });

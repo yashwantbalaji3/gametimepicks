@@ -51,6 +51,8 @@ export interface TopReadsSet {
   provenance: Array<{ sport: string; state: string }>;
 }
 
+import { loadEplGradedRecord } from "./sports/epl/graded-record";
+
 const read = (p: string) => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), p), "utf8")); } catch { return null; } };
 const etToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 
@@ -60,9 +62,31 @@ const etToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_
  */
 const PROVENANCE: Record<string, string> = {
   mlb: "Its modelled markets were measured against the sportsbook and demoted to market context — the simulation is published, not claimed to beat a price.",
-  epl: "Never scored against a no-vig line. Two matches have been graded in total.",
+  epl: "Never scored against a no-vig line.",
   ufc: "The one model here that cleared its preregistered bar, on a 3,557-fight held-out sample. It has still never been compared against a price.",
 };
+
+/*
+ * A COUNT IN A SENTENCE IS DERIVED, NEVER TYPED.
+ *
+ * This read "Two matches have been graded in total" — true the day it was written, and false by the
+ * fifth. The /epl hub carried the identical defect in its own track-record line and now derives it,
+ * so the two surfaces disagreed ON THE SAME PAGE: a "5 matches graded" headline sat a few sections
+ * above this sentence saying two.
+ *
+ * Derived from the same ledger the hub reads, so it cannot understate a growing record either. It
+ * still refuses to quote a hit rate or an accuracy figure at any sample size, because a rate over a
+ * handful of matches is noise with a percent sign on it — the SIZE of the record is the only thing
+ * a count is allowed to say here. An unreadable ledger yields no clause at all rather than a zero,
+ * since "we could not read it" and "nothing has been graded" are different facts.
+ */
+function eplGradedClause(): string {
+  const rec = loadEplGradedRecord();
+  const n = rec?.team.matches;
+  if (n == null) return "";
+  if (n === 0) return " No match has been graded yet.";
+  return ` ${n} ${n === 1 ? "match has" : "matches have"} been graded in total — far too few to support any accuracy claim.`;
+}
 
 export function loadTopReads(): TopReadsSet | null {
   const today = etToday();
@@ -190,7 +214,8 @@ export function loadTopReads(): TopReadsSet | null {
     generatedAt: new Date().toISOString(),
     reads,
     excluded,
-    provenance: [...new Set(reads.map((r) => r.sport))].map((s) => ({ sport: s, state: PROVENANCE[s] ?? "" })),
+    provenance: [...new Set(reads.map((r) => r.sport))]
+      .map((s) => ({ sport: s, state: (PROVENANCE[s] ?? "") + (s === "epl" ? eplGradedClause() : "") })),
   };
 }
 

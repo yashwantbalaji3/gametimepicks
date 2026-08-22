@@ -143,7 +143,22 @@ export default function EplPage() {
   const priced = forecastRows(set);
   const unpriced = unpricedRows(set);
   const days = byMatchday(priced);
-  const next = days[0] ?? null;
+  /*
+   * THE NEXT MATCHDAY IS THE NEXT ONE, NOT THE EARLIEST ONE IN THE ARTIFACT.
+   *
+   * This was days[0] — the earliest priced day in the forecast set, whether or not it had already
+   * been played. On a Saturday evening that made a finished afternoon the page's "Next matchday",
+   * and because the Lab ladder is keyed to this day so a card built for another slate cannot appear
+   * here, a ladder correctly built for Sunday was refused and the lane rendered nothing.
+   *
+   * The forecast set legitimately holds both — a played fixture's prediction is still a record of
+   * what the model said. So the fixtures on the page are unchanged; only the day the page calls
+   * NEXT moves to the first one with a kickoff still ahead of it. If every priced fixture has
+   * kicked off, it falls back to the earliest rather than showing nothing, because "between
+   * matchweeks" and "we have no forecasts" are different facts.
+   */
+  const nowIso = new Date().toISOString();
+  const next = days.find((d) => d.rows.some((r) => Date.parse(r.kickoffUtc) > Date.parse(nowIso))) ?? days[0] ?? null;
   const reportable = priced.filter((r) => r.slug);
   /** The matchweek every priced fixture belongs to, or null when they straddle more than one. */
   const weeks = new Set(priced.map((r) => r.matchweek).filter((w) => w != null));

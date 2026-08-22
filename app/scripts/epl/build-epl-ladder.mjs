@@ -73,11 +73,36 @@ const odds = readJson(arg("--odds", null) ?? path.join(APP, "public", "data", "s
  * shares is not a slate day. So the ladder is built for the day of the EARLIEST UPCOMING FIXTURE,
  * which is the slate this run can actually serve. --date still overrides for a replay.
  */
-const nextKickoff = (odds?.rows ?? [])
-  .map((r) => Date.parse(r.kickoffIso ?? ""))
-  .filter((t) => Number.isFinite(t) && t > Date.parse(NOW))
-  .sort((a, b) => a - b)[0];
-const DATE = arg("--date", nextKickoff ? etDay(new Date(nextKickoff).toISOString()) : etDay(NOW));
+/*
+ * AND THE SLATE DAY IS THE FIRST ONE THIS RUN CAN ACTUALLY SERVE.
+ *
+ * Taking the day of the single earliest upcoming fixture is right until a Saturday afternoon runs
+ * out. On 2026-08-22 the 16:17 run found one fixture still upcoming — Brentford v Spurs at 16:30 —
+ * so it scoped itself to that day, and a card needs at least two legs, so all four bands were
+ * skipped for "not enough eligible priced fixtures". The lane published an empty day while a fully
+ * priced Sunday sat in the very same capture. Nothing was broken; the run served a day that could
+ * not be served, and then said so.
+ *
+ * A day is servable when at least two of its fixtures are still upcoming, because two is the
+ * shortest card any band accepts. So this walks forward to the first such day. That is not
+ * lowering a bar or widening a band — the ladder that gets built is built from the same prices
+ * under the same rules, and it is stamped with ITS OWN date, so a Sunday card is never presented
+ * as a Saturday one. Publishing tomorrow's slate today is what a pregame product IS.
+ *
+ * If NO day in the capture clears two upcoming fixtures, this falls back to the earliest upcoming
+ * day and the honest empty state publishes as before. "There is nothing to build" has to stay
+ * reachable, or the roll-forward becomes a machine for always finding something.
+ */
+const upcoming = (odds?.rows ?? [])
+  .filter((r) => { const t = Date.parse(r.kickoffIso ?? ""); return Number.isFinite(t) && t > Date.parse(NOW); })
+  .sort((a, b) => Date.parse(a.kickoffIso) - Date.parse(b.kickoffIso));
+const byDay = new Map();
+for (const r of upcoming) {
+  const d = etDay(r.kickoffIso);
+  byDay.set(d, (byDay.get(d) ?? 0) + 1);
+}
+const servable = [...byDay.entries()].find(([, n]) => n >= 2)?.[0];
+const DATE = arg("--date", servable ?? (upcoming[0] ? etDay(upcoming[0].kickoffIso) : etDay(NOW)));
 
 const write = (payload) => {
   fs.mkdirSync(OUT, { recursive: true });
