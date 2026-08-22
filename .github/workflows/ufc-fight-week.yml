@@ -110,6 +110,18 @@ jobs:
           node scripts/ufc/build-ufc-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
             echo "::warning::UFC risk ladder refused this run"
 
+      # The product-state contract for this lane. Built LAST so it summarises what this run produced,
+      # and it checks the two things that silently broke the lane before: whether the published
+      # ladder belongs to the card on the page, and whether the settler can grade this sport at all.
+      #
+      # working-directory AND tsx: it imports the sport gate and the eligibility module.
+      - name: Publish the UFC lane status
+        working-directory: app
+        run: |
+          set -uo pipefail
+          npx tsx scripts/ufc/build-ufc-lane-status.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
+            echo "::warning::UFC lane status refused this run"
+
       - name: Re-resolve the parlay tier grids
         run: |
           set -euo pipefail
@@ -136,7 +148,7 @@ jobs:
           git add app/public/data/ufc/schedule app/public/data/ufc/card-latest.json \
                   app/public/data/ufc/schedule-latest.json app/public/data/ufc/graded-moneylines-latest.json \
                   app/public/data/ufc/odds-latest.json app/public/data/parlays/tier-grid \
-                  app/public/data/parlays/risk-ladder-ufc \
+                  app/public/data/parlays/risk-ladder-ufc app/public/data/admin/ufc-lane.json \
                   data/internal/research/odds/ufc/authorization-ledger.json \
                   data/internal/research/odds/ufc/shadow-snapshot-latest.json \
                   "data/internal/research/odds/ufc/shadow-snapshot-"*.json 2>/dev/null || true

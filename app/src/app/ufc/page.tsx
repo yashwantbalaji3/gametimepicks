@@ -107,6 +107,20 @@ export default function UfcArchivePage() {
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700, margin: 0 }}>Next card</h2>
         </div>
+        {/*
+          FRESHNESS FROM THE CARD'S OWN ARTIFACT.
+          This page showed no stamp of any kind: it rendered a card artifact and never told a reader
+          when that artifact was produced, so a two-day-old read and a two-minute-old one looked
+          identical. The stamp is the card's own generatedAt — never a build time, which records when
+          the site was compiled rather than when anything was known, and never another artifact's,
+          because this page reads several with different stamps and one number standing for all of
+          them would be a figure built for one scope reused for a broader claim.
+        */}
+        {card?.generatedAt ? (
+          <p className="m-0" style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>
+            Card and model read {card.generatedAt}
+          </p>
+        ) : null}
         {/* A nearer card the model cannot read. Contender Series is five debutants — the engine
             correctly says nothing about it, but a hub that just showed the later card would look
             like it had missed this one. Naming it, with the real counts, makes the skip auditable. */}

@@ -26,6 +26,12 @@ export default function SportLabCards({ ladder, eyebrow = "Paper cards" }: { lad
         title={`${ladder.eventName ?? "Today's ladder"} · ${ladder.cards.length} of 4 price bands`}
         sub={`Each leg takes ${ladder.selection}. Paper-only and educational — no stake is filled in, and nothing here has been settled yet.`}
       />
+      {/* THE LADDER'S OWN STAMP, not a build time and not another artifact's. A reader cannot judge
+          a price without knowing when it was read, and these cards were once served four days stale
+          under a heading that said today. */}
+      <p className="mt-1" style={{ margin: "4px 0 0", fontSize: 11, color: "var(--vault-text-faint)" }}>
+        Prices read {ladder.generatedAt} · card date {ladder.date}
+      </p>
       <div className="mt-3" style={{ display: "grid", gap: 10 }}>
         {ladder.cards.map((c) => (
           <div key={c.slipId} style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "12px 14px" }}>

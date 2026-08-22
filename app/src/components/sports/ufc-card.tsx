@@ -49,6 +49,8 @@ export type UfcBout = {
 };
 
 export type UfcCardArtifact = {
+  /** The artifact's own stamp. /ufc renders it so a reader can tell a stale read from a fresh one. */
+  generatedAt?: string;
   state?: string;
   event?: { name?: string; startUtc?: string; venue?: string | null; boutCount?: number; slateDate?: string };
   /** Nearer cards the model has too little history to read — disclosed by /ufc, never dropped. */
