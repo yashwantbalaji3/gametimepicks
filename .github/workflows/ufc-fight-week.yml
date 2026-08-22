@@ -94,6 +94,17 @@ jobs:
       # With fresh prices UFC can clear the Lab's eligibility gate, so the grids
       # are re-resolved here. Multi is included deliberately: a second live sport
       # is exactly what opens the cross-sport lane, and it must not wait a day.
+      # Re-evaluate BEFORE the card is built. The card builder refuses to publish against an
+      # evaluation computed from different code than is running — which is exactly what happened for
+      # four days when the model library was edited eighteen minutes after the last evaluation and
+      # nobody re-ran it. Running it here makes the refusal unreachable in the normal case.
+      - name: Re-evaluate the fight model and write its card
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/ufc/evaluate-ufc-fight-model.mjs
+          node scripts/ufc/build-ufc-model-card.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
       # THE UFC RISK LADDER — and until now it was in no workflow at all.
       #
       # The only ladder on disk was written by hand on 2026-08-18 for an event on 2026-08-22, and
@@ -149,6 +160,7 @@ jobs:
                   app/public/data/ufc/schedule-latest.json app/public/data/ufc/graded-moneylines-latest.json \
                   app/public/data/ufc/odds-latest.json app/public/data/parlays/tier-grid \
                   app/public/data/parlays/risk-ladder-ufc app/public/data/admin/ufc-lane.json \
+                  app/public/data/ufc/fight-model-evaluation.json data/internal/research/ufc/model-card-fight-v1.json \
                   data/internal/research/odds/ufc/authorization-ledger.json \
                   data/internal/research/odds/ufc/shadow-snapshot-latest.json \
                   "data/internal/research/odds/ufc/shadow-snapshot-"*.json 2>/dev/null || true

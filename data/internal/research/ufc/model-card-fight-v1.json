@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "artifact": "ufc-fight-model-card",
+  "dataClass": "INTERNAL_RESEARCH",
+  "public": false,
+  "generatedAt": "2026-08-22T03:04:19Z",
+  "modelId": "ufc-fight-model@e657fc40b64d",
+  "modelFamily": "ufc-fight-model",
+  "supersedes": "ufc-model-v1-abstaining-elo",
+  "objective": "Per-bout winner, method of victory (KO / SUB / DEC) and ending round for a scheduled UFC card.",
+  "population": {
+    "source": "scrape_ufc_stats (GPL-3.0)",
+    "fights": 8642,
+    "from": "1994-03-11",
+    "to": "2026-08-08",
+    "excluded": {
+      "noDate": 27,
+      "noMethod": 116,
+      "notDecisive": 62,
+      "badNames": 0
+    },
+    "note": "Decisive bouts only. A draw or no-contest is EXCLUDED rather than assigned to a side — the source is winner-only and cannot distinguish them, so v1 refuses to guess."
+  },
+  "protocol": {
+    "split": "CHRONOLOGICAL. Fights are ordered by date and the holdout is the later slice — never a random split, which would let a fighter's future inform his past.",
+    "features": "Accumulated by replaying fights in date order. A fight sees only what happened strictly before it; nothing reads a career-to-date aggregate, which would include the bout itself.",
+    "calibration": "Platt, fitted on an INNER fold. The training fold is split 80/20, an inner model predicts the held-back 20%, and the calibrator is fitted on THOSE predictions — a calibrator fitted on the slice it will be applied to learns the identity and reports perfect calibration.",
+    "sharedLibrary": "The evaluator and the card builder import the SAME lib/fight-model.mjs, so the thing validated and the thing published cannot drift apart.",
+    "cornerCanonicalisation": {
+      "rule": "alphabetical, independent of outcome",
+      "aWinRate": 0.49641286739180746,
+      "listedOrderWinRate": 0.641
+    }
+  },
+  "bars": {
+    "winnerGain": 0.005,
+    "winnerAccuracy": 0.52,
+    "methodGain": 0.005,
+    "roundGain": 0.005,
+    "calibrationZ": 2
+  },
+  "baseRates": {
+    "method": {
+      "KO": 0.33441333024762787,
+      "SUB": 0.19821800509141402,
+      "DEC": 0.4673686646609581
+    }
+  },
+  "heads": {
+    "winner": {
+      "logLoss": 0.6614541028552706,
+      "baselineLogLoss": 0.6931471805599406,
+      "gain": 0.03169307770467,
+      "accuracy": 0.6058476244025864,
+      "baselineAccuracy": 0.5,
+      "heldOutFights": 3557,
+      "maxCalibrationZ": 1.3747408709544464,
+      "verdict": "PASS"
+    },
+    "method": {
+      "logLoss": 0.9691813897873223,
+      "baselineLogLoss": 1.025468573109379,
+      "gain": 0.05628718332205662,
+      "accuracy": 0.5268484678099522,
+      "baselineAccuracy": 0.4673686646609581,
+      "heldOutFights": 3557,
+      "maxCalibrationZ": null,
+      "verdict": "PASS"
+    },
+    "round": {
+      "logLoss": 0.9147887766949868,
+      "baselineLogLoss": 0.9549288360179992,
+      "gain": 0.040140059323012345,
+      "accuracy": 0.6061287601911723,
+      "baselineAccuracy": 0.5525341356167554,
+      "heldOutFights": 3557,
+      "maxCalibrationZ": null,
+      "verdict": "PASS"
+    }
+  },
+  "verdicts": {
+    "winner": "PASS",
+    "method": "PASS",
+    "round": "PASS"
+  },
+  "limitations": [
+    "NEVER SCORED AGAINST A PRICE. No comparison against a no-vig UFC line has ever been run, so nothing here supports a claim that the model beats a market. Its gains are against a base-rate baseline.",
+    "The winner head's advantage is small: a log-loss gain of about 0.015 over a coin, and accuracy near 58%. That clears its preregistered bar and is not a large signal.",
+    "Winner-only source: method and round are learned from a corpus that records the outcome but not the detail of how a fight was scored.",
+    "A debutant has no history to accumulate, so the engine declines rather than guessing — coverage is a property of who is fighting.",
+    "One card has been settled from official results. Held-out evaluation is not a live track record."
+  ],
+  "publicActivation": "The model's read publishes on /ufc as EXPERIMENTAL and paper-only. It selects the side on the UFC risk ladder — which it may do, and MLB's and EPL's models may not, because this is the one model here that cleared its preregistered bar."
+}

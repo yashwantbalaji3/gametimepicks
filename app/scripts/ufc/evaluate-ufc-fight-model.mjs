@@ -20,8 +20,9 @@
  * strictly before it. Nothing reads a career-to-date aggregate, which would include the bout itself.
  */
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
-import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, fitPlatt, applyPlatt } from "./lib/fight-model.mjs";
+import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, fitPlatt, applyPlatt, modelId, MODEL_FAMILY } from "./lib/fight-model.mjs";
 
 const APP = process.cwd();
 const RAW = path.join(APP, "..", "data", "internal", "research", "ufc", "raw", "stats");
@@ -187,6 +188,25 @@ for (const [k, v] of Object.entries(verdicts)) console.log(`  ${k.toUpperCase()}
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, "fight-model-evaluation.json"), JSON.stringify({
   generatedAt: new Date().toISOString().replace(/\.\d{3}Z$/, "Z"),
+  /* Derived from the feature sets and the bars — see modelFingerprint. A published prediction and a
+     settled row both carry this, so a graded result can be tied to the model that produced it. */
+  modelId: modelId(BARS),
+  modelFamily: MODEL_FAMILY,
+  /*
+   * ── THE CODE THIS VERDICT VOUCHES FOR ──────────────────────────────────────────────────────────
+   *
+   * The evaluation was last written at 2026-08-17T23:28Z. lib/fight-model.mjs was changed at 23:46Z,
+   * eighteen minutes later, and the evaluation was never re-run. For the four days after that, /ufc
+   * published predictions from the CURRENT code beside PASS verdicts computed from the PREVIOUS
+   * code. Re-running it now moves the winner head's gain from 0.0147 to 0.0317 on the same 8,642
+   * fights — this time in the model's favour, which is luck. The same silence would have hidden a
+   * regression just as well.
+   *
+   * modelId cannot catch this: it fingerprints the model's DEFINITION (feature sets, bars), and that
+   * change was a NaN fix which altered behaviour without touching either. So the library's own bytes
+   * are hashed here, and the card builder refuses to publish when they no longer match.
+   */
+  sourceHash: createHash("sha256").update(fs.readFileSync(new URL("./lib/fight-model.mjs", import.meta.url), "utf8")).digest("hex").slice(0, 16),
   corpus: { source: "scrape_ufc_stats (GPL-3.0)", fights: fights.length, from: fights[0].date.toISOString().slice(0, 10), to: fights.at(-1).date.toISOString().slice(0, 10), excluded },
   cornerCanonicalisation: { rule: "alphabetical, independent of outcome", aWinRate, listedOrderWinRate: 0.641 },
   baseRates: { method: Object.fromEntries(METHODS.map((k) => [k, baseMethod[k] / fights.length])) },

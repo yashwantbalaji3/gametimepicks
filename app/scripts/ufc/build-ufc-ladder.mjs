@@ -104,6 +104,9 @@ for (const b of odds.bouts ?? []) {
     odds: am,
     decimal: am > 0 ? 1 + am / 100 : 1 + 100 / Math.abs(am),
     modelProbability: read.prediction.winner.probability,
+    /* WHICH model chose this side. A settled leg that cannot name its model cannot contribute to any
+       track record, because nobody can say what the record is of. */
+    modelId: card.model?.id ?? null,
     opponent: (read.red?.name === name ? read.blue?.name : read.red?.name) ?? null,
   });
 }

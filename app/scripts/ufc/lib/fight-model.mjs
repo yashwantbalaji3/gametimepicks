@@ -323,3 +323,41 @@ export function predSoftmax(m, feat) {
   return ex.map((v) => v / sum);
 }
 
+
+/*
+ * ── THE MODEL'S IDENTITY ────────────────────────────────────────────────────────────────────────
+ *
+ * Nothing published by this model said which model it was. Every bout prediction on /ufc, every leg
+ * on a paper card and every row that will eventually be settled carried no version at all, so a
+ * graded result could never be tied back to the thing that produced it. That is fine while there is
+ * one model and fatal the moment there are two: a track record assembled across a silent change is
+ * a record of nothing in particular.
+ *
+ * The version is DERIVED from what actually defines the model — the feature sets each head reads,
+ * the method vocabulary, and the bars it was held to. Changing any of those changes the id without
+ * anyone remembering to bump it, which is the only kind of version that survives contact with a
+ * hurry. A hand-typed one drifts the first time somebody adds a feature and forgets.
+ *
+ * It deliberately does NOT include the corpus range. Refitting the same model on a longer corpus is
+ * the model working as intended, not a different model — and folding that in would churn the id
+ * every time a card was added, which trains people to ignore it.
+ */
+import { createHash } from "node:crypto";
+
+export const MODEL_FAMILY = "ufc-fight-model";
+
+/** Content fingerprint of the model's definition: feature sets, method vocabulary, and its bars. */
+export function modelFingerprint(bars) {
+  const definition = JSON.stringify({
+    methods: METHODS,
+    winner: WIN_F, winnerTott: WIN_F_TOTT,
+    classifier: CLS_F, classifierTott: CLS_F_TOTT,
+    bars: bars ?? null,
+  });
+  return createHash("sha256").update(definition).digest("hex").slice(0, 12);
+}
+
+/** `ufc-fight-model@<fingerprint>` — what a published prediction and a settled row both carry. */
+export function modelId(bars) {
+  return `${MODEL_FAMILY}@${modelFingerprint(bars)}`;
+}

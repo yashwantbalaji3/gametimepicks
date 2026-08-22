@@ -12,6 +12,7 @@
  * would silently invert every win probability.
  */
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, fitPlatt, applyPlatt, nameKey, tottFeat } from "./lib/fight-model.mjs";
@@ -94,6 +95,31 @@ if (candidates.length === 0) {
 
 // ── The model, refit on ALL history through the shared core the evaluator validated ───────────
 const evaluation = JSON.parse(fs.readFileSync(path.join(OUT, "fight-model-evaluation.json"), "utf8"));
+if (!evaluation.modelId) {
+  console.error("REFUSED: the fight-model evaluation carries no modelId — a published prediction must name the model that made it");
+  process.exit(1);
+}
+/*
+ * ── A VERDICT MUST VOUCH FOR THE CODE THAT IS RUNNING ──────────────────────────────────────────
+ *
+ * This page publishes PASS verdicts and held-out metrics beside every prediction. Those came from an
+ * evaluation of lib/fight-model.mjs — and on 2026-08-17 that library was changed eighteen minutes
+ * AFTER the evaluation was last written, then never re-evaluated. For four days the verdicts
+ * described one model and the predictions came from another. Re-running moved the winner head's gain
+ * from 0.0147 to 0.0317; it happened to improve, which is luck, and the same silence would have
+ * concealed a regression.
+ *
+ * A stale evaluation is not a smaller claim than a wrong one — it is a claim about something that no
+ * longer exists. So this refuses rather than publishing, and the remedy is one command.
+ */
+const librarySource = fs.readFileSync(new URL("./lib/fight-model.mjs", import.meta.url), "utf8");
+const currentHash = createHash("sha256").update(librarySource).digest("hex").slice(0, 16);
+if (evaluation.sourceHash !== currentHash) {
+  console.error("REFUSED: the fight-model evaluation was computed from different code than is running.");
+  console.error(`  evaluation vouches for ${evaluation.sourceHash ?? "an unrecorded source"}, the library is ${currentHash}`);
+  console.error("  Re-run: node scripts/ufc/evaluate-ufc-fight-model.mjs");
+  process.exit(1);
+}
 const V = evaluation.verdicts ?? {};
 
 const corpus = loadCorpus(RAW);
@@ -380,7 +406,17 @@ const artifact = {
    */
   skippedForCoverage,
   model: {
-    id: "ufc-fight-v1",
+    /*
+     * READ FROM THE EVALUATION, not typed here. This was the literal "ufc-fight-v1", which would
+     * have said v1 however far the model drifted from whatever v1 meant — and every bout prediction,
+     * every paper-card leg and every row eventually settled carried it. A track record assembled
+     * across a silent model change is a record of nothing in particular.
+     *
+     * The evaluation derives its id from the model's own definition (feature sets, method
+     * vocabulary, bars), so adding a feature changes the id without anyone remembering to. Falling
+     * back to the old literal would defeat the point, so an evaluation without an id is a refusal.
+     */
+    id: evaluation.modelId,
     publishes: ["winner", "method", "rounds"].filter((h) => V[h === "rounds" ? "round" : h] === "PASS"),
     verdicts: V,
     corpus: {
