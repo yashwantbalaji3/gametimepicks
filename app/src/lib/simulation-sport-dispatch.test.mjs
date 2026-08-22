@@ -36,10 +36,41 @@ test("runner dispatches the animation on the real view.sport (no hardcoded sport
 });
 
 // ── 2 · MLB (and the default) → baseball diamond; any other sport → the neutral shell ─────────────
-test("dispatcher routes mlb to baseball and other sports to the neutral shell", () => {
-  assert.match(ANIM_SRC, /if \(sport && sport !== "mlb"\)/, "non-mlb sports branch off");
-  assert.match(ANIM_SRC, /<NeutralSimulationAnimation sport=\{sport\}/, "the neutral shell receives the sport");
+test("every sport gets its OWN surface, and anything unlisted still gets the honest shell", () => {
+  /*
+   * MLB had the diamond and every other sport fell through to a neutral shell reading "No
+   * {sport}-specific view yet". NFL, soccer and UFC now have a gridiron, a pitch and an octagon.
+   *
+   * The neutral shell is NOT retired, and that is the point of this test: a sport with no graphic
+   * must still say so rather than borrow another sport's field, which is the same rule that kept a
+   * baseball diamond off a fight card.
+   */
+  assert.match(ANIM_SRC, /const FIELD_BY_SPORT/, "the surfaces are declared in one lookup");
+  for (const [code, field] of [["nfl", "GridironGraphic"], ["soccer", "PitchGraphic"], ["epl", "PitchGraphic"], ["ufc", "OctagonGraphic"]]) {
+    assert.match(ANIM_SRC, new RegExp(`${code}:\\s*${field}`), `${code} routes to ${field}`);
+  }
+  assert.match(ANIM_SRC, /<NeutralSimulationAnimation sport=\{sport\}/, "an unlisted sport still reaches the honest shell");
   assert.match(ANIM_SRC, /return <BaseballSimulationAnimation view=\{view\}/, "mlb/default falls through to baseball");
+});
+
+test("a sport surface depicts a PLAYING FIELD, never a result", () => {
+  /*
+   * These render during the ten seconds BEFORE any number exists. A ball hitting a net, a knockout
+   * flourish or a scoreboard would be the animation telling a story the simulation has not run yet.
+   */
+  const fields = fs.readFileSync(path.join(app, "src/components/game/sport-field-graphics.tsx"), "utf8");
+  for (const banned of [/\bgoal\b/i, /\btouchdown\b/i, /\bknockout\b/i, /\bwins?\b/i, /\bscore(board)?\b/i]) {
+    const code = fields.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+    assert.doesNotMatch(code, banned, `a loading graphic must not depict an outcome: ${banned}`);
+  }
+});
+
+test("motion is decoration — every surface stops under reduced motion", () => {
+  const fields = fs.readFileSync(path.join(app, "src/components/game/sport-field-graphics.tsx"), "utf8");
+  assert.equal((fields.match(/prefers-reduced-motion: reduce/g) ?? []).length, 3,
+    "each of the three surfaces guards its own keyframes");
+  // And no raw colour literal: the ratchet counts a hex inside a var() fallback exactly the same.
+  assert.doesNotMatch(fields, /#[0-9a-fA-F]{3,8}\b/, "surfaces use tokens only");
 });
 
 // ── 3 · the neutral shell renders NO baseball diamond (never a diamond for a non-baseball game) ────

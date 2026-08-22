@@ -119,9 +119,20 @@ test("the animation source renders a baseball diamond (bases + mound) for MLB", 
   // It is an inline SVG (self-contained, no external asset).
   assert.match(ANIM_SRC, /<svg/, "the diamond is an inline SVG");
   assert.match(ANIM_SRC, /<polygon[^>]*points=/, "the diamond shape / bases use polygons");
-  // The dispatcher defaults to MLB (baseball) and only swaps for a non-MLB sport.
+  /*
+   * The dispatcher defaults to MLB. It used to be true that ONLY a non-MLB sport skipped the
+   * diamond, because nothing else had a graphic; NFL, soccer and UFC now have their own surfaces, so
+   * pinning that branch condition pinned the absence of the other three.
+   *
+   * What still has to hold — and is the reason this test exists — is that the diamond belongs to
+   * baseball and nothing else reaches it.
+   */
   assert.match(ANIM_SRC, /function BaseballSimulationAnimation/, "the baseball animation exists");
-  assert.match(ANIM_SRC, /sport && sport !== "mlb"/, "only a non-MLB sport skips the baseball graphic");
+  assert.match(ANIM_SRC, /code !== "mlb"/, "a sport with no surface of its own does not fall into baseball");
+  assert.match(ANIM_SRC, /return <BaseballSimulationAnimation/, "mlb is the default");
+  // No other sport may be routed to the diamond.
+  const lookup = /const FIELD_BY_SPORT[^}]*}/.exec(ANIM_SRC)?.[0] ?? "";
+  assert.doesNotMatch(lookup, /Diamond|Baseball/, "the surface lookup never points a sport at the diamond");
 });
 
 // ── 6 · the checklist renders all 8 stages ───────────────────────────────────────────────────────

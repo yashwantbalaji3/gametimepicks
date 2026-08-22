@@ -23,6 +23,7 @@
  */
 
 import type { GameSimulationView } from "@/lib/game-simulations/game-lab-view";
+import { GridironGraphic, OctagonGraphic, PitchGraphic } from "./sport-field-graphics";
 import TeamMark from "@/components/ui/team-mark";
 
 /** The minimum time the staging animation runs before the dashboard may appear (10 seconds). */
@@ -480,10 +481,105 @@ function NeutralSimulationAnimation({
 }
 
 /**
- * Dispatch to a sport-specific staging animation. MLB gets the baseball diamond; any other sport gets a
- * neutral shell with the same checklist. Defaults to the MLB (baseball) animation. The optional team
- * logos are threaded through to whichever shell renders (monogram fallback when null).
+ * Dispatch to a sport-specific staging animation.
+ *
+ * MLB had the baseball diamond and everything else fell through to a neutral shell that said "No
+ * {sport}-specific view yet". NFL, soccer and UFC now have their own surface — a gridiron, a pitch
+ * and an octagon — built to the same shape as the diamond: one viewBox, scoped keyframes, no global
+ * CSS, and a reduced-motion block that stops the movement while keeping the picture.
+ *
+ * The neutral shell REMAINS for anything not listed. A sport without a graphic should say so rather
+ * than borrow another sport's field, which is the same rule that kept a baseball diamond off a fight
+ * card in the first place.
+ *
+ * Each depicts a PLAYING SURFACE, never a result: this is the ten seconds before any number exists.
  */
+/** Which surface belongs to which sport. Anything absent keeps the honest neutral shell. */
+const FIELD_BY_SPORT: Record<string, () => JSX.Element> = {
+  nfl: GridironGraphic,
+  soccer: PitchGraphic,
+  epl: PitchGraphic,
+  ufc: OctagonGraphic,
+};
+
+/**
+ * The baseball shell's layout with a different surface in the middle.
+ *
+ * Written as one component rather than three near-copies: the framing, the team marks, the checklist
+ * and the "same output for every user" line are identical for every sport, and three copies would be
+ * three places for that wording to drift apart.
+ */
+function FieldSimulationAnimation({
+  view, stage, homeLogo, awayLogo, Field,
+}: {
+  view: GameSimulationView;
+  stage: number;
+  homeLogo?: string | null;
+  awayLogo?: string | null;
+  Field: () => JSX.Element;
+}) {
+  const away = view.teams?.away ?? "Away";
+  const home = view.teams?.home ?? "Home";
+  const complete = stage >= SIMULATION_STAGES.length - 1;
+  return (
+    <div
+      className="relative overflow-hidden rounded-[18px] px-4 py-6 sm:px-7 sm:py-8"
+      style={{
+        border: "1px solid var(--vault-border-strong)",
+        background:
+          "radial-gradient(130% 150% at 50% 0%, color-mix(in srgb, var(--vault-accent) 13%, transparent) 0%, transparent 58%), linear-gradient(140deg, color-mix(in srgb, var(--vault-scrim-slate) 96%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-neutral) 99%, transparent) 100%)",
+        boxShadow: "0 22px 56px -26px color-mix(in srgb, var(--vault-ink-black) 80%, transparent), 0 0 0 1px color-mix(in srgb, var(--vault-accent) 8%, transparent)",
+      }}
+    >
+      <BackdropGrid />
+      <div className="relative flex flex-col gap-5">
+        <div className="flex flex-col items-center gap-1.5 text-center">
+          <span className="inline-flex items-center gap-1.5 font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>
+            <span className="gtp-ember-dot" aria-hidden /> Running GameTime simulation
+          </span>
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+            {runLabel(view)} · Precomputed model artifact
+          </span>
+        </div>
+
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-5">
+          <div className="flex w-full items-center justify-center gap-8 sm:hidden">
+            <TeamSide name={away} logoUrl={awayLogo} align="end" />
+            <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>at</span>
+            <TeamSide name={home} logoUrl={homeLogo} align="start" />
+          </div>
+          <div className="hidden sm:block"><TeamSide name={away} logoUrl={awayLogo} align="end" /></div>
+          <div className="flex flex-1 flex-col items-center gap-1" style={{ maxWidth: 320 }}>
+            <span className="hidden sm:inline font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}>at</span>
+            <Field />
+          </div>
+          <div className="hidden sm:block"><TeamSide name={home} logoUrl={homeLogo} align="start" /></div>
+        </div>
+
+        <h2 className="text-center font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(18px, 2.6vw, 22px)", fontWeight: 800, lineHeight: 1.08, letterSpacing: "-0.01em" }}>
+          {away} <span style={{ color: "var(--vault-text-faint)", fontWeight: 600 }}>@</span> {home}
+        </h2>
+
+        <div className="rounded-[12px] px-3.5 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-neutral) 40%, transparent)", border: "1px solid var(--vault-rule)" }}>
+          <StageChecklist stage={stage} />
+        </div>
+
+        <div className="flex items-center justify-center min-h-[18px]">
+          {complete ? (
+            <span className="inline-flex items-center gap-1.5 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--gtp-success-on-dark)", fontSize: 10 }}>
+              <span aria-hidden>✓</span> Simulation ready — opening the dashboard
+            </span>
+          ) : (
+            <p className="font-mono uppercase tracking-[0.12em] text-center" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
+              Paper-only model output · same output for every user
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function SportSimulationAnimation({
   sport,
   view,
@@ -497,7 +593,12 @@ export function SportSimulationAnimation({
   homeLogo?: string | null;
   awayLogo?: string | null;
 }) {
-  if (sport && sport !== "mlb") {
+  const code = (sport ?? "mlb").toLowerCase();
+  const field = FIELD_BY_SPORT[code];
+  if (field) {
+    return <FieldSimulationAnimation view={view} stage={stage} homeLogo={homeLogo} awayLogo={awayLogo} Field={field} />;
+  }
+  if (code !== "mlb") {
     return <NeutralSimulationAnimation sport={sport} view={view} stage={stage} homeLogo={homeLogo} awayLogo={awayLogo} />;
   }
   return <BaseballSimulationAnimation view={view} stage={stage} homeLogo={homeLogo} awayLogo={awayLogo} />;
