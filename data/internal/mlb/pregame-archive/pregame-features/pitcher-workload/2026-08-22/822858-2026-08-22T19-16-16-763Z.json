@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822858,
+  "date": "2026-08-22",
+  "capturedAt": "2026-08-22T19:16:16.763Z",
+  "availableAt": "2026-08-22T19:16:16.763Z",
+  "eventStartTime": "2026-08-22T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 674003,
+      "name": "Cody Bradford",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-08-16",
+      "last5": {
+        "starts": 3,
+        "ipSum": 15.33,
+        "ipAvg": 5.11,
+        "kAvg": 3.33,
+        "bbAvg": 1.33,
+        "erAvg": 1.67,
+        "hrAvg": 0.33,
+        "kPer9": 5.87,
+        "workloadIpLast5": 15.33
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 15.33,
+        "k": 10,
+        "bb": 4,
+        "er": 5,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 696270,
+      "name": "Ryan Johnson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 6,
+      "lastStartDate": "2026-08-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22,
+        "ipAvg": 4.4,
+        "kAvg": 3.4,
+        "bbAvg": 2.6,
+        "erAvg": 3.4,
+        "hrAvg": 1.2,
+        "kPer9": 6.95,
+        "workloadIpLast5": 22
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 55.33,
+        "k": 44,
+        "bb": 26,
+        "er": 35,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-22T19:16:16.763Z"
+  },
+  "recordHash": "480e3223e954ffa1cdddbbafac158da9d06a755dbbf9f94b7ce51d9c781f1799"
+}

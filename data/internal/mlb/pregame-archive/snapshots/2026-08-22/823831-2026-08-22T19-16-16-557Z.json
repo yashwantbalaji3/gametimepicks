@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823831-757f0330db4737d8c807f1b80ab11259",
+  "snapshotCreatedAt": "2026-08-22T19:16:16.557Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-22",
+  "eventId": "823831",
+  "gamePk": 823831,
+  "eventStartTime": "2026-08-22T20:10:00Z",
+  "homeTeam": "MIA",
+  "awayTeam": "WSH",
+  "venue": "loanDepot park",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "ac1eff0b2b4595a9071f8037d5535ce5",
+  "normalizedPayloadHash": "f5b2104a9230ce401450097999aa34ef",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          669364,
+          665052,
+          683357,
+          672640,
+          805300,
+          681715,
+          691788,
+          691594,
+          665923
+        ],
+        "away": [
+          695734,
+          686611,
+          691781,
+          694673,
+          695670,
+          677588,
+          696285,
+          683083,
+          687605
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T19:16:16.557Z",
+      "availableAt": "2026-08-22T19:16:16.557Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T19:16:16.557Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823831/feed/live",
+        "requestedAt": "2026-08-22T19:16:16.557Z",
+        "receivedAt": "2026-08-22T19:16:16.557Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Eury Pérez",
+        "awayProbable": "Jake Irvin",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T19:16:16.557Z",
+      "availableAt": "2026-08-22T19:16:16.557Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T19:16:16.557Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823831/feed/live",
+        "requestedAt": "2026-08-22T19:16:16.557Z",
+        "receivedAt": "2026-08-22T19:16:16.557Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Roof Closed",
+        "temp": "72",
+        "wind": "0 mph, None",
+        "roofType": "Retractable",
+        "dayNight": "day",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T19:16:16.557Z",
+      "availableAt": "2026-08-22T19:16:16.557Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T19:16:16.557Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823831/feed/live",
+        "requestedAt": "2026-08-22T19:16:16.557Z",
+        "receivedAt": "2026-08-22T19:16:16.557Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "D.J. Reyburn",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Stu Scheurwater",
+            "type": "First Base"
+          },
+          {
+            "name": "Steven Jaschinski",
+            "type": "Second Base"
+          },
+          {
+            "name": "Rob Drake",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T19:16:16.557Z",
+      "availableAt": "2026-08-22T19:16:16.557Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T19:16:16.557Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823831/feed/live",
+        "requestedAt": "2026-08-22T19:16:16.557Z",
+        "receivedAt": "2026-08-22T19:16:16.557Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
