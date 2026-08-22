@@ -414,3 +414,34 @@ test("an MLB doubleheader is two legs, not one — a case that was always latent
   // ...but the SAME player in the SAME game on two cards is exactly what this guard exists for.
   assert.ok(collide(a, { ...b, gameId: "G1" }).length > 0);
 });
+
+/* ── "NOT PLAYING TODAY" IS NOT A FAILURE ───────────────────────────────────────────────────────
+ *
+ * The grid exited 1 whenever a live sport had no ladder for the current date. That was right when
+ * every live sport played daily; EPL does not. Its ladder is built for the day of its FIXTURES, so
+ * on a Friday evening the newest is Saturday's and there is correctly none for today — and a normal
+ * state was printing "refused this run" into the workflow. Noise where a signal is supposed to be
+ * teaches people to stop reading the signal.
+ */
+
+test("the grid separates 'not playing today' from 'no producer at all'", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/parlays/build-tier-grid.mjs"), "utf8");
+  assert.match(src, /NOT_PLAYING_TODAY/, "a sport not playing today needs its own state");
+  // The distinction must be drawn from EVIDENCE — a ladder existing for another date — rather than
+  // by naming which sports play daily, which would be a rule that rots the first time one changes.
+  assert.match(src, /anyLadder\?\.date && anyLadder\.date !== DATE/);
+  // And the genuinely broken case must still fail loudly.
+  assert.match(src, /NO ladder published at all[\s\S]{0,80}process\.exit\(1\)/);
+});
+
+test("LIVE · a published grid never claims a date its ladder does not carry", () => {
+  const dir = path.join(process.cwd(), "public/data/parlays/tier-grid");
+  if (!fs.existsSync(dir)) return;
+  for (const f of fs.readdirSync(dir).filter((n) => n.endsWith("-latest.json"))) {
+    const g = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    if (g.state !== "PUBLISHED") continue;
+    for (const c of g.cards ?? []) {
+      assert.ok(Array.isArray(c.legs) && c.legs.length > 0, `${f}: a published card must carry legs`);
+    }
+  }
+});

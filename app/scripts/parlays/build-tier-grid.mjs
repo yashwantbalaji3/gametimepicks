@@ -44,6 +44,7 @@ const DATE = arg("--date", etDay(NOW));
 const SPORT = arg("--sport", "mlb");
 
 /** Where each sport's published band cards live. A sport absent here cannot have a grid at all. */
+const LADDER_DIR = { mlb: "risk-ladder", ufc: "risk-ladder-ufc", epl: "risk-ladder-epl" };
 const LADDERS = {
   mlb: (date) => readJson(path.join(ROOT, "parlays", "risk-ladder", `${date}.json`))
               ?? readJson(path.join(ROOT, "parlays", "risk-ladder", "latest.json")),
@@ -103,8 +104,35 @@ const ladder = SPORT === "multi"
     })
   : (LADDERS[SPORT]?.(DATE) ?? null);
 if (!ladder) {
-  write({ ...base, state: "NO_LADDER", reason: `${SPORT} clears the eligibility gate but has published no risk ladder for ${DATE}.`, tiers: [], cells: [] });
-  console.log(`tier grid ${SPORT}: eligible but no ladder for ${DATE}`);
+  /*
+   * "NO LADDER TODAY" AND "NO LADDER AT ALL" ARE DIFFERENT FACTS.
+   *
+   * Exiting 1 was right when every live sport played every day. EPL does not: its ladder is built
+   * for the day of its FIXTURES, so on a Friday evening the newest ladder is Saturday's and there is
+   * correctly none for today. That made a perfectly normal state print "refused this run" in the
+   * workflow — noise, and noise in a place that is supposed to mean something teaches people to
+   * stop reading it.
+   *
+   * So the two are separated by evidence rather than by sport. If a ladder exists for ANOTHER date,
+   * this sport simply is not playing today and that is not a failure. If no ladder exists at all
+   * while the sport clears the eligibility gate, the producer is genuinely missing — which is what
+   * the non-zero exit was always for.
+   */
+  const anyLadder = SPORT === "multi" ? null : readJson(path.join(ROOT, "parlays", LADDER_DIR[SPORT] ?? `risk-ladder-${SPORT}`, "latest.json"));
+  const otherDay = anyLadder?.date && anyLadder.date !== DATE ? anyLadder.date : null;
+  write({
+    ...base,
+    state: otherDay ? "NOT_PLAYING_TODAY" : "NO_LADDER",
+    reason: otherDay
+      ? `${SPORT} is not playing on ${DATE}; its newest published ladder is for ${otherDay}.`
+      : `${SPORT} clears the eligibility gate but has published no risk ladder at all.`,
+    tiers: [], cells: [],
+  });
+  if (otherDay) {
+    console.log(`tier grid ${SPORT}: not playing ${DATE} (newest ladder ${otherDay})`);
+    process.exit(0);
+  }
+  console.log(`tier grid ${SPORT}: eligible but NO ladder published at all`);
   process.exit(1);
 }
 
