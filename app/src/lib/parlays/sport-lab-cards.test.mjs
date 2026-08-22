@@ -50,7 +50,12 @@ test("EACH LADDER STATES ITS OWN SELECTION, and the two do not agree", () => {
   assert.notEqual(ufc.selection, epl.selection, "two sports that select differently must not read identically");
   // UFC is the one model that earned the right to pick a side; EPL's explicitly has not.
   assert.match(ufc.selection, /model's own read/i);
-  assert.match(epl.selection, /market's own favourite/i);
+  /*
+   * EPL's sentence changed when the ladder started using the totals market as well as the three-way
+   * favourite — it now says "a market price on a settleable market". What must hold is the CLAIM,
+   * not the wording: the market is named as the source and the model is disclaimed.
+   */
+  assert.match(epl.selection, /market price|market's own/i);
   assert.match(epl.selection, /never this model's read/i);
 });
 

@@ -55,6 +55,14 @@ const CROSS_LANE_READERS = [
    * same sense as watches.mjs above. The lane rule is about surfaces reaching into EPL.
    */
   "src/lib/ops/workflow-script-cwd.test.mjs",
+  /*
+   * epl-band-coverage.test.mjs: proves the ladder can reach all four price bands. It NAMES the odds
+   * artifact path because it swaps in a synthetic ten-fixture slate and restores the real one — by
+   * mid-afternoon most fixtures have kicked off, so the live artifact cannot answer "can four bands
+   * be built" either way. It reads no EPL data for a product surface; the path is a fixture it
+   * writes and puts back.
+   */
+  "src/lib/parlays/epl-band-coverage.test.mjs",
 ];
 
 /** Every source file this lane owns. */

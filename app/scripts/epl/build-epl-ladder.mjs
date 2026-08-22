@@ -97,68 +97,130 @@ const eligibleFixtures = (odds.rows ?? []).filter((r) => {
 });
 
 /* One leg per fixture: the market's shortest price in the three-way, i.e. its own favourite. */
-const legs = [];
-const rejected = [];
-for (const r of eligibleFixtures) {
+/*
+ * ── CANDIDATES PER FIXTURE ─────────────────────────────────────────────────────────────────────
+ *
+ * This offered exactly one leg per fixture: the market's shortest price in the three-way. That is a
+ * defensible selection and a terrible price range. Three-way favourites cluster short, so the
+ * shortest two-leg card a matchday could build was already past the `low` band, and `medium` and
+ * `longshot` were routinely unreachable — three of four bands reported as skipped on a full slate.
+ *
+ * The authorised capture pays for TOTALS as well as the three-way, and gradeEplLeg settles
+ * total_goals from the same official score. Those prices sit either side of even money (+121 / -140
+ * at line 3, -145 / +115 at 2.5 on today's card) where the favourites do not, so including them
+ * widens what a ladder can build WITHOUT touching a single band threshold — the fix this repository
+ * already rejected once, when a +203 card was published as "Low risk".
+ *
+ * Still ONE LEG PER FIXTURE. A match result and a total from the same match are one match twice, and
+ * correlated at that; the `used` set keys on eventId and enforces it.
+ *
+ * None of these is a model read. A favourite is the market's own, and an over/under is the market's
+ * own line at the market's own price.
+ */
+const decOf = (am) => (am > 0 ? 1 + am / 100 : 1 + 100 / Math.abs(am));
+const inGuard = (am) => am >= INDIVIDUAL_LEG_ODDS_GUARDS.minFavoriteAmerican && am <= INDIVIDUAL_LEG_ODDS_GUARDS.maxUnderdogAmerican;
+
+function candidatesFor(r) {
+  const out = [];
+  const base = { sport: "epl", eventId: r.eventId, player: null, matchup: `${r.home} v ${r.away}`, kickoffUtc: r.kickoffIso };
+
   const three = (r.matchResult ?? []).filter((o) => Number.isFinite(o?.american));
-  if (three.length !== 3) { rejected.push({ eventId: r.eventId, reason: "incomplete three-way price" }); continue; }
-  const fav = three.reduce((best, o) => (o.american < best.american ? o : best));
-
-  // Which of home/draw/away the favourite is — the side gradeEplLeg will be asked to settle.
-  const side = fav.outcome === "Draw" ? "draw" : fav.outcome === r.home ? "home" : fav.outcome === r.away ? "away" : null;
-  if (!side) { rejected.push({ eventId: r.eventId, reason: `favourite "${fav.outcome}" matches neither club nor Draw — refusing to guess which side to grade` }); continue; }
-
-  /*
-   * THE CANONICAL LEG-PRICE FLOOR.
-   *
-   * An extreme favourite barely moves the payout while still being able to lose the whole card — it
-   * is filler that buys nothing. This is where EPL differs sharply from the other sports in
-   * practice: a three-way market makes heavy favourites common, and many of this slate's shortest
-   * prices sit inside the floor. Those fixtures simply do not produce a leg, and the bands they
-   * would have filled are reported as skipped rather than filled with something weaker.
-   */
-  if (fav.american < INDIVIDUAL_LEG_ODDS_GUARDS.minFavoriteAmerican || fav.american > INDIVIDUAL_LEG_ODDS_GUARDS.maxUnderdogAmerican) {
-    rejected.push({ eventId: r.eventId, reason: `favourite priced ${fav.american}, outside the canonical leg guard` });
-    continue;
+  if (three.length === 3) {
+    const fav = three.reduce((best, o) => (o.american < best.american ? o : best));
+    const side = fav.outcome === "Draw" ? "draw" : fav.outcome === r.home ? "home" : fav.outcome === r.away ? "away" : null;
+    if (side && inGuard(fav.american)) {
+      out.push({ ...base, team: side === "draw" ? null : fav.outcome, market: "match_result", marketLabel: "Match result",
+        side, line: null, odds: fav.american, decimal: decOf(fav.american), books: fav.books ?? null });
+    }
   }
-
-  legs.push({
-    sport: "epl", eventId: r.eventId,
-    player: null, team: side === "draw" ? null : fav.outcome,
-    matchup: `${r.home} v ${r.away}`,
-    market: "match_result", marketLabel: "Match result", side, line: null,
-    odds: fav.american,
-    decimal: fav.american > 0 ? 1 + fav.american / 100 : 1 + 100 / Math.abs(fav.american),
-    books: fav.books ?? null,
-    kickoffUtc: r.kickoffIso,
-    /* Deliberately absent: any model probability. This ladder makes no model claim — see the header. */
-  });
+  for (const t of r.totalGoals ?? []) {
+    if (typeof t?.line !== "number") continue;
+    for (const o of t.outcomes ?? []) {
+      const side = String(o?.outcome ?? "").toLowerCase();
+      if ((side !== "over" && side !== "under") || !Number.isFinite(o?.american) || !inGuard(o.american)) continue;
+      out.push({ ...base, team: null, market: "total_goals", marketLabel: `Total goals ${t.line}`,
+        side, line: t.line, odds: o.american, decimal: decOf(o.american), books: o.books ?? null });
+    }
+  }
+  return out.sort((a, z) => a.decimal - z.decimal);   // shortest first
 }
 
+const byFixture = [];
+const rejected = [];
+for (const r of eligibleFixtures) {
+  const c = candidatesFor(r);
+  if (c.length === 0) { rejected.push({ eventId: r.eventId, reason: "no priced leg inside the canonical guard" }); continue; }
+  byFixture.push({ eventId: r.eventId, kickoffIso: r.kickoffIso, candidates: c });
+}
 /*
- * Shortest price first — the MARKET'S ordering, not ours.
+ * SHORTEST-PRICED FIXTURE FIRST — the market's own ordering, and the only one that can reach `low`.
  *
- * The UFC ladder sorts by model confidence because its model earned the right to supply an ordering.
- * Sorting by price here makes no claim at all: it is simply the order the books put these matches
- * in, and it keeps the shortest cards genuinely short.
+ * Kickoff order looked neutral and quietly made a whole band unbuildable: a card only ever gets
+ * LONGER as legs are upgraded, so the shortest achievable card is the two shortest fixtures. Taking
+ * them in kickoff order gave +115 when the two shortest favourites give +82, and `low` was reported
+ * skipped on a full ten-fixture slate that could comfortably build it.
+ *
+ * This makes no claim about any match. It is the order the books put them in.
  */
-legs.sort((a, z) => a.odds - z.odds);
+byFixture.sort((a, b) => a.candidates[0].decimal - b.candidates[0].decimal
+  || Date.parse(a.kickoffIso) - Date.parse(b.kickoffIso));
+const legs = byFixture.map((f) => f.candidates[0]);
+
+/*
+ * ── BUILDING A CARD FOR A BAND ─────────────────────────────────────────────────────────────────
+ *
+ * Each fixture starts on its SHORTEST candidate. If the combined price falls short of the band, one
+ * leg at a time is upgraded to that fixture's next-longer candidate — always the fixture where the
+ * step up is smallest — until the band is reached or every candidate is exhausted.
+ *
+ * This is the ladder doing its job, assembling a card at a target price, not a view being expressed:
+ * every candidate is a market price on a settleable market, and swapping a match result for an over
+ * makes neither one a prediction. What it must never do is move the band, which is the fix this
+ * repository rejected when a +203 card was published as "Low risk".
+ */
+const combinedOf = (pick) => {
+  const d = pick.reduce((p, l) => p * l.decimal, 1);
+  return { decimal: d, american: d >= 2 ? Math.round((d - 1) * 100) : Math.round(-100 / (d - 1)) };
+};
+
+function buildForBand(band, n, available) {
+  const chosen = available.slice(0, n).map((f) => ({ fixture: f, idx: 0 }));
+  if (chosen.length < n) return null;
+  const reached = [];
+  const maxSteps = chosen.reduce((t, c) => t + c.fixture.candidates.length, 0);   // always terminates
+  for (let step = 0; step <= maxSteps; step += 1) {
+    const pick = chosen.map((c) => c.fixture.candidates[c.idx]);
+    const { american, decimal } = combinedOf(pick);
+    const bucket = getRiskBucketForCombinedOdds(american);
+    reached.push(`${american > 0 ? "+" : ""}${american} (${bucket ?? "shorter than the low floor"})`);
+    if (bucket === band) return { legs: pick, american, decimal: Number(decimal.toFixed(3)), reached };
+    let best = -1, bestRatio = Infinity;
+    for (let i = 0; i < chosen.length; i += 1) {
+      const next = chosen[i].fixture.candidates[chosen[i].idx + 1];
+      if (!next) continue;
+      const ratio = next.decimal / chosen[i].fixture.candidates[chosen[i].idx].decimal;
+      if (ratio < bestRatio) { bestRatio = ratio; best = i; }
+    }
+    if (best < 0) break;
+    chosen[best].idx += 1;
+  }
+  return { legs: null, reached };
+}
 
 const cards = [], skipped = [], used = new Set();
 for (const band of RISK_ORDER) {
   const cap = BAND_MAX_LEGS[band] ?? 5;
-  let built = null; const reached = [];
+  let built = null; const tried = [];
   for (let n = 2; n <= cap; n++) {
-    const pick = legs.filter((l) => !used.has(l.eventId)).slice(0, n);
-    if (pick.length < n) break;                              // not enough distinct fixtures left
-    const d = pick.reduce((p, l) => p * l.decimal, 1);
-    const american = d >= 2 ? Math.round((d - 1) * 100) : Math.round(-100 / (d - 1));
-    const bucket = getRiskBucketForCombinedOdds(american);
-    reached.push(`${n} legs → ${american > 0 ? "+" : ""}${american} (${bucket ?? "shorter than the low floor"})`);
-    if (bucket === band) { built = { legs: pick, american, decimal: Number(d.toFixed(3)) }; break; }
+    const available = byFixture.filter((f) => !used.has(f.eventId));
+    if (available.length < n) break;
+    const attempt = buildForBand(band, n, available);
+    if (!attempt) break;
+    tried.push(`${n} legs → ${attempt.reached[0]}${attempt.reached.length > 1 ? ` … ${attempt.reached.at(-1)}` : ""}`);
+    if (attempt.legs) { built = attempt; break; }
   }
   if (!built) {
-    skipped.push({ tier: band, reason: reached.length ? `no card priced into this band — ${reached.join("; ")}` : "not enough eligible priced fixtures to build a card" });
+    skipped.push({ tier: band, reason: tried.length ? `no combination of today's prices lands in this band — ${tried.join("; ")}` : "not enough eligible priced fixtures to build a card" });
     continue;
   }
   for (const l of built.legs) used.add(l.eventId);
@@ -178,11 +240,13 @@ write({
   pricedFixtures: eligibleFixtures.length, eligibleLegs: legs.length, rejectedLegs: rejected,
   cards, skipped,
   /* How the side was chosen, carried WITH the cards — see the UFC ladder for why this is per-sport. */
-  selection: "the market's own favourite at its posted price, never this model's read — the EPL model has cleared no bar and has never been scored against a no-vig line",
+  selection: "a market price on a settleable market — the three-way favourite, or an over/under at the book's own line. Never this model's read: the EPL model has cleared no bar and has never been scored against a no-vig line",
   note: "Prices are real, posted and de-vigged for display only; the side is THE MARKET'S OWN FAVOURITE, " +
         "never this model's read — the EPL model has passed no preregistered bar and has never been compared " +
         "against a no-vig price. Every leg settles from an official full-time score. Paper-only, educational.",
 });
 console.log(`epl ladder ${DATE}: ${eligibleFixtures.length} priced fixtures · ${legs.length} eligible legs -> ${cards.length}/4 bands carded${skipped.length ? ` (skipped ${skipped.map((s) => s.tier).join(", ")})` : ""}`);
-for (const c of cards) console.log(`  ${c.tier.padEnd(9)} ${c.combinedAmerican > 0 ? "+" : ""}${c.combinedAmerican} · ${c.legs.length} legs · ${c.legs.map((l) => l.side === "draw" ? `${l.matchup} draw` : l.team).join(" + ")}`);
+/* A totals leg has neither a team nor a player, so describing it by team prints an empty slot. */
+const legDesc = (l) => l.market === "total_goals" ? `${l.matchup} ${l.side} ${l.line}` : l.side === "draw" ? `${l.matchup} draw` : (l.team ?? l.matchup);
+for (const c of cards) console.log(`  ${c.tier.padEnd(9)} ${c.combinedAmerican > 0 ? "+" : ""}${c.combinedAmerican} · ${c.legs.length} legs · ${c.legs.map(legDesc).join(" + ")}`);
 for (const s of skipped) console.log(`  ${s.tier.padEnd(9)} SKIPPED — ${s.reason}`);

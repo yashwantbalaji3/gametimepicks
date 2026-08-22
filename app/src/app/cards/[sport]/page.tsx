@@ -29,28 +29,40 @@ const LANES: Record<string, { label: string; hub: string; hubLabel: string; slat
   ufc: { label: "UFC", hub: "/ufc", hubLabel: "UFC hub", slateOf: (l) => l.eventName ?? l.date },
 };
 
-/* A lane with no published ladder gets no page at all — an empty product page is worse than none. */
+/*
+ * EVERY DECLARED LANE GETS A PAGE, ALWAYS.
+ *
+ * This used to enumerate only the lanes with a published ladder, on the reasoning that an empty
+ * product page is worse than none. That was wrong in a way the guards caught within the hour: the
+ * Products rail links to these routes unconditionally, and a lane's ladder empties out during the
+ * day as its fixtures kick off — EPL had one card at noon and none by four. A nav item pointing at a
+ * route that no longer exists is a 404 in the main navigation, which is worse than any empty state.
+ *
+ * So the page always exists, and says plainly when there is nothing to show. "No cards for this
+ * slate" is a product state; a broken link is not.
+ */
 export function generateStaticParams() {
-  return Object.keys(LANES).filter((s) => loadCurrentSportLabLadder(s) !== null).map((sport) => ({ sport }));
+  return Object.keys(LANES).map((sport) => ({ sport }));
 }
 export const dynamicParams = false;
 
 export function generateMetadata({ params }: { params: { sport: string } }): Metadata {
   const lane = LANES[params.sport];
   const ladder = loadCurrentSportLabLadder(params.sport);
-  if (!lane || !ladder) return { title: "Paper cards · GameTime Picks" };
+  if (!lane) return { title: "Paper cards · GameTime Picks" };
   return {
     title: `${lane.label} Paper Cards · GameTime Picks`,
-    description:
-      `${ladder.cards.length} of 4 price bands built from real posted prices for ${lane.slateOf(ladder)}. ` +
-      "Paper-only and educational — no stake is filled in, and nothing here is a pick or a recommendation to wager.",
+    description: ladder
+      ? `${ladder.cards.length} of 4 price bands built from real posted prices for ${lane.slateOf(ladder)}. ` +
+        "Paper-only and educational — no stake is filled in, and nothing here is a pick or a recommendation to wager."
+      : `${lane.label} paper card ladder. No cards are published right now — a ladder is built only from events that have not started. Paper-only and educational.`,
   };
 }
 
 export default function SportCardsPage({ params }: { params: { sport: string } }) {
   const lane = LANES[params.sport];
-  const ladder = lane ? loadCurrentSportLabLadder(params.sport) : null;
-  if (!lane || !ladder) return null;   // dynamicParams=false means this is unreachable
+  if (!lane) return null;              // dynamicParams=false means this is unreachable
+  const ladder = loadCurrentSportLabLadder(params.sport);
 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
@@ -60,7 +72,21 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
         sub="One card per price band, built from prices a sportsbook actually posted. Paper-only and educational — no stake is filled in anywhere, and nothing here is a pick or a recommendation to wager."
       />
 
-      <SportLabCards ladder={ladder} eyebrow="Today's ladder" />
+      {ladder ? (
+        <SportLabCards ladder={ladder} eyebrow="Today's ladder" />
+      ) : (
+        /*
+          THE EMPTY STATE, NAMED. A ladder empties as its events start — by late afternoon a slate
+          that carried four bands at breakfast may carry none. Saying which of the two situations
+          this is matters: "nothing left to price today" and "we could not build anything" are
+          different facts, and only the first is routine.
+        */
+        <p className="mt-4" style={{ fontSize: 13, lineHeight: 1.7, color: "var(--vault-text-mute)" }}>
+          No {lane.label} cards are published right now. A ladder is built only from events that have
+          not started, so it empties as the day&rsquo;s {params.sport === "ufc" ? "card approaches" : "matches kick off"} —
+          the next one appears when the following slate is priced.
+        </p>
+      )}
 
       {/*
         THE RECORD, STATED RATHER THAN OMITTED. These lanes have settled nothing yet. A product page

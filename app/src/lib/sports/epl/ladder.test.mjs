@@ -131,8 +131,16 @@ test("BUILT EXPORT · the published cards actually reach a reader", () => {
       `the ${c.tier} card at ${c.combinedAmerican} is published and appears on no page`);
   }
   // The one thing a reader must not conflate: this page is full of model output, and these are not.
-  assert.match(text, /market's own favourite|market&rsquo;s own favourite/i,
-    "the cards must state that the side is the market's, not the model's");
+  /*
+   * The wording changed when the ladder began using the totals market as well as the three-way
+   * favourite — "a market price on a settleable market" rather than "the market's own favourite".
+   * The CLAIM is what this guards: the side is the market's, and it is not the model's. Pinning the
+   * exact phrase would fail every time the sentence became more accurate.
+   */
+  assert.match(text, /market price|market&rsquo;s own|market's own/i,
+    "the cards must state that the side comes from the market");
+  assert.match(text, /never this model&rsquo;s read|never this model's read/i,
+    "and must disclaim the model explicitly");
   // A band that could not be reached is named rather than quietly absent.
   for (const s of ladder.skipped ?? []) assert.ok(text.includes(s.tier), `skipped band ${s.tier} is not disclosed`);
 });
