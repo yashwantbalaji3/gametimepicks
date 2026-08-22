@@ -115,3 +115,24 @@ test("the lab settler grades EPL legs through the IDENTITY BRIDGE, not the raw c
   // Routed by the leg's OWN sport, so a cross-sport card grades each leg on its own path.
   assert.match(code, /leg\.sport[^\n]*"epl"/, "EPL legs must be routed by leg.sport");
 });
+
+test("BUILT EXPORT · the published cards actually reach a reader", () => {
+  /*
+   * The lane went live and its cards reached no page. /build renders MLB's ladder and hardcodes
+   * "mlb"; neither UFC nor EPL had any card surface at all. A lane that is LIVE by the gate and
+   * invisible to every reader is not a product — it is the same shape as a market that clears its
+   * bar and is rendered nowhere, found on this sport the same night.
+   */
+  const page = path.join(APP, "out/epl/index.html");
+  if (!fs.existsSync(page) || !ladder?.cards?.length) return;   // export not built in this run
+  const text = fs.readFileSync(page, "utf8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+  for (const c of ladder.cards) {
+    assert.ok(text.includes(String(c.combinedAmerican > 0 ? `+${c.combinedAmerican}` : c.combinedAmerican)),
+      `the ${c.tier} card at ${c.combinedAmerican} is published and appears on no page`);
+  }
+  // The one thing a reader must not conflate: this page is full of model output, and these are not.
+  assert.match(text, /market's own favourite|market&rsquo;s own favourite/i,
+    "the cards must state that the side is the market's, not the model's");
+  // A band that could not be reached is named rather than quietly absent.
+  for (const s of ladder.skipped ?? []) assert.ok(text.includes(s.tier), `skipped band ${s.tier} is not disclosed`);
+});
