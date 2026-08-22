@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "mlb-pregame-park-factors-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "park_factors",
+  "gamePk": 823831,
+  "date": "2026-08-22",
+  "capturedAt": "2026-08-22T02:15:06.839Z",
+  "availableAt": "2026-08-22T02:15:06.839Z",
+  "eventStartTime": "2026-08-22T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "static venue facts, captured pregame",
+  "venue": {
+    "id": 4169,
+    "name": "loanDepot park",
+    "city": "Miami",
+    "elevation": 10,
+    "roofType": "Retractable",
+    "turfType": "Artificial Turf"
+  },
+  "factors": {
+    "runFactor": 100,
+    "hrFactor": 100,
+    "handednessEffect": null,
+    "runEnvironmentSignal": "sea-level-ish (10 ft)"
+  },
+  "source": "StatsAPI venue endpoint (FACTUAL: elevation/roof/turf/city). Numeric run/HR/handedness park factors are NOT loaded from any published source — runFactor/hrFactor default to a NEUTRAL 100 baseline; treat as neutral until a real source is loaded. Only runEnvironmentSignal is derived (from factual elevation).",
+  "updatePolicy": "Static per venue. Refresh factual attributes if a venue changes. Load numeric park factors annually from a published source (e.g. Statcast/FanGraphs park factors) in a SEPARATE internal reference; never fabricate.",
+  "leakageRule": "venue attributes are static/pregame; capturedAt recorded for provenance",
+  "recordHash": "5fd17c9b2862bb9d16cb9272c245075b509ef0e89652e29255cdb9d1a3177f9d"
+}
