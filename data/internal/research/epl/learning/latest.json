@@ -3,41 +3,41 @@
  "artifact": "epl-learning-report",
  "dataClass": "INTERNAL_RESEARCH",
  "public": false,
- "generatedAt": "2026-08-22T00:12:51Z",
+ "generatedAt": "2026-08-22T23:19:24Z",
  "corpus": {
   "historical": 1520,
-  "currentSeason": 1,
-  "total": 1521,
+  "currentSeason": 6,
+  "total": 1526,
   "season": "2026-27"
  },
  "sample": {
-  "graded": 1,
-  "pairedWithMarket": 0,
+  "graded": 6,
+  "pairedWithMarket": 1,
   "minSampleForComparison": 30
  },
  "model": {
-  "n": 1,
-  "logLoss": 0.368979,
-  "brier": 0.143947
+  "n": 6,
+  "logLoss": 1.072134,
+  "brier": 0.638161
  },
  "comparison": {
-  "state": "NO_PAIRED_MATCHES",
-  "detail": "no graded match carries a price recorded before kickoff, so the model has not been compared to anything.",
+  "state": "SAMPLE_TOO_SMALL",
+  "detail": "1 of 30 matches needed before a difference means anything. The figures below are reported for transparency and support no conclusion in either direction.",
   "onPairedMatches": {
    "model": {
-    "logLoss": null,
-    "brier": null
+    "logLoss": 0.870885,
+    "brier": 0.517513
    },
    "market": {
-    "logLoss": null,
-    "brier": null
+    "logLoss": 0.812244,
+    "brier": 0.464747
    },
-   "logLossDelta": null,
-   "brierDelta": null
+   "logLossDelta": 0.058641,
+   "brierDelta": 0.052766
   }
  },
  "stoppingRule": {
   "state": "NOT_YET_ASSESSABLE",
-  "detail": "the rule applies from 30 paired matches; there are 0."
+  "detail": "the rule applies from 30 paired matches; there are 1."
  }
 }
