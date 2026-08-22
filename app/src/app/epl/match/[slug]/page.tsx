@@ -119,6 +119,9 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
   /* A separate artifact and a separate model — same loader module, so the two cannot drift apart. */
   const playerFixture = playersForFixture(loadEplPlayerProjections(), params.slug);
   const playerRows = playerFixture?.players ?? [];
+  /* Whether this fixture's rows actually carry the shots-on-target model. Derived, because the
+     market is published per-run and a column of em dashes would be furniture, not information. */
+  const anySog = playerRows.some((p) => typeof p.shotsOnGoalOver05 === "number");
   const awaiting = playerFixture?.lineupState !== "PUBLISHED";
 
   return (
@@ -357,6 +360,11 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
                   <th style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11 }}>Club</th>
                   <th style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11 }}>Appearances</th>
                   <th style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11 }}>To score</th>
+                  {/* A SEPARATE model with its own cleared bars, computed for every player on every
+                      run and — until now — rendered nowhere. A market that passes its test and then
+                      cannot be read is indistinguishable from one that was never built. The column
+                      appears only when the artifact actually carries the figures. */}
+                  {anySog ? <th style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11 }}>A shot on target</th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -369,6 +377,13 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
                       {p.appearances > 0 ? p.appearances : "none"}
                     </td>
                     <td className="font-mono" style={{ padding: "7px 8px", fontWeight: 700, color: green }}>{pct(p.probability)}</td>
+                    {anySog ? (
+                      <td className="font-mono" style={{ padding: "7px 8px", color: "var(--vault-text-mute)" }}>
+                        {/* An em dash, never a zero: a player this model has no figure for has not
+                            been given a 0% chance of hitting the target. */}
+                        {typeof p.shotsOnGoalOver05 === "number" ? pct(p.shotsOnGoalOver05) : "—"}
+                      </td>
+                    ) : null}
                   </tr>
                 ))}
               </tbody>
@@ -377,6 +392,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           <p className="mt-2" style={{ fontSize: 11.5, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
             Showing the {Math.min(12, playerRows.length)} likeliest of {playerRows.length}. No injury or suspension
             feed exists here, so a player who is unavailable can still appear in this list.
+            {anySog ? " Shots on target is a separate model from the scorer figure beside it, fitted and tested on its own — the two are not derived from one another and can disagree." : ""}
           </p>
         </section>
       ) : null}
