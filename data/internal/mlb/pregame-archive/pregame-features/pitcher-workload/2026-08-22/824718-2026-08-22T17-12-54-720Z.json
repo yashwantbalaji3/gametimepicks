@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824718,
+  "date": "2026-08-22",
+  "capturedAt": "2026-08-22T17:12:54.720Z",
+  "availableAt": "2026-08-22T17:12:54.720Z",
+  "eventStartTime": "2026-08-22T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663776,
+      "name": "Patrick Sandoval",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 6,
+      "lastStartDate": "2026-08-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 5,
+        "bbAvg": 2.8,
+        "erAvg": 2.6,
+        "hrAvg": 0.4,
+        "kPer9": 9.12,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 34,
+        "k": 35,
+        "bb": 16,
+        "er": 18,
+        "hr": 3
+      }
+    },
+    "away": {
+      "id": 694918,
+      "name": "Blade Tidwell",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-08-16",
+      "last5": {
+        "starts": 3,
+        "ipSum": 15,
+        "ipAvg": 5,
+        "kAvg": 3.33,
+        "bbAvg": 2.33,
+        "erAvg": 3,
+        "hrAvg": 0.33,
+        "kPer9": 6,
+        "workloadIpLast5": 15
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 15,
+        "k": 10,
+        "bb": 7,
+        "er": 9,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-22T17:12:54.720Z"
+  },
+  "recordHash": "18bc2d0a13c8055db8fe16527639e2d5233eba5ac1b4f04a490c0b072f10f8a9"
+}

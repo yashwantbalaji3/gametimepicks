@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823509-777865b7c42de88a95dcbf01397fa50e",
+  "snapshotCreatedAt": "2026-08-22T17:12:54.493Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-22",
+  "eventId": "823509",
+  "gamePk": 823509,
+  "eventStartTime": "2026-08-22T17:35:00Z",
+  "homeTeam": "NYY",
+  "awayTeam": "TOR",
+  "venue": "Yankee Stadium",
+  "statusState": "Warmup",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "f9e761a340d734cd2527c558871602b2",
+  "normalizedPayloadHash": "1b70506538389231f7e0952f6e69091c",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          663757,
+          700250,
+          671218,
+          671277,
+          682987,
+          806146,
+          665862,
+          669224,
+          676609
+        ],
+        "away": [
+          703520,
+          665489,
+          672386,
+          543807,
+          672960,
+          676391,
+          663662,
+          807727,
+          664702
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T17:12:54.493Z",
+      "availableAt": "2026-08-22T17:12:54.493Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T17:12:54.493Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823509/feed/live",
+        "requestedAt": "2026-08-22T17:12:54.493Z",
+        "receivedAt": "2026-08-22T17:12:54.493Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Ryan Weathers",
+        "awayProbable": "Dylan Cease",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T17:12:54.493Z",
+      "availableAt": "2026-08-22T17:12:54.493Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T17:12:54.493Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823509/feed/live",
+        "requestedAt": "2026-08-22T17:12:54.493Z",
+        "receivedAt": "2026-08-22T17:12:54.493Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Cloudy",
+        "temp": "74",
+        "wind": "6 mph, In From LF",
+        "roofType": "Open",
+        "dayNight": "day",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T17:12:54.493Z",
+      "availableAt": "2026-08-22T17:12:54.493Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T17:12:54.493Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823509/feed/live",
+        "requestedAt": "2026-08-22T17:12:54.493Z",
+        "receivedAt": "2026-08-22T17:12:54.493Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Dan Iassogna",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Louie Krupa",
+            "type": "First Base"
+          },
+          {
+            "name": "Jeremie Rehak",
+            "type": "Second Base"
+          },
+          {
+            "name": "Adam Beck",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-22T17:12:54.493Z",
+      "availableAt": "2026-08-22T17:12:54.493Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-22T17:12:54.493Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823509/feed/live",
+        "requestedAt": "2026-08-22T17:12:54.493Z",
+        "receivedAt": "2026-08-22T17:12:54.493Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

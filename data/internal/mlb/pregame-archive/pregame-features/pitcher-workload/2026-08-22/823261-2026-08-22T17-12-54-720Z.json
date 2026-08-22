@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823261,
+  "date": "2026-08-22",
+  "capturedAt": "2026-08-22T17:12:54.720Z",
+  "availableAt": "2026-08-22T17:12:54.720Z",
+  "eventStartTime": "2026-08-23T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663554,
+      "name": "Casey Mize",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-08-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 3.6,
+        "bbAvg": 1.4,
+        "erAvg": 2.4,
+        "hrAvg": 0.4,
+        "kPer9": 6.57,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 102,
+        "k": 95,
+        "bb": 25,
+        "er": 36,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 665152,
+      "name": "Dean Kremer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 6,
+      "lastStartDate": "2026-08-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 4.8,
+        "bbAvg": 1.8,
+        "erAvg": 4,
+        "hrAvg": 0.8,
+        "kPer9": 7.9,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 53.33,
+        "k": 53,
+        "bb": 16,
+        "er": 32,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-22T17:12:54.720Z"
+  },
+  "recordHash": "bc70f2fe109da8b70bc3bd55a6cd733e983bbf07a893a26df5e425e402208dab"
+}
