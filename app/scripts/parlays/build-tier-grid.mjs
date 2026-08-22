@@ -48,8 +48,13 @@ const LADDER_DIR = { mlb: "risk-ladder", ufc: "risk-ladder-ufc", epl: "risk-ladd
 const LADDERS = {
   mlb: (date) => readJson(path.join(ROOT, "parlays", "risk-ladder", `${date}.json`))
               ?? readJson(path.join(ROOT, "parlays", "risk-ladder", "latest.json")),
-  ufc: (date) => readJson(path.join(ROOT, "parlays", "risk-ladder-ufc", `${date}.json`))
-              ?? readJson(path.join(ROOT, "parlays", "risk-ladder-ufc", "latest.json")),
+  /*
+   * DATED FILE ONLY, for the same reason as EPL below. The UFC ladder is built for its CARD's date,
+   * which is not the day the run happened — a ladder written on 2026-08-18 for an event on
+   * 2026-08-22 was being served through this fallback and published under 2026-08-21, a third date
+   * again. A day with no UFC card correctly gets no UFC ladder.
+   */
+  ufc: (date) => readJson(path.join(ROOT, "parlays", "risk-ladder-ufc", `${date}.json`)),
   /*
    * DATED FILE ONLY — no latest.json fallback for this sport.
    *

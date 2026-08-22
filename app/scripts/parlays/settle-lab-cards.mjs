@@ -62,7 +62,25 @@ function loadUfcResults() {
   const byFighter = new Map();   // folded name -> { won, boutId, eventDate }
   try {
     const doc = JSON.parse(fs.readFileSync(path.join(APP, "public", "data", "ufc", "results-latest.json"), "utf8"));
+    /*
+     * ── CONSTRAINED TO THE CARD BEING SETTLED ──────────────────────────────────────────────────
+     *
+     * results-latest.json is not a snapshot of one event. It is a HISTORICAL CORPUS — 1,545 bouts
+     * across 126 events — and this indexed every one of them by fighter name with no date check, so
+     * the last occurrence of a name won the map slot.
+     *
+     * The consequence was not subtle. Asked to settle the 2026-08-22 card, it graded Gregory
+     * Rodrigues from his March bout, Roman Dolidze from a March loss and Gauge Young from April, and
+     * reported "3/5 cards decided" for fights that had not taken place. A settlement receipt would
+     * have recorded fabricated outcomes for a card nobody had fought.
+     *
+     * A fighter cannot appear twice on one card, so once the index is confined to a single event
+     * date the name match is safe — and it is the same reason a rematch cannot be confused with its
+     * original. A date with no results yields an empty index and every leg pends, which is exactly
+     * what "the fights have not happened" should look like.
+     */
     for (const r of doc.results ?? []) {
+      if (r.eventDate !== DATE) continue;
       // Only DECISIVE bouts settle a moneyline. A draw or no-contest voids the leg rather than
       // losing it, so those are deliberately not indexed as a win for anybody.
       if (!r.winner || !r.loser) continue;
@@ -73,6 +91,7 @@ function loadUfcResults() {
   return byFighter;
 }
 const ufcResults = loadUfcResults();
+if (ufcResults.size === 0) console.log(`no UFC results dated ${DATE} — every fight-winner leg pends`);
 
 /**
  * EPL MATCH OUTCOMES, from the official full-time capture.
@@ -185,8 +204,45 @@ async function boxFor(gamePk) {
   return out;
 }
 
-const ladder = (() => { try { return JSON.parse(fs.readFileSync(path.join(LADDER, `${DATE}.json`), "utf8")); } catch { return null; } })();
-if (!ladder) { console.log(`NOT_YET_OBSERVABLE: no published ladder for ${DATE}`); process.exit(0); }
+/*
+ * ── EVERY SPORT'S LADDER, NOT JUST BASEBALL'S ──────────────────────────────────────────────────
+ *
+ * This read one directory: public/data/parlays/risk-ladder, which is MLB's. UFC has been publishing
+ * paper cards to risk-ladder-ufc since 2026-08-18 and EPL to risk-ladder-epl since tonight, and
+ * NEITHER was ever opened. Three settlement receipts exist and all three are MLB-only; not one UFC
+ * card has ever been graded.
+ *
+ * That is the precise failure the UFC grading path forty lines above was written to prevent —
+ * "publishable and ungradeable, sitting pending forever and never entering the record, quietly
+ * computing the published hit rate over only the cards that happened to be settleable". The path was
+ * added; the file it needed to read was not. gradeUfcLeg has never once been called, because the
+ * only ladder in scope contains nothing but MLB legs.
+ *
+ * Cards from every sport are now merged for the date. Legs already carry their own sport and the
+ * router below keys on that, so nothing here needs to know which directory a card came from.
+ */
+const LADDER_DIRS = { mlb: "risk-ladder", ufc: "risk-ladder-ufc", epl: "risk-ladder-epl" };
+const sources = [];
+for (const [sport, dir] of Object.entries(LADDER_DIRS)) {
+  try {
+    const doc = JSON.parse(fs.readFileSync(path.join(APP, "public", "data", "parlays", dir, `${DATE}.json`), "utf8"));
+    /*
+     * CARDS ARE THE TEST, not a state field. MLB's ladder carries no `state` at all — it predates
+     * the convention — while UFC's and EPL's say PUBLISHED. Requiring the field silently excluded
+     * every MLB ladder ever written, which is the one sport that HAS been settling. A ladder with
+     * cards is a ladder to settle; anything that declares a non-published state is skipped.
+     */
+    if (doc?.state && doc.state !== "PUBLISHED") continue;
+    if (!Array.isArray(doc?.cards) || doc.cards.length === 0) continue;
+    // Default each leg's sport from the ladder it came from: a single-sport ladder need not repeat
+    // itself on every leg, and a leg with no sport would silently route to the box-score reader.
+    const cards = doc.cards.map((c) => ({ ...c, legs: (c.legs ?? []).map((l) => ({ ...l, sport: l.sport ?? sport })) }));
+    sources.push({ sport, count: cards.length, cards });
+  } catch { /* no ladder for this sport on this date — a normal state, not a failure */ }
+}
+if (!sources.length) { console.log(`NOT_YET_OBSERVABLE: no published ladder for ${DATE} in any sport`); process.exit(0); }
+console.log(`ladders for ${DATE}: ${sources.map((s) => `${s.sport} ${s.count}`).join(" · ")}`);
+const ladder = { cards: sources.flatMap((s) => s.cards) };
 
 const cards = [];
 for (const card of ladder.cards ?? []) {
@@ -223,7 +279,7 @@ for (const card of ladder.cards ?? []) {
     tier: card.tier, slipId: card.slipId, result,
     combinedDecimal: Number(combined.toFixed(6)), legs: results,
   });
-  console.log(`  ${card.tierLabel.padEnd(12)} ${result.toUpperCase()}`);
+  console.log(`  ${(card.tierLabel ?? card.tier ?? "?").padEnd(12)} ${result.toUpperCase()}`);
 }
 
 const receipt = {

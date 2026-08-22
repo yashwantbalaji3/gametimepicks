@@ -37,10 +37,21 @@ const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); }
 
 const NOW = arg("--now", new Date().toISOString());
 const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
-const DATE = arg("--date", etDay(NOW));
-
 const odds = readJson(path.join(APP, "public", "data", "ufc", "odds-latest.json"));
 const card = readJson(path.join(APP, "public", "data", "ufc", "card-latest.json"));
+
+/*
+ * THE LADDER IS DATED BY ITS CARD, NOT BY THE DAY IT WAS BUILT.
+ *
+ * This defaulted to the run's own ET day, which produced three different dates for one set of
+ * cards: a ladder written 2026-08-18 for an event on 2026-08-22, picked up by the tier grid and
+ * labelled 2026-08-21. The event's real date was sitting in card.event.slateDate the whole time,
+ * two lines below where the wrong one was being computed.
+ *
+ * It is not cosmetic. The date is baked into every slipId, and the settler looks a ladder up BY
+ * DATE — so a card dated four days before its fights could never be found on the night they happen.
+ */
+const DATE = arg("--date", card?.event?.slateDate ?? etDay(NOW));
 
 const write = (payload) => {
   fs.mkdirSync(OUT, { recursive: true });
