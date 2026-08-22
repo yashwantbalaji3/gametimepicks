@@ -1,0 +1,63 @@
+{
+  "kind": "cron-slot-watchdog",
+  "generatedAt": "2026-08-20T02:52:46Z",
+  "lookbackHours": 168,
+  "sports": {
+    "mlb": {
+      "workflow": "mlb-daily-production.yml",
+      "crons": [
+        "15 14 * * *"
+      ],
+      "createdAt": "2026-07-22T18:06:42.000Z",
+      "expected": 7,
+      "ran": 71,
+      "missed": [],
+      "state": "OK"
+    },
+    "ufc": {
+      "workflow": "ufc-fight-week.yml",
+      "crons": [
+        "0 11 * * 2",
+        "0 11 * * 4",
+        "0 11 * * 6"
+      ],
+      "createdAt": "2026-08-18T02:26:24.000Z",
+      "expected": 1,
+      "ran": 8,
+      "missed": [],
+      "state": "OK"
+    },
+    "nfl": {
+      "workflow": "nfl-event-window.yml",
+      "crons": [
+        "0 15 * * *",
+        "0 21 * * *",
+        "30 14 * * *"
+      ],
+      "createdAt": "2026-08-13T12:13:21.000Z",
+      "expected": 21,
+      "ran": 25,
+      "missed": [],
+      "state": "OK"
+    },
+    "epl": {
+      "workflow": "epl-matchweek.yml",
+      "crons": [
+        "0 7 * * 4",
+        "0 7 * * 6",
+        "0 7 * * 0"
+      ],
+      "createdAt": "2026-08-18T10:44:37.000Z",
+      "expected": 0,
+      "ran": 0,
+      "missed": [],
+      "state": "OK"
+    },
+    "nba": {
+      "skipped": true,
+      "reason": "off-season; nba-market-probe.yml is dispatch-only and the source has failed since 2026-06-13"
+    }
+  },
+  "missedTotal": 0,
+  "unknown": []
+}

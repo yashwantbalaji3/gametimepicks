@@ -20,10 +20,32 @@ import path from "node:path";
 const APP = process.cwd();
 const read = (p) => { try { return JSON.parse(fs.readFileSync(path.join(APP, p), "utf8")); } catch { return null; } };
 const PAGE = path.join(APP, "out/ufc/index.html");
-const rendered = fs.existsSync(PAGE) ? fs.readFileSync(PAGE, "utf8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ") : null;
+
+/**
+ * The built page, but ONLY when it was built from the artifacts currently on disk.
+ *
+ * These assertions compare a rendered stamp to a live artifact's field, and an export built before
+ * the artifact was last regenerated will disagree for a reason that is not a defect. That is the
+ * trap this repository has hit before — a guard reading live product artifacts and failing because
+ * the product moved, not because it broke.
+ *
+ * mtime is the right instrument for "which of these two files was written first", and the wrong one
+ * for any claim about freshness — which is exactly why the stamps under test come from inside the
+ * artifacts instead.
+ */
+function renderedIfCurrent(artifactPaths) {
+  if (!fs.existsSync(PAGE)) return null;
+  const built = fs.statSync(PAGE).mtimeMs;
+  for (const p of artifactPaths) {
+    const abs = path.join(APP, p);
+    if (fs.existsSync(abs) && fs.statSync(abs).mtimeMs > built) return null;   // export predates the data
+  }
+  return fs.readFileSync(PAGE, "utf8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+}
 
 test("the CARD's stamp is rendered byte-identically to the artifact's own field", () => {
   const card = read("public/data/ufc/card-latest.json");
+  const rendered = renderedIfCurrent(["public/data/ufc/card-latest.json"]);
   if (!rendered || !card?.generatedAt) return;
   // Byte-identical, not "approximately today". A reformatted stamp is a stamp someone computed, and
   // a computed stamp can be computed from the wrong thing — a build time being the classic.
@@ -33,6 +55,7 @@ test("the CARD's stamp is rendered byte-identically to the artifact's own field"
 test("the LADDER's stamp is its own, and differs from the card's", () => {
   const ladder = read("public/data/parlays/risk-ladder-ufc/latest.json");
   const card = read("public/data/ufc/card-latest.json");
+  const rendered = renderedIfCurrent(["public/data/parlays/risk-ladder-ufc/latest.json", "public/data/ufc/card-latest.json"]);
   if (!rendered || !ladder?.generatedAt) return;
   if (!rendered.includes("Prices read")) return;   // no cards published for this card's date
   assert.ok(rendered.includes(ladder.generatedAt), "the cards must carry the ladder's own stamp");
@@ -55,6 +78,7 @@ test("NO BUILD TIME anywhere near a freshness claim", () => {
 test("the ladder shown is for THIS card, and says which card that is", () => {
   const ladder = read("public/data/parlays/risk-ladder-ufc/latest.json");
   const card = read("public/data/ufc/card-latest.json");
+  const rendered = renderedIfCurrent(["public/data/parlays/risk-ladder-ufc/latest.json"]);
   if (!ladder || !card?.event?.slateDate) return;
   // The reader-facing half of the three-dates defect: cards written 08-18, fighting 08-22, published
   // under 08-21. The page now states the card date beside the prices.
