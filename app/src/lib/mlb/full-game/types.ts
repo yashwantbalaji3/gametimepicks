@@ -87,6 +87,12 @@ export interface SimPitcherLine {
 
 /** Which pregame input families backed this game, and which degraded to a documented fallback. */
 export interface FullGameCompleteness {
+  /** "confirmed" when the real posted batting order was used; "prop-derived" when it was not. */
+  awayLineupSource?: "confirmed" | "prop-derived";
+  homeLineupSource?: "confirmed" | "prop-derived";
+  /** How many of the nine carry a posted prop line; the rest are priced at replacement level. */
+  awayRatedCount?: number;
+  homeRatedCount?: number;
   /** Overall floor: "ready" = both lineups + both starters present; degraded/unavailable otherwise. */
   level: "ready" | "degraded" | "unavailable";
   /** Human, consumer-safe notes on any fallback used (documented lineup order, missing starter, …). */

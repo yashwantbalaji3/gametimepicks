@@ -1,0 +1,118 @@
+name: mlb-lineup-refresh
+
+# REBUILD THE FLAGSHIP SIMULATION ONCE THE REAL BATTING ORDERS EXIST.
+#
+# The full-game engine built each side's lineup from the board's PROP LINES: a batter existed only if
+# a sportsbook had posted a hit line for him. At board time (≈14:08 UTC) books have posted six to
+# eight per team, so the rest were replacement-level padding and "batting order" was really
+# prop-listing order. Every game on 2026-08-21 came out `degraded`, fourteen of fifteen padded.
+#
+# The confirmed nine-man orders were on disk the whole time. capture-mlb-pregame-lineup.mjs writes
+# them from the free StatsAPI eight times a day, and all fifteen of that day's games had both sides
+# captured before first pitch. Nothing rebuilt the simulation after they arrived.
+#
+# Lineups post about three hours before first pitch, and mlb-daily-production runs at 14:15 UTC —
+# before the earliest of them. So the morning run can never see a confirmed order, however healthy it
+# is. This job exists purely to run again once they land.
+#
+# COSTS NOTHING. Both steps are deterministic and local: the simulation reads the committed board and
+# the committed lineup archive, and the prediction layer reads the simulation. No provider is called,
+# so this can run as often as the lineups change.
+#
+# LEAKAGE. selectConfirmedLineup accepts a snapshot only when it was captured strictly BEFORE first
+# pitch, checked against the snapshot's own eventStartTime rather than trusting the flag that asserts
+# it. The board is pregame by construction and the simulation is seeded from its hash, so re-running
+# reproduces byte-identical output for a game whose inputs have not changed — only a side whose
+# lineup newly posted moves.
+
+on:
+  schedule:
+    # After each free lineup capture (15/17/19/21/23 UTC), and after the board exists.
+    - cron: "30 15 * * *"
+    - cron: "30 17 * * *"
+    - cron: "30 19 * * *"
+    - cron: "30 21 * * *"
+    - cron: "30 23 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Slate date (ET). Defaults to today."
+        required: false
+
+# The shared writer queue. This commits under app/public/data/mlb/, so it must never interleave with
+# the board generator, the completion workflow or the settler — the lesson from two jobs committing
+# concurrently and a valid generated board being discarded in the rebase.
+concurrency:
+  group: gtp-generated-artifacts
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+        working-directory: app
+
+      - name: Resolve slate date (ET)
+        id: d
+        run: |
+          set -euo pipefail
+          DATE="${{ github.event.inputs.date }}"
+          if [ -z "$DATE" ]; then DATE="$(TZ=America/New_York date +%F)"; fi
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          echo "slate date: $DATE"
+
+      # Nothing to refresh before the morning run has published a board. Not a failure — the ordinary
+      # state of every early slot.
+      - name: Board precheck
+        id: board
+        run: |
+          set -euo pipefail
+          if [ -f "app/public/data/mlb/boards/${{ steps.d.outputs.date }}.json" ]; then
+            echo "have=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "have=false" >> "$GITHUB_OUTPUT"
+            echo "no board for ${{ steps.d.outputs.date }} yet — nothing to refresh (honest no-op)."
+          fi
+
+      - name: Rebuild full-game simulations and predictions
+        if: steps.board.outputs.have == 'true'
+        working-directory: app
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+          npx tsx scripts/generate-mlb-full-game-simulations.mjs --write --date "${{ steps.d.outputs.date }}" --now "$NOW"
+          npx tsx scripts/generate-mlb-predictions.mjs --write --date "${{ steps.d.outputs.date }}" --now "$NOW"
+
+      - name: Commit if the simulation changed
+        if: steps.board.outputs.have == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name  "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          # Path-scoped: this job produces exactly two artifacts and must not carry anything else.
+          git add app/public/data/mlb/full-game-simulations app/public/data/mlb/predictions 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no lineup has changed the simulation since the last run"
+            exit 0
+          fi
+          git commit -m "auto: mlb lineup refresh ${{ steps.d.outputs.date }} [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: mlb-lineup-refresh
+        run: |
+          set -euo pipefail
+          EXIT_STATUS="${EXIT_STATUS:-1}" bash scripts/ops_alert.sh
