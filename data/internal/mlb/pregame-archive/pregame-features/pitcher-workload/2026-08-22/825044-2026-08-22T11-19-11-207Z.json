@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 825044,
+  "date": "2026-08-22",
+  "capturedAt": "2026-08-22T11:19:11.207Z",
+  "availableAt": "2026-08-22T11:19:11.207Z",
+  "eventStartTime": "2026-08-23T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 647336,
+      "name": "Michael Soroka",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-08-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 4.4,
+        "bbAvg": 1.2,
+        "erAvg": 0.8,
+        "hrAvg": 0.2,
+        "kPer9": 7.92,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 92,
+        "k": 88,
+        "bb": 21,
+        "er": 30,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 695076,
+      "name": "Rhett Lowder",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-08-17",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 4.2,
+        "bbAvg": 1.4,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 6.52,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 94,
+        "k": 79,
+        "bb": 37,
+        "er": 57,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-22T11:19:11.207Z"
+  },
+  "recordHash": "17ec8330b7a155072cb5fbb6d189d63bb3c135c06e4a8914f6dbdfe3cecbfe9f"
+}

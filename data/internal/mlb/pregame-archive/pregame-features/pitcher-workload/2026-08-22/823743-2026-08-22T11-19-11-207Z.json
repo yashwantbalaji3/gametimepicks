@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823743,
+  "date": "2026-08-22",
+  "capturedAt": "2026-08-22T11:19:11.207Z",
+  "availableAt": "2026-08-22T11:19:11.207Z",
+  "eventStartTime": "2026-08-22T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 701656,
+      "name": "Logan Henderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 6,
+      "lastStartDate": "2026-08-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 7.4,
+        "bbAvg": 1,
+        "erAvg": 1.6,
+        "hrAvg": 1.4,
+        "kPer9": 11.1,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 63.33,
+        "k": 75,
+        "bb": 12,
+        "er": 19,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 527048,
+      "name": "Martín Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-08-17",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 3.6,
+        "bbAvg": 1.8,
+        "erAvg": 1.4,
+        "hrAvg": 0.2,
+        "kPer9": 6.23,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 102,
+        "k": 72,
+        "bb": 45,
+        "er": 37,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-22&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-22T11:19:11.207Z"
+  },
+  "recordHash": "9288322fad264101f3898d3acb03c0906b0ef3b7fb9a6b877685553936dfd7df"
+}
