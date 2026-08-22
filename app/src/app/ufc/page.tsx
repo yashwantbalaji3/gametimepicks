@@ -23,9 +23,21 @@ import SportLabCards from "@/components/sport-lab-cards";
 import { loadSportLabLadder } from "@/lib/parlays/sport-lab-cards";
 
 export const metadata = {
-  title: "UFC Settled Archive · GameTime Picks",
+  /*
+   * THE METADATA WAS DESCRIBING A PAGE THAT NO LONGER EXISTED.
+   *
+   * It read "Historical record only; UFC has no live model coverage" — on a page that renders a
+   * model pick for every bout on the next card and, since tonight, paper cards carrying posted
+   * prices. This is the copy that reaches a search result and a link preview, so it is a public
+   * claim made where nobody on the team ever looks, which is precisely why it went stale unnoticed.
+   *
+   * The replacement states what is here AND what it is worth: experimental, paper-only, and a record
+   * of exactly one settled card. Naming the sample size in the description is deliberate — a reader
+   * arriving from a search result has not read anything else on the page.
+   */
+  title: "UFC — Next Card Model Read & Settled Archive · GameTime Picks",
   description:
-    "The settled UFC archive — every graded fight from the one officially settled card, sourced from the official ESPN MMA scoreboard. Historical record only; UFC has no live model coverage.",
+    "An experimental fight model's read on every bout of the next UFC card — winner, method and finishing round — with paper cards built from posted fight-winner prices. Paper-only and educational, never advice. The settled archive below covers one officially graded card.",
 };
 
 function loadJSONUfc<T>(name: string): T | null {
@@ -88,13 +100,26 @@ export default function UfcArchivePage() {
         <p className="max-w-2xl font-mono text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
           Winner, method and finishing round for every bout on the next card. Paper and educational.
         </p>
+        {/*
+          THIS PARAGRAPH WAS ASSERTING THE OPPOSITE OF THE PAGE.
+          It read "No sportsbook price is shown or compared — our odds authorisation covers NFL only".
+          Both halves had expired. A dedicated UFC receipt exists (500 credits, fight-winner prices,
+          bulk endpoint), prices have been captured under it since, and the paper cards below now
+          show a posted price on every leg. The sentence was true when written and became a
+          contradiction sitting directly above the numbers it denied — the same shape as a nav entry
+          reading "simulation pending" while rendering on a page full of simulations.
+          What is STILL true is the part that matters, and it is kept: the model's probabilities have
+          never been set against a no-vig line. Showing a price and being measured against one are
+          different things, and only the first has changed.
+        */}
         <Explain label="What changed, and what is still refused">
           The de-vigged-price read that ran until 2026-07-23 was retired: it restated the sportsbook
           rather than forming an opinion. What publishes now is a fight model trained on 8,642
           decisive bouts, with each of its three markets tested separately against a base-rate
-          baseline. No sportsbook price is shown or compared — our odds authorisation covers NFL
-          only — so these probabilities stand alone rather than being set against a market they have
-          not seen. The settled record from the retired era is kept below.
+          baseline. Posted fight-winner prices ARE shown on the paper cards below, under a UFC odds
+          authorisation of its own — but the model has never been SCORED against a no-vig line, so
+          its probabilities stand alone rather than being presented as beating a market they have not
+          been measured against. The settled record from the retired era is kept below.
         </Explain>
         <nav className="flex flex-wrap gap-3 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
           <Link href="/today" style={{ color: "var(--gtp-bank-heat)" }}>Live action → Today</Link>
