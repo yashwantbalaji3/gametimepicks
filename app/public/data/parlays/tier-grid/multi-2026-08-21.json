@@ -5,12 +5,15 @@
  "moneyClass": "NON_MONEY",
  "sport": "multi",
  "date": "2026-08-21",
- "generatedAt": "2026-08-22T02:14:24Z",
+ "generatedAt": "2026-08-22T02:35:47Z",
  "state": "PUBLISHED",
  "bandsUnreachable": [
-  "low"
+  "low",
+  "medium",
+  "high",
+  "longshot"
  ],
- "calmestAvailable": "medium",
+ "calmestAvailable": null,
  "tiers": [
   {
    "id": "bronze",
@@ -22,11 +25,7 @@
    ],
    "offered": 0,
    "emptyToday": true,
-   "substitute": {
-    "band": "medium",
-    "slipId": "multi-medium-2026-08-21",
-    "reason": "Nothing on today's board priced in this range. The calmest card available is medium risk, which is a longer price than this bankroll is normally shown — its own record is attached."
-   }
+   "substitute": null
   },
   {
    "id": "silver",
@@ -37,8 +36,8 @@
     "low",
     "medium"
    ],
-   "offered": 1,
-   "emptyToday": false,
+   "offered": 0,
+   "emptyToday": true,
    "substitute": null
   },
   {
@@ -51,8 +50,8 @@
     "medium",
     "high"
    ],
-   "offered": 2,
-   "emptyToday": false,
+   "offered": 0,
+   "emptyToday": true,
    "substitute": null
   },
   {
@@ -66,8 +65,8 @@
     "high",
     "longshot"
    ],
-   "offered": 3,
-   "emptyToday": false,
+   "offered": 0,
+   "emptyToday": true,
    "substitute": null
   }
  ],
@@ -77,7 +76,7 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no cross-sport card priced into this band today — 2 legs → +149 (medium)"
+   "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
   },
   {
    "tier": "bronze",
@@ -105,14 +104,14 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no cross-sport card priced into this band today — 2 legs → +149 (medium)"
+   "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
   },
   {
    "tier": "silver",
    "band": "medium",
-   "state": "OFFERED",
-   "slipId": "multi-medium-2026-08-21",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
   },
   {
    "tier": "silver",
@@ -133,21 +132,21 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no cross-sport card priced into this band today — 2 legs → +149 (medium)"
+   "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
   },
   {
    "tier": "gold",
    "band": "medium",
-   "state": "OFFERED",
-   "slipId": "multi-medium-2026-08-21",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
   },
   {
    "tier": "gold",
    "band": "high",
-   "state": "OFFERED",
-   "slipId": "multi-high-2026-08-21",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
   },
   {
    "tier": "gold",
@@ -161,201 +160,30 @@
    "band": "low",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no cross-sport card priced into this band today — 2 legs → +149 (medium)"
+   "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
   },
   {
    "tier": "diamond",
    "band": "medium",
-   "state": "OFFERED",
-   "slipId": "multi-medium-2026-08-21",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
   },
   {
    "tier": "diamond",
    "band": "high",
-   "state": "OFFERED",
-   "slipId": "multi-high-2026-08-21",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
   },
   {
    "tier": "diamond",
    "band": "longshot",
-   "state": "OFFERED",
-   "slipId": "multi-longshot-2026-08-21",
-   "reason": null
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
   }
  ],
- "cards": [
-  {
-   "band": "medium",
-   "slipId": "multi-medium-2026-08-21",
-   "combinedAmerican": 149,
-   "combinedDecimal": 2.488,
-   "legs": [
-    {
-     "sport": "mlb",
-     "eventId": "e1c63fd17f608a04657ea391d6e50645",
-     "player": "Pete Alonso",
-     "market": "batter_hits",
-     "side": "Over",
-     "line": 0.5,
-     "odds": -249,
-     "decimal": 1.4016064257028114,
-     "score": 0,
-     "team": "BAL",
-     "opponent": "NYY",
-     "marketLabel": "Hits"
-    },
-    {
-     "sport": "ufc",
-     "eventId": "401911626",
-     "player": "Gauge Young",
-     "market": "fight_winner",
-     "side": "win",
-     "line": null,
-     "odds": -129,
-     "decimal": 1.7751937984496124,
-     "score": 0,
-     "team": null,
-     "opponent": "Stan Dorsainvil",
-     "marketLabel": "Fight winner"
-    }
-   ],
-   "status": "pending",
-   "record": null
-  },
-  {
-   "band": "high",
-   "slipId": "multi-high-2026-08-21",
-   "combinedAmerican": 381,
-   "combinedDecimal": 4.808,
-   "legs": [
-    {
-     "sport": "mlb",
-     "eventId": "322d54946bb18482b7d8348b69b6942e",
-     "player": "Kyle Tucker",
-     "market": "batter_hits",
-     "side": "Under",
-     "line": 1.5,
-     "odds": -245,
-     "decimal": 1.4081632653061225,
-     "score": 0,
-     "team": "LAD",
-     "opponent": "COL",
-     "marketLabel": "Hits"
-    },
-    {
-     "sport": "ufc",
-     "eventId": "401887541",
-     "player": "Kennedy Nzechukwu",
-     "market": "fight_winner",
-     "side": "win",
-     "line": null,
-     "odds": 115,
-     "decimal": 2.15,
-     "score": 0,
-     "team": null,
-     "opponent": "Shamil Gaziev",
-     "marketLabel": "Fight winner"
-    },
-    {
-     "sport": "mlb",
-     "eventId": "118d9a25ad5e9070a57cf4cb0b5d0314",
-     "player": "Josh Naylor",
-     "market": "batter_hits",
-     "side": "Over",
-     "line": 0.5,
-     "odds": -170,
-     "decimal": 1.5882352941176472,
-     "score": 0,
-     "team": "SEA",
-     "opponent": "MIL",
-     "marketLabel": "Hits"
-    }
-   ],
-   "status": "pending",
-   "record": null
-  },
-  {
-   "band": "longshot",
-   "slipId": "multi-longshot-2026-08-21",
-   "combinedAmerican": 795,
-   "combinedDecimal": 8.946,
-   "legs": [
-    {
-     "sport": "mlb",
-     "eventId": "3072a6e1e725ce3eaeb47ad41548628f",
-     "player": "Jac Caglianone",
-     "market": "batter_hits",
-     "side": "Over",
-     "line": 0.5,
-     "odds": -238,
-     "decimal": 1.4201680672268908,
-     "score": 0,
-     "team": "KC",
-     "opponent": "ATH",
-     "marketLabel": "Hits"
-    },
-    {
-     "sport": "ufc",
-     "eventId": "401911629",
-     "player": "Lerryan Douglas",
-     "market": "fight_winner",
-     "side": "win",
-     "line": null,
-     "odds": -385,
-     "decimal": 1.2597402597402598,
-     "score": 0,
-     "team": null,
-     "opponent": "Jamall Emmers",
-     "marketLabel": "Fight winner"
-    },
-    {
-     "sport": "mlb",
-     "eventId": "6d6d28fd44922349f17b60e2eb9dc487",
-     "player": "Alec Bohm",
-     "market": "batter_hits",
-     "side": "Over",
-     "line": 0.5,
-     "odds": -233,
-     "decimal": 1.4291845493562232,
-     "score": 0,
-     "team": "PHI",
-     "opponent": "MIA",
-     "marketLabel": "Hits"
-    },
-    {
-     "sport": "ufc",
-     "eventId": "401911627",
-     "player": "Chris Padilla",
-     "market": "fight_winner",
-     "side": "win",
-     "line": null,
-     "odds": -103,
-     "decimal": 1.970873786407767,
-     "score": 0,
-     "team": null,
-     "opponent": "Nasrat Haqparast",
-     "marketLabel": "Fight winner"
-    },
-    {
-     "sport": "mlb",
-     "eventId": "ebe3d5c684fd83932e02698e22564f7b",
-     "player": "Kaelen Culpepper",
-     "market": "batter_hits",
-     "side": "Over",
-     "line": 0.5,
-     "odds": -129,
-     "decimal": 1.7751937984496124,
-     "score": 0,
-     "team": "MIN",
-     "opponent": "ATL",
-     "marketLabel": "Hits"
-    }
-   ],
-   "status": "pending",
-   "record": null
-  }
- ],
+ "cards": [],
  "note": "A policy view of cards published by the risk ladder. No stake is baked in: bankroll is entered in the reader's own browser and never leaves it. Paper-only, educational; not advice."
 }
