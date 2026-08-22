@@ -177,6 +177,8 @@ write({
   ...base, state: "PUBLISHED",
   pricedFixtures: eligibleFixtures.length, eligibleLegs: legs.length, rejectedLegs: rejected,
   cards, skipped,
+  /* How the side was chosen, carried WITH the cards — see the UFC ladder for why this is per-sport. */
+  selection: "the market's own favourite at its posted price, never this model's read — the EPL model has cleared no bar and has never been scored against a no-vig line",
   note: "Prices are real, posted and de-vigged for display only; the side is THE MARKET'S OWN FAVOURITE, " +
         "never this model's read — the EPL model has passed no preregistered bar and has never been compared " +
         "against a no-vig price. Every leg settles from an official full-time score. Paper-only, educational.",

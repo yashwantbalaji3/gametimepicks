@@ -39,7 +39,8 @@ import {
 } from "@/lib/sports/epl/forecast-view";
 import { eplPlayerMarketStatus } from "@/lib/sports/epl/player-markets.mjs";
 import { gradedRecordCaption, loadEplGradedRecord } from "@/lib/sports/epl/graded-record";
-import { fmtAmerican, loadEplLabLadder } from "@/lib/sports/epl/lab-cards";
+import SportLabCards from "@/components/sport-lab-cards";
+import { loadSportLabLadder } from "@/lib/parlays/sport-lab-cards";
 import { loadEplPlayerProjections, topScorersAcross } from "@/lib/sports/epl/forecast-view";
 
 export const metadata: Metadata = {
@@ -148,7 +149,7 @@ export default function EplPage() {
   const players = loadEplPlayerProjections();
   const gradedRecord = loadEplGradedRecord();
   // Keyed to the slate the forecasts describe, so a ladder built for another day cannot appear here.
-  const labLadder = loadEplLabLadder(next?.key ?? null);
+  const labLadder = loadSportLabLadder("epl", next?.key ?? null);
   const topScorers = topScorersAcross(players, 12);
   /* Every fixture still awaiting its XI ⇒ the whole board reads as conditional. */
   const awaitingLineup = (players?.counts.withLineup ?? 0) === 0;
@@ -396,54 +397,7 @@ export default function EplPage() {
         </section>
       )}
 
-      {/*
-        ── PAPER CARDS — and the one thing a reader must not conflate ────────────────────────────
-        This page is full of model output. THESE CARDS ARE NOT. The side on every leg is the
-        market's own favourite at its posted price, because the EPL model has cleared no bar and has
-        never been scored against a no-vig line. That sentence is carried by the loader rather than
-        written here, so the cards cannot be rendered without it.
-
-        Deliberately NOT the component /build uses for MLB. That one carries a settled record, a
-        returns figure, a swap pool and bettor tiers — furniture this lane has not earned, where an
-        empty record slot would read as a measured zero rather than an absent one.
-      */}
-      {labLadder ? (
-        <section className="mt-8" id="cards">
-          <SectionHeader
-            eyebrow="Paper cards"
-            title={`Today's ladder · ${labLadder.cards.length} of 4 price bands`}
-            sub={`Built from ${labLadder.pricedFixtures} priced fixtures. Each leg takes ${labLadder.selection}. Paper-only and educational — no stake is filled in, and nothing here has been settled yet.`}
-          />
-          <div className="mt-3" style={{ display: "grid", gap: 10 }}>
-            {labLadder.cards.map((c) => (
-              <div key={c.slipId} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "12px 14px", background: "var(--vault-panel)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: "var(--vault-text-mute)" }}>{c.tier}</span>
-                  <span className="font-mono" style={{ fontSize: 15, fontWeight: 800, color: "var(--gtp-bank-cta)" }}>{fmtAmerican(c.combinedAmerican)}</span>
-                </div>
-                <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
-                  {c.legs.map((l) => (
-                    <li key={l.eventId} style={{ fontSize: 13, color: "var(--vault-text)", display: "flex", justifyContent: "space-between", gap: 10 }}>
-                      <span>{l.side === "draw" ? `${l.matchup} — draw` : `${l.team} — ${l.marketLabel.toLowerCase()}`}</span>
-                      <span className="font-mono" style={{ color: "var(--vault-text-mute)" }}>{fmtAmerican(l.odds)}</span>
-                    </li>
-                  ))}
-                </ul>
-                {/* Null, never 0-0: a zeroed record reads as a measured result rather than an absent one. */}
-                <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>No settled record yet — this lane has graded no card.</p>
-              </div>
-            ))}
-          </div>
-          {labLadder.skipped.length > 0 ? (
-            <p className="mt-2" style={{ fontSize: 11.5, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
-              {/* Named rather than hidden: a band we could not reach is a different fact from one we
-                  chose not to offer, and widening the thresholds to fill it would be the dishonest fix. */}
-              Not built today: {labLadder.skipped.map((s) => s.tier).join(", ")} — no combination of today&rsquo;s
-              prices lands in {labLadder.skipped.length === 1 ? "that band" : "those bands"}, and the band limits are not widened to fill them.
-            </p>
-          ) : null}
-        </section>
-      ) : null}
+      {labLadder ? <SportLabCards ladder={labLadder} /> : null}
 
       {/* ── 4 · SCHEDULE — reference, deliberately last ────────────────────────────────────────── */}
       <section className="mt-8" id="schedule">

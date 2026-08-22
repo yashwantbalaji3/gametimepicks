@@ -146,6 +146,15 @@ write({
   event: { name: card.event.name, slateDate: card.event.slateDate, providerEventId: card.event.providerEventId },
   pricedBouts: (odds.bouts ?? []).length, modelReads: readByBout.size, eligibleLegs: legs.length,
   cards, skipped,
+  /*
+   * HOW THE SIDE WAS CHOSEN, carried WITH the cards.
+   *
+   * UFC may select on its model where MLB and EPL may not: this is the one model on the site that
+   * passed its preregistered bar. That distinction is the whole reason the three ladders differ, and
+   * a page reading a shared component must not be able to render a sport's cards under another
+   * sport's sentence. So the sentence lives on the artifact rather than in any page.
+   */
+  selection: "the model's own read — the one model here that passed its preregistered bar. It has never been compared against a no-vig UFC line",
   note: "Prices are real and posted; the side is the model's own read — the one model here that passed its preregistered bar. No comparison against a no-vig UFC line has been run. Paper-only.",
 });
 console.log(`ufc ladder ${DATE}: ${legs.length} eligible legs -> ${cards.length}/4 bands carded${skipped.length ? ` (skipped ${skipped.map((s) => s.tier).join(", ")})` : ""}`);

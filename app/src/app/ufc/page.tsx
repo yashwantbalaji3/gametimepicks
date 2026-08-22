@@ -19,6 +19,8 @@ import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import path from "node:path";
 import Link from "next/link";
 import UfcEventResultsRecap, { type UfcSettlement } from "@/components/ufc/event-results-recap";
+import SportLabCards from "@/components/sport-lab-cards";
+import { loadSportLabLadder } from "@/lib/parlays/sport-lab-cards";
 
 export const metadata = {
   title: "UFC Settled Archive · GameTime Picks",
@@ -52,6 +54,10 @@ export default function UfcArchivePage() {
   // The full card (bouts, portraits, records, the one modelled prop) when a card artifact exists;
   // the generic schedule list is the fallback so the page never renders empty.
   const card = loadJSONUfc<UfcCardArtifact>("card-latest.json");
+  /* Keyed to the CARD'S OWN date. A ladder built for another event must never appear under this one:
+     the UFC ladder previously carried three dates at once — written 08-18, fighting 08-22, published
+     as 08-21 — and a reader could not have told which fights they were looking at. */
+  const labLadder = loadSportLabLadder("ufc", card?.event?.slateDate ?? null);
   const settlement = loadJSONUfc<UfcSettlement>("results-settled-latest.json");
   // Fail-closed: only an OFFICIAL final settlement may render a record.
   const settled = settlement && settlement.status === "final" ? settlement : null;
@@ -134,6 +140,8 @@ export default function UfcArchivePage() {
               Officially settled {settledOn}
             </span>
           </div>
+      {labLadder ? <SportLabCards ladder={labLadder} /> : null}
+
       <section className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700, margin: 0 }}>
