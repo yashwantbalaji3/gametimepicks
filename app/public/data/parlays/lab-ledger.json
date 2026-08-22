@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-21T07:00:14Z",
+ "generatedAt": "2026-08-22T05:51:44Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -76,11 +76,11 @@
    "id": "nfl",
    "label": "NFL",
    "live": false,
-   "blocked": "only 3 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "blocked": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "evidence": {
-    "pricedGames": 3,
+    "pricedGames": 0,
     "pricesCapturedAt": "2026-08-20T21:26:43Z",
-    "priceAgeDays": 0.4,
+    "priceAgeDays": 1.35,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -139,8 +139,8 @@
    "live": true,
    "evidence": {
     "pricedGames": 12,
-    "pricesCapturedAt": "2026-08-20T21:53:56Z",
-    "priceAgeDays": 0.38,
+    "pricesCapturedAt": "2026-08-22T03:13:09Z",
+    "priceAgeDays": 0.11,
     "settlementSource": "official UFC bout results",
     "settlementProven": true
    },
@@ -196,14 +196,13 @@
   {
    "id": "epl",
    "label": "Premier League",
-   "live": false,
-   "blocked": "no odds capture is ingested for this sport; no official settlement path has produced a graded result yet; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "live": true,
    "evidence": {
-    "pricedGames": 0,
-    "pricesCapturedAt": null,
-    "priceAgeDays": null,
-    "settlementSource": null,
-    "settlementProven": false
+    "pricedGames": 11,
+    "pricesCapturedAt": "2026-08-21T23:51:00Z",
+    "priceAgeDays": 0.25,
+    "settlementSource": "official full-time results, graded through the EPL settlement contract",
+    "settlementProven": true
    },
    "settledDays": 0,
    "record": {
@@ -257,14 +256,15 @@
   {
    "id": "multi",
    "label": "Multi-sport",
-   "live": false,
-   "blocked": "a cross-sport card needs two live sports; only UFC is cleared",
+   "live": true,
    "evidence": {
     "liveSports": [
-     "ufc"
+     "ufc",
+     "epl"
     ],
     "liveLabels": [
-     "UFC"
+     "UFC",
+     "Premier League"
     ]
    },
    "settledDays": 0,
@@ -322,11 +322,11 @@
   "label": "Before the 2026-08-17 selection change",
   "summary": "Up to six cards per tier, legs reused across tiers, cards up to six legs",
   "firstDay": "2026-05-25",
-  "lastDay": "2026-08-20",
-  "gradedDays": 52,
-  "wins": 189,
-  "losses": 844,
-  "roi": -0.114,
+  "lastDay": "2026-08-21",
+  "gradedDays": 53,
+  "wins": 193,
+  "losses": 864,
+  "roi": -0.105,
   "note": "A measurement of the previous selection policy, kept because it is real. It does not describe what the Lab publishes now."
  }
 }
