@@ -78,8 +78,25 @@ test("every sport is a declared stream — a new sport is data, not a schema cha
         `${s.id} reports ${settled} settled day(s) but an empty record — results were graded and then lost`);
     }
   }
+  /*
+   * THE RULE, NOT THE ANSWER.
+   *
+   * This asserted `multi.live === false` — "multi-sport stays closed until a second sport is
+   * cleared". True on the day it was written, when UFC was the only sport besides MLB with a live
+   * stream. A second sport HAS now been cleared: EPL went live, so multi opened, and the guard
+   * reported the condition it was waiting for as a regression.
+   *
+   * The invariant is the one the eligibility gate actually states: a multi-sport card drawn from a
+   * single sport is just a card. So multi is live exactly when at least two single-sport streams
+   * are — asserted in BOTH directions, because the failure that matters is multi opening on one
+   * sport, and a one-directional check would miss it.
+   */
   const multi = ledger.streams.find((s) => s.id === "multi");
-  assert.equal(multi.live, false, "multi-sport stays closed until a second sport is cleared");
+  const liveSingles = ledger.streams.filter((s) => s.id !== "multi" && s.live).map((s) => s.id);
+  assert.equal(
+    multi.live, liveSingles.length >= 2,
+    `multi is live=${multi.live} with ${liveSingles.length} live single-sport stream(s) [${liveSingles.join(", ") || "none"}]`,
+  );
 });
 
 test("the ledger is re-derived from receipts, never incremented", () => {
