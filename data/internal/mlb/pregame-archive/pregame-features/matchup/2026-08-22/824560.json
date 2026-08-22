@@ -6,8 +6,8 @@
   "family": "batter_matchup",
   "gamePk": 824560,
   "date": "2026-08-22",
-  "capturedAt": "2026-08-22T19:16:18.646Z",
-  "availableAt": "2026-08-22T19:16:18.646Z",
+  "capturedAt": "2026-08-22T21:13:04.003Z",
+  "availableAt": "2026-08-22T21:13:04.003Z",
   "eventStartTime": "2026-08-22T23:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
@@ -86,13 +86,77 @@
       "platoonVsOpposingSP": "switch-advantage"
     }
   ],
-  "awayBatters": [],
-  "lineupPosted": false,
+  "awayBatters": [
+    {
+      "playerId": 805999,
+      "name": "A.J. Ewing",
+      "battingOrderSlot": 1,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 596019,
+      "name": "Francisco Lindor",
+      "battingOrderSlot": 2,
+      "batSide": "S",
+      "platoonVsOpposingSP": "switch-advantage"
+    },
+    {
+      "playerId": 666182,
+      "name": "Bo Bichette",
+      "battingOrderSlot": 3,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 701807,
+      "name": "Carson Benge",
+      "battingOrderSlot": 4,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 676724,
+      "name": "Jared Young",
+      "battingOrderSlot": 5,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 673357,
+      "name": "Luis Robert Jr.",
+      "battingOrderSlot": 6,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 683146,
+      "name": "Brett Baty",
+      "battingOrderSlot": 7,
+      "batSide": "L",
+      "platoonVsOpposingSP": "platoon-advantage"
+    },
+    {
+      "playerId": 543760,
+      "name": "Marcus Semien",
+      "battingOrderSlot": 8,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    },
+    {
+      "playerId": 682626,
+      "name": "Francisco Alvarez",
+      "battingOrderSlot": 9,
+      "batSide": "R",
+      "platoonVsOpposingSP": "same-hand"
+    }
+  ],
+  "lineupPosted": true,
   "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
   "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
-    "capturedAt": "2026-08-22T19:16:18.646Z"
+    "capturedAt": "2026-08-22T21:13:04.003Z"
   },
-  "recordHash": "672bf95d7364cc1b82179b5164ba57ab99547f5f7961bb81cf879e1e65675962"
+  "recordHash": "7a85b1367c39e3423bc28726b48a1b7813d610ffa6b91dd3cfcde9a4115e338f"
 }
