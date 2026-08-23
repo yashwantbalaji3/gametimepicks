@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-08-23",
-  "generatedAt": "2026-08-23T14:42:20.000Z",
+  "generatedAt": "2026-08-23T15:45:09.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.08-v1",
   "sourceArtifact": "full-game-simulations/2026-08-23.json",
   "notBettingAdvice": true,
@@ -15,23 +15,23 @@
       "homeTeam": "BAL",
       "awayTeamName": "Tampa Bay Rays",
       "homeTeamName": "Baltimore Orioles",
-      "artifactHash": "6d8ae645f691c31f534cb05f259e793d661f5f035b066eb5a6216747fac48f8f",
+      "artifactHash": "ab972f6267fde1bac0507bc8c756a1efb8d2bbe41390f3de5d3b2fc6b155f9b6",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "degraded",
+        "level": "ready",
         "notes": [
-          "TB lineup padded: 8/9 batters have a posted line and the rest are at replacement level; TB have not posted a batting order yet, and this refreshes hourly until they do."
+          "TB confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level.",
+          "BAL confirmed batting order used; 1 of 9 have no posted prop line and are priced at replacement level."
         ],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
-        "awayRatedCount": 8,
-        "homeRatedCount": 9,
-        "awayLineupCount": 8,
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
+        "awayRatedCount": 7,
+        "homeRatedCount": 8,
+        "awayLineupCount": 9,
         "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -53,7 +53,7 @@
           "homeCover": 0.6097
         }
       },
-      "status": "degraded",
+      "status": "ready",
       "predictedWinner": {
         "side": "away",
         "team": "TB"
@@ -66,7 +66,7 @@
       "moneyline": {
         "side": "away",
         "team": "TB",
-        "simulationProbability": 0.524,
+        "simulationProbability": 0.502,
         "marketImpliedProbability": 0.5,
         "marketAgreement": "ALIGNED",
         "strengthLabel": "LEAN"
@@ -74,9 +74,9 @@
       "total": {
         "line": 9,
         "pick": "UNDER",
-        "overProbability": 0.309,
-        "underProbability": 0.587,
-        "pushProbability": 0.104,
+        "overProbability": 0.314,
+        "underProbability": 0.585,
+        "pushProbability": 0.102,
         "simulationMedian": 7,
         "marketImpliedOver": 0.49,
         "strengthLabel": "MODERATE SIMULATION"
@@ -87,8 +87,8 @@
         "pick": "BAL +1.5",
         "pickSide": "home",
         "pickLine": 1.5,
-        "coverProbability": 0.604,
-        "opposingCoverProbability": 0.396,
+        "coverProbability": 0.632,
+        "opposingCoverProbability": 0.368,
         "pushProbability": 0,
         "strengthLabel": "STRONG SIMULATION"
       },
@@ -200,24 +200,24 @@
       "homeTeam": "PHI",
       "awayTeamName": "St. Louis Cardinals",
       "homeTeamName": "Philadelphia Phillies",
-      "artifactHash": "64874e3c44401ea430abc2e8779257a252b95057377b03fcd7061e34371f2517",
+      "artifactHash": "d71778bc49d7bf481f54c50afe588d0dbe7654c630cd85f91c97af46ab2b80e6",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "degraded",
+        "level": "ready",
         "notes": [
-          "STL lineup padded: 6/9 batters have a posted line and the rest are at replacement level; STL have not posted a batting order yet, and this refreshes hourly until they do.",
+          "STL confirmed batting order used; 5 of 9 have no posted prop line and are priced at replacement level.",
+          "PHI confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level.",
           "PHI starter Cristopher Sánchez has no strikeout projection — league starter rate used."
         ],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
-        "awayRatedCount": 6,
-        "homeRatedCount": 9,
-        "awayLineupCount": 6,
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
+        "awayRatedCount": 4,
+        "homeRatedCount": 7,
+        "awayLineupCount": 9,
         "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -239,44 +239,44 @@
           "homeCover": 0.4848
         }
       },
-      "status": "degraded",
+      "status": "ready",
       "predictedWinner": {
-        "side": "home",
-        "team": "PHI"
+        "side": "away",
+        "team": "STL"
       },
       "projectedScore": {
         "away": 4,
-        "home": 5,
+        "home": 3,
         "label": "Median simulation score"
       },
       "moneyline": {
-        "side": "home",
-        "team": "PHI",
-        "simulationProbability": 0.607,
-        "marketImpliedProbability": 0.668,
-        "marketAgreement": "MODEL LOWER",
-        "strengthLabel": "STRONG SIMULATION"
+        "side": "away",
+        "team": "STL",
+        "simulationProbability": 0.527,
+        "marketImpliedProbability": 0.332,
+        "marketAgreement": "MODEL HIGHER",
+        "strengthLabel": "LEAN"
       },
       "total": {
         "line": 8,
-        "pick": "OVER",
-        "overProbability": 0.557,
-        "underProbability": 0.368,
-        "pushProbability": 0.075,
-        "simulationMedian": 9,
+        "pick": "UNDER",
+        "overProbability": 0.428,
+        "underProbability": 0.489,
+        "pushProbability": 0.084,
+        "simulationMedian": 8,
         "marketImpliedOver": 0.501,
-        "strengthLabel": "MODERATE SIMULATION"
+        "strengthLabel": "LEAN"
       },
       "runLine": {
-        "favorite": "home",
+        "favorite": "away",
         "line": 1.5,
-        "pick": "STL +1.5",
-        "pickSide": "away",
+        "pick": "PHI +1.5",
+        "pickSide": "home",
         "pickLine": 1.5,
-        "coverProbability": 0.571,
-        "opposingCoverProbability": 0.429,
+        "coverProbability": 0.604,
+        "opposingCoverProbability": 0.396,
         "pushProbability": 0,
-        "strengthLabel": "MODERATE SIMULATION"
+        "strengthLabel": "STRONG SIMULATION"
       },
       "teamTotals": [
         {
@@ -298,7 +298,7 @@
           "overProbability": null,
           "underProbability": null,
           "pushProbability": null,
-          "simulationMedian": 5,
+          "simulationMedian": 3,
           "unavailableReason": "No posted team-total line."
         }
       ],
@@ -386,26 +386,25 @@
       "homeTeam": "NYY",
       "awayTeamName": "Toronto Blue Jays",
       "homeTeamName": "New York Yankees",
-      "artifactHash": "dcdbacaa821c45cf607ac076797ea78277d22ddf2989cd8d7db365078c3264a9",
+      "artifactHash": "f3aa842edcc80ee7f358b46d3517a99aee8c252eaf72fc7b9f9776b774d68238",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "degraded",
+        "level": "ready",
         "notes": [
-          "TOR lineup padded: 8/9 batters have a posted line and the rest are at replacement level; TOR have not posted a batting order yet, and this refreshes hourly until they do.",
-          "NYY lineup padded: 6/9 batters have a posted line and the rest are at replacement level; NYY have not posted a batting order yet, and this refreshes hourly until they do.",
+          "TOR confirmed batting order used; 1 of 9 have no posted prop line and are priced at replacement level.",
+          "NYY confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level.",
           "TOR starter José Soriano has no strikeout projection — league starter rate used.",
           "NYY starter Carlos Rodón has no strikeout projection — league starter rate used."
         ],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 8,
         "homeRatedCount": 6,
-        "awayLineupCount": 8,
-        "homeLineupCount": 6,
+        "awayLineupCount": 9,
+        "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -427,7 +426,7 @@
           "homeCover": 0.3722
         }
       },
-      "status": "degraded",
+      "status": "ready",
       "predictedWinner": {
         "side": "away",
         "team": "TOR"
@@ -440,7 +439,7 @@
       "moneyline": {
         "side": "away",
         "team": "TOR",
-        "simulationProbability": 0.681,
+        "simulationProbability": 0.694,
         "marketImpliedProbability": 0.447,
         "marketAgreement": "MODEL HIGHER",
         "strengthLabel": "STRONG SIMULATION"
@@ -448,9 +447,9 @@
       "total": {
         "line": 8,
         "pick": "OVER",
-        "overProbability": 0.483,
-        "underProbability": 0.435,
-        "pushProbability": 0.082,
+        "overProbability": 0.481,
+        "underProbability": 0.439,
+        "pushProbability": 0.081,
         "simulationMedian": 8,
         "marketImpliedOver": 0.481,
         "strengthLabel": "LEAN"
@@ -461,8 +460,8 @@
         "pick": "TOR -1.5",
         "pickSide": "away",
         "pickLine": -1.5,
-        "coverProbability": 0.556,
-        "opposingCoverProbability": 0.444,
+        "coverProbability": 0.561,
+        "opposingCoverProbability": 0.439,
         "pushProbability": 0,
         "strengthLabel": "MODERATE SIMULATION"
       },
@@ -574,25 +573,24 @@
       "homeTeam": "MIA",
       "awayTeamName": "Washington Nationals",
       "homeTeamName": "Miami Marlins",
-      "artifactHash": "b3943be6c0ff39b222765a73780033c0d892991c6da098fe0349cc5bcc6cf994",
+      "artifactHash": "f47b522f53e3808856c4d36c02036f255bbb03b39aa0f69b763bc7a59ed6588e",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "degraded",
+        "level": "ready",
         "notes": [
-          "WSH lineup padded: 8/9 batters have a posted line and the rest are at replacement level; WSH have not posted a batting order yet, and this refreshes hourly until they do.",
-          "MIA lineup padded: 6/9 batters have a posted line and the rest are at replacement level; MIA have not posted a batting order yet, and this refreshes hourly until they do.",
+          "WSH confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level.",
+          "MIA confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level.",
           "WSH starter Jackson Kent has no strikeout projection — league starter rate used."
         ],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
-        "awayRatedCount": 8,
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
+        "awayRatedCount": 6,
         "homeRatedCount": 6,
-        "awayLineupCount": 8,
-        "homeLineupCount": 6,
+        "awayLineupCount": 9,
+        "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -614,7 +612,7 @@
           "homeCover": 0.4158
         }
       },
-      "status": "degraded",
+      "status": "ready",
       "predictedWinner": {
         "side": "away",
         "team": "WSH"
@@ -627,18 +625,18 @@
       "moneyline": {
         "side": "away",
         "team": "WSH",
-        "simulationProbability": 0.565,
+        "simulationProbability": 0.536,
         "marketImpliedProbability": 0.404,
         "marketAgreement": "MODEL HIGHER",
-        "strengthLabel": "MODERATE SIMULATION"
+        "strengthLabel": "LEAN"
       },
       "total": {
         "line": 8,
         "pick": "UNDER",
-        "overProbability": 0.309,
-        "underProbability": 0.617,
-        "pushProbability": 0.075,
-        "simulationMedian": 7,
+        "overProbability": 0.277,
+        "underProbability": 0.65,
+        "pushProbability": 0.074,
+        "simulationMedian": 6,
         "marketImpliedOver": 0.517,
         "strengthLabel": "STRONG SIMULATION"
       },
@@ -648,10 +646,10 @@
         "pick": "MIA +1.5",
         "pickSide": "home",
         "pickLine": 1.5,
-        "coverProbability": 0.583,
-        "opposingCoverProbability": 0.417,
+        "coverProbability": 0.621,
+        "opposingCoverProbability": 0.379,
         "pushProbability": 0,
-        "strengthLabel": "MODERATE SIMULATION"
+        "strengthLabel": "STRONG SIMULATION"
       },
       "teamTotals": [
         {
@@ -761,26 +759,25 @@
       "homeTeam": "KC",
       "awayTeamName": "Detroit Tigers",
       "homeTeamName": "Kansas City Royals",
-      "artifactHash": "64502cea208c22ea91acab63991e01e44903eb6d6751aa2a7fb6593151f456e9",
+      "artifactHash": "311b09dc8e778399397e17a2eb7987c3655b8ff8e1e37c34c1844ced91af8666",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "unavailable",
+        "level": "degraded",
         "notes": [
-          "DET lineup padded: 8/9 batters have a posted line and the rest are at replacement level; DET have not posted a batting order yet, and this refreshes hourly until they do.",
-          "KC lineup padded: 0/9 batters have a posted line and the rest are at replacement level; KC have not posted a batting order yet, and this refreshes hourly until they do.",
+          "DET confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level.",
+          "KC confirmed batting order used; 9 of 9 have no posted prop line and are priced at replacement level.",
           "DET has no posted probable starter — simulated vs a league bullpen aggregate."
         ],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
-        "awayRatedCount": 8,
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
+        "awayRatedCount": 7,
         "homeRatedCount": 0,
-        "awayLineupCount": 8,
-        "homeLineupCount": 0,
+        "awayLineupCount": 9,
+        "homeLineupCount": 9,
         "hasAwayStarter": false,
         "hasHomeStarter": true,
         "missingFamilies": [
           "away_probable_starter",
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -802,16 +799,143 @@
           "homeCover": 0.6033
         }
       },
-      "status": "unavailable",
-      "predictedWinner": null,
-      "projectedScore": null,
-      "moneyline": null,
-      "total": null,
-      "runLine": null,
-      "teamTotals": [],
-      "topPlayerPredictions": [],
+      "status": "degraded",
+      "predictedWinner": {
+        "side": "away",
+        "team": "DET"
+      },
+      "projectedScore": {
+        "away": 3,
+        "home": 2,
+        "label": "Median simulation score"
+      },
+      "moneyline": {
+        "side": "away",
+        "team": "DET",
+        "simulationProbability": 0.566,
+        "marketImpliedProbability": 0.516,
+        "marketAgreement": "MODEL HIGHER",
+        "strengthLabel": "MODERATE SIMULATION"
+      },
+      "total": {
+        "line": 8.5,
+        "pick": "UNDER",
+        "overProbability": 0.232,
+        "underProbability": 0.768,
+        "pushProbability": 0,
+        "simulationMedian": 6,
+        "marketImpliedOver": 0.511,
+        "strengthLabel": "VERY STRONG SIMULATION"
+      },
+      "runLine": {
+        "favorite": "away",
+        "line": 1.5,
+        "pick": "KC +1.5",
+        "pickSide": "home",
+        "pickLine": 1.5,
+        "coverProbability": 0.595,
+        "opposingCoverProbability": 0.405,
+        "pushProbability": 0,
+        "strengthLabel": "MODERATE SIMULATION"
+      },
+      "teamTotals": [
+        {
+          "team": "DET",
+          "side": "away",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 3,
+          "unavailableReason": "No posted team-total line."
+        },
+        {
+          "team": "KC",
+          "side": "home",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 2,
+          "unavailableReason": "No posted team-total line."
+        }
+      ],
+      "topPlayerPredictions": [
+        {
+          "player": "Dillon Dingler",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 1.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.8,
+          "marketImpliedProbability": 0.713,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Daniel Lynch IV",
+          "team": "",
+          "market": "pitcher_strikeouts",
+          "marketLabel": "Strikeouts",
+          "line": 2.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.745,
+          "marketImpliedProbability": 0.505,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Kevin McGonigle",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.605,
+          "marketImpliedProbability": 0.535,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Eduardo Valencia",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.564,
+          "marketImpliedProbability": 0.519,
+          "strengthLabel": "MODERATE SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Kevin McGonigle",
+          "team": "",
+          "market": "batter_total_bases",
+          "marketLabel": "Total bases",
+          "line": 1.5,
+          "pick": "UNDER",
+          "simulationProbability": 0.523,
+          "marketImpliedProbability": 0.582,
+          "strengthLabel": "LEAN",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        }
+      ],
       "unavailableReasons": [
-        "Not enough pregame lineup data to simulate this game (DET lineup padded: 8/9 batters have a posted line and the rest are at replacement level; DET have not posted a batting order yet, and this refreshes hourly until they do. KC lineup padded: 0/9 batters have a posted line and the rest are at replacement level; KC have not posted a batting order yet, and this refreshes hourly until they do. DET has no posted probable starter — simulated vs a league bullpen aggregate.)."
+        "Team totals: no posted market lines (simulated team runs shown as evidence)."
       ]
     },
     {
@@ -822,20 +946,20 @@
       "homeTeam": "HOU",
       "awayTeamName": "Athletics",
       "homeTeamName": "Houston Astros",
-      "artifactHash": "559702c70f98412f271507065fcab556151fe8138e5dc740759a5fb1314a8f31",
+      "artifactHash": "5a4233a66ef6ca516061605048a37f5a69870cb57e6266f6cfed59a2fa62a356",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "degraded",
+        "level": "ready",
         "notes": [
-          "HOU lineup padded: 7/9 batters have a posted line and the rest are at replacement level; HOU have not posted a batting order yet, and this refreshes hourly until they do.",
+          "HOU confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level.",
           "ATH starter Brady Basso has no strikeout projection — league starter rate used."
         ],
         "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 9,
-        "homeRatedCount": 7,
+        "homeRatedCount": 6,
         "awayLineupCount": 9,
-        "homeLineupCount": 7,
+        "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
@@ -861,10 +985,10 @@
           "homeCover": 0.4509
         }
       },
-      "status": "degraded",
+      "status": "ready",
       "predictedWinner": {
-        "side": "away",
-        "team": "ATH"
+        "side": "home",
+        "team": "HOU"
       },
       "projectedScore": {
         "away": 3,
@@ -872,31 +996,31 @@
         "label": "Median simulation score"
       },
       "moneyline": {
-        "side": "away",
-        "team": "ATH",
-        "simulationProbability": 0.507,
-        "marketImpliedProbability": 0.38,
-        "marketAgreement": "MODEL HIGHER",
+        "side": "home",
+        "team": "HOU",
+        "simulationProbability": 0.516,
+        "marketImpliedProbability": 0.62,
+        "marketAgreement": "MODEL LOWER",
         "strengthLabel": "LEAN"
       },
       "total": {
         "line": 9,
         "pick": "UNDER",
-        "overProbability": 0.235,
-        "underProbability": 0.673,
-        "pushProbability": 0.092,
+        "overProbability": 0.25,
+        "underProbability": 0.654,
+        "pushProbability": 0.096,
         "simulationMedian": 7,
         "marketImpliedOver": 0.483,
         "strengthLabel": "STRONG SIMULATION"
       },
       "runLine": {
-        "favorite": "away",
+        "favorite": "home",
         "line": 1.5,
-        "pick": "HOU +1.5",
-        "pickSide": "home",
+        "pick": "ATH +1.5",
+        "pickSide": "away",
         "pickLine": 1.5,
-        "coverProbability": 0.634,
-        "opposingCoverProbability": 0.366,
+        "coverProbability": 0.676,
+        "opposingCoverProbability": 0.324,
         "pushProbability": 0,
         "strengthLabel": "STRONG SIMULATION"
       },
@@ -1008,23 +1132,24 @@
       "homeTeam": "CWS",
       "awayTeamName": "New York Mets",
       "homeTeamName": "Chicago White Sox",
-      "artifactHash": "73019f57a9afb2cfa254f506ea491c0de76200812bff1a10067b91919b666e00",
+      "artifactHash": "146c873b43c71ff69d41d6bdad86ea97b09a004fa844489e06960d23f776f325",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
         "level": "ready",
         "notes": [
+          "NYM confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level.",
+          "CWS confirmed batting order used; 1 of 9 have no posted prop line and are priced at replacement level.",
           "CWS starter Sean Newcomb has no strikeout projection — league starter rate used."
         ],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
-        "awayRatedCount": 9,
-        "homeRatedCount": 9,
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
+        "awayRatedCount": 6,
+        "homeRatedCount": 8,
         "awayLineupCount": 9,
         "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -1048,40 +1173,40 @@
       },
       "status": "ready",
       "predictedWinner": {
-        "side": "away",
-        "team": "NYM"
+        "side": "home",
+        "team": "CWS"
       },
       "projectedScore": {
         "away": 4,
-        "home": 3,
+        "home": 4,
         "label": "Median simulation score"
       },
       "moneyline": {
-        "side": "away",
-        "team": "NYM",
-        "simulationProbability": 0.529,
-        "marketImpliedProbability": 0.502,
+        "side": "home",
+        "team": "CWS",
+        "simulationProbability": 0.501,
+        "marketImpliedProbability": 0.498,
         "marketAgreement": "ALIGNED",
         "strengthLabel": "LEAN"
       },
       "total": {
         "line": 8,
         "pick": "UNDER",
-        "overProbability": 0.407,
-        "underProbability": 0.513,
-        "pushProbability": 0.079,
+        "overProbability": 0.419,
+        "underProbability": 0.507,
+        "pushProbability": 0.074,
         "simulationMedian": 7,
         "marketImpliedOver": 0.517,
         "strengthLabel": "LEAN"
       },
       "runLine": {
-        "favorite": "away",
+        "favorite": "home",
         "line": 1.5,
-        "pick": "CWS +1.5",
-        "pickSide": "home",
+        "pick": "NYM +1.5",
+        "pickSide": "away",
         "pickLine": 1.5,
-        "coverProbability": 0.608,
-        "opposingCoverProbability": 0.392,
+        "coverProbability": 0.681,
+        "opposingCoverProbability": 0.319,
         "pushProbability": 0,
         "strengthLabel": "STRONG SIMULATION"
       },
@@ -1105,7 +1230,7 @@
           "overProbability": null,
           "underProbability": null,
           "pushProbability": null,
-          "simulationMedian": 3,
+          "simulationMedian": 4,
           "unavailableReason": "No posted team-total line."
         }
       ],
@@ -1564,20 +1689,20 @@
       "homeTeam": "BOS",
       "awayTeamName": "San Francisco Giants",
       "homeTeamName": "Boston Red Sox",
-      "artifactHash": "8dbd23176ffabe168a8837053a93bc46dbd63412a6463bc57efca7cd4a053d87",
+      "artifactHash": "dbf7923506285b15c9f72f30ef1eec69605f9b4cea41f7f27d56e70e629bf621",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "degraded",
+        "level": "ready",
         "notes": [
-          "BOS lineup padded: 8/9 batters have a posted line and the rest are at replacement level; BOS have not posted a batting order yet, and this refreshes hourly until they do.",
+          "BOS confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level.",
           "SF starter Matt Wilkinson has no strikeout projection — league starter rate used."
         ],
         "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 9,
-        "homeRatedCount": 8,
+        "homeRatedCount": 7,
         "awayLineupCount": 9,
-        "homeLineupCount": 8,
+        "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
@@ -1603,7 +1728,7 @@
           "homeCover": 0.4848
         }
       },
-      "status": "degraded",
+      "status": "ready",
       "predictedWinner": {
         "side": "home",
         "team": "BOS"
@@ -1616,7 +1741,7 @@
       "moneyline": {
         "side": "home",
         "team": "BOS",
-        "simulationProbability": 0.671,
+        "simulationProbability": 0.663,
         "marketImpliedProbability": 0.662,
         "marketAgreement": "ALIGNED",
         "strengthLabel": "STRONG SIMULATION"
@@ -1624,8 +1749,8 @@
       "total": {
         "line": 8.5,
         "pick": "UNDER",
-        "overProbability": 0.416,
-        "underProbability": 0.584,
+        "overProbability": 0.402,
+        "underProbability": 0.598,
         "pushProbability": 0,
         "simulationMedian": 7,
         "marketImpliedOver": 0.495,
