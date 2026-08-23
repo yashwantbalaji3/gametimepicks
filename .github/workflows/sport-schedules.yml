@@ -36,8 +36,25 @@ jobs:
   capture:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # ── ONE FILE, EVERY REFUSAL ────────────────────────────────────────────────────────────────
+    #
+    # Each capture in this job reads a DIFFERENT public source for a DIFFERENT sport, and they used
+    # to be chained by `exit`: the first one to refuse killed every capture below it. On 2026-08-23
+    # openfootball appended a score to a played fixture row, EPL identity correctly refused to guess
+    # the club, and the NFL injury feed went past its 24-hour freshness bound as a result — a
+    # formatting change in English football data blinding an American football product.
+    #
+    # Every capture now records its own refusal here and continues. The commit step for each capture
+    # is separately gated on that capture reporting CAPTURED, so nothing partial publishes, and the
+    # final step turns a non-empty file into a red run — the refusal is still surfaced, it just no
+    # longer takes four other sports down with it.
+    env:
+      REFUSALS: /tmp/gtp-capture-refusals
     steps:
       - uses: actions/checkout@v4
+
+      - name: Start with no refusals recorded
+        run: ': > "$REFUSALS"'
 
       - uses: actions/setup-node@v4
         with:
@@ -65,8 +82,12 @@ jobs:
               echo "no events in the window — an off-season day, not an outage"
               exit 0
             fi
+            # Recorded, not fatal — and it must STOP here. Falling through to the CAPTURED line
+            # below would overwrite the failure with a success, and the commit step is gated on
+            # exactly that value, so a refused capture would have published.
             echo "state=FAILED" >> "$GITHUB_OUTPUT"
-            exit "$CODE"
+            echo "NFL schedule" >> "$REFUSALS"
+            exit 0
           fi
           echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
 
@@ -82,7 +103,9 @@ jobs:
             if echo "$OUT" | grep -q "zero usable events"; then
               echo "state=NO_EVENTS" >> "$GITHUB_OUTPUT"; exit 0
             fi
-            echo "state=FAILED" >> "$GITHUB_OUTPUT"; exit "$CODE"
+            # Stops here: falling through would overwrite FAILED with CAPTURED, and the commit
+            # step is gated on that value.
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"; echo "NBA schedule" >> "$REFUSALS"; exit 0
           fi
           echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
 
@@ -98,7 +121,9 @@ jobs:
             if echo "$OUT" | grep -q "zero usable events"; then
               echo "state=NO_EVENTS" >> "$GITHUB_OUTPUT"; exit 0
             fi
-            echo "state=FAILED" >> "$GITHUB_OUTPUT"; exit "$CODE"
+            # Stops here: falling through would overwrite FAILED with CAPTURED, and the commit
+            # step is gated on that value.
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"; echo "UFC forward cards" >> "$REFUSALS"; exit 0
           fi
           echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
 
@@ -119,8 +144,16 @@ jobs:
           if [ "$CODE" -ne 0 ]; then
             # A refusal (partial parse, unresolved club, wrong count) means the SOURCE moved under
             # us — surface it as a failure so the run is red and the reason is in the log.
+            #
+            # RECORDED, NOT FATAL. This used to `exit "$CODE"` here, and every capture BELOW it in
+            # this job — EPL/NFL/NBA/UFC results and the NFL+NBA injuries feed — simply never ran.
+            # On 2026-08-23 openfootball appended a score to a played row, identity correctly
+            # refused the club, and an English football formatting change took the NFL injury feed
+            # past its 24-hour bound. Independent sources for independent sports must fail
+            # independently; the final step still turns any refusal into a red run.
             echo "state=REFUSED" >> "$GITHUB_OUTPUT"
-            exit "$CODE"
+            echo "EPL fixtures" >> "$REFUSALS"
+            exit 0
           fi
           # Snapshot-per-capture: the script wrote a new dated file. Keep it ONLY if the fixture
           # content differs from the newest committed capture (stamps stripped); otherwise delete
@@ -191,8 +224,14 @@ jobs:
         run: |
           set -uo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          node scripts/epl/capture-epl-results.mjs --now "$NOW" || { echo "state=FAILED" >> "$GITHUB_OUTPUT"; exit 1; }
-          echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          if node scripts/epl/capture-epl-results.mjs --now "$NOW"; then
+            echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          else
+            # Recorded, not fatal. The commit step for THIS capture is gated on CAPTURED, so
+            # nothing partial publishes; the final step turns any refusal into a red run.
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"
+            echo "EPL results" >> "$REFUSALS"
+          fi
 
       - name: Commit results capture if its content changed
         if: github.event.inputs.dry_run != 'true' && steps.eplresults.outputs.state == 'CAPTURED'
@@ -224,8 +263,14 @@ jobs:
         run: |
           set -uo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          node scripts/nfl/capture-nfl-results.mjs --now "$NOW" || { echo "state=FAILED" >> "$GITHUB_OUTPUT"; exit 1; }
-          echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          if node scripts/nfl/capture-nfl-results.mjs --now "$NOW"; then
+            echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          else
+            # Recorded, not fatal. The commit step for THIS capture is gated on CAPTURED, so
+            # nothing partial publishes; the final step turns any refusal into a red run.
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"
+            echo "NFL results" >> "$REFUSALS"
+          fi
 
       - name: Commit NFL results capture if its content changed
         if: github.event.inputs.dry_run != 'true' && steps.nflresults.outputs.state == 'CAPTURED'
@@ -257,8 +302,14 @@ jobs:
         run: |
           set -uo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          node scripts/nba/capture-nba-results.mjs --now "$NOW" || { echo "state=FAILED" >> "$GITHUB_OUTPUT"; exit 1; }
-          echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          if node scripts/nba/capture-nba-results.mjs --now "$NOW"; then
+            echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          else
+            # Recorded, not fatal. The commit step for THIS capture is gated on CAPTURED, so
+            # nothing partial publishes; the final step turns any refusal into a red run.
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"
+            echo "NBA results" >> "$REFUSALS"
+          fi
 
       - name: Commit NBA results capture if its content changed
         if: github.event.inputs.dry_run != 'true' && steps.nbaresults.outputs.state == 'CAPTURED'
@@ -290,8 +341,14 @@ jobs:
         run: |
           set -uo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          node scripts/sports/capture-injuries.mjs --now "$NOW" || { echo "state=FAILED" >> "$GITHUB_OUTPUT"; exit 1; }
-          echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          if node scripts/sports/capture-injuries.mjs --now "$NOW"; then
+            echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          else
+            # Recorded, not fatal. The commit step for THIS capture is gated on CAPTURED, so
+            # nothing partial publishes; the final step turns any refusal into a red run.
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"
+            echo "NFL+NBA injuries" >> "$REFUSALS"
+          fi
 
       - name: Commit injuries captures if content changed
         if: github.event.inputs.dry_run != 'true' && steps.injuries.outputs.state == 'CAPTURED'
@@ -326,8 +383,14 @@ jobs:
         run: |
           set -uo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          node scripts/ufc/capture-ufc-results.mjs --now "$NOW" || { echo "state=FAILED" >> "$GITHUB_OUTPUT"; exit 1; }
-          echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          if node scripts/ufc/capture-ufc-results.mjs --now "$NOW"; then
+            echo "state=CAPTURED" >> "$GITHUB_OUTPUT"
+          else
+            # Recorded, not fatal. The commit step for THIS capture is gated on CAPTURED, so
+            # nothing partial publishes; the final step turns any refusal into a red run.
+            echo "state=FAILED" >> "$GITHUB_OUTPUT"
+            echo "UFC results" >> "$REFUSALS"
+          fi
 
       - name: Commit UFC results capture if its content changed
         if: github.event.inputs.dry_run != 'true' && steps.ufcresults.outputs.state == 'CAPTURED'
@@ -352,3 +415,19 @@ jobs:
           git commit -m "auto: ufc results capture [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
+
+      # ── SURFACE EVERY REFUSAL, AFTER EVERY CAPTURE HAS HAD ITS TURN ────────────────────────────
+      #
+      # `always()` because this must run even when an earlier step failed for a reason nothing
+      # anticipated; otherwise the one path that skips this check is the one where it matters most.
+      - name: Fail the run if any capture refused
+        if: always()
+        run: |
+          set -uo pipefail
+          if [ ! -s "$REFUSALS" ]; then
+            echo "every capture completed — no refusals recorded"
+            exit 0
+          fi
+          echo "::error::captures refused this run: $(tr '\n' ' ' < "$REFUSALS")"
+          echo "Each refusal is logged in its own step above. Other sports' captures still ran."
+          exit 1

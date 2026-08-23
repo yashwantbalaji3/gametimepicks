@@ -64,6 +64,25 @@ test("THE INVERSION IS GONE — the model no longer leans against the stronger s
   const md = mean(ds), mp = mean(ps);
   const r = ds.reduce((s, _, i) => s + (ds[i] - md) * (ps[i] - mp), 0) /
     (Math.sqrt(ds.reduce((s, x) => s + (x - md) ** 2, 0)) * Math.sqrt(ps.reduce((s, x) => s + (x - mp) ** 2, 0)));
+  /*
+   * A CORRELATION OVER ONE POINT IS NOT A SMALL CORRELATION, IT IS NOT A CORRELATION.
+   *
+   * Both variances are zero with a single forecast, so r is 0/0 — NaN. This guard failed on
+   * 2026-08-23 when the preseason window narrowed to one remaining game, reporting "correlation
+   * must be noise-level, got NaN" as though the model had regressed. Nothing had changed about the
+   * model; there was simply nothing to measure.
+   *
+   * It refuses to evaluate below three points rather than passing quietly, and it checks that the
+   * refusal is justified by the DATA — the artifact really does hold that few forecasts — so a
+   * loader silently returning almost nothing cannot buy itself a skip. The defect this exists to
+   * catch (r = -0.9726, a consistent lean against the better team) is only visible across a slate,
+   * and it comes back under scrutiny the moment a slate exists again.
+   */
+  if (ds.length < 3) {
+    assert.equal(ds.length, pub.forecasts.length, "the sample must be the whole artifact, not a filtered remnant");
+    assert.ok(!Number.isFinite(r) || Math.abs(r) <= 1, "with fewer than three forecasts there is no correlation to judge");
+    return;
+  }
   // Before the gate this was -0.9726: a strong, consistent lean AGAINST the better team.
   assert.ok(Math.abs(r) < 0.6, `strength/win-probability correlation must be noise-level, got ${r.toFixed(4)}`);
   // and the residual spread is small enough to read as noise rather than a claim
@@ -134,7 +153,29 @@ test("ROUNDED TIES are justified numerically, never waved through", () => {
     assert.equal(new Set(t.underlyingWinProbabilities).size, t.underlyingWinProbabilities.length);
     assert.match(t.verdict, /^LEGITIMATE/);
   }
-  assert.ok(report.roundedTies.length > 0, "this slate genuinely has rounded ties — they are explained, not hidden");
+  /*
+   * THIS ASSERTED THAT TIES MUST EXIST, which pinned the shape of one particular broken slate: ten
+   * preseason games that all rounded to 19-18. That was the DEFECT the roundedTies block was
+   * written to explain, not a property every slate has to keep having. On 2026-08-23 the window
+   * narrowed to a single game, where a tie is arithmetically impossible, and the guard failed as
+   * though something had gone wrong.
+   *
+   * The real content is the loop above: every tie that IS reported sits on distinct distributions
+   * and carries a numeric justification. What is left to protect is non-vacuity — a report that
+   * silently stopped computing ties would make that loop a no-op and pass. So the field must be
+   * present and computed, and its emptiness must be consistent with there being enough events to
+   * have a tie at all.
+   */
+  assert.ok(Array.isArray(report.roundedTies), "the report must still COMPUTE ties — a missing field makes the loop above vacuous");
+  const eventCount = (report.events ?? []).length;
+  if (report.roundedTies.length === 0 && eventCount >= 2) {
+    // Two or more events with no tie is normal once the model differentiates. It is only suspicious
+    // if their rounded scores actually collide, which is exactly what a tie IS — so the report
+    // agreeing with itself is the whole check.
+    const rounded = (report.events ?? []).map((e) => e.roundedScore).filter(Boolean);
+    assert.equal(new Set(rounded).size, rounded.length,
+      "two events share a rounded score and the report listed no tie for them");
+  }
 });
 
 test("PUBLIC · the limitation is stated to readers in plain words, with no research payload", () => {

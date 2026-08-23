@@ -65,7 +65,33 @@ const out = scorePreFightRows(pending, resultsByBout);
 
 console.log(`ufc model-vs-market grading: ${rowsByBout.size} snapshot bout(s) · ${already.size} already graded · ${out.n} newly graded · ${out.voided.length} void`);
 if (out.n === 0) {
-  console.log("  NOTHING_NEW — no snapshot bout has an official result that is not already in the ledger.");
+  /*
+   * AN EMPTY RUN HAS TWO CAUSES AND THEY ARE NOT THE SAME FACT.
+   *
+   * This printed NOTHING_NEW either way. But "every snapshot bout is already in the ledger" means
+   * the loop is closed and working, while "the results corpus does not cover this card yet" means
+   * we are waiting on somebody else's publication — and the second one, left unnamed, is
+   * indistinguishable from a healthy no-op for as long as it lasts.
+   *
+   * It lasted a week. On 2026-08-23 the snapshot held ten bouts fought the previous night, the
+   * ledger held none of them, and the corpus's newest event was 2026-08-15: the upstream scrape had
+   * not published the card. The run reported NOTHING_NEW and exited clean, which is exactly what a
+   * finished, healthy loop reports. The two states have to be told apart or a stalled source looks
+   * like success indefinitely.
+   */
+  const corpusLatest = results?.latestEventDate ?? null;
+  const uncovered = pending.filter((r) => !resultsByBout.has(r.boutId));
+  if (uncovered.length > 0) {
+    const oldest = uncovered.map((r) => String(r.boutId).slice(0, 10)).sort()[0];
+    const lagDays = corpusLatest && oldest
+      ? Math.round((Date.parse(`${oldest}T00:00:00Z`) - Date.parse(`${corpusLatest}T00:00:00Z`)) / 86_400_000)
+      : null;
+    console.log(`  AWAITING_RESULTS — ${uncovered.length} bout(s) from ${oldest} have no official result yet.`);
+    console.log(`  The results corpus's newest event is ${corpusLatest ?? "unknown"}${lagDays != null ? `, ${lagDays} day(s) before that card` : ""}.`);
+    console.log("  This is the upstream source lagging, NOT a closed loop — the comparison grades itself once the card lands.");
+    process.exit(0);
+  }
+  console.log("  NOTHING_NEW — every snapshot bout is already in the ledger. The loop is closed.");
   process.exit(0);
 }
 for (const g of out.graded) {

@@ -23,6 +23,8 @@ import {
   resolveEplEventId,
 } from "./epl-identity.ts";
 import { validateIdentities } from "../identity/event-identity.ts";
+import fs from "node:fs";
+import path from "node:path";
 
 const AT = "2026-07-30T00:00:00Z";
 const idOf = (out) => {
@@ -241,4 +243,53 @@ test("season membership comes from the fixture list and demands exactly 20 disti
 
   assert.throws(() => assertSeasonMembership(twenty.slice(0, 19)), /resolved 19 distinct clubs/);
   assert.throws(() => assertSeasonMembership([...twenty, "Real Madrid"]), /unresolved spellings: Real Madrid/);
+});
+
+/*
+ * ── A FIXTURE ROW GROWS A SCORE THE DAY IT IS PLAYED ───────────────────────────────────────────
+ *
+ * capture-epl-fixtures parsed only UNPLAYED rows — "HH:MM  Home v Away" — taking everything after
+ * " v " as the away club. openfootball rewrites a row once the match finishes, appending the result
+ * to the same line. The away club then resolved as "Coventry City FC         3-0 (2-0)", identity
+ * refused it (correctly — a club is never guessed), and the capture exited 1, which on 2026-08-23
+ * took five later captures down with it.
+ */
+test("the fixture parser separates a played row's SCORE from its away club", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/epl/capture-epl-fixtures.mjs"), "utf8");
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  assert.match(code, /line\.slice\(0, sm\.index\)/,
+    "the score must be stripped BEFORE the row is parsed — a lazy club group with an optional trailing group truncates names");
+  assert.match(code, /sourceScore/, "the score is carried rather than discarded");
+});
+
+test("BEHAVIOURAL · the exact line that broke the capture now parses", () => {
+  // Both halves matter: full time AND half time, so a half-time figure is never read as the result.
+  const strip = (line) => {
+    const sm = line.match(/\s+(\d{1,2})-(\d{1,2})(?:\s+\((\d{1,2})-(\d{1,2})\))?\s*$/);
+    const body = sm ? line.slice(0, sm.index) : line;
+    const m = body.match(/^\s+(?:(\d{2}:\d{2})\s+)?(\S.*?)\s+v\s+(\S.*?)\s*$/);
+    return m ? { home: m[2], away: m[3], score: sm ? `${sm[1]}-${sm[2]}` : null } : null;
+  };
+  const played = strip("    20:00  Arsenal FC              v Coventry City FC         3-0 (2-0)");
+  assert.equal(played.away, "Coventry City FC", "the away club must not carry the scoreline");
+  assert.equal(played.home, "Arsenal FC");
+  assert.equal(played.score, "3-0");
+
+  const unplayed = strip("           Coventry City FC        v Hull City AFC");
+  assert.equal(unplayed.away, "Hull City AFC");
+  assert.equal(unplayed.score, null, "an unplayed row has no score and must not invent one");
+});
+
+test("LIVE SOURCE SHAPE · today's committed capture still resolves every club", () => {
+  const dir = path.join(process.cwd(), "public/data/soccer/epl/fixtures");
+  if (!fs.existsSync(dir)) return;
+  const newest = fs.readdirSync(dir).filter((f) => f.startsWith("capture-")).sort().at(-1);
+  if (!newest) return;
+  const cap = JSON.parse(fs.readFileSync(path.join(dir, newest), "utf8"));
+  assert.equal(cap.rows.length, 380, "a partial fixture list must never publish");
+  for (const r of cap.rows) {
+    for (const club of [r.home, r.away]) {
+      assert.doesNotMatch(String(club), /\d/, `"${club}" carries a digit — a scoreline has leaked into a club name`);
+    }
+  }
 });

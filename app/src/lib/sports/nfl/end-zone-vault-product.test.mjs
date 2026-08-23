@@ -93,8 +93,24 @@ test("today's real outcome is the honest one: candidates exist, a card does not"
   assert.equal(vault.gates.tdMarketOffered, false, "the probe proved the market is absent");
   assert.equal(vault.gates.pricedCandidates, 0);
   assert.equal(vault.gates.roleReadyCandidates, 0);
-  // scales with how many games are still PRE-START, which shrinks as a slate kicks off —
-  // asserting a fixed floor pinned a 9-game window and broke when 5 games started
-  assert.ok(vault.candidateCount >= 10, `a live window should surface candidates (got ${vault.candidateCount})`);
+  /*
+   * A FIXED FLOOR IS THE WRONG SHAPE, AND THIS IS THE SECOND ONE.
+   *
+   * The comment above already records that a hard floor "pinned a 9-game window and broke when 5
+   * games started" — and the fix was another hard floor, ten. On 2026-08-23 the window narrowed to
+   * a single remaining preseason game, nine candidates was the honest answer, and the guard failed
+   * for the same reason it had failed before.
+   *
+   * The claim worth protecting is not a number. It is that a window with games still ahead surfaces
+   * SOMEBODY, and a window with none surfaces nobody — so it is asserted against the window itself,
+   * which is the thing the count is supposed to scale with. That holds at one game and at sixteen.
+   */
+  const watching = (vault.watchlist ?? []).length;
+  if (vault.candidateCount === 0) {
+    assert.equal(watching, 0, "no candidates means nothing to watch — a populated watchlist would contradict the count");
+  } else {
+    assert.ok(vault.candidateCount > 0 && watching > 0,
+      `a window with candidates must surface them (count ${vault.candidateCount}, watchlist ${watching})`);
+  }
   assert.match(vault.disclaimer, /not been shown to beat the sportsbook market/);
 });

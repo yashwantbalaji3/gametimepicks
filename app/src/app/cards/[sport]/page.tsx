@@ -21,7 +21,8 @@ import Link from "next/link";
 
 import SportLabCards from "@/components/sport-lab-cards";
 import SectionHeader from "@/components/section-header";
-import { loadCurrentSportLabLadder, type SportLabLadder } from "@/lib/parlays/sport-lab-cards";
+import { loadCurrentSportLabLadder, ladderDayLabel, type SportLabLadder } from "@/lib/parlays/sport-lab-cards";
+import { loadUfcResultsCoverage } from "@/lib/sports/ufc/coverage-loader";
 
 /** Lanes that can carry a card product, with the hub each one belongs to. */
 const LANES: Record<string, { label: string; hub: string; hubLabel: string; slateOf: (l: SportLabLadder) => string }> = {
@@ -63,6 +64,8 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
   const lane = LANES[params.sport];
   if (!lane) return null;              // dynamicParams=false means this is unreachable
   const ladder = loadCurrentSportLabLadder(params.sport);
+  /* Only UFC grades from a third-party corpus, so only UFC can be waiting on one. */
+  const coverageNote = params.sport === "ufc" ? loadUfcResultsCoverage().note : null;
 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
@@ -73,7 +76,7 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
       />
 
       {ladder ? (
-        <SportLabCards ladder={ladder} eyebrow="Today's ladder" />
+        <SportLabCards ladder={ladder} eyebrow={ladderDayLabel(ladder.date)} />
       ) : (
         /*
           THE EMPTY STATE, NAMED. A ladder empties as its events start — by late afternoon a slate
@@ -98,6 +101,19 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
         here settles from an official result once the {params.sport === "ufc" ? "card is fought" : "matches finish"} —
         a card that could not be graded would never be published.
       </p>
+
+      {/*
+        "ONCE THE CARD IS FOUGHT" STOPPED BEING THE WHOLE ANSWER.
+        The 2026-08-22 card was fought and its cards still read pending, because the corpus we grade
+        UFC from is published by a third party and had reached only 2026-08-15. The sentence above is
+        about OUR rule; this one is about the world, and without it a reader is left to assume the
+        delay says something about the cards. It says nothing about them at all.
+      */}
+      {coverageNote ? (
+        <p className="mt-3" style={{ fontSize: 12.5, lineHeight: 1.7, color: "var(--vault-text-faint)" }}>
+          {coverageNote}
+        </p>
+      ) : null}
 
       <nav className="mt-4 flex flex-wrap gap-3" style={{ fontSize: 12.5 }}>
         <Link href={lane.hub} style={{ color: "var(--gtp-bank-cta)" }}>← {lane.hubLabel}</Link>

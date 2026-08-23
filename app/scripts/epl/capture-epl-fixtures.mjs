@@ -58,12 +58,36 @@ for (const line of txt.split("\n")) {
     curTime = null;
     continue;
   }
-  // Unplayed fixture rows: optional HH:MM, "Home v Away". Rows without a time inherit the last one.
-  const m = line.match(/^\s+(?:(\d{2}:\d{2})\s+)?(\S.*?)\s+v\s+(\S.*?)\s*$/);
+  /*
+   * A ROW GROWS A SCORE THE DAY IT IS PLAYED.
+   *
+   * This parsed only UNPLAYED rows — "HH:MM  Home v Away" — and took everything after " v " as the
+   * away club. openfootball rewrites a row once the match finishes, appending the result to the same
+   * line: "Arsenal FC  v  Coventry City FC   3-0 (2-0)". The away club then resolved as
+   * "Coventry City FC         3-0 (2-0)", identity refused it — correctly, a club is never guessed —
+   * and the capture exited 1.
+   *
+   * That is not a fixture-list problem. It happened on 2026-08-23, the first day this file carried a
+   * result, and it took the whole sport-schedules workflow down with it, which is how an NFL injury
+   * feed went stale over an English football score.
+   *
+   * The score is stripped BEFORE the row is parsed rather than folded into the regex, because the
+   * club-name group is lazy and an optional trailing group would let it stop early and truncate a
+   * name. Full time and half time are both matched so a half-time figure cannot be mistaken for the
+   * result. The score is CARRIED, not used: settlement reads the official results path, and a
+   * public-domain fixture list is not that path.
+   */
+  const sm = line.match(/\s+(\d{1,2})-(\d{1,2})(?:\s+\((\d{1,2})-(\d{1,2})\))?\s*$/);
+  const body = sm ? line.slice(0, sm.index) : line;
+  const m = body.match(/^\s+(?:(\d{2}:\d{2})\s+)?(\S.*?)\s+v\s+(\S.*?)\s*$/);
   if (m && curDate && matchday != null) {
     if (m[1]) curTime = m[1];
     if (!curTime) { console.error(`REFUSED: fixture row with no inherited kickoff time (${line.trim()})`); process.exit(1); }
-    parsed.push({ matchday, dateLocal: curDate, timeLocal: curTime, homeRaw: m[2], awayRaw: m[3] });
+    parsed.push({
+      matchday, dateLocal: curDate, timeLocal: curTime, homeRaw: m[2], awayRaw: m[3],
+      // Informational only. Null for a row the source has not scored yet.
+      sourceScore: sm ? { homeGoalsFT: Number(sm[1]), awayGoalsFT: Number(sm[2]) } : null,
+    });
   }
 }
 

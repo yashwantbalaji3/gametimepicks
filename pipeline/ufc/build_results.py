@@ -82,7 +82,28 @@ def build(data: dict[str, list[dict]], since_days: int = DEFAULT_WINDOW_DAYS, no
         })
 
     results.sort(key=lambda x: x["eventDate"], reverse=True)
-    fresh = bool(latest) and (ref.date() - datetime.fromisoformat(latest).date()).days <= 120
+
+    # A 120-DAY BAR CANNOT SEE A STALLED SOURCE.
+    #
+    # `fresh` meant "the newest event is within 120 days" — seventeen weeks, for a promotion that
+    # runs a card most weekends. A corpus four months behind reported "fresh", and so did one that
+    # had simply missed last night's card. On 2026-08-23 this artifact said fresh while its newest
+    # event was 2026-08-15 and ten bouts fought the previous night were waiting to be graded
+    # against it.
+    #
+    # The lag is now reported as a NUMBER, which is the thing a caller actually needs, and the
+    # status is a three-way read against how often this sport produces events. Nothing downstream is
+    # forced to accept this bar: `latestEventLagDays` lets a consumer that knows when OUR last card
+    # was fought — which this pipeline does not — draw its own conclusion.
+    lag_days = (ref.date() - datetime.fromisoformat(latest).date()).days if latest else None
+    if lag_days is None:
+        status = "unknown"          # no events at all: not the same as stale, and not fresh either
+    elif lag_days <= 10:
+        status = "fresh"            # a card most weekends, plus slack for the scrape's own cadence
+    elif lag_days <= 30:
+        status = "lagging"
+    else:
+        status = "stale"
     return {
         "generatedAt": ref.isoformat(timespec="seconds"),
         "provider": "greco1899_ufcstats_csv",
@@ -95,7 +116,8 @@ def build(data: dict[str, list[dict]], since_days: int = DEFAULT_WINDOW_DAYS, no
         "noContestCount": counts["no_contest"],
         "drawCount": counts["draw"],
         "latestEventDate": latest,
-        "freshnessStatus": "fresh" if fresh else "stale",
+        "latestEventLagDays": lag_days,
+        "freshnessStatus": status,
         "results": results,
     }
 

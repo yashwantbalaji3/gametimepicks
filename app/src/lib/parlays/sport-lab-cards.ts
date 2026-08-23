@@ -106,6 +106,11 @@ export function deriveBandSubstitutes(ladder: SportLabLadder): BandSubstitute[] 
     });
 }
 
+/** ET, never a UTC slice — a ladder published at 21:00 ET must not read as tomorrow's. */
+const etToday = () => new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit",
+}).format(new Date());
+
 const DIRS: Record<string, string> = {
   mlb: "risk-ladder",
   ufc: "risk-ladder-ufc",
@@ -166,13 +171,44 @@ export function legLabel(l: SportLabLeg): string {
  * ladder", not "what is today's". So it reads the date off the artifact and then goes back through
  * the same loader, keeping every other refusal (unpublished, no selection, no cards) intact.
  */
-export function loadCurrentSportLabLadder(sport: string): SportLabLadder | null {
+export function loadCurrentSportLabLadder(sport: string, todayEt: string = etToday()): SportLabLadder | null {
   const dir = DIRS[sport];
   if (!dir) return null;
   try {
     const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/parlays", dir, "latest.json"), "utf8"));
-    return loadSportLabLadder(sport, typeof raw?.date === "string" ? raw.date : null);
+    const date = typeof raw?.date === "string" ? raw.date : null;
+    /*
+     * "CURRENT" MEANS TODAY OR LATER. IT NEVER MEANS "THE MOST RECENT FILE".
+     *
+     * This accepted whatever date the artifact carried, and on 2026-08-23 that made /cards/ufc show
+     * the 2026-08-22 card — fought the previous night — under the heading "Today's ladder", with
+     * prices captured before it started. The card date was printed beside it, which is exactly the
+     * kind of correct detail that does not rescue a wrong heading.
+     *
+     * Relaxing the day match was right for a product page: a ladder legitimately runs ahead of
+     * today, and EPL's now rolls to the next servable slate, which this week is six days out.
+     * Running BEHIND is a different thing entirely, and it is the freshness defect this repo has
+     * already had in several shapes. Ahead is a product; behind is stale.
+     */
+    if (!date || date < todayEt) return null;
+    return loadSportLabLadder(sport, date);
   } catch {
     return null;
   }
+}
+
+/**
+ * How a ladder's own day should be named where it is shown.
+ *
+ * The caption was the literal string "Today's ladder" at both call sites, which was true when every
+ * ladder was for today and false the moment one legitimately ran ahead. A caption that cannot be
+ * wrong is worth more than one that is usually right.
+ */
+export function ladderDayLabel(date: string, todayEt: string = etToday()): string {
+  if (date === todayEt) return "Today's ladder";
+  const t = Date.parse(`${todayEt}T00:00:00Z`), d = Date.parse(`${date}T00:00:00Z`);
+  if (Number.isFinite(t) && Number.isFinite(d) && Math.round((d - t) / 86_400_000) === 1) return "Tomorrow's ladder";
+  const named = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric" })
+    .format(new Date(`${date}T12:00:00Z`));
+  return `Ladder for ${named}`;
 }

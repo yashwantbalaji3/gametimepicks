@@ -42,7 +42,7 @@ import {
 import { eplPlayerMarketStatus } from "@/lib/sports/epl/player-markets.mjs";
 import { gradedRecordCaption, loadEplGradedRecord } from "@/lib/sports/epl/graded-record";
 import SportLabCards from "@/components/sport-lab-cards";
-import { loadSportLabLadder } from "@/lib/parlays/sport-lab-cards";
+import { loadCurrentSportLabLadder, ladderDayLabel } from "@/lib/parlays/sport-lab-cards";
 import { loadEplPlayerProjections, topScorersAcross } from "@/lib/sports/epl/forecast-view";
 
 export const metadata: Metadata = {
@@ -166,8 +166,21 @@ export default function EplPage() {
   const player = eplPlayerMarketStatus();
   const players = loadEplPlayerProjections();
   const gradedRecord = loadEplGradedRecord();
-  // Keyed to the slate the forecasts describe, so a ladder built for another day cannot appear here.
-  const labLadder = loadSportLabLadder("epl", next?.key ?? null);
+  /*
+   * THE LADDER'S DAY IS THE LADDER'S, NOT THE HUB'S.
+   *
+   * This required the ladder to be dated exactly the hub's next matchday. Both derivations are
+   * reasonable and they are not the same: the hub's next matchday is the first day with ANY fixture
+   * still ahead, while the ladder needs a day with at least TWO, because two legs is the shortest
+   * card any band accepts. This morning that made them disagree — the hub on Monday's single
+   * fixture, a correctly-built ladder on next Saturday's eight — and a real three-band card reached
+   * no page at all.
+   *
+   * The refusal that matters is staleness, and it is kept: loadCurrentSportLabLadder returns
+   * nothing for a ladder dated before today. A ladder running AHEAD is a pregame product and is
+   * labelled with its own day wherever it appears, so nothing is shown under the wrong date.
+   */
+  const labLadder = loadCurrentSportLabLadder("epl");
   const topScorers = topScorersAcross(players, 12);
   /* Every fixture still awaiting its XI ⇒ the whole board reads as conditional. */
   const awaitingLineup = (players?.counts.withLineup ?? 0) === 0;
@@ -426,7 +439,7 @@ export default function EplPage() {
         </section>
       )}
 
-      {labLadder ? <SportLabCards ladder={labLadder} /> : null}
+      {labLadder ? <SportLabCards ladder={labLadder} eyebrow={ladderDayLabel(labLadder.date)} /> : null}
 
       {/* The five reads this sport's model is most confident about today — team markets and player
           markets both, interleaved rather than sorted together, because a match favourite always
