@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824558,
+  "date": "2026-08-23",
+  "capturedAt": "2026-08-23T17:13:15.279Z",
+  "availableAt": "2026-08-23T17:13:15.279Z",
+  "eventStartTime": "2026-08-23T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656794,
+      "name": "Sean Newcomb",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 4,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 3,
+        "ipSum": 6.33,
+        "ipAvg": 2.11,
+        "kAvg": 2,
+        "bbAvg": 1,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 8.53,
+        "workloadIpLast5": 6.33
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 6.33,
+        "k": 6,
+        "bb": 3,
+        "er": 0,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 690997,
+      "name": "Nolan McLean",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-17",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 5.4,
+        "bbAvg": 2.6,
+        "erAvg": 2.2,
+        "hrAvg": 1,
+        "kPer9": 8.28,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 142.67,
+        "k": 162,
+        "bb": 54,
+        "er": 53,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-23T17:13:15.279Z"
+  },
+  "recordHash": "dc33e171357bdaa1f09d33c4fff24878ac5ac6f68bc9165114b4a1626226ee3d"
+}
