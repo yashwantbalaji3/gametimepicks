@@ -2,72 +2,72 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-08-23T15:15:46Z",
+  "generatedAt": "2026-08-23T21:28:12Z",
   "nextCluster": {
-    "kickoffUtc": "2026-08-23T15:30:00.000Z",
+    "kickoffUtc": "2026-08-24T19:00:00.000Z",
     "fixtures": 1,
-    "hoursAway": 0.24
+    "hoursAway": 21.53
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-08-23T15:15:40Z",
+      "stampedAt": "2026-08-23T21:28:05Z",
       "ageHours": 0
     },
     "odds": {
       "state": "READ",
-      "stampedAt": "2026-08-23T14:47:40Z",
-      "ageHours": 0.47
+      "stampedAt": "2026-08-23T21:28:07Z",
+      "ageHours": 0
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-08-23T15:15:44Z",
+      "stampedAt": "2026-08-23T21:28:10Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-08-23T15:15:45Z",
+      "stampedAt": "2026-08-23T21:28:11Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-08-23T15:15:42Z",
+      "stampedAt": "2026-08-23T21:28:08Z",
       "ageHours": 0
     }
   },
   "cadence": {
     "lineupCoverage": {
       "state": "EVERY_CLUSTER_SERVED",
-      "clusters": 5,
-      "covered": 5,
+      "clusters": 4,
+      "covered": 4,
       "uncoveredMatches": 0,
       "uncovered": []
     },
     "budget": {
       "state": "WITHIN_CEILING",
-      "spent": 22,
-      "projectedRemaining": 290,
+      "spent": 24,
+      "projectedRemaining": 288,
       "projectedTotal": 312,
       "ceiling": 500,
       "headroom": 188,
       "kickoffWindowHours": 30,
-      "spendingFirings": 145,
+      "spendingFirings": 144,
       "skippedFirings": 572
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-08-23T15:15:44Z",
+    "generatedAt": "2026-08-23T21:28:10Z",
     "counts": {
-      "CURRENT_PRE_EVENT": 2
+      "CURRENT_PRE_EVENT": 1
     },
-    "rows": 2
+    "rows": 1
   },
   "playerSet": {
-    "generatedAt": "2026-08-23T15:15:45Z",
+    "generatedAt": "2026-08-23T21:28:11Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
-      "fixtures": 2,
-      "withLineup": 1,
+      "fixtures": 1,
+      "withLineup": 0,
       "awaitingLineup": 1
     },
     "markets": [
@@ -77,11 +77,11 @@
   },
   "record": {
     "sampleState": "TOO_SMALL_TO_ASSESS",
-    "matches": 7,
+    "matches": 8,
     "hits": 4,
-    "meanLogLoss": 0.9523764285714286,
-    "playerRows": 432,
-    "playerVoided": 128
+    "meanLogLoss": 1.0227442500000001,
+    "playerRows": 494,
+    "playerVoided": 146
   },
   "gate": {
     "maturity": "SCAFFOLDED",
@@ -135,7 +135,7 @@
     {
       "id": "calibration-sample",
       "state": "REALITY_GATED",
-      "detail": "calibration needs a preregistered backtest against settled results and 7 match(es) have been graded. No amount of engineering shortens this; matches have to be played."
+      "detail": "calibration needs a preregistered backtest against settled results and 8 match(es) have been graded. No amount of engineering shortens this; matches have to be played."
     },
     {
       "id": "cold-start-clubs",
