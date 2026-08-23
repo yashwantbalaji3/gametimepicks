@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823745,
+  "date": "2026-08-23",
+  "capturedAt": "2026-08-23T19:16:16.817Z",
+  "availableAt": "2026-08-23T19:16:16.817Z",
+  "eventStartTime": "2026-08-23T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 675660,
+      "name": "Shane Drohan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 10,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 6.2,
+        "bbAvg": 2.2,
+        "erAvg": 3.8,
+        "hrAvg": 0.6,
+        "kPer9": 9.85,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 73.67,
+        "k": 72,
+        "bb": 27,
+        "er": 38,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 641816,
+      "name": "Tyler Mahle",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 5,
+      "lastStartDate": "2026-08-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 6.2,
+        "bbAvg": 1.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 9.2,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 113.33,
+        "k": 108,
+        "bb": 40,
+        "er": 57,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-23T19:16:16.817Z"
+  },
+  "recordHash": "1efd3654bb9516a47d193a78a3a622568f6b1f6502cc57f3b430626c2d80aa66"
+}
