@@ -54,6 +54,8 @@ import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import SportMethodologyPanel from "@/components/sport-methodology-panel";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import MlbSimulationsSection from "@/components/mlb/mlb-simulations-section";
+import GradedPicksSection from "@/components/sports/graded-picks-section";
+import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { loadMlbSimCards } from "@/lib/mlb/full-game/hub-cards";
 import GameOutlookSection from "@/components/game-outlook-card";
 import OverviewFooterDisclosure from "@/components/overview-footer-disclosure";
@@ -158,6 +160,7 @@ export default function MlbLandingPage() {
    * doubleheader — two games, one matchup, one date.
    */
   const simSet = loadMlbSimCards(flagshipDate);
+  const mlbGraded = loadGradedPicks("mlb");
 
   /** The closing simulation card points at the richest game we actually published a sim for. */
   const featuredSimHref = mlbSlate.groups
@@ -451,6 +454,14 @@ export default function MlbLandingPage() {
       {simSet ? (
         <MlbSimulationsSection set={simSet} hrefFor={(c) => gameHrefByMatchId("mlb", c.gamePk)} />
       ) : null}
+
+      {/*
+        WHAT THE MODEL SAID, AND WHAT ACTUALLY HAPPENED — the same section on every sport.
+        Forecasts were published continuously here and results were published almost nowhere, an
+        asymmetry that always flatters. The rows come from this sport's own graded ledger and the
+        sample note travels with them, so a small record cannot be read as a track record.
+      */}
+      {mlbGraded ? <GradedPicksSection record={mlbGraded} href="/results/picks/mlb" /> : null}
 
       {/* The risk ladder — "give me today's card at each risk level", which is the question the
           18-card Suggested Cards tab never answered directly. Every tier ships with its own

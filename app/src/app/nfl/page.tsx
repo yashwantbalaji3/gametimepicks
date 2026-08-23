@@ -39,6 +39,8 @@ import { currentEtDate } from "@/lib/freshness";
 import { getSportIdentity } from "@/lib/sport-identity";
 import { deriveSlateAnchor } from "@/lib/sports/nfl/slate-anchor.mjs";
 import { seasonContextFor } from "@/lib/sports/nfl/season-context.mjs";
+import GradedPicksSection from "@/components/sports/graded-picks-section";
+import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 
 export const metadata: Metadata = {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
@@ -156,6 +158,7 @@ export default function NflHubPage() {
         products: Array<{ product: string; label: string; state: string; eligible: boolean; reason: string; whatWouldQualify: string[] }> }
     | null;
   const finals = (results?.rows ?? []).filter((r: { statusRaw: string }) => /^STATUS_FINAL/.test(r.statusRaw));
+  const nflGraded = loadGradedPicks("nfl");
 
   // market rows are pre-kickoff facts by construction: keep only rows whose capture precedes
   // their own kickoff (a static truth that cannot rot), sorted by kickoff.
@@ -508,6 +511,15 @@ export default function NflHubPage() {
           <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>No finals in the current capture window{results ? ` (captured ${results.generatedAt})` : ""}.</p>
         )}
       </section>
+
+      {/*
+        RECENT FINALS SHOWED SCORES AND NOT PICKS. A reader could see how the games ended and
+        nothing about how the model's forecasts for those games did — the half that flatters,
+        published alone. These rows come from the experimental settlement ledger, which is where
+        those forecasts are already graded, and they carry its terms: the team model has cleared no
+        preregistered bar, and a tie is recorded as void rather than as a miss.
+      */}
+      {nflGraded ? <GradedPicksSection record={nflGraded} href="/results/picks/nfl" /> : null}
 
       <section aria-labelledby="nfl-coverage" id="nfl-coverage">
         <SectionHeader

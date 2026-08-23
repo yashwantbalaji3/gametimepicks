@@ -126,3 +126,41 @@ exit 0
   assert.equal(code, 1, "and the job must still end red");
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+/*
+ * ── A FREE REFRESH MUST NOT DRAG A PAID STEP ALONG WITH IT ─────────────────────────────────────
+ *
+ * ufc-fight-week ran Tue/Thu/Sat because one of its steps spends an odds credit. Everything else in
+ * it is free, so after a Saturday card the newest card artifact described a FOUGHT event until
+ * Tuesday morning — three days out of seven with no read for the next card, because nothing built
+ * one. Adding a daily cron fixes that and would quadruple the credit burn unless the paid step is
+ * gated, and a cost boundary that depends on remembering not to schedule something is not a
+ * boundary.
+ */
+test("the UFC odds step runs ONLY on the priced crons, never on the daily free refresh", () => {
+  const wf = fs.readFileSync(path.join(process.cwd(), "..", ".github", "workflows", "ufc-fight-week.yml"), "utf8");
+  const priced = wf.slice(wf.indexOf("Refresh fight-winner prices"));
+  const gate = priced.slice(0, priced.indexOf("\n        env:"));
+  assert.match(gate, /if:/, "the credit-spending step must carry a condition");
+  // Every cron in the file must be either named in the gate or provably excluded by it.
+  const crons = [...wf.matchAll(/- cron: "([^"]+)"/g)].map((m) => m[1]);
+  const allowed = crons.filter((c) => gate.includes(`"${c}"`));
+  assert.ok(allowed.length > 0, "at least one cron must be allowed to spend, or the step is dead");
+  assert.ok(allowed.length < crons.length,
+    "if every cron is allowed to spend, the gate buys nothing and the free cadence costs money");
+  for (const c of crons.filter((x) => !allowed.includes(x))) {
+    assert.ok(!gate.includes(`"${c}"`), `${c} must not be able to reach the paid step`);
+  }
+});
+
+test("the free cadence actually covers the days the priced one misses", () => {
+  // The whole point: no day of the week may be left without a card refresh, or the hub goes stale
+  // again on exactly the days a card has just been fought.
+  const wf = fs.readFileSync(path.join(process.cwd(), "..", ".github", "workflows", "ufc-fight-week.yml"), "utf8");
+  const days = new Set();
+  for (const m of wf.matchAll(/- cron: "\d+ \d+ \* \* ([\d,]+)"/g)) {
+    for (const d of m[1].split(",")) days.add(Number(d));
+  }
+  assert.deepEqual([...days].sort((a, b) => a - b), [0, 1, 2, 3, 4, 5, 6],
+    "every day of the week must refresh the card — the hub going stale is what this exists to stop");
+});

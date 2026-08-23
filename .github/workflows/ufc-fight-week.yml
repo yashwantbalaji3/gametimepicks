@@ -9,9 +9,25 @@ name: ufc-fight-week
 # best-effort and drift 20-60 minutes in this repo; that is fine for a cadence measured in days.
 on:
   schedule:
+    # ── THE PRICED CADENCE, unchanged: three runs a week, ~3 credits. ──────────────────────────
     - cron: "0 11 * * 2"   # Tuesday
     - cron: "0 11 * * 4"   # Thursday
     - cron: "0 11 * * 6"   # Saturday
+    # ── THE FREE CADENCE ──────────────────────────────────────────────────────────────────────
+    #
+    # Everything in this job except ONE step is free: the card, the three model heads, results
+    # capture, the model card, the ladder and the lane status all read committed artifacts or the
+    # public ESPN scoreboard. Only the odds refresh spends a credit.
+    #
+    # Running only Tue/Thu/Sat meant that after a Saturday card the newest card artifact described a
+    # FOUGHT event until Tuesday morning — three days out of every seven where the hub had no read
+    # for the next card because nothing had built one. The page now says "Last card" instead of
+    # calling it next, which is the honesty fix; this is the freshness one, and both are needed.
+    #
+    # 13:00 UTC daily, after the sport-schedules capture at ~13:20 has refreshed the forward event
+    # list the card builder scans. The priced step below is gated OFF on this cron, so the credit
+    # burn is unchanged.
+    - cron: "0 13 * * 0,1,3,5"
   workflow_dispatch:
 
 concurrency:
@@ -71,7 +87,11 @@ jobs:
       # prices we already hold. `|| echo` keeps a refusal from failing the whole
       # job: no prices is a legitimate state, and the eligibility gate closes the
       # Lab stream on its own while they are stale.
+      # SPENDS A CREDIT, so it runs ONLY on the three priced crons and on a manual dispatch —
+      # never on the daily free refresh added above. A cost boundary that depends on remembering
+      # not to schedule something is not a boundary; this one is a condition on the step itself.
       - name: Refresh fight-winner prices (1 credit, UFC receipt)
+        if: github.event_name != 'schedule' || contains(fromJSON('["0 11 * * 2","0 11 * * 4","0 11 * * 6"]'), github.event.schedule)
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: |

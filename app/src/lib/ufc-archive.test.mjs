@@ -104,8 +104,37 @@ test("7 · the gate is still real: committed artifacts remain unvalidated (nothi
 });
 
 test("8 · no banned promotional copy on the archive", () => {
-  const low = page.toLowerCase();
-  for (const w of ["guaranteed", "guarantee", "risk-free", "can't miss", "sure thing", "free money", "safest", " lock ", "best bet", "positive ev", "edge"]) {
-    assert.ok(!low.includes(w), `banned copy "${w}" must not appear on /ufc`);
+  /*
+   * TWO DEFECTS IN THIS GUARD, BOTH OF THE RECURRING KIND.
+   *
+   * It matched SUBSTRINGS, so "ledger" contains "edge" and "blocked" contains "lock" — the ` lock `
+   * entry with its hand-placed spaces was somebody already noticing half the problem. And it scanned
+   * the raw source INCLUDING COMMENTS, so a comment explaining why a claim must not be made would
+   * trip the guard against making it. This repo has hit the comment half four times before.
+   *
+   * Word boundaries make the check MORE precise, not weaker: "edge" as a word is still banned, and
+   * the words are still banned everywhere a reader can see them. Comments are stripped first so the
+   * guard tests published copy rather than the reasoning behind it.
+   */
+  const low = page
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .replace(/^\s*\/\/.*$/gm, " ")
+    .toLowerCase();
+  const BANNED = ["guaranteed", "guarantee", "risk-free", "can't miss", "sure thing", "free money", "safest", "lock", "best bet", "positive ev", "edge"];
+  for (const w of BANNED) {
+    const re = new RegExp(`(^|[^a-z0-9-])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9-]|$)`, "i");
+    assert.doesNotMatch(low, re, `banned copy "${w}" must not appear on /ufc`);
   }
+});
+
+test("8b · the banned-copy guard is not vacuous", () => {
+  // A guard that strips too much passes on everything. This proves it still catches a real hit in
+  // published copy, and still ignores one inside a comment.
+  const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ").toLowerCase();
+  const wordRe = (w) => new RegExp(`(^|[^a-z0-9-])${w}([^a-z0-9-]|$)`, "i");
+  assert.match(strip('const a = "our edge today";'), wordRe("edge"), "a real violation in copy must still be caught");
+  assert.doesNotMatch(strip("/* the graded ledger explains this */"), wordRe("edge"), "a comment must not trip it");
+  assert.doesNotMatch(strip('const b = "the graded ledger";'), wordRe("edge"), "a substring inside another word is not a violation");
+  assert.match(strip('const c = "this is a lock";'), wordRe("lock"), "and lock is still banned as a word");
+  assert.doesNotMatch(strip('const d = "the route is blocked";'), wordRe("lock"), "blocked is not lock");
 });

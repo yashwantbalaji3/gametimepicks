@@ -42,6 +42,8 @@ import {
 import { eplPlayerMarketStatus } from "@/lib/sports/epl/player-markets.mjs";
 import { gradedRecordCaption, loadEplGradedRecord } from "@/lib/sports/epl/graded-record";
 import SportLabCards from "@/components/sport-lab-cards";
+import GradedPicksSection from "@/components/sports/graded-picks-section";
+import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { loadCurrentSportLabLadder, ladderDayLabel } from "@/lib/parlays/sport-lab-cards";
 import { loadEplPlayerProjections, topScorersAcross } from "@/lib/sports/epl/forecast-view";
 
@@ -181,6 +183,7 @@ export default function EplPage() {
    * labelled with its own day wherever it appears, so nothing is shown under the wrong date.
    */
   const labLadder = loadCurrentSportLabLadder("epl");
+  const eplGraded = loadGradedPicks("epl");
   const topScorers = topScorersAcross(players, 12);
   /* Every fixture still awaiting its XI ⇒ the whole board reads as conditional. */
   const awaitingLineup = (players?.counts.withLineup ?? 0) === 0;
@@ -440,6 +443,15 @@ export default function EplPage() {
       )}
 
       {labLadder ? <SportLabCards ladder={labLadder} eyebrow={ladderDayLabel(labLadder.date)} /> : null}
+
+      {/*
+        WHAT THE MODEL SAID, AND WHAT ACTUALLY HAPPENED — the same section on every sport.
+        Forecasts were published continuously here and results were published almost nowhere, an
+        asymmetry that always flatters. The rows come from this sport's own graded ledger and the
+        sample note travels with them, so a small record cannot be read as a track record.
+      */}
+      {eplGraded ? <GradedPicksSection record={eplGraded} href="/results/picks/epl" /> : null}
+
 
       {/* The five reads this sport's model is most confident about today — team markets and player
           markets both, interleaved rather than sorted together, because a match favourite always

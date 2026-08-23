@@ -22,6 +22,9 @@ import path from "node:path";
 import Link from "next/link";
 import UfcEventResultsRecap, { type UfcSettlement } from "@/components/ufc/event-results-recap";
 import SportLabCards from "@/components/sport-lab-cards";
+import GradedPicksSection from "@/components/sports/graded-picks-section";
+import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
+import { eventState, eventHeading, EVENT_STATE } from "@/lib/sports/event-lifecycle.mjs";
 import { loadSportLabLadder } from "@/lib/parlays/sport-lab-cards";
 
 export const metadata = {
@@ -68,11 +71,28 @@ export default function UfcArchivePage() {
   // The full card (bouts, portraits, records, the one modelled prop) when a card artifact exists;
   // the generic schedule list is the fallback so the page never renders empty.
   const card = loadJSONUfc<UfcCardArtifact>("card-latest.json");
+  /*
+   * The card's own start time against the clock — the comparison no surface here was making. The
+   * default six-hour window covers a full card from first prelim; calling one COMPLETE while it is
+   * still running would be the worse error, because that is the one that starts presenting live
+   * picks as a finished record.
+   */
+  const cardState = eventState({ startUtc: card?.event?.startUtc ?? null, nowIso: new Date().toISOString() });
+  const ufcGraded = loadGradedPicks("ufc");
   const topReads = loadTopReads();
   /* Keyed to the CARD'S OWN date. A ladder built for another event must never appear under this one:
      the UFC ladder previously carried three dates at once — written 08-18, fighting 08-22, published
      as 08-21 — and a reader could not have told which fights they were looking at. */
-  const labLadder = loadSportLabLadder("ufc", card?.event?.slateDate ?? null);
+  /*
+   * A PAPER CARD IS A PREGAME PRODUCT, so it renders only while the card is still ahead.
+   * This loaded the ladder for whatever day the card artifact named, and that artifact describes a
+   * FOUGHT card for three days out of every seven — so the hub carried "Today's ladder · 3 of 4
+   * price bands", with live prices, for an event that had already happened. The ladder itself was
+   * correct and correctly dated; presenting it as today's was the defect.
+   */
+  const labLadder = cardState === EVENT_STATE.UPCOMING
+    ? loadSportLabLadder("ufc", card?.event?.slateDate ?? null)
+    : null;
   const settlement = loadJSONUfc<UfcSettlement>("results-settled-latest.json");
   // Fail-closed: only an OFFICIAL final settlement may render a record.
   const settled = settlement && settlement.status === "final" ? settlement : null;
@@ -133,7 +153,24 @@ export default function UfcArchivePage() {
 
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700, margin: 0 }}>Next card</h2>
+          {/*
+            "NEXT CARD" WAS A LITERAL STRING, and it was wrong for three days out of every seven.
+            The card artifact is rebuilt Tuesday, Thursday and Saturday, so between a Saturday card
+            and the following Tuesday the newest artifact legitimately describes a FOUGHT event —
+            and this page presented it as the next one, with a live paper ladder beneath it. Nothing
+            was broken; no surface compared the card's own start time to the clock.
+            The heading is now derived from that comparison, so it cannot disagree with the thing
+            underneath it, and a card with no readable start time reads as "Published card" rather
+            than being guessed in either direction.
+          */}
+          <h2 className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700, margin: 0 }}>
+            {eventHeading(cardState)}
+          </h2>
+          {cardState === EVENT_STATE.COMPLETE ? (
+            <span className="font-mono" style={{ fontSize: 10.5, color: "var(--vault-text-faint)", letterSpacing: "0.08em" }}>
+              FOUGHT — the next card&rsquo;s read publishes when it is built
+            </span>
+          ) : null}
         </div>
         {/*
           FRESHNESS FROM THE CARD'S OWN ARTIFACT.
@@ -183,6 +220,14 @@ export default function UfcArchivePage() {
             </span>
           </div>
       {labLadder ? <SportLabCards ladder={labLadder} nameEvent={false} /> : null}
+
+      {/*
+        WHAT THE MODEL SAID, AND WHAT ACTUALLY HAPPENED. The hub published a read for every bout on
+        the card and, once those fights were over, showed a reader nothing about how the reads did.
+        Forecasts published continuously and results published nowhere is the shape of every tipster
+        site there has ever been; this is the other half, from the graded ledger.
+      */}
+      {ufcGraded ? <GradedPicksSection record={ufcGraded} href="/results/picks/ufc" /> : null}
 
       <section className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
