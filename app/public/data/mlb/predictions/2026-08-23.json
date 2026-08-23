@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-08-23",
-  "generatedAt": "2026-08-23T18:58:59.000Z",
+  "generatedAt": "2026-08-23T19:42:18.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.08-v1",
   "sourceArtifact": "full-game-simulations/2026-08-23.json",
   "notBettingAdvice": true,
@@ -1504,23 +1504,23 @@
       "homeTeam": "COL",
       "awayTeamName": "Cleveland Guardians",
       "homeTeamName": "Colorado Rockies",
-      "artifactHash": "68003b734a3f1bef50b3f224b6f4c522b55fefde3a6cc87e812b4aa4b07a1925",
+      "artifactHash": "680a503749b70b65dae1c92cee8e14c7da29a9b15357cb2ce61b471324e1c82d",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
         "level": "ready",
         "notes": [
-          "CLE confirmed batting order used; 1 of 9 have no posted prop line and are priced at replacement level.",
-          "COL confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level."
+          "CLE confirmed batting order used; 1 of 9 have no posted prop line and are priced at replacement level."
         ],
         "awayLineupSource": "confirmed",
-        "homeLineupSource": "confirmed",
+        "homeLineupSource": "prop-derived",
         "awayRatedCount": 8,
-        "homeRatedCount": 6,
+        "homeRatedCount": 9,
         "awayLineupCount": 9,
         "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
+          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -1555,7 +1555,7 @@
       "moneyline": {
         "side": "away",
         "team": "CLE",
-        "simulationProbability": 0.603,
+        "simulationProbability": 0.629,
         "marketImpliedProbability": 0.61,
         "marketAgreement": "ALIGNED",
         "strengthLabel": "STRONG SIMULATION"
@@ -1563,8 +1563,8 @@
       "total": {
         "line": 11.5,
         "pick": "UNDER",
-        "overProbability": 0.146,
-        "underProbability": 0.854,
+        "overProbability": 0.136,
+        "underProbability": 0.864,
         "pushProbability": 0,
         "simulationMedian": 7,
         "marketImpliedOver": 0.478,
@@ -1576,8 +1576,8 @@
         "pick": "COL +1.5",
         "pickSide": "home",
         "pickLine": 1.5,
-        "coverProbability": 0.545,
-        "opposingCoverProbability": 0.455,
+        "coverProbability": 0.519,
+        "opposingCoverProbability": 0.481,
         "pushProbability": 0,
         "strengthLabel": "LEAN"
       },
@@ -2615,17 +2615,18 @@
       "homeTeam": "MIL",
       "awayTeamName": "Atlanta Braves",
       "homeTeamName": "Milwaukee Brewers",
-      "artifactHash": "5c13c1b46e904e4f069013bb48dc74e25ce4aabcffb669f33a6000d5911e52f1",
+      "artifactHash": "7966ad880caa715fc64e714704435c2865e9dbce42dac5279e7c3b96e47b3462",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
         "level": "degraded",
         "notes": [
-          "ATL lineup padded: 7/9 batters have a posted line and the rest are at replacement level; ATL have not posted a batting order yet, and this refreshes hourly until they do."
+          "ATL lineup padded: 7/9 batters have a posted line and the rest are at replacement level; ATL have not posted a batting order yet, and this refreshes hourly until they do.",
+          "MIL confirmed batting order used; 1 of 9 have no posted prop line and are priced at replacement level."
         ],
         "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 7,
-        "homeRatedCount": 9,
+        "homeRatedCount": 8,
         "awayLineupCount": 7,
         "homeLineupCount": 9,
         "hasAwayStarter": true,
@@ -2666,18 +2667,18 @@
       "moneyline": {
         "side": "home",
         "team": "MIL",
-        "simulationProbability": 0.635,
+        "simulationProbability": 0.599,
         "marketImpliedProbability": 0.541,
         "marketAgreement": "MODEL HIGHER",
-        "strengthLabel": "STRONG SIMULATION"
+        "strengthLabel": "MODERATE SIMULATION"
       },
       "total": {
         "line": 7.5,
-        "pick": "OVER",
-        "overProbability": 0.512,
-        "underProbability": 0.488,
+        "pick": "UNDER",
+        "overProbability": 0.486,
+        "underProbability": 0.514,
         "pushProbability": 0,
-        "simulationMedian": 8,
+        "simulationMedian": 7,
         "marketImpliedOver": 0.504,
         "strengthLabel": "LEAN"
       },
@@ -2687,8 +2688,8 @@
         "pick": "ATL +1.5",
         "pickSide": "away",
         "pickLine": 1.5,
-        "coverProbability": 0.555,
-        "opposingCoverProbability": 0.445,
+        "coverProbability": 0.592,
+        "opposingCoverProbability": 0.408,
         "pushProbability": 0,
         "strengthLabel": "MODERATE SIMULATION"
       },
