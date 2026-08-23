@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-08-23",
-  "generatedAt": "2026-08-23T17:43:31.000Z",
+  "generatedAt": "2026-08-23T18:58:59.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.08-v1",
   "sourceArtifact": "full-game-simulations/2026-08-23.json",
   "notBettingAdvice": true,
@@ -1318,23 +1318,24 @@
       "homeTeam": "TEX",
       "awayTeamName": "Los Angeles Angels",
       "homeTeamName": "Texas Rangers",
-      "artifactHash": "b3602fad5f0b642c58752fdfef9177f4efd994b7211750430ea53353b372d446",
+      "artifactHash": "606b4b65387b9ee253a3f8f9adf24bedc6b4507cf925bca1d96494d3391d2b37",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "ready",
+        "level": "degraded",
         "notes": [
           "LAA confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level.",
-          "TEX confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level."
+          "TEX lineup padded: 8/9 batters posted pregame (replacement-level fallback for the rest); no confirmed order was available before first pitch."
         ],
         "awayLineupSource": "confirmed",
-        "homeLineupSource": "confirmed",
+        "homeLineupSource": "prop-derived",
         "awayRatedCount": 6,
-        "homeRatedCount": 7,
+        "homeRatedCount": 8,
         "awayLineupCount": 9,
-        "homeLineupCount": 9,
+        "homeLineupCount": 8,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
+          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -1356,7 +1357,7 @@
           "homeCover": 0.4158
         }
       },
-      "status": "ready",
+      "status": "degraded",
       "predictedWinner": {
         "side": "home",
         "team": "TEX"
@@ -1377,9 +1378,9 @@
       "total": {
         "line": 8,
         "pick": "UNDER",
-        "overProbability": 0.286,
-        "underProbability": 0.634,
-        "pushProbability": 0.08,
+        "overProbability": 0.3,
+        "underProbability": 0.623,
+        "pushProbability": 0.077,
         "simulationMedian": 6,
         "marketImpliedOver": 0.489,
         "strengthLabel": "STRONG SIMULATION"
@@ -1390,8 +1391,8 @@
         "pick": "LAA +1.5",
         "pickSide": "away",
         "pickLine": 1.5,
-        "coverProbability": 0.682,
-        "opposingCoverProbability": 0.318,
+        "coverProbability": 0.684,
+        "opposingCoverProbability": 0.316,
         "pushProbability": 0,
         "strengthLabel": "STRONG SIMULATION"
       },
@@ -2059,24 +2060,23 @@
       "homeTeam": "SEA",
       "awayTeamName": "Chicago Cubs",
       "homeTeamName": "Seattle Mariners",
-      "artifactHash": "6758804bdcdc6b232c41933b45992c1d6ce74962771a0efdefecca681c0bfaee",
+      "artifactHash": "70567adc791d17ee1d9ae944ceaaaa26a2818d2e669b99491d8b4b76f95f113e",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
-        "level": "degraded",
+        "level": "ready",
         "notes": [
           "CHC confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level.",
-          "SEA lineup padded: 8/9 batters have a posted line and the rest are at replacement level; SEA have not posted a batting order yet, and this refreshes hourly until they do."
+          "SEA confirmed batting order used; 3 of 9 have no posted prop line and are priced at replacement level."
         ],
         "awayLineupSource": "confirmed",
-        "homeLineupSource": "prop-derived",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 7,
-        "homeRatedCount": 8,
+        "homeRatedCount": 6,
         "awayLineupCount": 9,
-        "homeLineupCount": 8,
+        "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -2098,7 +2098,7 @@
           "homeCover": 0.6083
         }
       },
-      "status": "degraded",
+      "status": "ready",
       "predictedWinner": {
         "side": "away",
         "team": "CHC"
@@ -2111,7 +2111,7 @@
       "moneyline": {
         "side": "away",
         "team": "CHC",
-        "simulationProbability": 0.606,
+        "simulationProbability": 0.625,
         "marketImpliedProbability": 0.521,
         "marketAgreement": "MODEL HIGHER",
         "strengthLabel": "STRONG SIMULATION"
@@ -2119,8 +2119,8 @@
       "total": {
         "line": 7.5,
         "pick": "OVER",
-        "overProbability": 0.523,
-        "underProbability": 0.477,
+        "overProbability": 0.52,
+        "underProbability": 0.48,
         "pushProbability": 0,
         "simulationMedian": 8,
         "marketImpliedOver": 0.495,
@@ -2132,8 +2132,8 @@
         "pick": "SEA +1.5",
         "pickSide": "home",
         "pickLine": 1.5,
-        "coverProbability": 0.53,
-        "opposingCoverProbability": 0.47,
+        "coverProbability": 0.512,
+        "opposingCoverProbability": 0.488,
         "pushProbability": 0,
         "strengthLabel": "LEAN"
       },
