@@ -20,6 +20,7 @@ import { fileURLToPath } from "node:url";
 import { gradeEplLeg } from "../../src/lib/sports/epl/settlement-contract.mjs";
 import { loadCurrentEplResults } from "../../src/lib/soccer/epl-current-results.mjs";
 import { loadOfficialUfcResults, fighterIndexForDate } from "../../src/lib/sports/ufc/official-results.mjs";
+import { classifyReceiptChange, RECEIPT_CHANGE } from "../../src/lib/parlays/receipt-completion.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const LADDER = path.join(APP, "public", "data", "parlays", "risk-ladder");
@@ -296,11 +297,43 @@ if (decided === 0) { console.log("nothing decided yet — no receipt written"); 
 fs.mkdirSync(RECEIPTS, { recursive: true });
 const out = path.join(RECEIPTS, `${DATE}.json`);
 if (fs.existsSync(out)) {
+  /*
+   * A DAY WITH PENDING CARDS MUST STAY FINISHABLE.
+   *
+   * This compared the two receipts byte for byte and refused any difference. Refusing a REWRITE is
+   * right and stays. But it also refused a COMPLETION — a card moving out of pending because its
+   * result finally arrived — which closed the day to correction permanently, since no scheduled run
+   * revisits anything but ET-yesterday. The 2026-08-22 UFC cards settled pending at 05:53 against a
+   * results source that was days behind, and would have stayed pending forever.
+   *
+   * classifyReceiptChange draws the line: pending → decided ADDS information that did not exist
+   * before; every other transition REPLACES information that did. A decided outcome never moves,
+   * not even back to pending.
+   */
   const prior = JSON.parse(fs.readFileSync(out, "utf8"));
-  const same = JSON.stringify(prior.cards) === JSON.stringify(receipt.cards);
-  console.log(same ? `receipt ${DATE} already recorded and identical — left untouched`
-                   : `REFUSED: receipt ${DATE} exists and DIFFERS. A settled day is not rewritten silently.`);
-  process.exit(same ? 0 : 1);
+  const change = classifyReceiptChange(prior.cards, receipt.cards);
+  if (change.state === RECEIPT_CHANGE.NO_CHANGE) {
+    console.log(`receipt ${DATE} already recorded and identical — left untouched`);
+    process.exit(0);
+  }
+  if (change.state === RECEIPT_CHANGE.REWRITE) {
+    console.log(`REFUSED: receipt ${DATE} exists and DIFFERS beyond completing a pending card. A settled day is not rewritten silently.`);
+    for (const r of change.reasons) console.log(`  · ${r}`);
+    process.exit(1);
+  }
+  for (const c of change.completed) console.log(`  COMPLETED ${c.slipId} · ${c.label}: pending -> ${c.to}`);
+  // The receipt records that it was finished in a later pass, so the audit trail shows both stages
+  // rather than presenting a late settlement as if it had happened on the night.
+  receipt.completedAt = NOW;
+  receipt.completedCards = change.completed;
+  receipt.settledAt = prior.settledAt ?? receipt.settledAt;
+  fs.writeFileSync(out, JSON.stringify(receipt, null, 1) + "\n");
+  // Cards and legs are counted separately: "6 completed" reads as six cards when it was two cards
+  // and four of their legs, and a settlement log that overstates its own scope is worth nothing.
+  const cardsCompleted = new Set(change.completed.filter((c) => c.label === "the card").map((c) => c.slipId));
+  const legsCompleted = change.completed.length - cardsCompleted.size;
+  console.log(`receipt ${DATE} COMPLETED — ${cardsCompleted.size} card(s) and ${legsCompleted} leg(s) moved out of pending`);
+  process.exit(0);
 }
 fs.writeFileSync(out, JSON.stringify(receipt, null, 1) + "\n");
 console.log(`wrote parlays/lab-settled/${DATE}.json`);
