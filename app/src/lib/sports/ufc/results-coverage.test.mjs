@@ -72,7 +72,20 @@ test("LIVE ARTIFACT · the corpus reports its own lag honestly", () => {
   if (!fs.existsSync(p)) return;
   const j = JSON.parse(fs.readFileSync(p, "utf8"));
   if (j.latestEventLagDays == null) return;      // written by an older pipeline run
+  /*
+   * This restated the pipeline's thresholds (10 / 30) and broke the moment they were tightened —
+   * pinning the number instead of the property, which is the same mistake several guards made today.
+   * What must hold is that the status is a declared state, that it is MONOTONE in the lag, and that
+   * the "fresh" window cannot be wide enough to cover a missed card in a sport that runs weekly.
+   */
   assert.ok(["fresh", "lagging", "stale", "unknown"].includes(j.freshnessStatus), "the status must be one of the declared states");
-  if (j.latestEventLagDays > 30) assert.equal(j.freshnessStatus, "stale");
-  if (j.latestEventLagDays <= 10) assert.equal(j.freshnessStatus, "fresh");
+  const rank = { fresh: 0, lagging: 1, stale: 2 };
+  const src = fs.readFileSync(path.join(process.cwd(), "..", "pipeline", "ufc", "build_results.py"), "utf8");
+  const bounds = [...src.matchAll(/lag_days <= (\d+)/g)].map((m) => Number(m[1]));
+  assert.ok(bounds.length >= 2, "the pipeline must declare its thresholds where they can be read");
+  assert.ok(bounds[0] <= 7, `a "fresh" window of ${bounds[0]} days is wide enough to hide a missed card in a weekly sport`);
+  assert.deepEqual([...bounds].sort((a, b) => a - b), bounds, "the thresholds must increase — a non-monotone bar cannot be reasoned about");
+  const expected = j.latestEventLagDays <= bounds[0] ? "fresh" : j.latestEventLagDays <= bounds[1] ? "lagging" : "stale";
+  assert.equal(j.freshnessStatus, expected, `a ${j.latestEventLagDays}-day lag must report ${expected}`);
+  assert.ok(rank[j.freshnessStatus] != null);
 });

@@ -98,12 +98,22 @@ def build(data: dict[str, list[dict]], since_days: int = DEFAULT_WINDOW_DAYS, no
     lag_days = (ref.date() - datetime.fromisoformat(latest).date()).days if latest else None
     if lag_days is None:
         status = "unknown"          # no events at all: not the same as stale, and not fresh either
-    elif lag_days <= 10:
-        status = "fresh"            # a card most weekends, plus slack for the scrape's own cadence
-    elif lag_days <= 30:
+    elif lag_days <= 7:
+        # The promotion runs a card most weekends, so seven days is the widest window in which the
+        # corpus can be behind WITHOUT having missed one. Ten was a guess with slack in it, and at
+        # eight days behind — with a card fought the previous night still absent — it still read
+        # "fresh", which is the whole failure being fixed here.
+        status = "fresh"
+    elif lag_days <= 21:
         status = "lagging"
     else:
         status = "stale"
+
+    # NOTE: this bar is a PROXY and is deliberately crude. It cannot know when OUR last card was,
+    # which is the only question that actually matters — a corpus six days behind is perfectly
+    # healthy in a week with no card. `latestEventLagDays` is published so the layer that DOES know
+    # (lib/sports/ufc/results-coverage.mjs, which compares against the card we published) can reach
+    # its own conclusion rather than inheriting this one.
     return {
         "generatedAt": ref.isoformat(timespec="seconds"),
         "provider": "greco1899_ufcstats_csv",
