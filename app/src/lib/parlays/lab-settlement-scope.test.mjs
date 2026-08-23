@@ -44,9 +44,29 @@ test("a ladder is recognised by HAVING CARDS, not by a state field", () => {
   assert.match(code, /Array\.isArray\(doc\?\.cards\)/);
 });
 
-test("A UFC RESULT MAY ONLY SETTLE THE CARD IT BELONGS TO", () => {
-  // The whole defect in one line: the index must be confined to the date being settled.
-  assert.match(code, /r\.eventDate !== DATE/, "results must be filtered to the card's own event date");
+test("A UFC RESULT MAY ONLY SETTLE THE CARD IT BELONGS TO", async () => {
+  /*
+   * The date confinement moved into lib/sports/ufc/official-results.mjs when the settler was taught
+   * to read BOTH official records rather than only the slower one. It is asserted here by running
+   * that code — a corpus holding the same fighter on two dates must settle only the card being
+   * settled — and the settler is separately checked to be passing its own DATE through.
+   *
+   * The defect this exists to prevent: asked to settle 2026-08-22, an unconfined index graded
+   * Gregory Rodrigues from his March bout and Gauge Young from April, and reported cards decided
+   * for fights that had not taken place.
+   */
+  const { loadOfficialUfcResults, fighterIndexForDate } = await import("../sports/ufc/official-results.mjs");
+  const { byBout } = loadOfficialUfcResults({
+    corpus: { results: [
+      { eventDate: "2026-04-05", fighterA: "Gauge Young", fighterB: "Earlier Foe", winner: "Gauge Young", loser: "Earlier Foe" },
+      { eventDate: "2026-08-22", fighterA: "Stan Dorsainvil", fighterB: "Gauge Young", winner: "Stan Dorsainvil", loser: "Gauge Young" },
+    ] },
+  });
+  assert.equal(fighterIndexForDate(byBout, "2026-08-22").get("gauge young").won, false,
+    "an April win must never settle an August card");
+  assert.equal(fighterIndexForDate(byBout, "2026-08-22").size, 2, "only the settled card's bouts may be indexed");
+  assert.match(code, /fighterIndexForDate\(merged\.byBout, DATE\)/,
+    "the settler must confine the index to the date it was asked to settle");
 });
 
 test("LIVE · the corpus is historical, which is why the date filter is load-bearing", () => {

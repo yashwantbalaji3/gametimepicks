@@ -24,24 +24,46 @@ test("a fight leg is graded from the official results capture, not a stat line",
     "the grading path must be chosen by the LEG's sport — a cross-sport card carries more than one");
 });
 
-test("only a decisive bout settles a moneyline", () => {
+/*
+ * THESE TWO USED TO SCAN THE SETTLER'S SOURCE for the exact lines that built its result index. That
+ * index now lives in lib/sports/ufc/official-results.mjs, because the settler was reading only the
+ * slower of the two official records we capture and reported "no result" for a card whose winners
+ * were already on disk. The properties are unchanged and are asserted here by RUNNING the code the
+ * settler actually calls, which is stronger than matching its text — and the settler is still
+ * checked to be calling it.
+ */
+test("only a decisive bout settles a moneyline", async () => {
   // A draw or no-contest voids the leg. Indexing a non-decisive bout as a loss for one corner would
   // manufacture losses out of fights nobody lost.
-  assert.match(BODY, /if \(!r\.winner \|\| !r\.loser\) continue;/,
-    "a bout with no winner and loser must not be indexed as a result for either fighter");
+  const { loadOfficialUfcResults, fighterIndexForDate } = await import("../sports/ufc/official-results.mjs");
+  const { byBout } = loadOfficialUfcResults({
+    corpus: { results: [
+      { eventDate: "2026-08-22", fighterA: "A One", fighterB: "B Two", winner: null, loser: null },
+      { eventDate: "2026-08-22", fighterA: "C Three", fighterB: "D Four", winner: "C Three", loser: "D Four" },
+    ] },
+  });
+  const idx = fighterIndexForDate(byBout, "2026-08-22");
+  assert.equal(idx.has("a one"), false, "a bout with no winner and loser must not be indexed as a result for either fighter");
+  assert.equal(idx.has("b two"), false);
+  assert.equal(idx.get("c three").won, true, "a decisive bout still settles both corners");
+  assert.equal(idx.get("d four").won, false);
   assert.match(BODY, /if \(!r\) return "pending"/, "an unknown or undecided bout is pending, never a loss");
+  assert.match(BODY, /fighterIndexForDate\(/, "the settler must build its index through the shared reader");
 });
 
-test("fighter names are folded on BOTH sides of the join", () => {
+test("fighter names are folded on BOTH sides of the join", async () => {
   /*
    * The results capture writes "Kaue Fernandes" where a card may carry "Kauê Fernandes". An
    * unfolded compare reads a real result as "no result yet", which grades as pending — i.e. exactly
    * as if the fight had not happened. This repo has hit that encoding difference before.
    */
-  const idx = BODY.indexOf("loadUfcResults");
-  const fn = BODY.slice(idx, BODY.indexOf("const ufcResults", idx));
-  assert.match(fn, /norm\(r\.winner\)/, "the index must fold the winner's name");
-  assert.match(fn, /norm\(r\.loser\)/, "the index must fold the loser's name");
+  const { loadOfficialUfcResults, fighterIndexForDate } = await import("../sports/ufc/official-results.mjs");
+  const { byBout } = loadOfficialUfcResults({
+    corpus: { results: [{ eventDate: "2026-08-22", fighterA: "Kauê Fernandes", fighterB: "Someone Else", winner: "Kauê Fernandes", loser: "Someone Else" }] },
+  });
+  const idx = fighterIndexForDate(byBout, "2026-08-22");
+  assert.equal(idx.get("kaue fernandes")?.won, true, "the index must fold the winner's name");
+  assert.equal(idx.get("someone else")?.won, false, "the index must fold the loser's name");
   assert.match(BODY, /ufcResults\.get\(norm\(leg\.player\)\)/, "the lookup must fold the leg's name too");
 });
 

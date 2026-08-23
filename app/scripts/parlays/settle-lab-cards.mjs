@@ -19,6 +19,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { gradeEplLeg } from "../../src/lib/sports/epl/settlement-contract.mjs";
 import { loadCurrentEplResults } from "../../src/lib/soccer/epl-current-results.mjs";
+import { loadOfficialUfcResults, fighterIndexForDate } from "../../src/lib/sports/ufc/official-results.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const LADDER = path.join(APP, "public", "data", "parlays", "risk-ladder");
@@ -59,37 +60,34 @@ const norm = (s) => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toL
  * "no result yet" — which grades as pending, i.e. as if the fight had not happened.
  */
 function loadUfcResults() {
-  const byFighter = new Map();   // folded name -> { won, boutId, eventDate }
-  try {
-    const doc = JSON.parse(fs.readFileSync(path.join(APP, "public", "data", "ufc", "results-latest.json"), "utf8"));
-    /*
-     * ── CONSTRAINED TO THE CARD BEING SETTLED ──────────────────────────────────────────────────
-     *
-     * results-latest.json is not a snapshot of one event. It is a HISTORICAL CORPUS — 1,545 bouts
-     * across 126 events — and this indexed every one of them by fighter name with no date check, so
-     * the last occurrence of a name won the map slot.
-     *
-     * The consequence was not subtle. Asked to settle the 2026-08-22 card, it graded Gregory
-     * Rodrigues from his March bout, Roman Dolidze from a March loss and Gauge Young from April, and
-     * reported "3/5 cards decided" for fights that had not taken place. A settlement receipt would
-     * have recorded fabricated outcomes for a card nobody had fought.
-     *
-     * A fighter cannot appear twice on one card, so once the index is confined to a single event
-     * date the name match is safe — and it is the same reason a rematch cannot be confused with its
-     * original. A date with no results yields an empty index and every leg pends, which is exactly
-     * what "the fights have not happened" should look like.
-     */
-    for (const r of doc.results ?? []) {
-      if (r.eventDate !== DATE) continue;
-      // Only DECISIVE bouts settle a moneyline. A draw or no-contest voids the leg rather than
-      // losing it, so those are deliberately not indexed as a win for anybody.
-      if (!r.winner || !r.loser) continue;
-      byFighter.set(norm(r.winner), { won: true, boutId: r.boutId, eventDate: r.eventDate });
-      byFighter.set(norm(r.loser), { won: false, boutId: r.boutId, eventDate: r.eventDate });
-    }
-  } catch { /* no results on disk — every UFC leg stays pending, which is the honest state */ }
-  return byFighter;
+  /*
+   * ── BOTH OFFICIAL SOURCES, NOT JUST THE SLOW ONE ───────────────────────────────────────────────
+   *
+   * This read only the ufcstats corpus, which is published by a third party and runs days behind.
+   * On 2026-08-23 it reported no result for the 2026-08-22 card while our OWN ESPN capture held
+   * seven of its bouts marked FINAL with named winners — so every leg pended for a card that had
+   * been fought, decided and captured. "The fights have not happened" and "one of our two records
+   * has not caught up" look identical from inside a settler that only reads one of them.
+   *
+   * loadOfficialUfcResults merges the two on the same date-qualified bout key and REFUSES any bout
+   * where they name different winners rather than preferring either — a contradiction between two
+   * official records is not something a settler may resolve, and a wrong winner written into an
+   * append-only ledger cannot be taken back. Across all 1,574 overlapping bouts they currently
+   * disagree on none.
+   *
+   * The date confinement below is unchanged and still load-bearing.
+   */
+  const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
+  const merged = loadOfficialUfcResults({
+    corpus: readJson(path.join(APP, "public", "data", "ufc", "results-latest.json")),
+    espn: readJson(path.join(APP, "public", "data", "ufc", "results", "latest.json")),
+  });
+  for (const c of merged.conflicts) {
+    console.log(`  UFC CONFLICT ${c.boutId}: corpus ${c.corpus} vs ESPN ${c.espn} — bout refused, its legs pend`);
+  }
+  return fighterIndexForDate(merged.byBout, DATE);
 }
+
 const ufcResults = loadUfcResults();
 if (ufcResults.size === 0) console.log(`no UFC results dated ${DATE} — every fight-winner leg pends`);
 

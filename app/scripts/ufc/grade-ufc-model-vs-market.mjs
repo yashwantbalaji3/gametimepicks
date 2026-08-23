@@ -19,6 +19,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { scorePreFightRows, boutKey, foldName } from "../../src/lib/sports/ufc/model-vs-market.mjs";
+import { loadOfficialUfcResults } from "../../src/lib/sports/ufc/official-results.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.join(APP, "..");
@@ -41,14 +42,19 @@ try {
 } catch { /* no snapshots yet */ }
 if (rowsByBout.size === 0) { console.log("no pre-fight snapshots to grade."); process.exit(0); }
 
-/* Official results, keyed the same date-qualified way — rematch-safe by construction. */
+/*
+ * Official results, keyed the same date-qualified way — rematch-safe by construction.
+ *
+ * BOTH SOURCES, because reading only the corpus meant this reported "no official result" for a card
+ * whose winners were already on disk. The ufcstats corpus is rich and slow; our own ESPN capture is
+ * winner-only and same-day. A bout in both must agree or it is refused rather than resolved — see
+ * loadOfficialUfcResults. Every graded row records which source supplied its outcome.
+ */
 const results = read(path.join(APP, "public/data/ufc/results-latest.json"));
-const resultsByBout = new Map();
-for (const r of results?.results ?? []) {
-  const k = r.boutId ?? boutKey(r.eventDate, r.fighterA, r.fighterB);
-  resultsByBout.set(k, r);
-  // The corpus's own key is already `date:a|b`; recompute as a fallback for any row missing one.
-  resultsByBout.set(boutKey(r.eventDate, r.fighterA, r.fighterB), r);
+const espn = read(path.join(APP, "public/data/ufc/results/latest.json"));
+const { byBout: resultsByBout, conflicts } = loadOfficialUfcResults({ corpus: results, espn });
+for (const c of conflicts) {
+  console.log(`  CONFLICT ${c.boutId}: corpus says ${c.corpus}, ESPN says ${c.espn} — refused, not resolved`);
 }
 
 /* Exactly once: a bout already in the ledger is never re-scored. */
