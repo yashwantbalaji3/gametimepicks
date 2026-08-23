@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823507,
+  "date": "2026-08-23",
+  "capturedAt": "2026-08-23T15:13:50.908Z",
+  "availableAt": "2026-08-23T15:13:50.908Z",
+  "eventStartTime": "2026-08-23T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607074,
+      "name": "Carlos Rodón",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 5,
+      "lastStartDate": "2026-08-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 5.8,
+        "bbAvg": 2.4,
+        "erAvg": 2,
+        "hrAvg": 0.6,
+        "kPer9": 10.3,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 50.33,
+        "k": 56,
+        "bb": 28,
+        "er": 18,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 667755,
+      "name": "José Soriano",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 5,
+      "lastStartDate": "2026-08-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 4.2,
+        "bbAvg": 1.8,
+        "erAvg": 1.4,
+        "hrAvg": 0.2,
+        "kPer9": 6.67,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 139.33,
+        "k": 136,
+        "bb": 62,
+        "er": 50,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-23T15:13:50.908Z"
+  },
+  "recordHash": "89a9fa2a692153e309df3a16467c8655aa0876fadcdcbda2c06547d9e7a2983f"
+}
