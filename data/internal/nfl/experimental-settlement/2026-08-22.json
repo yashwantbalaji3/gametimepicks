@@ -4,110 +4,860 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-08-22",
- "generatedAt": "2026-08-23T15:28:23Z",
+ "generatedAt": "2026-08-23T21:20:32Z",
  "modelVersion": "nfl-preseason-public-beta-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401873289",
+   "providerEventId": "401873289",
    "matchup": "CHI @ CIN",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-22T23:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-08-22/401873289-rev-2120Z.json",
+    "model": "nfl-preseason-public-beta-v1",
+    "modelVersion": 1,
+    "inputHash": "d601c67249feef50",
+    "forecastGeneratedAt": "2026-08-22T21:20:52Z",
+    "revisionChain": [
+     {
+      "file": "401873289.json",
+      "generatedAt": "2026-08-22T14:13:25Z",
+      "inputHash": "9acd8b8b8cdc54a1"
+     },
+     {
+      "file": "401873289-rev-1450Z.json",
+      "generatedAt": "2026-08-22T14:50:37Z",
+      "inputHash": "bad7bb6ca3552175"
+     },
+     {
+      "file": "401873289-rev-1527Z.json",
+      "generatedAt": "2026-08-22T15:27:24Z",
+      "inputHash": "f457ae30edf8c509"
+     },
+     {
+      "file": "401873289-rev-2120Z.json",
+      "generatedAt": "2026-08-22T21:20:52Z",
+      "inputHash": "d601c67249feef50"
+     }
+    ],
+    "marketCapturedAt": "2026-08-22T21:20:52Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-08-23T17:13:37Z",
+    "settledAt": "2026-08-23T21:20:32Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 27,
+     "away": 9,
+     "margin": 18,
+     "total": 36,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "AWAY",
+     "correct": false
+    },
+    "margin": {
+     "projected": -1,
+     "actual": 18,
+     "absError": 19,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 37,
+     "actual": 36,
+     "absError": 1,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 18,
+      "away": 19
+     },
+     "absError": 19
+    },
+    "probabilistic": {
+     "brier": 0.283876,
+     "logLoss": 0.760998
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.42316,
+    "brier": 0.332744,
+    "logLoss": 0.860005,
+    "totalAbsError": 0.5,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
   },
   {
    "canonicalEventId": "nfl-401873290",
+   "providerEventId": "401873290",
    "matchup": "NO @ LAR",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-22T20:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-08-22/401873290-rev-1527Z.json",
+    "model": "nfl-preseason-public-beta-v1",
+    "modelVersion": 1,
+    "inputHash": "a7080f88f0603135",
+    "forecastGeneratedAt": "2026-08-22T15:27:24Z",
+    "revisionChain": [
+     {
+      "file": "401873290.json",
+      "generatedAt": "2026-08-22T14:13:25Z",
+      "inputHash": "bbc1725a95ec623b"
+     },
+     {
+      "file": "401873290-rev-1450Z.json",
+      "generatedAt": "2026-08-22T14:50:37Z",
+      "inputHash": "82fbf7b1fd3fcf22"
+     },
+     {
+      "file": "401873290-rev-1527Z.json",
+      "generatedAt": "2026-08-22T15:27:24Z",
+      "inputHash": "a7080f88f0603135"
+     }
+    ],
+    "marketCapturedAt": "2026-08-22T15:27:24Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-08-23T17:13:37Z",
+    "settledAt": "2026-08-23T21:20:32Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 34,
+     "away": 0,
+     "margin": 34,
+     "total": 34,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "AWAY",
+     "correct": false
+    },
+    "margin": {
+     "projected": -1,
+     "actual": 34,
+     "absError": 35,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 37,
+     "actual": 34,
+     "absError": 3,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 18,
+      "away": 19
+     },
+     "absError": 35
+    },
+    "probabilistic": {
+     "brier": 0.288691,
+     "logLoss": 0.770676
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.462033,
+    "brier": 0.289408,
+    "logLoss": 0.772119,
+    "totalAbsError": 3,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
   },
   {
    "canonicalEventId": "nfl-401873291",
+   "providerEventId": "401873291",
    "matchup": "BAL @ MIN",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-22T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-08-22/401873291-rev-1527Z.json",
+    "model": "nfl-preseason-public-beta-v1",
+    "modelVersion": 1,
+    "inputHash": "b457a61f3827778f",
+    "forecastGeneratedAt": "2026-08-22T15:27:24Z",
+    "revisionChain": [
+     {
+      "file": "401873291.json",
+      "generatedAt": "2026-08-22T14:13:25Z",
+      "inputHash": "269544799a1d9b63"
+     },
+     {
+      "file": "401873291-rev-1450Z.json",
+      "generatedAt": "2026-08-22T14:50:37Z",
+      "inputHash": "f2dd076e158da4b1"
+     },
+     {
+      "file": "401873291-rev-1527Z.json",
+      "generatedAt": "2026-08-22T15:27:24Z",
+      "inputHash": "b457a61f3827778f"
+     }
+    ],
+    "marketCapturedAt": "2026-08-22T15:27:24Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-08-23T17:13:37Z",
+    "settledAt": "2026-08-23T21:20:32Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 3,
+     "away": 13,
+     "margin": -10,
+     "total": 16,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "AWAY",
+     "correct": true
+    },
+    "margin": {
+     "projected": -1,
+     "actual": -10,
+     "absError": 9,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 37,
+     "actual": 16,
+     "absError": 21,
+     "insideInterval80": false
+    },
+    "score": {
+     "projected": {
+      "home": 18,
+      "away": 19
+     },
+     "absError": 21
+    },
+    "probabilistic": {
+     "brier": 0.215482,
+     "logLoss": 0.623994
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.594025,
+    "brier": 0.352866,
+    "logLoss": 0.901464,
+    "totalAbsError": 20.5,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
   },
   {
    "canonicalEventId": "nfl-401873292",
+   "providerEventId": "401873292",
    "matchup": "NYG @ MIA",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-22T20:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-08-22/401873292-rev-1527Z.json",
+    "model": "nfl-preseason-public-beta-v1",
+    "modelVersion": 1,
+    "inputHash": "faf364f3f38eb200",
+    "forecastGeneratedAt": "2026-08-22T15:27:24Z",
+    "revisionChain": [
+     {
+      "file": "401873292.json",
+      "generatedAt": "2026-08-22T14:13:25Z",
+      "inputHash": "9980083a51933bb0"
+     },
+     {
+      "file": "401873292-rev-1450Z.json",
+      "generatedAt": "2026-08-22T14:50:37Z",
+      "inputHash": "a8836b014245781c"
+     },
+     {
+      "file": "401873292-rev-1527Z.json",
+      "generatedAt": "2026-08-22T15:27:24Z",
+      "inputHash": "faf364f3f38eb200"
+     }
+    ],
+    "marketCapturedAt": "2026-08-22T15:27:24Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-08-23T17:13:37Z",
+    "settledAt": "2026-08-23T21:20:32Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 3,
+     "away": 26,
+     "margin": -23,
+     "total": 29,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "AWAY",
+     "correct": true
+    },
+    "margin": {
+     "projected": -1,
+     "actual": -23,
+     "absError": 22,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 37,
+     "actual": 29,
+     "absError": 8,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 18,
+      "away": 19
+     },
+     "absError": 22
+    },
+    "probabilistic": {
+     "brier": 0.213721,
+     "logLoss": 0.620454
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.383562,
+    "brier": 0.14712,
+    "logLoss": 0.483798,
+    "totalAbsError": 7.5,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
   },
   {
    "canonicalEventId": "nfl-401873293",
+   "providerEventId": "401873293",
    "matchup": "PHI @ NE",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-22T23:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-08-22/401873293-rev-2120Z.json",
+    "model": "nfl-preseason-public-beta-v1",
+    "modelVersion": 1,
+    "inputHash": "911219bfb1edefe6",
+    "forecastGeneratedAt": "2026-08-22T21:20:52Z",
+    "revisionChain": [
+     {
+      "file": "401873293.json",
+      "generatedAt": "2026-08-22T14:13:25Z",
+      "inputHash": "30114278158e1aa6"
+     },
+     {
+      "file": "401873293-rev-1450Z.json",
+      "generatedAt": "2026-08-22T14:50:37Z",
+      "inputHash": "b30acb835539248e"
+     },
+     {
+      "file": "401873293-rev-1527Z.json",
+      "generatedAt": "2026-08-22T15:27:24Z",
+      "inputHash": "271df32728d76f83"
+     },
+     {
+      "file": "401873293-rev-2120Z.json",
+      "generatedAt": "2026-08-22T21:20:52Z",
+      "inputHash": "911219bfb1edefe6"
+     }
+    ],
+    "marketCapturedAt": "2026-08-22T21:20:52Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-08-23T17:13:37Z",
+    "settledAt": "2026-08-23T21:20:32Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 24,
+     "away": 21,
+     "margin": 3,
+     "total": 45,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "AWAY",
+     "correct": false
+    },
+    "margin": {
+     "projected": 0,
+     "actual": 3,
+     "absError": 3,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 37,
+     "actual": 45,
+     "absError": 8,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 18,
+      "away": 19
+     },
+     "absError": 8
+    },
+    "probabilistic": {
+     "brier": 0.282386,
+     "logLoss": 0.758006
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.489166,
+    "brier": 0.260951,
+    "logLoss": 0.715053,
+    "totalAbsError": 8.5,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
   },
   {
    "canonicalEventId": "nfl-401873294",
+   "providerEventId": "401873294",
    "matchup": "BUF @ CLE",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-22T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-08-22/401873294-rev-1527Z.json",
+    "model": "nfl-preseason-public-beta-v1",
+    "modelVersion": 1,
+    "inputHash": "24c4392985d2799e",
+    "forecastGeneratedAt": "2026-08-22T15:27:24Z",
+    "revisionChain": [
+     {
+      "file": "401873294.json",
+      "generatedAt": "2026-08-22T14:13:25Z",
+      "inputHash": "ab837013fc4ecd38"
+     },
+     {
+      "file": "401873294-rev-1450Z.json",
+      "generatedAt": "2026-08-22T14:50:37Z",
+      "inputHash": "4fa46b71e2e470db"
+     },
+     {
+      "file": "401873294-rev-1527Z.json",
+      "generatedAt": "2026-08-22T15:27:24Z",
+      "inputHash": "24c4392985d2799e"
+     }
+    ],
+    "marketCapturedAt": "2026-08-22T15:27:24Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-08-23T17:13:37Z",
+    "settledAt": "2026-08-23T21:20:32Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 7,
+     "away": 31,
+     "margin": -24,
+     "total": 38,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "AWAY",
+     "correct": true
+    },
+    "margin": {
+     "projected": -1,
+     "actual": -24,
+     "absError": 23,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 37,
+     "actual": 38,
+     "absError": 1,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 18,
+      "away": 19
+     },
+     "absError": 23
+    },
+    "probabilistic": {
+     "brier": 0.211876,
+     "logLoss": 0.616742
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.594025,
+    "brier": 0.352866,
+    "logLoss": 0.901464,
+    "totalAbsError": 1,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
   },
   {
    "canonicalEventId": "nfl-401873295",
+   "providerEventId": "401873295",
    "matchup": "ATL @ IND",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-22T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-08-22/401873295-rev-1527Z.json",
+    "model": "nfl-preseason-public-beta-v1",
+    "modelVersion": 1,
+    "inputHash": "f3c604a104ca98ba",
+    "forecastGeneratedAt": "2026-08-22T15:27:24Z",
+    "revisionChain": [
+     {
+      "file": "401873295.json",
+      "generatedAt": "2026-08-22T14:13:25Z",
+      "inputHash": "c4a430a3f208d835"
+     },
+     {
+      "file": "401873295-rev-1450Z.json",
+      "generatedAt": "2026-08-22T14:50:37Z",
+      "inputHash": "1cc76bc6b5a6a36a"
+     },
+     {
+      "file": "401873295-rev-1527Z.json",
+      "generatedAt": "2026-08-22T15:27:24Z",
+      "inputHash": "f3c604a104ca98ba"
+     }
+    ],
+    "marketCapturedAt": "2026-08-22T15:27:24Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-08-23T17:13:37Z",
+    "settledAt": "2026-08-23T21:20:32Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 6,
+     "away": 34,
+     "margin": -28,
+     "total": 40,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "AWAY",
+     "correct": true
+    },
+    "margin": {
+     "projected": -1,
+     "actual": -28,
+     "absError": 27,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 37,
+     "actual": 40,
+     "absError": 3,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 18,
+      "away": 19
+     },
+     "absError": 27
+    },
+    "probabilistic": {
+     "brier": 0.213906,
+     "logLoss": 0.620827
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.638554,
+    "brier": 0.407751,
+    "logLoss": 1.017643,
+    "totalAbsError": 3.5,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
   },
   {
    "canonicalEventId": "nfl-401873296",
+   "providerEventId": "401873296",
    "matchup": "KC @ TB",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-08-22T23:30Z",
-   "observed": "STATUS_SCHEDULED"
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-08-22/401873296-rev-2120Z.json",
+    "model": "nfl-preseason-public-beta-v1",
+    "modelVersion": 1,
+    "inputHash": "45095964614927ab",
+    "forecastGeneratedAt": "2026-08-22T21:20:52Z",
+    "revisionChain": [
+     {
+      "file": "401873296.json",
+      "generatedAt": "2026-08-22T14:13:25Z",
+      "inputHash": "a5e5d8937922e700"
+     },
+     {
+      "file": "401873296-rev-1450Z.json",
+      "generatedAt": "2026-08-22T14:50:37Z",
+      "inputHash": "ccf2e43c4199b684"
+     },
+     {
+      "file": "401873296-rev-1527Z.json",
+      "generatedAt": "2026-08-22T15:27:24Z",
+      "inputHash": "354bb6c40455c728"
+     },
+     {
+      "file": "401873296-rev-2120Z.json",
+      "generatedAt": "2026-08-22T21:20:52Z",
+      "inputHash": "45095964614927ab"
+     }
+    ],
+    "marketCapturedAt": "2026-08-22T21:20:52Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-08-23T17:13:37Z",
+    "settledAt": "2026-08-23T21:20:32Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 16,
+     "away": 15,
+     "margin": 1,
+     "total": 31,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "AWAY",
+     "correct": false
+    },
+    "margin": {
+     "projected": -1,
+     "actual": 1,
+     "absError": 2,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 37,
+     "actual": 31,
+     "absError": 6,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 18,
+      "away": 19
+     },
+     "absError": 6
+    },
+    "probabilistic": {
+     "brier": 0.290952,
+     "logLoss": 0.775225
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.674828,
+    "brier": 0.105737,
+    "logLoss": 0.393297,
+    "totalAbsError": 6,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
   },
+  {
+   "canonicalEventId": "nfl-401873601",
+   "providerEventId": "401873601",
+   "matchup": "WSH @ DET",
+   "kickoffUtc": "2026-08-22T16:00Z",
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-08-22/401873601-rev-1527Z.json",
+    "model": "nfl-preseason-public-beta-v1",
+    "modelVersion": 1,
+    "inputHash": "7323ad53151f890f",
+    "forecastGeneratedAt": "2026-08-22T15:27:24Z",
+    "revisionChain": [
+     {
+      "file": "401873601.json",
+      "generatedAt": "2026-08-22T14:13:25Z",
+      "inputHash": "eb0beaab3cdac274"
+     },
+     {
+      "file": "401873601-rev-1450Z.json",
+      "generatedAt": "2026-08-22T14:50:37Z",
+      "inputHash": "bda2df17a2a7f804"
+     },
+     {
+      "file": "401873601-rev-1527Z.json",
+      "generatedAt": "2026-08-22T15:27:24Z",
+      "inputHash": "7323ad53151f890f"
+     }
+    ],
+    "marketCapturedAt": "2026-08-22T15:27:24Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-08-23T17:13:37Z",
+    "settledAt": "2026-08-23T21:20:32Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 17,
+     "away": 13,
+     "margin": 4,
+     "total": 30,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "AWAY",
+     "correct": false
+    },
+    "margin": {
+     "projected": -1,
+     "actual": 4,
+     "absError": 5,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 37,
+     "actual": 30,
+     "absError": 7,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 18,
+      "away": 19
+     },
+     "absError": 7
+    },
+    "probabilistic": {
+     "brier": 0.286332,
+     "logLoss": 0.765933
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.5,
+    "brier": 0.25,
+    "logLoss": 0.693147,
+    "totalAbsError": 6.5,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
+  },
+  {
+   "canonicalEventId": "nfl-401874101",
+   "providerEventId": "401874101",
+   "matchup": "DAL @ ARI",
+   "kickoffUtc": "2026-08-23T02:00Z",
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-08-22/401874101-rev-2120Z.json",
+    "model": "nfl-preseason-public-beta-v1",
+    "modelVersion": 1,
+    "inputHash": "58f5f4e3b28c5efb",
+    "forecastGeneratedAt": "2026-08-22T21:20:52Z",
+    "revisionChain": [
+     {
+      "file": "401874101.json",
+      "generatedAt": "2026-08-22T14:13:25Z",
+      "inputHash": "6f0d3b293fbfad8b"
+     },
+     {
+      "file": "401874101-rev-1450Z.json",
+      "generatedAt": "2026-08-22T14:50:37Z",
+      "inputHash": "7e89664150f74376"
+     },
+     {
+      "file": "401874101-rev-1527Z.json",
+      "generatedAt": "2026-08-22T15:27:24Z",
+      "inputHash": "8a45d64819eb7bff"
+     },
+     {
+      "file": "401874101-rev-2120Z.json",
+      "generatedAt": "2026-08-22T21:20:52Z",
+      "inputHash": "58f5f4e3b28c5efb"
+     }
+    ],
+    "marketCapturedAt": "2026-08-22T21:20:52Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-08-23T17:13:37Z",
+    "settledAt": "2026-08-23T21:20:32Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 13,
+     "away": 34,
+     "margin": -21,
+     "total": 47,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "AWAY",
+     "correct": true
+    },
+    "margin": {
+     "projected": -1,
+     "actual": -21,
+     "absError": 20,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 37,
+     "actual": 47,
+     "absError": 10,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 18,
+      "away": 19
+     },
+     "absError": 20
+    },
+    "probabilistic": {
+     "brier": 0.224202,
+     "logLoss": 0.641504
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.517364,
+    "brier": 0.267666,
+    "logLoss": 0.728493,
+    "totalAbsError": 8.5,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
+  }
+ ],
+ "pending": [
   {
    "canonicalEventId": "nfl-401873297",
    "matchup": "SEA @ TEN",
    "state": "PRE_KICKOFF",
    "kickoffUtc": "2026-08-24T00:00Z"
-  },
-  {
-   "canonicalEventId": "nfl-401873601",
-   "matchup": "WSH @ DET",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-08-22T16:00Z",
-   "observed": "STATUS_SCHEDULED"
-  },
-  {
-   "canonicalEventId": "nfl-401874101",
-   "matchup": "DAL @ ARI",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-08-23T02:00Z",
-   "observed": "STATUS_SCHEDULED"
   }
  ],
  "quarantined": [],
  "accounting": {
   "receipts": 11,
-  "settled": 0,
-  "pending": 11,
+  "settled": 10,
+  "pending": 1,
   "quarantined": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 10,
+  "decisive": 10,
   "ties": 0,
-  "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerCorrect": 5,
+  "winnerAccuracy": 0.5,
+  "marginMAE": 16.5,
+  "totalMAE": 6.8,
+  "marginInterval80Coverage": 0.4,
+  "totalInterval80Coverage": 0.9,
+  "brier": 0.2511,
+  "logLoss": 0.6954
  },
- "marketBenchmark": null,
- "comparison": null
+ "marketBenchmark": {
+  "n": 10,
+  "brier": 0.2767,
+  "logLoss": 0.7466,
+  "totalMAE": 6.55
+ },
+ "comparison": {
+  "modelBrier": 0.2511,
+  "marketBrier": 0.2767,
+  "note": "shown side by side because the founder asked for transparency; a single slate cannot establish which is better and this is not a claim that it does"
+ }
 }
