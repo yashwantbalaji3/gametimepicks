@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824315,
+  "date": "2026-08-23",
+  "capturedAt": "2026-08-23T11:19:41.963Z",
+  "availableAt": "2026-08-23T11:19:41.963Z",
+  "eventStartTime": "2026-08-23T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608372,
+      "name": "Tomoyuki Sugano",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-17",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 3.6,
+        "bbAvg": 0.8,
+        "erAvg": 2.8,
+        "hrAvg": 1.6,
+        "kPer9": 5.79,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 118.67,
+        "k": 69,
+        "bb": 27,
+        "er": 62,
+        "hr": 26
+      }
+    },
+    "away": {
+      "id": 656492,
+      "name": "Foster Griffin",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 5,
+      "lastStartDate": "2026-08-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 4,
+        "bbAvg": 1.6,
+        "erAvg": 3.2,
+        "hrAvg": 1.2,
+        "kPer9": 6.67,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 144.33,
+        "k": 131,
+        "bb": 35,
+        "er": 51,
+        "hr": 23
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-23T11:19:41.963Z"
+  },
+  "recordHash": "2f91d0e338d1536c7cbe38a873a0b53ff08b784f303d7905f90306c034153e79"
+}

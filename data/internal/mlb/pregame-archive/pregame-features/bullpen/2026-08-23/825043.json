@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 825043,
   "date": "2026-08-23",
-  "capturedAt": "2026-08-23T02:22:45.882Z",
-  "availableAt": "2026-08-23T02:22:45.882Z",
+  "capturedAt": "2026-08-23T11:19:42.938Z",
+  "availableAt": "2026-08-23T11:19:42.938Z",
   "eventStartTime": "2026-08-23T20:15:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,22 +20,64 @@
     "teamId": 109,
     "teamName": "Arizona Diamondbacks",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
       "appearances": 3,
-      "pitches": 51,
+      "pitches": 93,
       "relievers": [
+        {
+          "id": 641793,
+          "name": "Zack Littell",
+          "appearances": 1,
+          "pitches": 63,
+          "outs": 11,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
         {
           "id": 642701,
           "name": "Dennis Santana",
           "appearances": 1,
-          "pitches": 20,
-          "outs": 4,
+          "pitches": 13,
+          "outs": 3,
           "dates": [
-            "2026-08-21"
+            "2026-08-22"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 144,
+      "relievers": [
+        {
+          "id": 641793,
+          "name": "Zack Littell",
+          "appearances": 1,
+          "pitches": 63,
+          "outs": 11,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 642701,
+          "name": "Dennis Santana",
+          "appearances": 2,
+          "pitches": 33,
+          "outs": 7,
+          "dates": [
+            "2026-08-21",
+            "2026-08-22"
           ]
         },
         {
@@ -46,6 +88,16 @@
           "outs": 3,
           "dates": [
             "2026-08-21"
+          ]
+        },
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
           ]
         },
         {
@@ -60,19 +112,56 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 641793,
+        "name": "Zack Littell",
+        "reason": "63 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 113,
     "teamName": "Cincinnati Reds",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 56,
+      "relievers": [
+        {
+          "id": 663574,
+          "name": "Tony Santillan",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 682825,
+          "name": "Luis Mey",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 622088,
+          "name": "Tejay Antone",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 128,
+      "appearances": 10,
+      "pitches": 184,
       "relievers": [
         {
           "id": 670062,
@@ -96,6 +185,17 @@
           ]
         },
         {
+          "id": 622088,
+          "name": "Tejay Antone",
+          "appearances": 2,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-08-20",
+            "2026-08-22"
+          ]
+        },
+        {
           "id": 572955,
           "name": "Pierce Johnson",
           "appearances": 1,
@@ -106,6 +206,26 @@
           ]
         },
         {
+          "id": 663574,
+          "name": "Tony Santillan",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 682825,
+          "name": "Luis Mey",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
           "id": 594580,
           "name": "Sam Moll",
           "appearances": 1,
@@ -113,16 +233,6 @@
           "outs": 3,
           "dates": [
             "2026-08-21"
-          ]
-        },
-        {
-          "id": 622088,
-          "name": "Tejay Antone",
-          "appearances": 1,
-          "pitches": 14,
-          "outs": 3,
-          "dates": [
-            "2026-08-20"
           ]
         },
         {
@@ -142,7 +252,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-20,2026-08-21,2026-08-22) + feed/live box scores",
-    "capturedAt": "2026-08-23T02:22:45.882Z"
+    "capturedAt": "2026-08-23T11:19:42.938Z"
   },
-  "recordHash": "859ffbb7e178937884d86907f9c9465950bc22bb355cd0d7fca421bc3082069b"
+  "recordHash": "a09ccdf3c36a1b074e3b6ee3e4b26e8d0ccd697e086fb337264b5580743ab09f"
 }

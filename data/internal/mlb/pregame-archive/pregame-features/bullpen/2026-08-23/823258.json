@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823258,
   "date": "2026-08-23",
-  "capturedAt": "2026-08-23T02:22:45.882Z",
-  "availableAt": "2026-08-23T02:22:45.882Z",
+  "capturedAt": "2026-08-23T11:19:42.938Z",
+  "availableAt": "2026-08-23T11:19:42.938Z",
   "eventStartTime": "2026-08-23T20:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,22 +20,94 @@
     "teamId": 135,
     "teamName": "San Diego Padres",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
-      "appearances": 2,
-      "pitches": 23,
+      "appearances": 4,
+      "pitches": 92,
       "relievers": [
+        {
+          "id": 656288,
+          "name": "Griffin Canning",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 10,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 606996,
+          "name": "Kyle Hart",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
         {
           "id": 695243,
           "name": "Mason Miller",
           "appearances": 1,
-          "pitches": 17,
+          "pitches": 10,
           "outs": 3,
           "dates": [
-            "2026-08-21"
+            "2026-08-22"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 115,
+      "relievers": [
+        {
+          "id": 656288,
+          "name": "Griffin Canning",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 10,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 695243,
+          "name": "Mason Miller",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 6,
+          "dates": [
+            "2026-08-21",
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 606996,
+          "name": "Kyle Hart",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
           ]
         },
         {
@@ -50,20 +122,77 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 656288,
+        "name": "Griffin Canning",
+        "reason": "46 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 142,
     "teamName": "Minnesota Twins",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 54,
+      "relievers": [
+        {
+          "id": 667297,
+          "name": "Tommy Nance",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 702193,
+          "name": "Andrew Morris",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 621345,
+          "name": "A.J. Minter",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 2,
+          "dates": [
+            "2026-08-22"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 2,
-      "pitches": 28,
+      "appearances": 5,
+      "pitches": 82,
       "relievers": [
+        {
+          "id": 667297,
+          "name": "Tommy Nance",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 702193,
+          "name": "Andrew Morris",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
         {
           "id": 701519,
           "name": "Travis Adams",
@@ -83,6 +212,16 @@
           "dates": [
             "2026-08-21"
           ]
+        },
+        {
+          "id": 621345,
+          "name": "A.J. Minter",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 2,
+          "dates": [
+            "2026-08-22"
+          ]
         }
       ]
     },
@@ -91,7 +230,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-20,2026-08-21,2026-08-22) + feed/live box scores",
-    "capturedAt": "2026-08-23T02:22:45.882Z"
+    "capturedAt": "2026-08-23T11:19:42.938Z"
   },
-  "recordHash": "b333ffaf31378b495a72b406e8b3bb7135628fb264b201c7130c8bd4ebc71474"
+  "recordHash": "576ecf2ce5d5046e7b100118cd80098cfab9d83298172eb1bb24d0d59eec49d9"
 }

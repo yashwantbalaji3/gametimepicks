@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824150,
+  "date": "2026-08-23",
+  "capturedAt": "2026-08-23T11:19:41.963Z",
+  "availableAt": "2026-08-23T11:19:41.963Z",
+  "eventStartTime": "2026-08-23T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 664299,
+      "name": "Cristian Javier",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 5,
+      "lastStartDate": "2026-08-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 19,
+        "ipAvg": 3.8,
+        "kAvg": 2.8,
+        "bbAvg": 1,
+        "erAvg": 2.6,
+        "hrAvg": 0.8,
+        "kPer9": 6.63,
+        "workloadIpLast5": 19
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 27.33,
+        "k": 17,
+        "bb": 14,
+        "er": 25,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 669620,
+      "name": "Brady Basso",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 5,
+      "lastStartDate": "2026-08-18",
+      "last5": {
+        "starts": 2,
+        "ipSum": 4.67,
+        "ipAvg": 2.33,
+        "kAvg": 2,
+        "bbAvg": 0.5,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 7.71,
+        "workloadIpLast5": 4.67
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 4.67,
+        "k": 4,
+        "bb": 1,
+        "er": 0,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-23&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-23T11:19:41.963Z"
+  },
+  "recordHash": "592076cef08cf7083293c238b5e6367d697e117800141b52a143b62b4d4a27d5"
+}
