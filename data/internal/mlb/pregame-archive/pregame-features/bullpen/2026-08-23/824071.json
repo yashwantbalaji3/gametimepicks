@@ -1,0 +1,232 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824071,
+  "date": "2026-08-23",
+  "capturedAt": "2026-08-23T02:22:45.882Z",
+  "availableAt": "2026-08-23T02:22:45.882Z",
+  "eventStartTime": "2026-08-23T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-20",
+    "2026-08-21",
+    "2026-08-22"
+  ],
+  "home": {
+    "teamId": 118,
+    "teamName": "Kansas City Royals",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 31,
+      "relievers": [
+        {
+          "id": 518886,
+          "name": "Craig Kimbrel",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 656638,
+          "name": "Alex Lange",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 11,
+      "pitches": 182,
+      "relievers": [
+        {
+          "id": 518886,
+          "name": "Craig Kimbrel",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 6,
+          "dates": [
+            "2026-08-20",
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 670167,
+          "name": "John Schreiber",
+          "appearances": 2,
+          "pitches": 28,
+          "outs": 5,
+          "dates": [
+            "2026-08-20",
+            "2026-08-21"
+          ]
+        },
+        {
+          "id": 663878,
+          "name": "Nate Pearson",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 6,
+          "dates": [
+            "2026-08-20",
+            "2026-08-21"
+          ]
+        },
+        {
+          "id": 679922,
+          "name": "Carlos Duran",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 1,
+          "dates": [
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 621016,
+          "name": "Jose Cuas",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-21"
+          ]
+        },
+        {
+          "id": 671162,
+          "name": "Connor Thomas",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 5,
+          "dates": [
+            "2026-08-20"
+          ]
+        },
+        {
+          "id": 674444,
+          "name": "Steven Cruz",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 4,
+          "dates": [
+            "2026-08-21"
+          ]
+        },
+        {
+          "id": 656638,
+          "name": "Alex Lange",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 116,
+    "teamName": "Detroit Tigers",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 35,
+      "relievers": [
+        {
+          "id": 805427,
+          "name": "Drew Sommers",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 6,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 663432,
+          "name": "Tanner Rainey",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 67,
+      "relievers": [
+        {
+          "id": 805427,
+          "name": "Drew Sommers",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 6,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 663947,
+          "name": "Tyler Holton",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-21"
+          ]
+        },
+        {
+          "id": 680744,
+          "name": "Ty Madden",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-21"
+          ]
+        },
+        {
+          "id": 663432,
+          "name": "Tanner Rainey",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-22"
+          ]
+        },
+        {
+          "id": 646241,
+          "name": "Enmanuel De Jesus",
+          "appearances": 1,
+          "pitches": 2,
+          "outs": 1,
+          "dates": [
+            "2026-08-21"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-20,2026-08-21,2026-08-22) + feed/live box scores",
+    "capturedAt": "2026-08-23T02:22:45.882Z"
+  },
+  "recordHash": "462f62044d931a49b46ad9b9d42005ae148112bf4d6ddf99f7adf6b4900f6699"
+}

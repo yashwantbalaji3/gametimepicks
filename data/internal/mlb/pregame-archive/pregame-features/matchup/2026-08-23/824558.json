@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824558,
+  "date": "2026-08-23",
+  "capturedAt": "2026-08-23T02:22:47.683Z",
+  "availableAt": "2026-08-23T02:22:47.683Z",
+  "eventStartTime": "2026-08-23T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": null,
+    "name": null,
+    "pitchHand": null
+  },
+  "awayStartingPitcher": {
+    "id": 690997,
+    "name": "Nolan McLean",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-23T02:22:47.683Z"
+  },
+  "recordHash": "4d42bd2a1ad7610081405567065b75e8f686f9d59c35b2a2be6aad41869387c1"
+}
