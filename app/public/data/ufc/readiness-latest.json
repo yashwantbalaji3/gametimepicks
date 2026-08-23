@@ -4,7 +4,7 @@
   "scheduleReady": true,
   "oddsReady": true,
   "fighterStatsReady": true,
-  "gradingReady": true,
+  "gradingReady": false,
   "backtestReady": false,
   "parlaySimReady": false,
   "distancePropsReady": false,
@@ -18,20 +18,21 @@
   },
   "projectionsReady": false,
   "parlayReady": false,
-  "publicLevel": "grading-internal",
+  "publicLevel": "projections-internal",
   "blockers": [
+    "results grading not implemented",
     "no historical backtest yet"
   ],
   "providerStatus": {
     "schedule": "espn_mma",
     "odds": "the_odds_api_mma",
     "fighterStats": "connected",
-    "grading": "connected",
+    "grading": "not_connected",
     "oddsapi": {
       "configured": true,
-      "lastFetchAt": "2026-07-10T14:49:59+00:00",
-      "eventCount": 20,
-      "marketCount": 20,
+      "lastFetchAt": "2026-08-22T11:10:44Z",
+      "eventCount": 12,
+      "marketCount": 12,
       "oddsReady": true,
       "warnings": []
     },
@@ -46,22 +47,24 @@
     "greco1899_results": {
       "configured": true,
       "eventCount": 126,
-      "finalBoutCount": 1519,
-      "latestEventDate": "2026-05-16",
-      "gradingReady": true,
-      "warnings": []
+      "finalBoutCount": 1528,
+      "latestEventDate": "2026-08-15",
+      "gradingReady": false,
+      "warnings": [
+        "grader produced no decisive grades to validate"
+      ]
     },
     "backtest": {
       "configured": true,
-      "rowCount": 0,
-      "marketImpliedBrier": null,
+      "rowCount": 12,
+      "marketImpliedBrier": 0.1079,
       "launchDecision": "hold",
       "backtestReady": false,
       "warnings": [
-        "insufficient clean rows (0/150)"
+        "insufficient clean rows (12/150)"
       ]
     }
   },
   "publicMessage": "UFC odds, fighter stats, and results grading are being connected. Model picks publish only after a backtest passes.",
-  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['no historical backtest yet']"
+  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['results grading not implemented', 'no historical backtest yet']"
 }
