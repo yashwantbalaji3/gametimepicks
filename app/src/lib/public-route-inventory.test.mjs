@@ -92,6 +92,13 @@ const APPROVED_DESTINATIONS = new Set([
   /* The Parlay Lab's own suggested-card record, across every sport. Distinct from /results/parlays,
      which tracks saved slips — a different population, and until now the only parlay record here. */
   "/results/parlay-lab",
+  // Picks vs outcomes: the cross-sport index plus one page per sport. Public by design — a record of
+  // what the models got wrong is the half a reader has the least reason to trust us to publish.
+  "/results/picks",
+  "/results/picks/mlb",
+  "/results/picks/nfl",
+  "/results/picks/ufc",
+  "/results/picks/epl",
   "/results/nba",
   "/mlb",
   "/mlb/board",

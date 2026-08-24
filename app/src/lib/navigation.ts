@@ -156,6 +156,15 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    */
   { href: "/results/parlay-lab", label: "Parlay Lab Record", group: "record", glyph: "▦",
     desc: "Every card the Lab suggested, all sports", surfaces: ["rail", "footer"] },
+  /*
+   * The other half of publishing forecasts. Every hub showed what its model predicted and almost
+   * none showed how those predictions turned out — an asymmetry that always flatters, because
+   * forecasts publish continuously and results publish never. ONE entry rather than four: the
+   * per-sport pages are reachable from it and from each hub, and four rail items for one idea is
+   * how a rail stops being read.
+   */
+  { href: "/results/picks", label: "Picks vs Outcomes", group: "record", glyph: "◎",
+    desc: "What each model predicted, and what happened", surfaces: ["rail", "footer"] },
   { href: "/results", label: "Results", group: "record", glyph: "≡", desc: "Settled track record",
     surfaces: ["top", "rail", "footer"] },
   { href: "/learn", label: "How It Works", group: "record", glyph: "✦", desc: "Start here",
