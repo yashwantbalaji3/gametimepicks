@@ -47,7 +47,7 @@ export const BLOCKER_CLASSES = Object.freeze([
  *   LIVE_ELIGIBLE     every one of the twelve stages PROVEN (founder activation still separate)
  */
 export const PUBLIC_TIERS = Object.freeze([
-  "NOT_PUBLIC", "SCHEDULE_LIVE", "RESEARCH_LAB", "PUBLIC_BETA_MODEL", "LIVE_ELIGIBLE",
+  "NOT_PUBLIC", "SCHEDULE_ONLY", "SCHEDULE_LIVE", "RESEARCH_LAB", "PUBLIC_BETA_MODEL", "LIVE_ELIGIBLE",
 ]);
 
 /** Release-train order (Program 196 §14): the queue is dependency-ordered by THIS, not alphabet. */
@@ -84,6 +84,14 @@ const STAGE_RANK = Object.fromEntries(GATE_STAGES.map((s, i) => [s.id, i]));
  * moves when (and only when) the assessment does.
  */
 const REALITY_RE = /reality[ _-]?gated|needs matches|needs bouts|needs games|it needs matches played|not promotable by engineering|until matches|until bouts|until enough .* fought/i;
+/*
+ * P198: a PARTIAL stage whose own words say the remaining move is the founder's — a rights
+ * decision, an authorization, an activation or investment decision — is not engineering-ready,
+ * and filing it as such puts it on a board where it sits failing until someone else acts (the
+ * exact anti-pattern §16 names). Reality outranks founder when both appear: a decision cannot
+ * conjure the games.
+ */
+const FOUNDER_RE = /founder (decision|rights|gate|action|activation)|founder decision to (invest|authorize)|requires a founder|founder-gated/i;
 
 const dateStampsIn = (text) => [...String(text ?? "").matchAll(/20\d{2}-\d{2}-\d{2}/g)].map((m) => m[0]);
 
@@ -99,13 +107,24 @@ export function classifyBlocker(stage) {
   const text = `${stage?.evidence ?? ""} ${stage?.blocker ?? ""}`;
   if (status === "BLOCKED_EXTERNAL") return /founder/i.test(stage?.blocker ?? "") ? "FOUNDER_DECISION" : "BLOCKED_EXTERNAL";
   if (REALITY_RE.test(text)) return "REALITY_GATED";
+  if (FOUNDER_RE.test(text)) return "FOUNDER_DECISION";
   return "ENGINEERING_READY";
 }
 
-export function derivePublicTier(stages) {
+export function derivePublicTier(stages, { claimedRoutes = null } = {}) {
   const get = (id) => stages[id]?.status ?? "UNPROVEN";
   const atLeastPartial = (id) => get(id) === "PROVEN" || get(id) === "PARTIAL";
   if (GATE_STAGES.every((s) => get(s.id) === "PROVEN")) return "LIVE_ELIGIBLE";
+  /*
+   * P198: a sport that CLAIMS no route of its own cannot be RESEARCH_LAB whatever its private
+   * stages say — private research is not a public surface, and the tier is a claim about what a
+   * reader can see. With a proven schedule it is SCHEDULE_ONLY (the /sports directory carries its
+   * confirmed events honestly); without one it is NOT_PUBLIC. Route-blind callers (claimedRoutes
+   * null) keep the stage-only derivation for back-compat.
+   */
+  if (Array.isArray(claimedRoutes) && claimedRoutes.length === 0) {
+    return get("schedule") === "PROVEN" ? "SCHEDULE_ONLY" : "NOT_PUBLIC";
+  }
   if (!atLeastPartial("publication")) return "NOT_PUBLIC";
   if (!atLeastPartial("model")) return "SCHEDULE_LIVE";
   if (get("publication") === "PROVEN" && get("model") === "PROVEN" && get("calibration") !== "PROVEN") return "PUBLIC_BETA_MODEL";
@@ -154,7 +173,7 @@ export function packetContradictions(packet, { publicRouteSet }) {
 
   // C2 · TIER_VS_STAGES — the public tier must re-derive from the stage statuses.
   const stageMap = Object.fromEntries(packet.stages.map((s) => [s.id, { status: s.status }]));
-  const tier = derivePublicTier(stageMap);
+  const tier = derivePublicTier(stageMap, { claimedRoutes: packet.publicClaims.routes });
   if (packet.publicClaims.tier !== tier) {
     flag("TIER_VS_STAGES", `tier ${packet.publicClaims.tier} does not derive from stages (expected ${tier}) — a page cannot promote a model`);
   }
@@ -295,7 +314,7 @@ export function buildClosurePackets(inputs) {
       counts,
       currentEvent: currentEvents[sport] ?? { state: "MISSING", detail: "no current-event reader supplied", eventUtc: null, artifactStamp: null },
       publicClaims: {
-        tier: derivePublicTier(a.stages),
+        tier: derivePublicTier(a.stages, { claimedRoutes: [...(SPORT_PUBLIC_ROUTES[sport] ?? [])] }),
         routes: [...(SPORT_PUBLIC_ROUTES[sport] ?? [])],
       },
       products: laneFor(sport),

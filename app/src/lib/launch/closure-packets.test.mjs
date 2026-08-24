@@ -73,6 +73,11 @@ test("blocker classes derive from the assessment's own words", () => {
   assert.equal(classifyBlocker({ status: "BLOCKED_EXTERNAL", blocker: "needs a founder decision to invest" }), "FOUNDER_DECISION");
   assert.equal(classifyBlocker({ status: "BLOCKED_EXTERNAL", blocker: "provider terms unresolved" }), "BLOCKED_EXTERNAL");
   assert.equal(classifyBlocker({ status: "PARTIAL", evidence: "cadence receipt 1/2" }), "ENGINEERING_READY");
+  // P198: a PARTIAL whose own words hand the move to the founder is not engineering-ready…
+  assert.equal(classifyBlocker({ status: "PARTIAL", evidence: "opens when the actives design cap (a founder rights decision) lands" }), "FOUNDER_DECISION");
+  assert.equal(classifyBlocker({ status: "PARTIAL", evidence: "requires a founder decision to authorize NBA scope" }), "FOUNDER_DECISION");
+  // …and reality outranks founder when both appear: a decision cannot conjure the games.
+  assert.equal(classifyBlocker({ status: "PARTIAL", evidence: "it needs games, not code — with the founder lineup decision named beside it" }), "REALITY_GATED");
 });
 
 test("public tier derives from stages and only from stages", () => {
@@ -198,5 +203,14 @@ test("real sources build without contradiction: five sports, counts reconcile, M
   assert.equal(result.sports.mlb.counts.pct, 100, "MLB is the 12/12 reference lane");
   assert.equal(result.sports.nba.publicClaims.routes.length, 0, "NBA claims no public surface until Release F makes one deliberately");
   const q = executionQueue(result);
-  assert.ok(q.engineering.length > 0, "a control plane with an empty queue while sports sit unproven is lying");
+  /*
+   * P198 restatement: "engineering must be non-empty while sports sit unproven" was true until
+   * the day queue-zero was legitimately earned — every remaining gap typed reality or founder.
+   * The claim that can never expire is CONSERVATION: every non-proven stage appears in exactly
+   * one of the three queues, so an empty engineering queue means the others hold the gaps, not
+   * that the generator went blind.
+   */
+  const queued = [...q.engineering, ...q.realityWatch, ...q.founderQueue].map((x) => `${x.sport}:${x.stage}`);
+  const gaps = Object.values(result.sports).flatMap((p) => p.stages.filter((st) => st.status !== "PROVEN").map((st) => `${p.sport}:${st.id}`));
+  assert.deepEqual(queued.sort(), gaps.sort(), "every non-proven stage sits in exactly one queue — nothing vanishes");
 });

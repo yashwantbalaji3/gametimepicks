@@ -79,8 +79,8 @@ test("THE COMMITTED ASSESSMENTS · maturity derives to the honest current pictur
   // inherited, not re-argued per sport. The set stays EXACT: this list is a ratchet, so a new stage
   // is a reviewed change here, never one that appears in the assessments unnoticed.
   assert.deepEqual(Object.keys(SPORT_ASSESSMENTS.nfl.stages).sort(),
-    ["data", "identity", "markets", "model", "monitoring", "owner", "products", "publication", "qualification", "schedule", "settlement"],
-    "NFL evidence set — grew by monitoring + products on P197-D receipts; still a reviewed ratchet");
+    ["calibration", "data", "identity", "markets", "model", "monitoring", "owner", "products", "publication", "qualification", "schedule", "settlement"],
+    "NFL evidence set — P197-D added monitoring + products; P198 added calibration (the frozen contract as its instrument); still a reviewed ratchet");
   assert.equal(SPORT_ASSESSMENTS.nfl.stages.identity.status, "PROVEN");
   assert.equal(SPORT_ASSESSMENTS.nfl.stages.markets.status, "PROVEN");
   assert.match(SPORT_ASSESSMENTS.nfl.stages.markets.evidence, /cumulative 12 of 3,000/, "the markets claim carries its actual credit spend");
@@ -98,7 +98,11 @@ test("THE COMMITTED ASSESSMENTS · maturity derives to the honest current pictur
   // that has never once run — and each names its own reason in the entry.
   const NFL_PROVEN = new Set(["identity", "markets", "owner", "qualification", "settlement", "schedule", "data", "publication", "monitoring"]);
   for (const [name, st] of Object.entries(SPORT_ASSESSMENTS.nfl.stages)) {
-    if (!NFL_PROVEN.has(name)) assert.equal(st.status, "PARTIAL", `${name} stays PARTIAL with its reason stated`);
+    if (name === "calibration") {
+      // UNPROVEN with its instrument named (the frozen contract) — a sample cannot be PARTIAL.
+      assert.equal(st.status, "UNPROVEN");
+      assert.match(st.evidence, /it needs games played/);
+    } else if (!NFL_PROVEN.has(name)) assert.equal(st.status, "PARTIAL", `${name} stays PARTIAL with its reason stated`);
     else assert.equal(st.status, "PROVEN", `${name} is one of the reviewed PROVEN stages`);
   }
   // The live window is PRESEASON: every P171 model receipt is regular-season evidence, and the

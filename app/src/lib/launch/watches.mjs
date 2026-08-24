@@ -51,7 +51,7 @@ export const REALITY_GATED_WATCHES = Object.freeze([
     sport: "nba",
     title: "NBA · first joined final (preseason opener MIA@TOR)",
     observeAtUtc: "2026-10-04T04:00:00Z", // 2026-10-03T23:00Z tip + capture on the next cadence run
-    evidenceToInspect: "public/data/nba/results/latest.json — NO_RESULTS_YET must flip to RESULTS with seasonType 1 preserved and population-exact reconciliation",
+    evidenceToInspect: "public/data/nba/results/latest.json — OFF_SEASON (or NO_RESULTS_YET in-season) must flip to RESULTS with seasonType 1 preserved and population-exact reconciliation",
     productiveBefore: "injuries/lineups source evaluation and settlement corruption hardening proceed through the off-season",
   },
 ]);

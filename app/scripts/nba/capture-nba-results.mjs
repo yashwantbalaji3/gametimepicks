@@ -66,6 +66,23 @@ const rows = (data.events ?? []).map((e) => {
 }).filter((r) => r.providerEventId && r.dateUtc && r.home && r.away);
 
 const completed = rows.filter((r) => /^STATUS_FINAL/.test(r.statusRaw ?? ""));
+/*
+ * P198 · Release A: OFF_SEASON and NO_RESULTS_YET are different facts and only one belongs to a
+ * quiet August. NO_RESULTS_YET implies a season in progress whose finals have not landed — wrong
+ * for months at a time and exactly the kind of label that trains readers to ignore states. The
+ * discrimination derives from the COMMITTED schedule capture, never a hand-kept calendar: if the
+ * earliest confirmed upcoming event is more than 7 days out (or none is confirmed at all) and the
+ * results window is empty, the league is off-season by its own published schedule.
+ */
+const state = (() => {
+  if (completed.length > 0) return "RESULTS";
+  try {
+    const sched = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nba/schedule/latest.json"), "utf8"));
+    const upcoming = (sched.rows ?? []).map((r) => Date.parse(r.dateUtc)).filter((t) => Number.isFinite(t) && t > Date.parse(NOW)).sort((a, b) => a - b);
+    if (upcoming.length === 0 || upcoming[0] - Date.parse(NOW) > 7 * 86_400_000) return "OFF_SEASON";
+  } catch { /* no schedule capture readable → cannot claim off-season; fall through */ }
+  return "NO_RESULTS_YET";
+})();
 const artifact = {
   schemaVersion: 1,
   sport: "nba",
@@ -73,7 +90,7 @@ const artifact = {
   generatedAt: NOW,
   sourceAsOf: NOW,
   windowDays: DAYS,
-  state: completed.length > 0 ? "RESULTS" : "NO_RESULTS_YET",
+  state,
   source: { id: "espn_scoreboard", name: "ESPN NBA public scoreboard", license: "public JSON endpoint, no key; used as a point-in-time snapshot with attribution — same class of usage as the schedule capture" },
   rowCount: rows.length,
   completedCount: completed.length,

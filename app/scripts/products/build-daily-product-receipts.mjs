@@ -42,6 +42,8 @@ const hash = (p) => { try { return crypto.createHash("md5").update(fs.readFileSy
  */
 export const RECEIPT_STATES = Object.freeze([
   "NOT_RUN", "INPUTS_MISSING", "STALE", "INCIDENT", "NO_PLAY", "ACTIVE", "PENDING_RESULT", "SETTLED", "VOID",
+  // P198: a dormant league's lanes carry a receipt too — derived from its own results capture.
+  "OFF_SEASON",
 ]);
 
 // ---------------------------------------------------------------- inputs the products depend on
@@ -127,7 +129,25 @@ const vault = vaultEntry
   }
   : { product: "end-zone-vault", label: "End Zone Vault", state: "NOT_RUN", reason: `the Vault ledger holds no entry for ${DATE}`, candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: true };
 
-const products = [productEntry("bank-builder", "Bank Builder"), productEntry("moonshot", "Moonshot"), vault];
+/*
+ * P198 · Release A: the dormant sport writes a receipt too. "Missing receipt is an incident even
+ * when the sport is dormant" — the charter's words, and the control plane's C4 guard needs a dated
+ * row to point at. NOT_APPLICABLE is derived from the results capture's own OFF_SEASON state, so
+ * when the season starts the row flips honestly instead of someone remembering to edit a list.
+ */
+const nbaLane = (() => {
+  const res = read(path.join(DATA, "nba", "results", "latest.json"));
+  const offSeason = res?.state === "OFF_SEASON";
+  return {
+    product: "nba-lanes", label: "NBA (all lanes)",
+    state: offSeason ? "OFF_SEASON" : "NOT_RUN",
+    reason: offSeason
+      ? "the league is off-season by its own published schedule (results capture state OFF_SEASON); no NBA lane evaluates until real events and the activation gates exist"
+      : "NBA results capture did not report OFF_SEASON — investigate before assuming dormancy",
+    candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: false,
+  };
+})();
+const products = [productEntry("bank-builder", "Bank Builder"), productEntry("moonshot", "Moonshot"), vault, nbaLane];
 for (const p of products) {
   if (!RECEIPT_STATES.includes(p.state)) { console.error(`REFUSED: ${p.product} produced state ${p.state} outside the closed set`); process.exit(2); }
   // the load-bearing invariant: NO_PLAY requires a completed evaluation

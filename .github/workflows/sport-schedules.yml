@@ -454,3 +454,16 @@ jobs:
           echo "::error::captures refused this run: $(tr '\n' ' ' < "$REFUSALS")"
           echo "Each refusal is logged in its own step above. Other sports' captures still ran."
           exit 1
+
+      # P198 · Release A: this workflow became NBA's daily OWNER (schedule + results + cadence
+      # receipt), and an owner whose failures reach nobody is a label — the sport-owners guard
+      # says exactly that. Same shared script and contract as every other owning workflow; runs
+      # only after the job has already failed, so it cannot flip a passing run.
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: sport-schedules
+        run: |
+          set -euo pipefail
+          EXIT_STATUS="${EXIT_STATUS:-1}" bash scripts/ops_alert.sh

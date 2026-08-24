@@ -32,13 +32,16 @@ export const SPORT_OWNERS = Object.freeze({
   nfl: { primary: "nfl-event-window.yml", settlement: "nightly-settle.yml", cadence: "event-window" },
   epl: { primary: "epl-matchweek.yml", settlement: "nightly-settle.yml", cadence: "matchweek" },
   /*
-   * NBA HAS NO DAILY OWNER, DECLARED. nba-market-probe.yml exists but carries no cron, so nothing
-   * runs it on a schedule — the sport is off-season with its source failing since 2026-06-13. Naming
-   * it as the owner would have passed a reading of this file and failed the guard below, which is
-   * the correct outcome: an unowned sport is a STATE to declare, not a gap to paper over with the
-   * nearest workflow that happens to mention the sport.
+   * P198 · Release A: NBA HAS A DAILY OWNER NOW, and it earned the name rather than borrowing it.
+   * The old entry declared the sport unowned because nba-market-probe.yml was dispatch-only — the
+   * correct refusal at the time. Since then sport-schedules.yml became the sport's actual daily
+   * run: the confirmed-events capture (100 events, league-wide identity verified), the results
+   * capture with its honest empty states, the NBA injuries feed, and the always-committed cadence
+   * receipt all execute under its daily cron, and its failures now page through the shared
+   * escalation contract (ops_alert.sh + OPS_WEBHOOK_URL, wired this release — an owner whose
+   * failures reach nobody is a label, which is this file's own rule).
    */
-  nba: { primary: null, unownedReason: "off-season; nba-market-probe.yml is dispatch-only and the source has failed since 2026-06-13", settlement: "nightly-settle.yml", cadence: "none" },
+  nba: { primary: "sport-schedules.yml", settlement: "nightly-settle.yml", cadence: "daily (13:00 UTC capture sweep)" },
 });
 
 export const OWNED_SPORTS = Object.freeze(Object.keys(SPORT_OWNERS));
