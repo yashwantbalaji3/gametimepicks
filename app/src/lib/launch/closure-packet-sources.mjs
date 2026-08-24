@@ -91,13 +91,28 @@ export function readCurrentEvents({ appDir, nowIso }) {
     });
   })();
 
-  // NBA — the schedule capture is the only current artifact for a dormant lane.
+  // NBA — the schedule capture is the only current artifact for a dormant lane. The capture is
+  // CONTENT-IDEMPOTENT: an off-season window that has not changed is deliberately not re-committed,
+  // so the artifact's own stamp records when content last MOVED, not when the lane last RAN. The
+  // cadence receipt (always committed, P196 · Release F) supplies the verification stamp; freshness
+  // judges THAT, and the content stamp rides along as information. Without a receipt the artifact
+  // stamp is all there is, and the old STALE verdict stands — absence of proof is not health.
   const nba = (() => {
     const s = readJson(pub("nba/schedule/latest.json"));
     if (!s) return { state: "MISSING", detail: "no schedule capture", eventUtc: null, artifactStamp: null };
+    const cadence = readJson(pub("admin/schedule-cadence.json"))?.sports?.nba ?? null;
+    const verifiedAge = cadence?.verifiedAt ? hoursBetween(cadence.verifiedAt, nowIso) : null;
+    if (verifiedAge != null && verifiedAge <= CURRENT_EVENT_STALE_HOURS.nba) {
+      return {
+        state: "CURRENT",
+        detail: `schedule capture verified ${cadence.verifiedAt} (${cadence.state}); content last moved ${s.generatedAt ?? "?"} · ${(s.rows ?? []).length} row(s) over ${s.windowDays ?? "?"} day window (off-season)`,
+        eventUtc: null,
+        artifactStamp: s.generatedAt ?? null,
+      };
+    }
     return eventState({
       sport: "nba", nowIso, artifactStamp: s.generatedAt ?? null,
-      detail: `schedule capture: ${(s.rows ?? []).length} row(s) over ${s.windowDays ?? "?"} day window (off-season)`,
+      detail: `schedule capture: ${(s.rows ?? []).length} row(s) over ${s.windowDays ?? "?"} day window (off-season)${cadence ? `; last verified ${cadence.verifiedAt}` : "; no cadence receipt"}`,
       eventUtc: null,
     });
   })();

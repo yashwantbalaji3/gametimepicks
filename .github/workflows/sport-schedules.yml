@@ -210,6 +210,29 @@ jobs:
           if ! git diff --cached --quiet -- app/public/data/soccer/epl/fixtures/ 2>/dev/null; then
             KEEP="$KEEP epl"
           fi
+          # THE CADENCE RECEIPT (P196 · Release F). Content-idempotency above is right to skip
+          # committing an unchanged capture — but it also `git clean`ed every trace of the run,
+          # which made "capture ran, nothing changed" and "capture stopped running" byte-identical
+          # in the repository. NBA's off-season schedule sat stamped 08-21 for days and the control
+          # plane called it STALE; the lane was healthy and could not prove it. This tiny receipt
+          # is ALWAYS written and ALWAYS committed: per sport, when the capture last VERIFIED the
+          # content beside when the content last MOVED. A dead lane now goes visibly stale within
+          # a day; an unchanged one stays visibly verified.
+          NOW_RECEIPT="$(date -u +%Y-%m-%dT%H:%M:%SZ)" KEPT="$KEEP" node -e '
+            const fs = require("fs");
+            const f = "app/public/data/admin/schedule-cadence.json";
+            let prev = {}; try { prev = JSON.parse(fs.readFileSync(f, "utf8")); } catch {}
+            const kept = new Set((process.env.KEPT || "").trim().split(/\s+/).filter(Boolean));
+            const sports = {};
+            for (const s of ["nfl", "nba", "ufc", "epl"]) {
+              const latest = { nfl: "app/public/data/nfl/schedule/latest.json", nba: "app/public/data/nba/schedule/latest.json", ufc: "app/public/data/ufc/schedule/latest.json", epl: null }[s];
+              let contentStamp = prev.sports?.[s]?.contentStamp ?? null;
+              try { if (latest) contentStamp = JSON.parse(fs.readFileSync(latest, "utf8")).generatedAt ?? contentStamp; } catch {}
+              sports[s] = { verifiedAt: process.env.NOW_RECEIPT, state: kept.has(s) ? "CHANGED" : "UNCHANGED", contentStamp };
+            }
+            fs.writeFileSync(f, JSON.stringify({ schemaVersion: 1, artifact: "schedule-cadence-receipt", updatedAt: process.env.NOW_RECEIPT, sports }, null, 1) + "\n");
+          '
+          git add app/public/data/admin/schedule-cadence.json
           if git diff --cached --quiet; then
             echo "no schedule content changed — nothing to publish"
             exit 0
