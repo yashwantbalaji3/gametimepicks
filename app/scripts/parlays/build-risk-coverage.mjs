@@ -50,6 +50,15 @@ function laneRow(lane) {
    * whose evaluation never spoke at all.
    */
   const artRefused = art?.state && art.state !== "PUBLISHED" && (art.cards ?? []).length === 0;
+  /*
+   * The MULTI lane speaks the tier-grid dialect, not the ladder one (P200: the instrument's first
+   * scheduled CI run flagged all four multi tiers MISSING while the grid had in fact accounted for
+   * every band): its per-band answer lives in `cells` — bankroll-tier × risk-band, each OFFERED
+   * (with a slipId), NO_CARD (with the band's own reason), or ABOVE_TIER (a bankroll-fit statement,
+   * not a band answer). A band is PUBLISHED when any cell offers it; otherwise its NO_CARD reason
+   * is the typed no-play.
+   */
+  const bandCells = (band) => (art?.cells ?? []).filter((c) => c.band === band);
   const tiers = {};
   for (const tier of RISK_ORDER) {
     if (laneClosed) {
@@ -70,9 +79,21 @@ function laneRow(lane) {
       tiers[tier] = { state: "NO_PLAY", reason: skip.reason ?? "the evaluation completed and nothing qualified" };
       continue;
     }
+    const cells = bandCells(tier);
+    const offered = cells.find((c) => c.state === "OFFERED");
+    if (offered) {
+      tiers[tier] = { state: "PUBLISHED", slipId: offered.slipId ?? null };
+      continue;
+    }
+    const noCard = cells.find((c) => c.state === "NO_CARD" && c.reason);
+    if (noCard) {
+      tiers[tier] = { state: "NO_PLAY", reason: noCard.reason };
+      continue;
+    }
     /*
-     * Neither a card nor a typed skip: the evaluation did not account for this tier. That is the
-     * failure state the charter names ("missing tier or no receipt") and it must read as one.
+     * Neither a card, a typed skip, nor a grid cell: the evaluation did not account for this tier.
+     * That is the failure state the charter names ("missing tier or no receipt") and it must read
+     * as one.
      */
     tiers[tier] = { state: "MISSING", reason: art ? "the lane artifact carries neither a card nor a skip for this tier" : "no lane artifact on disk for the current day" };
   }

@@ -2,13 +2,13 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-24T16:07:24Z",
+ "generatedAt": "2026-08-24T16:09:48Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
   "PUBLISHED": 6,
-  "NO_PLAY": 6,
+  "NO_PLAY": 10,
   "LANE_CLOSED": 4,
-  "MISSING": 4
+  "MISSING": 0
  },
  "rows": [
   {
@@ -114,20 +114,20 @@
    "laneReason": null,
    "tiers": {
     "low": {
-     "state": "MISSING",
-     "reason": "the lane artifact carries neither a card nor a skip for this tier"
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
     },
     "medium": {
-     "state": "MISSING",
-     "reason": "the lane artifact carries neither a card nor a skip for this tier"
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
     },
     "high": {
-     "state": "MISSING",
-     "reason": "the lane artifact carries neither a card nor a skip for this tier"
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
     },
     "longshot": {
-     "state": "MISSING",
-     "reason": "the lane artifact carries neither a card nor a skip for this tier"
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
     }
    }
   }
