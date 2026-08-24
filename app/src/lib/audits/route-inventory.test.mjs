@@ -42,7 +42,20 @@ test("the committed artifact reconciles all three layers with zero findings and 
   assert.equal(artifact.dataClass, "PRIVATE_AUDIT");
   assert.equal(artifact.totals.p0, 0, "zero engineering-owned P0s — the launch-blocker bar");
   assert.equal(artifact.totals.findings, 0, "the route surface is clean, mechanically");
-  assert.equal(artifact.totals.routes, 51); // P169-J added /nfl (public, owned in ROUTE_TABLE)
+  /*
+   * P196 restatement: this line pinned `routes === 51`, which was true at P169 and quietly false
+   * from the first route added after it — the committed artifact sat stale for nine routes while
+   * the pin certified it. The claim this test exists for is RECONCILIATION, so assert exactly
+   * that: the committed artifact must describe the CURRENT tree. A stale committed inventory now
+   * fails here with the remedy in the message instead of a bare number.
+   */
+  const fresh = buildRouteInventory({ now: artifact.generatedAt, appDir });
+  assert.deepEqual(
+    artifact.routes.map((r) => r.route).sort(),
+    fresh.routes.map((r) => r.route).sort(),
+    "committed inventory does not match the current tree — regenerate: node scripts/audits/build-route-inventory.mjs --now <ISO>",
+  );
+  assert.equal(artifact.totals.routes, artifact.routes.length, "totals must recount from the artifact's own rows");
   // The built layer was actually exercised (not UNVERIFIED) for concrete public routes.
   const home = artifact.routes.find((r) => r.route === "/");
   assert.equal(home.built, true, "the committed run reconciled against a real export");

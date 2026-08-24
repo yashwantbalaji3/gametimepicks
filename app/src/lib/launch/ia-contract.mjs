@@ -22,7 +22,7 @@ export const LAUNCH_IA_VERSION = 2;
 export const IA_SECTIONS = Object.freeze([
   { group: "Overview", anchors: ["health", "exec"], authority: "evidence-ledger + launch gates" },
   { group: "Today", anchors: ["today-queue", "today"], authority: "today-board over work-board + watches (derived) + MLB daily board" },
-  { group: "Sports", anchors: ["sports", "gates"], authority: "sport-assessments via completion-matrix" },
+  { group: "Sports", anchors: ["sports", "gates", "closure"], authority: "sport-assessments via completion-matrix + closure packets (P196 control plane)" },
   { group: "Founder", anchors: ["founder-actions", "queues"], authority: "shared-blockers registry" },
   { group: "Work Board", anchors: ["board"], authority: "work-board (derived, no ticket store)" },
   { group: "Sprints", anchors: ["sprints"], authority: "roadmap horizons + build clock" },

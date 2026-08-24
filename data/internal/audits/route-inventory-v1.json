@@ -2,13 +2,13 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-08-13T04:02:00Z",
+ "generatedAt": "2026-08-24T01:33:50Z",
  "totals": {
-  "routes": 51,
-  "public": 28,
+  "routes": 60,
+  "public": 36,
   "internal": 4,
   "redirects": 17,
-  "archive": 2,
+  "archive": 1,
   "findings": 0,
   "p0": 0
  },
@@ -49,6 +49,15 @@
    "built": true
   },
   {
+   "route": "/bucket-blitz",
+   "classification": "product",
+   "owner": "product",
+   "purpose": "Bucket Blitz (NBA signature product) — NAMED AND UNBUILT. Same contract as /goal-rush: derived gate stages, captured-schedule facts, no pick",
+   "dataOwner": "derived from sport-assessments + the committed NBA schedule capture",
+   "freshness": "no freshness claim — the page makes no time-sensitive claim to be stale",
+   "built": true
+  },
+  {
    "route": "/build",
    "classification": "public",
    "owner": "product",
@@ -56,6 +65,35 @@
    "dataOwner": "build legs from eligible slate",
    "freshness": "sourceDate == productDate gate",
    "built": true
+  },
+  {
+   "route": "/cards/[sport]",
+   "classification": "public",
+   "owner": "product",
+   "family": true,
+   "purpose": "per-sport paper card ladder — one card per price band, from real posted prices",
+   "dataOwner": "parlays/risk-ladder-<sport> artifacts",
+   "freshness": "ladder generatedAt; dated by its own slate/card",
+   "built": "FAMILY (2 generated page(s))"
+  },
+  {
+   "route": "/epl",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "Premier League hub: fixtures grouped by ET day with club crests, PLUS per-fixture model forecasts (1X2, expected goals, over/under 2.5) for the fixtures that can be priced — published under an explicit 'not validated out of sample' statement, with zero matches graded and no track record claimed",
+   "dataOwner": "openfootball schedule capture + EPL Poisson forecast artifact (build-time read)",
+   "freshness": "schedule capture stamp in copy; forecasts stamped from the artifact's own generatedAt",
+   "built": true
+  },
+  {
+   "route": "/epl/match/[slug]",
+   "classification": "public",
+   "owner": "product",
+   "family": true,
+   "purpose": "Premier League per-fixture model report (P188): match-result probabilities with the two-of-three outcomes, the ten likeliest scorelines and the mass they account for, the total-goals distribution with an over/under ladder, each side's own goal curve, both-teams-to-score, clean sheets and the winning-margin distribution — every figure an exact sum over ONE Poisson score matrix, so no run count is quoted because nothing is sampled. Statically generated per priced fixture, dynamicParams=false. Carries the not-validated-out-of-sample statement ABOVE the first number; no pick, rating or price comparison anywhere",
+   "dataOwner": "soccer/epl/forecasts/latest.json via lib/sports/epl/forecast-view (build-time read)",
+   "freshness": "the artifact's own generatedAt, printed on the page",
+   "built": "FAMILY (1 generated page(s))"
   },
   {
    "route": "/events",
@@ -81,7 +119,16 @@
    "family": true,
    "dataOwner": "game detail artifacts",
    "freshness": "artifact stamps",
-   "built": "FAMILY (representative pages generated per fixture)"
+   "built": "FAMILY (3 generated page(s))"
+  },
+  {
+   "route": "/goal-rush",
+   "classification": "product",
+   "owner": "product",
+   "purpose": "Goal Rush (Premier League signature product) — NAMED AND UNBUILT. Publishes no pick: states what is captured today and which of the twelve gate stages remain, both derived from lib/products/product-readiness. Flips on its own when the stages go green",
+   "dataOwner": "derived from sport-assessments + the committed EPL fixture capture",
+   "freshness": "no freshness claim — the page makes no time-sensitive claim to be stale",
+   "built": true
   },
   {
    "route": "/homer-nukes",
@@ -170,7 +217,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (representative pages generated per fixture)"
+   "built": "FAMILY (87 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -248,6 +295,16 @@
    "dataOwner": "nfl schedule/results captures (build-time reads)",
    "freshness": "absolute capture stamps in copy",
    "built": true
+  },
+  {
+   "route": "/nfl/game/[eventId]",
+   "classification": "public",
+   "owner": "product",
+   "family": true,
+   "purpose": "NFL per-game experimental simulation report (P177-A): projected score, win chance, total and margin distributions with percentiles, the market read side by side, a reading key and the full provenance receipt — statically generated from the committed forecast artifact, dynamicParams=false",
+   "dataOwner": "nfl/forecasts/latest.json + nfl/index.json (build-time reads)",
+   "freshness": "each report carries its own generatedAt, kickoff and lifecycle",
+   "built": "FAMILY (1 generated page(s))"
   },
   {
    "route": "/nhl",
@@ -351,7 +408,7 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "FAMILY (representative pages generated per fixture)"
+   "built": "FAMILY (77 generated page(s))"
   },
   {
    "route": "/results/mlb",
@@ -381,6 +438,15 @@
    "built": true
   },
   {
+   "route": "/results/parlay-lab",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "the Parlay Lab's own suggested cards, every sport, with how each settled — distinct from saved slips",
+   "dataOwner": "parlays/lab-ledger + lab-settled receipts",
+   "freshness": "ledger generatedAt; receipts dated per settled day",
+   "built": true
+  },
+  {
    "route": "/results/parlays",
    "classification": "public",
    "owner": "settlement",
@@ -388,6 +454,25 @@
    "dataOwner": "settlement artifacts",
    "freshness": "settled-through date",
    "built": true
+  },
+  {
+   "route": "/results/picks",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "every sport's model record side by side — the only page where the four sit together, and the one that has to say why they are not comparable",
+   "dataOwner": "public/data/<sport>/graded-picks.json",
+   "freshness": "each artifact's own generatedAt",
+   "built": true
+  },
+  {
+   "route": "/results/picks/[sport]",
+   "classification": "public",
+   "owner": "product",
+   "family": true,
+   "purpose": "every graded prediction a sport's model has made against what actually happened — the other half of publishing forecasts, and the same shape for all four sports",
+   "dataOwner": "public/data/<sport>/graded-picks.json, built from each sport's own graded ledger",
+   "freshness": "artifact generatedAt; rebuilt whenever a sport settles",
+   "built": "FAMILY (4 generated page(s))"
   },
   {
    "route": "/simulate",
@@ -435,11 +520,11 @@
   },
   {
    "route": "/ufc",
-   "classification": "archive",
-   "owner": "settlement",
-   "purpose": "settled UFC archive (the one graded card; accountability outranks minimalism)",
-   "dataOwner": "frozen settlement",
-   "freshness": "frozen — dated by design",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "UFC hub: current card with three-head model reads + live ladder, model-vs-market graded record, settled archive section",
+   "dataOwner": "card-latest + graded picks + frozen settlement",
+   "freshness": "card artifact generatedAt; lifecycle derives from the card's own startUtc",
    "built": true
   },
   {

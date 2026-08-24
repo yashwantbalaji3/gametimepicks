@@ -8,8 +8,10 @@ import { buildWorkBoard } from "@/lib/launch/work-board.mjs";
 import { buildTodayBoard, topActions } from "@/lib/launch/today-board.mjs";
 import { ENGINES, ASSURED_ROUTES } from "@/lib/launch/browser-assurance.mjs";
 import { RELEASE_HISTORY } from "@/lib/launch/release-history.mjs";
-import { withCountdown } from "@/lib/launch/watches.mjs";
+import { withCountdown, REALITY_GATED_WATCHES } from "@/lib/launch/watches.mjs";
 import { founderActionSheet } from "@/lib/launch/shared-blockers.mjs";
+import { buildClosurePackets, executionQueue } from "@/lib/launch/closure-packets.mjs";
+import { readCurrentEvents, readProductReceipt, readRouteInventory } from "@/lib/launch/closure-packet-sources.mjs";
 import { ALLOWED_CHOICES } from "@/lib/launch/founder-response.mjs";
 import { IA_SECTIONS } from "@/lib/launch/ia-contract.mjs";
 import { buildUiuxEvidence, P184_BASELINE } from "@/lib/launch/uiux-evidence.mjs";
@@ -78,6 +80,23 @@ export default function LaunchCommandCenter() {
   const readJson = (rel: string) => {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data", rel), "utf8")); } catch { return null; }
   };
+
+  /*
+   * Closure packets (P196 · Release A): the completion control plane. Built at page build from the
+   * SAME authorities every other section reads — a contradiction THROWS here and fails the build,
+   * which is the point: this page cannot render a contradiction as a warning chip.
+   */
+  const closure = buildClosurePackets({
+    assessments: SPORT_ASSESSMENTS,
+    tickets: allCards,
+    watches: [...REALITY_GATED_WATCHES],
+    founderGates: founderActionSheet().map((b) => ({ ...b, sport: b.id.match(/blocker-(mlb|nfl|epl|ufc|nba)/)?.[1] ?? null })),
+    currentEvents: readCurrentEvents({ appDir: APP, nowIso: buildNowIso }),
+    productReceipt: readProductReceipt({ appDir: APP }),
+    routeInventory: readRouteInventory({ appDir: APP }),
+    nowIso: buildNowIso,
+  });
+  const closureQueue = executionQueue(closure);
   const board = readJson(`mlb/boards/${etDate}.json`);
   // Protected money integrity — rendered from the artifact the sole settlement writer owns.
   // This page can only READ it; a mismatch against expectations is a stop-and-inspect incident.
@@ -147,7 +166,7 @@ export default function LaunchCommandCenter() {
   const byPriority = (a: { priority: string }, b: { priority: string }) => rank[a.priority] - rank[b.priority];
 
   const tone = (s: string) =>
-    s === "PASS" || s === "HEALTHY" || s === "PRODUCTION_PROVEN" ? "var(--gtp-success-on-dark, #7ee2a8)"
+    s === "PASS" || s === "HEALTHY" || s === "PRODUCTION_PROVEN" ? "var(--gtp-success-on-dark)"
     : s === "FAIL" || s === "BLOCKED" ? "var(--vault-danger, #f23645)"
     : s === "PARTIAL" || s === "WATCH" || s === "AT_RISK" ? "var(--vault-gold-bright)"
     : "var(--vault-text-mute)";
@@ -449,7 +468,7 @@ export default function LaunchCommandCenter() {
                     <div key={sp} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
                       <p style={{ margin: 0, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                         <strong style={{ fontSize: 13 }}>{sp.toUpperCase()}</strong>
-                        <span style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 12, color: g.proven === g.total ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-text-mute)" }}>{g.proven}/{g.total}</span>
+                        <span style={{ fontFamily: "var(--font-mono, monospace)", fontSize: 12, color: g.proven === g.total ? "var(--gtp-success-on-dark)" : "var(--vault-text-mute)" }}>{g.proven}/{g.total}</span>
                       </p>
                       <p style={{ margin: "5px 0 0", fontSize: 11, color: "var(--vault-text-mute)", lineHeight: 1.45 }}>
                         {g.proven === g.total ? "every gate stage proven — the live reference pipeline" : nextStage ? <>next gate: <strong>{nextStage.id}</strong> ({nextStage.status})</> : "—"}
@@ -528,7 +547,7 @@ export default function LaunchCommandCenter() {
                               const v = (entry.axes as Record<string, { state: boolean; receipt?: string; reason?: string }>)[a];
                               return (
                                 <Cell key={a} mono>
-                                  <span title={v.receipt ?? v.reason} style={{ color: v.state ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-text-faint)" }}>
+                                  <span title={v.receipt ?? v.reason} style={{ color: v.state ? "var(--gtp-success-on-dark)" : "var(--vault-text-faint)" }}>
                                     {v.state ? "●" : "○"}
                                   </span>
                                 </Cell>
@@ -598,6 +617,48 @@ export default function LaunchCommandCenter() {
                   </tbody>
                 </table>
               </div>
+            </section>
+
+            {/* ── Closure packets — the completion control plane (P196 · Release A) ───────── */}
+            <section aria-labelledby="closure" style={{ marginBottom: 30 }}>
+              <h2 id="closure" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Closure packets · completion control plane</h2>
+              <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+                One derived packet per sport over the twelve-stage gate: counts, public tier, current event, product receipts and whose
+                move each gap is. Percentages are generated; contradictions fail this page&apos;s build rather than rendering.
+              </p>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 860 }}>
+                  <caption className="sr-only">Per-sport closure packets: gate counts, public tier, current event and next engineering move</caption>
+                  <thead><tr><Head>Sport</Head><Head>Gate</Head><Head>Public tier</Head><Head>Current event</Head><Head>Products</Head><Head>Next engineering move</Head></tr></thead>
+                  <tbody>
+                    {Object.values(closure.sports).map((p: any) => {
+                      const next = closureQueue.engineering.find((q: any) => q.sport === p.sport);
+                      return (
+                        <tr key={p.sport}>
+                          <Cell><strong>{p.sport.toUpperCase()}</strong></Cell>
+                          <Cell><span style={{ fontFamily: "var(--font-mono, monospace)" }}>{p.counts.proven}/{p.counts.applicable}</span> <span style={{ color: "var(--vault-text-faint)" }}>({p.counts.partial}p · {p.counts.unproven}u{p.counts.blocked ? ` · ${p.counts.blocked}b` : ""})</span></Cell>
+                          <Cell><span style={{ color: p.publicClaims.tier === "LIVE_ELIGIBLE" ? "var(--gtp-success-on-dark)" : "var(--vault-text-mute)", fontWeight: 600 }}>{p.publicClaims.tier}</span></Cell>
+                          <Cell><span style={{ color: p.currentEvent.state === "CURRENT" ? "var(--gtp-success-on-dark)" : p.currentEvent.state === "STALE" ? "var(--gtp-warn-on-dark)" : "var(--vault-text-mute)", fontWeight: 600 }}>{p.currentEvent.state}</span><br /><span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{p.currentEvent.detail}</span></Cell>
+                          <Cell>{p.products.length === 0 ? <span style={{ color: "var(--vault-text-faint)" }}>none by design</span> : p.products.map((pr: any) => (
+                            <span key={pr.lane} style={{ display: "block", fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{pr.lane}: {pr.state}{pr.asOf ? ` @ ${pr.asOf}` : ""}</span>
+                          ))}</Cell>
+                          <Cell>{next ? <><strong>{next.stage}</strong> — {next.action.length > 110 ? next.action.slice(0, 107) + "…" : next.action}</> : <span style={{ color: "var(--vault-text-faint)" }}>none — remaining gaps are reality- or founder-gated</span>}</Cell>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p style={{ fontSize: 12, fontWeight: 700, margin: "14px 0 4px" }}>Dependency-ordered engineering queue (top 10 of {closureQueue.engineering.length})</p>
+              <ol style={{ margin: 0, paddingLeft: 18, fontSize: 11.5, color: "var(--vault-text-mute)", lineHeight: 1.55 }}>
+                {closureQueue.engineering.slice(0, 10).map((q: any) => (
+                  <li key={`${q.sport}-${q.stage}`}><strong>[{q.sport}] {q.stage}</strong> ({q.status}) — {q.action.length > 130 ? q.action.slice(0, 127) + "…" : q.action}</li>
+                ))}
+              </ol>
+              <p style={{ fontSize: 11, color: "var(--vault-text-faint)", marginTop: 8 }}>
+                {closureQueue.realityWatch.length} reality-gated stage(s) held as watches · {closureQueue.founderQueue.length} founder-gated ·
+                regenerate the committed artifact with <code>npx tsx scripts/ops/build-closure-packets.mjs --now &lt;ISO&gt; --check</code>
+              </p>
             </section>
 
             {/* ════ FOUNDER ═══════════════════════════════════════════════════════════════ */}
@@ -704,7 +765,7 @@ export default function LaunchCommandCenter() {
                             <Cell key={st.id} mono>
                               <span
                                 title={st.evidence ?? st.blocker ?? "no receipt"}
-                                style={{ color: st.status === "PROVEN" ? "var(--gtp-success-on-dark, #7ee2a8)" : st.status === "PARTIAL" ? "var(--vault-gold-bright)" : st.status === "BLOCKED_EXTERNAL" ? "var(--vault-danger)" : "var(--vault-text-faint)" }}
+                                style={{ color: st.status === "PROVEN" ? "var(--gtp-success-on-dark)" : st.status === "PARTIAL" ? "var(--vault-gold-bright)" : st.status === "BLOCKED_EXTERNAL" ? "var(--vault-danger)" : "var(--vault-text-faint)" }}
                               >
                                 {st.status === "PROVEN" ? "●" : st.status === "PARTIAL" ? "◐" : st.status === "BLOCKED_EXTERNAL" ? "✕" : "○"}
                               </span>
@@ -954,7 +1015,7 @@ export default function LaunchCommandCenter() {
               {productTruth ? (
                 <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>
                   {productTruth.totals.facts} owned facts reconciled ·{" "}
-                  <strong style={{ color: productTruth.totals.p0 === 0 ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-danger)" }}>
+                  <strong style={{ color: productTruth.totals.p0 === 0 ? "var(--gtp-success-on-dark)" : "var(--vault-danger)" }}>
                     {productTruth.totals.contradictions} contradictions ({productTruth.totals.p0} P0)
                   </strong>
                   {" · "}{productTruth.totals.exceptions} documented exception(s) applied · generated {productTruth.generatedAt}.
@@ -974,7 +1035,7 @@ export default function LaunchCommandCenter() {
                 <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)" }}>
                   {routeInventory.totals.routes} routes reconciled across source · ownership table · built export
                   ({routeInventory.totals.public} public · {routeInventory.totals.redirects} redirects · {routeInventory.totals.internal} internal · {routeInventory.totals.archive} archive)
-                  — <strong style={{ color: routeInventory.totals.p0 === 0 ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-danger)" }}>
+                  — <strong style={{ color: routeInventory.totals.p0 === 0 ? "var(--gtp-success-on-dark)" : "var(--vault-danger)" }}>
                     {routeInventory.totals.findings} findings, {routeInventory.totals.p0} P0
                   </strong> · generated {routeInventory.generatedAt}.
                   {routeInventory.findings.length > 0 ? ` Top: ${routeInventory.findings.slice(0, 3).map((f: { id: string }) => f.id).join(", ")}` : " Every active route has an owner, purpose, and build proof."}

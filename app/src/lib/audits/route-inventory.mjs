@@ -33,14 +33,14 @@ export const ROUTE_TABLE = Object.freeze({
    * that were reachable only by scrolling their sport hub. generateStaticParams enumerates only the
    * lanes with a published ladder, so a lane between slates has no page rather than an empty one.
    */
-  "/cards/[sport]": { classification: "public", owner: "product", purpose: "per-sport paper card ladder — one card per price band, from real posted prices", dataOwner: "parlays/risk-ladder-<sport> artifacts", freshness: "ladder generatedAt; dated by its own slate/card" },
+  "/cards/[sport]": { classification: "public", owner: "product", family: true, purpose: "per-sport paper card ladder — one card per price band, from real posted prices", dataOwner: "parlays/risk-ladder-<sport> artifacts", freshness: "ladder generatedAt; dated by its own slate/card" },
   "/mr-dub": { classification: "public", owner: "product", purpose: "trust center: complete paper-bankroll journey + receipts", dataOwner: "protected portfolio + ledger", freshness: "settlement cutoff shown beside current-ops marker" },
   "/results": { classification: "public", owner: "settlement", purpose: "settled track record on the canonical accounting", dataOwner: "results accounting artifacts", freshness: "settled-through date" },
   "/results/mlb": { classification: "public", owner: "settlement", purpose: "MLB settled results detail", dataOwner: "settlement artifacts", freshness: "settled-through date" },
   "/results/nba": { classification: "archive", owner: "settlement", purpose: "NBA settled archive (HISTORICAL_ONLY)", dataOwner: "frozen archive", freshness: "frozen — archive is dated by design" },
   "/results/model-audit": { classification: "public", owner: "research", purpose: "deep-dive model-performance ledger (money-independent)", dataOwner: "grading artifacts", freshness: "per-artifact" },
   "/results/picks": { classification: "public", owner: "product", purpose: "every sport's model record side by side — the only page where the four sit together, and the one that has to say why they are not comparable", dataOwner: "public/data/<sport>/graded-picks.json", freshness: "each artifact's own generatedAt" },
-  "/results/picks/[sport]": { classification: "public", owner: "product", purpose: "every graded prediction a sport's model has made against what actually happened — the other half of publishing forecasts, and the same shape for all four sports", dataOwner: "public/data/<sport>/graded-picks.json, built from each sport's own graded ledger", freshness: "artifact generatedAt; rebuilt whenever a sport settles" },
+  "/results/picks/[sport]": { classification: "public", owner: "product", family: true, purpose: "every graded prediction a sport's model has made against what actually happened — the other half of publishing forecasts, and the same shape for all four sports", dataOwner: "public/data/<sport>/graded-picks.json, built from each sport's own graded ledger", freshness: "artifact generatedAt; rebuilt whenever a sport settles" },
   "/results/parlay-lab": { classification: "public", owner: "product", purpose: "the Parlay Lab's own suggested cards, every sport, with how each settled — distinct from saved slips", dataOwner: "parlays/lab-ledger + lab-settled receipts", freshness: "ledger generatedAt; receipts dated per settled day" },
   "/results/parlays": { classification: "public", owner: "settlement", purpose: "parlay settlement history", dataOwner: "settlement artifacts", freshness: "settled-through date" },
   "/results/date/[date]": { classification: "public", owner: "settlement", purpose: "per-date settled slate", family: true, dataOwner: "settlement artifacts", freshness: "route param date" },
@@ -50,7 +50,7 @@ export const ROUTE_TABLE = Object.freeze({
   "/mlb/results": { classification: "public", owner: "settlement", purpose: "MLB results view", dataOwner: "settlement artifacts", freshness: "settled-through" },
   "/mlb/power": { classification: "public", owner: "product", purpose: "MLB power rankings view", dataOwner: "boards", freshness: "board date" },
   "/sports": { classification: "public", owner: "product", purpose: "four-sport schedules directory (Schedule only — not modelled, in words)", dataOwner: "upcoming adapters over committed captures", freshness: "absolute capture dates per section" },
-  "/nfl/game/[eventId]": { classification: "public", owner: "product", purpose: "NFL per-game experimental simulation report (P177-A): projected score, win chance, total and margin distributions with percentiles, the market read side by side, a reading key and the full provenance receipt \u2014 statically generated from the committed forecast artifact, dynamicParams=false", dataOwner: "nfl/forecasts/latest.json + nfl/index.json (build-time reads)", freshness: "each report carries its own generatedAt, kickoff and lifecycle" },
+  "/nfl/game/[eventId]": { classification: "public", owner: "product", family: true, purpose: "NFL per-game experimental simulation report (P177-A): projected score, win chance, total and margin distributions with percentiles, the market read side by side, a reading key and the full provenance receipt \u2014 statically generated from the committed forecast artifact, dynamicParams=false", dataOwner: "nfl/forecasts/latest.json + nfl/index.json (build-time reads)", freshness: "each report carries its own generatedAt, kickoff and lifecycle" },
   "/nfl": { classification: "public", owner: "product", purpose: "NFL hub (P169-J): real slate + finals from committed captures, market-by-market coverage table with typed states (PRIVATE_ONLY/AUTH_REQUIRED/ROLE_UNCERTAIN/NO_VAULT) — no predictions published", dataOwner: "nfl schedule/results captures (build-time reads)", freshness: "absolute capture stamps in copy" },
   "/games/[sport]/[gameId]": { classification: "public", owner: "product", purpose: "per-game report (browse-game → report)", family: true, dataOwner: "game detail artifacts", freshness: "artifact stamps" },
   "/learn": { classification: "public", owner: "product", purpose: "How It Works", dataOwner: "static copy", freshness: "static" },
@@ -63,9 +63,16 @@ export const ROUTE_TABLE = Object.freeze({
   // Rewritten 2026-08-20: this said /epl "publishes nothing predictive" while the page was rendering
   // a per-fixture 1X2 table. The registry describes what a route DOES; a stale description here is a
   // false answer to the audit that reads it.
-  "/epl/match/[slug]": { classification: "public", owner: "product", purpose: "Premier League per-fixture model report (P188): match-result probabilities with the two-of-three outcomes, the ten likeliest scorelines and the mass they account for, the total-goals distribution with an over/under ladder, each side's own goal curve, both-teams-to-score, clean sheets and the winning-margin distribution \u2014 every figure an exact sum over ONE Poisson score matrix, so no run count is quoted because nothing is sampled. Statically generated per priced fixture, dynamicParams=false. Carries the not-validated-out-of-sample statement ABOVE the first number; no pick, rating or price comparison anywhere", dataOwner: "soccer/epl/forecasts/latest.json via lib/sports/epl/forecast-view (build-time read)", freshness: "the artifact's own generatedAt, printed on the page" },
+  "/epl/match/[slug]": { classification: "public", owner: "product", family: true, purpose: "Premier League per-fixture model report (P188): match-result probabilities with the two-of-three outcomes, the ten likeliest scorelines and the mass they account for, the total-goals distribution with an over/under ladder, each side's own goal curve, both-teams-to-score, clean sheets and the winning-margin distribution \u2014 every figure an exact sum over ONE Poisson score matrix, so no run count is quoted because nothing is sampled. Statically generated per priced fixture, dynamicParams=false. Carries the not-validated-out-of-sample statement ABOVE the first number; no pick, rating or price comparison anywhere", dataOwner: "soccer/epl/forecasts/latest.json via lib/sports/epl/forecast-view (build-time read)", freshness: "the artifact's own generatedAt, printed on the page" },
   "/epl": { classification: "public", owner: "product", purpose: "Premier League hub: fixtures grouped by ET day with club crests, PLUS per-fixture model forecasts (1X2, expected goals, over/under 2.5) for the fixtures that can be priced — published under an explicit 'not validated out of sample' statement, with zero matches graded and no track record claimed", dataOwner: "openfootball schedule capture + EPL Poisson forecast artifact (build-time read)", freshness: "schedule capture stamp in copy; forecasts stamped from the artifact's own generatedAt" },
-  "/ufc": { classification: "archive", owner: "settlement", purpose: "settled UFC archive (the one graded card; accountability outranks minimalism) + upcoming bout SCHEDULE (P186) marked 'Schedule only — simulation pending'", dataOwner: "frozen settlement + schedule capture", freshness: "archive frozen by design; schedule carries its capture source" },
+  /*
+   * P196 · Release A correction: "archive" was the P186 truth — a settled card and a schedule-only
+   * table. The route has since become the current-card hub (lifecycle-aware next-card heading,
+   * three-head model reads, live ladder, model-vs-market graded record — P190-P194), and the
+   * closure-packet leak guard caught the stale class on its first real build. The settled archive
+   * is now a SECTION of a public product route, not the route's identity.
+   */
+  "/ufc": { classification: "public", owner: "product", purpose: "UFC hub: current card with three-head model reads + live ladder, model-vs-market graded record, settled archive section", dataOwner: "card-latest + graded picks + frozen settlement", freshness: "card artifact generatedAt; lifecycle derives from the card's own startUtc" },
   "/launch": { classification: "internal", owner: "ops", purpose: "founder command center (pruned from public export)", dataOwner: "evidence artifacts + derived boards", freshness: "per-artifact" },
   "/ops": { classification: "internal", owner: "ops", purpose: "ops dashboard (pruned)", dataOwner: "admin status", freshness: "per-artifact" },
   "/preview/epl": { classification: "internal", owner: "research", purpose: "EPL artifact preview (pruned)", dataOwner: "epl lane artifacts", freshness: "per-artifact" },
@@ -135,8 +142,23 @@ export function buildRouteInventory({ now, appDir, outDir = null, navSources = [
     // Built-output reconciliation, when an export is provided.
     if (outDir) {
       const htmlPath = r === "/" ? path.join(outDir, "index.html") : path.join(outDir, ...r.slice(1).split("/"), "index.html");
-      if (entry.family) rec.built = "FAMILY (representative pages generated per fixture)";
-      else {
+      if (entry.family) {
+        /*
+         * P196: a family used to be taken on faith ("representative pages generated per fixture"),
+         * which is a vacuous check — a public family that generated ZERO pages read exactly like a
+         * healthy one. Count the concrete instances under the family's static prefix instead. Zero
+         * is P1, not P0: a lane between slates may legitimately have nothing to generate, but it
+         * must show up here as a fact rather than hide behind the word FAMILY.
+         */
+        const staticPrefix = r.split("/[")[0];
+        let instances = 0;
+        try {
+          instances = fs.readdirSync(path.join(outDir, ...staticPrefix.slice(1).split("/")), { withFileTypes: true })
+            .filter((d) => d.isDirectory()).length;
+        } catch { /* missing prefix dir counts as zero */ }
+        rec.built = `FAMILY (${instances} generated page(s))`;
+        if (instances === 0) find(`family-empty-${r}`, "P1", `${r} is a public family with zero generated pages in the export`, r);
+      } else {
         const built = fs.existsSync(htmlPath);
         rec.built = built;
         if (entry.classification === "internal" && built) find(`internal-exported-${r}`, "P0", `internal route ${r} exists in the public export`, r);
