@@ -126,7 +126,9 @@ function curateTeamPick(p: WcProjection): CuratedPick | null {
     (DQ_BONUS[dq] ?? 0) +
     (hitRate ? (hitRate.percentage / 100) * 0.12 : 0);
   const why: string[] = [];
-  why.push(`Model ${Math.round((p.modelProbability ?? 0) * 100)}% vs market ${Math.round((p.marketProbability ?? 0) * 100)}%`);
+  // P202: this line builds USER-FACING copy — never coalesce a probability to 0 in a claim. The
+  // ≥0.8 filter above guarantees modelProbability here; market may genuinely be absent and says so.
+  why.push(`Model ${Math.round((p.modelProbability as number) * 100)}%${p.marketProbability != null ? ` vs market ${Math.round(p.marketProbability * 100)}%` : " · market price unavailable"}`);
   if ((p.edgePct ?? 0) > 0.01) why.push(`${Math.round((p.edgePct ?? 0) * 100)}% edge`);
   if (hitRate) why.push(`recent form ${hitRate.label}`);
   if (p.market === "double_chance") why.push("covers two of three outcomes (lower variance)");
@@ -175,7 +177,11 @@ function curatePlayerPick(p: WcPlayerProjection): CuratedPick {
     (goal ? 0.15 : 0.08) +
     (p.lineupStatus === "confirmed" ? 0.1 : 0);
   const sel = goal ? "Anytime goalscorer" : `${p.pick} ${p.line ?? ""}`.trim();
-  const why: string[] = [`Model ${Math.round((p.modelProbability ?? 0) * 100)}% vs market ${Math.round((p.marketProbability ?? 0) * 100)}%`];
+  const why: string[] = [
+    p.modelProbability != null
+      ? `Model ${Math.round(p.modelProbability * 100)}%${p.marketProbability != null ? ` vs market ${Math.round(p.marketProbability * 100)}%` : " · market price unavailable"}`
+      : "Market-implied only — no independent model probability",
+  ];
   if ((p.edgePct ?? 0) > 0.01) why.push(`${Math.round((p.edgePct ?? 0) * 100)}% edge`);
   why.push("limited-data / market-implied — not Bank Builder eligible");
   return {

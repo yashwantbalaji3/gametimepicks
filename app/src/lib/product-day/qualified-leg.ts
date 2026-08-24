@@ -100,6 +100,55 @@ export function adaptLaneLeg(
   };
 }
 
+/**
+ * Adapt one BUILDER leg into the contract (Program 202 · Release B).
+ *
+ * The builder's pool comes through the methodology engine (leakage/started/odds gating — the
+ * generation-time qualifier). This adapter is the bridge that proves every leg the builder OFFERS
+ * also satisfies the published contract: settlement identity present, three-state probability
+ * (BuildLeg's own rule — null means "not modelled", never an odds-derived stand-in — maps to the
+ * typed absence), a real price. A refusal here is a leg the builder must not offer.
+ */
+export function adaptBuildLeg(
+  raw: { id?: string; sport?: string; gameId?: string | number | null; market?: string; americanOdds?: number; modelProbability?: number | null; sourceDate?: string | null; label?: string },
+  ctx: { productDate: string },
+): AdaptResult {
+  const refuse = (code: LegRefusalCode, detail: string): AdaptResult => ({ ok: false, refusal: { code, detail } });
+  if (!raw || typeof raw !== "object") return refuse("MALFORMED_LEG", "not an object");
+  const market = str(raw.market);
+  if (!market) return refuse("NO_MARKET", `${raw.id ?? "?"}: no market`);
+  const price = num(raw.americanOdds);
+  if (price == null) return refuse("NO_PRICE", `${raw.id ?? "?"}: no American price`);
+  const settlementId = raw.gameId != null && `${raw.gameId}`.length > 0 ? String(raw.gameId) : null;
+  if (!settlementId) {
+    return refuse("NO_SETTLEMENT_IDENTITY", `${raw.id ?? "?"}: no gameId — an ungradeable leg never enters a card`);
+  }
+  const sportKey = String(raw.sport ?? "").toLowerCase();
+  const sport = (["mlb", "epl", "ufc", "nfl"].includes(sportKey) ? sportKey : "mlb") as QualifiedLeg["sport"];
+  return {
+    ok: true,
+    leg: {
+      schemaVersion: QUALIFIED_LEG_SCHEMA_VERSION,
+      id: String(raw.id ?? `${settlementId}#${market}`),
+      sport,
+      productDate: raw.sourceDate ?? ctx.productDate,
+      eventId: settlementId,
+      settlementId,
+      market,
+      side: null,
+      line: null,
+      price,
+      modelProbability: num(raw.modelProbability) != null
+        ? (raw.modelProbability as number)
+        : { absent: "not modelled by the source — the builder renders absence, never an odds-derived stand-in" },
+      participant: str(raw.label),
+      team: null,
+      freshnessUtc: `${raw.sourceDate ?? ctx.productDate}T00:00:00Z`,
+      sourceLineage: null,
+    },
+  };
+}
+
 export interface LaneValidation {
   lane: "mlb" | "epl" | "ufc";
   date: string | null;

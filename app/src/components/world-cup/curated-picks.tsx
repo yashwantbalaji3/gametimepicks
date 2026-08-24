@@ -42,8 +42,8 @@ function TeamPickRow({ p }: { p: CuratedPick }) {
       </summary>
       <div className="px-3 pb-2.5 flex flex-col gap-1">
         <div className="flex items-center gap-3 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
-          <span>model {Math.round((p.modelProbability ?? 0) * 100)}%</span>
-          <span>market {Math.round((p.marketProbability ?? 0) * 100)}%</span>
+          <span>{p.modelProbability != null ? `model ${Math.round(p.modelProbability * 100)}%` : "model —"}</span>
+          <span>{p.marketProbability != null ? `market ${Math.round(p.marketProbability * 100)}%` : "market —"}</span>
           {p.recentHitRate ? <span>form {p.recentHitRate.label}</span> : null}
           <DqBadge q={p.dataQuality} />
         </div>
@@ -70,8 +70,8 @@ function PlayerPickRow({ p }: { p: CuratedPick }) {
       </summary>
       <div className="px-3 pb-2.5 flex flex-col gap-1">
         <div className="flex items-center gap-3 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
-          <span>model {Math.round((p.modelProbability ?? 0) * 100)}%</span>
-          <span>market {Math.round((p.marketProbability ?? 0) * 100)}%</span>
+          <span>{p.modelProbability != null ? `model ${Math.round(p.modelProbability * 100)}%` : "model —"}</span>
+          <span>{p.marketProbability != null ? `market ${Math.round(p.marketProbability * 100)}%` : "market —"}</span>
           <DqBadge q={p.dataQuality} />
         </div>
         <ul className="space-y-0.5 text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>

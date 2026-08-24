@@ -107,7 +107,7 @@ export function loadWorldCupPlayerPropLegs(root: string, nowIso: string, date: s
       riskScore: 0.55, riskTier: "high",
       dataQualityGrade: "C", leakageValidationPassed: true,
       missingDataFlags: [], staleDataFlags: [], smallSampleFlags: [],
-      topPositiveFactors: [{ label: `model ${Math.round((modelProbability ?? 0) * 100)}% · attacking ${market.label.toLowerCase()} prop`, direction: "positive", weight: 0.6 }],
+      topPositiveFactors: [{ label: `${modelProbability != null ? `model ${Math.round(modelProbability * 100)}%` : "market-implied"} · attacking ${market.label.toLowerCase()} prop`, direction: "positive", weight: 0.6 }],
       topNegativeFactors: [{ label: "limited-data / market-implied: lineups not yet posted, no independent per-player model", direction: "negative", weight: 0.6 }],
       correlationTags: [`game:${tm.eventId}`, `player:${player.name}`, `market:${raw.market}`, "scope:player_prop"],
       exposureTags: [`game:${tm.eventId}`, `player:${player.name}`],

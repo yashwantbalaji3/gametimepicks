@@ -164,7 +164,10 @@ export function loadTopReads(): TopReadsSet | null {
   const eplP = read("public/data/soccer/epl/player-projections/latest.json");
   for (const f of eplP?.fixtures ?? []) {
     for (const pl of f.players ?? []) {
-      if (pl.probability == null) continue;
+      /* P202: a probability of ZERO is not a read — the source includes goalkeepers at P(score)=0,
+         and "Bernd Leno to score · 0%" ranked into the model's strongest reads. A ranked read IS a
+         positive model probability; anything else stays off the board. */
+      if (pl.probability == null || !(pl.probability > 0 && pl.probability < 1)) continue;
       reads.push({
         sport: "epl", sportLabel: "Premier League", kind: "player",
         headline: `${pl.name} to score`,

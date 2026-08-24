@@ -155,7 +155,10 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
           <PredictionCard
             label="Total"
             pick={`${total.pick} ${total.line}`}
-            prob={`${Math.round((total.pick === "OVER" ? total.overProbability ?? 0 : total.underProbability ?? 0) * 100)}% ${total.pick === "OVER" ? "over" : "under"}`}
+            prob={(() => {
+              const p = total.pick === "OVER" ? total.overProbability : total.underProbability;
+              return p != null ? `${Math.round(p * 100)}% ${total.pick === "OVER" ? "over" : "under"}` : `${total.pick === "OVER" ? "over" : "under"} · probability unavailable`;
+            })()}
             strength={shortStrength(total.strengthLabel)}
           />
         ) : (

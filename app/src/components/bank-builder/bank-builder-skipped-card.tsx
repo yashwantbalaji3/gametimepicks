@@ -47,7 +47,7 @@ export default function BankBuilderSkippedCard({
                   <span className="truncate font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{a.matchup}</span>
                 </span>
                 <span className="flex items-center gap-2 shrink-0 font-mono" style={{ fontSize: 10.5 }}>
-                  <span style={{ color: "var(--vault-text-mute)" }}>model {Math.round((a.modelProbability ?? 0) * 100)}%</span>
+                  <span style={{ color: "var(--vault-text-mute)" }}>{a.modelProbability != null ? `model ${Math.round(a.modelProbability * 100)}%` : "not modelled"}</span>
                   <span className="tabular" style={{ color: "var(--vault-text)" }}>{odds(a.americanOdds)}</span>
                 </span>
               </div>

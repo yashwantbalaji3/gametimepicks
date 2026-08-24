@@ -330,7 +330,7 @@ export function buildUfcPredictionV1(fight: EngineFight, odds: EngineOddsBout | 
     winnerMethodText: winnerMethodText,
     moneyline: hasOdds ? `${last(a)} ${amer(oddsA) ?? "—"} · ${last(b)} ${amer(oddsB) ?? "—"}` : "Odds pending",
     winProbability: moneyline.fighterAProbability != null
-      ? `${last(a)} ${pct(moneyline.fighterAProbability)} / ${last(b)} ${pct(moneyline.fighterBProbability ?? 0)}`
+      ? `${last(a)} ${pct(moneyline.fighterAProbability)} / ${last(b)} ${moneyline.fighterBProbability != null ? pct(moneyline.fighterBProbability) : "—"}`
       : "—",
     fightType: nonEmpty(fightType.label, "No clear read"),
     distance: nonEmpty(goesDistance.lean, "No clear read"),
