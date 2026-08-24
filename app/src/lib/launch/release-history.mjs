@@ -15,6 +15,17 @@ export const RELEASE_HISTORY_VERSION = 1;
 
 /** Newest first. Departments use the ten-department vocabulary rendered on /launch. */
 export const RELEASE_HISTORY = Object.freeze([
+  /*
+   * PROGRAM 198 CLOSURE RECEIPT (appended by P199 Phase 0). The one COMPLETE criterion left open
+   * at the P198 report cut — exact-tip production convergence — is now proven: production serves
+   * 01464f3cb, a covering SHA whose ancestry includes the P198 tip dc52ebca1 (git merge-base
+   * --is-ancestor, verified 2026-08-24 13:36 UTC), the build stamped 13:10 UTC, and the first
+   * unattended night ran the P198 code end to end (nightly settle 08:12 UTC, UFC post-card
+   * quiet-exit with reconciliation intact, auto-refresh). Program 198 reclassifies COMPLETE:
+   * ENGINEERING_READY zero by conservation, every remaining item reality- or founder-gated with
+   * acceptance tests, tiers generated, assurance green.
+   */
+  { program: "198", release: "closure", commit: "01464f3cb", date: "2026-08-24", departments: ["Operations & Reliability"], outcome: "P198 reclassified COMPLETE on production convergence: covering SHA ancestry-proven over dc52ebca1; queue-zero live; first unattended night green (nightly settle, UFC post-card quiet exit, cadence receipts)", defectsFound: "the overnight receipts exposed a loop-scoped missing-count overwriting the cumulative MLB game record (fixed: derived from the linescore cache every write) and the predicted 08-23 snapshot seam day (closed: +45 rows from local history)", rollbackParent: "dc52ebca1" },
   { program: "169", release: "J+K", commit: "fcedebc1b", date: "2026-08-13", departments: ["Product & UX", "Sport Operations"], outcome: "public /nfl honesty hub: real slate + finals from committed captures, market-by-market coverage table with typed states; route inventory 51/0 findings; boundary guards repointed to rendered-text rules (the /sports-revival pattern); NFL event-day runbook (T-24h through corrections)", defectsFound: "the sport-hub redirect-only rule and nav allowlist fired on the new route — adjudicated as the founder-charter graduation with the invariant preserved in rendered text", rollbackParent: "0f3010e06" },
   { program: "169", release: "G", commit: "0f3010e06", date: "2026-08-13", departments: ["Product & UX", "Modeling & Research"], outcome: "Endzone Vault: five modes, correlation-aware compatibility (same-game CORRELATION_NOT_VALIDATED without a joint receipt; cross-game independence disclosed), separate append-only paper ledger with first real NO_PLAY entry naming its three true blockers", defectsFound: null, rollbackParent: "664f0dd84" },
   { program: "169", release: "F", commit: "664f0dd84", date: "2026-08-13", departments: ["Modeling & Research"], outcome: "anytime-TD engine: team-first Poisson allocation refusing without a committed points-to-TD calibration receipt; mandatory residual; passer/receiver one-event rule; four publication gates (modelled-yet-unpublishable is real); settlement credit rules (scoring player wins, passer-only loses, DNP voids)", defectsFound: "float residue at share-0 clamped by its own test", rollbackParent: "b06027f80" },

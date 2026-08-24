@@ -164,7 +164,28 @@ if (WRITE) {
     what: "Game-level predictions — winner, total and run line from the full-game simulation — graded against official StatsAPI finals, from the newest artifact revision that pre-dates each game's first pitch.",
     caveat: "A model-performance record, separate from the 32,227-row player-prop record and from the settled money record: different questions, different denominators, never combined.",
     families,
-    counts: { rows: all.length, missingPreEventFinals: missingTotal },
+    /*
+     * P199 fix, found by the record itself: `missingTotal` is scoped to THIS invocation's dates,
+     * and the nightly loops one date per invocation — so the LAST date's count (typically an
+     * already-graded backfill day: zero) overwrote the cumulative figure. The published number is
+     * now DERIVED from the full linescore cache against the ledger on every write: a final gamePk
+     * with no graded row and both scores present is a missing pre-event artifact, whoever ran last.
+     * (The same single-date-into-cumulative class the NFL settler once had — P195's lesson,
+     * relearned in my own script.)
+     */
+    counts: {
+      rows: all.length,
+      missingPreEventFinals: (() => {
+        const gradedPks = new Set(all.map((r) => String(r.gamePk)));
+        let missing = 0;
+        for (const f of fs.readdirSync(LINESCORES).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x))) {
+          for (const g of readJson(path.join(LINESCORES, f))?.games ?? []) {
+            if (g.isFinal === true && Number.isInteger(g.homeRuns) && Number.isInteger(g.awayRuns) && !gradedPks.has(String(g.gamePk))) missing += 1;
+          }
+        }
+        return missing;
+      })(),
+    },
     recent: all
       .slice()
       .sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.gamePk).localeCompare(String(a.gamePk)))
