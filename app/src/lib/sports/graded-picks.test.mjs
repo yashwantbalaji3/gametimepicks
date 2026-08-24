@@ -99,3 +99,35 @@ test("BUILT EXPORT · every sport's hub shows how its picks turned out", () => {
       `/${sport} must show how its picks turned out, not only what they were`);
   }
 });
+
+/*
+ * ── GENERATED AND NEVER COMMITTED IS THE SHAPE THAT PRODUCED A 62-HOUR OUTAGE ──────────────────
+ *
+ * A record of what the model got right is exactly the half that goes stale quietly: the forecasts
+ * keep publishing either way, so nobody notices the results have stopped moving. It must be built
+ * on a schedule AND committed by the same job.
+ */
+test("the picks record is rebuilt by a scheduled job, and that job commits it", async () => {
+  const wf = fs.readFileSync(path.join(process.cwd(), "..", ".github", "workflows", "nightly-settle.yml"), "utf8");
+  assert.match(wf, /build-graded-picks\.mjs[^\n]*--write/, "something scheduled must rebuild the record");
+  for (const sport of PICK_SPORTS) {
+    const committed = wf.includes(`app/public/data/$s/graded-picks.json`) || wf.includes(`app/public/data/${sport}/graded-picks.json`);
+    assert.ok(committed, `${sport}'s record is generated and must be in the commit allowlist`);
+  }
+  // The build step must come BEFORE the commit step, or it commits the previous run's file.
+  assert.ok(wf.indexOf("build-graded-picks.mjs") < wf.lastIndexOf("graded-picks.json"),
+    "the record must be built before it is committed");
+});
+
+test("the builder re-grades NOTHING — it translates each sport's own ledger", () => {
+  /*
+   * A translation layer that recomputed an outcome would be a second opinion about a settled
+   * result, and settled results have exactly one source per sport. The adapters may read a `hit`
+   * and may map a vocabulary; they may not decide who won.
+   */
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/sports/build-graded-picks.mjs"), "utf8");
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  for (const banned of [/homeGoalsFT\s*[<>]/, /\bscore[AB]\s*[<>]/, /winner\s*=\s*.*[<>]/]) {
+    assert.doesNotMatch(code, banned, `the builder must not derive an outcome itself: ${banned}`);
+  }
+});

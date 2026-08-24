@@ -24,6 +24,7 @@ import { fileURLToPath } from "node:url";
 import { SPORT_ASSESSMENTS } from "../../src/lib/sports/sport-assessments.mjs";
 import { deriveSportMaturity, remainingPath, GATE_STAGES } from "../../src/lib/sports/sport-gate.mjs";
 import { labEligibility } from "../parlays/lab-eligibility.mjs";
+import { loadOfficialUfcResults, fighterIndexForDate } from "../../src/lib/sports/ufc/official-results.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -75,18 +76,46 @@ const cards = ladder
       : { state: "STALE_FOR_A_DIFFERENT_CARD", detail: `the newest ladder is dated ${ladder.date} but this card is on ${slate ?? "an unknown date"}` })
   : UNKNOWN("no risk ladder has been published");
 
-/* Whether the settler can even see this sport's cards — the defect that made every UFC card ungradeable. */
+/*
+ * Whether the settler can even see this sport's cards — the defect that made every UFC card
+ * ungradeable.
+ *
+ * THE DATE HALF IS NOW PROVEN BY RUNNING IT, NOT BY GREPPING FOR IT. This searched the settler's
+ * source for the literal `r.eventDate !== DATE`. That confinement moved into the shared official-
+ * results reader when the settler was taught to read BOTH results sources, and the grep went on
+ * looking for it where it used to be — so this artifact published OUT_OF_SCOPE, asserting the
+ * settler could not reach UFC, hours after it had settled a UFC card. A guard that reports a
+ * capability as absent because the code was reorganised is worse than no guard, because it is a
+ * false alarm on a settlement path and false alarms there get ignored.
+ *
+ * A rename cannot break a probe that feeds the real function a fighter who appears on two different
+ * cards and checks that only the settled one comes back.
+ */
 const settlementReach = (() => {
   const src = readText(path.join(APP, "scripts/parlays/settle-lab-cards.mjs"));
   if (!src) return UNKNOWN("the lab settler could not be read");
   const reads = /risk-ladder-ufc/.test(src);
-  const dated = /r\.eventDate !== DATE/.test(src);
+  let dated = false;
+  try {
+    const probe = loadOfficialUfcResults({
+      corpus: { results: [
+        { eventDate: "2099-01-01", fighterA: "Probe One", fighterB: "Probe Two", winner: "Probe One", loser: "Probe Two" },
+        { eventDate: "2099-06-01", fighterA: "Probe Two", fighterB: "Probe One", winner: "Probe Two", loser: "Probe One" },
+      ] },
+    });
+    const jan = fighterIndexForDate(probe.byBout, "2099-01-01");
+    const jun = fighterIndexForDate(probe.byBout, "2099-06-01");
+    // The same fighter wins one card and loses the other. If the index were unconfined, one result
+    // would overwrite the other and both days would agree — which is the fabrication being ruled out.
+    dated = jan.get("probe one")?.won === true && jun.get("probe one")?.won === false;
+  } catch { dated = false; }
   return {
     state: reads && dated ? "IN_SCOPE" : "OUT_OF_SCOPE",
     readsUfcLadder: reads,
     /* Without this, a fighter's name matched anywhere in a 126-event corpus and graded a fight that
        had not happened. It is the difference between a settled record and a fabricated one. */
     constrainedToCardDate: dated,
+    provenBy: "a live probe of the shared results reader, not a text match on the settler",
   };
 })();
 

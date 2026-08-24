@@ -2,38 +2,38 @@
   "schemaVersion": 1,
   "artifact": "ufc-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-08-23T21:09:19Z",
+  "generatedAt": "2026-08-24T00:14:08Z",
   "nextCard": {
     "name": "UFC Fight Night: Nurmagomedov vs. Song",
     "slateDate": "2026-08-29",
     "bouts": 13,
-    "hoursAway": 129.84
+    "hoursAway": 126.76
   },
   "freshness": {
     "card": {
       "state": "READ",
       "stampedAt": "2026-08-23T21:08:28Z",
-      "ageHours": 0.01
+      "ageHours": 3.09
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-08-23T21:08:37Z",
-      "ageHours": 0.01
+      "ageHours": 3.09
     },
     "ladder": {
       "state": "READ",
       "stampedAt": "2026-08-23T21:09:17Z",
-      "ageHours": 0
+      "ageHours": 3.08
     },
     "results": {
       "state": "READ",
       "stampedAt": "2026-08-23T17:41:40+00:00",
-      "ageHours": 3.46
+      "ageHours": 6.54
     },
     "settled": {
       "state": "READ",
       "stampedAt": "2026-06-15T13:55:00Z",
-      "ageHours": 1663.24
+      "ageHours": 1666.32
     }
   },
   "cards": {
@@ -48,9 +48,10 @@
     "selection": "the model's own read — the one model here that passed its preregistered bar. It has never been compared against a no-vig UFC line"
   },
   "settlementReach": {
-    "state": "OUT_OF_SCOPE",
+    "state": "IN_SCOPE",
     "readsUfcLadder": true,
-    "constrainedToCardDate": false
+    "constrainedToCardDate": true,
+    "provenBy": "a live probe of the shared results reader, not a text match on the settler"
   },
   "credits": {
     "state": "READ",
@@ -115,11 +116,6 @@
     ]
   },
   "blockers": [
-    {
-      "id": "settler-cannot-grade-ufc",
-      "state": "ENGINEERING",
-      "detail": "the lab settler does not read this sport's ladder, or does not constrain results to the card's own date. Cards would publish and never grade."
-    },
     {
       "id": "calibration-sample",
       "state": "REALITY_GATED",

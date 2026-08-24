@@ -230,6 +230,19 @@ jobs:
 
       # The risk ladder re-derives its whole record from every graded day, so it runs AFTER
       # settlement and never carries a number forward from the previous file.
+      # ── HOW THE PICKS TURNED OUT, REBUILT WHENEVER SOMETHING SETTLES ─────────────────────────
+      #
+      # Every sport hub and /results/picks/<sport> render this artifact. It is derived from each
+      # sport's own graded ledger and re-grades nothing, so it is safe to rebuild on every run —
+      # and it MUST be, because a record of what the model got right that only refreshes when
+      # somebody remembers to run a script is exactly the half that goes stale while the forecasts
+      # keep publishing. Network-free: it reads committed ledgers only.
+      - name: Rebuild the picks-vs-outcomes record for every sport
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          (cd app && node scripts/sports/build-graded-picks.mjs --now "$NOW" --write)
+
       - name: Rebuild the risk-ladder record
         if: always()
         working-directory: app
@@ -450,6 +463,10 @@ jobs:
           # board and have its output dropped at the commit — the same shape as the 62-hour outage.
           git add app/public/data/mlb/homer-nukes/ 2>/dev/null || true
           git add app/public/data/parlays/risk-ladder/ 2>/dev/null || true
+          # GENERATED ABOVE, SO IT MUST BE COMMITTED HERE. An artifact that a job builds and never
+          # commits is the exact shape that produced a 62-hour freshness outage on this repo: the
+          # run goes green, the file changes on the runner, and the published site never moves.
+          for s in mlb nfl ufc epl; do git add "app/public/data/$s/graded-picks.json" 2>/dev/null || true; done
           git add pipeline/validation/settled_leans.jsonl 2>/dev/null || true
           git add pipeline/validation/mlb_settled_leans.jsonl 2>/dev/null || true
           git add pipeline/validation/comparison_report_*.json 2>/dev/null || true
