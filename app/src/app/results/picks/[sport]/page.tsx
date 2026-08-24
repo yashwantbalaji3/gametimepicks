@@ -50,6 +50,7 @@ export default function GradedPicksPage({ params }: { params: { sport: string } 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
       <SectionHeader
+        as="h1"
         eyebrow={`Track record · ${lane.label}`}
         title="Picks vs outcomes"
         sub="Every prediction this model has made that has since been graded against an official result. Paper-only and educational — nothing here is a pick or a recommendation to wager, and no stake is filled in anywhere on this site."

@@ -48,14 +48,26 @@ export default function SportLabCards({
       <p className="mt-1" style={{ margin: "4px 0 0", fontSize: 11, color: "var(--vault-text-faint)" }}>
         Prices read {ladder.generatedAt} · card date {ladder.date}
       </p>
-      <div className="mt-3" style={{ display: "grid", gap: 10 }}>
+      {/*
+        minmax(0, 1fr), NOT the default 1fr.
+        A grid item's automatic minimum size is its CONTENT, so a card holding a long leg label —
+        "Crystal Palace v Manchester City — total goals 3" — refuses to shrink below it and drags the
+        whole document wider than the viewport. At 320px that is a WCAG 1.4.10 failure: two-
+        dimensional scrolling. The ellipsis on the label could never take effect, because the box it
+        was meant to be clipped inside was growing to fit it.
+        It surfaced the day /epl carried three cards with real fixture names; the same markup was fine
+        for months on one short card, which is why a reflow gate has to run on every route rather than
+        on the ones that looked risky.
+      */}
+      <div className="mt-3" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 10 }}>
         {ladder.cards.map((c) => (
           <div key={c.slipId} style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "12px 14px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
               <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: "var(--vault-text-mute)" }}>{c.tier}</span>
               <span className="font-mono" style={{ fontSize: 15, fontWeight: 800, color: "var(--gtp-bank-cta)" }}>{fmtAmerican(c.combinedAmerican)}</span>
             </div>
-            <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
+            {/* Same rule one level down: each leg is a grid item and needs the same permission to shrink. */}
+            <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 5 }}>
               {c.legs.map((l) => (
                 <li key={l.eventId} style={{ fontSize: 13, color: "var(--vault-text)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
                   {/*
@@ -74,7 +86,7 @@ export default function SportLabCards({
                     ) : l.team ? (
                       <TeamLogo team={l.team} sport="soccer" size="sm" ariaLabel={l.team} />
                     ) : null}
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{legLabel(l)}</span>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{legLabel(l)}</span>
                   </span>
                   <span className="font-mono" style={{ color: "var(--vault-text-mute)", flexShrink: 0 }}>{fmtAmerican(l.odds)}</span>
                 </li>

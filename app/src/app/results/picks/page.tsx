@@ -33,6 +33,7 @@ export default function AllGradedPicksPage() {
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
       <SectionHeader
+        as="h1"
         eyebrow="Track record · every sport"
         title="Picks vs outcomes"
         sub="What each model predicted, and what actually happened, graded against official results. Paper-only and educational — nothing here is a pick or a recommendation to wager, and no stake is filled in anywhere on this site."
