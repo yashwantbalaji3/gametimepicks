@@ -25,7 +25,14 @@ test("CONSERVATION · every convention-era release commit in git appears in the 
   const log = execSync('git log --reverse --format="%h|%s"', { encoding: "utf8" });
   const commits = log.split("\n").filter((l) => RE.test(l)).map((l) => l.split("|")[0]);
   const inRegister = new Set(RELEASE_HISTORY.map((r) => r.commit));
-  const missing = commits.filter((c) => !inRegister.has(c));
+  /*
+   * The HEAD commit alone may be in flight: a release row cannot contain its own SHA (the SHA
+   * does not exist until the commit does), so each release appends its PREDECESSOR's row and the
+   * newest convention commit is registered by the next one. Anything older and unregistered is a
+   * real hole in the record.
+   */
+  const head = execSync('git rev-parse --short HEAD', { encoding: "utf8" }).trim();
+  const missing = commits.filter((c) => !inRegister.has(c) && c !== head);
   assert.deepEqual(missing, [],
     `release commits missing from the register (run scripts/ops/append-release-history.mjs --emit):\n  ${missing.join("\n  ")}`);
 });

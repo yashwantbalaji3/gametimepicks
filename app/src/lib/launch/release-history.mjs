@@ -15,6 +15,7 @@ export const RELEASE_HISTORY_VERSION = 1;
 
 /** Newest first. Departments use the ten-department vocabulary rendered on /launch. */
 export const RELEASE_HISTORY = Object.freeze([
+  { program: "203", release: "R-A", commit: "35d9c21a3", date: "2026-08-24", departments: ["Release engineering"], outcome: "the operating record becomes a generated, conserved, self-validating artifact", defectsFound: "its own validator caught the legacy/new register blocks interleaving out of date order, and the schema guard caught empty departments + a misplaced closure row before commit", rollbackParent: "89ccc8680" },
   /*
    * PROGRAM 198 CLOSURE RECEIPT (appended by P199 Phase 0). The one COMPLETE criterion left open
    * at the P198 report cut — exact-tip production convergence — is now proven: production serves
