@@ -40,7 +40,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       style={{
         ...CHIP,
         color: active ? "var(--vault-success)" : "var(--vault-text-mute)",
-        border: active ? "1px solid rgba(110,231,168,0.45)" : "1px solid var(--vault-border-strong)",
+        border: active ? "1px solid color-mix(in srgb, var(--vault-success) 45%, transparent)" : "1px solid var(--vault-border-strong)",
         backgroundColor: active ? "var(--vault-success-dim)" : "transparent",
       }}
     >
