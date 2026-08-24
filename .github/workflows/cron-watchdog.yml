@@ -11,6 +11,12 @@ on:
     # 14:30 UTC = 10:30 ET — after morning-projections (13:30 UTC) and before/near the
     # mlb-daily-production backstop (14:15 UTC) has finished queueing.
     - cron: "30 14 * * *"
+    # P197 · Release B: the single 14:30 UTC slot could not cover a weekend cluster's EARLIEST
+    # kickoff (Saturday 11:30, Sunday 13:00 UTC) — the EPL monitoring stage recorded that as
+    # residualGap rather than rounding it away. A 09:30 weekend slot runs BEFORE the earliest
+    # kickoff either day, so a matchweek job that died overnight is caught while the fix still
+    # matters, not three hours into the slate.
+    - cron: "30 9 * * 6,0"
   workflow_dispatch:
 
 permissions:
