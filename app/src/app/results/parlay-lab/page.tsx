@@ -166,7 +166,10 @@ export default function ParlayLabRecordPage() {
       <p className="mt-6" style={{ fontSize: 12, lineHeight: 1.7, color: "var(--vault-text-faint)" }}>
         Paper-only and educational. No stake is filled in anywhere on this site and nothing here is a pick
         or a recommendation to wager. Cards are published before their events start and graded from
-        official results; a card that could not be graded is never published.
+        official results; a card that could not be graded is never published. Three early UFC cards
+        (2026-08-18) predate the cross-lane settler and were stamped with their build day rather than
+        their fight day — they are quarantined by name, never graded, and excluded from every figure
+        above; a conservation guard proves nothing else is missing from this record.
       </p>
 
       <nav className="mt-4 flex flex-wrap gap-3" style={{ fontSize: 12.5 }}>
