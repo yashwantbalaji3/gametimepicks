@@ -2,18 +2,18 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-24T15:06:01Z",
+ "generatedAt": "2026-08-24T16:07:24Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 7,
-  "NO_PLAY": 5,
-  "LANE_CLOSED": 8,
-  "MISSING": 0
+  "PUBLISHED": 6,
+  "NO_PLAY": 6,
+  "LANE_CLOSED": 4,
+  "MISSING": 4
  },
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-08-23",
+   "date": "2026-08-24",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
@@ -23,15 +23,15 @@
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-08-23_public_low_mlb_5b7bd33ca28d"
+     "slipId": "slip_2026-08-24_conservative_4f8f00680e4a"
     },
     "high": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-08-23_public_medium_mlb_cf2e587083f0"
+     "slipId": "slip_2026-08-24_balanced_aef097a3d015"
     },
     "longshot": {
-     "state": "PUBLISHED",
-     "slipId": "opt_2026-08-23_public_longshot_mlb_e20cb76efdad"
+     "state": "NO_PLAY",
+     "reason": "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
     }
    }
   },
@@ -43,7 +43,7 @@
    "tiers": {
     "low": {
      "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +110 (medium) … +418 (high)"
+     "reason": "no combination of today's prices lands in this band — 2 legs → +110 (medium) … +413 (high)"
     },
     "medium": {
      "state": "PUBLISHED",
@@ -114,20 +114,20 @@
    "laneReason": null,
    "tiers": {
     "low": {
-     "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-08-24T13:55:53Z; the next scheduled run re-evaluates under current eligibility"
+     "state": "MISSING",
+     "reason": "the lane artifact carries neither a card nor a skip for this tier"
     },
     "medium": {
-     "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-08-24T13:55:53Z; the next scheduled run re-evaluates under current eligibility"
+     "state": "MISSING",
+     "reason": "the lane artifact carries neither a card nor a skip for this tier"
     },
     "high": {
-     "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-08-24T13:55:53Z; the next scheduled run re-evaluates under current eligibility"
+     "state": "MISSING",
+     "reason": "the lane artifact carries neither a card nor a skip for this tier"
     },
     "longshot": {
-     "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-08-24T13:55:53Z; the next scheduled run re-evaluates under current eligibility"
+     "state": "MISSING",
+     "reason": "the lane artifact carries neither a card nor a skip for this tier"
     }
    }
   }
