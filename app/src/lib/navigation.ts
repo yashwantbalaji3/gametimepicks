@@ -98,7 +98,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   { href: "/simulate", label: "Simulate", group: "now", glyph: "▶", desc: "Pick a game, run its report",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "games" },
   { href: "/markets", label: "Market Center", group: "now", glyph: "◈", desc: "Sportsbook prices vs our sims",
-    surfaces: ["top", "rail", "footer"] },
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "markets", shortLabel: "Market" },
   { href: "/build", label: "Build", group: "now", glyph: "✎", desc: "Build a card, or browse suggested ones",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "lab" },
 
@@ -122,20 +122,20 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   /* No `note`: the label already ends in "Schedules", and "Sports · Schedules · schedules" is
      what a note that repeats its own label looks like. */
   { href: "/sports", label: "Sports · Schedules", group: "sports", glyph: "🗓", desc: "EPL · NFL · NBA · UFC schedules",
-    surfaces: ["top", "rail", "footer"] },
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "sports", shortLabel: "Sports" },
 
   // ── PRODUCTS ───────────────────────────────────────────────────────────────────────────────────
-  { href: "/bank-builder", label: "Bank Builder", shortLabel: "Bank", group: "products", glyph: "▰", desc: "Conservative paper card",
-    surfaces: ["rail", "mobile", "footer"], bucket: "bank" },
+  { href: "/bank-builder", label: "Bank Builder", group: "products", glyph: "▰", desc: "Conservative paper card",
+    surfaces: ["rail", "footer"] },
   { href: "/moonshot", label: "Moonshot", group: "products", glyph: "🌙", desc: "High-risk paper longshots",
-    surfaces: ["rail", "mobile", "footer"], bucket: "moonshot" },
+    surfaces: ["rail", "footer"] },
   // Revived 2026-08-17. The route was a retired redirect stub for six weeks because the provider
   // home-run feed it read had gone away; it now computes its own probability from StatsAPI, so it
   // is a destination again rather than a name in the archive.
   { href: "/homer-nukes", label: "Homer Nukes", group: "products", glyph: "💣", desc: "Today's five likeliest home runs",
     surfaces: ["rail", "footer"] },
-  { href: "/mr-dub", label: "Mr. Dub's Portfolio", shortLabel: "Mr. Dub", group: "products", glyph: "✓", desc: "Paper bankroll journey",
-    surfaces: ["rail", "mobile", "footer"], bucket: "mrdub" },
+  { href: "/mr-dub", label: "Mr. Dub's Portfolio", group: "products", glyph: "✓", desc: "Paper bankroll journey",
+    surfaces: ["rail", "footer"] },
   /*
    * EVERY LIVE LANE'S SIGNATURE PRODUCT, not just baseball's.
    *
@@ -178,7 +178,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   { href: "/results/picks", label: "Picks vs Outcomes", group: "record", glyph: "◎",
     desc: "What each model predicted, and what happened", surfaces: ["rail", "footer"] },
   { href: "/results", label: "Results", group: "record", glyph: "≡", desc: "Settled track record",
-    surfaces: ["top", "rail", "footer"] },
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "results" },
   { href: "/learn", label: "How It Works", group: "record", glyph: "✦", desc: "Start here",
     surfaces: ["rail", "footer"] },
   { href: "/methodology", label: "Methodology", group: "record", glyph: "◳", desc: "The model, in depth",

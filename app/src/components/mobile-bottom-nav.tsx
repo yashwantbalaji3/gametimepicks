@@ -105,6 +105,17 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <circle cx="13.5" cy="18" r="1" />
         </svg>
       );
+    case "markets":
+      // Two columns compared — model beside market, the Market Center's whole job.
+      return (
+        <svg {...props}>
+          <path d="M7 20V9" />
+          <path d="M12 20V4" />
+          <path d="M17 20v-7" />
+          <path d="M4 20h16" />
+          <path d="M4 6.5h4" />
+        </svg>
+      );
     case "results":
       // Check-in-circle — settled results.
       return (

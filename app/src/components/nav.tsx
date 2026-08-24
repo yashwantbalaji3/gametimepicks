@@ -181,7 +181,11 @@ export default function Nav() {
         <span aria-hidden className="shrink-0" style={{ width: 80 }} />
       </div>
 
-      {/* Mobile (< sm): row 2 = horizontal-scrolling nav strip */}
+      {/* Mobile (< sm): row 2 = horizontal-scrolling nav strip.
+          P201: the bottom bar now carries all six primary destinations, so the complement this
+          strip renders is EMPTY and the strip disappears entirely — one mobile nav, not two. The
+          machinery stays: any future top-band destination the bar lacks reappears here on its own. */}
+      {MOBILE_TOP_ITEMS.length > 0 ? (
       <nav
         aria-label="Primary"
         className="sm:hidden overflow-x-auto"
@@ -251,6 +255,7 @@ export default function Nav() {
           })}
         </div>
       </nav>
+      ) : null}
 
       {/* Sportsbook LED rail underneath the chrome — pure presentation,
           respects prefers-reduced-motion. */}

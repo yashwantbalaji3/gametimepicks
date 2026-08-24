@@ -122,13 +122,14 @@ test("the LIVE Moonshot lane is structurally sound and never ships a pre-graded 
   assert.ok(checked > 0, "at least one leg was cross-checked against the board's own player-team answer");
 });
 
-test("Moonshot is reachable: command rail + top nav include it; mobile has its own Moonshot bucket", () => {
+test("Moonshot is reachable: the canonical list carries it on rail + footer; mobile ceded its slot to the six primary (P201)", () => {
   const rail = read("src/components/command-rail.tsx") + read("src/lib/navigation.ts");
   const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
   assert.match(rail, /href: "\/moonshot"/, "command rail has a Moonshot entry");
-  assert.match(nav, /href: "\/moonshot"/, "top nav has a Moonshot entry");
-  // Moonshot is a first-class product → its own bottom-nav slot (was folded into Bank).
-  assert.equal(resolveMobileNavBucket("/moonshot"), "moonshot", "mobile highlights the dedicated Moonshot bucket");
+  assert.match(nav, /href: "\/moonshot"/, "the canonical list still carries Moonshot");
+  // P201 (charter F1): the bar is the six primary destinations, so the products lost their slots
+  // and highlight nothing — null, like /about. Reachability lives on the rail and in the footer.
+  assert.equal(resolveMobileNavBucket("/moonshot"), null, "no false highlight for a slot that no longer exists");
 });
 
 test("Today + Bank Builder + Mr. Dub link to the Moonshot tracker", () => {

@@ -80,7 +80,8 @@ test("Picks Lab is retired: no nav surface links /picks, and its old labels stay
 test("/mr-dub is \"Mr. Dub's Portfolio\" in nav; 'Track Record'/'Daily Dashboard' are not nav labels", () => {
   assert.ok(NAV.includes(`href: "/mr-dub", label: "Mr. Dub's Portfolio"`), "top nav");
   assert.ok(RAIL.includes(`href: "/mr-dub", label: "Mr. Dub's Portfolio"`), "rail");
-  assert.equal(mobileByHref["/mr-dub"], "Mr. Dub's Portfolio", "mobile");
+  // P201: /mr-dub lost its mobile slot to the six primary — absence, not a different label.
+  assert.equal(mobileByHref["/mr-dub"], undefined, "no mobile slot since the six-primary swap");
   // "Mr. Dub" alone is still forbidden — the label must be the full "Mr. Dub's Portfolio",
   // never the bare codename. The exact-match regex below distinguishes them.
   for (const bad of ["Mr. Dub", "Track Record", "Daily Dashboard"]) {

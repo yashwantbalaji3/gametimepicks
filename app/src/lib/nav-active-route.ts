@@ -14,6 +14,7 @@ import { destinationsFor } from "./navigation";
 export type MobileNavBucket =
   | "home"
   | "games"
+  | "markets"
   | "picks"
   | "lab"
   | "bank"
@@ -106,30 +107,44 @@ export function resolveMobileNavBucket(
     p === "/parlays" || p.startsWith("/parlays/") ||
     p === "/parlay-lab" || p.startsWith("/parlay-lab/")
   ) return "lab";
-  // Bank Builder and Moonshot are sibling paper products, each with its own bottom-nav slot. (Homer
-  // Nukes was retired 2026-06-30 — /homer-nukes no longer maps to a bucket; it falls through to null.)
-  if (p === "/bank-builder" || p.startsWith("/bank-builder/")) return "bank";
-  if (p === "/moonshot" || p.startsWith("/moonshot/")) return "moonshot";
-  if (p === "/mr-dub" || p.startsWith("/mr-dub/")) return "mrdub";
-  // The unified Games board + the Sports directory + every sport hub/board + schedule-only
-  // leagues all resolve to the Games bucket (Games is the cross-sport entry on mobile).
+  // P201 (charter F1): the bar carries the SIX PRIMARY destinations, so the paper products no
+  // longer own slots — Bank Builder / Moonshot / Mr. Dub highlight nothing, like /about. Their
+  // buckets stay in the type for any surface that still keys on them, but no route resolves there.
+  // Better silent than misleading. (Homer Nukes retired 2026-06-30 — still no bucket.)
+  if (
+    p === "/bank-builder" || p.startsWith("/bank-builder/") ||
+    p === "/moonshot" || p.startsWith("/moonshot/") ||
+    p === "/mr-dub" || p.startsWith("/mr-dub/")
+  ) return null;
+  // Market Center owns its own slot (P201).
+  if (p === "/markets" || p.startsWith("/markets/")) return "markets";
+  // Results returned to the bar with the six-primary swap: every record surface highlights it.
+  if (p === "/results" || p.startsWith("/results/")) return "results";
+  // Simulate owns the cross-sport GAME surfaces: the lobby, game reports, and the legacy
+  // board/projections aliases that redirect into them.
   if (
     p === "/simulate" || p.startsWith("/simulate/") ||
     p === "/games" || p.startsWith("/games/") ||
-    p === "/sports" || p.startsWith("/sports/") ||
     p === "/events" || p.startsWith("/events/") ||
-    p === "/world-cup" || p.startsWith("/world-cup/") ||
-    p === "/world-cup-specials" || p.startsWith("/world-cup-specials/") ||
-    p === "/mlb" || p.startsWith("/mlb/") ||
-    p === "/nba" || p.startsWith("/nba/") ||
-    p === "/ufc" || p.startsWith("/ufc/") ||
-    p === "/nhl" || p.startsWith("/nhl/") ||
-    p === "/ipl" || p.startsWith("/ipl/") ||
     p === "/projections" || p.startsWith("/projections/") ||
     p === "/board" || p.startsWith("/board/")
   ) return "games";
-  // Everything else (/results, /about, /methodology, /responsible-use, /trends)
-  // returns null so the bottom nav shows nothing highlighted — those live in
-  // the top nav / drawer. Better silent than misleading.
+  // Sports owns the LEAGUE surfaces (P201): the schedules directory and every sport hub — a
+  // reader inside /mlb is inside a league, and the bar item that promises "enter a league"
+  // should say so. World Cup archives ride here too (they are league history, not live games).
+  if (
+    p === "/sports" || p.startsWith("/sports/") ||
+    p === "/mlb" || p.startsWith("/mlb/") ||
+    p === "/nba" || p.startsWith("/nba/") ||
+    p === "/ufc" || p.startsWith("/ufc/") ||
+    p === "/epl" || p.startsWith("/epl/") ||
+    p === "/nfl" || p.startsWith("/nfl/") ||
+    p === "/nhl" || p.startsWith("/nhl/") ||
+    p === "/ipl" || p.startsWith("/ipl/") ||
+    p === "/world-cup" || p.startsWith("/world-cup/") ||
+    p === "/world-cup-specials" || p.startsWith("/world-cup-specials/")
+  ) return "sports";
+  // Everything else (/about, /methodology, /responsible-use, /trends) returns null so the bottom
+  // nav shows nothing highlighted — those live in the rail / footer. Better silent than misleading.
   return null;
 }
