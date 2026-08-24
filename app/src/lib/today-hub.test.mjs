@@ -123,10 +123,17 @@ test("5 · Bank Builder status is DERIVED honestly (no-play / awaiting Step / $0
   assert.ok(!/awaiting Step 3\b/.test(TODAY_CODE), "the '3' is derived in code, never a hardcoded 'awaiting Step 3' literal");
 });
 
-// 6 — uses "Build-a-Pick" not "Parlay Lab" in public body copy.
-test("6 · public label is 'Build-a-Pick', never 'Parlay Lab'", () => {
+// 6 — the BUILDER is "Build-a-Pick", never "Parlay Lab".
+// P200 restatement: when this pin was written, "Parlay Lab" was a stale name for the builder. Since
+// then the Lab became a REAL named product with its own canonical nav destination ("Parlay Lab
+// Record" in navigation.ts) and its suggested-cards preview legitimately renders on this hub under
+// that name. The surviving claim is narrower and still load-bearing: the Build-a-Pick BUILDER
+// module itself must never be relabelled "Parlay Lab" — two names for one tool is how the original
+// confusion started.
+test("6 · the builder is 'Build-a-Pick'; the builder module never carries the Lab's name", () => {
   assert.ok(/Build-a-Pick/.test(TODAY_ALL), "Build-a-Pick label present");
-  assert.ok(!/Parlay Lab/i.test(TODAY_ALL), "no stale 'Parlay Lab' public label anywhere on the hub");
+  const builderModule = read("src/components/today/status-modules.tsx");
+  assert.ok(!/Parlay Lab/i.test(builderModule), "the builder module never labels itself 'Parlay Lab'");
 });
 
 // 7 — uses "Longshot Lab" not "Moonshot" in public body copy (code identifiers allowed).

@@ -34,6 +34,8 @@ import { resolveLadderStep } from "@/lib/bank-builder-ladder";
 import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 
 import TodayDailySlateHeader from "@/components/today/daily-slate-header";
+import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
+import { loadSuggestedParlaysPreview, TIER_INTENT } from "@/lib/home/suggested-parlays.mjs";
 import TodayAtAGlance, { type GlanceCard } from "@/components/today/at-a-glance";
 import TodayTopModelPicks from "@/components/today/top-model-picks";
 import TodayGamePredictions from "@/components/today/game-predictions";
@@ -97,6 +99,9 @@ export default function TodayPage() {
     details.filter((d) => d.sport === "mlb" && d.date === today),
     today,
   );
+
+  // ── Parlay Lab preview — the SAME reshaping of the risk-coverage matrix Home renders ──
+  const parlayPreview = loadSuggestedParlaysPreview(dataRoot);
 
   // ── Top model picks — the canonical cross-sport board; take the strongest ~6 for the compact list ──
   const top10 = buildTop10Board(dataRoot, today, Date.now());
@@ -222,7 +227,8 @@ export default function TodayPage() {
       label: "Picks Lab",
       value: bapStatus,
       sub: engineSuggested > 0 ? "open the daily builder" : "no cards today",
-      href: "/picks",
+      // P200: /picks retired into /build (P-picks-lab-merge); link the destination, not the redirect.
+      href: "/build",
       tone: engineSuggested > 0 ? "gold" : "mute",
     },
     {
@@ -300,6 +306,13 @@ export default function TodayPage() {
 
       {/* 2 — Today at a glance (compact canonical status cards) */}
       <TodayAtAGlance cards={glanceCards} />
+
+      {/* 2a — The Parlay Lab's four risk evaluations per lane (P200): the SAME component + lib Home
+          renders, reading the day's risk-coverage matrix — one owner, two surfaces, no re-derivation.
+          The daily command center shows the daily product's evaluations, no-play chips included. */}
+      {parlayPreview ? (
+        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} />
+      ) : null}
 
       {/* 2b — Game Predictions table: the model's answer for every game, canonical + first-glance */}
       <TodaySimulationStories stories={slateStories} />
