@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { guardInternalRoute } from "@/lib/internal-route-guard";
 import { currentEtDate } from "@/lib/freshness";
 import { buildCompletionMatrix, ROADMAP_30D } from "@/lib/launch/completion-matrix.mjs";
@@ -82,6 +83,26 @@ export default function LaunchCommandCenter() {
   const readJson = (rel: string) => {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data", rel), "utf8")); } catch { return null; }
   };
+
+  /*
+   * The operating record's identity card (P203 · Release A). The record is GENERATED
+   * (scripts/ops/build-operating-record.mjs) from the committed register; this card renders its
+   * as-of stamp, program, register count and checksum FROM THE FILE ITSELF, so a stale record can
+   * never silently look current here — if the file is missing or unparseable that state renders
+   * in words instead.
+   */
+  const operatingRecord = (() => {
+    try {
+      const doc = fs.readFileSync(path.join(APP, "..", "data/internal/launch/operating-record.html"), "utf8");
+      const gen = doc.match(/<span>Generated ([^<]+)<\/span><span>([^<]+)<\/span>/);
+      const end = doc.match(/<!-- OPERATING-RECORD-END expected=(\d+) first=([^ ]+) last=([^ ]+) -->/);
+      if (!end) return { state: "INVALID" as const, note: "end marker missing — regenerate before trusting any copy of the record" };
+      const sha = crypto.createHash("sha256").update(doc).digest("hex").slice(0, 16);
+      return { state: "OK" as const, generatedAt: gen?.[1] ?? "unknown", program: gen?.[2] ?? "unknown", releases: Number(end[1]), first: end[2], last: end[3], sha };
+    } catch {
+      return { state: "MISSING" as const, note: "data/internal/launch/operating-record.html has not been generated" };
+    }
+  })();
 
   /*
    * Closure packets (P196 · Release A): the completion control plane. Built at page build from the
@@ -625,6 +646,18 @@ export default function LaunchCommandCenter() {
 
             {/* ── Closure packets — the completion control plane (P196 · Release A) ───────── */}
             <section aria-labelledby="closure" style={{ marginBottom: 30 }}>
+              {/* P203: the record's identity — a stale record can never silently look current. */}
+              <div style={{ border: "1px solid var(--vault-border-strong)", borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 12.5 }}>
+                <span className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>Operating record</span>
+                {operatingRecord.state === "OK" ? (
+                  <p style={{ margin: "4px 0 0" }}>
+                    <a href="https://claude.ai/code/artifact/fe4dba67-9441-48ff-a803-8c745a0aec6b" style={{ color: "var(--gtp-bank-cta)" }}>Published artifact</a>
+                    <span style={{ color: "var(--vault-text-mute)" }}> · generated {operatingRecord.generatedAt} · {operatingRecord.program} · {operatingRecord.releases} releases ({operatingRecord.first} → {operatingRecord.last}) · sha256 {operatingRecord.sha}…</span>
+                  </p>
+                ) : (
+                  <p style={{ margin: "4px 0 0", color: "var(--vault-warn)" }}>{operatingRecord.state}: {operatingRecord.note}</p>
+                )}
+              </div>
               <h2 id="closure" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Closure packets · completion control plane</h2>
               <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
                 One derived packet per sport over the twelve-stage gate: counts, public tier, current event, product receipts and whose

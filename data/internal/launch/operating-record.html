@@ -1,0 +1,195 @@
+<title>GameTimePicks Operating Record</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+  :root {
+    --ground: #F5F7F6; --surface: #FFFFFF; --sunken: #EDF1EF; --text: #0B1210; --muted: #4A5652;
+    --faint: #6E7B76; --rule: #DCE3E0; --accent: #0E7C5A; --accent-q: #E4F3EC;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #070B09; --surface: #0F1512; --sunken: #0B110E; --text: #F5F7F6; --muted: #9FADA7;
+      --faint: #6E7D77; --rule: #1E2723; --accent: #34D399; --accent-q: #0E1F19;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #070B09; --surface: #0F1512; --sunken: #0B110E; --text: #F5F7F6; --muted: #9FADA7;
+    --faint: #6E7D77; --rule: #1E2723; --accent: #34D399; --accent-q: #0E1F19;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--ground); color: var(--text); font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; font-size: 15px; line-height: 1.6; margin: 0; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 40px 24px 96px; }
+  h1, h2 { font-family: "IBM Plex Sans Condensed", sans-serif; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 700; line-height: 1.06; }
+  h2 { font-size: clamp(19px, 2.4vw, 24px); font-weight: 700; }
+  p { margin: 0; max-width: 72ch; }
+  .stamp { display: flex; flex-wrap: wrap; gap: 8px 20px; font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+  header.doc { display: flex; flex-direction: column; gap: 14px; padding-bottom: 24px; border-bottom: 1px solid var(--rule); }
+  section { margin-top: 44px; display: flex; flex-direction: column; gap: 14px; }
+  .scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  thead th { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); background: var(--sunken); }
+  td.num { font-family: "IBM Plex Mono", monospace; white-space: nowrap; }
+  td em { display: block; color: var(--faint); font-style: normal; font-size: 12px; margin-top: 3px; }
+  .sports { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .sport { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; }
+  .sport b { font-family: "IBM Plex Sans Condensed", sans-serif; font-size: 17px; }
+  .sport span { display: block; font-size: 12px; color: var(--muted); }
+  footer.doc { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--faint); }
+</style>
+<div class="wrap" data-expected-releases="108" data-first-release="141-143-—" data-last-release="202-R-L">
+<header class="doc">
+  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-24T22:25:00Z</span><span>Program 203 · in flight</span></p>
+  <h1>The operating record, generated from the committed register</h1>
+  <p class="stamp">
+    <span>main @ 567e5e620</span>
+    <span>Suite: 5,105 tests · 5,101 pass · 0 fail · 4 skipped</span>
+    <span>e2e: 385/0/6 named</span>
+    <span>Queues:  engineering · [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object] reality · [object Object],[object Object],[object Object],[object Object],[object Object] founder · 0 incident</span>
+  </p>
+  <p>Every figure on this page derives from committed artifacts at the stamp above — the release rows from
+  <code>src/lib/launch/release-history.mjs</code> (conserved against git's own release commits by a build-failing
+  guard), queues and sport tiers from the closure packets. Nothing here is hand-kept, the order is enforced
+  chronological at generation, and the builder re-parses its own output so a truncated or reordered export
+  fails instead of shipping. Paper-only and educational throughout.</p>
+</header>
+
+<section>
+  <h2>Sport posture</h2>
+  <div class="sports">
+    <div class="sport"><b>EPL</b><span> </span></div>
+    <div class="sport"><b>MLB</b><span> </span></div>
+    <div class="sport"><b>NBA</b><span> </span></div>
+    <div class="sport"><b>NFL</b><span> </span></div>
+    <div class="sport"><b>UFC</b><span> </span></div>
+  </div>
+</section>
+
+<section>
+  <h2>The release register — every production release, oldest first</h2>
+  <p class="stamp"><span>108 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 202-R-L (2026-08-24)</span></p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Release</th><th>Commit</th><th>Date</th><th>What shipped</th></tr></thead>
+      <tbody>
+        <tr><td class="num">141-143-—</td><td class="num"></td><td class="num">2026-08-07</td><td>UNRECORDED in this register: these programs predate the release-history data structure; their receipts live in the program reports, not here — never invented retroactively</td></tr>
+        <tr><td class="num">144-147-A-I</td><td class="num">281de088</td><td class="num">2026-08-08</td><td>ledger v2, identity ratchet, provable-only Build compat, hour-aware labels, 12-stage sport gate (MLB sole LIVE_ELIGIBLE)</td></tr>
+        <tr><td class="num">148-B-D</td><td class="num">118a1701d</td><td class="num">2026-08-09</td><td>/sports revived as the four-sport schedule directory; NFL first real capture; EPL research corpus + baselines</td></tr>
+        <tr><td class="num">149-R1-R3</td><td class="num">3d5cd6f8</td><td class="num">2026-08-09</td><td>shared replay harness + strict artifact modes; EPL 380/380 capture with dual-source membership verification <em>Defects caught: community source named two promoted clubs outside the committed alias table — quarantined, never auto-minted</em></td></tr>
+        <tr><td class="num">150-A</td><td class="num">55fa6eb4c</td><td class="num">2026-08-09</td><td>NBA + UFC forward coverage live on /sports; four-sport daily cadence workflow</td></tr>
+        <tr><td class="num">151-A+B</td><td class="num">ed9e913df</td><td class="num">2026-08-10</td><td>NFL research vertical (1,001 finals, 7 ties preserved) + EPL settlement validated on a full real season <em>Defects caught: Pro Bowl AFC/NFC rows caught by the 32-team refusal</em></td></tr>
+        <tr><td class="num">152-A</td><td class="num">4c2dbb032</td><td class="num">2026-08-10</td><td>NBA research vertical (4,179 finals; leap-day + All-Star + Cup-final traps caught by exact-count refusals) + cadence receipt #1 <em>Defects caught: ESPN monthly windows miss leap days; season.year labels the end year</em></td></tr>
+        <tr><td class="num">153-A+E</td><td class="num">af554cbba</td><td class="num">2026-08-10</td><td>UFC research vertical (abstaining Elo, coverage 25.6% by design) + the /launch work board <em>Defects caught: ESPN MMA endpoint rate-limits bursts — resumable fetcher with 15s spacing</em></td></tr>
+        <tr><td class="num">154-A</td><td class="num">e23f855dd</td><td class="num">2026-08-10</td><td>EPL current-results path operational before opening day: honest PRESEASON states, canonical join, quarantine-total</td></tr>
+        <tr><td class="num">155-C+D</td><td class="num">adac8cca1</td><td class="num">2026-08-10</td><td>board filters (read-only) + pipeline lanes + shadow contract with per-sport live-input matrix</td></tr>
+        <tr><td class="num">156-B</td><td class="num">7032fe644</td><td class="num">2026-08-10</td><td>shadowGaps wired into the work board — odds merged to ONE founder card spanning four sports</td></tr>
+        <tr><td class="num">157-A</td><td class="num">ccf37e3e8</td><td class="num">2026-08-10</td><td>shared four-sport model registry: derived index echoing committed evaluations verbatim, INCOMPLETE-honest, ranking vocabulary banned</td></tr>
+        <tr><td class="num">158-A</td><td class="num">a6b517388</td><td class="num">2026-08-10</td><td>/sports information architecture: one Sports·Schedules destination across command rail, nav strip, footer, homepage strip <em>Defects caught: a NAV_ITEMS-only destination is invisible at desktop widths — desktop wayfinding is the command rail</em></td></tr>
+        <tr><td class="num">159-A</td><td class="num">49bcc7220</td><td class="num">2026-08-10</td><td>route assurance inventory: 50 routes reconciled across source, ownership table, and built export — zero findings</td></tr>
+        <tr><td class="num">160-A</td><td class="num">703a26e2e</td><td class="num">2026-08-10</td><td>product-truth contract: one owner per public figure, fail-closed reconciliation, bounded documented exceptions <em>Defects caught: cross-lane auditors initially added to LANE_DIRS — the readers-allowlist is the correct repoint shape</em></td></tr>
+        <tr><td class="num">161-A</td><td class="num">bcec50d3a</td><td class="num">2026-08-11</td><td>Simulation Hub non-promotion proofs: 7 metamorphic guards + wiring bans close every accidental-promotion vector</td></tr>
+        <tr><td class="num">161-B</td><td class="num">81192df8f</td><td class="num">2026-08-11</td><td>cadence receipt #2 processed per sport (runs 31396780843 + 31500117960); morning window bounded as ONE documented exception across three guards <em>Defects caught: daily-products stamps today ~2h before board generation — money legitimately leads the board by one day every morning; frozen test clocks rot with the cadence</em></td></tr>
+        <tr><td class="num">161-C</td><td class="num">38c2b2e78</td><td class="num">2026-08-11</td><td>three-engine route/state assurance: 8-route contract on chromium/webkit/firefox in every quality-gate run, money-strip artifact parity, closed state vocabularies <em>Defects caught: homepage featured-sim cards requested ESPN logos by full team name (~10 CDN 404s per visit, hidden by the monogram fallback) — fixed by threading teamAbbrs</em></td></tr>
+        <tr><td class="num">161-D</td><td class="num">96f31a1f4</td><td class="num">2026-08-11</td><td>NFL results side: FINAL-only tie=PUSH contract validated on 1,001 corpus finals; capture + snapshot-union id-join adapter; cadence-wired <em>Defects caught: first live final (CAR-ARI Aug 7) predated schedule capture — quarantined for missing lineage, proving the Sprint-045 rule live</em></td></tr>
+        <tr><td class="num">161-closeout</td><td class="num">af03ef1b4</td><td class="num">2026-08-11</td><td>evidence ledger refreshed with the Aug 11 board + production run (13 entries, 0 contradictions)</td></tr>
+        <tr><td class="num">162-A</td><td class="num">5e1027533</td><td class="num">2026-08-11</td><td>NBA results vertical: tied-final quarantine contract validated on 4,179 corpus finals (zero pushes), keyless capture + id-join adapter, cadence-wired; honest NO_RESULTS_YET off-season first receipt <em>Defects caught: none — first live capture returned the truthful empty window</em></td></tr>
+        <tr><td class="num">162-C</td><td class="num">e7d98314e</td><td class="num">2026-08-11</td><td>/launch command center: health strip, REALITY_GATED watches with countdowns, derived sprint lanes, auditable release history with the mechanical pruning invariant</td></tr>
+        <tr><td class="num">162-D</td><td class="num">e5a6ed7bd</td><td class="num">2026-08-11</td><td>UFC forward-lineage classifier (stable-id joins, basis-recorded corners, closed taxonomy) reproducing the real fight-day addition from committed captures</td></tr>
+        <tr><td class="num">162-B</td><td class="num">63f321127</td><td class="num">2026-08-11</td><td>results paths discoverable on /sports (per-sport artifact-state lines); undated 'coming soon' promise replaced with the stated absence condition; three-engine proof extended <em>Defects caught: a guard pinned the stale phrase — repointed to the invariant and the phrase is now banned</em></td></tr>
+        <tr><td class="num">162-closeout</td><td class="num">f3cad466c</td><td class="num">2026-08-11</td><td>roadmap deduplicated against REALITY_GATED watches (one issue, one card); evidence regenerated at wall clock <em>Defects caught: the closeout commit itself claimed history entries an aborted edit never applied — caught by re-reading the diff stat, fixed in this follow-up</em></td></tr>
+        <tr><td class="num">162-E</td><td class="num">de9afefce</td><td class="num">2026-08-11</td><td>EPL results-path hardening (kickoff move, alias both-directions, score-bearing non-finals, memoryless corrections, duplicates) + corrections runbook with the ledger-writer acceptance condition <em>Defects caught: the alias case's premise was wrong — Arsenal FC is a committed alias and joins; the test now proves both directions</em></td></tr>
+        <tr><td class="num">162-F</td><td class="num">6ade60159</td><td class="num">2026-08-11</td><td>injuries source evaluation ACCEPTED with two named conditions (identity validation; absence is not health); matrix notes upgraded without flipping states</td></tr>
+        <tr><td class="num">162-G</td><td class="num">8dccfe2b4</td><td class="num">2026-08-11</td><td>injuries contract: URL-derived athlete identity with refusal, closed taxonomies, absence=UNKNOWN never healthy, staleness widens; real-sample fixtures from the live probe</td></tr>
+        <tr><td class="num">162-H</td><td class="num">8e8d3b566</td><td class="num">2026-08-11</td><td>injuries capture live: first committed captures normalized 800+77 live entries with zero quarantines (facts only, prose never stored); NFL matrix entry AVAILABLE on the receipt; NBA half-receipt recorded not stretched; cadence step wired <em>Defects caught: the P156 shadow-gap guard hard-coded the gap count — honest movement broke it; now derived from shadowGaps()</em></td></tr>
+        <tr><td class="num">162-I</td><td class="num">aeabffe19</td><td class="num">2026-08-11</td><td>UFC bout_winner settlement contract validated on all 1,716 corpus finals — the 25 DRAW_OR_NC bouts are exactly the quarantines (winner-only source refuses to split draw from NC); every sport now carries a corpus-validated grading spec</td></tr>
+        <tr><td class="num">162-J</td><td class="num">e65f5f834</td><td class="num">2026-08-11</td><td>UFC results operational: capture + bout-id adapter through the corpus-validated contract; first real run quarantined all 12 pre-capture finals for lineage with exact reconciliation — the third sport to prove the lineage rule live <em>Defects caught: the /sports assurance spec expected 'completed games' and UFC honestly says 'bouts' — caught on all three engines, regex now noun-aware</em></td></tr>
+        <tr><td class="num">163-A</td><td class="num">ad984c04d</td><td class="num">2026-08-11</td><td>four stale P162 gate watchers stopped (targets mapped terminal first, zero orphan pollers verified) + the bounded single-target watcher whose poll loop structurally cannot repeat the unfulfillable-predicate leak + operating runbook <em>Defects caught: root cause named: newest-run polling filtered by a superseded SHA can never match again; harness timeouts are not enforced on backgrounded loops</em></td></tr>
+        <tr><td class="num">163-B</td><td class="num">1fb0fb79e</td><td class="num">2026-08-11</td><td>NBA lineups REJECTED with evidence (no free official pre-start source; box-score starters are POST_START by definition) + the fail-closed six-class lineup contract that any future licensed adapter must satisfy</td></tr>
+        <tr><td class="num">163-C</td><td class="num">af7815601</td><td class="num">2026-08-11</td><td>cadence receipt verifier: pure per-sport evaluator with closed fail-closed verdicts, committed expectations for tomorrow, one-command invocation smoke-proven on yesterday's real run — nothing dispatched, nothing polls overnight <em>Defects caught: the first NFL expectation said NO_RESULTS_YET — wrong, the trailing window still holds the quarantined Aug 7 final; corrected before shipping</em></td></tr>
+        <tr><td class="num">163-E</td><td class="num">c31bc3808</td><td class="num">2026-08-12</td><td>NFL corrections monitor (score-correction/status-regression/disappeared all review-gated) + first-join candidates discovered from artifacts (DET@CIN surfaces for Aug 13) + corrections runbook</td></tr>
+        <tr><td class="num">163-F</td><td class="num">402da93f9</td><td class="num">2026-08-12</td><td>per-event input-completeness classifier: every representative event REFUSES generation with exact reasons; NFL alone earns READY_EXCEPT_ODDS on its captured-injuries receipt</td></tr>
+        <tr><td class="num">163-D</td><td class="num">faada98a6</td><td class="num">2026-08-12</td><td>FIRST JOINED UFC RESULTS: five real finals joined with committed lineage and graded, 12 pre-capture finals stayed quarantined, reconciliation exact; post-card lineage = valid no-change receipt (66 window-slides, zero replacements) <em>Defects caught: the legitimate 83→17 window slide would have tripped tomorrow's mass-deletion rule — allowWindowSlide expectation added and pinned with tonight's real numbers; a count-era guard repointed to a floor</em></td></tr>
+        <tr><td class="num">163-G+H</td><td class="num">3db8a1d4a</td><td class="num">2026-08-12</td><td>Today queue on /launch; OVERDUE watch state (a missed observation cannot rot as merely DUE); route payload measurements recorded (/results 8.5MB flagged as its own follow-up card); secret scan clean; /sports honesty re-verified with the new UFC artifact <em>Defects caught: the /results static HTML weighs 8.5MB — measured, flagged, deliberately NOT hacked at overnight</em></td></tr>
+        <tr><td class="num">163-I</td><td class="num">a8113cc99</td><td class="num">2026-08-12</td><td>UFC corrections monitor: OVERTURNED_RESULT and DECISION_CHANGE review-gated; tonight's five finals read as exactly five BECAME_FINAL from the committed capture, zero invented overturns</td></tr>
+        <tr><td class="num">163-J</td><td class="num">2dc1778fd</td><td class="num">2026-08-12</td><td>EPL corrections monitor ready before opening day + the n=3 results-monitor core consolidation; NFL/UFC tests passed untouched on the wrappers (behavioral identity by test) <em>Defects caught: one core evidence string drifted from the pinned phrasing — the tests won, not the rewrite</em></td></tr>
+        <tr><td class="num">164-R1</td><td class="num">e8b20f1c6</td><td class="num">2026-08-12</td><td>shared-blocker registry (seven blockers, once each, closed states, secrets discipline guard-enforced) + the dependency-ordered Founder Action Sheet on /launch</td></tr>
+        <tr><td class="num">164-R2</td><td class="num">9fe54d536</td><td class="num">2026-08-12</td><td>odds engineering complete: provider-neutral contract with visible-vig no-vig, fail-closed secret shapes, four-sport fixtures, authorization-gated canary (dry-run default, ceiling+floor, redacted, self-leak-scanned; refusals proven as real subprocesses) <em>Defects caught: a structural pin matched the docstring's mention of the refused form — repointed to the executable property</em></td></tr>
+        <tr><td class="num">164-R5</td><td class="num">80bb3a66a</td><td class="num">2026-08-12</td><td>legal section-3 packet (11 numbered items, FOR REVIEW) + publish guard: unapproved text structurally unshippable; approval = named reviewer + role + date + packet version</td></tr>
+        <tr><td class="num">164-R6+R7</td><td class="num">e9a6e2740</td><td class="num">2026-08-12</td><td>beta access (PII structurally refused, deny-by-default, prerequisite gate wired to the real legal manifest) + admin-access ADR and deny-by-default contract; all seven shared blockers ENGINEERING_READY_FOR_FOUNDER</td></tr>
+        <tr><td class="num">165-A/B/D/H</td><td class="num">8d74c5ad3</td><td class="num">2026-08-12</td><td>Founder Response Form (enumerated non-secret choices; PII/secret/stale-version refusal; transitions structurally unable to CLOSE) + read-only orchestrator proven on the template; legal approvals now require the exact reviewed content hash; analytics collector deployment spec; read-only admin-access verifier <em>Defects caught: the stronger legal hash rule reached the beta prerequisite fixture — fixture followed the rule, the guard kept its teeth</em></td></tr>
+        <tr><td class="num">165-A-addendum</td><td class="num">8ba0e6a3b</td><td class="num">2026-08-12</td><td>the Founder Action Sheet renders each blocker's exact answer tokens (recommended first) + the form pointer — answerable from one screen</td></tr>
+        <tr><td class="num">165-J</td><td class="num">6f7a9af4d</td><td class="num">2026-08-12</td><td>one authority per blocker: five founder roadmap duplicates pruned into the registry; stale shipped NOW item removed; horizons refilled with the post-answer ENGINEERING sequence; the board's odds card is an explicit pointer <em>Defects caught: the horizon guard rightly refused empty lanes — filled with execution items, not decision duplicates</em></td></tr>
+        <tr><td class="num">165-I</td><td class="num">487f467b8</td><td class="num">2026-08-12</td><td>first fully-verified scheduled cadence: run 31605451090, ten classes, zero failures, first scheduled injuries receipts <em>Defects caught: the countdown fixture clock rotted when the watch moved — advanced with the watch</em></td></tr>
+        <tr><td class="num">166-A+B</td><td class="num">ce17d09aa</td><td class="num">2026-08-12</td><td>operator console IA: eleven-group contract with drift-proof sticky nav, env badge + as-of clock, Runbooks index, and the Dhruv transition-readiness section (documentation only — no transfer occurred or authorized)</td></tr>
+        <tr><td class="num">166-E</td><td class="num">1a44eb9dc</td><td class="num">2026-08-12</td><td>NFL deep slice: baseline Elo promoted to a leakage-proof cutoff-versioned strength state (params identical, target-game exclusion structural) + real-event assembly proving READY_EXCEPT_ODDS on the next scheduled game from committed artifacts</td></tr>
+        <tr><td class="num">167-A</td><td class="num">8a290c5cd</td><td class="num">2026-08-12</td><td>protected operator deployment LIVE: separate gtp-ops project (internal build) behind Vercel Authentication; production domain removed after a ~4-minute unauthenticated window (incident + never-re-add rule recorded); verify-admin-access 4/4; Dhruv access PENDING_IDENTITY (host plan gate) <em>Defects caught: Standard Protection excludes auto-assigned production domains — discovered by probing, contained by domain deletion; the paid all-deployments tier was refused by program boundary</em></td></tr>
+        <tr><td class="num">167-B</td><td class="num">72be98187</td><td class="num">2026-08-12</td><td>/launch became an operator product: IA v2 (12 groups, task-first + Onboarding), persistent left nav + mobile strip + env/commit top bar, five-phase daily loop (Observe→Verify→Build→Release→Close) derived purely from the board with exactly-once placement, top-3 actions, URL-state deep-link filters, per-sport stage receipts in words, protected-money tile, sanitized onboarding guide; verified in-browser at 390/768/1440</td></tr>
+        <tr><td class="num">167-C</td><td class="num">94710831a</td><td class="num">2026-08-12</td><td>odds evidence lane: per-sport market scope (UFC h2h-only, EPL three-way + totals, NFL h2h/spreads/totals), three-way no-vig preserving the draw, pointed two-way same-point rule, provider→canonical joins with lineage (SWAPPED reported never flipped), seven-state availability classifier with the exact AUTHORIZATION_REQUIRED line on /launch; local canary refusal verified, zero credit calls</td></tr>
+        <tr><td class="num">167-D</td><td class="num">fdc1d43ae</td><td class="num">2026-08-12</td><td>NFL first-result verification: the lineage gate fired LIVE on the first real final (CAR@ARI quarantined — no pre-event schedule capture exists; backfill forbidden), reconciliation exact, pinned as permanent real-data test + receipt doc; watch sharpened to when the cadence can land evidence (14:15Z); OT/tie join pins added</td></tr>
+        <tr><td class="num">167-E</td><td class="num">e1e8c50f3</td><td class="num">2026-08-12</td><td>NFL v1 engine: analytical margin/total heads over the cutoff Elo (train 2023-24, held-out 2025: logLoss 0.6478 vs coin 0.6931, ECE 0.0446), preseason ABSTAINS by model card, shadow ladder live in tests over the real next event (DET@CIN abstains preseason, zero probability leakage) <em>Defects caught: validateShadowRun demands provenance — caught by its own validator on first CURRENT emission</em></td></tr>
+        <tr><td class="num">167-F</td><td class="num">9b8aa29d3</td><td class="num">2026-08-12</td><td>UFC winner engine: abstaining Elo promoted (coverage semantics preserved 25.4%, logLoss 0.6788, ECE 0.0157), identity by unique normalized name (ambiguity abstains), CARD_UNCERTAIN lineage gate (weigh-ins MISSING stated); REAL UFC 330 preflight committed: 11 READY_EXCEPT_ODDS + 1 ABSTAIN(SPARSE); weekend runbook gains shadow/market preflight steps</td></tr>
+        <tr><td class="num">167-G</td><td class="num">977f432af</td><td class="num">2026-08-12</td><td>EPL engine: committed poisson baseline promoted with EXACT replay parity (n=1140, logLoss 1.0017), draw ECE 0.0262, RPS/totals diagnostics, deferred-alternatives stopping rule, lineups NOT_REQUIRED_FOR_TEAM_V1; shadow ladder proves all 10 opening fixtures READY_EXCEPT_ODDS (2 promoted clubs cold-start via verified list)</td></tr>
+        <tr><td class="num">167-H</td><td class="num">1a294d9c8</td><td class="num">2026-08-12</td><td>all-sport prediction factory: adapter manifests, closed output-variant validators proven on the real engines, ONE readiness registry (six independent axes, receipts/reasons, cross-sport ranking banned in data and code) rendered verbatim on /launch; MLB described never wrapped; NBA compatibility proven at variant level without a fake model</td></tr>
+        <tr><td class="num">169-A</td><td class="num">0cf89b8e2</td><td class="num">2026-08-13</td><td>NFL source+identity foundation: registry roles incl. an explicitly UNSOURCED weather role, canonical player registry keyed by durable ids (first real capture 32/32 teams, 2,991 athletes, 0 quarantined), provider-data season typing, per-input freshness matrix</td></tr>
+        <tr><td class="num">169-C</td><td class="num">6c7dc70b3</td><td class="num">2026-08-13</td><td>joint team-score simulation: deterministic seeded stream, legal scoring support, measured convergence; REPORTED win head = replay-validated elo-logistic with the margin-probit divergence as a visible diagnostic; preseason shrink FIT on 23-24 (0.2) with 2025 test at ~coin, stated; score MAE 7.584 beats naive 7.941, 80pct coverage 0.8015 <em>Defects caught: its own eval caught the two-heads divergence (9.6pp) before anything shipped</em></td></tr>
+        <tr><td class="num">169-D</td><td class="num">b06027f80</td><td class="num">2026-08-13</td><td>participation contract: closed typed set, absence-of-injury-data never health, preseason snap-scenario gate (real DET@CIN pools: &gt;40 ROLE_UNCERTAIN per side, zero unevidenced actives), reviewed expiring overrides, allocation coherence refusals</td></tr>
+        <tr><td class="num">169-F</td><td class="num">664f0dd84</td><td class="num">2026-08-13</td><td>anytime-TD engine: team-first Poisson allocation refusing without a committed points-to-TD calibration receipt; mandatory residual; passer/receiver one-event rule; four publication gates (modelled-yet-unpublishable is real); settlement credit rules (scoring player wins, passer-only loses, DNP voids) <em>Defects caught: float residue at share-0 clamped by its own test</em></td></tr>
+        <tr><td class="num">169-G</td><td class="num">0f3010e06</td><td class="num">2026-08-13</td><td>Endzone Vault: five modes, correlation-aware compatibility (same-game CORRELATION_NOT_VALIDATED without a joint receipt; cross-game independence disclosed), separate append-only paper ledger with first real NO_PLAY entry naming its three true blockers</td></tr>
+        <tr><td class="num">169-J+K</td><td class="num">fcedebc1b</td><td class="num">2026-08-13</td><td>public /nfl honesty hub: real slate + finals from committed captures, market-by-market coverage table with typed states; route inventory 51/0 findings; boundary guards repointed to rendered-text rules (the /sports-revival pattern); NFL event-day runbook (T-24h through corrections) <em>Defects caught: the sport-hub redirect-only rule and nav allowlist fired on the new route — adjudicated as the founder-charter graduation with the invariant preserved in rendered text</em></td></tr>
+        <tr><td class="num">176-Phase 0</td><td class="num">fecbcbe74</td><td class="num">2026-08-13</td><td>the kickoff lock and post-start refusal PROVEN against real elapsed time</td></tr>
+        <tr><td class="num">178-Phase 0</td><td class="num">d12bde0c2</td><td class="num">2026-08-14</td><td>withdraw P177's false-closure headline and guard against the next one</td></tr>
+        <tr><td class="num">null-null</td><td class="num">eeff42d61</td><td class="num">2026-08-18</td><td>P184 Phase 0 + Release A: the measured UI/UX baseline, and a ratchet on the drift</td></tr>
+        <tr><td class="num">196-A</td><td class="num">a06dfa1cf</td><td class="num">2026-08-23</td><td>launch: sport closure packets — the completion control plane (P196 Release A)</td></tr>
+        <tr><td class="num">196-B</td><td class="num">1e652ae02</td><td class="num">2026-08-23</td><td>mlb: game-level predictions enter the public record; one owner for the risk-substitute rule (P196 Release B)</td></tr>
+        <tr><td class="num">196-C</td><td class="num">72d5a7d5c</td><td class="num">2026-08-23</td><td>ufc: the 08-22 main card was ungradeable by construction — fixed, graded, and one record region (P196 Release C)</td></tr>
+        <tr><td class="num">196-D</td><td class="num">f8271a6f3</td><td class="num">2026-08-23</td><td>epl: the learning artifact becomes the only live calibration-count authority (P196 Release D)</td></tr>
+        <tr><td class="num">196-E</td><td class="num">9d0becd95</td><td class="num">2026-08-23</td><td>nfl: season cohorts before the season can blend them (P196 Release E)</td></tr>
+        <tr><td class="num">196-F</td><td class="num">607828d45</td><td class="num">2026-08-23</td><td>nba: a healthy quiet lane can now prove it ran — the schedule cadence receipt (P196 Release F)</td></tr>
+        <tr><td class="num">196-J</td><td class="num">33ebc0699</td><td class="num">2026-08-23</td><td>launch: roadmap reset to current truth; final P196 assurance regeneration (Release J)</td></tr>
+        <tr><td class="num">197-A</td><td class="num">058f76ea2</td><td class="num">2026-08-23</td><td>ufc: seven stages proven by receipts — the operating loop closes (P197 Release A)</td></tr>
+        <tr><td class="num">197-B</td><td class="num">93813a826</td><td class="num">2026-08-23</td><td>epl: five stages proven by receipts that already existed — 11/12 (P197 Release B)</td></tr>
+        <tr><td class="num">197-C+D</td><td class="num">0531593b5</td><td class="num">2026-08-23</td><td>nfl+ux: regular-season readiness with frozen bars; the three-engine matrix runs green (P197 Releases C+D)</td></tr>
+        <tr><td class="num">197-E</td><td class="num">cf8a5acc2</td><td class="num">2026-08-23</td><td>nba: first-event-ready foundation — verify what can be verified, gate what cannot (P197 Release E)</td></tr>
+        <tr><td class="num">198-A</td><td class="num">5140a3d37</td><td class="num">2026-08-23</td><td>nba: the engineering queue reaches ZERO — every remaining gap names its gate (P198 Release A)</td></tr>
+        <tr><td class="num">198-D+F</td><td class="num">58d5fbad2</td><td class="num">2026-08-24</td><td>ops+tiers: one executable operating system; the activation tiers are pinned as generated (P198 Releases D+F)</td></tr>
+        <tr><td class="num">198-G</td><td class="num">dc52ebca1</td><td class="num">2026-08-24</td><td>assurance: final regeneration at the P198 tip — inventory reconciled, a11y structural clean (Release G)</td></tr>
+        <tr><td class="num">198-closure</td><td class="num">01464f3cb</td><td class="num">2026-08-24</td><td>P198 reclassified COMPLETE on production convergence: covering SHA ancestry-proven over dc52ebca1; queue-zero live; first unattended night green (nightly settle, UFC post-card quiet exit, cadence receipts) <em>Defects caught: the overnight receipts exposed a loop-scoped missing-count overwriting the cumulative MLB game record (fixed: derived from the linescore cache every write) and the predicted 08-23 snapshot seam day (closed: +45 rows from local history)</em></td></tr>
+        <tr><td class="num">199-A</td><td class="num">e05ea922b</td><td class="num">2026-08-24</td><td>ufc: fight-week control — lineage on a cadence, the Aug-29 watch armed (P199 Release A)</td></tr>
+        <tr><td class="num">199-D</td><td class="num">300e870da</td><td class="num">2026-08-24</td><td>founder: five gate decisions, answerable in one sitting (P199 Release D)</td></tr>
+        <tr><td class="num">199-H</td><td class="num">bba7f9c1e</td><td class="num">2026-08-24</td><td>assurance: P199 final regeneration — conservation exact, receipts current (Release H)</td></tr>
+        <tr><td class="num">200-R-A</td><td class="num">9fcf78b5e</td><td class="num">2026-08-24</td><td>parlay truth spine — lab eligibility truth fixes, risk-coverage matrix v2, relic guards restated</td></tr>
+        <tr><td class="num">200-R-B</td><td class="num">8d8b3be36</td><td class="num">2026-08-24</td><td>homepage journey reset — three front-door actions, four-sport hub, suggested-parlays preview</td></tr>
+        <tr><td class="num">200-R-C</td><td class="num">5b9960b38</td><td class="num">2026-08-24</td><td>per-risk-tier Lab record + EPL stale-claim fix</td></tr>
+        <tr><td class="num">200-R-D</td><td class="num">48b74abb3</td><td class="num">2026-08-24</td><td>primary nav trimmed to six destinations + Results record directory</td></tr>
+        <tr><td class="num">200-R-E</td><td class="num">33bacf4ee</td><td class="num">2026-08-24</td><td>/today carries the daily parlay evaluations + retired-link fix</td></tr>
+        <tr><td class="num">200-R-F</td><td class="num">c8be5fe64</td><td class="num">2026-08-24</td><td>coverage builder learns the multi lane's tier-grid dialect</td></tr>
+        <tr><td class="num">201-Phase 0</td><td class="num">69948157a</td><td class="num">2026-08-24</td><td>operating record reconciled + derived artifacts at one stamp</td></tr>
+        <tr><td class="num">201-R-A</td><td class="num">19f64d7ec</td><td class="num">2026-08-24</td><td>product-day authority + qualified-leg contract + versioned risk rubric</td></tr>
+        <tr><td class="num">201-R-B</td><td class="num">1e39711f8</td><td class="num">2026-08-24</td><td>NFL lane closed by machinery — grader, ladder, one shared band engine</td></tr>
+        <tr><td class="num">201-R-C</td><td class="num">2e9174afb</td><td class="num">2026-08-24</td><td>Suggested Parlays destination completed — NFL lane page + every lane reachable from /build</td></tr>
+        <tr><td class="num">201-R-D</td><td class="num">76634222d</td><td class="num">2026-08-24</td><td>mobile bar = the six primary destinations (charter F1)</td></tr>
+        <tr><td class="num">201-R-E</td><td class="num">5a9b21d15</td><td class="num">2026-08-24</td><td>per-sport Top 10 on /today, from the one ranked owner</td></tr>
+        <tr><td class="num">201-R-F</td><td class="num">60727b521</td><td class="num">2026-08-24</td><td>lab conservation proven — one real orphan found, adjudicated by name</td></tr>
+        <tr><td class="num">201-L</td><td class="num">763a7ea29</td><td class="num">2026-08-24</td><td>final assurance regeneration at one stamp (2026-08-24T19:55Z)</td></tr>
+        <tr><td class="num">202-Phase 0</td><td class="num">1ed07208c</td><td class="num">2026-08-24</td><td>baseline reconciled + a real P0 caught and fixed at its owner</td></tr>
+        <tr><td class="num">202-R-A</td><td class="num">0fe202399</td><td class="num">2026-08-24</td><td>product-day full adoption — the homepage stops rediscovering truth</td></tr>
+        <tr><td class="num">202-R-B</td><td class="num">7e118391e</td><td class="num">2026-08-24</td><td>qualified-leg adoption on Build + Market Center — and the guards caught six real claims</td></tr>
+        <tr><td class="num">202-R-C</td><td class="num">4e5b69728</td><td class="num">2026-08-24</td><td>picks-board filter chips — selection over the one ranking, state in the URL</td></tr>
+        <tr><td class="num">202-R-C fix</td><td class="num">884917729</td><td class="num">2026-08-24</td><td>chip border tokenized — the colour ratchet was right</td></tr>
+        <tr><td class="num">202-R-D</td><td class="num">c92770ec6</td><td class="num">2026-08-24</td><td>claims contract — the guard suite over the existing three-layer pattern</td></tr>
+        <tr><td class="num">202-R-E</td><td class="num">1cbe25a94</td><td class="num">2026-08-24</td><td>signature-product audit — eleven lanes, every one typed</td></tr>
+        <tr><td class="num">202-R-F</td><td class="num">c99a8dace</td><td class="num">2026-08-24</td><td>three-engine × four-width matrix — and it caught two real defects</td></tr>
+        <tr><td class="num">202-R-L</td><td class="num">c31b035af</td><td class="num">2026-08-24</td><td>final assurance — everything regenerated at one stamp (21:20Z)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer class="doc">
+  <p>Register complete: 108 releases · 141-143-— → 202-R-L · generated 2026-08-24T22:25:00Z at 567e5e620.</p>
+</footer>
+</div>
+<!-- OPERATING-RECORD-END expected=108 first=141-143-— last=202-R-L -->
