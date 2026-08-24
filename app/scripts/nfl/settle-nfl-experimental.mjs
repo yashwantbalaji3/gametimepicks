@@ -22,6 +22,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { summariseByCohort } from "../../src/lib/sports/nfl/experimental-summary.mjs";
+
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
 const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : f; };
@@ -117,6 +119,10 @@ for (const [providerEventId, { file, r }] of receipts) {
       providerEventId,
       matchup: r.matchup,
       kickoffUtc: r.kickoffUtc,
+      /* Season cohort travels ON the settled row (P196 · Release E) — the receipt has carried it
+         since P173, and the lifetime summary aggregates within a cohort, never across. */
+      seasonType: r.seasonType ?? null,
+      week: r.week ?? null,
       lineage: {
         receiptFile: `data/internal/nfl/forecast-receipts/${DATE}/${file}`,
         model: r.model.id, modelVersion: r.model.version, inputHash: r.model.inputHash,
@@ -231,27 +237,40 @@ const lifetime = (() => {
   }
   // The date just written is on disk already, so it is included above — no double count.
   const evs = [...byId.values()];
-  const dec = evs.filter((e) => e?.grade?.winner?.correct !== null && e?.grade?.winner?.correct !== undefined);
-  return {
-    settledForecasts: evs.length,
-    decisive: dec.length,
-    winnerAccuracy: round(dec.length ? dec.filter((e) => e.grade.winner.correct).length / dec.length : null),
-    marginMAE: round(mean(evs.map((e) => e.grade?.margin?.absError).filter((v) => v != null))),
-    totalMAE: round(mean(evs.map((e) => e.grade?.total?.absError).filter((v) => v != null))),
-    marginInterval80Coverage: round(mean(evs.map((e) => (e.grade?.margin?.insideInterval80 ? 1 : 0)))),
-    totalInterval80Coverage: round(mean(evs.map((e) => (e.grade?.total?.insideInterval80 ? 1 : 0)))),
+  /*
+   * COHORTS, NEVER A BLEND (P196 · Release E). Season type resolves from the settled row itself
+   * (stamped going forward), falling back to the row's OWN receipt file — every receipt has
+   * carried seasonType since P173, so a historical row resolves from its own frozen evidence
+   * rather than a calendar guess. Unresolvable rows land in UNKNOWN and pad neither cohort.
+   */
+  const resolveSeasonType = (e) => {
+    if (Number.isFinite(e?.seasonType)) return e.seasonType;
+    const rel = e?.lineage?.receiptFile;
+    if (!rel) return null;
+    try { return JSON.parse(fs.readFileSync(path.join(ROOT, rel), "utf8"))?.seasonType ?? null; } catch { return null; }
   };
+  return summariseByCohort(evs, resolveSeasonType);
 })();
 
+/*
+ * The headline block is EXACTLY ONE COHORT, its scope named (P196 · Release E). The top-level
+ * fields keep their historical names so the index embed stays shape-compatible, but they are the
+ * current cohort's numbers — never a cross-cohort sum. When the first regular-season game settles
+ * the headline flips to that cohort at its honest small n; preseason keeps its own block under
+ * `cohorts`, unchanged, instead of padding the new season's record.
+ */
 fs.writeFileSync(path.join(path.dirname(outPath), "summary.json"), JSON.stringify({
-  schemaVersion: 1, artifact: "nfl-experimental-record", dataClass: "PUBLIC_DERIVED", generatedAt: NOW,
+  schemaVersion: 2, artifact: "nfl-experimental-record", dataClass: "PUBLIC_DERIVED", generatedAt: NOW,
   ledger: "experimental-forecast", modelVersion: receipt.modelVersion,
-  settledForecasts: lifetime.settledForecasts, decisive: lifetime.decisive,
-  winnerAccuracy: lifetime.winnerAccuracy, marginMAE: lifetime.marginMAE, totalMAE: lifetime.totalMAE,
-  marginInterval80Coverage: lifetime.marginInterval80Coverage, totalInterval80Coverage: lifetime.totalInterval80Coverage,
-  note: lifetime.settledForecasts === 0
+  seasonTypeScope: lifetime.seasonTypeScope,
+  settledForecasts: lifetime.current.settledForecasts, decisive: lifetime.current.decisive,
+  winnerAccuracy: lifetime.current.winnerAccuracy, marginMAE: lifetime.current.marginMAE, totalMAE: lifetime.current.totalMAE,
+  marginInterval80Coverage: lifetime.current.marginInterval80Coverage, totalInterval80Coverage: lifetime.current.totalInterval80Coverage,
+  cohorts: lifetime.cohorts,
+  unknownSeasonTypeRows: lifetime.unknownCount,
+  note: lifetime.current.settledForecasts === 0
     ? "No experimental forecast has been settled yet. A record appears here once the first slate's official results land."
-    : "Experimental forecast accuracy only — not a betting record, and separate from every product ledger.",
+    : `Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: ${lifetime.seasonTypeScope} cohort; season types never share an aggregate.`,
 }, null, 1));
 
 console.log(`experimental settlement ${DATE}: ${events.length} newly settled (${allEvents.length} total) · ${pending.length} pending · ${quarantined.length} quarantined`);

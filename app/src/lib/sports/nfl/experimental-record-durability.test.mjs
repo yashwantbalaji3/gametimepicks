@@ -51,12 +51,21 @@ test("no event is double-counted across receipts", () => {
     .flatMap((f) => (read(path.join(DIR, f)).events ?? []).map((e) => e.canonicalEventId));
   const summary = read(path.join(DIR, "summary.json"));
   assert.ok(summary.settledForecasts <= raw.length, "the record never exceeds the raw receipt rows");
-  assert.equal(summary.settledForecasts, new Set(raw).size, "the record counts DISTINCT events");
+  /*
+   * P196 restatement: the top level is now ONE season-type cohort (never a cross-season blend),
+   * so the distinct-event total reconciles across the cohorts plus the unknown bucket — the same
+   * no-double-count claim, asserted where the total now lives. The headline must still equal its
+   * own cohort exactly.
+   */
+  const cohortTotal = Object.values(summary.cohorts ?? {}).reduce((s, c) => s + c.settledForecasts, 0);
+  assert.equal(cohortTotal, new Set(raw).size, "cohorts + unknown recount the DISTINCT events exactly");
+  assert.equal(summary.settledForecasts, summary.cohorts?.[summary.seasonTypeScope]?.settledForecasts,
+    "the headline block is exactly one cohort's numbers — never a sum across seasons");
 });
 
 test("the settler derives the summary from every receipt, not from one date's metrics", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "scripts/nfl/settle-nfl-experimental.mjs"), "utf8");
   assert.match(src, /readdirSync\(dir\)/, "the summary reads the receipt directory");
-  assert.match(src, /settledForecasts: lifetime\.settledForecasts/,
-    "the summary publishes the LIFETIME figure, never the single-date `metrics` object");
+  assert.match(src, /settledForecasts: lifetime\.current\.settledForecasts/,
+    "the summary publishes the LIFETIME pass's current-cohort figure, never the single-date `metrics` object");
 });
