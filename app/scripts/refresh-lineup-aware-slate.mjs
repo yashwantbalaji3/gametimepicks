@@ -82,9 +82,9 @@ async function main() {
   const specialsTarget = preview
     ? path.join(DATA, "previews", "lineup-refresh", date, "world-cup-specials.json")
     : path.join(DATA, "world-cup", "world-cup-specials.json");
-  const coverageTarget = preview
-    ? path.join(DATA, "previews", "lineup-refresh", date, "coverage-matrix.json")
-    : path.join(DATA, "parlays", "coverage-matrix.json");
+  // P200: public/data/parlays/coverage-matrix.json is now owned by scripts/parlays/build-risk-coverage.mjs
+  // (schemaVersion 2). This dormant WC-era refresher must never overwrite it with the relic schema.
+  const coverageTarget = path.join(DATA, "previews", "lineup-refresh", date, "coverage-matrix.json");
   writeJson(specialsTarget, specials);
   writeJson(coverageTarget, coverage);
 

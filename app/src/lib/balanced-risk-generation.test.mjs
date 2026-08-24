@@ -68,9 +68,12 @@ test("balancedGeneration diagnostics: targets + filled + a reason for every unde
   assert.ok(bg.underfilledReasons["mlb.low"] && !/no qualified parlays/i.test(bg.underfilledReasons["mlb.low"]), "mlb.low has a specific reason");
   // The matrix summary spells out WHY Low is empty across the board (the -200..+100 band).
   assert.ok(m.diagnosticsSummary.some((s) => /Low Risk/.test(s) && /-200/.test(s)), "summary explains the Low Risk empty band");
-  // Snapshot persists balancedGeneration.
+  // P200 ownership move: the PUBLISHED coverage-matrix.json is now the risk-coverage instrument
+  // (schemaVersion 2, owner scripts/parlays/build-risk-coverage.mjs, guarded by
+  // src/lib/parlays/risk-coverage.test.mjs). balancedGeneration remains a property of the June
+  // card factory, pinned above via fixtures — the published file must never regress to that relic.
   const snap = JSON.parse(fs.readFileSync("public/data/parlays/coverage-matrix.json", "utf8"));
-  assert.ok(snap.balancedGeneration && snap.balancedGeneration.targets, "snapshot has balancedGeneration");
+  assert.equal(snap.schemaVersion, 2, "published matrix is the v2 instrument, not the June relic");
 });
 
 test("active cards untouched: Lane A/B, Moonshot, and Mr. Dub exposure unchanged by generation", () => {

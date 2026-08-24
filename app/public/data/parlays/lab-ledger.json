@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-24T08:12:05Z",
+ "generatedAt": "2026-08-24T15:03:03Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -14,12 +14,11 @@
   {
    "id": "mlb",
    "label": "MLB",
-   "live": false,
-   "blocked": "no odds capture is ingested for this sport; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "live": true,
    "evidence": {
-    "pricedGames": 0,
-    "pricesCapturedAt": null,
-    "priceAgeDays": null,
+    "pricedGames": 4,
+    "pricesCapturedAt": "2026-08-24T14:14:41.640Z",
+    "priceAgeDays": 0.03,
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
@@ -80,7 +79,7 @@
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-08-23T21:20:32Z",
-    "priceAgeDays": 0.45,
+    "priceAgeDays": 0.74,
     "settlementSource": "official NFL final scores",
     "settlementProven": false
    },
@@ -136,14 +135,13 @@
   {
    "id": "ufc",
    "label": "UFC",
-   "live": false,
-   "blocked": "official UFC bout results",
+   "live": true,
    "evidence": {
     "pricedGames": 8,
     "pricesCapturedAt": "2026-08-23T21:08:37Z",
-    "priceAgeDays": 0.46,
-    "settlementSource": "official UFC bout results",
-    "settlementProven": false
+    "priceAgeDays": 0.75,
+    "settlementSource": "official UFC bout results through the lab's own settled receipts",
+    "settlementProven": true
    },
    "settledDays": 1,
    "record": {
@@ -201,7 +199,7 @@
    "evidence": {
     "pricedGames": 18,
     "pricesCapturedAt": "2026-08-23T21:28:07Z",
-    "priceAgeDays": 0.45,
+    "priceAgeDays": 0.73,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true
    },
@@ -257,13 +255,16 @@
   {
    "id": "multi",
    "label": "Multi-sport",
-   "live": false,
-   "blocked": "a cross-sport card needs two live sports; only Premier League is cleared",
+   "live": true,
    "evidence": {
     "liveSports": [
+     "mlb",
+     "ufc",
      "epl"
     ],
     "liveLabels": [
+     "MLB",
+     "UFC",
      "Premier League"
     ]
    },

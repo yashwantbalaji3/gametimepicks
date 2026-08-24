@@ -73,12 +73,16 @@ test("Core Bank Builder row after the lanes restarted: each active card is count
   assert.ok(m.diagnosticsSummary.some((s) => /own row|double-count|separately/i.test(s)), "exclusion policy disclosed");
 });
 
-test("coverage snapshot JSON is published with totals", () => {
+// P200 ownership move: the published snapshot is now the risk-coverage instrument (schemaVersion 2,
+// five lanes × four tiers, owner scripts/parlays/build-risk-coverage.mjs; deep guards live in
+// src/lib/parlays/risk-coverage.test.mjs). The June-19 matrix semantics above stay pinned via the lib.
+test("coverage snapshot JSON is published and reconciles (v2: counts recount from the cells)", () => {
   const d = JSON.parse(fs.readFileSync("public/data/parlays/coverage-matrix.json", "utf8"));
-  assert.ok(Array.isArray(d.rows) && d.rows.length === 6, "six rows persisted");
-  assert.ok(typeof d.grandTotal === "number", "grand total persisted");
-  assert.ok(d.riskTotals && RB.every((rb) => typeof d.riskTotals[rb] === "number"), "risk totals persisted");
-  assert.equal(d.rows.reduce((n, r) => n + r.total, 0), d.grandTotal, "snapshot reconciles");
+  assert.equal(d.schemaVersion, 2, "published matrix is the v2 instrument");
+  assert.equal(d.rows.length, 5, "five lanes persisted");
+  const counts = { PUBLISHED: 0, NO_PLAY: 0, LANE_CLOSED: 0, MISSING: 0 };
+  for (const r of d.rows) for (const c of Object.values(r.tiers)) counts[c.state] += 1;
+  assert.deepEqual(d.counts, counts, "snapshot reconciles: counts recount from the cells");
 });
 
 test("Parlay Lab UI renders the full matrix (totals footer, Moonshot + Bank Builder rows, mobile overflow)", () => {

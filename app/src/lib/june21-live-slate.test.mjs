@@ -51,14 +51,20 @@ test("World Cup Specials are date-parameterized to the live slate and role-scree
   }
 });
 
-test("June 21 coverage matrix reconciles (rows + risk totals sum to grand total)", () => {
+// P200 ownership move: the live coverage-matrix.json froze on 2026-06-23 and has been replaced by
+// the risk-coverage instrument (schemaVersion 2, owner scripts/parlays/build-risk-coverage.mjs;
+// deep guards in src/lib/parlays/risk-coverage.test.mjs). The enduring reconciliation claim —
+// every lane × tier accounted for, totals recomputed not hand-kept — is restated against v2.
+// "Produced cards" is NOT restated as PUBLISHED > 0: four risk levels are four daily evaluations,
+// not four forced bets, so the honest strengthening is MISSING === 0 (no unaccounted cell).
+test("live coverage matrix reconciles (v2: 20 typed cells, counts recount, no MISSING)", () => {
   const m = read("public/data/parlays/coverage-matrix.json");
-  assert.equal(m.date, "2026-06-23");
-  const rowSum = m.rows.reduce((n, r) => n + r.total, 0);
-  const riskSum = Object.values(m.riskTotals).reduce((n, v) => n + v, 0);
-  assert.equal(rowSum, m.grandTotal, "rows sum to grand total");
-  assert.equal(riskSum, m.grandTotal, "risk totals sum to grand total");
-  assert.ok(m.grandTotal > 0, "live slate produced cards");
+  assert.equal(m.schemaVersion, 2, "published matrix is the v2 instrument");
+  const counts = { PUBLISHED: 0, NO_PLAY: 0, LANE_CLOSED: 0, MISSING: 0 };
+  for (const r of m.rows) for (const c of Object.values(r.tiers)) counts[c.state] += 1;
+  assert.deepEqual(m.counts, counts, "counts recount from the cells");
+  assert.equal(Object.values(counts).reduce((n, v) => n + v, 0), 20, "five lanes × four tiers, every cell typed");
+  assert.equal(counts.MISSING, 0, "every evaluation accounted for its tiers");
 });
 
 test("Bank Builder June-24 run BANKED (Lane A completed, Lane B stopped) → archived; cumulative bankroll + crown intact, Moonshot settled", () => {

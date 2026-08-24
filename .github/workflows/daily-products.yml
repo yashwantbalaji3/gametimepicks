@@ -145,6 +145,27 @@ jobs:
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           npx tsx app/scripts/products/build-daily-product-receipts.mjs --now "$NOW" --date "${{ steps.d.outputs.date }}"
 
+      # P200: the lab ledger's eligibility used to be computed ONLY by the nightly job at ~04:12 ET
+      # — the one hour of the day when today's MLB props cannot exist — so the public Parlay Lab
+      # claimed "no odds capture is ingested" beside an ACTIVE ladder every morning. Rebuilding it
+      # here, after the day's products exist, publishes the day's true eligibility the same
+      # afternoon; the nightly rebuild keeps the settled record fresh.
+      - name: Refresh the parlay lab ledger with the day's true eligibility
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          node app/scripts/parlays/build-lab-ledger.mjs --now "$NOW"
+
+      # P200: the mechanical completion instrument — five lanes x four tiers, every cell typed
+      # (PUBLISHED / NO_PLAY with the ladder's own reason / LANE_CLOSED with the gate's reason).
+      # MISSING cells warn loudly: an evaluation that did not account for a tier is the failure
+      # class the four-tier promise exists to prevent.
+      - name: Build the risk coverage matrix
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          npx tsx app/scripts/parlays/build-risk-coverage.mjs --now "$NOW" || echo "::warning::coverage matrix reported MISSING cells"
+
       # The Parlay Lab silently showed nothing for a full day because this job rebuilt the ladder
 
       # against a candidate pool that did not exist yet, and no step checked the result. A green
@@ -169,6 +190,7 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           git add app/public/data/mr-dub/ app/public/data/admin/ data/internal/products/receipts/ || true
           git add app/public/data/parlays/risk-ladder/ 2>/dev/null || true
+          git add app/public/data/parlays/lab-ledger.json app/public/data/parlays/coverage-matrix.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no change — products already current for ${{ steps.d.outputs.date }}"
             exit 0

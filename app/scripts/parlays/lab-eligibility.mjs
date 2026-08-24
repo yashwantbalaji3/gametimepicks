@@ -53,7 +53,14 @@ const SOURCES = {
     label: "MLB",
     prices: (root, date) => {
       const d = readJson(path.join(root, "mlb", "player-props", `${date}.json`));
-      return { at: d?.generatedAt ?? null, games: new Set((d?.props ?? []).map((p) => p.gameId)).size };
+      /* everCaptured/newestDate separate "not yet today" from "never" — see the reason logic. */
+      let everCaptured = false, newestDate = null;
+      try {
+        const dated = fs.readdirSync(path.join(root, "mlb", "player-props")).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
+        everCaptured = dated.length > 0;
+        newestDate = dated.at(-1)?.slice(0, 10) ?? null;
+      } catch { /* neither */ }
+      return { at: d?.generatedAt ?? null, games: new Set((d?.props ?? []).map((p) => p.gameId)).size, everCaptured, newestDate };
     },
     settlement: (root) => {
       const dir = path.join(root, "mlb", "results");
@@ -130,8 +137,21 @@ const SOURCES = {
       return { at: d?.generatedAt ?? null, games, slateDate: slate };
     },
     settlement: (root) => {
-      const d = readJson(path.join(root, "ufc", "graded-moneylines-latest.json"));
-      return { proven: (d?.graded ?? []).length > 0, source: "official UFC bout results" };
+      /*
+       * P200: this read graded-moneylines-latest.json — the RETIRED moneyline era's grader, frozen
+       * at zero rows since that model was retired unvalidated — so UFC stayed "unproven" while the
+       * lab's OWN settler had graded real UFC legs from official results (08-22 card, in the
+       * settled receipts and the 0-2 stream record). Settlement proof now reads the lab's own
+       * settled receipts: a card leg this system settled IS the proof this system can settle one.
+       */
+      try {
+        const dir = path.join(root, "parlays", "lab-settled");
+        const proven = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).some((f) => {
+          const rows = readJson(path.join(dir, f))?.cards ?? [];
+          return rows.some((c) => (c.sport ?? c.stream) === "ufc");
+        });
+        return { proven, source: "official UFC bout results through the lab's own settled receipts", blockedReason: proven ? null : "no UFC card has settled through the lab yet — the first settled card is the receipt" };
+      } catch { return { proven: false, source: null }; }
     },
   },
   epl: {
@@ -195,7 +215,22 @@ export function labEligibility(root, date, now) {
     const ageDays = prices.at ? daysBetween(prices.at, now) : null;
 
     const reasons = [];
-    if (!prices.at) reasons.push("no odds capture is ingested for this sport");
+    /*
+     * P200: "no odds capture is ingested for this sport" was ONE sentence for two different facts,
+     * and the nightly ledger rebuild runs at ~04:12 ET — the one hour of the day when TODAY's
+     * MLB props cannot exist yet (the morning generation writes them ~10:15 ET). Every morning
+     * the public lab page therefore claimed MLB ingests no odds at all, beside an ACTIVE ladder
+     * built from those very odds. The two facts get their own sentences: a sport whose captures
+     * exist but not yet for THIS date is awaiting today's generation, not unserved. Whether it is
+     * eligible RIGHT NOW is unchanged (no prices for today = not eligible right now) — only the
+     * reason stops lying about the lane, and the ledger refresh after the morning generation
+     * (daily-products) flips the state the same day.
+     */
+    if (!prices.at) {
+      reasons.push(prices.everCaptured
+        ? `no price capture for ${date} yet — the sport's own generation runs later in the day (newest capture ${prices.newestDate ?? "unknown"})`
+        : "no odds capture is ingested for this sport");
+    }
     else if (ageDays > PRICE_MAX_AGE_DAYS) reasons.push(`the last price capture is ${ageDays.toFixed(1)} days old`);
     /*
      * The SPECIFIC reason, when the source knows one. "No official settlement path has produced a

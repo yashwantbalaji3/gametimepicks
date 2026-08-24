@@ -1,437 +1,135 @@
 {
-  "generatedAt": "2026-06-23T01:58:24.669Z",
-  "date": "2026-06-23",
-  "rows": [
-    {
-      "scope": "world_cup_single_game",
-      "displayName": "World Cup Games",
-      "href": "/world-cup",
-      "cells": [
-        {
-          "scope": "world_cup_single_game",
-          "risk": "low",
-          "label": "Low Risk",
-          "count": 2,
-          "target": 2,
-          "min": 0,
-          "status": "filled",
-          "topReasons": [],
-          "message": "2 World Cup single-game Low Risk cards passed (target 2)."
-        },
-        {
-          "scope": "world_cup_single_game",
-          "risk": "medium",
-          "label": "Medium Risk",
-          "count": 15,
-          "target": 3,
-          "min": 0,
-          "status": "filled",
-          "topReasons": [],
-          "message": "15 World Cup single-game Medium Risk cards passed (target 3)."
-        },
-        {
-          "scope": "world_cup_single_game",
-          "risk": "high",
-          "label": "High Risk",
-          "count": 16,
-          "target": 2,
-          "min": 0,
-          "status": "filled",
-          "topReasons": [],
-          "message": "16 World Cup single-game High Risk cards passed (target 2)."
-        },
-        {
-          "scope": "world_cup_single_game",
-          "risk": "longshot",
-          "label": "Longshot",
-          "count": 16,
-          "target": 1,
-          "min": 0,
-          "status": "filled",
-          "topReasons": [],
-          "message": "16 World Cup single-game Longshot cards passed (target 1)."
-        }
-      ],
-      "total": 49
+ "schemaVersion": 2,
+ "artifact": "risk-coverage-matrix",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-08-24T15:06:01Z",
+ "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
+ "counts": {
+  "PUBLISHED": 7,
+  "NO_PLAY": 5,
+  "LANE_CLOSED": 8,
+  "MISSING": 0
+ },
+ "rows": [
+  {
+   "lane": "mlb",
+   "date": "2026-08-23",
+   "laneState": "LIVE",
+   "laneReason": null,
+   "tiers": {
+    "low": {
+     "state": "NO_PLAY",
+     "reason": "no priced card in this tier on today's slate"
     },
-    {
-      "scope": "world_cup_multi_game",
-      "displayName": "World Cup Multi-Game",
-      "href": "/parlays?sport=world_cup",
-      "cells": [
-        {
-          "scope": "world_cup_multi_game",
-          "risk": "low",
-          "label": "Low Risk",
-          "count": 5,
-          "target": 4,
-          "min": 0,
-          "status": "filled",
-          "topReasons": [],
-          "message": "5 World Cup multi-game Low Risk cards passed (target 4)."
-        },
-        {
-          "scope": "world_cup_multi_game",
-          "risk": "medium",
-          "label": "Medium Risk",
-          "count": 5,
-          "target": 5,
-          "min": 0,
-          "status": "filled",
-          "topReasons": [],
-          "message": "5 World Cup multi-game Medium Risk cards passed (target 5)."
-        },
-        {
-          "scope": "world_cup_multi_game",
-          "risk": "high",
-          "label": "High Risk",
-          "count": 5,
-          "target": 4,
-          "min": 0,
-          "status": "filled",
-          "topReasons": [],
-          "message": "5 World Cup multi-game High Risk cards passed (target 4)."
-        },
-        {
-          "scope": "world_cup_multi_game",
-          "risk": "longshot",
-          "label": "Longshot",
-          "count": 5,
-          "target": 2,
-          "min": 0,
-          "status": "filled",
-          "topReasons": [],
-          "message": "5 World Cup multi-game Longshot cards passed (target 2)."
-        }
-      ],
-      "total": 20
+    "medium": {
+     "state": "PUBLISHED",
+     "slipId": "opt_2026-08-23_public_low_mlb_5b7bd33ca28d"
     },
-    {
-      "scope": "mlb",
-      "displayName": "MLB",
-      "href": "/picks?sport=mlb",
-      "cells": [
-        {
-          "scope": "mlb",
-          "risk": "low",
-          "label": "Low Risk",
-          "count": 0,
-          "target": 4,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "no_current_slate"
-          ],
-          "message": "No MLB Low Risk cards — no current slate (No MLB source data for today.)."
-        },
-        {
-          "scope": "mlb",
-          "risk": "medium",
-          "label": "Medium Risk",
-          "count": 0,
-          "target": 5,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "no_current_slate"
-          ],
-          "message": "No MLB Medium Risk cards — no current slate (No MLB source data for today.)."
-        },
-        {
-          "scope": "mlb",
-          "risk": "high",
-          "label": "High Risk",
-          "count": 0,
-          "target": 4,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "no_current_slate"
-          ],
-          "message": "No MLB High Risk cards — no current slate (No MLB source data for today.)."
-        },
-        {
-          "scope": "mlb",
-          "risk": "longshot",
-          "label": "Longshot",
-          "count": 0,
-          "target": 2,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "no_current_slate"
-          ],
-          "message": "No MLB Longshot cards — no current slate (No MLB source data for today.)."
-        }
-      ],
-      "total": 0
+    "high": {
+     "state": "PUBLISHED",
+     "slipId": "opt_2026-08-23_public_medium_mlb_cf2e587083f0"
     },
-    {
-      "scope": "mixed",
-      "displayName": "Mixed Sport",
-      "href": "/parlays?sport=mixed",
-      "cells": [
-        {
-          "scope": "mixed",
-          "risk": "low",
-          "label": "Low Risk",
-          "count": 0,
-          "target": 4,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "gates_not_cleared"
-          ],
-          "message": "No Mixed-sport Low Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates)."
-        },
-        {
-          "scope": "mixed",
-          "risk": "medium",
-          "label": "Medium Risk",
-          "count": 0,
-          "target": 5,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "gates_not_cleared"
-          ],
-          "message": "No Mixed-sport Medium Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates)."
-        },
-        {
-          "scope": "mixed",
-          "risk": "high",
-          "label": "High Risk",
-          "count": 0,
-          "target": 4,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "gates_not_cleared"
-          ],
-          "message": "No Mixed-sport High Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates)."
-        },
-        {
-          "scope": "mixed",
-          "risk": "longshot",
-          "label": "Longshot",
-          "count": 0,
-          "target": 2,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "gates_not_cleared"
-          ],
-          "message": "No Mixed-sport Longshot card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates)."
-        }
-      ],
-      "total": 0
-    },
-    {
-      "scope": "moonshot",
-      "displayName": "Moonshot",
-      "href": "/bank-builder#moonshot",
-      "cells": [
-        {
-          "scope": "moonshot",
-          "risk": "low",
-          "label": "Low Risk",
-          "count": 0,
-          "target": 0,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "active_card_tracked_separately"
-          ],
-          "message": "Moonshot Lane awaiting a qualified card."
-        },
-        {
-          "scope": "moonshot",
-          "risk": "medium",
-          "label": "Medium Risk",
-          "count": 0,
-          "target": 0,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "active_card_tracked_separately"
-          ],
-          "message": "Moonshot Lane awaiting a qualified card."
-        },
-        {
-          "scope": "moonshot",
-          "risk": "high",
-          "label": "High Risk",
-          "count": 0,
-          "target": 0,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "active_card_tracked_separately"
-          ],
-          "message": "Moonshot Lane awaiting a qualified card."
-        },
-        {
-          "scope": "moonshot",
-          "risk": "longshot",
-          "label": "Longshot",
-          "count": 0,
-          "target": 0,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "active_card_tracked_separately"
-          ],
-          "message": "Moonshot Lane awaiting a qualified card."
-        }
-      ],
-      "total": 0
-    },
-    {
-      "scope": "bank_builder",
-      "displayName": "Core Bank Builder",
-      "href": "/bank-builder",
-      "cells": [
-        {
-          "scope": "bank_builder",
-          "risk": "low",
-          "label": "Low Risk",
-          "count": 0,
-          "target": 0,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "active_card_tracked_separately"
-          ],
-          "message": "Active card tracked separately — not promoted as a generic suggestion (no double-count)."
-        },
-        {
-          "scope": "bank_builder",
-          "risk": "medium",
-          "label": "Medium Risk",
-          "count": 2,
-          "target": 0,
-          "min": 0,
-          "status": "filled",
-          "topReasons": [],
-          "message": "2 active cards in this bucket."
-        },
-        {
-          "scope": "bank_builder",
-          "risk": "high",
-          "label": "High Risk",
-          "count": 0,
-          "target": 0,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "active_card_tracked_separately"
-          ],
-          "message": "Active card tracked separately — not promoted as a generic suggestion (no double-count)."
-        },
-        {
-          "scope": "bank_builder",
-          "risk": "longshot",
-          "label": "Longshot",
-          "count": 0,
-          "target": 0,
-          "min": 0,
-          "status": "empty",
-          "topReasons": [
-            "active_card_tracked_separately"
-          ],
-          "message": "Active card tracked separately — not promoted as a generic suggestion (no double-count)."
-        }
-      ],
-      "total": 2
+    "longshot": {
+     "state": "PUBLISHED",
+     "slipId": "opt_2026-08-23_public_longshot_mlb_e20cb76efdad"
     }
-  ],
-  "riskTotals": {
-    "low": 7,
-    "medium": 22,
-    "high": 21,
-    "longshot": 21
+   }
   },
-  "grandTotal": 71,
-  "diagnosticsSummary": [
-    "69 cards passed across all scopes for 2026-06-23. Empty buckets list their gate / data reason below. Odds-band guards: 39 leg(s) too short (<-500), 3 too long (>+1200) dropped; 0 card(s) re-homed to the band their combined odds fit; 0 dropped as out-of-band.",
-    "Moonshot + Core Bank Builder are counted in their own rows only — never inside the generic WC/MLB/Mixed suggestions, so no card is double-counted."
-  ],
-  "balancedGeneration": {
-    "targets": {
-      "world_cup_single_game": {
-        "low": 1,
-        "medium": 1,
-        "high": 1,
-        "longshot": 1
-      },
-      "world_cup_multi_game": {
-        "low": 4,
-        "medium": 4,
-        "high": 4,
-        "longshot": 4
-      },
-      "mlb": {
-        "low": 4,
-        "medium": 4,
-        "high": 4,
-        "longshot": 4
-      },
-      "mixed": {
-        "low": 4,
-        "medium": 4,
-        "high": 4,
-        "longshot": 4
-      },
-      "moonshot": {
-        "low": 0,
-        "medium": 0,
-        "high": 0,
-        "longshot": 1
-      },
-      "bank_builder": {
-        "low": 0,
-        "medium": 2,
-        "high": 0,
-        "longshot": 0
-      }
+  {
+   "lane": "epl",
+   "date": "2026-08-29",
+   "laneState": "LIVE",
+   "laneReason": null,
+   "tiers": {
+    "low": {
+     "state": "NO_PLAY",
+     "reason": "no combination of today's prices lands in this band — 2 legs → +110 (medium) … +418 (high)"
     },
-    "filledByScopeRisk": {
-      "world_cup_single_game.low": 2,
-      "world_cup_single_game.medium": 15,
-      "world_cup_single_game.high": 16,
-      "world_cup_single_game.longshot": 16,
-      "world_cup_multi_game.low": 5,
-      "world_cup_multi_game.medium": 5,
-      "world_cup_multi_game.high": 5,
-      "world_cup_multi_game.longshot": 5,
-      "mlb.low": 0,
-      "mlb.medium": 0,
-      "mlb.high": 0,
-      "mlb.longshot": 0,
-      "mixed.low": 0,
-      "mixed.medium": 0,
-      "mixed.high": 0,
-      "mixed.longshot": 0,
-      "moonshot.low": 0,
-      "moonshot.medium": 0,
-      "moonshot.high": 0,
-      "moonshot.longshot": 0,
-      "bank_builder.low": 0,
-      "bank_builder.medium": 2,
-      "bank_builder.high": 0,
-      "bank_builder.longshot": 0
+    "medium": {
+     "state": "PUBLISHED",
+     "slipId": "epl-medium-2026-08-29"
     },
-    "underfilledReasons": {
-      "mlb.low": "No MLB Low Risk cards — no current slate (No MLB source data for today.).",
-      "mlb.medium": "No MLB Medium Risk cards — no current slate (No MLB source data for today.).",
-      "mlb.high": "No MLB High Risk cards — no current slate (No MLB source data for today.).",
-      "mlb.longshot": "No MLB Longshot cards — no current slate (No MLB source data for today.).",
-      "mixed.low": "No Mixed-sport Low Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates).",
-      "mixed.medium": "No Mixed-sport Medium Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates).",
-      "mixed.high": "No Mixed-sport High Risk card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates).",
-      "mixed.longshot": "No Mixed-sport Longshot card passed the gates today (no card cleared this bucket's payout band / leg count / correlation gates).",
-      "moonshot.longshot": "Moonshot Lane awaiting a qualified card."
+    "high": {
+     "state": "PUBLISHED",
+     "slipId": "epl-high-2026-08-29"
     },
-    "capPerBucket": 5
+    "longshot": {
+     "state": "PUBLISHED",
+     "slipId": "epl-longshot-2026-08-29"
+    }
+   }
+  },
+  {
+   "lane": "ufc",
+   "date": "2026-08-29",
+   "laneState": "LIVE",
+   "laneReason": null,
+   "tiers": {
+    "low": {
+     "state": "NO_PLAY",
+     "reason": "no card priced into this band — 2 legs → +229 (medium)"
+    },
+    "medium": {
+     "state": "PUBLISHED",
+     "slipId": "ufc-medium-2026-08-29"
+    },
+    "high": {
+     "state": "NO_PLAY",
+     "reason": "no card priced into this band — 2 legs → +135 (medium)"
+    },
+    "longshot": {
+     "state": "NO_PLAY",
+     "reason": "no card priced into this band — 2 legs → +135 (medium)"
+    }
+   }
+  },
+  {
+   "lane": "nfl",
+   "date": null,
+   "laneState": "CLOSED",
+   "laneReason": "official NFL final scores are captured, but settle-lab-cards implements no NFL grader — a published leg would never resolve and so would never enter the record; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "tiers": {
+    "low": {
+     "state": "LANE_CLOSED",
+     "reason": "official NFL final scores are captured, but settle-lab-cards implements no NFL grader — a published leg would never resolve and so would never enter the record; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+    },
+    "medium": {
+     "state": "LANE_CLOSED",
+     "reason": "official NFL final scores are captured, but settle-lab-cards implements no NFL grader — a published leg would never resolve and so would never enter the record; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+    },
+    "high": {
+     "state": "LANE_CLOSED",
+     "reason": "official NFL final scores are captured, but settle-lab-cards implements no NFL grader — a published leg would never resolve and so would never enter the record; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+    },
+    "longshot": {
+     "state": "LANE_CLOSED",
+     "reason": "official NFL final scores are captured, but settle-lab-cards implements no NFL grader — a published leg would never resolve and so would never enter the record; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+    }
+   }
+  },
+  {
+   "lane": "multi",
+   "date": "2026-08-24",
+   "laneState": "LIVE",
+   "laneReason": null,
+   "tiers": {
+    "low": {
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-08-24T13:55:53Z; the next scheduled run re-evaluates under current eligibility"
+    },
+    "medium": {
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-08-24T13:55:53Z; the next scheduled run re-evaluates under current eligibility"
+    },
+    "high": {
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-08-24T13:55:53Z; the next scheduled run re-evaluates under current eligibility"
+    },
+    "longshot": {
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-08-24T13:55:53Z; the next scheduled run re-evaluates under current eligibility"
+    }
+   }
   }
+ ]
 }
