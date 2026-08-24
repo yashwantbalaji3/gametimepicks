@@ -22,7 +22,11 @@ for (let i = 0; i < 40; i += 1) {
 }
 const browser = await chromium.launch();
 let shot = 0;
-for (const [name, vp] of [["m390", { width: 390, height: 844 }], ["l1440", { width: 1440, height: 900 }]]) {
+// P201: --all-widths adds the tablet 768 and laptop 1280 bands the launch charter requires.
+const VIEWPORTS = process.argv.includes("--all-widths")
+  ? [["m390", { width: 390, height: 844 }], ["t768", { width: 768, height: 1024 }], ["l1280", { width: 1280, height: 800 }], ["l1440", { width: 1440, height: 900 }]]
+  : [["m390", { width: 390, height: 844 }], ["l1440", { width: 1440, height: 900 }]];
+for (const [name, vp] of VIEWPORTS) {
   const ctx = await browser.newContext({ viewport: vp });
   const page = await ctx.newPage();
   for (const r of routes) {
