@@ -79,23 +79,26 @@ test("THE COMMITTED ASSESSMENTS · maturity derives to the honest current pictur
   // inherited, not re-argued per sport. The set stays EXACT: this list is a ratchet, so a new stage
   // is a reviewed change here, never one that appears in the assessments unnoticed.
   assert.deepEqual(Object.keys(SPORT_ASSESSMENTS.nfl.stages).sort(),
-    ["data", "identity", "markets", "model", "owner", "publication", "qualification", "schedule", "settlement"],
-    "NFL evidence = the P148/P151/P161 four plus P171's identity + markets + publication, plus P185's owner + qualification");
-  // identity and markets earned PROVEN on Program 171 receipts; everything else is honestly
-  // PARTIAL — and publication CANNOT be PROVEN on a price table, because no model layer is public.
+    ["data", "identity", "markets", "model", "monitoring", "owner", "products", "publication", "qualification", "schedule", "settlement"],
+    "NFL evidence set — grew by monitoring + products on P197-D receipts; still a reviewed ratchet");
   assert.equal(SPORT_ASSESSMENTS.nfl.stages.identity.status, "PROVEN");
   assert.equal(SPORT_ASSESSMENTS.nfl.stages.markets.status, "PROVEN");
   assert.match(SPORT_ASSESSMENTS.nfl.stages.markets.evidence, /cumulative 12 of 3,000/, "the markets claim carries its actual credit spend");
-  assert.equal(SPORT_ASSESSMENTS.nfl.stages.publication.status, "PARTIAL");
-  assert.match(SPORT_ASSESSMENTS.nfl.stages.publication.evidence, /no MODEL layer is public/);
-  // Everything outside this set stays PARTIAL. `owner` and `qualification` joined it on P185 —
-  // both are verified against real artifacts rather than asserted: the owner guard requires the
-  // workflow to exist, carry a cron and reach a human, and the qualification guard reads the shadow
-  // module's own state literals. The blanket rule is intact; only the reviewed exceptions grew.
-  // settlement joined on P185 with 16 settled preseason forecasts carrying lineage + quarantine.
-  const NFL_PROVEN = new Set(["identity", "markets", "owner", "qualification", "settlement"]);
+  /*
+   * P197-D restatement: publication's old pin was /no MODEL layer is public/ — true in the P171
+   * price-table era, FALSE since the P173 public-beta launch, and the entry finally caught up.
+   * The pin flips to the current claim rather than being deleted: the page publishes the model
+   * layer under beta labels, and labels may never imply rejected preseason signal became proven.
+   */
+  assert.equal(SPORT_ASSESSMENTS.nfl.stages.publication.status, "PROVEN");
+  assert.match(SPORT_ASSESSMENTS.nfl.stages.publication.evidence, /model layer IS public/);
+  assert.match(SPORT_ASSESSMENTS.nfl.stages.publication.evidence, /never imply preseason-rejected signal became proven/);
+  // The reviewed PROVEN set after P197-D. model and products stay PARTIAL by name — the model on
+  // regular-season-only evidence with the live window just opening, products with an ACTIVE branch
+  // that has never once run — and each names its own reason in the entry.
+  const NFL_PROVEN = new Set(["identity", "markets", "owner", "qualification", "settlement", "schedule", "data", "publication", "monitoring"]);
   for (const [name, st] of Object.entries(SPORT_ASSESSMENTS.nfl.stages)) {
-    if (!NFL_PROVEN.has(name)) assert.equal(st.status, "PARTIAL", `${name} stays PARTIAL`);
+    if (!NFL_PROVEN.has(name)) assert.equal(st.status, "PARTIAL", `${name} stays PARTIAL with its reason stated`);
     else assert.equal(st.status, "PROVEN", `${name} is one of the reviewed PROVEN stages`);
   }
   // The live window is PRESEASON: every P171 model receipt is regular-season evidence, and the

@@ -100,7 +100,14 @@ export const ROADMAP_30D = Object.freeze([
   {
     horizon: "WEEKS_3_4",
     items: [
-      { outcome: "Public-IA responsive sweep (Release H): every public route at 390/768/1280/1440 with the browser matrix, glossary ownership per beginner-facing term, one navigation metadata owner verified against the built export", department: "product-generation", sport: "shared", owner: "ENGINEERING", dependency: "routes stable after the P196 release train", effort: "M", acceptance: "a11y structural 0 findings + browser matrix green across three engines; no page-level horizontal scroll anywhere" },
+      /*
+       * The Release H responsive sweep that lived here SHIPPED in P197 Release C (2026-08-24):
+       * three-engine matrix green over the fresh export — 367 passed / 0 failed / 6 explained
+       * skips (Chromium full suite + WebKit + Firefox on accessibility, route assurance,
+       * colour-mix, motion roles), structural audit 0 findings. Removed per the pruning contract;
+       * the NBA foundation work takes the slot because it is the next real engineering block.
+       */
+      { outcome: "NBA first-event-ready foundation (P197 Release E scope): official-results adapter + settlement fixtures across season types (wins, OT, corrections; tie-impossible), research registry entries versioned with activation OFF, and the committed first-event activation checklist — October's first game advances the queue without new architecture", department: "settlement", sport: "nba", owner: "ENGINEERING", dependency: "schedule/identity/cadence live (P196-F receipt); lineup rights stay founder-gated and are NOT scraped", effort: "M", acceptance: "settlement fixtures pass for every named case; registry shows activation OFF; checklist committed; no public simulation or pick claim anywhere" },
     ],
   },
   {

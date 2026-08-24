@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 
 import { SPORT_ASSESSMENTS } from "../../src/lib/sports/sport-assessments.mjs";
 import { deriveSportMaturity, remainingPath, GATE_STAGES } from "../../src/lib/sports/sport-gate.mjs";
+import { deriveInputMatrix, readinessVerdict } from "../../src/lib/sports/nfl/regular-season-inputs.mjs";
 import { checkFreshness } from "../../src/lib/sports/nfl/season-context.mjs";
 import { validateCurrentEventArtifact } from "../../src/lib/sports/nfl/current-event-contract.mjs";
 import { parseAuthorizationReceipt } from "../../src/lib/sports/odds/p171-authorization.mjs";
@@ -135,6 +136,26 @@ const out = {
     injuries: freshnessOf("injuries", injuries, ["sourceAsOf", "generatedAt"]),
     odds: markets ? freshnessOf("odds", markets, ["capturedAt"]) : UNKNOWN("no market capture"),
   },
+  /*
+   * P197 · Release D: the regular-season input matrix, derived live from the same artifacts this
+   * status already reads. Design caps (no actives source, no depth charts, no weather) are FACTS
+   * carried on every row; operational gaps become tickets. The frozen evaluation contract
+   * (data/internal/research/nfl/regular-season-evaluation-contract.json) governs any challenger.
+   */
+  regularSeason: (() => {
+    const matrix = deriveInputMatrix({
+      artifacts: {
+        schedule: { present: !!schedule, stamp: schedule?.generatedAt ?? null },
+        injuries: { present: !!injuries, stamp: injuries?.sourceAsOf ?? injuries?.generatedAt ?? null },
+        rosters: { present: !!rosters, stamp: rosters?.sourceAsOf ?? rosters?.generatedAt ?? null },
+        prices: { present: !!markets, stamp: markets?.capturedAt ?? null },
+        teamStrength: { present: true },
+        participationRoles: { present: true },
+      },
+      nowIso: NOW,
+    });
+    return { verdict: readinessVerdict(matrix), matrix: matrix.map((m) => ({ id: m.id, state: m.state, detail: m.detail })) };
+  })(),
   markets: markets
     ? { state: "CAPTURED", events: markets.eventCount, books: Math.max(...(markets.rows ?? []).map((r) => r.books.length), 0), capturedAt: markets.capturedAt, propMarkets: markets.propMarkets }
     : UNKNOWN("no authorized capture"),

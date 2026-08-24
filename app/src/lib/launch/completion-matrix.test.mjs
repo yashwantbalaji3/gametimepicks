@@ -45,8 +45,11 @@ test("percentages derive from stages — MLB all-proven is 100 everywhere, empty
   // owning workflow must exist, carry a cron and reach a human; the ladder is read from the shadow
   // module's own state literals). Listed explicitly so a stage still cannot claim evidence without
   // a reviewed entry here — the invariant this guard exists for is untouched.
-  const NFL_EVIDENCE_STAGES = ["schedule", "data", "model", "settlement", "identity", "markets", "publication", "owner", "qualification"];
-  const NFL_PROVEN_STAGES = ["identity", "markets", "owner", "qualification", "settlement"];
+  // P197-D grew the reviewed set: monitoring (watchdog three-axis coverage + lane matrix) and
+  // products (typed daily Vault receipts, PARTIAL — the ACTIVE branch has never run) joined it,
+  // and schedule/data/publication earned PROVEN on their own receipts. The ratchet is intact:
+  // a stage still cannot carry evidence without a reviewed entry HERE.
+  const NFL_EVIDENCE_STAGES = ["schedule", "data", "model", "settlement", "identity", "markets", "publication", "owner", "qualification", "monitoring", "products"];
   const nfl = sportColumn(SPORT_ASSESSMENTS.nfl);
   for (const b of DEPARTMENT_BUCKETS) {
     assert.ok(nfl[b.id].stages.every((s) => s.status === "UNPROVEN" || NFL_EVIDENCE_STAGES.includes(s.id)),
@@ -55,13 +58,19 @@ test("percentages derive from stages — MLB all-proven is 100 everywhere, empty
     assert.equal(nfl[b.id].proven, provenHere, `nfl.${b.id} — the numerator counts PROVEN stages only`);
     if (provenHere === 0) assert.equal(nfl[b.id].pct, 0, `nfl.${b.id} — PARTIAL earns receipts, never percentage`);
   }
-  // The exact honest picture after P171: data-ingestion 1/3 (markets proven; schedule+data still
-  // PARTIAL), identity-assets 1/1, and every MODEL/PRODUCT/SETTLEMENT bucket still 0 — a captured
-  // price table must never read as model or settlement progress.
-  assert.equal(nfl["data-ingestion"].pct, 33);
+  // The exact honest picture after P197-D: ingestion and identity fully receipted; the MODEL
+  // bucket at 1/3 (qualification proven; model PARTIAL, calibration UNPROVEN with its frozen
+  // regular-season contract as the instrument); products at 1/2 (publication proven, the Vault's
+  // ACTIVE branch unexercised). A percentage still counts PROVEN only.
+  assert.equal(nfl["data-ingestion"].pct, 100);
   assert.equal(nfl["identity-assets"].pct, 100);
-  assert.equal(nfl["product-generation"].pct, 0,
-    "nfl.product-generation must stay 0 — P171 published prices, not generated products");
+  assert.equal(nfl["model-validation"].pct, 33);
+  assert.equal(nfl["product-generation"].pct, 50);
+  assert.equal(nfl["settlement"].pct, 100);
+  assert.equal(nfl["operations"].pct, 100);
+  /* The P171-era "product-generation must stay 0 — published prices, not generated products" pin
+     retired on P197-D receipts: publication earned PROVEN on the public model layer, so the bucket
+     honestly reads 50 with the Vault's never-exercised ACTIVE branch keeping products PARTIAL. */
   /*
    * settlement moved off 0 on P185 and the reason this guard gave — "not settled results" — is now
    * simply false: 16 preseason forecasts are settled from official scores, each carrying lineage and
@@ -86,14 +95,21 @@ test("percentages derive from stages — MLB all-proven is 100 everywhere, empty
    */
   assert.equal(nfl["model-validation"].pct, 33, "qualification is proven; model and calibration are not");
   assert.notEqual(SPORT_ASSESSMENTS.nfl.stages.model.status, "PROVEN", "NFL has no validated model");
-  assert.notEqual(SPORT_ASSESSMENTS.nfl.stages.calibration?.status, "PROVEN", "NFL has no calibration receipt");
-  // operations = [monitoring, owner]. The owner is real and paged; monitoring is NOT — nothing yet
-  // watches whether an NFL run happened, so this must not read as fully covered.
-  assert.equal(nfl["operations"].pct, 50, "owner proven, monitoring not");
-  assert.notEqual(SPORT_ASSESSMENTS.nfl.stages.monitoring?.status, "PROVEN", "NFL is not yet monitored");
+  assert.notEqual(SPORT_ASSESSMENTS.nfl.stages.calibration?.status, "PROVEN", "NFL has no calibration receipt — the frozen regular-season contract is its instrument, not its pass");
+  /*
+   * P197-D restatement: "nothing yet watches whether an NFL run happened" retired the day the
+   * watchdog grew its fired-and-failed axis — an axis born FROM nfl-event-window failing all three
+   * slots while the old check reported OK — plus the never-scheduled sweep and the lane status's
+   * regular-season input matrix. The operations bucket honestly reads 100; what must never drift
+   * is that a monitoring claim rests on instruments that have each CAUGHT something, and the entry
+   * names all three catches.
+   */
+  assert.equal(nfl["operations"].pct, 100, "owner paged, monitoring instrumented — both receipted");
+  assert.match(SPORT_ASSESSMENTS.nfl.stages.monitoring.evidence, /CAUGHT something real/);
+  const NFL_PROVEN_NOW = new Set(["identity", "markets", "owner", "qualification", "settlement", "schedule", "data", "publication", "monitoring"]);
   for (const id of NFL_EVIDENCE_STAGES) {
     const st = DEPARTMENT_BUCKETS.flatMap((b) => nfl[b.id].stages).find((s) => s.id === id);
-    const expected = NFL_PROVEN_STAGES.includes(id) ? "PROVEN" : "PARTIAL";
+    const expected = NFL_PROVEN_NOW.has(id) ? "PROVEN" : "PARTIAL";
     assert.equal(st.status, expected, `nfl.${id} — ${expected} exactly`);
   }
 });

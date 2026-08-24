@@ -1,0 +1,32 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-regular-season-evaluation-contract",
+ "dataClass": "INTERNAL_RESEARCH",
+ "public": false,
+ "frozenAt": "2026-08-24T03:45:00Z",
+ "frozenBy": "P197 Release D — committed BEFORE any regular-season challenger is fitted (the P181 lesson: freeze bars in their own commit, record the file's sha256 in the release row, and never adjust them to spare a result)",
+ "scope": "2026 NFL regular season, team-level heads (win probability, margin, total). Player families keep their own P171 policy bars and are out of scope here.",
+ "cohortRule": "Regular-season rows form their own cohort (P196 Release E machinery). Preseason evidence — including every rejected preseason challenger — neither qualifies nor disqualifies a regular-season candidate. Rejected preseason candidates stay rejected; they may be re-fitted on regular-season data only under THIS contract.",
+ "evaluationMode": {
+  "design": "walk-forward by week: fit through week N-1, forecast week N, freeze forecast-of-record pre-kickoff, settle on official finals. No random splits, no retrospective selection of a favorable window.",
+  "minimumSample": 64,
+  "minimumWeeks": 4,
+  "note": "under the minimum, figures are reported and support no promotion in either direction"
+ },
+ "bars": {
+  "winHead": {
+   "baseline": "the committed cutoff-Elo baseline (P166-E), evaluated on the identical games",
+   "requirement": "mean log loss at least 0.005 BELOW the baseline's, and the market comparison (de-vigged h2h on identical games) REPORTED beside it — beating the baseline while losing to the market is publishable as exactly that, never as proof",
+   "hardStop": "log loss 0.02 or more ABOVE the de-vigged market over the minimum sample = STOP_AND_DEMOTE (the MLB stopping rule, inherited verbatim)"
+  },
+  "marginHead": {
+   "requirement": "80% interval coverage inside the BAND 0.75-0.85 (a band, not a floor — interval-widening must not be able to pass it) AND margin MAE not worse than the baseline's by more than 0.5 points",
+   "note": "the P180 finding stands: totals calibrated while margins missed on blowouts — dispersion, not location, is the margin bar's focus"
+  },
+  "totalHead": {
+   "requirement": "80% interval coverage inside the band 0.75-0.85 AND total MAE reported against the market total on identical games"
+  }
+ },
+ "promotionRule": "a head promotes to PUBLIC_BETA labeling only when its bar passes on the frozen walk-forward sample; PICKS_ELIGIBLE additionally requires the calibration and qualification stages' own receipts. No head may be promoted for a favorable week; re-examination happens at every doubling of the sample.",
+ "amendmentRule": "this contract may be amended only BEFORE the first regular-season fit under it, in its own commit, with the reason stated. After the first fit it is immutable for the season."
+}

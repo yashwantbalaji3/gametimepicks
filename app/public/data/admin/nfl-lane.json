@@ -2,15 +2,15 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-08-23T21:20:32Z",
+ "generatedAt": "2026-08-24T04:05:00Z",
  "program": "P171",
  "nextWindow": {
-  "matchup": "SEA @ TEN",
-  "kickoffUtc": "2026-08-24T00:00Z",
+  "matchup": "PIT @ BUF",
+  "kickoffUtc": "2026-08-27T23:00Z",
   "seasonType": 1,
-  "week": 3,
-  "hoursToKickoff": 2.66,
-  "eventsInWindow": 17
+  "week": 4,
+  "hoursToKickoff": 90.92,
+  "eventsInWindow": 16
  },
  "freshness": {
   "schedule": {
@@ -26,9 +26,72 @@
    "detail": "as of 2026-08-23T17:08:57Z (FRESH)"
   },
   "odds": {
-   "state": "FRESH",
-   "detail": "as of 2026-08-23T21:20:32Z (FRESH)"
+   "state": "STALE",
+   "detail": "as of 2026-08-23T21:20:32Z (STALE)"
   }
+ },
+ "regularSeason": {
+  "verdict": {
+   "state": "READY_WITH_DESIGN_CAPS",
+   "operationalGaps": [],
+   "designCaps": [
+    "activesInactives",
+    "depthCharts",
+    "weather"
+   ]
+  },
+  "matrix": [
+   {
+    "id": "schedule",
+    "state": "AVAILABLE",
+    "detail": "schedule as of 2026-08-23T17:13:30Z"
+   },
+   {
+    "id": "teamStrength",
+    "state": "AVAILABLE",
+    "detail": "strictly pre-kickoff by construction (P166-E)"
+   },
+   {
+    "id": "injuries",
+    "state": "AVAILABLE",
+    "detail": "injuries as of 2026-08-23T17:08:57Z"
+   },
+   {
+    "id": "rosters",
+    "state": "AVAILABLE",
+    "detail": "rosters as of 2026-08-23T21:20:32Z"
+   },
+   {
+    "id": "participationRoles",
+    "state": "AVAILABLE",
+    "detail": "corpus is season-to-date, strictly historical"
+   },
+   {
+    "id": "activesInactives",
+    "state": "BLOCKED_EXTERNAL",
+    "detail": "ACTIVE_CONFIRMED states are unreachable by design (participation.mjs names this)"
+   },
+   {
+    "id": "depthCharts",
+    "state": "BLOCKED_EXTERNAL",
+    "detail": "no player may be called a starter (participation-artifact guard)"
+   },
+   {
+    "id": "qbStatus",
+    "state": "DERIVED",
+    "detail": "DERIVED, stated as such — an injury feed is not a start/sit announcement"
+   },
+   {
+    "id": "weather",
+    "state": "UNSUPPORTED",
+    "detail": "UNSUPPORTED; totals carry no weather adjustment and say so"
+   },
+   {
+    "id": "prices",
+    "state": "AVAILABLE",
+    "detail": "prices as of 2026-08-23T21:20:32Z"
+   }
+  ]
  },
  "markets": {
   "state": "CAPTURED",
@@ -95,7 +158,7 @@
  "currentArtifacts": {
   "total": 112,
   "contractValid": 112,
-  "preStart": 3,
+  "preStart": 0,
   "settlementReady": 106,
   "detail": "112/112 pass the current-event contract; 106 carry pinned settlement targets"
  },
@@ -107,10 +170,10 @@
  },
  "gate": {
   "maturity": "SCAFFOLDED",
-  "proven": 5,
+  "proven": 9,
   "total": 12,
-  "nextGate": "schedule (PARTIAL)",
-  "detail": "5/12 stages proven"
+  "nextGate": "model (PARTIAL)",
+  "detail": "9/12 stages proven"
  },
  "cadence": {
   "state": "UNPROVEN",
