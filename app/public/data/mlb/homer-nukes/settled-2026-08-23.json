@@ -1,0 +1,71 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-homer-nukes-settlement",
+ "dataClass": "PUBLIC_DERIVED",
+ "date": "2026-08-23",
+ "settledAt": "2026-08-24T06:01:42Z",
+ "modelId": "mlb-homer-nukes-v1",
+ "source": "MLB Stats API official box score (feed/live), joined by gamePk and player name",
+ "picks": [
+  {
+   "playerId": 696100,
+   "player": "Hunter Goodman",
+   "teamAbbr": "COL",
+   "matchup": "CLE @ COL",
+   "gamePk": 824315,
+   "probability": 0.2701,
+   "result": "pending",
+   "note": "player absent from the official box score (possible scratch) — never graded as a miss"
+  },
+  {
+   "playerId": 670042,
+   "player": "Luke Raley",
+   "teamAbbr": "SEA",
+   "matchup": "CHC @ SEA",
+   "gamePk": 823099,
+   "probability": 0.2352,
+   "result": "pending",
+   "note": "player absent from the official box score (possible scratch) — never graded as a miss"
+  },
+  {
+   "playerId": 686527,
+   "player": "Dominic Canzone",
+   "teamAbbr": "SEA",
+   "matchup": "CHC @ SEA",
+   "gamePk": 823099,
+   "probability": 0.23,
+   "result": "miss",
+   "homeRuns": 0,
+   "source": "mlb_stats_api"
+  },
+  {
+   "playerId": 666160,
+   "player": "Mickey Moniak",
+   "teamAbbr": "COL",
+   "matchup": "CLE @ COL",
+   "gamePk": 824315,
+   "probability": 0.2276,
+   "result": "miss",
+   "homeRuns": 0,
+   "source": "mlb_stats_api"
+  },
+  {
+   "playerId": 691718,
+   "player": "Pete Crow-Armstrong",
+   "teamAbbr": "CHC",
+   "matchup": "CHC @ SEA",
+   "gamePk": 823099,
+   "probability": 0.2266,
+   "result": "hit",
+   "homeRuns": 1,
+   "source": "mlb_stats_api"
+  }
+ ],
+ "day": {
+  "graded": 3,
+  "pending": 2,
+  "predicted": 0.6842,
+  "actual": 1,
+  "brier": 0.2343
+ }
+}
