@@ -68,35 +68,45 @@ export function buildCompletionMatrix(sportAssessments) {
  * an acceptance test, because an item nobody can check off is a wish, not a plan. Sources: the
  * Program 144 blocker register and the founder gates. Completed work is REMOVED, not struck through.
  */
+/*
+ * P196 · Release J reset. The previous roadmap still listed "EPL opening day (Aug 21)" as a
+ * DAYS_3_7 item after that day had come, gone, and settled eight matches — shipped work removed,
+ * horizons re-anchored to the current truth. Engineering execution order is NOT restated here:
+ * the closure-packet execution queue (data/internal/launch/closure-packets-v1.json, rendered on
+ * this page) is the one dependency-ordered authority, and the NOW item points at it rather than
+ * hand-copying entries that would drift by the weekend.
+ */
 export const ROADMAP_30D = Object.freeze([
   {
     horizon: "NOW",
     items: [
-      { outcome: "Founder Reply Box: seven answers via docs/FOUNDER_RESPONSE_FORM.md — every shared blocker is engineering-ready; the read-only orchestrator + per-blocker acceptance verifiers consume answers as they arrive (the shared-blocker registry on this page is the ONE authority; former per-item founder roadmap entries are deduplicated into it)", department: "operations", sport: "shared", owner: "FOUNDER", dependency: "P164 packets + P165 form/orchestrator shipped; injuries capture landed P162-H with run receipts", effort: "one sitting", acceptance: "a valid response file passes validateFounderResponse; each blocker transitions mechanically; CLOSED only on real acceptance receipts" },
+      { outcome: "Work the closure-packet execution queue in dependency order (top of queue: UFC schedule/identity/data stage receipts) — the queue is derived, so shipping a receipt removes its item without anyone editing a list", department: "operations", sport: "multi", owner: "ENGINEERING", dependency: "P196 Release A control plane (live)", effort: "continuous", acceptance: "queue items close via committed receipts; closure packets rebuild with --check green; no hand-edited counts anywhere" },
+      { outcome: "Founder Reply Box: answers via docs/FOUNDER_RESPONSE_FORM.md — every shared blocker is engineering-ready; the orchestrator + per-blocker acceptance verifiers consume answers as they arrive", department: "operations", sport: "shared", owner: "FOUNDER", dependency: "P164 packets + P165 form/orchestrator shipped", effort: "one sitting", acceptance: "a valid response file passes validateFounderResponse; each blocker transitions mechanically; CLOSED only on real acceptance receipts" },
     ],
   },
   {
     horizon: "DAYS_3_7",
     items: [
-      { outcome: "EPL opening-day operational execution (Aug 21): run the corrections-runbook first-FT checklist against the deployed path, baseline the results monitor on the first real captures, and record the settlement-stage receipt", department: "settlement", sport: "epl", owner: "ENGINEERING", dependency: "reality (league play starts); runbook + monitor shipped P162-E/P163-J", effort: "S", acceptance: "PRESEASON→RESULTS flips via the scheduled capture with canonical join, zero unexplained quarantines, and the checklist's five steps recorded" },
+      { outcome: "UFC Aug-29 card operations end to end: pre-card snapshot already captured (6 bouts priced); odds refresh, ladder, freeze, post-card capture+grade (now same-job), cumulative record update — the sample that decides whether the fight model's preregistered pass meant anything", department: "products", sport: "ufc", owner: "ENGINEERING", dependency: "reality (the card is fought Aug 29); pipeline shipped through P196 Release C", effort: "operational", acceptance: "every priced bout grades within a day of the card; the cumulative block includes them; no bout re-reads as pending" },
+      { outcome: "EPL matchweek operations: Fulham v Chelsea (Mon) becomes paired match four; pairing accrues automatically per settled priced fixture toward the 30-pair stopping-rule threshold", department: "settlement", sport: "epl", owner: "ENGINEERING", dependency: "reality (fixtures play); chain adjudicated + C7 stale-count guard live (P196 Release D)", effort: "operational", acceptance: "each settled priced fixture appears as a paired row; learning artifact and ledger recount agree (C7 stays green)" },
     ],
   },
   {
     horizon: "WEEK_2",
     items: [
-      { outcome: "Post-answer acceptance wave: as founder responses land, run each blocker's acceptance verifier (support build-check, analytics consent/production smoke, odds canary receipt validation, admin unauthenticated-deny verifier) and transition registry states via reviewed commits — never from choices alone", department: "operations", sport: "shared", owner: "ENGINEERING", dependency: "the Founder Reply Box (NOW item)", effort: "S per blocker", acceptance: "each transitioned blocker cites its real acceptance receipt; CLOSED states carry receipts, not declarations" },
+      { outcome: "NFL regular-season boundary verification: on the first September settle, the experimental record's headline flips to the regular-season cohort at its honest small n, preseason keeps its own block, and the preseason model's abstention policy holds on live regular-season slates", department: "model-validation", sport: "nfl", owner: "ENGINEERING", dependency: "cohort separation shipped ahead of the boundary (P196 Release E); reality supplies the games", effort: "S", acceptance: "summary.seasonTypeScope === 'regular-season' with cohorts.preseason unchanged; no blended aggregate anywhere; durability guards green" },
     ],
   },
   {
     horizon: "WEEKS_3_4",
     items: [
-      { outcome: "Beta go/no-go execution IF prerequisites close: synthetic access + revocation tests, roster count/hash receipt (no identities), onboarding gated on the approved legal version — invitations generate only when the prerequisite gate is green", department: "user-validation", sport: "shared", owner: "ENGINEERING", dependency: "support + legal + analytics acceptance receipts (WEEK_2 wave)", effort: "M", acceptance: "invitationPrerequisites().ready === true from REAL states; go/no-go output produced; nothing sent without founder approval" },
+      { outcome: "Public-IA responsive sweep (Release H): every public route at 390/768/1280/1440 with the browser matrix, glossary ownership per beginner-facing term, one navigation metadata owner verified against the built export", department: "product-generation", sport: "shared", owner: "ENGINEERING", dependency: "routes stable after the P196 release train", effort: "M", acceptance: "a11y structural 0 findings + browser matrix green across three engines; no page-level horizontal scroll anywhere" },
     ],
   },
   {
     horizon: "LATER",
     items: [
-      { outcome: "NBA model investment decision", department: "model-validation", sport: "nba", owner: "FOUNDER", dependency: "the MLB stopping rule applies to new models", effort: "decision", acceptance: "BLOCKED_EXTERNAL cleared or the sport formally parked" },
+      { outcome: "NBA model investment decision", department: "model-validation", sport: "nba", owner: "FOUNDER", dependency: "the MLB stopping rule applies to new models; schedule/identity/cadence foundations live (P196 Release F)", effort: "decision", acceptance: "BLOCKED_EXTERNAL cleared with a preregistered bar, or the sport formally parked with the registry saying so" },
     ],
   },
 ]);
