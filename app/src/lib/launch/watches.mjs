@@ -31,12 +31,12 @@ export const REALITY_GATED_WATCHES = Object.freeze([
     productiveBefore: "correction runbook and settlement corruption cases can harden now against prior-season shapes",
   },
   {
-    id: "watch-ufc-replacement-lineage",
+    id: "watch-ufc-aug29-card",
     sport: "ufc",
-    title: "UFC · replacement/cancellation lineage from a real card change",
-    observeAtUtc: "2026-08-16T14:15:00Z", // post-UFC-330 capture (card Aug 15) — the Aug 12 post-card observation recorded a valid NO-CHANGE lineage receipt (zero replacements)
-    evidenceToInspect: "consecutive ufc/schedule captures diffed via classifyUfcLineage — a swap/removal-with-status is the receipt; the Aug 12 observation classified 66 window-slides + 17 UNCHANGED with zero replacements (valid no-change)",
-    productiveBefore: "UFC 330 (Makhachev vs Machado Garry, Aug 15) is the next real replacement-risk window; nothing waits on it",
+    title: "UFC · Aug-29 card: results availability + post-card grading",
+    observeAtUtc: "2026-08-30T09:00:00Z", // ~1h after the post-card job (08:00) following the Aug-29 card — with the in-job results refresh it grades the morning after
+    evidenceToInspect: "model-vs-market/summary.json reconciliation for 2026-08-29 (frozen 6+ = graded + void + pending, pending → 0), lane status postCardLag CLEAR, cumulative block includes the card; lineage receipts (data/internal/research/ufc/lineage/) show any late replacement was recorded the day it happened",
+    productiveBefore: "the pre-card loop is fully receipted (population-exact, lineage NO_CHANGE cadence, prices under the receipt, snapshot armed); nothing waits on the card",
   },
   {
     id: "watch-daily-cadence",
