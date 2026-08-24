@@ -20,7 +20,7 @@ import {
 } from "./closure-packets.mjs";
 import { GATE_STAGES } from "../sports/sport-gate.mjs";
 import { SPORT_ASSESSMENTS } from "../sports/sport-assessments.mjs";
-import { readCurrentEvents, readProductReceipt, readRouteInventory } from "./closure-packet-sources.mjs";
+import { readCurrentEvents, readProductReceipt, readRouteInventory, readEplCalibrationAuthority } from "./closure-packet-sources.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 
@@ -127,6 +127,22 @@ test("C6 · a green workflow with no produced artifact fails (GREEN_WORKFLOW_WIT
   assert.ok(packetContradictions(bad, { publicRouteSet: routeSet }).some((c) => c.code === "GREEN_WORKFLOW_WITHOUT_ARTIFACT"));
 });
 
+test("C7 · a learning artifact that disagrees with the ledger recount fails (STALE_CALIBRATION_COUNT)", () => {
+  // The '0 of 30 paired quoted while the artifact said 3' failure, made impossible to repeat quietly.
+  const p = healthyPacket();
+  const stale = {
+    ...p,
+    liveCalibration: {
+      source: "learning-artifact", generatedAt: "2026-08-21T00:00:00Z",
+      artifactCounts: { graded: 1, pairedWithMarket: 0, minSampleForComparison: 30 },
+      ledgerRecount: { graded: 8, paired: 3 },
+    },
+  };
+  assert.ok(packetContradictions(stale, { publicRouteSet: routeSet }).some((c) => c.code === "STALE_CALIBRATION_COUNT"));
+  const fresh = { ...stale, liveCalibration: { ...stale.liveCalibration, artifactCounts: { graded: 8, pairedWithMarket: 3 } } };
+  assert.equal(packetContradictions(fresh, { publicRouteSet: routeSet }).filter((c) => c.code === "STALE_CALIBRATION_COUNT").length, 0);
+});
+
 test("the builder REFUSES (throws, listing every contradiction) rather than rendering warnings", () => {
   const inputs = fixtureInputs();
   inputs.assessments.mlb.stages.publication = { status: "PROVEN", evidence: "fixture", blocker: null };
@@ -168,6 +184,9 @@ test("real sources build without contradiction: five sports, counts reconcile, M
     currentEvents: readCurrentEvents({ appDir, nowIso: NOW }),
     productReceipt: readProductReceipt({ appDir }),
     routeInventory: readRouteInventory({ appDir }),
+    // The committed learning artifact must agree with a fresh ledger recount — C7 makes this
+    // build throw the day the nightly report stops running while matches keep settling.
+    calibrationAuthorities: { epl: readEplCalibrationAuthority({ appDir }) },
     nowIso: NOW,
   });
   assert.deepEqual(Object.keys(result.sports).sort(), ["epl", "mlb", "nba", "nfl", "ufc"]);

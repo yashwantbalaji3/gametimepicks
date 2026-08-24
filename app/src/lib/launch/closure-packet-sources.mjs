@@ -117,3 +117,29 @@ export function readProductReceipt({ appDir }) {
 export function readRouteInventory({ appDir }) {
   return readJson(path.join(appDir, "..", "data/internal/audits/route-inventory-v1.json"));
 }
+
+/**
+ * THE LIVE CALIBRATION-COUNT AUTHORITY for EPL (P196 · Release D): the nightly learning artifact,
+ * read beside a fresh recount of the public graded ledger it summarises. The packet builder
+ * REFUSES when they disagree — which is precisely how "0 of 30 paired" got quoted as current in
+ * the 08-24 operating record while the artifact said 3: a dated string was read instead of the
+ * artifact, and nothing failed. Now something fails.
+ */
+export function readEplCalibrationAuthority({ appDir }) {
+  const artifact = readJson(path.join(appDir, "..", "data/internal/research/epl/learning/latest.json"));
+  let graded = 0;
+  let paired = 0;
+  try {
+    for (const line of fs.readFileSync(path.join(appDir, "public/data/soccer/epl/results/graded-forecasts.jsonl"), "utf8").split("\n")) {
+      if (!line.trim()) continue;
+      try {
+        const r = JSON.parse(line);
+        if (r?.scores && Number.isFinite(r.scores.logLoss)) {
+          graded += 1;
+          if (r?.market?.scores && Number.isFinite(r.market.scores.logLoss)) paired += 1;
+        }
+      } catch { /* a malformed line is not a grade */ }
+    }
+  } catch { return { artifact, ledgerRecount: null }; }
+  return { artifact, ledgerRecount: { graded, paired } };
+}

@@ -47,6 +47,14 @@ const CROSS_LANE_READERS = [
   // it is asserting, or it cannot assert it.
   "src/lib/sports/learning-paths",
   /*
+   * closure-packet-sources (P196 · Release A/D): the completion control plane reads every sport's
+   * own artifacts by design — EPL's forecast set for the current-event verdict and the graded
+   * ledger for the live calibration recount that guard C7 compares against the learning artifact.
+   * It is the cross-sport operating layer, not a World Cup surface; this rule exists so RETIRED
+   * WC surfaces cannot quietly reach EPL data, and the control plane is neither retired nor WC.
+   */
+  "src/lib/launch/closure-packet-sources",
+  /*
    * workflow-script-cwd.test.mjs (P189): the ops guard that checks every workflow step runs its
    * scripts from a directory where the "@/" alias resolves. It NAMES scripts/epl/grade-epl-forecasts
    * as its calibration case — the script that actually died MODULE_NOT_FOUND on a runner — because a

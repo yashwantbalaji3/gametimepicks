@@ -93,3 +93,28 @@ test("the report FITS NOTHING — measuring and adjusting on one pass always fin
     assert.doesNotMatch(code, forbidden, `learning-report.mjs must only report: ${forbidden}`);
   }
 });
+
+test("COVERAGE · every unpaired match is counted BY CAUSE, and our defects are named as engineering", () => {
+  /*
+   * P196 · Release D. Exclusion from the comparison stands; exclusion without a cause made
+   * "is pairing failing for a fixable reason?" unanswerable. NO_PRICE_ON_FORECAST is reality;
+   * MALFORMED_/AMBIGUOUS_ causes are ours and must surface as engineering-owned.
+   */
+  const paired = { scores: { logLoss: 0.5, brier: 0.3 }, market: { scores: { logLoss: 0.6, brier: 0.35 } } };
+  const rows = [
+    paired,
+    { scores: { logLoss: 0.7, brier: 0.4 }, market: null, marketAbsence: "NO_PRICE_ON_FORECAST" },
+    { scores: { logLoss: 0.7, brier: 0.4 }, market: null, marketAbsence: "MALFORMED_NOVIG_SET" },
+    { scores: { logLoss: 0.7, brier: 0.4 }, market: null }, // graded before causes were recorded
+  ];
+  const out = buildEplLearningReport(rows);
+  assert.equal(out.coverage.paired, 1);
+  assert.equal(out.coverage.unpaired.total, 3);
+  assert.deepEqual(out.coverage.unpaired.byCause, {
+    NO_PRICE_ON_FORECAST: 1,
+    MALFORMED_NOVIG_SET: 1,
+    UNRECORDED_CAUSE_PRE_P196: 1,
+  });
+  assert.deepEqual(out.coverage.engineeringOwnedCauses, ["MALFORMED_NOVIG_SET"],
+    "a malformed set is OUR defect; a missing price and a pre-cause row are not engineering items");
+});

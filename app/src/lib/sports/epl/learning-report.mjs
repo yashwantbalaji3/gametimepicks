@@ -65,8 +65,28 @@ export function buildEplLearningReport(rows, { minSample = MIN_SAMPLE_FOR_COMPAR
     };
   }
 
+  /*
+   * COVERAGE ACCOUNTING (P196 · Release D). An unpaired match is excluded from the comparison —
+   * that rule stands — but exclusion without a cause makes "is pairing failing for a fixable
+   * reason?" unanswerable. Every unpaired row is counted BY CAUSE: NO_PRICE_ON_FORECAST is
+   * reality (nothing was posted); the MALFORMED_/AMBIGUOUS_/UNPLACEABLE_ causes are OUR defects
+   * and each one showing up here is an engineering item, not a reality gate. Rows graded before
+   * causes were recorded are named as exactly that rather than folded into either bucket.
+   */
+  const unpaired = graded.filter((r) => !(r?.market?.scores && Number.isFinite(r.market.scores.logLoss)));
+  const byCause = {};
+  for (const r of unpaired) {
+    const cause = r.marketAbsence ?? "UNRECORDED_CAUSE_PRE_P196";
+    byCause[cause] = (byCause[cause] ?? 0) + 1;
+  }
+
   return {
     sample: { graded: graded.length, pairedWithMarket: paired.length, minSampleForComparison: minSample },
+    coverage: {
+      paired: paired.length,
+      unpaired: { total: unpaired.length, byCause },
+      engineeringOwnedCauses: Object.keys(byCause).filter((c) => c !== "NO_PRICE_ON_FORECAST" && c !== "UNRECORDED_CAUSE_PRE_P196"),
+    },
     model: modelAll,
     comparison: { ...comparison, onPairedMatches: { model, market, logLossDelta, brierDelta } },
     stoppingRule: stoppingRule(paired.length, logLossDelta, minSample),

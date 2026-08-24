@@ -110,26 +110,34 @@ if (forecastFiles.length === 0) { console.error("no dated forecast artifacts —
  * than by position. Returns null on ANY ambiguity — a market baseline that quietly mislabels home as
  * away would produce a confident, inverted verdict, which is worse than having no baseline at all.
  */
+/*
+ * P196 · Release D: every null now carries its CAUSE. "No baseline" was one undifferentiated
+ * absence, which made the coverage question — is pairing failing for a fixable reason? —
+ * unanswerable from the ledger. NO_PRICE_ON_FORECAST is reality (the provider posted nothing);
+ * every other cause is OUR defect and belongs on an engineering queue, not in a reality bucket.
+ */
 function marketProbs(row) {
   const noVig = row?.market?.noVig;
-  if (!Array.isArray(noVig) || noVig.length !== 3) return null;
+  if (!Array.isArray(noVig) || noVig.length !== 3) {
+    return { probs: null, absence: row?.market == null ? "NO_PRICE_ON_FORECAST" : "MALFORMED_NOVIG_SET" };
+  }
   const fold = (x) => String(x ?? "").toLowerCase().trim();
   const home = fold(row.homeClub), away = fold(row.awayClub);
-  if (!home || !away || home === away) return null;
+  if (!home || !away || home === away) return { probs: null, absence: "AMBIGUOUS_CLUB_NAMES" };
   let h = null, d = null, a = null;
   for (const o of noVig) {
     const n = fold(o?.name);
     const p = Number(o?.prob);
-    if (!Number.isFinite(p)) return null;
+    if (!Number.isFinite(p)) return { probs: null, absence: "MALFORMED_NOVIG_SET" };
     if (n === "draw") d = p;
     else if (n === home) h = p;
     else if (n === away) a = p;
-    else return null;                       // an outcome we cannot place is not a baseline
+    else return { probs: null, absence: "UNPLACEABLE_OUTCOME_NAME" };   // an outcome we cannot place is not a baseline
   }
-  if (h == null || d == null || a == null) return null;
+  if (h == null || d == null || a == null) return { probs: null, absence: "INCOMPLETE_THREE_WAY_SET" };
   const sum = h + d + a;
-  if (!(sum > 0.99 && sum < 1.01)) return null;   // de-vigged probabilities sum to one
-  return { home: h, draw: d, away: a };
+  if (!(sum > 0.99 && sum < 1.01)) return { probs: null, absence: "NOVIG_DOES_NOT_SUM_TO_ONE" };   // de-vigged probabilities sum to one
+  return { probs: { home: h, draw: d, away: a }, absence: null };
 }
 
 /** Log loss and multiclass Brier for a three-way distribution against the outcome that happened. */
@@ -240,8 +248,10 @@ for (const r of bridged.results) {
      */
     market: (() => {
       const mp = marketProbs(fc.row);
-      return mp ? { probs: mp, books: fc.row.market?.books ?? null, impliedSum: fc.row.market?.impliedSum ?? null, scores: scoreThreeWay(mp, actual) } : null;
+      return mp.probs ? { probs: mp.probs, books: fc.row.market?.books ?? null, impliedSum: fc.row.market?.impliedSum ?? null, scores: scoreThreeWay(mp.probs, actual) } : null;
     })(),
+    /* Typed NO_COMPARISON cause when market is null — coverage accounting reads this, never guesses. */
+    marketAbsence: marketProbs(fc.row).absence,
     /* The scores. Proper metrics only — no "confidence", no grade, no pick. */
     scores: {
       hit: predicted === actual,

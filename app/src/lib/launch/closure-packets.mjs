@@ -186,6 +186,17 @@ export function packetContradictions(packet, { publicRouteSet }) {
     }
   }
 
+  // C7 · STALE_CALIBRATION_COUNT — the learning artifact must agree with a fresh ledger recount.
+  //      This is the "0 of 30 paired quoted while the artifact said 3" failure, made impossible to
+  //      repeat quietly: a drifted count fails the control-plane build instead of shipping.
+  const lc = packet.liveCalibration;
+  if (lc?.artifactCounts && lc?.ledgerRecount) {
+    if (lc.artifactCounts.graded !== lc.ledgerRecount.graded || lc.artifactCounts.pairedWithMarket !== lc.ledgerRecount.paired) {
+      flag("STALE_CALIBRATION_COUNT",
+        `learning artifact says ${lc.artifactCounts.graded} graded / ${lc.artifactCounts.pairedWithMarket} paired; the ledger recounts ${lc.ledgerRecount.graded} / ${lc.ledgerRecount.paired} — regenerate the learning report before quoting it`);
+    }
+  }
+
   return out;
 }
 
@@ -208,7 +219,7 @@ export function buildClosurePackets(inputs) {
   const {
     assessments, tickets = [], watches = [], founderGates = [],
     currentEvents = {}, productReceipt = null, routeInventory,
-    settlementSummaries = {}, workflowReceipts = {}, nowIso,
+    settlementSummaries = {}, workflowReceipts = {}, calibrationAuthorities = {}, nowIso,
   } = inputs;
   if (!nowIso) throw new Error("closure-packets: nowIso is an input, never a clock read");
   if (!routeInventory?.routes) throw new Error("closure-packets: route inventory is required — the leak guard cannot run without it");
@@ -287,6 +298,20 @@ export function buildClosurePackets(inputs) {
         .map((b) => b.id),
       settlementSummary: settlementSummaries[sport] ?? null,
       workflowReceipts: workflowReceipts[sport] ?? [],
+      /*
+       * LIVE calibration counts, quoted FROM the sport's learning artifact with its own stamp —
+       * never from an assessment's evidence string, which is dated prose. Guard C7 below refuses
+       * the build when the artifact disagrees with a fresh ledger recount (P196 · Release D): a
+       * stale count can no longer be quoted as current, because quoting it fails the build.
+       */
+      liveCalibration: calibrationAuthorities[sport]
+        ? {
+            source: "learning-artifact",
+            generatedAt: calibrationAuthorities[sport].artifact?.generatedAt ?? null,
+            artifactCounts: calibrationAuthorities[sport].artifact?.sample ?? null,
+            ledgerRecount: calibrationAuthorities[sport].ledgerRecount ?? null,
+          }
+        : null,
       productionLinks: {
         publicRoutes: [...(SPORT_PUBLIC_ROUTES[sport] ?? [])],
         laneStatus: { mlb: null, epl: "/data/admin/epl-lane.json", nfl: "/data/admin/nfl-lane.json", ufc: "/data/admin/ufc-lane.json", nba: null }[sport],
