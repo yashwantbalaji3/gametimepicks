@@ -11,6 +11,7 @@ import { RELEASE_HISTORY } from "@/lib/launch/release-history.mjs";
 import { withCountdown, REALITY_GATED_WATCHES } from "@/lib/launch/watches.mjs";
 import { founderActionSheet } from "@/lib/launch/shared-blockers.mjs";
 import { buildClosurePackets, executionQueue } from "@/lib/launch/closure-packets.mjs";
+import { RUNBOOKS, LIFECYCLE_LANES, validateRunbooks } from "@/lib/launch/runbook-registry.mjs";
 import { readCurrentEvents, readProductReceipt, readRouteInventory, readEplCalibrationAuthority, readLadderReceipts } from "@/lib/launch/closure-packet-sources.mjs";
 import { ALLOWED_CHOICES } from "@/lib/launch/founder-response.mjs";
 import { IA_SECTIONS } from "@/lib/launch/ia-contract.mjs";
@@ -1261,6 +1262,42 @@ export default function LaunchCommandCenter() {
                 <li>Stale artifact / failed cadence / source outage → the receipt verifier names the failing class; last-known-good stands by design; never hand-edit an artifact</li>
                 <li>Protected-money mismatch → STOP; the only writer is nightly-settle; verify md5s and inspect its run log — never repair by hand</li>
               </ul>
+
+              {/* ── The sport × lifecycle registry (P198 · Release D): who runs each lane, when,
+                     what quiet looks like, how to recover, where the receipt lands. Guarded: every
+                     named workflow/script must exist; every sport answers every lane. ─────────── */}
+              <p style={{ fontSize: 12, fontWeight: 700, margin: "16px 0 6px" }}>Sport × lifecycle registry (validated: {validateRunbooks().length === 0 ? "clean" : "PROBLEMS"})</p>
+              <div style={{ display: "grid", gap: 8 }}>
+                {Object.entries(RUNBOOKS).map(([sport, lanes]) => (
+                  <details key={sport} style={{ border: "1px solid var(--vault-border)", borderRadius: 8, padding: "6px 10px" }}>
+                    <summary style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700 }}>
+                      {sport.toUpperCase()} — {Object.values(lanes).filter((e: any) => !e.na).length} operated lanes · {Object.values(lanes).filter((e: any) => e.na).length} N_A
+                    </summary>
+                    <div style={{ overflowX: "auto", marginTop: 6 }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5, minWidth: 780 }}>
+                        <thead><tr>{["lane", "runs", "when", "quiet", "recover", "receipt"].map((h) => (
+                          <th key={h} scope="col" style={{ textAlign: "left", padding: "3px 6px", color: "var(--vault-text-faint)", textTransform: "uppercase", letterSpacing: "0.06em", fontSize: 9 }}>{h}</th>
+                        ))}</tr></thead>
+                        <tbody>
+                          {LIFECYCLE_LANES.map((lane) => {
+                            const e: any = (lanes as any)[lane];
+                            return (
+                              <tr key={lane} style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                                <td style={{ padding: "3px 6px", fontWeight: 600 }}>{lane}</td>
+                                {e.na
+                                  ? <td colSpan={5} style={{ padding: "3px 6px", color: "var(--vault-text-faint)" }}>N_A — {e.why}</td>
+                                  : ["runs", "when", "quiet", "recover", "receipt"].map((f) => (
+                                      <td key={f} style={{ padding: "3px 6px", color: "var(--vault-text-mute)" }}>{e[f]}</td>
+                                    ))}
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </details>
+                ))}
+              </div>
             </section>
 
             {/* ── Transition readiness (Dhruv onboarding) — documentation ONLY; nothing here
