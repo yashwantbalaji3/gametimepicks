@@ -37,7 +37,8 @@ import TodayDailySlateHeader from "@/components/today/daily-slate-header";
 import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
 import { loadSuggestedParlaysPreview, TIER_INTENT } from "@/lib/home/suggested-parlays.mjs";
 import { buildProductDays } from "@/lib/product-day/product-day";
-import TopReadsPanel from "@/components/top-reads-panel";
+import { Suspense } from "react";
+import TopReadsFilter from "@/components/today/top-reads-filter";
 import { loadTopReads, topBySport, sportsInSet } from "@/lib/top-reads";
 import TodayAtAGlance, { type GlanceCard } from "@/components/today/at-a-glance";
 import TodayTopModelPicks from "@/components/today/top-model-picks";
@@ -336,13 +337,14 @@ export default function TodayPage() {
           Honest counts per sport ("top 6" when six exist); a sport with no event-specific signal is
           named in the panel's own exclusion footer rather than silently absent. */}
       {topReadsSet ? (
-        <TopReadsPanel
-          set={topReadsSet}
-          reads={sportsInSet(topReadsSet).flatMap((s) => topBySport(topReadsSet, s, 10))}
-          groupBySport
-          eyebrow="Ranked by the model's own probability"
-          title="Top 10 by sport"
-        />
+        /* Suspense: useSearchParams inside the client filter requires a boundary under static
+           export; the fallback is null, so nothing blanks while chips hydrate. */
+        <Suspense fallback={null}>
+          <TopReadsFilter
+            set={topReadsSet}
+            reads={sportsInSet(topReadsSet).flatMap((s) => topBySport(topReadsSet, s, 10))}
+          />
+        </Suspense>
       ) : null}
 
       {/* 4 — Simulation-backed games (real ready artifacts only) */}
