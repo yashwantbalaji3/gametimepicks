@@ -29,7 +29,7 @@ if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
-const LADDERS = { mlb: "risk-ladder", epl: "risk-ladder-epl", ufc: "risk-ladder-ufc" };
+const LADDERS = { mlb: "risk-ladder", epl: "risk-ladder-epl", ufc: "risk-ladder-ufc", nfl: "risk-ladder-nfl" };
 const ledger = readJson(path.join(DATA, "parlays", "lab-ledger.json"));
 const streamById = new Map((ledger?.streams ?? []).map((s) => [s.id, s]));
 

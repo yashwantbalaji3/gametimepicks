@@ -139,15 +139,21 @@ const MIN_LEGS = 2;
  * entry was written and this line simply had not caught up — so EPL legs were being excluded from
  * cross-sport cards for a capability the settler already had.
  *
- * NFL IS DELIBERATELY ABSENT, and it is the reason this list now has a second guard pointed at it.
- * NFL clears the Lab's price and freshness gate — real posted prices on four or more upcoming games
- * — and the gate ALSO called its settlement proven, on the strength of a results artifact having
- * rows. But settle-lab-cards has no NFL branch: an NFL leg falls through to the MLB box-score path,
- * boxFor() cannot resolve it, and the leg records "pending" forever. That is the same silence this
- * comment was written about, arriving through the front door of the eligibility gate rather than
- * through this list. A results file existing is not a settler existing.
+ * NFL was DELIBERATELY ABSENT until P201, and its absence is why this list has a second guard
+ * pointed at it. NFL cleared the Lab's price and freshness gate while settle-lab-cards had no NFL
+ * branch: an NFL leg fell through to the MLB box-score path, boxFor() could not resolve it, and
+ * the leg would have recorded "pending" forever — the same silence this comment was written about,
+ * arriving through the front door of the eligibility gate rather than through this list. A results
+ * file existing is not a settler existing. The entry below exists because the settler now DOES:
+ * gradeNflLeg settles moneyline and total_points from the official final-score capture.
  */
-export const SETTLEABLE_SPORTS = ["mlb", "ufc", "epl"];
+/*
+ * P201: NFL joined when settle-lab-cards gained gradeNflLeg — moneyline and total_points settle
+ * from the official final-score capture, joined on canonical eventId (nfl-<providerEventId>).
+ * The entry rule stands: a sport enters this list when the settler can grade its legs, never
+ * because a results file exists.
+ */
+export const SETTLEABLE_SPORTS = ["mlb", "ufc", "epl", "nfl"];
 
 /**
  * Build the multi-sport ladder: one cross-sport card per band, from every live sport's own cards.

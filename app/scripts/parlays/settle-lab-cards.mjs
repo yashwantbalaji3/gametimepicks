@@ -141,6 +141,57 @@ function loadEplResults() {
 const eplResults = loadEplResults();
 
 /**
+ * NFL GAME OUTCOMES, from the official final-score capture (Program 201 · Release B).
+ *
+ * A moneyline or total leg settles on the final score, not a stat line, so it needs its own path
+ * for the same reason the UFC and EPL ones above do. Until this existed the NFL lane was held
+ * CLOSED by the eligibility gate ("a published leg would never resolve") — the right refusal, now
+ * closed by machinery rather than flipped by wording.
+ *
+ * Joined on the CANONICAL eventId (`nfl-<providerEventId>`) — the same identity the markets
+ * capture and the ladder carry — never on team names. Date-confined to the slate being settled:
+ * a 9-day results window must not let last week's final grade this week's leg.
+ */
+function loadNflResults() {
+  const byEvent = new Map();
+  try {
+    const doc = JSON.parse(fs.readFileSync(path.join(APP, "public", "data", "nfl", "results", "latest.json"), "utf8"));
+    const etDayOf = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+    for (const r of doc.rows ?? []) {
+      if (r.statusRaw !== "STATUS_FINAL") continue;                    // not final → its legs pend
+      if (!r.providerEventId || !Number.isFinite(Date.parse(r.dateUtc ?? ""))) continue;
+      if (etDayOf(r.dateUtc) !== DATE) continue;                       // date confinement
+      if (!Number.isFinite(r.ftHome) || !Number.isFinite(r.ftAway)) continue;
+      byEvent.set(`nfl-${r.providerEventId}`, { ftHome: r.ftHome, ftAway: r.ftAway });
+    }
+  } catch { /* no capture yet — every NFL leg stays pending, which is the honest state */ }
+  return byEvent;
+}
+const nflResults = loadNflResults();
+
+/**
+ * Grade one NFL leg from the official final score.
+ *   moneyline    — the picked side won; a TIE is a push (two-way market, OT included), never a loss.
+ *   total_points — over/under against the combined score; landing exactly on the line is a push.
+ * Anything else is pending — an unknown market is an open question, not a losing selection.
+ */
+function gradeNflLeg(leg) {
+  const r = nflResults.get(leg.eventId);
+  if (!r) return "pending";
+  if (leg.market === "moneyline") {
+    if (r.ftHome === r.ftAway) return "push";
+    const homeWon = r.ftHome > r.ftAway;
+    return (leg.side === "home") === homeWon ? "win" : "loss";
+  }
+  if (leg.market === "total_points" && typeof leg.line === "number") {
+    const total = r.ftHome + r.ftAway;
+    if (total === leg.line) return "push";
+    return (total > leg.line) === (String(leg.side).toLowerCase() === "over") ? "win" : "loss";
+  }
+  return "pending";
+}
+
+/**
  * Grade one EPL leg through the SAME contract the results bridge exercises at ingest.
  *
  * VOID_PENDING_REVIEW maps to "pending", never to a loss: a postponed match reporting full time
@@ -220,7 +271,7 @@ async function boxFor(gamePk) {
  * Cards from every sport are now merged for the date. Legs already carry their own sport and the
  * router below keys on that, so nothing here needs to know which directory a card came from.
  */
-const LADDER_DIRS = { mlb: "risk-ladder", ufc: "risk-ladder-ufc", epl: "risk-ladder-epl" };
+const LADDER_DIRS = { mlb: "risk-ladder", ufc: "risk-ladder-ufc", epl: "risk-ladder-epl", nfl: "risk-ladder-nfl" };
 const sources = [];
 for (const [sport, dir] of Object.entries(LADDER_DIRS)) {
   try {
@@ -254,6 +305,7 @@ for (const card of ladder.cards ?? []) {
        grading path is a property of the leg, never of the card. */
     if ((leg.sport ?? "mlb") === "ufc") { results.push(gradeUfcLeg(leg)); continue; }
     if ((leg.sport ?? "mlb") === "epl") { results.push(gradeEplLegCard(leg)); continue; }
+    if ((leg.sport ?? "mlb") === "nfl") { results.push(gradeNflLeg(leg)); continue; }
 
     const box = await boxFor(leg.gamePk);
     if (!box.final) { results.push("pending"); continue; }
@@ -284,7 +336,7 @@ for (const card of ladder.cards ?? []) {
 const receipt = {
   schemaVersion: 1, artifact: "parlay-lab-settlement", dataClass: "PUBLIC_DERIVED",
   date: DATE, settledAt: NOW.replace(/\.\d{3}Z$/, "Z"),
-  source: "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name",
+  source: "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name; EPL official full-time scores via the results bridge, joined by canonical eventId; NFL official final scores (nfl/results/latest.json), joined by canonical eventId",
   policyVersion: 2,
   cards,
 };

@@ -56,12 +56,23 @@ jobs:
           if [ -n "$PROBE" ]; then ARGS+=(--probe-props "$PROBE"); fi
           node scripts/nfl/capture-nfl-odds.mjs "${ARGS[@]}"
 
+      # P201: the NFL risk ladder rides the capture it builds from — fresh prices in, fresh cards
+      # (or a typed refusal) out, in the same run. Settleable by construction: the lab settler
+      # grades moneyline/total_points from the official final-score capture, which is why this
+      # lane may publish at all. Non-fatal: a ladder failure must not lose the paid capture.
+      - name: Build the NFL risk ladder from the fresh capture
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/build-nfl-ladder.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
+            echo "::warning::nfl ladder build failed — the capture is committed regardless"
+
       - name: Commit capture artifacts (ledger + private snapshot + public market display)
         run: |
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/internal/research/odds/nfl/ app/public/data/nfl/markets/
+          git add data/internal/research/odds/nfl/ app/public/data/nfl/markets/ app/public/data/parlays/risk-ladder-nfl/
           if git diff --cached --quiet; then
             echo "nothing captured — no commit"
             exit 0
