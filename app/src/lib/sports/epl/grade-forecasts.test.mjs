@@ -9,6 +9,8 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 
 import { indexForecasts, buildGradedRows, classifyEmptyRun, summariseGraded } from "./grade-forecasts.mjs";
 
@@ -138,4 +140,38 @@ test("the gradeability probe uses a VALID side — an invalid one silently grade
     "a valid side against a final result must grade");
   assert.equal(gradeEplLeg({ market: "match_result", side: "HOME" }, final).outcome, "VOID_PENDING_REVIEW",
     "an invalid side voids — which is why the probe must never use one");
+});
+
+/*
+ * ── A FIXTURE WE NEVER FORECAST IS ACCOUNTED FOR, NOT A BROKEN JOIN ────────────────────────────
+ *
+ * The only way out of BROKEN_JOIN was `alreadyGraded >= completed`, so a single fixture that can
+ * NEVER be graded pinned the classifier there permanently. On 2026-08-23 that is what happened:
+ * nine complete, eight in the ledger, and one the forecast artifact had openly declined because no
+ * three-way price was ever captured for it. epl-settle had been green the night before and would
+ * have failed every night from then on, on a settlement path, for a slate where nothing was wrong.
+ */
+test("a completed fixture the model DECLINED does not pin the run at BROKEN_JOIN", () => {
+  const results = { completedCount: 9, rowCount: 9, sourceAsOf: "2026-08-23T23:00:00Z", seasonStart: "2026-08-14" };
+  assert.equal(classifyEmptyRun({ results, gradedCount: 0, alreadyGradedCount: 8, unexplainedCount: 0 }), "NOTHING_NEW");
+});
+
+test("an UNEXPLAINED unmatched fixture is still a BROKEN_JOIN — the guard keeps its teeth", () => {
+  /*
+   * The discriminator cannot be "we have no forecast for it", because that is also what a broken
+   * join looks like from inside the grader. It is whether the fixture appears in the forecast
+   * artifact at all: present and unpriced is a stated refusal, absent entirely is a join failure.
+   */
+  const results = { completedCount: 9, rowCount: 9, sourceAsOf: "2026-08-23T23:00:00Z", seasonStart: "2026-08-14" };
+  assert.equal(classifyEmptyRun({ results, gradedCount: 0, alreadyGradedCount: 8, unexplainedCount: 1 }), "BROKEN_JOIN");
+  // The total-failure case — nothing matched at all — must refuse with or without the strict count.
+  assert.equal(classifyEmptyRun({ results, gradedCount: 0, alreadyGradedCount: 0, unexplainedCount: 9 }), "BROKEN_JOIN");
+  assert.equal(classifyEmptyRun({ results, gradedCount: 0, alreadyGradedCount: 0 }), "BROKEN_JOIN");
+});
+
+test("the grader supplies the strict count, so the classifier is never left guessing", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/epl/grade-epl-forecasts.mjs"), "utf8");
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  assert.match(code, /unexplainedCount:/, "the grader must compute which unmatched fixtures are unexplained");
+  assert.match(code, /seenInArtifacts/, "and must decide that against the forecast artifact's own rows");
 });

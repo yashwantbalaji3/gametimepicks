@@ -133,7 +133,7 @@ export function buildGradedRows({ forecasts, results, alreadyGraded = new Set() 
  *
  * @returns {"PRESEASON"|"NO_COMPLETED_FIXTURES"|"NOTHING_NEW"|"BROKEN_JOIN"}
  */
-export function classifyEmptyRun({ results, gradedCount, alreadyGradedCount = 0 }) {
+export function classifyEmptyRun({ results, gradedCount, alreadyGradedCount = 0, unexplainedCount = undefined }) {
   if (gradedCount > 0) return "NOTHING_NEW";                       // not an empty run at all
   const asOf = Date.parse(results?.sourceAsOf ?? results?.generatedAt ?? "");
   const start = Date.parse(results?.seasonStart ?? "");
@@ -141,6 +141,31 @@ export function classifyEmptyRun({ results, gradedCount, alreadyGradedCount = 0 
   const completed = results?.completedCount ?? 0;
   if (completed === 0) return "NO_COMPLETED_FIXTURES";
   if (alreadyGradedCount >= completed) return "NOTHING_NEW";       // all of them are already recorded
+
+  /*
+   * A COMPLETED FIXTURE WE NEVER FORECAST IS ACCOUNTED FOR, NOT A BROKEN JOIN.
+   *
+   * `alreadyGradedCount >= completed` was the only way out, so a single fixture that can NEVER be
+   * graded pinned this at BROKEN_JOIN permanently. On 2026-08-23 that is exactly what happened:
+   * nine fixtures complete, eight already in the ledger, and one — Brighton v Aston Villa — that the
+   * forecast artifact had openly declined because no three-way price was ever captured for it. The
+   * job had been green the night before and will now fail every night forever, on a settlement path,
+   * for a slate where nothing is wrong.
+   *
+   * The discriminator cannot simply be "we have no forecast for it", because that is ALSO what a
+   * broken join looks like from in here — if eventIds stopped agreeing, every fixture would land in
+   * the same bucket. What separates them is whether the join has demonstrably worked for anything:
+   * a run that graded or had already graded at least one of these fixtures has a functioning join,
+   * and the unmatched remainder are individually explained. A run where NOTHING matched, with
+   * completed fixtures on the board, is the failure this exists to catch and still refuses.
+   *
+   * `unexplainedCount` lets a caller be stricter than that by checking each unmatched fixture
+   * against the forecast artifact's own declared refusals. When it is supplied, it decides.
+   */
+  if (Number.isFinite(unexplainedCount)) {
+    return unexplainedCount > 0 ? "BROKEN_JOIN" : "NOTHING_NEW";
+  }
+  if (alreadyGradedCount > 0) return "NOTHING_NEW";
   return "BROKEN_JOIN";
 }
 

@@ -146,10 +146,18 @@ function scoreThreeWay(p, actual) {
 }
 
 const forecastByEvent = new Map();
+/*
+ * Every fixture ANY forecast artifact carried a row for, whether or not it was priced. A completed
+ * fixture in here but not in forecastByEvent is one the model openly declined — /epl renders those
+ * as "Not forecast: ... (odds snapshot stale/post-start or carries no three-way rows)". A completed
+ * fixture in NEITHER is unexplained, and that is the join failure worth refusing over.
+ */
+const seenInArtifacts = new Set();
 for (const file of forecastFiles) {
   const art = readJson(path.join(forecastDir, file));
   const generatedAt = Date.parse(art.generatedAt ?? "");
   for (const row of art.rows ?? []) {
+    if (row.eventId) seenInArtifacts.add(row.eventId);
     if (row.state !== "CURRENT_PRE_EVENT" || !row.model?.probs) continue;
     const kickoff = Date.parse(row.kickoffUtc ?? "");
     if (!Number.isFinite(kickoff) || !Number.isFinite(generatedAt)) continue;
@@ -176,6 +184,12 @@ const clip = (p) => Math.min(1 - 1e-15, Math.max(1e-15, p));
 
 const graded = [];
 const skipped = { alreadyGraded: 0, noForecast: 0, notFinal: 0, noResultRow: 0 };
+/*
+ * Completed fixtures with no forecast, kept by id so each can be checked against the forecast
+ * artifact's OWN declared refusals. "We have no forecast for this" is the same symptom as a broken
+ * join; the difference is whether the forecast artifact says it DECLINED that fixture and why.
+ */
+const noForecastIds = [];
 
 for (const r of bridged.results) {
   const eventId = r.canonicalEventId;
@@ -183,7 +197,7 @@ for (const r of bridged.results) {
   if (alreadyGraded.has(eventId)) { skipped.alreadyGraded += 1; continue; }
 
   const fc = forecastByEvent.get(eventId);
-  if (!fc) { skipped.noForecast += 1; continue; }
+  if (!fc) { skipped.noForecast += 1; noForecastIds.push(eventId); continue; }
 
   /* The bridge has already applied the FULL_TIME contract; this reads its verdict, never re-derives it. */
   const status = r.settlementResult?.status ?? "NOT_STARTED";
@@ -280,15 +294,34 @@ if (graded.length === 0) {
    * classifyEmptyRun already handled all four states and is used by the player grader. One
    * classifier, both graders.
    */
+  /*
+   * A fixture is EXPLAINED when the forecast artifact itself names it as one it declined to price.
+   * The artifact publishes that list — /epl renders it as "Not forecast: ..." — so a completed
+   * fixture appearing there is a stated refusal, not a join failure. Anything unmatched and NOT on
+   * that list is unexplained, and that is what BROKEN_JOIN is for.
+   */
+  const unexplained = noForecastIds.filter((id) => !seenInArtifacts.has(id));
   const state = classifyEmptyRun({
     results,
     gradedCount: 0,
     alreadyGradedCount: alreadyGraded.size,
+    unexplainedCount: unexplained.length,
   });
+  if (unexplained.length) {
+    console.error(`  UNEXPLAINED: ${unexplained.length} completed fixture(s) have no forecast and are not on the artifact's declined list:`);
+    for (const id of unexplained.slice(0, 5)) console.error(`    ${id}`);
+  }
   const say = {
     PRESEASON: `the season starts ${results.seasonStart}. Nothing to grade is the correct answer today.`,
     NO_COMPLETED_FIXTURES: `the capture reports ${results.rowCount} row(s), none final.`,
-    NOTHING_NEW: "every completed fixture is already in the ledger.",
+    /*
+     * Stated exactly, because "already graded" and "we declined to forecast it" are different facts
+     * and the count only adds up when both are named. Saying every fixture is in the ledger while
+     * one of them never will be is a small lie that hides a real number.
+     */
+    NOTHING_NEW: skipped.noForecast > 0
+      ? `${skipped.alreadyGraded} completed fixture(s) are already in the ledger and ${skipped.noForecast} ${skipped.noForecast === 1 ? "was" : "were"} never forecast — the model declined them and they can never be graded.`
+      : "every completed fixture is already in the ledger.",
   }[state];
   if (say) {
     console.log(`\n  ${state} — ${say}`);
