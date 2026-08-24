@@ -29,6 +29,13 @@
  *   SPORTS   — take me to one sport
  *   PRODUCTS — the paper products and their bankroll
  *   RECORD   — how has any of this actually done
+ *
+ * ── The `top` band is the SIX primary destinations (P200) ───────────────────────────────────────
+ * Today · Simulate · Market Center · Build · Sports · Results. The tablet header and the mobile
+ * top strip had grown to seventeen items — a menu nobody can scan is a menu nobody reads. Every
+ * other destination stays fully reachable on the rail (desktop) and in the footer sitemap, and the
+ * sport hubs/products are one hop away via Sports/Build. Trimming a surface never removes a
+ * destination from the canonical list.
  */
 
 export type NavGroup = "now" | "sports" | "products" | "record";
@@ -97,11 +104,11 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
 
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
   { href: "/mlb", label: "MLB", note: "live", group: "sports", glyph: "⚾", desc: "Baseball hub",
-    surfaces: ["top", "rail", "footer"] },
+    surfaces: ["rail", "footer"] },
   { href: "/nfl", label: "NFL", note: "preseason", group: "sports", glyph: "🏈", desc: "Football hub · preseason simulations",
-    surfaces: ["top", "rail", "footer"] },
+    surfaces: ["rail", "footer"] },
   { href: "/ufc", label: "UFC", note: "fight card + archive", group: "sports", glyph: "🥊", desc: "Fight card + settled archive",
-    surfaces: ["top", "rail", "footer"] },
+    surfaces: ["rail", "footer"] },
   /*
    * P185 published EPL forecasts on 2026-08-20; this entry still said "simulation pending" and
    * rendered ON /epl itself, in the rail directly above that page's own heading "Schedule + model
@@ -111,7 +118,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    */
   { href: "/epl", label: "Premier League", note: "forecasts · not validated", group: "sports", glyph: "⚽",
     desc: "Schedule + model forecasts · not validated out of sample",
-    surfaces: ["top", "rail", "footer"] },
+    surfaces: ["rail", "footer"] },
   /* No `note`: the label already ends in "Schedules", and "Sports · Schedules · schedules" is
      what a note that repeats its own label looks like. */
   { href: "/sports", label: "Sports · Schedules", group: "sports", glyph: "🗓", desc: "EPL · NFL · NBA · UFC schedules",
@@ -119,16 +126,16 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
 
   // ── PRODUCTS ───────────────────────────────────────────────────────────────────────────────────
   { href: "/bank-builder", label: "Bank Builder", shortLabel: "Bank", group: "products", glyph: "▰", desc: "Conservative paper card",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "bank" },
+    surfaces: ["rail", "mobile", "footer"], bucket: "bank" },
   { href: "/moonshot", label: "Moonshot", group: "products", glyph: "🌙", desc: "High-risk paper longshots",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "moonshot" },
+    surfaces: ["rail", "mobile", "footer"], bucket: "moonshot" },
   // Revived 2026-08-17. The route was a retired redirect stub for six weeks because the provider
   // home-run feed it read had gone away; it now computes its own probability from StatsAPI, so it
   // is a destination again rather than a name in the archive.
   { href: "/homer-nukes", label: "Homer Nukes", group: "products", glyph: "💣", desc: "Today's five likeliest home runs",
-    surfaces: ["top", "rail", "footer"] },
+    surfaces: ["rail", "footer"] },
   { href: "/mr-dub", label: "Mr. Dub's Portfolio", shortLabel: "Mr. Dub", group: "products", glyph: "✓", desc: "Paper bankroll journey",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "mrdub" },
+    surfaces: ["rail", "mobile", "footer"], bucket: "mrdub" },
   /*
    * EVERY LIVE LANE'S SIGNATURE PRODUCT, not just baseball's.
    *
@@ -138,15 +145,16 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * scrolling the sport hub, which is not a product surface.
    *
    * Deliberately NOT on `mobile`: the bottom bar is a thumb-reachable six, and everything it carries
-   * has to exist elsewhere too. These are on top/rail/footer, which is every other surface.
+   * has to exist elsewhere too. These live on rail/footer (P200 trimmed `top` to the six primary
+   * destinations — products and sport hubs are one hop away via Sports/Build/the rail).
    *
    * Each note names what the lane actually is, and neither claims a record: both have settled
    * nothing, and the pages say so in words.
    */
   { href: "/cards/epl", label: "EPL Paper Cards", note: "market favourites", group: "products", glyph: "⚽",
-    desc: "Premier League card ladder · paper-only", surfaces: ["top", "rail", "footer"] },
+    desc: "Premier League card ladder · paper-only", surfaces: ["rail", "footer"] },
   { href: "/cards/ufc", label: "UFC Paper Cards", note: "model's own read", group: "products", glyph: "🥊",
-    desc: "Fight card ladder · paper-only", surfaces: ["top", "rail", "footer"] },
+    desc: "Fight card ladder · paper-only", surfaces: ["rail", "footer"] },
 
   // ── RECORD ─────────────────────────────────────────────────────────────────────────────────────
   /*
@@ -168,7 +176,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   { href: "/results", label: "Results", group: "record", glyph: "≡", desc: "Settled track record",
     surfaces: ["top", "rail", "footer"] },
   { href: "/learn", label: "How It Works", group: "record", glyph: "✦", desc: "Start here",
-    surfaces: ["top", "rail", "footer"] },
+    surfaces: ["rail", "footer"] },
   { href: "/methodology", label: "Methodology", group: "record", glyph: "◳", desc: "The model, in depth",
     surfaces: ["rail", "footer"] },
   { href: "/system-status", label: "System Status", group: "record", glyph: "◉", desc: "What is running right now",

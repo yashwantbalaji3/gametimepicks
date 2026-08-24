@@ -203,6 +203,41 @@ export default function ResultsPage() {
          hidden. */}
       <TrustCenter model={getTrustCenterModel()} />
 
+      {/* ── RECORD DIRECTORY (P200) ──────────────────────────────────────────────────────────────
+          The site keeps SEPARATE records because they answer different questions over different
+          populations, and blending them is banned. But separate-by-design was also undiscoverable:
+          nothing named the families side by side, so a reader landing here could not tell this
+          page's saved-slip grading from the Lab's own suggestions or the model-pick ledgers. Each
+          line names its population and settlement policy; the destination carries the denominators
+          and stamps. Links only — this section computes NOTHING and can never blend the records. */}
+      <section
+        aria-label="Which record is which"
+        className="mt-4 rounded-[10px] px-4 py-3"
+        style={{ border: "1px solid var(--vault-border-strong)" }}
+      >
+        <div className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
+          Four separate records · never blended
+        </div>
+        <ul className="mt-2 flex flex-col gap-1.5" style={{ fontSize: 12.5, lineHeight: 1.55, listStyle: "none", padding: 0 }}>
+          <li>
+            <Link href="/results/picks" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>Model picks</Link>
+            <span style={{ color: "var(--vault-text-mute)" }}> — every published per-sport model read vs the official outcome; graded from official results only.</span>
+          </li>
+          <li>
+            <Link href="/results/parlay-lab" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>Suggested parlays</Link>
+            <span style={{ color: "var(--vault-text-mute)" }}> — the Lab&rsquo;s own daily cards, by sport and risk tier; a card grades only when every leg has an official result.</span>
+          </li>
+          <li>
+            <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>Saved slips</span>
+            <span style={{ color: "var(--vault-text-mute)" }}> — cards readers built and kept (this page&rsquo;s per-date sections below); a different population from the Lab&rsquo;s suggestions.</span>
+          </li>
+          <li>
+            <Link href="/mr-dub" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>Paper products</Link>
+            <span style={{ color: "var(--vault-text-mute)" }}> — the Bank Builder / Moonshot bankroll journeys, settled card by card in their own ledger.</span>
+          </li>
+        </ul>
+      </section>
+
       {/* Canonical outcome accounting.
          Starts from the GENERATED population rather than the settled ledger, because the ledger is
          authoritative for what was graded and silent about everything else. Rows that never produced a

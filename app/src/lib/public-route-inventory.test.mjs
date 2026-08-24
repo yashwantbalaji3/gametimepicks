@@ -261,8 +261,12 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
       // A published forecast carries its limitation in the reader's words, not in a data field.
       assert.match(text, /not validated out of sample/i,
         "/epl publishes forecasts, so the page must state that they are unvalidated");
-      assert.match(text, /no .{0,20}track record to cite|has been graded under this model/i,
-        "/epl must state that no match has been graded, rather than let a reader assume a record");
+      // P200: the page's graded-status line is DYNAMIC now ("8 ... matches have been graded under
+      // this model — far too few ..."), so the pin accepts singular and plural forms of the same
+      // claim. The invariant is unchanged: the page states its graded status in words, never
+      // letting a reader assume a record that does not exist.
+      assert.match(text, /no .{0,20}track record to cite|ha(?:s|ve) been graded under this model/i,
+        "/epl must state its graded status in words, rather than let a reader assume a record");
       // The one thing publication may never do: imply a settled record that does not exist.
       for (const banned of ["our pick", "best bet", "\\bedge\\b", "\\block\\b"]) {
         assert.doesNotMatch(text, new RegExp(banned, "i"), `/epl must not use pick language ("${banned}")`);
