@@ -1,5 +1,10 @@
 # Daily Ops — Settle → Refresh → Verify → Deploy
 
+> **RETIRED (P204).** This is the June-era MANUAL loop, kept as history. The live process is the
+> automated cadence described in [OPERATOR_ONBOARDING.md](OPERATOR_ONBOARDING.md) — nightly-settle
+> owns money, daily-products owns the boards, and the commands below must not be run against the
+> current system without reading that page first.
+
 The one-page runbook for keeping GameTime Picks current every day. **Money is sacred**: only the
 official settlement path may change canonical money; the refresh script is display-only and
 md5-guards the canonical files.
