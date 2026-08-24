@@ -116,6 +116,45 @@ export function reportableRows(set: EplForecastSet | null): EplForecastRow[] {
   return forecastRows(set).filter((r) => typeof r.slug === "string" && r.slug.length > 0);
 }
 
+/**
+ * THE FORECAST ARCHIVE — every dated forecast file, newest first (P202 Phase 0).
+ *
+ * `latest.json` carries only CURRENT pre-event rows, so between matchdays it is legitimately
+ * empty — and a dynamic route enumerating params from it alone returned `[]`, which under
+ * `output: "export"` kills the ENTIRE site build ("missing generateStaticParams" is Next's
+ * message for an empty set). The site could not have rebuilt from tonight's final whistle until
+ * Friday's fixtures entered. The archive is the durable enumeration source: a fixture that was
+ * ever published keeps its page, rendering its last pre-event distribution — which is the
+ * forecast of record, exactly what an archived report should show.
+ */
+export function loadEplForecastArchive(): EplForecastRow[] {
+  const dir = path.join(process.cwd(), "public/data/soccer/epl/forecasts");
+  const bySlug = new Map<string, EplForecastRow>();
+  let files: string[] = [];
+  try { files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort(); } catch { /* no archive */ }
+  for (const f of files) {
+    try {
+      const raw = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+      for (const r of raw?.rows ?? []) {
+        // Later files win: the newest pre-event revision is the forecast of record.
+        if (r?.slug && r?.probs) bySlug.set(r.slug, r as EplForecastRow);
+      }
+    } catch { /* an unreadable day never hides the rest of the archive */ }
+  }
+  // Current rows (when any) supersede their archived copies.
+  for (const r of loadEplForecasts()?.rows ?? []) {
+    if (r.slug && r.probs) bySlug.set(r.slug, r);
+  }
+  return [...bySlug.values()];
+}
+
+/** Resolve one fixture's forecast of record: current when live, archived otherwise. */
+export function findEplForecastAnywhere(slug: string): EplForecastRow | null {
+  const current = findEplForecast(loadEplForecasts(), slug);
+  if (current) return current;
+  return loadEplForecastArchive().find((r) => r.slug === slug) ?? null;
+}
+
 export function findEplForecast(set: EplForecastSet | null, slug: string): EplForecastRow | null {
   return reportableRows(set).find((r) => r.slug === slug) ?? null;
 }

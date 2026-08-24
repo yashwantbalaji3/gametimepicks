@@ -27,15 +27,21 @@ import { notFound } from "next/navigation";
 
 import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
-import { loadEplForecasts, reportableRows, findEplForecast, loadEplPlayerProjections, playersForFixture } from "@/lib/sports/epl/forecast-view";
+import { loadEplForecasts, findEplForecastAnywhere, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture } from "@/lib/sports/epl/forecast-view";
 
-/** Statically generate one page per fixture that genuinely carries a distribution. */
+/**
+ * One page per fixture that EVER carried a distribution — enumerated from the dated archive, not
+ * from latest.json, whose rows legitimately empty out between matchdays. An empty params set under
+ * `output: "export"` fails the whole build (P202 Phase 0 caught this the first time a build ran
+ * after a matchday closed), and an archived fixture keeps its page: it renders the last pre-event
+ * revision, which is the forecast of record.
+ */
 export function generateStaticParams() {
-  return reportableRows(loadEplForecasts()).map((r) => ({ slug: r.slug as string }));
+  return loadEplForecastArchive().map((r) => ({ slug: r.slug as string }));
 }
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const row = findEplForecast(loadEplForecasts(), params.slug);
+  const row = findEplForecastAnywhere(params.slug);
   if (!row) return { title: "Premier League fixture · GameTime Picks" };
   return {
     title: `${row.matchup} — model forecast · GameTime Picks`,
@@ -63,13 +69,18 @@ const PANEL: React.CSSProperties = {
 };
 
 export default function EplMatchPage({ params }: { params: { slug: string } }) {
+  /* The SET frames validation/track-record copy; an archived fixture may outlive an empty latest,
+     so those lines fall back to the row's own era truths rather than crashing the archive page. */
   const set = loadEplForecasts();
-  const row = findEplForecast(set, params.slug);
+  const trackRecordLine = set?.trackRecord ?? "The graded record could not be read, so no accuracy claim is made here.";
+  const generatedLine = set?.generatedAt ?? "see the dated forecast artifact for this fixture";
+  const validationLine = set?.validation ?? "NOT_VALIDATED_OUT_OF_SAMPLE";
+  const row = findEplForecastAnywhere(params.slug);
   /*
    * A fixture with no distribution has no report. It is not rendered as an empty page with the
    * furniture of a forecast around it — that reads as coverage.
    */
-  if (!row || !set) notFound();
+  if (!row) notFound();
 
   const home = row.homeClub ?? row.matchup.split(" v ")[0];
   const away = row.awayClub ?? row.matchup.split(" v ")[1];
@@ -110,7 +121,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
       */}
       <section className="mt-5" style={{ ...PANEL, borderColor: "color-mix(in srgb, var(--sport-soccer) 40%, var(--vault-rule))" }}>
         <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6 }}>
-          <strong style={{ color: soccer }}>Not validated out of sample.</strong> {set.trackRecord} These are the
+          <strong style={{ color: soccer }}>Not validated out of sample.</strong> {trackRecordLine} These are the
           model&apos;s own probability distributions, published so you can see what it says — not picks, not advice,
           and not compared against any price.
         </p>
@@ -375,8 +386,8 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           <dl style={{ display: "grid", gap: 6, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", margin: 0 }}>
             <Meta k="Model" v={row.modelId ?? "epl-model-v1-split-poisson"} />
             {row.lambdas ? <Meta k="Scoring rates (λ)" v={`${home} ${dec(row.lambdas.home)} · ${away} ${dec(row.lambdas.away)}`} /> : null}
-            <Meta k="Generated" v={set.generatedAt} />
-            <Meta k="Validation" v={set.validation} />
+            <Meta k="Generated" v={generatedLine} />
+            <Meta k="Validation" v={validationLine} />
           </dl>
         </div>
       </section>
