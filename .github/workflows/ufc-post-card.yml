@@ -56,6 +56,14 @@ jobs:
         working-directory: app
         run: |
           set -uo pipefail
+          # P196 · Release I ordering fix: this job runs at 08:00 UTC and the ESPN results capture
+          # it grades from runs in sport-schedules at 13:00 UTC — so a Saturday card graded on
+          # MONDAY, a full day late, from a capture that existed since Sunday afternoon. The
+          # capture is free (public scoreboard, no key, one request); refreshing it here removes
+          # the cron-ordering lag instead of working around it. A capture failure stands on
+          # last-known-good and the grader still runs.
+          npx tsx scripts/ufc/capture-ufc-results.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write || \
+            echo "::warning::UFC results refresh failed — grading from the committed capture"
           npx tsx scripts/ufc/grade-ufc-model-vs-market.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write || \
             echo "::warning::UFC model-vs-market grading refused this run"
 

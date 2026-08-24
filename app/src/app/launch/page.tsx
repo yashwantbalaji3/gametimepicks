@@ -11,7 +11,7 @@ import { RELEASE_HISTORY } from "@/lib/launch/release-history.mjs";
 import { withCountdown, REALITY_GATED_WATCHES } from "@/lib/launch/watches.mjs";
 import { founderActionSheet } from "@/lib/launch/shared-blockers.mjs";
 import { buildClosurePackets, executionQueue } from "@/lib/launch/closure-packets.mjs";
-import { readCurrentEvents, readProductReceipt, readRouteInventory, readEplCalibrationAuthority } from "@/lib/launch/closure-packet-sources.mjs";
+import { readCurrentEvents, readProductReceipt, readRouteInventory, readEplCalibrationAuthority, readLadderReceipts } from "@/lib/launch/closure-packet-sources.mjs";
 import { ALLOWED_CHOICES } from "@/lib/launch/founder-response.mjs";
 import { IA_SECTIONS } from "@/lib/launch/ia-contract.mjs";
 import { buildUiuxEvidence, P184_BASELINE } from "@/lib/launch/uiux-evidence.mjs";
@@ -95,6 +95,7 @@ export default function LaunchCommandCenter() {
     productReceipt: readProductReceipt({ appDir: APP }),
     routeInventory: readRouteInventory({ appDir: APP }),
     calibrationAuthorities: { epl: readEplCalibrationAuthority({ appDir: APP }) },
+    ladderReceipts: readLadderReceipts({ appDir: APP }),
     nowIso: buildNowIso,
   });
   const closureQueue = executionQueue(closure);

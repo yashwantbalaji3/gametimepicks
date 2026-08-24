@@ -213,13 +213,15 @@ export function packetContradictions(packet, { publicRouteSet }) {
  * @param {{routes: Array<{route: string, classification: string}>}} inputs.routeInventory
  * @param {Record<string, {settledRows?: number|null, rowsWithFrozenForecast?: number|null, source?: string}>} [inputs.settlementSummaries]
  * @param {Record<string, Array<{workflow: string, lastRunConclusion: string|null, artifactStamp: string|null}>>} [inputs.workflowReceipts]
+ * @param {Record<string, {artifact: object|null, ledgerRecount: {graded: number, paired: number}|null}>} [inputs.calibrationAuthorities]
+ * @param {Record<string, {state: string, asOf: string|null, source: string}>} [inputs.ladderReceipts]
  * @param {string} inputs.nowIso
  */
 export function buildClosurePackets(inputs) {
   const {
     assessments, tickets = [], watches = [], founderGates = [],
     currentEvents = {}, productReceipt = null, routeInventory,
-    settlementSummaries = {}, workflowReceipts = {}, calibrationAuthorities = {}, nowIso,
+    settlementSummaries = {}, workflowReceipts = {}, calibrationAuthorities = {}, ladderReceipts = {}, nowIso,
   } = inputs;
   if (!nowIso) throw new Error("closure-packets: nowIso is an input, never a clock read");
   if (!routeInventory?.routes) throw new Error("closure-packets: route inventory is required — the leak guard cannot run without it");
@@ -228,21 +230,27 @@ export function buildClosurePackets(inputs) {
     routeInventory.routes.filter((r) => r.classification === "public" || r.classification === "product").map((r) => r.route),
   );
 
-  /** Product lanes per sport, quoted from the daily receipt (never re-evaluated here). */
+  /**
+   * Product lanes per sport, quoted from TWO receipt families and never re-evaluated here: the
+   * daily product receipt (bank-builder / moonshot / end-zone-vault — its own spelling, learned
+   * the hard way when "endzone-vault" read RECEIPT_MISSING against a receipt that existed) and
+   * each sport ladder's own published artifact, supplied by the sources layer.
+   */
   const laneFor = (sport) => {
     const rows = productReceipt?.products ?? [];
     const mine = {
       mlb: ["bank-builder", "moonshot", "mlb-risk-ladder"],
-      nfl: ["endzone-vault"],
+      nfl: ["end-zone-vault"],
       epl: ["epl-ladder"],
       ufc: ["ufc-ladder"],
       nba: [],
     }[sport] ?? [];
     return mine.map((lane) => {
       const row = rows.find((p) => p.product === lane);
-      return row
-        ? { lane, state: row.state, asOf: productReceipt?.date ?? null, source: "daily-product-receipt" }
-        : { lane, state: "RECEIPT_MISSING", asOf: null, source: null };
+      if (row) return { lane, state: row.state, asOf: productReceipt?.date ?? null, source: "daily-product-receipt" };
+      const ladder = ladderReceipts[sport];
+      if (ladder && lane.endsWith("-ladder")) return { lane, state: ladder.state, asOf: ladder.asOf, source: ladder.source };
+      return { lane, state: "RECEIPT_MISSING", asOf: null, source: null };
     });
   };
 

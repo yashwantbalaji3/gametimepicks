@@ -134,6 +134,37 @@ export function readRouteInventory({ appDir }) {
 }
 
 /**
+ * Sport-ladder receipts, from each ladder's OWN published artifact (P196 · Release G). The daily
+ * product receipt covers the cross-sport lanes; the per-sport paper ladders publish their own
+ * dated artifacts, and a published ladder for the lane's current slate IS its receipt. A ladder
+ * for a different day is not offered as one — the sport-lab loader's own day rule, applied here
+ * as data: the state quotes the artifact, the date rides along, and the consumer judges.
+ */
+/** @returns {Record<string, {state: string, asOf: string|null, source: string}>} */
+export function readLadderReceipts({ appDir }) {
+  const dirs = { mlb: "risk-ladder", ufc: "risk-ladder-ufc", epl: "risk-ladder-epl" };
+  /** @type {Record<string, {state: string, asOf: string|null, source: string}>} */
+  const out = {};
+  for (const [sport, dir] of Object.entries(dirs)) {
+    const art = readJson(path.join(appDir, "public/data/parlays", dir, "latest.json"));
+    if (!art) continue;
+    /*
+     * Two artifact generations coexist: the lab ladders (ufc/epl) stamp an explicit `state`;
+     * the MLB ladder predates that field and its publication signal is the artifact itself —
+     * dated, with cards. Deriving ACTIVE from "has cards for its date" quotes that older
+     * contract rather than punishing it with UNKNOWN; a dated file with zero cards is a real
+     * NO_PLAY day and is typed as one.
+     */
+    const state = art.state === "PUBLISHED" ? "ACTIVE"
+      : art.state ? art.state
+      : Array.isArray(art.cards) ? (art.cards.length > 0 ? "ACTIVE" : "NO_PLAY")
+      : "UNKNOWN";
+    out[sport] = { state, asOf: art.date ?? null, source: `parlays/${dir}/latest.json` };
+  }
+  return out;
+}
+
+/**
  * THE LIVE CALIBRATION-COUNT AUTHORITY for EPL (P196 · Release D): the nightly learning artifact,
  * read beside a fresh recount of the public graded ledger it summarises. The packet builder
  * REFUSES when they disagree — which is precisely how "0 of 30 paired" got quoted as current in

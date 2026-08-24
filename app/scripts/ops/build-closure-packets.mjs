@@ -22,7 +22,7 @@ import { buildWorkBoard } from "../../src/lib/launch/work-board.mjs";
 import { REALITY_GATED_WATCHES } from "../../src/lib/launch/watches.mjs";
 import { founderActionSheet } from "../../src/lib/launch/shared-blockers.mjs";
 import { buildClosurePackets, executionQueue, stableStringify } from "../../src/lib/launch/closure-packets.mjs";
-import { readCurrentEvents, readProductReceipt, readRouteInventory, readEplCalibrationAuthority } from "../../src/lib/launch/closure-packet-sources.mjs";
+import { readCurrentEvents, readProductReceipt, readRouteInventory, readEplCalibrationAuthority, readLadderReceipts } from "../../src/lib/launch/closure-packet-sources.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = path.join(APP, "..", "data/internal/launch/closure-packets-v1.json");
@@ -51,6 +51,7 @@ function assembleInputs() {
     productReceipt: readProductReceipt({ appDir: APP }),
     routeInventory: readRouteInventory({ appDir: APP }),
     calibrationAuthorities: { epl: readEplCalibrationAuthority({ appDir: APP }) },
+    ladderReceipts: readLadderReceipts({ appDir: APP }),
     nowIso: NOW,
   };
 }
