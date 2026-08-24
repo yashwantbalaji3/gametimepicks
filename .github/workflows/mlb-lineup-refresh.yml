@@ -130,7 +130,7 @@ jobs:
           git config user.name  "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
           # Path-scoped: this job produces exactly two artifacts and must not carry anything else.
-          git add app/public/data/mlb/full-game-simulations app/public/data/mlb/predictions 2>/dev/null || true
+          git add app/public/data/mlb/full-game-simulations app/public/data/mlb/predictions data/internal/mlb/prediction-snapshots 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no lineup has changed the simulation since the last run"
             exit 0

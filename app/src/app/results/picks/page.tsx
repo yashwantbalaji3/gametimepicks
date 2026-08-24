@@ -16,7 +16,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
-import { loadAllGradedPicks } from "@/lib/sports/graded-picks-loader";
+import { loadAllGradedPicks, loadMlbGameRecord } from "@/lib/sports/graded-picks-loader";
 
 export const metadata: Metadata = {
   title: "Picks vs Outcomes · GameTime Picks",
@@ -29,6 +29,7 @@ const SHOW_RATE = new Set(["ASSESSABLE", "EMERGING"]);
 
 export default function AllGradedPicksPage() {
   const records = loadAllGradedPicks();
+  const mlbGames = loadMlbGameRecord();
 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
@@ -96,6 +97,25 @@ export default function AllGradedPicksPage() {
             say anything about a market. That comparison is tracked separately for each sport and has
             cleared nothing here.
           </p>
+
+          {mlbGames ? (
+            <div className="mt-6">
+              <h2 className="font-mono" style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)", margin: 0 }}>
+                MLB · game predictions — a separate record
+              </h2>
+              <p className="mt-1" style={{ fontSize: 12.5, lineHeight: 1.7, color: "var(--vault-text-mute)", maxWidth: 720 }}>
+                {/* Its own denominators, its own artifact; never added to the player-prop table above. */}
+                Winner, total and run line for each game, graded from the newest prediction revision
+                generated before first pitch:{" "}
+                {Object.entries(mlbGames.families)
+                  .filter(([, f]) => f.n > 0)
+                  .map(([m, f]) => `${m.replace("_", " ")} ${f.wins}–${f.losses}${f.pushes ? `–${f.pushes}` : ""}`)
+                  .join(" · ")}
+                . Not comparable with the player-prop record above and never combined with it —{" "}
+                <Link href="/results/picks/mlb" style={{ color: "var(--gtp-bank-cta)" }}>full game-level record</Link>.
+              </p>
+            </div>
+          ) : null}
         </>
       )}
 

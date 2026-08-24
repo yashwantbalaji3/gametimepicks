@@ -363,6 +363,17 @@ jobs:
           npx --yes tsx scripts/build-paper-track-record.mjs --write \
             || echo "::warning::paper track record failed — prior ledger retained"
 
+          # 5) Game-level prediction grading (P196 · Release B1) — moneyline/total/run line from the
+          #    forecast of record (immutable per-run snapshots; per-game pre-first-pitch rule) to the
+          #    linescores fetched in step 1. Append-only ledger; a date with no qualifying revision
+          #    prints MISSING_PRE_EVENT_ARTIFACT rather than grading from a post-hoc file. Model
+          #    record only — never money.
+          for D in $(echo "$DATES" | tr ',' ' '); do
+            npx --yes tsx scripts/mlb/grade-game-predictions.mjs --date "$D" \
+              --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write \
+              || echo "::warning::game-prediction grading failed for $D — prior ledger retained"
+          done
+
       # ---- SPRINT 048: the learning loop ----
       # The prediction-history exporter existed since Sprint 036 and was referenced by NO workflow and
       # no npm script. It silently froze on 2026-07-08 — 18,227 rows while the ledger held 22,660 — so

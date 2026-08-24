@@ -60,6 +60,8 @@
  * is a recommendation nobody asked for. The page multiplies locally.
  */
 
+import { calmestAvailableBand, substituteDirection, directionSentence } from "./risk-substitute.mjs";
+
 /** Cell states. Every cell has exactly one, and every non-offered state carries a reason. */
 export const CELL_STATES = Object.freeze({
   /** This tier is shown this band, and a card exists. */
@@ -111,9 +113,9 @@ export function resolveTierGrid({ tiers, riskOrder, cards, skipped = [] }) {
   /*
    * The calmest band that actually produced a card today. Used only as a labelled substitute for a
    * tier whose entire designed scope came up empty — never to quietly upgrade a tier that already
-   * has one.
+   * has one. Selection is delegated to the shared rule owner (P196 · Release B2).
    */
-  const calmestAvailable = riskOrder.find((b) => cardByBand.has(b)) ?? null;
+  const calmestAvailable = calmestAvailableBand(riskOrder, [...cardByBand.keys()]);
 
   const tierRows = tiers.map((t) => {
     const mine = cells.filter((c) => c.tier === t.id);
@@ -136,12 +138,20 @@ export function resolveTierGrid({ tiers, riskOrder, cards, skipped = [] }) {
    */
   for (const row of tierRows) {
     if (!row.emptyToday || !calmestAvailable) { row.substitute = null; continue; }
+    /*
+     * The direction is DERIVED, not asserted (P196 · Release B2). The old wording hardcoded
+     * "a longer price than this bankroll is normally shown", which is true here only because tier
+     * scopes are prefixes of the risk order — an unstated structural accident. Deriving it from the
+     * tier's own calmest designed band makes the sentence provably right, and makes this surface
+     * and the sport lanes share one rule owner instead of two copies that agree by luck.
+     */
+    const direction = substituteDirection(riskOrder, row.bands[0] ?? riskOrder[0], calmestAvailable);
     row.substitute = {
       band: calmestAvailable,
       slipId: cardByBand.get(calmestAvailable)?.slipId ?? null,
-      /* Reader-facing wording. It has to say the card is RISKIER than the tier's own range, because
-         that is the entire content of the substitution. */
-      reason: `Nothing on today's board priced in this range. The calmest card available is ${calmestAvailable} risk, which is a longer price than this bankroll is normally shown — its own record is attached.`,
+      reason: direction === "RISKIER"
+        ? `Nothing on today's board priced in this range. The calmest card available is ${calmestAvailable} risk, which is a longer price than this bankroll is normally shown — its own record is attached.`
+        : `Nothing on today's board priced in this range. The calmest card available is ${calmestAvailable} risk — ${directionSentence(direction)} — and its own record is attached.`,
     };
   }
 

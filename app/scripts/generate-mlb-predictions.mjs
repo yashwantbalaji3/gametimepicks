@@ -75,6 +75,24 @@ if (write) {
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(path.join(outDir, `${date}.json`), JSON.stringify(artifact, null, 2));
   console.log(`\n✓ wrote public/data/mlb/predictions/${date}.json (pregame, gradeable, NOT settled into money)`);
+  /*
+   * IMMUTABLE PER-RUN SNAPSHOT (P196 · Release B1). The dated file above is a MOVING POINTER — it
+   * regenerates as lineups post, and its final committed state can postdate the slate (2026-08-22's
+   * was written at 02:08 the next day). The game-level grader needs the newest revision that
+   * PRE-DATES each first pitch, and in CI (shallow clone) git history cannot supply it. So every
+   * run also writes a snapshot that is never rewritten: same artifact, frozen. Internal only — the
+   * public export never carries it, and the grader is its one consumer.
+   */
+  const snapDir = path.join(APP, "..", "data", "internal", "mlb", "prediction-snapshots", date);
+  const stamp = nowIso.replace(/[-:T]/g, "").slice(0, 12); // YYYYMMDDHHMM
+  const snapPath = path.join(snapDir, `snapshot-${stamp}.json`);
+  if (fs.existsSync(snapPath)) {
+    console.log(`  snapshot ${path.basename(snapPath)} already exists — left untouched (immutable)`);
+  } else {
+    fs.mkdirSync(snapDir, { recursive: true });
+    fs.writeFileSync(snapPath, JSON.stringify(artifact, null, 2));
+    console.log(`  ✓ froze data/internal/mlb/prediction-snapshots/${date}/${path.basename(snapPath)}`);
+  }
 } else {
   console.log(`\n(dry run — pass --write to persist)`);
 }

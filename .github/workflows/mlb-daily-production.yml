@@ -185,7 +185,7 @@ jobs:
           # were produced on every automated run and thrown away, so the autopilot never published the
           # full-game simulation or prediction layers at all — both paths' only commits were manual.
           # Guarded by app/src/lib/daily-production-commit-scope.test.mjs.
-          git add app/public/data/mlb/team-markets/ app/public/data/mlb/player-props/ app/public/data/mlb/home-run-props/ app/public/data/mlb/homer-nukes/ app/public/data/mlb/game-simulations/ app/public/data/mlb/full-game-simulations/ app/public/data/mlb/predictions/ app/public/data/mlb/schedule/ app/public/data/ops/ app/public/data/admin/ data/internal/mlb/pregame-archive/status/mlb-production-health.json data/internal/mlb/production-history/ 2>/dev/null || true
+          git add app/public/data/mlb/team-markets/ app/public/data/mlb/player-props/ app/public/data/mlb/home-run-props/ app/public/data/mlb/homer-nukes/ app/public/data/mlb/game-simulations/ app/public/data/mlb/full-game-simulations/ app/public/data/mlb/predictions/ data/internal/mlb/prediction-snapshots/ app/public/data/mlb/schedule/ app/public/data/ops/ app/public/data/admin/ data/internal/mlb/pregame-archive/status/mlb-production-health.json data/internal/mlb/production-history/ 2>/dev/null || true
           # SAFETY ASSERT: never portfolio / money / official settlement / product cards.
           BAD="$(git diff --cached --name-only | grep -iE 'portfolio|mr-dub|settled_leans|bank-builder|moonshot|/out/' || true)"
           # A forbidden path staged is a REAL fault, not a no-op: something upstream tried to write a

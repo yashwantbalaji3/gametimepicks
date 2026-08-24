@@ -20,6 +20,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { RISK_ORDER } from "../prefs/bettor-tiers.mjs";
+import { substituteOffer } from "./risk-substitute.mjs";
 
 export interface SportLabLeg {
   eventId: string;
@@ -86,24 +87,27 @@ export interface BandSubstitute {
  * half the time, and a wrong risk direction is worse than no substitute at all.
  */
 export function deriveBandSubstitutes(ladder: SportLabLadder): BandSubstitute[] {
+  /*
+   * P196 · Release B2: the selection rule, the direction derivation and the wording now live in
+   * risk-substitute.mjs — ONE owner shared with the /build tier grid. This function keeps only
+   * what is local: reading this ladder's cards/skips and threading each skip's MEASURED cause
+   * (the prices the slate actually reached) into the note.
+   */
   const order = RISK_ORDER as readonly string[];
   const byBand = new Map(ladder.cards.map((c) => [c.tier, c]));
-  const calmest = order.find((b) => byBand.has(b)) ?? null;
-  if (!calmest) return [];                       // nothing was built: there is nothing to substitute
+  const available = ladder.cards.map((c) => c.tier);
   return ladder.skipped
-    .filter((s) => !byBand.has(s.tier) && s.tier !== calmest)
     .map((s) => {
-      const wanted = order.indexOf(s.tier), got = order.indexOf(calmest);
-      const direction = got > wanted
-        ? "a longer price, and a longer price is more risk, than this band describes"
-        : "a shorter price, and less risk, than this band describes";
+      const offer = substituteOffer({ riskOrder: order, availableBands: available, emptyBand: s.tier, measuredCause: s.reason ?? null });
+      if (!offer) return null;
       return {
-        band: s.tier,
-        offered: calmest,
-        slipId: (byBand.get(calmest) as { slipId?: string } | undefined)?.slipId ?? null,
-        note: `Nothing on this slate priced into ${s.tier}. The calmest card built today is ${calmest} — ${direction}.`,
+        band: offer.band,
+        offered: offer.offered,
+        slipId: (byBand.get(offer.offered) as { slipId?: string } | undefined)?.slipId ?? null,
+        note: offer.note,
       };
-    });
+    })
+    .filter((x): x is BandSubstitute => x !== null);
 }
 
 /** ET, never a UTC slice — a ladder published at 21:00 ET must not read as tomorrow's. */

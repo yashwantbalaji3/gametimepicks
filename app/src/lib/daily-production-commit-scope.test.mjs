@@ -26,7 +26,10 @@ const GENERATOR_OUTPUT = {
   "ingest-mlb-slate.mjs": "app/public/data/mlb/player-props/",
   "generate-mlb-game-simulations.mjs": "app/public/data/mlb/game-simulations/",
   "generate-mlb-full-game-simulations.mjs": "app/public/data/mlb/full-game-simulations/",
-  "generate-mlb-predictions.mjs": "app/public/data/mlb/predictions/",
+  // P196: the predictions generator writes TWO paths — the public dated file AND the immutable
+  // per-run snapshot the game grader needs (the dated file is a moving pointer). Both must stage,
+  // or the snapshot silently never persists and the forward grading path starves.
+  "generate-mlb-predictions.mjs": ["app/public/data/mlb/predictions/", "data/internal/mlb/prediction-snapshots/"],
   // Ops surfaces — the heartbeat is only a dead-man's switch if CI actually writes AND persists it.
   "ops-notify.mjs": "app/public/data/ops/",
   "build-admin-status.mjs": "app/public/data/admin/",
@@ -41,11 +44,13 @@ test("the workflow has a single explicit, path-scoped git add", () => {
 
 test("every generated artifact directory is inside the commit scope", () => {
   const missing = [];
-  for (const [script, dir] of Object.entries(GENERATOR_OUTPUT)) {
+  for (const [script, dirs] of Object.entries(GENERATOR_OUTPUT)) {
     // If this workflow INVOKES the script at all, its output must be staged. (An earlier version keyed off
     // `--write`, which would have missed ops-notify/build-admin-status — they write unconditionally.)
     if (!yml.includes(script)) continue;
-    if (!addLine.includes(dir)) missing.push(`${script} writes ${dir} but it is NOT staged — the run discards it`);
+    for (const dir of [].concat(dirs)) {
+      if (!addLine.includes(dir)) missing.push(`${script} writes ${dir} but it is NOT staged — the run discards it`);
+    }
   }
   assert.deepEqual(missing, [], missing.join("\n"));
 });

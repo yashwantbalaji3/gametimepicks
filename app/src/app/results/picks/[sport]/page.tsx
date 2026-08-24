@@ -16,7 +16,7 @@ import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
-import { loadGradedPicks, PICK_SPORTS } from "@/lib/sports/graded-picks-loader";
+import { loadGradedPicks, loadMlbGameRecord, PICK_SPORTS } from "@/lib/sports/graded-picks-loader";
 
 const HUBS: Record<string, { label: string; hub: string }> = {
   mlb: { label: "MLB", hub: "/mlb" },
@@ -42,10 +42,15 @@ export function generateMetadata({ params }: { params: { sport: string } }): Met
   };
 }
 
+const FAMILY_LABEL: Record<string, string> = { moneyline: "Winner (moneyline)", total: "Total (over/under)", run_line: "Run line" };
+
 export default function GradedPicksPage({ params }: { params: { sport: string } }) {
   const lane = HUBS[params.sport];
   if (!lane) return null;                 // dynamicParams=false makes this unreachable
   const record = loadGradedPicks(params.sport);
+  // MLB carries a SECOND record — game-level calls — kept in its own artifact with its own
+  // denominators. Rendering them in one table was the specific mistake B1 exists to prevent.
+  const gameRecord = params.sport === "mlb" ? loadMlbGameRecord() : null;
 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
@@ -80,6 +85,51 @@ export default function GradedPicksPage({ params }: { params: { sport: string } 
           published, and this page fills in from that point.
         </p>
       )}
+
+      {gameRecord ? (
+        <section className="mt-8">
+          <SectionHeader
+            as="h2"
+            eyebrow="Separate record · game level"
+            title="Game predictions"
+            sub={gameRecord.what}
+          />
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full" style={{ borderCollapse: "collapse", fontSize: 12.5, maxWidth: 720 }}>
+              <thead>
+                <tr style={{ color: "var(--vault-text-faint)", textAlign: "left" }}>
+                  <th className="font-mono py-1 pr-3" style={{ fontWeight: 500, fontSize: 10.5 }}>Market</th>
+                  <th className="font-mono py-1 pr-3" style={{ fontWeight: 500, fontSize: 10.5 }}>Graded</th>
+                  <th className="font-mono py-1 pr-3" style={{ fontWeight: 500, fontSize: 10.5 }}>Record</th>
+                  <th className="font-mono py-1" style={{ fontWeight: 500, fontSize: 10.5 }}>Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(gameRecord.families).map(([market, f]) => (
+                  <tr key={market} style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                    <td className="py-2 pr-3" style={{ fontWeight: 600 }}>{FAMILY_LABEL[market] ?? market}</td>
+                    <td className="font-mono py-2 pr-3">{f.n.toLocaleString()}</td>
+                    <td className="font-mono py-2 pr-3">{f.wins}–{f.losses}{f.pushes ? `–${f.pushes} pushes` : ""}</td>
+                    <td className="font-mono py-2" style={{ color: "var(--vault-text-mute)" }}>
+                      {f.hitRate != null ? `${(f.hitRate * 100).toFixed(1)}%` : "no decisive sample"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {Object.values(gameRecord.families).some((f) => f.note) ? (
+            <p className="mt-2" style={{ fontSize: 12, lineHeight: 1.7, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+              {Object.values(gameRecord.families).find((f) => f.note)?.note}
+            </p>
+          ) : null}
+          <p className="mt-2" style={{ fontSize: 12, lineHeight: 1.7, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+            {gameRecord.caveat} Each row is graded from the newest prediction revision generated
+            <em> before that game&apos;s first pitch</em>; {gameRecord.counts.missingPreEventFinals.toLocaleString()} earlier
+            game finals have no such pre-event artifact and are named as gaps rather than reconstructed.
+          </p>
+        </section>
+      ) : null}
 
       <nav className="mt-6 flex flex-wrap gap-3" style={{ fontSize: 12.5 }}>
         <Link href={lane.hub} style={{ color: "var(--gtp-bank-cta)" }}>← {lane.label} hub</Link>

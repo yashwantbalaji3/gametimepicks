@@ -54,3 +54,51 @@ export function loadGradedPicks(sport: string): GradedRecord | null {
 export function loadAllGradedPicks(): GradedRecord[] {
   return PICK_SPORTS.map((s) => loadGradedPicks(s)).filter((r): r is GradedRecord => Boolean(r));
 }
+
+/* ── MLB game-level record (P196 · Release B1) — a SEPARATE ledger, never blended ────────────── */
+
+export interface GameFamilyRecord {
+  n: number;
+  wins: number;
+  losses: number;
+  pushes: number;
+  hitRate: number | null;
+  styleBreakdown?: { minusLines: number; plusLines: number };
+  note?: string | null;
+}
+
+export interface MlbGameRecord {
+  generatedAt: string;
+  what: string;
+  caveat: string;
+  families: Record<string, GameFamilyRecord>;
+  counts: { rows: number; missingPreEventFinals: number };
+  recent: Array<{
+    date: string | null;
+    gamePk: number;
+    matchup: string;
+    market: string;
+    pick: string;
+    line: number | null;
+    modelProbability: number | null;
+    marketImpliedProbability: number | null;
+    outcome: "WIN" | "LOSS" | "PUSH";
+    forecastGeneratedAt: string;
+  }>;
+}
+
+/**
+ * The game-level prediction record — winner / total / run line graded from the forecast of record.
+ * Deliberately NOT part of GradedRecord: the player-prop and game ledgers answer different
+ * questions over denominators four hundred times apart, and the one mistake this loader must make
+ * impossible is a surface quietly adding them together.
+ */
+export function loadMlbGameRecord(): MlbGameRecord | null {
+  try {
+    const raw = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/mlb/results/game-predictions-record.json"), "utf8"));
+    if (!raw?.families || !Array.isArray(raw?.recent)) return null;
+    return raw as MlbGameRecord;
+  } catch {
+    return null;
+  }
+}
