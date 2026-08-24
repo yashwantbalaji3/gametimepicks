@@ -12,6 +12,7 @@ import { withCountdown, REALITY_GATED_WATCHES } from "@/lib/launch/watches.mjs";
 import { founderActionSheet } from "@/lib/launch/shared-blockers.mjs";
 import { buildClosurePackets, executionQueue } from "@/lib/launch/closure-packets.mjs";
 import { RUNBOOKS, LIFECYCLE_LANES, validateRunbooks } from "@/lib/launch/runbook-registry.mjs";
+import { FOUNDER_DECISIONS } from "@/lib/launch/founder-decisions.mjs";
 import { readCurrentEvents, readProductReceipt, readRouteInventory, readEplCalibrationAuthority, readLadderReceipts } from "@/lib/launch/closure-packet-sources.mjs";
 import { ALLOWED_CHOICES } from "@/lib/launch/founder-response.mjs";
 import { IA_SECTIONS } from "@/lib/launch/ia-contract.mjs";
@@ -672,6 +673,27 @@ export default function LaunchCommandCenter() {
               <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
                 Every shared launch blocker exactly once, dependency-ordered. Engineering states are verified against code; a blocker closes only on a real post-action receipt.
               </p>
+
+              {/* ── The five open gate decisions (P199 · Release D): one-to-one with the generated
+                     founder queue (guard-enforced), copy-paste tokens, consequences stated, and a
+                     read-only dry-run per card. Answers are decisions, never secrets. ─────────── */}
+              <p style={{ fontSize: 12, fontWeight: 700, margin: "0 0 6px" }}>Reply Box · five gate decisions, one sitting</p>
+              <ul style={{ margin: "0 0 14px", padding: 0, listStyle: "none", display: "grid", gap: 8 }}>
+                {FOUNDER_DECISIONS.map((d, i) => (
+                  <li key={d.id} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
+                    <p style={{ margin: 0, display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+                      <strong style={{ fontSize: 12.5 }}>{i + 1}. {d.title}</strong>
+                      <span className="font-mono" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>[{d.queueItem}] · {d.expectedTime}</span>
+                    </p>
+                    <p style={{ margin: "4px 0 0", fontSize: 11.5, color: "var(--vault-text-mute)" }}>{d.question}</p>
+                    <p className="font-mono" style={{ margin: "5px 0 0", fontSize: 10.5 }}>
+                      {d.answerTokens.map((t) => <code key={t} style={{ border: "1px solid var(--vault-rule)", borderRadius: 4, padding: "1px 5px", marginRight: 6 }}>{t}</code>)}
+                    </p>
+                    <p style={{ margin: "5px 0 0", fontSize: 10.5, color: "var(--vault-text-faint)", lineHeight: 1.5 }}>{d.consequence}</p>
+                    <p className="font-mono" style={{ margin: "5px 0 0", fontSize: 9.5, color: "var(--vault-text-faint)" }}>dry-run: {d.validation} · {d.neverShare}</p>
+                  </li>
+                ))}
+              </ul>
               <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 8 }}>
                 {founderActionSheet().map((r, i) => (
                   <li key={r.id} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
