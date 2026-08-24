@@ -220,10 +220,19 @@ export function buildEvidenceLedger({ adminStatus = null, alphaDay = null, gates
     if (sport === "mlb") continue;
     const maturity = deriveSportMaturity(a.stages, a);
     const gaps = remainingPath(a.stages);
+    /*
+     * P197: a SCAFFOLDED sport whose products AND publication stages are PROVEN is running a live
+     * operating lane — daily receipts, public surfaces, scheduled settlement — and PLANNED
+     * ("designed but not yet implemented") stopped being true for it the day those receipts
+     * landed. HEALTHY here is a claim about the OPERATING CHAIN, never about the model: the
+     * remaining gaps (typically model/calibration) stay named in the evidence string.
+     */
+    const operatingLive = a.stages.products?.status === "PROVEN" && a.stages.publication?.status === "PROVEN";
     entries.push(entry({
       id: `sport:${sport}`, subject: `${sport.toUpperCase()} · ${maturity}`, department: "multi-sport", sport,
       state: maturity === "LIVE_ELIGIBLE" ? STATE.BLOCKED_EXTERNAL
         : maturity === "SEASONAL_READY" || maturity === "HISTORICAL_ONLY" ? STATE.OFF_SEASON
+        : operatingLive ? STATE.HEALTHY
         : STATE.PLANNED,
       evidence: `${GATE_STAGE_COUNT - gaps.length}/${GATE_STAGE_COUNT} gate stages proven · next: ${gaps[0]?.name ?? "founder activation"}`,
       source: "lib/sports/sport-gate assessments", asOf: null, now, owner: "ENGINEERING",

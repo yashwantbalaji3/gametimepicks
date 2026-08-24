@@ -74,6 +74,39 @@ function decisiveLedgerRows() {
     .filter((r) => r && r.void !== true && r.model?.logLoss != null && r.market?.logLoss != null);
 }
 
+/**
+ * PER-EVENT RECONCILIATION (P197 · Release A3): frozen = graded + void + pending, per card, from
+ * the snapshots and the ledger — never from memory. The frozen population is the union of boutIds
+ * across a card's snapshots (a bout snapshotted twice is one bout); anything frozen and not in the
+ * ledger is PENDING by name. A card where the three numbers do not add up is a broken join being
+ * discovered, which is exactly when this block must not be quiet.
+ */
+function reconcileEvents() {
+  const frozenByEvent = new Map();
+  for (const f of fs.readdirSync(DIR).filter((x) => /^snapshot-\d{12}\.json$/.test(x)).sort()) {
+    let s; try { s = JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8")); } catch { continue; }
+    const key = s?.event?.slateDate;
+    if (!key) continue;
+    if (!frozenByEvent.has(key)) frozenByEvent.set(key, { name: s.event?.name ?? null, boutIds: new Set() });
+    for (const r of s.rows ?? []) if (r.boutId) frozenByEvent.get(key).boutIds.add(r.boutId);
+  }
+  const ledger = fs.existsSync(LEDGER)
+    ? fs.readFileSync(LEDGER, "utf8").split("\n").filter((l) => l.trim()).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean)
+    : [];
+  const byId = new Map(ledger.map((r) => [r.boutId, r]));
+  return [...frozenByEvent.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([slateDate, ev]) => {
+    let graded = 0, voided = 0;
+    const pending = [];
+    for (const id of ev.boutIds) {
+      const row = byId.get(id);
+      if (!row) pending.push(id);
+      else if (row.void === true) voided += 1;
+      else graded += 1;
+    }
+    return { slateDate, event: ev.name, frozen: ev.boutIds.size, graded, void: voided, pending: pending.length, pendingBoutIds: pending, reconciles: ev.boutIds.size === graded + voided + pending.length };
+  });
+}
+
 /*
  * SELF-HEAL on quiet exits (P196 · Release C): if the committed summary's cumulative block is
  * absent or its n no longer matches the ledger, rewrite it even though nothing new graded — the
@@ -85,13 +118,15 @@ function healSummaryCumulative() {
   const rows = decisiveLedgerRows();
   let existing = null;
   try { existing = JSON.parse(fs.readFileSync(path.join(DIR, "summary.json"), "utf8")); } catch { return; }
-  if (rows.length === 0 || !existing || existing.cumulative?.n === rows.length) return;
+  const shapeCurrent = existing?.cumulative?.n === rows.length && Array.isArray(existing?.reconciliation);
+  if (rows.length === 0 || !existing || shapeCurrent) return;
   const mean = (f) => Number((rows.reduce((s, r) => s + f(r), 0) / rows.length).toFixed(6));
   existing.cumulative = {
     n: rows.length,
     model: { logLoss: mean((r) => r.model.logLoss), brier: mean((r) => r.model.brier), accuracy: mean((r) => (r.hit ? 1 : 0)) },
     market: { logLoss: mean((r) => r.market.logLoss), brier: mean((r) => r.market.brier) },
   };
+  existing.reconciliation = reconcileEvents();
   existing.generatedAt = NOW;
   fs.writeFileSync(path.join(DIR, "summary.json"), `${JSON.stringify(existing, null, 1)}\n`);
   console.log(`  summary cumulative healed: n=${rows.length} · model logLoss ${existing.cumulative.model.logLoss} vs market ${existing.cumulative.market.logLoss}`);
@@ -170,6 +205,7 @@ fs.writeFileSync(path.join(DIR, "summary.json"), `${JSON.stringify({
   note: "Model and market scored on identical bouts, both recorded before the card. Not a calibration verdict — that needs preregistered bars and a sample.",
   latestRun: { n: out.n, model: out.model, market: out.market },
   cumulative,
+  reconciliation: reconcileEvents(),
 }, null, 1)}\n`);
 console.log(`appended ${out.graded.length} row(s) to graded.jsonl`);
 console.log(`cumulative over ${cumulative.n}: model logLoss ${cumulative.model.logLoss} vs market ${cumulative.market.logLoss}`);

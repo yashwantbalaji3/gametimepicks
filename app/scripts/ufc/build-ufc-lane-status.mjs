@@ -168,6 +168,33 @@ const out = {
   settlementReach,
   credits,
   productLane: lane,
+  /*
+   * P197 · Release A3 monitoring: the two receipts a dead loop would quietly lose. The population
+   * receipt proves the published card equals the provider's own event (missing/phantom counted);
+   * the model-vs-market block carries the cumulative record beside per-card frozen=graded+void+
+   * pending reconciliation and the post-card grading lag. Absent sources render UNKNOWN — "we
+   * could not read it" and "there is nothing" stay different facts.
+   */
+  population: (() => {
+    const p = read(path.join(APP, "..", "data/internal/research/ufc/population", `${card?.event?.slateDate ?? "none"}.json`));
+    if (!p) return { state: "UNKNOWN", detail: "no population receipt for the current card — run audit-ufc-card-population" };
+    return { state: p.populationExact ? "POPULATION_EXACT" : "MISMATCH", generatedAt: p.generatedAt, counts: p.counts };
+  })(),
+  modelVsMarket: (() => {
+    const s = read(path.join(APP, "..", "data/internal/research/ufc/model-vs-market/summary.json"));
+    if (!s) return { state: "UNKNOWN", detail: "no model-vs-market summary on disk" };
+    const rec = (s.reconciliation ?? []).map((r) => ({ slateDate: r.slateDate, frozen: r.frozen, graded: r.graded, void: r.void, pending: r.pending, reconciles: r.reconciles }));
+    const lastFought = rec.filter((r) => Date.parse(`${r.slateDate}T23:59:59Z`) < Date.parse(NOW)).at(-1) ?? null;
+    return {
+      state: rec.every((r) => r.reconciles) ? "RECONCILED" : "DRIFT",
+      cumulative: s.cumulative ?? null,
+      gradedTotal: s.gradedTotal ?? null,
+      reconciliation: rec,
+      postCardLag: lastFought && lastFought.pending > 0
+        ? { state: "PENDING_RESULTS", slateDate: lastFought.slateDate, pending: lastFought.pending }
+        : { state: "CLEAR" },
+    };
+  })(),
   gate: { maturity, proven, of: GATE_STAGES.length, remaining: remainingPath(stages, SPORT_ASSESSMENTS.ufc).map((r) => ({ stage: r.stage, status: r.status, requiredProof: r.requiredProof })) },
   blockers,
 };

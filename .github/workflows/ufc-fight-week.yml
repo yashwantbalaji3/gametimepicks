@@ -82,6 +82,16 @@ jobs:
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           node app/scripts/ufc/build-ufc-card.mjs --now "$NOW"
 
+      # POPULATION-EXACT OR RED (P197 · Release A1). The 08-22 card shipped 7 of 13 bouts looking
+      # complete; this re-fetches the provider's own event and refuses (exit 2, job fails) when the
+      # just-built card and the authority disagree. A fetch failure is SOURCE_STALE and exits 0 —
+      # last-known-good stands; only a PROVEN mismatch is a failure.
+      - name: Audit card population against the provider's own event
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          (cd app && npx --yes tsx scripts/ufc/audit-ufc-card-population.mjs --now "$NOW" --write)
+
       # Fight-winner prices. Fail-closed on the receipt, the cumulative ledger and
       # the duplicate-request window, so a re-run inside 30 minutes cannot re-buy
       # prices we already hold. `|| echo` keeps a refusal from failing the whole
@@ -198,6 +208,7 @@ jobs:
                   app/public/data/parlays/risk-ladder-ufc app/public/data/admin/ufc-lane.json \
                   app/public/data/ufc/fight-model-evaluation.json data/internal/research/ufc/model-card-fight-v1.json \
                   data/internal/research/ufc/model-vs-market \
+                  data/internal/research/ufc/population \
                   data/internal/research/odds/ufc/authorization-ledger.json \
                   data/internal/research/odds/ufc/shadow-snapshot-latest.json \
                   "data/internal/research/odds/ufc/shadow-snapshot-"*.json 2>/dev/null || true

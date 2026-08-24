@@ -2,38 +2,38 @@
   "schemaVersion": 1,
   "artifact": "ufc-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-08-24T00:14:08Z",
+  "generatedAt": "2026-08-24T03:06:44Z",
   "nextCard": {
     "name": "UFC Fight Night: Nurmagomedov vs. Song",
     "slateDate": "2026-08-29",
     "bouts": 13,
-    "hoursAway": 126.76
+    "hoursAway": 123.89
   },
   "freshness": {
     "card": {
       "state": "READ",
       "stampedAt": "2026-08-23T21:08:28Z",
-      "ageHours": 3.09
+      "ageHours": 5.97
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-08-23T21:08:37Z",
-      "ageHours": 3.09
+      "ageHours": 5.97
     },
     "ladder": {
       "state": "READ",
       "stampedAt": "2026-08-23T21:09:17Z",
-      "ageHours": 3.08
+      "ageHours": 5.96
     },
     "results": {
       "state": "READ",
       "stampedAt": "2026-08-23T17:41:40+00:00",
-      "ageHours": 6.54
+      "ageHours": 9.42
     },
     "settled": {
       "state": "READ",
       "stampedAt": "2026-06-15T13:55:00Z",
-      "ageHours": 1666.32
+      "ageHours": 1669.2
     }
   },
   "cards": {
@@ -62,6 +62,56 @@
   "productLane": {
     "live": false,
     "blocked": "official UFC bout results"
+  },
+  "population": {
+    "state": "POPULATION_EXACT",
+    "generatedAt": "2026-08-24T03:04:40Z",
+    "counts": {
+      "expected": 13,
+      "captured": 13,
+      "read": 10,
+      "unmodelled": 3,
+      "priced": 6,
+      "missing": 0,
+      "phantom": 0
+    }
+  },
+  "modelVsMarket": {
+    "state": "RECONCILED",
+    "cumulative": {
+      "n": 10,
+      "model": {
+        "logLoss": 0.840112,
+        "brier": 0.299183,
+        "accuracy": 0.5
+      },
+      "market": {
+        "logLoss": 0.714704,
+        "brier": 0.261657
+      }
+    },
+    "gradedTotal": 10,
+    "reconciliation": [
+      {
+        "slateDate": "2026-08-22",
+        "frozen": 10,
+        "graded": 10,
+        "void": 0,
+        "pending": 0,
+        "reconciles": true
+      },
+      {
+        "slateDate": "2026-08-29",
+        "frozen": 6,
+        "graded": 0,
+        "void": 0,
+        "pending": 6,
+        "reconciles": true
+      }
+    ],
+    "postCardLag": {
+      "state": "CLEAR"
+    }
   },
   "gate": {
     "maturity": "SCAFFOLDED",
