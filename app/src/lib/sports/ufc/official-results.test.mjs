@@ -21,6 +21,30 @@ import { loadOfficialUfcResults, fighterIndexForDate, RESULT_SOURCE } from "./of
 const corpusDoc = (rows) => ({ results: rows });
 const espnDoc = (rows) => ({ rows });
 
+test("A MAIN-CARD BOUT PAST MIDNIGHT UTC KEYS TO ITS EVENT'S DATE, not the next calendar day", () => {
+  /*
+   * P196 · Release C. The 08-22 card started 21:00 UTC; its main card ran past midnight, so every
+   * main-card bout carried dateUtc 2026-08-23 — and keying on the bout's own start day produced
+   * 2026-08-23:… keys that could never meet the snapshot's slate-dated 2026-08-22:… boutIds. The
+   * prelims graded; the ENTIRE main card, headliner included, was ungradeable by construction, and
+   * the gap read as "results source lagging". eventDateUtc (the provider's own event date) now
+   * keys the join; the bout date remains the fallback for captures that predate the field.
+   */
+  const { byBout } = loadOfficialUfcResults({
+    corpus: corpusDoc([]),
+    espn: espnDoc([{
+      dateUtc: "2026-08-23T01:00Z",            // bout start: after midnight UTC
+      eventDateUtc: "2026-08-22T21:00Z",       // the card it belongs to
+      statusRaw: "STATUS_FINAL",
+      red: { name: "Gregory Rodrigues" }, blue: { name: "Anthony Hernandez" },
+      redWinner: true, blueWinner: false,
+    }]),
+  });
+  const key = [...byBout.keys()][0];
+  assert.match(key, /^2026-08-22:/, "the key carries the EVENT's date");
+  assert.equal([...byBout.values()][0].winner, "Gregory Rodrigues");
+});
+
 test("a bout only ESPN has is usable — that is the entire point", () => {
   const { byBout } = loadOfficialUfcResults({
     corpus: corpusDoc([]),

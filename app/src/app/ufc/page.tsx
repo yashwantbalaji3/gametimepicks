@@ -1,15 +1,17 @@
 /**
- * /ufc — the UFC settled archive.
+ * /ufc — the UFC hub: current card, model reads, graded record, settled archive.
  *
- * UFC is SCAFFOLD_ONLY in the capability registry (formally downgraded 2026-07-23): the retired V1
- * moneyline read was a de-vigged market price with a capped nudge, and no bout is cleanly
- * backtestable without point-in-time odds capture. So nothing predictive publishes here — no
- * projections, no suggested cards, no fight-card simulator, no upcoming-event framing.
+ * The docstring above this one described "the UFC settled archive" — the P186 page — long after
+ * the route had become the current-card hub (lifecycle-aware next-card heading, three-head model
+ * reads, paper ladder under a UFC odds receipt, and a model-vs-market graded ledger). A file
+ * header is a claim too, and this one contradicted every section below it; the route inventory
+ * carried the same stale class until the closure-packet leak guard caught it (P196 · Release A).
  *
- * What DOES stay published is the settled record: UFC Freedom 250 was graded from the official
- * ESPN MMA scoreboard and its outcomes were public product output, so the record is preserved as a
- * dated archive rather than quietly deleted (same principle as the NBA settled archive). The page
- * is fail-closed on the settlement artifact: no official "final" settlement, no record shown.
+ * What renders, in order: the next readable card with the fight model's reads; the paper ladder
+ * while that card is ahead; ONE record region with the eras labelled — the current fight model's
+ * graded ledger (scored against the de-vigged price recorded before each card) leading, and the
+ * retired moneyline era's single settled card behind a named archive disclosure, each on its own
+ * fail-closed gate. Paper-only and educational throughout; no stake is filled in anywhere.
  */
 import fs from "node:fs";
 import Explain from "@/components/ui/explain";
@@ -140,9 +142,11 @@ export default function UfcArchivePage() {
           rather than forming an opinion. What publishes now is a fight model trained on 8,642
           decisive bouts, with each of its three markets tested separately against a base-rate
           baseline. Posted fight-winner prices ARE shown on the paper cards below, under a UFC odds
-          authorisation of its own — but the model has never been SCORED against a no-vig line, so
-          its probabilities stand alone rather than being presented as beating a market they have not
-          been measured against. The settled record from the retired era is kept below.
+          authorisation of its own — and since 2026-08-22 the model IS scored against the de-vigged
+          line, bout by bout, in the graded record below: both probabilities recorded before each
+          card, graded on the official result. The sample is far too small to support any claim in
+          either direction, and the cumulative comparison currently favours the market. The settled
+          record from the retired era is kept below, behind its own label.
         </Explain>
         <nav className="flex flex-wrap gap-3 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
           <Link href="/today" style={{ color: "var(--gtp-bank-heat)" }}>Live action → Today</Link>
@@ -212,48 +216,90 @@ export default function UfcArchivePage() {
         </p>
       </section>
 
-      {settled ? (
-        <section className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>
-              Officially settled {settledOn}
-            </span>
-          </div>
       {labLadder ? <SportLabCards ladder={labLadder} nameEvent={false} /> : null}
 
       {/*
-        WHAT THE MODEL SAID, AND WHAT ACTUALLY HAPPENED. The hub published a read for every bout on
-        the card and, once those fights were over, showed a reader nothing about how the reads did.
-        Forecasts published continuously and results published nowhere is the shape of every tipster
-        site there has ever been; this is the other half, from the graded ledger.
-      */}
-      {ufcGraded ? <GradedPicksSection record={ufcGraded} href="/results/picks/ufc" /> : null}
+        THE RECORD — ONE CHRONOLOGY, ERAS LABELLED (P196 · Release C).
 
-      <section className="flex flex-col gap-2">
+        Two records of different vintage shared this page as siblings: the current fight model's
+        graded ledger and the retired moneyline era's single settled card. Worse than the visual
+        muddle, the PREVIOUS structure gated the live ladder AND the current graded record inside
+        the RETIRED era's settlement conditional — results-settled-latest.json going missing would
+        have hidden the current model's record behind "No officially settled UFC record", an empty
+        state about a different artifact entirely.
+
+        Now: the current era leads and stands on its own gate (the graded ledger), and the retired
+        era sits behind a NAMED disclosure with its own fail-closed gate. The two eras never share
+        a metric — one is a three-head model scored against a de-vigged price, the other is an
+        unvalidated read's one-card outcome log — and the boundary sentence below says so.
+      */}
+      <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 700, margin: 0 }}>
-            Settled archive
+            Record
           </h2>
           <span
             className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
             style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.5)" }}
           >
-            Archive · no live coverage
+            Current era · fight model vs de-vigged price
           </span>
         </div>
-      </section>
-
-          <UfcEventResultsRecap s={settled} />
-          <p className="font-mono text-[10px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
-            This is one settled event ({settled.fights.length} graded fights). A single-card record is an outcome log,
-            not model validation — the moneyline model was retired unvalidated.
+        {/*
+          WHAT THE MODEL SAID, AND WHAT ACTUALLY HAPPENED. Forecasts published continuously and
+          results published nowhere is the shape of every tipster site there has ever been; this is
+          the other half, from the graded ledger — with the market's answer beside every pick.
+        */}
+        {ufcGraded ? (
+          <GradedPicksSection record={ufcGraded} href="/results/picks/ufc" />
+        ) : (
+          <p className="font-mono text-[11px] leading-relaxed" style={{ color: "var(--vault-text-mute)", margin: 0 }}>
+            No bout has been graded under the current fight model yet. The record fills in from the
+            first official result; nothing renders here until then.
           </p>
-        </section>
-      ) : (
-        <section className="rounded-[10px] px-4 py-5 font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.45)" }}>
-          No officially settled UFC record is available. Nothing renders here until an official settlement exists.
-        </section>
-      )}
+        )}
+
+        <details className="rounded-[10px]" style={{ border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.4)" }}>
+          <summary className="cursor-pointer px-4 py-3 flex flex-wrap items-center gap-2">
+            <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 14.5, fontWeight: 700 }}>
+              Settled archive
+            </span>
+            <span
+              className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
+              style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.5)" }}
+            >
+              Archive · no live coverage
+            </span>
+            <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
+              retired moneyline era — one settled card
+            </span>
+          </summary>
+          <div className="px-4 pb-4 flex flex-col gap-2">
+            {settled ? (
+              <>
+                <span className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>
+                  Officially settled {settledOn}
+                </span>
+                <UfcEventResultsRecap s={settled} />
+                <p className="font-mono text-[10px] leading-relaxed" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
+                  This is one settled event ({settled.fights.length} graded fights). A single-card record is an outcome log,
+                  not model validation — the moneyline model was retired unvalidated.
+                </p>
+              </>
+            ) : (
+              <p className="font-mono text-[11px] leading-relaxed" style={{ color: "var(--vault-text-mute)", margin: 0 }}>
+                No officially settled UFC record is available. Nothing renders here until an official settlement exists.
+              </p>
+            )}
+          </div>
+        </details>
+
+        <p className="font-mono text-[10px] leading-relaxed" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
+          The two eras never share a metric. The current record grades a three-head fight model against the de-vigged
+          price recorded before each card; the archive is the retired read&apos;s outcome log from before any model was
+          scored against anything. Adding them together would average two different questions.
+        </p>
+      </section>
 
       {unsettledLaterCard ? (
         <p className="max-w-2xl font-mono text-[10.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>

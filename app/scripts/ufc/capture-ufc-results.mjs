@@ -29,7 +29,13 @@ const DAYS = Math.min(31, Math.max(1, Number(arg("--days", "9"))));
 const fmt = (d) => d.toISOString().slice(0, 10).replaceAll("-", "");
 const from = fmt(new Date(Date.parse(NOW) - DAYS * 86400_000));
 const to = fmt(new Date(Date.parse(NOW)));
-const url = `https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${from}-${to}`;
+/*
+ * P196 · Release C: `limit=1000` is load-bearing. Without it ESPN's default page size truncated
+ * the 08-22 event to 7 of 13 bouts — the ENTIRE MAIN CARD, headliner included, silently absent
+ * while every returned row read STATUS_FINAL. A capture that looks complete and is not is the
+ * worst kind; the history fetcher always carried the parameter and this one had to learn it.
+ */
+const url = `https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${from}-${to}&limit=1000`;
 
 let data = null;
 try {
@@ -60,6 +66,14 @@ for (const e of data.events ?? []) {
       providerCardId: String(e.id ?? ""),
       cardName: e.name ?? null,
       dateUtc: c.date ?? e.date ?? null,
+      /*
+       * P196 · Release C: the EVENT's own date, kept beside the bout's. A main-card bout starts
+       * after midnight UTC, so day(dateUtc) is the day AFTER the card it belongs to — which made
+       * every main-card key miss the snapshot's slate-dated boutId and left the 08-22 headliner
+       * ungradeable while the prelims graded fine. Downstream keys on this, falling back to the
+       * bout date only for old captures that predate the field.
+       */
+      eventDateUtc: e.date ?? null,
       statusRaw: c.status?.type?.name ?? e.status?.type?.name ?? null,
       weightClass: c.type?.text ?? null,
       red: { name: red.name, providerId: red.providerId },

@@ -66,6 +66,37 @@ try {
   }
 } catch { /* no ledger yet */ }
 
+/** Decisive ledger rows, for the cumulative record. */
+function decisiveLedgerRows() {
+  if (!fs.existsSync(LEDGER)) return [];
+  return fs.readFileSync(LEDGER, "utf8").split("\n").filter((l) => l.trim())
+    .map((l) => { try { return JSON.parse(l); } catch { return null; } })
+    .filter((r) => r && r.void !== true && r.model?.logLoss != null && r.market?.logLoss != null);
+}
+
+/*
+ * SELF-HEAL on quiet exits (P196 · Release C): if the committed summary's cumulative block is
+ * absent or its n no longer matches the ledger, rewrite it even though nothing new graded — the
+ * run that ADDED the cumulative block would otherwise never refresh a summary written moments
+ * before without one. Byte-stable when nothing drifted, so the nightly no-op stays a no-op.
+ */
+function healSummaryCumulative() {
+  if (!WRITE) return;
+  const rows = decisiveLedgerRows();
+  let existing = null;
+  try { existing = JSON.parse(fs.readFileSync(path.join(DIR, "summary.json"), "utf8")); } catch { return; }
+  if (rows.length === 0 || !existing || existing.cumulative?.n === rows.length) return;
+  const mean = (f) => Number((rows.reduce((s, r) => s + f(r), 0) / rows.length).toFixed(6));
+  existing.cumulative = {
+    n: rows.length,
+    model: { logLoss: mean((r) => r.model.logLoss), brier: mean((r) => r.model.brier), accuracy: mean((r) => (r.hit ? 1 : 0)) },
+    market: { logLoss: mean((r) => r.market.logLoss), brier: mean((r) => r.market.brier) },
+  };
+  existing.generatedAt = NOW;
+  fs.writeFileSync(path.join(DIR, "summary.json"), `${JSON.stringify(existing, null, 1)}\n`);
+  console.log(`  summary cumulative healed: n=${rows.length} · model logLoss ${existing.cumulative.model.logLoss} vs market ${existing.cumulative.market.logLoss}`);
+}
+
 const pending = [...rowsByBout.values()].filter((r) => !already.has(r.boutId));
 const out = scorePreFightRows(pending, resultsByBout);
 
@@ -95,9 +126,11 @@ if (out.n === 0) {
     console.log(`  AWAITING_RESULTS — ${uncovered.length} bout(s) from ${oldest} have no official result yet.`);
     console.log(`  The results corpus's newest event is ${corpusLatest ?? "unknown"}${lagDays != null ? `, ${lagDays} day(s) before that card` : ""}.`);
     console.log("  This is the upstream source lagging, NOT a closed loop — the comparison grades itself once the card lands.");
+    healSummaryCumulative();
     process.exit(0);
   }
   console.log("  NOTHING_NEW — every snapshot bout is already in the ledger. The loop is closed.");
+  healSummaryCumulative();
   process.exit(0);
 }
 for (const g of out.graded) {
@@ -116,10 +149,27 @@ console.log("  ONE CARD IS NOT A CALIBRATION. This is evidence, not a verdict.")
 if (!WRITE) { console.log("dry run — pass --write to append."); process.exit(0); }
 fs.mkdirSync(DIR, { recursive: true });
 fs.appendFileSync(LEDGER, out.graded.map((g) => JSON.stringify({ ...g, gradedAt: NOW })).join("\n") + "\n");
+
+/*
+ * THE CUMULATIVE RECORD IS THE ONE THAT MAY NOT DISAPPEAR (P196 · Release C). latestRun alone let
+ * the summary read as whichever card graded most recently — a good main card would have quietly
+ * replaced the six-bout loss as "the number". Cumulative is recomputed over the WHOLE ledger every
+ * write, decisive bouts only, so the first loss stays inside every later average.
+ */
+const ledgerRows = decisiveLedgerRows(); // read back AFTER the append, so the new rows are inside
+const mean = (f) => ledgerRows.length ? Number((ledgerRows.reduce((s, r) => s + f(r), 0) / ledgerRows.length).toFixed(6)) : null;
+const cumulative = {
+  n: ledgerRows.length,
+  model: { logLoss: mean((r) => r.model.logLoss), brier: mean((r) => r.model.brier), accuracy: mean((r) => (r.hit ? 1 : 0)) },
+  market: { logLoss: mean((r) => r.market.logLoss), brier: mean((r) => r.market.brier) },
+};
+
 fs.writeFileSync(path.join(DIR, "summary.json"), `${JSON.stringify({
   schemaVersion: 1, artifact: "ufc-model-vs-market-summary", dataClass: "INTERNAL_RESEARCH", public: false,
   generatedAt: NOW, gradedTotal: already.size + out.n,
   note: "Model and market scored on identical bouts, both recorded before the card. Not a calibration verdict — that needs preregistered bars and a sample.",
   latestRun: { n: out.n, model: out.model, market: out.market },
+  cumulative,
 }, null, 1)}\n`);
 console.log(`appended ${out.graded.length} row(s) to graded.jsonl`);
+console.log(`cumulative over ${cumulative.n}: model logLoss ${cumulative.model.logLoss} vs market ${cumulative.market.logLoss}`);

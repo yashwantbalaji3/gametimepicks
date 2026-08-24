@@ -3,22 +3,22 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-08-23T20:58:02Z",
+ "generatedAt": "2026-08-24T02:13:37Z",
  "sport": "ufc",
  "label": "UFC",
  "what": "Fight-winner picks: the model's chosen fighter and its probability, graded against the official result.",
  "caveat": "The market's own de-vigged probability for the same bout is shown alongside. This is the only sport here where the two are recorded together.",
  "counts": {
-  "counted": 6,
-  "hits": 2,
-  "misses": 4,
+  "counted": 10,
+  "hits": 5,
+  "misses": 5,
   "voided": 0,
-  "shown": 6,
-  "total": 6
+  "shown": 10,
+  "total": 10
  },
- "hitRate": 0.3333,
+ "hitRate": 0.5,
  "sampleState": "TOO_SMALL_TO_ASSESS",
- "sampleNote": "6 graded picks is far too few to say anything about accuracy. These are published so the predictions can be checked, not as evidence that they work.",
+ "sampleNote": "10 graded picks is far too few to say anything about accuracy. These are published so the predictions can be checked, not as evidence that they work.",
  "picks": [
   {
    "eventId": "2026-08-22:jamall emmers|lerryan douglas",
@@ -96,6 +96,58 @@
    "modelProbability": 0.785,
    "probabilityOfActual": 0.785,
    "marketProbabilityOfActual": 0.860615,
+   "hit": true
+  },
+  {
+   "eventId": "2026-08-22:anthony hernandez|gregory rodrigues",
+   "when": "2026-08-22",
+   "eventName": "UFC Fight Night: Hernandez vs. Rodrigues",
+   "subject": "Gregory Rodrigues vs Anthony Hernandez",
+   "market": "Fight winner",
+   "predicted": "Gregory Rodrigues",
+   "actual": "Gregory Rodrigues",
+   "modelProbability": 0.5307,
+   "probabilityOfActual": 0.5307,
+   "marketProbabilityOfActual": 0.356121,
+   "hit": true
+  },
+  {
+   "eventId": "2026-08-22:reinier de ridder|roman dolidze",
+   "when": "2026-08-22",
+   "eventName": "UFC Fight Night: Hernandez vs. Rodrigues",
+   "subject": "Roman Dolidze vs Reinier de Ridder",
+   "market": "Fight winner",
+   "predicted": "Roman Dolidze",
+   "actual": "Reinier de Ridder",
+   "modelProbability": 0.5118,
+   "probabilityOfActual": 0.4882,
+   "marketProbabilityOfActual": 0.768958,
+   "hit": false
+  },
+  {
+   "eventId": "2026-08-22:marquel mederos|mason jones",
+   "when": "2026-08-22",
+   "eventName": "UFC Fight Night: Hernandez vs. Rodrigues",
+   "subject": "MarQuel Mederos vs Mason Jones",
+   "market": "Fight winner",
+   "predicted": "MarQuel Mederos",
+   "actual": "MarQuel Mederos",
+   "modelProbability": 0.5201,
+   "probabilityOfActual": 0.5201,
+   "marketProbabilityOfActual": 0.254309,
+   "hit": true
+  },
+  {
+   "eventId": "2026-08-22:carli judice|jeisla chaves",
+   "when": "2026-08-22",
+   "eventName": "UFC Fight Night: Hernandez vs. Rodrigues",
+   "subject": "Carli Judice vs Jeisla Chaves",
+   "market": "Fight winner",
+   "predicted": "Carli Judice",
+   "actual": "Carli Judice",
+   "modelProbability": 0.6131,
+   "probabilityOfActual": 0.6131,
+   "marketProbabilityOfActual": 0.818182,
    "hit": true
   }
  ]

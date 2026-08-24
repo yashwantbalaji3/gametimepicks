@@ -25,7 +25,7 @@ const DAYS = Math.min(120, Math.max(1, Number(arg("--days", "60"))));
 
 const d0 = new Date(NOW);
 const fmt = (d) => d.toISOString().slice(0, 10).replaceAll("-", "");
-const url = `https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${fmt(d0)}-${fmt(new Date(d0.getTime() + DAYS * 86400_000))}`;
+const url = `https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${fmt(d0)}-${fmt(new Date(d0.getTime() + DAYS * 86400_000))}&limit=1000`; // P196: default page size truncated a 13-bout card to 7
 
 const res = await fetch(url);
 if (!res.ok) { console.error(`REFUSED: scoreboard fetch ${res.status}`); process.exit(1); }

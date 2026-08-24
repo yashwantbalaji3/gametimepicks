@@ -78,7 +78,7 @@ let event = null;
 const skippedForCoverage = [];
 const candidates = [];
 for (const day of scan) {
-  const sb = await get(`https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${day}`).catch(() => null);
+  const sb = await get(`https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${day}&limit=1000`).catch(() => null); // P196: default page size truncated a 13-bout card to 7
   const ev = (sb?.events ?? []).find((e) => (e.competitions ?? []).length > 0);
   if (ev && !candidates.some((c) => c.id === ev.id)) candidates.push(ev);
 }

@@ -57,7 +57,15 @@ function fromCorpus(doc) {
 function fromEspn(doc) {
   const out = new Map();
   for (const r of doc?.rows ?? []) {
-    const d = day(r.dateUtc ?? r.eventDate);
+    /*
+     * KEY BY THE EVENT'S DATE, NOT THE BOUT'S UTC START. A card that begins 21:00 UTC runs its
+     * main card past midnight, so day(bout start) lands on the NEXT calendar day — and the
+     * snapshot's boutIds are slate-dated. Keying on the bout's own start made the entire 08-22
+     * main card (headliner included) unjoinable: the prelims graded, the four bouts after the
+     * rollover never could, and the gap read as "results source lagging". eventDateUtc is the
+     * provider's own event date; the bout date remains the fallback for captures that predate it.
+     */
+    const d = day(r.eventDateUtc ?? r.dateUtc ?? r.eventDate);
     const red = r.red?.name, blue = r.blue?.name;
     if (!d || !red || !blue) continue;
     if (String(r.statusRaw ?? "") !== "STATUS_FINAL") continue;    // in progress or scheduled is not a result
