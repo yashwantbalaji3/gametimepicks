@@ -36,6 +36,7 @@ import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 import TodayDailySlateHeader from "@/components/today/daily-slate-header";
 import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
 import { loadSuggestedParlaysPreview, TIER_INTENT } from "@/lib/home/suggested-parlays.mjs";
+import { buildProductDays } from "@/lib/product-day/product-day";
 import TodayAtAGlance, { type GlanceCard } from "@/components/today/at-a-glance";
 import TodayTopModelPicks from "@/components/today/top-model-picks";
 import TodayGamePredictions from "@/components/today/game-predictions";
@@ -196,9 +197,13 @@ export default function TodayPage() {
     ? "Model-ranked, leakage-validated legs — build any card and see the projected paper return."
     : "No model-qualified legs cleared today — the builder returns with the next slate.";
 
-  // ── Active-sport labels for the header (MLB when a board exists; kept honest — no stale soccer sim). ──
-  const activeSports: string[] = [];
-  if (mlbGames > 0) activeSports.push("MLB");
+  // ── Active-sport labels for the header — from the PRODUCT-DAY OWNER (P201 · A1), never counted
+  //    here. A sport is "active today" exactly when its own canonical artifacts say LIVE; upcoming
+  //    cards/matchdays stay off this line (they have their own surfaces below). ──
+  const SPORT_LABEL: Record<string, string> = { mlb: "MLB", epl: "Premier League", ufc: "UFC", nfl: "NFL" };
+  const activeSports: string[] = buildProductDays(dataRoot)
+    .filter((d) => d.state === "LIVE")
+    .map((d) => SPORT_LABEL[d.sport] ?? d.sport.toUpperCase());
 
   // ── Section 2 · Today at a glance — 5 compact status cards, each a canonical figure + a CTA. ──
   const glanceCards: GlanceCard[] = [

@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-08-24T17:47:00Z",
+ "generatedAt": "2026-08-24T18:20:00Z",
  "totals": {
   "routes": 60,
   "public": 36,
@@ -20,7 +20,7 @@
    "purpose": "landing: simulation-first story, today hook, product cards, four-sport strip",
    "dataOwner": "daily brief + market coverage + upcoming adapters",
    "freshness": "build-time; freshness badges re-derive client-side",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/about",
@@ -29,7 +29,7 @@
    "purpose": "what this is",
    "dataOwner": "static copy",
    "freshness": "static",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/bank-builder",
@@ -38,7 +38,7 @@
    "purpose": "conservative paper ladder (ONE 5-step ladder)",
    "dataOwner": "protected locks + lanes",
    "freshness": "product-state contract",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/board",
@@ -46,7 +46,7 @@
    "owner": "product",
    "purpose": "legacy board alias",
    "redirectTo": "/mlb/board",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/bucket-blitz",
@@ -55,7 +55,7 @@
    "purpose": "Bucket Blitz (NBA signature product) — NAMED AND UNBUILT. Same contract as /goal-rush: derived gate stages, captured-schedule facts, no pick",
    "dataOwner": "derived from sport-assessments + the committed NBA schedule capture",
    "freshness": "no freshness claim — the page makes no time-sensitive claim to be stale",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/build",
@@ -64,7 +64,7 @@
    "purpose": "Advanced Builder: manual builder → suggested cards → optimizer marketplace",
    "dataOwner": "build legs from eligible slate",
    "freshness": "sourceDate == productDate gate",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/cards/[sport]",
@@ -74,7 +74,7 @@
    "purpose": "per-sport paper card ladder — one card per price band, from real posted prices",
    "dataOwner": "parlays/risk-ladder-<sport> artifacts",
    "freshness": "ladder generatedAt; dated by its own slate/card",
-   "built": "UNVERIFIED (no export provided)"
+   "built": "FAMILY (2 generated page(s))"
   },
   {
    "route": "/epl",
@@ -83,7 +83,7 @@
    "purpose": "Premier League hub: fixtures grouped by ET day with club crests, PLUS per-fixture model forecasts (1X2, expected goals, over/under 2.5) for the fixtures that can be priced — published under an explicit 'not validated out of sample' statement, with zero matches graded and no track record claimed",
    "dataOwner": "openfootball schedule capture + EPL Poisson forecast artifact (build-time read)",
    "freshness": "schedule capture stamp in copy; forecasts stamped from the artifact's own generatedAt",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/epl/match/[slug]",
@@ -93,7 +93,7 @@
    "purpose": "Premier League per-fixture model report (P188): match-result probabilities with the two-of-three outcomes, the ten likeliest scorelines and the mass they account for, the total-goals distribution with an over/under ladder, each side's own goal curve, both-teams-to-score, clean sheets and the winning-margin distribution — every figure an exact sum over ONE Poisson score matrix, so no run count is quoted because nothing is sampled. Statically generated per priced fixture, dynamicParams=false. Carries the not-validated-out-of-sample statement ABOVE the first number; no pick, rating or price comparison anywhere",
    "dataOwner": "soccer/epl/forecasts/latest.json via lib/sports/epl/forecast-view (build-time read)",
    "freshness": "the artifact's own generatedAt, printed on the page",
-   "built": "UNVERIFIED (no export provided)"
+   "built": "FAMILY (1 generated page(s))"
   },
   {
    "route": "/events",
@@ -101,7 +101,7 @@
    "owner": "product",
    "purpose": "retired event hub",
    "redirectTo": "/today",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/games",
@@ -109,7 +109,7 @@
    "owner": "product",
    "purpose": "game-lab hub alias",
    "redirectTo": "/simulate",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/games/[sport]/[gameId]",
@@ -119,7 +119,7 @@
    "family": true,
    "dataOwner": "game detail artifacts",
    "freshness": "artifact stamps",
-   "built": "UNVERIFIED (no export provided)"
+   "built": "FAMILY (3 generated page(s))"
   },
   {
    "route": "/goal-rush",
@@ -128,7 +128,7 @@
    "purpose": "Goal Rush (Premier League signature product) — NAMED AND UNBUILT. Publishes no pick: states what is captured today and which of the twelve gate stages remain, both derived from lib/products/product-readiness. Flips on its own when the stages go green",
    "dataOwner": "derived from sport-assessments + the committed EPL fixture capture",
    "freshness": "no freshness claim — the page makes no time-sensitive claim to be stale",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/homer-nukes",
@@ -136,7 +136,7 @@
    "owner": "product",
    "purpose": "retired product",
    "redirectTo": "/results",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/ipl",
@@ -144,7 +144,7 @@
    "owner": "product",
    "purpose": "retired IPL hub",
    "redirectTo": "/",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/launch",
@@ -153,7 +153,7 @@
    "purpose": "founder command center (pruned from public export)",
    "dataOwner": "evidence artifacts + derived boards",
    "freshness": "per-artifact",
-   "built": "UNVERIFIED (no export provided)"
+   "built": false
   },
   {
    "route": "/learn",
@@ -162,7 +162,7 @@
    "purpose": "How It Works",
    "dataOwner": "static copy",
    "freshness": "static",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/market-guide",
@@ -171,7 +171,7 @@
    "purpose": "market terminology guide",
    "dataOwner": "static copy",
    "freshness": "static",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/markets",
@@ -180,7 +180,7 @@
    "purpose": "Market Center: ranked disagreement list + reading key (pp, never pts)",
    "dataOwner": "market intelligence artifacts",
    "freshness": "capture stamps",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/methodology",
@@ -189,7 +189,7 @@
    "purpose": "the model, in depth + coverage matrix",
    "dataOwner": "static + coverage registry",
    "freshness": "static",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/mlb",
@@ -198,7 +198,7 @@
    "purpose": "MLB Simulation Center (the one FULL_MODEL sport)",
    "dataOwner": "boards + sims",
    "freshness": "board date, latest-slate eyebrow when behind",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/mlb/board",
@@ -207,7 +207,7 @@
    "purpose": "MLB daily board",
    "dataOwner": "boards",
    "freshness": "board date",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/mlb/board/[date]",
@@ -217,7 +217,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "UNVERIFIED (no export provided)"
+   "built": "FAMILY (88 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -225,7 +225,7 @@
    "owner": "product",
    "purpose": "legacy alias",
    "redirectTo": "/build",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/mlb/power",
@@ -234,7 +234,7 @@
    "purpose": "MLB power rankings view",
    "dataOwner": "boards",
    "freshness": "board date",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/mlb/results",
@@ -243,7 +243,7 @@
    "purpose": "MLB results view",
    "dataOwner": "settlement artifacts",
    "freshness": "settled-through",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/moonshot",
@@ -252,7 +252,7 @@
    "purpose": "high-volatility paper longshot lane",
    "dataOwner": "moonshot-lane active.json",
    "freshness": "product-state contract",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/mr-dub",
@@ -261,7 +261,7 @@
    "purpose": "trust center: complete paper-bankroll journey + receipts",
    "dataOwner": "protected portfolio + ledger",
    "freshness": "settlement cutoff shown beside current-ops marker",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/nba",
@@ -269,7 +269,7 @@
    "owner": "product",
    "purpose": "retired NBA hub",
    "redirectTo": "/results/nba",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/nba/parlays",
@@ -277,7 +277,7 @@
    "owner": "product",
    "purpose": "legacy alias",
    "redirectTo": "/build",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/nba/results",
@@ -285,7 +285,7 @@
    "owner": "settlement",
    "purpose": "alias",
    "redirectTo": "/results/nba",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/nfl",
@@ -294,7 +294,7 @@
    "purpose": "NFL hub (P169-J): real slate + finals from committed captures, market-by-market coverage table with typed states (PRIVATE_ONLY/AUTH_REQUIRED/ROLE_UNCERTAIN/NO_VAULT) — no predictions published",
    "dataOwner": "nfl schedule/results captures (build-time reads)",
    "freshness": "absolute capture stamps in copy",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/nfl/game/[eventId]",
@@ -304,7 +304,7 @@
    "purpose": "NFL per-game experimental simulation report (P177-A): projected score, win chance, total and margin distributions with percentiles, the market read side by side, a reading key and the full provenance receipt — statically generated from the committed forecast artifact, dynamicParams=false",
    "dataOwner": "nfl/forecasts/latest.json + nfl/index.json (build-time reads)",
    "freshness": "each report carries its own generatedAt, kickoff and lifecycle",
-   "built": "UNVERIFIED (no export provided)"
+   "built": "FAMILY (1 generated page(s))"
   },
   {
    "route": "/nhl",
@@ -312,7 +312,7 @@
    "owner": "product",
    "purpose": "retired NHL hub",
    "redirectTo": "/",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/ops",
@@ -321,7 +321,7 @@
    "purpose": "ops dashboard (pruned)",
    "dataOwner": "admin status",
    "freshness": "per-artifact",
-   "built": "UNVERIFIED (no export provided)"
+   "built": false
   },
   {
    "route": "/parlay-lab",
@@ -329,7 +329,7 @@
    "owner": "product",
    "purpose": "legacy alias",
    "redirectTo": "/build",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/parlays",
@@ -337,7 +337,7 @@
    "owner": "product",
    "purpose": "legacy alias",
    "redirectTo": "/build",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/picks",
@@ -345,7 +345,7 @@
    "owner": "product",
    "purpose": "legacy Picks Lab alias",
    "redirectTo": "/build",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/preview/epl",
@@ -354,7 +354,7 @@
    "purpose": "EPL artifact preview (pruned)",
    "dataOwner": "epl lane artifacts",
    "freshness": "per-artifact",
-   "built": "UNVERIFIED (no export provided)"
+   "built": false
   },
   {
    "route": "/preview/june20",
@@ -363,7 +363,7 @@
    "purpose": "dated preview fixture (pruned)",
    "dataOwner": "fixtures",
    "freshness": "frozen",
-   "built": "UNVERIFIED (no export provided)"
+   "built": false
   },
   {
    "route": "/projections",
@@ -371,7 +371,7 @@
    "owner": "product",
    "purpose": "legacy projections alias",
    "redirectTo": "/mlb/board",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/research",
@@ -380,7 +380,7 @@
    "purpose": "public research terminal (fail-closed adapter)",
    "dataOwner": "public research contract",
    "freshness": "contract stamps",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/responsible-use",
@@ -389,7 +389,7 @@
    "purpose": "responsible-use commitments",
    "dataOwner": "static copy",
    "freshness": "static",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/results",
@@ -398,7 +398,7 @@
    "purpose": "settled track record on the canonical accounting",
    "dataOwner": "results accounting artifacts",
    "freshness": "settled-through date",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/results/date/[date]",
@@ -408,7 +408,7 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "UNVERIFIED (no export provided)"
+   "built": "FAMILY (78 generated page(s))"
   },
   {
    "route": "/results/mlb",
@@ -417,7 +417,7 @@
    "purpose": "MLB settled results detail",
    "dataOwner": "settlement artifacts",
    "freshness": "settled-through date",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/results/model-audit",
@@ -426,7 +426,7 @@
    "purpose": "deep-dive model-performance ledger (money-independent)",
    "dataOwner": "grading artifacts",
    "freshness": "per-artifact",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/results/nba",
@@ -435,7 +435,7 @@
    "purpose": "NBA settled archive (HISTORICAL_ONLY)",
    "dataOwner": "frozen archive",
    "freshness": "frozen — archive is dated by design",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/results/parlay-lab",
@@ -444,7 +444,7 @@
    "purpose": "the Parlay Lab's own suggested cards, every sport, with how each settled — distinct from saved slips",
    "dataOwner": "parlays/lab-ledger + lab-settled receipts",
    "freshness": "ledger generatedAt; receipts dated per settled day",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/results/parlays",
@@ -453,7 +453,7 @@
    "purpose": "parlay settlement history",
    "dataOwner": "settlement artifacts",
    "freshness": "settled-through date",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/results/picks",
@@ -462,7 +462,7 @@
    "purpose": "every sport's model record side by side — the only page where the four sit together, and the one that has to say why they are not comparable",
    "dataOwner": "public/data/<sport>/graded-picks.json",
    "freshness": "each artifact's own generatedAt",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/results/picks/[sport]",
@@ -472,7 +472,7 @@
    "purpose": "every graded prediction a sport's model has made against what actually happened — the other half of publishing forecasts, and the same shape for all four sports",
    "dataOwner": "public/data/<sport>/graded-picks.json, built from each sport's own graded ledger",
    "freshness": "artifact generatedAt; rebuilt whenever a sport settles",
-   "built": "UNVERIFIED (no export provided)"
+   "built": "FAMILY (4 generated page(s))"
   },
   {
    "route": "/simulate",
@@ -481,7 +481,7 @@
    "purpose": "pick a game, run its simulation report",
    "dataOwner": "sim artifacts",
    "freshness": "artifact generatedAt",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/sports",
@@ -490,7 +490,7 @@
    "purpose": "four-sport schedules directory (Schedule only — not modelled, in words)",
    "dataOwner": "upcoming adapters over committed captures",
    "freshness": "absolute capture dates per section",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/system-status",
@@ -499,7 +499,7 @@
    "purpose": "pipeline stage status in words",
    "dataOwner": "public research contract",
    "freshness": "contract stamps",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/today",
@@ -508,7 +508,7 @@
    "purpose": "daily command center: slate, predictions table, category picks",
    "dataOwner": "daily brief + boards",
    "freshness": "slate-date stamped",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/trends",
@@ -516,7 +516,7 @@
    "owner": "product",
    "purpose": "retired trends",
    "redirectTo": "/results",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/ufc",
@@ -525,7 +525,7 @@
    "purpose": "UFC hub: current card with three-head model reads + live ladder, model-vs-market graded record, settled archive section",
    "dataOwner": "card-latest + graded picks + frozen settlement",
    "freshness": "card artifact generatedAt; lifecycle derives from the card's own startUtc",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/world-cup",
@@ -533,7 +533,7 @@
    "owner": "product",
    "purpose": "closed WC destination",
    "redirectTo": "/results",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   },
   {
    "route": "/world-cup-specials",
@@ -541,7 +541,7 @@
    "owner": "product",
    "purpose": "closed WC product",
    "redirectTo": "/results",
-   "built": "UNVERIFIED (no export provided)"
+   "built": true
   }
  ],
  "findings": []

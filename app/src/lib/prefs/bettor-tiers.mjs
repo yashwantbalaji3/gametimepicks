@@ -52,3 +52,26 @@ export function risksForTier(tier) {
   if (!tier) return RISK_ORDER;                 // no bankroll stated: show everything, hide nothing
   return RISK_ORDER.slice(0, tier.cardsPerDay);
 }
+
+/**
+ * THE RISK RUBRIC, VERSIONED (Program 201 · A3).
+ *
+ * One statement of what a risk tier MEANS, importable by every lane, naming the canonical owner of
+ * each input rather than duplicating any table (a rubric that copies its owners' numbers is a
+ * rubric that will disagree with them). Risk is NOT payout alone: the band is priced, but the
+ * discipline behind each band is leg-count (measured per band — see the header table above),
+ * freshness and conflict rules enforced at generation, and correlation knowledge disclosed on the
+ * card. Bump the version whenever any owner's semantics change so a settled card can always name
+ * the rubric it was evaluated under.
+ */
+export const RISK_RUBRIC_VERSION = 1;
+export const RISK_RUBRIC = {
+  version: RISK_RUBRIC_VERSION,
+  inputs: {
+    priceBand: "src/lib/parlays/risk-odds-bands.ts · getRiskBucketForCombinedOdds — the combined American price names the band",
+    legDiscipline: "src/lib/prefs/bettor-tiers.mjs header — measured per band: shorter wins in every band; length belongs to the band",
+    freshnessAndConflicts: "each lane's generator refuses stale prices and provable conflicts at build time; a refusal is a typed skip, never a forced card",
+    correlation: "unknown cross-leg dependence is disclosed on the card, never silently treated as independent",
+  },
+  dailyResult: "every lane × tier ends each product day PUBLISHED or NO_PLAY — a missing evaluation is an incident (risk-coverage matrix, MISSING state)",
+};
