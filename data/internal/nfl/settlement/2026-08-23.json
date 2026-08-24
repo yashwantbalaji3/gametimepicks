@@ -3,29 +3,82 @@
  "artifact": "nfl-current-settlement",
  "dataClass": "PRIVATE_PAPER_RECORD",
  "date": "2026-08-23",
- "generatedAt": "2026-08-23T21:20:32Z",
+ "generatedAt": "2026-08-24T15:11:46Z",
  "scope": "NFL current-artifact settlement — a SEPARATE paper record. It never reads or writes MLB money, Bank Builder, Moonshot, or Mr. Dub.",
  "whatIsGraded": "the PRE-START MARKET consensus pinned in each artifact (favourite / home spread / over total). The team model ABSTAINS in preseason, so this is a market-accuracy record and is never reported as model performance.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401873297",
+   "providerEventId": "401873297",
    "matchup": "SEA @ TEN",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-08-24T00:00Z"
+   "kickoffUtc": "2026-08-24T00:00Z",
+   "artifactFile": "data/internal/nfl/current/2026-08-23/401873297-2120Z.json",
+   "lineage": {
+    "artifactGeneratedAt": "2026-08-23T21:20:32Z",
+    "marketCapturedAt": "2026-08-23T21:20:32Z",
+    "evidence": {
+     "schedule": {
+      "asOf": "2026-08-23T17:13:30Z"
+     },
+     "rosters": {
+      "asOf": "2026-08-23T15:28:23Z"
+     },
+     "injuries": {
+      "asOf": "2026-08-23T17:08:57Z"
+     },
+     "odds": {
+      "asOf": "2026-08-23T21:20:32Z"
+     },
+     "strengthCutoff": "2026-08-23T21:20:32Z"
+    },
+    "settlementContractVersion": 1,
+    "settledAt": "2026-08-24T15:11:46Z"
+   },
+   "official": {
+    "status": "STATUS_FINAL",
+    "home": 19,
+    "away": 16
+   },
+   "graded": [
+    {
+     "market": "moneyline",
+     "side": "home",
+     "line": null,
+     "label": "market favourite (59.4% no-vig)",
+     "outcome": "WIN",
+     "reason": "final 19-16: home"
+    },
+    {
+     "market": "point_spread",
+     "side": "home",
+     "line": -3.5,
+     "label": "home -3.5",
+     "outcome": "LOSS",
+     "reason": "margin 3 fails -3.5"
+    },
+    {
+     "market": "total_points",
+     "side": "over",
+     "line": 37.5,
+     "label": "over 37.5",
+     "outcome": "LOSS",
+     "reason": "total 35 vs 37.5"
+    }
+   ]
   }
  ],
+ "pending": [],
  "accounting": {
   "artifactsForDate": 1,
-  "settled": 0,
-  "pending": 1,
+  "settled": 1,
+  "pending": 0,
   "reconciles": true,
-  "legs": 0,
-  "wins": 0,
-  "losses": 0,
+  "legs": 3,
+  "wins": 1,
+  "losses": 2,
   "pushes": 0,
   "voids": 0,
-  "decisive": 0,
+  "decisive": 3,
   "note": "decisive = WIN + LOSS only; pushes and voids are reported separately and pending is never a loss"
  }
 }
