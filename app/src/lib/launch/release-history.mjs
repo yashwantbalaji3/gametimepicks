@@ -15,6 +15,7 @@ export const RELEASE_HISTORY_VERSION = 1;
 
 /** Newest first. Departments use the ten-department vocabulary rendered on /launch. */
 export const RELEASE_HISTORY = Object.freeze([
+  { program: "203", release: "R-K", commit: "9f0247a71", date: "2026-08-24", departments: ["Operations & Reliability"], outcome: "final assurance — the daily loop proven live (two MLB cycles conserve; UFC population-exact 12=12; NFL typed refusals), everything regenerated at the close stamp; production converged on the exact tip", defectsFound: "the bout-set diff refuted my own P202 scratch claim — the 13-to-12 read was the pre-rebuild artifact shape, corrected in this commit", rollbackParent: "f494d06db" },
   { program: "203", release: "R-B", commit: "f494d06db", date: "2026-08-24", departments: ["Sport Operations"], outcome: "EPL pair four closes live — Fulham 2-3 Chelsea graded end to end through the deployed owners (match HIT p=0.381; 62 player rows graded, 18 void; paired learning 4/30, market ahead, SAMPLE_TOO_SMALL stated)", defectsFound: null, rollbackParent: "35d9c21a3" },
   { program: "203", release: "R-A", commit: "35d9c21a3", date: "2026-08-24", departments: ["Release engineering"], outcome: "the operating record becomes a generated, conserved, self-validating artifact", defectsFound: "its own validator caught the legacy/new register blocks interleaving out of date order, and the schema guard caught empty departments + a misplaced closure row before commit", rollbackParent: "89ccc8680" },
   /*

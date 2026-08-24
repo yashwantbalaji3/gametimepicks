@@ -39,16 +39,26 @@
   .sport b { font-family: "IBM Plex Sans Condensed", sans-serif; font-size: 17px; }
   .sport span { display: block; font-size: 12px; color: var(--muted); }
   footer.doc { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--faint); }
+  /* PRINT (P204 R-A): overflow containers clip whole pages in some print engines — the founder's
+     export ended mid-row at eight pages. In print the register flows, headers repeat, rows never
+     split across a page boundary. */
+  @media print {
+    .scroll { overflow: visible; border: 0; }
+    table { font-size: 11px; }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; page-break-inside: avoid; }
+    .wrap { max-width: none; padding: 12px 8px; }
+  }
 </style>
-<div class="wrap" data-expected-releases="110" data-first-release="141-143-—" data-last-release="203-R-B">
+<div class="wrap" data-expected-releases="111" data-first-release="141-143-—" data-last-release="203-R-K">
 <header class="doc">
-  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-24T23:05:00Z</span><span>Program 203</span></p>
+  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-25T00:05:00Z</span><span>Program 204 · in flight</span></p>
   <h1>The operating record, generated from the committed register</h1>
   <p class="stamp">
-    <span>main @ f494d06db</span>
+    <span>main @ f298e26cb</span>
     <span>Suite: 5,105 tests · 5,101 pass · 0 fail · 4 skipped</span>
     <span>e2e: 385/0/6 named</span>
-    <span>Queues:  engineering · [object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object] reality · [object Object],[object Object],[object Object],[object Object],[object Object] founder · 0 incident</span>
+    <span>Queues: 0 engineering · 7 reality · 5 founder · 0 incident</span>
   </p>
   <p>Every figure on this page derives from committed artifacts at the stamp above — the release rows from
   <code>src/lib/launch/release-history.mjs</code> (conserved against git's own release commits by a build-failing
@@ -60,17 +70,17 @@
 <section>
   <h2>Sport posture</h2>
   <div class="sports">
-    <div class="sport"><b>EPL</b><span> </span></div>
-    <div class="sport"><b>MLB</b><span> </span></div>
-    <div class="sport"><b>NBA</b><span> </span></div>
-    <div class="sport"><b>NFL</b><span> </span></div>
-    <div class="sport"><b>UFC</b><span> </span></div>
+    <div class="sport"><b>EPL</b><span>11/12 proven · PUBLIC_BETA_MODEL</span></div>
+    <div class="sport"><b>MLB</b><span>12/12 proven · LIVE_ELIGIBLE</span></div>
+    <div class="sport"><b>NBA</b><span>6/12 proven · SCHEDULE_ONLY</span></div>
+    <div class="sport"><b>NFL</b><span>9/12 proven · RESEARCH_LAB</span></div>
+    <div class="sport"><b>UFC</b><span>10/12 proven · RESEARCH_LAB</span></div>
   </div>
 </section>
 
 <section>
   <h2>The release register — every production release, oldest first</h2>
-  <p class="stamp"><span>110 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 203-R-B (2026-08-24)</span></p>
+  <p class="stamp"><span>111 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 203-R-K (2026-08-24)</span></p>
   <div class="scroll">
     <table>
       <thead><tr><th>Release</th><th>Commit</th><th>Date</th><th>What shipped</th></tr></thead>
@@ -185,13 +195,14 @@
         <tr><td class="num">202-R-L</td><td class="num">c31b035af</td><td class="num">2026-08-24</td><td>final assurance — everything regenerated at one stamp (21:20Z)</td></tr>
         <tr><td class="num">203-R-A</td><td class="num">35d9c21a3</td><td class="num">2026-08-24</td><td>the operating record becomes a generated, conserved, self-validating artifact <em>Defects caught: its own validator caught the legacy/new register blocks interleaving out of date order, and the schema guard caught empty departments + a misplaced closure row before commit</em></td></tr>
         <tr><td class="num">203-R-B</td><td class="num">f494d06db</td><td class="num">2026-08-24</td><td>EPL pair four closes live — Fulham 2-3 Chelsea graded end to end through the deployed owners (match HIT p=0.381; 62 player rows graded, 18 void; paired learning 4/30, market ahead, SAMPLE_TOO_SMALL stated)</td></tr>
+        <tr><td class="num">203-R-K</td><td class="num">9f0247a71</td><td class="num">2026-08-24</td><td>final assurance — the daily loop proven live (two MLB cycles conserve; UFC population-exact 12=12; NFL typed refusals), everything regenerated at the close stamp; production converged on the exact tip <em>Defects caught: the bout-set diff refuted my own P202 scratch claim — the 13-to-12 read was the pre-rebuild artifact shape, corrected in this commit</em></td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
 <footer class="doc">
-  <p>Register complete: 110 releases · 141-143-— → 203-R-B · generated 2026-08-24T23:05:00Z at f494d06db.</p>
+  <p>Register complete: 111 releases · 141-143-— → 203-R-K · generated 2026-08-25T00:05:00Z at f298e26cb.</p>
 </footer>
 </div>
-<!-- OPERATING-RECORD-END expected=110 first=141-143-— last=203-R-B -->
+<!-- OPERATING-RECORD-END expected=111 first=141-143-— last=203-R-K -->

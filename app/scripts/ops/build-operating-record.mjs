@@ -36,13 +36,23 @@ const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").
 
 function buildRecord({ NOW, TIP, PROGRAM, SUITE, E2E }) {
 const packets = JSON.parse(fs.readFileSync(path.resolve(APP, "..", "data", "internal", "launch", "closure-packets-v1.json"), "utf8"));
+/*
+ * VIEW-MODEL BOUNDARY (P204 R-A). The first shipped version coerced the queue's card ARRAYS
+ * straight into the template — "[object Object]" × 12 in the published artifact — and read sport
+ * posture through keys the packets never had, so every sport card rendered an empty span. The
+ * founder's PDF told the truth about the file while the generator's validator (which checked the
+ * register, not these panels) stayed green. Counts are now taken as lengths-or-numbers, posture
+ * through the packets' REAL fields, and the final-file verifier bans object coercion outright.
+ */
+const countOf = (v) => (Array.isArray(v) ? v.length : Number.isFinite(v) ? v : 0);
 const sports = Object.values(packets.sports ?? {}).map((s) => ({
   id: s.sport,
-  proven: s.counts?.PROVEN ?? null,
-  tier: s.counts?.activationTier ?? s.activationTier ?? s.publicClaims?.activationTier ?? "",
+  proven: s.counts?.proven ?? null,
+  applicable: s.counts?.applicable ?? 12,
+  tier: s.publicClaims?.tier ?? "UNKNOWN",
 }));
 const q = packets.executionQueue ?? {};
-const queueLine = `${q.engineering ?? 0} engineering · ${q.realityWatch ?? 0} reality · ${q.founderQueue ?? 0} founder · ${q.incident ?? 0} incident`;
+const queueLine = `${countOf(q.engineering)} engineering · ${countOf(q.realityWatch)} reality · ${countOf(q.founderQueue)} founder · ${countOf(q.incident)} incident`;
 
 /*
  * Chronological, oldest first — enforced by SORTING at generation, never by hand-editing order.
@@ -99,6 +109,16 @@ const html = `<title>GameTimePicks Operating Record</title>
   .sport b { font-family: "IBM Plex Sans Condensed", sans-serif; font-size: 17px; }
   .sport span { display: block; font-size: 12px; color: var(--muted); }
   footer.doc { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--faint); }
+  /* PRINT (P204 R-A): overflow containers clip whole pages in some print engines — the founder's
+     export ended mid-row at eight pages. In print the register flows, headers repeat, rows never
+     split across a page boundary. */
+  @media print {
+    .scroll { overflow: visible; border: 0; }
+    table { font-size: 11px; }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; page-break-inside: avoid; }
+    .wrap { max-width: none; padding: 12px 8px; }
+  }
 </style>
 <div class="wrap" data-expected-releases="${rows.length}" data-first-release="${esc(first.program)}-${esc(first.release)}" data-last-release="${esc(last.program)}-${esc(last.release)}">
 <header class="doc">
@@ -120,7 +140,7 @@ const html = `<title>GameTimePicks Operating Record</title>
 <section>
   <h2>Sport posture</h2>
   <div class="sports">
-${sports.map((s) => `    <div class="sport"><b>${esc(String(s.id).toUpperCase())}</b><span>${esc(s.proven != null ? `${s.proven}/12` : "")} ${esc(s.tier ?? "")}</span></div>`).join("\n")}
+${sports.map((s) => `    <div class="sport"><b>${esc(String(s.id).toUpperCase())}</b><span>${esc(s.proven != null ? `${s.proven}/${s.applicable} proven` : "posture unavailable")} · ${esc(s.tier)}</span></div>`).join("\n")}
   </div>
 </section>
 

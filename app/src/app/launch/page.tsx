@@ -98,7 +98,15 @@ export default function LaunchCommandCenter() {
       const end = doc.match(/<!-- OPERATING-RECORD-END expected=(\d+) first=([^ ]+) last=([^ ]+) -->/);
       if (!end) return { state: "INVALID" as const, note: "end marker missing — regenerate before trusting any copy of the record" };
       const sha = crypto.createHash("sha256").update(doc).digest("hex").slice(0, 16);
-      return { state: "OK" as const, generatedAt: gen?.[1] ?? "unknown", program: gen?.[2] ?? "unknown", releases: Number(end[1]), first: end[2], last: end[3], sha };
+      /* The FINAL-FILE checksum (P204 R-A): the verified PDF's own sha256 from the verifier's
+         receipt — the bytes a person downloads, not only the source HTML. Absent receipt renders
+         as unverified in words. */
+      let pdfSha256: string | null = null;
+      try {
+        const receipt = JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/launch/operating-record-pdf-receipt.json"), "utf8"));
+        pdfSha256 = typeof receipt.pdfSha256 === "string" ? receipt.pdfSha256.slice(0, 16) : null;
+      } catch { /* unverified */ }
+      return { state: "OK" as const, generatedAt: gen?.[1] ?? "unknown", program: gen?.[2] ?? "unknown", releases: Number(end[1]), first: end[2], last: end[3], sha, pdfSha256 };
     } catch {
       return { state: "MISSING" as const, note: "data/internal/launch/operating-record.html has not been generated" };
     }
@@ -652,7 +660,7 @@ export default function LaunchCommandCenter() {
                 {operatingRecord.state === "OK" ? (
                   <p style={{ margin: "4px 0 0" }}>
                     <a href="https://claude.ai/code/artifact/fe4dba67-9441-48ff-a803-8c745a0aec6b" style={{ color: "var(--gtp-bank-cta)" }}>Published artifact</a>
-                    <span style={{ color: "var(--vault-text-mute)" }}> · generated {operatingRecord.generatedAt} · {operatingRecord.program} · {operatingRecord.releases} releases ({operatingRecord.first} → {operatingRecord.last}) · sha256 {operatingRecord.sha}…</span>
+                    <span style={{ color: "var(--vault-text-mute)" }}> · generated {operatingRecord.generatedAt} · {operatingRecord.program} · {operatingRecord.releases} releases ({operatingRecord.first} → {operatingRecord.last}) · html sha256 {operatingRecord.sha}… · pdf {operatingRecord.pdfSha256 ? `sha256 ${operatingRecord.pdfSha256}…` : "UNVERIFIED — run verify-operating-record-pdf"}</span>
                   </p>
                 ) : (
                   <p style={{ margin: "4px 0 0", color: "var(--vault-warn)" }}>{operatingRecord.state}: {operatingRecord.note}</p>
