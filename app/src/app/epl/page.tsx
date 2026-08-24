@@ -15,8 +15,9 @@
  * invented. That refusal is RENDERED rather than left as a hole a reader has to notice, because an
  * absence with no explanation reads as an oversight and invites someone to quietly fill it in.
  *
- * NOTHING HERE IS VALIDATED. Zero Premier League matches have been graded under this model. That
- * statement sits above the first number and is not a footer a later edit can drop.
+ * NOT VALIDATED OUT OF SAMPLE. The graded record to date renders dynamically from its own artifact
+ * (never a hand-typed count — those drift the moment the next match settles), and the validation
+ * state sits above the first number rather than in a footer a later edit can drop.
  *
  * Cold-start clubs are flagged on the row they affect. Coventry City and Hull City are newly promoted
  * with no top-flight history, so they run at the league-average baseline.
@@ -50,7 +51,7 @@ import { loadEplPlayerProjections, topScorersAcross } from "@/lib/sports/epl/for
 export const metadata: Metadata = {
   title: "Premier League — Simulation Center · GameTime Picks",
   description:
-    "Premier League model simulations: match-result probabilities, scorelines, goals and margin for every fixture we can price. Distributions only — not picks. No match has been graded under this model yet.",
+    "Premier League model simulations: match-result probabilities, scorelines, goals and margin for every fixture we can price. Distributions only — not picks. The model's graded record to date is shown on the page.",
 };
 
 const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;

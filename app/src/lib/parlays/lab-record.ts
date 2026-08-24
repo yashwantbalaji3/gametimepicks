@@ -11,12 +11,12 @@
  * the difference between them.
  *
  * WHAT IT WILL NOT DO:
- *   - report 0-0 as a record. Three of the four streams have settled NOTHING; an empty record and a
- *     record of no wins look identical in a table and mean opposite things, so a stream with no
- *     settled day returns null and the page says so in words.
- *   - average across sports that have not settled. A "cross-sport hit rate" computed from one
- *     sport's eight cards is that sport's hit rate wearing a wider label.
- *   - hide the result. MLB's Lab record is 1-7. That is the number.
+ *   - report 0-0 as a record. An empty record and a record of no wins look identical in a table and
+ *     mean opposite things, so a stream (or a tier) with nothing settled returns null/unsettled and
+ *     the page says so in words.
+ *   - average across sports that have not settled. A "cross-sport hit rate" computed mostly from one
+ *     sport's cards is that sport's hit rate wearing a wider label.
+ *   - hide the result. Whatever the record is, that is the number the page shows.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -26,6 +26,11 @@ export interface LabTierRecord {
   wins: number;
   losses: number;
   pushes: number;
+  /** Null when this tier has settled nothing — never a zeroed rate. */
+  hitRate: number | null;
+  roi: number | null;
+  /** False when the tier has never graded a card; the cell renders "nothing settled". */
+  settled: boolean;
 }
 
 export interface LabStream {
@@ -91,6 +96,29 @@ export function loadLabRecord(): LabRecord | null {
   const streams: LabStream[] = ledger.streams.map((s: Record<string, unknown>) => {
     const r = s.record as LabStream["record"];
     const settled = Number(s.settledDays ?? 0);
+    /*
+     * The ledger writes byTier as an OBJECT keyed by tier (P194's builder), and this reader
+     * originally expected an array — so every stream's tier record silently came out empty
+     * (P200 found the page had no per-tier table to notice). Parse the real shape, in the
+     * canonical tier order, preserving the null-record semantics: a tier that has graded
+     * nothing is `settled: false`, never a measured 0-0.
+     */
+    const rawTiers = (s.byTier ?? {}) as Record<string, { wins?: number; losses?: number; pushes?: number; hitRate?: number | null; roi?: number | null }>;
+    const byTier: LabTierRecord[] = ["low", "medium", "high", "longshot"]
+      .filter((t) => rawTiers[t])
+      .map((t) => {
+        const b = rawTiers[t];
+        const graded = (b.wins ?? 0) + (b.losses ?? 0) + (b.pushes ?? 0);
+        return {
+          tier: t,
+          wins: b.wins ?? 0,
+          losses: b.losses ?? 0,
+          pushes: b.pushes ?? 0,
+          hitRate: graded > 0 ? (b.hitRate ?? null) : null,
+          roi: graded > 0 ? (b.roi ?? null) : null,
+          settled: graded > 0,
+        };
+      });
     return {
       id: String(s.id),
       label: String(s.label ?? s.id),
@@ -99,7 +127,7 @@ export function loadLabRecord(): LabRecord | null {
       settledDays: settled,
       // A stream that has settled nothing has no record. Zeroes would read as a measured result.
       record: settled > 0 && r ? r : null,
-      byTier: Array.isArray(s.byTier) ? (s.byTier as LabTierRecord[]) : [],
+      byTier,
     };
   });
 

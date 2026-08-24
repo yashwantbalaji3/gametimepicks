@@ -7,9 +7,9 @@
  * site. The Lab's own suggestions were published, settled into dated receipts, and summarised
  * nowhere.
  *
- * This page shows the number it has rather than the number it would like. MLB's Lab record is 1-7.
- * Three of the four streams have settled nothing at all, and say so instead of showing 0-0 — an
- * empty record and a record of no wins look identical in a table and mean opposite things.
+ * This page shows the number it has rather than the number it would like. A stream — or a risk
+ * tier — that has settled nothing says so instead of showing 0-0: an empty record and a record of
+ * no wins look identical in a table and mean opposite things.
  */
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -77,6 +77,50 @@ export default function ParlayLabRecordPage() {
               </tbody>
             </table>
           </div>
+
+          {/* ── BY RISK TIER ──────────────────────────────────────────────────────────────────────
+               The four tiers are four separate daily evaluations, so their records stay separate
+               too (P200): a Longshot losing often is the tier working as labelled, and blending it
+               into one number would hide exactly that. A tier that has graded nothing renders as
+               unsettled — never 0–0. */}
+          <section className="mt-8">
+            <SectionHeader
+              eyebrow="By risk tier"
+              title="Each tier's own record"
+              sub="Won–lost per risk tier, per lane. Tiers are separate evaluations with different intended variance — compare a tier with itself over time, not with its neighbours."
+            />
+            <div className="mt-3 overflow-x-auto">
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
+                <thead>
+                  <tr style={{ textAlign: "left", color: "var(--vault-text-mute)" }}>
+                    <th style={{ padding: "6px 10px", fontWeight: 600 }}>Lane</th>
+                    {["Low", "Medium", "High", "Longshot"].map((t) => (
+                      <th key={t} style={{ padding: "6px 10px", fontWeight: 600 }}>{t}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rec.streams.map((s) => (
+                    <tr key={`tier-${s.id}`} style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                      <td style={{ padding: "8px 10px", fontWeight: 600 }}>{s.label}</td>
+                      {s.byTier.map((t) => (
+                        <td key={t.tier} className="font-mono" style={{ padding: "8px 10px" }}>
+                          {t.settled
+                            ? `${t.wins}–${t.losses}${t.pushes ? ` (${t.pushes} push)` : ""}`
+                            : <span style={{ color: "var(--vault-text-faint)" }}>nothing settled</span>}
+                        </td>
+                      ))}
+                      {s.byTier.length === 0 ? (
+                        <td colSpan={4} style={{ padding: "8px 10px", color: "var(--vault-text-faint)" }}>
+                          no tier receipts for this lane yet
+                        </td>
+                      ) : null}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
 
           {/* ── EVERY GRADED CARD ─────────────────────────────────────────────────────────────── */}
           {rec.cards.length > 0 ? (
