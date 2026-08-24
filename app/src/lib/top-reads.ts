@@ -222,6 +222,18 @@ export function loadTopReads(): TopReadsSet | null {
 /** The strongest N overall. */
 export const topOverall = (set: TopReadsSet | null, n = 10) => (set?.reads ?? []).slice(0, n);
 
+/**
+ * One sport's top reads, from the SAME ranked set — never a clone or a hand-kept slice (P201 · C).
+ * The caller renders the honest count: fewer than n means fewer existed, and zero means the sport's
+ * own no-play/exclusion line speaks instead.
+ */
+export const topBySport = (set: TopReadsSet | null, sport: TopRead["sport"], n = 10) =>
+  (set?.reads ?? []).filter((r) => r.sport === sport).slice(0, n);
+
+/** The sports present in the ranked set, in the set's own order of first appearance. */
+export const sportsInSet = (set: TopReadsSet | null): TopRead["sport"][] =>
+  [...new Set((set?.reads ?? []).map((r) => r.sport))];
+
 /** The strongest N for one sport, keeping both team and player markets represented. */
 export function topForSport(set: TopReadsSet | null, sport: string, n = 5): TopRead[] {
   const all = (set?.reads ?? []).filter((r) => r.sport === sport);

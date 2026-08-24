@@ -37,6 +37,8 @@ import TodayDailySlateHeader from "@/components/today/daily-slate-header";
 import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
 import { loadSuggestedParlaysPreview, TIER_INTENT } from "@/lib/home/suggested-parlays.mjs";
 import { buildProductDays } from "@/lib/product-day/product-day";
+import TopReadsPanel from "@/components/top-reads-panel";
+import { loadTopReads, topBySport, sportsInSet } from "@/lib/top-reads";
 import TodayAtAGlance, { type GlanceCard } from "@/components/today/at-a-glance";
 import TodayTopModelPicks from "@/components/today/top-model-picks";
 import TodayGamePredictions from "@/components/today/game-predictions";
@@ -103,6 +105,8 @@ export default function TodayPage() {
 
   // ── Parlay Lab preview — the SAME reshaping of the risk-coverage matrix Home renders ──
   const parlayPreview = loadSuggestedParlaysPreview(dataRoot);
+  // ── Cross-sport ranked reads — the same owner Home's strongest-reads panel consumes ──
+  const topReadsSet = loadTopReads();
 
   // ── Top model picks — the canonical cross-sport board; take the strongest ~6 for the compact list ──
   const top10 = buildTop10Board(dataRoot, today, Date.now());
@@ -326,6 +330,20 @@ export default function TodayPage() {
 
       {/* 3 — Top model picks: BY CATEGORY when the MLB slate supports it, else the cross-sport list */}
       {picksByCategory.length > 0 ? <TodayTopPicksByCategory categories={picksByCategory} /> : <TodayTopModelPicks picks={topPicks} />}
+
+      {/* 3b — TOP 10 BY SPORT (P201 · charter C): the per-sport view over the SAME ranked owner the
+          homepage's strongest-reads panel uses — grouping is presentation, never a second ranking.
+          Honest counts per sport ("top 6" when six exist); a sport with no event-specific signal is
+          named in the panel's own exclusion footer rather than silently absent. */}
+      {topReadsSet ? (
+        <TopReadsPanel
+          set={topReadsSet}
+          reads={sportsInSet(topReadsSet).flatMap((s) => topBySport(topReadsSet, s, 10))}
+          groupBySport
+          eyebrow="Ranked by the model's own probability"
+          title="Top 10 by sport"
+        />
+      ) : null}
 
       {/* 4 — Simulation-backed games (real ready artifacts only) */}
       <TodaySimulationLeans featured={featured} readyCount={readyCount} />

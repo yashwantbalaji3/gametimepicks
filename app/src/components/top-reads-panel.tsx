@@ -48,13 +48,19 @@ function ReadRow({ r }: { r: TopRead }) {
 }
 
 export default function TopReadsPanel({
-  set, reads, eyebrow, title, sub,
+  set, reads, eyebrow, title, sub, groupBySport = false,
 }: {
   set: TopReadsSet;
   reads: TopRead[];
   eyebrow: string;
   title: string;
   sub?: string;
+  /**
+   * P201 (charter C): render sport group headers with HONEST counts between the rows — the
+   * per-sport Top 10 view over the same ranked set. One panel, one footer, one paper-only line;
+   * grouping is presentation, never a second ranking.
+   */
+  groupBySport?: boolean;
 }) {
   if (reads.length === 0) return null;
   const sports = [...new Set(reads.map((r) => r.sport))];
@@ -66,7 +72,19 @@ export default function TopReadsPanel({
         sub={sub ?? "What each simulation is most confident about today, ranked by the model's own probability — not by any gap against a sportsbook price. A watchlist, not a bet."}
       />
       <div className="mt-3 rounded-[12px] overflow-hidden" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
-        {reads.map((r, i) => <ReadRow key={`${r.sport}-${r.market}-${r.subject}-${i}`} r={r} />)}
+        {reads.map((r, i) => (
+          <span key={`${r.sport}-${r.market}-${r.subject}-${i}`} style={{ display: "contents" }}>
+            {groupBySport && (i === 0 || reads[i - 1]!.sport !== r.sport) ? (
+              <div
+                className="font-mono uppercase tracking-[0.12em]"
+                style={{ padding: "8px 12px 4px", fontSize: 10, color: "var(--vault-text-faint)", borderTop: i > 0 ? "1px solid var(--vault-rule)" : "none" }}
+              >
+                {r.sportLabel} — top {reads.filter((x) => x.sport === r.sport).length}
+              </div>
+            ) : null}
+            <ReadRow r={r} />
+          </span>
+        ))}
       </div>
 
       {/* WHAT EACH MODEL HAS ACTUALLY PROVEN — beside the numbers, not beneath a fold. */}
