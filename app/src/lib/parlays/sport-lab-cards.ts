@@ -119,6 +119,8 @@ const DIRS: Record<string, string> = {
   mlb: "risk-ladder",
   ufc: "risk-ladder-ufc",
   epl: "risk-ladder-epl",
+  // P201: the NFL lane publishes (or types its refusal) since the settler gained gradeNflLeg.
+  nfl: "risk-ladder-nfl",
 };
 
 /**

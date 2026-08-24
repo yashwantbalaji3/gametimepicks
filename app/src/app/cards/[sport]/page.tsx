@@ -28,6 +28,9 @@ import { loadUfcResultsCoverage } from "@/lib/sports/ufc/coverage-loader";
 const LANES: Record<string, { label: string; hub: string; hubLabel: string; slateOf: (l: SportLabLadder) => string }> = {
   epl: { label: "Premier League", hub: "/epl", hubLabel: "Premier League hub", slateOf: (l) => l.date },
   ufc: { label: "UFC", hub: "/ufc", hubLabel: "UFC hub", slateOf: (l) => l.eventName ?? l.date },
+  // P201: the NFL lane earned a destination when its cards became gradeable (settle-lab-cards
+  // gained gradeNflLeg). Between priced slates the page renders the ladder's own typed refusal.
+  nfl: { label: "NFL", hub: "/nfl", hubLabel: "NFL hub", slateOf: (l) => l.date },
 };
 
 /*

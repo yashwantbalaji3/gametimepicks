@@ -87,6 +87,9 @@ const APPROVED_DESTINATIONS = new Set([
    */
   "/cards/epl",
   "/cards/ufc",
+  /* P201: the NFL lane earned its destination when its cards became gradeable (gradeNflLeg in the
+     lab settler). Same dynamic route, same market-favourite selection discipline as EPL's. */
+  "/cards/nfl",
   "/results",
   "/results/model-audit",
   /* The Parlay Lab's own suggested-card record, across every sport. Distinct from /results/parlays,

@@ -155,6 +155,10 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     desc: "Premier League card ladder · paper-only", surfaces: ["rail", "footer"] },
   { href: "/cards/ufc", label: "UFC Paper Cards", note: "model's own read", group: "products", glyph: "🥊",
     desc: "Fight card ladder · paper-only", surfaces: ["rail", "footer"] },
+  /* P201: the NFL lane earned its destination when its cards became gradeable. Market favourites,
+     never the rejected model's read — the note says which, exactly as EPL's does. */
+  { href: "/cards/nfl", label: "NFL Paper Cards", note: "market favourites", group: "products", glyph: "🏈",
+    desc: "NFL card ladder · paper-only", surfaces: ["rail", "footer"] },
 
   // ── RECORD ─────────────────────────────────────────────────────────────────────────────────────
   /*

@@ -108,6 +108,22 @@ export default function BuildPage() {
         grid={tierGrid}
       />
 
+      {/* ── EVERY LANE, ONE DESTINATION (P201 · D2) ─────────────────────────────────────────────
+          The board above is MLB's ladder. The other lanes publish their own cards (or typed
+          refusals) to their own pages, and the Lab's settled history is a separate record page —
+          none of which was reachable from here, the canonical Suggested Parlays destination. Links
+          only: each lane page owns its rendering, and this section can never blend the lanes. */}
+      <section aria-label="Other suggested-card lanes and history" className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-[10px] px-4 py-3" style={{ border: "1px solid var(--vault-border-strong)", fontSize: 12.5 }}>
+        <span className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
+          Other lanes
+        </span>
+        <Link href="/cards/epl" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>Premier League cards</Link>
+        <Link href="/cards/ufc" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>UFC cards</Link>
+        <Link href="/cards/nfl" style={{ color: "var(--gtp-bank-cta)", fontWeight: 600 }}>NFL cards</Link>
+        <span style={{ color: "var(--vault-text-faint)" }}>·</span>
+        <Link href="/results/parlay-lab" style={{ color: "var(--vault-text-mute)" }}>Every settled card (history)</Link>
+      </section>
+
       <section id="advanced-builder" aria-labelledby="advanced-builder-heading" className="flex flex-col gap-2 scroll-mt-6">
         <h2 id="advanced-builder-heading" className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 800 }}>
           Advanced builder
