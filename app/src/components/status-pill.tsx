@@ -126,7 +126,7 @@ export default function StatusPill({
   const text = label ?? KIND_LABEL[kind];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 font-mono uppercase tracking-[0.14em] ${
+      className={`inline-flex flex-wrap items-center gap-1.5 font-mono uppercase tracking-[0.14em] ${
         c.extraClass ?? ""
       } ${className ?? ""}`}
       style={{
@@ -137,7 +137,14 @@ export default function StatusPill({
         borderRadius: 999,
         fontSize: 10,
         letterSpacing: "0.16em",
-        whiteSpace: "nowrap",
+        /*
+         * P202: was `nowrap`, which forced 2-D scrolling at 320px the moment a label+caption pill
+         * ("Lines pending · no priced fixtures", 291px) met a sibling on its row — a WCAG 1.4.10
+         * reflow failure on all three engines. Normal wrapping engages ONLY when the container is
+         * narrower than the pill; at every ordinary width the pill still renders one line.
+         */
+        whiteSpace: "normal",
+        maxWidth: "100%",
         ...style,
       }}
     >

@@ -67,16 +67,27 @@ test("CORNER CANONICALISATION — the winner head is not reading the source's li
     "the card must canonicalise corners exactly as training did, or every win probability inverts");
 });
 
-test("every fighter on the card carries an id-derived portrait", () => {
+test("portraits are id-derived or probed-null — never guessed from a name, never a dead URL", () => {
+  // P202 restatement: universal presence was the pin, written when every fighter on the first
+  // card happened to resolve. The provider legitimately has no photo for debutants, and the
+  // builder now HEAD-probes each URL at publication, shipping 404s as null so no surface ever
+  // console-errors on a dead asset. The surviving invariant: an id always exists, and a URL —
+  // when present — is id-derived, never name-guessed.
   if (!have()) return;
   const card = read(CARD);
+  let present = 0;
   for (const b of card.bouts ?? []) {
     for (const f of [b.red, b.blue]) {
       assert.ok(f.athleteId, `${f.name}: a fighter must carry the athlete id the portrait resolves from`);
-      assert.match(f.photoUrl ?? "", /headshots\/mma\/players\/full\/\d+\.png$/,
-        `${f.name}: portrait URL is derived from the athlete id, never guessed from a name`);
+      if (f.photoUrl != null) {
+        present += 1;
+        assert.match(f.photoUrl, /headshots\/mma\/players\/full\/\d+\.png$/,
+          `${f.name}: portrait URL is derived from the athlete id, never guessed from a name`);
+        assert.ok(f.photoUrl.includes(`/${f.athleteId}.png`), `${f.name}: the URL is THIS fighter's id`);
+      }
     }
   }
+  assert.ok(present > 0, "a whole card of null portraits means the probe or the host broke — investigate, don't ship");
 });
 
 test("the moneyline refusal stays stated in words", () => {

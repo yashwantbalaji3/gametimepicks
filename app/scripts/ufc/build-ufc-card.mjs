@@ -296,7 +296,13 @@ for (const c of event.competitions ?? []) {
     athleteId: String(x.id ?? ""),
     name: x.athlete?.displayName ?? "",
     record: (x.records ?? [])[0]?.summary ?? null,
-    // Verified live against every fighter on this card before wiring: all 24 resolve.
+    /*
+     * P202: was hardwired with a comment claiming "verified live: all 24 resolve" — a one-time
+     * verification asserted as standing truth, which rotted on the next card (a debutant's id
+     * 404s and every downstream surface console-errored on webkit's clean-render gate). The URL
+     * is now PROBED per build below; an absent headshot ships as null and the avatar components
+     * render their monogram fallback without ever requesting a dead URL.
+     */
     photoUrl: x.id ? `https://a.espncdn.com/i/headshots/mma/players/full/${x.id}.png` : null,
     priorBoutsInCorpus: recByKey.get(nameKey(x.athlete?.displayName ?? ""))?.n ?? 0,
   });
@@ -438,6 +444,27 @@ const artifact = {
   },
   bouts: card,
 };
+
+/*
+ * HEADSHOT PROBE (P202) — every unique headshot URL is HEAD-checked against the free ESPN asset
+ * host before publication; a 404 ships as null so every downstream surface renders its monogram
+ * fallback instead of console-erroring on a dead URL. One request per unique athlete, free host,
+ * fail-open on network trouble (an unprobeable URL is kept — a transient outage must not strip
+ * every portrait from the card).
+ */
+{
+  const urls = new Map();
+  for (const b of card) for (const s of [b.red, b.blue]) if (s?.photoUrl) urls.set(s.photoUrl, true);
+  await Promise.all([...urls.keys()].map(async (u) => {
+    try { const r = await fetch(u, { method: "HEAD" }); if (r.status === 404) urls.set(u, false); }
+    catch { /* fail-open */ }
+  }));
+  let nulled = 0;
+  for (const b of card) for (const s of [b.red, b.blue]) {
+    if (s?.photoUrl && urls.get(s.photoUrl) === false) { s.photoUrl = null; nulled += 1; }
+  }
+  if (nulled > 0) console.log(`headshots: ${nulled} absent on the provider — shipped as null (monogram fallback)`);
+}
 
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, "card-latest.json"), JSON.stringify(artifact, null, 1) + "\n");
