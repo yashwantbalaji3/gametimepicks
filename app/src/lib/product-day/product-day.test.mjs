@@ -62,12 +62,19 @@ test("EQUIVALENCE · ufc day equals card-latest (bouts, predictions, card date)"
   }
 });
 
-test("EQUIVALENCE · nfl day equals the index's own next window + the simulated slate", () => {
+test("EQUIVALENCE · nfl day equals the index's own next window; a PAST kickoff is never upcoming", () => {
   const nfl = productDayFor("nfl", dataRoot);
   const sims = readJson("nfl", "game-simulations", "latest.json");
   const games = (sims.games ?? []).length;
-  if (games > 0) assert.equal(nfl.events, games, "owner counts the simulated slate");
-  else assert.ok(["EVENT_UPCOMING", "NO_EVENTS", "INCIDENT"].includes(nfl.state));
+  if (nfl.state === "LIVE" || nfl.state === "EVENT_UPCOMING") {
+    assert.equal(nfl.events, games, "an active window counts the simulated slate");
+    assert.ok(nfl.nextEventUtc, "an active window names its kickoff");
+  } else {
+    // P202 intentional difference: simulations for a played slate are history, not product —
+    // the stale-index window renders NO_EVENTS with the passed date named, never a live day.
+    assert.ok(["EVENT_UPCOMING", "NO_EVENTS", "INCIDENT"].includes(nfl.state));
+    assert.equal(nfl.eligible, 0, "a passed window has nothing actionable");
+  }
 });
 
 test("mlb day frames on the board loader's presented slate — the same source /today renders", () => {

@@ -24,12 +24,12 @@ import { crownLadderSummary } from "@/lib/bank-builder/crown-summary";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
-import { deriveSportState, stateLabel, partitionSports } from "@/lib/home/simulation-hub.mjs";
+import { sportStateFromProductDay, stateLabel, partitionSports } from "@/lib/home/simulation-hub.mjs";
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, topOverall } from "@/lib/top-reads";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
-import { loadEplForecasts } from "@/lib/sports/epl/forecast-view";
+import { buildProductDays, type ProductDay } from "@/lib/product-day/product-day";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
@@ -134,71 +134,32 @@ export default function HomePage() {
   const moonshotActive = dailyPortfolio.cards.some((c) => c.product === "moonshot" && c.status === "active");
   const moonshotStatus = moonshotActive ? "Active longshot lane today" : "No-play today · no active longshot";
 
-  // ── SIMULATION HUB — the per-sport simulation centers (the core product topic). The 2026 World Cup is
-  //    complete, so it is NOT a simulation-hub card here (archive only); MLB leads. ──
+  // ── SIMULATION HUB — facts from the PRODUCT-DAY AUTHORITY (P202 · A). The page used to rebuild
+  //    each sport's state from raw artifacts — a duplicate product-day derivation. The owner answers
+  //    "what does this sport have today?"; the hub keeps only its own presentation vocabulary
+  //    (primary vs secondary) via sportStateFromProductDay, and DISPLAY DETAILS it already loads for
+  //    other sections (the MLB leans figure; the NFL player-market count) stay presentation-only. ──
   const serverToday = currentEtDate();
+  const productDays = buildProductDays(dataRoot);
+  const dayOf = (sport: ProductDay["sport"]): ProductDay | undefined => productDays.find((d) => d.sport === sport);
+  const mlbDay = dayOf("mlb");
+  const eplDay = dayOf("epl");
+  const ufcDay = dayOf("ufc");
+  const nflDay = dayOf("nfl");
 
-  // ── SIMULATION HUB — EVENT-DRIVEN (Program 139) ───────────────────────────────────────────────
-  // Sports qualify for the primary hub from today's artifacts, not from a hardcoded list. UFC used
-  // to sit here every day because a settled archive exists, which reads as "UFC is running" when
-  // the card settled 2026-06-15 and there is no fight model. History is not activity.
-  const mlbState = deriveSportState({
-    slateDate: serverToday,
-    artifactDate: today,
-    leans: mlbLeans,
-    inSeason: true,                       // MLB regular season — the daily product runs
-  });
-  // ── NFL + UFC now publish live simulations, so the hub reads their artifacts instead of the
-  //    hard-coded "MLB is the only sport" assumption this page shipped with. Each count is read from
-  //    the same artifact its own page renders, so the homepage can never claim coverage that is not
-  //    actually built. A missing artifact yields 0 and the sport falls to secondary on its own.
+  const mlbState = sportStateFromProductDay(mlbDay, { slateDate: serverToday });
+  const eplState = sportStateFromProductDay(eplDay, { slateDate: serverToday });
+  const ufcState = sportStateFromProductDay(ufcDay, { slateDate: serverToday });
+  const nflState = sportStateFromProductDay(nflDay, { slateDate: serverToday });
+
+  // Presentation-only detail: the NFL player-market count for the card's status line. Never a
+  // state input — the owner decides whether the window is live at all.
   const readCount = (rel: string, pick: (d: Record<string, unknown>) => number): number => {
     try { return pick(JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", rel), "utf8"))); }
     catch { return 0; }
   };
-  const nflGames = readCount("nfl/game-simulations/latest.json", (d) => (d.games as unknown[] | undefined)?.length ?? 0);
   const nflPicks = readCount("nfl/game-simulations/latest.json",
     (d) => ((d.games ?? []) as Array<{ generatedPicks?: unknown[] }>).reduce((n, g) => n + (g.generatedPicks?.length ?? 0), 0));
-  const ufcBouts = readCount("ufc/card-latest.json", (d) => (d.bouts as unknown[] | undefined)?.length ?? 0);
-  const ufcPredicted = readCount("ufc/card-latest.json",
-    (d) => ((d.bouts ?? []) as Array<{ prediction?: unknown }>).filter((b) => b.prediction).length);
-  const ufcSlateDate = (() => {
-    try { return String(JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "ufc", "card-latest.json"), "utf8")).event?.slateDate ?? ""); }
-    catch { return ""; }
-  })();
-
-  const nflState = deriveSportState({
-    slateDate: serverToday,
-    artifactDate: today,
-    leans: nflPicks,
-    inSeason: nflGames > 0,
-  });
-  // ── EPL — the fourth live-coverage sport was absent from the homepage hub entirely (P200). The
-  //    card reads the SAME lane-owned loader /epl renders from (never the artifact path raw — the
-  //    closeout guard keeps soccer/epl reads inside the lane): current pre-event forecasts only,
-  //    with the next kickoff carrying the state between matchdays exactly like UFC's card does.
-  const eplRows = (loadEplForecasts()?.rows ?? []).filter((r) => r.state === "CURRENT_PRE_EVENT");
-  const eplNextKickoff = eplRows.map((r) => r.kickoffUtc).filter(Boolean).sort()[0] ?? null;
-  const eplSlateDate = eplNextKickoff
-    ? new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(eplNextKickoff))
-    : "";
-  const eplState = deriveSportState({
-    slateDate: serverToday,
-    artifactDate: eplSlateDate || today,
-    leans: eplRows.length,
-    inSeason: eplRows.length > 0,
-    nextEventDate: eplRows.length > 0 && eplSlateDate ? eplSlateDate : null,
-  });
-  const ufcState = deriveSportState({
-    slateDate: serverToday,
-    artifactDate: ufcSlateDate || "2026-06-15",
-    leans: ufcPredicted,
-    inSeason: ufcPredicted > 0,   // bouts alone are a schedule; predictions are what make it live
-    // UFC runs on cards, not on daily slates: the read is published days before fight night and
-    // holds until it. Without this the classifier fell through to "in season · no qualified slate",
-    // which reads as a quiet day when in fact a full card is five days out.
-    nextEventDate: ufcPredicted > 0 && ufcSlateDate ? ufcSlateDate : null,
-  });
 
   const allSports = [
     {
@@ -208,7 +169,7 @@ export default function HomePage() {
         href: "/mlb",
         label: "MLB Simulations",
         blurb: "Moneyline / run line / total, plus a 10,000-run player-prop sim where the artifact exists.",
-        status: mlbGames > 0 ? `${mlbLeans} model leans` : stateLabel(mlbState),
+        status: (mlbDay?.events ?? 0) > 0 ? `${mlbLeans} model leans` : stateLabel(mlbState),
         statusSub: "market-anchored · paper-only",
         cta: "Enter",
         accent: "var(--gtp-bank-heat)",
@@ -221,9 +182,7 @@ export default function HomePage() {
         href: "/epl",
         label: "Premier League Forecasts",
         blurb: "Score-distribution forecasts for every matchweek fixture — win/draw/win, expected goals, over 2.5.",
-        status: eplRows.length > 0
-          ? `${eplRows.length} match forecast${eplRows.length === 1 ? "" : "s"}${eplRows[0]?.matchweek ? ` · matchweek ${eplRows[0].matchweek}` : ""}`
-          : stateLabel(eplState, { artifactDate: eplSlateDate || undefined }),
+        status: (eplDay?.eligible ?? 0) > 0 ? (eplDay?.note ?? stateLabel(eplState)) : stateLabel(eplState),
         statusSub: "public beta · not validated out of sample",
         cta: "Enter",
         accent: "var(--sport-soccer)",
@@ -236,7 +195,7 @@ export default function HomePage() {
         href: "/nfl",
         label: "NFL Simulations",
         blurb: "Projected score, win probability and a full player board from 10,000 simulated games.",
-        status: nflGames > 0 ? `${nflGames} games · ${nflPicks.toLocaleString()} player markets` : stateLabel(nflState),
+        status: (nflDay?.events ?? 0) > 0 ? `${nflDay?.events} games · ${nflPicks.toLocaleString()} player markets` : (nflDay?.note ?? stateLabel(nflState)),
         statusSub: "experimental preseason · paper-only",
         cta: "Enter",
         accent: "var(--vault-gold)",
@@ -248,11 +207,11 @@ export default function HomePage() {
       card: {
         href: "/ufc",
         label: "UFC",
-        blurb: ufcPredicted > 0 ? "Winner, method of victory and finishing round for every bout on the card." : "No upcoming card has enough fighter history to model — the schedule is published without a read.",
-        status: ufcPredicted > 0 ? `${ufcPredicted} of ${ufcBouts} bouts predicted` : stateLabel(ufcState, { artifactDate: ufcSlateDate || "2026-06-15" }),
-        statusSub: ufcPredicted > 0 ? "experimental · paper-only" : "schedule only · no fighter history yet",
-        cta: ufcPredicted > 0 ? "Enter" : "View the card",
-        accent: ufcPredicted > 0 ? "var(--sport-ufc)" : "var(--vault-text-mute)",
+        blurb: (ufcDay?.eligible ?? 0) > 0 ? "Winner, method of victory and finishing round for every bout on the card." : "No upcoming card has enough fighter history to model — the schedule is published without a read.",
+        status: (ufcDay?.eligible ?? 0) > 0 ? `${ufcDay?.eligible} of ${ufcDay?.events} bouts predicted` : stateLabel(ufcState, { artifactDate: ufcDay?.productDate ?? undefined }),
+        statusSub: (ufcDay?.eligible ?? 0) > 0 ? "experimental · paper-only" : "schedule only · no fighter history yet",
+        cta: (ufcDay?.eligible ?? 0) > 0 ? "Enter" : "View the card",
+        accent: (ufcDay?.eligible ?? 0) > 0 ? "var(--sport-ufc)" : "var(--vault-text-mute)",
       },
     },
   ];
@@ -305,7 +264,7 @@ export default function HomePage() {
       <SlateLivenessBanner
         buildTimeToday={serverToday}
         latestSlate={today}
-        latestSlateHasGames={mlbGames > 0 || (topPicks ?? 0) > 0}
+        latestSlateHasGames={(mlbDay?.events ?? 0) > 0 || (topPicks ?? 0) > 0}
         archiveHref="/today"
         archiveLabel="See the most recent slate"
         includeMlbNote

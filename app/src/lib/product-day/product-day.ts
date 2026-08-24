@@ -161,11 +161,20 @@ function nflDay(dataRoot: string, today: string): ProductDay {
   const games: unknown[] = sims?.games ?? [];
   const nextKick: string | null = index.nextKickoffUtc ?? null;
   const kickDay = nextKick ? etDay(nextKick) : null;
-  if (games.length === 0) {
+  /*
+   * P202: a PAST kickoff is not upcoming. The index's nextKickoffUtc goes stale the moment the
+   * last slate kicks off (it refreshes on the schedule cadence), and simulations for a played
+   * slate are history, not product. Before this check the homepage read those stale sims as a
+   * live NFL day — the drift this owner exists to end. Intentional difference, documented.
+   */
+  const windowPassed = kickDay != null && kickDay < today;
+  if (games.length === 0 || windowPassed) {
     return day("nfl", {
-      productDate: today, state: nextKick ? "EVENT_UPCOMING" : "NO_EVENTS", events: 0, eligible: 0,
-      sourceStamp: index.generatedAt ?? null, nextEventUtc: nextKick,
-      note: nextKick ? `No simulated slate yet; next kickoff ${kickDay}.` : "No NFL slate is published.",
+      productDate: today, state: nextKick && !windowPassed ? "EVENT_UPCOMING" : "NO_EVENTS", events: 0, eligible: 0,
+      sourceStamp: sims?.generatedAt ?? index.generatedAt ?? null, nextEventUtc: windowPassed ? null : nextKick,
+      note: windowPassed
+        ? `The last simulated slate (${kickDay}) has been played; the next window is not scheduled yet.`
+        : nextKick ? `No simulated slate yet; next kickoff ${kickDay}.` : "No NFL slate is published.",
       reason: null,
     });
   }

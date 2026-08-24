@@ -77,7 +77,12 @@ test("partitionSports preserves the caller's payload", () => {
 
 test("the homepage derives the hub rather than hardcoding a sport list", () => {
   const page = fs.readFileSync(path.join(APP, "src/app/page.tsx"), "utf8");
-  assert.match(page, /deriveSportState/, "hub membership must come from artifacts");
+  // P202 restatement: the invariant was "hub membership comes from artifacts, never a hardcoded
+  // list". The artifacts now speak through ONE owner — the page consumes the product-day
+  // authority and maps its typed answer into hub vocabulary, which is the same claim with a
+  // single interpreter instead of page-local reads.
+  assert.match(page, /buildProductDays/, "hub facts come from the product-day authority");
+  assert.match(page, /sportStateFromProductDay/, "hub membership maps from the owner's typed state");
   assert.match(page, /partitionSports/, "primary/secondary split must use the shared rule");
   // The old subtitle asserted UFC's presence in the hub as a standing fact.
   assert.doesNotMatch(page, /the UFC card is a settled archive/,

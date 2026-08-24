@@ -56,68 +56,47 @@ test("NO-PLAY ≠ OUTAGE · the in-season empty state says 'no qualified slate',
   assert.ok(!/outage|error|down|stale/i.test(label), "outage words belong to the ledger, not to a quiet day");
 });
 
-test("WIRING · the homepage hub feeds ONLY mlb + the ufc archive; schedule sports never enter allSports", async () => {
+test("WIRING · hub membership flows from the product-day authority; every promotion door stays evidence-gated", async () => {
+  /*
+   * P202 restatement. Every invariant below survives from the page-internal era; only the SEAT
+   * moved. The page used to derive each sport's inputs from raw artifacts, so this guard pinned
+   * page internals (deriveSportState calls, ufcPredicted gates, card-latest reads). Those facts
+   * now flow through ONE owner — lib/product-day — and the page only maps typed answers into hub
+   * vocabulary. So each claim is asserted where it now lives:
+   *   · the page consumes the owner and hardcodes nothing;
+   *   · NFL enters only with a real simulated slate, and a PAST window never reads as live;
+   *   · EPL enters only through the lane's own loader, counting only CURRENT pre-event rows;
+   *   · a mere SCHEDULE still cannot promote UFC — upcoming promotes only with predictions;
+   *   · NBA stays out by name (schedules live on /sports).
+   */
   const src = read("src/app/page.tsx");
+  const owner = read("src/lib/product-day/product-day.ts");
+  const hub = read("src/lib/home/simulation-hub.mjs");
   const allSportsBlock = src.slice(src.indexOf("const allSports"), src.indexOf("partitionSports(allSports)"));
+
+  assert.match(src, /buildProductDays\(/, "the page consumes the product-day authority");
   assert.match(allSportsBlock, /id: "mlb"/);
   assert.match(allSportsBlock, /id: "ufc"/);
-  // P191: NFL publishes simulations now, so it belongs here — but only while its artifact exists.
-  // Sports that publish nothing stay banned. The door is closed by EVIDENCE, not by a name list.
-  if (allSportsBlock.includes('id: "nfl"')) {
-    const art = path.join(process.cwd(), "public/data/nfl/game-simulations/latest.json");
-    assert.ok(fs.existsSync(art), "nfl is a hub entry but publishes no simulation artifact");
-    assert.ok((JSON.parse(fs.readFileSync(art, "utf8")).games ?? []).length > 0, "nfl's artifact carries no games");
-  }
-  // P200: EPL earned the same evidence-gated door NFL did — it publishes a real public forecast
-  // artifact (public beta, validation state rendered in words), so the hub may carry it exactly
-  // while that artifact exists and carries rows. Publishing nothing still bans it.
-  if (allSportsBlock.includes('id: "epl"')) {
-    // Evidence through the lane's OWN loader (the closeout guard keeps soccer/epl artifact paths
-    // inside the lane, and that includes guards): the loader returning a set proves the published
-    // forecast artifact exists and parses. Structural evidence, not today's row count — between
-    // matchweeks rows is legitimately empty and deriveSportState already demotes a quiet EPL to
-    // secondary on its own (leans 0 → not primary).
-    const { loadEplForecasts } = await import("../sports/epl/forecast-view.ts");
-    const epl = loadEplForecasts();
-    assert.ok(epl, "epl is a hub entry but publishes no loadable forecast artifact");
-    assert.ok(Array.isArray(epl.rows) && epl.validation, "epl's artifact is not the real forecast contract");
-    assert.match(src, /loadEplForecasts/, "the homepage reads EPL through the lane's loader, never the raw path");
-    assert.match(src, /CURRENT_PRE_EVENT/, "the hub card counts only current pre-event forecasts");
-  }
   for (const banned of ['id: "nba"']) {
     assert.ok(!allSportsBlock.includes(banned), `${banned} must not be a hub entry — schedules live on /sports`);
   }
-  /*
-   * nextEventDate is the ONE vector by which an upcoming UFC card can promote into the hub via
-   * EVENT_THIS_WEEK. This guard originally banned the token outright, because at the time there was
-   * no fight model: any scheduled card would have promoted UFC to "live" while the site could say
-   * nothing whatsoever about it.
-   *
-   * Program 187 built that model and it passed its preregistered bars, so the door now opens on
-   * EVIDENCE rather than staying bolted by name. The invariant never was "UFC may not promote" — it
-   * was "a SCHEDULE alone may not promote". So this asserts the gate instead of the token: if
-   * nextEventDate is passed at all, it must be conditioned on predictions actually existing.
-   *
-   * Weakening this to "nextEventDate may be passed" would restore the original defect exactly.
-   */
-  const ufcStateStart = src.indexOf("const ufcState = deriveSportState(");
-  assert.ok(ufcStateStart > -1, "the ufcState derivation exists");
-  const ufcStateBlock = src.slice(ufcStateStart, src.indexOf("});", ufcStateStart) + 3);
-  const nextEventLine = ufcStateBlock.split("\n").find((l) => /nextEventDate/.test(l) && !/^\s*\/\//.test(l));
-  if (nextEventLine) {
-    assert.match(nextEventLine, /ufcPredicted\s*>\s*0/,
-      "nextEventDate is passed ungated — a card with no model read would promote UFC into the hub");
-    assert.match(nextEventLine, /:\s*null|\?\?\s*null|:\s*undefined/,
-      "the ungated branch must resolve to null so deriveSportState sees no upcoming event at all");
-  }
-  // P191: the door this guarded was "a mere SCHEDULE must not promote UFC". A published FIGHT MODEL
-  // is a different thing, so inSeason is now driven by whether bouts actually carry predictions —
-  // never by a date, and never by the existence of a card alone.
-    // P194: tightened from "has bouts" to "has PREDICTIONS". A Contender Series card of debutants has
-  // bouts but nothing modelled — a schedule, not live coverage — so bouts alone must not promote it.
-  assert.match(ufcStateBlock, /inSeason: ufcPredicted > 0/, "UFC is in season for hub purposes only when its card carries PREDICTIONS");
-  const boutsDerivation = src.slice(src.indexOf("const ufcBouts ="), src.indexOf("const nflState"));
-  assert.match(boutsDerivation, /card-latest\.json/, "the bout count is read from the card artifact, not asserted");
+  assert.ok(!/deriveSportState\(/.test(src), "no page-local state derivation survives — the owner answers, the page maps");
+
+  // NFL: evidence lives in the owner — a real simulated slate, and a passed window is history.
+  assert.match(owner, /game-simulations.*latest\.json|"game-simulations", "latest\.json"/, "the owner reads NFL's simulation artifact");
+  assert.match(owner, /windowPassed/, "a PAST kickoff never reads as an upcoming window");
+  // EPL: through the lane's own loader, current pre-event rows only.
+  const { loadEplForecasts } = await import("../sports/epl/forecast-view.ts");
+  const epl = loadEplForecasts();
+  assert.ok(epl && Array.isArray(epl.rows) && epl.validation, "epl publishes a loadable forecast artifact");
+  assert.match(owner, /loadEplForecasts/, "the owner reads EPL through the lane's loader, never the raw path");
+  assert.match(owner, /CURRENT_PRE_EVENT/, "the owner counts only current pre-event forecasts");
+  // UFC: a schedule alone must not promote. The owner's eligible counts PREDICTIONS, and the hub
+  // mapping promotes an upcoming card only when eligible > 0. Weakening either restores the
+  // original defect exactly.
+  assert.match(owner, /filter\(\(b\) => b\.prediction\)/, "UFC eligibility counts predictions, not bouts");
+  assert.match(owner, /card-latest\.json/, "the bout count is read from the card artifact, not asserted");
+  assert.match(hub, /EVENT_UPCOMING" && day\.eligible > 0/, "upcoming promotes only with something modelled");
 });
 
 test("WIRING · neither the hub selector nor the homepage imports schedule captures, replays, registry, or shadow modules", () => {

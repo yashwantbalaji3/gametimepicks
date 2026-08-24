@@ -63,6 +63,33 @@ export function deriveSportState({ slateDate, artifactDate, leans = 0, inSeason 
 
 export const isPrimary = (state) => PRIMARY.has(state);
 
+/**
+ * Translate the PRODUCT-DAY AUTHORITY's typed answer into hub vocabulary (Program 202 · A).
+ *
+ * The homepage used to rebuild each sport's inputs for deriveSportState from raw artifacts —
+ * a duplicate product-day derivation, which is exactly what lib/product-day/ exists to end. The
+ * hub keeps its own presentation vocabulary (primary/secondary is a HUB question), but the facts
+ * now arrive from the one owner. deriveSportState stays for callers that genuinely hold raw
+ * inputs; consumers with a ProductDay in hand map it here instead.
+ *
+ * @param {{state: string, eligible: number, nextEventUtc: string|null, productDate: string}|null|undefined} day
+ * @param {{slateDate: string, lookAheadDays?: number}} o
+ */
+export function sportStateFromProductDay(day, { slateDate, lookAheadDays = 7 }) {
+  if (!day) return SPORT_STATES.NOT_SUPPORTED;
+  if (day.state === "LIVE") {
+    return day.eligible > 0 ? SPORT_STATES.LIVE_TODAY : SPORT_STATES.IN_SEASON_NO_SLATE;
+  }
+  if (day.state === "EVENT_UPCOMING" && day.eligible > 0 && day.productDate && slateDate) {
+    const days = Math.round((Date.parse(`${day.productDate}T00:00:00Z`) - Date.parse(`${slateDate}T00:00:00Z`)) / 86_400_000);
+    if (days > 0 && days <= lookAheadDays) return SPORT_STATES.EVENT_THIS_WEEK;
+  }
+  if (day.state === "NO_EVENTS" || day.state === "SOURCE_STALE") return SPORT_STATES.IN_SEASON_NO_SLATE;
+  if (day.state === "OFF_SEASON") return SPORT_STATES.HISTORICAL_ONLY;
+  // BLOCKED / INCIDENT / an upcoming slate with no eligible product: nothing to claim as live.
+  return day.state === "EVENT_UPCOMING" ? SPORT_STATES.HISTORICAL_ONLY : SPORT_STATES.NOT_SUPPORTED;
+}
+
 /** Human-readable, never a bare colour or an ambiguous word like "active". */
 export function stateLabel(state, { artifactDate } = {}) {
   switch (state) {
