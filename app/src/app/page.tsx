@@ -29,7 +29,7 @@ import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, topOverall } from "@/lib/top-reads";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
-import { buildMarketCoverage } from "@/lib/today/market-coverage";
+import { loadEplForecasts } from "@/lib/sports/epl/forecast-view";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import { loadPublicBankBuilderSummary } from "@/lib/data-bank-builder";
 import { resolveLadderStep } from "@/lib/bank-builder-ladder";
@@ -39,10 +39,10 @@ import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 
 import LandingHero from "@/components/home/landing-hero";
-import FeatureTriad from "@/components/home/feature-triad";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
-import PreSportsbookStrip from "@/components/home/pre-sportsbook-strip";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
+import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
+import { loadSuggestedParlaysPreview, TIER_INTENT } from "@/lib/home/suggested-parlays.mjs";
 import FeaturedSimulationsSection from "@/components/home/featured-simulations";
 import { HowItWorks, FooterCta } from "@/components/home/home-sections";
 import { UpcomingSportsStrip, type SportSchedule } from "@/components/sports/upcoming-sports";
@@ -93,12 +93,12 @@ export default function HomePage() {
   const gameAnswers = buildHomeGameAnswers(details);
   // Daily-MLB destination hook — the SAME brief overview /today leads with (factual counts, no picks).
   const homeBrief = buildDailyBrief(details, today, { nowMs: Date.now() });
-  // The same canonical availability object /today renders, so Home and Today cannot disagree about
-  // what data exists. One derivation, two renderings; no new data path.
-  const marketCoverage = buildMarketCoverage(
-    details.filter((d) => d.sport === "mlb" && d.date === today),
-    today,
-  );
+  // P200: the pre-sportsbook availability strip moved off Home — that derivation (buildMarketCoverage)
+  // still renders at its canonical destination, /today, from the same lib. Home previews and routes.
+
+  // Parlay Lab preview — a reshaping of the day's risk-coverage matrix (the evaluation of record),
+  // never a second eligibility pass. Null when the artifact is missing/relic → section renders nothing.
+  const parlayPreview = loadSuggestedParlaysPreview(dataRoot);
 
   // ── MLB slate — same loader the Today board uses ──
   const mlb = getMlbBoardForDate(today);
@@ -173,6 +173,22 @@ export default function HomePage() {
     leans: nflPicks,
     inSeason: nflGames > 0,
   });
+  // ── EPL — the fourth live-coverage sport was absent from the homepage hub entirely (P200). The
+  //    card reads the SAME lane-owned loader /epl renders from (never the artifact path raw — the
+  //    closeout guard keeps soccer/epl reads inside the lane): current pre-event forecasts only,
+  //    with the next kickoff carrying the state between matchdays exactly like UFC's card does.
+  const eplRows = (loadEplForecasts()?.rows ?? []).filter((r) => r.state === "CURRENT_PRE_EVENT");
+  const eplNextKickoff = eplRows.map((r) => r.kickoffUtc).filter(Boolean).sort()[0] ?? null;
+  const eplSlateDate = eplNextKickoff
+    ? new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(eplNextKickoff))
+    : "";
+  const eplState = deriveSportState({
+    slateDate: serverToday,
+    artifactDate: eplSlateDate || today,
+    leans: eplRows.length,
+    inSeason: eplRows.length > 0,
+    nextEventDate: eplRows.length > 0 && eplSlateDate ? eplSlateDate : null,
+  });
   const ufcState = deriveSportState({
     slateDate: serverToday,
     artifactDate: ufcSlateDate || "2026-06-15",
@@ -196,6 +212,21 @@ export default function HomePage() {
         statusSub: "market-anchored · paper-only",
         cta: "Enter",
         accent: "var(--gtp-bank-heat)",
+      },
+    },
+    {
+      id: "epl",
+      state: eplState,
+      card: {
+        href: "/epl",
+        label: "Premier League Forecasts",
+        blurb: "Score-distribution forecasts for every matchweek fixture — win/draw/win, expected goals, over 2.5.",
+        status: eplRows.length > 0
+          ? `${eplRows.length} match forecast${eplRows.length === 1 ? "" : "s"}${eplRows[0]?.matchweek ? ` · matchweek ${eplRows[0].matchweek}` : ""}`
+          : stateLabel(eplState, { artifactDate: eplSlateDate || undefined }),
+        statusSub: "public beta · not validated out of sample",
+        cta: "Enter",
+        accent: "var(--sport-soccer)",
       },
     },
     {
@@ -285,30 +316,45 @@ export default function HomePage() {
           market. The record and every settled card live on /results. */}
       <LandingHero readyCount={simulationsToday} />
 
-      {/* 1b — What this DOES. The hero states what the product is; nothing stated its feature set, so
-          a first-time reader had to infer it from section headings further down. */}
-      <FeatureTriad />
+      {/* 2 — Simulation Hub: the per-sport simulation centers, directly under the hero (P200). This
+          IS the live-sports strip — each card carries its sport's derived state, honest tier line and
+          today's counts, so a first-time reader sees what is active before anything else. */}
+      <FlagshipCards
+        cards={simHubCards}
+        heading="Simulation Hub"
+        subtitle="Sports with activity on today's slate"
+        ariaLabel="Sport simulation centers"
+      />
 
-      {/* 2 — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}
+      {/*
+        3 — THE MODEL'S STRONGEST READS, ACROSS EVERY SPORT.
+        Ranked by the model's own probability rather than by any gap against a price: a gap asserts
+        the market is wrong and no model here has established that. Each sport's proven state renders
+        with its reads, and a sport excluded for having no event-specific signal is named.
+      */}
+      {topReads ? (
+        <TopReadsPanel
+          set={topReads}
+          reads={topOverall(topReads, 10)}
+          eyebrow="Across every sport"
+          title="The model's strongest reads today"
+        />
+      ) : null}
+
+      {/* 4 — Suggested parlays: the Parlay Lab's four risk evaluations per lane, rendered from the
+          day's risk-coverage matrix (the evaluation of record). No-play chips render as prominently
+          as published cards — the refusal is the product working, not a gap to hide. */}
+      {parlayPreview ? (
+        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} />
+      ) : null}
+
+      {/* 5 — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}
       <HomeTodayMlb
         dateLabel={dateLabel}
         games={homeBrief.overview.games}
         simulationsReady={homeBrief.overview.simulationsReady}
         lastUpdatedIso={homeBrief.lastUpdatedIso}
         isLiveToday={today >= serverToday && mlbGames > 0}
-      />
-
-
-      {/* 3 — Before you open a sportsbook: what data exists for today + when the book was captured.
-          Availability only — counts and capture provenance, never a suggested action. */}
-      <PreSportsbookStrip coverage={marketCoverage} dateLabel={dateLabel} />
-
-      {/* 4 — Simulation Hub: the per-sport simulation centers (the core product topic) */}
-      <FlagshipCards
-        cards={simHubCards}
-        heading="Simulation Hub"
-        subtitle="Sports with activity on today's slate"
-        ariaLabel="Sport simulation centers"
       />
 
       {/* Historical / not-yet-live coverage, kept reachable but clearly secondary. Nothing is hidden —
@@ -323,28 +369,13 @@ export default function HomePage() {
       ) : null}
 
       {/* Upcoming Sports schedules (Program 148 · Release B) — a deliberately quiet strip, OUTSIDE the
-          Simulation Hub by contract: schedule availability is not simulation coverage, and these four
+          Simulation Hub by contract: schedule availability is not simulation coverage, and these
           sports must never render as hub peers of MLB. One line per sport, status in words. */}
-      {/*
-        THE MODEL'S STRONGEST READS, ACROSS EVERY SPORT.
-        Ranked by the model's own probability rather than by any gap against a price: a gap asserts
-        the market is wrong and no model here has established that. Each sport's proven state renders
-        with its reads, and a sport excluded for having no event-specific signal is named.
-      */}
-      {topReads ? (
-        <TopReadsPanel
-          set={topReads}
-          reads={topOverall(topReads, 10)}
-          eyebrow="Across every sport"
-          title="The model's strongest reads today"
-        />
-      ) : null}
-
       <section aria-label="Upcoming sports schedule status" style={{ marginTop: 8 }}>
         <UpcomingSportsStrip sports={allUpcoming({ nowIso: new Date().toISOString() }) as SportSchedule[]} />
       </section>
 
-      {/* 5 — Flagship products, powered by the simulations. Each card carries its own current status,
+      {/* 6 — Flagship products, powered by the simulations. Each card carries its own current status,
           which is why the page no longer repeats those statuses in a second slate-summary block. */}
       <FlagshipCards
         cards={productCards}
@@ -353,13 +384,13 @@ export default function HomePage() {
         ariaLabel="Flagship products"
       />
 
-      {/* 6 — Featured simulations (real ready artifacts only) */}
+      {/* 7 — Featured simulations (real ready artifacts only) */}
       <FeaturedSimulationsSection featured={featured} readyCount={readyCount} answers={gameAnswers} />
 
-      {/* 7 — How it works */}
+      {/* 8 — How it works */}
       <HowItWorks />
 
-      {/* 8 — Footer CTA */}
+      {/* 9 — Footer CTA */}
       <FooterCta />
     </div>
   );

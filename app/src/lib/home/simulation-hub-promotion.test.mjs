@@ -56,7 +56,7 @@ test("NO-PLAY ≠ OUTAGE · the in-season empty state says 'no qualified slate',
   assert.ok(!/outage|error|down|stale/i.test(label), "outage words belong to the ledger, not to a quiet day");
 });
 
-test("WIRING · the homepage hub feeds ONLY mlb + the ufc archive; schedule sports never enter allSports", () => {
+test("WIRING · the homepage hub feeds ONLY mlb + the ufc archive; schedule sports never enter allSports", async () => {
   const src = read("src/app/page.tsx");
   const allSportsBlock = src.slice(src.indexOf("const allSports"), src.indexOf("partitionSports(allSports)"));
   assert.match(allSportsBlock, /id: "mlb"/);
@@ -68,7 +68,23 @@ test("WIRING · the homepage hub feeds ONLY mlb + the ufc archive; schedule spor
     assert.ok(fs.existsSync(art), "nfl is a hub entry but publishes no simulation artifact");
     assert.ok((JSON.parse(fs.readFileSync(art, "utf8")).games ?? []).length > 0, "nfl's artifact carries no games");
   }
-  for (const banned of ['id: "nba"', 'id: "epl"']) {
+  // P200: EPL earned the same evidence-gated door NFL did — it publishes a real public forecast
+  // artifact (public beta, validation state rendered in words), so the hub may carry it exactly
+  // while that artifact exists and carries rows. Publishing nothing still bans it.
+  if (allSportsBlock.includes('id: "epl"')) {
+    // Evidence through the lane's OWN loader (the closeout guard keeps soccer/epl artifact paths
+    // inside the lane, and that includes guards): the loader returning a set proves the published
+    // forecast artifact exists and parses. Structural evidence, not today's row count — between
+    // matchweeks rows is legitimately empty and deriveSportState already demotes a quiet EPL to
+    // secondary on its own (leans 0 → not primary).
+    const { loadEplForecasts } = await import("../sports/epl/forecast-view.ts");
+    const epl = loadEplForecasts();
+    assert.ok(epl, "epl is a hub entry but publishes no loadable forecast artifact");
+    assert.ok(Array.isArray(epl.rows) && epl.validation, "epl's artifact is not the real forecast contract");
+    assert.match(src, /loadEplForecasts/, "the homepage reads EPL through the lane's loader, never the raw path");
+    assert.match(src, /CURRENT_PRE_EVENT/, "the hub card counts only current pre-event forecasts");
+  }
+  for (const banned of ['id: "nba"']) {
     assert.ok(!allSportsBlock.includes(banned), `${banned} must not be a hub entry — schedules live on /sports`);
   }
   /*

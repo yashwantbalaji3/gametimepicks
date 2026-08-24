@@ -93,6 +93,21 @@ export default function LandingHero({ readyCount }: LandingHeroProps) {
           >
             See Today&rsquo;s Picks
           </Link>
+          {/* P200: the third journey — the Parlay Lab's suggested cards — had no front-door action. */}
+          <Link
+            href="/build"
+            className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
+            style={{
+              border: "1px solid var(--vault-border-strong)",
+              color: "var(--vault-text)",
+              fontSize: 12,
+              fontWeight: 700,
+              minHeight: 44,
+              textDecoration: "none",
+            }}
+          >
+            View Suggested Parlays
+          </Link>
         </div>
 
         {/* One factual availability line. No money, no win–loss figure — see the file header. */}
