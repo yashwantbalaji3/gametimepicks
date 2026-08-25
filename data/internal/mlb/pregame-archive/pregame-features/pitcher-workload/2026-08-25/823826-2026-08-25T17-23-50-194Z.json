@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823826,
+  "date": "2026-08-25",
+  "capturedAt": "2026-08-25T17:23:50.194Z",
+  "availableAt": "2026-08-25T17:23:50.194Z",
+  "eventStartTime": "2026-08-25T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 801139,
+      "name": "Payton Tolle",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 7.6,
+        "bbAvg": 1.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 11.27,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 120,
+        "k": 134,
+        "bb": 33,
+        "er": 41,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-25T17:23:50.194Z"
+  },
+  "recordHash": "424e274f227cbe1bda199b81fdb759e997e9802543582b0ea3f01c8b09039a5b"
+}

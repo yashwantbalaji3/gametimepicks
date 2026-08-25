@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823098,
+  "date": "2026-08-25",
+  "capturedAt": "2026-08-25T17:23:50.194Z",
+  "availableAt": "2026-08-25T17:23:50.194Z",
+  "eventStartTime": "2026-08-26T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669923,
+      "name": "George Kirby",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 2.6,
+        "bbAvg": 1.6,
+        "erAvg": 3.8,
+        "hrAvg": 1.2,
+        "kPer9": 4.88,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 140,
+        "k": 117,
+        "bb": 33,
+        "er": 65,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 605400,
+      "name": "Aaron Nola",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 6.8,
+        "bbAvg": 2,
+        "erAvg": 1.6,
+        "hrAvg": 1.2,
+        "kPer9": 10.67,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 137,
+        "k": 146,
+        "bb": 46,
+        "er": 78,
+        "hr": 31
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-25T17:23:50.194Z"
+  },
+  "recordHash": "7de9497c0a161ef1a1287923a22dedc6c4e1ce5667f705f0d2d1741be5a08336"
+}
