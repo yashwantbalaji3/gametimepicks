@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823181,
+  "date": "2026-08-25",
+  "capturedAt": "2026-08-25T19:23:53.085Z",
+  "availableAt": "2026-08-25T19:23:53.085Z",
+  "eventStartTime": "2026-08-26T01:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 605288,
+      "name": "Adrian Houser",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 13,
+      "lastStartDate": "2026-08-12",
+      "last5": {
+        "starts": 5,
+        "ipSum": 19.33,
+        "ipAvg": 3.87,
+        "kAvg": 4.4,
+        "bbAvg": 1.4,
+        "erAvg": 2.2,
+        "hrAvg": 0.8,
+        "kPer9": 10.24,
+        "workloadIpLast5": 19.33
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 72,
+        "k": 53,
+        "bb": 26,
+        "er": 42,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 663903,
+      "name": "Brady Singer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 5,
+      "lastStartDate": "2026-08-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 3.8,
+        "bbAvg": 2.2,
+        "erAvg": 3.4,
+        "hrAvg": 0.8,
+        "kPer9": 6.04,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 131.67,
+        "k": 107,
+        "bb": 43,
+        "er": 69,
+        "hr": 25
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-25T19:23:53.085Z"
+  },
+  "recordHash": "3b1587a1f0e19ac529c04a7385f35b510041930cf1909ba0877da3f8235121f1"
+}
