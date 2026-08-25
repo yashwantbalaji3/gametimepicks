@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823505,
+  "date": "2026-08-25",
+  "capturedAt": "2026-08-25T11:25:47.392Z",
+  "availableAt": "2026-08-25T11:25:47.392Z",
+  "eventStartTime": "2026-08-25T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 701542,
+      "name": "Will Warren",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 5,
+        "bbAvg": 1.8,
+        "erAvg": 3.2,
+        "hrAvg": 1,
+        "kPer9": 9.78,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 121.33,
+        "k": 121,
+        "bb": 42,
+        "er": 60,
+        "hr": 19
+      }
+    },
+    "away": {
+      "id": 814490,
+      "name": "Ethan Pecko",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 6,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 1,
+        "ipSum": 3.67,
+        "ipAvg": 3.67,
+        "kAvg": 4,
+        "bbAvg": 3,
+        "erAvg": 2,
+        "hrAvg": 0,
+        "kPer9": 9.82,
+        "workloadIpLast5": 3.67
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 3.67,
+        "k": 4,
+        "bb": 3,
+        "er": 2,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-25T11:25:47.392Z"
+  },
+  "recordHash": "4cd7893011b7a1c920b3eaddf0bd0fbbc7159c778c7c506dc05e41412e70420d"
+}
