@@ -54,13 +54,20 @@ test("mobile 390: the six-primary bar measures, and the duplicate top strip stay
 });
 
 test("filter state restores from the URL after opening a pick and coming back", async ({ page }) => {
+  // Day-phase-proof (P206): the ranked set's SPORTS rotate with the clock (late night can hold
+  // only UFC reads), so the test asserts restoration for whichever sport chip actually exists —
+  // pinning "MLB" failed the first 01:00-ET run, the repo's tests-pinning-today's-data class.
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/today/?sport=mlb", { waitUntil: "domcontentloaded" });
-  const pressed = page.locator('[aria-pressed="true"]');
-  // The chips hydrate client-side; when the ranked set has an MLB read today the chip presses.
-  const chipCount = await page.locator('[role="group"][aria-label="Filter the ranked reads"] button').count();
-  if (chipCount === 0) return; // no ranked reads at this hour — the section legitimately absent
+  await page.goto("/today/", { waitUntil: "domcontentloaded" });
+  const group = page.locator('[role="group"][aria-label="Filter the ranked reads"]');
+  if ((await group.count()) === 0) return; // no ranked reads at this hour — legitimately absent
+  const sportChips = group.locator("button:not(:has-text('All'))");
+  if ((await sportChips.count()) === 0) return;
+  const label = (await sportChips.first().innerText()).trim();
+  await sportChips.first().click();
+  await page.waitForTimeout(400);
+  expect(page.url()).toMatch(/\?sport=/);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  const pressed = page.locator('[aria-pressed="true"]', { hasText: label });
   await expect(pressed.first()).toBeVisible();
-  const first = await pressed.first().innerText();
-  expect(first.toUpperCase()).toContain("MLB");
 });
