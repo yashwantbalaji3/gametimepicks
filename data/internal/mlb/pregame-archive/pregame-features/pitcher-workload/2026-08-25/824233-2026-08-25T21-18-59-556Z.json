@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824233,
+  "date": "2026-08-25",
+  "capturedAt": "2026-08-25T21:18:59.556Z",
+  "availableAt": "2026-08-25T21:18:59.556Z",
+  "eventStartTime": "2026-08-25T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 695549,
+      "name": "Jackson Jobe",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 3,
+        "ipSum": 14,
+        "ipAvg": 4.67,
+        "kAvg": 3.67,
+        "bbAvg": 1.67,
+        "erAvg": 2.33,
+        "hrAvg": 0.67,
+        "kPer9": 7.07,
+        "workloadIpLast5": 14
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 14,
+        "k": 11,
+        "bb": 5,
+        "er": 7,
+        "hr": 2
+      }
+    },
+    "away": {
+      "id": 668984,
+      "name": "Casey Legumina",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 17,
+      "lastStartDate": "2026-08-08",
+      "last5": {
+        "starts": 5,
+        "ipSum": 8,
+        "ipAvg": 1.6,
+        "kAvg": 0.8,
+        "bbAvg": 0.4,
+        "erAvg": 0.4,
+        "hrAvg": 0,
+        "kPer9": 4.5,
+        "workloadIpLast5": 8
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 8,
+        "k": 4,
+        "bb": 2,
+        "er": 2,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-25T21:18:59.556Z"
+  },
+  "recordHash": "e724c6e49cf38435d8e9e1f690a31916608d6078aa31c95469a8cca87e1750a4"
+}
