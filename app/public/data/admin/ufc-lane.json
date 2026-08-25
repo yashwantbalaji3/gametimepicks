@@ -2,38 +2,38 @@
   "schemaVersion": 1,
   "artifact": "ufc-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-08-24T13:55:52Z",
+  "generatedAt": "2026-08-25T11:27:37Z",
   "nextCard": {
     "name": "UFC Fight Night: Nurmagomedov vs. Song",
     "slateDate": "2026-08-29",
     "bouts": 13,
-    "hoursAway": 113.07
+    "hoursAway": 91.54
   },
   "freshness": {
     "card": {
       "state": "READ",
-      "stampedAt": "2026-08-24T13:54:59Z",
+      "stampedAt": "2026-08-25T11:26:45Z",
       "ageHours": 0.01
     },
     "odds": {
       "state": "READ",
-      "stampedAt": "2026-08-23T21:08:37Z",
-      "ageHours": 16.79
+      "stampedAt": "2026-08-25T11:26:56Z",
+      "ageHours": 0.01
     },
     "ladder": {
       "state": "READ",
-      "stampedAt": "2026-08-24T13:55:51Z",
+      "stampedAt": "2026-08-25T11:27:36Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-08-24T08:52:24+00:00",
-      "ageHours": 5.06
+      "stampedAt": "2026-08-25T08:46:59+00:00",
+      "ageHours": 2.68
     },
     "settled": {
       "state": "READ",
       "stampedAt": "2026-06-15T13:55:00Z",
-      "ageHours": 1680.01
+      "ageHours": 1701.54
     }
   },
   "cards": {
@@ -55,22 +55,22 @@
   },
   "credits": {
     "state": "READ",
-    "spent": 9,
+    "spent": 10,
     "ceiling": 500,
-    "requests": 10
+    "requests": 11
   },
   "productLane": {
-    "live": false,
-    "blocked": "official UFC bout results"
+    "live": true,
+    "blocked": null
   },
   "population": {
     "state": "POPULATION_EXACT",
-    "generatedAt": "2026-08-24T13:55:08Z",
+    "generatedAt": "2026-08-25T11:26:54Z",
     "counts": {
       "expected": 13,
       "captured": 13,
-      "read": 10,
-      "unmodelled": 3,
+      "read": 9,
+      "unmodelled": 4,
       "priced": 6,
       "missing": 0,
       "phantom": 0
@@ -135,11 +135,6 @@
       "id": "calibration-sample",
       "state": "REALITY_GATED",
       "detail": "the model has never been scored against a no-vig UFC line, and one card has been settled from official results. Cards have to be fought."
-    },
-    {
-      "id": "product-lane-closed",
-      "state": "REALITY_GATED",
-      "detail": "the Lab gate has closed this lane: official UFC bout results. It reopens by itself when the evidence returns."
     }
   ]
 }
