@@ -102,11 +102,25 @@ export default function LaunchCommandCenter() {
          receipt — the bytes a person downloads, not only the source HTML. Absent receipt renders
          as unverified in words. */
       let pdfSha256: string | null = null;
+      let integrity: "VERIFIED" | "MISMATCH" | "UNVERIFIED" = "UNVERIFIED";
+      let contentAddressed: string | null = null;
       try {
         const receipt = JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/launch/operating-record-pdf-receipt.json"), "utf8"));
         pdfSha256 = typeof receipt.pdfSha256 === "string" ? receipt.pdfSha256.slice(0, 16) : null;
-      } catch { /* unverified */ }
-      return { state: "OK" as const, generatedAt: gen?.[1] ?? "unknown", program: gen?.[2] ?? "unknown", releases: Number(end[1]), first: end[2], last: end[3], sha, pdfSha256 };
+        /*
+         * ARTIFACT INTEGRITY (P205 R-A): the card is red the moment the DEPLOYABLE bytes disagree
+         * with the verifier's receipt — the exact false-positive class the P0 named. Three-way
+         * check: receipt sha ↔ the content-addressed console copy's actual bytes ↔ the manifest.
+         */
+        if (pdfSha256) {
+          contentAddressed = `operating-record-${pdfSha256}.pdf`;
+          const served = fs.readFileSync(path.join(APP, "public/data/admin", contentAddressed));
+          const servedSha = crypto.createHash("sha256").update(served).digest("hex");
+          const manifest = JSON.parse(fs.readFileSync(path.join(APP, "public/data/admin/operating-record-manifest.json"), "utf8"));
+          integrity = servedSha === receipt.pdfSha256 && manifest.pdfSha256 === receipt.pdfSha256 ? "VERIFIED" : "MISMATCH";
+        }
+      } catch { integrity = "UNVERIFIED"; }
+      return { state: "OK" as const, generatedAt: gen?.[1] ?? "unknown", program: gen?.[2] ?? "unknown", releases: Number(end[1]), first: end[2], last: end[3], sha, pdfSha256, integrity, contentAddressed };
     } catch {
       return { state: "MISSING" as const, note: "data/internal/launch/operating-record.html has not been generated" };
     }
@@ -660,7 +674,17 @@ export default function LaunchCommandCenter() {
                 {operatingRecord.state === "OK" ? (
                   <p style={{ margin: "4px 0 0" }}>
                     <a href="https://claude.ai/code/artifact/fe4dba67-9441-48ff-a803-8c745a0aec6b" style={{ color: "var(--gtp-bank-cta)" }}>Published artifact</a>
-                    <span style={{ color: "var(--vault-text-mute)" }}> · generated {operatingRecord.generatedAt} · {operatingRecord.program} · {operatingRecord.releases} releases ({operatingRecord.first} → {operatingRecord.last}) · html sha256 {operatingRecord.sha}… · pdf {operatingRecord.pdfSha256 ? `sha256 ${operatingRecord.pdfSha256}…` : "UNVERIFIED — run verify-operating-record-pdf"}</span>
+                    <span style={{ color: "var(--vault-text-mute)" }}> · generated {operatingRecord.generatedAt} · {operatingRecord.program} · {operatingRecord.releases} releases ({operatingRecord.first} → {operatingRecord.last})</span>
+                    {" · "}
+                    {operatingRecord.contentAddressed ? (
+                      <a href={`/data/admin/${operatingRecord.contentAddressed}`} style={{ color: "var(--gtp-bank-cta)" }}>verified PDF ({operatingRecord.pdfSha256}…)</a>
+                    ) : (
+                      <span style={{ color: "var(--vault-warn)" }}>pdf UNVERIFIED — run verify-operating-record-pdf</span>
+                    )}
+                    {" · "}
+                    <span style={{ color: operatingRecord.integrity === "VERIFIED" ? "var(--vault-success)" : "var(--vault-danger, #F87171)", fontWeight: 700 }}>
+                      integrity {operatingRecord.integrity}
+                    </span>
                   </p>
                 ) : (
                   <p style={{ margin: "4px 0 0", color: "var(--vault-warn)" }}>{operatingRecord.state}: {operatingRecord.note}</p>

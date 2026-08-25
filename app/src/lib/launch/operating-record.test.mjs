@@ -66,35 +66,70 @@ test("CORRUPTION · truncation, a dropped row, and reordering each fail the vali
   }
 });
 
-test("FINAL-FILE CORRUPTION · every defective-bytes fixture fails the PDF assessor (P204 R-A)", () => {
-  const good = {
-    pages: 8,
-    fullText: [
-      "Queues: 0 engineering · 7 reality · 5 founder · 0 incident",
-      "MLB\n12/12 proven", "EPL\n11/12 proven", "UFC\n10/12 proven", "NFL\n9/12 proven", "NBA\n6/12 proven",
-      "141-143-— 2026-08-07", "203-R-B 2026-08-24",
-      ...Array.from({ length: 110 }, (_, i) => `2026-08-${String((i % 24) + 1).padStart(2, "0")}`),
-      "Register complete: 110 releases",
-    ].join("\n"),
-    lastPageText: "Register complete: 110 releases · 141-143-— → 203-R-B",
+test("FINAL-FILE CORRUPTION · every defective-bytes fixture fails the v2 structural assessor (P205 R-A)", () => {
+  // Synthetic five-row register: rows are line-anchored "<id> [commit] <date>" — the structural
+  // shape; page-1 metadata mentions the last id WITHOUT that shape and must never count.
+  const ids = ["144-147-A-I", "176-Phase 0", "202-R-C fix", "203-R-B", "203-R-K"];
+  const rows = [
+    "144-147-A-I 281de088 2026-08-08 ledger v2",
+    "176-Phase 0 fecbcbe74 2026-08-13 kickoff lock proven",
+    "202-R-C fix 89445a32b 2026-08-24 ratchet was right",
+    "203-R-B f494d06db 2026-08-24 pair four closes",
+    "203-R-K 9f0247a71 2026-08-24 final assurance",
+  ];
+  const head = [
+    "Generated 2026-08-25 · last 203-R-K (2026-08-24)",   // metadata mention — must not satisfy rows
+    "Queues: 0 engineering · 7 reality · 5 founder · 0 incident",
+    "MLB\n12/12 proven", "EPL\n11/12 proven", "UFC\n10/12 proven", "NFL\n9/12 proven", "NBA\n6/12 proven",
+  ];
+  const tail = ["Register complete: 5 releases · 144-147-A-I → 203-R-K"];
+  const mk = (rowsArr, tailArr = tail) => {
+    const pages = [head.join("\n"), rowsArr.join("\n") + "\n" + tailArr.join("\n")];
+    return { pages: pages.length, pageTexts: pages, fullText: pages.join("\n"), lastPageText: pages[pages.length - 1] };
   };
-  const exp = { expectedRows: 110, first: "141-143-—", last: "203-R-B" };
-  assert.deepEqual(assessExtraction(good, exp), [], "the healthy fixture passes");
+  const exp = { expectedRows: 5, first: "144-147-A-I", last: "203-R-K", orderedIds: ids };
+  assert.deepEqual(assessExtraction(mk(rows), exp), [], "the healthy fixture passes");
 
   const cases = [
-    ["truncated (no terminal marker on the last page)", { ...good, lastPageText: "202-R-F c99a8dace three-engine ×", fullText: good.fullText.replace("Register complete: 110 releases", "") }, /truncated|completion line/],
-    ["object coercion", { ...good, fullText: good.fullText + "\n[object Object]" }, /object Object/],
-    ["dropped rows in the bytes", { ...good, fullText: good.fullText.split("\n").filter((l) => !/^2026-08-1/.test(l)).join("\n") }, /rows are missing/],
-    ["blank sport card", { ...good, fullText: good.fullText.replace("NBA\n6/12 proven", "NBA\n") }, /NBA card carries no posture/],
-    ["queue not numeric", { ...good, fullText: good.fullText.replace("Queues: 0 engineering · 7 reality", "Queues:  engineering · [object Object] reality") }, /queue line|object Object/],
-    ["declared count mismatch", { ...good, fullText: good.fullText.replace("Register complete: 110 releases", "Register complete: 87 releases"), lastPageText: "Register complete: 87 releases" }, /declares 87/],
-    ["first release absent", { ...good, fullText: good.fullText.replace("141-143-—", "") , lastPageText: good.lastPageText.replace("141-143-—","") }, /first release .* absent/],
-    ["zero pages", { ...good, pages: 0 }, /page count is zero/],
+    ["metadata-only last id (rows stop early)", mk(rows.slice(0, 4)), /absent or out of order|does not contain the final/],
+    ["truncated (no terminal marker)", mk(rows, ["203-R-K 9f0247a71 2026-08-24 final assu"]), /truncated|declares/],
+    ["orphan fragment page", { ...mk(rows), pages: 3, pageTexts: [head.join("\n"), rows.join("\n") + "\n" + tail[0], "H)"], lastPageText: "H)" }, /orphan fragment|terminal marker/],
+    ["repeated last row breaks the sequence", mk([...rows.slice(0, 4), rows[4], rows[4]]), /duplicated or invented|absent or out of order/],
+    ["reordered rows", mk([rows[1], rows[0], ...rows.slice(2)]), /absent or out of order/],
+    ["object coercion", mk([...rows.slice(0, 4), rows[4] + " [object Object]"]), /object Object/],
+    ["blank sport card", { ...mk(rows), fullText: mk(rows).fullText.replace("NBA\n6/12 proven", "NBA\n") }, /NBA card/],
+    ["zero pages", { ...mk(rows), pages: 0 }, /page count is zero/],
   ];
   for (const [name, fixture, re] of cases) {
     const errors = assessExtraction(fixture, exp);
     assert.ok(errors.some((e) => re.test(e)), `${name}: must fail (got: ${errors.join(" | ") || "PASS"})`);
   }
+});
+
+test("REGISTER IDENTITY · no row ships a null program or release (the P205 null-null class)", () => {
+  for (const r of RELEASE_HISTORY) {
+    assert.ok(r.program && r.program !== "null", `${r.commit}: program is real`);
+    assert.ok(r.release && r.release !== "null", `${r.commit}: release is real`);
+  }
+});
+
+test("PACKAGING EQUALITY · published embed = receipt = content-addressed console copy = manifest (build-blocking)", () => {
+  const dir = path.resolve(process.cwd(), "..", "data/internal/launch");
+  const receipt = JSON.parse(fs.readFileSync(path.join(dir, "operating-record-pdf-receipt.json"), "utf8"));
+  const published = fs.readFileSync(path.join(dir, "operating-record-published.html"), "utf8");
+  const b64 = published.match(/var B64 = "([A-Za-z0-9+/=]+)"/);
+  assert.ok(b64, "the published page embeds the verified bytes");
+  const embedded = Buffer.from(b64[1], "base64");
+  assert.equal(crypto.createHash("sha256").update(embedded).digest("hex"), receipt.pdfSha256,
+    "the bytes the download button hands out are EXACTLY the verified bytes");
+  const sha16 = receipt.pdfSha256.slice(0, 16);
+  const served = fs.readFileSync(path.join(process.cwd(), "public/data/admin", `operating-record-${sha16}.pdf`));
+  assert.equal(crypto.createHash("sha256").update(served).digest("hex"), receipt.pdfSha256,
+    "the content-addressed console copy is the same bytes");
+  const manifest = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/admin/operating-record-manifest.json"), "utf8"));
+  assert.equal(manifest.pdfSha256, receipt.pdfSha256, "the manifest agrees");
+  assert.deepEqual(manifest.orderedIds, receipt.orderedIds, "manifest ids = verifier ids, in order");
+  assert.match(published, /printing or exporting this view/i, "the boundary is stated to the reader in words");
 });
 
 test("the PDF receipt matches the produced bytes and the /launch card renders its checksum", () => {

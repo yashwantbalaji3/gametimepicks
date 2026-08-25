@@ -22,7 +22,7 @@ export function conventionCommits() {
   return log.split("\n").filter((l) => RE.test(l)).map((l) => {
     const [commit, date, subject, parents] = l.split("|");
     let program = null, release = null;
-    let m = subject.match(/^P([0-9]{3}) (R-[A-Z0-9]+(?: fix)?|Phase 0|L):/);
+    let m = subject.match(/^P([0-9]{3}) (R-[A-Z0-9]+(?: fix)?|Phase 0(?: \+ Release [A-Z])?|L):/);
     if (m) { program = m[1]; release = m[2]; }
     if (!program && (m = subject.match(/\(P([0-9]{3}) Releases? ([A-Z0-9+]+)\)/))) { program = m[1]; release = m[2]; }
     if (!program && (m = subject.match(/\(Release ([A-Z0-9+/]+)\)/))) { release = m[1]; const pm = subject.match(/P(19[6-9])/); program = pm ? pm[1] : "196"; }
