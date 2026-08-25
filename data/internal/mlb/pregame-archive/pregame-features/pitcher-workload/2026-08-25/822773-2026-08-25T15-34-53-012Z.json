@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822773,
+  "date": "2026-08-25",
+  "capturedAt": "2026-08-25T15:34:53.012Z",
+  "availableAt": "2026-08-25T15:34:53.012Z",
+  "eventStartTime": "2026-08-25T23:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 453286,
+      "name": "Max Scherzer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 6,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 3.6,
+        "bbAvg": 1.8,
+        "erAvg": 2.4,
+        "hrAvg": 0.6,
+        "kPer9": 7.04,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 45,
+        "k": 32,
+        "bb": 20,
+        "er": 37,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 607625,
+      "name": "Seth Lugo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 3.4,
+        "bbAvg": 1.6,
+        "erAvg": 3.8,
+        "hrAvg": 0.2,
+        "kPer9": 5.53,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 145.33,
+        "k": 111,
+        "bb": 46,
+        "er": 76,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-25&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-25T15:34:53.012Z"
+  },
+  "recordHash": "c5e03b0bc1ae342c87a5cf8a0d2166958ddea418028f949390e72aeba38c8140"
+}
