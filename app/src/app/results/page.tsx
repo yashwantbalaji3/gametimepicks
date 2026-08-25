@@ -549,10 +549,11 @@ export default function ResultsPage() {
         {dateSections.length === 0 ? (
           <EmptyState />
         ) : (
-          // PAGE-WEIGHT CAP: render the newest 10 graded days in full (thousands of per-slip rows made
-          // this page ~21MB of HTML). The older tail is summarized HONESTLY below — every older slip
-          // still counts in the lifetime/by-profile totals above; nothing is silently dropped.
-          dateSections.slice(0, 10).map((section) => (
+          // PAGE-WEIGHT CAP (P207: 10 → 3): even at 10 days the page shipped 8.3MB of HTML — ~1,700
+          // full avatar leg-rows inline. The newest 3 graded days render in full; EVERY older day is
+          // one click away at its own /results/date/<date> page (all 79 exist in the export), linked
+          // below by date. Older slips still count in every total above; nothing is dropped.
+          dateSections.slice(0, 3).map((section) => (
             <ParlayResultsDateSectionV2
               key={section.date}
               date={section.date}
@@ -562,10 +563,20 @@ export default function ResultsPage() {
             />
           ))
         )}
-        {dateSections.length > 10 ? (
-          <p className="rounded-[8px] px-4 py-3 text-[12px] leading-relaxed" style={{ border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}>
-            {dateSections.length - 10} older graded day{dateSections.length - 10 === 1 ? "" : "s"} ({dateSections[dateSections.length - 1].date} → {dateSections[10].date}) are not listed slip-by-slip to keep this page fast — every one of those slips is still counted in the lifetime hit rate and by-profile records above. Nothing is dropped from the record.
-          </p>
+        {dateSections.length > 3 ? (
+          <div className="rounded-[8px] px-4 py-3 text-[12px] leading-relaxed" style={{ border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}>
+            <p style={{ margin: 0 }}>
+              Every older graded day has its own full page — slip by slip, nothing dropped; each still
+              counts in the lifetime and by-profile records above.
+            </p>
+            <p style={{ margin: "6px 0 0", lineHeight: 2 }}>
+              {dateSections.slice(3).map((s2) => (
+                <Link key={s2.date} href={`/results/date/${s2.date}/`} className="font-mono" style={{ color: "var(--gtp-bank-cta)", marginRight: 12, fontSize: 11.5, whiteSpace: "nowrap" }}>
+                  {s2.date}
+                </Link>
+              ))}
+            </p>
+          </div>
         ) : null}
       </div>
 

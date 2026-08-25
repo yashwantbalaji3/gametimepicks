@@ -198,7 +198,7 @@ function DailyBbLegRow({ leg }: { leg: DailyBbLeg }) {
             {awayCode ? <FlagBadge code={awayCode} size="sm" ariaLabel={away ?? ""} /> : null}
           </>
         ) : (
-          <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
+          <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
         )}
       </span>
       <span className="min-w-0 flex-1">
@@ -212,7 +212,7 @@ function DailyBbLegRow({ leg }: { leg: DailyBbLeg }) {
       </span>
       <span className="shrink-0 text-right">
         <span className="block font-mono text-[12.5px]" style={{ color: "var(--vault-text)" }}>{american(leg.odds)}</span>
-        <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.05em]" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)" }}>
+        <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.05em]" style={{ color: "var(--vault-text-faint)", background: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)" }}>
           Pending ◷
         </span>
       </span>
@@ -249,7 +249,7 @@ function ActiveSlipLegRow({ leg }: { leg: EnrichedLeg }) {
         {leg.flagHome ? <FlagBadge code={leg.flagHome} size="sm" ariaLabel={leg.homeTeam ?? ""} /> : null}
         {leg.flagAway ? <FlagBadge code={leg.flagAway} size="sm" ariaLabel={leg.awayTeam ?? ""} /> : null}
         {!leg.flagHome && !leg.flagAway ? (
-          <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
+          <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
         ) : null}
       </span>
       <span className="min-w-0 flex-1">
@@ -260,7 +260,7 @@ function ActiveSlipLegRow({ leg }: { leg: EnrichedLeg }) {
           <span className="block font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Official: {leg.settlementOfficial}</span>
         )}
         {leg.settlementSource && (
-          <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.05em]" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.05)" }}>
+          <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.05em]" style={{ color: "var(--vault-text-faint)", background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)" }}>
             settlement-supported · {leg.settlementSource}
           </span>
         )}
@@ -269,12 +269,12 @@ function ActiveSlipLegRow({ leg }: { leg: EnrichedLeg }) {
         <span className="block font-mono text-[12.5px]" style={{ color: "var(--vault-text)" }}>{american(leg.odds)}</span>
         {settled ? (
           <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.05em]"
-            style={{ color: isHit ? "#6EE7A8" : "var(--gtp-bank-heat)", background: isHit ? "rgba(110,231,168,0.12)" : "var(--gtp-bank-heat-dim)" }}>
+            style={{ color: isHit ? "var(--vault-accent-mint-deep)" : "var(--gtp-bank-heat)", background: isHit ? "color-mix(in srgb, var(--vault-accent-mint-deep) 12%, transparent)" : "var(--gtp-bank-heat-dim)" }}>
             {isHit ? "Hit ✓" : "Miss ✗"}
           </span>
         ) : (
           <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.05em]"
-            style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)" }}>
+            style={{ color: "var(--vault-text-faint)", background: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)" }}>
             Pending ◷
           </span>
         )}
@@ -284,11 +284,11 @@ function ActiveSlipLegRow({ leg }: { leg: EnrichedLeg }) {
 }
 
 const STATUS_META: Record<PublicStepStatus, { label: string; color: string; bg: string; border: string }> = {
-  cleared: { label: "Cleared", color: "#6EE7A8", bg: "rgba(110,231,168,0.12)", border: "rgba(110,231,168,0.4)" },
-  active: { label: "Active", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", border: "rgba(52, 211, 153, 0.4)" },
-  awaiting: { label: "Awaiting next card", color: "var(--vault-gold-bright)", bg: "rgba(217,164,65,0.12)", border: "rgba(217,164,65,0.4)" },
-  queued: { label: "Starting path", color: "var(--vault-gold-bright)", bg: "rgba(217,164,65,0.10)", border: "rgba(217,164,65,0.35)" },
-  upcoming: { label: "Upcoming", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.03)", border: "var(--vault-rule)" },
+  cleared: { label: "Cleared", color: "var(--vault-accent-mint-deep)", bg: "color-mix(in srgb, var(--vault-accent-mint-deep) 12%, transparent)", border: "color-mix(in srgb, var(--vault-accent-mint-deep) 40%, transparent)" },
+  active: { label: "Active", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", border: "color-mix(in srgb, var(--gtp-bank-heat) 40%, transparent)" },
+  awaiting: { label: "Awaiting next card", color: "var(--vault-gold-bright)", bg: "color-mix(in srgb, var(--vault-crown) 12%, transparent)", border: "color-mix(in srgb, var(--vault-crown) 40%, transparent)" },
+  queued: { label: "Starting path", color: "var(--vault-gold-bright)", bg: "color-mix(in srgb, var(--vault-crown) 10%, transparent)", border: "color-mix(in srgb, var(--vault-crown) 35%, transparent)" },
+  upcoming: { label: "Upcoming", color: "var(--vault-text-faint)", bg: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "var(--vault-rule)" },
 };
 
 /** Rail node: ✓ cleared · glowing dot active/awaiting/queued · number upcoming. */
@@ -300,7 +300,7 @@ function RailNode({ status, step }: { status: PublicStepStatus; step: number }) 
     <span
       className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-[11px] font-bold ${glow ? "gtp-heat-pulse" : ""}`}
       style={{
-        background: cleared ? "rgba(110,231,168,0.18)" : glow ? m.bg : "rgba(11, 18, 14,0.9)",
+        background: cleared ? "color-mix(in srgb, var(--vault-accent-mint-deep) 18%, transparent)" : glow ? m.bg : "color-mix(in srgb, var(--vault-scrim-base) 90%, transparent)",
         border: `1px solid ${m.border}`,
         color: m.color,
         boxShadow: glow ? `0 0 10px ${m.bg}` : "none",
@@ -322,10 +322,10 @@ function CardDrawer({ step, stepMeta, dailyStep }: { step: PublicLadderStep; ste
       return (
         <div className="px-3 pb-3 pt-1">
           <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px]">
-            <span className="rounded px-1.5 py-0.5 font-bold uppercase tracking-[0.06em]" style={{ background: "rgba(217,164,65,0.14)", color: "var(--vault-gold-bright)", border: "1px solid rgba(217,164,65,0.4)" }}>Today&rsquo;s card</span>
-            {dailyStep.combinedOdds != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>combined {dailyStep.combinedOdds >= 0 ? "+" : ""}{dailyStep.combinedOdds}</span>}
-            {dailyStep.stake != null && target != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>{usd2(dailyStep.stake)} → {usd(target)}</span>}
-            {dailyStep.potentialReturn != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-gold-bright)" }}>potential {usd2(dailyStep.potentialReturn)}</span>}
+            <span className="rounded px-1.5 py-0.5 font-bold uppercase tracking-[0.06em]" style={{ background: "color-mix(in srgb, var(--vault-crown) 14%, transparent)", color: "var(--vault-gold-bright)", border: "1px solid color-mix(in srgb, var(--vault-crown) 40%, transparent)" }}>Today&rsquo;s card</span>
+            {dailyStep.combinedOdds != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>combined {dailyStep.combinedOdds >= 0 ? "+" : ""}{dailyStep.combinedOdds}</span>}
+            {dailyStep.stake != null && target != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>{usd2(dailyStep.stake)} → {usd(target)}</span>}
+            {dailyStep.potentialReturn != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-gold-bright)" }}>potential {usd2(dailyStep.potentialReturn)}</span>}
           </div>
           <div className="mt-2">{dailyStep.legs.map((l, i) => <DailyBbLegRow key={`daily:${step.step}:${i}`} leg={l} />)}</div>
           {dailyStep.correlationNote ? (
@@ -341,9 +341,9 @@ function CardDrawer({ step, stepMeta, dailyStep }: { step: PublicLadderStep; ste
       return (
         <div className="px-3 pb-3 pt-1">
           <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px]">
-            <span className="rounded px-1.5 py-0.5 font-bold uppercase tracking-[0.06em]" style={{ background: "rgba(217,164,65,0.14)", color: "var(--vault-gold-bright)", border: "1px solid rgba(217,164,65,0.4)" }}>{cand.headline}</span>
-            {cand.combinedOdds != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>combined {cand.combinedOdds >= 0 ? "+" : ""}{cand.combinedOdds}</span>}
-            {cand.stake != null && cand.projectedReturn != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>{usd(cand.stake)} → {usd(cand.projectedReturn)}</span>}
+            <span className="rounded px-1.5 py-0.5 font-bold uppercase tracking-[0.06em]" style={{ background: "color-mix(in srgb, var(--vault-crown) 14%, transparent)", color: "var(--vault-gold-bright)", border: "1px solid color-mix(in srgb, var(--vault-crown) 40%, transparent)" }}>{cand.headline}</span>
+            {cand.combinedOdds != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>combined {cand.combinedOdds >= 0 ? "+" : ""}{cand.combinedOdds}</span>}
+            {cand.stake != null && cand.projectedReturn != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>{usd(cand.stake)} → {usd(cand.projectedReturn)}</span>}
           </div>
           {hasLegs && <div className="mt-2">{cand.legs.map((l) => <LaneLegRow key={`cand:${step.step}:${l.legId}`} leg={l} pending />)}</div>}
           <p className="mt-2 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{cand.reason}</p>
@@ -374,17 +374,17 @@ function CardDrawer({ step, stepMeta, dailyStep }: { step: PublicLadderStep; ste
     <div className="px-3 pb-3 pt-1">
       <MoneyPath stake={c.stake} ret={c.payout} kind={settled ? (won ? "settled" : "lost") : "projected"} step={c.step} />
       <div className="mt-2 flex flex-wrap gap-1.5 font-mono text-[10px]">
-        {c.combinedOdds != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>combined {c.combinedOdds >= 0 ? "+" : ""}{c.combinedOdds}</span>}
-        {c.survivalScore != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>survival {c.survivalScore}</span>}
-        {c.slateDate && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>{c.slateDate}</span>}
-        <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: settled ? (won ? "#6EE7A8" : "var(--gtp-bank-heat)") : "var(--vault-gold-bright)" }}>{settled ? (won ? "settled · won" : "settled") : "active · pending official settlement"}</span>
+        {c.combinedOdds != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>combined {c.combinedOdds >= 0 ? "+" : ""}{c.combinedOdds}</span>}
+        {c.survivalScore != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>survival {c.survivalScore}</span>}
+        {c.slateDate && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>{c.slateDate}</span>}
+        <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: settled ? (won ? "var(--vault-accent-mint-deep)" : "var(--gtp-bank-heat)") : "var(--vault-gold-bright)" }}>{settled ? (won ? "settled · won" : "settled") : "active · pending official settlement"}</span>
       </div>
       {!settled && (crossSlate || slateLabel || eventDates.length || riskNote) ? (
         <div className="mt-1.5 flex flex-wrap gap-1.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em]">
-          {crossSlate ? <span className="rounded px-1.5 py-0.5" style={{ color: "var(--vault-gold-bright)", background: "rgba(217,164,65,0.14)", border: "1px solid rgba(217,164,65,0.4)" }}>Cross-slate</span> : null}
-          {eventDates.map((d) => <span key={d} className="rounded px-1.5 py-0.5" style={{ color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>{d.toUpperCase()}</span>)}
-          {slateLabel ? <span className="rounded px-1.5 py-0.5 normal-case" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)", letterSpacing: 0 }}>{slateLabel}</span> : null}
-          {riskNote ? <span className="rounded px-1.5 py-0.5" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)", border: "1px solid rgba(52, 211, 153, 0.32)" }}>Approved broader criteria</span> : null}
+          {crossSlate ? <span className="rounded px-1.5 py-0.5" style={{ color: "var(--vault-gold-bright)", background: "color-mix(in srgb, var(--vault-crown) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 40%, transparent)" }}>Cross-slate</span> : null}
+          {eventDates.map((d) => <span key={d} className="rounded px-1.5 py-0.5" style={{ color: "var(--vault-text-mute)", background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", border: "1px solid var(--vault-rule)" }}>{d.toUpperCase()}</span>)}
+          {slateLabel ? <span className="rounded px-1.5 py-0.5 normal-case" style={{ color: "var(--vault-text-faint)", background: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)", letterSpacing: 0 }}>{slateLabel}</span> : null}
+          {riskNote ? <span className="rounded px-1.5 py-0.5" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)", border: "1px solid color-mix(in srgb, var(--gtp-bank-heat) 32%, transparent)" }}>Approved broader criteria</span> : null}
         </div>
       ) : null}
       {allEnriched ? (
@@ -420,7 +420,7 @@ function LadderStepRow({ step, stepMeta, dailyStep }: { step: PublicLadderStep; 
             <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>~{step.multiplier.toFixed(2)}×</span>
           </span>
           {(cleared || active) && step.actualStake != null ? (
-            <span className="mt-0.5 block font-mono text-[11px]" style={{ color: cleared ? "#6EE7A8" : "var(--vault-gold-bright)" }}>
+            <span className="mt-0.5 block font-mono text-[11px]" style={{ color: cleared ? "var(--vault-accent-mint-deep)" : "var(--vault-gold-bright)" }}>
               actual {usd2(step.actualStake)} → {usd2(step.actualReturn)}{cleared ? " · WON" : " riding"}
             </span>
           ) : (
@@ -430,7 +430,7 @@ function LadderStepRow({ step, stepMeta, dailyStep }: { step: PublicLadderStep; 
         <span className="shrink-0 rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.08em]" style={{ color: m.color, background: m.bg, border: `1px solid ${m.border}` }}>{m.label}</span>
         <span aria-hidden className="shrink-0 font-mono text-[11px] transition-transform group-open:rotate-90" style={{ color: "var(--vault-text-faint)" }}>›</span>
       </summary>
-      <div className="ml-10 mb-1 rounded-[10px]" style={{ background: "rgba(255,255,255,0.015)", border: "1px solid var(--vault-rule)" }}>
+      <div className="ml-10 mb-1 rounded-[10px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-rule)" }}>
         <CardDrawer step={step} stepMeta={stepMeta} dailyStep={dailyStep} />
       </div>
     </details>
@@ -443,17 +443,17 @@ function LaneLadderCard({ view, enrichment, daily }: { view: PublicDualLadderVie
   const accent = view.currentStatus === "completed" ? "var(--vault-gold-bright)"
     : laneHasDailyCard ? "var(--gtp-bank-heat)"
     : view.currentStatus === "queued_restart" || view.currentStatus === "awaiting_next_card" ? "var(--vault-gold-bright)"
-    : view.currentStatus === "advanced" ? "#6EE7A8" : "var(--gtp-bank-heat)";
+    : view.currentStatus === "advanced" ? "var(--vault-accent-mint-deep)" : "var(--gtp-bank-heat)";
   const chipLabel = view.currentStatus === "completed" ? "🏆 $10K Reached"
     : laneHasDailyCard ? "Active"
     : view.currentStatus === "advanced" ? "Advanced" : view.currentStatus === "awaiting_next_card" ? "Awaiting next card"
     : view.currentStatus === "queued_restart" ? "Starting path" : view.currentStatus === "active" ? "Active" : view.currentStatus;
   const headline = laneHasDailyCard ? view.headline.replace(/awaiting next qualified card/i, "active · today's card") : view.headline;
   return (
-    <div className="flex flex-col rounded-2xl p-4" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+    <div className="flex flex-col rounded-2xl p-4" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="mb-1 flex items-center justify-between gap-2">
         <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{view.label}</h3>
-        <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: accent, background: "rgba(255,255,255,0.05)", border: `1px solid ${accent}` }}>
+        <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: accent, background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", border: `1px solid ${accent}` }}>
           {chipLabel}
         </span>
       </div>
@@ -491,7 +491,7 @@ function LaneLadderCard({ view, enrichment, daily }: { view: PublicDualLadderVie
         return (
           <div className="mb-3 grid grid-cols-4 gap-1.5">
             {tiles.map(([k, v, c]) => (
-              <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+              <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)", border: "1px solid var(--vault-rule)" }}>
                 <div className="font-mono tabular font-bold leading-tight" style={{ color: c, fontSize: 14 }}>{v}</div>
                 <div className="mt-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{k}</div>
               </div>
@@ -502,7 +502,7 @@ function LaneLadderCard({ view, enrichment, daily }: { view: PublicDualLadderVie
 
       {/* Vertical rail behind the step nodes (the rail node sits at left ~14px). */}
       <div className="relative">
-        <span aria-hidden className="absolute top-3 bottom-3" style={{ left: 13.5, width: 2, background: "linear-gradient(180deg, #6EE7A8 0%, var(--vault-gold-bright) 45%, var(--vault-rule) 100%)", opacity: 0.5, borderRadius: 2 }} />
+        <span aria-hidden className="absolute top-3 bottom-3" style={{ left: 13.5, width: 2, background: "linear-gradient(180deg, var(--vault-accent-mint-deep) 0%, var(--vault-gold-bright) 45%, var(--vault-rule) 100%)", opacity: 0.5, borderRadius: 2 }} />
         <div className="flex flex-col divide-y" style={{ borderColor: "var(--vault-rule)" }}>
           {view.steps.map((s) => <LadderStepRow key={s.step} step={s} stepMeta={enrichment[`${view.laneId}:${s.step}`]} dailyStep={daily[`${view.laneId}:${s.step}`]} />)}
         </div>

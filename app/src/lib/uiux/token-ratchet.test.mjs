@@ -40,10 +40,13 @@ const APP = process.cwd();
  * Measured 2026-08-19 on main @ eeff42d61 + this release.
  */
 const CEILING = {
-  rawColorLiterals: 1268,
-  filesWithRawColors: 253,
-  themeDrift: 1164,
-  themeDriftReachable: 756,
+  /* Ratcheted 2026-08-25 (P207): the Bank Builder trio's 98 inline literals converted to tokens /
+     color-mix (dual-ladder-board now carries ZERO raw colours). Every lowering is a measured
+     baseline emission, never a hand edit of the product. */
+  rawColorLiterals: 1170,
+  filesWithRawColors: 252,
+  themeDrift: 1066,
+  themeDriftReachable: 752,
   identityData: 89,
   maskStops: 8,
   illustrationArt: 7,

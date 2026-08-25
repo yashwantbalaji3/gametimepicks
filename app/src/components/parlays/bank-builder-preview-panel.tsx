@@ -54,7 +54,7 @@ function Last5Grid({ last5, side, line }: { last5: Last5; side: string | null; l
   const games = last5.games ?? [];
   const hr = last5.hitRate;
   return (
-    <div className="rounded-lg px-2 py-1.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-lg px-2 py-1.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
         <span>Last 5 · {last5.stat === "strikeouts" ? "K" : "H+R+RBI"} vs {sl} {line}</span>
         {hr && <span style={{ color: hr.pct >= 60 ? "var(--vault-success)" : "var(--vault-text-mute)" }}>{hr.hits}/{hr.total} hit · {hr.pct}%</span>}
@@ -62,7 +62,7 @@ function Last5Grid({ last5, side, line }: { last5: Last5; side: string | null; l
       <div className="mt-1 flex flex-wrap gap-1">
         {games.map((g, i) => (
           <span key={i} title={`${g.date} vs ${g.opp}: ${g.value}`} className="flex h-6 min-w-[26px] items-center justify-center rounded font-mono text-[11px]"
-            style={{ background: g.hit ? "rgba(70,130,90,0.22)" : "rgba(225,29,42,0.15)", color: g.hit ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>
+            style={{ background: g.hit ? "color-mix(in srgb, var(--vault-accent-muted) 22%, transparent)" : "color-mix(in srgb, var(--vault-danger-hue) 15%, transparent)", color: g.hit ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>
             {g.value}
           </span>
         ))}
@@ -113,14 +113,14 @@ export function LaneLegRow({ leg, pending }: { leg: ParlayLegDisplay; pending?: 
       </summary>
       <div className="mt-2 space-y-1.5 pl-8 text-[11.5px]">
         <div className="flex flex-wrap gap-1.5 font-mono text-[10.5px]">
-          {leg.confidenceTier && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>conf {leg.confidenceTier}</span>}
-          {leg.survivalScore != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>survival {leg.survivalScore}</span>}
-          <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>risk {leg.riskScore.toFixed(2)}</span>
-          <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>{leg.legQualityTier} {leg.legQualityScore}</span>
-          {leg.modelProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>model {Math.round(leg.modelProbability * 100)}%</span>}
-          {leg.marketImpliedProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>implied {Math.round(leg.marketImpliedProbability * 100)}%</span>}
-          {leg.edge != null && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: leg.edge > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{leg.edge >= 0 ? "+" : ""}{leg.edge.toFixed(1)}pp edge</span>}
-          {leg.confidenceTier && <span className="rounded px-1.5 py-0.5" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>DQ {leg.confidenceTier === "High" ? "A/B" : "B"}</span>}
+          {leg.confidenceTier && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>conf {leg.confidenceTier}</span>}
+          {leg.survivalScore != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>survival {leg.survivalScore}</span>}
+          <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>risk {leg.riskScore.toFixed(2)}</span>
+          <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>{leg.legQualityTier} {leg.legQualityScore}</span>
+          {leg.modelProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>model {Math.round(leg.modelProbability * 100)}%</span>}
+          {leg.marketImpliedProbability != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>implied {Math.round(leg.marketImpliedProbability * 100)}%</span>}
+          {leg.edge != null && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: leg.edge > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{leg.edge >= 0 ? "+" : ""}{leg.edge.toFixed(1)}pp edge</span>}
+          {leg.confidenceTier && <span className="rounded px-1.5 py-0.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>DQ {leg.confidenceTier === "High" ? "A/B" : "B"}</span>}
         </div>
 
         {/* Real last-5 prop history (MLB legs) — official MLB Stats API game logs, never fabricated. */}
@@ -154,8 +154,8 @@ function StepPips({ steps, currentStep }: { steps: LaneStepDisplay[]; currentSte
         const won = s.result === "won";
         const isCurrent = s.step === currentStep && !isSettled;
         const bg = isSettled ? (won ? "var(--vault-success)" : "var(--gtp-bank-heat)")
-          : isCurrent ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.05)";
-        const fg = isSettled || isCurrent ? "#170f0a" : "var(--vault-text-faint)";
+          : isCurrent ? "var(--gtp-bank-heat)" : "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)";
+        const fg = isSettled || isCurrent ? "var(--vault-on-accent)" : "var(--vault-text-faint)";
         return (
           <div key={s.step} className="flex items-center gap-1">
             <span className="flex h-5 w-5 items-center justify-center rounded-full font-mono text-[9.5px]"
@@ -179,11 +179,11 @@ function StepBlock({ step }: { step: LaneStepDisplay }) {
   const accent = settled ? (won ? "var(--vault-success)" : "var(--gtp-bank-heat)") : pending ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)";
   const tag = settled ? (won ? "cleared · WON" : `${step.result}`) : pending ? "active · pending official settlement" : evaluating ? "evaluating" : "coming soon";
   return (
-    <div className="mt-2 rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.025)", border: "1px solid var(--vault-border)", borderLeft: `2px solid ${accent}` }}>
+    <div className="mt-2 rounded-lg p-2.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-border)", borderLeft: `2px solid ${accent}` }}>
       <div className="flex items-center justify-between">
         <span className="font-mono text-[11px] uppercase tracking-wide" style={{ color: "var(--vault-text)" }}>
           Step {step.step}
-          <span className="ml-2 rounded px-1.5 py-0.5 text-[9.5px]" style={{ background: "rgba(255,255,255,0.05)", color: accent }}>{tag}</span>
+          <span className="ml-2 rounded px-1.5 py-0.5 text-[9.5px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: accent }}>{tag}</span>
         </span>
       </div>
       {/* Large, readable stake → return (MoneyPath). */}
@@ -222,14 +222,14 @@ function LaneLadder({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B" }) 
       <div className="flex items-center justify-between">
         <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
           Lane {laneId} · {laneId === "A" ? "survival" : "diversified"}
-          <span className="ml-2 rounded px-1.5 py-0.5 text-[10px] uppercase" style={{ background: "rgba(225,29,42,0.15)", color: "var(--gtp-bank-heat)" }}>Step {lane.currentStep} live</span>
+          <span className="ml-2 rounded px-1.5 py-0.5 text-[10px] uppercase" style={{ background: "color-mix(in srgb, var(--vault-danger-hue) 15%, transparent)", color: "var(--gtp-bank-heat)" }}>Step {lane.currentStep} live</span>
         </span>
         <span className="font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>survival {lane.survivalScore}</span>
       </div>
       <div className="mt-1.5 flex flex-wrap gap-1.5">
-        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(70,130,90,0.18)", color: "var(--vault-success)" }}>Step 1 cleared</span>
-        {hasSoccer && <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(70,130,90,0.18)", color: "var(--vault-success)" }}>⚽ soccer leg</span>}
-        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>target ${CROWN_TARGET.toLocaleString()}</span>
+        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "color-mix(in srgb, var(--vault-accent-muted) 18%, transparent)", color: "var(--vault-success)" }}>Step 1 cleared</span>
+        {hasSoccer && <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "color-mix(in srgb, var(--vault-accent-muted) 18%, transparent)", color: "var(--vault-success)" }}>⚽ soccer leg</span>}
+        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>target ${CROWN_TARGET.toLocaleString()}</span>
       </div>
 
       <div className="mt-2.5"><StepPips steps={steps} currentStep={lane.currentStep} /></div>
@@ -237,14 +237,14 @@ function LaneLadder({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B" }) 
       {detailed.map((s) => <StepBlock key={s.step} step={s} />)}
 
       {comingSoon.length > 0 && (
-        <div className="mt-2 rounded-lg px-2.5 py-2 font-mono text-[10.5px]" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>
+        <div className="mt-2 rounded-lg px-2.5 py-2 font-mono text-[10.5px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>
           Step{comingSoon.length > 1 ? "s" : ""} {comingSoon.map((s) => s.step).join("–")} · coming soon · ride the bank toward ${CROWN_TARGET.toLocaleString()}
         </div>
       )}
 
       {/* progress meter */}
       <div className="mt-2.5">
-        <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.06)" }}>
+        <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" }}>
           <div style={{ width: `${pct}%`, height: "100%", background: "var(--vault-success)" }} />
         </div>
         <div className="mt-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
@@ -265,7 +265,7 @@ function RestartLaneCard({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B
       <div className="flex items-center justify-between">
         <span className="text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
           Lane {laneId} · {laneId === "A" ? "survival" : "diversified"}
-          <span className="ml-2 rounded px-1.5 py-0.5 text-[10px] uppercase" style={{ background: "rgba(212,175,55,0.12)", color: "var(--vault-gold-bright)" }}>Step 1</span>
+          <span className="ml-2 rounded px-1.5 py-0.5 text-[10px] uppercase" style={{ background: "color-mix(in srgb, var(--vault-gold) 12%, transparent)", color: "var(--vault-gold-bright)" }}>Step 1</span>
         </span>
         <span className="font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>target $100 → $10K</span>
       </div>
@@ -289,8 +289,8 @@ function SingleStepLane({ lane, laneId, live }: { lane: LaneDisplay; laneId: "A"
         <span className="font-mono text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>survival {lane.survivalScore}</span>
       </div>
       <div className="mt-1.5 flex flex-wrap gap-1.5">
-        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(255,255,255,0.05)", color: "var(--vault-text-faint)" }}>stake $100</span>
-        {hasSoccer && <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "rgba(70,130,90,0.18)", color: "var(--vault-success)" }}>⚽ soccer leg</span>}
+        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>stake $100</span>
+        {hasSoccer && <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "color-mix(in srgb, var(--vault-accent-muted) 18%, transparent)", color: "var(--vault-success)" }}>⚽ soccer leg</span>}
       </div>
       <div className="mt-1.5">{lane.legs.map((l) => <LaneLegRow key={l.legId} leg={l} pending={live} />)}</div>
       <div className="mt-2 flex items-center justify-between text-[12px]" style={{ borderTop: "1px solid var(--vault-border)", paddingTop: 8 }}>
@@ -313,12 +313,12 @@ export default function BankBuilderPreviewPanel({ preview }: { preview: DualBank
   const liveLabel = liveSteps.length === 0 ? "ACTIVE" : liveSteps.length === 1 ? `Step ${liveSteps[0]} live` : `Steps ${liveSteps.join(" & ")} live`;
 
   return (
-    <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: active ? "1px solid var(--gtp-bank-heat)" : "1px solid var(--vault-border)" }}>
+    <div className="rounded-2xl p-4" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: active ? "1px solid var(--gtp-bank-heat)" : "1px solid var(--vault-border)" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>
           {isLadder ? `Dual Bank Builder · ${liveLabel}` : live ? "Dual Bank Builder · ACTIVE" : "Dual Bank Builder preview"}
         </h3>
-        <span className="rounded-full px-2.5 py-1 text-[11px] font-medium" style={{ background: active ? "rgba(70,130,90,0.18)" : "rgba(255,255,255,0.05)", color: active ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>
+        <span className="rounded-full px-2.5 py-1 text-[11px] font-medium" style={{ background: active ? "color-mix(in srgb, var(--vault-accent-muted) 18%, transparent)" : "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: active ? "var(--vault-success)" : "var(--gtp-bank-heat)", border: "1px solid var(--vault-border)" }}>
           {isLadder ? "Live · paper" : live ? "Live · paper" : "Operator approval required"}
         </span>
       </div>
@@ -346,7 +346,7 @@ export default function BankBuilderPreviewPanel({ preview }: { preview: DualBank
             )}
           </div>
 
-          <details className="mt-3 rounded-lg" style={{ background: "rgba(255,255,255,0.03)" }}>
+          <details className="mt-3 rounded-lg" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)" }}>
             <summary className="cursor-pointer px-3 py-2 text-[12.5px]" style={{ color: "var(--vault-text)" }}>Why these lanes</summary>
             <div className="px-3 pb-3 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
               Each step takes the highest-survival, lowest-fragility legs across distinct games, pairwise
@@ -356,7 +356,7 @@ export default function BankBuilderPreviewPanel({ preview }: { preview: DualBank
             </div>
           </details>
 
-          <div className="mt-2 rounded-lg px-3 py-2 text-[12px]" style={{ background: "rgba(255,255,255,0.03)", color: "var(--vault-text-mute)" }}>
+          <div className="mt-2 rounded-lg px-3 py-2 text-[12px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", color: "var(--vault-text-mute)" }}>
             {active ? (
               <>Active dual ladder — methodology-engine namespace; protected completed-ladder history untouched. Settles from official sources only.</>
             ) : (

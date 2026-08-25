@@ -25,16 +25,16 @@ function usd(n: number): string {
 }
 
 const LANE_ACCENT: Record<string, { accent: string; glow: string }> = {
-  A: { accent: "var(--gtp-bank-heat)", glow: "rgba(52, 211, 153, 0.25)" },
-  B: { accent: "var(--vault-gold)", glow: "rgba(212, 175, 55, 0.22)" },
+  A: { accent: "var(--gtp-bank-heat)", glow: "color-mix(in srgb, var(--gtp-bank-heat) 25%, transparent)" },
+  B: { accent: "var(--vault-gold)", glow: "color-mix(in srgb, var(--vault-gold) 22%, transparent)" },
 };
 
 function ResultChip({ result }: { result: string }) {
   const map: Record<string, { label: string; color: string; bg: string }> = {
-    won: { label: "WON", color: "var(--vault-success)", bg: "rgba(110,231,168,0.16)" },
+    won: { label: "WON", color: "var(--vault-success)", bg: "color-mix(in srgb, var(--vault-accent-mint-deep) 16%, transparent)" },
     lost: { label: "LOST", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)" },
-    void: { label: "VOID", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.06)" },
-    needs_review: { label: "REVIEW", color: "var(--vault-warn)", bg: "rgba(255,255,255,0.06)" },
+    void: { label: "VOID", color: "var(--vault-text-faint)", bg: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" },
+    needs_review: { label: "REVIEW", color: "var(--vault-warn)", bg: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" },
   };
   const m = map[result] ?? map.needs_review;
   return (
@@ -74,7 +74,7 @@ function LegRow({ leg }: { leg: DualLaneLeg }) {
   const line = leg.line ?? 0;
   const over = leg.side === "Over";
   return (
-    <details className="group rounded-[8px]" style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-rule)" }}>
+    <details className="group rounded-[8px]" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-rule)" }}>
       <summary className="flex cursor-pointer items-center gap-2 px-2.5 py-2 list-none">
         <LegVisual leg={leg} />
         <span className="flex min-w-0 flex-1 flex-col">
@@ -110,7 +110,7 @@ function LegRow({ leg }: { leg: DualLaneLeg }) {
               {hits.map((g, i) => {
                 const win = over ? g.value > line : g.value < line;
                 return (
-                  <span key={i} className="font-mono rounded px-1.5 py-0.5" style={{ fontSize: 9, color: "#120A07", background: win ? "var(--vault-success)" : "var(--gtp-bank-heat)" }}
+                  <span key={i} className="font-mono rounded px-1.5 py-0.5" style={{ fontSize: 9, color: "var(--vault-scrim-espresso)", background: win ? "var(--vault-success)" : "var(--gtp-bank-heat)" }}
                     title={`${g.date} ${g.isHome ? "vs" : "@"} ${g.opponent}: ${g.value}`}>
                     {g.value}{win ? "✓" : "✗"}
                   </span>
@@ -139,7 +139,7 @@ function LegRow({ leg }: { leg: DualLaneLeg }) {
                   <span className="truncate">{team}</span>
                   <span className="flex gap-0.5">
                     {form.formString.split("").map((r, i) => (
-                      <span key={i} className="inline-flex items-center justify-center font-bold" style={{ width: 11, height: 11, fontSize: 7, borderRadius: 2, color: "#120A07", background: r === "W" ? "var(--vault-success)" : r === "L" ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)" }}>{r}</span>
+                      <span key={i} className="inline-flex items-center justify-center font-bold" style={{ width: 11, height: 11, fontSize: 7, borderRadius: 2, color: "var(--vault-scrim-espresso)", background: r === "W" ? "var(--vault-success)" : r === "L" ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)" }}>{r}</span>
                     ))}
                   </span>
                 </div>
@@ -184,9 +184,9 @@ function StepLadder({ lane, accent }: { lane: DualLane; accent: string }) {
             className="font-mono rounded px-1.5 py-1 whitespace-nowrap"
             style={{
               fontSize: 8.5, letterSpacing: "0.04em",
-              color: s.active ? "#120A07" : s.crown ? "var(--vault-gold)" : "var(--vault-text-faint)",
-              background: s.active ? accent : s.crown ? "rgba(212,175,55,0.12)" : "rgba(11, 18, 14,0.6)",
-              border: s.crown ? "1px solid rgba(212,175,55,0.4)" : "1px solid var(--vault-rule)",
+              color: s.active ? "var(--vault-scrim-espresso)" : s.crown ? "var(--vault-gold)" : "var(--vault-text-faint)",
+              background: s.active ? accent : s.crown ? "color-mix(in srgb, var(--vault-gold) 12%, transparent)" : "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)",
+              border: s.crown ? "1px solid color-mix(in srgb, var(--vault-gold) 40%, transparent)" : "1px solid var(--vault-rule)",
               fontWeight: s.active || s.crown ? 700 : 500,
               boxShadow: s.active ? `0 0 8px ${accent}55` : "none",
             }}
@@ -207,11 +207,11 @@ function LaneCard({ lane }: { lane: DualLane }) {
   const statusColor = won ? "var(--vault-success)" : "var(--gtp-bank-heat)";
   const shownReturn = settled ? (typeof lane.return === "number" ? lane.return : 0) : lane.projectedReturn;
   return (
-    <div className="relative overflow-hidden rounded-[12px] px-4 py-4" style={{ border: `1px solid ${settled && !won ? "var(--vault-rule)" : glow}`, background: "rgba(7, 11, 9,0.55)", opacity: settled && !won ? 0.92 : 1 }}>
+    <div className="relative overflow-hidden rounded-[12px] px-4 py-4" style={{ border: `1px solid ${settled && !won ? "var(--vault-rule)" : glow}`, background: "color-mix(in srgb, var(--lava-bg) 55%, transparent)", opacity: settled && !won ? 0.92 : 1 }}>
       <div aria-hidden className="gtp-heat-pulse absolute right-0 top-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full" style={{ background: `radial-gradient(circle, ${glow}, transparent 70%)`, filter: "blur(8px)", opacity: settled ? 0.4 : 1 }} />
       <div className="relative flex items-center justify-between gap-2">
         <span className="font-display font-bold tracking-tight" style={{ color: accent, fontSize: 16 }}>{lane.name}</span>
-        <span className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.1em]" style={{ color: statusColor, background: won ? "rgba(110,231,168,0.16)" : "var(--gtp-bank-heat-dim)" }}>
+        <span className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.1em]" style={{ color: statusColor, background: won ? "color-mix(in srgb, var(--vault-accent-mint-deep) 16%, transparent)" : "var(--gtp-bank-heat-dim)" }}>
           Step 1 · {settled ? lane.status : "pending"}
         </span>
       </div>
@@ -257,8 +257,8 @@ export default function DualBankBuilderTeaser({ data, crown }: { data?: DualBank
       style={{
         border: "1px solid var(--lava-border-strong)",
         background:
-          "radial-gradient(130% 160% at 0% 100%, rgba(52, 211, 153, 0.16) 0%, transparent 55%)," +
-          "radial-gradient(130% 160% at 100% 0%, rgba(212, 175, 55,0.10) 0%, transparent 55%)," +
+          "radial-gradient(130% 160% at 0% 100%, color-mix(in srgb, var(--gtp-bank-heat) 16%, transparent) 0%, transparent 55%)," +
+          "radial-gradient(130% 160% at 100% 0%, color-mix(in srgb, var(--vault-gold) 10%, transparent) 0%, transparent 55%)," +
           "linear-gradient(135deg, rgba(13, 21, 17,0.96) 0%, var(--vault-bg) 72%)",
       }}
     >
@@ -268,7 +268,7 @@ export default function DualBankBuilderTeaser({ data, crown }: { data?: DualBank
         <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
           {live ? "Dual Bank Builder · Step 1 live" : settled ? "Dual Bank Builder · Step 1 closed" : "Coming next"}
         </span>
-        <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: live ? "var(--gtp-bank-heat)" : settled ? "var(--vault-text-mute)" : "var(--vault-text-faint)", background: live ? "var(--gtp-bank-heat-dim)" : settled ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+        <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color: live ? "var(--gtp-bank-heat)" : settled ? "var(--vault-text-mute)" : "var(--vault-text-faint)", background: live ? "var(--gtp-bank-heat-dim)" : settled ? "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)" : "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)", border: "1px solid var(--vault-rule)" }}>
           {live ? "Two lanes · pending" : settled ? `${survived}/${total} advanced · closed` : "Not started yet"}
         </span>
       </div>
@@ -293,7 +293,7 @@ export default function DualBankBuilderTeaser({ data, crown }: { data?: DualBank
           {(["A", "B"] as const).map((k) => {
             const { accent, glow } = LANE_ACCENT[k];
             return (
-              <div key={k} className="relative overflow-hidden rounded-[12px] px-4 py-4" style={{ border: `1px solid ${glow}`, background: "rgba(7, 11, 9,0.55)" }}>
+              <div key={k} className="relative overflow-hidden rounded-[12px] px-4 py-4" style={{ border: `1px solid ${glow}`, background: "color-mix(in srgb, var(--lava-bg) 55%, transparent)" }}>
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-display font-bold tracking-tight" style={{ color: accent, fontSize: 16 }}>Lane {k}</span>
                   <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>Step 0 · idle</span>
@@ -307,7 +307,7 @@ export default function DualBankBuilderTeaser({ data, crown }: { data?: DualBank
       )}
 
       {settled ? (
-        <div className="relative mt-5 rounded-[10px] px-4 py-3.5" style={{ background: "rgba(52, 211, 153, 0.06)", border: "1px solid var(--lava-border-strong)" }}>
+        <div className="relative mt-5 rounded-[10px] px-4 py-3.5" style={{ background: "color-mix(in srgb, var(--gtp-bank-heat) 6%, transparent)", border: "1px solid var(--lava-border-strong)" }}>
           <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>What we learned</span>
           <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
             The closed test ladder went {survived}/{total}. The legs cleared our model thresholds but still missed:
@@ -327,7 +327,7 @@ export default function DualBankBuilderTeaser({ data, crown }: { data?: DualBank
         </div>
       ) : null}
 
-      <div className="relative mt-4 rounded-[8px] px-3.5 py-2.5" style={{ background: "rgba(212,175,55,0.06)", border: "1px solid var(--vault-rule)" }}>
+      <div className="relative mt-4 rounded-[8px] px-3.5 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-gold) 6%, transparent)", border: "1px solid var(--vault-rule)" }}>
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Completed ladder</span>
         <span className="ml-2 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{crown ? `${crown.pathLabel} · ${crown.recordLabel} · ` : ""}the crown was reached</span>
       </div>
