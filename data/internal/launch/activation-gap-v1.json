@@ -1,0 +1,246 @@
+{
+ "schemaVersion": 1,
+ "artifact": "activation-gap",
+ "dataClass": "PRIVATE_INTERNAL",
+ "generatedAt": "2026-08-25T04:45:00Z",
+ "finding": "every non-proven stage across EPL/UFC/NFL has its instrument BUILT and its acceptance FROZEN; the remaining conditions are forward samples (REALITY) and one founder token (nfl.products) — zero executable stage engineering remains",
+ "sports": {
+  "epl": {
+   "proven": 11,
+   "applicable": 12,
+   "tier": "PUBLIC_BETA_MODEL",
+   "stages": [
+    {
+     "id": "schedule",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "identity",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "data",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "markets",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "model",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "calibration",
+     "status": "UNPROVEN",
+     "owner": "REALITY",
+     "nextGate": "30 paired pre-kickoff forecast+price matches through the learning ledger (now 4/30); stopping rule inherited; nothing hand-counted"
+    },
+    {
+     "id": "qualification",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "products",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "publication",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "settlement",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "monitoring",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "owner",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    }
+   ]
+  },
+  "ufc": {
+   "proven": 10,
+   "applicable": 12,
+   "tier": "RESEARCH_LAB",
+   "stages": [
+    {
+     "id": "schedule",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "identity",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "data",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "markets",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "model",
+     "status": "PARTIAL",
+     "owner": "REALITY",
+     "nextGate": "the promoted abstaining Elo must beat its own frozen bar on FORWARD covered bouts — the cumulative model-vs-market record cannot reset on a good card"
+    },
+    {
+     "id": "calibration",
+     "status": "UNPROVEN",
+     "owner": "REALITY",
+     "nextGate": "graded cards through lib/sports/ufc/model-vs-market.mjs (instrument live since P191); Aug-29 is the next sample"
+    },
+    {
+     "id": "qualification",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "products",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "publication",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "settlement",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "monitoring",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "owner",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    }
+   ]
+  },
+  "nfl": {
+   "proven": 9,
+   "applicable": 12,
+   "tier": "RESEARCH_LAB",
+   "stages": [
+    {
+     "id": "schedule",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "identity",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "data",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "markets",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "model",
+     "status": "PARTIAL",
+     "owner": "REALITY",
+     "nextGate": "regular-season games through the promoted cutoff-Elo strength state; preseason evidence neither qualifies nor disqualifies (cohort rule)"
+    },
+    {
+     "id": "calibration",
+     "status": "UNPROVEN",
+     "owner": "REALITY",
+     "nextGate": "frozen RS evaluation contract (sha256 3451d1a0d6bd593c, immutable): walk-forward by week, min 64 games, bars vs cutoff-Elo WITH de-vigged market comparison"
+    },
+    {
+     "id": "qualification",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "products",
+     "status": "PARTIAL",
+     "owner": "FOUNDER",
+     "nextGate": "FOUNDER actives-rights token (+ ordered-scorer authorization) to exercise End Zone Vault's ACTIVE path — its NO_PLAY cadence is proven daily"
+    },
+    {
+     "id": "publication",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "settlement",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "monitoring",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    },
+    {
+     "id": "owner",
+     "status": "PROVEN",
+     "owner": "ENGINEERING",
+     "nextGate": null
+    }
+   ]
+  }
+ }
+}

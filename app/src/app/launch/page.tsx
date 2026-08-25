@@ -6,6 +6,7 @@ import { currentEtDate } from "@/lib/freshness";
 import { buildCompletionMatrix, ROADMAP_30D } from "@/lib/launch/completion-matrix.mjs";
 import { buildExecutiveHealth } from "@/lib/launch/executive-health.mjs";
 import { buildWorkBoard } from "@/lib/launch/work-board.mjs";
+import { activationReadiness } from "@/lib/launch/activation-readiness.mjs";
 import { buildTodayBoard, topActions } from "@/lib/launch/today-board.mjs";
 import { ENGINES, ASSURED_ROUTES } from "@/lib/launch/browser-assurance.mjs";
 import { RELEASE_HISTORY } from "@/lib/launch/release-history.mjs";
@@ -83,6 +84,9 @@ export default function LaunchCommandCenter() {
   const readJson = (rel: string) => {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "public/data", rel), "utf8")); } catch { return null; }
   };
+
+  /* Two axes, never conflated (P206): engineering readiness vs activation tier. */
+  const readiness = activationReadiness();
 
   /*
    * The operating record's identity card (P203 · Release A). The record is GENERATED
@@ -690,6 +694,20 @@ export default function LaunchCommandCenter() {
                   <p style={{ margin: "4px 0 0", color: "var(--vault-warn)" }}>{operatingRecord.state}: {operatingRecord.note}</p>
                 )}
               </div>
+              {readiness ? (
+                <div style={{ border: "1px solid var(--vault-border-strong)", borderRadius: 8, padding: "10px 14px", marginBottom: 14, fontSize: 12.5 }}>
+                  <span className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>Activation readiness · two axes</span>
+                  {Object.entries(readiness.sports).map(([sport, r]) => (
+                    <p key={sport} style={{ margin: "4px 0 0" }}>
+                      <strong style={{ textTransform: "uppercase" }}>{sport}</strong>
+                      <span style={{ color: "var(--vault-text-mute)" }}> · {r.proven}/{r.applicable} stages · tier {r.tier} · engineering {r.engineeringReady ? "READY — nothing left to build" : "OPEN"}</span>
+                      {r.parked.length ? (
+                        <span style={{ color: "var(--vault-text-faint)" }}> · parked: {r.parked.map((g: { id: string; owner: string }) => `${g.id} (${g.owner})`).join(", ")}</span>
+                      ) : null}
+                    </p>
+                  ))}
+                </div>
+              ) : null}
               <h2 id="closure" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Closure packets · completion control plane</h2>
               <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
                 One derived packet per sport over the twelve-stage gate: counts, public tier, current event, product receipts and whose

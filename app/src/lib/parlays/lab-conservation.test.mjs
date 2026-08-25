@@ -49,7 +49,18 @@ test("conservation: every published card is settled, pending in-window, or a nam
       const date = doc?.date ?? f.replace(".json", "");
       const cards = (doc?.cards ?? []).map((c) => c.slipId).filter(Boolean);
       if (cards.length === 0) continue;                     // an honest empty/refused day owes nothing
-      if (date >= today) continue;                          // settlement window: ET-yesterday settles tonight
+      if (date >= today) continue;                          // settlement window: ET-yesterday settles overnight
+      /*
+       * P206: the nightly settle runs at ~04:12 ET the NEXT morning, so between ET midnight and
+       * the nightly, yesterday's cards are PENDING-IN-WINDOW by cadence — the first gate run in
+       * that gap failed every night's cards as "unaccounted" — and the first fix hit the Intl
+       * midnight-hour-24 trap (hour12:false renders 00:xx as "24"; hourCycle h23 is the fix,
+       * relearned from this repo's own Aug-1 incident). After 06:00 ET (nightly + slack) a
+       * missing receipt for yesterday is a real conservation failure again.
+       */
+      const etHour = Number(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hourCycle: "h23" }).format(new Date()));
+      const etYesterday = ET_DAY.format(new Date(Date.now() - 86_400_000));
+      if (date === etYesterday && etHour < 6) continue;
       const receipt = readJson(path.join(DATA, "lab-settled", `${date}.json`));
       const accounted = new Set((receipt?.cards ?? []).map((c) => c.slipId));
       for (const slip of cards) {

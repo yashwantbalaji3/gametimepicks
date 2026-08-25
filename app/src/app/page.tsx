@@ -307,6 +307,15 @@ export default function HomePage() {
         <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} />
       ) : null}
 
+      {/* 6 — Flagship products, powered by the simulations. Each card carries its own current status,
+          which is why the page no longer repeats those statuses in a second slate-summary block. */}
+      <FlagshipCards
+        cards={productCards}
+        heading="Flagship products"
+        subtitle="Bank Builder · Moonshot · Results — paper-only"
+        ariaLabel="Flagship products"
+      />
+
       {/* 5 — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}
       <HomeTodayMlb
         dateLabel={dateLabel}
@@ -333,15 +342,6 @@ export default function HomePage() {
       <section aria-label="Upcoming sports schedule status" style={{ marginTop: 8 }}>
         <UpcomingSportsStrip sports={allUpcoming({ nowIso: new Date().toISOString() }) as SportSchedule[]} />
       </section>
-
-      {/* 6 — Flagship products, powered by the simulations. Each card carries its own current status,
-          which is why the page no longer repeats those statuses in a second slate-summary block. */}
-      <FlagshipCards
-        cards={productCards}
-        heading="Flagship products"
-        subtitle="Bank Builder · Moonshot · Results — paper-only"
-        ariaLabel="Flagship products"
-      />
 
       {/* 7 — Featured simulations (real ready artifacts only) */}
       <FeaturedSimulationsSection featured={featured} readyCount={readyCount} answers={gameAnswers} />
