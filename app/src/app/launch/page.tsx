@@ -20,6 +20,7 @@ import { ALLOWED_CHOICES } from "@/lib/launch/founder-response.mjs";
 import { IA_SECTIONS } from "@/lib/launch/ia-contract.mjs";
 import { buildUiuxEvidence, P184_BASELINE } from "@/lib/launch/uiux-evidence.mjs";
 import { buildProductExperience } from "@/lib/launch/product-experience.mjs";
+import { buildSimulationExperience } from "@/lib/launch/simulation-experience.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
@@ -171,6 +172,7 @@ export default function LaunchCommandCenter() {
   /* Program 185 · the UI/UX audit, derived from its committed artifact — never typed here. */
   const uiux = buildUiuxEvidence();
   const px = buildProductExperience();
+  const sx = buildSimulationExperience();
   const routeInventory = (() => {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/audits/route-inventory-v1.json"), "utf8")); }
     catch { return null; }
@@ -1211,6 +1213,31 @@ export default function LaunchCommandCenter() {
                   </p>
                 </div>
               )}
+
+              {/* ── SIMULATION EXPERIENCE (P209 · Release J) — journey state, derived ── */}
+              <h2 id="simulation-experience" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Simulation experience (P209)</h2>
+              <div style={{ marginBottom: 18 }}>
+                {sx.day.available && sx.day.totals && sx.day.sections ? (
+                  <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 6 }}>
+                    Day selector: {sx.day.dates} dates in window {sx.day.window} · today {sx.day.today} — {sx.day.totals.events} events,
+                    {" "}{sx.day.totals.ready} report-ready, {sx.day.totals.settled} settled ·{" "}
+                    {sx.day.sections.map((s: { sport: string; events: number; empty: string | null }) => `${s.sport} ${s.events}${s.empty ? ` (${s.empty.toLowerCase().replaceAll("_", " ")})` : ""}`).join(" / ")}
+                  </p>
+                ) : (
+                  <p style={{ fontSize: 12, color: "var(--vault-warn)" }}>{sx.day.note}</p>
+                )}
+                {sx.themes.available && sx.themes.registered ? (
+                  <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 6 }}>
+                    Scenes: {sx.themes.registered.map((t: { sport: string; scene: string }) => `${t.sport}→${t.scene}`).join(" · ")} · unknown sport→{sx.themes.fallback}
+                  </p>
+                ) : (
+                  <p style={{ fontSize: 12, color: "var(--vault-warn)" }}>{sx.themes.note}</p>
+                )}
+                <p style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>
+                  State machine: {sx.machine.phases} phases, terminals {sx.machine.terminals.join("/")} — unearned terminals fail closed.
+                  Guards: {sx.guards.map((g: string) => g.split("/").pop()).join(", ")}
+                </p>
+              </div>
 
               <h2 id="uiux" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>UI/UX audit &amp; migration</h2>
               {!uiux.available ? (

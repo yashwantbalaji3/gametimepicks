@@ -36,10 +36,12 @@ const STATE_TONE: Record<SimDayEvent["state"], { fg: string; bg: string; label: 
 
 function EventCard({ e, onOpen }: { e: SimDayEvent; onOpen: (e: SimDayEvent) => void }) {
   const tone = STATE_TONE[e.state];
-  /* SETTLED results navigate directly (nothing is "generated" for a final); every other state
-     opens the SimulationStage, which plays the honest phase script — ready states emerge into the
-     report, non-ready states end in the stated refusal without leaving the slate. */
-  const viaStage = e.state !== "SETTLED";
+  /* SETTLED results navigate directly (nothing is "generated" for a final). MLB's ready games
+     also navigate directly: their report OWNS the richer in-page generation experience (the
+     GameSimulationRunner's gated reveal) — playing the stage first would stack two generation
+     ceremonies on one click. Every other non-settled state opens the SimulationStage: ready
+     states emerge into their report, non-ready states end in the stated refusal in place. */
+  const viaStage = e.state !== "SETTLED" && !(e.sport === "mlb" && e.state === "SIMULATION_READY");
   const body = (
     <>
       <span className="flex items-center justify-between gap-2 min-w-0">
