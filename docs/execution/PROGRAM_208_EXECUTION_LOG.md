@@ -18,7 +18,7 @@ criterion. Nothing else in the charter's verdict list is open.
   | R-B nav contract | ea762aa9c | bf88f884f | prod: Home/Picks/Parlay Center labels live |
   | R-C hub shell | c655a5f0b | d26a51181 | prod serving this tip, verified `verify:deployment` |
   | R-DHI | c006ae4c2 | 8f0d6e57d | pushed; CI + Vercel deploy chained |
-  | Final assurance | (this commit — in-flight) | c006ae4c2 | verified after push |
+  | Final assurance | b23cedb38 | c006ae4c2 | CI success 32923511695; production served b23cedb38, cache-bypass verified (robots 200, sitemap 37 urls, Customize live, hub nav live). Row corrected by P209 Phase 0 — it was written pre-push while the commit was in flight. |
 
 ## Gates (authoritative, fresh at close)
 - Canonical suite: **5,126 tests · 5,122 pass · 0 fail · 4 named skips** (grew +16 from new guards).
