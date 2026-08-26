@@ -362,6 +362,24 @@ const status = {
   products: {
     bankBuilder: { activeLanes: bbActive, lanes: bbLanes },
     moonshot: { activeLanes: moonActive, lanes: moonLanes },
+    // P211: the day's typed lifecycle + watchdog, read VERBATIM from the daily receipt writer's
+    // artifact (one writer owns the derivation; this file only surfaces it). A missing receipt is
+    // itself the finding — typed here exactly the way the watchdog would type it.
+    dailyLifecycle: (() => {
+      const receipt = (() => { try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data", "internal", "products", "receipts", `${slateDate}.json`), "utf8")); } catch { return null; } })();
+      if (!receipt) {
+        return {
+          receiptDate: slateDate, present: false,
+          watchdog: ["bank-builder", "moonshot"].map((product) => ({ product, kind: "MISSING_DAILY_EVALUATION", detail: `no daily receipt exists for ${slateDate}` })),
+          states: null,
+        };
+      }
+      return {
+        receiptDate: receipt.date, present: true, generatedAt: receipt.generatedAt,
+        watchdog: receipt.watchdog ?? [],
+        states: Object.fromEntries((receipt.products ?? []).filter((p) => p.lifecycle).map((p) => [p.product, { state: p.lifecycle.state, policyVersion: p.lifecycle.policyVersion }])),
+      };
+    })(),
   },
   counts: { activeProducts: activeProductCount, pendingApprovals: pendingApprovalCount },
   workflowHealth,

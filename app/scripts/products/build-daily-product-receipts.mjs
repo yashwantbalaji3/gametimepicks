@@ -15,7 +15,14 @@
  * "the inputs never arrived" is an operational fact. Both leave the page empty, and before this
  * they were indistinguishable. A missing slate yields INPUTS_MISSING — never NO_PLAY.
  *
- * Usage: npx tsx scripts/products/build-daily-product-receipts.mjs --now <iso> [--date YYYY-MM-DD]
+ * P211 · Release A: the same writer now ALSO types each signature product's day through the closed
+ * LIFECYCLE vocabulary (lib/products/daily-state-machine.mjs) via the pure derivation bridge —
+ * evaluation verdict verbatim, settlement only from the official settler's dated artifact,
+ * progression only from the ledger owner's portfolio and only while it is fresh. One writer, one
+ * stamp, two views of the same authorities. `--dry-run` derives and prints everything, writes
+ * nothing — the recovery command's first form.
+ *
+ * Usage: npx tsx scripts/products/build-daily-product-receipts.mjs --now <iso> [--date YYYY-MM-DD] [--dry-run]
  * Writes: data/internal/products/receipts/<date>.json
  */
 import fs from "node:fs";
@@ -24,11 +31,14 @@ import { fileURLToPath } from "node:url";
 import crypto from "node:crypto";
 
 import { buildPersistedDailyPortfolio } from "../../src/lib/daily-portfolio/accounting.ts";
+import { LIFECYCLE_STATES, productWatchdog } from "../../src/lib/products/daily-state-machine.mjs";
+import { deriveLifecycle } from "../../src/lib/products/daily-lifecycle-derive.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
 const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : f; };
 const NOW = arg("--now");
+const DRY_RUN = process.argv.includes("--dry-run");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(1); }
 const DATE = arg("--date", NOW.slice(0, 10));
 const DATA = path.join(APP, "public", "data");
@@ -154,6 +164,37 @@ for (const p of products) {
   if (p.state === "NO_PLAY" && !p.reason) { console.error(`REFUSED: ${p.product} claims NO_PLAY without a reason`); process.exit(2); }
 }
 
+// ------------------------------------------------------------ P211: lifecycle view + watchdog
+// The settlement authority's dated artifact and the ledger owner's portfolio — read, never written.
+const settledDay = read(path.join(ROOT, "data/picks/mr-dub/settled", `${DATE}.json`));
+const pf = read(path.join(DATA, "mr-dub", "portfolio.json"));
+const dp = read(path.join(DATA, "mr-dub", "daily-portfolio.json"));
+const progressionFresh = Boolean(
+  pf?.generatedAt && settledDay?.settledAt && Date.parse(pf.generatedAt) >= Date.parse(settledDay.settledAt),
+);
+const lifecycles = [];
+for (const p of products) {
+  if (p.product !== "bank-builder" && p.product !== "moonshot") continue;
+  const lc = deriveLifecycle({
+    product: p.product,
+    date: DATE,
+    entry: p,
+    settledDay,
+    portfolioLane: p.product === "moonshot" ? pf?.moonshot ?? null : pf?.bankBuilder ?? null,
+    progressionFresh,
+    boardHash: inputs.mlbBoard.hash,
+    // The lock stamp is the ACTIVATION artifact's own stamp for this date — never this run's clock.
+    lockAt: dp?.date === DATE ? dp?.generatedAt ?? null : null,
+    policyVersion: "activation-policy:pre-freeze(P211-R-B)",
+  });
+  if (!LIFECYCLE_STATES.concat(["VOIDED", "STOPPED"]).includes(lc.state)) {
+    console.error(`REFUSED: ${p.product} lifecycle derived ${lc.state} outside the closed vocabulary`); process.exit(2);
+  }
+  p.lifecycle = { state: lc.state, policyVersion: lc.policyVersion, evidence: lc.evidence, transitions: lc.transitions };
+  lifecycles.push(lc);
+}
+const watchdog = productWatchdog(lifecycles, Date.parse(NOW));
+
 const receipt = {
   schemaVersion: 1,
   artifact: "daily-product-receipt",
@@ -161,8 +202,10 @@ const receipt = {
   date: DATE,
   generatedAt: NOW,
   states: RECEIPT_STATES,
+  lifecycleStates: LIFECYCLE_STATES,
   inputs,
   products,
+  watchdog,
   authorities: {
     bankBuilder: "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
     moonshot: "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
@@ -177,8 +220,13 @@ const receipt = {
 };
 
 const outPath = path.join(ROOT, "data/internal/products/receipts", `${DATE}.json`);
-fs.mkdirSync(path.dirname(outPath), { recursive: true });
-fs.writeFileSync(outPath, JSON.stringify(receipt, null, 1));
+if (DRY_RUN) {
+  console.log(`DRY RUN — nothing written. Would write ${path.relative(ROOT, outPath)}:`);
+} else {
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  fs.writeFileSync(outPath, JSON.stringify(receipt, null, 1));
+}
 console.log(`product receipt ${DATE}: ${products.map((p) => `${p.product}=${p.state}`).join(" · ")}`);
+console.log(`lifecycle ${DATE}: ${products.filter((p) => p.lifecycle).map((p) => `${p.product}=${p.lifecycle.state}`).join(" · ")} · watchdog ${watchdog.length ? watchdog.map((a) => `${a.product}:${a.kind}`).join(",") : "quiet"}`);
 console.log(`inputs: board ${boardGames} games / ${boardLeans} leans · ${inputs.nflNote}`);
 for (const p of products) for (const r of p.rejections.slice(0, 2)) console.log(`  ${p.product} ${r.lane ?? ""}: ${r.reason}`);
