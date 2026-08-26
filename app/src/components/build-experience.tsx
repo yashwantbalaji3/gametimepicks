@@ -311,8 +311,9 @@ export default function BuildExperience({
           </div>
           {/* Search is secondary (v4): pills are the primary control. */}
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search team or player…"
+            aria-label="Search eligible legs by team or player"
             className="rounded-[8px] px-3 py-2"
-            style={{ background: "rgba(11, 18, 14,0.7)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }} />
+            style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 14 }} />
 
         </div>
 

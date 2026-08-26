@@ -39,6 +39,8 @@ import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 
 import LandingHero from "@/components/home/landing-hero";
+import RecentResultsStrip from "@/components/home/recent-results-strip";
+import { getOptimizerSettledDates } from "@/lib/parlay-results";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
 import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
@@ -314,6 +316,15 @@ export default function HomePage() {
         heading="Flagship products"
         subtitle="Bank Builder · Moonshot · Results — paper-only"
         ariaLabel="Flagship products"
+      />
+
+      {/* 6 — Recent results: the proof section (charter 5B order). Same owners as /results — the
+          record label and pending line arrive from portfolio.json above; the last settled date from
+          the optimizer's settled index. The homepage composes NOTHING. */}
+      <RecentResultsStrip
+        recordLabel={recordLabel}
+        pendingLabel={pendingLabel}
+        lastSettledDate={getOptimizerSettledDates().sort().slice(-1)[0] ?? null}
       />
 
       {/* 5 — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}

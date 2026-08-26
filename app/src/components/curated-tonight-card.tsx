@@ -95,7 +95,7 @@ export default function CuratedTonightCard({
             className="font-mono uppercase tracking-[0.14em] shrink-0"
             style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
           >
-            {ctaLabel ?? "Open Parlay Lab"} →
+            {ctaLabel ?? "Open Parlay Center"} →
           </Link>
         )}
       </div>

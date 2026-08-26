@@ -40,15 +40,28 @@ test("mobile 390: the six-primary bar measures, and the duplicate top strip stay
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const bar = page.locator('nav[aria-label="Mobile bottom navigation"]');
   await expect(bar).toBeVisible();
+  // P208: five thumb links + the labelled Menu button (Results/Sports/products live in its sheet).
   const links = bar.locator("a");
-  await expect(links).toHaveCount(6);
-  for (let i = 0; i < 6; i++) {
+  await expect(links).toHaveCount(5);
+  for (let i = 0; i < 5; i++) {
     const box = await links.nth(i).boundingBox();
     expect(box, `bar item ${i} renders`).not.toBeNull();
     expect(box!.height, `bar item ${i} touch target`).toBeGreaterThanOrEqual(44);
   }
   const hrefs = await links.evaluateAll((as) => as.map((a) => a.getAttribute("href")?.replace(/\/$/, "") || "/"));
-  expect(hrefs).toEqual(["/today", "/simulate", "/markets", "/build", "/sports", "/results"]);
+  expect(hrefs).toEqual(["/", "/today", "/simulate", "/markets", "/build"]);
+  const menuButton = bar.getByRole("button", { name: /^Menu/ });
+  await expect(menuButton).toBeVisible();
+  const menuBox = await menuButton.boundingBox();
+  expect(menuBox!.height, "menu touch target").toBeGreaterThanOrEqual(44);
+  // The sheet opens, carries Results + Sports, and closes leaving the reader where they were.
+  await menuButton.click();
+  const sheet = page.getByRole("dialog", { name: "Menu" });
+  await expect(sheet).toBeVisible();
+  await expect(sheet.locator('a[href="/results"], a[href="/results/"]').first()).toBeVisible();
+  await expect(sheet.locator('a[href="/sports"], a[href="/sports/"]').first()).toBeVisible();
+  await sheet.getByRole("button", { name: /Close/ }).click();
+  await expect(sheet).not.toBeVisible();
   // The complement strip is empty by construction — one mobile nav, not two.
   expect(await page.locator("nav.sm\\:hidden").count(), "no duplicate mobile top strip").toBe(0);
 });

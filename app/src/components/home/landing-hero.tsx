@@ -79,8 +79,11 @@ export default function LandingHero({ readyCount }: LandingHeroProps) {
           >
             Simulate Today&rsquo;s Games →
           </Link>
+          {/* P208 (finding J1): "Picks" is ONE destination. This action now opens the ranked picks
+              surface itself (/markets, nav label "Picks") — it used to open /today while the nav's
+              picks item pointed elsewhere, three labels circling one concept. */}
           <Link
-            href="/today"
+            href="/markets"
             className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
             style={{
               border: "1px solid var(--vault-border-strong)",
@@ -93,7 +96,8 @@ export default function LandingHero({ readyCount }: LandingHeroProps) {
           >
             See Today&rsquo;s Picks
           </Link>
-          {/* P200: the third journey — the Parlay Lab's suggested cards — had no front-door action. */}
+          {/* P200: the third journey — suggested cards — had no front-door action. P208: named for
+              its destination, the Parlay Center. */}
           <Link
             href="/build"
             className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
@@ -106,7 +110,7 @@ export default function LandingHero({ readyCount }: LandingHeroProps) {
               textDecoration: "none",
             }}
           >
-            View Suggested Parlays
+            Open Parlay Center
           </Link>
         </div>
 
@@ -118,6 +122,10 @@ export default function LandingHero({ readyCount }: LandingHeroProps) {
             </span>
           ) : null}
           <span style={{ color: "var(--vault-text-faint)" }}>graded from official results only</span>
+          {/* The proof link (charter 5A): Results visible from the hero, as evidence rather than a task. */}
+          <Link href="/results" className="vault-press" style={{ color: "var(--vault-success)", fontWeight: 700, textDecoration: "none" }}>
+            See every settled result →
+          </Link>
         </div>
       </div>
     </section>

@@ -5,7 +5,6 @@ import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
 import { usePathname } from "next/navigation";
 import BrandMark from "./brand-mark";
 import SportsbookLightRail from "./sportsbook-light-rail";
-import { MOBILE_NAV_ITEMS } from "@/lib/nav-active-route";
 
 /**
  * Primary site header.
@@ -47,12 +46,14 @@ const EPL_RE = /^\/epl(\/|$)/;
 const UFC_RE = /^\/ufc(\/|$)/;
 const SPORT_HREFS = new Set(["/mlb"]);
 
-// The mobile bottom nav already carries the core product routes. To keep the mobile TOP strip
-// COMPLEMENTARY (not a duplicate of the bottom bar), it shows only the items the bottom nav lacks —
-// Market Center · Results · How It Works · MLB. The full NAV_ITEMS spine renders only in the sm-lg
-// window; the command rail owns lg+.
-const BOTTOM_NAV_HREFS = new Set(MOBILE_NAV_ITEMS.map((i) => i.href));
-const MOBILE_TOP_ITEMS = NAV_ITEMS.filter((i) => !BOTTOM_NAV_HREFS.has(i.href));
+/*
+ * P208: the mobile complement strip is GONE, structurally. It existed to guarantee that a top-band
+ * destination missing from the bottom bar stayed reachable on a phone — and when Results + Sports
+ * moved to the Menu sheet, it dutifully revived itself as a second mobile nav, which is the exact
+ * two-competing-navs defect the founder reported. The guarantee it provided now lives in the Menu
+ * sheet itself, which derives "the rail minus the bar" from the same canonical list — every top-band
+ * destination is on the rail, so nothing can be stranded. One mobile nav, by construction.
+ */
 
 /** The four clusters, in the order a reader needs them: what's on now, which sport, which product,
  *  and how it has done. Rendered as a quiet label at each boundary. */
@@ -62,8 +63,9 @@ export default function Nav() {
   const pathname = usePathname() || "/";
 
   const isActive = (href: string) => {
-    // Today owns the root/home as the default landing experience.
-    if (href === "/today") return pathname === "/today" || pathname === "/" || pathname === "";
+    // P208: Home is a destination of its own — exact match only, or every route would light it.
+    if (href === "/") return pathname === "/" || pathname === "";
+    if (href === "/today") return pathname === "/today" || pathname.startsWith("/today/");
     // Parlay Lab is the canonical /picks; /parlays + /parlay-lab redirect there, so they highlight it.
     // Build = the custom paper-card builder only.
     if (href === "/build") {
@@ -181,81 +183,6 @@ export default function Nav() {
         <span aria-hidden className="shrink-0" style={{ width: 80 }} />
       </div>
 
-      {/* Mobile (< sm): row 2 = horizontal-scrolling nav strip.
-          P201: the bottom bar now carries all six primary destinations, so the complement this
-          strip renders is EMPTY and the strip disappears entirely — one mobile nav, not two. The
-          machinery stays: any future top-band destination the bar lacks reappears here on its own. */}
-      {MOBILE_TOP_ITEMS.length > 0 ? (
-      <nav
-        aria-label="Primary"
-        className="sm:hidden overflow-x-auto"
-        style={{ borderTop: "1px solid var(--vault-rule)" }}
-      >
-        <div className="mx-auto px-3 py-1 flex items-center justify-start gap-1 min-w-max">
-          {MOBILE_TOP_ITEMS.map((item, idx) => {
-            const active = isActive(item.href);
-            const isSport = SPORT_HREFS.has(item.href);
-            return (
-              <span key={item.href} className="inline-flex items-center">
-                {idx > 0 && MOBILE_TOP_ITEMS[idx - 1]?.group !== item.group && item.group && (
-                  <span className="font-mono uppercase tracking-[0.16em] select-none px-1.5" aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 8.5, alignSelf: "center" }}>
-                    {GROUP_LABEL[item.group]}
-                  </span>
-                )}
-                {item.beforeDivider && idx > 0 && (
-                  <span
-                    aria-hidden
-                    className="mx-1.5 inline-block"
-                    style={{
-                      width: 4,
-                      height: 4,
-                      borderRadius: 999,
-                      background: "var(--vault-gold-dim)",
-                      boxShadow: "0 0 6px rgba(52, 211, 153, 0.30)",
-                    }}
-                  />
-                )}
-                <Link
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className="relative px-3.5 py-2 text-[12.5px] sm:text-[13px] font-medium tracking-tight whitespace-nowrap transition-all rounded-[6px]"
-                  style={{
-                    color: active
-                      ? "var(--vault-gold-bright)"
-                      : "var(--vault-text-mute)",
-                    background: active
-                      ? "linear-gradient(180deg, rgba(52, 211, 153, 0.14) 0%, rgba(52, 211, 153, 0) 90%)"
-                      : "transparent",
-                    border: active
-                      ? "1px solid rgba(52, 211, 153, 0.32)"
-                      : "1px solid transparent",
-                    textShadow: active && isSport
-                      ? "0 0 14px rgba(52, 211, 153, 0.48)"
-                      : "none",
-                    boxShadow: active
-                      ? "0 0 16px rgba(52, 211, 153, 0.10)"
-                      : "none",
-                  }}
-                >
-                  {item.label}
-                  {active && (
-                    <span
-                      aria-hidden
-                      className="absolute left-2 right-2 -bottom-px h-px"
-                      style={{
-                        background:
-                          "linear-gradient(90deg, transparent, var(--vault-gold-bright), transparent)",
-                        boxShadow: "0 0 8px rgba(52, 211, 153, 0.55)",
-                      }}
-                    />
-                  )}
-                </Link>
-              </span>
-            );
-          })}
-        </div>
-      </nav>
-      ) : null}
 
       {/* Sportsbook LED rail underneath the chrome — pure presentation,
           respects prefers-reduced-motion. */}

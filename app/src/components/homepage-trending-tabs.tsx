@@ -495,7 +495,7 @@ function ParlaysPanel({
               color: "#0A0705",
             }}
           >
-            Open Parlay Lab
+            Open Parlay Center
             <span aria-hidden>→</span>
           </Link>
           {latestScoredDate && (
@@ -618,7 +618,7 @@ function UpcomingPanel({
             color: "var(--vault-text-mute)",
           }}
         >
-          Open Parlay Lab
+          Open Parlay Center
         </Link>
       </div>
     </Panel>

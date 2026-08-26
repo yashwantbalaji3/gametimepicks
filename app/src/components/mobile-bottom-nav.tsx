@@ -20,12 +20,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 import {
   MOBILE_NAV_ITEMS,
   resolveMobileNavBucket,
   type MobileNavBucket,
 } from "@/lib/nav-active-route";
+import { destinationsFor, NAV_GROUP_LABEL, groupChangedAt } from "@/lib/navigation";
 
 // Lightweight inline glyphs. Tiny SVGs keep the bundle slim and let
 // us use `currentColor` for active/inactive theming. Not branded icons.
@@ -48,6 +50,17 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
         <svg {...props}>
           <path d="M3 11.5 12 4l9 7.5" />
           <path d="M5 10v10h14V10" />
+        </svg>
+      );
+    case "today":
+      // Day view — today's slate.
+      return (
+        <svg {...props}>
+          <rect x="3" y="4.5" width="18" height="16" rx="2" />
+          <path d="M3 9h18" />
+          <path d="M8 2.5v4" />
+          <path d="M16 2.5v4" />
+          <circle cx="12" cy="15" r="2.2" />
         </svg>
       );
     case "games":
@@ -137,9 +150,76 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
   }
 }
 
+/**
+ * THE MENU SHEET (P208 · Release B). The bar carries the five thumb destinations (Home / Today /
+ * Simulate / Picks / Parlay); everything else the rail offers — Results, the sport hubs, the paper
+ * products, the record and learning pages — lives one tap away in a LABELLED sheet. Derived from
+ * the same canonical list as every other surface: the sheet is "the rail minus the bar", grouped
+ * under the same headings, so a destination can never exist on desktop and be unreachable here.
+ */
+function MenuSheet({ onClose, pathname }: { onClose: () => void; pathname: string }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const barHrefs = new Set(MOBILE_NAV_ITEMS.map((i) => i.href));
+  const items = destinationsFor("rail").filter((d) => !barHrefs.has(d.href));
+  useEffect(() => {
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 60%, transparent)" }} onClick={onClose}>
+      <div
+        role="dialog" aria-modal="true" aria-label="Menu"
+        className="rounded-t-[16px] max-h-[78vh] overflow-y-auto px-4 pb-8 pt-3"
+        onClick={(e) => e.stopPropagation()}
+        style={{ background: "var(--vault-panel-elevated)", borderTop: "1px solid var(--vault-border-strong)", paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 24px)" }}
+      >
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>Menu</span>
+          <button ref={closeRef} type="button" onClick={onClose} className="font-mono uppercase tracking-[0.12em] rounded-[8px]" style={{ color: "var(--vault-text-mute)", fontSize: 11, minHeight: 44, minWidth: 44 }}>
+            Close ✕
+          </button>
+        </div>
+        <ul className="list-none m-0 p-0 flex flex-col">
+          {items.map((d, i) => {
+            const groupStart = groupChangedAt(items, i);
+            const active = pathname === d.href || (d.href !== "/" && pathname.startsWith(`${d.href}/`));
+            return (
+              <li key={d.href}>
+                {groupStart && NAV_GROUP_LABEL[groupStart] ? (
+                  <span className="block font-mono uppercase tracking-[0.16em] pt-3 pb-1" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+                    {NAV_GROUP_LABEL[groupStart]}
+                  </span>
+                ) : null}
+                <Link
+                  href={d.href}
+                  onClick={onClose}
+                  aria-current={active ? "page" : undefined}
+                  className="flex items-center gap-2.5 rounded-[8px] px-2 no-underline"
+                  style={{ minHeight: 44, color: active ? "var(--vault-gold-bright)" : "var(--vault-text)", background: active ? "var(--vault-gold-dim)" : "transparent" }}
+                >
+                  {d.glyph ? <span aria-hidden style={{ width: 18, textAlign: "center", fontSize: 13 }}>{d.glyph}</span> : null}
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>{d.label}</span>
+                  {d.note ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{d.note}</span> : null}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const activeBucket = resolveMobileNavBucket(pathname);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const barBuckets = new Set(MOBILE_NAV_ITEMS.map((i) => i.bucket));
+  // The Menu lights up when the reader is ON a destination the sheet owns (e.g. /results, /sports)
+  // — the same "highlight where you are" rule the bar items follow.
+  const menuActive = activeBucket != null && !barBuckets.has(activeBucket);
 
   return (
     <nav
@@ -197,7 +277,34 @@ export default function MobileBottomNav() {
             </li>
           );
         })}
+        {/* The sixth slot: a LABELLED Menu (P208) — Results, sports, products, records, learning.
+            A button, not a link: it opens the sheet, and its label says so. */}
+        <li className="grow shrink-0 basis-[58px]">
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-expanded={menuOpen}
+            aria-haspopup="dialog"
+            aria-label={`Menu — Results, sports and more${menuActive ? " (current section)" : ""}`}
+            className="w-full flex flex-col items-center justify-center gap-0.5 rounded-[8px] py-2 transition-colors"
+            style={{
+              minHeight: 48,
+              background: menuActive
+                ? "linear-gradient(180deg, color-mix(in srgb, var(--vault-gold-bright) 10%, transparent) 0%, transparent 100%)"
+                : "transparent",
+              border: menuActive ? "1px solid color-mix(in srgb, var(--vault-gold-bright) 28%, transparent)" : "1px solid transparent",
+            }}
+          >
+            <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={menuActive ? "var(--vault-gold-bright)" : "var(--vault-text-mute)"} strokeWidth={1.8} strokeLinecap="round" aria-hidden>
+              <path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" />
+            </svg>
+            <span className="font-mono uppercase tracking-[0.08em] whitespace-nowrap" style={{ color: menuActive ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 10, lineHeight: 1 }}>
+              Menu
+            </span>
+          </button>
+        </li>
       </ul>
+      {menuOpen ? <MenuSheet onClose={() => setMenuOpen(false)} pathname={pathname ?? "/"} /> : null}
     </nav>
   );
 }

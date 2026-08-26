@@ -70,9 +70,13 @@ test("2 · Home leads with sport simulation cards + Bank Builder/Moonshot flagsh
 });
 
 // 3 — Home links to /simulate, /today, /bank-builder, /results (across the home surface).
-test("3 · Home links to /simulate, /today, /bank-builder, /results", () => {
+test("3 · Home links to /simulate, /markets, /build, /results, /today, /bank-builder", () => {
   assert.match(hero, /href="\/simulate"/, "hero links to /simulate");
-  assert.match(hero, /href="\/today"/, "hero links to /today");
+  // P208: the hero's three actions are Simulate / Picks (/markets) / Parlay Center (/build), with
+  // Results as the proof link; /today stays linked from the home sections (the Today hook).
+  assert.match(hero, /href="\/markets"/, "hero links to /markets (Picks)");
+  assert.match(hero, /href="\/build"/, "hero links to /build (Parlay Center)");
+  assert.match(hero, /href="\/results"/, "hero carries the Results proof link");
   // The footer/sections reach these destinations (literal href or an href map entry).
   for (const href of ["/simulate", "/today", "/results"]) {
     assert.ok(sections.includes(`"${href}"`), `home sections link to ${href}`);

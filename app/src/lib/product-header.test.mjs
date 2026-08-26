@@ -10,13 +10,15 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-test("global header: no hardcoded $100 paper bank label; reads the real public summary", () => {
+test("global header: no hardcoded bank label, no bankroll figure at all (P208)", () => {
   // The Today chip moved into the client chips component (real-clock hydration) — check both files.
   const src = fs.readFileSync("src/components/slate-status-bar.tsx", "utf8")
     + fs.readFileSync("src/components/slate-status-chips.tsx", "utf8");
   assert.ok(!src.includes('"$100 paper"'), "old internal bank label must be gone");
-  assert.ok(src.includes("loadPublicBankBuilderSummary"), "chip must read the real public summary");
-  assert.ok(src.includes("/bank-builder") && src.includes("/results") && src.includes("/today"), "chips link to product routes");
+  // P208 F3: the strip carries date/phase/freshness only. Bankroll figures render at their owners
+  // (/results, the homepage Recent-results strip, the product pages), never in the global header.
+  assert.ok(!src.includes("loadPublicBankBuilderSummary") && !src.includes("loadActiveBankroll"), "no bankroll loader in the strip");
+  assert.ok(src.includes("/results") && src.includes("/today"), "chips still link the freshness routes");
 });
 
 test("lineup-status vocabulary: calm labels, no shouting PRE-LINEUP", async () => {

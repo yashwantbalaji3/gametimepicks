@@ -30,8 +30,8 @@
  *   PRODUCTS — the paper products and their bankroll
  *   RECORD   — how has any of this actually done
  *
- * ── The `top` band is the SIX primary destinations (P200) ───────────────────────────────────────
- * Today · Simulate · Market Center · Build · Sports · Results. The tablet header and the mobile
+ * ── The `top` band leads with the SIX primary destinations (P200, restated by P208) ─────────────
+ * Home · Today · Simulate · Picks · Parlay Center · Results, then the Sports directory. The tablet header and the mobile
  * top strip had grown to seventeen items — a menu nobody can scan is a menu nobody reads. Every
  * other destination stays fully reachable on the rail (desktop) and in the footer sitemap, and the
  * sport hubs/products are one hop away via Sports/Build. Trimming a surface never removes a
@@ -78,7 +78,9 @@ export type NavDestination = {
 };
 
 export const NAV_GROUP_LABEL: Record<NavGroup, string> = {
-  now: "Now",
+  /* P208: the group holds the six primary destinations (Home … Results), so its public heading is
+     "Main" — "Now" claimed a recency the sixth member (Results) does not have. */
+  now: "Main",
   sports: "Sports",
   products: "Products",
   record: "Track record",
@@ -92,15 +94,30 @@ export const NAV_GROUP_LABEL: Record<NavGroup, string> = {
  * phone is never the only way to reach something.
  */
 export const NAV_DESTINATIONS: readonly NavDestination[] = [
-  // ── NOW ────────────────────────────────────────────────────────────────────────────────────────
-  { href: "/today", label: "Today", group: "now", glyph: "▤", desc: "Tonight's slate at a glance",
+  // ── NOW · the six primary destinations (P208) ─────────────────────────────────────────────────
+  /*
+   * HOME IS A DESTINATION, NOT JUST A LOGO. Before P208 no nav surface carried Home — the logo was
+   * the only way back, and the founder's usability report shows what that costs: a reader who does
+   * not know the logo convention has no visible "start over". The six primaries are the charter's
+   * six questions; Results closes the loop as proof, inside this block rather than the record
+   * group, so every surface renders the six together.
+   */
+  { href: "/", label: "Home", group: "now", glyph: "⌂", desc: "Start here — what can I do right now?",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "home" },
+  { href: "/today", label: "Today", group: "now", glyph: "▤", desc: "Tonight's slate at a glance",
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "today" },
   { href: "/simulate", label: "Simulate", group: "now", glyph: "▶", desc: "Pick a game, run its report",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "games" },
-  { href: "/markets", label: "Market Center", group: "now", glyph: "◈", desc: "Sportsbook prices vs our sims",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "markets", shortLabel: "Market" },
-  { href: "/build", label: "Build", group: "now", glyph: "✎", desc: "Build a card, or browse suggested ones",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "lab" },
+  /* "Picks" is the reader's word for this job; "Market Center" was ours. The route keeps its
+     canonical URL — the label changes everywhere at once because every surface derives from here. */
+  { href: "/markets", label: "Picks", group: "now", glyph: "◈", desc: "Model picks beside the sportsbook price",
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "markets" },
+  { href: "/build", label: "Parlay Center", group: "now", glyph: "✎", desc: "Suggested cards, or build your own",
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "lab", shortLabel: "Parlay" },
+  /* Sixth primary. Off the `mobile` bar by the charter's own bar spec (Home/Today/Simulate/Picks/
+     Parlay + Menu); the mobile Menu sheet renders every rail destination the bar lacks. */
+  { href: "/results", label: "Results", group: "now", glyph: "≡", desc: "Settled track record",
+    surfaces: ["top", "rail", "footer"], bucket: "results" },
 
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
   { href: "/mlb", label: "MLB", note: "live", group: "sports", glyph: "⚾", desc: "Baseball hub",
@@ -122,7 +139,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   /* No `note`: the label already ends in "Schedules", and "Sports · Schedules · schedules" is
      what a note that repeats its own label looks like. */
   { href: "/sports", label: "Sports · Schedules", group: "sports", glyph: "🗓", desc: "EPL · NFL · NBA · UFC schedules",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "sports", shortLabel: "Sports" },
+    surfaces: ["top", "rail", "footer"], bucket: "sports", shortLabel: "Sports" },
 
   // ── PRODUCTS ───────────────────────────────────────────────────────────────────────────────────
   { href: "/bank-builder", label: "Bank Builder", group: "products", glyph: "▰", desc: "Conservative paper card",
@@ -177,8 +194,6 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    */
   { href: "/results/picks", label: "Picks vs Outcomes", group: "record", glyph: "◎",
     desc: "What each model predicted, and what happened", surfaces: ["rail", "footer"] },
-  { href: "/results", label: "Results", group: "record", glyph: "≡", desc: "Settled track record",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "results" },
   { href: "/learn", label: "How It Works", group: "record", glyph: "✦", desc: "Start here",
     surfaces: ["rail", "footer"] },
   { href: "/methodology", label: "Methodology", group: "record", glyph: "◳", desc: "The model, in depth",

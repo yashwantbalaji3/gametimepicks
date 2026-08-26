@@ -43,10 +43,13 @@ const CEILING = {
   /* Ratcheted 2026-08-25 (P207): the Bank Builder trio's 98 inline literals converted to tokens /
      color-mix (dual-ladder-board now carries ZERO raw colours). Every lowering is a measured
      baseline emission, never a hand edit of the product. */
-  rawColorLiterals: 1170,
-  filesWithRawColors: 252,
-  themeDrift: 1066,
-  themeDriftReachable: 752,
+  /* Ratcheted 2026-08-26 (P208 R-B): the Parlay Center pages, mode tabs, Menu sheet and
+     Recent-results strip were written token-only (color-mix over scrim/wash/gold tokens), and the
+     literals P208's new code touched in passing were converted with it. Measured emission. */
+  rawColorLiterals: 1166,
+  filesWithRawColors: 251,
+  themeDrift: 1062,
+  themeDriftReachable: 748,
   identityData: 89,
   maskStops: 8,
   illustrationArt: 7,

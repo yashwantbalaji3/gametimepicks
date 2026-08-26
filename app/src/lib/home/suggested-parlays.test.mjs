@@ -65,7 +65,7 @@ test("component renders refusals honestly: no-play and unavailable are distinct 
 test("homepage renders the preview from the lib and the hero carries all three journey actions", () => {
   assert.match(page, /loadSuggestedParlaysPreview\(/, "page derives via the lib owner");
   assert.match(page, /<SuggestedParlaysPreview\b/, "page renders the preview");
-  assert.match(hero, /View Suggested Parlays/, "hero has the parlays action");
+  assert.match(hero, /Open Parlay Center/, "hero has the Parlay Center action (P208 name = destination)");
   assert.match(hero, /href="\/build"/, "parlays action routes to /build");
 });
 

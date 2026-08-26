@@ -13,6 +13,7 @@ import { destinationsFor } from "./navigation";
 
 export type MobileNavBucket =
   | "home"
+  | "today"
   | "games"
   | "markets"
   | "picks"
@@ -96,8 +97,9 @@ export function resolveMobileNavBucket(
   const p = pathname.length > 1 && pathname.endsWith("/")
     ? pathname.slice(0, -1)
     : pathname;
-  // Today owns the root/home as the default landing experience.
-  if (p === "" || p === "/" || p === "/today" || p.startsWith("/today/")) return "home";
+  // P208: Home is a real destination — the root highlights it; Today owns its own bucket.
+  if (p === "" || p === "/") return "home";
+  if (p === "/today" || p.startsWith("/today/")) return "today";
   // Picks Lab is retired (Program 143): /picks and the older /parlays + /parlay-lab aliases all
   // redirect to /build#suggested-cards, so they highlight the Build (lab) bucket mid-redirect
   // rather than leaving no active item. The "picks" bucket no longer has a nav item.

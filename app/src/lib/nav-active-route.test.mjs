@@ -64,14 +64,14 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
   assert.ok(!nav.includes('href: "/world-cup-specials"'), "Soccer Specials is NOT in the active nav");
 });
 
-test("MOBILE_NAV_ITEMS is the SIX PRIMARY destinations in canonical order (P201 charter F1)", () => {
-  // P201: the bar answers the six primary questions (Today / Simulate / Market Center / Build /
-  // Sports / Results) rather than carrying the paper products — those stay one hop away on the
-  // rail and footer, and losing a slot removed no destination from the canonical list.
-  assert.equal(MOBILE_NAV_ITEMS.length, 6);
+test("MOBILE_NAV_ITEMS is the FIVE thumb destinations in canonical order (P208 charter 3B)", () => {
+  // P208: the bar carries Home / Today / Simulate / Picks / Parlay; Results and Sports live in the
+  // labelled Menu sheet the component adds as the sixth slot — the sheet derives from the same
+  // canonical list (rail minus bar), so losing a bar slot removed no destination.
+  assert.equal(MOBILE_NAV_ITEMS.length, 5);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "games", "markets", "lab", "sports", "results"],
+    ["home", "today", "games", "markets", "lab"],
   );
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/diamond-specials"), "no Diamond Specials nav item");
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/homer-nukes"), "no retired Homer Nukes nav item");
@@ -87,12 +87,14 @@ test("MOBILE_NAV_ITEMS labels are the UNIFIED six-primary set, matching every ot
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
   // Label unification: mobile matches the desktop nav / command rail / footer labels exactly.
+  assert.equal(byHref["/"], "Home");
   assert.equal(byHref["/today"], "Today");
   assert.equal(byHref["/simulate"], "Simulate");
-  assert.equal(byHref["/markets"], "Market Center");
-  assert.equal(byHref["/build"], "Build");
-  assert.equal(byHref["/sports"], "Sports · Schedules");
-  assert.equal(byHref["/results"], "Results");
+  assert.equal(byHref["/markets"], "Picks");
+  assert.equal(byHref["/build"], "Parlay Center");
+  // P208: Results + Sports moved to the labelled Menu sheet — off the bar, still one tap away.
+  assert.equal(byHref["/sports"], undefined);
+  assert.equal(byHref["/results"], undefined);
   // Retired routes and products stay off the bar (the products live on the rail/footer).
   assert.equal(byHref["/picks"], undefined, "no retired route in the mobile spine");
   assert.equal(byHref["/bank-builder"], undefined, "products lost their slots to the six primary");
@@ -101,8 +103,8 @@ test("MOBILE_NAV_ITEMS labels are the UNIFIED six-primary set, matching every ot
   assert.equal(byHref["/homer-nukes"], undefined, "Homer Nukes retired — no nav tab");
   // The thumb-width shortLabels stay prefix-or-subset of the real label (WCAG 2.5.3).
   const short = Object.fromEntries(MOBILE_NAV_ITEMS.map((i) => [i.href, i.shortLabel]));
-  assert.equal(short["/markets"], "Market");
-  assert.equal(short["/sports"], "Sports");
+  assert.equal(short["/markets"], "Picks");
+  assert.equal(short["/build"], "Parlay");
 });
 
 test("products highlight nothing: Bank Builder / Moonshot / Mr. Dub lost their slots to the six primary (P201)", () => {
@@ -113,7 +115,7 @@ test("products highlight nothing: Bank Builder / Moonshot / Mr. Dub lost their s
   }
 });
 
-test("markets: /markets and descendants resolve to the Market Center slot (P201)", () => {
+test("markets: /markets and descendants resolve to the Picks slot (P201, relabelled P208)", () => {
   assert.equal(resolveMobileNavBucket("/markets"), "markets");
   assert.equal(resolveMobileNavBucket("/markets/"), "markets");
 });
@@ -124,9 +126,10 @@ test("retired homer: /homer-nukes and descendants map to no bucket (dead bucket 
   assert.equal(resolveMobileNavBucket("/homer-nukes/board"), null);
 });
 
-test("home (Today): '/', '/today' resolve to home", () => {
+test("home vs today (P208): '/' resolves to Home's slot, '/today' to its own", () => {
   assert.equal(resolveMobileNavBucket("/"), "home");
-  assert.equal(resolveMobileNavBucket("/today"), "home");
+  assert.equal(resolveMobileNavBucket("/today"), "today");
+  assert.equal(resolveMobileNavBucket("/today/"), "today");
   assert.equal(resolveMobileNavBucket(""), null); // empty is treated as null input
 });
 

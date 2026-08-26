@@ -56,8 +56,9 @@ function useIsActive() {
   // top nav on every route, including legacy entry points.
   return (item: RailItem): boolean => {
     const { href } = item;
+    if (href === "/") return pathname === "/" || pathname === "";
     if (href === "/simulate") return pathname === "/simulate";
-    if (href === "/today") return pathname === "/today" || pathname === "/" || pathname === "";
+    if (href === "/today") return pathname === "/today" || pathname.startsWith("/today/");
     if (href === "/mlb") {
       // The retired /board + /projections aliases redirect into the MLB board, so they highlight MLB
       // rather than leaving no active item during the bounce.

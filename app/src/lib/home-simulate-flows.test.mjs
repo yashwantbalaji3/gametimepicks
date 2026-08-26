@@ -22,7 +22,9 @@ test("Home's Simulate CTA points to the clean /simulate route", () => {
 });
 
 test("Home also pushes users to Today's Picks (a distinct CTA, not a duplicate of Simulate)", () => {
-  assert.match(hero, /href="\/today"/, "the hero has a Today's Picks CTA to /today");
+  // P208 (J1): the picks CTA opens the PICKS destination itself (/markets, nav label "Picks") —
+  // it used to open /today while the nav's picks item pointed elsewhere, one concept, three names.
+  assert.match(hero, /href="\/markets"/, "the hero's picks CTA opens the picks owner");
   // {0,10} tolerates the JSX apostrophe entity (&rsquo; is 7 chars), same as the Simulate CTA pin above.
   assert.match(hero, /See Today.{0,10}s Picks/i, "the hero CTA is 'See Today's Picks'");
 });

@@ -9,12 +9,22 @@ const r = (p) => fs.readFileSync(p, "utf8");
 // record — instead of a hand-picked lead order maintained separately on three surfaces. What these
 // guards exist to protect is that the SIMULATION product leads and the paper-bankroll products
 // never do. That still holds, and is asserted against the canonical list below.
-test("Mr. Dub is a first-class nav item (desktop nav + sidebar + mobile bottom nav)", () => {
-  assert.match(r("src/lib/navigation.ts"), /href: "\/mr-dub"/, "desktop nav has Mr. Dub");
-  assert.match(r("src/lib/navigation.ts"), /href: "\/mr-dub"[\s\S]*?surfaces: \[[^\]]*"rail"/, "sidebar has Mr. Dub");
+test("Mr. Dub is a first-class rail/footer destination (P201 took products off the mobile bar)", () => {
+  /*
+   * The old third assertion required /mr-dub on the `mobile` surface — which has not been true
+   * since P201 removed products from the bar. It passed VACUOUSLY: the forward-scanning regex
+   * matched ANY later entry carrying "mobile", and died only when P208 moved the last such entry.
+   * The real contract: Mr. Dub stays a first-class destination on the rail and footer, reachable
+   * from the mobile Menu sheet (which derives from the rail), with its bucket mapped for any
+   * surface that keys on it.
+   */
+  const nav = r("src/lib/navigation.ts");
+  const decl = nav.slice(nav.indexOf('href: "/mr-dub"'));
+  const body = decl.slice(0, decl.indexOf("},"));
+  assert.match(body, /label: "Mr\. Dub's Portfolio"/, "keeps the founder-renamed label");
+  assert.match(body, /surfaces: \["rail", "footer"\]/, "rail + footer (the Menu sheet derives from the rail)");
   const navRoute = r("src/lib/nav-active-route.ts");
-  assert.match(r("src/lib/navigation.ts"), /href: "\/mr-dub"[\s\S]*?surfaces: \[[^\]]*"mobile"/, "mobile bottom nav has Mr. Dub");
-  assert.ok(navRoute.includes('"/mr-dub"') && navRoute.includes('"mrdub"'), "mobile route maps /mr-dub → mrdub bucket");
+  assert.ok(navRoute.includes('"/mr-dub"') && navRoute.includes('"mrdub"'), "bucket mapping preserved");
 });
 
 test("Bank Builder public copy is natural — no awkward lifecycle terms on the marketing surface", () => {

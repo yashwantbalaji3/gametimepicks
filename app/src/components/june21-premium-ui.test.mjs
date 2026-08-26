@@ -74,8 +74,9 @@ test("Slate-status bar: honest 3-way label (settled / in progress / pregame) —
   assert.match(SLATEBAR, /loadWorldCupProjections/, "reads the WC projections kickoffs");
   assert.match(SLATEBAR, /kickoffUtc/, "uses kickoffUtc times");
   assert.match(SLATEBAR, /SlateStatusChips/, "renders the client chips");
-  // The product-header test contract is preserved.
-  assert.match(SLATEBAR, /loadPublicBankBuilderSummary/, "still reads the real public bank summary");
+  // P208 F3: the bankroll chips moved to their canonical owners; the strip carries date/phase/
+  // freshness only, so the bank-summary loader has no business here any more.
+  assert.doesNotMatch(SLATEBAR, /loadPublicBankBuilderSummary/, "no bankroll figure in the global strip");
   assertNoBanned("slate status bar", SLATEBAR);
   assertNoBanned("slate status chips", CHIPS);
 });

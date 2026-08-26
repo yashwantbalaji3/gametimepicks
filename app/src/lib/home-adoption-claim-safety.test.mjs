@@ -47,11 +47,16 @@ test("3 · the return hook gives an honest reason to return WITHOUT inventing a 
   assert.doesNotMatch(visible(s), /\bat \d{1,2}(:\d{2})?\s?(am|pm)\b/i, "no fabricated clock time");
 });
 
-test("4 · the top-bar money chip leads with the RECORD, not a headline dollar (no profit-claim framing)", () => {
-  const s = read("src/components/slate-status-bar.tsx");
-  assert.match(s, /Paper record/, "chip is labelled a paper RECORD");
-  // The record (wins–losses) must render before the dollar figure in the chip's JSX.
-  const recIdx = s.indexOf("portfolio.wins");
-  const usdIdx = s.indexOf("usd(portfolio.active)");
-  assert.ok(recIdx !== -1 && usdIdx !== -1 && recIdx < usdIdx, "wins–losses precede the dollar figure");
+test("4 · no money figure in the global top bar; the home record section leads with the RECORD (no profit-claim framing)", () => {
+  /*
+   * P208 F3 moved the bankroll chips OFF the global strip entirely — the strongest form of the
+   * original rule (no profit-claim framing above every page). The claim-safety intent transfers to
+   * the homepage's Recent-results strip, which still leads with the RECORD label and carries no
+   * headline dollar at all: figures arrive pre-formatted from the same owner /results renders.
+   */
+  const bar = read("src/components/slate-status-bar.tsx");
+  assert.doesNotMatch(bar, /Paper record|usd\(/, "the global strip carries no bankroll figure");
+  const strip = read("src/components/home/recent-results-strip.tsx");
+  assert.match(strip, /Paper record/, "the home proof section is labelled a paper RECORD");
+  assert.doesNotMatch(strip, /\$\{?\s*\d|toLocaleString\("en-US", \{ minimumFractionDigits: 2/, "no dollar figure composed in the strip");
 });

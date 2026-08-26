@@ -20,6 +20,9 @@ const mobileByHref = Object.fromEntries(MOBILE_NAV_ITEMS.map((i) => [i.href, i.l
 
 // The unified label for each route (the single public name it must carry on every surface it appears on).
 const UNIFIED = {
+  "/": "Home",
+  "/markets": "Picks",
+  "/build": "Parlay Center",
   "/simulate": "Simulate",
   "/today": "Today",
   "/results": "Results",

@@ -94,7 +94,7 @@ export default function TodayMarketCoverage({ coverage }: { coverage: MarketCove
           className="font-mono uppercase tracking-[0.1em]"
           style={{ color: "var(--vault-gold-bright)", fontSize: 9, textDecoration: "none" }}
         >
-          Market Center →
+          All picks →
         </Link>
       </div>
 

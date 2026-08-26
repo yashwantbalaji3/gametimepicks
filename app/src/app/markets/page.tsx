@@ -21,7 +21,7 @@ import {
 } from "@/lib/research/disagreement-explorer";
 
 export const metadata: Metadata = {
-  title: "Market Center · GameTimePicks",
+  title: "Picks · GameTimePicks",
   description:
     "Sportsbook prices alongside GameTimePicks simulations for the current MLB slate, with every market labelled by what we can honestly show.",
 };
@@ -34,7 +34,7 @@ export default function MarketsPage() {
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
         <PageHero
-          eyebrow="Market Center"
+          eyebrow="Picks"
           title="No sportsbook snapshot available"
           sub="No captured sportsbook artifact was found. Nothing is shown rather than presenting an older snapshot as the current market."
         />
@@ -55,7 +55,7 @@ export default function MarketsPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <PageHero
-        eyebrow="Market Center"
+        eyebrow="Picks"
         title="Sportsbook prices next to our simulations"
         sub="Every market is labelled by what we can honestly show for it: both sides, one side, or neither. Probabilities from the sportsbook are converted by GameTimePicks from the posted price — they are not the book's own numbers. Paper and educational only."
       />
