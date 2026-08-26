@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823096,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T11:28:11.447Z",
+  "availableAt": "2026-08-26T11:28:11.447Z",
+  "eventStartTime": "2026-08-26T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693433,
+      "name": "Bryan Woo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 10,
+      "lastStartDate": "2026-08-16",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.6,
+        "bbAvg": 1.4,
+        "erAvg": 2.4,
+        "hrAvg": 0.6,
+        "kPer9": 9,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 138.33,
+        "k": 137,
+        "bb": 29,
+        "er": 63,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 666200,
+      "name": "Jesús Luzardo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 5,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33.67,
+        "ipAvg": 6.73,
+        "kAvg": 8.4,
+        "bbAvg": 1.8,
+        "erAvg": 2.2,
+        "hrAvg": 0.6,
+        "kPer9": 11.23,
+        "workloadIpLast5": 33.67
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 156,
+        "k": 194,
+        "bb": 47,
+        "er": 56,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-26T11:28:11.447Z"
+  },
+  "recordHash": "12a132ff385ec70659fc04d334512bdb3f8734009f844592fa1ead2eb8625bfc"
+}

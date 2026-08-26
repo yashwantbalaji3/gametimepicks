@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823180,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T11:28:11.447Z",
+  "availableAt": "2026-08-26T11:28:11.447Z",
+  "eventStartTime": "2026-08-26T19:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 694738,
+      "name": "Landen Roupp",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 3.4,
+        "bbAvg": 3.8,
+        "erAvg": 3.4,
+        "hrAvg": 0.4,
+        "kPer9": 6.2,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 134.67,
+        "k": 130,
+        "bb": 64,
+        "er": 65,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 666157,
+      "name": "Nick Lodolo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 5,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 3.4,
+        "bbAvg": 1.8,
+        "erAvg": 2.6,
+        "hrAvg": 1,
+        "kPer9": 6.56,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 75,
+        "k": 59,
+        "bb": 31,
+        "er": 42,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-26T11:28:11.447Z"
+  },
+  "recordHash": "258865c9cf05028220ba692aae99721913bbf038f269b01cc927343df45789e2"
+}

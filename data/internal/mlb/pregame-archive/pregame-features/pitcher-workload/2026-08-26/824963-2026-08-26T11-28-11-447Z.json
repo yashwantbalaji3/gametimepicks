@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824963,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T11:28:11.447Z",
+  "availableAt": "2026-08-26T11:28:11.447Z",
+  "eventStartTime": "2026-08-27T01:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669372,
+      "name": "J.T. Ginn",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 5,
+        "bbAvg": 1.8,
+        "erAvg": 2.2,
+        "hrAvg": 0.2,
+        "kPer9": 7.67,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 125.33,
+        "k": 114,
+        "bb": 53,
+        "er": 49,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 687570,
+      "name": "Connor Prielipp",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 6,
+        "bbAvg": 2.6,
+        "erAvg": 4.2,
+        "hrAvg": 1,
+        "kPer9": 10,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 93.67,
+        "k": 101,
+        "bb": 38,
+        "er": 58,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-26T11:28:11.447Z"
+  },
+  "recordHash": "a3a738876de0d7bd8959a8bd3a37761d2f71f7467373fdecf18b71c64858bd12"
+}

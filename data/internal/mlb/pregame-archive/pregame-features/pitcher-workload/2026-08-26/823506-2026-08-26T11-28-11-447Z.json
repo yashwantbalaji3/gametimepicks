@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823506,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T11:28:11.447Z",
+  "availableAt": "2026-08-26T11:28:11.447Z",
+  "eventStartTime": "2026-08-26T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 663567,
+      "name": "Peter Lambert",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 5.2,
+        "bbAvg": 2,
+        "erAvg": 3.4,
+        "hrAvg": 0.2,
+        "kPer9": 9.62,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 122.33,
+        "k": 120,
+        "bb": 48,
+        "er": 50,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-26T11:28:11.447Z"
+  },
+  "recordHash": "a7dbecbbe94081de6ab79c1cae3588c652110b15a4572c181cf0e78d4c043d27"
+}
