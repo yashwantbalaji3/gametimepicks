@@ -219,7 +219,7 @@ export default function NflHubPage() {
     layerRow("Moneyline / spread / total prices", modelStatus?.market, "no price capture is readable"),
     ...((modelStatus?.playerFamilies ?? []) as Array<StatusLayer & { label: string }>).map((f) => layerRow(f.label, f, "no evaluation on file")),
     layerRow("Anytime touchdown · Endzone Vault", modelStatus?.anytimeTd, "no calibration receipt on file"),
-    { layer: "Settlement", state: "DEPLOYED", detail: "team and scorer settlement contracts are deployed and tested; the first matching pre-event artifacts settle exactly once when they exist" },
+    { layer: "Settlement", state: "DEPLOYED", detail: "team and scorer results are graded automatically from official finals; each pre-kickoff forecast settles exactly once when its result exists" },
     ...(productEligibility
       ? productEligibility.products.map((p) => ({
           layer: `Paper products · ${p.label}`,

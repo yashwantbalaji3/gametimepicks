@@ -386,7 +386,7 @@ export default function ResultsPage() {
               className="text-[12.5px] leading-snug"
               style={{ color: "var(--vault-text-mute)" }}
             >
-              {activeLabel} picks live in Picks Lab until games finish.
+              {activeLabel} picks live in the Parlay Center until games finish.
             </span>
             {/* Return loop: yesterday's recap → today's slate (the daily journey's forward step). */}
             <Link

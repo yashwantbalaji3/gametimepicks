@@ -6,7 +6,7 @@
 import ClientRedirect from "@/components/client-redirect";
 
 export const metadata = {
-  title: "Parlay Lab · GameTime Picks",
+  title: "Parlay Center · GameTime Picks",
   robots: { index: false, follow: false },
 };
 

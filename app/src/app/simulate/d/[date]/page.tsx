@@ -36,7 +36,7 @@ export default function SimulateDatePage({ params }: { params: { date: string } 
         <p className="m-0 max-w-[72ch]" style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.6 }}>
           {view.date < view.today
             ? <>A settled slate: {view.totals.settled} of {view.totals.events} events are final — results route to their reports and the record. Deeper history lives on <Link href="/results" style={{ color: "var(--vault-gold-bright)" }}>Results</Link>.</>
-            : <>{view.totals.ready} of {view.totals.events} events on this slate carry a model artifact; every other state says exactly what it is.</>}
+            : <>{view.totals.ready} of {view.totals.events} events on this slate have a simulation report ready; every other state says exactly what it is.</>}
         </p>
       </header>
       <SimulateDay view={view} />

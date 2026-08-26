@@ -71,6 +71,10 @@ export interface PublicSuggestedCard {
     sport: SportKey; label: string; sublabel?: string; americanOdds: number; photo?: string | null;
     /** Settlement outcome for this leg — present only after official grading. */
     result?: "win" | "loss" | "push" | "pending" | string;
+    /** The leg's canonical draft identity (P209 · Release F) — present ONLY when the producer's
+     *  artifact carries the decomposed fields; a card whose legs all carry it can seed the shared
+     *  Parlay Center draft. Never parsed from a display string. */
+    slipLeg?: import("@/lib/slip/leg-identity").SlipLegInput;
   }>;
   combinedAmericanOdds: number;
   defaultStake: number;
@@ -349,11 +353,40 @@ export function normalizeOptimizerSlips(
       sportLabels: finalSports.map(label),
       cardType: finalSports.length > 1 ? "mixed_sport" : "single_sport",
       riskTier: PROFILE_TIER[(s.profile ?? s.riskProfile ?? "").toLowerCase()] ?? "Medium",
-      legs: legs.map((l) => ({
-        sport: ((l as { sport?: string }).sport as SportKey) ?? (finalSports[0] ?? "nba"),
-        label: legLabel(l),
-        americanOdds: legOdds(l) as number,
-      })),
+      legs: legs.map((l) => {
+        const raw = l as {
+          sport?: string; playerName?: string; marketLabel?: string; side?: string;
+          line?: number | null; playerId?: number | null; team?: string | null; opponent?: string | null;
+        };
+        const legSport = (raw.sport as SportKey) ?? (finalSports[0] ?? "nba");
+        /* P209 · Release F: the optimizer artifact ALREADY decomposes every leg (playerName /
+           marketLabel / side / line / oddsForSide) — normalization used to flatten that into a
+           display label, which is why these cards could not seed the shared draft. The identity now
+           rides along, fail-closed: any missing field ⇒ no slipLeg ⇒ the card stays browse-only
+           with its reason. Never derived from the label. */
+        const odds = legOdds(l);
+        const slipLeg =
+          raw.playerName && raw.marketLabel && raw.side && odds != null
+            ? {
+                sport: legSport,
+                player: raw.playerName,
+                marketLabel: raw.marketLabel,
+                side: raw.side,
+                line: typeof raw.line === "number" ? raw.line : null,
+                americanOdds: odds,
+                matchup: raw.team && raw.opponent ? `${raw.team} vs ${raw.opponent}` : (raw.team ?? null),
+                photoUrl: legSport === "mlb" && raw.playerId ? mlbHeadshotUrl(raw.playerId) : null,
+                teamAbbr: raw.team ?? null,
+                opponentAbbr: raw.opponent ?? null,
+              }
+            : undefined;
+        return {
+          sport: legSport,
+          label: legLabel(l),
+          americanOdds: odds as number,
+          ...(slipLeg ? { slipLeg } : {}),
+        };
+      }),
       combinedAmericanOdds: s.combinedAmerican ?? decimalToAmerican(dec),
       defaultStake: 25,
       isPublic: true,

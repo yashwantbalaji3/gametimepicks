@@ -183,8 +183,8 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * cards a reader built and kept. Two different populations answering two different questions, and
    * only the second had a record page.
    */
-  { href: "/results/parlay-lab", label: "Parlay Lab Record", group: "record", glyph: "▦",
-    desc: "Every card the Lab suggested, all sports", surfaces: ["rail", "footer"] },
+  { href: "/results/parlay-lab", label: "Suggested-Card Record", group: "record", glyph: "▦",
+    desc: "Every suggested card, all sports, settled", surfaces: ["rail", "footer"] },
   /*
    * The other half of publishing forecasts. Every hub showed what its model predicted and almost
    * none showed how those predictions turned out — an asymmetry that always flatters, because

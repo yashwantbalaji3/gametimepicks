@@ -56,7 +56,7 @@ export default function LearningSignalsTable({
           className="font-mono ml-auto"
           style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
         >
-          informational · no optimizer change
+          informational · no card-selection change
         </span>
       </header>
       <ul className="p-3 sm:p-4 flex flex-col gap-2 list-none">
@@ -69,7 +69,7 @@ export default function LearningSignalsTable({
         style={{ color: "var(--vault-text-faint)" }}
       >
         Every signal here is tracked first, reviewed internally second, and
-        only then considered for the optimizer. We never say the
+        only then considered for card selection. We never say the
         model &quot;learned&quot; from a single slate, and we do not
         consume an audit signal until the confirming-days threshold
         in the policy clears.

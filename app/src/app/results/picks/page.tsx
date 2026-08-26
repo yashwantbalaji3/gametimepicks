@@ -121,7 +121,7 @@ export default function AllGradedPicksPage() {
 
       <nav className="mt-6 flex flex-wrap gap-3" style={{ fontSize: 12.5 }}>
         <Link href="/results" style={{ color: "var(--vault-text-mute)" }}>Settled money record → Results</Link>
-        <Link href="/results/parlay-lab" style={{ color: "var(--vault-text-mute)" }}>Parlay Lab record →</Link>
+        <Link href="/results/parlay-lab" style={{ color: "var(--vault-text-mute)" }}>Suggested-card record →</Link>
         <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
       </nav>
     </main>

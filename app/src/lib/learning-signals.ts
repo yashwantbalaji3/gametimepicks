@@ -182,7 +182,7 @@ export function buildLearningSignalRows(
       status,
       explanation:
         status === "shadow-test-candidate"
-          ? "Past the n + gap thresholds — qualifies for shadow evaluation before any optimizer change."
+          ? "Past the n + gap thresholds — qualifies for silent evaluation before any card-selection change."
           : status === "too-small"
             ? `Below the n=${_PROFILE_DEMOTION_MIN_N} floor; needs ${needed} more decisive slips before demotion can be considered.`
             : "Within the variance band; no action needed.",
@@ -289,7 +289,7 @@ export function buildLearningSignalRows(
           : "fires tracked",
       status: confirmed ? "confirmed-not-consumed" : "tracking",
       explanation: confirmed
-        ? "Confirming-days threshold cleared — pending operator approval before optimizer consumes it."
+        ? "Confirming-days threshold cleared — pending operator approval before card selection uses it."
         : `Fired ${fires} of ${required} required days; still under threshold.`,
     });
   }

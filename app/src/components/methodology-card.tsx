@@ -77,7 +77,7 @@ export default function MethodologyCard() {
         <Step
           number={3}
           title="Signal review"
-          body="Underperforming markets, tiers, or matchup shapes get flagged via the audit policy you can see in the banner above. A signal has to repeat across a configured window of confirming days before it can affect the optimizer. One slate never changes the model on its own."
+          body="Underperforming markets, tiers, or matchup shapes get flagged via the audit policy you can see in the banner above. A signal has to repeat across a configured window of confirming days before it can affect card selection. One slate never changes the model on its own."
         />
       </ol>
 
@@ -116,7 +116,7 @@ export default function MethodologyCard() {
             </strong>{" "}
             Low / Medium / High / Longshot get their own results row.
             The hit rate you see on Results matches what you saw on
-            Parlay Lab the day before, not a re-bucketing.
+            the Parlay Center the day before, not a re-bucketing.
           </li>
           <li>
             <strong style={{ color: "var(--vault-text)" }}>
@@ -149,7 +149,7 @@ export default function MethodologyCard() {
         >
           What happens next: audit signals are tracked first,
           reviewed internally second, and only then considered for the
-          optimizer. Advanced ML ideas are on the roadmap, but not
+          card selection. Advanced ML ideas are on the roadmap, but not
           active until they beat the current rules in out-of-time
           tests. Full sequence —{" "}
           <a
@@ -188,7 +188,7 @@ export default function MethodologyCard() {
           <Bullet>
             We do <strong style={{ color: "var(--vault-text)" }}>not</strong> call
             this a learning model. Until an audit signal is explicitly consumed
-            by the optimizer, every flag in the banner above is informational
+            by card selection, every flag in the banner above is informational
             only.
           </Bullet>
           <Bullet>
@@ -200,7 +200,7 @@ export default function MethodologyCard() {
             financial advice.
           </Bullet>
           <Bullet>
-            Single-game NBA cards on the Parlay Lab are labeled higher
+            Single-game NBA cards in the Parlay Center are labeled higher
             variance because every leg shares one matchup. That label is the
             framing, not a hedge.
           </Bullet>

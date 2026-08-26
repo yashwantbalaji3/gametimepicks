@@ -28,7 +28,7 @@ export default function SimulatePage() {
         </h1>
         <p className="m-0 max-w-[72ch]" style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.6 }}>
           Choose a sport and a date, then open the event&rsquo;s report. {view.totals.ready} of {view.totals.events} events
-          on this slate carry a model artifact; every other state says exactly what it is.
+          on this slate have a simulation report ready; every other state says exactly what it is.
         </p>
       </header>
 

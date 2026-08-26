@@ -276,7 +276,7 @@ export default function RiskLadderBoard({
           {/* Re-worded at the restart. "Every tier is losing money — 48 graded days, −9.4%" was
               accurate of the PREVIOUS selection policy and is not a statement this ledger can make
               yet. The prior result is still shown, in the entry panel, labelled as prior. */}
-          The highest-scoring card the optimizer built in each price band, one per tier, tracked
+          The model’s highest-scoring card in each price band, one per tier, tracked
           separately from every money product here. The live record restarted when the selection
           rules changed; what the previous policy did is shown above rather than carried forward.
         </p>

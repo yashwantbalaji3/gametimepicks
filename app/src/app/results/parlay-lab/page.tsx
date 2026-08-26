@@ -18,9 +18,9 @@ import SectionHeader from "@/components/section-header";
 import { loadLabRecord, labSampleCaption } from "@/lib/parlays/lab-record";
 
 export const metadata: Metadata = {
-  title: "Parlay Lab Record · GameTime Picks",
+  title: "Suggested-Card Record · GameTime Picks",
   description:
-    "Every card the Parlay Lab has suggested, across every sport, with how each one settled. Paper-only and educational — no stake is filled in, and nothing here is a pick or a recommendation to wager.",
+    "Every suggested card the model has published, across every sport, with how each one settled. Paper-only and educational — no stake is filled in, and nothing here is a pick or a recommendation to wager.",
 };
 
 const pctOrDash = (n: number | null) => (n == null ? "—" : `${(n * 100).toFixed(1)}%`);
@@ -31,7 +31,7 @@ export default function ParlayLabRecordPage() {
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
       <SectionHeader
-        eyebrow="Track record · Parlay Lab"
+        eyebrow="Track record · Suggested cards"
         title="Every card the Lab has suggested"
         sub="One card per price band per sport, published before the events start and graded from official results. This is the Lab's OWN suggestions — separate from saved slips, which are cards a reader built and kept."
       />

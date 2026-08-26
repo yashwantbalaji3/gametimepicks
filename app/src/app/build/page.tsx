@@ -108,10 +108,10 @@ export default function ParlayCenterSuggestedPage() {
             className="font-semibold"
             style={{ color: "var(--vault-text)", fontSize: 17 }}
           >
-            Every card the optimizer built
+            Every card the model built
           </h2>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6, maxWidth: "72ch" }}>
-            The full pool behind the ladder above, by sport and risk tier. Enter any stake to see the
+            Every model-built card behind the ladder above, by sport and risk tier. Enter any stake to see the
             projected paper return. Paper-only and educational — nothing here is placed, and a
             projected return is arithmetic on the odds, not an expectation of profit.
           </p>

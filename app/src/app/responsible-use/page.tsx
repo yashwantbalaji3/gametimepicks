@@ -77,8 +77,8 @@ export default function ResponsibleUsePage() {
         />
         <Block
           icon="!"
-          title="Parlay Lab is educational analysis"
-          body="The Parlay Lab takes parlay slips you've already built on a sportsbook and compares each leg against the model. It's an educational analysis tool — it does NOT recommend wagers, NOT guarantee outcomes, and NOT scrape sportsbook pages. Same-game legs are explicitly flagged as correlated, and parlay variance is high. Use it to inspect, not to bet."
+          title="The Parlay Center is educational analysis"
+          body="The Parlay Center takes parlay slips you've already built on a sportsbook and compares each leg against the model. It's an educational analysis tool — it does NOT recommend wagers, NOT guarantee outcomes, and NOT scrape sportsbook pages. Same-game legs are explicitly flagged as correlated, and parlay variance is high. Use it to inspect, not to bet."
         />
       </div>
     </div>

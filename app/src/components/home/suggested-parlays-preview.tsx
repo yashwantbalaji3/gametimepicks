@@ -79,7 +79,7 @@ export default function SuggestedParlaysPreview({ live, closed, tierIntent }: Su
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <div className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-            Parlay Lab · four risk evaluations per lane
+            Parlay Center · four risk evaluations per lane
           </div>
           <h2 className="font-display tracking-tight" style={{ fontSize: 22, fontWeight: 800, color: "var(--vault-text)" }}>
             Today&rsquo;s suggested cards

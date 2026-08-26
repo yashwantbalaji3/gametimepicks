@@ -7,6 +7,7 @@
 import type { PublicSuggestedCard } from "@/lib/normalize";
 import { formatAmerican } from "@/lib/odds-math";
 import StakePayoutInput from "@/components/ui/stake-payout-input";
+import Link from "next/link";
 import RiskTierBadge from "@/components/ui/risk-tier-badge";
 import { getSportIdentity } from "@/lib/sport-identity";
 import PlayerAvatar from "@/components/ui/player-avatar";
@@ -142,6 +143,25 @@ export default function SuggestedCard({
             ))}
           </ul>
         </details>
+      ) : null}
+      {/* P209 · Release F: a card whose legs ALL carry the canonical identity can seed the shared
+          draft — the same engine, stake math and conflict rules as a hand-built card. A card whose
+          producer does not decompose its legs says so, rather than silently looking customizable.
+          Settled cards are results and offer neither. */}
+      {!card.result || card.result === "pending" ? (
+        card.legs.length > 0 && card.legs.every((l) => l.slipLeg) ? (
+          <Link
+            href={`/build/custom?card=${encodeURIComponent(card.id)}`}
+            className="vault-press inline-flex items-center justify-center rounded-full px-4 no-underline self-start"
+            style={{ minHeight: 44, border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", background: "var(--vault-gold-dim)", fontSize: 12.5, fontWeight: 700 }}
+          >
+            Customize this card →
+          </Link>
+        ) : (
+          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10, lineHeight: 1.5 }}>
+            Browse-and-stake card — its source doesn&rsquo;t carry per-leg builder identity, so it can&rsquo;t seed the custom draft.
+          </span>
+        )
       ) : null}
     </article>
   );

@@ -22,6 +22,7 @@ import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
 import { loadRiskLadder } from "@/lib/parlays/risk-ladder";
+import { loadSuggestedCards } from "@/lib/picks/suggested-cards";
 import { mlbHeadshotUrl } from "@/lib/player-headshots";
 import path from "node:path";
 
@@ -65,6 +66,18 @@ export default function ParlayCenterCustomPage() {
       })),
     };
   }
+  /* P209 · Release F: every identity-complete suggested card (the optimizer families) seeds too —
+     the same artifact the Suggested page renders, keyed by the card's own id. Cards whose producer
+     does not decompose legs never enter this map, and their UI says so instead of offering a dead
+     Customize. Ladder entries above win any id collision (same slips, richer labels). */
+  for (const card of loadSuggestedCards(ladderDate)) {
+    if (seedableCards[card.id]) continue;
+    if (card.legs.length === 0 || !card.legs.every((l) => l.slipLeg)) continue;
+    seedableCards[card.id] = {
+      label: card.title,
+      legs: card.legs.map((l) => l.slipLeg!),
+    };
+  }
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
@@ -80,26 +93,21 @@ export default function ParlayCenterCustomPage() {
 
       <ParlayCenterTabs active="custom" />
 
-      {pool.length > 0 ? (
-        <BuildExperience pool={pool} productDate={currentEtDate()} cards={seedableCards} />
-      ) : (
-        <div className="rounded-[10px] px-4 py-8 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
-          <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No eligible legs right now</p>
-          <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
-            Legs appear here only when a real projection clears the suggested-card gates. Check back closer to game time.
-          </p>
-        </div>
-      )}
+      {/* The builder ALWAYS mounts (P209 · Release F): the reader's draft and card seeding live in
+          it, and both must survive an empty pool — late at night every leg has started and the pool
+          is legitimately zero, but a Customize link or a saved draft still needs its surface. The
+          pool column renders its own honest empty state. */}
+      <BuildExperience pool={pool} productDate={currentEtDate()} cards={seedableCards} />
 
       {/* ── OPTIMIZER COVERAGE & ELIGIBLE-LEG MARKETPLACE ────────────────────────────────────────
           The deepest research surface, kept with the builder it feeds: build a card, then inspect
           the raw eligible-leg inventory and the optimizer's coverage. Same components, same
           loaders, same collapsed-by-default disclosure as always. */}
       <section id="optimizer-coverage" aria-labelledby="optimizer-coverage-heading" className="scroll-mt-6">
-        <h2 id="optimizer-coverage-heading" className="sr-only">Optimizer coverage and eligible-leg marketplace</h2>
+        <h2 id="optimizer-coverage-heading" className="sr-only">Card-builder coverage and the full eligible-leg pool</h2>
         <details className="rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--vault-wash-faint)" }}>
           <summary className="cursor-pointer select-none px-4 py-3 text-[13px]" style={{ color: "var(--vault-text-mute)", minHeight: 44 }}>
-            Advanced — optimizer coverage &amp; the full eligible-leg marketplace (by risk). Tap to expand.
+            Advanced — card-builder coverage &amp; the full eligible-leg pool (by risk). Tap to expand.
           </summary>
           <div className="px-1 pb-2 pt-1">
             <ParlaysExplorer slate={engineSlate} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} />

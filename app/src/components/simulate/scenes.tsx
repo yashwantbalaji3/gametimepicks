@@ -26,7 +26,7 @@ const RESOLVING = ["SUMMARIZING", "COMPLETE"];
 
 function Frame({ children }: { children: React.ReactNode }) {
   return (
-    <svg viewBox="0 0 320 190" width="100%" height="auto" aria-hidden focusable="false" style={{ display: "block", maxHeight: 220 }}>
+    <svg viewBox="0 0 320 190" width="100%" aria-hidden focusable="false" style={{ display: "block", height: "auto", maxHeight: 220 }}>
       {children}
     </svg>
   );

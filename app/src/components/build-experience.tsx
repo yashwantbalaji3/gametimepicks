@@ -305,7 +305,7 @@ export default function BuildExperience({
           ) : null}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
             {RISKS.map((r) => <Pill key={r} on={risk === r} onClick={() => setRisk(r)}>{r}</Pill>)}
-            <span className="mx-1" style={{ color: "var(--vault-rule)" }}>|</span>
+            <span aria-hidden className="mx-1 inline-block shrink-0" style={{ width: 1, height: 16, background: "var(--vault-rule)" }} />
             <Pill on={market === "All"} onClick={() => setMarket("All")}>All markets</Pill>
             {markets.slice(0, 8).map((m) => <Pill key={m} on={market === m} onClick={() => setMarket(m)}>{m}</Pill>)}
           </div>
@@ -388,7 +388,11 @@ export default function BuildExperience({
             );
           })}
           {filtered.length === 0 ? (
-            <p className="text-center py-6" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>No eligible legs match this filter.</p>
+            <p className="text-center py-6" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
+              {pool.length === 0
+                ? "No eligible legs right now — legs appear when a projection clears the card gates and its game hasn't started. Your card below is untouched."
+                : "No eligible legs match this filter."}
+            </p>
           ) : null}
         </div>
       </div>

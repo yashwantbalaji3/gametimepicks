@@ -273,10 +273,10 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
               detail: "The day's model reads and no-play calls",
             },
             {
-              label: "Picks Lab",
-              href: "/picks/",
-              status: "Model-qualified picks",
-              detail: "Filterable model leans — educational",
+              label: "Parlay Center",
+              href: "/build/",
+              status: "Suggested cards + custom builds",
+              detail: "Model-built cards — educational",
             },
             {
               label: "Soccer Specials",
