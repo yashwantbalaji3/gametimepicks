@@ -365,6 +365,15 @@ const status = {
     // P211: the day's typed lifecycle + watchdog, read VERBATIM from the daily receipt writer's
     // artifact (one writer owns the derivation; this file only surfaces it). A missing receipt is
     // itself the finding — typed here exactly the way the watchdog would type it.
+    // P211 R-C: forward coverage verbatim from its dated artifact (one writer; surfaced here).
+    forwardCoverage: (() => {
+      const cov = (() => { try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data", "internal", "products", "forward-coverage", `${slateDate}.json`), "utf8")); } catch { return null; } })();
+      if (!cov) return { present: false, date: slateDate };
+      return {
+        present: true, date: cov.date, generatedAt: cov.generatedAt,
+        sports: (cov.sports ?? []).map((s) => ({ sport: s.sport, state: s.state, counts: s.counts, findings: s.findings })),
+      };
+    })(),
     dailyLifecycle: (() => {
       const receipt = (() => { try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data", "internal", "products", "receipts", `${slateDate}.json`), "utf8")); } catch { return null; } })();
       if (!receipt) {
