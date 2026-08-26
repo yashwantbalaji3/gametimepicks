@@ -29,7 +29,7 @@ export const IA_SECTIONS = Object.freeze([
   { group: "Roadmap", anchors: ["roadmap"], authority: "completion-matrix ROADMAP_30D" },
   { group: "Departments", anchors: ["depts", "matrix"], authority: "completion-matrix buckets" },
   { group: "Incidents & Watches", anchors: ["watches", "ledger"], authority: "watches.mjs + evidence-ledger" },
-  { group: "Evidence", anchors: ["product-truth", "routes-assurance", "uiux", "browser-assurance", "registry", "history", "alpha"], authority: "committed audit artifacts, rendered verbatim" },
+  { group: "Evidence", anchors: ["product-truth", "routes-assurance", "product-experience", "uiux", "browser-assurance", "registry", "history", "alpha"], authority: "committed audit artifacts, rendered verbatim" },
   { group: "Runbooks & Transition", anchors: ["runbooks", "transition"], authority: "docs/ runbooks + transition checklist (PLANNED only)" },
   { group: "Onboarding", anchors: ["onboarding"], authority: "sanitized operator guide (static, versioned, zero secrets)" },
 ]);

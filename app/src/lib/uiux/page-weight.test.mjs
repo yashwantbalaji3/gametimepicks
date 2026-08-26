@@ -14,12 +14,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
+import { BUDGET_KB } from "./page-weight-budgets.mjs";
+
 const out = path.join(process.cwd(), "out");
-const BUDGET_KB = {
-  "results/index.html": 4500,   // measured 2,840KB after the fix; 8,103KB before
-  "index.html": 600,            // measured 189KB
-  "today/index.html": 1200,     // measured 395KB
-};
 
 test("high-traffic pages stay inside their evidence-based weight budgets", (t) => {
   if (!fs.existsSync(path.join(out, "index.html"))) { t.skip("no export in this run"); return; }

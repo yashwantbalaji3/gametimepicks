@@ -97,7 +97,7 @@ export default function YesterdaySummary({ date }: { date: string }) {
       title: "Suggested cards",
       value: `${won} / ${settledCards.length} hit`,
       sub: "World Cup + mixed-sport cards",
-      href: "/picks",
+      href: "/build",
       tone: won > 0 ? "neutral" : "loss",
     });
   }

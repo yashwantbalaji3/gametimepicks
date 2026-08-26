@@ -49,7 +49,8 @@ test("1 · /today renders the new daily slate header", () => {
 
 // 2 — /today links to /simulate, /results, /bank-builder, /picks.
 test("2 · /today links to /simulate, /results, /bank-builder, /picks", () => {
-  for (const href of ["/simulate", "/results", "/bank-builder", "/picks"]) {
+  // P208: the suggested-card destination is the Parlay Center (/build); /picks stays a one-hop alias.
+  for (const href of ["/simulate", "/results", "/bank-builder", "/build"]) {
     assert.ok(TODAY_ALL.includes(`"${href}"`), `hub links to ${href}`);
   }
 });

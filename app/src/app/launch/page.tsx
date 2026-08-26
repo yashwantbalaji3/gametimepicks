@@ -19,6 +19,7 @@ import { readCurrentEvents, readProductReceipt, readRouteInventory, readEplCalib
 import { ALLOWED_CHOICES } from "@/lib/launch/founder-response.mjs";
 import { IA_SECTIONS } from "@/lib/launch/ia-contract.mjs";
 import { buildUiuxEvidence, P184_BASELINE } from "@/lib/launch/uiux-evidence.mjs";
+import { buildProductExperience } from "@/lib/launch/product-experience.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
@@ -169,6 +170,7 @@ export default function LaunchCommandCenter() {
 
   /* Program 185 · the UI/UX audit, derived from its committed artifact — never typed here. */
   const uiux = buildUiuxEvidence();
+  const px = buildProductExperience();
   const routeInventory = (() => {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/audits/route-inventory-v1.json"), "utf8")); }
     catch { return null; }
@@ -1177,6 +1179,39 @@ export default function LaunchCommandCenter() {
                    or handoff prose, so the reasoning stays in the artifact and the numbers come
                    here. If the artifact is absent the section says so and shows no figures. ── */}
             <section aria-labelledby="uiux" style={{ marginBottom: 30 }}>
+              {/* ── PRODUCT EXPERIENCE (P208 · Release I) — the public IA and program state, derived ── */}
+              <h2 id="product-experience" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Product experience (P208)</h2>
+              {!px.available ? (
+                <p style={{ fontSize: 12, color: "var(--vault-warn)" }}>{px.note}</p>
+              ) : (
+                <div style={{ marginBottom: 18 }}>
+                  <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 8 }}>
+                    Public nav contract (derived from <code>src/lib/navigation.ts</code> — never hand-kept here):{" "}
+                    {px.primaries.map((d) => d.label).join(" · ")} · surfaces{" "}
+                    {px.surfaces.map((s) => `${s.surface} ${s.destinations}`).join(" / ")}
+                  </p>
+                  <p style={{ fontSize: 12, marginBottom: 8 }}>
+                    Findings open: <strong style={{ color: px.open.p0 + px.open.p1 > 0 ? "var(--vault-warn)" : "var(--vault-success)" }}>
+                    {px.open.p0} P0 · {px.open.p1} P1</strong> · {px.open.p2} P2 backlog
+                  </p>
+                  <div style={{ display: "grid", gap: 4, marginBottom: 10 }}>
+                    {px.findings.map((f: { id: string; sev: string; surface: string; finding: string; resolvedBy: string | null }) => (
+                      <div key={f.id} style={{ fontSize: 11.5, display: "flex", gap: 8, alignItems: "baseline" }}>
+                        <code style={{ color: f.resolvedBy ? "var(--vault-success)" : "var(--vault-warn)", minWidth: 26 }}>{f.id}</code>
+                        <span style={{ color: "var(--vault-text-faint)", minWidth: 22 }}>{f.sev}</span>
+                        <span style={{ color: "var(--vault-text-mute)", flex: 1 }}>{f.surface}: {f.finding}…</span>
+                        <span style={{ color: f.resolvedBy ? "var(--vault-success)" : "var(--vault-text-faint)", whiteSpace: "nowrap" }}>{f.resolvedBy ?? "open"}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>
+                    Payload budgets (enforced by the page-weight guard):{" "}
+                    {px.budgets.map((b) => `${b.route.replace("/index.html", "") || "/"} ≤${b.kb}KB`).join(" · ")}
+                    {px.screenshotSets.length ? <> · screenshot sets: {px.screenshotSets.join(", ")}</> : null}
+                  </p>
+                </div>
+              )}
+
               <h2 id="uiux" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>UI/UX audit &amp; migration</h2>
               {!uiux.available ? (
                 <p style={{ fontSize: 12, color: "var(--vault-warn)" }}>{uiux.note}</p>

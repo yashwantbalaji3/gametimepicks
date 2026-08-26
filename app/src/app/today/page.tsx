@@ -63,7 +63,7 @@ import {
 export const metadata = {
   title: "Today · GameTime Picks",
   description:
-    "Today's model hub — the day's top model reads, simulation-ready games, and every product's honest status (Bank Builder, Picks Lab, Moonshot). Paper-only, educational; no-play shown honestly.",
+    "Today's model hub — the day's top model reads, simulation-ready games, and every product's honest status (Bank Builder, Parlay Center, Moonshot). Paper-only, educational; no-play shown honestly.",
 };
 
 const usd2 = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -234,7 +234,7 @@ export default function TodayPage() {
       tone: bbNoPlay ? "mute" : "success",
     },
     {
-      label: "Picks Lab",
+      label: "Parlay Center",
       value: bapStatus,
       sub: engineSuggested > 0 ? "open the daily builder" : "no cards today",
       // P200: /picks retired into /build (P-picks-lab-merge); link the destination, not the redirect.
@@ -262,7 +262,7 @@ export default function TodayPage() {
     { href: "/simulate", label: "Simulate", sub: "Game sims" },
     { href: "/results", label: "Results", sub: "Receipts" },
     { href: "/bank-builder", label: "Bank Builder", sub: "The ladder" },
-    { href: "/picks", label: "Picks Lab", sub: "Daily builder" },
+    { href: "/build", label: "Parlay Center", sub: "Suggested cards + build your own" },
     { href: "/simulate", label: "Game Reports", sub: "Model reads" },
     { href: "/learn", label: "How It Works", sub: "Methodology" },
   ];

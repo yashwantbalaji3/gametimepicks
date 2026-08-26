@@ -94,7 +94,8 @@ test("Mr. Dub flagship: hero (scientist badge) → dashboard → today → journ
   assert.match(p, /DailyPortfolioSection/, "today's four-product plan");
   assert.match(p, /MoonshotLaneTracker/, "Moonshot side lane");
   // CTAs.
-  for (const href of ["/bank-builder", "/results", "/picks", "/mlb"]) assert.ok(p.includes(`"${href}"`), `CTA ${href}`);
+  // P208: the suggested-card destination is the Parlay Center (/build); /picks stays a one-hop alias.
+  for (const href of ["/bank-builder", "/results", "/build", "/mlb"]) assert.ok(p.includes(`"${href}"`), `CTA ${href}`);
   // Section order: hero → dashboard → today → journey → analytics → timeline → attribution → appendix.
   const order = ["Paper Portfolio Scientist", "<ExecutiveDashboard", "<TodayStatusStrip", "The $100 → $19.5K journey", "How the bankroll moved", "Day-by-day timeline", "Every wager, by product", "The wider platform"].map((s) => p.indexOf(s));
   assert.ok(order.every((i, idx) => i >= 0 && (idx === 0 || i > order[idx - 1])), "sections in the flagship order");

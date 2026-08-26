@@ -1,63 +1,164 @@
 {
-  "program": 208,
-  "capturedAt": "2026-08-26T00:47:17Z",
-  "baseline": {
-    "startEt": "2026-08-25 20:47 EDT",
-    "startUtc": "2026-08-26 00:47 UTC",
-    "reportedTip": "f3fe0c397",
-    "tipAtStart": "c960ad8b0",
-    "ancestry": "f3fe0c397 is an ancestor of origin/main; local fast-forwarded over 31 legitimate automation commits (lineup refresh, props auto-refresh, nightly settle, EPL settle, UFC grading)",
-    "production": "https://gametimepicks.yashwantbalaji.com serving c960ad8b, built 2026-08-25T23:51:56Z",
-    "suite": { "tests": 5110, "pass": 5106, "fail": 0, "skipped": 4 },
-    "build": "exit 0, internal routes pruned (ops/preview/launch), 619.8MB internal data swept from out/",
-    "screenshots": "data/internal/uiux/p208-baseline — 12 routes x 4 widths (390/768/1280/1440)"
+ "program": 208,
+ "capturedAt": "2026-08-26T00:47:17Z",
+ "baseline": {
+  "startEt": "2026-08-25 20:47 EDT",
+  "startUtc": "2026-08-26 00:47 UTC",
+  "reportedTip": "f3fe0c397",
+  "tipAtStart": "c960ad8b0",
+  "ancestry": "f3fe0c397 is an ancestor of origin/main; local fast-forwarded over 31 legitimate automation commits (lineup refresh, props auto-refresh, nightly settle, EPL settle, UFC grading)",
+  "production": "https://gametimepicks.yashwantbalaji.com serving c960ad8b, built 2026-08-25T23:51:56Z",
+  "suite": {
+   "tests": 5110,
+   "pass": 5106,
+   "fail": 0,
+   "skipped": 4
   },
-  "novTerm": "Journeys measured mechanically from the BUILT export's rendered link graph (out/index.html et al), per charter 9C: no external novice available; founder-reported confusion is the baseline.",
-  "journeys": [
-    {
-      "id": "J1",
-      "task": "Find today's best pick",
-      "before": "Home -> 'See Today's Picks' lands on /today (1 click + scroll). But the nav offers 'Market Center' (/markets) for the same concept and 'Today' for the same destination under a different name — three labels circle one job. A reader using the nav plausibly opens /markets first: +1 wrong turn.",
-      "failure": "terminology split: Picks / Market Center / Today",
-      "class": "P0-comprehension"
-    },
-    {
-      "id": "J2",
-      "task": "Investigate one game",
-      "before": "Home -> Simulate -> game report. 2 clicks, clean. CTA labels on sport cards say only 'Enter ->'.",
-      "failure": "bare-verb CTA labels ('Enter') on Simulation Hub cards",
-      "class": "P1"
-    },
-    {
-      "id": "J3",
-      "task": "Find one sport's picks",
-      "before": "Home -> MLB (rail, desktop only; on mobile: Sports -> directory -> MLB) -> scroll to find picks section. Hub sections exist but in-hub wayfinding is scroll-only.",
-      "failure": "mobile reaches a sport hub in 3 actions; hubs lack section navigation",
-      "class": "P1"
-    },
-    {
-      "id": "J4",
-      "task": "Start from a suggested parlay and modify it",
-      "before": "Home -> 'View Suggested Parlays' (/build). Ladder cards support leg SWAP only — there is no way to take a suggested card into the builder as an editable draft. Add-a-leg / remove-without-replacement dead-ends.",
-      "failure": "suggested cards and custom construction do not share a draft: the charter's central P0",
-      "class": "P0-product"
-    },
-    {
-      "id": "J5",
-      "task": "Build a custom card and find its later result",
-      "before": "Home -> Build -> scroll past ladder + lanes to 'Advanced builder' (below fold, jargon name) -> add legs -> stake. No path from the builder to where a kept card's result would appear (/results/parlays not linked).",
-      "failure": "builder buried below fold under internal vocabulary; no forward path to results",
-      "class": "P1"
-    }
-  ],
-  "findings": [
-    { "id": "F1", "sev": "P0", "surface": "/build", "finding": "Suggested cards and custom construction coexist on one page but do not share a draft-card state. 'Start/Customize this card' does not exist; swap is the only edit. Two entry intents (browse vs build) are stacked vertically with no mode identity, no URL-stable mode, and the builder is titled 'Advanced builder' below the fold.", "owner": "src/app/build/page.tsx + BuildExperience + RiskLadderBoard", "test": "e2e: a ladder card's Customize action lands in Build Your Own with the card's legs preloaded as an editable draft sharing stake/conflict/payout engine; mode survives refresh/share/back." },
-    { "id": "F2", "sev": "P0", "surface": "global nav", "finding": "No 'Home' entry on any nav surface (logo-only). The six primary destinations do not match the reader's questions: 'Market Center' names the picks job with market jargon; 'Build' names the parlay job with a bare verb; hero CTA 'See Today's Picks' points at /today while the nav's picks-shaped item points at /markets.", "owner": "src/lib/navigation.ts (canonical list; all surfaces derive)", "test": "rendered-nav reconciliation: Home/Today/Simulate/Picks/Parlay Center/Results appear with identical labels+order on rail/top/mobile/footer; hero CTA labels agree with nav labels for the same destination." },
-    { "id": "F3", "sev": "P1", "surface": "top strip", "finding": "Global top strip carries Paper record / Peak bankroll money chips linking to /mr-dub and /bank-builder — status acting as a second navigation, ahead of orientation. Charter: top bar = date/slate/freshness only.", "owner": "src/components/nav.tsx", "test": "top strip renders date/slate/freshness only; record figures remain on /results and product pages (canonical owners)." },
-    { "id": "F4", "sev": "P1", "surface": "/build mobile", "finding": "'View card · 0 legs' sticky pill renders with an empty selection and floats over the risk-ladder content — an affordance with nothing behind it, covering content the reader is trying to read.", "owner": "slip tray component (AddToSlip / selected-slips-tray)", "test": "sticky slip summary appears only when >=1 leg is selected and never occludes filters or primary actions at 390px." },
-    { "id": "F5", "sev": "P1", "surface": "homepage", "finding": "First viewport spends its budget on badges (3 pill rows) + a 4-chip status strip before any task action; on 390px the logo + chips consume the entire first screen. Primary tasks (Picks/Simulate/Parlays) are below badge noise; 'Results' proof link is not in the hero.", "owner": "src/app/page.tsx + home components", "test": "at 390px the value sentence and the three primary actions render within the first viewport; Results visible as secondary proof link." },
-    { "id": "F6", "sev": "P1", "surface": "sport hubs", "finding": "Hubs are scroll-only monoliths: no in-page section nav, sections differ by sport, sport capabilities are not one action from hub top.", "owner": "src/app/{mlb,epl,ufc,nfl}/page.tsx", "test": "shared SportHubShell section nav at 4 widths; every available capability reachable in 1 action from its hub." },
-    { "id": "F7", "sev": "P2", "surface": "site-wide", "finding": "Internal vocabulary in public copy (artifact, optimizer, engine-gated, marketplace); 'Enter ->' / 'View' CTAs; per-page prose walls before state.", "owner": "public pages", "test": "copy audit: CTAs are action+destination; glossary owns terms; state before prose." },
-    { "id": "F8", "sev": "P2", "surface": "visual system", "finding": "Theme drift measured by baseline.mjs: 1,170 raw colour hits across 252 files (752 reachable-route drift vs tokens). Pinned drift classes remain per P200 contract; only reachable themeDrift migrates.", "owner": "tokens + component families", "test": "ratchet lowered only to measured verified floors." }
+  "build": "exit 0, internal routes pruned (ops/preview/launch), 619.8MB internal data swept from out/",
+  "screenshots": "data/internal/uiux/p208-baseline \u2014 12 routes x 4 widths (390/768/1280/1440)"
+ },
+ "novTerm": "Journeys measured mechanically from the BUILT export's rendered link graph (out/index.html et al), per charter 9C: no external novice available; founder-reported confusion is the baseline.",
+ "journeys": [
+  {
+   "id": "J1",
+   "task": "Find today's best pick",
+   "before": "Home -> 'See Today's Picks' lands on /today (1 click + scroll). But the nav offers 'Market Center' (/markets) for the same concept and 'Today' for the same destination under a different name \u2014 three labels circle one job. A reader using the nav plausibly opens /markets first: +1 wrong turn.",
+   "failure": "terminology split: Picks / Market Center / Today",
+   "class": "P0-comprehension"
+  },
+  {
+   "id": "J2",
+   "task": "Investigate one game",
+   "before": "Home -> Simulate -> game report. 2 clicks, clean. CTA labels on sport cards say only 'Enter ->'.",
+   "failure": "bare-verb CTA labels ('Enter') on Simulation Hub cards",
+   "class": "P1"
+  },
+  {
+   "id": "J3",
+   "task": "Find one sport's picks",
+   "before": "Home -> MLB (rail, desktop only; on mobile: Sports -> directory -> MLB) -> scroll to find picks section. Hub sections exist but in-hub wayfinding is scroll-only.",
+   "failure": "mobile reaches a sport hub in 3 actions; hubs lack section navigation",
+   "class": "P1"
+  },
+  {
+   "id": "J4",
+   "task": "Start from a suggested parlay and modify it",
+   "before": "Home -> 'View Suggested Parlays' (/build). Ladder cards support leg SWAP only \u2014 there is no way to take a suggested card into the builder as an editable draft. Add-a-leg / remove-without-replacement dead-ends.",
+   "failure": "suggested cards and custom construction do not share a draft: the charter's central P0",
+   "class": "P0-product"
+  },
+  {
+   "id": "J5",
+   "task": "Build a custom card and find its later result",
+   "before": "Home -> Build -> scroll past ladder + lanes to 'Advanced builder' (below fold, jargon name) -> add legs -> stake. No path from the builder to where a kept card's result would appear (/results/parlays not linked).",
+   "failure": "builder buried below fold under internal vocabulary; no forward path to results",
+   "class": "P1"
+  }
+ ],
+ "findings": [
+  {
+   "id": "F1",
+   "sev": "P0",
+   "surface": "/build",
+   "finding": "Suggested cards and custom construction coexist on one page but do not share a draft-card state. 'Start/Customize this card' does not exist; swap is the only edit. Two entry intents (browse vs build) are stacked vertically with no mode identity, no URL-stable mode, and the builder is titled 'Advanced builder' below the fold.",
+   "owner": "src/app/build/page.tsx + BuildExperience + RiskLadderBoard",
+   "test": "e2e: a ladder card's Customize action lands in Build Your Own with the card's legs preloaded as an editable draft sharing stake/conflict/payout engine; mode survives refresh/share/back.",
+   "resolvedBy": "R-A (fc97b01d1)",
+   "resolutionTest": "src/lib/parlays/parlay-center.test.mjs + e2e p202"
+  },
+  {
+   "id": "F2",
+   "sev": "P0",
+   "surface": "global nav",
+   "finding": "No 'Home' entry on any nav surface (logo-only). The six primary destinations do not match the reader's questions: 'Market Center' names the picks job with market jargon; 'Build' names the parlay job with a bare verb; hero CTA 'See Today's Picks' points at /today while the nav's picks-shaped item points at /markets.",
+   "owner": "src/lib/navigation.ts (canonical list; all surfaces derive)",
+   "test": "rendered-nav reconciliation: Home/Today/Simulate/Picks/Parlay Center/Results appear with identical labels+order on rail/top/mobile/footer; hero CTA labels agree with nav labels for the same destination.",
+   "resolvedBy": "R-B (ea762aa9c)",
+   "resolutionTest": "src/lib/nav-active-route.test.mjs + unified-nav-labels"
+  },
+  {
+   "id": "F3",
+   "sev": "P1",
+   "surface": "top strip",
+   "finding": "Global top strip carries Paper record / Peak bankroll money chips linking to /mr-dub and /bank-builder \u2014 status acting as a second navigation, ahead of orientation. Charter: top bar = date/slate/freshness only.",
+   "owner": "src/components/nav.tsx",
+   "test": "top strip renders date/slate/freshness only; record figures remain on /results and product pages (canonical owners).",
+   "resolvedBy": "R-B (ea762aa9c)",
+   "resolutionTest": "src/lib/product-header.test.mjs + home-adoption-claim-safety"
+  },
+  {
+   "id": "F4",
+   "sev": "P1",
+   "surface": "/build mobile",
+   "finding": "'View card \u00b7 0 legs' sticky pill renders with an empty selection and floats over the risk-ladder content \u2014 an affordance with nothing behind it, covering content the reader is trying to read.",
+   "owner": "slip tray component (AddToSlip / selected-slips-tray)",
+   "test": "sticky slip summary appears only when >=1 leg is selected and never occludes filters or primary actions at 390px.",
+   "resolvedBy": "R-A (fc97b01d1)",
+   "resolutionTest": "parlay-center guard (zero-leg pill)"
+  },
+  {
+   "id": "F5",
+   "sev": "P1",
+   "surface": "homepage",
+   "finding": "First viewport spends its budget on badges (3 pill rows) + a 4-chip status strip before any task action; on 390px the logo + chips consume the entire first screen. Primary tasks (Picks/Simulate/Parlays) are below badge noise; 'Results' proof link is not in the hero.",
+   "owner": "src/app/page.tsx + home components",
+   "test": "at 390px the value sentence and the three primary actions render within the first viewport; Results visible as secondary proof link.",
+   "resolvedBy": "R-B (ea762aa9c) \u2014 verified at 390\u00d7812: headline 414px, all three actions in the first viewport",
+   "resolutionTest": "browser measurement 2026-08-26"
+  },
+  {
+   "id": "F6",
+   "sev": "P1",
+   "surface": "sport hubs",
+   "finding": "Hubs are scroll-only monoliths: no in-page section nav, sections differ by sport, sport capabilities are not one action from hub top.",
+   "owner": "src/app/{mlb,epl,ufc,nfl}/page.tsx",
+   "test": "shared SportHubShell section nav at 4 widths; every available capability reachable in 1 action from its hub.",
+   "resolvedBy": "R-C (c655a5f0b)",
+   "resolutionTest": "src/lib/sports/hub-shell.test.mjs"
+  },
+  {
+   "id": "F7",
+   "sev": "P2",
+   "surface": "site-wide",
+   "finding": "Internal vocabulary in public copy (artifact, optimizer, engine-gated, marketplace); 'Enter ->' / 'View' CTAs; per-page prose walls before state.",
+   "owner": "public pages",
+   "test": "copy audit: CTAs are action+destination; glossary owns terms; state before prose.",
+   "backlog": "P2 \u00b7 owner: public pages; partial by R-D (destination labels unified; 'Enter' CTAs named); remaining: internal vocabulary sweep (optimizer/artifact/marketplace) \u2014 acceptance: copy audit finds zero internal terms outside expandable technical disclosures"
+  },
+  {
+   "id": "F8",
+   "sev": "P2",
+   "surface": "visual system",
+   "finding": "Theme drift measured by baseline.mjs: 1,170 raw colour hits across 252 files (752 reachable-route drift vs tokens). Pinned drift classes remain per P200 contract; only reachable themeDrift migrates.",
+   "owner": "tokens + component families",
+   "test": "ratchet lowered only to measured verified floors.",
+   "backlog": "P2 \u00b7 owner: token system; ratchet lowered 1170\u21921166 (drift 1066\u21921062) by R-B; remaining: component-family migrations at the P200 pinned-class contract \u2014 acceptance: measured baseline emission per migration, ceilings only ever down"
+  }
+ ],
+ "journeysAfter": {
+  "measuredAt": "2026-08-26",
+  "method": "built link graph (out/) + in-browser walkthroughs at 390/768",
+  "results": [
+   {
+    "id": "J1",
+    "after": "Home -> 'See Today's Picks' opens /markets \u2014 the destination the nav labels 'Picks'. One label, one job, one click. Wrong-turn source removed (verified in the built graph)."
+   },
+   {
+    "id": "J2",
+    "after": "Home -> 'Open MLB hub' (named CTA) -> game report. 2 clicks; no bare 'Enter' on the sport cards."
+   },
+   {
+    "id": "J3",
+    "after": "Mobile: Home -> Menu -> MLB (2 actions; was 3 via /sports directory). In-hub: the shared section nav puts every capability (board, sims, cards, Picks, Parlay Center, Results) one action from hub top (hub-shell guard)."
+   },
+   {
+    "id": "J4",
+    "after": "Home -> 'Open Parlay Center' -> ladder card -> 'Customize this card' -> Build Your Own with the card's legs as an editable draft (browser-proven: 2 legs seeded, +235 price parity, refresh persists). Swap AND full add/remove now share one engine."
+   },
+   {
+    "id": "J5",
+    "after": "Home -> Parlay Center -> 'Build Your Own' tab (visible in the header, no scroll past the ladder) -> add legs -> stake. 'Every settled card (history)' links the record from the same page."
+   }
   ]
+ }
 }

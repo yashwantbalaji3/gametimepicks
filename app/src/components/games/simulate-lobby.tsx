@@ -245,7 +245,7 @@ export default function SimulateLobby() {
         statusLabel: "Upcoming",
         projections: proj.projections.length,
         href: "/ufc?tab=fight-card",
-        buildHref: "/picks",
+        buildHref: "/build",
       });
     }
   } catch {

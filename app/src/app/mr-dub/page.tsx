@@ -47,7 +47,7 @@ export const metadata = {
 const CTAS = [
   { href: "/bank-builder", label: "Bank Builder" },
   { href: "/results", label: "Results" },
-  { href: "/picks", label: "Picks" },
+  { href: "/build", label: "Parlay Center" },
   { href: "/mlb", label: "MLB" },
 ];
 
