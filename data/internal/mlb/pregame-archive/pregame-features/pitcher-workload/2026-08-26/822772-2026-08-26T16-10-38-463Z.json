@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822772,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T16:10:38.463Z",
+  "availableAt": "2026-08-26T16:10:38.463Z",
+  "eventStartTime": "2026-08-26T23:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693686,
+      "name": "Spencer Miles",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 40,
+      "lastStartDate": "2026-07-17",
+      "last5": {
+        "starts": 4,
+        "ipSum": 14,
+        "ipAvg": 3.5,
+        "kAvg": 2.25,
+        "bbAvg": 0.75,
+        "erAvg": 3.5,
+        "hrAvg": 0.5,
+        "kPer9": 5.79,
+        "workloadIpLast5": 14
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 14,
+        "k": 9,
+        "bb": 3,
+        "er": 14,
+        "hr": 2
+      }
+    },
+    "away": {
+      "id": 677976,
+      "name": "Randy Dobnak",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 6,
+      "lastStartDate": "2026-08-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 3.8,
+        "bbAvg": 2.2,
+        "erAvg": 1,
+        "hrAvg": 0,
+        "kPer9": 6.41,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 36,
+        "k": 25,
+        "bb": 16,
+        "er": 6,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-26T16:10:38.463Z"
+  },
+  "recordHash": "34a479eedf1bc6f7c3a9fcb7debcbd77cbbd600bce89b5992f4575b2b4b98f36"
+}

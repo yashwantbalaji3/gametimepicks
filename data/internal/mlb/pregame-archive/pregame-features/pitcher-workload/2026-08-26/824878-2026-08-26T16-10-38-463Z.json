@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824878,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T16:10:38.463Z",
+  "availableAt": "2026-08-26T16:10:38.463Z",
+  "eventStartTime": "2026-08-26T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 700363,
+      "name": "AJ Smith-Shawver",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 7,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 2,
+        "ipSum": 8.67,
+        "ipAvg": 4.33,
+        "kAvg": 3.5,
+        "bbAvg": 2.5,
+        "erAvg": 3,
+        "hrAvg": 0,
+        "kPer9": 7.27,
+        "workloadIpLast5": 8.67
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 8.67,
+        "k": 7,
+        "bb": 5,
+        "er": 6,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 808963,
+      "name": "Roki Sasaki",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 7,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 5.8,
+        "bbAvg": 2.4,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 8.9,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 116,
+        "k": 114,
+        "bb": 46,
+        "er": 57,
+        "hr": 21
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-26T16:10:38.463Z"
+  },
+  "recordHash": "f9dfa63fbc6f6b63be20d2448beea52dd66e44fef67a979490a71b36c5c36f6a"
+}

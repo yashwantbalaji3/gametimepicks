@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823988,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T16:10:38.463Z",
+  "availableAt": "2026-08-26T16:10:38.463Z",
+  "eventStartTime": "2026-08-26T20:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 680570,
+      "name": "Grayson Rodriguez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 6,
+      "lastStartDate": "2026-08-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 6.2,
+        "bbAvg": 2.2,
+        "erAvg": 2,
+        "hrAvg": 0.6,
+        "kPer9": 10.33,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 66,
+        "k": 61,
+        "bb": 30,
+        "er": 47,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 676282,
+      "name": "Joey Cantillo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 5,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.67,
+        "ipAvg": 4.13,
+        "kAvg": 5.6,
+        "bbAvg": 2,
+        "erAvg": 1,
+        "hrAvg": 0.4,
+        "kPer9": 12.19,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 130.33,
+        "k": 144,
+        "bb": 63,
+        "er": 54,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-26T16:10:38.463Z"
+  },
+  "recordHash": "6f6f477ae7147998a47673abe8af4cf295b077e6a69680f182d15264a1750172"
+}

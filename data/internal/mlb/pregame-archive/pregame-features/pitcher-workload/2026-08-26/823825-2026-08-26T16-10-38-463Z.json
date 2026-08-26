@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823825,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T16:10:38.463Z",
+  "availableAt": "2026-08-26T16:10:38.463Z",
+  "eventStartTime": "2026-08-26T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687473,
+      "name": "Ryan Gusto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 5,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 4,
+        "bbAvg": 0.8,
+        "erAvg": 2.2,
+        "hrAvg": 1,
+        "kPer9": 7.61,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 48.33,
+        "k": 42,
+        "bb": 15,
+        "er": 24,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 543243,
+      "name": "Sonny Gray",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32,
+        "ipAvg": 6.4,
+        "kAvg": 6,
+        "bbAvg": 1.6,
+        "erAvg": 2,
+        "hrAvg": 0.6,
+        "kPer9": 8.44,
+        "workloadIpLast5": 32
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 138.67,
+        "k": 123,
+        "bb": 36,
+        "er": 43,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-26T16:10:38.463Z"
+  },
+  "recordHash": "9763e77242f416a0ed9312a8309b1f2ad361ffbe127a323b00db9359a9bdb34b"
+}
