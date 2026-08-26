@@ -2,13 +2,13 @@
  "schemaVersion": 1,
  "artifact": "signature-product-audit",
  "dataClass": "PRIVATE_INTERNAL",
- "generatedAt": "2026-08-25T11:45:00Z",
+ "generatedAt": "2026-08-26T02:34:37Z",
  "productDate": "2026-08-25",
  "labSettledDays": 6,
  "counts": {
-  "PROVEN": 3,
-  "TYPED_NO_PLAY": 5,
-  "TYPED_LANE_CLOSED": 2,
+  "PROVEN": 5,
+  "TYPED_NO_PLAY": 4,
+  "TYPED_LANE_CLOSED": 1,
   "DORMANT_BY_DESIGN": 1,
   "NAMED_QUARANTINE": 0,
   "FOUNDER_BLOCKED": 0,
@@ -18,8 +18,8 @@
   {
    "product": "MLB risk ladder",
    "lane": "mlb",
-   "classification": "TYPED_LANE_CLOSED",
-   "stateDetail": "no price capture for 2026-08-25 yet — the sport's own generation runs later in the day (newest capture 2026-08-24); only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "classification": "PROVEN",
+   "stateDetail": "2 card(s) published for 2026-08-25 · 2 typed skip(s)",
    "chain": {
     "eligibility": "scripts/parlays/lab-eligibility.mjs (measured gate, per stream)",
     "qualification": "canonical band function + qualified-leg contract (src/lib/product-day/qualified-leg.ts validates every published leg)",
@@ -91,7 +91,7 @@
    "product": "Mixed-sport lane",
    "lane": "multi",
    "classification": "TYPED_NO_PLAY",
-   "stateDetail": "grid PUBLISHED for 2026-08-24 — every band carries its own typed reason",
+   "stateDetail": "grid PUBLISHED for 2026-08-25 — every band carries its own typed reason",
    "chain": {
     "eligibility": "lab-eligibility (needs two live sports) + per-leg sport gates",
     "qualification": "legs come only from cards the sport lanes already published (multi-sport.mjs)",
@@ -162,8 +162,8 @@
   {
    "product": "Homer Nukes",
    "lane": "homer-nukes",
-   "classification": "TYPED_NO_PLAY",
-   "stateDetail": "no board for 2026-08-25",
+   "classification": "PROVEN",
+   "stateDetail": "5 candidates for 2026-08-25 (own probability from StatsAPI)",
    "chain": {
     "eligibility": "MLB slate via StatsAPI (free source — no odds credits by design)",
     "qualification": "its own HR-probability computation (revived 2026-08-17)",
