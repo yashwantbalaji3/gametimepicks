@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823988,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T02:23:36.479Z",
+  "availableAt": "2026-08-26T02:23:36.479Z",
+  "eventStartTime": "2026-08-26T20:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-23",
+    "2026-08-24",
+    "2026-08-25"
+  ],
+  "home": {
+    "teamId": 108,
+    "teamName": "Los Angeles Angels",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 93,
+      "relievers": [
+        {
+          "id": 671111,
+          "name": "Sammy Peralta",
+          "appearances": 2,
+          "pitches": 37,
+          "outs": 9,
+          "dates": [
+            "2026-08-23",
+            "2026-08-24"
+          ]
+        },
+        {
+          "id": 684665,
+          "name": "Luke Murphy",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 5,
+          "dates": [
+            "2026-08-23",
+            "2026-08-24"
+          ]
+        },
+        {
+          "id": 676620,
+          "name": "Blake Weiman",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-24"
+          ]
+        },
+        {
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-23"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 114,
+    "teamName": "Cleveland Guardians",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 104,
+      "relievers": [
+        {
+          "id": 670059,
+          "name": "Colin Holderman",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-24"
+          ]
+        },
+        {
+          "id": 684974,
+          "name": "Craig Yoho",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 4,
+          "dates": [
+            "2026-08-23"
+          ]
+        },
+        {
+          "id": 671922,
+          "name": "Cade Smith",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-24"
+          ]
+        },
+        {
+          "id": 683769,
+          "name": "Hunter Gaddis",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-24"
+          ]
+        },
+        {
+          "id": 682120,
+          "name": "Tim Herrin",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-23"
+          ]
+        },
+        {
+          "id": 670036,
+          "name": "Matt Festa",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-08-23"
+          ]
+        },
+        {
+          "id": 671106,
+          "name": "Logan Allen",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-23"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-23,2026-08-24,2026-08-25) + feed/live box scores",
+    "capturedAt": "2026-08-26T02:23:36.479Z"
+  },
+  "recordHash": "9680fe7af146c1d264451a32bc73caf4140184a8c32962d6aad8d12e0f432b32"
+}

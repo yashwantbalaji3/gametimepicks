@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823584,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T02:23:35.839Z",
+  "availableAt": "2026-08-26T02:23:35.839Z",
+  "eventStartTime": "2026-08-26T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 476594,
+      "name": "Robert Stock",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 7,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 4,
+        "ipSum": 16.67,
+        "ipAvg": 4.17,
+        "kAvg": 4.75,
+        "bbAvg": 2.75,
+        "erAvg": 2.5,
+        "hrAvg": 0.25,
+        "kPer9": 10.26,
+        "workloadIpLast5": 16.67
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 16.67,
+        "k": 19,
+        "bb": 11,
+        "er": 10,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 669160,
+      "name": "Dustin May",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 7,
+      "lastStartDate": "2026-08-19",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 4.6,
+        "bbAvg": 2,
+        "erAvg": 2.2,
+        "hrAvg": 0.4,
+        "kPer9": 7.96,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 124,
+        "k": 118,
+        "bb": 42,
+        "er": 63,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-26T02:23:35.839Z"
+  },
+  "recordHash": "9bf56c854edc20cee5d086f980b88fa4aa616cd11c0e5e140ebd9673e6dcc009"
+}

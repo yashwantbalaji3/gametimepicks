@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823255,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T02:23:35.839Z",
+  "availableAt": "2026-08-26T02:23:35.839Z",
+  "eventStartTime": "2026-08-26T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 696149,
+      "name": "Bubba Chandler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4.8,
+        "bbAvg": 2,
+        "erAvg": 2.2,
+        "hrAvg": 0.2,
+        "kPer9": 8.76,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 120,
+        "k": 107,
+        "bb": 64,
+        "er": 59,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-26T02:23:35.839Z"
+  },
+  "recordHash": "0b1d19e876ea6ddb5eea0e90f6b1b921026e5b69b78eb52d2436e8ee88f3b9d8"
+}
