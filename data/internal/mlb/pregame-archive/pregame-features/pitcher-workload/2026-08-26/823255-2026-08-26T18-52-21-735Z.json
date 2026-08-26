@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823255,
+  "date": "2026-08-26",
+  "capturedAt": "2026-08-26T18:52:21.735Z",
+  "availableAt": "2026-08-26T18:52:21.735Z",
+  "eventStartTime": "2026-08-26T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 681190,
+      "name": "Randy Vásquez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 1,
+        "bbAvg": 0.8,
+        "erAvg": 1.8,
+        "hrAvg": 0.4,
+        "kPer9": 1.9,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 101.33,
+        "k": 64,
+        "bb": 29,
+        "er": 45,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 696149,
+      "name": "Bubba Chandler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4.8,
+        "bbAvg": 2,
+        "erAvg": 2.2,
+        "hrAvg": 0.2,
+        "kPer9": 8.76,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 120,
+        "k": 107,
+        "bb": 64,
+        "er": 59,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-26&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-26T18:52:21.735Z"
+  },
+  "recordHash": "18e1f7c2d1f5e7c55ae5333518adcda628bf5b1147e0c622981fd6039a39ea3e"
+}
