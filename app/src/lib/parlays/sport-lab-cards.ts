@@ -32,6 +32,8 @@ export interface SportLabLeg {
   market: string;
   marketLabel: string;
   side: string;
+  /** Present where the market has one (totals); null for winner markets. */
+  line?: number | null;
   odds: number;
   /** The fighter's portrait, carried on the leg so a surface never re-joins a name to find a face. */
   photoUrl?: string | null;

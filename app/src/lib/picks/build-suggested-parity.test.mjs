@@ -48,7 +48,8 @@ test("the gating rules travel with the loader, so Build inherits every one of th
   const loader = read(LOADER);
   assert.match(loader, /ufcSettled\(\) \? null/, "settled UFC cards excluded");
   assert.match(loader, /loadDailyMixedCards\(today\)/, "stale daily-mixed date-gated");
-  assert.match(loader, /wcParlays\.date === today/, "stale World Cup artifact date-gated");
+  // P210 R-B: the WC producer left active composition — absence is the gate now.
+  assert.doesNotMatch(loader.replace(/\/\*[\s\S]*?\*\//g, ""), /normalizeWcCards/, "WC producer excluded from active composition");
 });
 
 test("Manual Builder stays the default; Suggested Cards is a named, addressable section", () => {

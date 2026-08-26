@@ -11,9 +11,8 @@
  * published artifact — so the link is shareable and the seed is exactly the card of record.
  * ?sport= / ?game= / ?q= prefilter the pool ("Build from this game" deep links).
  */
-import { buildEngineLegs, buildWcPlayerLegs, type BuildLeg } from "@/lib/build-legs";
+import { buildEngineLegs, type BuildLeg } from "@/lib/build-legs";
 import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
-import { loadWorldCupProjections, loadWorldCupPlayerProjections } from "@/lib/world-cup/projections";
 import BuildExperience, { type SeedableCard } from "@/components/build-experience";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
@@ -21,9 +20,7 @@ import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
-import { loadRiskLadder } from "@/lib/parlays/risk-ladder";
-import { loadSuggestedCards } from "@/lib/picks/suggested-cards";
-import { mlbHeadshotUrl } from "@/lib/player-headshots";
+import { buildSeedableCards } from "@/lib/parlays/seedable-cards";
 import path from "node:path";
 
 export const metadata = {
@@ -36,48 +33,22 @@ export default function ParlayCenterCustomPage() {
   // Canonical methodology engine — the SAME gated, not-started, leakage-safe eligible-leg pool that
   // /today, /markets and /build use (team markets + MLB pitcher/hitter props). No stale source.
   const engineSlateForLegs = loadTodaySlate();
-  const enginePool = buildEngineLegs(engineSlateForLegs.eligibleLegs, engineSlateForLegs.date || null);
-  // World Cup PLAYER props: leakage-rejected by the engine for lack of a per-record kickoff, but
-  // fixture-joined + odds-backed + pre-event gated — surfaced from the WC artifact instead.
-  const wcPlayerLegs = buildWcPlayerLegs(loadWorldCupProjections(), loadWorldCupPlayerProjections());
-  const seen = new Set(enginePool.map((l) => l.id));
-  const pool: BuildLeg[] = [...enginePool, ...wcPlayerLegs.filter((l) => !seen.has(l.id))];
+  /* P210 · Release B (World Cup disposition): the WC player-prop producer left ACTIVE composition.
+     The 2026 tournament is complete, so its future-kickoff gate had made the call permanently
+     return [] — dead weight presenting as an active source. The archive keeps everything: settled
+     WC cards render on their own historical surfaces (game-detail), and the producer functions
+     remain for those pages. Active pools are engine-only. */
+  const pool: BuildLeg[] = buildEngineLegs(engineSlateForLegs.eligibleLegs, engineSlateForLegs.date || null);
 
   const engineSlate = engineSlateForLegs;
   const dataRoot = path.join(process.cwd(), "public", "data");
   const ladderDate = currentSlateDate() ?? currentEtDate();
 
-  /* ?card= seed map: today's ladder cards, keyed by their published slipId, with legs in the slip's
-     own shape. Built from the SAME artifact the Suggested page renders, so the draft a Customize
-     link seeds is the card of record — never a re-derivation. Unpriced legs are passed through and
-     disclosed at seed time rather than silently dropped here. */
-  const riskLadder = loadRiskLadder(dataRoot, ladderDate);
-  const seedableCards: Record<string, SeedableCard> = {};
-  for (const card of riskLadder?.cards ?? []) {
-    seedableCards[card.slipId] = {
-      label: `the ${card.tierLabel} card`,
-      legs: card.legs.map((l) => ({
-        sport: "mlb", player: l.player, marketLabel: l.marketLabel, side: l.side, line: l.line,
-        /* 0 = "no current price" sentinel (JSON-safe, unlike NaN); the seeder discloses and skips it. */
-        americanOdds: l.odds ?? 0,
-        matchup: l.team && l.opponent ? `${l.team} vs ${l.opponent}` : (l.opponent ?? null),
-        photoUrl: l.playerId ? mlbHeadshotUrl(l.playerId) : null,
-        teamAbbr: l.team, opponentAbbr: l.opponent,
-      })),
-    };
-  }
-  /* P209 · Release F: every identity-complete suggested card (the optimizer families) seeds too —
-     the same artifact the Suggested page renders, keyed by the card's own id. Cards whose producer
-     does not decompose legs never enter this map, and their UI says so instead of offering a dead
-     Customize. Ladder entries above win any id collision (same slips, richer labels). */
-  for (const card of loadSuggestedCards(ladderDate)) {
-    if (seedableCards[card.id]) continue;
-    if (card.legs.length === 0 || !card.legs.every((l) => l.slipLeg)) continue;
-    seedableCards[card.id] = {
-      label: card.title,
-      legs: card.legs.map((l) => l.slipLeg!),
-    };
-  }
+  /* ?card= seed map — ONE owner (lib/parlays/seedable-cards, P210 Release B): the MLB tier
+     ladder, every sport lane ladder (UFC/EPL/NFL via the same loader the lane pages render), and
+     every identity-complete suggested card. Cards whose producer does not decompose legs never
+     enter the map, and their UI says so instead of offering a dead Customize. */
+  const seedableCards = buildSeedableCards(dataRoot, ladderDate);
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">

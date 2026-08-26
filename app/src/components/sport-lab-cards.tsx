@@ -17,6 +17,7 @@
 import { deriveBandSubstitutes } from "@/lib/parlays/sport-lab-cards";
 import type { SportLabLadder } from "@/lib/parlays/sport-lab-cards";
 import { fmtAmerican, legLabel } from "@/lib/parlays/sport-lab-cards";
+import Link from "next/link";
 import SectionHeader from "@/components/section-header";
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
@@ -94,6 +95,23 @@ export default function SportLabCards({
             </ul>
             {/* Null, never 0-0: a zeroed record reads as a measured result rather than an absent one. */}
             <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>No settled record yet — this lane has graded no card.</p>
+            {/* P210 · Release B: a lane card is a starting point, not just a display. Every leg is
+                decomposed in the artifact, so the card seeds the shared draft — the same engine,
+                stake math and conflict rules a hand-built card uses. A card with an unpriced leg
+                says so instead of offering a dead control. */}
+            {c.legs.length > 0 && c.legs.every((l) => l.odds != null && l.odds !== 0) ? (
+              <Link
+                href={`/build/custom?card=${encodeURIComponent(c.slipId)}`}
+                className="vault-press"
+                style={{ marginTop: 10, display: "inline-flex", alignItems: "center", minHeight: 44, padding: "0 16px", borderRadius: 999, border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", background: "var(--vault-gold-dim)", fontSize: 12.5, fontWeight: 700, textDecoration: "none" }}
+              >
+                Customize this card →
+              </Link>
+            ) : (
+              <p className="font-mono" style={{ margin: "8px 0 0", fontSize: 10, color: "var(--vault-text-faint)", lineHeight: 1.5 }}>
+                Browse-only — a leg on this card has no current price, so it can&rsquo;t seed the custom draft.
+              </p>
+            )}
           </div>
         ))}
       </div>

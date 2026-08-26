@@ -20,7 +20,9 @@ test("loadDailyMixedCards date-gates a stale slate (no stale cards as active pic
   // this now checks the module that actually applies it rather than the page that used to.
   const loader = read("src/lib/picks/suggested-cards.ts");
   assert.ok(loader.includes("loadDailyMixedCards(today)"), "the shared loader passes the today gate");
-  assert.ok(loader.includes("wcParlays.date === today"), "the shared loader gates the World Cup artifact to today");
+  // P210 R-B (World Cup disposition): the WC producer left ACTIVE composition entirely — the
+  // stronger form of the same invariant this line used to check with a date gate.
+  assert.ok(!/normalizeWcCards/.test(loader.replace(/\/\*[\s\S]*?\*\//g, "")), "the WC producer is out of active composition (archive contract)");
   // /picks retired (Program 143): /build is now the consumer of the shared loader.
   const build = read("src/app/build/page.tsx");
   assert.ok(build.includes("loadSuggestedCards("), "/build consumes the shared loader");

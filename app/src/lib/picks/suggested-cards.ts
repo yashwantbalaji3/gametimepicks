@@ -15,7 +15,6 @@
  *   - order is tonight's focus first: UFC, then the optimizer slips, then any still-current WC/mixed
  */
 import {
-  normalizeWcCards,
   normalizeOptimizerSlips,
   normalizeUfcCards,
   loadDailyMixedCards,
@@ -24,7 +23,6 @@ import {
 import fs from "node:fs";
 import path from "node:path";
 
-import { loadWorldCupParlays } from "@/lib/world-cup/projections";
 import { getSuggestedParlaysForDate } from "@/lib/data-parlays";
 
 const readJson = (...seg: string[]): unknown => {
@@ -53,15 +51,16 @@ export type { PublicSuggestedCard };
  * @param today the slate date to frame on (ET, `YYYY-MM-DD`)
  */
 export function loadSuggestedCards(today: string): PublicSuggestedCard[] {
-  const wcParlays = loadWorldCupParlays();
-  const freshWcParlays = wcParlays && wcParlays.date === today ? wcParlays : null;
   // A settled UFC card is a result, not something to suggest.
   const ufcCardsForToday = ufcSettled() ? null : (loadUfc() as Parameters<typeof normalizeUfcCards>[0]);
 
+  /* P210 · Release B (World Cup disposition): normalizeWcCards left ACTIVE composition — the
+     tournament is complete and the date gate had made it permanently empty here. WC cards remain
+     rendered where they are history (the archived game-detail surfaces); an active lobby may not
+     carry a producer that can never publish again. */
   return [
     ...normalizeUfcCards(ufcCardsForToday, today),
     ...normalizeOptimizerSlips(getSuggestedParlaysForDate(today)?.slips ?? null, { date: today }),
-    ...normalizeWcCards(freshWcParlays),
     ...loadDailyMixedCards(today),
   ];
 }

@@ -15,24 +15,35 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { canonicalTeamId, NBA_CANONICAL_TRICODES } from "./identity-contract.ts";
+import { canonicalTeamId, exhibitionOpponent, NBA_CANONICAL_TRICODES } from "./identity-contract.ts";
 
 const capture = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/schedule/latest.json"), "utf8"));
 
-test("every team in the committed capture resolves to a canonical tricode — no alias gaps", () => {
+test("every team in the committed capture resolves — canonical tricode or REGISTERED exhibition club", () => {
+  /*
+   * P210: preseason captures carry non-NBA exhibition opponents (first live case: LON · London
+   * Lions at POR, 2026-10-12). An exhibition club is not an alias of any tricode — mapping it to
+   * one would be a false join — and not an unknown code either: it is its own typed registry in
+   * the contract. A code in NEITHER registry still fails exactly as before.
+   */
   const unresolved = [];
   const resolved = new Set();
+  const exhibitions = new Set();
   for (const r of capture.rows ?? []) {
     for (const side of ["home", "away"]) {
       const raw = r[side]?.abbr ?? r[side]?.name ?? null;
       const canon = canonicalTeamId(raw);
-      if (!canon) unresolved.push(String(raw));
-      else resolved.add(canon);
+      if (canon) { resolved.add(canon); continue; }
+      const ex = exhibitionOpponent(raw);
+      if (ex) { exhibitions.add(ex); continue; }
+      unresolved.push(String(raw));
     }
   }
-  assert.deepEqual([...new Set(unresolved)], [], "a provider code the contract does not know must be added as an alias, not fuzzy-joined");
+  assert.deepEqual([...new Set(unresolved)], [], "a provider code in neither registry must be added deliberately, never fuzzy-joined");
   assert.ok(resolved.size >= 28, `the confirmed window spans the league (${resolved.size} canonical teams resolved)`);
   for (const t of resolved) assert.ok(NBA_CANONICAL_TRICODES.includes(t));
+  // Exhibition clubs never count toward league span and never resolve as NBA teams.
+  for (const ex of exhibitions) assert.equal(canonicalTeamId(ex), null, `${ex} must not double as an NBA team`);
 });
 
 test("season types in the capture stay within the contract's own vocabulary", () => {

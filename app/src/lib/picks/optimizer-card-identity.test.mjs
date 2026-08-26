@@ -54,8 +54,11 @@ test("the card UI offers Customize only on identity-complete unsettled cards, an
   assert.match(src, /can&rsquo;t seed the custom draft/, "ineligible cards state the reason instead of a dead control");
 });
 
-test("/build/custom seeds from the same suggested-cards loader, identity-complete only", () => {
+test("the seed map consumes the same suggested-cards loader, identity-complete only (owner moved P210 R-B)", () => {
+  // P210 moved seed-map composition to its one owner; the invariants travel with it.
+  const lib = read("src/lib/parlays/seedable-cards.ts");
+  assert.match(lib, /loadSuggestedCards\(ladderDate\)/, "same loader, same date frame");
+  assert.match(lib, /card\.legs\.every\(\(l\) => l\.slipLeg\)/, "only identity-complete cards enter the seed map");
   const page = read("src/app/build/custom/page.tsx");
-  assert.match(page, /loadSuggestedCards\(ladderDate\)/, "same loader, same date frame");
-  assert.match(page, /card\.legs\.every\(\(l\) => l\.slipLeg\)/, "only identity-complete cards enter the seed map");
+  assert.match(page, /buildSeedableCards\(/, "the page consumes the owner");
 });

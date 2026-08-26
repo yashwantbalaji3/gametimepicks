@@ -97,6 +97,27 @@ export function canonicalTeamId(input: string | null | undefined): NbaTricode | 
   return TEAM_ALIAS_TO_CANONICAL.get(input.trim().toLowerCase()) ?? null;
 }
 
+/*
+ * NON-NBA EXHIBITION OPPONENTS (P210). Preseason schedules legitimately carry clubs that are not
+ * NBA franchises — the 2026-10-12 capture brought "LON · London Lions" at Portland. Such a club is
+ * NOT an alias of any canonical tricode (mapping it to one would be a false join), and it is not
+ * an unknown code either: it is a typed category of its own. Members are registered here exactly
+ * like aliases — a new exhibition club must be ADDED deliberately, never fuzzy-joined — and they
+ * never count toward league coverage or enter NBA-team joins.
+ */
+const EXHIBITION_OPPONENTS: ReadonlyMap<string, string> = new Map(
+  [
+    ["lon", "London Lions"],
+    ["london lions", "London Lions"],
+  ],
+);
+
+/** The registered exhibition club for a provider code, or null. Distinct from canonicalTeamId by design. */
+export function exhibitionOpponent(input: string | null | undefined): string | null {
+  if (!input) return null;
+  return EXHIBITION_OPPONENTS.get(input.trim().toLowerCase()) ?? null;
+}
+
 export function sameTeam(a: string | null | undefined, b: string | null | undefined): boolean {
   const ca = canonicalTeamId(a), cb = canonicalTeamId(b);
   return ca !== null && ca === cb;
