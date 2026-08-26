@@ -33,6 +33,7 @@ import crypto from "node:crypto";
 import { buildPersistedDailyPortfolio } from "../../src/lib/daily-portfolio/accounting.ts";
 import { LIFECYCLE_STATES, productWatchdog } from "../../src/lib/products/daily-state-machine.mjs";
 import { deriveLifecycle } from "../../src/lib/products/daily-lifecycle-derive.mjs";
+import { CURRENT_POLICY } from "../../src/lib/products/selection-policy.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -185,7 +186,7 @@ for (const p of products) {
     boardHash: inputs.mlbBoard.hash,
     // The lock stamp is the ACTIVATION artifact's own stamp for this date — never this run's clock.
     lockAt: dp?.date === DATE ? dp?.generatedAt ?? null : null,
-    policyVersion: "activation-policy:pre-freeze(P211-R-B)",
+    policyVersion: CURRENT_POLICY[p.product],
   });
   if (!LIFECYCLE_STATES.concat(["VOIDED", "STOPPED"]).includes(lc.state)) {
     console.error(`REFUSED: ${p.product} lifecycle derived ${lc.state} outside the closed vocabulary`); process.exit(2);

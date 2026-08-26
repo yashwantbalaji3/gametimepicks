@@ -64,8 +64,8 @@ export interface LaneCandidate {
   shortfallNote: string | null; // present when fewer than targetLegs model-qualified legs existed
 }
 
-const POOL_ODDS_MAX = 2000;        // Moonshot can ride longer; Bank Builder ranking keeps it short
-const BANK_BUILDER_MAX_ODDS = 400; // a high-hit-rate addable leg, never a longshot
+export const POOL_ODDS_MAX = 2000;        // Moonshot can ride longer; Bank Builder ranking keeps it short
+export const BANK_BUILDER_MAX_ODDS = 400; // a high-hit-rate addable leg, never a longshot
 /** Moonshot is a longshot lane: it tries for up to 5 legs but a lane is valid with as few as 3 (thin
  *  slates can't always field two full 5-leg lanes), provided the combined price clears the longshot floor. */
 export const MOONSHOT_TARGET_LEGS = 5;
