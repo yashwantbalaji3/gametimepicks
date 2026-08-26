@@ -89,7 +89,8 @@ test("B4 · no probability zero-fill anywhere in source: absence stays typed", (
 });
 
 test("the consumers adapt from the one owner — no second qualification module", () => {
-  const build = fs.readFileSync(path.join(app, "src/app/build/page.tsx"), "utf8");
+  // P208: the builder is the Parlay Center's Build Your Own mode at /build/custom.
+  const build = fs.readFileSync(path.join(app, "src/app/build/custom/page.tsx"), "utf8");
   const markets = fs.readFileSync(path.join(app, "src/app/markets/page.tsx"), "utf8");
   assert.match(build, /buildEngineLegs/, "the builder's pool comes through the canonical engine");
   assert.match(markets, /buildTop10Board/, "Market Center ranks through the canonical board");

@@ -157,9 +157,18 @@ test("the coverage matrix is surfaced on the surviving sport page + methodology 
   }
 });
 
-test("/build is demoted to Advanced Builder (secondary), not a primary pillar", () => {
-  assert.match(read("src/app/build/page.tsx"), /Advanced Builder/, "/build titled Advanced Builder");
+test("the raw builder never fronts the beginner: /build leads with Suggested Parlays, the leg-by-leg builder is its own mode one action away", () => {
+  /*
+   * SUPERSEDED CONTRACT, SAME INTENT. The product-reset rule was "demote the builder so a raw
+   * 180-leg marketplace is not the front door". P208 (founder charter) keeps that intent and gives
+   * it the final shape: /build is the Parlay Center whose DEFAULT mode is Suggested Parlays, and
+   * the builder is the Build Your Own mode at /build/custom — visible, one action away, never the
+   * first screen a novice lands on.
+   */
+  const suggested = read("src/app/build/page.tsx");
+  assert.match(suggested, /Suggested Parlays/, "/build leads with the suggested-card mode");
+  assert.match(suggested, /\/build\/custom/, "the builder mode is one visible action away");
+  assert.match(read("src/app/build/custom/page.tsx"), /Build Your Own/, "the builder is its own mode, not the beginner's first screen");
   const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
-  const primary = nav.slice(0, nav.indexOf("beforeDivider: true"));
-  assert.match(nav, /href: "\/build", label: "Build", group: "now"/, "/build sits in the Now cluster beside the tools it belongs with, never as its own pillar");
+  assert.match(nav, /href: "\/build", label: "(Build|Parlay Center)", group: "now"/, "/build sits in the Now cluster beside the tools it belongs with, never as its own pillar");
 });

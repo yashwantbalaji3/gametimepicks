@@ -273,7 +273,7 @@ function worldCupDetails(): PublicGameDetail[] {
       teamProjections,
       playerProps,
       suggestedCards: cardsForGame,
-      buildUrl: `/build?sport=world_cup&game=${encodeURIComponent(matchId)}`,
+      buildUrl: `/build/custom?sport=world_cup&game=${encodeURIComponent(matchId)}`,
       caveats: [
         "90-minute regulation only — Draw is a real outcome.",
         ...(playerProps.some((p) => (p.lineupStatus ?? "").startsWith("pre")) ? ["Player props stay projection-based until the starting XI is confirmed."] : []),
@@ -332,7 +332,7 @@ function boardDetails(
       teamProjections: [],
       playerProps,
       suggestedCards: [],
-      buildUrl: buildId ? `/build?sport=${sport}&game=${encodeURIComponent(buildId)}` : `/build?sport=${sport}`,
+      buildUrl: buildId ? `/build/custom?sport=${sport}&game=${encodeURIComponent(buildId)}` : `/build/custom?sport=${sport}`,
       caveats: [],
       dataStatus: [
         { label: "Player props", status: playerProps.length > 0 ? "live" : "pending", detail: playerProps.length > 0 ? `${playerProps.length} projections` : "Lines pending for this game." },

@@ -128,7 +128,7 @@ function GameCard({ g, slateDate }: { g: CuratedGame; slateDate: string }) {
           style={{ background: "var(--gtp-bank-lava-cta)", color: "#1A0E06", fontSize: 9.5, fontWeight: 700, textDecoration: "none" }}>
           View full game →
         </Link>
-        <Link href={`/build?sport=world_cup&game=${encodeURIComponent(g.gameId)}`}
+        <Link href={`/build/custom?sport=world_cup&game=${encodeURIComponent(g.gameId)}`}
           className="vault-press inline-flex rounded-full px-3 py-1 font-mono uppercase tracking-[0.1em]"
           style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 9.5, fontWeight: 700, textDecoration: "none" }}>
           Add to Build

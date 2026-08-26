@@ -100,7 +100,7 @@ export default function SimulateLobby() {
       homeLogo: d.homeLogo ?? null,
       awayLogo: d.awayLogo ?? null,
       href: "/world-cup?tab=games",
-      buildHref: d.buildUrl ?? `/build?sport=world_cup&game=${encodeURIComponent(String(d.matchId ?? ""))}`,
+      buildHref: d.buildUrl ?? `/build/custom?sport=world_cup&game=${encodeURIComponent(String(d.matchId ?? ""))}`,
       detailHref: `/games/world-cup/${d.slug}`,
       // The board's coherent game-script for this fixture (winner + projected score + confidence) — the
       // SAME read the knockout board / game-detail render, never fabricated. Undefined when no live read.
@@ -138,7 +138,7 @@ export default function SimulateLobby() {
       statusLabel: mlbDate === today ? "Today" : mlbDate.slice(5),
       projections: mlbByGame.get(String(g.gamePk)) ?? 0,
       href: "/mlb?tab=games",
-      buildHref: gid ? `/build?sport=mlb&game=${encodeURIComponent(gid)}` : "/build?sport=mlb",
+      buildHref: gid ? `/build/custom?sport=mlb&game=${encodeURIComponent(gid)}` : "/build/custom?sport=mlb",
       detailHref: mlbDetail ? `/games/mlb/${mlbDetail.slug}` : undefined,
       // A ready deterministic simulation artifact exists for this game → surface a "Simulation Ready" badge
       // (drives the simulate-first lobby). Real status from the game-detail view; never fabricated.
@@ -173,7 +173,7 @@ export default function SimulateLobby() {
       statusLabel: "Finals",
       projections: nbaByGame.get(String(g.gameId)) ?? 0,
       href: "/nba?tab=games",
-      buildHref: g.gameId ? `/build?sport=nba&game=${encodeURIComponent(g.gameId)}` : "/build?sport=nba",
+      buildHref: g.gameId ? `/build/custom?sport=nba&game=${encodeURIComponent(g.gameId)}` : "/build/custom?sport=nba",
       detailHref: nbaDetail ? `/games/nba/${nbaDetail.slug}` : undefined,
       // The game's single highest MARKET-implied prop (labelled "mkt", never a model claim).
       signal: topPropSignal(nbaPropsByGame.get(String(g.gameId)) ?? []) ?? undefined,

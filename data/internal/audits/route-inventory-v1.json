@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-08-25T11:45:00Z",
+ "generatedAt": "2026-08-26T01:25:47Z",
  "totals": {
-  "routes": 60,
-  "public": 36,
+  "routes": 61,
+  "public": 37,
   "internal": 4,
   "redirects": 17,
   "archive": 1,
@@ -61,7 +61,16 @@
    "route": "/build",
    "classification": "public",
    "owner": "product",
-   "purpose": "Advanced Builder: manual builder → suggested cards → optimizer marketplace",
+   "purpose": "Parlay Center · Suggested Parlays mode (default): risk ladder + optimizer cards + lane links (P208)",
+   "dataOwner": "risk-ladder + suggested-cards artifacts",
+   "freshness": "sourceDate == productDate gate",
+   "built": true
+  },
+  {
+   "route": "/build/custom",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "Parlay Center · Build Your Own mode: qualified leg pool + shared slip draft + optimizer marketplace (P208)",
    "dataOwner": "build legs from eligible slate",
    "freshness": "sourceDate == productDate gate",
    "built": true
@@ -217,7 +226,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (88 generated page(s))"
+   "built": "FAMILY (89 generated page(s))"
   },
   {
    "route": "/mlb/parlays",

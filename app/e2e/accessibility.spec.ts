@@ -42,6 +42,8 @@ const ROUTES = ["/", "/today/", "/markets/", "/results/", "/methodology/", "/lea
   // public routes and introduce their own status palette, which is exactly what contrast catches.
   // P188: /epl/ publishes forecasts and its per-fixture report introduces charts + tables.
   "/ufc/", "/goal-rush/", "/bucket-blitz/", "/epl/",
+  // P208: the Parlay Center's Build Your Own mode — new public route with the builder + draft UI.
+  "/build/custom/",
   // The picks-vs-outcomes record is the widest tabular content on the site — five columns of model
   // pick against actual outcome — and a table is precisely what fails WCAG 1.4.10 at 320px. The
   // cross-sport index and the largest per-sport record are both covered, because the index has its

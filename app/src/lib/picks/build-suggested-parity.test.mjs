@@ -66,8 +66,10 @@ test("an empty card list is the model's answer, never a broken page", () => {
   const src = read(BUILD).replace(/\s+/g, " ");
   assert.match(src, /No suggested cards for today/, "the empty state must be explicit");
   assert.match(src, /not a missing update/i, "it must distinguish a no-play from an outage");
-  // And it must offer somewhere to go rather than dead-ending.
-  assert.match(src, /Market Center/, "the empty state routes onward");
+  // And it must offer somewhere to go rather than dead-ending. (P208: onward = the Build Your Own
+  // mode and the ranked Picks surface — the destinations, not any one label for them.)
+  assert.match(src, /\/build\/custom/, "the empty state routes onward to the builder");
+  assert.match(src, /\/markets/, "the empty state routes onward to the ranked picks surface");
 });
 
 test("stake language stays paper-only and claims no profit", () => {

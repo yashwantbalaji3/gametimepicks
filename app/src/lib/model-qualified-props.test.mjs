@@ -101,8 +101,9 @@ test("/build leg pool defaults to model-qualified WC player legs (raw inventory 
   for (const l of legs) assert.ok(l.americanOdds >= QUALIFY_ODDS_MIN && l.americanOdds <= QUALIFY_ODDS_MAX, `${l.label} ${l.americanOdds} within addable window`);
 });
 
-test("/build copy states the pool is model-qualified only", () => {
-  assert.match(read("src/app/build/page.tsx"), /model-qualified legs only/, "build note states model-qualified default");
+test("the builder's copy states the pool is model-qualified only", () => {
+  // P208: the builder is the Parlay Center's Build Your Own mode at /build/custom.
+  assert.match(read("src/app/build/custom/page.tsx"), /model-qualified/, "builder note states the model-qualified default");
 });
 
 test("2nd ladder BANKED: Lane A's completed $10k ladder is archived/banked, live lanes are a fresh forward cycle, bankroll + crown reconcile, lanes separate", () => {

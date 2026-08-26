@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import { useSlip, combinedDecimal, decimalOdds, toAmerican } from "@/lib/slip/slip-store";
@@ -31,9 +32,13 @@ const crestSport = (s: string): CrestSport | null =>
 export default function SlipDrawer() {
   const { legs, stakes, ready, remove, setStake, clear } = useSlip();
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   // Nothing to show, and nothing to announce, until there is a selection.
   if (!ready || legs.length === 0) return null;
+  // The Build Your Own page renders this same draft as its betslip column (P208): two floating
+  // views of one state on one screen is a duplicate, so the drawer yields to the builder there.
+  if (pathname?.startsWith("/build/custom")) return null;
 
   const totalStake = legs.reduce((n, l) => n + (stakes[l.key] ?? 0), 0);
   const singlesReturn = legs.reduce((n, l) => n + (stakes[l.key] ?? 0) * decimalOdds(l.americanOdds), 0);

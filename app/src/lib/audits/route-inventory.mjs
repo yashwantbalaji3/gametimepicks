@@ -24,7 +24,8 @@ export const ROUTE_TABLE = Object.freeze({
   "/today": { classification: "public", owner: "product", purpose: "daily command center: slate, predictions table, category picks", dataOwner: "daily brief + boards", freshness: "slate-date stamped" },
   "/simulate": { classification: "public", owner: "product", purpose: "pick a game, run its simulation report", dataOwner: "sim artifacts", freshness: "artifact generatedAt" },
   "/markets": { classification: "public", owner: "product", purpose: "Market Center: ranked disagreement list + reading key (pp, never pts)", dataOwner: "market intelligence artifacts", freshness: "capture stamps" },
-  "/build": { classification: "public", owner: "product", purpose: "Advanced Builder: manual builder → suggested cards → optimizer marketplace", dataOwner: "build legs from eligible slate", freshness: "sourceDate == productDate gate" },
+  "/build": { classification: "public", owner: "product", purpose: "Parlay Center · Suggested Parlays mode (default): risk ladder + optimizer cards + lane links (P208)", dataOwner: "risk-ladder + suggested-cards artifacts", freshness: "sourceDate == productDate gate" },
+  "/build/custom": { classification: "public", owner: "product", purpose: "Parlay Center · Build Your Own mode: qualified leg pool + shared slip draft + optimizer marketplace (P208)", dataOwner: "build legs from eligible slate", freshness: "sourceDate == productDate gate" },
   "/bank-builder": { classification: "public", owner: "product", purpose: "conservative paper ladder (ONE 5-step ladder)", dataOwner: "protected locks + lanes", freshness: "product-state contract" },
   "/moonshot": { classification: "public", owner: "product", purpose: "high-volatility paper longshot lane", dataOwner: "moonshot-lane active.json", freshness: "product-state contract" },
   /*

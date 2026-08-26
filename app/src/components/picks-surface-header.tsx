@@ -22,7 +22,7 @@ export interface PicksSurfaceHeaderProps {
     playerProps?: number;
     suggestedCards?: number;
     specials?: number;
-    /** The ADVANCED BUILDER's gated pool, labelled so a zero does not read as a page-level verdict. */
+    /** The Build Your Own pool, labelled so a zero does not read as a page-level verdict (P185/P208). */
     builderLegs?: number;
     eligibleLegs?: number;
     active?: number;
@@ -55,7 +55,7 @@ const COUNT_LABELS: Array<[keyof NonNullable<PicksSurfaceHeaderProps["counts"]>,
   /* P185-E: "Eligible legs" read as a page-level verdict. It counts the ADVANCED BUILDER's pool,
      which is empty on many slates while the page still has cards to show, so the label says which
      pool it means. The old key stays for any surface still passing it. */
-  ["builderLegs", "Advanced-builder legs"],
+  ["builderLegs", "Build-your-own legs"],
   ["eligibleLegs", "Eligible legs"],
   ["active", "Active"],
   ["pending", "Pending"],

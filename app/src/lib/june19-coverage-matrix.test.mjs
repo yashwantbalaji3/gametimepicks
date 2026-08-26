@@ -97,8 +97,10 @@ test("Parlay Lab UI renders the full matrix (totals footer, Moonshot + Bank Buil
   // Program 143 moved the marketplace to /build (capability-parity release 1dd394c4). The
   // assertions MOVE with it — this guard is the matrix's only coverage, and it is what caught the
   // first Deployment B attempt deleting the capability outright.
-  const page = fs.readFileSync("src/app/build/page.tsx", "utf8");
-  assert.match(page, /buildCoverageMatrix\(\w+, loadMoonshotLane\(\)/, "matrix built server-side on /build");
+  // P208 Release A moved the marketplace WITH the builder to the Build Your Own mode
+  // (/build/custom) — the assertions move with it, exactly as they moved from /picks to /build.
+  const page = fs.readFileSync("src/app/build/custom/page.tsx", "utf8");
+  assert.match(page, /buildCoverageMatrix\(\w+, loadMoonshotLane\(\)/, "matrix built server-side on /build/custom");
   // The legacy /parlays route is a thin CLIENT redirect to the canonical lobby — not a competing page.
   // (Server redirect() emits an error shell under output:export, so it uses ClientRedirect.)
   const legacy = fs.readFileSync("src/app/parlays/page.tsx", "utf8");

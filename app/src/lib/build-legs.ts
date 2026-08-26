@@ -37,16 +37,15 @@ export interface BuildLeg {
   regulationOnly: boolean;
   bankBuilderEligible: boolean;
   searchKey: string;
+  /** The leg's canonical draft identity + display fields, so any surface adds THE SAME slip leg
+   *  the boards add (one reader draft, one key — P208 Release A). */
+  slipLeg?: import("@/lib/slip/leg-identity").SlipLegInput;
 }
 
 const SPORT_LABEL: Record<SportKey, string> = { world_cup: "World Cup", mlb: "MLB", nba: "NBA", ufc: "UFC" };
 
-function tierFromOdds(o: number): RiskTier {
-  if (o <= -150) return "Low";
-  if (o <= 120) return "Medium";
-  if (o <= 300) return "High";
-  return "Longshot";
-}
+import { tierFromOdds as tierFromOddsShared } from "@/lib/build/risk-tier.mjs";
+const tierFromOdds = tierFromOddsShared as (o: number) => RiskTier;
 
 /** Parlay-eligible World Cup legs (team projections + pre-lineup player props). */
 export function buildWcLegs(projections: WcProjections | null, players: WcPlayerProjections | null, nowIso?: string): BuildLeg[] {
@@ -232,6 +231,12 @@ export function buildEngineLegs(eligible: import("@/lib/parlays/ui-loader").Parl
       // Bank-Builder eligibility mirrors the survival floor (team markets only; player props never).
       bankBuilderEligible: (l.survivalScore ?? 0) >= 80 && l.identity.kind !== "player",
       searchKey: `${l.participant} ${l.team ?? ""} ${l.market} ${side} ${l.line ?? ""}`.toLowerCase(),
+      slipLeg: {
+        sport, player: l.participant, marketLabel: l.market, side: side || (l.side ?? ""),
+        line: l.line ?? null, americanOdds: l.odds as number,
+        matchup: l.team && l.opponent ? `${l.team} vs ${l.opponent}` : (l.team ?? null),
+        photoUrl: photo, teamAbbr: l.team ?? null, opponentAbbr: l.opponent ?? null,
+      },
     });
   }
   // Cap to keep the DOM snappy — all WC + the strongest MLB legs (already survival-sorted).
@@ -284,6 +289,13 @@ export function buildWcPlayerLegs(projections: WcProjections | null, players: Wc
       americanOdds: p.americanOdds, modelProbability: p.modelProbability ?? null, photo: p.player.photo ?? null, prelineup: true, regulationOnly: true,
       bankBuilderEligible: false,
       searchKey: `${p.player.name} ${p.player.team} ${p.marketLabel}`.toLowerCase(),
+      // WC props carry no side/line decomposition; the pick label IS the side for identity purposes.
+      slipLeg: {
+        sport: "world_cup", player: p.player.name, marketLabel: p.marketLabel, side: p.pickLabel,
+        line: typeof p.line === "number" ? p.line : null, americanOdds: p.americanOdds,
+        matchup: p.player.team ?? null, photoUrl: p.player.photo ?? null,
+        teamAbbr: null, opponentAbbr: null,
+      },
     });
   }
   return legs;

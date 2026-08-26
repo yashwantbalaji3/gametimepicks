@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import { mlbHeadshotUrl } from "@/lib/player-headshots";
@@ -197,6 +198,18 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
         {legs.length} legs · all must land
         {edited ? " · your edit, not the published card" : ""}
       </span>
+
+      {/* P208 · Release A: the card is a STARTING POINT, not just a display. Customize loads these
+          legs into the Build Your Own draft — the same slip state, stake math and conflict engine a
+          hand-built card uses — where the reader can add or remove anything eligible. A plain link:
+          the seeding happens at the destination from the published card, so the URL is shareable. */}
+      <Link
+        href={`/build/custom?card=${encodeURIComponent(card.slipId)}`}
+        className="vault-press inline-flex items-center justify-center gap-1.5 rounded-full px-4 no-underline self-start"
+        style={{ minHeight: 44, border: "1px solid var(--vault-gold-bright)", color: "var(--vault-gold-bright)", background: "var(--vault-gold-dim)", fontSize: 12.5, fontWeight: 700 }}
+      >
+        Customize this card →
+      </Link>
     </article>
   );
 }

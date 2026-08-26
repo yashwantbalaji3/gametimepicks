@@ -12,20 +12,12 @@
  * so the same slip carries an NFL or UFC selection the day those sports are eligible.
  */
 import { useCallback, useEffect, useState } from "react";
+import { legKey as canonicalLegKey, migrateSlipLegs, type SlipLegInput } from "@/lib/slip/leg-identity";
+import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
 
-export interface SlipLeg {
-  /** Stable identity: sport + game + player + market + side + line. */
+export interface SlipLeg extends SlipLegInput {
+  /** Canonical identity — always `legKey(fields)`. See lib/slip/leg-identity for the one rule. */
   readonly key: string;
-  readonly sport: string;
-  readonly player: string;
-  readonly photoUrl?: string | null;
-  readonly teamAbbr?: string | null;
-  readonly opponentAbbr?: string | null;
-  readonly marketLabel: string;
-  readonly side: string;
-  readonly line: number | null;
-  readonly americanOdds: number;
-  readonly matchup?: string | null;
 }
 
 export interface SlipState {
@@ -39,16 +31,17 @@ const EMPTY: SlipState = { legs: [], stakes: {} };
 /** A slip is a shortlist, not a database. The cap keeps it usable and the storage small. */
 export const SLIP_MAX_LEGS = 12;
 
-export const legKey = (l: { sport: string; matchup?: string | null; player: string; marketLabel: string; side: string; line: number | null }) =>
-  [l.sport, l.matchup ?? "", l.player, l.marketLabel, l.side, l.line ?? ""].join("|");
+/** Re-exported canonical identity rule (P208): one legKey for every surface. */
+export const legKey = canonicalLegKey;
 
-export const decimalOdds = (american: number) => (american > 0 ? 1 + american / 100 : 1 + 100 / Math.abs(american));
+/** ONE odds implementation site-wide — these are odds-math's functions under the slip's names. */
+export const decimalOdds = americanToDecimal;
 
 /** Combined decimal price of every leg — what a single parlay across the whole slip would pay. */
 export const combinedDecimal = (legs: readonly SlipLeg[]) =>
   legs.reduce((d, l) => d * decimalOdds(l.americanOdds), 1);
 
-export const toAmerican = (d: number) => (d >= 2 ? Math.round((d - 1) * 100) : -Math.round(100 / (d - 1)));
+export const toAmerican = decimalToAmerican;
 
 function read(): SlipState {
   if (typeof window === "undefined") return EMPTY;
@@ -57,7 +50,10 @@ function read(): SlipState {
     if (!raw) return EMPTY;
     const parsed = JSON.parse(raw) as SlipState;
     if (!Array.isArray(parsed?.legs)) return EMPTY;
-    return { legs: parsed.legs.slice(0, SLIP_MAX_LEGS), stakes: parsed.stakes ?? {} };
+    // Re-key stored legs under the canonical identity rule and merge duplicates the old
+    // matchup-dependent key allowed (P208) — a slip saved before the rule change stays usable.
+    const migrated = migrateSlipLegs(parsed.legs as SlipLeg[], parsed.stakes ?? {});
+    return { legs: migrated.legs.slice(0, SLIP_MAX_LEGS), stakes: migrated.stakes };
   } catch {
     return EMPTY;
   }
