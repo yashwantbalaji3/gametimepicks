@@ -41,9 +41,9 @@ export interface PicksSurfaceHeaderProps {
 const STATUS_META: Record<PicksSurfaceStatus, { label: string; color: string; bg: string }> = {
   pregame: { label: "Pregame slate", color: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)" },
   live: { label: "Slate in progress", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)" },
-  settled: { label: "Slate settled", color: "var(--vault-success)", bg: "rgba(110,231,168,0.12)" },
-  review: { label: "Review", color: "var(--vault-success)", bg: "rgba(110,231,168,0.10)" },
-  data_pending: { label: "Data pending", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.04)" },
+  settled: { label: "Slate settled", color: "var(--vault-success)", bg: "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)" },
+  review: { label: "Review", color: "var(--vault-success)", bg: "color-mix(in srgb, var(--gtp-success-on-dark) 10%, transparent)" },
+  data_pending: { label: "Data pending", color: "var(--vault-text-faint)", bg: "var(--vault-wash-soft)" },
 };
 
 const COUNT_LABELS: Array<[keyof NonNullable<PicksSurfaceHeaderProps["counts"]>, string]> = [
@@ -84,9 +84,9 @@ export default function PicksSurfaceHeader({
     <section
       className="gtp-fade-up relative overflow-hidden rounded-[14px] gtp-cinematic-bg-accent gtp-neon-rule"
       aria-label={`${title} header`}
-      style={{ padding: "22px 20px 24px", ["--accent-glow"]: "rgba(52, 211, 153, 0.18)", ["--accent-glow-secondary"]: "rgba(52, 211, 153, 0.10)" } as React.CSSProperties}
+      style={{ padding: "22px 20px 24px", ["--accent-glow"]: "color-mix(in srgb, var(--vault-accent) 18%, transparent)", ["--accent-glow-secondary"]: "color-mix(in srgb, var(--vault-accent) 10%, transparent)" } as React.CSSProperties}
     >
-      <div aria-hidden className="gtp-hero-halo" style={{ background: "radial-gradient(circle at 92% 0%, rgba(52, 211, 153, 0.26), transparent 45%)" }} />
+      <div aria-hidden className="gtp-hero-halo" style={{ background: "radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--vault-accent) 26%, transparent), transparent 45%)" }} />
       <div className="relative flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-2">
           <span aria-hidden className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse" style={{ background: accentColor, boxShadow: `0 0 10px ${accentColor}` }} />
@@ -115,7 +115,7 @@ export default function PicksSurfaceHeader({
         <div className="relative mt-3 flex flex-wrap gap-2">
           {chips.map(([k, label]) => (
             <span key={k} className="inline-flex items-baseline gap-1.5 rounded-[8px] px-2.5 py-1.5"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+              style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
               <span className="font-mono font-bold tabular" style={{ color: "var(--vault-text)", fontSize: 14 }}>{counts![k]}</span>
               <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{label}</span>
             </span>

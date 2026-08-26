@@ -34,7 +34,7 @@ export default function StakePayoutInput({
   return (
     <div
       className="rounded-[8px] px-3 py-3 flex flex-col gap-2.5"
-      style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
@@ -60,7 +60,7 @@ export default function StakePayoutInput({
               onChange={(e) => setRaw(e.target.value)}
               className="w-full rounded-[6px] px-2.5 py-1.5 font-display tabular"
               style={{
-                background: "rgba(11, 18, 14,0.7)",
+                background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)",
                 border: "1px solid var(--vault-rule)",
                 color: "var(--vault-text)",
                 fontSize: 16,

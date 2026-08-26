@@ -114,7 +114,7 @@ export default function BankBuilderTower({
             className="absolute inset-0 rounded-full overflow-hidden"
             style={{
               background:
-                "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
+                "linear-gradient(180deg, var(--vault-wash-soft), color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent))",
               border: "1px solid var(--vault-rule)",
             }}
           >
@@ -125,7 +125,7 @@ export default function BankBuilderTower({
                 height: `${fillPct}%`,
                 background:
                   "linear-gradient(180deg, var(--vault-gold-bright), var(--vault-gold-dim))",
-                boxShadow: "0 0 14px rgba(52, 211, 153, 0.45)",
+                boxShadow: "0 0 14px color-mix(in srgb, var(--vault-accent) 45%, transparent)",
               }}
             />
           </div>
@@ -145,7 +145,7 @@ export default function BankBuilderTower({
                 height: 14,
                 background: "var(--vault-gold-bright)",
                 border: "2px solid var(--gtp-card)",
-                boxShadow: "0 0 12px rgba(52, 211, 153, 0.7)",
+                boxShadow: "0 0 12px color-mix(in srgb, var(--vault-accent) 70%, transparent)",
               }}
             />
           </div>
@@ -194,8 +194,8 @@ export default function BankBuilderTower({
                     }`,
                     // Cleared rungs carry a soft emerald "completed" glow; the
                     // active rung breathes via .gtp-active-glow (gold).
-                    boxShadow: isCleared ? "0 0 10px rgba(110, 231, 168, 0.40)" : undefined,
-                    ["--gtp-glow" as string]: isActive ? "rgba(52, 211, 153, 0.55)" : undefined,
+                    boxShadow: isCleared ? "0 0 10px color-mix(in srgb, var(--gtp-success-on-dark) 40%, transparent)" : undefined,
+                    ["--gtp-glow" as string]: isActive ? "color-mix(in srgb, var(--vault-accent) 55%, transparent)" : undefined,
                   }}
                 >
                   {isCleared ? "✓" : rung.step}
@@ -210,7 +210,7 @@ export default function BankBuilderTower({
                         top: -2,
                         right: -2,
                         background: "var(--vault-success)",
-                        boxShadow: "0 0 6px rgba(110, 231, 168, 0.8)",
+                        boxShadow: "0 0 6px color-mix(in srgb, var(--gtp-success-on-dark) 80%, transparent)",
                       }}
                     />
                   )}
@@ -257,7 +257,7 @@ export default function BankBuilderTower({
                         fontSize: 10,
                         color: "var(--vault-gold-bright)",
                         border: "1px solid var(--vault-gold-bright)",
-                        background: "rgba(52, 211, 153, 0.08)",
+                        background: "color-mix(in srgb, var(--vault-accent) 8%, transparent)",
                         whiteSpace: "nowrap",
                       }}
                     >

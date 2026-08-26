@@ -22,8 +22,8 @@ export interface TierMeta {
 export const TIER_META: Record<ConfTier, TierMeta> = {
   elite:    { tier: "elite",    label: "Elite",    fg: "var(--vault-success)", bg: "color-mix(in srgb, var(--vault-success) 16%, transparent)", bars: 4 },
   strong:   { tier: "strong",   label: "Strong",   fg: "#7fd1a8",              bg: "rgba(127,209,168,0.13)",                                      bars: 3 },
-  playable: { tier: "playable", label: "Playable", fg: "#e7b15a",              bg: "rgba(231,177,90,0.13)",                                       bars: 2 },
-  avoid:    { tier: "avoid",    label: "Avoid",    fg: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.05)",                                   bars: 1 },
+  playable: { tier: "playable", label: "Playable", fg: "var(--vault-crown-warm)",              bg: "color-mix(in srgb, var(--vault-crown-warm) 13%, transparent)",                                       bars: 2 },
+  avoid:    { tier: "avoid",    label: "Avoid",    fg: "var(--vault-text-faint)", bg: "var(--vault-wash)",                                   bars: 1 },
 };
 
 /** General prop confidence from de-vigged implied probability (favorites-heavy markets). */

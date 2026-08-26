@@ -57,7 +57,7 @@ export default function ResultsSportTabs({
     <div
       className="mt-6 inline-flex flex-wrap items-stretch gap-1 p-1 rounded-[4px]"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
       aria-label="Model audit sport tabs"
@@ -76,10 +76,10 @@ export default function ResultsSportTabs({
                 ? "var(--vault-gold-bright)"
                 : "var(--vault-text-mute)",
               background: active
-                ? "linear-gradient(180deg, rgba(52, 211, 153, 0.12) 0%, rgba(52, 211, 153, 0) 90%)"
+                ? "linear-gradient(180deg, var(--vault-gold-dim) 0%, color-mix(in srgb, var(--vault-accent) 0%, transparent) 90%)"
                 : "transparent",
               border: active
-                ? "1px solid rgba(52, 211, 153, 0.30)"
+                ? "1px solid color-mix(in srgb, var(--vault-accent) 30%, transparent)"
                 : "1px solid var(--vault-border)",
               textDecoration: "none",
             }}

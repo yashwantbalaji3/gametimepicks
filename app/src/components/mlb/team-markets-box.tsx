@@ -61,7 +61,7 @@ function Side({ team, abbr, prob, favoured }: { team: string; abbr: string | nul
 export default function TeamMarketsBox({ rows }: { rows: readonly TeamMarketRow[] }) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-[10px] px-3.5 py-4 text-center" style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-rule)" }}>
+      <div className="rounded-[10px] px-3.5 py-4 text-center" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-rule)" }}>
         <p className="m-0 font-semibold" style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
           Team markets post when the sportsbooks put them up
         </p>
@@ -127,7 +127,7 @@ export default function TeamMarketsBox({ rows }: { rows: readonly TeamMarketRow[
           </>
         );
         const style = {
-          background: "rgba(255,255,255,0.02)",
+          background: "var(--vault-wash-faint)",
           border: "1px solid var(--vault-rule)",
         } as const;
         return r.reportHref ? (

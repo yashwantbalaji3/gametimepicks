@@ -18,7 +18,7 @@ export interface ReturnHookProps {
 export default function ReturnHook({ latestSettledLabel = null }: ReturnHookProps) {
   return (
     <section aria-label="Why come back" className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-[12px] px-4 py-3"
-      style={{ border: "1px solid var(--vault-border)", background: "rgba(15,10,7,0.4)" }}>
+      style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-warm) 40%, transparent)" }}>
       <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}>
         Come back
       </span>

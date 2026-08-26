@@ -30,7 +30,7 @@ export default function TodayGamePredictions({ rows }: { rows: GamePredictionRow
         </h2>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>from 10,000-game simulations · paper-only</span>
       </div>
-      <div className="rounded-[12px] overflow-x-auto" style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.55)" }}>
+      <div className="rounded-[12px] overflow-x-auto" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)" }}>
         <table className="w-full" style={{ borderCollapse: "collapse", minWidth: 620 }}>
           <thead>
             <tr style={{ color: "var(--vault-text-faint)" }}>

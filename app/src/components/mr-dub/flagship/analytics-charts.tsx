@@ -29,7 +29,7 @@ function BankrollChart({ data }: { data: { date: string; closing: number }[] }) 
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="none" style={{ display: "block", maxHeight: 240 }} role="img" aria-label="Bankroll over time">
       <defs>
         <linearGradient id="bkFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(240,199,94,0.28)" /><stop offset="100%" stopColor="rgba(240,199,94,0.02)" />
+          <stop offset="0%" stopColor="color-mix(in srgb, var(--vault-warn) 28%, transparent)" /><stop offset="100%" stopColor="color-mix(in srgb, var(--vault-warn) 2%, transparent)" />
         </linearGradient>
       </defs>
       {[0.25, 0.5, 0.75].map((f) => <line key={f} x1={PAD_L} x2={W - PAD_R} y1={PAD_T + ih * f} y2={PAD_T + ih * f} stroke="var(--vault-rule)" strokeWidth={0.5} strokeDasharray="2 4" />)}
@@ -86,7 +86,7 @@ function ProductBars({ data }: { data: FlagshipCharts["productPerformance"] }) {
       {data.map((p) => (
         <div key={p.productId} className="flex items-center gap-2.5">
           <span className="w-[116px] shrink-0 truncate text-[11.5px]" style={{ color: "var(--vault-text)" }}><span aria-hidden className="mr-1">{p.glyph}</span>{p.label}</span>
-          <div className="relative h-4 flex-1 rounded-sm" style={{ background: "rgba(255,255,255,0.03)" }}>
+          <div className="relative h-4 flex-1 rounded-sm" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)" }}>
             <div className="absolute top-0 bottom-0" style={{ left: "50%", width: 1, background: "var(--vault-rule)" }} />
             <div className="absolute top-0 bottom-0 rounded-sm" style={{ [p.profit >= 0 ? "left" : "right"]: "50%", width: `${Math.abs(scale(p.profit)) / 2}%`, background: p.net === "positive" ? GREEN : p.net === "negative" ? RED : FAINT, opacity: 0.85 } as any} />
           </div>
@@ -102,7 +102,7 @@ function ProductBars({ data }: { data: FlagshipCharts["productPerformance"] }) {
 function Heatmap({ data }: { data: FlagshipCharts["heatmap"] }) {
   const maxAbs = Math.max(1, ...data.map((d) => Math.abs(d.pl)));
   const cellColor = (pl: number) => {
-    if (Math.abs(pl) < 0.01) return "rgba(255,255,255,0.05)";
+    if (Math.abs(pl) < 0.01) return "var(--vault-wash)";
     const t = Math.min(1, Math.sqrt(Math.abs(pl) / maxAbs));
     return pl > 0 ? `rgba(74,222,128,${(0.18 + t * 0.72).toFixed(2)})` : `rgba(242,84,91,${(0.18 + t * 0.72).toFixed(2)})`;
   };
@@ -129,7 +129,7 @@ export default function AnalyticsCharts({ charts }: { charts: FlagshipCharts }) 
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("bankroll");
   const first = charts.bankroll[0]?.date, last = charts.bankroll[charts.bankroll.length - 1]?.date;
   return (
-    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, rgba(255,255,255,0.02))" }}>
+    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, var(--vault-wash-faint))" }}>
       <div className="flex flex-wrap gap-1.5">
         {TABS.map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)} className="gtp-pressable rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em]" style={{ cursor: "pointer", color: tab === t.id ? "var(--vault-bg)" : "var(--vault-text-mute)", background: tab === t.id ? "var(--vault-gold)" : "transparent", border: `1px solid ${tab === t.id ? "var(--vault-gold)" : "var(--vault-rule)"}` }}>{t.label}</button>

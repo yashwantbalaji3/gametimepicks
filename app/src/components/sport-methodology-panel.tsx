@@ -55,7 +55,7 @@ export default function SportMethodologyPanel({ sport }: { sport: Sport }) {
     <section
       aria-label="Simulation methodology"
       className="rounded-[12px] px-4 py-4 flex flex-col gap-2"
-      style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex flex-col gap-0.5">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 700 }}>

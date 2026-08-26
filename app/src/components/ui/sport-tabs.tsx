@@ -22,7 +22,7 @@ export default function SportTabs({ tabs }: { tabs: SportTabDef[] }) {
   const go = (k: string) => { const el = document.getElementById(k); if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); setActive(k); } };
   return (
     <nav aria-label="Sections" className="sticky top-0 z-20 -mx-4 sm:-mx-8 px-4 sm:px-8 py-2 mb-4 overflow-x-auto"
-         style={{ background: "rgba(11, 18, 14,0.92)", backdropFilter: "blur(8px)", borderBottom: "1px solid var(--vault-border)" }}>
+         style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 92%, transparent)", backdropFilter: "blur(8px)", borderBottom: "1px solid var(--vault-border)" }}>
       <div className="flex items-center gap-1.5 min-w-max">
         {tabs.map((t) => {
           const on = active === t.key;
@@ -32,7 +32,7 @@ export default function SportTabs({ tabs }: { tabs: SportTabDef[] }) {
                     style={{ background: on ? "var(--vault-gold-dim)" : "transparent", border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`, color: on ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap" }}>
               {t.label}
               {t.badge != null && t.badge !== "" ? (
-                <span className="font-mono rounded-full px-1.5" style={{ background: on ? "var(--vault-gold-bright)" : "var(--vault-rule)", color: on ? "#170f0a" : "var(--vault-text-faint)", fontSize: 10 }}>{t.badge}</span>
+                <span className="font-mono rounded-full px-1.5" style={{ background: on ? "var(--vault-gold-bright)" : "var(--vault-rule)", color: on ? "var(--vault-on-accent)" : "var(--vault-text-faint)", fontSize: 10 }}>{t.badge}</span>
               ) : null}
             </button>
           );

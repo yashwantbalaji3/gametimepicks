@@ -112,7 +112,7 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
       <div
         aria-hidden
         className="absolute inset-0"
-        style={{ background: "rgba(0,0,0,0.65)" }}
+        style={{ background: "color-mix(in srgb, var(--vault-ink-black) 65%, transparent)" }}
       />
       {/* Sheet / modal — flex column so the header stays put and the body
           scrolls independently. Uses 90dvh (dynamic viewport height) so mobile
@@ -120,7 +120,7 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
       <div
         className="relative w-full sm:max-w-md sm:rounded-[10px] rounded-t-[14px] overflow-hidden flex flex-col"
         style={{
-          background: "rgba(11, 18, 14,0.97)",
+          background: "color-mix(in srgb, var(--vault-scrim-base) 97%, transparent)",
           border: "1px solid var(--vault-border)",
           maxHeight: "90dvh",
         }}
@@ -130,7 +130,7 @@ export default function PlayerRecentFormDrawer({ leg, onClose }: Props) {
           className="flex items-center justify-between gap-3 px-4 py-3 shrink-0"
           style={{
             borderBottom: "1px solid var(--vault-rule)",
-            background: "rgba(11, 18, 14,0.97)",
+            background: "color-mix(in srgb, var(--vault-scrim-base) 97%, transparent)",
           }}
         >
           <div className="flex items-center gap-3 min-w-0">
@@ -314,7 +314,7 @@ function PickSummary({ leg, stat }: { leg: ParlayLeg; stat: string }) {
     <div
       className="px-3.5 py-3 rounded-[8px] flex flex-col gap-2"
       style={{
-        background: "rgba(0,0,0,0.40)",
+        background: "color-mix(in srgb, var(--vault-ink-black) 40%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -481,7 +481,7 @@ function RecentList({
               key={i}
               className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-[4px]"
               style={{
-                background: "rgba(0,0,0,0.25)",
+                background: "color-mix(in srgb, var(--vault-ink-black) 25%, transparent)",
                 border: "1px solid var(--vault-rule)",
               }}
             >
@@ -568,7 +568,7 @@ function EnrichedRecentList({
               key={i}
               className="grid grid-cols-[auto_1fr_auto_auto] gap-2 items-center px-2.5 py-1.5 rounded-[4px]"
               style={{
-                background: "rgba(0,0,0,0.25)",
+                background: "color-mix(in srgb, var(--vault-ink-black) 25%, transparent)",
                 border: "1px solid var(--vault-rule)",
               }}
             >
@@ -665,7 +665,7 @@ function FallbackNote() {
       className="text-[12px] leading-snug px-2.5 py-2 rounded-[4px]"
       style={{
         color: "var(--vault-text-mute)",
-        background: "rgba(0,0,0,0.25)",
+        background: "color-mix(in srgb, var(--vault-ink-black) 25%, transparent)",
         border: "1px dashed var(--vault-border)",
       }}
     >
@@ -694,7 +694,7 @@ function TrendPanel({
     <div
       className="px-3 py-3 rounded-[6px] flex flex-col gap-2"
       style={{
-        background: "rgba(0,0,0,0.30)",
+        background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -747,7 +747,7 @@ function ProvenanceNote({ sport }: { sport: string }) {
       className="text-[10.5px] leading-snug rounded-[4px] px-2.5 py-1.5"
       style={{
         color: "var(--vault-text-faint)",
-        background: "rgba(0,0,0,0.20)",
+        background: "color-mix(in srgb, var(--vault-ink-black) 20%, transparent)",
         border: "1px dashed var(--vault-rule)",
       }}
     >

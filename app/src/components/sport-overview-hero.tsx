@@ -79,13 +79,13 @@ interface Props {
 
 const ACCENT: Record<NonNullable<Props["accent"]>, string> = {
   gold: "var(--vault-gold-bright)",
-  nba: "rgba(120, 175, 255, 1)",
-  mlb: "rgba(140, 230, 175, 1)",
+  nba: "var(--vault-info)",
+  mlb: "var(--vault-mint-soft)",
   nhl: "rgba(180, 215, 255, 1)",
   ipl: "rgba(255, 195, 130, 1)",
   // Identity-system additions — the two hubs that previously fell back to gold.
-  wc: "rgba(52, 211, 153, 1)",
-  ufc: "rgba(248, 113, 113, 1)",
+  wc: "var(--vault-accent)",
+  ufc: "var(--vault-danger)",
   nfl: "rgba(167, 139, 250, 1)",
 };
 
@@ -131,7 +131,7 @@ export default function SportOverviewHero({
         className="rounded-[16px] px-4 py-3.5 flex flex-col gap-3"
         style={{
           border: "1px solid var(--sport-theme-rule)",
-          background: "linear-gradient(135deg, var(--sport-theme-wash) 0%, rgba(11,18,14,0.5) 62%)",
+          background: "linear-gradient(135deg, var(--sport-theme-wash) 0%, color-mix(in srgb, var(--vault-scrim-base) 50%, transparent) 62%)",
         }}
       >
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -174,8 +174,8 @@ export default function SportOverviewHero({
               className="gtp-team-row rounded-[8px] px-3 py-1.5 font-mono uppercase tracking-[0.12em] no-underline"
               style={{
                 fontSize: 9.5,
-                color: c.primary ? "#1A0E06" : "var(--vault-text-mute)",
-                background: c.primary ? "var(--gtp-bank-lava-cta)" : "rgba(255,255,255,0.02)",
+                color: c.primary ? "var(--vault-on-accent-deep)" : "var(--vault-text-mute)",
+                background: c.primary ? "var(--gtp-bank-lava-cta)" : "var(--vault-wash-faint)",
                 border: c.primary ? "1px solid transparent" : "1px solid var(--vault-rule)",
                 fontWeight: c.primary ? 700 : 500,
               }}>

@@ -28,11 +28,11 @@ export default function SimulationStory({
     <section
       aria-label="Simulation story"
       className={`rounded-[12px] ${compact ? "px-3 py-2.5" : "px-4 py-3"} flex flex-col gap-1.5`}
-      style={{ background: "rgba(46,160,102,0.06)", border: "1px solid rgba(46,160,102,0.22)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-accent-deep) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 22%, transparent)" }}
     >
       <div
         className="font-mono uppercase tracking-[0.12em]"
-        style={{ color: "var(--vault-success, #7ee2a8)", fontSize: compact ? 8.5 : 9 }}
+        style={{ color: "var(--vault-success, var(--vault-accent-mint))", fontSize: compact ? 8.5 : 9 }}
       >
         Simulation story
       </div>

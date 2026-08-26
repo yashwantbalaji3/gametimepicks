@@ -59,7 +59,7 @@ function GameDisambiguation({ sport, options }: { sport: string; options: Array<
             key={o.slug}
             href={`/games/${o.urlSport}/${o.slug}`}
             className="vault-glow-hover flex items-center justify-between gap-3 rounded-[8px]"
-            style={{ padding: "14px 16px", border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.55)", color: "inherit", textDecoration: "none" }}
+            style={{ padding: "14px 16px", border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", color: "inherit", textDecoration: "none" }}
           >
             <span className="text-[14px]" style={{ color: "var(--vault-text)" }}>{o.title}</span>
             <span className="font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9.5, color: o.simReady ? "var(--vault-success)" : "var(--vault-text-faint)" }}>

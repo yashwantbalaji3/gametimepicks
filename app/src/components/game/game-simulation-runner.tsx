@@ -440,8 +440,8 @@ export default function GameSimulationRunner({
                 "linear-gradient(color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px)",
               backgroundSize: "28px 28px",
               opacity: 0.55,
-              maskImage: "radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 82%)",
-              WebkitMaskImage: "radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 82%)",
+              maskImage: "radial-gradient(120% 90% at 50% 0%, var(--vault-ink-black) 30%, transparent 82%)",
+              WebkitMaskImage: "radial-gradient(120% 90% at 50% 0%, var(--vault-ink-black) 30%, transparent 82%)",
             }}
           />
           <div className="relative flex flex-col gap-2">

@@ -36,7 +36,7 @@ export default function OverviewFooterDisclosure({
         <summary
           className="cursor-pointer list-none flex items-center justify-between gap-3 px-4 py-3"
           style={{
-            background: "rgba(11, 18, 14, 0.45)",
+            background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
             borderBottom: "1px solid var(--vault-rule)",
           }}
         >
@@ -58,7 +58,7 @@ export default function OverviewFooterDisclosure({
           <div
             className="rounded-[4px] px-4 py-3 text-[12px] leading-relaxed"
             style={{
-              background: "rgba(11, 18, 14, 0.35)",
+              background: "color-mix(in srgb, var(--vault-scrim-base) 35%, transparent)",
               border: "1px solid var(--vault-rule)",
               color: "var(--vault-text-mute)",
             }}
@@ -74,7 +74,7 @@ export default function OverviewFooterDisclosure({
           <div
             className="rounded-[4px] px-4 py-3 text-[12px] leading-relaxed"
             style={{
-              background: "rgba(11, 18, 14, 0.35)",
+              background: "color-mix(in srgb, var(--vault-scrim-base) 35%, transparent)",
               border: "1px solid var(--vault-rule)",
               color: "var(--vault-text-mute)",
             }}

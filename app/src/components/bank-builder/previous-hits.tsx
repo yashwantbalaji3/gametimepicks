@@ -55,7 +55,7 @@ function HitLeg({ leg }: { leg: Leg }) {
   return (
     <li
       className="flex items-center gap-2.5 rounded-[10px] px-3 py-2.5"
-      style={{ background: "rgba(7, 11, 9,0.55)", border: "1px solid var(--vault-rule)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-bg) 55%, transparent)", border: "1px solid var(--vault-rule)" }}
     >
       {/* Portrait / flags */}
       <span className="flex shrink-0 items-center gap-1.5">
@@ -107,7 +107,7 @@ export default function PreviousHits({ hits, recordLabel }: { hits: PublicBuilde
   return (
     <section
       className="gtp-fade-up mt-5 rounded-2xl p-5"
-      style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(180deg, rgba(110,231,168,0.04), var(--lava-panel))" }}
+      style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(180deg, color-mix(in srgb, var(--gtp-success-on-dark) 4%, transparent), var(--lava-panel))" }}
       aria-label="Previous hits"
     >
       <div className="mb-3.5 flex flex-wrap items-baseline justify-between gap-2">
@@ -125,7 +125,7 @@ export default function PreviousHits({ hits, recordLabel }: { hits: PublicBuilde
             <li
               key={e.step}
               className="gtp-fade-up gtp-card-hover flex min-w-0 flex-col gap-3 rounded-xl p-3.5"
-              style={{ border: "1px solid rgba(110,231,168,0.22)", background: "rgba(110,231,168,0.045)", animationDelay: `${i * 70}ms` }}
+              style={{ border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 22%, transparent)", background: "color-mix(in srgb, var(--gtp-success-on-dark) 4.5%, transparent)", animationDelay: `${i * 70}ms` }}
             >
               <div className="flex items-center gap-2.5">
                 <span
@@ -144,7 +144,7 @@ export default function PreviousHits({ hits, recordLabel }: { hits: PublicBuilde
                     {fmtDate(e.date)}{e.event ? ` · ${e.event}` : ""}
                   </span>
                 </div>
-                <span className="ml-auto shrink-0 rounded px-1.5 py-0.5 text-[11px] font-bold tracking-[0.08em]" style={{ background: "rgba(110,231,168,0.16)", color: "var(--vault-success)" }}>
+                <span className="ml-auto shrink-0 rounded px-1.5 py-0.5 text-[11px] font-bold tracking-[0.08em]" style={{ background: "color-mix(in srgb, var(--gtp-success-on-dark) 16%, transparent)", color: "var(--vault-success)" }}>
                   WON
                 </span>
               </div>

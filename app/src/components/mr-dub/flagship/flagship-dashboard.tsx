@@ -15,7 +15,7 @@ function longDate(iso: string): string { const [y, m, d] = iso.split("-").map(Nu
 
 function Kpi({ label, value, sub, accent, glow, span }: { label: string; value: string; sub?: string; accent?: string; glow?: boolean; span?: boolean }) {
   return (
-    <div className={`gtp-card-hover rounded-xl px-3.5 py-3 ${span ? "col-span-2" : ""}`} style={{ background: "var(--gtp-card-sunken, rgba(255,255,255,0.02))", border: "1px solid var(--vault-border)" }}>
+    <div className={`gtp-card-hover rounded-xl px-3.5 py-3 ${span ? "col-span-2" : ""}`} style={{ background: "var(--gtp-card-sunken, var(--vault-wash-faint))", border: "1px solid var(--vault-border)" }}>
       <div className="font-mono uppercase tracking-[0.11em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{label}</div>
       <div className={`font-display tabular tracking-tight ${glow ? "gtp-stat-value" : ""}`} style={{ color: accent ?? "var(--vault-text)", fontSize: span ? 26 : 20, fontWeight: 800, lineHeight: 1.05, marginTop: 3 }}>{value}</div>
       {sub ? <div className="mt-0.5 text-[10.5px]" style={{ color: "var(--vault-text-mute)" }}>{sub}</div> : null}
@@ -29,13 +29,13 @@ export function ExecutiveDashboard({ kpis, journey, todayStatus }: { kpis: Flags
   return (
     <section className="gtp-cinematic-rise flex flex-col gap-3">
       {/* Headline money band — the one-glance proof. */}
-      <div className="relative overflow-hidden rounded-2xl px-5 py-5 sm:px-6 sm:py-6" style={{ border: "1px solid var(--vault-edge-gold, var(--vault-border))", background: "linear-gradient(135deg, rgba(240,199,94,0.10), rgba(20,14,10,0.55) 60%)" }}>
+      <div className="relative overflow-hidden rounded-2xl px-5 py-5 sm:px-6 sm:py-6" style={{ border: "1px solid var(--vault-edge-gold, var(--vault-border))", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-warn) 10%, transparent), rgba(20,14,10,0.55) 60%)" }}>
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
           <div className="min-w-0">
             <div className="font-mono uppercase tracking-[0.14em] text-[9.5px]" style={{ color: "var(--vault-gold)" }}>Paper bankroll · official settlement only</div>
             <div className="mt-1 flex flex-wrap items-end gap-x-3 gap-y-1">
               <span className="font-display tabular tracking-tight gtp-stat-value" style={{ fontSize: 44, fontWeight: 850, color: "var(--vault-text)", lineHeight: 0.95 }}>{usd(kpis.bankroll)}</span>
-              <span className="mb-1 rounded-full px-2 py-0.5 font-mono text-[11px] font-bold" style={{ color: "var(--vault-success)", background: "var(--gtp-success-soft, rgba(74,222,128,0.10))", border: "1px solid var(--vault-success-dim)" }}>{signed(kpis.profit)}</span>
+              <span className="mb-1 rounded-full px-2 py-0.5 font-mono text-[11px] font-bold" style={{ color: "var(--vault-success)", background: "var(--gtp-success-soft, color-mix(in srgb, var(--vault-success) 10%, transparent))", border: "1px solid var(--vault-success-dim)" }}>{signed(kpis.profit)}</span>
               {/* Sprint 035: a return figure never renders without its sample size adjacent. */}
               <span className="mb-1 font-mono text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{kpis.roiMultiple}× on {kpis.record.wins + kpis.record.losses} settled bets</span>
             </div>
@@ -77,7 +77,7 @@ export function TodayStatusStrip({ todayStatus }: { todayStatus: TodayStatus }) 
   const t = todayStatus;
   const live = t.products.filter((p) => p.live);
   return (
-    <section className="gtp-cinematic-rise gtp-cinematic-rise-d1 rounded-xl px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, rgba(255,255,255,0.02))" }}>
+    <section className="gtp-cinematic-rise gtp-cinematic-rise-d1 rounded-xl px-4 py-3.5" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, var(--vault-wash-faint))" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="inline-flex items-center gap-2 font-mono uppercase tracking-[0.12em] text-[10px]" style={{ color: "var(--gtp-bank-heat)" }}>
           <span aria-hidden className="gtp-verified-pulse" style={{ width: 7, height: 7, borderRadius: 99, background: "var(--gtp-bank-heat)", display: "inline-block" }} />
@@ -87,7 +87,7 @@ export function TodayStatusStrip({ todayStatus }: { todayStatus: TodayStatus }) 
       </div>
       <div className="mt-2.5 flex flex-wrap items-stretch gap-2">
         {t.activeBankBuilder.length ? t.activeBankBuilder.map((ln) => (
-          <Link key={ln.lane} href="/bank-builder" className="gtp-pressable min-w-0 flex-1 rounded-lg px-3 py-2" style={{ border: "1px solid var(--vault-rule)", background: "rgba(240,199,94,0.05)", textDecoration: "none" }}>
+          <Link key={ln.lane} href="/bank-builder" className="gtp-pressable min-w-0 flex-1 rounded-lg px-3 py-2" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-warn) 5%, transparent)", textDecoration: "none" }}>
             <div className="flex items-center justify-between gap-2">
               <span className="font-mono uppercase tracking-[0.08em] text-[9px]" style={{ color: "var(--vault-gold)" }}>🏦 Bank Builder · Lane {ln.lane}</span>
               <span className="font-mono text-[10px]" style={{ color: "var(--vault-text-mute)" }}>Step {ln.step}</span>

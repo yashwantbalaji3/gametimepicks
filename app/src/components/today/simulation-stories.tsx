@@ -16,7 +16,7 @@ function StoryCard({ story }: { story: SlateStory }) {
     <Link
       href={story.href}
       className="rounded-[12px] px-3.5 py-3 flex flex-col gap-2 no-underline"
-      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)", minHeight: 44 }}
+      style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)", minHeight: 44 }}
     >
       <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 8.5 }}>
         {story.label}

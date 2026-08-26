@@ -73,7 +73,7 @@ export function AdoptionPanel({ report }: { report: AdoptionReport }) {
   const byReason = isMeasured(r.dataQuality.byReason) ? r.dataQuality.byReason.value : null;
 
   return (
-    <section className="rounded-2xl p-4 sm:p-5" style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel, rgba(255,255,255,0.02))" }}>
+    <section className="rounded-2xl p-4 sm:p-5" style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel, var(--vault-wash-faint))" }}>
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)" }}>Public-beta adoption (internal)</h2>
         <span className="rounded-full px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.08em]" style={{ border: `1px solid ${MODE_TONE[r.mode]}`, color: MODE_TONE[r.mode] }}>
@@ -158,7 +158,7 @@ export function AdoptionPanel({ report }: { report: AdoptionReport }) {
         />
       </div>
 
-      <div className="mt-4 rounded-lg px-3 py-2" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+      <div className="mt-4 rounded-lg px-3 py-2" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <span className="font-mono text-[9px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)" }}>Sport demand</span>
           <span className="font-mono text-[9px] uppercase" style={{ color: r.sportDemand.interpretable ? "var(--vault-success)" : "var(--gtp-bank-heat)" }}>

@@ -14,7 +14,7 @@ import type { FeaturedSimulation } from "@/lib/simulate-lobby-featured";
 
 function SimCard({ sim }: { sim: FeaturedSimulation }) {
   return (
-    <div className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+    <div className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2">
         <MatchupIdentity homeName={sim.teams.home} awayName={sim.teams.away} homeLogo={sim.homeLogo} awayLogo={sim.awayLogo} size="sm" />
         <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, color: "var(--vault-success)", background: "var(--vault-success-dim)" }}>
@@ -35,7 +35,7 @@ function SimCard({ sim }: { sim: FeaturedSimulation }) {
       <Link
         href={sim.href}
         className="vault-press inline-flex w-fit items-center rounded-full px-3.5 font-mono uppercase tracking-[0.1em]"
-        style={{ minHeight: 34, fontSize: 10, fontWeight: 700, textDecoration: "none", background: "var(--gtp-bank-lava-cta)", color: "#1A0E06" }}
+        style={{ minHeight: 34, fontSize: 10, fontWeight: 700, textDecoration: "none", background: "var(--gtp-bank-lava-cta)", color: "var(--vault-on-accent-deep)" }}
       >
         Generate Simulation →
       </Link>

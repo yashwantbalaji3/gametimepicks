@@ -89,7 +89,7 @@ function ThemeBadge({ theme }: { theme: string }) {
   return (
     <span
       className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]"
-      style={{ fontSize: 9, color: "var(--vault-gold)", background: "rgba(212,175,55,0.12)", border: "1px solid color-mix(in srgb, var(--vault-gold) 35%, transparent)" }}
+      style={{ fontSize: 9, color: "var(--vault-gold)", background: "color-mix(in srgb, var(--vault-gold) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-gold) 35%, transparent)" }}
     >
       ◆ {theme}
     </span>
@@ -103,7 +103,7 @@ function EditorialChip({ label, value, tone }: { label: string; value: string; t
   return (
     <span
       className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]"
-      style={{ fontSize: 9, color: fg, background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}
+      style={{ fontSize: 9, color: fg, background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}
     >
       <span style={{ color: "var(--vault-text-faint)" }}>{label}</span> {value}
     </span>
@@ -135,7 +135,7 @@ function EditorialBody({ card }: { card: WorldCupSpecialCard }) {
         <p className="text-[12px]" style={{ color: "var(--vault-text-mute)", lineHeight: 1.55 }}>{card.explanation}</p>
       ) : null}
       {card.expectedGameScript ? (
-        <div className="rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-rule)" }}>
+        <div className="rounded-[10px] px-3 py-2" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <div className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 8.5, marginBottom: 3 }}>Expected game script</div>
           <p className="text-[11.5px]" style={{ color: "var(--vault-text-mute)", lineHeight: 1.5 }}>{card.expectedGameScript}</p>
         </div>
@@ -204,20 +204,20 @@ export default function WorldCupSpecialsTracker({
 
   return (
     <section aria-label="World Cup Specials Tracker" className="flex flex-col gap-4">
-      <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid color-mix(in srgb, var(--vault-gold) 45%, transparent)", background: "linear-gradient(135deg, rgba(212,175,55,0.08), rgba(11, 18, 14,0.42))" }}>
+      <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid color-mix(in srgb, var(--vault-gold) 45%, transparent)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-gold) 8%, transparent), color-mix(in srgb, var(--vault-scrim-base) 42%, transparent))" }}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>🏆 World Cup Specials · daily tracker</span>
           <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>no exposure · suggested cards</span>
         </div>
         {result?.diagnostics?.playerPropsUnavailable ? (
           <div className="mt-2 inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-mono uppercase tracking-[0.08em]"
-            style={{ fontSize: 9.5, color: "var(--vault-gold)", background: "rgba(212,175,55,0.10)", border: "1px solid color-mix(in srgb, var(--vault-gold) 35%, transparent)" }}>
+            style={{ fontSize: 9.5, color: "var(--vault-gold)", background: "color-mix(in srgb, var(--vault-gold) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-gold) 35%, transparent)" }}>
             ⚑ Player props unavailable — using team models
           </div>
         ) : null}
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {summaryTiles.map(([k, v]) => (
-            <div key={k} className="rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+            <div key={k} className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
               <div className="font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{v}</div>
               <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{k}</div>
             </div>
@@ -292,7 +292,7 @@ export default function WorldCupSpecialsTracker({
             </div>
           ) : null}
           {t.pending.length + t.candidates.length + t.settled.length + coverageRows.length === 0 ? (
-            <div className="rounded-xl px-4 py-6 text-center" style={{ border: "1px dashed var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
+            <div className="rounded-xl px-4 py-6 text-center" style={{ border: "1px dashed var(--vault-border)", background: "var(--vault-wash-faint)" }}>
               <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>No World Cup Specials on the current slate</p>
               <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>A fresh box of model-ranked specials posts once the next multi-game slate&apos;s odds and props are available.</p>
             </div>

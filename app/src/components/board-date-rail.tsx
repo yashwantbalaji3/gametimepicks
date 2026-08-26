@@ -54,7 +54,7 @@ export default function BoardDateRail({
           className="inline-block w-1 h-1 rounded-full"
           style={{
             background: "var(--vault-gold-bright)",
-            boxShadow: "0 0 4px rgba(52, 211, 153, 0.6)",
+            boxShadow: "0 0 4px color-mix(in srgb, var(--vault-accent) 60%, transparent)",
           }}
         />
         <span
@@ -80,25 +80,25 @@ export default function BoardDateRail({
           const tone =
             e.status === "settled"
               ? {
-                  border: "rgba(52, 211, 153, 0.40)",
-                  bgIdle: "rgba(52, 211, 153, 0.06)",
+                  border: "color-mix(in srgb, var(--vault-accent) 40%, transparent)",
+                  bgIdle: "color-mix(in srgb, var(--vault-accent) 6%, transparent)",
                   labelColor: "var(--vault-gold-bright)",
                 }
               : e.status === "live"
                 ? {
-                    border: "rgba(74, 222, 128, 0.34)",
-                    bgIdle: "rgba(74, 222, 128, 0.05)",
+                    border: "color-mix(in srgb, var(--vault-success) 34%, transparent)",
+                    bgIdle: "color-mix(in srgb, var(--vault-success) 5%, transparent)",
                     labelColor: "var(--vault-success)",
                   }
                 : e.status === "linesPending"
                   ? {
-                      border: "rgba(245, 195, 95, 0.28)",
-                      bgIdle: "rgba(11, 18, 14, 0.55)",
+                      border: "color-mix(in srgb, var(--vault-warn-alt) 28%, transparent)",
+                      bgIdle: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
                       labelColor: "var(--vault-text)",
                     }
                   : {
                       border: "var(--vault-border)",
-                      bgIdle: "rgba(11, 18, 14, 0.55)",
+                      bgIdle: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
                       labelColor: "var(--vault-text)",
                     };
           return (
@@ -109,13 +109,13 @@ export default function BoardDateRail({
               className="shrink-0 flex flex-col gap-1.5 rounded-[8px] px-3.5 py-2.5 transition-all hover:-translate-y-0.5"
               style={{
                 background: isActive
-                  ? "linear-gradient(155deg, rgba(52, 211, 153, 0.18), rgba(52, 211, 153, 0.04))"
+                  ? "linear-gradient(155deg, color-mix(in srgb, var(--vault-accent) 18%, transparent), color-mix(in srgb, var(--vault-accent) 4%, transparent))"
                   : tone.bgIdle,
                 border: isActive
-                  ? "1px solid rgba(52, 211, 153, 0.55)"
+                  ? "1px solid color-mix(in srgb, var(--vault-accent) 55%, transparent)"
                   : `1px solid ${tone.border}`,
                 boxShadow: isActive
-                  ? "0 6px 18px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(52, 211, 153, 0.18)"
+                  ? "0 6px 18px color-mix(in srgb, var(--vault-ink-black) 35%, transparent), 0 0 0 1px color-mix(in srgb, var(--vault-accent) 18%, transparent)"
                   : "none",
                 minWidth: 138,
                 color: "inherit",

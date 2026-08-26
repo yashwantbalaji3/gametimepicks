@@ -228,7 +228,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
               <div
                 className="rounded-[6px] px-4 py-4 text-[13px]"
                 style={{
-                  background: "rgba(11, 18, 14, 0.5)",
+                  background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)",
                   border: "1px solid var(--vault-border)",
                   color: "var(--vault-text-mute)",
                 }}
@@ -286,7 +286,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                     style={{
                       padding: "12px 14px",
                       border: "1px solid var(--vault-border)",
-                      background: "rgba(11, 18, 14, 0.45)",
+                      background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
                     }}
                   >
                     <div
@@ -336,8 +336,8 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
             className="vault-glow-hover inline-flex items-center gap-2 rounded-[3px]"
             style={{
               padding: "10px 14px",
-              border: "1px solid rgba(74, 222, 128, 0.30)",
-              background: "rgba(74, 222, 128, 0.06)",
+              border: "1px solid color-mix(in srgb, var(--vault-success) 30%, transparent)",
+              background: "color-mix(in srgb, var(--vault-success) 6%, transparent)",
               color: "var(--vault-success)",
               textDecoration: "none",
               fontSize: 12,
@@ -351,7 +351,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
               className="inline-block w-1.5 h-1.5 rounded-full"
               style={{
                 background: "var(--vault-success)",
-                boxShadow: "0 0 6px rgba(74, 222, 128, 0.45)",
+                boxShadow: "0 0 6px color-mix(in srgb, var(--vault-success) 45%, transparent)",
               }}
             />
             Open MLB model audit
@@ -376,7 +376,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                 className="inline-block w-2 h-2 rounded-full"
                 style={{
                   background: "var(--vault-warn)",
-                  boxShadow: "0 0 10px rgba(52, 211, 153, 0.55)",
+                  boxShadow: "0 0 10px color-mix(in srgb, var(--vault-accent) 55%, transparent)",
                 }}
               />
               <span
@@ -415,7 +415,7 @@ function OffDayPanel() {
       <div
         className="rounded-[6px] px-5 py-6 text-[13px] leading-relaxed"
         style={{
-          background: "rgba(11, 18, 14, 0.55)",
+          background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
           border: "1px solid var(--vault-border)",
           color: "var(--vault-text-mute)",
         }}

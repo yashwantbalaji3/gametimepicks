@@ -59,7 +59,7 @@ export default function SignatureProductsBand() {
             </>
           );
           const style = {
-            background: live ? "rgba(11,18,14,0.5)" : "rgba(255,255,255,0.015)",
+            background: live ? "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)" : "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)",
             border: live ? "1px solid var(--vault-border)" : "1px dashed var(--vault-rule)",
           } as const;
           // A coming-soon card may link, but never through the live CTA treatment — the dashed

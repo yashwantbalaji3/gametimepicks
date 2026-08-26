@@ -42,7 +42,7 @@ export function SlateSummary({ dateLabel, mlbGames, mlbLeans, topPicks, bankBuil
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>Today&rsquo;s slate</h2>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{dateLabel} · paper-only</span>
       </div>
-      <div className="rounded-[14px] px-4 py-3" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+      <div className="rounded-[14px] px-4 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
         <SlateRow label="MLB games" value={mlbGames > 0 ? `${mlbGames} games · ${mlbLeans} model leans` : "No board yet"} tone={mlbGames > 0 ? "gold" : "mute"} />
         {topPicks != null && topPicks > 0 ? <SlateRow label="Top model picks" value={`${topPicks} ranked`} tone="gold" /> : null}
         <SlateRow label="Bank Builder" value={bankBuilderStatus} />
@@ -68,7 +68,7 @@ export interface TrustStripProps {
 
 function TrustTile({ value, label }: { value: string; label: string }) {
   return (
-    <div className="flex flex-col gap-0.5 rounded-[12px] px-3 py-2.5" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+    <div className="flex flex-col gap-0.5 rounded-[12px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
       <span className="font-display tabular tracking-tight" style={{ color: "var(--vault-gold-bright)", fontSize: 17, fontWeight: 800, lineHeight: 1.05 }}>{value}</span>
       <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{label}</span>
     </div>
@@ -112,7 +112,7 @@ export function HowItWorks() {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {STEPS.map((s) => (
-          <div key={s.n} className="flex gap-3 rounded-[12px] px-4 py-3.5" style={{ background: "rgba(11, 18, 14,0.4)", border: "1px solid var(--vault-rule)" }}>
+          <div key={s.n} className="flex gap-3 rounded-[12px] px-4 py-3.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 40%, transparent)", border: "1px solid var(--vault-rule)" }}>
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-display" style={{ background: "var(--vault-success-dim)", color: "var(--vault-success)", fontSize: 13, fontWeight: 800 }}>{s.n}</span>
             <span className="flex flex-col gap-1">
               <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>{s.title}</span>
@@ -134,7 +134,7 @@ export function FooterCta() {
   ];
   return (
     <section aria-label="Get started" className="flex flex-col items-center gap-3 rounded-[16px] px-5 py-7 text-center"
-      style={{ border: "1px solid var(--vault-border-strong)", background: "linear-gradient(135deg, rgba(217,164,65,0.06), rgba(11, 18, 14,0.35))" }}>
+      style={{ border: "1px solid var(--vault-border-strong)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-crown) 6%, transparent), color-mix(in srgb, var(--vault-scrim-base) 35%, transparent))" }}>
       <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px,4.4vw,28px)", fontWeight: 800, lineHeight: 1.08 }}>
         Run a simulation. See the picks. Follow the results.
       </h2>
@@ -153,7 +153,7 @@ export function FooterCta() {
               fontWeight: 700,
               textDecoration: "none",
               ...(l.primary
-                ? { background: "var(--vault-gold-bright)", color: "#1A0E06" }
+                ? { background: "var(--vault-gold-bright)", color: "var(--vault-on-accent-deep)" }
                 : { border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)" }),
             }}
           >

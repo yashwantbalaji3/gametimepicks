@@ -30,7 +30,7 @@ function GameCard({ g }: { g: GameLabHomeGame }) {
     <Link
       href={href}
       className="vault-glow-hover flex items-center gap-2.5 rounded-[10px] px-3 py-2.5"
-      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
     >
       <span className="flex shrink-0 items-center gap-1">
         {g.sport === "world_cup" ? (
@@ -57,7 +57,7 @@ function GameCard({ g }: { g: GameLabHomeGame }) {
 
 function SportColumn({ label, sport, games, emptyNote }: { label: string; sport: string; games: GameLabHomeGame[]; emptyNote: string }) {
   return (
-    <div className="flex flex-col gap-2 rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+    <div className="flex flex-col gap-2 rounded-2xl p-4" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)" }}>
       <div className="mb-1 flex items-baseline justify-between gap-2">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 800 }}>{label}</span>
         <span className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>
@@ -67,7 +67,7 @@ function SportColumn({ label, sport, games, emptyNote }: { label: string; sport:
       {games.length > 0 ? (
         <div className="flex flex-col gap-1.5">{games.map((g) => <GameCard key={g.slug} g={g} />)}</div>
       ) : (
-        <div className="rounded-[10px] px-3 py-4 text-[12px] leading-snug" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}>
+        <div className="rounded-[10px] px-3 py-4 text-[12px] leading-snug" style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}>
           <span className="font-semibold" style={{ color: "var(--vault-text)" }}>No active model board today.</span>{" "}
           {emptyNote}
         </div>
@@ -82,11 +82,11 @@ function SportColumn({ label, sport, games, emptyNote }: { label: string; sport:
 export default function GameLabHomeBand({ mlb, wc }: { mlb: GameLabHomeGame[]; wc: GameLabHomeGame[] }) {
   return (
     <section className="mt-6 overflow-hidden rounded-2xl px-5 py-5 sm:px-6" aria-label="Game Lab — multi-sport model reports"
-      style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(217,164,65,0.06), rgba(11, 18, 14,0.25))" }}>
+      style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-crown) 6%, transparent), color-mix(in srgb, var(--vault-scrim-base) 25%, transparent))" }}>
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <span className="font-mono text-[10px] uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)" }}>Simulate</span>
         <span className="inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]"
-          style={{ color: "var(--vault-gold-bright)", background: "rgba(217,164,65,0.08)", border: "1px solid var(--vault-gold-bright)" }}>Paper-only · educational</span>
+          style={{ color: "var(--vault-gold-bright)", background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)", border: "1px solid var(--vault-gold-bright)" }}>Paper-only · educational</span>
       </div>
       <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.2vw, 28px)", fontWeight: 800, lineHeight: 1.06 }}>
         Simulate today&rsquo;s games
@@ -96,7 +96,7 @@ export default function GameLabHomeBand({ mlb, wc }: { mlb: GameLabHomeGame[]; w
         result. You get the model&rsquo;s picks, confidence, and the deeper report one scroll down. Paper-only.
       </p>
       <Link href="/simulate" className="vault-press mt-3 inline-flex items-center justify-center rounded-full px-6 font-mono text-[12px] font-bold uppercase tracking-[0.1em]"
-        style={{ minHeight: 46, color: "#fff", border: "1px solid var(--vault-gold-bright)", background: "var(--vault-gold-bright)", textDecoration: "none" }}>
+        style={{ minHeight: 46, color: "var(--vault-wash-base)", border: "1px solid var(--vault-gold-bright)", background: "var(--vault-gold-bright)", textDecoration: "none" }}>
         Simulate Today&rsquo;s Games →
       </Link>
 

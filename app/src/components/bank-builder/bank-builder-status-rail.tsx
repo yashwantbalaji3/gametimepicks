@@ -17,10 +17,10 @@ function RunChip({
     : tone === "heat" ? "var(--gtp-bank-heat)"
     : "var(--vault-text-faint)";
   const bg =
-    tone === "gold" ? "rgba(212,175,55,0.08)"
-    : tone === "live" ? "rgba(110,231,168,0.10)"
+    tone === "gold" ? "color-mix(in srgb, var(--vault-gold) 8%, transparent)"
+    : tone === "live" ? "color-mix(in srgb, var(--gtp-success-on-dark) 10%, transparent)"
     : tone === "heat" ? "var(--gtp-bank-heat-dim)"
-    : "rgba(255,255,255,0.03)";
+    : "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)";
   return (
     <div className="relative flex-1 min-w-[150px] rounded-[10px] px-3.5 py-3" style={{ background: bg, border: "1px solid var(--vault-rule)" }}>
       <span className="font-mono uppercase tracking-[0.12em]" style={{ color: accent, fontSize: 9 }}>{tag}</span>
@@ -57,8 +57,8 @@ export default function BankBuilderStatusRail({
       aria-label="Bank Builder status"
       style={{
         border: "1px solid var(--lava-border-strong)",
-        background: "radial-gradient(120% 140% at 0% 0%, rgba(225,29,42,0.10) 0%, transparent 55%)," +
-          "linear-gradient(135deg, rgba(13, 21, 17,0.95) 0%, var(--vault-bg) 72%)",
+        background: "radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--vault-lava-red) 10%, transparent) 0%, transparent 55%)," +
+          "linear-gradient(135deg, color-mix(in srgb, var(--vault-scrim-pine) 95%, transparent) 0%, var(--vault-bg) 72%)",
       }}
     >
       <div className="relative flex flex-wrap items-center justify-between gap-2">
@@ -66,7 +66,7 @@ export default function BankBuilderStatusRail({
           Bank Builder · paper ladder
         </span>
         <span className="flex items-center gap-1.5">
-          <Link href="/moonshot" className="vault-press rounded-full px-3 py-1 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid color-mix(in srgb, #8b7bf0 45%, transparent)", color: "#b9a8ff", fontSize: 10, fontWeight: 700, textDecoration: "none" }}>
+          <Link href="/moonshot" className="vault-press rounded-full px-3 py-1 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid color-mix(in srgb, var(--vault-moonshot) 45%, transparent)", color: "var(--vault-moonshot-bright)", fontSize: 10, fontWeight: 700, textDecoration: "none" }}>
             🌙 Moonshot →
           </Link>
           <Link href="/bank-builder" className="vault-press rounded-full px-3 py-1 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-border)", color: "var(--vault-text)", fontSize: 10, fontWeight: 700, textDecoration: "none" }}>

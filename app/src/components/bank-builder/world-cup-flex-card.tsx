@@ -55,7 +55,7 @@ export default function WorldCupFlexCard({ leg, exampleStake }: { leg: WorldCupF
             { label: "Edge", value: `${leg.edgePct >= 0 ? "+" : ""}${leg.edgePct.toFixed(1)}%` },
             { label: "Risk", value: leg.riskTier },
           ].map((s) => (
-            <div key={s.label} className="rounded-[8px] px-3 py-2" style={{ background: "rgba(11, 18, 14,0.45)", border: "1px solid var(--vault-rule)" }}>
+            <div key={s.label} className="rounded-[8px] px-3 py-2" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px solid var(--vault-rule)" }}>
               <div className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{s.value}</div>
               <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{s.label}</div>
             </div>
@@ -63,7 +63,7 @@ export default function WorldCupFlexCard({ leg, exampleStake }: { leg: WorldCupF
         </div>
 
         {/* Stake example → return (paper, no ledger effect) */}
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-[8px] px-4 py-3" style={{ background: "rgba(11, 18, 14,0.45)", border: "1px solid var(--vault-rule)" }}>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-[8px] px-4 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <div className="flex flex-col"><span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Stake example</span><span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{usd(exampleStake)}</span></div>
           <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>→</span>
           <div className="flex flex-col"><span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Projected return</span><span className="font-display tabular" style={{ color: "#5eead4", fontSize: 15, fontWeight: 700 }}>{usd(ret)}</span></div>

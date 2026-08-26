@@ -66,7 +66,7 @@ export default function MlbResultsPage() {
           paper-card record. The two are never combined. */}
       <div
         className="mb-6 rounded-[8px] px-4 py-3 flex flex-col gap-1"
-        style={{ background: "rgba(52, 211, 153, 0.06)", border: "1px solid var(--vault-rule)" }}
+        style={{ background: "color-mix(in srgb, var(--vault-accent) 6%, transparent)", border: "1px solid var(--vault-rule)" }}
       >
         <span
           className="font-mono uppercase tracking-[0.14em]"
@@ -194,7 +194,7 @@ export default function MlbResultsPage() {
                 className="inline-block w-1.5 h-1.5 rounded-full"
                 style={{
                   background: "var(--vault-success)",
-                  boxShadow: "0 0 8px rgba(74, 222, 128, 0.55)",
+                  boxShadow: "0 0 8px color-mix(in srgb, var(--vault-success) 55%, transparent)",
                 }}
               />
               <span
@@ -222,7 +222,7 @@ export default function MlbResultsPage() {
           <details
             className="group"
             style={{
-              background: "rgba(11, 18, 14,0.40)",
+              background: "color-mix(in srgb, var(--vault-scrim-base) 40%, transparent)",
               border: "1px dashed var(--vault-border)",
               borderRadius: 8,
               padding: "10px 14px",
@@ -310,7 +310,7 @@ export default function MlbResultsPage() {
         <div
           className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
           style={{
-            background: "rgba(11, 18, 14, 0.45)",
+            background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
             border: "1px solid var(--vault-border)",
             color: "var(--vault-text-mute)",
           }}
@@ -342,7 +342,7 @@ export default function MlbResultsPage() {
         <div
           className="rounded-[6px] px-4 py-4 text-[12px] leading-relaxed"
           style={{
-            background: "rgba(11, 18, 14, 0.45)",
+            background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
             border: "1px solid var(--vault-border)",
             color: "var(--vault-text-mute)",
           }}
@@ -484,7 +484,7 @@ function CallList({
     <div
       className="rounded-[6px]"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
     >

@@ -42,7 +42,7 @@ export default function TodayDailySlateHeader({
     <section
       aria-label="Today's slate"
       className="flex flex-col gap-3 rounded-[16px] px-5 py-5 sm:px-6"
-      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 10 }}>
@@ -67,13 +67,13 @@ export default function TodayDailySlateHeader({
             <span
               key={s}
               className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]"
-              style={{ fontSize: 10, color: "var(--vault-text)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-border)" }}
+              style={{ fontSize: 10, color: "var(--vault-text)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-border)" }}
             >
               {s}
             </span>
           ))
         ) : (
-          <span className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 10, color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-border)" }}>
+          <span className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 10, color: "var(--vault-text-faint)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-border)" }}>
             No live sport on this slate
           </span>
         )}
@@ -89,7 +89,7 @@ export default function TodayDailySlateHeader({
         <Link
           href="/simulate"
           className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
-          style={{ minHeight: 44, fontSize: 12, fontWeight: 700, textDecoration: "none", background: "var(--vault-gold-bright)", color: "#1A0E06" }}
+          style={{ minHeight: 44, fontSize: 12, fontWeight: 700, textDecoration: "none", background: "var(--vault-gold-bright)", color: "var(--vault-on-accent-deep)" }}
         >
           Simulate Today&rsquo;s Games →
         </Link>

@@ -11,9 +11,9 @@ import { statusMeta, type ProductStatus, type StatusTone } from "@/lib/product-s
 const TONE: Record<StatusTone, { color: string; bg: string; border: string }> = {
   positive: { color: "var(--vault-success)", bg: "var(--vault-success-dim)", border: "color-mix(in srgb, var(--vault-success) 45%, transparent)" },
   live: { color: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)", border: "color-mix(in srgb, var(--vault-gold-bright) 45%, transparent)" },
-  info: { color: "var(--gtp-neon-cyan, #6fd6e0)", bg: "rgba(111,214,224,0.10)", border: "rgba(111,214,224,0.4)" },
+  info: { color: "var(--gtp-neon-cyan, var(--vault-fresh))", bg: "color-mix(in srgb, var(--vault-fresh) 10%, transparent)", border: "color-mix(in srgb, var(--vault-fresh) 40%, transparent)" },
   warn: { color: "var(--vault-warn)", bg: "var(--vault-warn-dim)", border: "color-mix(in srgb, var(--vault-warn) 45%, transparent)" },
-  neutral: { color: "var(--vault-text-mute)", bg: "rgba(255,255,255,0.04)", border: "var(--vault-rule)" },
+  neutral: { color: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)", border: "var(--vault-rule)" },
   muted: { color: "var(--vault-text-faint)", bg: "transparent", border: "var(--vault-rule)" },
   danger: { color: "var(--vault-danger)", bg: "var(--vault-danger-dim)", border: "color-mix(in srgb, var(--vault-danger) 45%, transparent)" },
 };

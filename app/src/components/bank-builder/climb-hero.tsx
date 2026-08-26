@@ -109,7 +109,7 @@ function Chip({ label, color }: { label: string; color: string }) {
   return (
     <span
       className="inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]"
-      style={{ color, background: "rgba(255,255,255,0.05)", border: `1px solid ${color}` }}
+      style={{ color, background: "var(--vault-wash)", border: `1px solid ${color}` }}
     >
       {label}
     </span>
@@ -135,7 +135,7 @@ export default function ClimbHero({
       {/* 1 · Plain-English explainer + paper-only badge */}
       <div
         className="relative overflow-hidden rounded-2xl px-5 py-5 sm:px-6"
-        style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(11, 18, 14,0.25))" }}
+        style={{ border: "1px solid var(--vault-border)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-accent) 8%, transparent), color-mix(in srgb, var(--vault-scrim-base) 25%, transparent))" }}
       >
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <Chip label="Paper-only · educational" color="var(--vault-gold-bright)" />
@@ -177,7 +177,7 @@ export default function ClimbHero({
             <div
               key={label}
               className="relative flex flex-col gap-1 overflow-hidden rounded-[10px] px-3 py-2.5 min-w-0"
-              style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}
+              style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}
             >
               <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ background: accent }} />
               <span className="font-mono uppercase tracking-[0.12em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
@@ -204,7 +204,7 @@ export default function ClimbHero({
         <Link
           href="/results"
           className="vault-press mt-3 inline-flex items-center justify-center rounded-full px-5 font-mono text-[11.5px] font-bold uppercase tracking-[0.1em]"
-          style={{ minHeight: 44, color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", background: "rgba(217,164,65,0.08)", textDecoration: "none" }}
+          style={{ minHeight: 44, color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)", textDecoration: "none" }}
         >
           Audit Track Record →
         </Link>
@@ -223,7 +223,7 @@ export default function ClimbHero({
       {completedLadders.length > 0 ? (
         <div
           className="mt-4 rounded-2xl px-5 py-4"
-          style={{ border: "1px solid rgba(110,231,168,0.30)", background: "linear-gradient(135deg, rgba(110,231,168,0.07), rgba(11, 18, 14,0.25))" }}
+          style={{ border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 30%, transparent)", background: "linear-gradient(135deg, color-mix(in srgb, var(--gtp-success-on-dark) 7%, transparent), color-mix(in srgb, var(--vault-scrim-base) 25%, transparent))" }}
         >
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <span className="font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-success)" }}>Completed ladders</span>
@@ -249,7 +249,7 @@ export default function ClimbHero({
       ) : null}
 
       {/* 6 · How to read this — COLLAPSED by default (keeps the page simple; expand for the honesty notes) */}
-      <details className="mt-3 rounded-2xl px-5 py-4 group" style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.015)" }}>
+      <details className="mt-3 rounded-2xl px-5 py-4 group" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
         <summary className="flex cursor-pointer items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", listStyle: "none" }}>
           <span className="transition-transform group-open:rotate-90" aria-hidden>▸</span> How to read this
         </summary>

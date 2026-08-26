@@ -63,7 +63,7 @@ function TierChip({ tier, state, intent }: { tier: string; state: string; intent
         fontWeight: 700,
         color: published ? "var(--vault-success)" : "var(--vault-text-faint)",
         background: published ? "var(--vault-success-dim)" : "transparent",
-        border: published ? "1px solid rgba(110,231,168,0.35)" : "1px dashed var(--vault-border-strong)",
+        border: published ? "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 35%, transparent)" : "1px dashed var(--vault-border-strong)",
       }}
     >
       {TIER_SHORT[tier] ?? tier}

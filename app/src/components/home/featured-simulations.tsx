@@ -53,7 +53,7 @@ function Crest({ team, abbr, logo, isWc, sport }: { team: string; abbr: string |
     return <img src={logo} alt={`${team} crest`} width={24} height={24} style={{ borderRadius: 4, objectFit: "contain" }} />;
   }
   return (
-    <span aria-hidden className="inline-flex items-center justify-center rounded" style={{ width: 24, height: 24, fontSize: 9, fontWeight: 800, color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }}>
+    <span aria-hidden className="inline-flex items-center justify-center rounded" style={{ width: 24, height: 24, fontSize: 9, fontWeight: 800, color: "var(--vault-text-mute)", background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }}>
       {team.slice(0, 3).toUpperCase()}
     </span>
   );
@@ -68,7 +68,7 @@ function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer
     <Link
       href={s.href}
       className="vault-glow-hover vault-press flex flex-col gap-2.5 rounded-[12px] px-3.5 py-3.5"
-      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none", minHeight: 44 }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", textDecoration: "none", minHeight: 44 }}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="flex min-w-0 items-center gap-2">
@@ -82,8 +82,8 @@ function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer
         <span
           className="shrink-0 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]"
           style={s.mode === "market-implied"
-            ? { fontSize: 8.5, fontWeight: 700, color: "var(--vault-gold)", background: "rgba(234,179,8,0.10)", border: "1px solid rgba(234,179,8,0.35)" }
-            : { fontSize: 8.5, fontWeight: 700, color: "var(--vault-success)", background: "var(--vault-success-dim)", border: "1px solid rgba(110,231,168,0.35)" }}
+            ? { fontSize: 8.5, fontWeight: 700, color: "var(--vault-gold)", background: "color-mix(in srgb, var(--vault-pending) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-pending) 35%, transparent)" }
+            : { fontSize: 8.5, fontWeight: 700, color: "var(--vault-success)", background: "var(--vault-success-dim)", border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 35%, transparent)" }}
         >
           {s.mode === "market-implied" ? "Market-implied" : "Simulation Ready"}
         </span>
@@ -101,7 +101,7 @@ function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer
              objects carried it; a card with no answer keeps its original "a simulation exists" shape. ── */}
       {answer?.prediction || answer?.mostLikelyScore || answer?.story ? (
         <div className="flex flex-col gap-1 rounded-[9px] px-2.5 py-2"
-          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+          style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
           {answer.prediction ? (
             <span className="text-[12px]" style={{ color: "var(--vault-text)", fontWeight: 700 }}>{answer.prediction}</span>
           ) : null}
@@ -120,7 +120,7 @@ function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer
       ) : null}
 
       <span className="mt-auto inline-flex w-fit items-center rounded-full px-3 py-1 font-mono uppercase tracking-[0.1em]"
-        style={{ background: "var(--gtp-bank-lava-cta)", color: "#1A0E06", fontSize: 9.5, fontWeight: 700 }}>
+        style={{ background: "var(--gtp-bank-lava-cta)", color: "var(--vault-on-accent-deep)", fontSize: 9.5, fontWeight: 700 }}>
         Generate Simulation →
       </span>
     </Link>
@@ -161,7 +161,7 @@ export default function FeaturedSimulationsSection({ featured, readyCount, answe
       ) : (
         <div
           className="rounded-[12px] px-4 py-5 text-[13px] leading-snug"
-          style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}
+          style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}
         >
           <span className="font-semibold" style={{ color: "var(--vault-text)" }}>No simulation-ready games right now.</span>{" "}
           Simulations return when the next slate&rsquo;s model artifacts are posted.{" "}

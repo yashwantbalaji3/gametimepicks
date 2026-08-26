@@ -63,7 +63,7 @@ const CONFS: Array<{ key: string; label: string }> = [
   { key: "all", label: "Any confidence" }, { key: "elite", label: "Elite" }, { key: "strong", label: "Strong" }, { key: "playable", label: "Playable" }, { key: "avoid", label: "Avoid" },
 ];
 
-const selStyle = { background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)", color: "var(--vault-text)" } as const;
+const selStyle = { background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-border)", color: "var(--vault-text)" } as const;
 
 export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }: {
   props: BoardProp[];
@@ -127,7 +127,7 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
         <div className="flex flex-wrap gap-1.5">
           {visibleMarkets.map((m) => (
             <button key={m.key} onClick={() => setMarket(m.key)} className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.08em]"
-              style={{ fontSize: 9.5, cursor: "pointer", color: market === m.key ? "#120A07" : "var(--vault-text-mute)", background: market === m.key ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+              style={{ fontSize: 9.5, cursor: "pointer", color: market === m.key ? "var(--vault-scrim-espresso)" : "var(--vault-text-mute)", background: market === m.key ? "var(--gtp-bank-heat)" : "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
               {m.label}
             </button>
           ))}
@@ -156,11 +156,11 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
             {chips.length ? <span style={{ color: "var(--gtp-bank-heat)" }}> · {chips.length} filter{chips.length > 1 ? "s" : ""}</span> : null}
           </span>
           {chips.map((c) => (
-            <button key={c.key} onClick={c.clear} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono" style={{ fontSize: 9, cursor: "pointer", color: "var(--vault-text)", background: "rgba(225,29,42,0.12)", border: "1px solid color-mix(in srgb, var(--gtp-bank-heat) 35%, transparent)" }}>
+            <button key={c.key} onClick={c.clear} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono" style={{ fontSize: 9, cursor: "pointer", color: "var(--vault-text)", background: "color-mix(in srgb, var(--vault-lava-red) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--gtp-bank-heat) 35%, transparent)" }}>
               {c.label}<span aria-hidden style={{ color: "var(--vault-text-faint)" }}>✕</span>
             </button>
           ))}
-          {chips.length ? <button onClick={reset} className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, cursor: "pointer", color: "var(--vault-text-mute)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>Clear all</button> : null}
+          {chips.length ? <button onClick={reset} className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, cursor: "pointer", color: "var(--vault-text-mute)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>Clear all</button> : null}
         </div>
         <span className="font-mono uppercase tracking-[0.07em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>market-implied % from real odds · confidence is a market read (model edge pending) · paper-only</span>
       </div>
@@ -179,7 +179,7 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
             {rows.map((p, i) => {
               const m = tierMeta(tierForProp(p));
               return (
-              <tr key={`${p.player}:${p.market}:${i}`} style={{ background: i % 2 ? "rgba(255,255,255,0.018)" : "transparent" }}>
+              <tr key={`${p.player}:${p.market}:${i}`} style={{ background: i % 2 ? "color-mix(in srgb, var(--vault-wash-base) 1.8%, transparent)" : "transparent" }}>
                 <td className="px-3 py-1.5">
                   <span className="flex items-center gap-2 min-w-0">
                     <span className="relative shrink-0"><PlayerAvatar name={p.player} photo={p.photoUrl} size={22} />{p.teamAbbr ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={p.teamAbbr} sport="mlb" size="sm" /></span> : null}</span>
@@ -188,7 +188,7 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
                 </td>
                 <td className="px-3 py-1.5" style={{ color: "var(--vault-text-mute)" }}>{p.marketLabel}</td>
                 <td className="px-3 py-1.5 font-mono tabular" style={{ color: "var(--vault-text-mute)" }}>{p.point != null ? p.point : "—"}</td>
-                <td className="px-3 py-1.5"><span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono tabular" style={{ color: "var(--vault-text)", background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-rule)" }}>{american(p.americanOdds)}</span></td>
+                <td className="px-3 py-1.5"><span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono tabular" style={{ color: "var(--vault-text)", background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-rule)" }}>{american(p.americanOdds)}</span></td>
                 <td className="px-3 py-1.5"><span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono tabular" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)" }}>{impliedPct(p.americanOdds)}%</span></td>
                 <td className="px-3 py-1.5"><span className="inline-flex items-center gap-1 rounded-[5px] px-1.5 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 9, color: m.fg, background: m.bg }}><span aria-hidden style={{ width: 5, height: 5, borderRadius: 999, background: m.fg }} />{m.label}</span></td>
                 <td className="px-3 py-1.5"><span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{p.provider ?? "—"}</span></td>
@@ -204,19 +204,19 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
         {(expanded ? rows : rows.slice(0, initialRows)).map((p, i) => {
           const m = tierMeta(tierForProp(p));
           return (
-          <div key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2.5 flex items-start gap-2.5 min-w-0" style={{ background: "rgba(7, 11, 9,0.45)", border: "1px solid var(--vault-rule)" }}>
+          <div key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2.5 flex items-start gap-2.5 min-w-0" style={{ background: "color-mix(in srgb, var(--vault-bg) 45%, transparent)", border: "1px solid var(--vault-rule)" }}>
             <span className="mt-0.5 relative shrink-0"><PlayerAvatar name={p.player} photo={p.photoUrl} size={28} />{p.teamAbbr ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={p.teamAbbr} sport="mlb" size="sm" /></span> : null}</span>
             <span className="min-w-0 flex-1">
               <span className="flex items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5 min-w-0"><span className="break-words font-semibold leading-tight" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{p.player}</span>{p.opponentAbbr ? <span className="inline-flex items-center gap-0.5 shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{p.homeAway === "home" ? "vs" : "@"}<TeamLogo team={p.opponentAbbr} sport="mlb" size="sm" /></span> : null}</span>
-                <span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono tabular shrink-0" style={{ color: "var(--vault-text)", fontSize: 12, background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-rule)" }}>{american(p.americanOdds)}</span>
+                <span className="inline-block rounded-[5px] px-1.5 py-0.5 font-mono tabular shrink-0" style={{ color: "var(--vault-text)", fontSize: 12, background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-rule)" }}>{american(p.americanOdds)}</span>
               </span>
               <span className="block font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>{p.marketLabel}{p.point != null ? ` ${p.point}` : ""}</span>
               <span className="mt-1 flex flex-wrap items-center gap-1.5">
                 <AddToSlip leg={{ sport: "mlb", player: p.player, photoUrl: p.photoUrl ?? null, teamAbbr: p.teamAbbr ?? null, opponentAbbr: p.opponentAbbr ?? null, marketLabel: p.marketLabel, side: p.selection, line: p.point, americanOdds: p.americanOdds, matchup: p.matchup }} />
                 <span className="inline-block rounded-[4px] px-1.5 py-0.5 font-mono tabular" style={{ color: "var(--gtp-bank-heat)", background: "var(--gtp-bank-heat-dim)", fontSize: 9.5 }}>{impliedPct(p.americanOdds)}% mkt</span>
                 <span className="inline-flex items-center gap-1 rounded-[4px] px-1.5 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 8.5, color: m.fg, background: m.bg }}><span aria-hidden style={{ width: 4, height: 4, borderRadius: 999, background: m.fg }} />{m.label}</span>
-                {p.provider ? <span className="inline-block rounded-[4px] px-1.5 py-0.5 font-mono" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)", fontSize: 8.5 }}>{p.provider}</span> : null}
+                {p.provider ? <span className="inline-block rounded-[4px] px-1.5 py-0.5 font-mono" style={{ color: "var(--vault-text-faint)", background: "var(--vault-wash-soft)", fontSize: 8.5 }}>{p.provider}</span> : null}
               </span>
               <span className="mt-0.5 block font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{p.matchup}</span>
             </span>
@@ -230,7 +230,7 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
       {rows.length > initialRows && (
         <button type="button" onClick={() => setExpanded((v) => !v)}
           className="gtp-team-row self-start rounded-[8px] px-3 py-1.5 font-mono uppercase tracking-[0.12em]"
-          style={{ fontSize: 9.5, color: "var(--sport-theme-ink)", background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-rule)", cursor: "pointer" }}>
+          style={{ fontSize: 9.5, color: "var(--sport-theme-ink)", background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-rule)", cursor: "pointer" }}>
           {expanded ? `Show first ${initialRows}` : `Show all ${rows.length}`}
         </button>
       )}

@@ -113,7 +113,7 @@ export default function MoonshotPage() {
         {lane ? (
           <MoonshotLaneTracker lane={lane} record={record} exposure={exposure} />
         ) : (
-          <div className="rounded-xl px-4 py-8 text-center" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+          <div className="rounded-xl px-4 py-8 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
             <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>Moonshot Lane data pending</p>
             <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
               The tracker appears once a lane artifact is published. <Link href="/bank-builder" style={{ color: "var(--vault-gold-bright)" }}>Open Bank Builder</Link>.

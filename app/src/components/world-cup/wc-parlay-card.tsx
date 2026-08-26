@@ -18,7 +18,7 @@ export default function WcParlayCard({ card }: { card: Card }) {
   return (
     <article
       className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
-      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-center justify-between gap-2">
         <span
@@ -42,7 +42,7 @@ export default function WcParlayCard({ card }: { card: Card }) {
           <div
             key={i}
             className="rounded-[6px] px-3 py-2 flex flex-col gap-0.5"
-            style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}
+            style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}
           >
             <div className="flex items-center justify-between gap-2 min-w-0">
               <span className="font-display tracking-tight truncate" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>

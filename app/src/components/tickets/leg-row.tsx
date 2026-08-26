@@ -50,7 +50,7 @@ export default function LegRow({ leg }: { leg: TicketLeg }) {
           </>
         ) : (
           <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]"
-            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
+            style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }} aria-hidden>⚽</span>
         )}
       </span>
       <span className="min-w-0 flex-1">
@@ -61,7 +61,7 @@ export default function LegRow({ leg }: { leg: TicketLeg }) {
         {leg.kickoffEt ? <span className="block font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Kickoff {leg.kickoffEt}</span> : null}
         {settled && leg.official ? <span className="block font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>Official: {leg.official}</span> : null}
         {leg.source ? (
-          <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.05em]" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.05)" }}>
+          <span className="mt-0.5 inline-block rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.05em]" style={{ color: "var(--vault-text-faint)", background: "var(--vault-wash)" }}>
             settlement-supported · {leg.source}
           </span>
         ) : null}

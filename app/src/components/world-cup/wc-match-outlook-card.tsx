@@ -37,7 +37,7 @@ export default function WcMatchOutlookCard({
   return (
     <article
       className="rounded-[8px] px-4 py-4 flex flex-col gap-3"
-      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>
@@ -81,7 +81,7 @@ export default function WcMatchOutlookCard({
                 <div
                   key={c.label}
                   className="rounded-[6px] px-2 py-2 flex flex-col items-center gap-0.5"
-                  style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}
+                  style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}
                 >
                   <span className="font-mono uppercase truncate w-full text-center" style={{ color: "var(--vault-text-mute)", fontSize: 10, letterSpacing: "0.04em" }}>
                     {c.label}

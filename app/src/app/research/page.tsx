@@ -50,7 +50,7 @@ export default function ResearchPage() {
           <li key={m.title} className="flex gap-3 rounded-[6px] border border-[var(--border)] bg-[var(--surface-1)] p-4">
             <span
               aria-hidden
-              className={`mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full text-[13px] font-bold ${m.done ? "bg-[var(--surface-2)] text-[var(--accent, #F23645)]" : "border border-dashed border-[var(--border)] text-[var(--text-mute)]"}`}
+              className={`mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full text-[13px] font-bold ${m.done ? "bg-[var(--surface-2)] text-[var(--accent, var(--vault-loss-red))]" : "border border-dashed border-[var(--border)] text-[var(--text-mute)]"}`}
             >
               {m.done ? "✓" : "→"}
             </span>

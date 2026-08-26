@@ -28,15 +28,15 @@ export default function TicketCard({
   children?: ReactNode;
   footer?: ReactNode;
 }) {
-  const stripe = accent === "violet" ? "#8b7bf0" : accent === "gold" ? "var(--vault-gold)" : "var(--gtp-bank-heat)";
+  const stripe = accent === "violet" ? "var(--vault-moonshot)" : accent === "gold" ? "var(--vault-gold)" : "var(--gtp-bank-heat)";
   return (
-    <div className="overflow-hidden rounded-xl" style={{ background: "var(--vault-surface, rgba(255,255,255,0.02))", border: "1px solid var(--vault-border)", borderTop: `2px solid ${stripe}` }}>
+    <div className="overflow-hidden rounded-xl" style={{ background: "var(--vault-surface, var(--vault-wash-faint))", border: "1px solid var(--vault-border)", borderTop: `2px solid ${stripe}` }}>
       <div className="flex flex-wrap items-start justify-between gap-2 p-4 pb-2">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
             {risk ? <RiskPill risk={risk} /> : null}
             {sport ? (
-              <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)", fontSize: 9.5 }}>{sport}</span>
+              <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)", fontSize: 9.5 }}>{sport}</span>
             ) : null}
             {status ? <StatusPill status={status} /> : null}
           </div>

@@ -54,9 +54,9 @@ const ACCENT_COLOR: Record<NonNullable<PowerBoardShellProps["accent"]>, string> 
 };
 
 const ACCENT_GLOW: Record<NonNullable<PowerBoardShellProps["accent"]>, string> = {
-  warn: "rgba(52, 211, 153, 0.50)",
+  warn: "color-mix(in srgb, var(--vault-accent) 50%, transparent)",
   danger: "rgba(244, 63, 94, 0.45)",
-  gold: "rgba(52, 211, 153, 0.55)",
+  gold: "color-mix(in srgb, var(--vault-accent) 55%, transparent)",
 };
 
 export default function PowerBoardShell({
@@ -172,7 +172,7 @@ export default function PowerBoardShell({
               style={{
                 padding: "10px 14px",
                 border: `1px solid ${c}`,
-                background: "rgba(11, 18, 14, 0.55)",
+                background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
                 color: c,
                 textDecoration: "none",
                 fontSize: 11,

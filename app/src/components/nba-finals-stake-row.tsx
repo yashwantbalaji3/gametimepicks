@@ -35,7 +35,7 @@ export default function NbaFinalsStakeRow({ decimal }: { decimal: number }) {
           className="font-display tabular rounded-[4px] px-1.5 py-0.5"
           style={{
             width: 64,
-            background: "rgba(0,0,0,0.35)",
+            background: "color-mix(in srgb, var(--vault-ink-black) 35%, transparent)",
             border: "1px solid var(--vault-rule)",
             color: "var(--vault-text)",
             fontSize: 13,

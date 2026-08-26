@@ -61,7 +61,7 @@ export default function ResultsParlaysPage() {
                 ? "var(--vault-gold-bright)"
                 : "var(--vault-text-faint)",
               boxShadow: hasGradedHistory
-                ? "0 0 8px rgba(52, 211, 153, 0.5)"
+                ? "0 0 8px color-mix(in srgb, var(--vault-accent) 50%, transparent)"
                 : "none",
             }}
           />
@@ -81,7 +81,7 @@ export default function ResultsParlaysPage() {
                 color: "var(--vault-gold-bright)",
                 fontSize: "clamp(48px, 10vw, 96px)",
                 textShadow:
-                  "0 0 24px rgba(52, 211, 153, 0.45), 0 0 8px rgba(52, 211, 153, 0.55)",
+                  "0 0 24px color-mix(in srgb, var(--vault-accent) 45%, transparent), 0 0 8px color-mix(in srgb, var(--vault-accent) 55%, transparent)",
               }}
             >
               {((lifetime!.hitRate as number) * 100).toFixed(1)}%
@@ -143,7 +143,7 @@ export default function ResultsParlaysPage() {
         <section
           className="mt-8 rounded-[6px] px-4 py-4"
           style={{
-            background: "rgba(11, 18, 14, 0.45)",
+            background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
             border: "1px solid var(--vault-border)",
           }}
         >
@@ -153,7 +153,7 @@ export default function ResultsParlaysPage() {
               className="inline-block w-1.5 h-1.5 rounded-full"
               style={{
                 background: "var(--vault-warn)",
-                boxShadow: "0 0 6px rgba(52, 211, 153, 0.55)",
+                boxShadow: "0 0 6px color-mix(in srgb, var(--vault-accent) 55%, transparent)",
               }}
             />
             <span
@@ -207,7 +207,7 @@ export default function ResultsParlaysPage() {
         <section
           className="mt-10 rounded-[8px] px-5 py-5"
           style={{
-            background: "rgba(11, 18, 14,0.55)",
+            background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
             border: "1px solid var(--vault-border)",
           }}
         >
@@ -254,7 +254,7 @@ export default function ResultsParlaysPage() {
                 key={d.date}
                 className="rounded-[5px] px-3 py-2.5"
                 style={{
-                  background: "rgba(11, 18, 14,0.55)",
+                  background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
                   border: "1px solid var(--vault-border)",
                 }}
               >

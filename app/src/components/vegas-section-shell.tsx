@@ -46,7 +46,7 @@ export default function VegasSectionShell({
               background: "var(--vault-gold-bright)",
               boxShadow: staticDot
                 ? "none"
-                : "0 0 8px rgba(52, 211, 153, 0.55)",
+                : "0 0 8px color-mix(in srgb, var(--vault-accent) 55%, transparent)",
             }}
           />
           <span

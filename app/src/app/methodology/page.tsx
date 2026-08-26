@@ -398,7 +398,7 @@ function SportCard({
           <span aria-hidden className="inline-block w-2 h-2 rounded-full mr-2 align-middle" style={{ background: accent, boxShadow: `0 0 6px ${accent}` }} />
           {name}
         </h3>
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] rounded px-2 py-0.5" style={{ color: accent, background: "rgba(52, 211, 153, 0.08)", border: "1px solid var(--vault-rule)" }}>
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] rounded px-2 py-0.5" style={{ color: accent, background: "color-mix(in srgb, var(--vault-accent) 8%, transparent)", border: "1px solid var(--vault-rule)" }}>
           {stage}
         </span>
       </div>
@@ -457,17 +457,17 @@ function Formula({ children }: { children: ReactNode }) {
     <div
       className="relative my-3 rounded-[6px] px-4 py-3.5 font-mono text-[12px] sm:text-[13px] tabular leading-relaxed overflow-x-auto"
       style={{
-        background: "linear-gradient(180deg, rgba(11, 18, 14, 0.92), rgba(10, 16, 13, 0.92))",
+        background: "linear-gradient(180deg, color-mix(in srgb, var(--vault-scrim-base) 92%, transparent), rgba(10, 16, 13, 0.92))",
         border: "1px solid var(--vault-border)",
         color: "var(--vault-text)",
-        boxShadow: "0 4px 14px -10px rgba(0, 0, 0, 0.4)",
+        boxShadow: "0 4px 14px -10px color-mix(in srgb, var(--vault-ink-black) 40%, transparent)",
         WebkitOverflowScrolling: "touch",
       }}
     >
       <span
         aria-hidden
         className="absolute top-0 left-[12%] right-[12%] h-px"
-        style={{ background: "linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.45), transparent)" }}
+        style={{ background: "linear-gradient(90deg, transparent, color-mix(in srgb, var(--vault-accent) 45%, transparent), transparent)" }}
       />
       <div className="min-w-0 whitespace-nowrap sm:whitespace-normal">{children}</div>
     </div>
@@ -480,7 +480,7 @@ function LimitationRow({ title, body }: { title: string; body: string }) {
       <span
         aria-hidden
         className="inline-block w-1.5 h-1.5 rounded-full shrink-0 mt-2"
-        style={{ background: "var(--vault-warn)", boxShadow: "0 0 5px rgba(52, 211, 153, 0.45)" }}
+        style={{ background: "var(--vault-warn)", boxShadow: "0 0 5px color-mix(in srgb, var(--vault-accent) 45%, transparent)" }}
       />
       <span>
         <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{title}.</span>{" "}
@@ -512,7 +512,7 @@ function ModeCard({
           className="inline-block w-2 h-2 rounded-full"
           style={{
             background: dotColor,
-            boxShadow: color === "lime" ? "0 0 6px rgba(52, 211, 153, 0.5)" : "none",
+            boxShadow: color === "lime" ? "0 0 6px color-mix(in srgb, var(--vault-accent) 50%, transparent)" : "none",
           }}
         />
         <span className="font-display text-[14px] font-semibold tracking-tight" style={{ color: "var(--vault-text)" }}>

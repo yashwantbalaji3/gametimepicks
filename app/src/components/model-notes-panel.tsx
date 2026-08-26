@@ -26,8 +26,8 @@ export default function ModelNotesPanel({
       className="font-mono inline-flex items-center gap-1 rounded-[4px] px-2 py-0.5"
       style={{
         fontSize: 11,
-        color: positive ? "var(--vault-success, #4ade80)" : "var(--vault-text-mute)",
-        border: `1px solid ${positive ? "var(--vault-success, #4ade80)" : "var(--vault-rule)"}`,
+        color: positive ? "var(--vault-success, var(--vault-success))" : "var(--vault-text-mute)",
+        border: `1px solid ${positive ? "var(--vault-success, var(--vault-success))" : "var(--vault-rule)"}`,
       }}
     >
       {m.label} {m.hitRate.toFixed(1)}%

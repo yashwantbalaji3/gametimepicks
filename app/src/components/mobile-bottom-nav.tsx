@@ -229,7 +229,7 @@ export default function MobileBottomNav() {
         // safe-area awareness — devices with home indicator get extra
         // padding so the nav items don't sit under the OS chrome.
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
-        background: "rgba(11, 18, 14, 0.92)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 92%, transparent)",
         borderTop: "1px solid var(--vault-border)",
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
@@ -255,10 +255,10 @@ export default function MobileBottomNav() {
                 style={{
                   minHeight: 48,
                   background: active
-                    ? "linear-gradient(180deg, rgba(52, 211, 153, 0.10) 0%, rgba(52, 211, 153, 0) 100%)"
+                    ? "linear-gradient(180deg, color-mix(in srgb, var(--vault-accent) 10%, transparent) 0%, color-mix(in srgb, var(--vault-accent) 0%, transparent) 100%)"
                     : "transparent",
                   border: active
-                    ? "1px solid rgba(52, 211, 153, 0.28)"
+                    ? "1px solid color-mix(in srgb, var(--vault-accent) 28%, transparent)"
                     : "1px solid transparent",
                 }}
               >

@@ -136,13 +136,13 @@ export default function YesterdaySummary({ date }: { date: string }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
         {tiles.map((t, i) => {
           const id = getSportIdentity(t.sport);
-          const toneColor = t.tone === "win" ? "#6EE7A8" : t.tone === "loss" ? "#F08A8A" : "var(--vault-text)";
+          const toneColor = t.tone === "win" ? "var(--gtp-success-on-dark)" : t.tone === "loss" ? "var(--vault-danger-soft)" : "var(--vault-text)";
           return (
             <Link
               key={t.key}
               href={t.href}
               className="gtp-fade-up gtp-card-hover flex items-center gap-2.5 rounded-[10px] px-3.5 py-3"
-              style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none", animationDelay: `${i * 60}ms` }}
+              style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", textDecoration: "none", animationDelay: `${i * 60}ms` }}
             >
               <span
                 className="gtp-sport-orb shrink-0"

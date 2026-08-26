@@ -47,7 +47,7 @@ function FamilyRow({ f }: { f: FamilyCoverage }) {
       {/* Coverage bar. Width is a share of the slate, not a quality score. */}
       <div
         className="h-1.5 w-full overflow-hidden rounded-full"
-        style={{ background: "rgba(255,255,255,0.06)" }}
+        style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" }}
         role="img"
         aria-label={`${f.label}: data available for ${shown} of ${f.total} games`}
       >
@@ -78,7 +78,7 @@ export default function TodayMarketCoverage({ coverage }: { coverage: MarketCove
   return (
     <section
       className="rounded-2xl p-4 sm:p-5"
-      style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel, rgba(255,255,255,0.02))" }}
+      style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel, var(--vault-wash-faint))" }}
       aria-labelledby="market-coverage-heading"
     >
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">

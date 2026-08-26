@@ -75,11 +75,11 @@ export default function MlbSimulationResultSummary({ headline, picks, runCount, 
   const runLabel = allowsRunCountClaim && runCount != null && runCount > 0 ? `${runCount.toLocaleString()}-run` : "deterministic";
 
   return (
-    <section aria-label="Simulation result" className="rounded-[14px] px-4 sm:px-5 py-4 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold-bright)" }}>
+    <section aria-label="Simulation result" className="rounded-[14px] px-4 sm:px-5 py-4 flex flex-col gap-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold-bright)" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>Simulation result</h2>
         {isPreviousSlate ? (
-          <span className="font-mono uppercase tracking-[0.1em] rounded-full px-2.5 py-1" style={{ fontSize: 9, color: "var(--vault-warn)", background: "rgba(234,88,12,0.10)", border: "1px solid rgba(234,88,12,0.35)" }}>
+          <span className="font-mono uppercase tracking-[0.1em] rounded-full px-2.5 py-1" style={{ fontSize: 9, color: "var(--vault-warn)", background: "color-mix(in srgb, var(--vault-risk) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-risk) 35%, transparent)" }}>
             Previous slate · {slateDate}
           </span>
         ) : null}

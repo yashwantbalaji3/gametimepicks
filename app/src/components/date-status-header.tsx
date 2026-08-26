@@ -134,7 +134,7 @@ export default function DateStatusHeader({
               key={chip.label}
               className="font-mono uppercase tracking-[0.14em] px-2.5 py-1 rounded-[4px]"
               style={{
-                background: "rgba(0,0,0,0.35)",
+                background: "color-mix(in srgb, var(--vault-ink-black) 35%, transparent)",
                 border: "1px solid var(--vault-rule)",
                 color: "var(--vault-text-mute)",
                 fontSize: 10,

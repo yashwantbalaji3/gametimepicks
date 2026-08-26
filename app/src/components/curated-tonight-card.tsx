@@ -69,8 +69,8 @@ export default function CuratedTonightCard({
             background: eyebrowAccent,
             boxShadow:
               result.source === "graded"
-                ? "0 0 6px rgba(74, 222, 128, 0.45)"
-                : "0 0 6px rgba(52, 211, 153, 0.45)",
+                ? "0 0 6px color-mix(in srgb, var(--vault-success) 45%, transparent)"
+                : "0 0 6px color-mix(in srgb, var(--vault-accent) 45%, transparent)",
           }}
         />
         <span

@@ -32,7 +32,7 @@ export default function NoCurrentSlate({
         className="absolute inset-0 -z-10 opacity-60 pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle at 50% 30%, rgba(52, 211, 153, 0.08), transparent 60%)",
+            "radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--vault-accent) 8%, transparent), transparent 60%)",
         }}
         aria-hidden
       />
@@ -43,7 +43,7 @@ export default function NoCurrentSlate({
           background:
             "linear-gradient(180deg, var(--vault-panel) 0%, var(--vault-panel-elevated) 100%)",
           border: "1px solid var(--vault-border-strong)",
-          boxShadow: "0 0 40px rgba(52, 211, 153, 0.05)",
+          boxShadow: "0 0 40px color-mix(in srgb, var(--vault-accent) 5%, transparent)",
         }}
       >
         {/* Faint grid texture overlay */}

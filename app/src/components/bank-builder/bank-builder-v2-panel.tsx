@@ -22,7 +22,7 @@ function ScoreBar({ score, threshold }: { score: number; threshold: number }) {
 function LegRow({ leg, threshold }: { leg: V2Leg; threshold: number }) {
   const eligible = leg.eligible;
   return (
-    <div className="rounded-[10px] px-3 py-2.5" style={{ background: "rgba(7, 11, 9,0.5)", border: "1px solid var(--vault-rule)" }}>
+    <div className="rounded-[10px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-bg) 50%, transparent)", border: "1px solid var(--vault-rule)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>{leg.pick}</span>
         <span className="font-mono tabular shrink-0" style={{ color: eligible ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 12, fontWeight: 700 }}>
@@ -55,8 +55,8 @@ export default function BankBuilderV2Panel({ v2 }: { v2: V2Evaluation }) {
       aria-label="Bank Builder V2 eligibility"
       style={{
         border: "1px solid var(--lava-border-strong)",
-        background: "radial-gradient(120% 140% at 100% 0%, rgba(212,175,55,0.08) 0%, transparent 55%)," +
-          "linear-gradient(135deg, rgba(13, 21, 17,0.95) 0%, var(--vault-bg) 72%)",
+        background: "radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--vault-gold) 8%, transparent) 0%, transparent 55%)," +
+          "linear-gradient(135deg, color-mix(in srgb, var(--vault-scrim-pine) 95%, transparent) 0%, var(--vault-bg) 72%)",
       }}
     >
       <div className="relative flex flex-wrap items-center justify-between gap-2">
@@ -64,7 +64,7 @@ export default function BankBuilderV2Panel({ v2 }: { v2: V2Evaluation }) {
           Bank Builder V2 · survival gate
         </span>
         <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]"
-          style={{ color: launched ? "var(--vault-success)" : "var(--gtp-bank-heat)", background: launched ? "rgba(110,231,168,0.14)" : "var(--gtp-bank-heat-dim)", border: "1px solid var(--vault-rule)" }}>
+          style={{ color: launched ? "var(--vault-success)" : "var(--gtp-bank-heat)", background: launched ? "color-mix(in srgb, var(--gtp-success-on-dark) 14%, transparent)" : "var(--gtp-bank-heat-dim)", border: "1px solid var(--vault-rule)" }}>
           {launched ? "Active dual ladder" : "Dual ladder · evaluating"}
         </span>
       </div>
@@ -79,7 +79,7 @@ export default function BankBuilderV2Panel({ v2 }: { v2: V2Evaluation }) {
       </p>
 
       {!launched && v2.blockers.length ? (
-        <div className="relative mt-3 rounded-[8px] px-3.5 py-2.5" style={{ background: "rgba(225,29,42,0.06)", border: "1px solid var(--vault-rule)" }}>
+        <div className="relative mt-3 rounded-[8px] px-3.5 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-lava-red) 6%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 9.5 }}>Why no launch</span>
           <ul className="mt-1 space-y-0.5 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
             {v2.blockers.map((b, i) => <li key={i}>• {b}</li>)}
@@ -88,7 +88,7 @@ export default function BankBuilderV2Panel({ v2 }: { v2: V2Evaluation }) {
       ) : null}
 
       {v2.notes && v2.notes.length ? (
-        <div className="relative mt-2.5 rounded-[8px] px-3.5 py-2.5" style={{ background: "rgba(212,175,55,0.05)", border: "1px solid var(--vault-rule)" }}>
+        <div className="relative mt-2.5 rounded-[8px] px-3.5 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-gold) 5%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Notable candidates evaluated</span>
           <ul className="mt-1 space-y-0.5 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
             {v2.notes.map((n, i) => <li key={i}>• {n}</li>)}

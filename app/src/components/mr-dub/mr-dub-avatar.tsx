@@ -21,20 +21,20 @@ export default function MrDubAvatar({ size = 56, title = "Mr. Dub — paper-port
         </linearGradient>
       </defs>
       {/* badge ring */}
-      <circle cx="32" cy="32" r="31" fill="url(#mrdub-bg)" stroke="var(--vault-gold-bright, #d9a441)" strokeWidth="1.5" />
+      <circle cx="32" cy="32" r="31" fill="url(#mrdub-bg)" stroke="var(--vault-gold-bright, var(--vault-crown))" strokeWidth="1.5" />
       {/* head */}
-      <circle cx="32" cy="24" r="9" fill="#f2d3a8" stroke="rgba(0,0,0,0.25)" strokeWidth="0.6" />
+      <circle cx="32" cy="24" r="9" fill="#f2d3a8" stroke="color-mix(in srgb, var(--vault-ink-black) 25%, transparent)" strokeWidth="0.6" />
       {/* hair */}
       <path d="M23 22c0-6 5-9 9-9s9 3 9 9c-3-2-6-3-9-3s-6 1-9 3z" fill="#3a2a1a" />
       {/* goggles */}
-      <g stroke="var(--gtp-bank-heat, #e11d2a)" strokeWidth="1.6" fill="rgba(110,231,168,0.25)">
+      <g stroke="var(--gtp-bank-heat, var(--vault-lava-red))" strokeWidth="1.6" fill="color-mix(in srgb, var(--gtp-success-on-dark) 25%, transparent)">
         <circle cx="28" cy="24" r="3.2" />
         <circle cx="36" cy="24" r="3.2" />
         <path d="M31.2 24h1.6" />
         <path d="M24.8 24l-2.2-1.4M39.2 24l2.2-1.4" />
       </g>
       {/* lab coat body */}
-      <path d="M20 52c0-9 4-15 12-15s12 6 12 15z" fill="#f4f6f8" stroke="rgba(0,0,0,0.2)" strokeWidth="0.6" />
+      <path d="M20 52c0-9 4-15 12-15s12 6 12 15z" fill="#f4f6f8" stroke="color-mix(in srgb, var(--vault-ink-black) 20%, transparent)" strokeWidth="0.6" />
       {/* lapels */}
       <path d="M32 37l-4 7 4 3 4-3z" fill="#e9edf1" stroke="var(--gtp-bank-heat)" strokeWidth="0.8" />
       {/* clipboard / ledger */}

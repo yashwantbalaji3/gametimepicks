@@ -43,16 +43,19 @@ const CEILING = {
   /* Ratcheted 2026-08-25 (P207): the Bank Builder trio's 98 inline literals converted to tokens /
      color-mix (dual-ladder-board now carries ZERO raw colours). Every lowering is a measured
      baseline emission, never a hand edit of the product. */
-  /* Ratcheted 2026-08-26 (P209 R-ABC): the day selector, stage, themes and scenes are token-only,
-     and unmounting the aggregate lobby moved its literals out of the reachable class. Measured
-     emission (baseline.mjs), never a hand edit. */
-  rawColorLiterals: 1159,
-  filesWithRawColors: 251,
-  themeDrift: 1055,
-  themeDriftReachable: 706,
+  /* Ratcheted 2026-08-26 (P210 R-A · F8 CLOSURE): the systematic family migration — 1,007 exact
+     token/color-mix substitutions across 250+ files in three measured rounds (all mappings
+     value-exact; the only hue merge, #0A0705→cocoa, measured dE2000 0.40; near-misses got minted
+     sibling tokens instead). Everything that remains is individually registered in
+     token-exception-registry.mjs with shrink-only per-file ceilings and its own corruption guard.
+     Measured emission (baseline.mjs), never a hand edit. */
+  rawColorLiterals: 162,
+  filesWithRawColors: 37,
+  themeDrift: 68,
+  themeDriftReachable: 32,
   identityData: 89,
   maskStops: 8,
-  illustrationArt: 7,
+  illustrationArt: 5,
 };
 
 /** The same scan the baseline script performs, so the two cannot disagree about what counts. */

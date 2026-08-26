@@ -40,8 +40,8 @@ export default function AddToSlip({
         fontSize: fs,
         cursor: full ? "not-allowed" : "pointer",
         opacity: !ready || full ? 0.45 : 1,
-        color: inSlip ? "#06140D" : "var(--vault-text-mute)",
-        background: inSlip ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.03)",
+        color: inSlip ? "var(--vault-ink-on-mint)" : "var(--vault-text-mute)",
+        background: inSlip ? "var(--gtp-bank-heat)" : "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)",
         border: `1px solid ${inSlip ? "transparent" : "var(--vault-rule)"}`,
         fontWeight: inSlip ? 700 : 500,
       }}

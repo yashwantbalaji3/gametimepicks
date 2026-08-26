@@ -19,7 +19,7 @@ import type { SlateGameRow, SlateGroup, SlateSummary } from "@/lib/today/slate-g
 const CHIP: Record<SlateGameRow["tone"], { color: string; bg: string }> = {
   success: { color: "var(--vault-success)", bg: "var(--vault-success-dim)" },
   gold: { color: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)" },
-  mute: { color: "var(--vault-text-mute)", bg: "rgba(255,255,255,0.05)" },
+  mute: { color: "var(--vault-text-mute)", bg: "var(--vault-wash)" },
 };
 
 function SlateRow({ g }: { g: SlateGameRow }) {
@@ -33,7 +33,7 @@ function SlateRow({ g }: { g: SlateGameRow }) {
       href={g.href}
       aria-label={`${g.teams.away} at ${g.teams.home} — ${g.label}. ${g.explanation}`}
       className="vault-glow-hover vault-press flex flex-col gap-1.5 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">

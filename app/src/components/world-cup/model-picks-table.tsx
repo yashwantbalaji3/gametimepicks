@@ -41,9 +41,9 @@ function VolBadge({ pick }: { pick: ModelPick }) {
       className="rounded-full px-1.5 py-0.5 font-mono uppercase tracking-[0.08em] shrink-0"
       style={{
         fontSize: 8,
-        color: lower ? "var(--vault-success)" : "#e7b15a",
-        background: lower ? "rgba(110,231,168,0.12)" : "rgba(231,177,90,0.12)",
-        border: `1px solid color-mix(in srgb, ${lower ? "var(--vault-success)" : "#e7b15a"} 35%, transparent)`,
+        color: lower ? "var(--vault-success)" : "var(--vault-crown-warm)",
+        background: lower ? "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)" : "color-mix(in srgb, var(--vault-crown-warm) 12%, transparent)",
+        border: `1px solid color-mix(in srgb, ${lower ? "var(--vault-success)" : "var(--vault-crown-warm)"} 35%, transparent)`,
       }}
     >
       {lower ? "Addable leg" : "Higher-volatility"}
@@ -172,7 +172,7 @@ export default function ModelPicksTable({ table }: { table: ModelPicksTable }) {
           columns keep their width and the PAGE never overflows. */}
       <div className="hidden lg:block overflow-x-auto rounded-[12px]" style={{ border: "1px solid var(--vault-rule)" }}>
         <div style={{ minWidth: 190 + cols.length * 150 }}>
-          <div className="grid items-stretch" style={{ gridTemplateColumns: gridTemplate, background: "rgba(255,255,255,0.02)" }}>
+          <div className="grid items-stretch" style={{ gridTemplateColumns: gridTemplate, background: "var(--vault-wash-faint)" }}>
             <div className="px-3 py-2.5 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>Game</div>
             {cols.map((c) => (
               <div key={c.key} className="px-3 py-2.5 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5, borderLeft: "1px solid var(--vault-rule)" }}>
@@ -184,7 +184,7 @@ export default function ModelPicksTable({ table }: { table: ModelPicksTable }) {
             <div
               key={row.gameId}
               className="grid items-stretch"
-              style={{ gridTemplateColumns: gridTemplate, borderTop: "1px solid var(--vault-rule)", background: ri % 2 ? "rgba(255,255,255,0.012)" : "transparent" }}
+              style={{ gridTemplateColumns: gridTemplate, borderTop: "1px solid var(--vault-rule)", background: ri % 2 ? "color-mix(in srgb, var(--vault-wash-base) 1.2%, transparent)" : "transparent" }}
             >
               <div className="px-3 py-3 flex flex-col gap-0.5">
                 <span className="flex items-start gap-1.5 min-w-0">
@@ -206,8 +206,8 @@ export default function ModelPicksTable({ table }: { table: ModelPicksTable }) {
       {/* MOBILE: per-game cards, markets stacked, up to 3 picks per market — full names, no overflow */}
       <div className="lg:hidden flex flex-col gap-3">
         {table.rows.map((row) => (
-          <div key={row.gameId} className="rounded-[12px] overflow-hidden" style={{ border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.4)" }}>
-            <div className="px-3 py-2.5 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
+          <div key={row.gameId} className="rounded-[12px] overflow-hidden" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-bg) 40%, transparent)" }}>
+            <div className="px-3 py-2.5 flex items-center justify-between gap-2" style={{ borderBottom: "1px solid var(--vault-rule)", background: "var(--vault-wash-faint)" }}>
               <span className="flex items-center gap-1.5 min-w-0">
                 <MatchupFlags matchup={row.matchup} />
                 <span className="font-semibold break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 13 }}>{row.matchup}</span>

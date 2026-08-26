@@ -26,7 +26,7 @@ export default function AchievementBanner() {
     <section
       aria-label="Track record"
       className="rounded-2xl px-4 py-3 sm:px-5 sm:py-4"
-      style={{ border: "1px solid rgba(217,164,65,0.45)", background: "linear-gradient(135deg, rgba(217,164,65,0.14), rgba(11, 18, 14,0.5))" }}
+      style={{ border: "1px solid color-mix(in srgb, var(--vault-crown) 45%, transparent)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-crown) 14%, transparent), color-mix(in srgb, var(--vault-scrim-base) 50%, transparent))" }}
     >
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="min-w-0">
@@ -46,14 +46,14 @@ export default function AchievementBanner() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {completed.map((l: any) => (
-            <span key={l.ladder ?? l.final} className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold" style={{ color: "var(--vault-gold-bright)", background: "rgba(217,164,65,0.12)", border: "1px solid rgba(217,164,65,0.35)" }}>
+            <span key={l.ladder ?? l.final} className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold" style={{ color: "var(--vault-gold-bright)", background: "color-mix(in srgb, var(--vault-crown) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 35%, transparent)" }}>
               {usd(l.start ?? 100)} → {usd(l.final)}
             </span>
           ))}
-          <span className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold" style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.12)", border: "1px solid rgba(110,231,168,0.35)" }}>
+          <span className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold" style={{ color: "var(--vault-success)", background: "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 35%, transparent)" }}>
             {usd(profit)} paper profit
           </span>
-          <span className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold" style={{ color: "var(--vault-text)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>
+          <span className="rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold" style={{ color: "var(--vault-text)", background: "var(--vault-wash)", border: "1px solid var(--vault-rule)" }}>
             Bank Builder {rec.wins}–{rec.losses}
           </span>
           <Link href="/mr-dub" className="vault-press rounded-full px-3 py-1 font-mono uppercase tracking-[0.08em] text-[10px]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", textDecoration: "none" }}>

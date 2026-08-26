@@ -492,9 +492,9 @@ export default function SimulateLobby() {
         className="relative overflow-hidden rounded-[16px] px-5 sm:px-8 py-7 sm:py-9 flex flex-col gap-5"
         style={{
           background:
-            "radial-gradient(130% 130% at 0% 0%, rgba(52, 211, 153, 0.13) 0%, transparent 52%), radial-gradient(120% 120% at 100% 0%, rgba(217,164,65,0.08) 0%, transparent 55%), linear-gradient(140deg, rgba(20,20,22,0.94) 0%, rgba(10,10,11,0.97) 100%)",
+            "radial-gradient(130% 130% at 0% 0%, color-mix(in srgb, var(--vault-accent) 13%, transparent) 0%, transparent 52%), radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--vault-crown) 8%, transparent) 0%, transparent 55%), linear-gradient(140deg, color-mix(in srgb, var(--vault-scrim-slate) 94%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-neutral) 97%, transparent) 100%)",
           border: "1px solid var(--vault-border-strong)",
-          boxShadow: "0 24px 60px -30px rgba(0,0,0,0.8)",
+          boxShadow: "0 24px 60px -30px color-mix(in srgb, var(--vault-ink-black) 80%, transparent)",
         }}
       >
         {/* faint field-grid texture behind the copy (decorative, motion-free) */}
@@ -503,11 +503,11 @@ export default function SimulateLobby() {
           className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(52, 211, 153, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(52, 211, 153, 0.05) 1px, transparent 1px)",
+              "linear-gradient(color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px)",
             backgroundSize: "30px 30px",
             opacity: 0.5,
-            maskImage: "radial-gradient(120% 100% at 0% 0%, #000 25%, transparent 80%)",
-            WebkitMaskImage: "radial-gradient(120% 100% at 0% 0%, #000 25%, transparent 80%)",
+            maskImage: "radial-gradient(120% 100% at 0% 0%, var(--vault-ink-black) 25%, transparent 80%)",
+            WebkitMaskImage: "radial-gradient(120% 100% at 0% 0%, var(--vault-ink-black) 25%, transparent 80%)",
           }}
         />
         <div className="relative flex flex-col gap-3">
@@ -541,7 +541,7 @@ export default function SimulateLobby() {
             <span
               key={c.l}
               className="inline-flex items-baseline gap-1.5 rounded-full px-3 py-1.5"
-              style={{ background: "rgba(10,10,11,0.5)", border: "1px solid var(--vault-rule)" }}
+              style={{ background: "color-mix(in srgb, var(--vault-scrim-neutral) 50%, transparent)", border: "1px solid var(--vault-rule)" }}
             >
               <span className="font-display" style={{ color: c.accent ? "var(--vault-gold-bright)" : "var(--vault-text)", fontSize: 14, fontWeight: 800, lineHeight: 1 }}>{c.v}</span>
               <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{c.l}</span>
@@ -606,16 +606,16 @@ export default function SimulateLobby() {
                   key={f.slug}
                   href={f.href}
                   className="group relative overflow-hidden rounded-[16px] flex flex-col vault-glow-hover"
-                  style={{ background: "var(--vault-panel-elevated)", border: "1px solid var(--vault-border-strong)", textDecoration: "none", boxShadow: "0 14px 40px -26px rgba(0,0,0,0.75)" }}
+                  style={{ background: "var(--vault-panel-elevated)", border: "1px solid var(--vault-border-strong)", textDecoration: "none", boxShadow: "0 14px 40px -26px color-mix(in srgb, var(--vault-ink-black) 75%, transparent)" }}
                 >
                   {/* Top strip — Simulation Ready badge + sport tag over a subtle ember wash. */}
                   <div
                     className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-2.5"
-                    style={{ background: "radial-gradient(120% 140% at 0% 0%, rgba(52, 211, 153, 0.10) 0%, transparent 60%)" }}
+                    style={{ background: "radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--vault-accent) 10%, transparent) 0%, transparent 60%)" }}
                   >
                     <span
                       className="inline-flex items-center gap-1 font-mono font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full"
-                      style={{ color: "var(--gtp-success-on-dark, #7ee2a8)", background: "rgba(46,160,102,0.14)", border: "1px solid rgba(46,160,102,0.4)", fontSize: 9 }}
+                      style={{ color: "var(--gtp-success-on-dark, var(--vault-accent-mint))", background: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", fontSize: 9 }}
                     >
                       <span aria-hidden>▶</span> Simulation Ready
                     </span>

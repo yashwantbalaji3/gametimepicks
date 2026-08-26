@@ -51,16 +51,16 @@ function toneChip(tone: SportStateTone, selected: boolean): { color: string; bac
   const base = (() => {
     switch (tone) {
       case "active":
-        return { color: "var(--gtp-success-on-dark, #7ee2a8)", accent: "rgba(46,160,102,0.4)", fill: "rgba(46,160,102,0.14)" };
+        return { color: "var(--gtp-success-on-dark, var(--vault-accent-mint))", accent: "color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)", fill: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)" };
       case "available":
         return { color: "var(--vault-gold-bright)", accent: "color-mix(in srgb, var(--vault-gold-bright) 42%, transparent)", fill: "var(--vault-gold-dim)" };
       default:
-        return { color: "var(--vault-text-mute)", accent: "var(--vault-rule)", fill: "rgba(255,255,255,0.03)" };
+        return { color: "var(--vault-text-mute)", accent: "var(--vault-rule)", fill: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)" };
     }
   })();
   return {
     color: base.color,
-    background: selected ? base.fill : "rgba(255,255,255,0.02)",
+    background: selected ? base.fill : "var(--vault-wash-faint)",
     border: `1px solid ${selected ? base.accent : "var(--vault-rule)"}`,
   };
 }
@@ -101,10 +101,10 @@ export default function SportSelector({ sports, rows }: { sports: SportState[]; 
                 minWidth: 132,
                 minHeight: 76,
                 background: on
-                  ? "radial-gradient(120% 130% at 0% 0%, rgba(52, 211, 153, 0.12) 0%, transparent 60%), var(--vault-panel-elevated)"
+                  ? "radial-gradient(120% 130% at 0% 0%, var(--vault-gold-dim) 0%, transparent 60%), var(--vault-panel-elevated)"
                   : "var(--vault-panel)",
                 border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-border)"}`,
-                boxShadow: on ? "0 10px 30px -18px rgba(52, 211, 153, 0.6)" : "none",
+                boxShadow: on ? "0 10px 30px -18px color-mix(in srgb, var(--vault-accent) 60%, transparent)" : "none",
                 opacity: on || live ? 1 : 0.82,
               }}
             >
@@ -116,7 +116,7 @@ export default function SportSelector({ sports, rows }: { sports: SportState[]; 
                 <span
                   aria-hidden
                   className="inline-flex items-center justify-center rounded-[9px] shrink-0"
-                  style={{ width: 30, height: 30, fontSize: 16, background: on ? "rgba(52, 211, 153, 0.14)" : "rgba(10,10,11,0.5)", border: `1px solid ${on ? "color-mix(in srgb, var(--vault-gold-bright) 40%, transparent)" : "var(--vault-rule)"}` }}
+                  style={{ width: 30, height: 30, fontSize: 16, background: on ? "color-mix(in srgb, var(--vault-accent) 14%, transparent)" : "color-mix(in srgb, var(--vault-scrim-neutral) 50%, transparent)", border: `1px solid ${on ? "color-mix(in srgb, var(--vault-gold-bright) 40%, transparent)" : "var(--vault-rule)"}` }}
                 >
                   {s.icon}
                 </span>
@@ -131,7 +131,7 @@ export default function SportSelector({ sports, rows }: { sports: SportState[]; 
                 </span>
                 <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
                   {s.gameCount} game{s.gameCount === 1 ? "" : "s"}
-                  {s.simReadyCount > 0 ? <span style={{ color: "var(--gtp-success-on-dark, #7ee2a8)" }}> · {s.simReadyCount} ready</span> : ""}
+                  {s.simReadyCount > 0 ? <span style={{ color: "var(--gtp-success-on-dark, var(--vault-accent-mint))" }}> · {s.simReadyCount} ready</span> : ""}
                 </span>
               </span>
             </button>
@@ -144,7 +144,7 @@ export default function SportSelector({ sports, rows }: { sports: SportState[]; 
         <div
           data-testid="sport-selector-note"
           className="rounded-[10px] px-4 py-3 flex items-start gap-2.5"
-          style={{ background: "rgba(15,10,7,0.5)", border: "1px dashed var(--vault-border-strong)" }}
+          style={{ background: "color-mix(in srgb, var(--vault-scrim-warm) 50%, transparent)", border: "1px dashed var(--vault-border-strong)" }}
         >
           <span aria-hidden style={{ fontSize: 13, lineHeight: 1.2 }}>ⓘ</span>
           <span className="text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{selected.note}</span>

@@ -186,7 +186,7 @@ export function PlayerCard({
     </>
   );
   const className = "flex items-center gap-2.5 rounded-[10px] px-2.5 py-2";
-  const style = { background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)", textDecoration: "none" } as const;
+  const style = { background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)", textDecoration: "none" } as const;
   return href ? (
     <a href={href} className={`vault-glow-hover ${className}`} style={style}>{body}</a>
   ) : (

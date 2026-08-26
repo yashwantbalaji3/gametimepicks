@@ -12,7 +12,7 @@ export default function ProbabilityBar({ segments }: { segments: Array<{ label: 
   const aria = clean.map((s) => `${s.label} ${Math.round((s.probability / total) * 100)}%`).join(", ");
   return (
     <div className="flex flex-col gap-1.5" role="img" aria-label={`Market-implied win probability: ${aria}`}>
-      <div className="flex w-full overflow-hidden rounded-full" style={{ height: 12, border: "1px solid var(--vault-rule)", background: "rgba(0,0,0,0.25)" }}>
+      <div className="flex w-full overflow-hidden rounded-full" style={{ height: 12, border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-ink-black) 25%, transparent)" }}>
         {clean.map((s, i) => (
           <div key={`${s.label}-${i}`} title={`${s.label} ${Math.round((s.probability / total) * 100)}%`}
                style={{ width: `${(s.probability / total) * 100}%`, background: SEG_COLORS[i % SEG_COLORS.length] }} />

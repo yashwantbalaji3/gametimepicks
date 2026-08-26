@@ -22,7 +22,7 @@ function resultPill(result: string | null) {
   const label = m?.label ?? "Archived";
   const color = m?.color ?? "var(--vault-text-faint)";
   return (
-    <span className="rounded-full px-1.5 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, color, background: "rgba(255,255,255,0.04)", border: `1px solid color-mix(in srgb, ${color} 35%, transparent)` }}>
+    <span className="rounded-full px-1.5 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, color, background: "var(--vault-wash-soft)", border: `1px solid color-mix(in srgb, ${color} 35%, transparent)` }}>
       {label}
     </span>
   );
@@ -41,14 +41,14 @@ export default function SpecialsHistorySection({ days }: { days: SpecialsHistory
         const won = day.cards.filter((c) => c.result === "won").length;
         const summary = settled.length ? `${won}-${settled.length - won} settled` : "archived candidates";
         return (
-          <details key={day.date} className="rounded-[10px]" style={{ background: "rgba(7, 11, 9,0.4)", border: "1px solid var(--vault-rule)" }}>
+          <details key={day.date} className="rounded-[10px]" style={{ background: "color-mix(in srgb, var(--vault-bg) 40%, transparent)", border: "1px solid var(--vault-rule)" }}>
             <summary className="cursor-pointer list-none px-3 py-2.5 flex items-center justify-between gap-2">
               <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{fmtDate(day.date)}</span>
               <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{day.cardCount} cards · {summary}</span>
             </summary>
             <div className="px-3 pb-3 flex flex-col gap-1.5">
               {day.cards.map((c) => (
-                <div key={c.id ?? c.title} className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+                <div key={c.id ?? c.title} className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
                   <span className="truncate" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{c.title} · {c.legCount} legs</span>
                   <span className="flex items-center gap-2 shrink-0">
                     <span className="font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 11 }}>{odds(c.combinedOdds)}</span>

@@ -10,7 +10,7 @@ const pnlColor = (n: number) => (n > 0 ? "var(--vault-success)" : n < 0 ? "var(-
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
-    <div className="rounded-[10px] px-3 py-2.5 min-w-0" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-[10px] px-3 py-2.5 min-w-0" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)" }}>
       <div className="font-display tabular truncate" style={{ color: accent ?? "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{value}</div>
       <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{label}</div>
     </div>

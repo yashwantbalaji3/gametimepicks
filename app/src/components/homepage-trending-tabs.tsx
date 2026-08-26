@@ -167,7 +167,7 @@ export default function HomepageTrendingTabs(props: Props) {
                   style={{
                     background:
                       "linear-gradient(90deg, transparent, var(--vault-gold-bright), transparent)",
-                    boxShadow: "0 0 8px rgba(52, 211, 153, 0.45)",
+                    boxShadow: "0 0 8px color-mix(in srgb, var(--vault-accent) 45%, transparent)",
                   }}
                 />
               )}
@@ -304,7 +304,7 @@ function LeanRow({ lean, flagged }: { lean: TrendingLean; flagged?: boolean }) {
       className="vault-deluxe-card casino-glow-card px-4 py-3.5"
       style={
         flagged
-          ? { borderColor: "rgba(52, 211, 153, 0.32)" }
+          ? { borderColor: "color-mix(in srgb, var(--vault-accent) 32%, transparent)" }
           : undefined
       }
     >
@@ -379,7 +379,7 @@ function LeanRow({ lean, flagged }: { lean: TrendingLean; flagged?: boolean }) {
             className="inline-flex items-center px-2 py-0.5 rounded-[3px] font-mono text-[10px] tracking-tight uppercase"
             style={{
               background: "var(--vault-warn-dim)",
-              border: "1px solid rgba(52, 211, 153, 0.30)",
+              border: "1px solid color-mix(in srgb, var(--vault-accent) 30%, transparent)",
               color: "var(--vault-warn)",
             }}
           >
@@ -492,7 +492,7 @@ function ParlaysPanel({
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-[3px] font-medium text-[14px] tracking-tight transition-colors"
             style={{
               background: "var(--vault-gold)",
-              color: "#0A0705",
+              color: "var(--vault-scrim-cocoa)",
             }}
           >
             Open Parlay Center

@@ -18,7 +18,7 @@ function DqBadge({ q }: { q?: string }) {
   const limited = q.toLowerCase() === "limited";
   return (
     <span className="rounded-full px-1.5 py-0.5 font-mono uppercase tracking-[0.08em]"
-      style={{ fontSize: 8, color: limited ? "var(--vault-text-faint)" : "var(--vault-success)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+      style={{ fontSize: 8, color: limited ? "var(--vault-text-faint)" : "var(--vault-success)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
       {limited ? "limited data" : `data ${q}`}
     </span>
   );
@@ -26,7 +26,7 @@ function DqBadge({ q }: { q?: string }) {
 
 function TeamPickRow({ p }: { p: CuratedPick }) {
   return (
-    <details className="group rounded-[9px]" style={{ background: "rgba(7, 11, 9,0.5)", border: "1px solid var(--vault-rule)" }}>
+    <details className="group rounded-[9px]" style={{ background: "color-mix(in srgb, var(--vault-bg) 50%, transparent)", border: "1px solid var(--vault-rule)" }}>
       <summary className="flex cursor-pointer items-center justify-between gap-2 px-3 py-2 list-none">
         <span className="flex items-center gap-2 min-w-0">
           {p.teamCode ? <FlagBadge code={p.teamCode} size="sm" /> : null}
@@ -36,7 +36,7 @@ function TeamPickRow({ p }: { p: CuratedPick }) {
           </span>
         </span>
         <span className="flex items-center gap-2 shrink-0">
-          {p.eligibility.bankBuilder ? <span className="rounded-full px-1.5 py-0.5 font-mono uppercase" style={{ fontSize: 8, color: "var(--vault-success)", background: "rgba(110,231,168,0.12)" }}>bank eligible</span> : null}
+          {p.eligibility.bankBuilder ? <span className="rounded-full px-1.5 py-0.5 font-mono uppercase" style={{ fontSize: 8, color: "var(--vault-success)", background: "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)" }}>bank eligible</span> : null}
           <span className="font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 12 }}>{odds(p.odds)}</span>
         </span>
       </summary>
@@ -57,7 +57,7 @@ function TeamPickRow({ p }: { p: CuratedPick }) {
 
 function PlayerPickRow({ p }: { p: CuratedPick }) {
   return (
-    <details className="group rounded-[9px]" style={{ background: "rgba(7, 11, 9,0.5)", border: "1px solid var(--vault-rule)" }}>
+    <details className="group rounded-[9px]" style={{ background: "color-mix(in srgb, var(--vault-bg) 50%, transparent)", border: "1px solid var(--vault-rule)" }}>
       <summary className="flex cursor-pointer items-center justify-between gap-2 px-3 py-2 list-none">
         <span className="flex items-center gap-2 min-w-0">
           <PlayerAvatar name={p.entityName} photo={p.entityImage} size={28} />
@@ -84,7 +84,7 @@ function PlayerPickRow({ p }: { p: CuratedPick }) {
 
 function GameCard({ g, slateDate }: { g: CuratedGame; slateDate: string }) {
   return (
-    <section className="rounded-[12px] px-4 py-3.5" style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border)" }}>
+    <section className="rounded-[12px] px-4 py-3.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="flex items-center gap-2 min-w-0">
           {g.homeCode ? <FlagBadge code={g.homeCode} size="sm" /> : null}
@@ -94,9 +94,9 @@ function GameCard({ g, slateDate }: { g: CuratedGame; slateDate: string }) {
         </span>
         <span className="flex items-center gap-2 shrink-0">
           {g.status === "started" ? (
-            <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8, color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>started · for reference</span>
+            <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8, color: "var(--vault-text-faint)", background: "var(--vault-wash)", border: "1px solid var(--vault-rule)" }}>started · for reference</span>
           ) : (
-            <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8, color: "var(--vault-success)", background: "rgba(110,231,168,0.12)" }}>upcoming</span>
+            <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8, color: "var(--vault-success)", background: "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)" }}>upcoming</span>
           )}
           {g.group ? <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{g.group}</span> : null}
         </span>
@@ -125,7 +125,7 @@ function GameCard({ g, slateDate }: { g: CuratedGame; slateDate: string }) {
             head date), NOT the kickoff date — a combined-window kickoff can roll into the next day and 404. */}
         <Link href={`/games/world-cup/${gameSlug(g.homeTeam, g.awayTeam, slateDate)}`}
           className="vault-press inline-flex rounded-full px-3 py-1 font-mono uppercase tracking-[0.1em]"
-          style={{ background: "var(--gtp-bank-lava-cta)", color: "#1A0E06", fontSize: 9.5, fontWeight: 700, textDecoration: "none" }}>
+          style={{ background: "var(--gtp-bank-lava-cta)", color: "var(--vault-on-accent-deep)", fontSize: 9.5, fontWeight: 700, textDecoration: "none" }}>
           View full game →
         </Link>
         <Link href={`/build/custom?sport=world_cup&game=${encodeURIComponent(g.gameId)}`}
@@ -141,7 +141,7 @@ function GameCard({ g, slateDate }: { g: CuratedGame; slateDate: string }) {
 export default function WorldCupCuratedPicks({ games, slateDate }: { games: CuratedGame[]; slateDate: string }) {
   if (!games.length) {
     return (
-      <div className="rounded-[10px] px-5 py-6 text-center" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+      <div className="rounded-[10px] px-5 py-6 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
         <span aria-hidden style={{ fontSize: 26 }}>⚽</span>
         <p className="mt-2" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No curated World Cup picks yet</p>
         <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>Curated picks appear once today&apos;s odds + projections are live.</p>

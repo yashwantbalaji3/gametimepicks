@@ -33,7 +33,7 @@ function GameCard({ g }: { g: GameOutlookGame }) {
     padding: "14px 16px",
     border: "1px solid var(--vault-border)",
     borderRadius: 8,
-    background: "rgba(11, 18, 14, 0.55)",
+    background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
   };
 
   if (!g.hasMarket) {

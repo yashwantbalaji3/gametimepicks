@@ -55,7 +55,7 @@ export default function HitRateSparkline({
       <div
         className="gtp-sparkline-card rounded-[6px] px-4 py-4"
         style={{
-          background: "rgba(11, 18, 14, 0.55)",
+          background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
           border: "1px solid var(--vault-border)",
         }}
       >
@@ -132,7 +132,7 @@ export default function HitRateSparkline({
     <div
       className="gtp-sparkline-card rounded-[6px] px-4 py-4"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
     >

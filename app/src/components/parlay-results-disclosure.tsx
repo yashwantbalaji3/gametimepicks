@@ -21,7 +21,7 @@ export default function ParlayResultsDisclosure() {
           className="inline-block w-1.5 h-1.5 rounded-full"
           style={{
             background: "var(--vault-warn)",
-            boxShadow: "0 0 6px rgba(52, 211, 153, 0.55)",
+            boxShadow: "0 0 6px color-mix(in srgb, var(--vault-accent) 55%, transparent)",
           }}
         />
         <span

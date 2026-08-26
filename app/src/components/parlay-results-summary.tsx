@@ -136,9 +136,9 @@ function SummaryTile({
         starPower
           ? {
               background:
-                "linear-gradient(160deg, rgba(52, 211, 153, 0.12), rgba(52, 211, 153, 0.02))",
-              border: "1px solid rgba(52, 211, 153, 0.30)",
-              boxShadow: "0 0 14px -4px rgba(52, 211, 153, 0.22)",
+                "linear-gradient(160deg, var(--vault-gold-dim), color-mix(in srgb, var(--vault-accent) 2%, transparent))",
+              border: "1px solid color-mix(in srgb, var(--vault-accent) 30%, transparent)",
+              boxShadow: "0 0 14px -4px var(--vault-rule)",
             }
           : undefined
       }

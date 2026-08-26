@@ -38,7 +38,7 @@ function Portrait({ side, size, accent }: { side: H2HSide; size: number; accent:
       className="inline-flex items-center justify-center shrink-0 overflow-hidden"
       style={{
         width: size, height: size, borderRadius: 14,
-        background: "rgba(255,255,255,0.04)",
+        background: "var(--vault-wash-soft)",
         border: side.favoured ? `1.5px solid ${accent}` : "1px solid var(--vault-border)",
         boxShadow: side.favoured ? `0 0 0 3px color-mix(in srgb, ${accent} 18%, transparent)` : undefined,
       }}
@@ -69,7 +69,7 @@ export default function HeadToHead({
 }) {
   return (
     <div className="flex flex-col gap-3 rounded-[16px] px-3.5 py-3.5"
-      style={{ border: "1px solid var(--vault-border-strong)", background: "rgba(255,255,255,0.018)" }}>
+      style={{ border: "1px solid var(--vault-border-strong)", background: "color-mix(in srgb, var(--vault-wash-base) 1.8%, transparent)" }}>
 
       {/* Portraits facing each other, names under them — the UFC-app arrangement. */}
       <div className="flex items-start gap-3">

@@ -68,7 +68,7 @@ export default function EventScheduleHub({ leagues }: EventScheduleHubProps) {
                   isActive ? "var(--vault-gold-bright)" : "var(--vault-rule)"
                 }`,
                 background: isActive
-                  ? "rgba(52, 211, 153, 0.08)"
+                  ? "color-mix(in srgb, var(--vault-accent) 8%, transparent)"
                   : "transparent",
               }}
             >

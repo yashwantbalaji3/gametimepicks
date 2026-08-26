@@ -122,7 +122,7 @@ export function ScheduleList({ events, sides, joiner, logoSport, accent = "var(-
               return (
                 <li key={e.canonicalEventId ?? `${d}-${a.name}-${b.name}`}
                   className="flex items-center justify-between gap-3 rounded-[12px] px-3 py-2.5 flex-wrap"
-                  style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+                  style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
                   <span className="flex items-center gap-2.5 min-w-0 flex-1">
                     <Participant side={b} logoSport={logoSport} />
                     <span className="font-mono shrink-0" style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>{joiner}</span>
@@ -152,7 +152,7 @@ export default function SportSchedulePage(p: SportScheduleProps) {
       <h1 className="font-display" style={{ margin: "6px 0 0", fontSize: 28, fontWeight: 800 }}>Schedule</h1>
 
       <div className="mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5"
-        style={{ border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.03)" }}>
+        style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)" }}>
         <span aria-hidden style={{ width: 7, height: 7, borderRadius: 99, background: "var(--vault-text-faint)" }} />
         <span className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: "var(--vault-text-mute)" }}>
           {p.forecastsPublished ? "Schedule + model forecasts — not validated out of sample" : "Schedule only — simulation pending"}

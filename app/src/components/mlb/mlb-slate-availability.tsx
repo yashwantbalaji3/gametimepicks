@@ -15,7 +15,7 @@ import type { SlateGameRow, SlateSummary } from "@/lib/today/slate-games";
 const CHIP: Record<SlateGameRow["tone"], { color: string; bg: string }> = {
   success: { color: "var(--vault-success)", bg: "var(--vault-success-dim)" },
   gold: { color: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)" },
-  mute: { color: "var(--vault-text-mute)", bg: "rgba(255,255,255,0.05)" },
+  mute: { color: "var(--vault-text-mute)", bg: "var(--vault-wash)" },
 };
 
 function CompactRow({ g }: { g: SlateGameRow }) {
@@ -26,7 +26,7 @@ function CompactRow({ g }: { g: SlateGameRow }) {
       href={g.href}
       aria-label={`${g.teams.away} at ${g.teams.home} — ${g.label}. ${g.explanation}`}
       className="vault-glow-hover vault-press flex items-center justify-between gap-3 rounded-[10px] px-3 py-2"
-      style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)", textDecoration: "none" }}
     >
       <div className="flex items-center gap-2.5 min-w-0">
         <MatchupIdentity homeName={g.teams.home} awayName={g.teams.away} homeLogo={g.homeLogo} awayLogo={g.awayLogo} size="sm" />
@@ -57,7 +57,7 @@ export default function MlbSlateAvailability({
   const shown = games.slice(0, cap);
   const more = games.length - shown.length;
   return (
-    <section aria-label="MLB slate availability" className="flex flex-col gap-2.5 rounded-[14px] px-4 py-4" style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.5)" }}>
+    <section aria-label="MLB slate availability" className="flex flex-col gap-2.5 rounded-[14px] px-4 py-4" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)" }}>
       <div className="flex items-baseline justify-between gap-2">
         <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>Today&rsquo;s MLB availability</h3>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{slateDate}</span>

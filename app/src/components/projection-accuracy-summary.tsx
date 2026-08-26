@@ -87,7 +87,7 @@ export default function ProjectionAccuracySummary({
       {bothAbove50 && (
         <p
           className="font-mono leading-snug m-0"
-          style={{ color: "var(--vault-success, #4ade80)", fontSize: 12, maxWidth: 620 }}
+          style={{ color: "var(--vault-success, var(--vault-success))", fontSize: 12, maxWidth: 620 }}
         >
           ↑ Individual projections are clearing 50% on settled slates in both MLB
           and NBA.
@@ -124,7 +124,7 @@ function AccuracyCard({
       style={{
         background: "var(--gtp-card)",
         border: positive
-          ? "1px solid var(--vault-success, #4ade80)"
+          ? "1px solid var(--vault-success, var(--vault-success))"
           : emphasis
             ? "1px solid var(--vault-gold-bright)"
             : "1px solid var(--vault-rule)",
@@ -141,7 +141,7 @@ function AccuracyCard({
           <span
             className="font-display tabular"
             style={{
-              color: positive ? "var(--vault-success, #4ade80)" : "var(--vault-text)",
+              color: positive ? "var(--vault-success, var(--vault-success))" : "var(--vault-text)",
               fontSize: 26,
               fontWeight: 700,
               lineHeight: 1,
@@ -166,7 +166,7 @@ function AccuracyCard({
               style={{
                 width: `${Math.min(100, Math.max(0, pct))}%`,
                 background: positive
-                  ? "var(--vault-success, #4ade80)"
+                  ? "var(--vault-success, var(--vault-success))"
                   : "var(--vault-gold-bright)",
               }}
             />

@@ -27,12 +27,12 @@ export default function HomeTodayMlb({
   const updated = formatEtTime(lastUpdatedIso);
   const availability = `${games} ${games === 1 ? "game" : "games"} · ${simulationsReady} ${simulationsReady === 1 ? "simulation" : "simulations"} ready${updated ? ` · updated ${updated}` : ""}`;
   return (
-    <section aria-label="Today's MLB" className="flex flex-col gap-2.5 rounded-[16px] px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.6)", borderLeft: "2px solid var(--vault-gold-bright)" }}>
+    <section aria-label="Today's MLB" className="flex flex-col gap-2.5 rounded-[16px] px-5 py-4 sm:flex-row sm:items-center sm:justify-between" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", borderLeft: "2px solid var(--vault-gold-bright)" }}>
       <div className="flex flex-col gap-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Today&rsquo;s MLB</span>
           <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{dateLabel}</span>
-          <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.06em] whitespace-nowrap" style={{ fontSize: 8, color: isLiveToday ? "var(--vault-success)" : "var(--vault-text-mute)", background: isLiveToday ? "var(--vault-success-dim)" : "rgba(255,255,255,0.05)" }}>
+          <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.06em] whitespace-nowrap" style={{ fontSize: 8, color: isLiveToday ? "var(--vault-success)" : "var(--vault-text-mute)", background: isLiveToday ? "var(--vault-success-dim)" : "var(--vault-wash)" }}>
             {isLiveToday ? "Live today" : "Latest slate"}
           </span>
         </div>
@@ -44,7 +44,7 @@ export default function HomeTodayMlb({
       <Link
         href="/today"
         className="vault-press inline-flex w-fit items-center rounded-full px-4 shrink-0"
-        style={{ minHeight: 38, fontSize: 11, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", background: "var(--gtp-bank-lava-cta)", color: "#1A0E06" }}
+        style={{ minHeight: 38, fontSize: 11, fontWeight: 700, fontFamily: "var(--font-mono)", letterSpacing: "0.08em", textTransform: "uppercase", textDecoration: "none", background: "var(--gtp-bank-lava-cta)", color: "var(--vault-on-accent-deep)" }}
       >
         Open today&rsquo;s brief →
       </Link>

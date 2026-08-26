@@ -60,8 +60,8 @@ export default function LegSwapPanel({
         className="gtp-slip-btn shrink-0 rounded-[6px] font-mono"
         style={{
           padding: "3px 7px", fontSize: 10, cursor: "pointer",
-          color: open ? "#06140D" : "var(--vault-text-mute)",
-          background: open ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.03)",
+          color: open ? "var(--vault-ink-on-mint)" : "var(--vault-text-mute)",
+          background: open ? "var(--gtp-bank-heat)" : "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)",
           border: `1px solid ${open ? "transparent" : "var(--vault-rule)"}`,
         }}
       >
@@ -70,7 +70,7 @@ export default function LegSwapPanel({
 
       {open && (
         <div className="mt-1.5 flex flex-col gap-1.5 rounded-[10px] p-2.5"
-          style={{ background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-rule)" }}>
+          style={{ background: "color-mix(in srgb, var(--vault-ink-black) 28%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
             Bench · same market, comparable price
           </span>
@@ -92,7 +92,7 @@ export default function LegSwapPanel({
                       type="button"
                       onClick={() => { onSwap(cand); setOpen(false); }}
                       className="gtp-team-row w-full flex items-center gap-2 rounded-[8px] px-2 py-1.5 text-left"
-                      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)", cursor: "pointer" }}
+                      style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)", cursor: "pointer" }}
                     >
                       <span className="relative shrink-0">
                         <PlayerAvatar name={cand.player} photo={cand.photoUrl} size={20} />

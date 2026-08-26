@@ -16,7 +16,7 @@ const money0 = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 function PreviewChip({ label }: { label: string }) {
   return (
     <span className="inline-flex items-center rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]"
-      style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)", border: "1px dashed var(--vault-border)" }}>{label}</span>
+      style={{ color: "var(--vault-text-faint)", background: "var(--vault-wash-soft)", border: "1px dashed var(--vault-border)" }}>{label}</span>
   );
 }
 
@@ -30,7 +30,7 @@ export default function NextLadderPreview() {
   return (
     <section
       className="mt-5 overflow-hidden rounded-2xl px-5 py-5"
-      style={{ border: "1px dashed var(--vault-border)", background: "linear-gradient(135deg, rgba(217,164,65,0.05), rgba(11, 18, 14,0.20))" }}
+      style={{ border: "1px dashed var(--vault-border)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-crown) 5%, transparent), color-mix(in srgb, var(--vault-scrim-base) 20%, transparent))" }}
       aria-label="Next Ladder System — the 7-step lower-risk ladder (preview, not live)"
     >
       <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -54,7 +54,7 @@ export default function NextLadderPreview() {
         <span className="absolute" style={{ left: 15, top: 10, bottom: 10, width: 2, borderRadius: 2, background: "repeating-linear-gradient(180deg, var(--vault-border) 0 4px, transparent 4px 9px)" }} aria-hidden />
         {/* crown */}
         <div className="relative flex items-center gap-3 pb-3">
-          <span className="relative z-[1] flex shrink-0 items-center justify-center rounded-full" style={{ width: 30, height: 30, background: "rgba(217,164,65,0.10)", border: "1px dashed var(--vault-gold-bright)" }} aria-hidden>🏆</span>
+          <span className="relative z-[1] flex shrink-0 items-center justify-center rounded-full" style={{ width: 30, height: 30, background: "color-mix(in srgb, var(--vault-crown) 10%, transparent)", border: "1px dashed var(--vault-gold-bright)" }} aria-hidden>🏆</span>
           <span className="font-display tabular font-bold" style={{ color: "var(--vault-text-mute)", fontSize: 14 }}>
             {money0(finalTarget)} <span className="font-mono text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)" }}>target · {money0(totalLocked)} banked along the way</span>
           </span>
@@ -63,8 +63,8 @@ export default function NextLadderPreview() {
           const locks = p.lock > 0;
           return (
             <div key={p.step} className="relative flex gap-3 pb-2.5 last:pb-0">
-              <span className="relative z-[1] mt-0.5 flex shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold" style={{ width: 26, height: 26, color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }} aria-hidden>{p.step}</span>
-              <div className="min-w-0 flex-1 rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}>
+              <span className="relative z-[1] mt-0.5 flex shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold" style={{ width: 26, height: 26, color: "var(--vault-text-faint)", background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)" }} aria-hidden>{p.step}</span>
+              <div className="min-w-0 flex-1 rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)" }}>
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-display tabular font-bold leading-none" style={{ color: "var(--vault-text-mute)", fontSize: 13.5 }}>{money0(p.target)}</span>
                   <span className="font-mono text-[9px]" style={{ color: locks ? "var(--vault-success)" : "var(--vault-text-faint)" }}>{locks ? `🔒 bank ${money0(p.lock)}` : "full roll"}</span>

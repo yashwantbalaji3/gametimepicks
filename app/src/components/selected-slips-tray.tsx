@@ -96,7 +96,7 @@ export default function SelectedSlipsTray() {
           border: `1px solid ${
             hasSelection ? "var(--vault-success)" : "var(--gtp-card-border)"
           }`,
-          boxShadow: "0 10px 30px rgba(0,0,0,0.40)",
+          boxShadow: "0 10px 30px color-mix(in srgb, var(--vault-ink-black) 40%, transparent)",
         }}
       >
         {/* Expanded panel — only when there's a selection and the user

@@ -39,7 +39,7 @@ export default function MarketGuidePage() {
                 <div
                   key={t.id}
                   className="rounded-[10px] p-4"
-                  style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.5)" }}
+                  style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)" }}
                 >
                   <dt className="text-[15px] font-semibold mb-1" style={{ color: "var(--vault-gold-bright)" }}>
                     {t.term}

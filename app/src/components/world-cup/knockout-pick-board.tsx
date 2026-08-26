@@ -60,7 +60,7 @@ function Chip({ text, color, title }: { text: string; color: string; title?: str
 
 function Expansion({ r }: { r: KnockoutBoardRow }) {
   return (
-    <div className="flex flex-col gap-2.5 px-3.5 py-3" style={{ background: "rgba(255,255,255,0.015)", borderTop: "1px dashed var(--vault-rule)" }}>
+    <div className="flex flex-col gap-2.5 px-3.5 py-3" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", borderTop: "1px dashed var(--vault-rule)" }}>
       <div className="grid gap-2.5 sm:grid-cols-2">
         <div>
           <div className="font-mono uppercase tracking-[0.1em] text-[9px] mb-1" style={{ color: "var(--vault-text-faint)" }}>Top team picks</div>
@@ -87,7 +87,7 @@ function Expansion({ r }: { r: KnockoutBoardRow }) {
           <div className="font-mono uppercase tracking-[0.1em] text-[9px] mb-1.5" style={{ color: "var(--vault-text-faint)" }}>Same-game parlay previews · preview only — paper, not a bet slip</div>
           <div className="grid gap-2 sm:grid-cols-3">
             {r.parlays.map((p) => p.available ? (
-              <div key={p.tier} className="rounded-lg px-2.5 py-2" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
+              <div key={p.tier} className="rounded-lg px-2.5 py-2" style={{ border: "1px solid var(--vault-rule)", background: "var(--vault-wash-faint)" }}>
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-mono uppercase text-[9px]" style={{ color: "var(--vault-gold)" }}>{p.tier}</span>
                   <span className="font-mono tabular text-[11px] font-bold" style={{ color: "var(--vault-text)" }}>{fmtOdds(p.combinedOdds)}</span>
@@ -175,7 +175,7 @@ export default function KnockoutPickBoard({ rows, serverToday }: { rows: Knockou
         const sm = STATUS_META[r.status];
         const isOpen = open === r.slug;
         return (
-          <div key={r.slug} className="overflow-hidden rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, rgba(11, 18, 14,0.35))" }}>
+          <div key={r.slug} className="overflow-hidden rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, color-mix(in srgb, var(--vault-scrim-base) 35%, transparent))" }}>
             <button onClick={() => setOpen(isOpen ? null : r.slug)} aria-expanded={isOpen} className="flex w-full flex-col gap-2 px-3.5 py-2.5 text-left lg:grid lg:grid-cols-[1.3fr_1fr_1fr_1fr_1fr_auto] lg:items-center lg:gap-3" style={{ cursor: "pointer", background: "transparent" }}>
               {/* Game / kickoff / status */}
               <span className="flex min-w-0 flex-col gap-1">

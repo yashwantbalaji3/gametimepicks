@@ -37,7 +37,7 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
   // Compact preview (Home / Today) — a slim always-visible strip of the 7 steps + the honesty tag.
   if (compact) {
     return (
-      <div className={`bb-ladder-v2-compact rounded-xl px-3.5 py-3 ${className}`} style={{ border: "1px solid var(--vault-border)", background: "rgba(217,164,65,0.05)" }} aria-label="Bank Builder 7-step ladder preview">
+      <div className={`bb-ladder-v2-compact rounded-xl px-3.5 py-3 ${className}`} style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-crown) 5%, transparent)" }} aria-label="Bank Builder 7-step ladder preview">
         <div className="flex flex-wrap items-center justify-between gap-1.5">
           <span className="font-mono uppercase tracking-[0.1em] text-[9.5px]" style={{ color: "var(--vault-gold)" }}>7-step profit-locking ladder</span>
           <span className="font-mono text-[8.5px] uppercase tracking-[0.06em]" style={{ color: "var(--vault-text-faint)" }}>v2 preview · live runs v1</span>
@@ -45,7 +45,7 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
         <div className="mt-2 flex items-center gap-1 overflow-x-auto">
           {steps.map((p, i) => (
             <div key={p.step} className="flex items-center gap-1 shrink-0">
-              <span className="rounded px-1.5 py-1 font-mono text-[9px] tabular" style={{ border: `1px solid ${p.step === liveStep ? "rgba(52, 211, 153, 0.5)" : "var(--vault-rule)"}`, color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-mute)", background: p.step === liveStep ? "rgba(52, 211, 153, 0.08)" : "transparent" }}>
+              <span className="rounded px-1.5 py-1 font-mono text-[9px] tabular" style={{ border: `1px solid ${p.step === liveStep ? "color-mix(in srgb, var(--vault-accent) 50%, transparent)" : "var(--vault-rule)"}`, color: p.lock > 0 ? "var(--vault-success)" : "var(--vault-text-mute)", background: p.step === liveStep ? "color-mix(in srgb, var(--vault-accent) 8%, transparent)" : "transparent" }}>
                 ${p.target.toLocaleString("en-US")}{p.lock > 0 ? ` ·lock $${p.lock.toLocaleString("en-US")}` : ""}
               </span>
               {i < steps.length - 1 ? <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>→</span> : null}
@@ -60,7 +60,7 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
   return (
     <section
       className={`bb-ladder-v2 gtp-fade-up overflow-hidden rounded-2xl ${className}`}
-      style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel, rgba(255,255,255,0.02))" }}
+      style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel, var(--vault-wash-faint))" }}
       aria-label="Bank Builder 7-step profit-locking ladder"
     >
       {/* Header */}
@@ -76,7 +76,7 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
         <div className="flex flex-col items-end gap-1">
           <span
             className="rounded-full px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.08em]"
-            style={{ border: "1px solid rgba(217,164,65,0.45)", color: "var(--vault-gold)", background: "rgba(217,164,65,0.08)" }}
+            style={{ border: "1px solid color-mix(in srgb, var(--vault-crown) 45%, transparent)", color: "var(--vault-gold)", background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)" }}
           >
             v2 preview · live settlement runs v1
           </span>
@@ -96,8 +96,8 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
               className="gtp-fade-up flex items-stretch gap-3 rounded-xl px-3 py-2.5"
               style={{
                 animationDelay: `${i * 55}ms`,
-                border: isLive ? "1px solid rgba(52, 211, 153, 0.45)" : "1px solid var(--vault-rule)",
-                background: isLive ? "rgba(52, 211, 153, 0.07)" : "rgba(11, 18, 14,0.35)",
+                border: isLive ? "1px solid color-mix(in srgb, var(--vault-accent) 45%, transparent)" : "1px solid var(--vault-rule)",
+                background: isLive ? "color-mix(in srgb, var(--vault-accent) 7%, transparent)" : "color-mix(in srgb, var(--vault-scrim-base) 35%, transparent)",
               }}
             >
               {/* Step badge + rail */}
@@ -106,9 +106,9 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
                   className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-display text-[13px] font-bold"
                   style={{
                     color: isLive ? "var(--vault-bg)" : "var(--vault-text)",
-                    background: isLive ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.05)",
+                    background: isLive ? "var(--gtp-bank-heat)" : "var(--vault-wash)",
                     border: `1px solid ${accent}`,
-                    boxShadow: isLive ? "0 0 12px rgba(52, 211, 153, 0.5)" : "none",
+                    boxShadow: isLive ? "0 0 12px color-mix(in srgb, var(--vault-accent) 50%, transparent)" : "none",
                   }}
                 >
                   {p.step}
@@ -151,7 +151,7 @@ export default function BankBuilderLadderV2({ liveStep = 1, compact = false, cla
 
       {/* Footer — the payoff + honesty */}
       <div className="mt-1 px-4 pb-4 sm:px-5">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl px-3.5 py-2.5" style={{ background: "rgba(217,164,65,0.06)", border: "1px solid rgba(217,164,65,0.25)" }}>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl px-3.5 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-crown) 6%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 25%, transparent)" }}>
           <span className="font-mono text-[10.5px]" style={{ color: "var(--vault-text)" }}>
             A full run realizes <strong style={{ color: "var(--vault-success)" }}>{usd(totalLocked)} locked</strong> along the way + the <strong style={{ color: "var(--vault-gold)" }}>{usd(finalTarget)}</strong> final ≈ <strong style={{ color: "var(--vault-gold)" }}>$10,380</strong>.
           </span>

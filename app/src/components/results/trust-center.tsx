@@ -422,7 +422,7 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
         <p
           className="rounded-[8px] px-3 py-2 text-[11.5px] leading-relaxed m-0"
           style={{
-            background: "rgba(52, 211, 153, 0.06)",
+            background: "color-mix(in srgb, var(--vault-accent) 6%, transparent)",
             border: "1px solid var(--vault-rule)",
             color: "var(--vault-text-mute)",
           }}

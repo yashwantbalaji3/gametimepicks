@@ -14,10 +14,10 @@ const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFrac
 const pctLabel = (p: number) => `${Math.round(p * 100)}%`;
 
 const STATUS_TONE: Record<ProductAllocation["status"], { color: string; bg: string }> = {
-  active: { color: "var(--vault-success)", bg: "rgba(110,231,168,0.12)" },
-  candidate: { color: "var(--vault-gold-bright)", bg: "rgba(217,164,65,0.12)" },
-  pending: { color: "#e7b15a", bg: "rgba(231,177,90,0.12)" },
-  "no-board": { color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.05)" },
+  active: { color: "var(--vault-success)", bg: "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)" },
+  candidate: { color: "var(--vault-gold-bright)", bg: "color-mix(in srgb, var(--vault-crown) 12%, transparent)" },
+  pending: { color: "var(--vault-crown-warm)", bg: "color-mix(in srgb, var(--vault-crown-warm) 12%, transparent)" },
+  "no-board": { color: "var(--vault-text-faint)", bg: "var(--vault-wash)" },
 };
 
 /** A horizontal allocation bar: each product's share of total open exposure, in product accents. */
@@ -25,11 +25,11 @@ function AllocationBar({ products, total }: { products: ProductAllocation[]; tot
   const segs = products.filter((p) => p.openExposure > 0);
   if (total <= 0 || segs.length === 0) {
     return (
-      <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }} aria-label="No open exposure allocated today" />
+      <div className="h-2 rounded-full overflow-hidden" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" }} aria-label="No open exposure allocated today" />
     );
   }
   return (
-    <div className="flex h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }} aria-label="Open exposure allocation by product">
+    <div className="flex h-2 rounded-full overflow-hidden" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" }} aria-label="Open exposure allocation by product">
       {segs.map((p) => (
         <span key={p.key} title={`${p.label} ${pctLabel(p.openExposure / total)}`} style={{ width: `${(p.openExposure / total) * 100}%`, background: p.accent }} />
       ))}
@@ -53,11 +53,11 @@ function ProductRow({ p, totalExposure }: { p: ProductAllocation; totalExposure:
     <Link
       href={p.href}
       className="vault-glow-hover vault-press rounded-[12px] px-3.5 py-3 flex flex-col gap-2 min-w-0"
-      style={{ background: "rgba(7, 11, 9,0.45)", border: "1px solid var(--vault-rule)", borderLeft: `2px solid ${p.accent}`, textDecoration: "none" }}
+      style={{ background: "color-mix(in srgb, var(--vault-bg) 45%, transparent)", border: "1px solid var(--vault-rule)", borderLeft: `2px solid ${p.accent}`, textDecoration: "none" }}
     >
       <div className="flex items-center justify-between gap-2 min-w-0">
         <span className="flex items-center gap-2 min-w-0">
-          <span aria-hidden className="inline-flex items-center justify-center rounded-[5px] shrink-0 font-mono tabular" style={{ width: 16, height: 16, fontSize: 9, fontWeight: 700, color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--vault-rule)" }}>#{p.rank}</span>
+          <span aria-hidden className="inline-flex items-center justify-center rounded-[5px] shrink-0 font-mono tabular" style={{ width: 16, height: 16, fontSize: 9, fontWeight: 700, color: "var(--vault-text-faint)", background: "var(--vault-wash)", border: "1px solid var(--vault-rule)" }}>#{p.rank}</span>
           <span className="font-semibold break-words leading-tight" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{p.label}</span>
         </span>
         <span className="shrink-0 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, color: t.color, background: t.bg, border: `1px solid color-mix(in srgb, ${t.color} 35%, transparent)` }}>
@@ -100,19 +100,19 @@ export default function PortfolioAllocationSection({ allocation }: { allocation:
 
       {/* Top-line: bankroll, today's allocated exposure, available, crown. */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <div className="rounded-[10px] px-3 py-2.5 min-w-0" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-3 py-2.5 min-w-0" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)" }}>
           <div className="font-display tabular truncate" style={{ color: "var(--vault-gold-bright)", fontSize: 16, fontWeight: 800 }}>{money(allocation.activeBankroll)}</div>
           <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Active bankroll</div>
         </div>
-        <div className="rounded-[10px] px-3 py-2.5 min-w-0" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-3 py-2.5 min-w-0" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)" }}>
           <div className="font-display tabular truncate" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{money(allocation.totalOpenExposure)}</div>
           <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Open exposure (today)</div>
         </div>
-        <div className="rounded-[10px] px-3 py-2.5 min-w-0" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-3 py-2.5 min-w-0" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)" }}>
           <div className="font-display tabular truncate" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{money(allocation.availableBankroll)}</div>
           <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Available</div>
         </div>
-        <div className="rounded-[10px] px-3 py-2.5 min-w-0" style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-rule)" }}>
+        <div className="rounded-[10px] px-3 py-2.5 min-w-0" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-rule)" }}>
           <div className="font-display tabular truncate" style={{ color: "var(--vault-text-faint)", fontSize: 16, fontWeight: 800 }}>{money(allocation.crownBankroll)}</div>
           <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Peak paper bankroll</div>
         </div>

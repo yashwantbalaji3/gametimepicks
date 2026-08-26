@@ -92,8 +92,8 @@ function DateNotFound({ date }: { date: string }) {
             className="vault-glow-hover rounded-[3px]"
             style={{
               padding: "10px 14px",
-              border: "1px solid rgba(52, 211, 153, 0.30)",
-              background: "rgba(52, 211, 153, 0.06)",
+              border: "1px solid color-mix(in srgb, var(--vault-accent) 30%, transparent)",
+              background: "color-mix(in srgb, var(--vault-accent) 6%, transparent)",
               color: "var(--vault-gold-bright)",
               textDecoration: "none",
               fontSize: 12,
@@ -111,7 +111,7 @@ function DateNotFound({ date }: { date: string }) {
               style={{
                 padding: "10px 14px",
                 border: "1px solid var(--vault-border)",
-                background: "rgba(11, 18, 14, 0.45)",
+                background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
                 color: "var(--vault-text-mute)",
                 textDecoration: "none",
                 fontSize: 12,

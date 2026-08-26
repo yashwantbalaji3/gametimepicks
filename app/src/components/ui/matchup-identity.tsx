@@ -44,9 +44,9 @@ export default function MatchupIdentity({
         style={{
           width: box,
           height: box,
-          background: "rgba(10,10,11,0.55)",
+          background: "color-mix(in srgb, var(--vault-scrim-neutral) 55%, transparent)",
           border: "1px solid var(--vault-border)",
-          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+          boxShadow: "inset 0 1px 0 var(--vault-wash-soft)",
         }}
       >
         {mark}

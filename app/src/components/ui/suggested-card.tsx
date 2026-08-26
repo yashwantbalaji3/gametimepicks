@@ -18,15 +18,15 @@ function initials(name: string): string {
 
 /** Card-level settled chip styling. Pending/unknown renders nothing extra. */
 const CARD_RESULT_CHIP: Record<string, { label: string; color: string; bg: string }> = {
-  won: { label: "WON", color: "#6EE7A8", bg: "rgba(110,231,168,0.14)" },
-  lost: { label: "LOST", color: "#F08A8A", bg: "rgba(240,138,138,0.12)" },
-  push: { label: "PUSH", color: "var(--vault-text-mute)", bg: "rgba(255,255,255,0.06)" },
+  won: { label: "WON", color: "var(--gtp-success-on-dark)", bg: "color-mix(in srgb, var(--gtp-success-on-dark) 14%, transparent)" },
+  lost: { label: "LOST", color: "var(--vault-danger-soft)", bg: "color-mix(in srgb, var(--vault-danger-soft) 12%, transparent)" },
+  push: { label: "PUSH", color: "var(--vault-text-mute)", bg: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" },
 };
 
 /** Per-leg settled glyphs (official grading only — never model opinion). */
 const LEG_RESULT_GLYPH: Record<string, { glyph: string; color: string }> = {
-  win: { glyph: "✓", color: "#6EE7A8" },
-  loss: { glyph: "✗", color: "#F08A8A" },
+  win: { glyph: "✓", color: "var(--gtp-success-on-dark)" },
+  loss: { glyph: "✗", color: "var(--vault-danger-soft)" },
   push: { glyph: "–", color: "var(--vault-text-mute)" },
 };
 
@@ -40,7 +40,7 @@ export default function SuggestedCard({
   return (
     <article
       className="gtp-card-hover rounded-[10px] px-4 py-4 flex flex-col gap-3"
-      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-center justify-between gap-2">
         <RiskTierBadge tier={card.riskTier} prefix={card.sportLabels.join(" + ")} />
@@ -72,7 +72,7 @@ export default function SuggestedCard({
           <div
             key={i}
             className="flex items-center gap-2.5 rounded-[6px] px-2.5 py-2 min-w-0"
-            style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}
+            style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}
           >
             {l.photo ? (
               <PlayerAvatar name={l.label} photo={l.photo} size={26} />
@@ -111,7 +111,7 @@ export default function SuggestedCard({
 
       {card.result && CARD_RESULT_CHIP[card.result] ? (
         // Settled card — the outcome is final, so no interactive paper-stake calculator.
-        <div className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
+        <div className="rounded-[8px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             Settled from official results · 90-minute regulation for soccer legs
           </span>
@@ -119,7 +119,7 @@ export default function SuggestedCard({
       ) : card.combinedAmericanOdds !== 0 ? (
         <StakePayoutInput combinedAmerican={card.combinedAmericanOdds} defaultStake={card.defaultStake} lockedStake={lockedStake} />
       ) : (
-        <div className="rounded-[8px] px-3 py-2.5" style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
+        <div className="rounded-[8px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             Model card · no market odds (no paper payout)
           </span>

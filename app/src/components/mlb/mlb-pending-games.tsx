@@ -22,7 +22,7 @@ export default function MlbPendingGames({ games }: Props) {
           className="inline-block w-1.5 h-1.5 rounded-full"
           style={{
             background: "var(--vault-warn)",
-            boxShadow: "0 0 8px rgba(52, 211, 153, 0.55)",
+            boxShadow: "0 0 8px color-mix(in srgb, var(--vault-accent) 55%, transparent)",
           }}
         />
         <span
@@ -44,7 +44,7 @@ export default function MlbPendingGames({ games }: Props) {
               paddingLeft: 14,
               paddingRight: 14,
               border: "1px solid var(--vault-border)",
-              background: "rgba(11, 18, 14, 0.45)",
+              background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
               minWidth: 0,
               overflow: "hidden",
               color: "inherit",

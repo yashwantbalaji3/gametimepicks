@@ -74,7 +74,7 @@ export default function AnomalyGuardrailPanel({
           className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
           style={{
             background: "var(--vault-gold-bright)",
-            boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
+            boxShadow: "0 0 8px color-mix(in srgb, var(--vault-accent) 60%, transparent)",
           }}
         />
         <span

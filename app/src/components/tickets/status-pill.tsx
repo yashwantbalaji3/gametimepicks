@@ -9,16 +9,16 @@ export type TicketStatus =
 const META: Record<TicketStatus, { label: string; color: string; bg: string }> = {
   active: { label: "Active", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)" },
   pending: { label: "Pending", color: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)" },
-  settled: { label: "Settled", color: "var(--vault-text-mute)", bg: "rgba(255,255,255,0.05)" },
-  hit: { label: "Hit ✓", color: "#6EE7A8", bg: "rgba(110,231,168,0.12)" },
-  won: { label: "Won ✓", color: "#6EE7A8", bg: "rgba(110,231,168,0.12)" },
+  settled: { label: "Settled", color: "var(--vault-text-mute)", bg: "var(--vault-wash)" },
+  hit: { label: "Hit ✓", color: "var(--gtp-success-on-dark)", bg: "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)" },
+  won: { label: "Won ✓", color: "var(--gtp-success-on-dark)", bg: "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)" },
   miss: { label: "Miss ✗", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)" },
   lost: { label: "Lost ✗", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)" },
-  void: { label: "Void", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.04)" },
-  archived: { label: "Archived", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.04)" },
-  data_pending: { label: "Data pending", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.04)" },
-  stopped: { label: "Stopped", color: "var(--vault-text-mute)", bg: "rgba(255,255,255,0.05)" },
-  candidate: { label: "Candidate", color: "#b9a8ff", bg: "rgba(139,123,240,0.14)" },
+  void: { label: "Void", color: "var(--vault-text-faint)", bg: "var(--vault-wash-soft)" },
+  archived: { label: "Archived", color: "var(--vault-text-faint)", bg: "var(--vault-wash-soft)" },
+  data_pending: { label: "Data pending", color: "var(--vault-text-faint)", bg: "var(--vault-wash-soft)" },
+  stopped: { label: "Stopped", color: "var(--vault-text-mute)", bg: "var(--vault-wash)" },
+  candidate: { label: "Candidate", color: "var(--vault-moonshot-bright)", bg: "color-mix(in srgb, var(--vault-moonshot) 14%, transparent)" },
 };
 
 export default function StatusPill({

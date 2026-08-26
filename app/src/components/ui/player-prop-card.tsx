@@ -27,7 +27,7 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
   if (!pl) return null;
   const recent = p.recentGames ?? [];
   return (
-    <details className="rounded-[7px] min-w-0 group" style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
+    <details className="rounded-[7px] min-w-0 group" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}>
       <summary className="px-3 py-2.5 flex items-center gap-2.5 min-w-0 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
         <PlayerAvatar name={pl.name} photo={pl.photo} size={34} />
         <div className="flex flex-col min-w-0 flex-1">
@@ -63,8 +63,8 @@ export default function PlayerPropCard({ p }: { p: PublicProjection }) {
               {recent.map((g, i) => {
                 const hit = hitSide(g.value, p.line, p.pickLabel);
                 return (
-                  <div key={i} className="rounded-[6px] px-1.5 py-1.5 text-center" style={{ background: "rgba(11, 18, 14,0.5)", border: `1px solid ${hit == null ? "var(--vault-rule)" : hit ? "rgba(110,231,168,0.4)" : "rgba(240,138,138,0.35)"}` }}>
-                    <div className="font-display tabular" style={{ color: hit == null ? "var(--vault-text)" : hit ? "#6EE7A8" : "#F08A8A", fontSize: 14, fontWeight: 700 }}>{g.value}</div>
+                  <div key={i} className="rounded-[6px] px-1.5 py-1.5 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: `1px solid ${hit == null ? "var(--vault-rule)" : hit ? "color-mix(in srgb, var(--gtp-success-on-dark) 40%, transparent)" : "color-mix(in srgb, var(--vault-danger-soft) 35%, transparent)"}` }}>
+                    <div className="font-display tabular" style={{ color: hit == null ? "var(--vault-text)" : hit ? "var(--gtp-success-on-dark)" : "var(--vault-danger-soft)", fontSize: 14, fontWeight: 700 }}>{g.value}</div>
                     <div className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{g.isHome ? "vs" : "@"}{g.opponent}</div>
                     <div className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{(g.date ?? "").slice(5)}</div>
                   </div>

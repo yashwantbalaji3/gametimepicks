@@ -30,7 +30,7 @@ function ProofTile({ value, label }: { value: string; label: string }) {
   return (
     <div
       className="flex flex-col gap-0.5 rounded-[12px] px-3 py-2.5"
-      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}
     >
       <span
         className="font-display tabular tracking-tight"
@@ -64,8 +64,8 @@ export default function HomeHero({
         style={{
           border: "1px solid var(--vault-border-strong)",
           background:
-            "radial-gradient(120% 140% at 0% 0%, rgba(52, 211, 153, 0.10) 0%, transparent 55%)," +
-            "linear-gradient(135deg, rgba(13, 21, 17,0.96) 0%, var(--vault-bg) 72%)",
+            "radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--vault-accent) 10%, transparent) 0%, transparent 55%)," +
+            "linear-gradient(135deg, color-mix(in srgb, var(--vault-scrim-pine) 96%, transparent) 0%, var(--vault-bg) 72%)",
         }}
       >
         <span
@@ -73,7 +73,7 @@ export default function HomeHero({
           style={{
             color: "var(--vault-success)",
             background: "var(--vault-success-dim)",
-            border: "1px solid rgba(110,231,168,0.35)",
+            border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 35%, transparent)",
             fontSize: 9.5,
             fontWeight: 700,
           }}
@@ -115,7 +115,7 @@ export default function HomeHero({
             className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
             style={{
               background: "var(--vault-gold-bright)",
-              color: "#1A0E06",
+              color: "var(--vault-on-accent-deep)",
               fontSize: 12,
               fontWeight: 700,
               minHeight: 44,
@@ -159,7 +159,7 @@ export default function HomeHero({
       {/* WHY TRUST THIS — four short, honest reasons. */}
       <div
         className="rounded-[12px] px-4 py-3"
-        style={{ background: "rgba(11, 18, 14,0.4)", border: "1px solid var(--vault-rule)" }}
+        style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 40%, transparent)", border: "1px solid var(--vault-rule)" }}
       >
         <span
           className="font-mono uppercase tracking-[0.12em]"

@@ -113,7 +113,7 @@ function SectionHeader({
           className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
           style={{
             background: "var(--vault-gold-bright)",
-            boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
+            boxShadow: "0 0 8px color-mix(in srgb, var(--vault-accent) 60%, transparent)",
           }}
         />
         <span
@@ -165,7 +165,7 @@ function NoteCard({ note }: { note: AuditNote }) {
     <article
       className="rounded-[6px] px-4 py-4 sm:px-5 sm:py-5 flex flex-col gap-2"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -215,18 +215,18 @@ const WEIGHT_STYLES: Record<
 > = {
   signal: {
     fg: "var(--vault-success)",
-    bg: "rgba(74, 222, 128, 0.10)",
-    border: "rgba(74, 222, 128, 0.30)",
+    bg: "color-mix(in srgb, var(--vault-success) 10%, transparent)",
+    border: "color-mix(in srgb, var(--vault-success) 30%, transparent)",
   },
   lean: {
     fg: "var(--vault-gold-bright)",
-    bg: "rgba(52, 211, 153, 0.10)",
-    border: "rgba(52, 211, 153, 0.30)",
+    bg: "color-mix(in srgb, var(--vault-accent) 10%, transparent)",
+    border: "color-mix(in srgb, var(--vault-accent) 30%, transparent)",
   },
   "small-sample": {
     fg: "var(--vault-text-faint)",
-    bg: "rgba(255, 255, 255, 0.02)",
-    border: "rgba(255, 255, 255, 0.06)",
+    bg: "var(--vault-wash-faint)",
+    border: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)",
   },
 };
 
@@ -264,7 +264,7 @@ function BucketTable({
     <div
       className="rounded-[6px] px-4 py-4"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
     >

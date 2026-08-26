@@ -63,7 +63,7 @@ function GameCard({ m }: { m: GameModel }) {
   const [open, setOpen] = useState(false);
   const t = firstPitch(m.game.commenceTime);
   return (
-    <div className="rounded-[12px] overflow-hidden" style={{ background: "rgba(7, 11, 9,0.5)", border: "1px solid var(--vault-rule)" }}>
+    <div className="rounded-[12px] overflow-hidden" style={{ background: "color-mix(in srgb, var(--vault-bg) 50%, transparent)", border: "1px solid var(--vault-rule)" }}>
       <button onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-label={`${open ? "Collapse" : "Expand"} ${m.game.matchup} details`} className="w-full px-3.5 py-3 flex items-center gap-3 text-left" style={{ cursor: "pointer" }}>
         <span className="flex items-center gap-1.5 shrink-0">
           {m.awayAbbr ? <TeamLogo team={m.awayAbbr} sport="mlb" size="md" /> : null}
@@ -85,7 +85,7 @@ function GameCard({ m }: { m: GameModel }) {
               <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Featured props</span>
               <ul className="mt-1 flex flex-col gap-1 list-none">
                 {m.featured.map((p, i) => (
-                  <li key={`${p.player}:${p.market}:${i}`} className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(255,255,255,0.02)" }}>
+                  <li key={`${p.player}:${p.market}:${i}`} className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5" style={{ background: "var(--vault-wash-faint)" }}>
                     <span className="relative shrink-0">
                       <PlayerAvatar name={p.player} photo={p.photoUrl} size={20} />
                       {p.teamAbbr ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={p.teamAbbr} sport="mlb" size="sm" /></span> : null}

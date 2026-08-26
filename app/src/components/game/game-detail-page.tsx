@@ -760,8 +760,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
               backgroundImage: "linear-gradient(color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px)",
               backgroundSize: "30px 30px",
               opacity: 0.5,
-              maskImage: "radial-gradient(120% 100% at 0% 0%, #000 25%, transparent 80%)",
-              WebkitMaskImage: "radial-gradient(120% 100% at 0% 0%, #000 25%, transparent 80%)",
+              maskImage: "radial-gradient(120% 100% at 0% 0%, var(--vault-ink-black) 25%, transparent 80%)",
+              WebkitMaskImage: "radial-gradient(120% 100% at 0% 0%, var(--vault-ink-black) 25%, transparent 80%)",
             }}
           />
           <span className="relative flex flex-wrap items-center gap-2">

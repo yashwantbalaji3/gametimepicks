@@ -83,7 +83,7 @@ function BucketCard({
     <div
       className={`rounded-[6px] ${full ? "lg:col-span-2" : ""}`}
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
     >

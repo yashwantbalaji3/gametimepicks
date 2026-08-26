@@ -109,7 +109,7 @@ function SignalPill({ signal }: { signal: MlbLeanSignal }) {
         color: SIGNAL_TONE[signal],
         border: `1px solid ${SIGNAL_TONE[signal]}`,
         fontSize: 8.5,
-        background: "rgba(255,255,255,0.02)",
+        background: "var(--vault-wash-faint)",
       }}
     >
       {SIGNAL_LABEL[signal]}
@@ -171,7 +171,7 @@ function ModelMarketCard({ r }: { r: MlbLeanRow }) {
   return (
     <div
       className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-start justify-between gap-2">
         <LeanHeadline r={r} />
@@ -198,7 +198,7 @@ function SnapshotRow({ r }: { r: MlbLeanRow }) {
   return (
     <div
       className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-[8px] px-3 py-2"
-      style={{ background: "rgba(0,0,0,0.28)", border: "1px solid var(--vault-rule)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-ink-black) 28%, transparent)", border: "1px solid var(--vault-rule)" }}
     >
       <div className="flex min-w-0 flex-col">
         <span
@@ -231,7 +231,7 @@ function BiggestLeanCard({ r, rank }: { r: MlbLeanRow; rank: number }) {
   return (
     <div
       className="flex flex-col gap-1.5 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-baseline gap-2 min-w-0">
@@ -278,7 +278,7 @@ function SignalBucket({ label, tone, rows }: { label: string; tone: string; rows
   return (
     <div
       className="flex flex-col gap-1.5 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(255,255,255,0.015)", border: `1px solid ${tone}` }}
+      style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: `1px solid ${tone}` }}
     >
       <div className="flex items-baseline justify-between">
         <span
@@ -326,7 +326,7 @@ function RecentFormCard({ r }: { r: MlbLeanRow }) {
   return (
     <div
       className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3"
-      style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: "1px solid var(--vault-border)" }}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <LeanHeadline r={r} />
@@ -403,13 +403,13 @@ export default function MlbGameLabReport({ view }: { view: MlbGameLabView }) {
         style={{
           border: "1px solid var(--vault-border-strong)",
           background:
-            "radial-gradient(120% 150% at 0% 0%, rgba(52, 211, 153, 0.10) 0%, transparent 55%), linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(11, 18, 14,0.97) 100%)",
+            "radial-gradient(120% 150% at 0% 0%, color-mix(in srgb, var(--vault-accent) 10%, transparent) 0%, transparent 55%), linear-gradient(135deg, color-mix(in srgb, var(--vault-scrim-navy) 94%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-base) 97%, transparent) 100%)",
         }}
       >
         <div className="flex flex-wrap items-center gap-2">
           <span
             className="inline-flex items-center rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.12em]"
-            style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)", fontSize: 9, background: "rgba(217,164,65,0.10)" }}
+            style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-rule)", fontSize: 9, background: "color-mix(in srgb, var(--vault-crown) 10%, transparent)" }}
           >
             Paper-only · educational
           </span>
@@ -459,7 +459,7 @@ export default function MlbGameLabReport({ view }: { view: MlbGameLabView }) {
       {view.leanCount === 0 ? (
         <div
           className="rounded-[12px] px-4 py-4"
-          style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-border)" }}
+          style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)" }}
         >
           <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>
             No model-qualified leans are posted for this game yet — treated as a no-play here, never padded to look active. Props post as the books price this slate.
@@ -559,7 +559,7 @@ export default function MlbGameLabReport({ view }: { view: MlbGameLabView }) {
               href={p.href}
               className="flex flex-col gap-1 rounded-[12px] px-3.5 py-3"
               style={{
-                background: "rgba(11, 18, 14,0.6)",
+                background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)",
                 border: "1px solid var(--vault-border)",
                 textDecoration: "none",
               }}
@@ -586,7 +586,7 @@ export default function MlbGameLabReport({ view }: { view: MlbGameLabView }) {
       {/* 10 · Unavailable placeholders (intentional, premium — not broken) */}
       <section
         className="flex flex-col gap-2.5 rounded-[14px] px-4 py-4"
-        style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-border)" }}
+        style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-border)" }}
       >
         <div className="flex flex-col gap-0.5">
           <span className="font-mono uppercase tracking-[0.13em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
@@ -604,7 +604,7 @@ export default function MlbGameLabReport({ view }: { view: MlbGameLabView }) {
             <div
               key={u.label}
               className="flex flex-col gap-0.5 rounded-[10px] px-3 py-2.5"
-              style={{ background: "rgba(0,0,0,0.22)", border: "1px dashed var(--vault-rule)" }}
+              style={{ background: "color-mix(in srgb, var(--vault-ink-black) 22%, transparent)", border: "1px dashed var(--vault-rule)" }}
             >
               <span style={{ color: "var(--vault-text-mute)", fontSize: 12, fontWeight: 600 }}>
                 {dash(u.label)}

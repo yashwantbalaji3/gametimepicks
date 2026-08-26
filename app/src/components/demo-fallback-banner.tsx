@@ -22,7 +22,7 @@ export default function DemoFallbackBanner({ dataMode, failureReason }: Props) {
       style={{
         borderLeftColor: "var(--vault-warn)",
         backgroundImage:
-          "repeating-linear-gradient(135deg, transparent, transparent 8px, rgba(255, 165, 0, 0.04) 8px, rgba(255, 165, 0, 0.04) 9px)",
+          "repeating-linear-gradient(135deg, transparent, transparent 8px, color-mix(in srgb, var(--vault-demo-accent) 4%, transparent) 8px, color-mix(in srgb, var(--vault-demo-accent) 4%, transparent) 9px)",
       }}
     >
       <div className="flex items-start gap-3">

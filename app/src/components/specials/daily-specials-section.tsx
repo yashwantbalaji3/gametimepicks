@@ -10,15 +10,15 @@ import type { WorldCupSpecialCard } from "@/lib/world-cup/world-cup-specials";
 const american = (o: number) => `${o > 0 ? "+" : ""}${o}`;
 
 const TIER_META: Record<string, { label: string; tone: string; bg: string; blurb: string }> = {
-  reliable: { label: "Reliable", tone: "var(--vault-success)", bg: "rgba(110,231,168,0.12)", blurb: "Safest team markets only — no player props." },
-  balanced: { label: "Balanced", tone: "var(--vault-gold-bright)", bg: "rgba(217,164,65,0.12)", blurb: "One safer leg + one value leg per game." },
+  reliable: { label: "Reliable", tone: "var(--vault-success)", bg: "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)", blurb: "Safest team markets only — no player props." },
+  balanced: { label: "Balanced", tone: "var(--vault-gold-bright)", bg: "color-mix(in srgb, var(--vault-crown) 12%, transparent)", blurb: "One safer leg + one value leg per game." },
   aggressive: { label: "Aggressive", tone: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)", blurb: "Higher-upside markets — expect real variance." },
   "game-script": { label: "Game Script", tone: "#7aa2f7", bg: "rgba(122,162,247,0.12)", blurb: "Legs aligned to each game's expected script." },
 };
 
 function Chip({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono" style={{ fontSize: 10, border: `1px solid ${tone ? `color-mix(in srgb, ${tone} 45%, transparent)` : "var(--vault-rule)"}`, background: "rgba(255,255,255,0.03)" }}>
+    <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-mono" style={{ fontSize: 10, border: `1px solid ${tone ? `color-mix(in srgb, ${tone} 45%, transparent)` : "var(--vault-rule)"}`, background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)" }}>
       <span style={{ color: "var(--vault-text-faint)" }}>{label}</span>
       <span style={{ color: tone ?? "var(--vault-text)", fontWeight: 700 }}>{value}</span>
     </span>
@@ -28,7 +28,7 @@ function Chip({ label, value, tone }: { label: string; value: string; tone?: str
 function LegRow({ leg }: { leg: WorldCupSpecialCard["legs"][number] }) {
   const sel = `${leg.marketLabel}${leg.side && leg.kind === "player" ? ` ${leg.side}` : leg.side && leg.kind === "team" ? ` · ${leg.side}` : ""}`;
   return (
-    <li className="flex items-center justify-between gap-2 rounded-[7px] px-3 py-1.5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+    <li className="flex items-center justify-between gap-2 rounded-[7px] px-3 py-1.5" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
       <span className="min-w-0 flex items-center gap-2">
         <span aria-hidden className="shrink-0 rounded px-1 font-mono" style={{ fontSize: 8, color: leg.kind === "player" ? "var(--gtp-bank-heat)" : "var(--vault-success)", border: "1px solid var(--vault-rule)" }}>{leg.kind === "player" ? "PROP" : "TEAM"}</span>
         <span className="truncate" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{leg.kind === "player" ? `${leg.participant} · ${sel}` : sel}</span>
@@ -41,7 +41,7 @@ function LegRow({ leg }: { leg: WorldCupSpecialCard["legs"][number] }) {
 function TierCard({ card }: { card: WorldCupSpecialCard }) {
   const meta = TIER_META[card.reliabilityTier ?? "balanced"] ?? TIER_META.balanced;
   return (
-    <div className="flex flex-col rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)", borderTop: `2px solid ${meta.tone}` }}>
+    <div className="flex flex-col rounded-2xl p-4" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)", borderTop: `2px solid ${meta.tone}` }}>
       <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
         <span className="inline-flex items-center gap-2">
           <span className="rounded-full px-2.5 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 10, fontWeight: 700, color: meta.tone, background: meta.bg, border: `1px solid ${meta.tone}` }}>{meta.label}</span>
@@ -69,7 +69,7 @@ function TierCard({ card }: { card: WorldCupSpecialCard }) {
       </div>
 
       {/* Honesty: why it exists, why it can lose, correlation. */}
-      <div className="mt-3 flex flex-col gap-1.5 rounded-[10px] px-3 py-2.5" style={{ background: "rgba(255,255,255,0.015)", border: "1px solid var(--vault-rule)" }}>
+      <div className="mt-3 flex flex-col gap-1.5 rounded-[10px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px solid var(--vault-rule)" }}>
         {card.whyThisCard?.[0] ? <p className="text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}><span style={{ color: meta.tone, fontWeight: 600 }}>Why this card: </span>{card.whyThisCard[0]}</p> : null}
         {card.whyItCanFail?.length ? (
           <p className="text-[11px] leading-snug" style={{ color: "var(--vault-text-faint)" }}>

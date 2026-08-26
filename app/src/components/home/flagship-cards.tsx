@@ -25,7 +25,7 @@ function Card({ c }: { c: FlagshipCard }) {
       href={c.href}
       className="vault-glow-hover vault-press flex flex-col gap-2 rounded-[14px] px-4 py-4"
       style={{
-        background: "rgba(11, 18, 14,0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
         borderTop: `2px solid ${c.accent}`,
         textDecoration: "none",

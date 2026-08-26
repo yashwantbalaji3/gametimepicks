@@ -44,7 +44,7 @@ export default function FlagBadge({
         width: dim.box,
         height: dim.box,
         fontSize: dim.font,
-        background: glyph ? "transparent" : "rgba(11, 18, 14,0.6)",
+        background: glyph ? "transparent" : "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)",
         border: glyph ? "none" : "1px solid var(--vault-border)",
         color: "var(--vault-text)",
         fontFamily:

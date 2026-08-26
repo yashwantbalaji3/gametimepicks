@@ -15,7 +15,7 @@ export const metadata = {
 
 function Concept({ term, children }: { term: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-[10px] px-4 py-4 flex flex-col gap-1.5" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-[10px] px-4 py-4 flex flex-col gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
       <span className="font-display tracking-tight" style={{ color: "var(--vault-gold-bright)", fontSize: 15, fontWeight: 700 }}>{term}</span>
       <p style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.55 }}>{children}</p>
     </div>
@@ -67,7 +67,7 @@ export default function LearnPage() {
           { href: "#glossary", label: "Glossary" },
         ].map((a) => (
           <a key={a.href} href={a.href} className="vault-press rounded-full px-3 py-1 font-mono uppercase tracking-[0.08em]"
-            style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10, textDecoration: "none" }}>
+            style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 10, textDecoration: "none" }}>
             {a.label}
           </a>
         ))}
@@ -76,7 +76,7 @@ export default function LearnPage() {
       {/* Start here — the whole flow in one line */}
       <section id="start" className="scroll-mt-16 flex flex-col gap-3">
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Start here</h2>
-        <div className="rounded-[10px] px-4 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-4 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
           {[
             { n: "1", t: "Today", d: "What's live now", href: "/today" },
             { n: "2", t: "Simulate", d: "Pick a game, any sport", href: "/simulate" },
@@ -115,7 +115,7 @@ export default function LearnPage() {
             removed. It is their number, not ours, and on the settled record it is the better estimate.
           </Concept>
         </div>
-        <div className="rounded-[10px] px-4 py-4" style={{ background: "rgba(11, 18, 14,0.45)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-4 py-4" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.55 }}>
             <strong style={{ color: "var(--vault-text)" }}>The difference between our number and theirs is a
             disagreement, not an advantage.</strong> On the settled record, the largest disagreements have
@@ -140,7 +140,7 @@ export default function LearnPage() {
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Risk tiers</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {TIERS.map((t) => (
-            <div key={t.tier} className="flex items-start gap-3 rounded-[8px] px-4 py-3" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+            <div key={t.tier} className="flex items-start gap-3 rounded-[8px] px-4 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
               <span className="font-mono uppercase tracking-[0.1em] px-2 py-0.5 rounded-full shrink-0 mt-0.5" style={{ color: t.tone, border: `1px solid ${t.tone}`, fontSize: 10 }}>{t.tier}</span>
               <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.5 }}>{t.note}</span>
             </div>
@@ -160,7 +160,7 @@ export default function LearnPage() {
 
       <section id="bank-builder" className="scroll-mt-16 flex flex-col gap-3">
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Bank Builder</h2>
-        <div className="rounded-[10px] px-4 py-4" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+        <div className="rounded-[10px] px-4 py-4" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
           <p style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.55 }}>
             A transparent <strong style={{ color: "var(--vault-text)" }}>paper</strong> ladder: one disciplined pick per rung, compounding a starting bankroll toward a target. It only advances when a genuinely eligible low-risk card clears strict gates — when nothing qualifies, it waits rather than forcing a pick. Track it on <Link href="/bank-builder" style={{ color: "var(--vault-gold-bright)" }}>Bank Builder</Link>. Paper-only, for education.
           </p>
@@ -171,7 +171,7 @@ export default function LearnPage() {
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>By sport</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {SPORTS.map((s) => (
-            <div key={s.name} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+            <div key={s.name} className="rounded-[8px] px-4 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
               <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>{s.name}</span>
               <p className="mt-0.5" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.5 }}>{s.note}</p>
             </div>
@@ -183,7 +183,7 @@ export default function LearnPage() {
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>Why some picks aren&apos;t suggested</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {GATES.map((g) => (
-            <div key={g.label} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(11, 18, 14,0.45)", border: "1px solid var(--vault-border)" }}>
+            <div key={g.label} className="rounded-[8px] px-4 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px solid var(--vault-border)" }}>
               <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{g.label}</span>
               <p className="mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 12, lineHeight: 1.5 }}>{g.note}</p>
             </div>
@@ -205,7 +205,7 @@ export default function LearnPage() {
             ["A bad record switches predictions off", "When a market's hit-rate interval sits entirely below break-even across a large sample, we stop making predictions in it. The history stays on the site and is never placed in a ranked list."],
             ["Settlement is official or it does not happen", "Results come from official box scores. If the event mapping fails an integrity check, the whole slate is withheld rather than partially graded."],
           ].map(([t, d]) => (
-            <div key={t} className="rounded-[10px] px-4 py-3" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+            <div key={t} className="rounded-[10px] px-4 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
               <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{t}</span>
               <p className="mt-1 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{d}</p>
             </div>
@@ -231,7 +231,7 @@ export default function LearnPage() {
             ["Model-only", "A pick the model rates but the sportsbook doesn't price — shown without a paper payout (e.g. some UFC cards)."],
             ["Gated", "A projection the model has, but that hasn't cleared our bar to be a suggested card yet."],
           ].map(([term, def]) => (
-            <div key={term} className="rounded-[8px] px-4 py-3" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+            <div key={term} className="rounded-[8px] px-4 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
               <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{term}</span>
               <p className="mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 12, lineHeight: 1.5 }}>{def}</p>
             </div>
@@ -239,7 +239,7 @@ export default function LearnPage() {
         </div>
       </section>
 
-      <section className="rounded-[10px] px-4 py-4" style={{ background: "rgba(11, 18, 14,0.45)", border: "1px solid var(--vault-border)" }}>
+      <section className="rounded-[10px] px-4 py-4" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px solid var(--vault-border)" }}>
         <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>Paper-only</span>
         <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.55 }}>
           GameTime Picks is an educational analytics project. Nothing here is betting advice or a recommendation to wager. Every &ldquo;stake&rdquo; and &ldquo;payout&rdquo; is hypothetical paper, tracked honestly — wins and losses both. For every term (model %, market %, model gap, confidence, no-play, pending) see the <Link href="/market-guide" style={{ color: "var(--vault-gold-bright)" }}>Market Guide</Link>; for the full model write-up see <Link href="/methodology" style={{ color: "var(--vault-gold-bright)" }}>Methodology</Link>; for our stance see <Link href="/responsible-use" style={{ color: "var(--vault-gold-bright)" }}>Responsible use</Link>.

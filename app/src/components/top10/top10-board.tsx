@@ -24,7 +24,7 @@ function Row({ p, rank }: { p: Top10Pick; rank: number }) {
       {p.flagCode ? (
         <FlagBadge code={p.flagCode} size="sm" ariaLabel={p.selection} />
       ) : (
-        <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[11px]" style={{ background: "rgba(255,255,255,0.05)" }}>{p.sport === "mlb" ? "⚾" : "⚽"}</span>
+        <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[11px]" style={{ background: "var(--vault-wash)" }}>{p.sport === "mlb" ? "⚾" : "⚽"}</span>
       )}
       <div className="min-w-0 flex-1">
         <div className="truncate text-[12px] font-medium" style={{ color: "var(--vault-text)" }}>{p.selection}</div>
@@ -35,7 +35,7 @@ function Row({ p, rank }: { p: Top10Pick; rank: number }) {
     </>
   );
   return (
-    <div className="rounded-lg" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+    <div className="rounded-lg" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
       <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-2 px-2.5 py-2 text-left" style={{ cursor: "pointer", background: "transparent" }} aria-expanded={open}>
         {inner}
       </button>
@@ -54,7 +54,7 @@ export default function Top10BoardSection({ board }: { board: Top10Board }) {
   const [tab, setTab] = useState<(typeof TABS)[number][0]>("overall");
   const picks = board[tab];
   return (
-    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, rgba(255,255,255,0.02))" }}>
+    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, var(--vault-wash-faint))" }}>
       <div className="flex flex-wrap gap-1.5">
         {TABS.map(([id, label]) => (
           <button key={id} onClick={() => setTab(id)} className="gtp-pressable rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em]" style={{ cursor: "pointer", color: tab === id ? "var(--vault-bg)" : "var(--vault-text-mute)", background: tab === id ? "var(--vault-gold)" : "transparent", border: `1px solid ${tab === id ? "var(--vault-gold)" : "var(--vault-rule)"}` }}>{label}</button>

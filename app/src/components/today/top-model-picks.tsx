@@ -17,12 +17,12 @@ const pct = (p: number | null) => (p == null ? "—" : `${Math.round(p * 100)}%`
 
 function Row({ p, rank }: { p: Top10Pick; rank: number }) {
   return (
-    <div className="flex items-center gap-2 rounded-lg px-2.5 py-2" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+    <div className="flex items-center gap-2 rounded-lg px-2.5 py-2" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
       <span className="w-4 shrink-0 text-center font-mono text-[10px]" style={{ color: rank <= 3 ? "var(--vault-gold)" : "var(--vault-text-faint)" }}>{rank}</span>
       {p.flagCode ? (
         <FlagBadge code={p.flagCode} size="sm" ariaLabel={p.selection} />
       ) : (
-        <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[11px]" style={{ background: "rgba(255,255,255,0.05)" }}>{p.sport === "mlb" ? "⚾" : "⚽"}</span>
+        <span aria-hidden className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[11px]" style={{ background: "var(--vault-wash)" }}>{p.sport === "mlb" ? "⚾" : "⚽"}</span>
       )}
       <div className="min-w-0 flex-1">
         <div className="truncate text-[12px] font-medium" style={{ color: "var(--vault-text)" }}>{p.selection}</div>

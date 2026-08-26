@@ -27,7 +27,7 @@ export default function WhatWeHaveNotProven({ gradedCount, gradedDates }: WhatWe
   return (
     <section
       className="rounded-2xl p-4 sm:p-5"
-      style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel, rgba(255,255,255,0.02))" }}
+      style={{ border: "1px solid var(--vault-border)", background: "var(--lava-panel, var(--vault-wash-faint))" }}
       aria-labelledby="not-proven-heading"
     >
       <h2

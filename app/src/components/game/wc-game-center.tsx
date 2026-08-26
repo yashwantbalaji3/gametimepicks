@@ -169,7 +169,7 @@ export default function WcGameCenter({
 
       {/* Unavailable modules — transparent, not buried */}
       {gameCenter.unavailable.length > 0 && (
-        <div className="rounded-[8px] px-3 py-2 flex flex-col gap-1" style={{ background: "rgba(52, 211, 153, 0.05)", border: "1px solid var(--vault-rule)" }}>
+        <div className="rounded-[8px] px-3 py-2 flex flex-col gap-1" style={{ background: "color-mix(in srgb, var(--vault-accent) 5%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <Eyebrow>Not available for this slate</Eyebrow>
           <p className="text-[10.5px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
             {gameCenter.unavailable.map((u) => u.module.replace(/_/g, " ")).join(" · ")} — these markets aren&rsquo;t

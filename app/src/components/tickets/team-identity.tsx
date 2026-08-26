@@ -24,7 +24,7 @@ export default function TeamIdentity({
         {flagAway ? <FlagBadge code={flagAway} size="sm" ariaLabel={awayTeam ?? ""} /> : null}
         {!hasFlag ? (
           <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px]"
-            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-hidden>{fallbackGlyph}</span>
+            style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }} aria-hidden>{fallbackGlyph}</span>
         ) : null}
       </span>
       {(matchup || kickoffEt) ? (

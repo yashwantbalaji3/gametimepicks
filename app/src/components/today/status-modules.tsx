@@ -37,7 +37,7 @@ function StatusCard({
     <section
       aria-label={title}
       className="flex flex-col gap-2 rounded-[14px] px-5 py-4"
-      style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", borderTop: `2px solid ${accent}` }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", borderTop: `2px solid ${accent}` }}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{eyebrow}</span>
@@ -104,7 +104,7 @@ export function LongshotLabStatus({ statusValue, reason }: { statusValue: string
 // ── 8 · No-play / unavailable notes ──────────────────────────────────────────
 export function NoPlayNotes({ notes }: { notes: string[] }) {
   return (
-    <section aria-label="No-play and unavailable notes" className="flex flex-col gap-2 rounded-[14px] px-5 py-4" style={{ border: "1px solid var(--vault-rule)", background: "rgba(11, 18, 14,0.35)" }}>
+    <section aria-label="No-play and unavailable notes" className="flex flex-col gap-2 rounded-[14px] px-5 py-4" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-scrim-base) 35%, transparent)" }}>
       <div className="flex flex-col gap-0.5">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>Discipline notes</h2>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>No-play is a decision, not a failure</span>
@@ -124,7 +124,7 @@ export function NoPlayNotes({ notes }: { notes: string[] }) {
 // ── 9 · Results / settlement reminder ────────────────────────────────────────
 export function ResultsReminder({ recordLabel, pendingLine }: { recordLabel: string | null; pendingLine: string | null }) {
   return (
-    <section aria-label="Results and settlement reminder" className="flex flex-col gap-2 rounded-[14px] px-5 py-4" style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.55)", borderTop: "2px solid var(--vault-success)" }}>
+    <section aria-label="Results and settlement reminder" className="flex flex-col gap-2 rounded-[14px] px-5 py-4" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", borderTop: "2px solid var(--vault-success)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>Transparent receipts</span>
         {/* Return loop: the backward step of the daily journey → yesterday's settled recap on /results. */}
@@ -156,7 +156,7 @@ export function SecondaryLinks({ links }: { links: SecondaryLink[] }) {
             key={l.href}
             href={l.href}
             className="vault-glow-hover vault-press rounded-[12px] px-3 py-3 flex flex-col gap-0.5"
-            style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none", minHeight: 44 }}
+            style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", textDecoration: "none", minHeight: 44 }}
           >
             <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 700 }}>{l.label}</span>
             <span className="font-mono uppercase tracking-[0.06em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{l.sub}</span>

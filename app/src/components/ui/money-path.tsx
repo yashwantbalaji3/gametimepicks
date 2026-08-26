@@ -23,7 +23,7 @@ export default function MoneyPath({
 
   if (kind === "starting") {
     return (
-      <div className="rounded-xl px-3.5 py-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)" }}>
+      <div className="rounded-xl px-3.5 py-3" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-border)" }}>
         <div className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 26, fontWeight: 800, lineHeight: 1 }}>
           {fmt(stake)} <span style={{ color: "var(--vault-text-faint)", fontSize: 14, fontWeight: 600 }}>starting path</span>
         </div>
@@ -34,7 +34,7 @@ export default function MoneyPath({
   }
 
   return (
-    <div className="rounded-xl px-3.5 py-3" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-xl px-3.5 py-3" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-baseline gap-2 flex-wrap">
         <span className="font-display tabular tracking-tight" style={{ color: "var(--vault-text)", fontSize: 22, fontWeight: 800, lineHeight: 1 }}>{fmt(stake)}</span>
         <span aria-hidden style={{ color: "var(--vault-text-faint)", fontSize: 18 }}>→</span>

@@ -259,7 +259,7 @@ export default function DualBankBuilderTeaser({ data, crown }: { data?: DualBank
         background:
           "radial-gradient(130% 160% at 0% 100%, color-mix(in srgb, var(--gtp-bank-heat) 16%, transparent) 0%, transparent 55%)," +
           "radial-gradient(130% 160% at 100% 0%, color-mix(in srgb, var(--vault-gold) 10%, transparent) 0%, transparent 55%)," +
-          "linear-gradient(135deg, rgba(13, 21, 17,0.96) 0%, var(--vault-bg) 72%)",
+          "linear-gradient(135deg, color-mix(in srgb, var(--vault-scrim-pine) 96%, transparent) 0%, var(--vault-bg) 72%)",
       }}
     >
       <div aria-hidden className="gtp-heat-pulse absolute -left-8 bottom-0 h-40 w-40 rounded-full" style={{ background: "var(--gtp-bank-lava)", filter: "blur(14px)", opacity: 0.4 }} />

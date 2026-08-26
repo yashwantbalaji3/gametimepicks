@@ -25,14 +25,14 @@ function Gauge({ value, max }: { value: number; max: number }) {
   return (
     <div
       className="relative overflow-hidden rounded-full"
-      style={{ height: 6, background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-rule)" }}
+      style={{ height: 6, background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-rule)" }}
       aria-hidden
     >
       <div
         className="gtp-hr-gauge-fill absolute inset-y-0 left-0 rounded-full"
         style={{
           width: `${share * 100}%`,
-          background: "linear-gradient(90deg, var(--sport-theme) 0%, var(--vault-heat, #34D399) 100%)",
+          background: "linear-gradient(90deg, var(--sport-theme) 0%, var(--vault-heat, var(--vault-accent)) 100%)",
           boxShadow: "0 0 10px var(--sport-theme-glow)",
         }}
       />
@@ -79,7 +79,7 @@ export default function HomerNukesBoardSection({ board }: { board: HomerNukesBoa
           <li
             key={`${p.playerId}-${p.gamePk}`}
             className="gtp-hr-row rounded-[14px] px-3.5 py-3"
-            style={{ border: "1px solid var(--vault-border-strong)", background: i === 0 ? "var(--sport-theme-wash)" : "rgba(255,255,255,0.018)" }}
+            style={{ border: "1px solid var(--vault-border-strong)", background: i === 0 ? "var(--sport-theme-wash)" : "color-mix(in srgb, var(--vault-wash-base) 1.8%, transparent)" }}
           >
             <div className="flex items-start gap-3">
               <span

@@ -109,12 +109,12 @@ function Block({
         style={{
           background: hasLinks
             ? "var(--vault-warn-dim)"
-            : "rgba(52, 211, 153, 0.08)",
+            : "color-mix(in srgb, var(--vault-accent) 8%, transparent)",
           color: "var(--vault-warn)",
           border: `1px solid ${
             hasLinks
-              ? "rgba(52, 211, 153, 0.35)"
-              : "rgba(52, 211, 153, 0.18)"
+              ? "color-mix(in srgb, var(--vault-accent) 35%, transparent)"
+              : "color-mix(in srgb, var(--vault-accent) 18%, transparent)"
           }`,
         }}
         aria-hidden
@@ -145,7 +145,7 @@ function Block({
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[13px] transition-colors"
                 style={{
                   background: "var(--vault-warn-dim)",
-                  border: "1px solid rgba(52, 211, 153, 0.35)",
+                  border: "1px solid color-mix(in srgb, var(--vault-accent) 35%, transparent)",
                   color: "var(--vault-warn)",
                   textDecoration: "none",
                 }}

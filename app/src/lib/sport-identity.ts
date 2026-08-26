@@ -64,7 +64,7 @@ const IDENTITIES: Record<SportIdentityKey, SportIdentity> = {
     shortLabel: "WC",
     icon: "⚽",
     accentVar: "var(--sport-soccer)",
-    gradient: "linear-gradient(135deg, rgba(52,211,153,0.22) 0%, rgba(45,212,191,0.10) 55%, transparent 100%)",
+    gradient: "linear-gradient(135deg, var(--vault-rule) 0%, rgba(45,212,191,0.10) 55%, transparent 100%)",
     ballLabel: "soccer ball",
   },
   epl: {
@@ -100,7 +100,7 @@ const IDENTITIES: Record<SportIdentityKey, SportIdentity> = {
     shortLabel: "UFC",
     icon: "🥊",
     accentVar: "var(--sport-ufc)",
-    gradient: "linear-gradient(135deg, rgba(248,113,113,0.22) 0%, rgba(248,113,113,0.08) 55%, transparent 100%)",
+    gradient: "linear-gradient(135deg, color-mix(in srgb, var(--vault-danger) 22%, transparent) 0%, color-mix(in srgb, var(--vault-danger) 8%, transparent) 55%, transparent 100%)",
     ballLabel: "boxing glove",
   },
   nhl: {
@@ -145,7 +145,7 @@ const IDENTITIES: Record<SportIdentityKey, SportIdentity> = {
     shortLabel: "BANK",
     icon: "🏦",
     accentVar: "var(--sport-bank)",
-    gradient: "linear-gradient(135deg, rgba(240,199,94,0.24) 0%, rgba(212,175,55,0.10) 55%, transparent 100%)",
+    gradient: "linear-gradient(135deg, color-mix(in srgb, var(--vault-warn) 24%, transparent) 0%, color-mix(in srgb, var(--vault-gold) 10%, transparent) 55%, transparent 100%)",
     ballLabel: "vault",
   },
 };

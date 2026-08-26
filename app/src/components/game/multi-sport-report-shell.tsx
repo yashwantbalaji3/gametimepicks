@@ -37,9 +37,9 @@ export function SourceModeBadge({ mode, label }: { mode: SimulationSourceMode; l
     <span
       className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.12em]"
       style={{
-        background: implied ? "rgba(217,164,65,0.12)" : "rgba(46,160,102,0.14)",
-        border: `1px solid ${implied ? "rgba(217,164,65,0.4)" : "rgba(46,160,102,0.4)"}`,
-        color: implied ? gold : "var(--gtp-success-on-dark, #7ee2a8)",
+        background: implied ? "color-mix(in srgb, var(--vault-crown) 12%, transparent)" : "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)",
+        border: `1px solid ${implied ? "color-mix(in srgb, var(--vault-crown) 40%, transparent)" : "color-mix(in srgb, var(--vault-accent-deep) 40%, transparent)"}`,
+        color: implied ? gold : "var(--gtp-success-on-dark, var(--vault-accent-mint))",
         fontSize: 9,
       }}
       data-source-mode={mode}
@@ -61,7 +61,7 @@ function SectionHead({ n, title, hint }: { n: number; title: string; hint?: stri
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <section className="rounded-[12px] px-4 py-3.5" style={{ background: "rgba(11, 18, 14,0.5)", border: `1px solid var(--vault-border)` }}>
+    <section className="rounded-[12px] px-4 py-3.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: `1px solid var(--vault-border)` }}>
       {children}
     </section>
   );
@@ -77,7 +77,7 @@ function MarketSnapshotPanel({ markets }: { markets: ReportMarket[] }) {
       {live.length > 0 ? (
         <ul className="flex flex-col gap-1.5">
           {live.map((m, i) => (
-            <li key={`${m.key}-${i}`} className="flex items-center justify-between gap-3 rounded-[8px] px-2.5 py-1.5" style={{ background: "rgba(0,0,0,0.18)" }}>
+            <li key={`${m.key}-${i}`} className="flex items-center justify-between gap-3 rounded-[8px] px-2.5 py-1.5" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 18%, transparent)" }}>
               <span style={{ color: "var(--vault-text)", fontSize: 12.5, fontWeight: 600 }}>{m.label}</span>
               <span className="flex items-center gap-2 font-mono" style={{ fontSize: 11 }}>
                 {m.noVigProbability != null ? <span style={{ color: mute }}>{pct(m.noVigProbability)} de-vig</span> : null}
@@ -94,7 +94,7 @@ function MarketSnapshotPanel({ markets }: { markets: ReportMarket[] }) {
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: faint, fontSize: 8.5 }}>Provider-needed</span>
           {roadmap.map((m, i) => (
             <span key={`${m.key}-${i}`} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]"
-                  style={{ color: faint, background: "rgba(11, 18, 14,0.6)", border: `1px dashed ${rule}`, fontSize: 8.5 }}>
+                  style={{ color: faint, background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: `1px dashed ${rule}`, fontSize: 8.5 }}>
               <span aria-hidden>🔒</span> {m.label}
             </span>
           ))}
@@ -149,7 +149,7 @@ function TopLeansPanel({ leans }: { leans: ReportLean[] }) {
       {leans.length > 0 ? (
         <ul className="flex flex-col gap-1.5">
           {leans.map((l, i) => (
-            <li key={`${l.market}-${i}`} className="rounded-[8px] px-2.5 py-2" style={{ background: "rgba(0,0,0,0.18)" }}>
+            <li key={`${l.market}-${i}`} className="rounded-[8px] px-2.5 py-2" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 18%, transparent)" }}>
               <div className="flex items-center justify-between gap-2">
                 <span style={{ color: "var(--vault-text)", fontSize: 12.5, fontWeight: 600 }}>{l.selection}</span>
                 <span className="flex items-center gap-2 font-mono" style={{ fontSize: 11 }}>
@@ -210,7 +210,7 @@ function ReportDetailsDisclosure({ details, sourceLabel, advanced }: {
   advanced?: React.ReactNode;
 }) {
   return (
-    <details className="rounded-[12px] px-4 py-3" style={{ background: "rgba(11, 18, 14,0.5)", border: `1px solid var(--vault-border)` }}>
+    <details className="rounded-[12px] px-4 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: `1px solid var(--vault-border)` }}>
       <summary className="cursor-pointer list-none">
         <span className="font-mono" style={{ color: gold, fontSize: 10 }}>06</span>
         <span className="ml-2 font-display" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Expandable Details</span>

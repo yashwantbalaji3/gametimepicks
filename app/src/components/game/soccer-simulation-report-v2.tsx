@@ -69,7 +69,7 @@ export default function SoccerSimulationReportV2(props: SoccerSimulationReportV2
   return (
     <div className="flex flex-col gap-3">
       {/* 1 — Match header */}
-      <section className="rounded-[16px] px-4 sm:px-6 py-5 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold)" }}>
+      <section className="rounded-[16px] px-4 sm:px-6 py-5 flex flex-col gap-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold)" }}>
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
             <Monogram code={homeCode} name={home} />
@@ -79,7 +79,7 @@ export default function SoccerSimulationReportV2(props: SoccerSimulationReportV2
             </div>
             <Monogram code={awayCode} name={away} />
           </div>
-          <span className="font-mono uppercase tracking-[0.1em] rounded-full px-3 py-1.5" style={{ fontSize: 9.5, color: "var(--vault-gold)", background: "rgba(217,164,65,0.10)", border: "1px solid rgba(217,164,65,0.35)" }}>Simulation report · Market-implied 90′</span>
+          <span className="font-mono uppercase tracking-[0.1em] rounded-full px-3 py-1.5" style={{ fontSize: 9.5, color: "var(--vault-gold)", background: "color-mix(in srgb, var(--vault-crown) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 35%, transparent)" }}>Simulation report · Market-implied 90′</span>
         </div>
       </section>
 
@@ -88,7 +88,7 @@ export default function SoccerSimulationReportV2(props: SoccerSimulationReportV2
         {mr ? (
           <>
             <div className="flex h-9 w-full overflow-hidden rounded-[8px]" style={{ border: "1px solid var(--vault-border)" }}>
-              <div style={{ width: `${mr.home * 100}%`, background: "rgba(217,164,65,0.55)" }} className="flex items-center justify-center"><span className="font-mono" style={{ fontSize: 11, color: "#1A0E06", fontWeight: 800 }}>{pct(mr.home)}</span></div>
+              <div style={{ width: `${mr.home * 100}%`, background: "color-mix(in srgb, var(--vault-crown) 55%, transparent)" }} className="flex items-center justify-center"><span className="font-mono" style={{ fontSize: 11, color: "var(--vault-on-accent-deep)", fontWeight: 800 }}>{pct(mr.home)}</span></div>
               <div style={{ width: `${mr.draw * 100}%`, background: "rgba(150,150,160,0.35)" }} className="flex items-center justify-center"><span className="font-mono" style={{ fontSize: 11, color: "var(--vault-text)", fontWeight: 800 }}>{pct(mr.draw)}</span></div>
               <div style={{ width: `${mr.away * 100}%`, background: "rgba(120,140,180,0.4)" }} className="flex items-center justify-center"><span className="font-mono" style={{ fontSize: 11, color: "var(--vault-text)", fontWeight: 800 }}>{pct(mr.away)}</span></div>
             </div>
@@ -111,7 +111,7 @@ export default function SoccerSimulationReportV2(props: SoccerSimulationReportV2
 
       {/* 3 — Score center (never faked) */}
       <Section n={3} title="Score center" subtitle="Projected scoreline" tone="muted">
-        <div className="rounded-[10px] px-4 py-4 flex flex-col gap-1.5" style={{ background: "rgba(15,10,7,0.5)", border: "1px dashed var(--vault-border-strong)" }}>
+        <div className="rounded-[10px] px-4 py-4 flex flex-col gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-warm) 50%, transparent)", border: "1px dashed var(--vault-border-strong)" }}>
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Scoreline model · validating</span>
           <p className="text-[13px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
             We do not show a projected scoreline. Our internal scoreline model is still validating and currently
@@ -202,7 +202,7 @@ export default function SoccerSimulationReportV2(props: SoccerSimulationReportV2
             ["Projected lineups", "provider needed"],
             ["Player-prop settlement", "2026 stats plan needed"],
           ].map(([label, why]) => (
-            <div key={label} className="rounded-[8px] px-3 py-2 flex flex-col gap-0.5" style={{ background: "rgba(15,10,7,0.4)", border: "1px solid var(--vault-border)" }}>
+            <div key={label} className="rounded-[8px] px-3 py-2 flex flex-col gap-0.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-warm) 40%, transparent)", border: "1px solid var(--vault-border)" }}>
               <span style={{ color: "var(--vault-text-mute)", fontSize: 12, fontWeight: 600 }}>{label}</span>
               <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{why}</span>
             </div>

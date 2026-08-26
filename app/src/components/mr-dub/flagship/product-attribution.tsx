@@ -27,7 +27,7 @@ export default function ProductAttribution({ wagers }: { wagers: WagerRow[] }) {
   const rows = filter === "all" ? wagers : wagers.filter((r) => r.productId === filter);
 
   return (
-    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, rgba(255,255,255,0.02))" }}>
+    <div className="rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, var(--vault-wash-faint))" }}>
       <div className="flex flex-wrap gap-1.5">
         <button onClick={() => setFilter("all")} className="gtp-pressable rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em]" style={{ cursor: "pointer", color: filter === "all" ? "var(--vault-bg)" : "var(--vault-text-mute)", background: filter === "all" ? "var(--vault-gold)" : "transparent", border: `1px solid ${filter === "all" ? "var(--vault-gold)" : "var(--vault-rule)"}` }}>All · {wagers.length}</button>
         {products.map((p) => (
@@ -38,7 +38,7 @@ export default function ProductAttribution({ wagers }: { wagers: WagerRow[] }) {
       </div>
       <div className="mt-2.5 flex flex-col gap-1">
         {rows.map((r, i) => (
-          <div key={i} className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)", borderLeft: `2px solid ${outcomeTone(r.outcome)}` }}>
+          <div key={i} className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", borderLeft: `2px solid ${outcomeTone(r.outcome)}` }}>
             <span className="w-11 shrink-0 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>{md(r.date)}</span>
             <span aria-hidden className="shrink-0 text-[12px]">{r.glyph}</span>
             <span className="min-w-0 flex-1 truncate text-[11px]" style={{ color: "var(--vault-text-mute)" }}>{r.detail ?? r.productLabel}</span>

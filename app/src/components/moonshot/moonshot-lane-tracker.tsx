@@ -112,14 +112,14 @@ export default function MoonshotLaneTracker({
 
   return (
     <section aria-label="Moonshot Lane Tracker" className="flex flex-col gap-4">
-      <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid #8b7bf0", background: "linear-gradient(135deg, rgba(139,123,240,0.10), rgba(11, 18, 14,0.42))" }}>
+      <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid var(--vault-moonshot)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-moonshot) 10%, transparent), color-mix(in srgb, var(--vault-scrim-base) 42%, transparent))" }}>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "#b9a8ff", fontSize: 10 }}>🌙 Moonshot Lane · daily tracker</span>
+          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-moonshot-bright)", fontSize: 10 }}>🌙 Moonshot Lane · daily tracker</span>
           <StatusPill status={laneStatusPill(lane.status)} dot />
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {summary.map(([k, v]) => (
-            <div key={k} className="rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}>
+            <div key={k} className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
               <div className="font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{v}</div>
               <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{k}</div>
             </div>
@@ -149,7 +149,7 @@ export default function MoonshotLaneTracker({
             {cardToLegs(r.card).map((leg, j) => <LegRow key={j} leg={leg} />)}
           </TicketCard>
         )) : (
-          <div className="rounded-xl px-4 py-6 text-center" style={{ border: "1px dashed var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
+          <div className="rounded-xl px-4 py-6 text-center" style={{ border: "1px dashed var(--vault-border)", background: "var(--vault-wash-faint)" }}>
             <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>No Moonshot card on record yet</p>
             <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>A qualified higher-volatility card will appear here once one clears the gates.</p>
           </div>
@@ -159,7 +159,7 @@ export default function MoonshotLaneTracker({
       {pubCandidates.length > 0 ? (
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "#b9a8ff", fontSize: 11 }}>Moonshot Candidates · {pubCandidates.length}</span>
+            <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-moonshot-bright)", fontSize: 11 }}>Moonshot Candidates · {pubCandidates.length}</span>
             <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>evaluated pre-event · not activated · $0 exposure</span>
           </div>
           {lane.candidatesNote && !compact ? <p className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{lane.candidatesNote}</p> : null}
@@ -181,7 +181,7 @@ export default function MoonshotLaneTracker({
         </div>
       ) : null}
 
-      <div className="rounded-xl px-4 py-3" style={{ border: "1px dashed var(--vault-border)", background: "rgba(255,255,255,0.02)" }}>
+      <div className="rounded-xl px-4 py-3" style={{ border: "1px dashed var(--vault-border)", background: "var(--vault-wash-faint)" }}>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Next</span>
         <p className="mt-0.5 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
           {lane.restartCandidate
@@ -191,7 +191,7 @@ export default function MoonshotLaneTracker({
       </div>
 
       {compact ? (
-        <Link href="/moonshot" className="inline-flex items-center gap-1 self-start rounded-full px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ border: "1px solid color-mix(in srgb, #8b7bf0 45%, transparent)", color: "#b9a8ff", textDecoration: "none" }}>
+        <Link href="/moonshot" className="inline-flex items-center gap-1 self-start rounded-full px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]" style={{ border: "1px solid color-mix(in srgb, var(--vault-moonshot) 45%, transparent)", color: "var(--vault-moonshot-bright)", textDecoration: "none" }}>
           Open the full Moonshot daily tracker →
         </Link>
       ) : (

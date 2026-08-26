@@ -80,7 +80,7 @@ const METHOD_LABEL: Record<string, string> = { KO: "KO / TKO", SUB: "Submission"
 /** One predicted market: the headline answer, with the full distribution underneath it. */
 function Head({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="rounded-[9px] px-2 py-1.5" style={{ border: "1px solid var(--vault-rule)", background: "rgba(0,0,0,0.2)" }}>
+    <div className="rounded-[9px] px-2 py-1.5" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-ink-black) 20%, transparent)" }}>
       <div className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 8, color: "var(--vault-text-faint)" }}>{label}</div>
       <div className="truncate" style={{ fontSize: 12.5, fontWeight: 700, color: "var(--vault-text)" }}>{value}</div>
       <div className="font-mono" style={{ fontSize: 9, color: "var(--vault-text-mute)" }}>{sub}</div>
@@ -194,7 +194,7 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
               {(rp?.strengths?.length || bp?.strengths?.length) ? (
                 <div className="grid gap-1.5" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))" }}>
                   {[["red", b.red, rp] as const, ["blue", b.blue, bp] as const].map(([k, f, p]) => p?.bouts ? (
-                    <div key={k} className="rounded-[10px] px-2.5 py-2" style={{ border: "1px solid var(--vault-rule)", background: "rgba(0,0,0,0.18)" }}>
+                    <div key={k} className="rounded-[10px] px-2.5 py-2" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-ink-black) 18%, transparent)" }}>
                       <div className="font-mono uppercase tracking-[0.1em] mb-1" style={{ fontSize: 8.5, color: "var(--vault-text-faint)" }}>{f.name}</div>
                       {p.summary ? <p className="m-0 mb-1" style={{ fontSize: 10.5, lineHeight: 1.5, color: "var(--vault-text-mute)" }}>{p.summary}</p> : null}
                       {p.strengths.map((x) => <div key={x} style={{ fontSize: 10.5, color: "var(--vault-success)" }}>+ {x}</div>)}
@@ -219,7 +219,7 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
         })}
       </div>
 
-      <div className="rounded-[12px] px-3 py-2.5 flex flex-col gap-1.5" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+      <div className="rounded-[12px] px-3 py-2.5 flex flex-col gap-1.5" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 9, color: "var(--vault-text-faint)" }}>What is modelled, and what is not</span>
         {heads.length ? (
           <>

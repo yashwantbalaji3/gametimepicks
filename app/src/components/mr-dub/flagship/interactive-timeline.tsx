@@ -23,7 +23,7 @@ function WagerDetail({ e }: { e: FlagshipEvent }) {
   const t = won ? "var(--vault-success)" : lost ? "var(--gtp-bank-heat)" : open ? "var(--vault-gold)" : "var(--vault-text-faint)";
   const label = e.type === "dual_lane_losses" ? "Dual-lane phase seeds" : e.type?.replace(/_/g, " ") ?? "settlement";
   return (
-    <div className="rounded-lg px-3 py-2" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)", borderLeft: `2px solid ${t}` }}>
+    <div className="rounded-lg px-3 py-2" style={{ border: "1px solid var(--vault-rule)", background: "var(--vault-wash-faint)", borderLeft: `2px solid ${t}` }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-[11.5px] font-medium capitalize" style={{ color: "var(--vault-text)" }}>{label}{e.step ? ` · Step ${e.step}` : ""}{e.combinedOdds != null || e.combinedAmerican != null ? ` · ${odds(e.combinedOdds ?? e.combinedAmerican)}` : ""}</span>
         <span className="font-mono text-[10.5px]" style={{ color: t }}>{open ? `open ${usd(e.atRiskStake ?? e.paperStake)}` : won ? `${usd(e.paperStake)} → ${usd(e.paperReturn)}${e.rolled ? " (rolls)" : ""}` : lost ? signed(e.paperProfit ?? 0) : "settled"}</span>
@@ -49,7 +49,7 @@ function Row({ d, defaultOpen }: { d: TimelineDay; defaultOpen: boolean }) {
   const { md, wd } = fmt(d.date);
   const settled = (d.events ?? []).filter((e) => e.status === "settled" || e.status === "open" || e.status === "queued");
   return (
-    <div className="overflow-hidden rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, rgba(255,255,255,0.02))" }}>
+    <div className="overflow-hidden rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "var(--gtp-card, var(--vault-wash-faint))" }}>
       <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left" style={{ cursor: "pointer", background: "transparent" }} aria-expanded={open}>
         <span aria-hidden className="shrink-0 rounded-md" style={{ width: 4, alignSelf: "stretch", background: tone(d.sign), minHeight: 34 }} />
         <div className="min-w-0 flex-1">
@@ -76,7 +76,7 @@ function Row({ d, defaultOpen }: { d: TimelineDay; defaultOpen: boolean }) {
             <span>Products {d.products.join(" · ") || "—"}</span>
           </div>
           {settled.map((e, i) => <WagerDetail key={e.eventId ?? i} e={e} />)}
-          {d.bankedNote ? <div className="rounded-lg px-3 py-2 text-[10.5px]" style={{ border: "1px dashed var(--vault-rule)", color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.015)" }}>{d.bankedNote}</div> : null}
+          {d.bankedNote ? <div className="rounded-lg px-3 py-2 text-[10.5px]" style={{ border: "1px dashed var(--vault-rule)", color: "var(--vault-text-faint)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>{d.bankedNote}</div> : null}
         </div>
       ) : null}
     </div>

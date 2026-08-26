@@ -22,7 +22,7 @@ const RISK_TONE: Record<string, string> = {
 function Chip({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1"
-      style={{ background: "rgba(7, 11, 9,0.5)", border: "1px solid var(--vault-rule)" }}>
+      style={{ background: "color-mix(in srgb, var(--vault-bg) 50%, transparent)", border: "1px solid var(--vault-rule)" }}>
       <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8 }}>{label}</span>
       <span className="font-semibold" style={{ color: tone ?? "var(--vault-text)", fontSize: 11.5 }}>{value}</span>
     </span>
@@ -32,7 +32,7 @@ function Chip({ label, value, tone }: { label: string; value: string; tone?: str
 export default function GameScriptCard({ script, compact = false }: { script: GameScript; compact?: boolean }) {
   if (!script.available) {
     return (
-      <div className="rounded-[10px] px-4 py-3" style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border)" }}>
+      <div className="rounded-[10px] px-4 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)" }}>
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Model game script</span>
         <p className="mt-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Model game script publishes once the moneyline is posted for this fixture.</p>
       </div>
@@ -40,13 +40,13 @@ export default function GameScriptCard({ script, compact = false }: { script: Ga
   }
   return (
     <div className="rounded-[12px] px-4 py-3.5 flex flex-col gap-2.5"
-      style={{ background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-gold-bright)", borderLeft: "3px solid var(--vault-gold-bright)" }}>
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: "1px solid var(--vault-gold-bright)", borderLeft: "3px solid var(--vault-gold-bright)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Model game script</span>
         <span className="flex items-center gap-2 shrink-0">
           <span className="font-mono uppercase tracking-[0.08em]" style={{ color: CONF_TONE[script.confidence] ?? "var(--vault-text)", fontSize: 8.5 }}>{script.confidence} confidence</span>
           {script.knockoutRisk ? (
-            <span className="rounded-full px-1.5 py-0.5 font-mono uppercase" style={{ fontSize: 8, color: RISK_TONE[script.knockoutRisk.label] ?? "var(--vault-text)", background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-rule)" }}
+            <span className="rounded-full px-1.5 py-0.5 font-mono uppercase" style={{ fontSize: 8, color: RISK_TONE[script.knockoutRisk.label] ?? "var(--vault-text)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}
               title={script.knockoutRisk.reason}>KO risk {script.knockoutRisk.label}</span>
           ) : null}
         </span>

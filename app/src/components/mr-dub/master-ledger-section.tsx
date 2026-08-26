@@ -12,7 +12,7 @@ const plColor = (n: number) => (n > 0 ? "var(--vault-success)" : n < 0 ? "var(--
 
 function Tile({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
-    <div className="rounded-xl px-3 py-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-xl px-3 py-3" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)" }}>
       <div className="font-display tracking-tight" style={{ color: accent ?? "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>{value}</div>
       <div className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{label}</div>
     </div>

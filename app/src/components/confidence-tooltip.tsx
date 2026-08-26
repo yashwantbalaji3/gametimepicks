@@ -55,7 +55,7 @@ export default function ConfidenceTooltip() {
           background: "var(--vault-panel-elevated)",
           border: "1px solid var(--vault-border-strong)",
           color: "var(--vault-text-mute)",
-          boxShadow: "0 4px 14px rgba(0, 0, 0, 0.4)",
+          boxShadow: "0 4px 14px color-mix(in srgb, var(--vault-ink-black) 40%, transparent)",
         }}
       >
         <span

@@ -34,7 +34,7 @@ const shortEventDate = (iso: string | null | undefined) => {
   return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 };
 
-const MOON = "var(--moonshot-accent, #8b7bf0)";
+const MOON = "var(--moonshot-accent, var(--vault-moonshot))";
 
 function LegAvatar({ leg }: { leg: MoonshotLeg }) {
   if (leg.kind === "player" && leg.photoUrl) {
@@ -42,7 +42,7 @@ function LegAvatar({ leg }: { leg: MoonshotLeg }) {
       <span className="relative inline-block" style={{ width: 26, height: 26 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={leg.photoUrl} alt={leg.participant} width={26} height={26} className="rounded-full object-cover"
-          style={{ width: 26, height: 26, border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.04)" }} />
+          style={{ width: 26, height: 26, border: "1px solid var(--vault-border)", background: "var(--vault-wash-soft)" }} />
         {leg.countryCode && (
           <span className="absolute -bottom-1 -right-1" style={{ transform: "scale(0.62)", transformOrigin: "bottom right" }}>
             <FlagBadge code={leg.countryCode} size="sm" ariaLabel={leg.team ?? ""} />
@@ -52,7 +52,7 @@ function LegAvatar({ leg }: { leg: MoonshotLeg }) {
     );
   }
   if (leg.countryCode) return <FlagBadge code={leg.countryCode} size="sm" ariaLabel={leg.participant} />;
-  return <span className="inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold" style={{ background: "rgba(255,255,255,0.06)", color: "var(--vault-text-mute)" }}>{leg.participant.slice(0, 2).toUpperCase()}</span>;
+  return <span className="inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", color: "var(--vault-text-mute)" }}>{leg.participant.slice(0, 2).toUpperCase()}</span>;
 }
 
 function MoonLegRow({ leg }: { leg: MoonshotLeg }) {
@@ -84,13 +84,13 @@ function MoonLegRow({ leg }: { leg: MoonshotLeg }) {
 function StepRow({ step }: { step: MoonshotStep }) {
   const active = step.status === "active";
   return (
-    <div className="rounded-xl px-3 py-2.5" style={{ border: `1px solid ${active ? MOON : "var(--vault-rule)"}`, background: active ? "rgba(139,123,240,0.07)" : "rgba(255,255,255,0.015)" }}>
+    <div className="rounded-xl px-3 py-2.5" style={{ border: `1px solid ${active ? MOON : "var(--vault-rule)"}`, background: active ? "color-mix(in srgb, var(--vault-moonshot) 7%, transparent)" : "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>
           Step {step.step} · {usd(step.stake)} <span style={{ color: "var(--vault-text-faint)" }}>→</span> {usd(step.targetReturn)}
         </span>
         <span className="rounded-full px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-[0.08em]"
-          style={{ color: active ? MOON : "var(--vault-text-faint)", background: "rgba(255,255,255,0.05)", border: `1px solid ${active ? MOON : "var(--vault-rule)"}` }}>
+          style={{ color: active ? MOON : "var(--vault-text-faint)", background: "var(--vault-wash)", border: `1px solid ${active ? MOON : "var(--vault-rule)"}` }}>
           {active ? "active" : step.status} · ~{step.requiredMultiple.toFixed(1)}×
         </span>
       </div>
@@ -103,8 +103,8 @@ function StepRow({ step }: { step: MoonshotStep }) {
           </div>
           {((step.card as EnrichedMoonCard).crossSlate || (step.card as EnrichedMoonCard).slateLabel) && (
             <div className="mb-1.5 flex flex-wrap gap-1.5 font-mono text-[9px] font-bold uppercase tracking-[0.06em]">
-              {(step.card as EnrichedMoonCard).crossSlate ? <span className="rounded px-1.5 py-0.5" style={{ color: MOON, background: "rgba(139,123,240,0.14)", border: `1px solid ${MOON}` }}>Cross-slate</span> : null}
-              {(step.card as EnrichedMoonCard).slateLabel ? <span className="rounded px-1.5 py-0.5 normal-case" style={{ color: "var(--vault-text-faint)", background: "rgba(255,255,255,0.04)", letterSpacing: 0 }}>{(step.card as EnrichedMoonCard).slateLabel}</span> : null}
+              {(step.card as EnrichedMoonCard).crossSlate ? <span className="rounded px-1.5 py-0.5" style={{ color: MOON, background: "color-mix(in srgb, var(--vault-moonshot) 14%, transparent)", border: `1px solid ${MOON}` }}>Cross-slate</span> : null}
+              {(step.card as EnrichedMoonCard).slateLabel ? <span className="rounded px-1.5 py-0.5 normal-case" style={{ color: "var(--vault-text-faint)", background: "var(--vault-wash-soft)", letterSpacing: 0 }}>{(step.card as EnrichedMoonCard).slateLabel}</span> : null}
             </div>
           )}
           <div>{step.card.legs.map((l) => <MoonLegRow key={l.legId} leg={l} />)}</div>
@@ -129,13 +129,13 @@ export default function MoonshotLaneCard({ lane }: { lane: MoonshotLane | null }
   if (!lane || lane.publicVisible === false) return null;
   return (
     <section className="gtp-fade-up mb-6" aria-label="Moonshot Lane">
-      <div className="overflow-hidden rounded-2xl p-4 sm:p-5" style={{ border: `1px solid ${MOON}`, background: "linear-gradient(135deg, rgba(139,123,240,0.10), rgba(11, 18, 14,0.30))" }}>
+      <div className="overflow-hidden rounded-2xl p-4 sm:p-5" style={{ border: `1px solid ${MOON}`, background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-moonshot) 10%, transparent), color-mix(in srgb, var(--vault-scrim-base) 30%, transparent))" }}>
         <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>🌙 {lane.name}</h2>
             <p className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>{lane.subtitle}</p>
           </div>
-          <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: MOON, background: "rgba(139,123,240,0.12)", border: `1px solid ${MOON}` }}>
+          <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: MOON, background: "color-mix(in srgb, var(--vault-moonshot) 12%, transparent)", border: `1px solid ${MOON}` }}>
             High-volatility · {usd(lane.startingStake)} → {usd(lane.targetReturn)}
           </span>
         </div>
@@ -143,7 +143,7 @@ export default function MoonshotLaneCard({ lane }: { lane: MoonshotLane | null }
           A separate, aggressive paper path — <strong style={{ color: "var(--vault-text-mute)" }}>not</strong> part of the core Dual Bank Builder. Higher variance by design. Paper-only · tracked in Mr. Dub.
         </p>
         {lane.status === "stopped" && lane.restartCandidate && (
-          <div className="mb-3 rounded-xl px-3 py-2.5" style={{ border: `1px solid ${MOON}`, background: "rgba(139,123,240,0.07)" }}>
+          <div className="mb-3 rounded-xl px-3 py-2.5" style={{ border: `1px solid ${MOON}`, background: "color-mix(in srgb, var(--vault-moonshot) 7%, transparent)" }}>
             <span className="font-mono text-[10px] font-bold uppercase tracking-[0.06em]" style={{ color: MOON }}>{lane.restartCandidate.headline}</span>
             <p className="mt-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{lane.restartCandidate.reason}</p>
           </div>

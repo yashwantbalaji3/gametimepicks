@@ -40,7 +40,7 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
   const winnerFreq = p?.moneyline ? frequency(p.moneyline.simulationProbability, g.runCount) : null;
 
   return (
-    <article className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+    <article className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
       {/* ── Identity ── */}
       <GameHeader
         homeName={g.homeTeamName}
@@ -53,7 +53,7 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
         identityLine={[g.venue, card.firstPitchLabel].filter(Boolean).join(" · ") || null}
         status={
           <span className="font-mono uppercase tracking-[0.1em] rounded-full px-2.5 py-1 whitespace-nowrap"
-            style={{ fontSize: 8.5, color: g.status === "ready" ? "var(--vault-success, #7ee2a8)" : "var(--vault-warn, #ea580c)", border: "1px solid var(--vault-rule)" }}>
+            style={{ fontSize: 8.5, color: g.status === "ready" ? "var(--vault-success, var(--vault-accent-mint))" : "var(--vault-warn, var(--vault-risk))", border: "1px solid var(--vault-rule)" }}>
             {g.runCount ? `${g.runCount.toLocaleString()} sims` : "No sim"}
           </span>
         }
@@ -68,7 +68,7 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
           {/* ── Prediction: the answer + the frequency behind it ── */}
           {p?.predictedWinner && p.moneyline ? (
             <div className="rounded-[10px] px-3 py-2.5 flex items-center justify-between gap-3 flex-wrap"
-              style={{ background: "rgba(217,164,65,0.08)", border: "1px solid rgba(217,164,65,0.3)" }}>
+              style={{ background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 30%, transparent)" }}>
               <div className="flex flex-col min-w-0">
                 <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 8.5 }}>Prediction</span>
                 <span className="font-display truncate" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>
@@ -95,7 +95,7 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
           ) : null}
 
           {/* ── Win counts — the raw simulated tally behind the probability ── */}
-          <div className="flex items-center justify-between gap-2 rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+          <div className="flex items-center justify-between gap-2 rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Win counts</span>
             <span className="font-mono" style={{ color: "var(--vault-text)", fontSize: 11.5 }}>
               {g.awayTeam} {Math.round(g.winProbability!.away * g.runCount).toLocaleString()} · {g.homeTeam} {Math.round(g.winProbability!.home * g.runCount).toLocaleString()}
@@ -105,7 +105,7 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
           {/* ── Simulation outcomes ── */}
           <div className="grid grid-cols-2 gap-2">
             {g.finalScores.length ? (
-              <div className="rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+              <div className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
                 <span className="font-mono uppercase tracking-[0.1em] block mb-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Most likely score</span>
                 <span className="font-mono" style={{ color: "var(--vault-text)", fontSize: 13 }}>
                   {g.awayTeam} {g.finalScores[0].away} – {g.finalScores[0].home} {g.homeTeam}
@@ -116,7 +116,7 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
               </div>
             ) : null}
             {g.totalRuns ? (
-              <div className="rounded-[10px] px-3 py-2" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+              <div className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
                 <span className="font-mono uppercase tracking-[0.1em] block mb-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Total runs</span>
                 <span className="font-mono" style={{ color: "var(--vault-text)", fontSize: 13 }}>median {g.totalRuns.median}</span>
                 <span className="font-mono block" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>

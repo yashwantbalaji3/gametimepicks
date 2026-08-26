@@ -78,10 +78,10 @@ function chipStyle(active: boolean) {
     fontSize: 11,
     color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
     background: active
-      ? "linear-gradient(180deg, rgba(52, 211, 153, 0.12) 0%, rgba(52, 211, 153, 0) 90%)"
+      ? "linear-gradient(180deg, var(--vault-gold-dim) 0%, color-mix(in srgb, var(--vault-accent) 0%, transparent) 90%)"
       : "transparent",
     border: active
-      ? "1px solid rgba(52, 211, 153, 0.35)"
+      ? "1px solid color-mix(in srgb, var(--vault-accent) 35%, transparent)"
       : "1px solid var(--vault-border)",
   };
 }
@@ -110,7 +110,7 @@ export default function MlbFilterConsole({
       aria-label="MLB filter console"
       className="mt-6 gtp-console-chrome rounded-[6px] p-3 sm:p-4"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
     >

@@ -92,7 +92,12 @@ test("card surfaces are the GREEN-CAST dark, not cool navy and no longer warm vo
   // warm volcanic brown of the crimson era, which P193 replaced so the chrome no longer carries the
   // old palette's temperature underneath the green base.
   assert.ok(!/rgba\(\s*26,\s*16,\s*11/.test(comps), "no warm volcanic rgba(26,16,11) surfaces remain");
-  assert.ok(/rgba\(11, 18, 14/.test(comps), "cards use the green-cast dark surface");
+  /* P210 (F8 closure): components no longer carry the literal — they consume the token. The
+     invariant is unchanged and now asserted at both ends: the token DEFINES the green-cast value,
+     and components actually consume it. */
+  const css = fs.readFileSync("src/app/globals.css", "utf8");
+  assert.match(css, /--vault-scrim-base:\s*#0B120E/i, "the scrim token IS the green-cast dark");
+  assert.ok(/var\(--vault-scrim-base\)/.test(comps), "cards consume the green-cast surface via its token");
 });
 
 test("premium geometric headline face is wired", () => {

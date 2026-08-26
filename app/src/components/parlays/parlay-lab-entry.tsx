@@ -111,7 +111,7 @@ export default function ParlayLabEntry({ tiers, ledger, showTitle = true }: {
 
   return (
     <section aria-labelledby="lab-entry" className="relative flex flex-col gap-3 rounded-[16px] p-4"
-      style={{ border: "1px solid var(--sport-theme-rule)", background: "linear-gradient(135deg, var(--sport-theme-wash) 0%, rgba(11,18,14,0.5) 62%)" }}>
+      style={{ border: "1px solid var(--sport-theme-rule)", background: "linear-gradient(135deg, var(--sport-theme-wash) 0%, color-mix(in srgb, var(--vault-scrim-base) 50%, transparent) 62%)" }}>
       {/* Scenery. The panel below is in the DOM and readable from the first frame; these leaves sit
           on top and retract, so a reader who never sees the animation loses nothing. */}
       {doorOpen && (
@@ -148,7 +148,7 @@ export default function ParlayLabEntry({ tiers, ledger, showTitle = true }: {
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
             1 · Daily paper bankroll
           </span>
-          <span className="inline-flex items-center rounded-[7px]" style={{ background: "rgba(0,0,0,0.32)", border: "1px solid var(--vault-rule)" }}>
+          <span className="inline-flex items-center rounded-[7px]" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 32%, transparent)", border: "1px solid var(--vault-rule)" }}>
             <span aria-hidden className="pl-2 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>$</span>
             <input type="number" min={0} step={25} inputMode="decimal" placeholder="100"
               value={draft !== "" ? draft : (prefs.bankroll ?? "")}
@@ -176,8 +176,8 @@ export default function ParlayLabEntry({ tiers, ledger, showTitle = true }: {
                   className="gtp-slip-btn rounded-[7px] font-mono uppercase tracking-[0.1em]"
                   style={{
                     padding: "5px 10px", fontSize: 10, cursor: "pointer",
-                    color: on ? "#06140D" : gated ? "var(--vault-text-faint)" : "var(--vault-text-mute)",
-                    background: on ? "var(--gtp-bank-heat)" : "rgba(255,255,255,0.03)",
+                    color: on ? "var(--vault-ink-on-mint)" : gated ? "var(--vault-text-faint)" : "var(--vault-text-mute)",
+                    background: on ? "var(--gtp-bank-heat)" : "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)",
                     border: `1px solid ${on ? "transparent" : gated ? "var(--vault-rule)" : "var(--vault-rule)"}`,
                     fontWeight: on ? 700 : 500,
                     opacity: gated && !on ? 0.62 : 1,
@@ -192,7 +192,7 @@ export default function ParlayLabEntry({ tiers, ledger, showTitle = true }: {
 
       {matched && (
         <div className="flex flex-col gap-2 rounded-[12px] px-3.5 py-3"
-          style={{ background: "rgba(0,0,0,0.24)", border: "1px solid var(--vault-rule)" }}>
+          style={{ background: "color-mix(in srgb, var(--vault-ink-black) 24%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
             <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--sport-theme-ink)", fontSize: 9.5 }}>
               Your tier
@@ -250,7 +250,7 @@ export default function ParlayLabEntry({ tiers, ledger, showTitle = true }: {
 
           {ledger?.priorPolicy && ledger.priorPolicy.gradedDays > 0 && (
             <div className="rounded-[10px] px-3 py-2"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed var(--vault-rule)" }}>
+              style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-rule)" }}>
               <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 11.5, lineHeight: 1.6 }}>
                 <strong style={{ color: "var(--vault-text)" }}>{ledger.priorPolicy.label}:</strong>{" "}
                 {ledger.priorPolicy.wins}&ndash;{ledger.priorPolicy.losses} over{" "}

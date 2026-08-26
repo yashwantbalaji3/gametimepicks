@@ -10,7 +10,7 @@ import FlagBadge from "@/components/flag-badge";
 import type { SpecialLeg, WorldCupSpecialCard } from "@/lib/world-cup/world-cup-specials";
 import type { June20SpecialsPreview } from "@/lib/world-cup/world-cup-specials-preview";
 
-const GOLD = "var(--vault-gold, #D4AF37)";
+const GOLD = "var(--vault-gold, var(--vault-gold))";
 const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`;
 const american = (o: number) => (o > 0 ? `+${o}` : `${o}`);
 const shortStart = (iso: string | null) => {
@@ -30,7 +30,7 @@ function RoleBadge({ tier }: { tier?: string }) {
   if (!tier || !ROLE_LABEL[tier]) return null;
   return (
     <span className="rounded-full px-1.5 py-0.5 font-mono text-[8.5px] font-bold uppercase tracking-[0.06em]"
-      style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.12)", border: "1px solid rgba(110,231,168,0.4)" }}>
+      style={{ color: "var(--vault-success)", background: "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 40%, transparent)" }}>
       {ROLE_LABEL[tier]}
     </span>
   );
@@ -42,7 +42,7 @@ function LegAvatar({ leg }: { leg: SpecialLeg }) {
       <span className="relative inline-block shrink-0" style={{ width: 26, height: 26 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={leg.photoUrl} alt={leg.participant} width={26} height={26} loading="lazy" className="rounded-full object-cover"
-          style={{ width: 26, height: 26, border: "1px solid var(--vault-border)", background: "rgba(255,255,255,0.04)" }} />
+          style={{ width: 26, height: 26, border: "1px solid var(--vault-border)", background: "var(--vault-wash-soft)" }} />
         {leg.countryCode && (
           <span className="absolute -bottom-1 -right-1" style={{ transform: "scale(0.6)", transformOrigin: "bottom right" }}>
             <FlagBadge code={leg.countryCode} size="sm" ariaLabel={leg.team ?? ""} />
@@ -54,7 +54,7 @@ function LegAvatar({ leg }: { leg: SpecialLeg }) {
   if (leg.countryCode) return <span className="shrink-0"><FlagBadge code={leg.countryCode} size="sm" ariaLabel={leg.participant} /></span>;
   return (
     <span className="inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] text-[11px]"
-      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid var(--vault-border)" }} aria-label="Match market">⚽</span>
+      style={{ background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }} aria-label="Match market">⚽</span>
   );
 }
 
@@ -84,7 +84,7 @@ function LegRow({ leg }: { leg: SpecialLeg }) {
 function SpecialCard({ card, index }: { card: WorldCupSpecialCard; index: number }) {
   const playerLegs = card.legs.filter((l) => l.kind === "player");
   return (
-    <div className="overflow-hidden rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.015)" }}>
+    <div className="overflow-hidden rounded-xl px-3.5 py-3" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>
           <span style={{ color: GOLD }}>Special #{index + 1}</span> · {card.title}
@@ -98,7 +98,7 @@ function SpecialCard({ card, index }: { card: WorldCupSpecialCard; index: number
         <span>· model {Math.round(card.jointModelProbability * 100)}% all-hit</span>
       </div>
       {card.roleQualitySummary && (
-        <div className="mt-1 rounded-md px-2 py-1 text-[10.5px]" style={{ background: "rgba(110,231,168,0.06)", color: "var(--vault-text-mute)" }}>
+        <div className="mt-1 rounded-md px-2 py-1 text-[10.5px]" style={{ background: "color-mix(in srgb, var(--gtp-success-on-dark) 6%, transparent)", color: "var(--vault-text-mute)" }}>
           <span className="font-mono uppercase tracking-[0.06em]" style={{ color: "var(--vault-success)", fontSize: 9 }}>role-screened</span> · {card.roleQualitySummary}
         </div>
       )}
@@ -139,7 +139,7 @@ export default function WorldCupSpecialsPreviewBox({ data }: { data: June20Speci
   return (
     <section className="gtp-fade-up" aria-label="World Cup Specials (June 20 preview)">
       <div className="overflow-hidden rounded-2xl p-4 sm:p-5"
-        style={{ border: `1px solid ${GOLD}`, background: "linear-gradient(135deg, rgba(212,175,55,0.10), rgba(225,29,42,0.06) 55%, rgba(11, 18, 14,0.30))" }}>
+        style={{ border: `1px solid ${GOLD}`, background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-gold) 10%, transparent), color-mix(in srgb, var(--vault-lava-red) 6%, transparent) 55%, color-mix(in srgb, var(--vault-scrim-base) 30%, transparent))" }}>
         <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>🏆 World Cup Specials</h2>
@@ -150,7 +150,7 @@ export default function WorldCupSpecialsPreviewBox({ data }: { data: June20Speci
           <div className="flex flex-wrap gap-1.5">
             {["High-volatility", "Paper-only", "Role-screened", "Odds-backed"].map((b) => (
               <span key={b} className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]"
-                style={{ color: GOLD, background: "rgba(212,175,55,0.12)", border: `1px solid ${GOLD}` }}>{b}</span>
+                style={{ color: GOLD, background: "color-mix(in srgb, var(--vault-gold) 12%, transparent)", border: `1px solid ${GOLD}` }}>{b}</span>
             ))}
           </div>
         </div>

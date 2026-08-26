@@ -96,7 +96,7 @@ export default function Nav() {
     <header
       className="sticky top-0 z-30 backdrop-blur-xl"
       style={{
-        background: "rgba(11, 18, 14, 0.86)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 86%, transparent)",
         borderBottom: "1px solid var(--vault-border)",
       }}
     >
@@ -149,7 +149,7 @@ export default function Nav() {
                       height: 4,
                       borderRadius: 999,
                       background: "var(--vault-gold-dim)",
-                      boxShadow: "0 0 6px rgba(52, 211, 153, 0.30)",
+                      boxShadow: "0 0 6px color-mix(in srgb, var(--vault-accent) 30%, transparent)",
                     }}
                   />
                 )}
@@ -162,14 +162,14 @@ export default function Nav() {
                       ? "var(--vault-gold-bright)"
                       : "var(--vault-text-mute)",
                     background: active
-                      ? "linear-gradient(180deg, rgba(52, 211, 153, 0.14) 0%, rgba(52, 211, 153, 0) 90%)"
+                      ? "linear-gradient(180deg, color-mix(in srgb, var(--vault-accent) 14%, transparent) 0%, color-mix(in srgb, var(--vault-accent) 0%, transparent) 90%)"
                       : "transparent",
                     border: active
-                      ? "1px solid rgba(52, 211, 153, 0.32)"
+                      ? "1px solid color-mix(in srgb, var(--vault-accent) 32%, transparent)"
                       : "1px solid transparent",
                     textShadow:
                       active && isSport
-                        ? "0 0 14px rgba(52, 211, 153, 0.48)"
+                        ? "0 0 14px color-mix(in srgb, var(--vault-accent) 48%, transparent)"
                         : "none",
                   }}
                 >

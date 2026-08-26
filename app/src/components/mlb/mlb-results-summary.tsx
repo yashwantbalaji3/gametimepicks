@@ -23,7 +23,7 @@ export default function MlbResultsSummary({ report }: Props) {
       className="reveal vault-data-orbit relative overflow-hidden -mx-4 sm:-mx-6 px-4 sm:px-6 pt-6 pb-4 rounded-[8px]"
       style={{
         background:
-          "linear-gradient(180deg, rgba(10, 6, 4, 0.55) 0%, rgba(11, 18, 14, 0.62) 100%)",
+          "linear-gradient(180deg, color-mix(in srgb, var(--vault-scrim-cocoa) 55%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-base) 62%, transparent) 100%)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -33,7 +33,7 @@ export default function MlbResultsSummary({ report }: Props) {
           className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
           style={{
             background: "var(--vault-gold-bright)",
-            boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
+            boxShadow: "0 0 8px color-mix(in srgb, var(--vault-accent) 60%, transparent)",
           }}
         />
         <span
@@ -50,7 +50,7 @@ export default function MlbResultsSummary({ report }: Props) {
             color: "var(--vault-gold-bright)",
             fontSize: "clamp(48px, 10vw, 96px)",
             textShadow:
-              "0 0 24px rgba(52, 211, 153, 0.45), 0 0 8px rgba(52, 211, 153, 0.55)",
+              "0 0 24px color-mix(in srgb, var(--vault-accent) 45%, transparent), 0 0 8px color-mix(in srgb, var(--vault-accent) 55%, transparent)",
           }}
         >
           {hit}
@@ -90,7 +90,7 @@ export default function MlbResultsSummary({ report }: Props) {
           className="mt-5 px-4 py-3 rounded-[3px] flex items-start gap-3"
           style={{
             background: "var(--vault-warn-dim)",
-            border: "1px solid rgba(52, 211, 153, 0.30)",
+            border: "1px solid color-mix(in srgb, var(--vault-accent) 30%, transparent)",
           }}
         >
           <span
@@ -116,7 +116,7 @@ export default function MlbResultsSummary({ report }: Props) {
           className="mt-3 px-4 py-3 rounded-[3px] flex items-start gap-3"
           style={{
             background: "var(--vault-warn-dim)",
-            border: "1px solid rgba(52, 211, 153, 0.30)",
+            border: "1px solid color-mix(in srgb, var(--vault-accent) 30%, transparent)",
           }}
         >
           <span

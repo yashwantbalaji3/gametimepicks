@@ -53,7 +53,7 @@ export default function UpcomingSlateStrip({
         <div
           className="rounded-[6px] px-4 py-5 text-[13px]"
           style={{
-            background: "rgba(11, 18, 14, 0.55)",
+            background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
             border: "1px solid var(--vault-border)",
             color: "var(--vault-text-mute)",
           }}
@@ -97,8 +97,8 @@ export default function UpcomingSlateStrip({
                   interactive ? "var(--vault-border)" : "var(--vault-rule)"
                 }`,
                 background: interactive
-                  ? "rgba(11, 18, 14, 0.45)"
-                  : "rgba(11, 18, 14, 0.30)",
+                  ? "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)"
+                  : "color-mix(in srgb, var(--vault-scrim-base) 30%, transparent)",
                 minHeight: 88,
               }}
             >

@@ -51,8 +51,8 @@ function Chip({ active, label, count, onClick }: { active: boolean; label: strin
       style={{
         fontSize: 10.5, fontWeight: 700, cursor: count === 0 && !active ? "not-allowed" : "pointer",
         border: `1px solid ${active ? "var(--gtp-bank-heat)" : "var(--vault-border)"}`,
-        color: active ? "#1A0E06" : count === 0 ? "var(--vault-text-faint)" : "var(--vault-text)",
-        background: active ? "var(--gtp-bank-heat)" : "rgba(11, 18, 14,0.5)",
+        color: active ? "var(--vault-on-accent-deep)" : count === 0 ? "var(--vault-text-faint)" : "var(--vault-text)",
+        background: active ? "var(--gtp-bank-heat)" : "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)",
         opacity: count === 0 && !active ? 0.4 : 1,
       }}
     >

@@ -110,7 +110,7 @@ export default function ModelMarketComparison({
         <div
           style={{
             border: "1px solid var(--vault-warn)",
-            background: "rgba(240, 199, 94, 0.06)",
+            background: "color-mix(in srgb, var(--vault-warn) 6%, transparent)",
             borderRadius: 8,
             padding: 10,
             fontSize: 11.5,

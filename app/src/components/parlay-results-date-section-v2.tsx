@@ -182,8 +182,8 @@ function DateHeader({
           className="font-display font-semibold tabular px-2 py-0.5 rounded-[3px]"
           style={{
             color: "var(--vault-gold-bright)",
-            background: "rgba(52, 211, 153, 0.10)",
-            border: "1px solid rgba(52, 211, 153, 0.35)",
+            background: "color-mix(in srgb, var(--vault-accent) 10%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--vault-accent) 35%, transparent)",
             fontSize: 12,
           }}
         >

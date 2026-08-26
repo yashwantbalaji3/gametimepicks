@@ -503,7 +503,7 @@ function SelectToggle({
       className="w-full inline-flex items-center justify-center gap-2 rounded-[6px] py-2 font-mono uppercase tracking-[0.14em] transition-colors"
       style={{
         color: selected ? "var(--vault-success)" : "var(--vault-text-mute)",
-        background: selected ? "rgba(74, 222, 128, 0.08)" : "var(--gtp-card-sunken)",
+        background: selected ? "color-mix(in srgb, var(--vault-success) 8%, transparent)" : "var(--gtp-card-sunken)",
         border: `1px ${selected ? "solid" : "dashed"} ${accent}`,
         fontSize: 11,
         cursor: "pointer",

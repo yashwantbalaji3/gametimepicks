@@ -24,7 +24,7 @@ const impliedPct = (a: number) => Math.round((1 / dec(a)) * 100);
 
 function SectionCard({ id, tag, title, sub, children }: { id: string; tag: string; title: string; sub: string; children: React.ReactNode }) {
   return (
-    <section id={id} className="rounded-[14px] p-4 flex flex-col gap-2.5 scroll-mt-[60px]" style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border)" }}>
+    <section id={id} className="rounded-[14px] p-4 flex flex-col gap-2.5 scroll-mt-[60px]" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="flex flex-col gap-0.5">
         <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--gtp-bank-heat)", fontSize: 9 }}>{tag}</span>
         <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{title}</h3>
@@ -38,7 +38,7 @@ function SectionCard({ id, tag, title, sub, children }: { id: string; tag: strin
 const GATE_NOTE = "Today's MLB board has not been posted yet — waiting on the sportsbooks. This section fills in automatically the moment real MLB markets post; no fabricated picks in the meantime.";
 function GatedSlot({ label }: { label: string }) {
   return (
-    <div className="rounded-[10px] px-3.5 py-4 text-center" style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-rule)" }}>
+    <div className="rounded-[10px] px-3.5 py-4 text-center" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-rule)" }}>
       <p className="font-semibold" style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>{label}</p>
       <p className="mx-auto mt-1 max-w-sm text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>{GATE_NOTE}</p>
     </div>
@@ -57,7 +57,7 @@ function TopList({ props, n }: { props: BoardProp[]; n: number }) {
   return (
     <ol className="flex flex-col gap-1.5 list-none">
       {top.map((p, i) => (
-        <li key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2 flex items-center gap-2.5 min-w-0" style={{ background: "rgba(7, 11, 9,0.45)", border: "1px solid var(--vault-rule)" }}>
+        <li key={`${p.player}:${p.market}:${i}`} className="rounded-[10px] px-3 py-2 flex items-center gap-2.5 min-w-0" style={{ background: "color-mix(in srgb, var(--vault-bg) 45%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <span className="font-display tabular shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 12, fontWeight: 800, width: 14 }}>{i + 1}</span>
           <span className="relative shrink-0">
             <PlayerAvatar name={p.player} photo={p.photoUrl} size={22} />

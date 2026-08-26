@@ -26,7 +26,7 @@ const resultColor = (r: CalCell["result"]) => r === "win" ? win : r === "loss" ?
 
 function StatTile({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
   return (
-    <div className="rounded-xl px-3 py-2.5 min-w-0" style={{ background: "rgba(255,255,255,0.025)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-xl px-3 py-2.5 min-w-0" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2.5%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="font-display tracking-tight truncate" style={{ color: color ?? "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>{value}</div>
       <div className="font-mono uppercase tracking-[0.1em] truncate" style={{ color: faint, fontSize: 8.5 }}>{label}</div>
       {sub ? <div className="mt-0.5 truncate text-[10px]" style={{ color: "var(--vault-text-mute)" }}>{sub}</div> : null}
@@ -37,7 +37,7 @@ function StatTile({ label, value, sub, color }: { label: string; value: string; 
 function DayCell({ cell, onPick }: { cell: CalCell; onPick: (d: LedgerDay) => void }) {
   if (!cell.inMonth) return <div aria-hidden className="rounded-lg" style={{ minHeight: 64 }} />;
   const r = cell.result, d = cell.day;
-  const tint = r === "win" ? "rgba(110,231,168,0.10)" : r === "loss" ? "rgba(225,29,42,0.10)" : "rgba(255,255,255,0.015)";
+  const tint = r === "win" ? "color-mix(in srgb, var(--gtp-success-on-dark) 10%, transparent)" : r === "loss" ? "color-mix(in srgb, var(--vault-lava-red) 10%, transparent)" : "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)";
   const ring = r === "win" ? "color-mix(in srgb, var(--vault-success) 38%, transparent)" : r === "loss" ? "color-mix(in srgb, var(--gtp-bank-heat) 38%, transparent)" : "var(--vault-border)";
   const clickable = !!d;
   // A winning (cleared) day gets a one-shot "banked" glow (gtp-day-win); reduced-motion disables it.
@@ -69,7 +69,7 @@ function EventRow({ e }: { e: LedgerEvent }) {
   const tone = won ? win : lost ? loss : "var(--vault-gold-bright)";
   const meta = e.category ? PRODUCT_META[e.category] : undefined;
   return (
-    <div className="rounded-lg px-3 py-2" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-border)", borderLeft: `2px solid ${tone}` }}>
+    <div className="rounded-lg px-3 py-2" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)", borderLeft: `2px solid ${tone}` }}>
       <div className="flex items-center justify-between gap-2">
         <span className="text-[11.5px] font-medium truncate" style={{ color: "var(--vault-text)" }}>
           {meta ? `${meta.glyph} ${meta.label}` : (e.category ?? "—")}{e.laneId ? ` · ${e.laneId.replace("lane-", "Lane ").replace("-ladder", "")}` : ""}{e.step ? ` · Step ${e.step}` : ""}
@@ -114,9 +114,9 @@ function DayDrawer({ day, onClose }: { day: LedgerDay; onClose: () => void }) {
   const orderedKeys = [...groups.keys()].sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99));
   return (
     <div role="dialog" aria-modal="true" aria-label={`Ledger detail for ${day.date}`} className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center" onClick={onClose}>
-      <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.62)", backdropFilter: "blur(2px)" }} />
+      <div className="absolute inset-0" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 62%, transparent)", backdropFilter: "blur(2px)" }} />
       <div onClick={(e) => e.stopPropagation()} className="relative w-full sm:max-w-lg max-h-[85vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl px-4 py-4 animate-[slideup_.18s_ease-out]"
-        style={{ background: "var(--vault-surface, #140d09)", border: "1px solid var(--vault-rule)", boxShadow: "0 -8px 40px rgba(0,0,0,0.5)" }}>
+        style={{ background: "var(--vault-surface, #140d09)", border: "1px solid var(--vault-rule)", boxShadow: "0 -8px 40px color-mix(in srgb, var(--vault-ink-black) 50%, transparent)" }}>
         {/* Receipt header — date · opening → closing bankroll · P/L · won/lost summary. The eyebrow
             marks this as a settled-day receipt so the hierarchy reads top-down. */}
         <div className="flex items-start justify-between gap-3">
@@ -139,7 +139,7 @@ function DayDrawer({ day, onClose }: { day: LedgerDay; onClose: () => void }) {
         {/* Verified badge — settles only from official sources. Micro-pulse signals an audited fact. */}
         <div className="mt-2.5 flex flex-wrap items-center gap-2">
           <span className="gtp-verified-pulse inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em] text-[9px]"
-            style={{ color: "var(--vault-success)", background: "rgba(110,231,168,0.08)", border: "1px solid rgba(110,231,168,0.3)" }}>
+            style={{ color: "var(--vault-success)", background: "color-mix(in srgb, var(--gtp-success-on-dark) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 30%, transparent)" }}>
             <span aria-hidden>✓</span> Verified · official results
           </span>
           <span className="font-mono text-[9.5px]" style={{ color: faint }}>Paper-only — no wagers placed</span>
@@ -183,7 +183,7 @@ export default function LedgerCalendar({ months, stats }: { months: CalMonth[]; 
       </div>
 
       {/* Interactivity callout — make it unmistakable that days are tappable (users may not realize). */}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl px-3 py-2" style={{ background: "rgba(217,164,65,0.06)", border: "1px solid var(--vault-rule)" }}>
+      <div className="flex flex-wrap items-center gap-2 rounded-xl px-3 py-2" style={{ background: "color-mix(in srgb, var(--vault-crown) 6%, transparent)", border: "1px solid var(--vault-rule)" }}>
         <span aria-hidden style={{ fontSize: 13 }}>👆</span>
         <span className="text-[12px] font-medium" style={{ color: "var(--vault-text)" }}>Tap any colored day</span>
         <span className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>to open its receipt — every ticket, exact legs, official result, and the bankroll move.</span>
@@ -191,7 +191,7 @@ export default function LedgerCalendar({ months, stats }: { months: CalMonth[]; 
 
       {/* Calendar months */}
       {months.map((m) => (
-        <div key={m.key} className="rounded-2xl px-2.5 py-3" style={{ background: "rgba(255,255,255,0.015)", border: "1px solid var(--vault-border)" }}>
+        <div key={m.key} className="rounded-2xl px-2.5 py-3" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px solid var(--vault-border)" }}>
           <div className="mb-2 px-1 font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>{m.label}</div>
           <div className="grid grid-cols-7 gap-1">
             {WD.map((w, i) => <div key={i} className="text-center font-mono uppercase tracking-[0.1em]" style={{ color: faint, fontSize: 8.5 }}>{w}</div>)}
@@ -201,17 +201,17 @@ export default function LedgerCalendar({ months, stats }: { months: CalMonth[]; 
       ))}
 
       {/* Legend key — explicit color + product mapping so the heatmap reads at a glance. */}
-      <div className="flex flex-col gap-2 rounded-xl px-3 py-2.5" style={{ background: "rgba(255,255,255,0.015)", border: "1px solid var(--vault-border)" }}>
+      <div className="flex flex-col gap-2 rounded-xl px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px solid var(--vault-border)" }}>
         <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
           <span className="font-mono uppercase tracking-[0.12em] text-[8.5px]" style={{ color: faint }}>Color key</span>
           <span className="inline-flex items-center gap-1.5 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>
-            <span aria-hidden className="inline-block rounded-sm" style={{ width: 11, height: 11, background: "rgba(110,231,168,0.18)", border: `1px solid color-mix(in srgb, ${win} 45%, transparent)` }} /> Up day
+            <span aria-hidden className="inline-block rounded-sm" style={{ width: 11, height: 11, background: "color-mix(in srgb, var(--gtp-success-on-dark) 18%, transparent)", border: `1px solid color-mix(in srgb, ${win} 45%, transparent)` }} /> Up day
           </span>
           <span className="inline-flex items-center gap-1.5 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>
-            <span aria-hidden className="inline-block rounded-sm" style={{ width: 11, height: 11, background: "rgba(225,29,42,0.18)", border: `1px solid color-mix(in srgb, ${loss} 45%, transparent)` }} /> Down day
+            <span aria-hidden className="inline-block rounded-sm" style={{ width: 11, height: 11, background: "color-mix(in srgb, var(--vault-lava-red) 18%, transparent)", border: `1px solid color-mix(in srgb, ${loss} 45%, transparent)` }} /> Down day
           </span>
           <span className="inline-flex items-center gap-1.5 text-[11px]" style={{ color: "var(--vault-text-mute)" }}>
-            <span aria-hidden className="inline-block rounded-sm" style={{ width: 11, height: 11, background: "rgba(255,255,255,0.04)", border: "1px solid var(--vault-border)" }} /> Flat / no action
+            <span aria-hidden className="inline-block rounded-sm" style={{ width: 11, height: 11, background: "var(--vault-wash-soft)", border: "1px solid var(--vault-border)" }} /> Flat / no action
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 font-mono text-[10px]" style={{ color: faint }}>

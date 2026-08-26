@@ -27,9 +27,9 @@ function VolBadge({ pick }: { pick: ModelQualifiedPick }) {
       className="rounded-full px-1.5 py-0.5 font-mono uppercase tracking-[0.08em]"
       style={{
         fontSize: 8,
-        color: lower ? "var(--vault-success)" : "#e7b15a",
-        background: lower ? "rgba(110,231,168,0.12)" : "rgba(231,177,90,0.12)",
-        border: `1px solid color-mix(in srgb, ${lower ? "var(--vault-success)" : "#e7b15a"} 35%, transparent)`,
+        color: lower ? "var(--vault-success)" : "var(--vault-crown-warm)",
+        background: lower ? "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)" : "color-mix(in srgb, var(--vault-crown-warm) 12%, transparent)",
+        border: `1px solid color-mix(in srgb, ${lower ? "var(--vault-success)" : "var(--vault-crown-warm)"} 35%, transparent)`,
       }}
     >
       {lower ? "Addable leg" : "Higher-volatility"}
@@ -97,7 +97,7 @@ export default function ModelPlayerPropsMatrix({ data }: { data: ModelQualifiedP
       <div className="hidden lg:block overflow-hidden rounded-[12px]" style={{ border: "1px solid var(--vault-rule)" }}>
         <div
           className="grid items-stretch"
-          style={{ gridTemplateColumns: `200px repeat(${DISPLAY_COLUMNS.length}, minmax(0, 1fr))`, background: "rgba(255,255,255,0.02)" }}
+          style={{ gridTemplateColumns: `200px repeat(${DISPLAY_COLUMNS.length}, minmax(0, 1fr))`, background: "var(--vault-wash-faint)" }}
         >
           <div className="px-3 py-2.5 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>Game</div>
           {DISPLAY_COLUMNS.map((c) => (
@@ -110,7 +110,7 @@ export default function ModelPlayerPropsMatrix({ data }: { data: ModelQualifiedP
           <div
             key={g.gameId}
             className="grid items-stretch"
-            style={{ gridTemplateColumns: `200px repeat(${DISPLAY_COLUMNS.length}, minmax(0, 1fr))`, borderTop: "1px solid var(--vault-rule)", background: gi % 2 ? "rgba(255,255,255,0.012)" : "transparent" }}
+            style={{ gridTemplateColumns: `200px repeat(${DISPLAY_COLUMNS.length}, minmax(0, 1fr))`, borderTop: "1px solid var(--vault-rule)", background: gi % 2 ? "color-mix(in srgb, var(--vault-wash-base) 1.2%, transparent)" : "transparent" }}
           >
             <div className="px-3 py-3 flex flex-col gap-0.5">
               <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{g.matchup}</span>
@@ -133,8 +133,8 @@ export default function ModelPlayerPropsMatrix({ data }: { data: ModelQualifiedP
       {/* MOBILE: per-game cards, markets stacked */}
       <div className="lg:hidden flex flex-col gap-3">
         {data.games.map((g) => (
-          <div key={g.gameId} className="rounded-[12px] overflow-hidden" style={{ border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.4)" }}>
-            <div className="px-3 py-2.5 flex items-center justify-between" style={{ borderBottom: "1px solid var(--vault-rule)", background: "rgba(255,255,255,0.02)" }}>
+          <div key={g.gameId} className="rounded-[12px] overflow-hidden" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-bg) 40%, transparent)" }}>
+            <div className="px-3 py-2.5 flex items-center justify-between" style={{ borderBottom: "1px solid var(--vault-rule)", background: "var(--vault-wash-faint)" }}>
               <span className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 13 }}>{g.matchup}</span>
               <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
                 {g.started ? "Game started" : g.kickoffEt}

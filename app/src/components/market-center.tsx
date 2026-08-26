@@ -95,7 +95,7 @@ function ModeChip({ mode }: { mode: IntelligenceMode }) {
 }
 
 const CARD: React.CSSProperties = {
-  background: "rgba(11, 18, 14, 0.45)",
+  background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
   border: "1px solid var(--vault-border)",
   borderRadius: 10,
 };

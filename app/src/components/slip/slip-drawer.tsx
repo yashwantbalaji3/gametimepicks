@@ -54,9 +54,9 @@ export default function SlipDrawer() {
           aria-label="Your slip"
           className="flex flex-col gap-2.5 rounded-[14px] p-3.5"
           style={{
-            background: "var(--vault-panel-elevated, rgba(11,18,14,0.97))",
+            background: "var(--vault-panel-elevated, color-mix(in srgb, var(--vault-scrim-base) 97%, transparent))",
             border: "1px solid var(--vault-border-strong)",
-            boxShadow: "0 18px 50px -20px rgba(0,0,0,0.8)",
+            boxShadow: "0 18px 50px -20px color-mix(in srgb, var(--vault-ink-black) 80%, transparent)",
             maxHeight: "min(72vh, 640px)",
           }}
         >
@@ -78,7 +78,7 @@ export default function SlipDrawer() {
           <ul className="flex flex-col gap-2 list-none m-0 p-0 overflow-y-auto" style={{ maxHeight: "38vh" }}>
             {legs.map((l) => (
               <li key={l.key} className="flex items-center gap-2 rounded-[10px] px-2.5 py-2"
-                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+                style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
                 <span className="relative shrink-0">
                   <PlayerAvatar name={l.player} photo={l.photoUrl ?? null} size={22} />
                   {l.teamAbbr && crestSport(l.sport) ? <span className="absolute -bottom-1 -right-1"><TeamLogo team={l.teamAbbr} sport={crestSport(l.sport)!} size="sm" /></span> : null}
@@ -90,7 +90,7 @@ export default function SlipDrawer() {
                   </span>
                 </span>
                 <label className="shrink-0 inline-flex items-center rounded-[6px]"
-                  style={{ background: "var(--gtp-card-sunken, rgba(0,0,0,0.3))", border: "1px solid var(--vault-rule)" }}>
+                  style={{ background: "var(--gtp-card-sunken, color-mix(in srgb, var(--vault-ink-black) 30%, transparent))", border: "1px solid var(--vault-rule)" }}>
                   <span className="sr-only">Paper stake for {l.player}</span>
                   <span aria-hidden className="pl-1.5 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>$</span>
                   <input
@@ -135,7 +135,7 @@ export default function SlipDrawer() {
       ) : (
         <button type="button" onClick={() => setOpen(true)}
           className="gtp-sim-cta flex items-center gap-2 rounded-[12px] px-3.5 py-2.5"
-          style={{ background: "var(--vault-panel-elevated, rgba(11,18,14,0.97))", border: "1px solid var(--vault-border-strong)", boxShadow: "0 12px 34px -18px rgba(0,0,0,0.8)", cursor: "pointer" }}>
+          style={{ background: "var(--vault-panel-elevated, color-mix(in srgb, var(--vault-scrim-base) 97%, transparent))", border: "1px solid var(--vault-border-strong)", boxShadow: "0 12px 34px -18px color-mix(in srgb, var(--vault-ink-black) 80%, transparent)", cursor: "pointer" }}>
           <span aria-hidden style={{ fontSize: 14 }}>🧾</span>
           <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text)", fontSize: 10 }}>
             Your slip · {legs.length}

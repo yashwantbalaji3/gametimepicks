@@ -102,7 +102,7 @@ export default function MrDubPage() {
             })()}
           </span>
           <p className="mt-0.5 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-            <span className="mr-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em] text-[9px]" style={{ color: "var(--vault-gold)", background: "rgba(217,164,65,0.12)", border: "1px solid rgba(217,164,65,0.35)" }}><span aria-hidden>⚗</span> Paper Portfolio Scientist</span>
+            <span className="mr-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em] text-[9px]" style={{ color: "var(--vault-gold)", background: "color-mix(in srgb, var(--vault-crown) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 35%, transparent)" }}><span aria-hidden>⚗</span> Paper Portfolio Scientist</span>
             Every paper card, every official result, every bankroll move — no wagers placed, not advice.
           </p>
         </div>
@@ -148,12 +148,12 @@ export default function MrDubPage() {
           <section>
             <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot Lane" sub="Independent daily high-volatility longshot cards (current MLB player props) — tracked apart from the core ladder. Higher variance by design; settles from official box scores." />
             <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
-              🌙 Moonshot exposure <span className="font-mono" style={{ color: "#b9a8ff" }}>{usd(portfolio.moonshot.exposure)}</span> · separate from the core lanes. Record {portfolio.moonshot.record?.wins ?? 0}–{portfolio.moonshot.record?.losses ?? 0}. Does not affect the core Bank Builder record. Paper-only.
+              🌙 Moonshot exposure <span className="font-mono" style={{ color: "var(--vault-moonshot-bright)" }}>{usd(portfolio.moonshot.exposure)}</span> · separate from the core lanes. Record {portfolio.moonshot.record?.wins ?? 0}–{portfolio.moonshot.record?.losses ?? 0}. Does not affect the core Bank Builder record. Paper-only.
             </p>
             {moonshotLane ? (
               <MoonshotLaneTracker lane={moonshotLane} record={portfolio.moonshot.record} exposure={portfolio.moonshot.exposure} mode="compact" />
             ) : (
-              <Link href="/moonshot" className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "#b9a8ff", textDecoration: "none" }}>Open the Moonshot Lane daily tracker →</Link>
+              <Link href="/moonshot" className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-moonshot-bright)", textDecoration: "none" }}>Open the Moonshot Lane daily tracker →</Link>
             )}
           </section>
         ) : null}

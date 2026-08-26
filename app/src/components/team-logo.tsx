@@ -143,13 +143,13 @@ export default function TeamLogo({
         width: px,
         height: px,
         borderRadius: 10,
-        background: "rgba(11, 18, 14, 0.45)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
         border: highlight
-          ? "1.5px solid rgba(52, 211, 153, 0.65)"
+          ? "1.5px solid color-mix(in srgb, var(--vault-accent) 65%, transparent)"
           : "1px solid var(--vault-border)",
         boxShadow: highlight
-          ? "0 0 14px rgba(52, 211, 153, 0.30), inset 0 0 0 1px rgba(52, 211, 153, 0.15)"
-          : "inset 0 0 0 1px rgba(255, 255, 255, 0.03)",
+          ? "0 0 14px color-mix(in srgb, var(--vault-accent) 30%, transparent), inset 0 0 0 1px color-mix(in srgb, var(--vault-accent) 15%, transparent)"
+          : "inset 0 0 0 1px color-mix(in srgb, var(--vault-wash-base) 3%, transparent)",
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -167,7 +167,7 @@ export default function TeamLogo({
           objectFit: "contain",
           // ESPN logos are transparent PNGs — a subtle drop-shadow
           // separates them from the dark card background.
-          filter: "drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55))",
+          filter: "drop-shadow(0 1px 3px color-mix(in srgb, var(--vault-ink-black) 55%, transparent))",
         }}
       />
     </span>

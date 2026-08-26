@@ -60,7 +60,7 @@ export default function WhatThisIs() {
           <div
             key={l.key}
             className="flex flex-col gap-2 rounded-[12px] px-4 py-3.5"
-            style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.45)" }}
+            style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)" }}
           >
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: l.accent, fontSize: 9 }}>
               {l.kicker}

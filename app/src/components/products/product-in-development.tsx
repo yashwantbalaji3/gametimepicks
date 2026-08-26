@@ -54,7 +54,7 @@ export default function ProductInDevelopment({
         </p>
         <p
           className="mt-1 rounded-lg px-3.5 py-2.5 text-[13px] leading-relaxed"
-          style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(7,11,9,0.5)", margin: 0 }}
+          style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-bg) 50%, transparent)", margin: 0 }}
         >
           <strong style={{ color: "var(--vault-text)", fontWeight: 600 }}>There are no picks on this page, and there will not be until the work below is finished.</strong>{" "}
           {product.basis}
@@ -95,7 +95,7 @@ export default function ProductInDevelopment({
             <li
               key={s.id}
               className="flex flex-col gap-1 rounded-lg px-3 py-2.5"
-              style={{ border: "1px solid var(--vault-rule)", background: "rgba(7,11,9,0.4)" }}
+              style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-bg) 40%, transparent)" }}
             >
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                 <span className="text-[13.5px] font-semibold" style={{ color: "var(--vault-text)" }}>{s.name}</span>

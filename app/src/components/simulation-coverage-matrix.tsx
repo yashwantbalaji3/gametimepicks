@@ -14,11 +14,11 @@ import {
 
 const STATUS_META: Record<MarketStatus, { label: string; color: string; bg: string }> = {
   supported: { label: "Supported", color: "var(--vault-success)", bg: "rgba(34,197,94,0.10)" },
-  conditional: { label: "Conditional", color: "var(--vault-gold)", bg: "rgba(234,179,8,0.10)" },
-  experimental: { label: "Experimental", color: "var(--vault-warn)", bg: "rgba(234,88,12,0.10)" },
-  provider_needed: { label: "Provider needed", color: "var(--vault-text-mute)", bg: "rgba(255,255,255,0.04)" },
-  settlement_blocked: { label: "Settlement blocked", color: "var(--vault-warn)", bg: "rgba(234,88,12,0.08)" },
-  coming_soon: { label: "Coming soon", color: "var(--vault-text-faint)", bg: "rgba(255,255,255,0.03)" },
+  conditional: { label: "Conditional", color: "var(--vault-gold)", bg: "color-mix(in srgb, var(--vault-pending) 10%, transparent)" },
+  experimental: { label: "Experimental", color: "var(--vault-warn)", bg: "color-mix(in srgb, var(--vault-risk) 10%, transparent)" },
+  provider_needed: { label: "Provider needed", color: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)" },
+  settlement_blocked: { label: "Settlement blocked", color: "var(--vault-warn)", bg: "color-mix(in srgb, var(--vault-risk) 8%, transparent)" },
+  coming_soon: { label: "Coming soon", color: "var(--vault-text-faint)", bg: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)" },
 };
 
 function StatusPill({ status }: { status: MarketStatus }) {
@@ -75,7 +75,7 @@ export default function SimulationCoverageMatrix({ sport }: { sport?: "mlb" | "n
             <div
               key={g.key}
               className="rounded-[12px] px-4 py-4 flex flex-col"
-              style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border)" }}
+              style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)" }}
             >
               <div className="flex flex-col gap-0.5 pb-1">
                 <span style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>{g.label}</span>

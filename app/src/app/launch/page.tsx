@@ -222,7 +222,7 @@ export default function LaunchCommandCenter() {
 
   const tone = (s: string) =>
     s === "PASS" || s === "HEALTHY" || s === "PRODUCTION_PROVEN" ? "var(--gtp-success-on-dark)"
-    : s === "FAIL" || s === "BLOCKED" ? "var(--vault-danger, #f23645)"
+    : s === "FAIL" || s === "BLOCKED" ? "var(--vault-danger, var(--vault-loss-red))"
     : s === "PARTIAL" || s === "WATCH" || s === "AT_RISK" ? "var(--vault-gold-bright)"
     : "var(--vault-text-mute)";
 
@@ -345,7 +345,7 @@ export default function LaunchCommandCenter() {
                   { href: "#queues", label: "Founder queue", value: `${workBoard.founderQueue.length} waiting on founder`, bad: false },
                   { href: "#watches", label: "Next observation", value: watches[0] ? `${watches[0].sport.toUpperCase()} · ${watches[0].due ? "due now" : `${watches[0].hoursUntil}h`}` : "none", bad: false },
                 ].map((t) => (
-                  <a key={t.label} href={t.href} style={{ display: "block", padding: "10px 12px", borderRadius: 10, textDecoration: "none", border: `1px solid ${t.bad ? "var(--vault-danger-dim, rgba(248, 113, 113, 0.4))" : "var(--vault-border)"}`, background: "var(--vault-panel)" }}>
+                  <a key={t.label} href={t.href} style={{ display: "block", padding: "10px 12px", borderRadius: 10, textDecoration: "none", border: `1px solid ${t.bad ? "var(--vault-danger-dim, color-mix(in srgb, var(--vault-danger) 40%, transparent))" : "var(--vault-border)"}`, background: "var(--vault-panel)" }}>
                     <span style={{ display: "block", fontSize: 9.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{t.label}</span>
                     <span style={{ display: "block", marginTop: 4, fontSize: 12.5, fontWeight: 600, color: t.bad ? "var(--vault-danger)" : "var(--vault-text)" }}>{t.value}</span>
                   </a>
@@ -690,7 +690,7 @@ export default function LaunchCommandCenter() {
                       <span style={{ color: "var(--vault-warn)" }}>pdf UNVERIFIED — run verify-operating-record-pdf</span>
                     )}
                     {" · "}
-                    <span style={{ color: operatingRecord.integrity === "VERIFIED" ? "var(--vault-success)" : "var(--vault-danger, #F87171)", fontWeight: 700 }}>
+                    <span style={{ color: operatingRecord.integrity === "VERIFIED" ? "var(--vault-success)" : "var(--vault-danger, var(--vault-danger))", fontWeight: 700 }}>
                       integrity {operatingRecord.integrity}
                     </span>
                   </p>
@@ -823,7 +823,7 @@ export default function LaunchCommandCenter() {
                           {items.map((t) => (
                             <li key={t.id} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
                               <p style={{ fontSize: 12.5, fontWeight: 600 }}>
-                                <span style={{ color: t.priority === "P0" ? "var(--vault-danger, #f23645)" : "var(--vault-text-faint)", fontFamily: "var(--font-mono, monospace)", fontSize: 11 }}>{t.priority}</span>{" "}
+                                <span style={{ color: t.priority === "P0" ? "var(--vault-danger, var(--vault-loss-red))" : "var(--vault-text-faint)", fontFamily: "var(--font-mono, monospace)", fontSize: 11 }}>{t.priority}</span>{" "}
                                 {t.title}
                               </p>
                               <p style={{ fontSize: 11, color: "var(--vault-text-mute)", marginTop: 3 }}>

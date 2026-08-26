@@ -17,7 +17,7 @@ const TONE: Record<FreshnessTone, { color: string; bg: string; border: string }>
   live: { color: "var(--vault-success)", bg: "var(--vault-success-dim)", border: "color-mix(in srgb, var(--vault-success) 45%, transparent)" },
   recent: { color: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)", border: "color-mix(in srgb, var(--vault-gold-bright) 40%, transparent)" },
   stale: { color: "var(--vault-warn)", bg: "var(--vault-warn-dim)", border: "color-mix(in srgb, var(--vault-warn) 45%, transparent)" },
-  future: { color: "var(--gtp-neon-cyan, #6fd6e0)", bg: "rgba(111,214,224,0.10)", border: "rgba(111,214,224,0.4)" },
+  future: { color: "var(--gtp-neon-cyan, var(--vault-fresh))", bg: "color-mix(in srgb, var(--vault-fresh) 10%, transparent)", border: "color-mix(in srgb, var(--vault-fresh) 40%, transparent)" },
   muted: { color: "var(--vault-text-faint)", bg: "transparent", border: "var(--vault-rule)" },
 };
 

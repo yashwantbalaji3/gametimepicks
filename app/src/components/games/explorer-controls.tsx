@@ -29,8 +29,8 @@ function Chip({ active, children, onClick }: { active: boolean; children: React.
         fontSize: 9,
         cursor: "pointer",
         color: active ? "var(--vault-gold)" : "var(--vault-text-mute)",
-        background: active ? "rgba(217,164,65,0.12)" : "transparent",
-        border: `1px solid ${active ? "rgba(217,164,65,0.45)" : "var(--vault-rule)"}`,
+        background: active ? "color-mix(in srgb, var(--vault-crown) 12%, transparent)" : "transparent",
+        border: `1px solid ${active ? "color-mix(in srgb, var(--vault-crown) 45%, transparent)" : "var(--vault-rule)"}`,
         minHeight: 32,
       }}
     >

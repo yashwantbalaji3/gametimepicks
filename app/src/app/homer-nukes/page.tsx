@@ -94,7 +94,7 @@ export default function HomerNukesPage() {
       )}
 
       <section className="flex flex-col gap-2.5 rounded-[14px] p-4"
-        style={{ background: "rgba(11,18,14,0.5)", border: "1px solid var(--vault-border)" }}>
+        style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)" }}>
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>
           How the number is built
         </h2>
@@ -116,7 +116,7 @@ export default function HomerNukesPage() {
       </section>
 
       <section className="flex flex-col gap-2.5 rounded-[14px] p-4"
-        style={{ background: "rgba(11,18,14,0.5)", border: "1px solid var(--vault-border)" }}>
+        style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)" }}>
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 800 }}>
           Track record
         </h2>

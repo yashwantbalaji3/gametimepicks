@@ -123,7 +123,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
 
   return (
     <article className="flex flex-col gap-2.5 rounded-[14px] p-3.5"
-      style={{ background: "rgba(11,18,14,0.5)", border: "1px solid var(--vault-border)" }}>
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-baseline justify-between gap-2">
         <span className="font-mono uppercase tracking-[0.14em]" style={{ color: TIER_TONE[card.tier] ?? "var(--vault-text-mute)", fontSize: 9.5 }}>
           {card.tierLabel}{edited ? " · edited" : ""}
@@ -134,7 +134,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
       </div>
 
       <div className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5"
-        style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+        style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
           {edited ? "Tier as published" : "This tier"}
         </span>
@@ -310,7 +310,7 @@ export default function RiskLadderBoard({
         {ordered.map((c) => <LadderCardView key={c.slipId} card={c} pool={pool} unit={unit} />)}
         {[].map((c: LadderCard) => (
           <article key={c.slipId} className="flex flex-col gap-2.5 rounded-[14px] p-3.5"
-            style={{ background: "rgba(11,18,14,0.5)", border: "1px solid var(--vault-border)" }}>
+            style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)" }}>
             <div className="flex items-baseline justify-between gap-2">
               <span className="font-mono uppercase tracking-[0.14em]" style={{ color: TIER_TONE[c.tier] ?? "var(--vault-text-mute)", fontSize: 9.5 }}>
                 {c.tierLabel}
@@ -322,7 +322,7 @@ export default function RiskLadderBoard({
 
             {/* The tier's history, on the same row as its price. */}
             <div className="flex items-center justify-between gap-2 rounded-[8px] px-2.5 py-1.5"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--vault-rule)" }}>
+              style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
               <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
                 This tier
               </span>
@@ -346,7 +346,7 @@ export default function RiskLadderBoard({
 
         {skipped.map((s) => (
           <article key={s.tier} className="flex flex-col gap-1.5 rounded-[14px] p-3.5"
-            style={{ background: "rgba(255,255,255,0.015)", border: "1px dashed var(--vault-rule)" }}>
+            style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-rule)" }}>
             <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
               {s.tier} risk
             </span>

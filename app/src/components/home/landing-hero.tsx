@@ -23,7 +23,7 @@ function Chip({ children }: { children: React.ReactNode }) {
       style={{
         color: "var(--vault-success)",
         background: "var(--vault-success-dim)",
-        border: "1px solid rgba(110,231,168,0.35)",
+        border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 35%, transparent)",
         fontSize: 9.5,
         fontWeight: 700,
       }}
@@ -41,8 +41,8 @@ export default function LandingHero({ readyCount }: LandingHeroProps) {
         style={{
           border: "1px solid var(--vault-border-strong)",
           background:
-            "radial-gradient(120% 140% at 0% 0%, rgba(52, 211, 153, 0.10) 0%, transparent 55%)," +
-            "linear-gradient(135deg, rgba(13, 21, 17,0.96) 0%, var(--vault-bg) 72%)",
+            "radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--vault-accent) 10%, transparent) 0%, transparent 55%)," +
+            "linear-gradient(135deg, color-mix(in srgb, var(--vault-scrim-pine) 96%, transparent) 0%, var(--vault-bg) 72%)",
         }}
       >
         <div className="flex flex-wrap items-center gap-2">
@@ -70,7 +70,7 @@ export default function LandingHero({ readyCount }: LandingHeroProps) {
             className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
             style={{
               background: "var(--vault-gold-bright)",
-              color: "#1A0E06",
+              color: "var(--vault-on-accent-deep)",
               fontSize: 12,
               fontWeight: 700,
               minHeight: 44,

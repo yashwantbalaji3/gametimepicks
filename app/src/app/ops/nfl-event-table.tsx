@@ -51,7 +51,7 @@ const etStamp = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(iso)) + " ET";
 
 const TONE: Record<string, string> = {
-  UPCOMING: "var(--gtp-success-on-dark, #7ee2a8)",
+  UPCOMING: "var(--gtp-success-on-dark, var(--vault-accent-mint))",
   STARTED: "var(--vault-gold)",
   SETTLED: "var(--vault-text-mute)",
 };
@@ -97,7 +97,7 @@ export function NflEventTable() {
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 font-mono text-[10px]" style={{ color: "var(--vault-text-faint)" }}>
         <span>index {index.generatedAt}</span>
         <span>next {index.nextMatchup ?? "—"} · {index.nextKickoffUtc ? etStamp(index.nextKickoffUtc) : "—"}</span>
-        <span style={{ color: index.contradictions.length ? "var(--gtp-bank-heat)" : "var(--gtp-success-on-dark, #7ee2a8)" }}>
+        <span style={{ color: index.contradictions.length ? "var(--gtp-bank-heat)" : "var(--gtp-success-on-dark, var(--vault-accent-mint))" }}>
           contradictions {index.contradictions.length}
         </span>
         {Object.entries(index.counts).map(([k, v]) => <span key={k}>{k} {v}</span>)}
@@ -108,7 +108,7 @@ export function NflEventTable() {
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 font-mono text-[10px]" style={{ color: "var(--vault-text-mute)" }}>
           {Object.entries(lane.freshness).map(([k, f]) => (
             <span key={k}>
-              {k} <span style={{ color: f.state === "FRESH" ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--gtp-bank-heat)" }}>{f.state}</span>
+              {k} <span style={{ color: f.state === "FRESH" ? "var(--gtp-success-on-dark, var(--vault-accent-mint))" : "var(--gtp-bank-heat)" }}>{f.state}</span>
             </span>
           ))}
           <span>markets {lane.markets.state} · {lane.markets.events} ev · {lane.markets.books} books</span>
@@ -148,7 +148,7 @@ export function NflEventTable() {
                       ? `${e.projectedScore.away}-${e.projectedScore.home} · ${(e.winProbability.home * 100).toFixed(1)}%`
                       : <span style={{ color: "var(--gtp-bank-heat)" }}>none</span>}
                   </td>
-                  <td style={{ ...td, fontFamily: "var(--font-mono, monospace)", color: e.hasMarket ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--gtp-bank-heat)" }}>
+                  <td style={{ ...td, fontFamily: "var(--font-mono, monospace)", color: e.hasMarket ? "var(--gtp-success-on-dark, var(--vault-accent-mint))" : "var(--gtp-bank-heat)" }}>
                     {e.hasMarket ? "priced" : "none"}
                   </td>
                   <td style={{ ...td, fontFamily: "var(--font-mono, monospace)", fontSize: 9.5, color: "var(--vault-text-faint)" }}>
@@ -166,7 +166,7 @@ export function NflEventTable() {
           <span style={{ color: "var(--vault-text-faint)" }}>products {eligibility.generatedAt}</span>
           {eligibility.products.map((p) => (
             <span key={p.product}>
-              {p.product} <span style={{ color: p.eligible ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-text-faint)" }}>{p.state}</span>
+              {p.product} <span style={{ color: p.eligible ? "var(--gtp-success-on-dark, var(--vault-accent-mint))" : "var(--vault-text-faint)" }}>{p.state}</span>
             </span>
           ))}
         </div>

@@ -120,7 +120,7 @@ export default function UfcArchivePage() {
           </h1>
           <span
             className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
-            style={{ color: "var(--sport-ufc)", border: "1px solid var(--sport-ufc)", background: "rgba(217,164,65,0.08)" }}
+            style={{ color: "var(--sport-ufc)", border: "1px solid var(--sport-ufc)", background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)" }}
           >
             Predictions · experimental
           </span>
@@ -200,7 +200,7 @@ export default function UfcArchivePage() {
           <p
             key={s.name}
             className="rounded-lg px-3 py-2 text-[11.5px] leading-relaxed"
-            style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(7,11,9,0.5)", margin: 0 }}
+            style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-bg) 50%, transparent)", margin: 0 }}
           >
             <span className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)" }}>
               Sooner, but not read ·{" "}
@@ -243,7 +243,7 @@ export default function UfcArchivePage() {
           </h2>
           <span
             className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
-            style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.5)" }}
+            style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-bg) 50%, transparent)" }}
           >
             Current era · fight model vs de-vigged price
           </span>
@@ -262,14 +262,14 @@ export default function UfcArchivePage() {
           </p>
         )}
 
-        <details className="rounded-[10px]" style={{ border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.4)" }}>
+        <details className="rounded-[10px]" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-bg) 40%, transparent)" }}>
           <summary className="cursor-pointer px-4 py-3 flex flex-wrap items-center gap-2">
             <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 14.5, fontWeight: 700 }}>
               Settled archive
             </span>
             <span
               className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
-              style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "rgba(7, 11, 9,0.5)" }}
+              style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-bg) 50%, transparent)" }}
             >
               Archive · no live coverage
             </span>

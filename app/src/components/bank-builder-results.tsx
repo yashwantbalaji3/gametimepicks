@@ -36,10 +36,10 @@ export default function BankBuilderResults({ steps }: { steps: BankBuilderResult
         {steps.map((s) => {
           const color = RESULT_COLOR[s.result] ?? "var(--vault-text-faint)";
           return (
-            <div key={`${s.laneId}-${s.step}`} className="rounded-[12px] px-4 py-3.5" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+            <div key={`${s.laneId}-${s.step}`} className="rounded-[12px] px-4 py-3.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
               <div className="flex items-center justify-between gap-2">
                 <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{s.laneLabel} · Step {s.step}</span>
-                <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ background: "rgba(255,255,255,0.05)", color, fontSize: 10, fontWeight: 700 }}>{s.result}</span>
+                <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.1em]" style={{ background: "var(--vault-wash)", color, fontSize: 10, fontWeight: 700 }}>{s.result}</span>
               </div>
               {s.stake != null && (
                 <div className="mt-2"><MoneyPath stake={s.stake} ret={s.payout} kind={s.result === "won" ? "settled" : "lost"} step={s.step} /></div>

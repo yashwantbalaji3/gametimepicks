@@ -34,7 +34,7 @@ const CONFIDENCE_STYLE: Record<
   { label: string; pill: StatusPillKind; accent: string }
 > = {
   high: { label: "Confidence: high", pill: "settled", accent: "var(--vault-gold-bright)" },
-  medium: { label: "Confidence: medium", pill: "upcoming", accent: "rgba(170, 205, 255, 1)" },
+  medium: { label: "Confidence: medium", pill: "upcoming", accent: "var(--vault-info-bright)" },
   low: { label: "Confidence: low", pill: "warn", accent: "var(--vault-warn-amber)" },
 };
 
@@ -304,7 +304,7 @@ export default function TeamGameProjectionCard({ projection }: Props) {
         <div
           className="mt-3 rounded-[6px] px-3 py-2"
           style={{
-            background: "rgba(11, 18, 14, 0.45)",
+            background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)",
             border: "1px solid var(--vault-border)",
           }}
         >
@@ -389,9 +389,9 @@ function TeamSide({
     <div
       className="flex flex-col gap-1.5 rounded-[8px] px-3 py-3"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: favored && !partial
-          ? "1px solid rgba(52, 211, 153, 0.40)"
+          ? "1px solid color-mix(in srgb, var(--vault-accent) 40%, transparent)"
           : "1px solid var(--vault-border)",
       }}
     >
@@ -427,7 +427,7 @@ function TeamSide({
                 className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
                 style={{
                   background: "var(--vault-gold-bright)",
-                  boxShadow: "0 0 6px rgba(52, 211, 153, 0.6)",
+                  boxShadow: "0 0 6px color-mix(in srgb, var(--vault-accent) 60%, transparent)",
                 }}
               />
             )}
@@ -485,7 +485,7 @@ function MarketCell({
     <div
       className="rounded-[6px] px-3 py-2.5"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
     >

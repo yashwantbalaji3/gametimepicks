@@ -28,7 +28,7 @@ export function ExpandableReportSection({
   return (
     <details
       className="gtp-report-disclosure rounded-[10px] overflow-hidden"
-      style={{ background: "rgba(255,255,255,0.015)", border: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px solid var(--vault-border)" }}
       {...(defaultOpen ? { open: true } : {})}
     >
       <summary

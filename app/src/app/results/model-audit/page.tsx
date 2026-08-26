@@ -109,7 +109,7 @@ function PageHero({ artifact }: { artifact: ModelAuditArtifact }) {
           className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
           style={{
             background: "var(--vault-gold-bright)",
-            boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
+            boxShadow: "0 0 8px color-mix(in srgb, var(--vault-accent) 60%, transparent)",
           }}
         />
         <span
@@ -190,14 +190,14 @@ function SummaryTile({
 }) {
   const accentMap: Record<string, string> = {
     gold: "var(--vault-gold-bright)",
-    nba: "rgba(120, 175, 255, 1)",
-    mlb: "rgba(140, 230, 175, 1)",
+    nba: "var(--vault-info)",
+    mlb: "var(--vault-mint-soft)",
   };
   return (
     <article
       className="rounded-[6px] px-5 py-4 flex flex-col gap-1"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -316,7 +316,7 @@ function BlockHeader({
   title: string;
 }) {
   const accentColor =
-    accent === "nba" ? "rgba(120, 175, 255, 1)" : "rgba(140, 230, 175, 1)";
+    accent === "nba" ? "var(--vault-info)" : "var(--vault-mint-soft)";
   return (
     <div className="mb-5 flex items-center gap-2">
       <span
@@ -348,7 +348,7 @@ function DispersionRow({ sport }: { sport: ModelAuditSport }) {
     <article
       className="mt-3 rounded-[6px] px-4 py-4 grid grid-cols-2 sm:grid-cols-4 gap-2"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-border)",
       }}
     >
@@ -612,7 +612,7 @@ function Td({
     <td
       className="py-2 px-2"
       style={{
-        borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
+        borderBottom: "1px solid var(--vault-wash-soft)",
         textAlign: align,
         color: "var(--vault-text)",
       }}

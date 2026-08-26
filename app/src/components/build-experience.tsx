@@ -182,7 +182,7 @@ export default function BuildExperience({
   const bankEligible = draft.length >= 2 && staleCount === 0 && selectedEngine.every((l) => l.bankBuilderEligible);
 
   const betslipCard = (
-    <div className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-[10px] px-4 py-4 flex flex-col gap-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Your card &amp; paper stake</span>
         <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{draft.length} leg{draft.length === 1 ? "" : "s"}</span>
@@ -275,8 +275,8 @@ export default function BuildExperience({
                 <span className="rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em]"
                   style={{
                     color: st.done ? "var(--vault-success)" : "var(--vault-text-mute)",
-                    border: `1px solid ${st.done ? "rgba(110,231,168,0.45)" : "var(--vault-rule)"}`,
-                    background: st.done ? "rgba(110,231,168,0.08)" : "transparent",
+                    border: `1px solid ${st.done ? "color-mix(in srgb, var(--gtp-success-on-dark) 45%, transparent)" : "var(--vault-rule)"}`,
+                    background: st.done ? "color-mix(in srgb, var(--gtp-success-on-dark) 8%, transparent)" : "transparent",
                   }}>
                   {st.done ? "✓ " : ""}{st.label}
                 </span>
@@ -339,7 +339,7 @@ export default function BuildExperience({
             const blocked = compat?.hardDisable === true || key == null;
             return (
               <div key={l.id} className="flex items-center gap-2.5 rounded-[7px] px-3 py-2 min-w-0"
-                style={{ background: "rgba(0,0,0,0.30)", border: "1px solid var(--vault-rule)" }}>
+                style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}>
                 {!l.photo ? (
                   <span className="gtp-sport-orb shrink-0" style={{ width: 22, height: 22, fontSize: 12, ["--orb-grad" as string]: getSportIdentity(l.sport).gradient }} role="img" aria-label={getSportIdentity(l.sport).label}>
                     {getSportIdentity(l.sport).icon}
@@ -378,7 +378,7 @@ export default function BuildExperience({
                 <button type="button" onClick={() => (on && key ? remove(key) : addLeg(l))}
                   disabled={blocked}
                   className="rounded-full shrink-0 flex items-center justify-center"
-                  style={{ width: 28, height: 28, background: on ? "var(--vault-gold-bright)" : "transparent", border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`, color: on ? "#170f0a" : blocked ? "var(--vault-text-faint)" : "var(--vault-text-mute)", fontSize: 15, fontWeight: 700, lineHeight: 1, opacity: blocked ? 0.55 : 1, cursor: blocked ? "not-allowed" : undefined }}
+                  style={{ width: 28, height: 28, background: on ? "var(--vault-gold-bright)" : "transparent", border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`, color: on ? "var(--vault-on-accent)" : blocked ? "var(--vault-text-faint)" : "var(--vault-text-mute)", fontSize: 15, fontWeight: 700, lineHeight: 1, opacity: blocked ? 0.55 : 1, cursor: blocked ? "not-allowed" : undefined }}
                   aria-label={on ? "Remove leg" : blocked ? `Cannot add: ${compat?.reason ?? "conflicts with the card"}` : "Add leg"}
                   aria-disabled={blocked || undefined}
                   title={blocked ? compat?.reason ?? undefined : undefined}>
@@ -409,14 +409,14 @@ export default function BuildExperience({
         {!slipOpen && draft.length > 0 && (
           <button type="button" onClick={() => setSlipOpen(true)}
             className="vault-press fixed left-3 right-3 z-40 flex items-center justify-between gap-2 rounded-full px-5 py-3 shadow-lg"
-            style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 64px)", background: "var(--vault-gold-bright)", color: "#170f0a", fontWeight: 700, border: "none", minHeight: 44 }}>
+            style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 64px)", background: "var(--vault-gold-bright)", color: "var(--vault-on-accent)", fontWeight: 700, border: "none", minHeight: 44 }}>
             <span style={{ fontSize: 14 }}>View card · {draft.length} leg{draft.length === 1 ? "" : "s"}</span>
             <span className="font-mono tabular" style={{ fontSize: 14 }}>{formatAmerican(combinedAmerican)}</span>
           </button>
         )}
         {slipOpen && (
-          <div className="fixed inset-0 z-50 flex flex-col justify-end" style={{ background: "rgba(0,0,0,0.6)" }} onClick={() => setSlipOpen(false)}>
-            <div className="rounded-t-[16px] max-h-[82vh] overflow-y-auto px-3 pb-6 pt-3" onClick={(e) => e.stopPropagation()} style={{ background: "var(--vault-bg, #170f0a)", borderTop: "1px solid var(--vault-border-strong)" }}>
+          <div className="fixed inset-0 z-50 flex flex-col justify-end" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 60%, transparent)" }} onClick={() => setSlipOpen(false)}>
+            <div className="rounded-t-[16px] max-h-[82vh] overflow-y-auto px-3 pb-6 pt-3" onClick={(e) => e.stopPropagation()} style={{ background: "var(--vault-bg, var(--vault-on-accent))", borderTop: "1px solid var(--vault-border-strong)" }}>
               <div className="flex items-center justify-between gap-2 mb-2 px-1">
                 <span className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Your card &amp; paper stake</span>
                 <button type="button" onClick={() => setSlipOpen(false)} className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-mute)", fontSize: 11, minHeight: 44, minWidth: 44 }}>Close ✕</button>

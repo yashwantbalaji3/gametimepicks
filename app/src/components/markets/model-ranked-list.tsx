@@ -135,7 +135,7 @@ export default function ModelRankedList({ board }: { board: Top10Board }) {
   const picks = board.overall ?? [];
 
   return (
-    <details className="rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "rgba(11, 18, 14,0.45)" }}>
+    <details className="rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)" }}>
       <summary
         className="cursor-pointer px-4 py-3 font-mono uppercase tracking-[0.14em]"
         style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}

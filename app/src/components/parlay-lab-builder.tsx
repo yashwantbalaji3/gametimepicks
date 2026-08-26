@@ -1045,8 +1045,8 @@ function BuilderHeader({
           ? {
               border: "1px solid var(--vault-border-strong)",
               background:
-                "radial-gradient(120% 150% at 0% 0%, rgba(52, 211, 153, 0.09) 0%, transparent 55%)," +
-                "linear-gradient(135deg, rgba(22,30,62,0.94) 0%, rgba(11, 18, 14,0.96) 60%, rgba(11, 18, 14,0.97) 100%)",
+                "radial-gradient(120% 150% at 0% 0%, color-mix(in srgb, var(--vault-accent) 9%, transparent) 0%, transparent 55%)," +
+                "linear-gradient(135deg, color-mix(in srgb, var(--vault-scrim-navy) 94%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-base) 96%, transparent) 60%, color-mix(in srgb, var(--vault-scrim-base) 97%, transparent) 100%)",
               boxShadow: "var(--vault-shadow-elevated)",
             }
           : undefined
@@ -1254,7 +1254,7 @@ function LabFilters({
       <div
         className="inline-flex flex-wrap items-center gap-1 p-1 rounded-full"
         style={{
-          background: "rgba(0,0,0,0.3)",
+          background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)",
           border: "1px solid var(--vault-rule)",
         }}
       >

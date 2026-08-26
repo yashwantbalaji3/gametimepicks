@@ -146,7 +146,7 @@ export default function WcSimulationRunner({
         type="button"
         onClick={generate}
         className="vault-press inline-flex items-center justify-center rounded-full px-6 font-mono uppercase tracking-[0.14em]"
-        style={{ minHeight: 48, background: "linear-gradient(180deg, var(--vault-gold-bright), #d6a945)", color: "#06091a", fontSize: 13, fontWeight: 600, border: "none" }}
+        style={{ minHeight: 48, background: "linear-gradient(180deg, var(--vault-gold-bright), var(--vault-crown-alt))", color: "var(--vault-scrim-midnight)", fontSize: 13, fontWeight: 600, border: "none" }}
       >
         Generate Simulation Report
       </button>

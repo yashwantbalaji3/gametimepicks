@@ -159,7 +159,7 @@ export default function GuidedStart({
     <section className="flex flex-col rounded-[8px] overflow-hidden"
       style={{ background: "var(--gtp-card)", border: "1px solid var(--vault-border-strong)" }}>
       <header className="flex items-center justify-between gap-3 px-3.5 py-2.5"
-        style={{ borderBottom: open ? "1px solid var(--vault-rule)" : "none", background: "rgba(11, 18, 14,0.5)" }}>
+        style={{ borderBottom: open ? "1px solid var(--vault-rule)" : "none", background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)" }}>
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10.5 }}>
           New here? Find a card in 3 steps
         </span>

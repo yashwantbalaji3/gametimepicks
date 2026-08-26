@@ -157,7 +157,7 @@ export default function DisagreementExplorer(props: Props) {
             borderRadius: 8,
             padding: 12,
             marginBottom: 12,
-            background: "rgba(240, 199, 94, 0.06)",
+            background: "color-mix(in srgb, var(--vault-warn) 6%, transparent)",
             fontSize: 12,
             lineHeight: 1.7,
             color: "var(--vault-text)",

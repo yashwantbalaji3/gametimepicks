@@ -58,7 +58,7 @@ function Chip({
 }) {
   const style: React.CSSProperties = {
     border: `1px solid ${accent ? `color-mix(in srgb, ${accent} 45%, transparent)` : "var(--vault-rule)"}`,
-    background: "rgba(11, 18, 14,0.5)",
+    background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)",
     color: "var(--vault-text-mute)",
     fontSize: 12,
     textDecoration: "none",
@@ -94,7 +94,7 @@ export default function SlateStatusBar() {
   return (
     <div
       className="gtp-slate-status flex flex-wrap items-center gap-x-2 gap-y-1.5 px-4 sm:px-6 py-2"
-      style={{ background: "rgba(11, 18, 14, 0.6)", borderBottom: "1px solid var(--vault-border)" }}
+      style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", borderBottom: "1px solid var(--vault-border)" }}
     >
       {/* Time-dependent chips — client component; re-derives "Today/Latest" + pregame/in-progress/
           completed from the REAL browser clock after hydration (the frozen-build-clock fix). */}

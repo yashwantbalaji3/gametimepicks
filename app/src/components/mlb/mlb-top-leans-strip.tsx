@@ -74,7 +74,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
         aria-label="Top clean MLB leans"
         className="mt-2 rounded-[6px] px-4 py-4 text-[12px]"
         style={{
-          background: "rgba(11, 18, 14, 0.5)",
+          background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)",
           border: "1px solid var(--vault-border)",
           color: "var(--vault-text-mute)",
         }}
@@ -101,7 +101,7 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
             className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
+              boxShadow: "0 0 8px color-mix(in srgb, var(--vault-accent) 60%, transparent)",
             }}
           />
           <span
@@ -130,11 +130,11 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
                 padding: "10px 12px",
                 border: `1px solid ${
                   isHigh
-                    ? "rgba(74, 222, 128, 0.30)"
-                    : "rgba(52, 211, 153, 0.25)"
+                    ? "color-mix(in srgb, var(--vault-success) 30%, transparent)"
+                    : "color-mix(in srgb, var(--vault-accent) 25%, transparent)"
                 }`,
                 background:
-                  "linear-gradient(180deg, rgba(10, 6, 4, 0.55) 0%, rgba(11, 18, 14, 0.62) 100%)",
+                  "linear-gradient(180deg, color-mix(in srgb, var(--vault-scrim-cocoa) 55%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-base) 62%, transparent) 100%)",
                 scrollMarginTop: 80,
               }}
               aria-label={`Jump to ${lean.playerName} ${mlbMarketLabel(lean.marketKey)} ${lean.lean} ${lean.line}`}
@@ -173,14 +173,14 @@ export default function MlbTopLeansStrip({ leans, max = 8 }: Props) {
                     letterSpacing: "0.14em",
                     textTransform: "uppercase",
                     background: isHigh
-                      ? "rgba(74, 222, 128, 0.10)"
-                      : "rgba(52, 211, 153, 0.10)",
+                      ? "color-mix(in srgb, var(--vault-success) 10%, transparent)"
+                      : "color-mix(in srgb, var(--vault-accent) 10%, transparent)",
                     borderRadius: 2,
                     padding: "2px 6px",
                     border: `1px solid ${
                       isHigh
-                        ? "rgba(74, 222, 128, 0.30)"
-                        : "rgba(52, 211, 153, 0.30)"
+                        ? "color-mix(in srgb, var(--vault-success) 30%, transparent)"
+                        : "color-mix(in srgb, var(--vault-accent) 30%, transparent)"
                     }`,
                   }}
                 >

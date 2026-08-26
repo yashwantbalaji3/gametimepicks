@@ -253,6 +253,9 @@
   /* Ink that sits ON the bright accent (active chips, CTA fills).
      #170F0A on #34D399 measures 9.9:1 — AAA. */
   --vault-on-accent: #170F0A;
+  /* P210: the second on-gold ink that existed in the wild (13 files). dE2000 from --vault-on-accent
+     is 2.16 — a merge would be a measurable hue change, so it becomes a named sibling instead. */
+  --vault-on-accent-deep: #1A0E06;
 
   /* Product accents. A lane's identity, not a status.
      Moonshot is a three-step SCALE, not one colour typed three ways — the steps are 10-13 dE
@@ -287,6 +290,20 @@
   --vault-warn-alt: #F5C35F;
   --vault-crown-alt: #D6A945;
   --vault-scrim-cocoa: #0A0604;     /* brown-black, red/black era */
+  /* ── P210 Release A: tokens minted for literals that existed in the wild (all exact values;
+     merges only where CIEDE2000 was measured imperceptible — 0A0705→cocoa at dE 0.40). ── */
+  --vault-scrim-pine: #0D1511;      /* deep green hero scrim (dE 1.07 from --vault-panel — kept distinct) */
+  --vault-mint-soft: #8CE6AF;       /* soft mint emphasis (dE 1.73 from --vault-accent-mint — kept distinct) */
+  --vault-danger-soft: #F08A8A;     /* leg-loss glyph red, softer than --vault-danger */
+  --vault-ink-on-mint: #06140D;     /* text ink on mint/heat fills */
+  --vault-fresh: #6FD6E0;           /* freshness cyan (freshness badges) */
+  --vault-moonshot: #8B7BF0;        /* Moonshot lane violet */
+  --vault-moonshot-bright: #B9A8FF; /* Moonshot emphasis text */
+  --vault-moonshot-soft: #A99BF5;   /* Moonshot muted accents */
+  --vault-demo-accent: #FFA500;     /* demo/fallback notice orange */
+  --vault-pending: #EAB308;         /* pending/awaiting yellow (coverage + result summaries) */
+  --vault-loss-red: #F23645;        /* ledger loss red (research/ops/launch trading surfaces) */
+  --vault-lava-red: #E11D2A;        /* red-era lane accent still live as subtle washes */
   --vault-scrim-espresso: #120A07;  /* another brown-black, 1.52 dE from --vault-scrim-warm */
   --vault-crown-warm: #E7B15A;      /* warmer crown, 4.11 dE from --vault-crown */
   --vault-scrim-midnight: #06091A;  /* navy-black, pre-green era */

@@ -33,7 +33,7 @@ const pct = (p: number | null | undefined) => (typeof p === "number" ? `${(p * 1
 
 function Snap({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-[8px] px-3 py-2 flex flex-col gap-0.5" style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border)" }}>
+    <div className="rounded-[8px] px-3 py-2 flex flex-col gap-0.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border)" }}>
       <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{label}</span>
       <span style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 700 }}>{value}</span>
       {sub ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{sub}</span> : null}
@@ -48,19 +48,19 @@ export default function WorldCupSimulationResultSummary({ home, away, threeWay, 
   const efficient = !top || top.p < 0.45;
 
   return (
-    <section aria-label="Simulation result" className="rounded-[14px] px-4 sm:px-5 py-4 flex flex-col gap-3" style={{ background: "rgba(11, 18, 14,0.5)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold-bright)" }}>
+    <section aria-label="Simulation result" className="rounded-[14px] px-4 sm:px-5 py-4 flex flex-col gap-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold-bright)" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>Simulation result</h2>
-        <span className="font-mono uppercase tracking-[0.1em] rounded-full px-2.5 py-1" style={{ fontSize: 9, color: "var(--vault-gold)", background: "rgba(234,179,8,0.10)", border: "1px solid rgba(234,179,8,0.35)" }}>Market-implied · 90′</span>
+        <span className="font-mono uppercase tracking-[0.1em] rounded-full px-2.5 py-1" style={{ fontSize: 9, color: "var(--vault-gold)", background: "color-mix(in srgb, var(--vault-pending) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-pending) 35%, transparent)" }}>Market-implied · 90′</span>
       </div>
 
       {/* 3-way probability bar */}
       {tw ? (
         <div className="flex flex-col gap-1.5">
           <div className="flex h-7 w-full overflow-hidden rounded-[6px]" style={{ border: "1px solid var(--vault-border)" }}>
-            <div style={{ width: `${tw.home * 100}%`, background: "rgba(52, 211, 153, 0.55)" }} className="flex items-center justify-center" title={`${home} ${pct(tw.home)}`}><span className="font-mono" style={{ fontSize: 9.5, color: "#fff", fontWeight: 700 }}>{pct(tw.home)}</span></div>
+            <div style={{ width: `${tw.home * 100}%`, background: "color-mix(in srgb, var(--vault-accent) 55%, transparent)" }} className="flex items-center justify-center" title={`${home} ${pct(tw.home)}`}><span className="font-mono" style={{ fontSize: 9.5, color: "var(--vault-wash-base)", fontWeight: 700 }}>{pct(tw.home)}</span></div>
             <div style={{ width: `${tw.draw * 100}%`, background: "rgba(180,180,190,0.35)" }} className="flex items-center justify-center" title={`Draw ${pct(tw.draw)}`}><span className="font-mono" style={{ fontSize: 9.5, color: "var(--vault-text)", fontWeight: 700 }}>{pct(tw.draw)}</span></div>
-            <div style={{ width: `${tw.away * 100}%`, background: "rgba(217,164,65,0.5)" }} className="flex items-center justify-center" title={`${away} ${pct(tw.away)}`}><span className="font-mono" style={{ fontSize: 9.5, color: "#1A0E06", fontWeight: 700 }}>{pct(tw.away)}</span></div>
+            <div style={{ width: `${tw.away * 100}%`, background: "color-mix(in srgb, var(--vault-crown) 50%, transparent)" }} className="flex items-center justify-center" title={`${away} ${pct(tw.away)}`}><span className="font-mono" style={{ fontSize: 9.5, color: "var(--vault-on-accent-deep)", fontWeight: 700 }}>{pct(tw.away)}</span></div>
           </div>
           <div className="flex justify-between font-mono" style={{ fontSize: 10, color: "var(--vault-text-mute)" }}>
             <span>{home} win</span><span>Draw</span><span>{away} win</span>

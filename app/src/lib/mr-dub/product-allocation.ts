@@ -131,7 +131,7 @@ export function buildPortfolioAllocation(root: string, nowIso: string, date: str
       note: "Dual-lane ladder toward $10K — settled P/L rolls the ladder; the seed is the open exposure.",
     },
     {
-      key: "moonshot", label: "Moonshot", href: "/moonshot", accent: "#8b7bf0",
+      key: "moonshot", label: "Moonshot", href: "/moonshot", accent: "var(--vault-moonshot)",
       dailyAllocation: moonExposure, openExposure: moonExposure, pctOfBankroll: pct(moonExposure),
       record: moonshotRecord, realizedPnl: 0, roi: null, winRate: winRateOf(moonshotRecord),
       avgOdds: avgOddsOf(moonCards), legCount: moonCards.reduce((s, c) => s + c.legs.length, 0),
@@ -139,7 +139,7 @@ export function buildPortfolioAllocation(root: string, nowIso: string, date: str
       note: "Higher-volatility $25 → $3,000 ladder — kept apart from the core lanes.",
     },
     {
-      key: "world-cup-specials", label: "World Cup Specials", href: "/world-cup-specials", accent: "#e7b15a",
+      key: "world-cup-specials", label: "World Cup Specials", href: "/world-cup-specials", accent: "var(--vault-crown-warm)",
       dailyAllocation: WC_SPECIALS_DAILY_ALLOCATION, openExposure: specialsExposure, pctOfBankroll: pct(specialsExposure),
       record: specialsRecord, realizedPnl: specialsLedger.pnl, roi: specialsLedger.roi, winRate: specialsLedger.winRate,
       avgOdds: null, legCount: specialsCards,

@@ -304,8 +304,8 @@ function BackdropGrid() {
     linear-gradient(color-mix(in srgb, var(--vault-crown) 5%, transparent) 1px, transparent 1px),
     linear-gradient(90deg, color-mix(in srgb, var(--vault-crown) 5%, transparent) 1px, transparent 1px);
   background-size: 26px 26px, 26px 26px;
-  opacity: 0.5; mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 85%);
-  -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 85%);
+  opacity: 0.5; mask-image: radial-gradient(120% 90% at 50% 0%, var(--vault-ink-black) 30%, transparent 85%);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, var(--vault-ink-black) 30%, transparent 85%);
 }
 .gtp-sim-scan {
   position: absolute; left: 0; right: 0; height: 40%; top: -40%;

@@ -54,7 +54,7 @@ export default function PlayerAvatar({
       style={{
         width: size,
         height: size,
-        background: "rgba(52, 211, 153, 0.12)",
+        background: "var(--vault-gold-dim)",
         border: "1px solid var(--vault-rule)",
         color: "var(--vault-gold-bright)",
         fontSize: size * 0.32,

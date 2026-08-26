@@ -33,7 +33,7 @@ export default function EmptyResultsCard({ latestScoredDate }: Props) {
             className="inline-block w-1.5 h-1.5 rounded-full gtp-neon-pulse"
             style={{
               background: "var(--vault-gold-bright)",
-              boxShadow: "0 0 8px rgba(52, 211, 153, 0.6)",
+              boxShadow: "0 0 8px color-mix(in srgb, var(--vault-accent) 60%, transparent)",
             }}
           />
           <span
@@ -130,9 +130,9 @@ export default function EmptyResultsCard({ latestScoredDate }: Props) {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[4px] font-medium text-[13px] tracking-tight transition-colors"
           style={{
             background: "var(--vault-gold)",
-            color: "#0A0705",
+            color: "var(--vault-scrim-cocoa)",
             boxShadow:
-              "0 0 0 1px rgba(52, 211, 153, 0.45), 0 10px 24px -12px rgba(52, 211, 153, 0.35)",
+              "0 0 0 1px color-mix(in srgb, var(--vault-accent) 45%, transparent), 0 10px 24px -12px color-mix(in srgb, var(--vault-accent) 35%, transparent)",
           }}
         >
           View the live model board
@@ -173,7 +173,7 @@ function TimelineStep({
     <li
       className="relative px-3.5 py-3.5 rounded-[6px]"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-rule)",
       }}
     >
@@ -185,7 +185,7 @@ function TimelineStep({
             background: "var(--vault-gold-dim)",
             border: "1px solid var(--vault-border-strong)",
             color: "var(--vault-gold-bright)",
-            boxShadow: "0 0 10px -3px rgba(52, 211, 153, 0.35)",
+            boxShadow: "0 0 10px -3px color-mix(in srgb, var(--vault-accent) 35%, transparent)",
           }}
         >
           {n}
@@ -212,7 +212,7 @@ function PreviewCell({ title, body }: { title: string; body: string }) {
     <div
       className="px-4 py-4 rounded-[6px]"
       style={{
-        background: "rgba(11, 18, 14, 0.55)",
+        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
         border: "1px solid var(--vault-rule)",
       }}
     >

@@ -37,7 +37,7 @@ function GlanceTile({ card }: { card: GlanceCard }) {
     </>
   );
   const cls = "vault-glow-hover vault-press rounded-[12px] px-3 py-3 flex flex-col gap-1";
-  const style = { background: "rgba(11, 18, 14,0.55)", border: "1px solid var(--vault-border)", textDecoration: "none", minHeight: 44 } as const;
+  const style = { background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", textDecoration: "none", minHeight: 44 } as const;
   // In-page anchors use a plain <a> (Next <Link> is for route navigation); routes use <Link>.
   return card.href.startsWith("#") ? (
     <a href={card.href} className={cls} style={style}>{inner}</a>

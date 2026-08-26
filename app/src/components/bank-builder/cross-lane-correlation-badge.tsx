@@ -6,7 +6,7 @@
 import { scoreCrossLaneCorrelation, type LaneLegLite } from "@/lib/daily-portfolio/cross-lane-correlation";
 
 const GRADE_COLOR: Record<string, string> = {
-  A: "var(--vault-success)", B: "#8fd4a0", C: "#e7b15a", D: "#e58a5a", F: "var(--gtp-bank-heat)",
+  A: "var(--vault-success)", B: "#8fd4a0", C: "var(--vault-crown-warm)", D: "#e58a5a", F: "var(--gtp-bank-heat)",
 };
 
 export default function CrossLaneCorrelationBadge({ laneA, laneB }: { laneA: LaneLegLite[]; laneB: LaneLegLite[] }) {
@@ -14,8 +14,8 @@ export default function CrossLaneCorrelationBadge({ laneA, laneB }: { laneA: Lan
   const c = scoreCrossLaneCorrelation(laneA, laneB);
   const ok = c.independent;
   const gradeColor = GRADE_COLOR[c.grade] ?? "var(--vault-text)";
-  const color = ok ? "var(--vault-success)" : "#e7b15a";
-  const bg = ok ? "rgba(110,231,168,0.08)" : "rgba(231,177,90,0.10)";
+  const color = ok ? "var(--vault-success)" : "var(--vault-crown-warm)";
+  const bg = ok ? "color-mix(in srgb, var(--gtp-success-on-dark) 8%, transparent)" : "color-mix(in srgb, var(--vault-crown-warm) 10%, transparent)";
   const notes = [...c.warnings, ...c.dependencies, ...c.diversification.notes];
   return (
     <div className="rounded-[12px] px-4 py-3 flex flex-col gap-1.5" style={{ background: bg, border: `1px solid color-mix(in srgb, ${color} 35%, transparent)` }}>
@@ -27,8 +27,8 @@ export default function CrossLaneCorrelationBadge({ laneA, laneB }: { laneA: Lan
           </span>
         </span>
         <span className="flex shrink-0 items-center gap-1.5">
-          <span className="inline-flex items-center justify-center rounded-[7px] font-display tabular" style={{ width: 24, height: 24, fontSize: 14, fontWeight: 800, color: "#120A07", background: gradeColor }} aria-label={`Correlation grade ${c.grade}`}>{c.grade}</span>
-          <span className="font-mono tabular rounded-full px-2 py-0.5" style={{ fontSize: 10, color, background: "rgba(255,255,255,0.05)", border: `1px solid color-mix(in srgb, ${color} 35%, transparent)` }}>score {c.score.toFixed(2)}</span>
+          <span className="inline-flex items-center justify-center rounded-[7px] font-display tabular" style={{ width: 24, height: 24, fontSize: 14, fontWeight: 800, color: "var(--vault-scrim-espresso)", background: gradeColor }} aria-label={`Correlation grade ${c.grade}`}>{c.grade}</span>
+          <span className="font-mono tabular rounded-full px-2 py-0.5" style={{ fontSize: 10, color, background: "var(--vault-wash)", border: `1px solid color-mix(in srgb, ${color} 35%, transparent)` }}>score {c.score.toFixed(2)}</span>
         </span>
       </div>
       <p className="text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{c.summary}</p>

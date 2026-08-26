@@ -13,7 +13,7 @@ export default function EventSpotlight({ event }: { event: SpotlightEvent | null
   return (
     <section
       className="relative overflow-hidden rounded-[16px] px-5 py-5 sm:px-8 sm:py-6"
-      style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 160% at 100% 0%, rgba(52, 211, 153, 0.16) 0%, transparent 55%), linear-gradient(150deg, rgba(18,12,10,0.96) 0%, rgba(11, 18, 14,0.98) 100%)" }}
+      style={{ border: "1px solid var(--vault-border-strong)", background: "radial-gradient(120% 160% at 100% 0%, var(--gtp-bank-heat-dim) 0%, transparent 55%), linear-gradient(150deg, rgba(18,12,10,0.96) 0%, color-mix(in srgb, var(--vault-scrim-base) 98%, transparent) 100%)" }}
       aria-label={`${event.title} — ${event.trustLabel}`}
     >
       {/* Subtle cage/grid texture — original vector art, no brand assets. */}
@@ -29,7 +29,7 @@ export default function EventSpotlight({ event }: { event: SpotlightEvent | null
       <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-2 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.14em]" style={{ background: "rgba(46,160,102,0.16)", border: "1px solid rgba(46,160,102,0.42)", color: "var(--gtp-success-on-dark, #7ee2a8)", fontSize: 9 }}>
+            <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.14em]" style={{ background: "color-mix(in srgb, var(--vault-accent-deep) 16%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-accent-deep) 42%, transparent)", color: "var(--gtp-success-on-dark, var(--vault-accent-mint))", fontSize: 9 }}>
               <span aria-hidden>▶</span> {statusLabel}
             </span>
             <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{event.sport} · event spotlight</span>
@@ -38,7 +38,7 @@ export default function EventSpotlight({ event }: { event: SpotlightEvent | null
           <p style={{ color: "var(--vault-text-mute)", fontSize: 13.5, lineHeight: 1.4, maxWidth: 560 }}>{event.subtitle}</p>
           <div className="flex flex-wrap gap-1.5">
             {event.chips.map((c, i) => (
-              <span key={i} className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-mute)", background: "rgba(11, 18, 14,0.6)", border: "1px solid var(--vault-rule)", fontSize: 8.5 }}>{c}</span>
+              <span key={i} className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-mute)", background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: "1px solid var(--vault-rule)", fontSize: 8.5 }}>{c}</span>
             ))}
           </div>
         </div>

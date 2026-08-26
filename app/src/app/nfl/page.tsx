@@ -552,7 +552,7 @@ export default function NflHubPage() {
               {coverage.map((c) => (
                 <tr key={c.layer}>
                   <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>{c.layer}</td>
-                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: c.state === "LIVE" || c.state === "DEPLOYED" ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-text-mute)" }}>{c.state}</td>
+                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: c.state === "LIVE" || c.state === "DEPLOYED" ? "var(--gtp-success-on-dark, var(--vault-accent-mint))" : "var(--vault-text-mute)" }}>{c.state}</td>
                   <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{c.detail}</td>
                 </tr>
               ))}
@@ -642,7 +642,7 @@ export default function NflHubPage() {
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{g.actual}</td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{g.marginError}</td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{g.totalError}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: g.inRange ? "var(--gtp-success-on-dark, #7ee2a8)" : "var(--vault-text-mute)" }}>{g.inRange ? "yes" : "no"}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: g.inRange ? "var(--gtp-success-on-dark, var(--vault-accent-mint))" : "var(--vault-text-mute)" }}>{g.inRange ? "yes" : "no"}</td>
                   </tr>
                 ))}
               </tbody>
