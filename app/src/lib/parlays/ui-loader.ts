@@ -187,6 +187,51 @@ export interface TodaySlateView {
 
 const SPORT_KEY: Record<Sport, SportKey> = { MLB: "mlb", NBA: "nba", UFC: "ufc", WORLD_CUP: "world_cup" };
 
+/*
+ * ── EXPLORER SLATE VIEW (P211 · Release 0) ──────────────────────────────────────────────────────
+ * The payload fix at the data boundary. Every suggested/mixed/game-specific card embeds its FULL
+ * ParlayLegDisplay objects while `eligibleLegs` already carries each leg once — so the client prop
+ * serialized every leg once per referencing group (the ~1.26MB /build/custom condition). The view
+ * replaces card legs with ordered `legIds` and ships one legs-by-id index; the client resolves.
+ * Group order, membership, grades, provenance and card fields are untouched — legs are REFERENCED,
+ * never re-derived, and a card leg somehow absent from the index rides along inline in `extraLegs`
+ * (fail-open to correctness, counted so a guard can see it). Dedup is by canonical legId only.
+ */
+export interface ExplorerCardView extends Omit<SuggestedParlayCard, "legs"> {
+  legIds: string[];
+}
+export interface ExplorerGameGroupView extends Omit<GameSpecificParlayGroup, "parlays"> {
+  parlays: ExplorerCardView[];
+}
+export interface ExplorerSlateView extends Omit<TodaySlateView, "suggestedBySportRisk" | "mixedByRisk" | "allSuggested" | "gameSpecific"> {
+  suggestedBySportRisk: Record<string, Partial<Record<RiskLevel, ExplorerCardView[]>>>;
+  mixedByRisk: Partial<Record<RiskLevel, ExplorerCardView[]>>;
+  allSuggested: ExplorerCardView[];
+  gameSpecific: ExplorerGameGroupView[];
+  /** Legs referenced by a card but missing from eligibleLegs — carried inline so nothing drops. */
+  extraLegs: ParlayLegDisplay[];
+}
+
+export function explorerSlateView(slate: TodaySlateView): ExplorerSlateView {
+  const known = new Set(slate.eligibleLegs.map((l) => l.legId));
+  const extraById = new Map<string, ParlayLegDisplay>();
+  const toView = (card: SuggestedParlayCard): ExplorerCardView => {
+    const { legs, ...rest } = card;
+    for (const l of legs) if (!known.has(l.legId) && !extraById.has(l.legId)) extraById.set(l.legId, l);
+    return { ...rest, legIds: legs.map((l) => l.legId) };
+  };
+  const mapRisk = (byRisk: Partial<Record<RiskLevel, SuggestedParlayCard[]>>): Partial<Record<RiskLevel, ExplorerCardView[]>> =>
+    Object.fromEntries(Object.entries(byRisk).map(([k, cards]) => [k, (cards ?? []).map(toView)]));
+  return {
+    ...slate,
+    suggestedBySportRisk: Object.fromEntries(Object.entries(slate.suggestedBySportRisk).map(([sport, byRisk]) => [sport, mapRisk(byRisk)])),
+    mixedByRisk: mapRisk(slate.mixedByRisk),
+    allSuggested: slate.allSuggested.map(toView),
+    gameSpecific: slate.gameSpecific.map((g) => ({ ...g, parlays: g.parlays.map(toView) })),
+    extraLegs: [...extraById.values()],
+  };
+}
+
 function dataRoot(): string {
   return path.join(process.cwd(), "public", "data");
 }

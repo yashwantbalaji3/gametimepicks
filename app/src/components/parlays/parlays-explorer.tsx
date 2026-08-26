@@ -11,7 +11,7 @@ import TeamLogo from "@/components/team-logo";
 import FlagBadge from "@/components/flag-badge";
 import OddsPill from "@/components/tickets/odds-pill";
 import type {
-  TodaySlateView, SuggestedParlayCard, ParlayLegDisplay, SportSlateStatus,
+  TodaySlateView, ExplorerSlateView, ExplorerCardView, SuggestedParlayCard, ParlayLegDisplay, SportSlateStatus,
 } from "@/lib/parlays/ui-loader";
 import type { RiskLevel } from "@/lib/parlays/types";
 import { RISK_LABELS } from "@/lib/parlays/risk-taxonomy";
@@ -137,7 +137,8 @@ function LegRow({ leg }: { leg: ParlayLegDisplay }) {
   );
 }
 
-export function ParlayCard({ card }: { card: SuggestedParlayCard }) {
+export function ParlayCard({ card, legs: legsProp }: { card: Omit<SuggestedParlayCard, "legs"> & { legs?: ParlayLegDisplay[] }; legs?: ParlayLegDisplay[] }) {
+  const legs = legsProp ?? card.legs ?? [];
   return (
     <div className="rounded-xl p-4" style={{ background: "var(--vault-surface, color-mix(in srgb, var(--vault-wash-base) 2%, transparent))", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}>
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -149,14 +150,14 @@ export function ParlayCard({ card }: { card: SuggestedParlayCard }) {
         <div className="text-right">
           {/* Sportsbook-style price (shared OddsPill primitive): the combined odds headline the ticket. */}
           <OddsPill odds={card.combinedOdds} tone="gold" size="lg" />
-          <div className="mt-1 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>model {pctStr(card.estimatedHitProbability)} · {card.legs.length} legs</div>
+          <div className="mt-1 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>model {pctStr(card.estimatedHitProbability)} · {legs.length} legs</div>
         </div>
       </div>
       <div className="mt-2">
-        {card.legs.map((l) => <LegRow key={l.legId} leg={l} />)}
+        {legs.map((l) => <LegRow key={l.legId} leg={l} />)}
       </div>
       {(() => {
-        const hasPlayerProp = card.legs.some((l) => /Goalscorer|Shots on Target|Assists|Shots/.test(l.market) && l.sport === "WORLD_CUP");
+        const hasPlayerProp = legs.some((l) => /Goalscorer|Shots on Target|Assists|Shots/.test(l.market) && l.sport === "WORLD_CUP");
         const correlated = card.parlayType === "same_game" || (card.correlationScore != null && card.correlationScore >= 0.35);
         const anything = card.whyThisParlay[0] || card.whyItCouldFail[0] || card.correlationSummary || hasPlayerProp;
         if (!anything) return null;
@@ -267,7 +268,11 @@ function CoverageMatrix({ data }: { data?: CoverageMatrixData }) {
   );
 }
 
-export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlateView; coverage?: CoverageMatrixData }) {
+export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSlateView; coverage?: CoverageMatrixData }) {
+  /* P211 · Release 0: cards arrive with legIds; the ONE legs-by-id index resolves them (ordered,
+     fail-open via extraLegs). Same legs, serialized once. */
+  const legsById = new Map<string, ParlayLegDisplay>([...slate.eligibleLegs, ...(slate.extraLegs ?? [])].map((l) => [l.legId, l]));
+  const legsOf = (card: ExplorerCardView): ParlayLegDisplay[] => card.legIds.map((id) => legsById.get(id)).filter((l): l is ParlayLegDisplay => Boolean(l));
   const sportsWithLegs = slate.sports.filter((s) => s.eligibleCount > 0);
   const mixedTotal = RISK_ORDER.reduce((n, lvl) => n + (slate.mixedByRisk[lvl]?.length ?? 0), 0);
   // Default to World Cup when it has cards (the slate's headline sport), else the first sport with legs.
@@ -283,7 +288,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
   const sportLegs = slate.eligibleLegs.filter((l) => l.sport === sport);
 
   // Honest diagnostics — every empty bucket gets a real reason, never a vague empty state.
-  const diag = buildCardFactoryDiagnostics(slate, slate.date);
+  const diag = buildCardFactoryDiagnostics(slate as unknown as TodaySlateView, slate.date);
   const emptyReason = (lvl: RiskLevel): string => {
     const scope = SCOPE_FOR[sport];
     return (scope && diag.matrix[scope]?.[lvl]?.message) || `No ${RISK_LABEL[lvl]} ${SPORT_LABEL[sport] ?? sport} card passed today's model gates.`;
@@ -356,7 +361,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
             return (
               <div key={lvl} className="space-y-2.5">
                 <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} risk · {cards.length}</div>
-                {cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)}
+                {cards.map((c) => <ParlayCard key={c.parlayId} card={c} legs={legsOf(c)} />)}
               </div>
             );
           })}
@@ -383,7 +388,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
                   <div key={lvl} className="space-y-2.5">
                     <div className="text-[12.5px] font-semibold uppercase tracking-wide" style={{ color: "var(--vault-text-faint)" }}>{RISK_LABEL[lvl]} risk · {cards.length}</div>
                     {cards.length > 0
-                      ? cards.map((c) => <ParlayCard key={c.parlayId} card={c} />)
+                      ? cards.map((c) => <ParlayCard key={c.parlayId} card={c} legs={legsOf(c)} />)
                       : <div className="rounded-lg px-3 py-2 text-[12px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>{emptyReason(lvl)}</div>}
                   </div>
                 );
@@ -396,7 +401,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: TodaySlate
               {gameGroups.length === 0 && <div className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No non-conflicting same-game parlays today.</div>}
               {gameGroups.map((g) => (
                 <Accordion key={g.gameId} title={`Game ${g.label}`} subtitle={`${g.parlays.length} parlay${g.parlays.length === 1 ? "" : "s"}`}>
-                  {g.parlays.map((c) => <ParlayCard key={c.parlayId} card={c} />)}
+                  {g.parlays.map((c) => <ParlayCard key={c.parlayId} card={c} legs={legsOf(c)} />)}
                 </Accordion>
               ))}
             </div>

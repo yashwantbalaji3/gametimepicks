@@ -12,7 +12,7 @@
  * ?sport= / ?game= / ?q= prefilter the pool ("Build from this game" deep links).
  */
 import { buildEngineLegs, type BuildLeg } from "@/lib/build-legs";
-import { loadTodaySlate, currentSlateDate } from "@/lib/parlays/ui-loader";
+import { loadTodaySlate, currentSlateDate, explorerSlateView } from "@/lib/parlays/ui-loader";
 import BuildExperience, { type SeedableCard } from "@/components/build-experience";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
 import { buildCoverageMatrix } from "@/lib/parlays/coverage-matrix";
@@ -81,7 +81,7 @@ export default function ParlayCenterCustomPage() {
             Advanced — card-builder coverage &amp; the full eligible-leg pool (by risk). Tap to expand.
           </summary>
           <div className="px-1 pb-2 pt-1">
-            <ParlaysExplorer slate={engineSlate} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} />
+            <ParlaysExplorer slate={explorerSlateView(engineSlate)} coverage={buildCoverageMatrix(engineSlate, loadMoonshotLane(), new Date().toISOString())} />
           </div>
         </details>
       </section>

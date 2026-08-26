@@ -1,7 +1,12 @@
 # PROGRAM 210 — Execution Log & Final Report
 
-**Verdict: PROGRAM_210_COMPLETE (pending the final push's production receipt at the time of this
-file's commit — the closing commit carries it).** F8 is closed with a corruption-guarded exception
+**Verdict: PROGRAM_210_COMPLETE.** *(Correction, P211 Phase 0: the original text below read
+"pending the final push's production receipt" — that receipt is now proven: CI run 33017599392
+succeeded and production served 105dfd4bb, cache-bypass verified per release. Additionally, the
+original "zero ordinary engineering" claim is reconciled: the ui-loader leg-dedupe item filed under
+"engineering-flagged for a future train" IS an ENGINEERING item and became P211 Release 0 — the
+dedupe has since landed with parity guards; the remaining <600KB lever is ENGINEERING, tracked
+openly. Original text preserved below unedited.)* F8 is closed with a corruption-guarded exception
 registry; every active suggested-card producer emits structured legs and seeds the shared draft;
 the World Cup producer has an evidence-based archive disposition; every remaining sport gate is
 REALITY- or FOUNDER-owned with its exact acceptance event. Zero ordinary engineering remains in
@@ -15,7 +20,7 @@ the queue.
   |---|---|---|---|
   | R-A · F8 closure | 6539cec1a | a7b0436f7 | 1,007 exact substitutions; registry + corruption guard; ratchet at floor |
   | R-B · structured legs | 37f4c15a0 | 6539cec1a | one seed-map owner; lanes seed; WC archived; exhibition registry |
-  | Final assurance | (closing commit — in-flight) | 37f4c15a0 | receipts + production verify |
+  | Final assurance | 105dfd4bb | 37f4c15a0 | CI 33017599392 success; production served 105dfd4bb, cache-bypass verified per release (corrected by P211 Phase 0 — row was written pre-push) |
 
 ## F8 report (Release A)
 - Start emissions 1,159 (measured); final **162 total / 32 reachable drift — every one registered**.
