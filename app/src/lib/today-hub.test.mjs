@@ -180,11 +180,12 @@ test("10 · Home stays the focused landing (LandingHero + FlagshipCards, no Toda
 });
 
 // 11 — /simulate remains premium (simulate-lobby hero + featured).
-test("11 · /simulate remains the premium simulation lobby (hero + featured)", () => {
-  assert.match(simulatePage, /SimulateLobby/, "/simulate renders the shared simulate lobby");
-  const lobby = read("src/components/games/simulate-lobby.tsx");
-  assert.match(lobby, /simulate-hero/, "lobby keeps its simulation-first hero");
-  assert.match(lobby, /featuredSimulations/, "lobby keeps its featured simulations");
+test("11 · /simulate remains the premium selection destination (day selector + depth below)", () => {
+  // P209: the day selector replaced the aggregate lobby. The premium contract this pin protects —
+  // /simulate leads with choosing an event and keeps its depth — now reads from the new owners.
+  assert.match(simulatePage, /SimulateDay/, "/simulate renders the shared day component");
+  assert.match(simulatePage, /SimulationExplorer/, "slate-wide depth stays on the page");
+  assert.match(simulatePage, /SimulationCoverageMatrix/, "the honest coverage matrix stays on the page");
 });
 
 // 12 — no banned copy in today/page.tsx + new components.

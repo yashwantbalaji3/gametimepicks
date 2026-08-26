@@ -15,16 +15,21 @@ const simulatePage = read("src/app/simulate/page.tsx");
 const gamesPage = read("src/app/games/page.tsx");
 const lobby = read("src/components/games/simulate-lobby.tsx");
 
-test("/simulate is the canonical lobby; /games is collapsed to a redirect to it (one URL)", () => {
-  assert.match(simulatePage, /from "@\/components\/games\/simulate-lobby"/, "/simulate imports the shared lobby");
-  assert.match(simulatePage, /<SimulateLobby \/>/, "/simulate renders it");
+test("/simulate is the canonical selection destination; /games is collapsed to a redirect to it (one URL)", () => {
+  // P209 Release A: the day selector replaced the aggregate lobby — /simulate and /simulate/d/[date]
+  // render the SAME server view from the ONE selector (lib/simulate/day-view). The invariant this
+  // guard has always protected is unchanged: one canonical URL, no duplicated data logic in pages.
+  assert.match(simulatePage, /from "@\/lib\/simulate\/day-view"/, "/simulate reads the one day selector");
+  assert.match(simulatePage, /<SimulateDay view=\{view\} \/>/, "/simulate renders the shared day component");
+  const datePage = fs.readFileSync("src/app/simulate/d/[date]/page.tsx", "utf8");
+  assert.match(datePage, /buildSimulateDay\(params\.date\)/, "the date route uses the same selector");
+  assert.match(datePage, /<SimulateDay view=\{view\} \/>/, "…and the same component");
   // /games no longer duplicates the lobby — it client-redirects to /simulate (static-export-safe).
   assert.match(gamesPage, /ClientRedirect/, "/games renders a ClientRedirect");
   assert.match(gamesPage, /to="\/simulate\/"/, "/games redirects to /simulate");
   assert.ok(!/<SimulateLobby/.test(gamesPage), "/games no longer mounts the lobby (deduped)");
-  // The heavy data logic lives ONCE in the component, not duplicated in the pages.
+  // The heavy data logic lives ONCE in the selector lib, not duplicated in the pages.
   assert.ok(!/buildAllGameDetails/.test(simulatePage) && !/buildAllGameDetails/.test(gamesPage), "no data logic duplicated in the page files");
-  assert.match(lobby, /buildAllGameDetails/, "the shared component owns the data logic");
 });
 
 test("/simulate has its own metadata (Simulate) and the lobby is simulate-framed", () => {

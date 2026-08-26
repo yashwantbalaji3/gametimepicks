@@ -1,9 +1,13 @@
 /**
- * /simulate — the clean, user-facing simulation lobby. Renders the shared SimulateLobby (the SAME
- * component as /games), so there is no duplicated logic. Static-export safe; reads committed artifacts
- * only; never generates data or touches money.
+ * /simulate — the date-first, sport-first event selection destination (P209 · Release A).
+ *
+ * Today's view of the ONE day selector (lib/simulate/day-view). Other dates are real routes at
+ * /simulate/d/[date] (same component, same selector), so date survives refresh/share/back.
+ * The deeper context — how to read a simulation, the slate-wide explorer, the honest coverage
+ * matrix — stays below the chooser: the page's first job is picking an event.
  */
-import SimulateLobby from "@/components/games/simulate-lobby";
+import SimulateDay from "@/components/simulate/simulate-day";
+import { buildSimulateDay } from "@/lib/simulate/day-view";
 import HowToRead from "@/components/how-to-read";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import SimulationExplorer from "@/components/games/simulation-explorer";
@@ -11,24 +15,32 @@ import SimulationExplorer from "@/components/games/simulation-explorer";
 export const metadata = {
   title: "Simulate · GameTime Picks",
   description:
-    "Simulate today's games — pick a game and run the deterministic model simulation (precomputed, so everyone sees the same result), then see the model's picks, confidence and risk. Educational, paper-only.",
+    "Pick a sport and a date, then open the event's deterministic simulation report — precomputed, so everyone sees the same result. Educational, paper-only.",
 };
 
 export default function SimulatePage() {
+  const view = buildSimulateDay();
   return (
-    <>
-      <div className="px-3 sm:px-6 lg:px-8 pt-4">
-        <HowToRead preset="simulate" title="How to read a simulation" />
-      </div>
-      <SimulateLobby />
-      {/* Simulation Explorer — the whole slate's simulated outcomes + player impact, browsable at a glance. */}
-      <div className="px-3 sm:px-6 lg:px-8 pt-6">
-        <SimulationExplorer />
-      </div>
-      {/* Honest market-coverage matrix — what each sport simulates, and every gap with the exact reason. */}
-      <div className="px-3 sm:px-6 lg:px-8 pb-10 pt-6">
-        <SimulationCoverageMatrix />
-      </div>
-    </>
+    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
+      <header className="flex flex-col gap-1">
+        <h1 className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 24, fontWeight: 800 }}>
+          Simulate
+        </h1>
+        <p className="m-0 max-w-[72ch]" style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.6 }}>
+          Choose a sport and a date, then open the event&rsquo;s report. {view.totals.ready} of {view.totals.events} events
+          on this slate carry a model artifact; every other state says exactly what it is.
+        </p>
+      </header>
+
+      <SimulateDay view={view} />
+
+      <HowToRead preset="simulate" title="How to read a simulation" />
+
+      {/* Slate-wide simulated outcomes + player impact — depth AFTER the chooser. */}
+      <SimulationExplorer />
+
+      {/* Honest market-coverage matrix — what each sport simulates, and every gap with the reason. */}
+      <SimulationCoverageMatrix />
+    </div>
   );
 }

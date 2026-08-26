@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-08-26T02:34:37Z",
+ "generatedAt": "2026-08-26T03:36:56Z",
  "totals": {
-  "routes": 61,
-  "public": 37,
+  "routes": 62,
+  "public": 38,
   "internal": 4,
   "redirects": 17,
   "archive": 1,
@@ -487,10 +487,20 @@
    "route": "/simulate",
    "classification": "public",
    "owner": "product",
-   "purpose": "pick a game, run its simulation report",
-   "dataOwner": "sim artifacts",
-   "freshness": "artifact generatedAt",
+   "purpose": "date-first/sport-first event selection (today view of the day selector, P209)",
+   "dataOwner": "lib/simulate/day-view over per-sport owners",
+   "freshness": "each owner's own stamp",
    "built": true
+  },
+  {
+   "route": "/simulate/d/[date]",
+   "classification": "public",
+   "owner": "product",
+   "family": true,
+   "purpose": "one static page per in-window date — same selector, date as the route (P209)",
+   "dataOwner": "lib/simulate/day-view over per-sport owners",
+   "freshness": "each owner's own stamp",
+   "built": "FAMILY (22 generated page(s))"
   },
   {
    "route": "/sports",
