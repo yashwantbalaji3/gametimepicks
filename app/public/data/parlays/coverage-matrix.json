@@ -2,7 +2,7 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-25T16:12:16Z",
+ "generatedAt": "2026-08-26T16:37:55Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
   "PUBLISHED": 6,
@@ -13,7 +13,7 @@
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-08-25",
+   "date": "2026-08-26",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
@@ -23,15 +23,15 @@
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "slip_2026-08-25_conservative_baf50ff03ad2"
+     "slipId": "slip_2026-08-26_conservative_26a76e6a2db2"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "no priced card in this tier on today's slate"
+     "state": "PUBLISHED",
+     "slipId": "slip_2026-08-26_conservative_08cde1627b1d"
     },
     "longshot": {
-     "state": "PUBLISHED",
-     "slipId": "slip_2026-08-25_aggressive_6ef8e36de0cb"
+     "state": "NO_PLAY",
+     "reason": "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
     }
    }
   },
@@ -109,7 +109,7 @@
   },
   {
    "lane": "multi",
-   "date": "2026-08-25",
+   "date": "2026-08-26",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
