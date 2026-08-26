@@ -39,6 +39,7 @@ import type { TeamMarketRow } from "@/components/mlb/team-markets-box";
 
 import path from "node:path";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
+import SportHubNav from "@/components/sports/sport-hub-nav";
 import MlbFlagshipSections from "@/components/mlb/mlb-flagship-sections";
 import HomerNukesBoardSection from "@/components/mlb/homer-nukes-board";
 import { loadHomerNukesBoard } from "@/lib/mlb/homer-nukes-board";
@@ -381,6 +382,20 @@ export default function MlbLandingPage() {
         <MlbSectionTabs />
       </div>
 
+      {/* P208 · Release C — the shared section nav: every hub capability one action from here.
+          Conditional sections pass through only when they rendered, so no strip item is dead. */}
+      <div className="mb-4">
+        <SportHubNav
+          sport="mlb"
+          anchors={[
+            "mlb-overview", "mlb-board",
+            ...(simSet ? ["mlb-sims"] : []),
+            ...(riskLadder ? ["mlb-ladder"] : []),
+            "mlb-method",
+          ]}
+        />
+      </div>
+
       {/* Slate liveness (real ET clock) — on an MLB no-games day (e.g. the All-Star break) this says so
           plainly instead of presenting the most-recent board as live. Hidden on a live day. */}
       <div className="mb-4">
@@ -399,6 +414,7 @@ export default function MlbLandingPage() {
           three stat CARDS — spent most of the first screen introducing a page the reader already
           chose, pushing the board itself below the fold. Same facts, one strip. The framing moved
           down to the methodology panel, where someone who wants it goes looking. */}
+      <section id="mlb-overview" className="scroll-mt-24">
       <SportOverviewHero
         compact
         badge={<CompetitionBadge sport="mlb" size="sm" />}
@@ -419,6 +435,8 @@ export default function MlbLandingPage() {
       />
 
 
+      </section>
+
       {/* Honest slate freshness — always visible (the tabbed board below is deferred/client-rendered). */}
       <div className="mt-4 flex items-center justify-end gap-2">
         <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>MLB board</span>
@@ -435,7 +453,7 @@ export default function MlbLandingPage() {
        */}
       {/* The board is rendered INSIDE MlbFlagshipSections now, so it leads the same grid the three
           market columns sit in rather than floating above an unrelated block. */}
-      <div className="mt-4">
+      <div className="mt-4 scroll-mt-24" id="mlb-board">
         <MlbFlagshipSections
           props={mlbProps}
           games={flagshipGames}
@@ -452,7 +470,9 @@ export default function MlbLandingPage() {
         flagship, and it belongs beside the other flagship sections.
       */}
       {simSet ? (
-        <MlbSimulationsSection set={simSet} hrefFor={(c) => gameHrefByMatchId("mlb", c.gamePk)} />
+        <div id="mlb-sims" className="scroll-mt-24">
+          <MlbSimulationsSection set={simSet} hrefFor={(c) => gameHrefByMatchId("mlb", c.gamePk)} />
+        </div>
       ) : null}
 
       {/*
@@ -467,7 +487,7 @@ export default function MlbLandingPage() {
           18-card Suggested Cards tab never answered directly. Every tier ships with its own
           measured record because every tier of this stream is negative. */}
       {riskLadder ? (
-        <div className="mt-8">
+        <div className="mt-8 scroll-mt-24" id="mlb-ladder">
           <RiskLadderBoard
             cards={riskLadder.cards}
             skipped={riskLadder.skipped}
@@ -489,7 +509,7 @@ export default function MlbLandingPage() {
       ) : null}
 
       {/* Simulation methodology + honest per-market coverage — how the MLB sim works and every gap. */}
-      <div className="mt-8 flex flex-col gap-6">
+      <div className="mt-8 flex flex-col gap-6 scroll-mt-24" id="mlb-method">
         <SportMethodologyPanel sport="mlb" />
         <SimulationCoverageMatrix sport="mlb" />
       </div>

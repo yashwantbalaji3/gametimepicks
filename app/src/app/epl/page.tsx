@@ -29,6 +29,7 @@ import SportOverviewHero from "@/components/sport-overview-hero";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, topForSport } from "@/lib/top-reads";
 import SectionHeader from "@/components/section-header";
+import SportHubNav from "@/components/sports/sport-hub-nav";
 import TeamLogo from "@/components/team-logo";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
@@ -192,6 +193,19 @@ export default function EplPage() {
 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
+      {/* P208 · Release C — shared section nav; every hub capability one action from here. */}
+      <div className="mb-4">
+        <SportHubNav
+          sport="epl"
+          anchors={[
+            "epl-overview",
+            ...(days.length > 0 ? ["epl-fixtures"] : []),
+            ...(gradedRecord && gradedRecord.team.matches > 0 ? ["record"] : []),
+            "schedule",
+          ]}
+        />
+      </div>
+      <section id="epl-overview" className="scroll-mt-24">
       <SportOverviewHero
         compact
         icon="⚽"
@@ -236,10 +250,11 @@ export default function EplPage() {
           compared against any price.
         </p>
       </section>
+      </section>
 
       {/* ── 1 · TEAM PREDICTIONS for the matchday ──────────────────────────────────────────────── */}
       {days.length > 0 ? (
-        <section className="mt-8">
+        <section className="mt-8 scroll-mt-24" id="epl-fixtures">
           {/*
             The title must cover what the SECTION contains, not just its first group. It read
             "Friday, August 21" above a list that also held Saturday, Sunday and Monday fixtures —
@@ -402,7 +417,7 @@ export default function EplPage() {
         not been run for this sport.
       */}
       {gradedRecord && gradedRecord.team.matches > 0 && (
-        <section className="mt-8" id="record">
+        <section className="mt-8 scroll-mt-24" id="record">
           <SectionHeader
             eyebrow="Settled"
             title={`Graded so far · ${gradedRecord.team.matches} match${gradedRecord.team.matches === 1 ? "" : "es"}`}
@@ -467,7 +482,7 @@ export default function EplPage() {
       ) : null}
 
       {/* ── 4 · SCHEDULE — reference, deliberately last ────────────────────────────────────────── */}
-      <section className="mt-8" id="schedule">
+      <section className="mt-8 scroll-mt-24" id="schedule">
         <SectionHeader eyebrow="Schedule" title="2026-27 fixture list" sub="Every fixture, whether or not the model can price it." />
         <div className="mt-3">
           <ScheduleList

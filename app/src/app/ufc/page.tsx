@@ -22,6 +22,7 @@ import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import path from "node:path";
 import Link from "next/link";
+import SportHubNav from "@/components/sports/sport-hub-nav";
 import UfcEventResultsRecap, { type UfcSettlement } from "@/components/ufc/event-results-recap";
 import SportLabCards from "@/components/sport-lab-cards";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
@@ -110,7 +111,9 @@ export default function UfcArchivePage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
-      <header className="flex flex-col gap-2">
+      {/* P208 · Release C — shared section nav; every hub capability one action from here. */}
+      <SportHubNav sport="ufc" />
+      <header id="ufc-overview" className="flex flex-col gap-2 scroll-mt-24">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 24, fontWeight: 700 }}>
             UFC
@@ -155,7 +158,7 @@ export default function UfcArchivePage() {
         </nav>
       </header>
 
-      <section className="flex flex-col gap-3">
+      <section id="ufc-card" className="flex flex-col gap-3 scroll-mt-24">
         <div className="flex flex-wrap items-center gap-2">
           {/*
             "NEXT CARD" WAS A LITERAL STRING, and it was wrong for three days out of every seven.

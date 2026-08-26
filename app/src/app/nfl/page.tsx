@@ -27,6 +27,7 @@ import Explain from "@/components/ui/explain";
 import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
+import SportHubNav from "@/components/sports/sport-hub-nav";
 
 import EventCard from "@/components/event-card";
 import PlayerAvatar from "@/components/player-avatar";
@@ -243,6 +244,17 @@ export default function NflHubPage() {
     // A DIV, not a <main>: the app layout already provides the single main landmark, which is
     // exactly why /mlb wraps in a div too. Using <main> here produced two landmarks.
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden flex flex-col gap-10">
+      {/* P208 · Release C — shared section nav; conditional sections pass through only when they
+          rendered, so no strip item is dead. */}
+      <SportHubNav
+        sport="nfl"
+        anchors={[
+          "nfl-slate",
+          ...(vault && (vault.watchlist?.length || vault.selections?.length) ? ["nfl-vault"] : []),
+          ...(marketRows.length ? ["nfl-markets"] : []),
+          "nfl-results", "nfl-coverage",
+        ]}
+      />
       {/* P177-A: the shared sport hero. The freshness badge rides in the badge slot and
           re-derives the REAL browser ET date after mount, so a slate page left open overnight
           stops claiming to be today's. */}
@@ -307,7 +319,7 @@ export default function NflHubPage() {
 
       {/* ── THE SLATE ─────────────────────────────────────────────────────────
           One card per game, each carrying its own simulation and its own full report. */}
-      <section aria-labelledby="nfl-slate" id="nfl-slate">
+      <section aria-labelledby="nfl-slate" id="nfl-slate" className="scroll-mt-24">
         <SectionHeader
           eyebrow={slateDay ? `Slate · ${slateDay}` : "Slate"}
           title={slateGames.length === 0 ? "No slate in the capture window" : `${slateLabel} — ${slateGames.length} game${slateGames.length === 1 ? "" : "s"}`}
@@ -391,7 +403,7 @@ export default function NflHubPage() {
       ) : null}
 
       {vault && (vault.watchlist?.length || vault.selections?.length) ? (
-        <section aria-labelledby="nfl-vault" id="nfl-vault">
+        <section aria-labelledby="nfl-vault" id="nfl-vault" className="scroll-mt-24">
           <SectionHeader
             eyebrow="Players"
             title="Endzone Vault"
@@ -446,7 +458,7 @@ export default function NflHubPage() {
       ) : null}
 
       {marketRows.length ? (
-        <section aria-labelledby="nfl-markets" id="nfl-markets">
+        <section aria-labelledby="nfl-markets" id="nfl-markets" className="scroll-mt-24">
           <SectionHeader
             eyebrow={`Prices · captured ${markets.capturedAt}`}
             title="Sportsbook prices for this slate"
@@ -490,7 +502,7 @@ export default function NflHubPage() {
         </section>
       ) : null}
 
-      <section aria-labelledby="nfl-results" id="nfl-results">
+      <section aria-labelledby="nfl-results" id="nfl-results" className="scroll-mt-24">
         <SectionHeader
           eyebrow="Results"
           title="Recent finals"
@@ -521,7 +533,7 @@ export default function NflHubPage() {
       */}
       {nflGraded ? <GradedPicksSection record={nflGraded} href="/results/picks/nfl" /> : null}
 
-      <section aria-labelledby="nfl-coverage" id="nfl-coverage">
+      <section aria-labelledby="nfl-coverage" id="nfl-coverage" className="scroll-mt-24">
         <SectionHeader
           eyebrow="Status"
           title="Coverage, market by market"
