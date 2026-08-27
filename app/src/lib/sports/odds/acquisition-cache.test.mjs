@@ -135,6 +135,9 @@ test("THE SPLIT · the capture reaches its transform on a cooldown, and cannot s
   assert.match(code, /if \(!acquisition\) \{\s*\nledger = recordRequest/, "a re-derivation must not record a request");
   assert.match(code, /if \(!acquisition && status === 200/, "a re-derivation must not re-stamp the cache");
 
+  assert.match(code, /creditCost: acquisition \? 0 :/,
+    "a re-derivation must publish zero cost — reading the last ledger entry would claim the EARLIER purchase's credit");
+
   // And the one thing that must never appear inside the re-derivation branch.
   const branch = code.slice(code.indexOf("if (acquisition) {"), code.indexOf("} else {", code.indexOf("if (acquisition) {")));
   assert.doesNotMatch(branch, /fetch\(/, "nothing in the re-derivation path may contact the provider");

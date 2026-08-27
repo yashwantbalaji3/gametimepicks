@@ -366,7 +366,17 @@ const snapshot = {
   oddsReady,
   partiallyPriced,
   blockers,
-  creditCost: ledger.requests.at(-1)?.creditsUsed ?? WORST_CASE_CREDITS,
+  /*
+   * ZERO ON A RE-DERIVATION. This read the last ledger entry unconditionally, which on a
+   * re-derivation is the EARLIER purchase — so the artifact claimed a credit this derivation had
+   * not spent. Small, but it is the same class of accounting lie the re-derivation path is guarded
+   * against everywhere else, and the artifact is what a reader believes.
+   */
+  creditCost: acquisition ? 0 : (ledger.requests.at(-1)?.creditsUsed ?? WORST_CASE_CREDITS),
+  /* Present only when these bytes were not bought by this run — provenance for a free transform. */
+  derivedFrom: acquisition
+    ? { responseHash: acquisition.responseHash, acquiredAt: acquisition.acquiredAt, spent: 0 }
+    : null,
   creditsRemaining: Number(headers["x-requests-remaining"]) || null,
   authorization: { receipt: "docs/receipts/ODDS_AUTHORIZATION_UFC.md", ceiling: auth.ceiling, cumulative: ledger.cumulativeCredits },
   note: "Fight-winner prices only, median across posted US books. Paper-only; no wagers are placed.",
@@ -388,7 +398,7 @@ fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, "odds-latest.json"), payload);
 fs.writeFileSync(path.join(OUT, `odds-${card.event.slateDate}.json`), payload);
 
-console.log(`ufc odds: ${bouts.length}/${card.bouts.length} bouts priced · ${snapshot.creditCost} credit(s) · cumulative ${ledger.cumulativeCredits}/${auth.ceiling}`);
+console.log(`ufc odds: ${bouts.length}/${card.bouts.length} bouts priced · ${snapshot.creditCost} credit(s)${acquisition ? " (re-derived, nothing bought)" : ""} · cumulative ${ledger.cumulativeCredits}/${auth.ceiling}`);
 for (const r of rescued) console.log(`  ALIAS JOIN: ${r.boutId} ${r.matchup} ← provider "${r.providerKey}"`);
 for (const u of unpriced) console.log(`  ${u.state}: ${u.boutId} ${u.matchup} — ${u.reason}`);
 for (const u of unmatchedProviderEvents) console.log(`  UNMATCHED PROVIDER EVENT: ${u.providerEventId} (${u.key})`);
