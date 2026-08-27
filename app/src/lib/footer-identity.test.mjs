@@ -59,12 +59,20 @@ test("footer links the flagship products (Simulate, Today, Bank Builder, Results
   }
 });
 
-// ── 3 · simulation-first, paper-only, same-output identity copy present ───────────────────────────
-test("footer carries simulation-first + paper-only identity copy", () => {
-  assert.match(FOOTER, /simulation-first/i, "simulation-first framing present");
+// ── 3 · ONE approved educational sentence + the About link (P213 · Release A) ─────────────────────
+/*
+ * The footer used to REQUIRE the full identity paragraph ("simulation-first… same model output for
+ * every user"). P213's copy governance centralizes identity/methodology prose at /about — and the
+ * old footer paragraph had already rotted ("MLB is the one sport currently modelled" survived EPL
+ * forecasts and UFC predictions going live). The footer's contract now: the ONE approved
+ * educational/legal sentence, paper-only stated, and the About link to the identity owner.
+ */
+test("footer carries the one approved educational sentence and links the About owner", () => {
   assert.match(FOOTER, /paper-only/i, "paper-only framing present");
-  assert.match(FOOTER, /same model output for every\s*\n?\s*user/i, "same-output-for-every-user framing present");
   assert.match(FOOTER, /not betting advice/i, "not-betting-advice disclaimer present");
+  assert.match(FOOTER, /educational and research use only/i, "the approved sentence is intact");
+  assert.match(FOOTER, /href="\/about\/?"/, "the About owner is linked where the paragraph used to be");
+  assert.ok(!/one sport currently modelled/i.test(FOOTER), "the stale coverage claim never returns");
 });
 
 // ── 4 · no banned copy anywhere in the footer ────────────────────────────────────────────────────

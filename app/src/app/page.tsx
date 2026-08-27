@@ -251,6 +251,17 @@ export default function HomePage() {
     },
   ];
 
+  // P213 R-A: the hero's live-status row — sums over the SAME product-day owners the Simulation
+  // Hub reads; active product cards from the same portfolio the product tiles read; the settled
+  // anchor shared with the results strip below. No new data paths.
+  // "events today" counts ONLY days that are LIVE on today's slate date — an EVENT_UPCOMING
+  // Saturday card must never inflate a Tuesday ("28 events today" with 13 of them on Aug-29 was
+  // this hero's first draft; the browser caught it).
+  const eventsTodayTotal = [mlbDay, eplDay, ufcDay, nflDay].reduce(
+    (n, d) => n + (d?.state === "LIVE" && d?.productDate === serverToday ? d.events : 0), 0);
+  const activeProductCards = dailyPortfolio.cards.filter((c) => c.status === "active").length;
+  const lastSettledDate = getOptimizerSettledDates().sort().slice(-1)[0] ?? null;
+
   const dateLabel = new Date(`${today}T12:00:00Z`).toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric",
   });
@@ -275,7 +286,14 @@ export default function HomePage() {
       {/* 1 — Simulation-first hero. It carries no money figure: a paper bankroll beside a paper record
           on the front door reads as a return, and the ONE claim above it is that we are behind the
           market. The record and every settled card live on /results. */}
-      <LandingHero readyCount={simulationsToday} />
+      <LandingHero
+        readyCount={simulationsToday}
+        activeSports={primarySports.length}
+        eventsToday={eventsTodayTotal}
+        qualifiedPicks={topPicks}
+        activeProducts={activeProductCards}
+        lastSettledDate={lastSettledDate}
+      />
 
       {/* 2 — Simulation Hub: the per-sport simulation centers, directly under the hero (P200). This
           IS the live-sports strip — each card carries its sport's derived state, honest tier line and
@@ -324,7 +342,7 @@ export default function HomePage() {
       <RecentResultsStrip
         recordLabel={recordLabel}
         pendingLabel={pendingLabel}
-        lastSettledDate={getOptimizerSettledDates().sort().slice(-1)[0] ?? null}
+        lastSettledDate={lastSettledDate}
       />
 
       {/* 5 — Today's MLB destination hook: freshness + availability + one path into the /today brief. */}

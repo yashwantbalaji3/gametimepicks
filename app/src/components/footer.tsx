@@ -132,11 +132,12 @@ export default function Footer() {
             >
               About
             </div>
+            {/* P213 R-A: the About prose (and its STALE coverage claim — "MLB is the one sport
+                currently modelled" survived EPL forecasts and UFC predictions going live) moved to
+                /about, its one owner. The footer keeps the ONE approved educational sentence. */}
             <p className="leading-relaxed max-w-prose">
-              GameTime Picks is a simulation-first, paper-only sports model. Run
-              deterministic game simulations, review today&rsquo;s model slate, and track
-              every result against official settlement — the same model output for every
-              user. MLB is the one sport currently modelled; the NBA archive is settled history only.
+              GameTime Picks — paper-only simulations, picks and settled results.{" "}
+              <a href="/about/" style={{ color: "var(--vault-text)", textDecoration: "underline" }}>About the project</a>.
             </p>
             <p
               className="mt-3 text-[12px]"

@@ -66,7 +66,9 @@ test('a sentence containing "today" is backed by a count of TODAY', () => {
    * SIMULATION_READY — arriving on a second surface. The hero must read `simulationsToday`.
    */
   const home = stripComments(fs.readFileSync(path.join(APP, "src/app/page.tsx"), "utf8"));
-  assert.match(home, /<LandingHero readyCount=\{simulationsToday\}/,
+  // P213 R-A: the hero call is multi-line now (it carries the live-status row's props); the
+  // contract is unchanged — readyCount must be the TODAY-dated figure, never the pool size.
+  assert.match(home, /<LandingHero[\s\S]{0,300}?readyCount=\{simulationsToday\}/,
     "the hero's availability line must be backed by simulations dated today, not by a pool size");
 
   const selector = stripComments(

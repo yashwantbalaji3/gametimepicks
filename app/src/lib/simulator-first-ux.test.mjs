@@ -27,7 +27,9 @@ const BANNED = /\bguaranteed\b|\block\b|\bsafest\b|can'?t lose|Monte Carlo|live 
 test("homepage has a first-class 'Simulate Today's Games' CTA + a real sim-ready games surface", () => {
   assert.match(hero, /Simulate Today.{0,10}s Games/i, "the primary CTA is simulate-first");
   assert.match(hero, /href="\/simulate"/, "links to the /simulate lobby");
-  assert.match(hero, /Simulate today.{0,10}s games/i, "headline is simulate-first");
+  // P213 R-A: the headline is the charter's action-first "Today's games, picks and results." —
+  // simulate-first is carried by the PRIMARY CTA (first action in the hero), asserted above.
+  assert.match(hero, /Today.{0,10}s games, picks and results/i, "headline is the launchpad line");
   assert.ok(!BANNED.test(hero), "no banned copy on the hero");
   // Real ready-artifact games are featured on the homepage with a Simulation Ready badge (never faked).
   assert.match(featured, /Simulation Ready/, "the featured section badges sim-ready games");

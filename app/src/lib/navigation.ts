@@ -134,7 +134,10 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * that is what the note and descriptor now carry.
    */
   { href: "/epl", label: "Premier League", note: "forecasts · not validated", group: "sports", glyph: "⚽",
-    desc: "Schedule + model forecasts · not validated out of sample",
+    /* P213 R-A: the limitation lives ONCE per surface — the note carries "not validated" (the P185
+       contract, guard-pinned within the entry) and /epl states it in full; the desc repeating the
+       whole sentence made the rail sublabel a methodology line. */
+    desc: "Soccer hub · matchweek forecasts",
     surfaces: ["rail", "footer"] },
   /* No `note`: the label already ends in "Schedules", and "Sports · Schedules · schedules" is
      what a note that repeats its own label looks like. */

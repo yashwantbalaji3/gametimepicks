@@ -106,14 +106,15 @@ export default function Nav() {
           uses stacked rows because the brand mark needs the full
           width and the nav strip wraps. */}
 
-      {/* Mobile (< sm): row 1 = centered brand, shown big */}
+      {/* Mobile (< sm): row 1 = centered brand. P213 R-A: lockup size — the hero-size mark spent
+          ~13% of a phone viewport on brand before any content; the launchpad gets it back. */}
       <div className="sm:hidden px-4 pt-2 pb-1.5 flex items-center justify-center">
         <Link
           href="/"
           aria-label="GameTimePicks home"
           className="vault-glow-hover rounded-[6px] py-1 px-2 inline-flex items-center"
         >
-          <BrandMark variant="hero" />
+          <BrandMark variant="lockup" />
         </Link>
       </div>
 

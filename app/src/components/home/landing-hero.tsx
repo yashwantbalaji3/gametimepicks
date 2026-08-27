@@ -1,132 +1,122 @@
 /**
- * LandingHero — Section 1 of the `/` landing page. A simulation-first front door: a plain headline, a
- * short paper-only/educational + deterministic explainer, and two CTAs (Simulate → /simulate, Today →
- * /today). Purely presentational — it receives every figure as a pre-formatted prop and NEVER reads
- * data, recomputes, or hardcodes a dollar value / record. Mobile-first (~390px, ≥44px tap targets),
- * vault design tokens only, no custom animation beyond the reduced-motion-aware utilities.
+ * LandingHero — the homepage's first viewport (P213 · Release A). A LAUNCHPAD, not a manifesto:
+ * one short headline, the three primary jobs, and one derived live-status row. The badge stack and
+ * explanatory paragraph the founder's 2026-08-26 screenshot flagged are GONE from the hero — the
+ * beta/deterministic/educational framing lives on /about and /methodology, and the one global
+ * educational note is the site-wide strip; repeating them here bought no comprehension and cost
+ * the whole first viewport.
  *
- * It carries NO money and NO win–loss figure by design. A paper bankroll beside a paper record on the
- * front door reads as a return, and the measured comparison directly above this hero says the market
- * is the better estimate. Those figures belong on /results, next to the cards that produced them.
+ * Purely presentational — every figure arrives as a pre-formatted prop from the page's existing
+ * canonical owners. It carries NO money and NO win–loss figure by design (see /results).
  */
 import Link from "next/link";
 
 export interface LandingHeroProps {
-  /** Count of sim-ready games today (from featuredSimulations.readyCount). */
+  /** Count of sim-ready games today (from featuredSimulations). */
   readyCount: number;
+  /** Sports with activity on today's slate (the Simulation Hub's primary partition). */
+  activeSports: number;
+  /** Events across those active sports today (product-day owner sums). */
+  eventsToday: number;
+  /** Ranked model picks today (null ⇒ omitted, never zero-padded). */
+  qualifiedPicks: number | null;
+  /** Active signature-product cards right now (0 is an honest state, not a gap). */
+  activeProducts: number;
+  /** Latest settled slate date (YYYY-MM-DD) — the proof link's anchor. */
+  lastSettledDate: string | null;
 }
 
-function Chip({ children }: { children: React.ReactNode }) {
+const fmtDay = (d: string) => {
+  try {
+    return new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+  } catch {
+    return d;
+  }
+};
+
+function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <span
-      className="inline-flex w-fit items-center gap-2 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.14em]"
-      style={{
-        color: "var(--vault-success)",
-        background: "var(--vault-success-dim)",
-        border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 35%, transparent)",
-        fontSize: 9.5,
-        fontWeight: 700,
-      }}
-    >
-      {children}
+    <span style={{ color: "var(--vault-text-mute)" }}>
+      <span style={{ color: "var(--vault-text)", fontWeight: 700 }}>{value}</span> {label}
     </span>
   );
 }
 
-export default function LandingHero({ readyCount }: LandingHeroProps) {
+export default function LandingHero({ readyCount, activeSports, eventsToday, qualifiedPicks, activeProducts, lastSettledDate }: LandingHeroProps) {
   return (
-    <section aria-label="What GameTime Picks is" className="flex flex-col gap-5">
-      <div
-        className="relative overflow-hidden rounded-[16px] px-5 py-6 sm:px-8 sm:py-9 flex flex-col gap-4"
-        style={{
-          border: "1px solid var(--vault-border-strong)",
-          background:
-            "radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--vault-accent) 10%, transparent) 0%, transparent 55%)," +
-            "linear-gradient(135deg, color-mix(in srgb, var(--vault-scrim-pine) 96%, transparent) 0%, var(--vault-bg) 72%)",
-        }}
+    <section aria-label="Today's launchpad" className="flex flex-col gap-4">
+      <h1
+        className="font-display tracking-tight"
+        style={{ color: "var(--vault-text)", fontSize: "clamp(24px,5.4vw,38px)", fontWeight: 800, lineHeight: 1.05 }}
       >
-        <div className="flex flex-wrap items-center gap-2">
-          <Chip>Public Beta · simulation-powered analytics</Chip>
-          <Chip>Paper-only · Free · Educational</Chip>
-          <Chip>Deterministic · same output for every user</Chip>
-        </div>
+        Today&rsquo;s games, picks and results.
+      </h1>
 
-        <h1
-          className="font-display tracking-tight"
-          style={{ color: "var(--vault-text)", fontSize: "clamp(26px,6.2vw,44px)", fontWeight: 800, lineHeight: 1.04, maxWidth: 720 }}
+      {/* The three primary jobs. Labels and destinations are guard-pinned (P208 J1). */}
+      <div className="flex flex-wrap gap-2.5">
+        <Link
+          href="/simulate"
+          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
+          style={{
+            background: "var(--vault-gold-bright)",
+            color: "var(--vault-on-accent-deep)",
+            fontSize: 12,
+            fontWeight: 700,
+            minHeight: 44,
+            textDecoration: "none",
+          }}
         >
-          Simulate today&rsquo;s games. Review model picks. Track every result.
-        </h1>
+          Simulate Today&rsquo;s Games →
+        </Link>
+        <Link
+          href="/markets"
+          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
+          style={{
+            border: "1px solid var(--vault-border-strong)",
+            color: "var(--vault-text)",
+            fontSize: 12,
+            fontWeight: 700,
+            minHeight: 44,
+            textDecoration: "none",
+          }}
+        >
+          See Today&rsquo;s Picks
+        </Link>
+        <Link
+          href="/build"
+          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
+          style={{
+            border: "1px solid var(--vault-border-strong)",
+            color: "var(--vault-text)",
+            fontSize: 12,
+            fontWeight: 700,
+            minHeight: 44,
+            textDecoration: "none",
+          }}
+        >
+          Open Parlay Center
+        </Link>
+      </div>
 
-        <p className="text-[14px]" style={{ color: "var(--vault-text-mute)", maxWidth: 640, lineHeight: 1.5 }}>
-          GameTime Picks is a simulation-first, paper-only sports model. Run deterministic game
-          simulations, review today&rsquo;s model slate, and follow results with transparent receipts.
-        </p>
-
-        {/* CTAs — primary opens the simulation lobby, secondary opens today's picks. */}
-        <div className="flex flex-wrap gap-2.5 pt-0.5">
-          <Link
-            href="/simulate"
-            className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
-            style={{
-              background: "var(--vault-gold-bright)",
-              color: "var(--vault-on-accent-deep)",
-              fontSize: 12,
-              fontWeight: 700,
-              minHeight: 44,
-              textDecoration: "none",
-            }}
-          >
-            Simulate Today&rsquo;s Games →
-          </Link>
-          {/* P208 (finding J1): "Picks" is ONE destination. This action now opens the ranked picks
-              surface itself (/markets, nav label "Picks") — it used to open /today while the nav's
-              picks item pointed elsewhere, three labels circling one concept. */}
-          <Link
-            href="/markets"
-            className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
-            style={{
-              border: "1px solid var(--vault-border-strong)",
-              color: "var(--vault-text)",
-              fontSize: 12,
-              fontWeight: 700,
-              minHeight: 44,
-              textDecoration: "none",
-            }}
-          >
-            See Today&rsquo;s Picks
-          </Link>
-          {/* P200: the third journey — suggested cards — had no front-door action. P208: named for
-              its destination, the Parlay Center. */}
-          <Link
-            href="/build"
-            className="vault-press inline-flex items-center justify-center rounded-full px-5 font-mono uppercase tracking-[0.1em]"
-            style={{
-              border: "1px solid var(--vault-border-strong)",
-              color: "var(--vault-text)",
-              fontSize: 12,
-              fontWeight: 700,
-              minHeight: 44,
-              textDecoration: "none",
-            }}
-          >
-            Open Parlay Center
-          </Link>
-        </div>
-
-        {/* One factual availability line. No money, no win–loss figure — see the file header. */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 font-mono" style={{ fontSize: 11.5 }}>
-          {readyCount > 0 ? (
-            <span style={{ color: "var(--vault-text-mute)" }}>
-              <span style={{ color: "var(--vault-gold-bright)", fontWeight: 700 }}>{readyCount}</span> games simulation-ready today
-            </span>
-          ) : null}
-          <span style={{ color: "var(--vault-text-faint)" }}>graded from official results only</span>
-          {/* The proof link (charter 5A): Results visible from the hero, as evidence rather than a task. */}
-          <Link href="/results" className="vault-press" style={{ color: "var(--vault-success)", fontWeight: 700, textDecoration: "none" }}>
-            See every settled result →
-          </Link>
-        </div>
+      {/* ONE derived live-status row — current owners only, no hand-kept counts. 0 renders as its
+          honest words; a missing figure is omitted, never zero-padded. */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono" style={{ fontSize: 11.5 }}>
+        <Stat value={String(activeSports)} label={activeSports === 1 ? "sport active" : "sports active"} />
+        <Stat value={String(eventsToday)} label="events today" />
+        {readyCount > 0 ? <Stat value={String(readyCount)} label="simulation-ready" /> : null}
+        {qualifiedPicks != null && qualifiedPicks > 0 ? <Stat value={String(qualifiedPicks)} label="top model picks" /> : null}
+        <span style={{ color: "var(--vault-text-mute)" }}>
+          {activeProducts > 0 ? (
+            <>
+              <span style={{ color: "var(--vault-text)", fontWeight: 700 }}>{activeProducts}</span> active product {activeProducts === 1 ? "card" : "cards"}
+            </>
+          ) : (
+            "no qualified product card today"
+          )}
+        </span>
+        <Link href="/results" className="vault-press" style={{ color: "var(--vault-success)", fontWeight: 700, textDecoration: "none" }}>
+          {lastSettledDate ? `Settled through ${fmtDay(lastSettledDate)} →` : "See every settled result →"}
+        </Link>
       </div>
     </section>
   );
