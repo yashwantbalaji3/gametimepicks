@@ -57,7 +57,10 @@ export default function MarketsPage() {
       <PageHero
         eyebrow="Picks"
         title="Sportsbook prices next to our simulations"
-        sub="Every market is labelled by what we can honestly show for it: both sides, one side, or neither. Probabilities from the sportsbook are converted by GameTimePicks from the posted price — they are not the book's own numbers. Paper and educational only."
+        // P213 R-C: one 12-word-class purpose line — market probabilities' provenance stays (the
+        // MATERIAL_LIMIT), the labelling taxonomy lives in the reading key, the educational note
+        // has one global owner.
+        sub="Market probabilities are de-vigged from the posted price — not the book's own numbers."
       />
 
       {data.isHistorical ? (

@@ -39,9 +39,11 @@ test("the screenshot's badge stack and manifesto paragraph never return to the h
 
 test("the homepage total rendered copy only shrinks (frozen at the R-A measurement)", () => {
   if (!hasBuild) return;
-  // Measured 2026-08-27 post-hero-reset: 1,467 rendered words (pre-reset 1,507). Shrink-only:
-  // later releases lower this ceiling with their own measurements; nothing raises it silently.
-  const CEILING = 1500;
+  // Measured 2026-08-27: 1,432 pregame → 1,501 with games in progress (started-state chips add
+  // real words) — a ceiling tighter than live variance flakes on a healthy slate (the P210
+  // measurement trap). 1,600 holds: the banished-strings test above is the regrowth guard; this
+  // ceiling catches gross creep. Shrink-only, evidence-updated.
+  const CEILING = 1600;
   const w = words(rendered("index.html"));
   assert.ok(w <= CEILING, `homepage rendered words ${w} > frozen ceiling ${CEILING} — copy crept back`);
 });

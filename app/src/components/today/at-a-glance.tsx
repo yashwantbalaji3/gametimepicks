@@ -51,7 +51,6 @@ export default function TodayAtAGlance({ cards }: { cards: GlanceCard[] }) {
     <section aria-label="Today at a glance" className="flex flex-col gap-2.5">
       <div className="flex items-baseline justify-between">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>Today at a glance</h2>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>paper-only</span>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
         {cards.map((c) => (

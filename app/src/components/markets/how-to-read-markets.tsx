@@ -99,15 +99,15 @@ export default function HowToReadMarkets() {
         <p className="font-mono" style={{ color: "var(--vault-text)", fontSize: 12.5, lineHeight: 1.7 }}>
           model <strong>58.6%</strong> − market <strong>66.6%</strong> = <strong>−8.0 pp</strong>
         </p>
+        {/* P213 R-C: same two truths, half the prose — the open example is P185's guard-kept
+            contract; the caution is the settled-record honesty in one sentence. */}
         <p className="mt-2" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.6, maxWidth: "62ch" }}>
-          Our simulation puts this outcome at 58.6%. The sportsbook&rsquo;s price implies 66.6% once their
-          margin is removed. The model is 8.0 percentage points <em>lower</em> than the market here —
+          Our simulation says 58.6%; the sportsbook&rsquo;s margin-free price implies 66.6% —
           <strong> pp</strong> is the gap between two percentages, not scoring points.
         </p>
         <p className="mt-2" style={{ color: "var(--vault-text-faint)", fontSize: 11.5, lineHeight: 1.6, maxWidth: "62ch" }}>
-          A large difference is <strong>not</strong> automatically a good bet. It usually means our model is
-          missing something the market knows — our own settled record shows the model does not beat the
-          market overall. Treat the difference as a question worth asking, not an answer.
+          A large gap is <strong>not</strong> automatically a good bet — our settled record shows the model does not beat the
+          market — treat it as a question, not an answer.
         </p>
       </div>
 

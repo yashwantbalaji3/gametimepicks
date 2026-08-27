@@ -96,7 +96,9 @@ test("the max-age value is not swallowed as an artifact path", () => {
   const f = artifact("only.json", 1);
   const r = run(["--since", since(), "--max-age-min", "90", f]);
   assert.equal(r.code, 0, r.out);
-  assert.doesNotMatch(r.out, /90/, "the number must not be reported as an artifact path");
+  // A bare /90/ matched hex tmpdir names (…c90a…) — a wall-clock/tmpdir flake, not the defect
+  // this guards. The defect shape is the VALUE echoed as its own token (a swallowed positional).
+  assert.doesNotMatch(r.out, /(^|[^0-9a-f])90([^0-9a-f]|$)/m, "the number must not be reported as an artifact path");
   assert.match(r.out, /1 artifact\(s\) produced/);
 });
 

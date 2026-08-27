@@ -40,7 +40,7 @@ export function SlateSummary({ dateLabel, mlbGames, mlbLeans, topPicks, bankBuil
     <section aria-label="Today's slate summary" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>Today&rsquo;s slate</h2>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{dateLabel} · paper-only</span>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>{dateLabel}</span>
       </div>
       <div className="rounded-[14px] px-4 py-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
         <SlateRow label="MLB games" value={mlbGames > 0 ? `${mlbGames} games · ${mlbLeans} model leans` : "No board yet"} tone={mlbGames > 0 ? "gold" : "mute"} />
@@ -108,7 +108,7 @@ export function HowItWorks() {
     <section aria-label="How it works" className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>How it works</h2>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Deterministic artifacts · same output for every user · paper-only</span>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Deterministic artifacts · same output for every user</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {STEPS.map((s) => (
@@ -138,9 +138,6 @@ export function FooterCta() {
       <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px,4.4vw,28px)", fontWeight: 800, lineHeight: 1.08 }}>
         Run a simulation. See the picks. Follow the results.
       </h2>
-      <p className="text-[13px]" style={{ color: "var(--vault-text-mute)", maxWidth: 560 }}>
-        Paper-only and educational — no real money is ever placed.
-      </p>
       <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
         {links.map((l) => (
           <Link

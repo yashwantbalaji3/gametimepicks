@@ -38,7 +38,7 @@ export default function HomeTodayMlb({
         </div>
         <span className="font-mono" style={{ color: "var(--vault-text)", fontSize: 12, fontWeight: 600 }}>{availability}</span>
         <span style={{ color: "var(--vault-text-mute)", fontSize: 10.5, lineHeight: 1.3 }}>
-          A fresh MLB simulation brief every game day — graded from official box scores. Educational, paper-only.
+          A fresh MLB simulation brief every game day — graded from official box scores.
         </span>
       </div>
       <Link

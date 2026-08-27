@@ -135,9 +135,6 @@ export default function FeaturedSimulationsSection({ featured, readyCount, answe
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>
           Featured simulations
         </h2>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-          Paper-only · educational
-        </span>
       </div>
 
       {hasFeatured ? (

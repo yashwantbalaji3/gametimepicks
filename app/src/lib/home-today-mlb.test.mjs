@@ -29,7 +29,9 @@ test("the hook shows freshness + availability + a clear path to the /today brief
 
 test("the hook gives a reason to return without any betting/prediction claim", () => {
   assert.match(strip, /every game day/i, "reason to return tomorrow");
-  assert.match(strip, /Educational, paper-only/, "keeps educational, paper-only framing");
+  // P213 R-BC: the educational/paper-only framing has ONE owner set (top strip + footer); this
+  // hook's contract is its RETURN reason and settlement grounding — plus the ban below.
+  assert.match(strip, /official box scores/i, "the settlement grounding stays");
   assert.ok(!/best bet|guaranteed|lock|edge|value play|likely winner|profit/i.test(strip), "no betting/prediction/certainty vocabulary");
 });
 
