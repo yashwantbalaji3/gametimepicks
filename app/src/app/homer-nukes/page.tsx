@@ -22,6 +22,7 @@ import { activeMlbDate } from "@/lib/data-mlb";
 import { loadHomerNukesBoard } from "@/lib/mlb/homer-nukes-board";
 import HomerNukesBoardSection from "@/components/mlb/homer-nukes-board";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
+import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
 
 export const metadata = {
   title: "Homer Nukes · GameTime Picks",
@@ -75,6 +76,7 @@ export default function HomerNukesPage() {
       </header>
 
       <SlateLivenessBanner
+        publishDeadlineUtc={publicationDeadlineUtc()}
         buildTimeToday={date}
         latestSlate={date}
         latestSlateHasGames={(board?.slate.games ?? 0) > 0}

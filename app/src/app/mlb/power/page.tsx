@@ -3,6 +3,7 @@ import { currentEtDate } from "@/lib/freshness";
 import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import PowerBoardShell from "@/components/power-board-shell";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
+import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
 
 export const metadata = {
   title: "MLB Power Board · GameTime Picks",
@@ -27,6 +28,7 @@ export default function MlbPowerBoardPage() {
       {/* Slate liveness (real ET clock) — no stale "today" on a no-games day. */}
       <div className="mb-4">
         <SlateLivenessBanner
+          publishDeadlineUtc={publicationDeadlineUtc()}
           buildTimeToday={currentEtDate()}
           latestSlate={date}
           latestSlateHasGames={games > 0}

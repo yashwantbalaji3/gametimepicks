@@ -43,6 +43,17 @@ export interface SlateLivenessInput {
   /** Optional next scheduled focus (from the committed calendar). */
   nextFocus?: NextFocus | null;
   /**
+   * When today's slate must exist by, from the publication-SLO contract — derived from the earliest
+   * eligible event's start, never a fixed hour. Absent = no lateness may be claimed.
+   */
+  publishDeadlineUtc?: string | null;
+  /**
+   * The VISITOR'S clock, in epoch ms. Deliberately the reader's own instant rather than the SLO
+   * artifact's `checkedAt`: a detector that stopped running must not be able to make a late slate
+   * look on time. Absent = no lateness may be claimed.
+   */
+  nowMs?: number | null;
+  /**
    * Optional per-league honest notes shown under the headline, e.g.
    * "MLB — All-Star break, games resume ~Jul 17". Caller supplies sourced facts;
    * this module never invents a league state.
@@ -53,7 +64,8 @@ export interface SlateLivenessInput {
 export type SlateLivenessStatus =
   | "live-today" // latest slate is today and has games
   | "latest-available" // a slate EXISTS for today and is empty — proven no-games day
-  | "slate-pending" // no slate artifact for today yet — we do not know whether games are on
+  | "slate-pending" // no slate artifact for today yet, and it is not late — the normal morning
+  | "slate-overdue" // no slate artifact and its publication deadline has passed — an incident
   | "no-data"; // no slate exists at all
 
 export interface SlateLiveness {
@@ -106,7 +118,7 @@ export function focusDateLabel(f: NextFocus): string {
  * Compute the honest liveness verdict. Pure — deterministic given its input.
  */
 export function computeSlateLiveness(input: SlateLivenessInput): SlateLiveness {
-  const { today, latestSlate, hasGamesToday } = input;
+  const { today, latestSlate, hasGamesToday, publishDeadlineUtc, nowMs } = input;
   const nextFocus = input.nextFocus ?? null;
   const leagueNotes = input.leagueNotes ?? [];
 
@@ -156,6 +168,33 @@ export function computeSlateLiveness(input: SlateLivenessInput): SlateLiveness {
    * So absence of an artifact now says so, and says nothing more.
    */
   if (latestSlate < today) {
+    /*
+     * PENDING AND LATE ARE NOT THE SAME SENTENCE.
+     *
+     * "Today's slate isn't published yet" is the honest thing to say at 6 AM. It was also what this
+     * banner said at 13:48 ET on 2026-08-27 — two and a half hours past the point where the day's
+     * first game had already started and could never be covered — because there was nothing here
+     * that knew what late meant. The fix is not different words for the same state; it is a second
+     * state, with a deadline behind it.
+     *
+     * Both inputs are optional and this falls back to the old wording without them: a surface that
+     * cannot establish a deadline may not accuse the pipeline of being late.
+     */
+    const deadlineMs = publishDeadlineUtc ? Date.parse(publishDeadlineUtc) : NaN;
+    const overdue = Number.isFinite(deadlineMs) && typeof nowMs === "number" && nowMs >= deadlineMs;
+    if (overdue) {
+      return {
+        today,
+        latestSlate,
+        status: "slate-overdue",
+        isLiveToday: false,
+        daysBehind,
+        headline: `Today's slate is late · ${prettyEtLabel(today)}`,
+        detail: `It was due before the first game and has not published. Most recent published slate: ${prettyEtLabel(latestSlate)} (${daysAgoLabel(daysBehind)}). This is a problem on our side, not a quiet day — games today may go uncovered.`,
+        nextFocus,
+        leagueNotes,
+      };
+    }
     return {
       today,
       latestSlate,

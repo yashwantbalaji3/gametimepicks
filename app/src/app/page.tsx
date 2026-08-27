@@ -49,6 +49,7 @@ import FeaturedSimulationsSection from "@/components/home/featured-simulations";
 import { HowItWorks, FooterCta } from "@/components/home/home-sections";
 import { UpcomingSportsStrip, type SportSchedule } from "@/components/sports/upcoming-sports";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
+import { readPublicationSlo } from "@/lib/ops/read-publication-slo";
 
 export const metadata = {
   title: "GameTime Picks — Simulate today's games. Review model picks. Track results.",
@@ -276,6 +277,7 @@ export default function HomePage() {
           Renders nothing on a genuinely live day. */}
       <SlateLivenessBanner
         buildTimeToday={serverToday}
+        publishDeadlineUtc={readPublicationSlo(dataRoot, serverToday).publishDeadlineUtc}
         latestSlate={today}
         latestSlateHasGames={(mlbDay?.events ?? 0) > 0 || (topPicks ?? 0) > 0}
         archiveHref="/today"

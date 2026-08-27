@@ -20,6 +20,7 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
+import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
 import { RUNBOOKS } from "@/lib/launch/runbook-registry.mjs";
 
 export const metadata = {
@@ -75,6 +76,7 @@ export default function MoonshotPage() {
       {/* Slate liveness (real ET clock) — no-play framing when today has no live slate; points at the next
           scheduled focus. The longshot lanes below remain the most-recent published cards. */}
       <SlateLivenessBanner
+        publishDeadlineUtc={publicationDeadlineUtc()}
         buildTimeToday={currentEtDate()}
         latestSlate={today}
         latestSlateHasGames={dailyPortfolio.cards.length > 0}

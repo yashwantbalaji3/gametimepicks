@@ -222,3 +222,56 @@ test("safe-fix · the revived /sports directory renders NO liveness claim of any
   }
   assert.match(shared, /ABSOLUTE/, "capture times documented as absolute so build-time relatives cannot rot");
 });
+
+/* ── LATE IS NOT PENDING ───────────────────────────────────────────────────────────────────────── */
+
+test("past its deadline, an unpublished slate is OVERDUE and says the problem is ours", () => {
+  /*
+   * The 13:48 ET sentence on 2026-08-27. "Today's slate isn't published yet" is the right thing to
+   * say at 6 AM and was still what this banner said two and a half hours after the day's first game
+   * had started and could never be covered. The words were not the bug — there was no deadline for
+   * them to be measured against.
+   */
+  const v = computeSlateLiveness({
+    today: "2026-08-27",
+    latestSlate: "2026-08-26",
+    hasGamesToday: false,
+    publishDeadlineUtc: "2026-08-27T15:35:00Z",
+    nowMs: Date.parse("2026-08-27T17:48:00Z"),
+  });
+  assert.equal(v.status, "slate-overdue");
+  assert.match(v.headline, /is late/);
+  assert.match(v.detail, /problem on our side/);
+  assert.doesNotMatch(v.detail, /once the morning run publishes/);
+});
+
+test("before its deadline the same slate is PENDING, with the patient wording", () => {
+  const v = computeSlateLiveness({
+    today: "2026-08-27",
+    latestSlate: "2026-08-26",
+    hasGamesToday: false,
+    publishDeadlineUtc: "2026-08-27T15:35:00Z",
+    nowMs: Date.parse("2026-08-27T11:00:00Z"),
+  });
+  assert.equal(v.status, "slate-pending");
+  assert.match(v.headline, /isn't published yet/);
+});
+
+test("REFUSAL · without a deadline, or without a clock, no lateness is claimed", () => {
+  // A surface that cannot establish a deadline may not accuse the pipeline of being late.
+  const base = { today: "2026-08-27", latestSlate: "2026-08-26", hasGamesToday: false };
+  assert.equal(computeSlateLiveness({ ...base, nowMs: Date.parse("2026-08-27T23:00:00Z") }).status, "slate-pending");
+  assert.equal(computeSlateLiveness({ ...base, publishDeadlineUtc: "2026-08-27T15:35:00Z" }).status, "slate-pending");
+  assert.equal(computeSlateLiveness({ ...base, publishDeadlineUtc: "not-a-time", nowMs: Date.now() }).status, "slate-pending");
+});
+
+test("a published slate is never late, however far past the deadline the reader arrives", () => {
+  const v = computeSlateLiveness({
+    today: "2026-08-27",
+    latestSlate: "2026-08-27",
+    hasGamesToday: true,
+    publishDeadlineUtc: "2026-08-27T15:35:00Z",
+    nowMs: Date.parse("2026-08-28T03:00:00Z"),
+  });
+  assert.equal(v.status, "live-today");
+});

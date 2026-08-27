@@ -20,6 +20,7 @@ import fs from "node:fs";
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate, loadTodaySlate } from "@/lib/parlays/ui-loader";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
+import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { buildTop10Board } from "@/lib/top10/top10-picks";
@@ -288,6 +289,7 @@ export default function TodayPage() {
       {/* 0 — Slate liveness (real ET clock): on a no-games day this says so plainly and points at the next
           scheduled focus, so the most-recent slate is never presented as live. Hidden on a live day. */}
       <SlateLivenessBanner
+        publishDeadlineUtc={publicationDeadlineUtc()}
         buildTimeToday={serverToday}
         latestSlate={today}
         latestSlateHasGames={mlbGames > 0 || topPicks.length > 0}

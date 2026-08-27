@@ -36,6 +36,11 @@ interface Props {
   includeMlbNote?: boolean;
   /** Surface the next World Cup focus (default true). */
   includeWcFocus?: boolean;
+  /**
+   * Today's publication deadline from the committed SLO artifact. Absent = the banner may not
+   * claim the slate is late; it falls back to the plain "not published yet" wording.
+   */
+  publishDeadlineUtc?: string | null;
 }
 
 export default function SlateLivenessBanner({
@@ -46,12 +51,20 @@ export default function SlateLivenessBanner({
   archiveLabel,
   includeMlbNote = false,
   includeWcFocus = true,
+  publishDeadlineUtc = null,
 }: Props) {
   // Seed with the build-time date (matches SSR, no hydration mismatch), then
   // switch to the visitor's real ET clock after mount.
   const [today, setToday] = useState<string>(buildTimeToday);
+  /*
+   * The VISITOR'S instant, not the build's and not the SLO artifact's `checkedAt`. Lateness is
+   * measured against the reader's own clock, so a detector that stopped running cannot make a late
+   * slate look on time. Null until mount, which is also what keeps SSR and hydration agreeing.
+   */
+  const [nowMs, setNowMs] = useState<number | null>(null);
   useEffect(() => {
     setToday(currentEtDate());
+    setNowMs(Date.now());
   }, []);
 
   const liveness = computeSlateLiveness({
@@ -60,6 +73,8 @@ export default function SlateLivenessBanner({
     hasGamesToday: latestSlateHasGames && latestSlate === today,
     nextFocus: includeWcFocus ? nextWorldCupFocus(today) : null,
     leagueNotes: includeMlbNote ? [mlbBreakNote(today)].filter((x): x is string => !!x) : [],
+    publishDeadlineUtc,
+    nowMs,
   });
 
   // Genuinely live today → don't clutter the page.
@@ -81,13 +96,15 @@ export default function SlateLivenessBanner({
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span
           className="font-mono text-[10px] uppercase tracking-[0.18em] shrink-0"
-          style={{ color: "var(--vault-gold)" }}
+          style={{ color: liveness.status === "slate-overdue" ? "var(--vault-warn)" : "var(--vault-gold)" }}
         >
           {liveness.status === "no-data"
             ? "No slate"
-            : liveness.status === "slate-pending"
-              ? "Publishing"
-              : "No games today"}
+            : liveness.status === "slate-overdue"
+              ? "Late"
+              : liveness.status === "slate-pending"
+                ? "Publishing"
+                : "No games today"}
         </span>
         <span className="text-[14px] font-semibold" style={{ color: "var(--vault-text)" }}>
           {liveness.headline}

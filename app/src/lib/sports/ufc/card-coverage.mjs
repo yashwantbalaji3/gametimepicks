@@ -18,9 +18,15 @@
  *
  *   3. MARKET_NOT_OPEN and JOIN_FAILED were one bucket. They are opposite facts: the first is a
  *      book that has not opened an undercard fight yet and will, the second is a book that HAS the
- *      fight while we failed to recognise it — a defect, on a market we already paid for. Told
- *      apart by whether any provider event went unconsumed: an unmatched event is evidence the
- *      market exists.
+ *      fight while we failed to recognise it — a defect, on a market we already paid for.
+ *
+ *      They are told apart by an unconsumed provider event NEAR THIS CARD'S START. The first
+ *      version of this asked only whether ANY provider event went unmatched, which the live run
+ *      immediately falsified: the authorised call is the BULK MMA endpoint, so it returns every
+ *      upcoming fight the book lists — 62 of them, nearly all belonging to cards weeks away. Under
+ *      that rule every unpriced bout on every card is a join failure forever, which is a constant
+ *      dressed as a diagnosis. Only an unmatched event commencing inside this card's window is
+ *      evidence about this card.
  *
  * Pure and clock-free, so the guards can drive every combination without a network or a card.
  */
@@ -33,15 +39,27 @@
  * @param {Map}      args.pricedByKey provider events keyed by the sorted fighter-name key
  * @param {Set}      args.matchedKeys the keys that actually matched a bout on this card
  * @param {Function} args.keyOf       `(bout) => key`, the same fold used to build `pricedByKey`
+ * @param {number}   args.cardStartMs epoch ms of the card's own start, or NaN if unknown
+ * @param {number}   [args.windowHours=18] how far either side of the card start still counts as
+ *   "this card". Generous enough to cover prelims through main card in any timezone, tight enough
+ *   to exclude next week's event.
  */
-export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyOf }) {
+export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyOf, cardStartMs, windowHours = 18 }) {
   const bouts = Array.isArray(cardBouts) ? cardBouts : [];
+
+  const span = windowHours * 3600_000;
+  const nearThisCard = (commenceUtc) => {
+    if (!Number.isFinite(cardStartMs)) return false; // no window ⇒ no claim about this card
+    const t = Date.parse(commenceUtc);
+    return Number.isFinite(t) && Math.abs(t - cardStartMs) <= span;
+  };
 
   const unmatchedProviderEvents = [...pricedByKey.entries()]
     .filter(([key]) => !matchedKeys.has(key))
-    .map(([key, p]) => ({ key, providerEventId: p?.providerEventId ?? null, commenceUtc: p?.commenceUtc ?? null }));
+    .map(([key, p]) => ({ key, providerEventId: p?.providerEventId ?? null, commenceUtc: p?.commenceUtc ?? null }))
+    .filter((e) => nearThisCard(e.commenceUtc));
 
-  // The market demonstrably exists for something on this card that we did not price, so no unpriced
+  // The market demonstrably exists for something ON THIS CARD that we did not price, so no unpriced
   // bout can be called a closed book. Every one of them is a join suspect until that is resolved.
   const joinSuspect = unmatchedProviderEvents.length > 0;
 
@@ -56,7 +74,7 @@ export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyO
       startUtc: b.startUtc ?? null,
       state: joinSuspect ? "JOIN_FAILED" : "MARKET_NOT_OPEN",
       reason: joinSuspect
-        ? `${unmatchedProviderEvents.length} provider event(s) on this card matched no bout — this bout may be one of them`
+        ? `${unmatchedProviderEvents.length} provider event(s) inside this card's window matched no bout — this bout may be one of them`
         : "no posted h2h market for this bout at capture time",
       nextCheck: "the next scheduled ufc-odds-refresh slot",
     }));

@@ -250,7 +250,16 @@ for (const b of bouts) delete b._books;
 
 const {
   coverage, unpriced, unmatchedProviderEvents, blockers, oddsReady, partiallyPriced,
-} = classifyCardCoverage({ cardBouts: card.bouts ?? [], pricedByKey: priced, matchedKeys: consumed, keyOf: boutKey });
+} = classifyCardCoverage({
+  cardBouts: card.bouts ?? [],
+  pricedByKey: priced,
+  matchedKeys: consumed,
+  keyOf: boutKey,
+  // The authorised call is the BULK MMA endpoint, so `priced` holds every upcoming fight the book
+  // lists — most of them on other cards. Without this window every unpriced bout reads as a join
+  // failure on every run.
+  cardStartMs: Date.parse(card.event?.startUtc ?? ""),
+});
 
 if (!coverageReconciles(coverage)) {
   console.error(`ufc odds: REFUSED — coverage does not reconcile: ${JSON.stringify(coverage)}`);

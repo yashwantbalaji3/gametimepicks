@@ -3,6 +3,7 @@ import { currentEtDate } from "@/lib/freshness";
 import MlbBoardBody from "@/components/mlb/mlb-board-body";
 import NewsletterSignup from "@/components/newsletter-signup";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
+import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
 
 export const metadata = {
   title: "MLB board · GameTime Picks",
@@ -34,6 +35,7 @@ export default function MlbBoardPage() {
         date={date}
         liveness={
           <SlateLivenessBanner
+            publishDeadlineUtc={publicationDeadlineUtc()}
             buildTimeToday={currentEtDate()}
             latestSlate={date}
             latestSlateHasGames={games > 0}

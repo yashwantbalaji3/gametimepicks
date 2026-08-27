@@ -51,6 +51,7 @@ import { loadMlbPropsBoard, latestMlbBoardDate } from "@/lib/mlb/mlb-props";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
+import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import SportMethodologyPanel from "@/components/sport-methodology-panel";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
@@ -400,6 +401,7 @@ export default function MlbLandingPage() {
           plainly instead of presenting the most-recent board as live. Hidden on a live day. */}
       <div className="mb-4">
         <SlateLivenessBanner
+          publishDeadlineUtc={publicationDeadlineUtc()}
           buildTimeToday={currentEtDate()}
           latestSlate={date}
           latestSlateHasGames={games.length > 0}
