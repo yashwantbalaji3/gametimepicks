@@ -7,6 +7,7 @@
 import Link from "next/link";
 import FlagBadge from "@/components/flag-badge";
 import type { MoonshotLane, MoonshotLeg, MoonshotStep } from "@/lib/moonshot/moonshot-lane";
+import PlayerAvatar from "@/components/ui/player-avatar";
 
 // Enriched, betting-slip-style fields the committed Moonshot artifact carries on each leg / card but
 // the shared MoonshotLeg/MoonshotCard types don't expose. The loader casts the raw JSON, so these
@@ -41,8 +42,7 @@ function LegAvatar({ leg }: { leg: MoonshotLeg }) {
     return (
       <span className="relative inline-block" style={{ width: 26, height: 26 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={leg.photoUrl} alt={leg.participant} width={26} height={26} className="rounded-full object-cover"
-          style={{ width: 26, height: 26, border: "1px solid var(--vault-border)", background: "var(--vault-wash-soft)" }} />
+        <PlayerAvatar name={leg.participant} photo={leg.photoUrl} size={26} />
         {leg.countryCode && (
           <span className="absolute -bottom-1 -right-1" style={{ transform: "scale(0.62)", transformOrigin: "bottom right" }}>
             <FlagBadge code={leg.countryCode} size="sm" ariaLabel={leg.team ?? ""} />

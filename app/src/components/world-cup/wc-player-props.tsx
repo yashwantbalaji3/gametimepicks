@@ -7,6 +7,7 @@
  */
 import type { WcPlayerProjections, WcPlayerProjection } from "@/lib/world-cup/projections";
 import { fmtAmerican, playerMarketLabel } from "@/lib/world-cup/projections";
+import PlayerAvatar from "@/components/ui/player-avatar";
 
 const MARKET_ORDER = ["player_shots", "player_shots_on_target", "player_assists", "player_goal_scorer_anytime"];
 const PER_MARKET = 6;
@@ -29,8 +30,7 @@ function PlayerChip({ p }: { p: WcPlayerProjection }) {
     >
       {p.player.photo ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={p.player.photo} alt="" width={34} height={34}
-             className="rounded-full shrink-0" style={{ objectFit: "cover", border: "1px solid var(--vault-rule)" }} />
+        <PlayerAvatar name={p.player.name ?? ""} photo={p.player.photo} size={34} />
       ) : (
         <div className="rounded-full shrink-0 flex items-center justify-center"
              style={{ width: 34, height: 34, background: "var(--vault-gold-dim)", border: "1px solid var(--vault-rule)", color: "var(--vault-gold-bright)", fontSize: 11, fontWeight: 700 }}>

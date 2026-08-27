@@ -18,6 +18,7 @@
 import type { PropLean, ScheduleGame } from "@/lib/types";
 import { getPlayoffContext } from "./playoff-context";
 import { confidenceLabel } from "@/lib/confidence-labels";
+import PlayerAvatar from "@/components/ui/player-avatar";
 
 interface Props {
   /** Date label, e.g. "2026-05-15". */
@@ -274,14 +275,7 @@ export default function AwaitingSettlementTable({
                       <span className="col-player">
                         <span className="gtp-awaiting-avatar">
                           {photo ? (
-                            <img
-                              src={photo}
-                              alt=""
-                              width={28}
-                              height={28}
-                              loading="lazy"
-                              decoding="async"
-                            />
+                            <PlayerAvatar name={r.playerName} photo={photo} size={28} />
                           ) : (
                             <span
                               aria-hidden

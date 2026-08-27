@@ -9,6 +9,7 @@ import Link from "next/link";
 import FlagBadge from "@/components/flag-badge";
 import type { SpecialLeg, WorldCupSpecialCard } from "@/lib/world-cup/world-cup-specials";
 import type { June20SpecialsPreview } from "@/lib/world-cup/world-cup-specials-preview";
+import PlayerAvatar from "@/components/ui/player-avatar";
 
 const GOLD = "var(--vault-gold, var(--vault-gold))";
 const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`;
@@ -40,9 +41,7 @@ function LegAvatar({ leg }: { leg: SpecialLeg }) {
   if (leg.kind === "player" && leg.photoUrl) {
     return (
       <span className="relative inline-block shrink-0" style={{ width: 26, height: 26 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={leg.photoUrl} alt={leg.participant} width={26} height={26} loading="lazy" className="rounded-full object-cover"
-          style={{ width: 26, height: 26, border: "1px solid var(--vault-border)", background: "var(--vault-wash-soft)" }} />
+        <PlayerAvatar name={leg.participant} photo={leg.photoUrl} size={26} />
         {leg.countryCode && (
           <span className="absolute -bottom-1 -right-1" style={{ transform: "scale(0.6)", transformOrigin: "bottom right" }}>
             <FlagBadge code={leg.countryCode} size="sm" ariaLabel={leg.team ?? ""} />

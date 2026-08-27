@@ -1,3 +1,4 @@
+"use client";
 /**
  * TeamMark — a team's visual mark with an honest fallback chain:
  *   1. REAL provider logo URL when the artifact carries one (e.g. the World Cup
@@ -7,6 +8,8 @@
  *   3. initials monogram.
  * Never a fabricated/licensed logo — only artifact URLs render as images.
  */
+import { useState } from "react";
+
 import FlagBadge from "@/components/flag-badge";
 
 const SIZE = { sm: 18, md: 24, lg: 32, xl: 44 } as const;
@@ -23,10 +26,14 @@ export default function TeamMark({
   size?: keyof typeof SIZE;
 }) {
   const px = SIZE[size];
-  if (logoUrl) {
+  /* P214 R-E: the chain fell back on ABSENCE only — a 404/network failure past the presence check
+     still showed the native broken icon. onError now walks the same chain (flag, then monogram). */
+  const [errored, setErrored] = useState(false);
+  if (logoUrl && !errored) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
+        onError={() => setErrored(true)}
         src={logoUrl}
         alt={name ?? "team"}
         width={px}

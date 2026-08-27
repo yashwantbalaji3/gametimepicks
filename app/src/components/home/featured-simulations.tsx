@@ -6,6 +6,7 @@
  * `FeaturedSimulation[]` + `readyCount` as props and reads no data. Vault tokens, mobile-first.
  */
 import Link from "next/link";
+import TeamMark from "@/components/ui/team-mark";
 import TeamLogo from "@/components/team-logo";
 import type { FeaturedSimulation } from "@/lib/simulate-lobby-featured";
 import type { HomeGameAnswer } from "@/lib/home/game-answers";
@@ -50,7 +51,7 @@ function Crest({ team, abbr, logo, isWc, sport }: { team: string; abbr: string |
   if (!isWc) return <TeamLogo team={abbr ?? team} sport={LOGO_SPORT[sport] ?? "mlb"} size="sm" ariaLabel={`${team} logo`} />;
   if (logo) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={logo} alt={`${team} crest`} width={24} height={24} style={{ borderRadius: 4, objectFit: "contain" }} />;
+    return <TeamMark name={team} logoUrl={logo} size="md" />; // P214 R-E: canonical resolver (onError → monogram)
   }
   return (
     <span aria-hidden className="inline-flex items-center justify-center rounded" style={{ width: 24, height: 24, fontSize: 9, fontWeight: 800, color: "var(--vault-text-mute)", background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)", border: "1px solid var(--vault-border)" }}>

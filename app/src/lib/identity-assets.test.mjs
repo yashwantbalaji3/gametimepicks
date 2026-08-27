@@ -69,16 +69,12 @@ test("identity images always carry explicit dimensions — no layout shift", () 
 const KNOWN_LEGACY_RAW_IMG = [
   // ui/player-avatar is now a deliberate PLAIN VARIANT (Program 147): different look by design,
   // same fallback policy as the canonical — its missing onError was found and fixed during
-  // consolidation. (An earlier comment here claimed "no broken-icon risk" for the siblings; that
-  // was wrong for this one's photo path — a dead URL showed the broken icon. Corrected, and the
-  // guard below now enforces the handler.) It stays in this list only because it renders an <img>.
+  // consolidation. It stays in this list only because it renders an <img>.
   "src/components/ui/player-avatar.tsx",
-  "src/components/bank-builder/moonshot-lane-card.tsx",
-  "src/components/awaiting-settlement-table.tsx",
+  /* P214 R-E tightened the ratchet by five: moonshot-lane-card, awaiting-settlement-table,
+     featured-simulations and both world-cup surfaces now route through PlayerAvatar/TeamMark.
+     ui/team-mark stays: it is a canonical owner and gained the onError rung its chain lacked. */
   "src/components/ui/team-mark.tsx",
-  "src/components/home/featured-simulations.tsx",
-  "src/components/world-cup/wc-player-props.tsx",
-  "src/components/world-cup/world-cup-specials-preview-box.tsx",
 ];
 
 function rawImgFiles() {
@@ -111,6 +107,10 @@ test("the plain variant carries the fallback policy — onError can never regres
   const plain = read("src/components/ui/player-avatar.tsx");
   assert.match(plain, /onError=\{\(\) => setErrored\(true\)\}/, "a dead photo URL must fall to the monogram");
   assert.match(plain, /photo && !errored/, "the errored state must gate the img");
+  // P214 R-E: TeamMark's chain fell back on ABSENCE only — a failed LOAD showed the broken icon.
+  const mark = read("src/components/ui/team-mark.tsx");
+  assert.match(mark, /onError=\{\(\) => setErrored\(true\)\}/, "a failed crest load must walk to flag/monogram");
+  assert.match(mark, /logoUrl && !errored/, "the errored state must gate the crest img");
 });
 
 test("the three migrated surfaces route through PlayerAvatar", () => {
