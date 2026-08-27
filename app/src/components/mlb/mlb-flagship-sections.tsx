@@ -85,7 +85,7 @@ export default function MlbFlagshipSections({ props, games, teamRows, homerBoard
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>MLB — today&rsquo;s board</h2>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Home runs · batters · pitchers · teams · games — paper-only</span>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Home runs · batters · pitchers · teams · games</span>
       </div>
 
       <MlbQuickJump />

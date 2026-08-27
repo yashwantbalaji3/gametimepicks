@@ -19,24 +19,9 @@ import path from "node:path";
 const OUT = path.join(process.cwd(), "out");
 const hasBuild = fs.existsSync(path.join(OUT, "index.html"));
 
-/** route → max occurrences of "paper-only" in rendered text (measured + 2 live-state headroom). */
-const PAPER_ONLY_CEILINGS = Object.freeze({
-  "index.html": 6,
-  "today/index.html": 7,
-  "simulate/index.html": 10,
-  "markets/index.html": 4,
-  "build/index.html": 10,
-  "results/index.html": 9,
-  "mlb/index.html": 10,
-  "nfl/index.html": 8,
-  "epl/index.html": 10,
-  "ufc/index.html": 10,
-  "bank-builder/index.html": 11,
-  "moonshot/index.html": 10,
-  "mr-dub/index.html": 12,
-  "learn/index.html": 10,
-  "sports/index.html": 7,
-});
+// P213 R-G: ceilings live in the versioned public-content contract (ONE source — the /launch
+// panel renders the same object this guard enforces).
+import { PAPER_ONLY_CEILINGS } from "../launch/public-content-contract.mjs";
 
 const rendered = (rel) => {
   const h = fs.readFileSync(path.join(OUT, rel), "utf8")

@@ -162,7 +162,7 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
           ))}
           {chips.length ? <button onClick={reset} className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]" style={{ fontSize: 8.5, cursor: "pointer", color: "var(--vault-text-mute)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>Clear all</button> : null}
         </div>
-        <span className="font-mono uppercase tracking-[0.07em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>market-implied % from real odds · confidence is a market read (model edge pending) · paper-only</span>
+        <span className="font-mono uppercase tracking-[0.07em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>market-implied % from real odds · confidence is a market read, not a model claim</span>
       </div>
 
       {/* Desktop table — sticky header, striped rows, pill badges. */}

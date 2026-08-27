@@ -64,7 +64,7 @@ export default function SimulationCoverageMatrix({ sport }: { sport?: "mlb" | "n
         </h2>
         <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
           Every market we cover, plus the ones we don&rsquo;t — with the exact reason (provider feed, settlement,
-          or validation). We never show a market we can&rsquo;t back with real data. Paper-only, educational.
+          or validation). We never show a market we can&rsquo;t back with real data.
         </p>
       </div>
 

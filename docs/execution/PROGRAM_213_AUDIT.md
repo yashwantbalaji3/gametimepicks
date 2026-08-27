@@ -70,3 +70,46 @@
 - **R-G — /launch UX Assurance panel + closure** at one stamp.
 
 Per charter §0B: execution starts with R-A immediately — no approval wait.
+
+---
+
+# Execution log (updated at R-G)
+
+**Classification: MATERIAL_PROGRESS** — the founder-flagged P0 is closed on production, the copy
+governance is mechanical (ratchets + contract), and eight primary routes are walked with measured
+receipts; the full charter (every route × six widths × three engines, per-sport scene fixtures,
+identity inventory) remains open and is partitioned below. Per the charter's own classification
+rule, COMPLETE is not claimed.
+
+## Releases
+| Release | Commit | What shipped |
+|---|---|---|
+| R-A | 4be8f3ab7 | homepage launchpad (hero reset, measured); footer About cut; nav sublabel fix; first-viewport guard |
+| R-BC | 264a69882 | boilerplate centralized (15→4 on /), /today + /markets compressed, shrink-only repeat ratchet |
+| R-C2 | 603928d2c | /epl + /bank-builder compressed — limitations lead, evidence behind disclosures |
+| R-C3+G | (this commit) | /mlb + /results trims; UFC reason-generator truth fix; public-content contract + /launch UX Assurance panel |
+
+## Defects P213's own process caught
+1. First draft of the hero said "28 events today" (summed Saturday's UFC bouts) — browser caught it.
+2. E2E caught the brand name vanishing from rendered text with the manifesto.
+3. The compression joined a ban-dodging line-split ("beat the ⏎ market") and dropped a pinned
+   caution phrase — restored compressed.
+4. A latent tmpdir-hex /90/ flake in an ops CLI guard surfaced — bounded to token boundaries.
+5. The homepage word ceiling was measured mid-state; live variance (1,432→1,501) corrected it.
+6. `/ufc` rendered "70% is close to a coin flip" — the reason fallback claimed coin-flip at any
+   probability; generator fixed (artifact refreshes on its owning workflow's next stamp — the
+   P211 one-stamp lesson kept the out-of-band regeneration OFF).
+7. `/mlb` carried "model edge pending" — an implied future edge the record does not support.
+
+## Remaining work, partitioned
+- **ENGINEERING**: /build walk (filters/conflict copy); shared shell primitives where the walk
+  shows real duplication; per-sport scene refusal-state fixtures (charter D); identity-asset
+  resolver inventory (charter E); six-width × three-engine matrix + word/height budgets per page
+  family (charter F); NBA/NHL scene work only as typed absence until real events exist.
+- **REALITY**: NFL preseason wording flips at the regular-season cutover; UFC card artifact
+  refresh carries the fixed reason text at the next scheduled run; EPL "not validated" label
+  retires only when the validation gate flips (30/30 pairs).
+- **FOUNDER**: the global top compliance strip (kept verbatim by prior decision — removing or
+  merging it into the footer is a founder call); challenger/product tokens unchanged from P211.
+- **INCIDENT**: none.
+

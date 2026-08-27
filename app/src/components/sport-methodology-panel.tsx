@@ -73,7 +73,7 @@ export default function SportMethodologyPanel({ sport }: { sport: Sport }) {
         ))}
       </ul>
       <p className="font-mono text-[10px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)" }}>
-        Market-by-market coverage below · paper-only, educational
+        Market-by-market coverage below
       </p>
     </section>
   );

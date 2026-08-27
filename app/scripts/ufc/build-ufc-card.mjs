@@ -282,7 +282,15 @@ function reasonFor(pickName, otherName, pWin, method, rounds) {
   else if (finA >= 0.6) bits.push(`${Math.round(finA * 100)}% of his wins come by finish`);
   const expEdge = A.n - B.n;
   if (Math.abs(expEdge) >= 8) bits.push(expEdge > 0 ? `${A.n} tracked bouts against ${B.n}` : `the shorter record belongs to him (${A.n} vs ${B.n}), so the read leans on his opponent's history`);
-  if (!bits.length) return `The model separates these two by very little — ${Math.round(pWin * 100)}% is close to a coin flip, and nothing in either record breaks the tie cleanly.`;
+  if (!bits.length) {
+    /* P213 R-C3: this fallback claimed "close to a coin flip" at ANY probability — it rendered
+       "70% is close to a coin flip" on a real bout. Coin-flip language is earned only near 50%;
+       otherwise the honest sentence is that the number rests on inputs beyond the headline stats. */
+    const pct = Math.round(pWin * 100);
+    return pct >= 45 && pct <= 55
+      ? `The model separates these two by very little — ${pct}% is close to a coin flip, and nothing in either record breaks the tie cleanly.`
+      : `The model reads it ${pct}% — nothing in either tracked record separates them cleanly, so the number rests on the model's wider inputs rather than a headline stat.`;
+  }
   const tail = method === "DEC" ? "and the matchup profiles as one that reaches the judges" : `and the finish profile points to a ${method === "KO" ? "knockout" : "submission"}`;
   return `${pickName} ${bits.slice(0, 2).join(", ")} — ${tail}.`;
 }

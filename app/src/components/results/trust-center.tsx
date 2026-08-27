@@ -77,10 +77,9 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
           className="text-[13.5px] leading-relaxed m-0"
           style={{ color: "var(--vault-text-mute)", maxWidth: 640 }}
         >
+          {/* P213 R-C3: the second sentence repeated the three chips below it, word for word. */}
           Track the official paper-card record, open exposure, settlement
-          status, and model-performance receipts in one place. Everything here
-          is paper-only and educational — records move only on official finals,
-          and a pending card is never counted as a loss.
+          status, and model-performance receipts in one place.
         </p>
         <div className="flex flex-wrap gap-2 mt-1">
           {[

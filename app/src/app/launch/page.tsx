@@ -22,6 +22,7 @@ import { buildUiuxEvidence, P184_BASELINE } from "@/lib/launch/uiux-evidence.mjs
 import { buildProductExperience } from "@/lib/launch/product-experience.mjs";
 import { buildSimulationExperience } from "@/lib/launch/simulation-experience.mjs";
 import { buildDailyProductOps, buildForwardCoveragePanel } from "@/lib/launch/daily-product-ops.mjs";
+import { WALKED_ROUTES, PAPER_ONLY_CEILINGS, CONTENT_CONTRACT_VERSION } from "@/lib/launch/public-content-contract.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
@@ -582,6 +583,32 @@ export default function LaunchCommandCenter() {
               ) : (
                 <p style={{ fontSize: 12, color: "var(--vault-text-mute)" }} className="font-mono">{forwardCov.finding}</p>
               )}
+            </section>
+
+            {/* ════ UX ASSURANCE (P213 R-G) ═══════════════════════════════════════════════ */}
+            <section aria-labelledby="ux-assurance" style={{ marginBottom: 30 }}>
+              <h2 id="ux-assurance" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>UX Assurance · public-content contract v{CONTENT_CONTRACT_VERSION}</h2>
+              <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+                The page-by-page walk&apos;s editorial decisions, rendered from the versioned contract the
+                boilerplate ratchet enforces ({Object.keys(PAPER_ONLY_CEILINGS).length} routes under ceilings). Nothing here is hand-set.
+              </p>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <caption className="sr-only">Walked public routes and their copy decisions</caption>
+                <thead>
+                  <tr>{["Route", "Purpose", "First action", "Decisions", "Measured"].map((h) => <Head key={h}>{h}</Head>)}</tr>
+                </thead>
+                <tbody>
+                  {WALKED_ROUTES.map((r: any) => (
+                    <tr key={r.route}>
+                      <Cell mono>{r.route}</Cell>
+                      <Cell>{r.purpose}</Cell>
+                      <Cell mono>{r.firstAction ?? "—"}</Cell>
+                      <Cell>{r.pending ? r.pending : r.decisions.length ? r.decisions.map((d: any) => `${d.decision}: ${d.block}`).join(" · ") : "no changes needed"}</Cell>
+                      <Cell mono>{r.measured?.routeWordsBefore != null ? `${r.measured.routeWordsBefore}${r.measured.routeWordsAfter != null ? `→${r.measured.routeWordsAfter}` : ""} words` : "—"}</Cell>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </section>
 
             {/* ════ SPORTS ════════════════════════════════════════════════════════════════ */}
