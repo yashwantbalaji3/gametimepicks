@@ -1,0 +1,39 @@
+{
+ "schemaVersion": 1,
+ "artifact": "parlay-lab-settlement",
+ "dataClass": "PUBLIC_DERIVED",
+ "date": "2026-08-26",
+ "settledAt": "2026-08-27T11:48:54Z",
+ "source": "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name; EPL official full-time scores via the results bridge, joined by canonical eventId; NFL official final scores (nfl/results/latest.json), joined by canonical eventId",
+ "policyVersion": 2,
+ "cards": [
+  {
+   "sport": "mlb",
+   "sports": [
+    "mlb"
+   ],
+   "tier": "medium",
+   "slipId": "slip_2026-08-26_conservative_26a76e6a2db2",
+   "result": "loss",
+   "combinedDecimal": 3.095261,
+   "legs": [
+    "loss",
+    "win"
+   ]
+  },
+  {
+   "sport": "mlb",
+   "sports": [
+    "mlb"
+   ],
+   "tier": "high",
+   "slipId": "slip_2026-08-26_conservative_08cde1627b1d",
+   "result": "loss",
+   "combinedDecimal": 4.913154,
+   "legs": [
+    "pending",
+    "loss"
+   ]
+  }
+ ]
+}
