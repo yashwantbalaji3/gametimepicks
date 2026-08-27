@@ -89,7 +89,14 @@ export default function MoonshotPage() {
         counts={record ? { settled: record.wins + record.losses + record.voids, pending: record.pending } : undefined}
         primaryAction={{ label: "Open Bank Builder", href: "/bank-builder" }}
         secondaryAction={{ label: "Mr. Dub", href: "/mr-dub" }}
-        note="Two independent longshot cards published daily — not a ladder. Its lifetime paper record is 0–7: every Moonshot card settled so far has lost. It is published as a transparent record of a high-variance approach that has not worked, not as a product to follow. Tracked separately from the Bank Builder. Paper-only, settlement-supported."
+        /* P214 A2: the record is DERIVED (a hand-typed "0-7 · every card has lost" rots the day a
+           card wins), and "not a ladder" contradicted the 3-STEP LADDER section below — the truth
+           is it is separate from the BANK BUILDER's ladder. */
+        note={
+          record
+            ? `Two independent longshot cards published daily, separate from the Bank Builder. Lifetime paper record ${record.wins}–${record.losses}${record.wins === 0 && record.losses > 0 ? ": every settled card so far has lost" : ""} — a transparent record of a high-variance approach, not a product to follow.`
+            : "Two independent longshot cards published daily, separate from the Bank Builder — a transparent record of a high-variance approach, not a product to follow."
+        }
       />
 
       {/* The 3-STEP LADDER — now a PROMINENT trajectory visual (was a small inline grid). Rendered from the

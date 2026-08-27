@@ -140,9 +140,8 @@ export default function PicksSurfaceHeader({
         </div>
       ) : null}
 
-      <p className="relative mt-3 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-        Paper-only · educational · not betting advice
-      </p>
+      {/* P214 A1: the trio strip rendered under a note that already says paper-only, on four
+          routes — the chrome owners (top strip + footer) carry it site-wide. */}
     </section>
   );
 }

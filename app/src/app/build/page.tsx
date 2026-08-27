@@ -112,8 +112,7 @@ export default function ParlayCenterSuggestedPage() {
           </h2>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6, maxWidth: "72ch" }}>
             Every model-built card behind the ladder above, by sport and risk tier. Enter any stake to see the
-            projected paper return. Paper-only and educational — nothing here is placed, and a
-            projected return is arithmetic on the odds, not an expectation of profit.
+            projected paper return — arithmetic on the odds, not an expectation of profit; nothing here is placed.
           </p>
         </div>
         {suggestedCards.length > 0 ? (

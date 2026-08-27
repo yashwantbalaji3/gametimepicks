@@ -75,7 +75,9 @@ test("an empty card list is the model's answer, never a broken page", () => {
 
 test("stake language stays paper-only and claims no profit", () => {
   const src = read(BUILD).replace(/\s+/g, " ");
-  assert.match(src, /Paper-only and educational/i, "the paper-only frame must be stated");
+  // P214 A1: the longform duplicate left; the frame lives in the header note ("Paper-only — no
+  // stake is ever filled in for you") + the chrome owners. The contract is unchanged: stated.
+  assert.match(src, /Paper-only/i, "the paper-only frame must be stated");
   assert.match(src, /not an expectation of profit/i, "a projected return is arithmetic, not a forecast");
   assert.doesNotMatch(src, /guaranteed|best bet|sure thing|expected profit/i);
 });
