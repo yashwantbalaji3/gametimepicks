@@ -10,14 +10,21 @@
  * recomputes readiness.
  */
 import Link from "next/link";
+
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import TeamMark from "@/components/ui/team-mark";
 import SimulationStage from "@/components/simulate/simulation-stage";
 import type { SimulateDayView, SimDayEvent, SimSport } from "@/lib/simulate/day-view";
 
+/*
+ * Delegated to the shared owner (lib/nav/date-sport-route). This built `/simulate/d/<date>` with no
+ * trailing slash while next.config sets `trailingSlash: true`, so every date step a visitor took
+ * answered 308 and cost a redirect hop before rendering.
+ */
 const dateHref = (view: Pick<SimulateDayView, "today">, date: string | null) =>
-  date == null ? null : date === view.today ? "/simulate" : `/simulate/d/${date}`;
+  date == null ? null : surfaceHref("simulate", { date, defaultDate: view.today });
 
 const fmtDay = (date: string) =>
   new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });

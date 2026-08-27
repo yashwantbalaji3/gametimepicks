@@ -20,6 +20,7 @@ import BoardDateStatusBanner from "@/components/board-date-status-banner";
 import BoardDateRail, {
   type BoardDateEntry,
 } from "@/components/board-date-rail";
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 
 /**
  * Shared MLB Board body used by:
@@ -476,7 +477,7 @@ function buildMlbBoardRail(active: string): BoardDateEntry[] {
         date: d,
         label: shortRailLabel(d, today),
         status: "settled" as const,
-        href: `/results/date/${d}`,
+        href: surfaceHref("results", { date: d }) ?? "/results/",
       };
     }
     const board = getMlbBoardForDate(d);

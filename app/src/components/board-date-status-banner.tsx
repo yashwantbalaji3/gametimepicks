@@ -3,6 +3,7 @@ import Link from "next/link";
 import { currentEtDate } from "@/lib/freshness";
 import { getAvailableSettlementDates } from "@/lib/settlement-data";
 import { getMlbAvailableResultDates } from "@/lib/data-mlb-results";
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 
 /** The exact date set `/results/date/[date]` is statically generated for (NBA
  *  settlement ∪ MLB result dates). A settled board date without a graded-results
@@ -146,7 +147,7 @@ export default function BoardDateStatusBanner({
         </div>
         {state === "settled" && resultsDateRouteExists(date) && (
           <Link
-            href={`/results/date/${date}`}
+            href={surfaceHref("results", { date }) ?? "/results/"}
             className="font-mono shrink-0 transition-all hover:brightness-110"
             style={{
               color: "var(--vault-scrim-midnight)",

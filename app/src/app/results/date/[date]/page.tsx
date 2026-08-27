@@ -19,6 +19,7 @@ import SettledGameDetail, {
 } from "@/components/settled-game-detail";
 import PlayerResultsCards from "@/components/player-results-cards";
 import { getPlayoffContext } from "@/components/playoff-context";
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 
 interface PageProps {
   params: { date: string };
@@ -239,7 +240,7 @@ export default function ResultsDatePage({ params }: PageProps) {
       <section className="mt-12 flex flex-wrap items-center justify-between gap-3">
         {prevDate ? (
           <Link
-            href={`/results/date/${prevDate}`}
+            href={surfaceHref("results", { date: prevDate }) ?? "/results/"}
             className="font-mono"
             style={{
               color: "var(--vault-gold-bright)",
@@ -269,7 +270,7 @@ export default function ResultsDatePage({ params }: PageProps) {
         </Link>
         {nextDate ? (
           <Link
-            href={`/results/date/${nextDate}`}
+            href={surfaceHref("results", { date: nextDate }) ?? "/results/"}
             className="font-mono"
             style={{
               color: "var(--vault-gold-bright)",

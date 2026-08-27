@@ -86,6 +86,7 @@ import { buildRiskSectionDrilldown } from "@/lib/results-drilldown";
 import YesterdaySummary from "@/components/yesterday-summary";
 import TrustCenter from "@/components/results/trust-center";
 import { getTrustCenterModel } from "@/lib/results-trust-center";
+import { surfaceHref } from "@/lib/nav/date-sport-route";
 
 export const metadata = {
   title: "Results & Receipts · GameTime Picks",
@@ -571,7 +572,7 @@ export default function ResultsPage() {
             </p>
             <p style={{ margin: "6px 0 0", lineHeight: 2 }}>
               {dateSections.slice(3).map((s2) => (
-                <Link key={s2.date} href={`/results/date/${s2.date}/`} className="font-mono" style={{ color: "var(--gtp-bank-cta)", marginRight: 12, fontSize: 11.5, whiteSpace: "nowrap" }}>
+                <Link key={s2.date} href={surfaceHref("results", { date: s2.date }) ?? "/results/"} className="font-mono" style={{ color: "var(--gtp-bank-cta)", marginRight: 12, fontSize: 11.5, whiteSpace: "nowrap" }}>
                   {s2.date}
                 </Link>
               ))}
