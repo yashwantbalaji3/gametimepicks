@@ -22,6 +22,7 @@ import { buildUiuxEvidence, P184_BASELINE } from "@/lib/launch/uiux-evidence.mjs
 import { buildProductExperience } from "@/lib/launch/product-experience.mjs";
 import { buildSimulationExperience } from "@/lib/launch/simulation-experience.mjs";
 import { buildDailyProductOps, buildForwardCoveragePanel } from "@/lib/launch/daily-product-ops.mjs";
+import { buildLedgerPanel } from "@/lib/launch/ledger-panel.mjs";
 import { WALKED_ROUTES, PAPER_ONLY_CEILINGS, CONTENT_CONTRACT_VERSION } from "@/lib/launch/public-content-contract.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
@@ -175,6 +176,7 @@ export default function LaunchCommandCenter() {
      one writer's dated artifacts; absence types as the finding. */
   const dailyOps = buildDailyProductOps({ appDir: APP });
   const forwardCov = buildForwardCoveragePanel({ appDir: APP });
+  const ledgers = buildLedgerPanel({ appDir: APP });
 
   /* Program 185 · the UI/UX audit, derived from its committed artifact — never typed here. */
   const uiux = buildUiuxEvidence();
@@ -582,6 +584,48 @@ export default function LaunchCommandCenter() {
                 </table>
               ) : (
                 <p style={{ fontSize: 12, color: "var(--vault-text-mute)" }} className="font-mono">{forwardCov.finding}</p>
+              )}
+            </section>
+
+            {/* ════ LEDGER HEALTH (P216 R-C) ══════════════════════════════════════════════ */}
+            <section aria-labelledby="ledgers" style={{ marginBottom: 30 }}>
+              <h2 id="ledgers" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Ledger Health · five records, kept separate</h2>
+              <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+                The all-model-picks record is the whole published board; the card and signature-product records are curated
+                selections out of it. Blending them would flatter whichever was folded into the other, so the separation is
+                asserted rather than assumed — and each record is reconciled against its own identity. There is deliberately
+                no combined total: five products with five stakes and five rules have no meaningful common sum.
+              </p>
+              {ledgers.present ? (
+                <>
+                  <p className="font-mono" style={{ fontSize: 12, marginBottom: 8, color: ledgers.state === "RECONCILED" ? "var(--vault-success)" : "var(--vault-danger)" }}>
+                    {ledgers.state}{ledgers.contradictions.length ? ` · ${ledgers.contradictions.length} contradiction(s)` : ""}
+                  </p>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <caption className="sr-only">Ledger health by product</caption>
+                    <thead>
+                      <tr>{["Ledger", "Partition", "Settled", "Pending", "Detail"].map((h) => <Head key={h}>{h}</Head>)}</tr>
+                    </thead>
+                    <tbody>
+                      {ledgers.rows.map((r: any) => (
+                        <tr key={r.ledger}>
+                          <Cell>{r.ledger}</Cell>
+                          <Cell mono>{r.partition}</Cell>
+                          <Cell mono>{String(r.settled ?? "—")}</Cell>
+                          <Cell mono>{r.pending == null ? "—" : String(r.pending)}</Cell>
+                          <Cell>{r.detail}</Cell>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {ledgers.contradictions.length > 0 && (
+                    <ul style={{ fontSize: 12, marginTop: 10, color: "var(--vault-danger)" }}>
+                      {ledgers.contradictions.map((c: string) => <li key={c} className="font-mono">{c}</li>)}
+                    </ul>
+                  )}
+                </>
+              ) : (
+                <p style={{ fontSize: 12, color: "var(--vault-text-mute)" }} className="font-mono">{ledgers.finding}</p>
               )}
             </section>
 
