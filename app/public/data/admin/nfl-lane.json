@@ -2,38 +2,40 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-08-24T04:05:00Z",
+ "generatedAt": "2026-08-27T18:35:21Z",
  "program": "P171",
  "nextWindow": {
   "matchup": "PIT @ BUF",
   "kickoffUtc": "2026-08-27T23:00Z",
   "seasonType": 1,
   "week": 4,
-  "hoursToKickoff": 90.92,
+  "hoursToKickoff": 4.41,
   "eventsInWindow": 16
  },
  "freshness": {
   "schedule": {
-   "state": "FRESH",
-   "detail": "as of 2026-08-23T17:13:30Z (FRESH)"
+   "state": "STALE",
+   "detail": "as of 2026-08-24T13:41:33Z (STALE)"
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-08-23T21:20:32Z (FRESH)"
+   "detail": "as of 2026-08-27T18:35:21Z (FRESH)"
   },
   "injuries": {
-   "state": "FRESH",
-   "detail": "as of 2026-08-23T17:08:57Z (FRESH)"
+   "state": "STALE",
+   "detail": "as of 2026-08-26T13:44:29Z (STALE)"
   },
   "odds": {
-   "state": "STALE",
-   "detail": "as of 2026-08-23T21:20:32Z (STALE)"
+   "state": "FRESH",
+   "detail": "as of 2026-08-27T18:35:21Z (FRESH)"
   }
  },
  "regularSeason": {
   "verdict": {
-   "state": "READY_WITH_DESIGN_CAPS",
-   "operationalGaps": [],
+   "state": "OPERATIONAL_GAPS",
+   "operationalGaps": [
+    "schedule:STALE"
+   ],
    "designCaps": [
     "activesInactives",
     "depthCharts",
@@ -43,8 +45,8 @@
   "matrix": [
    {
     "id": "schedule",
-    "state": "AVAILABLE",
-    "detail": "schedule as of 2026-08-23T17:13:30Z"
+    "state": "STALE",
+    "detail": "schedule as of 2026-08-24T13:41:33Z"
    },
    {
     "id": "teamStrength",
@@ -54,12 +56,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-08-23T17:08:57Z"
+    "detail": "injuries as of 2026-08-26T13:44:29Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-08-23T21:20:32Z"
+    "detail": "rosters as of 2026-08-27T18:35:21Z"
    },
    {
     "id": "participationRoles",
@@ -89,18 +91,18 @@
    {
     "id": "prices",
     "state": "AVAILABLE",
-    "detail": "prices as of 2026-08-23T21:20:32Z"
+    "detail": "prices as of 2026-08-27T18:35:21Z"
    }
   ]
  },
  "markets": {
   "state": "CAPTURED",
-  "events": 1,
-  "books": 9,
-  "capturedAt": "2026-08-23T21:20:32Z",
+  "events": 14,
+  "books": 11,
+  "capturedAt": "2026-08-27T18:35:21Z",
   "propMarkets": {
    "state": "PROBED",
-   "probedEventId": "nfl-401873297",
+   "probedEventId": "nfl-401873298",
    "offeredMarkets": [],
    "absentMarkets": [
     "player_anytime_td",
@@ -113,18 +115,18 @@
  },
  "credits": {
   "state": "AUTHORIZED",
-  "programSpend": 51,
+  "programSpend": 54,
   "ceiling": 3000,
-  "remainingProgram": 2949,
-  "providerRemaining": 10919,
+  "remainingProgram": 2946,
+  "providerRemaining": 9626,
   "openingBalance": {
    "capturedAt": "2026-08-13T08:57:07Z",
    "providerRequestsUsed": 4342,
    "providerRequestsRemaining": 15658,
    "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
   },
-  "requests": 77,
-  "detail": "51 of 3000 Program 171 credits across 77 requests; provider reports 10919 remaining"
+  "requests": 81,
+  "detail": "54 of 3000 Program 171 credits across 81 requests; provider reports 9626 remaining"
  },
  "models": {
   "roleShares": {
@@ -156,17 +158,17 @@
   }
  },
  "currentArtifacts": {
-  "total": 112,
-  "contractValid": 112,
-  "preStart": 0,
-  "settlementReady": 106,
-  "detail": "112/112 pass the current-event contract; 106 carry pinned settlement targets"
+  "total": 116,
+  "contractValid": 116,
+  "preStart": 4,
+  "settlementReady": 110,
+  "detail": "116/116 pass the current-event contract; 110 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",
-  "date": "2026-08-23",
-  "entries": 6,
-  "corrections": 1
+  "date": "2026-08-27",
+  "entries": 7,
+  "corrections": 0
  },
  "gate": {
   "maturity": "SCAFFOLDED",
