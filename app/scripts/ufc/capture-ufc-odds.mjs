@@ -30,6 +30,7 @@ import {
 } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { nameKey } from "./lib/fight-model.mjs";
 import { classifyCardCoverage, coverageReconciles } from "../../src/lib/sports/ufc/card-coverage.mjs";
+import { findLooseMatch } from "../../src/lib/sports/ufc/fighter-alias.mjs";
 import { buildUfcOddsSnapshot } from "../../src/lib/sports/ufc/odds-snapshot.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -157,13 +158,35 @@ const boutKey = (b) => [nameKey(b.red?.name), nameKey(b.blue?.name)].sort().join
    not opened a fight from a join that missed one. */
 const consumed = new Set();
 const bouts = [];
+const rescued = [];
 for (const b of card.bouts ?? []) {
   const key = boutKey(b);
-  const p = priced.get(key);
+  let p = priced.get(key);
+  let joinMethod = "exact";
+  /*
+   * SECOND CHANCE, never a first one. The exact fold is always tried first and always preferred;
+   * only when it fails do we ask whether some unconsumed provider event names these same two
+   * fighters under a different spelling. Five of thirteen bouts on the Aug-29 card were sitting
+   * behind exactly that — reversed CJK name order, a dropped "Jr.", and single names the book
+   * writes as two — with prices we had already bought. Ambiguity refuses rather than guesses.
+   */
+  let matchedKey = key;
+  if (!p) {
+    const alt = findLooseMatch(
+      [nameKey(b.red?.name), nameKey(b.blue?.name)],
+      [...priced.keys()].filter((k) => !consumed.has(k)),
+    );
+    if (alt) {
+      p = priced.get(alt);
+      matchedKey = alt;
+      joinMethod = "alias";
+      rescued.push({ boutId: b.boutId, matchup: `${b.red?.name} vs ${b.blue?.name}`, providerKey: alt });
+    }
+  }
   // Unpriced bouts are classified in one place after the loop — see lib/sports/ufc/card-coverage.mjs
   // for why "no price" is two different facts and why a sentence is not a bout identity.
   if (!p) continue;
-  consumed.add(key);
+  consumed.add(matchedKey);
 
   /* Consensus per fighter = the median posted price across books. A single book's number is that
      book's opinion; the median is the market's, and it is what a reader can actually shop. */
@@ -189,6 +212,9 @@ for (const b of card.bouts ?? []) {
      * thin to build a ladder from. The card's own id is on the snapshot, once, where it belongs.
      */
     boutId: b.boutId, eventId: b.boutId,
+    /* "exact" or "alias". A rescued join is a fact about our matching, and hiding it would make the
+       fold look healthier than it is — the aliases below are how we learn the fold needs work. */
+    joinMethod,
     /* Per-book markets ride along in memory only — they are stripped before the PUBLIC write below
        and persisted to the private research path, where the model reads them. */
     _books: p.books,
@@ -254,7 +280,14 @@ const {
   cardBouts: card.bouts ?? [],
   pricedByKey: priced,
   matchedKeys: consumed,
-  keyOf: boutKey,
+  // The keys a bout CLAIMED, which for an aliased join is the provider's spelling rather than the
+  // card's — otherwise a rescued bout would still count as unpriced.
+  keyOf: (b) => {
+    const k = boutKey(b);
+    if (priced.has(k)) return k;
+    const hit = rescued.find((r) => r.boutId === b.boutId);
+    return hit ? hit.providerKey : k;
+  },
   // The authorised call is the BULK MMA endpoint, so `priced` holds every upcoming fight the book
   // lists — including other promotions running the same weekend. Fighter identity is what says
   // which of them could possibly be a missed join on THIS card; a time window is not (it left
@@ -279,6 +312,9 @@ const snapshot = {
   /* Typed and identity-bearing — see the coverage note above. */
   unpricedBouts: unpriced,
   coverage,
+  /* Bouts joined only by the alias pass. An empty list is the healthy state; a growing one names
+     exactly which fighters our fold cannot spell the way the book does. */
+  aliasJoins: rescued,
   /*
    * Ready means the WHOLE card is priced. A partially priced card is still useful and still
    * publishes its eight fights; it is simply not a state anything downstream should treat as
@@ -310,5 +346,6 @@ fs.writeFileSync(path.join(OUT, "odds-latest.json"), payload);
 fs.writeFileSync(path.join(OUT, `odds-${card.event.slateDate}.json`), payload);
 
 console.log(`ufc odds: ${bouts.length}/${card.bouts.length} bouts priced · ${snapshot.creditCost} credit(s) · cumulative ${ledger.cumulativeCredits}/${auth.ceiling}`);
+for (const r of rescued) console.log(`  ALIAS JOIN: ${r.boutId} ${r.matchup} ← provider "${r.providerKey}"`);
 for (const u of unpriced) console.log(`  ${u.state}: ${u.boutId} ${u.matchup} — ${u.reason}`);
 for (const u of unmatchedProviderEvents) console.log(`  UNMATCHED PROVIDER EVENT: ${u.providerEventId} (${u.key})`);
