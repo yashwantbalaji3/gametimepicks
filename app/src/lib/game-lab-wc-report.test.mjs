@@ -73,7 +73,9 @@ test("product mapping is LINK-ONLY + artifact-proven; WC Specials only when in t
       assert.ok(p.href.startsWith("/"), `link-only href: ${p.href}`);
       assert.ok(!/Moonshot/i.test(p.label), "never Moonshot for a WC game");
     }
-    assert.ok(v.productMapping.some((p) => /Parlay Lab/i.test(p.label)), "Parlay Lab always");
+    // P214 R-H: the label followed its destination through the P208 rename (Parlay Lab → Parlay
+    // Center; /picks retired to /build). The contract is unchanged: the parlay surface is always mapped.
+    assert.ok(v.productMapping.some((p) => /Parlay Center/i.test(p.label)), "Parlay Center always");
   }
   // WC Specials appears ONLY when the fixture is actually in the specials artifact (proven membership).
   assert.ok(inSpec.v.productMapping.some((p) => /Specials/i.test(p.label)), "WC Specials linked when inWcSpecials");

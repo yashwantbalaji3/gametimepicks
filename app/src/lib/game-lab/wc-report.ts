@@ -316,12 +316,12 @@ export function buildWcGameLabReport(
   const anyBankBuilder = rows.some((r) => r.bankBuilderEligible === true);
   const productMapping: WcGameLabProductLink[] = [
     {
-      label: "Parlay Lab",
-      href: "/picks",
+      label: "Parlay Center",
+      href: "/build",
       note:
         rows.some((r) => r.parlayEligible)
           ? "Explore and build paper parlays from this slate's eligible legs. Link only — nothing is placed."
-          : "No parlay-eligible market for this game yet — the Parlay Lab shows the rest of the slate. Link only.",
+          : "No parlay-eligible market for this game yet — the Parlay Center shows the rest of the slate. Link only.",
     },
     {
       label: "Track Record",

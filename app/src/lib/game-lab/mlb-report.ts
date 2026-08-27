@@ -300,12 +300,12 @@ export function buildMlbGameLabReport(
   const bestEdge = biggestLeans.length > 0 ? absEdge(biggestLeans[0]) : -1;
   const productMapping: MlbGameLabProductLink[] = [
     {
-      label: "Parlay Lab",
-      href: "/picks",
+      label: "Parlay Center",
+      href: "/build",
       note:
         rows.length > 0
           ? "Explore and build paper parlays from this slate's eligible legs. Link only — nothing is placed."
-          : "No qualified leans for this game yet — the Parlay Lab shows the rest of the slate.",
+          : "No qualified leans for this game yet — the Parlay Center shows the rest of the slate.",
     },
     {
       label: "Track Record",

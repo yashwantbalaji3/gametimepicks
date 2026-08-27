@@ -319,7 +319,7 @@ export default function MlbLandingPage() {
 
   const cardsTab = (
     <div className="flex flex-col gap-4">
-      <SectionHeader eyebrow={`Suggested cards · ${mlbCards.length} live`} title="MLB suggested parlays" sub="Built by the parlay optimizer from the largest projection differences. Default paper stakes; enter any amount for the projected paper payout. Educational / paper, not betting advice." />
+      <SectionHeader eyebrow={`Suggested cards · ${mlbCards.length} live`} title="MLB suggested parlays" sub="Built from the largest projection differences. Default paper stakes; enter any amount for the projected paper payout." />
       {mlbCards.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {mlbCards.map((c) => <SuggestedCard key={c.id} card={c} />)}
