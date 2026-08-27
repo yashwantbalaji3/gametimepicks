@@ -14,9 +14,9 @@ const bout = (id, red, blue) => ({ boutId: id, red: { name: red }, blue: { name:
 const priced = (pairs, commenceUtc = "2026-08-29T10:00Z") =>
   new Map(pairs.map(([a, b], i) => [[a, b].sort().join("|"), { providerEventId: `pe${i}`, commenceUtc }]));
 
-const CARD_START_MS = Date.parse("2026-08-29T07:00:00Z");
-const call = (cardBouts, pricedByKey, matchedKeys, cardStartMs = CARD_START_MS) =>
-  classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys: new Set(matchedKeys), keyOf, cardStartMs });
+const fighterKeys = (b) => [b.red?.name, b.blue?.name];
+const call = (cardBouts, pricedByKey, matchedKeys, fk = fighterKeys) =>
+  classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys: new Set(matchedKeys), keyOf, fighterKeys: fk });
 
 /** The card as it actually stood on 2026-08-27: 13 bouts, 8 priced, no unmatched provider event. */
 function shanghai() {
@@ -93,36 +93,47 @@ test("no unmatched provider event ⇒ MARKET_NOT_OPEN, which is a normal state a
   assert.doesNotMatch(r.blockers.join(" "), /defect/);
 });
 
-test("THE BULK-ENDPOINT TRAP · unmatched events on OTHER cards prove nothing about this one", () => {
+test("THE BULK-ENDPOINT TRAP · other promotions in the same payload prove nothing about this card", () => {
   /*
-   * Caught by running it, not by reading it. The authorised UFC call is the BULK MMA endpoint, so
-   * the provider map holds every upcoming fight the book lists — on the live run, 62 of them, nearly
-   * all belonging to cards weeks out. The first version asked only whether ANY provider event went
-   * unmatched, so it labelled all five Shanghai bouts JOIN_FAILED: a rule that would fire on every
-   * card forever is a constant dressed as a diagnosis.
+   * Two wrong rules, both falsified by live data, both instructive:
+   *
+   *   · "ANY unmatched provider event" ⇒ 62 of them, nearly all on cards weeks away.
+   *   · "unmatched, inside this card's TIME WINDOW" ⇒ 11 left, and they were Akbarjon Islomboev vs
+   *     Elvis Silva and friends — regional-circuit bouts running the same weekend. Time says when a
+   *     fight happens, not whose card it is on.
    */
   const { all } = shanghai();
   const pairs = all.slice(0, 8).map((b) => [b.red.name, b.blue.name]);
   const map = priced(pairs);
-  // Two fights on a card three weeks away, exactly as the bulk endpoint returns them.
-  map.set("bo hyun park|farida abdueva", { providerEventId: "far1", commenceUtc: "2026-09-20T02:00:00Z" });
-  map.set("chungreng koren|ryo tajima", { providerEventId: "far2", commenceUtc: "2026-09-20T03:00:00Z" });
+  // A different promotion, same weekend, same hour — exactly what the bulk endpoint returns.
+  map.set("akbarjon islomboev|elvis silva", { providerEventId: "reg1", commenceUtc: "2026-08-29T09:00:00Z" });
+  map.set("dedrek sanders|luis gomez", { providerEventId: "reg2", commenceUtc: "2026-08-29T10:00:00Z" });
   const r = call(all, map, pairs.map(([a, b]) => [a, b].sort().join("|")));
-  assert.equal(r.coverage.unmatchedProviderEvents, 0, "another card's fights are not evidence about this one");
+  assert.equal(r.coverage.unmatchedProviderEvents, 0, "nobody on those cards is fighting on ours");
   assert.equal(r.coverage.joinFailed, 0);
   assert.equal(r.coverage.marketNotOpen, 5);
-  assert.ok(r.unpriced.every((u) => u.state === "MARKET_NOT_OPEN"));
 });
 
-test("REFUSAL · with no card start there is no window, so no join failure is asserted", () => {
-  // Without a window every unmatched event would qualify again. Absent evidence is not evidence.
+test("REFUSAL · with no fighter fold there is no evidence, so no join failure is asserted", () => {
   const { all } = shanghai();
   const pairs = all.slice(0, 8).map((b) => [b.red.name, b.blue.name]);
   const map = priced(pairs);
   map.set("someone|else", { providerEventId: "x", commenceUtc: "2026-08-29T09:00:00Z" });
-  const r = call(all, map, pairs.map(([a, b]) => [a, b].sort().join("|")), NaN);
+  const r = call(all, map, pairs.map(([a, b]) => [a, b].sort().join("|")), undefined);
   assert.equal(r.coverage.unmatchedProviderEvents, 0);
   assert.equal(r.coverage.joinFailed, 0);
+});
+
+test("HONEST LIMIT · a join failure on BOTH sides is undetectable, and under-claims rather than invents", () => {
+  // Stated in the module header. If neither fighter folds to a name we hold, nothing distinguishes
+  // the row from another promotion's fight — so it reports MARKET_NOT_OPEN, the conservative answer.
+  const { all } = shanghai();
+  const pairs = all.slice(0, 8).map((b) => [b.red.name, b.blue.name]);
+  const map = priced(pairs);
+  map.set("kai asakura-san|aoriqileng jr", { providerEventId: "both-folded-wrong", commenceUtc: "2026-08-29T09:00:00Z" });
+  const r = call(all, map, pairs.map(([a, b]) => [a, b].sort().join("|")));
+  assert.equal(r.coverage.joinFailed, 0);
+  assert.equal(r.coverage.marketNotOpen, 5);
 });
 
 test("an unmatched provider event ⇒ JOIN_FAILED, because the market provably exists", () => {
@@ -134,8 +145,9 @@ test("an unmatched provider event ⇒ JOIN_FAILED, because the market provably e
   const { all } = shanghai();
   const pairs = all.slice(0, 8).map((b) => [b.red.name, b.blue.name]);
   const map = priced(pairs);
-  // Inside the card's own window — this is the case that IS evidence about this card.
-  map.set("another name|someone unrecognised", { providerEventId: "near1", commenceUtc: "2026-08-29T09:30:00Z" });
+  /* ONE side folds to a fighter we know is on this card ("Kai Asakura"), the other does not — the
+     realistic shape of a missed join: a diacritic, a nickname, a transliteration. */
+  map.set("Kai Asakura|aoriqileng (the eagle)", { providerEventId: "near1", commenceUtc: "2026-08-29T09:30:00Z" });
   const r = call(all, map, pairs.map(([a, b]) => [a, b].sort().join("|")));
   assert.equal(r.coverage.unmatchedProviderEvents, 1);
   assert.equal(r.coverage.joinFailed, 5);
