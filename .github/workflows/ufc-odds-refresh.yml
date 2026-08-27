@@ -1,18 +1,25 @@
 # ----------------------------------------------------------------------------
-# ufc-odds-refresh.yml — fetch real UFC/MMA moneyline odds (The Odds API) and
-# update the UFC odds + readiness artifacts. ODDS ONLY — never generates picks,
-# projections, or parlays. Manual dispatch (credit-guarded). UFC-only writes.
+# ufc-odds-refresh.yml — refresh the UFC fight-winner prices on demand.
+#
+# ODDS ONLY: never generates picks, projections or parlays. Dispatch-only,
+# receipt-gated, one credit.
+#
+# THIS WORKFLOW COULD NOT SUCCEED FOR AS LONG AS THE RECEIPT HAS EXISTED. It
+# called `pipeline.ufc.build_odds`, the PER-EVENT path, which the UFC
+# authorization receipt forbids outright — one credit per bout where the
+# authorised bulk call prices a whole card for one. The guard refused it every
+# time, correctly and loudly, but nothing had repointed the workflow, so the
+# obvious button for "refresh UFC odds" was a trap that spent a run to print a
+# refusal. Found on 2026-08-27 by pressing it.
+#
+# It now runs the same authorised script ufc-fight-week runs, so the two cannot
+# drift: one capture path, one receipt, one ledger.
 # ----------------------------------------------------------------------------
 name: ufc-odds-refresh
 
 on:
   workflow_dispatch:
     inputs:
-      max_events:
-        description: "Max upcoming MMA events to price (1 credit each, h2h/us)."
-        type: string
-        required: false
-        default: "3"
       dry_run:
         description: "Free events list + cost estimate only (no paid calls)."
         type: boolean
@@ -36,30 +43,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 1, persist-credentials: true }
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.12", cache: "pip" }
-      - name: Install deps
-        run: python -m pip install --upgrade pip && pip install requests
-      - name: Fetch UFC odds + rebuild readiness
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Refresh fight-winner prices (1 credit, UFC receipt · BULK endpoint only)
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: |
-          set -e
-          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
-            python -m pipeline.ufc.build_odds --max-events "${{ github.event.inputs.max_events || '3' }}" --dry-run
-          else
-            python -m pipeline.ufc.build_odds --max-events "${{ github.event.inputs.max_events || '3' }}"
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if [ -z "${ODDS_API_KEY:-}" ]; then
+            echo "ODDS_API_KEY is not configured — nothing to refresh (honest no-op)"
+            exit 0
           fi
-          python -m pipeline.ufc.build_readiness
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            node app/scripts/ufc/capture-ufc-odds.mjs --now "$NOW"
+          else
+            node app/scripts/ufc/capture-ufc-odds.mjs --now "$NOW" --apply
+          fi
       - name: Show artifacts
         run: |
-          echo "::group::odds"; cat app/public/data/ufc/odds-latest.json | head -40; echo "::endgroup::"
-          echo "::group::readiness"; cat app/public/data/ufc/readiness-latest.json; echo "::endgroup::"
+          echo "::group::coverage"
+          node -e 'const d=require("./app/public/data/ufc/odds-latest.json"); console.log(JSON.stringify({event:d.event,coverage:d.coverage,oddsReady:d.oddsReady,partiallyPriced:d.partiallyPriced,blockers:d.blockers},null,1))'
+          echo "::endgroup::"
       - name: Commit UFC artifacts only
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           # STRICT allowlist: UFC artifacts only. Never touches MLB/NBA/picks.
-          git add app/public/data/ufc/odds-latest.json app/public/data/ufc/readiness-latest.json app/public/data/ufc/odds-snapshots/ 2>/dev/null || true
+          # The capture also writes the dated sibling and the private per-book snapshot; the dated
+          # file is public and must ride along, or `odds-latest` and `odds-<date>` disagree.
+          git add app/public/data/ufc/odds-latest.json app/public/data/ufc/odds-2*.json app/public/data/ufc/readiness-latest.json app/public/data/ufc/odds-snapshots/ data/internal/research/odds/ufc/ 2>/dev/null || true
           if git diff --staged --quiet; then echo "no UFC odds changes"; exit 0; fi
           git config user.name "GametimePicks Bot"
           git config user.email "noreply@github.com"
