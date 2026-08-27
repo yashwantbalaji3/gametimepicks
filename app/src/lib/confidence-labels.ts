@@ -85,7 +85,7 @@ export function confidenceCaption(c: RawConfidence | null | undefined): string {
     case "High":
       return "Model and market differed by 5pp or more. These have settled at 49.3% — the lowest of the three categories.";
     case "Medium":
-      return "Model and market differed by 2.5–5pp. These have settled at 49.4%.";
+      return "Model and market differed by 2.5–5pp. These have settled at 50.0%.";
     case "Low":
       return "Model and market differed by under 2.5pp, or the row was anomaly-flagged. These have settled at 51.0% — the highest of the three categories.";
     case "insufficient_data":

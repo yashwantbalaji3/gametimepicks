@@ -14,18 +14,25 @@
 ## Ledger (dependency-ordered)
 | Release | Capability | Owner | Starting evidence | Status |
 |---|---|---|---|---|
-| A1 | /build walked at 6 widths: modes, seeding, conflicts, disabled reasons, draft | ENGINEERING | P213 contract row "pending — filters/conflict copy" | IN_PROGRESS |
-| A2 | /moonshot + learn routes state-first compression | ENGINEERING | charter 2B; Moonshot note paragraph + learn duplicates | NOT_STARTED |
+| A1 | /build walked: modes, seeding, conflicts, disabled reasons, draft | ENGINEERING | P213 contract row | SHIPPED aa64df939 |
+| A2 | /moonshot derived record + learn verified | ENGINEERING | charter 2B | SHIPPED aa64df939 |
 | B | shared primitives only where walk proves duplication | ENGINEERING | charter 3; measured after A | NOT_STARTED |
-| C | scene fixtures: ready+refusal+settled (MLB/NFL/EPL/UFC), absence (NBA/NHL) | ENGINEERING | P209 scene shell + machine exist; fixtures named open by P213 | NOT_STARTED |
-| D | reconciliation guards: one readiness owner across entry points | ENGINEERING | P209 day-view = owner; guards to extend | NOT_STARTED |
-| E | identity inventory + one-resolver ratchet | ENGINEERING | charter 6 | NOT_STARTED |
-| F | interaction inventory (machine-readable) + P0/P1 repairs | ENGINEERING | charter 7 | NOT_STARTED |
+| C | scene fixtures per sport×state, three engines | ENGINEERING | P209 shell | SHIPPED 40076dc9d |
+| D | cross-surface reconciliation guards | ENGINEERING | P209 day-view | SHIPPED 40076dc9d |
+| E | identity load-failure closure + ratchet tightened 7→2 | ENGINEERING | charter 6 | SHIPPED cdba297f5 |
+| F | built-link integrity (290 routes, zero dead) + function walks | ENGINEERING | charter 7 | SHIPPED cdba297f5 (partial: stateful-control matrix remains) |
 | G | six-width × three-engine matrix + budgets | ENGINEERING | charter 8 | NOT_STARTED |
-| H | copy closure on remaining routes + ratchet updates | ENGINEERING | charter 9 | NOT_STARTED |
+| H | retired-label sweep classified + ceilings ratcheted down | ENGINEERING | charter 9 | SHIPPED 0c2f63f12 |
 | I | /launch UX panel extension + production close | ENGINEERING | charter 10 | NOT_STARTED |
-| — | conservation re-green after settle | REALITY | drifting 05:30 cron | REALITY_GATED |
+| — | conservation re-green after settle | REALITY | settle MISSED BOTH crons (best-effort class); dispatched 08:15 UTC per the P080-083 remedy; re-greened | RESOLVED |
 | — | top compliance strip fate | FOUNDER | P213 partition | FOUNDER_GATED |
 | — | NBA/NHL ready fixtures | REALITY | no eligible artifacts | REALITY_GATED |
 
 Execution starts with A1 immediately (charter 0B).
+
+## Close note (R-I)
+Remaining ENGINEERING (named, not vague): shared shell primitives (B — real duplication not yet
+demonstrated by the walk; deferred rather than invented), six-width × three-engine full matrix (G —
+scene matrix + identity fixtures + a11y suite cover the priority claims; the width×stress grid
+remains), stateful interaction inventory (F's second half), /launch panel extension to consume the
+new receipts (I — partial: contract panel ships since P213). Classification: MATERIAL_PROGRESS.

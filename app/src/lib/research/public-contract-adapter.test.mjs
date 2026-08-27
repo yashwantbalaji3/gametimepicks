@@ -14,9 +14,25 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
-import {
+/* P214 R-I: this file's corrupt/missing-artifact probes WRITE the files they probe. They used to
+   write the LIVE public/data/research artifacts — and node --test runs test files in separate
+   processes, so public-contract.test.mjs could read system-status.json mid-mutation ("Unexpected
+   end of JSON input", first caught red in CI). The probes now run against a SCAFFOLDED COPY:
+   the env points the adapter at the copy BEFORE it is imported, and the live artifacts are never
+   touched by this file again. */
+const APP = process.cwd();
+const LIVE_DIR = path.join(APP, "public/data/research");
+const DIR = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-research-scaffold-"));
+for (const f of fs.readdirSync(LIVE_DIR)) {
+  const src = path.join(LIVE_DIR, f);
+  if (fs.statSync(src).isFile()) fs.copyFileSync(src, path.join(DIR, f));
+}
+process.env.GTP_RESEARCH_DIR = DIR;
+
+const {
   STATE_LABEL,
   STATE_MEANING,
   SUPPORTED_SCHEMA_VERSION,
@@ -24,10 +40,7 @@ import {
   loadDailyBrief,
   loadSystemStatus,
   loadTerminal,
-} from "./public-contract-adapter.ts";
-
-const APP = process.cwd();
-const DIR = path.join(APP, "public/data/research");
+} = await import("./public-contract-adapter.ts");
 const raw = (f) => JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8"));
 
 // ── values pass through unchanged ──────────────────────────────────────────────

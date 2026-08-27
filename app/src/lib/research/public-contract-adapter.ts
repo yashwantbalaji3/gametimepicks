@@ -25,7 +25,11 @@ import path from "node:path";
 /** The schema version this reader understands. A future artifact must be handled explicitly. */
 export const SUPPORTED_SCHEMA_VERSION = 1;
 
-const RESEARCH_DIR = path.join(process.cwd(), "public", "data", "research");
+/* P214 R-I: resolved lazily and env-overridable so the adapter TESTS can scaffold their own copy
+   of the artifacts — their corrupt-file probes used to mutate the LIVE files, and node --test's
+   per-file processes let a concurrent reader catch the file mid-write ("Unexpected end of JSON
+   input" in CI). Production behavior is unchanged: the env is never set outside the test scaffold. */
+const researchDir = () => process.env.GTP_RESEARCH_DIR ?? path.join(process.cwd(), "public", "data", "research");
 
 export type StageState =
   | "READY"
@@ -112,7 +116,7 @@ export interface TerminalView {
 // ── parsing ────────────────────────────────────────────────────────────────────
 
 function readArtifact(file: string): { ok: true; data: unknown } | { ok: false; reason: string } {
-  const p = path.join(RESEARCH_DIR, file);
+  const p = path.join(researchDir(), file);
   if (!fs.existsSync(p)) return { ok: false, reason: `${file} is not present` };
   try {
     return { ok: true, data: JSON.parse(fs.readFileSync(p, "utf8")) };
