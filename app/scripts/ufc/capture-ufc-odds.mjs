@@ -29,6 +29,7 @@ import {
   assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, LEDGER_RELPATH,
 } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { nameKey } from "./lib/fight-model.mjs";
+import { classifyCardCoverage, coverageReconciles } from "../../src/lib/sports/ufc/card-coverage.mjs";
 import { buildUfcOddsSnapshot } from "../../src/lib/sports/ufc/odds-snapshot.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -150,11 +151,19 @@ for (const ev of Array.isArray(body) ? body : []) {
   priced.set([nameKey(ev.home_team), nameKey(ev.away_team)].sort().join("|"), { providerEventId: ev.id, commenceUtc: ev.commence_time, books: h2h });
 }
 
-const bouts = [], unjoined = [];
+const boutKey = (b) => [nameKey(b.red?.name), nameKey(b.blue?.name)].sort().join("|");
+/* Which provider events a bout on THIS card actually claimed. A provider event nobody claimed is
+   evidence a market exists that we failed to recognise, and that is what separates a book that has
+   not opened a fight from a join that missed one. */
+const consumed = new Set();
+const bouts = [];
 for (const b of card.bouts ?? []) {
-  const key = [nameKey(b.red?.name), nameKey(b.blue?.name)].sort().join("|");
+  const key = boutKey(b);
   const p = priced.get(key);
-  if (!p) { unjoined.push(`${b.red?.name} vs ${b.blue?.name}`); continue; }
+  // Unpriced bouts are classified in one place after the loop — see lib/sports/ufc/card-coverage.mjs
+  // for why "no price" is two different facts and why a sentence is not a bout identity.
+  if (!p) continue;
+  consumed.add(key);
 
   /* Consensus per fighter = the median posted price across books. A single book's number is that
      book's opinion; the median is the market's, and it is what a reader can actually shop. */
@@ -239,6 +248,15 @@ console.log(`ufc odds: private per-book snapshot → ${shadowSnapshot.rows.lengt
 /* The per-book markets are the model's input, not the reader's — strip them from the public shape. */
 for (const b of bouts) delete b._books;
 
+const {
+  coverage, unpriced, unmatchedProviderEvents, blockers, oddsReady, partiallyPriced,
+} = classifyCardCoverage({ cardBouts: card.bouts ?? [], pricedByKey: priced, matchedKeys: consumed, keyOf: boutKey });
+
+if (!coverageReconciles(coverage)) {
+  console.error(`ufc odds: REFUSED — coverage does not reconcile: ${JSON.stringify(coverage)}`);
+  process.exit(1);
+}
+
 const snapshot = {
   generatedAt: NOW,
   sportKey: SPORT_KEY,
@@ -248,10 +266,17 @@ const snapshot = {
   markets: MARKETS,
   regions: REGIONS,
   bouts,
-  /* Named, not silently absent — see the join note above. */
-  unjoinedBouts: unjoined,
-  oddsReady: bouts.length > 0,
-  blockers: bouts.length ? [] : ["the provider returned no h2h market that joined to this card"],
+  /* Typed and identity-bearing — see the coverage note above. */
+  unpricedBouts: unpriced,
+  coverage,
+  /*
+   * Ready means the WHOLE card is priced. A partially priced card is still useful and still
+   * publishes its eight fights; it is simply not a state anything downstream should treat as
+   * complete, and the difference has to be legible without counting array lengths.
+   */
+  oddsReady,
+  partiallyPriced,
+  blockers,
   creditCost: ledger.requests.at(-1)?.creditsUsed ?? WORST_CASE_CREDITS,
   creditsRemaining: Number(headers["x-requests-remaining"]) || null,
   authorization: { receipt: "docs/receipts/ODDS_AUTHORIZATION_UFC.md", ceiling: auth.ceiling, cumulative: ledger.cumulativeCredits },
@@ -275,4 +300,5 @@ fs.writeFileSync(path.join(OUT, "odds-latest.json"), payload);
 fs.writeFileSync(path.join(OUT, `odds-${card.event.slateDate}.json`), payload);
 
 console.log(`ufc odds: ${bouts.length}/${card.bouts.length} bouts priced · ${snapshot.creditCost} credit(s) · cumulative ${ledger.cumulativeCredits}/${auth.ceiling}`);
-if (unjoined.length) console.log(`  unjoined: ${unjoined.join(" · ")}`);
+for (const u of unpriced) console.log(`  ${u.state}: ${u.boutId} ${u.matchup} — ${u.reason}`);
+for (const u of unmatchedProviderEvents) console.log(`  UNMATCHED PROVIDER EVENT: ${u.providerEventId} (${u.key})`);
