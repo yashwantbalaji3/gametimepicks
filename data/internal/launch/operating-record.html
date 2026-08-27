@@ -50,13 +50,13 @@
     .wrap { max-width: none; padding: 12px 8px; }
   }
 </style>
-<div class="wrap" data-expected-releases="155" data-first-release="141-143-—" data-last-release="215-R-E4">
+<div class="wrap" data-expected-releases="156" data-first-release="141-143-—" data-last-release="215-R-E5">
 <header class="doc">
-  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-27T20:45:00Z</span><span>Program 215 · Releases A–E</span></p>
+  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-27T20:40:00Z</span><span>Program 215 · Releases A–E</span></p>
   <h1>The operating record, generated from the committed register</h1>
   <p class="stamp">
-    <span>main @ 880f84344</span>
-    <span>Suite: 5267·5263·0·5</span>
+    <span>main @ 5a307c507</span>
+    <span>Suite: 5271·5267·0·5</span>
     <span>e2e: 385/0/6 named</span>
     <span>Queues: 0 engineering · 7 reality · 5 founder · 0 incident</span>
   </p>
@@ -80,7 +80,7 @@
 
 <section>
   <h2>The release register — every production release, oldest first</h2>
-  <p class="stamp"><span>155 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 215-R-E4 (2026-08-27)</span></p>
+  <p class="stamp"><span>156 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 215-R-E5 (2026-08-27)</span></p>
   <div class="scroll">
     <table>
       <thead><tr><th>Release</th><th>Commit</th><th>Date</th><th>What shipped</th></tr></thead>
@@ -240,13 +240,14 @@
         <tr><td class="num">215-R-E3</td><td class="num">cc68db57d</td><td class="num">2026-08-27</td><td>a join failure is decided by FIGHTER IDENTITY, not by the clock — a real miss is a fight we hold whose fold missed on one side, so at least one fighter still matches somebody we know is fighting; another promotion's bout shares nobody with our card however close its start. Honest limit stated and guarded: a both-sides fold failure is undetectable and reports MARKET_NOT_OPEN, under-claiming rather than inventing <em>Defects caught: two wrong rules before the right one, both falsified only by live data: 'ANY unmatched provider event' matched 62 (a constant dressed as a diagnosis), and 'inside this card's time window' still matched 11 regional-circuit bouts running the same weekend</em></td></tr>
         <tr><td class="num">215-R-F</td><td class="num">ae287bd18</td><td class="num">2026-08-27</td><td>register and Operating Record regenerated at one stamp (152 rows, 13 pages, verified against the produced PDF bytes and repackaged behind the download panel); NFL role evidence rebuilt once its injury feed was recaptured <em>Defects caught: the role-evidence guard was red for a TRUE reason — sport-schedules owns the NFL injury capture and sport-schedules is a 13:00 UTC job, which was inside the band of events GitHub never delivered, so the feed was 29 hours old against a 24-hour bound. A fourth casualty of the same outage, found by the guard chain rather than by looking</em></td></tr>
         <tr><td class="num">215-R-E4</td><td class="num">b07efbc0b</td><td class="num">2026-08-27</td><td>second-chance fighter matching (lib/sports/ufc/fighter-alias.mjs) recovers bouts whose fold missed on spelling alone — tokens joined without spaces for a name written as two, tokens sorted for reversed order, generational suffixes dropped; BOTH fighters must agree and ambiguity refuses, because a real price on the wrong fight is worse than a missing one. Deliberately NOT a loosening of the shared nameKey, which joins the model to an 8,642-bout corpus. Every rescue stamped joinMethod:'alias' and listed in aliasJoins so the fold's health stays visible <em>Defects caught: the identity test from R-E3 immediately found five REAL join failures on the Aug-29 card — 38% of it, priced and discarded: reversed CJK order (Ding Meng ↔ meng ding, Xiao Long ↔ long xiao), a dropped 'Jr.' (Levi Rodrigues Jr. ↔ levi rodrigues), and single names the book writes as two (Sumudaerji ↔ su mudaerji, Aoriqileng ↔ aori qileng)</em></td></tr>
+        <tr><td class="num">215-R-E5</td><td class="num">880f84344</td><td class="num">2026-08-27</td><td>ships the capture-script wiring R-E4 committed everything else for — `git add app/src …` never reached `app/scripts/`, so the alias matcher and its eleven guards went in while the one file that calls them stayed in the working tree <em>Defects caught: work done, correct, tested and then not delivered, with a green run on top: the capture came back 8/13 with all five bouts still JOIN_FAILED while a local replay against the real nameKey resolved every one. The tests could not catch it — they test the matcher, and the matcher was fine; only the artifact could, and it said so</em></td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
 <footer class="doc">
-  <p>Register complete: 155 releases · 141-143-— → 215-R-E4 · generated 2026-08-27T20:45:00Z at 880f84344.</p>
+  <p>Register complete: 156 releases · 141-143-— → 215-R-E5 · generated 2026-08-27T20:40:00Z at 5a307c507.</p>
 </footer>
 </div>
-<!-- OPERATING-RECORD-END expected=155 first=141-143-— last=215-R-E4 -->
+<!-- OPERATING-RECORD-END expected=156 first=141-143-— last=215-R-E5 -->

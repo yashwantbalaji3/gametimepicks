@@ -36,8 +36,27 @@ if (!Number.isFinite(Date.parse(NOW))) { console.error("usage: build-epl-forecas
 const readJson = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 const EPL = path.join(APP, "public/data/soccer/epl");
 
-const capFile = fs.readdirSync(path.join(EPL, "fixtures")).find((f) => f.startsWith("capture-") && f.endsWith(".json"));
+/*
+ * THE NEWEST CAPTURE, sorted — not `readdir().find()`, which returns whatever the filesystem lists
+ * first and in practice returned `capture-2026-27-2026-08-09T2245.json`. Every EPL forecast this
+ * repository has published was built from an EIGHTEEN-DAY-OLD fixture list.
+ *
+ * It was not a cosmetic staleness. The kickoff time is part of the canonical eventId, so all ten
+ * matchweek-2 rows carried `…:20260829t1400` — one fabricated slot for fixtures that actually run
+ * Aug 28 19:00, Aug 29 11:30/14:00/16:30 and Aug 30 13:00/15:30. Crystal Palace v Manchester City
+ * kicks off the DAY BEFORE the time its own forecast claimed, so a freeze-before-kickoff check
+ * would have passed on a match already played, and settlement would have joined by an id no
+ * official result carries.
+ *
+ * Every other consumer of this directory already sorts (lane status, odds capture, forward
+ * coverage, current results). This was the one that did not.
+ */
+const capFile = fs.readdirSync(path.join(EPL, "fixtures"))
+  .filter((f) => f.startsWith("capture-") && f.endsWith(".json"))
+  .sort()
+  .at(-1);
 if (!capFile) { console.error("no committed season capture — nothing to forecast"); process.exit(2); }
+console.log(`fixtures: ${capFile}`);
 const season = readJson(path.join(EPL, "fixtures", capFile));
 
 /* Odds are OPTIONAL by design: without them every fixture lands on READY_EXCEPT_ODDS with its reason

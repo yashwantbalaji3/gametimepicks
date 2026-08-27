@@ -20,7 +20,10 @@ import { fitPoisson, predictFixture } from "./epl-poisson.mjs";
 
 const APP = process.cwd();
 const corpus = JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/research/epl/corpus-v1.json"), "utf8"));
-const capFile = fs.readdirSync(path.join(APP, "public/data/soccer/epl/fixtures")).find((f) => f.startsWith("capture-"));
+// Sorted, like every other consumer: `.find()` returns the OLDEST capture, which is how the
+// forecast builder spent eighteen days publishing a stale fixture list (P215 R-C1).
+const capFile = fs.readdirSync(path.join(APP, "public/data/soccer/epl/fixtures"))
+  .filter((f) => f.startsWith("capture-") && f.endsWith(".json")).sort().at(-1);
 const season = JSON.parse(fs.readFileSync(path.join(APP, "public/data/soccer/epl/fixtures", capFile), "utf8"));
 
 const knownClubs = new Set(corpus.rows.flatMap((r) => [r.home, r.away]));
