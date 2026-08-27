@@ -311,6 +311,18 @@ jobs:
             echo "  (no public-data changes this run)"
           fi
 
+      # ── PUBLICATION SLO ─────────────────────────────────────────────────────────────────────────
+      # Detection deliberately rides here rather than on its own cron. See
+      # .github/actions/publication-slo/action.yml for the Aug-27 reason: the one watchdog that
+      # would have caught this was itself a scheduled job inside the band of dropped events.
+      - name: Publication SLO (is today's slate late?)
+        continue-on-error: true
+        uses: ./.github/actions/publication-slo
+        with:
+          dispatch-recovery: "true"
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+          ops-webhook-url: ${{ secrets.OPS_WEBHOOK_URL }}
+
       - name: Commit & push public-data changes
         run: |
           if git diff --quiet && git diff --cached --quiet; then

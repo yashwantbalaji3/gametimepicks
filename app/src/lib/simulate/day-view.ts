@@ -33,6 +33,17 @@ export type SimEventState =
   | "NO_PLAY"
   | "SCHEDULE_ONLY"
   | "SOURCE_STALE"
+  /**
+   * The slate published, but THIS event was not in it — its first pitch had already passed when the
+   * slate was generated, so no pre-event artifact exists and none can honestly be made now.
+   *
+   * Added 2026-08-27, when the day's generation chain silently received no scheduled events and the
+   * recovery ran at 14:11 ET with one of seven games already in the second inning. Readiness here
+   * was a SLATE-level fact — `leans > 0` — so every game on the day inherited ARTIFACT_READY,
+   * including the one with no artifact at all, and it advertised four market families it had never
+   * priced. Coverage is a property of an event, not of the day it belongs to.
+   */
+  | "MISSED_COVERAGE"
   | "SETTLED";
 
 export type SimSport = "mlb" | "epl" | "ufc" | "nfl" | "nba";
@@ -85,6 +96,7 @@ export const STATE_ACTION: Record<SimEventState, string> = {
   NO_PLAY: "Why no play",
   SCHEDULE_ONLY: "View event details",
   SOURCE_STALE: "View status",
+  MISSED_COVERAGE: "Why this game is missing",
   SETTLED: "View result",
 };
 
@@ -149,12 +161,32 @@ function mlbSection(date: string, today: string): SportDaySection {
   // Game-detail joins exist only for the current window; absence fails closed, never errors.
   const details = date >= today ? buildAllGameDetails() : [];
   const detailByPk = new Map(details.filter((d) => d.sport === "mlb").map((d) => [String(d.matchId), d]));
+  /*
+   * PER-EVENT COVERAGE. The board stamps each game it refused on the pre-event boundary; without
+   * consulting it, `leans > 0` below hands every game on the day the same readiness, which is how a
+   * game with no artifact came to be labelled ARTIFACT_READY and to advertise four market families
+   * nobody had priced. Keyed by gamePk, because a doubleheader is two games with one team-pair.
+   */
+  const missedPks = new Set(
+    (board.games ?? [])
+      .filter((g) => (g as { startedBeforeGeneration?: boolean }).startedBeforeGeneration === true)
+      .map((g) => String(g.gamePk ?? "")),
+  );
   const events: SimDayEvent[] = games.map((g) => {
     const pk = String(g.gamePk ?? "");
     const detail = detailByPk.get(pk);
     const settled = date < today;
     const simReady = !settled && detail?.gameLabSimulation?.status === "ready";
-    const state: SimEventState = settled ? "SETTLED" : simReady ? "SIMULATION_READY" : leans > 0 ? "ARTIFACT_READY" : "SCHEDULE_ONLY";
+    const missed = !settled && pk !== "" && missedPks.has(pk);
+    const state: SimEventState = settled
+      ? "SETTLED"
+      : missed
+        ? "MISSED_COVERAGE"
+        : simReady
+          ? "SIMULATION_READY"
+          : leans > 0
+            ? "ARTIFACT_READY"
+            : "SCHEDULE_ONLY";
     const href = settled
       ? "/results"
       : detail ? `/games/mlb/${detail.slug}` : "/mlb";
@@ -167,8 +199,17 @@ function mlbSection(date: string, today: string): SportDaySection {
       startLabel: g.gameDate ? etTime(g.gameDate) : "TBD",
       venue: g.venue ?? null,
       state,
-      stateReason: state === "SCHEDULE_ONLY" ? "The board for this slate has no model leans yet — check back closer to game time." : state === "SETTLED" ? "This game is final; the record lives on Results." : null,
-      markets: state === "ARTIFACT_READY" || simReady ? ["Moneyline", "Run line", "Total", ...(board.propsAvailable ? ["Player props"] : [])] : [],
+      stateReason:
+        state === "MISSED_COVERAGE"
+          ? "This game had already started when today's slate was generated, so there is no pregame forecast for it. It still counts as one of the day's scheduled games."
+          : state === "SCHEDULE_ONLY"
+            ? "The board for this slate has no model leans yet — check back closer to game time."
+            : state === "SETTLED"
+              ? "This game is final; the record lives on Results."
+              : null,
+      // A refused game claims no market families. It listed all four before, which is a stronger
+      // falsehood than the silent readiness that came with it.
+      markets: state === "MISSED_COVERAGE" ? [] : state === "ARTIFACT_READY" || simReady ? ["Moneyline", "Run line", "Total", ...(board.propsAvailable ? ["Player props"] : [])] : [],
       href,
       actionLabel: STATE_ACTION[state],
     };

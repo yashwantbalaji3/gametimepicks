@@ -1,0 +1,108 @@
+name: Publication SLO check
+description: >-
+  Classify today's slate against a deadline derived from the earliest scheduled start, and alert
+  when it is late. Cheap and side-effect-light by design so it can ride EVERY workflow that runs
+  during the day.
+
+# ── WHY THIS IS AN ACTION AND NOT A WORKFLOW ────────────────────────────────────────────────────
+#
+# On 2026-08-27 five scheduled workflows in a row — sport-schedules, morning-projections,
+# mlb-daily-production, cron-watchdog and daily-products — received no scheduled events at all,
+# across a 13:00–16:40 UTC band. Everything outside that band ran normally. The single job whose
+# purpose is noticing that scheduled jobs did not run, cron-watchdog, fires at 14:30 UTC: it was
+# inside the band, so the watchdog shared the exact failure mode it exists to detect, and the site
+# said "Today's slate isn't published yet" for six hours past its deadline.
+#
+# A watchdog on its own cron is a single point of failure no matter how good it is. This is a step
+# instead, so detection rides on a dozen independent schedules. Any one of them firing is enough.
+
+inputs:
+  now:
+    description: "ISO instant to evaluate against. Blank = now."
+    required: false
+    default: ""
+  lead-minutes:
+    description: "Minutes before the earliest start by which the slate must be published."
+    required: false
+    default: "90"
+  dispatch-recovery:
+    description: >-
+      On INCIDENT, dispatch morning-projections for the date. Guarded to at most one automatic
+      attempt per ET day so a dozen detectors cannot spend a dozen times.
+    required: false
+    default: "false"
+  gh-token:
+    description: "Token for the run query and the recovery dispatch. Required only for dispatch."
+    required: false
+    default: ""
+  ops-webhook-url:
+    description: "Optional alert sink. Unset is an honest no-op, never a failure."
+    required: false
+    default: ""
+
+outputs:
+  state:
+    description: "PUBLISHED | PUBLISHING | INPUT_GATED | NO_EVENT | INCIDENT | UNKNOWN"
+    value: ${{ steps.check.outputs.state }}
+  date:
+    description: "The ET date evaluated."
+    value: ${{ steps.check.outputs.date }}
+
+runs:
+  using: composite
+  steps:
+    - name: Classify today's publication state
+      id: check
+      shell: bash
+      run: |
+        set -uo pipefail
+        NOW_ARG=""; [ -n "${{ inputs.now }}" ] && NOW_ARG="--now ${{ inputs.now }}"
+        # Never --fail-on-incident here. A watchdog that fails the run it is watching becomes its own
+        # outage, and this step is attached to jobs whose real work is unrelated.
+        node app/scripts/ops/publication-slo.mjs $NOW_ARG --lead-minutes "${{ inputs.lead-minutes }}" || true
+        SLO=app/public/data/ops/publication-slo.json
+        if [ ! -f "$SLO" ]; then
+          echo "::warning::publication-slo produced no artifact — state UNKNOWN"
+          { echo "state=UNKNOWN"; echo "date="; } >> "$GITHUB_OUTPUT"; exit 0
+        fi
+        STATE="$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).state)' "$SLO")"
+        DATE="$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).date)' "$SLO")"
+        { echo "state=$STATE"; echo "date=$DATE"; } >> "$GITHUB_OUTPUT"
+        echo "publication state for $DATE: $STATE"
+        if [ "$STATE" = "INCIDENT" ] || [ "$STATE" = "UNKNOWN" ]; then
+          echo "::warning::publication SLO for $DATE is $STATE — see app/public/data/ops/publication-slo.json"
+        fi
+
+    - name: Alert on a late slate
+      if: steps.check.outputs.state == 'INCIDENT'
+      shell: bash
+      env:
+        OPS_WEBHOOK_URL: ${{ inputs.ops-webhook-url }}
+      run: |
+        set -uo pipefail
+        REASON="$(node -e 'console.log(JSON.parse(require("fs").readFileSync("app/public/data/ops/publication-slo.json","utf8")).reason)')"
+        node app/scripts/ops-notify.mjs --status fail --phase publication-slo \
+          --date "${{ steps.check.outputs.date }}" --message "$REASON" || true
+
+    - name: Dispatch one guarded recovery
+      if: inputs.dispatch-recovery == 'true' && steps.check.outputs.state == 'INCIDENT'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.gh-token }}
+      run: |
+        set -uo pipefail
+        DATE="${{ steps.check.outputs.date }}"
+        if [ -z "${GH_TOKEN:-}" ]; then echo "no token — recovery dispatch skipped (honest no-op)"; exit 0; fi
+        # IDEMPOTENCY. Every workflow carrying this action will reach this step on the same incident.
+        # At most ONE automatic attempt per ET day: a second dispatch would re-run the paid odds
+        # ingest against the same slate, which is the "spend twice on one recovery" failure the
+        # program forbids. A human dispatch still works, and still counts as the day's attempt.
+        ALREADY="$(gh run list --workflow=morning-projections.yml --limit 20 \
+          --json createdAt,event --jq "[.[] | select((.createdAt | fromdateiso8601 | strftime(\"%Y-%m-%d\")) >= \"$DATE\")] | length" 2>/dev/null || echo 0)"
+        if [ "${ALREADY:-0}" -gt 0 ]; then
+          echo "morning-projections already has ${ALREADY} run(s) on or after $DATE — not dispatching again"
+          exit 0
+        fi
+        echo "no generation run exists for $DATE and the deadline has passed — dispatching recovery"
+        gh workflow run morning-projections.yml --ref main \
+          -f projections_date="$DATE" -f skip_nba=true || echo "dispatch failed — the alert above still stands"

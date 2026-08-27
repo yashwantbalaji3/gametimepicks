@@ -1,0 +1,66 @@
+name: publication-watchdog
+
+# ── DENSE CRONS, ON PURPOSE ─────────────────────────────────────────────────────────────────────
+#
+# GitHub drops individual scheduled events, not whole workflows. On 2026-08-27 five different daily
+# jobs each had exactly one slot inside a 13:00–16:40 UTC band and every one of those slots was
+# dropped; jobs either side ran normally. A job with one cron a day is one dropped event away from
+# silence, and that is precisely what happened to cron-watchdog — the job whose entire purpose was
+# noticing this.
+#
+# So this one asks seventeen times across the publication window instead of once. Each firing is a
+# few seconds of a free StatsAPI read and a JSON write; the marginal cost of the sixteen redundant
+# checks is nothing next to the six hours the site spent telling visitors a healthy-sounding lie.
+#
+# It is deliberately NOT the only detector — the same check also rides mlb-lineup-refresh,
+# mlb-pregame-capture, auto-refresh, nightly-settle and mlb-daily-production, on their own
+# schedules. This workflow is the floor, not the plan.
+on:
+  schedule:
+    - cron: "0 12 * * *"
+    - cron: "30 12 * * *"
+    - cron: "0 13 * * *"
+    - cron: "30 13 * * *"
+    - cron: "0 14 * * *"
+    - cron: "30 14 * * *"
+    - cron: "0 15 * * *"
+    - cron: "30 15 * * *"
+    - cron: "0 16 * * *"
+    - cron: "30 16 * * *"
+    - cron: "0 17 * * *"
+    - cron: "30 17 * * *"
+    - cron: "0 18 * * *"
+    - cron: "0 19 * * *"
+    - cron: "0 20 * * *"
+    - cron: "0 21 * * *"
+    - cron: "0 22 * * *"
+  workflow_dispatch:
+    inputs:
+      dispatch_recovery:
+        description: "Dispatch a guarded recovery run if the slate is late."
+        type: boolean
+        default: true
+
+# Read-only against the artifact writers: this job never commits, so it does not belong in
+# gtp-generated-artifacts. Its own group keeps two adjacent slots from overlapping.
+concurrency:
+  group: publication-watchdog
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/publication-slo
+        with:
+          # The default is true so an unattended firing can actually fix the day, not just describe
+          # it. The action's once-per-ET-day guard is what makes that safe across every detector.
+          dispatch-recovery: ${{ github.event.inputs.dispatch_recovery == 'false' && 'false' || 'true' }}
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+          ops-webhook-url: ${{ secrets.OPS_WEBHOOK_URL }}

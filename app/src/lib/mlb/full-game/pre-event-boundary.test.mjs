@@ -11,6 +11,10 @@
  * Origin: 2026-08-27. The daily chain never fired; by the time the slate could be re-run, one of the
  * day's seven games was already in progress.
  */
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -106,6 +110,24 @@ test("no probability of any kind survives for a started game", () => {
   assert.deepEqual(sim.finalScores, []);
 });
 
+test("the refusal states the REAL reason, not the one that happens to also be true", () => {
+  /*
+   * Caught on the boundary's first live run. The refused game came out saying "not enough pregame
+   * lineup data" — true, because a game already under way has no posted pregame lineup, and the
+   * padding notes reached the story first. It would have sent a reader hunting a data gap that does
+   * not exist, so the boundary now owns the first line.
+   */
+  const [input] = gameInputsFromBoard(board({ startedBeforeGeneration: true }));
+  const sim = simulateFullGame(input, opts);
+  assert.match(sim.gameStory[0], /had already started/);
+  assert.doesNotMatch(sim.gameStory[0], /lineup data/);
+  // …and the padding wording is still there for a game that genuinely lacks lineups.
+  const short = board({ startedBeforeGeneration: false });
+  short.leans = short.leans.filter((l) => !l.playerName.startsWith("HME"));
+  const [thin] = gameInputsFromBoard(short);
+  assert.match(simulateFullGame(thin, opts).gameStory[0], /lineup data/);
+});
+
 test("a refused game still produces an entry, so the day's count reconciles", () => {
   // The alternative — dropping it — would report a seven-game day as a six-game day.
   const inputs = gameInputsFromBoard(board({ startedBeforeGeneration: true }));
@@ -116,4 +138,26 @@ test("an unflagged board (older artifact) is unchanged — the field is additive
   const [input] = gameInputsFromBoard(board({ startedBeforeGeneration: undefined }));
   assert.notEqual(input.completeness.level, "unavailable");
   assert.equal(input.completeness.startedBeforeGeneration, false);
+});
+
+test("DETERMINISM · the full-game engine reads no wall clock", () => {
+  /*
+   * board-adapter.ts decided one note's wording with `Date.now()`. The engine's own replay check
+   * missed it — the replay runs in the same process, so both builds saw the same instant — and it
+   * only surfaced when the artifact was regenerated hours later at a pinned --now and came back with
+   * different bytes for a game nothing had changed about. A simulation whose output depends on when
+   * you rebuilt it cannot be replayed, which is the whole basis for grading it afterwards.
+   *
+   * Every fact this engine needs about time is already in the board's committed bytes.
+   */
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  for (const file of fs.readdirSync(here).filter((f) => f.endsWith(".ts"))) {
+    const src = fs.readFileSync(path.join(here, file), "utf8");
+    // Comments discuss Date.now() by name on purpose, so strip them before scanning.
+    const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+    assert.ok(
+      !/\bDate\.now\s*\(/.test(code) && !/\bnew Date\s*\(\s*\)/.test(code),
+      `${file} reads the wall clock — the instant must come from the board or the caller`,
+    );
+  }
 });

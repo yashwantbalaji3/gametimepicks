@@ -161,10 +161,17 @@ export function gameInputFromBoard(
        * case, and it keeps the original wording. The two are told apart by the clock against first
        * pitch, which is the only thing that distinguishes them.
        */
-      const firstPitchMs = game.gameDate ? Date.parse(game.gameDate) : NaN;
-      // An unreadable first pitch is not evidence the game has started, so it stays on the
-      // pregame wording — the padded count is stated either way and nothing is overclaimed.
-      const started = Number.isFinite(firstPitchMs) && Date.now() >= firstPitchMs;
+      /*
+       * Against the BOARD'S generation instant, not the wall clock. `Date.now()` here made the
+       * artifact depend on when it was rebuilt: regenerating the same board with a pinned --now
+       * produced different bytes once the evening games had started, so a byte-for-byte replay of a
+       * past slate could not be trusted to reproduce it. The board already carries this fact per
+       * game, decided once, from two timestamps in its own committed bytes.
+       *
+       * An unreadable first pitch is still not evidence the game has started, so it stays on the
+       * pregame wording — the padded count is stated either way and nothing is overclaimed.
+       */
+      const started = game.startedBeforeGeneration === true;
       notes.push(started
         ? `${abbr} lineup padded: ${side.realCount}/9 batters posted pregame (replacement-level fallback for the rest); no confirmed order was available before first pitch.`
         : `${abbr} lineup padded: ${side.realCount}/9 batters have a posted line and the rest are at replacement level; ${abbr} have not posted a batting order yet, and this refreshes hourly until they do.`);

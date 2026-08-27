@@ -12,7 +12,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
-import { buildSimulateDay } from "./day-view.ts";
+import { buildSimulateDay, STATE_ACTION } from "./day-view.ts";
+import { STATE_TONE } from "../../components/simulate/simulate-day.tsx";
 import { buildAllGameDetails } from "../game-detail.ts";
 import { featuredSimulations } from "../simulate-lobby-featured.ts";
 import { buildProductDays } from "../product-day/product-day.ts";
@@ -58,10 +59,25 @@ test("MLB ready events navigate to their report; every other sport's ready path 
 });
 
 test("every day-view state is in the closed public vocabulary — no invented state can render a chip", () => {
-  const CLOSED = new Set(["SIMULATION_READY", "ARTIFACT_READY", "BASELINE_ONLY", "MODEL_ONLY_NO_MARKET", "NO_PLAY", "SCHEDULE_ONLY", "SOURCE_STALE", "SETTLED"]);
+  /*
+   * The vocabulary is read from the two owners that must AGREE for a chip to exist at all: the
+   * action map the day view exports, and the tone map the component renders from. It used to be a
+   * third hand-copied list here, which is a drift class rather than a guard — adding a genuinely
+   * needed state (MISSED_COVERAGE, 2026-08-27) failed this test while the product was correct, and
+   * the only available repair was to retype the list.
+   *
+   * Derived, it is strictly stronger: a state now has to be renderable by BOTH owners, so an
+   * invented one still cannot reach a chip, and a state added to one owner but not the other — the
+   * real way a chip breaks — now fails here instead of at runtime.
+   */
+  const actions = Object.keys(STATE_ACTION);
+  const tones = Object.keys(STATE_TONE);
+  assert.deepEqual([...actions].sort(), [...tones].sort(), "the action map and the tone map describe the same states");
+  const CLOSED = new Set(actions);
   for (const section of day.sections) {
     for (const e of section.events) {
       assert.ok(CLOSED.has(e.state), `${section.sport} ${e.matchup}: state ${e.state} is outside the closed set`);
+      assert.ok(STATE_TONE[e.state]?.label, `${section.sport} ${e.matchup}: state ${e.state} has no printed chip label`);
     }
   }
 });

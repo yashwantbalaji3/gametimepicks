@@ -172,6 +172,17 @@ jobs:
           node app/scripts/ops-notify.mjs --status "$ST" --phase "mlb-daily-production" --date "${{ steps.cfg.outputs.date }}" --message "$MSG"
           npx tsx app/scripts/build-admin-status.mjs || echo "admin status build skipped"
 
+      # Refresh the publication verdict right after the slate lands, so the site flips out of
+      # PUBLISHING/INCIDENT in the same commit that makes it true. dispatch-recovery is false here:
+      # this workflow IS the recovery, and a job that dispatches itself is a loop.
+      - name: 7d) Publication SLO (post-publication verdict)
+        if: always()
+        continue-on-error: true
+        uses: ./.github/actions/publication-slo
+        with:
+          dispatch-recovery: "false"
+          ops-webhook-url: ${{ secrets.OPS_WEBHOOK_URL }}
+
       - name: 8) Persist completed slate (PATH-SCOPED to public MLB slate dirs; money-safe; rebase-safe; [skip ci])
         if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'
         continue-on-error: true

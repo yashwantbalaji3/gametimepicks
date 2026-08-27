@@ -91,7 +91,15 @@ test("the padded-lineup note distinguishes NOT YET POSTED from NEVER POSTED, by 
   const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
   const block = code.match(/side\.realCount < LINEUP_SIZE\)\s*\{[\s\S]*?\n {4}\}/)?.[0] ?? "";
   assert.ok(block, "the padded-lineup branch must stay in one readable place");
-  assert.match(block, /gameDate/, "the branch must consult first pitch before choosing its wording");
+  /*
+   * The branch decides on the board's own `startedBeforeGeneration` stamp, which IS first pitch
+   * against the board's generatedAt, decided once and committed. It used to read `Date.now()`
+   * against `gameDate` here, which made the artifact depend on WHEN it was rebuilt: regenerating a
+   * past slate at a pinned instant came back with different bytes for a game nothing had changed
+   * about. So the assertion moved with the owner, and picked up the prohibition on the way.
+   */
+  assert.match(block, /startedBeforeGeneration/, "the branch must consult first pitch before choosing its wording");
+  assert.doesNotMatch(block, /Date\.now/, "and must not decide it from the wall clock — the artifact has to replay");
   assert.match(block, /before first pitch/, "a game that already started keeps the honest degraded wording");
   assert.match(block, /not posted a batting order yet/, "and a game still to come says the order has not been posted YET");
 });

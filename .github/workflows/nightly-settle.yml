@@ -464,6 +464,21 @@ jobs:
           git diff --stat
           echo "::endgroup::"
 
+      # ── PUBLICATION SLO ─────────────────────────────────────────────────────────────────────────
+      # Detection deliberately rides here rather than on its own cron. See
+      # .github/actions/publication-slo/action.yml for the Aug-27 reason: the one watchdog that
+      # would have caught this was itself a scheduled job inside the band of dropped events.
+      - name: Publication SLO (is today's slate late?)
+        continue-on-error: true
+        uses: ./.github/actions/publication-slo
+        with:
+          # true, despite this being the settler. On 2026-08-27 nightly-settle's 16:36 UTC run was
+          # one of only two scheduled runs to fire anywhere near the dead band — the coverage a
+          # detector gives you is exactly the coverage of the jobs it rides on, and this one fired.
+          dispatch-recovery: "true"
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+          ops-webhook-url: ${{ secrets.OPS_WEBHOOK_URL }}
+
       - name: Commit and push if results changed
         run: |
           # Allowlist what automation can commit. NEVER commit code,

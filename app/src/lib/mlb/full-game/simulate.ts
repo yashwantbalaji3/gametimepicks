@@ -127,7 +127,19 @@ export function simulateFullGame(input: GameInput, opts: SimulateOptions): FullG
       finalScores: [],
       extraInningsProbability: null,
       players: null,
-      gameStory: [`Not enough pregame lineup data to simulate this game (${input.completeness.notes.join(" ")}).`],
+      /*
+       * WHY it is unavailable, told in the right order. The first live run of the pre-event boundary
+       * (2026-08-27) produced exactly the wrong sentence for the refused game: it read "not enough
+       * pregame lineup data", because a game already under way has no posted pregame lineup and the
+       * padding notes got there first. That is a true statement standing in for the real reason, and
+       * it would send a reader looking for a data gap that does not exist.
+       */
+      gameStory: input.completeness.startedBeforeGeneration
+        ? [
+            "This game had already started when the slate was generated, so no pregame simulation exists for it.",
+            "It stays counted as a scheduled game rather than being dropped from the day.",
+          ]
+        : [`Not enough pregame lineup data to simulate this game (${input.completeness.notes.join(" ")}).`],
       artifactHash: "",
     };
     game.artifactHash = stableHash({ ...game, artifactHash: undefined });

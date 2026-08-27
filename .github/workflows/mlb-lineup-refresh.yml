@@ -123,6 +123,18 @@ jobs:
           npx tsx scripts/generate-mlb-full-game-simulations.mjs --write --date "${{ steps.d.outputs.date }}" --now "$NOW"
           npx tsx scripts/generate-mlb-predictions.mjs --write --date "${{ steps.d.outputs.date }}" --now "$NOW"
 
+      # ── PUBLICATION SLO ─────────────────────────────────────────────────────────────────────────
+      # Detection deliberately rides here rather than on its own cron. See
+      # .github/actions/publication-slo/action.yml for the Aug-27 reason: the one watchdog that
+      # would have caught this was itself a scheduled job inside the band of dropped events.
+      - name: Publication SLO (is today's slate late?)
+        continue-on-error: true
+        uses: ./.github/actions/publication-slo
+        with:
+          dispatch-recovery: "true"
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+          ops-webhook-url: ${{ secrets.OPS_WEBHOOK_URL }}
+
       - name: Commit if the simulation changed
         if: steps.board.outputs.have == 'true'
         run: |
@@ -130,7 +142,9 @@ jobs:
           git config user.name  "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
           # Path-scoped: this job produces exactly two artifacts and must not carry anything else.
-          git add app/public/data/mlb/full-game-simulations app/public/data/mlb/predictions data/internal/mlb/prediction-snapshots 2>/dev/null || true
+          # app/public/data/ops carries the publication-SLO verdict written by the step above. Without
+          # it in scope the check would run eight times a day and its answer would never reach the site.
+          git add app/public/data/mlb/full-game-simulations app/public/data/mlb/predictions app/public/data/ops data/internal/mlb/prediction-snapshots 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "no lineup has changed the simulation since the last run"
             exit 0

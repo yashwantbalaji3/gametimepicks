@@ -23,7 +23,7 @@ const fmtDay = (date: string) =>
   new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
 
 /** Badge tone per state — colour never carries the meaning alone; the label is always printed. */
-const STATE_TONE: Record<SimDayEvent["state"], { fg: string; bg: string; label: string }> = {
+export const STATE_TONE: Record<SimDayEvent["state"], { fg: string; bg: string; label: string }> = {
   SIMULATION_READY: { fg: "var(--vault-success)", bg: "var(--vault-success-dim)", label: "Simulation ready" },
   ARTIFACT_READY: { fg: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)", label: "Artifact ready" },
   BASELINE_ONLY: { fg: "var(--vault-warn)", bg: "var(--vault-warn-dim)", label: "Baseline only" },
@@ -31,6 +31,8 @@ const STATE_TONE: Record<SimDayEvent["state"], { fg: string; bg: string; label: 
   NO_PLAY: { fg: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)", label: "No qualified play" },
   SCHEDULE_ONLY: { fg: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)", label: "Schedule only" },
   SOURCE_STALE: { fg: "var(--vault-danger)", bg: "var(--vault-danger-dim)", label: "Source stale" },
+  // Warn, not danger: the day is not broken, this one game is uncovered — and the label says which.
+  MISSED_COVERAGE: { fg: "var(--vault-warn)", bg: "var(--vault-warn-dim)", label: "No pregame forecast" },
   SETTLED: { fg: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)", label: "Settled" },
 };
 

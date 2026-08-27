@@ -191,6 +191,18 @@ jobs:
       - name: Capture-window health (did a pregame capture land before first pitch per game?)
         continue-on-error: true
         run: node app/scripts/capture-window-health.mjs
+      # ── PUBLICATION SLO ─────────────────────────────────────────────────────────────────────────
+      # Detection deliberately rides here rather than on its own cron. See
+      # .github/actions/publication-slo/action.yml for the Aug-27 reason: the one watchdog that
+      # would have caught this was itself a scheduled job inside the band of dropped events.
+      - name: Publication SLO (is today's slate late?)
+        continue-on-error: true
+        uses: ./.github/actions/publication-slo
+        with:
+          dispatch-recovery: "true"
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+          ops-webhook-url: ${{ secrets.OPS_WEBHOOK_URL }}
+
       - name: Upload archive artifact (safe persistence — no push)
         if: always()
         uses: actions/upload-artifact@v4
