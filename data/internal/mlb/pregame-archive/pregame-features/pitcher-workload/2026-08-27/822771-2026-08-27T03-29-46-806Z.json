@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822771,
+  "date": "2026-08-27",
+  "capturedAt": "2026-08-27T03:29:46.806Z",
+  "availableAt": "2026-08-27T03:29:46.806Z",
+  "eventStartTime": "2026-08-27T23:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 681293,
+      "name": "Spencer Arrighetti",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 34,
+      "lastStartDate": "2026-07-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 19,
+        "ipAvg": 3.8,
+        "kAvg": 3.8,
+        "bbAvg": 3.6,
+        "erAvg": 4.2,
+        "hrAvg": 1.2,
+        "kPer9": 9,
+        "workloadIpLast5": 19
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 88,
+        "k": 87,
+        "bb": 50,
+        "er": 45,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 702070,
+      "name": "Noah Cameron",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 35.67,
+        "ipAvg": 7.13,
+        "kAvg": 5.6,
+        "bbAvg": 1.8,
+        "erAvg": 1,
+        "hrAvg": 0,
+        "kPer9": 7.07,
+        "workloadIpLast5": 35.67
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 136.33,
+        "k": 120,
+        "bb": 43,
+        "er": 64,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-27&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-27T03:29:46.806Z"
+  },
+  "recordHash": "61514097aafad2826937157a3af164738650d5e84cc792ab3c9b656bdf011c34"
+}
