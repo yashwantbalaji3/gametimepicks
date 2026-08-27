@@ -101,6 +101,11 @@ export interface FullGameCompleteness {
   homeLineupCount: number;
   hasAwayStarter: boolean;
   hasHomeStarter: boolean;
+  /**
+   * True when first pitch was at or before the board's generatedAt. Forces `level: "unavailable"`,
+   * so the simulation for this game carries no probabilities at all — the pre-event boundary.
+   */
+  startedBeforeGeneration?: boolean;
   /** Families that do not exist pregame in the public repo for this game (marked, never faked). */
   missingFamilies: string[];
 }

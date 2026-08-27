@@ -48,6 +48,12 @@ interface BoardGame {
   awayProbablePitcherName: string | null;
   homeProbablePitcherId: number | null;
   homeProbablePitcherName: string | null;
+  /**
+   * Stamped by the board generator: this game's first pitch was at or before the board's own
+   * generatedAt. Deterministic — it is a fact about two timestamps in the committed bytes, not a
+   * reading of the wall clock at simulation time.
+   */
+  startedBeforeGeneration?: boolean;
 }
 export interface Board {
   date: string;
@@ -179,7 +185,27 @@ export function gameInputFromBoard(
 
   const enoughToSimulate = away.realCount >= 6 && home.realCount >= 6;
   const fullyReady = away.realCount >= LINEUP_SIZE && home.realCount >= LINEUP_SIZE && !!awayStarter && !!homeStarter;
-  const level: FullGameCompleteness["level"] = !enoughToSimulate ? "unavailable" : fullyReady ? "ready" : "degraded";
+  /*
+   * ── THE PRE-EVENT BOUNDARY, ENFORCED IN THE ADAPTER ──────────────────────────────────────────
+   *
+   * A game already under way when the board was generated cannot receive a pregame simulation, and
+   * the refusal belongs HERE rather than in the calling script: forcing `unavailable` means
+   * `simulateFullGame` takes its null-probability path, so the artifact structurally cannot carry a
+   * win probability, a score distribution or a player line for that game. A filter in the script
+   * would leave the same forecast one careless caller away.
+   *
+   * The game still produces an entry, so the day's array length continues to reconcile against the
+   * board — a refused game is visible, not missing.
+   */
+  const startedBeforeGeneration = game.startedBeforeGeneration === true;
+  if (startedBeforeGeneration) {
+    notes.push(
+      `First pitch was at or before this slate's generation time, so no pregame simulation exists for this game. It stays counted as scheduled.`,
+    );
+    missingFamilies.push("pre_event_window");
+  }
+  const level: FullGameCompleteness["level"] =
+    startedBeforeGeneration || !enoughToSimulate ? "unavailable" : fullyReady ? "ready" : "degraded";
 
   const completeness: FullGameCompleteness = {
     level,
@@ -197,6 +223,7 @@ export function gameInputFromBoard(
     homeLineupCount: home.realCount,
     hasAwayStarter: !!awayStarter,
     hasHomeStarter: !!homeStarter,
+    startedBeforeGeneration,
     missingFamilies,
   };
 

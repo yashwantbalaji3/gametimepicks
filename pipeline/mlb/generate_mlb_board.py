@@ -122,6 +122,64 @@ def _captured_before_start(captured_at: str | None, scheduled_start: str | None)
     return a < b
 
 
+def _has_started(scheduled_start: str | None, *, at: str) -> bool:
+    """True when `scheduled_start` is at or before the reference instant `at`.
+
+    Fails CLOSED in the direction that matters: an unparseable or missing start time is treated as
+    STARTED, so an event we cannot time-check never enters a pre-event artifact. Equality counts as
+    started — first pitch is not pregame.
+
+    `at` is the generation instant, not "now at the moment this line runs". A single reference
+    instant per run is what makes the refusal auditable after the fact: every published row's
+    commenceTime is strictly after the board's own generatedAt, and that is checkable from the
+    committed bytes alone.
+    """
+    a = _parse_iso(scheduled_start)
+    b = _parse_iso(at)
+    if a is None or b is None:
+        return True
+    return a <= b
+
+
+def partition_events_by_start(events: list[dict], *, at: str) -> tuple[list[dict], list[dict]]:
+    """Split provider events into (pregame, started) against the generation instant.
+
+    THIS IS THE PRE-EVENT BOUNDARY. Before 2026-08-27 the generator had none: `_captured_before_start`
+    existed but only decorated each row with a `researchEligible` flag, so a run that started after
+    first pitch still emitted ordinary-looking leans for a game already in progress and still PAID for
+    its odds. The Aug-27 recovery is what surfaced it — the daily chain never fired, and by the time
+    it could be re-run one of the seven games was in the second inning.
+
+    Refusing here rather than at the row layer also means we never buy a market we are forbidden to
+    publish: the started events are dropped before the cost estimate.
+    """
+    pregame: list[dict] = []
+    started: list[dict] = []
+    for e in events:
+        (started if _has_started(e.get("commence_time"), at=at) else pregame).append(e)
+    return pregame, started
+
+
+def _started_receipt(events: list[dict], *, at: str) -> list[dict]:
+    """A typed, committed record of every event refused for having already started."""
+    return [
+        {
+            "providerEventId": str(e.get("id")) if e.get("id") is not None else None,
+            "awayTeam": e.get("away_team"),
+            "homeTeam": e.get("home_team"),
+            "commenceTime": e.get("commence_time"),
+            "state": "MISSED_COVERAGE",
+            "reason": "MISSING_PRE_EVENT_ARTIFACT",
+            "detail": (
+                "Scheduled start is at or before this run's generatedAt, so no pre-event forecast "
+                "can honestly be produced for it. It stays in the coverage denominator."
+            ),
+            "generatedAt": at,
+        }
+        for e in events
+    ]
+
+
 def _club_identity(ctxs: list[dict]) -> tuple[int | str, str | None] | None:
     """The club a team's schedule entries describe, as `(team_id, abbr)`, or None if unidentifiable.
 
@@ -452,6 +510,9 @@ def run(
         "creditsSpent": 0,
         "eventsScheduled": 0,
         "eventsWithOdds": 0,
+        "eventsPregame": 0,
+        "eventsStartedBeforeGeneration": 0,
+        "startedBeforeGeneration": [],
         "propRowsFetched": 0,
         "leansEmitted": 0,
         "insufficientCount": 0,
@@ -508,6 +569,26 @@ def run(
         summary["eventScopeMatched"] = len(selected)
         print(f"[odds] EVENT-SCOPED run — {len(selected)}/{len(events)} event(s): {sorted(wanted)}")
         events = selected
+
+    # ── PRE-EVENT BOUNDARY ────────────────────────────────────────────────────────────────────
+    # Applied BEFORE the cost estimate and the paid fetch: an event whose first pitch has passed is
+    # neither publishable nor worth buying. The refused set is carried in the summary and stamped
+    # into the board so the day's denominator stays whole — a game we could not cover honestly is
+    # visible as MISSED_COVERAGE, never silently absent.
+    events, started_events = partition_events_by_start(events, at=summary["generatedAt"])
+    summary["eventsPregame"] = len(events)
+    summary["eventsStartedBeforeGeneration"] = len(started_events)
+    summary["startedBeforeGeneration"] = _started_receipt(started_events, at=summary["generatedAt"])
+    if started_events:
+        for row in summary["startedBeforeGeneration"]:
+            print(
+                f"[pre-event] REFUSED {row['awayTeam']} @ {row['homeTeam']} — "
+                f"start {row['commenceTime']} <= generatedAt {summary['generatedAt']} · MISSED_COVERAGE"
+            )
+        summary["warnings"].append(
+            f"{len(started_events)} event(s) had already started at generation time and were refused "
+            f"(MISSED_COVERAGE); they remain in the scheduled denominator."
+        )
     # Plan detection (suffix only — never log the key). total quota = used + remaining; a ~500 total is
     # the FREE tier, a 20K total is paid. Paid pipeline runs fail closed on the free key unless overridden.
     key = C.ODDS_API_KEY or ""
@@ -531,6 +612,16 @@ def run(
         return summary
 
     if not events:
+        if started_events:
+            # Every event on the slate had already begun. That is an honest coverage gap, not
+            # "the provider had nothing" — collapsing the two would let a missed morning read as
+            # a quiet no-market day.
+            summary["warnings"].append(
+                "every MLB event for the date had already started at generation time — "
+                "no pre-event board can be produced"
+            )
+            _write_pending_board(date, games, summary, reason="all_events_started")
+            return summary
         summary["warnings"].append("Odds API returned 0 MLB events for date")
         _write_pending_board(date, games, summary, reason="no_events")
         return summary
@@ -722,6 +813,23 @@ def run(
         if proj.get("insufficient"):
             summary["insufficientCount"] += 1
 
+    # BELT TO THE EVENT-LEVEL BRACES. The event filter above is the primary boundary; this second
+    # pass catches a row whose commenceTime disagrees with its parent event's (a provider
+    # reschedule mid-run, or a cached payload older than the schedule). A published row must
+    # satisfy `commenceTime > generatedAt` on its own bytes, with no appeal to the event list.
+    kept: list[dict] = []
+    late_dropped = 0
+    for l in leans:
+        if _has_started(l.get("commenceTime"), at=summary["generatedAt"]):
+            late_dropped += 1
+            continue
+        kept.append(l)
+    if late_dropped:
+        summary["warnings"].append(
+            f"{late_dropped} generated row(s) failed the row-level pre-event check and were dropped"
+        )
+        print(f"[pre-event] dropped {late_dropped} row(s) at the row-level check")
+    leans = kept
     summary["leansEmitted"] = len(leans)
 
     # ------------------------------------------------------------------
@@ -738,8 +846,12 @@ def run(
         "scheduleSource": "mlb-statsapi",
         "oddsSource": "the_odds_api",
         "dataSources": ["mlb-statsapi", "the_odds_api"],
-        "games": games,
+        "games": [
+            {**g, "startedBeforeGeneration": _has_started(g.get("gameDate"), at=summary["generatedAt"])}
+            for g in games
+        ],
         "leans": leans,
+        "coverage": build_coverage(games, summary, leans=leans),
         "summary": {
             "scheduledGames": len(games),
             "eventsWithOdds": summary["eventsWithOdds"],
@@ -811,6 +923,36 @@ def run(
     return summary
 
 
+def build_coverage(games: list[dict], summary: dict, *, leans: list[dict] | None = None) -> dict:
+    """The day's coverage denominator, reconciled from the schedule down.
+
+    `scheduled` is the official game count and is the ONLY number that may anchor a coverage claim.
+    Everything else is a partition of it, so `covered + startedBeforeGeneration + uncovered` is an
+    identity the guards can assert on the committed bytes rather than a narrative in a summary line.
+    """
+    at = summary["generatedAt"]
+    started_games = [g for g in games if _has_started(g.get("gameDate"), at=at)]
+    covered_keys = set()
+    for l in leans or []:
+        key = l.get("providerEventId") or (l.get("awayTeam"), l.get("homeTeam"))
+        if key:
+            covered_keys.add(key if isinstance(key, str) else str(key))
+    return {
+        "generatedAt": at,
+        "scheduled": len(games),
+        "pregameAtGeneration": len(games) - len(started_games),
+        "startedBeforeGeneration": summary.get("startedBeforeGeneration") or [],
+        "startedGameCount": len(started_games),
+        "eventsPricedPregame": summary.get("eventsWithOdds", 0),
+        "coveredEventCount": len(covered_keys),
+        "note": (
+            "Games that had already started when this board was generated carry no pre-event "
+            "forecast by design. They stay counted here so the day is never reported as fully "
+            "covered when it was not."
+        ),
+    }
+
+
 def _by_market_counts(leans: list[dict]) -> dict:
     out: dict = {}
     for l in leans:
@@ -843,8 +985,12 @@ def _write_pending_board(date: str, games: list[dict], summary: dict, *, reason:
         "oddsSource": None,
         "dataSources": ["mlb-statsapi"],
         "pendingReason": reason,
-        "games": games,
+        "games": [
+            {**g, "startedBeforeGeneration": _has_started(g.get("gameDate"), at=summary["generatedAt"])}
+            for g in games
+        ],
         "leans": [],
+        "coverage": build_coverage(games, summary, leans=[]),
         "summary": {
             "scheduledGames": len(games),
             "eventsWithOdds": 0,
