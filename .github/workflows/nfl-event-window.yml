@@ -159,6 +159,24 @@ jobs:
           node scripts/nfl/build-nfl-game-simulations.mjs --now "${{ steps.window.outputs.now }}"
           node scripts/nfl/build-nfl-product-receipts.mjs --now "${{ steps.window.outputs.now }}"
 
+      # ── THE INDEX IS RE-DERIVED EVERY RUN, WINDOW OR NOT ────────────────────────────────────────
+      #
+      # It used to be built only inside the events!=0 branch, so on a quiet day the LAST index just
+      # stayed on disk and its counts kept describing a world that had moved on. Observed
+      # 2026-08-27: the index still read `nextKickoffUtc: 2026-08-24T00:00Z`, `forecastsUpcoming: 1`
+      # and `forecastsStarted: 0` for SEA @ TEN — a game played four days earlier — across four
+      # green runs of this workflow, because every one of them skipped straight past the builder.
+      #
+      # The builder was never the problem: it applies the kickoff lock against its own --now and
+      # would have zeroed those counts on any of those four runs. It simply was not called. It is
+      # free, local, deterministic and needs no network, so there is no reason to gate it at all.
+      - name: Re-derive the canonical NFL index (runs on EVERY window, including empty ones)
+        if: always()
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/build-nfl-index.mjs --now "${{ steps.window.outputs.now }}"
+
       - name: Rebuild the NFL admin lane status
         if: steps.window.outputs.events != '0'
         working-directory: app
@@ -166,8 +184,10 @@ jobs:
           set -euo pipefail
           node scripts/nfl/build-nfl-lane-status.mjs --now "${{ steps.window.outputs.now }}"
 
+      # The commit is no longer gated on the window either: an empty window still re-derives the
+      # index above, and a correction that is computed and then not committed is not a correction.
       - name: Commit the window's artifacts
-        if: steps.window.outputs.events != '0'
+        if: always()
         run: |
           set -euo pipefail
           git config user.name "gtp-bot"
