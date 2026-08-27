@@ -50,12 +50,12 @@
     .wrap { max-width: none; padding: 12px 8px; }
   }
 </style>
-<div class="wrap" data-expected-releases="156" data-first-release="141-143-—" data-last-release="215-R-E5">
+<div class="wrap" data-expected-releases="158" data-first-release="141-143-—" data-last-release="215-R-G">
 <header class="doc">
-  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-27T20:40:00Z</span><span>Program 215 · Releases A–E</span></p>
+  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-27T20:52:00Z</span><span>Program 215 · Releases A–E</span></p>
   <h1>The operating record, generated from the committed register</h1>
   <p class="stamp">
-    <span>main @ 5a307c507</span>
+    <span>main @ 56c49a9e1</span>
     <span>Suite: 5271·5267·0·5</span>
     <span>e2e: 385/0/6 named</span>
     <span>Queues: 0 engineering · 7 reality · 5 founder · 0 incident</span>
@@ -80,7 +80,7 @@
 
 <section>
   <h2>The release register — every production release, oldest first</h2>
-  <p class="stamp"><span>156 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 215-R-E5 (2026-08-27)</span></p>
+  <p class="stamp"><span>158 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 215-R-G (2026-08-27)</span></p>
   <div class="scroll">
     <table>
       <thead><tr><th>Release</th><th>Commit</th><th>Date</th><th>What shipped</th></tr></thead>
@@ -241,13 +241,15 @@
         <tr><td class="num">215-R-F</td><td class="num">ae287bd18</td><td class="num">2026-08-27</td><td>register and Operating Record regenerated at one stamp (152 rows, 13 pages, verified against the produced PDF bytes and repackaged behind the download panel); NFL role evidence rebuilt once its injury feed was recaptured <em>Defects caught: the role-evidence guard was red for a TRUE reason — sport-schedules owns the NFL injury capture and sport-schedules is a 13:00 UTC job, which was inside the band of events GitHub never delivered, so the feed was 29 hours old against a 24-hour bound. A fourth casualty of the same outage, found by the guard chain rather than by looking</em></td></tr>
         <tr><td class="num">215-R-E4</td><td class="num">b07efbc0b</td><td class="num">2026-08-27</td><td>second-chance fighter matching (lib/sports/ufc/fighter-alias.mjs) recovers bouts whose fold missed on spelling alone — tokens joined without spaces for a name written as two, tokens sorted for reversed order, generational suffixes dropped; BOTH fighters must agree and ambiguity refuses, because a real price on the wrong fight is worse than a missing one. Deliberately NOT a loosening of the shared nameKey, which joins the model to an 8,642-bout corpus. Every rescue stamped joinMethod:'alias' and listed in aliasJoins so the fold's health stays visible <em>Defects caught: the identity test from R-E3 immediately found five REAL join failures on the Aug-29 card — 38% of it, priced and discarded: reversed CJK order (Ding Meng ↔ meng ding, Xiao Long ↔ long xiao), a dropped 'Jr.' (Levi Rodrigues Jr. ↔ levi rodrigues), and single names the book writes as two (Sumudaerji ↔ su mudaerji, Aoriqileng ↔ aori qileng)</em></td></tr>
         <tr><td class="num">215-R-E5</td><td class="num">880f84344</td><td class="num">2026-08-27</td><td>ships the capture-script wiring R-E4 committed everything else for — `git add app/src …` never reached `app/scripts/`, so the alias matcher and its eleven guards went in while the one file that calls them stayed in the working tree <em>Defects caught: work done, correct, tested and then not delivered, with a green run on top: the capture came back 8/13 with all five bouts still JOIN_FAILED while a local replay against the real nameKey resolved every one. The tests could not catch it — they test the matcher, and the matcher was fine; only the artifact could, and it said so</em></td></tr>
+        <tr><td class="num">215-R-C</td><td class="num">b07872560</td><td class="num">2026-08-27</td><td>EPL forecasts build from the NEWEST fixture capture (sorted), with four guards: no consumer may select with .find(), the builder must sort and take the last, the published kickoffs must agree with the newest capture on every fixture, and ten fixtures spanning four days may not share one slot. Rebuilt rows carry their real kickoffs across Fri-Mon and the publication SLO's EPL reading goes 2/20 to 10/20 <em>Defects caught: `readdir().find(…)` returned capture-2026-08-09 out of twenty-five append-only files, so EVERY EPL forecast ever published was built from an eighteen-day-old fixture list. The kickoff is part of the canonical eventId, so all ten matchweek-2 rows carried one fabricated 20260829t1400 slot — Crystal Palace v Manchester City kicks off the DAY BEFORE the time its own forecast claimed, meaning a freeze-before-kickoff check would pass on a match already played and settlement would join by an id no official result carries</em></td></tr>
+        <tr><td class="num">215-R-G</td><td class="num">5a307c507</td><td class="num">2026-08-27</td><td>register catch-up for the alias-join release; Operating Record regenerated at 155 rows, 13 pages, verified against the produced PDF bytes</td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
 <footer class="doc">
-  <p>Register complete: 156 releases · 141-143-— → 215-R-E5 · generated 2026-08-27T20:40:00Z at 5a307c507.</p>
+  <p>Register complete: 158 releases · 141-143-— → 215-R-G · generated 2026-08-27T20:52:00Z at 56c49a9e1.</p>
 </footer>
 </div>
-<!-- OPERATING-RECORD-END expected=156 first=141-143-— last=215-R-E5 -->
+<!-- OPERATING-RECORD-END expected=158 first=141-143-— last=215-R-G -->
