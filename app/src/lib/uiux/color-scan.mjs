@@ -20,7 +20,9 @@ export function scanColorLiterals(appRoot = process.cwd()) {
       if (e.isDirectory()) {
         if (e.name === "node_modules") continue;
         walk(p);
-      } else if (/\.(tsx|ts|mjs|css)$/.test(e.name) && !/\.(test|spec)\./.test(e.name)) {
+      } else if (/\.(tsx|ts|mjs|css)$/.test(e.name) && !/\.(test|spec)\./.test(e.name) && !e.name.includes(".mutation-probe.")) {
+        /* ^ mutation probes create TRANSIENT sibling copies (gitignored) while the suite runs; a
+           concurrent scan must never count a file that exists only for the seconds a probe lives. */
         const hits = [...strip(fs.readFileSync(p, "utf8")).matchAll(COLOR)].map((m) => m[0].replace(/\s+/g, ""));
         if (hits.length) out.set(path.relative(appRoot, p), hits);
       }
