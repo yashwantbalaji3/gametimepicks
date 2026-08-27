@@ -50,13 +50,13 @@
     .wrap { max-width: none; padding: 12px 8px; }
   }
 </style>
-<div class="wrap" data-expected-releases="132" data-first-release="141-143-—" data-last-release="211-R-B">
+<div class="wrap" data-expected-releases="133" data-first-release="141-143-—" data-last-release="211-R-C">
 <header class="doc">
-  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-26T23:33:22Z</span><span>P211-RC</span></p>
+  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-26T23:43:55Z</span><span>P211-RD</span></p>
   <h1>The operating record, generated from the committed register</h1>
   <p class="stamp">
-    <span>main @ 0f83fc13f</span>
-    <span>Suite: 5194·5190·0·4</span>
+    <span>main @ 29b9dadc4</span>
+    <span>Suite: 5199·5195·0·4</span>
     <span>e2e: 425/0/6</span>
     <span>Queues: 0 engineering · 7 reality · 5 founder · 0 incident</span>
   </p>
@@ -80,7 +80,7 @@
 
 <section>
   <h2>The release register — every production release, oldest first</h2>
-  <p class="stamp"><span>132 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 211-R-B (2026-08-26)</span></p>
+  <p class="stamp"><span>133 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 211-R-C (2026-08-26)</span></p>
   <div class="scroll">
     <table>
       <thead><tr><th>Release</th><th>Commit</th><th>Date</th><th>What shipped</th></tr></thead>
@@ -217,13 +217,14 @@
         <tr><td class="num">211-R-0</td><td class="num">bf902988f</td><td class="num">2026-08-26</td><td>reconciliation release: /build/custom cards ship ordered legIds against ONE legs-by-id index (387 unique legs serialize once; parity guards prove exact sequences, fail-open orphans, byte-identical card fields); P210's stale in-flight verdict corrected auditably with the proven production receipt; weight ceiling evidence-frozen at 1,400KB with the &lt;600KB generation-time lever filed ENGINEERING <em>Defects caught: P210's 'zero ordinary engineering' claim had mis-filed the dedupe as a non-queue footnote — the item was ENGINEERING and this release shipped it</em></td></tr>
         <tr><td class="num">211-R-A</td><td class="num">f74566fe5</td><td class="num">2026-08-26</td><td>ONE closed lifecycle for Bank Builder/Moonshot: state machine (illegal jumps throw, unearned states fail closed with the missing evidence named, duplicate runIds idempotent, single-writer lease, watchdog) + pure derivation from the canonical authorities (evaluation verbatim, settlement only from the official settler's dated artifact, progression only while the ledger owner's portfolio is fresh); the one receipt writer embeds lifecycle+watchdog at the same stamp with --dry-run recovery; admin status surfaces it, typing a MISSING receipt as the finding <em>Defects caught: the ADVANCED evidence check missed the receipt's own policy version (caught by the WIN fixture); three same-named state vocabularies would have collided — renamed LIFECYCLE_* and documented all three as intentional</em></td></tr>
         <tr><td class="num">211-R-B</td><td class="num">0f83fc13f</td><td class="num">2026-08-26</td><td>selection policies frozen as versioned committed data (bank-builder@1, moonshot@1) recording the bars the products already run under; drift guard fails the build the moment a frozen bar and a live executor constant disagree; NO_PLAY reachability proven on empty and longshot-only pools; candidate schema canonical and never pre-activated; challenger slot honest (null WITH its pre-registration reason); receipts stamp real policy versions <em>Defects caught: one transient suite failure in the first of three full runs (name uncaptured by the summary filter; two subsequent runs clean) — flagged for watch rather than claimed away</em></td></tr>
+        <tr><td class="num">211-R-C</td><td class="num">29b9dadc4</td><td class="num">2026-08-26</td><td>forward-window coverage derived from the canonical artifacts per sport (counts reconcile by construction; refusals typed, never zeros; started events never forward): EPL night-before generation typed as the odds-freshness bar's design with the priced matchweek materialized as typed-refusal rows; NFL absence typed MODEL_ABSENT_BY_DECISION; UFC population-exact; MLB DAILY_BY_CONTRACT; dated artifact + admin surface <em>Defects caught: out-of-band NFL schedule/index refresh restamped artifacts the scheduled workflows own and tripped four one-stamp guards — reverted to committed state, which already covered the weekend; the operator reads receipts, the system runs itself</em></td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
 <footer class="doc">
-  <p>Register complete: 132 releases · 141-143-— → 211-R-B · generated 2026-08-26T23:33:22Z at 0f83fc13f.</p>
+  <p>Register complete: 133 releases · 141-143-— → 211-R-C · generated 2026-08-26T23:43:55Z at 29b9dadc4.</p>
 </footer>
 </div>
-<!-- OPERATING-RECORD-END expected=132 first=141-143-— last=211-R-B -->
+<!-- OPERATING-RECORD-END expected=133 first=141-143-— last=211-R-C -->

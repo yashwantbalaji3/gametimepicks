@@ -293,21 +293,30 @@ function mutating(file, find, replace, probeSource) {
   const text = original.toString();
   assert.ok(text.includes(find), `mutation anchor not found in ${file} — the source changed shape`);
 
+  /* P211 R-D: the probe runs against a SIBLING COPY, never the live file. The old in-place
+   * mutate-and-restore left the LIVE guard neutered on disk when a suite kill (SIGTERM) landed
+   * between write and finally — a corrupted settlement gate one blind commit away from shipping.
+   * A sibling copy resolves the module's relative imports identically; a kill now strands only an
+   * ignorable stray, which the sweep below clears on the next run. */
+  for (const stale of fs.readdirSync(HERE).filter((n) => n.includes(".mutation-probe."))) {
+    fs.rmSync(path.join(HERE, stale), { force: true });
+  }
+  const mutatedPath = path.join(HERE, file.replace(/\.ts$/, ".mutation-probe.ts"));
   const probePath = path.join(os.tmpdir(), `gtp-mutation-probe-${digest.slice(0, 8)}-${file}.mjs`);
   let out = "";
   try {
-    fs.writeFileSync(target, text.replace(find, replace));
-    fs.writeFileSync(probePath, probeSource(target));
+    fs.writeFileSync(mutatedPath, text.replace(find, replace));
+    fs.writeFileSync(probePath, probeSource(mutatedPath));
     out = execFileSync("npx", ["tsx", probePath], { encoding: "utf8", cwd: process.cwd() }).trim();
   } finally {
-    fs.writeFileSync(target, original);
+    fs.rmSync(mutatedPath, { force: true });
     fs.rmSync(probePath, { force: true });
   }
 
   assert.equal(
     crypto.createHash("sha256").update(fs.readFileSync(target)).digest("hex"),
     digest,
-    `${file} was NOT restored byte-for-byte`,
+    `${file} was NOT left untouched — the probe must never write the live module`,
   );
   return out;
 }

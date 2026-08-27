@@ -145,6 +145,16 @@ jobs:
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           npx tsx app/scripts/products/build-daily-product-receipts.mjs --now "$NOW" --date "${{ steps.d.outputs.date }}"
 
+      # P211 R-D: the forward-coverage view regenerates on the same cadence as the receipts —
+      # one derivation over the same canonical artifacts, so the operator's coverage panel can
+      # never disagree with what the products actually read. Same one-writer rule: only its own
+      # dated artifact path.
+      - name: Write the forward-coverage artifact
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          npx tsx app/scripts/products/build-forward-coverage.mjs --now "$NOW" --date "${{ steps.d.outputs.date }}"
+
       # P200: the lab ledger's eligibility used to be computed ONLY by the nightly job at ~04:12 ET
       # — the one hour of the day when today's MLB props cannot exist — so the public Parlay Lab
       # claimed "no odds capture is ingested" beside an ACTIVE ladder every morning. Rebuilding it
@@ -188,7 +198,7 @@ jobs:
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add app/public/data/mr-dub/ app/public/data/admin/ data/internal/products/receipts/ || true
+          git add app/public/data/mr-dub/ app/public/data/admin/ data/internal/products/receipts/ data/internal/products/forward-coverage/ || true
           git add app/public/data/parlays/risk-ladder/ 2>/dev/null || true
           git add app/public/data/parlays/lab-ledger.json app/public/data/parlays/coverage-matrix.json 2>/dev/null || true
           if git diff --cached --quiet; then
