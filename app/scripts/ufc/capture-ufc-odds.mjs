@@ -31,6 +31,7 @@ import {
 import { nameKey } from "./lib/fight-model.mjs";
 import { classifyCardCoverage, coverageReconciles } from "../../src/lib/sports/ufc/card-coverage.mjs";
 import { findLooseMatch } from "../../src/lib/sports/ufc/fighter-alias.mjs";
+import { writeAcquisition, readAcquisition } from "../../src/lib/sports/odds/acquisition-cache.mjs";
 import { buildUfcOddsSnapshot } from "../../src/lib/sports/ufc/odds-snapshot.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -98,14 +99,37 @@ const fingerprint = `ufc|${SPORT_KEY}|${MARKETS.join(",")}|${REGIONS.join(",")}|
 /* `.duplicate`, not the object — isDuplicateRequest returns {duplicate:false} on a clean ledger,
    which is truthy, so testing the return value blocked every capture forever. It failed in the safe
    direction (refusing to spend) but it refused unconditionally. */
+/*
+ * ── THE SPEND GUARD BLOCKS BUYING, NOT THINKING ─────────────────────────────────────────────────
+ *
+ * It used to `exit 0` here, which meant a fix to the JOIN or the COVERAGE CLASSIFIER could not
+ * reach the published artifact until the cooldown expired — twice on 2026-08-27 a corrected
+ * classifier ran against a live card and changed nothing, because the run stopped before it got to
+ * the transform. Three dispatches were spent discovering that.
+ *
+ * A cooldown is a statement about PURCHASES. Re-deriving from bytes already bought costs nothing,
+ * so the duplicate path now loads the cached acquisition and continues through the same transform
+ * the paid path uses — same code, no second opinion — and only rewrites the artifact when the
+ * semantic output actually changes.
+ */
 const dup = isDuplicateRequest(ledger, { fingerprint, nowIso: NOW, freshnessMinutes: 30 });
+let acquisition = null;
 if (dup.duplicate) {
+  acquisition = readAcquisition({ root: PRIVATE_OUT, fingerprint });
+  if (!acquisition) {
+    console.log(`ufc odds: ${dup.reason} — and no cached acquisition to re-derive from, so nothing to do`);
+    process.exit(0);
+  }
   console.log(`ufc odds: ${dup.reason}`);
-  process.exit(0);
+  console.log(`  re-deriving from the cached acquisition (${acquisition.responseHash.slice(0, 12)}… acquired ${acquisition.acquiredAt}) — zero credits`);
 }
 
 const url = `https://api.the-odds-api.com/v4/sports/${SPORT_KEY}/odds?regions=${REGIONS.join(",")}&markets=${MARKETS.join(",")}&oddsFormat=american`;
 let status = 0, body = null, headers = {};
+if (acquisition) {
+  // Re-derivation: the provider is not contacted at all. Nothing below this point can spend.
+  ({ status, body, headers } = { status: acquisition.status, body: acquisition.body, headers: acquisition.headers });
+} else {
 try {
   const res = await fetch(`${url}&apiKey=${KEY}`, { signal: AbortSignal.timeout(25_000), headers: { accept: "application/json" } });
   status = res.status;
@@ -120,8 +144,12 @@ try {
   console.error(`ufc odds: request failed before a response (${e.name}). Not retrying.`);
   process.exit(1);
 }
+}
 
 const cls = classifyProviderResult({ status, body });
+// A re-derivation made no request; recording one would inflate the spend ledger with a call that
+// never happened, which is worse than the missing line it would be standing in for.
+if (!acquisition) {
 ledger = recordRequest(ledger, {
   at: NOW, purpose: `fight-week bulk h2h · ${card.event.name}`, endpoint: `/sports/${SPORT_KEY}/odds`,
   events: Array.isArray(body) ? body.length : null, markets: MARKETS, regions: REGIONS,
@@ -129,6 +157,21 @@ ledger = recordRequest(ledger, {
 });
 fs.mkdirSync(path.dirname(LEDGER), { recursive: true });
 fs.writeFileSync(LEDGER, JSON.stringify(ledger, null, 1) + "\n");
+}
+
+/*
+ * ── ACQUISITION CACHE ───────────────────────────────────────────────────────────────────────────
+ *
+ * The bytes we paid for, kept so the TRANSFORM can be re-run without buying them again. Held
+ * separately from the derived artifact and stamped with what makes it a distinct acquisition:
+ * response hash, provider usage, acquisition time. Private — this is a raw provider payload.
+ *
+ * Written before the classifier gate so a non-OK response is still recorded as an acquisition
+ * attempt rather than vanishing.
+ */
+if (!acquisition && status === 200 && body !== null) {
+  writeAcquisition({ root: PRIVATE_OUT, fingerprint, at: NOW, status, headers, body });
+}
 
 if (cls.class !== "OK") {
   console.error(`ufc odds: ${cls.class} — ${cls.action}`);
