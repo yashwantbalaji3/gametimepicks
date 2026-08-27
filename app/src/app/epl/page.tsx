@@ -245,10 +245,19 @@ export default function EplPage() {
               either way. It used to claim no match had been graded, which was a statement about the
               world made from an inability to read a file — and it became false the night the first
               match settled. */}
-          {set?.trackRecord ?? "The graded record could not be read, so no accuracy claim is made here."} These are the model&rsquo;s
-          own probability distributions, published so you can see what it says — not picks, not advice, and not
-          compared against any price.
+          {set?.trackRecord ?? "The graded record could not be read, so no accuracy claim is made here."}
         </p>
+        {/* P213 R-C2: the limitation still LEADS (the contract above); the what-these-numbers-are
+            explainer folds behind a disclosure so the state line stays one line. */}
+        <details className="mt-2">
+          <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+            What these numbers are
+          </summary>
+          <p className="mt-1.5" style={{ margin: 0, fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
+            These are the model&rsquo;s own probability distributions, published so you can see what it
+            says — not picks, not advice, and not compared against any price.
+          </p>
+        </details>
       </section>
       </section>
 
@@ -337,10 +346,12 @@ export default function EplPage() {
           <SectionHeader
             eyebrow={`Player predictions · ${(players?.markets ?? []).length} market${(players?.markets ?? []).length === 1 ? "" : "s"}`}
             title={awaitingLineup ? "If he starts — likeliest scorers" : "Likeliest scorers"}
+            // P213 R-C2: one line per state; the allocation mechanics live in the validation
+            // disclosure below. The conditional-on-starting caveat is the state truth — it stays.
             sub={
               awaitingLineup
-                ? "Two markets, each tested separately against its own bar: chance of a shot on goal, and chance of scoring. Lineups are posted about an hour before kickoff — until then both figures are conditional on that player STARTING, not a claim that he will. Rows update to the named eleven as soon as the teams are out."
-                : "Two markets, each tested separately against its own bar. Read off the posted lineups: each figure is for the state the player is actually in. Once an eleven is named, a side's goals are shared out across the men actually playing — so these add back to exactly what the match simulation expects that team to score, rather than being a second opinion about the same game."
+                ? "Shot-on-goal and scoring chances — conditional on STARTING until lineups post (~1h before kickoff)."
+                : "Shot-on-goal and scoring chances, read off the posted lineups."
             }
           />
           <div className="rounded-[12px] overflow-hidden" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
@@ -386,17 +397,26 @@ export default function EplPage() {
             </ul>
           </div>
 
-          {/* The receipt, beside the numbers. A reader never has to take the validation on trust. */}
-          <p className="mt-3" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
-            Validated out of sample: fitted on {players.model.fittedAppearances.toLocaleString()} appearances,
-            then tested on a season it had never seen — {players.validation.holdout.n.toLocaleString()} player-matches,
-            log loss {players.validation.holdout.logLoss} against {players.validation.holdout.positionalBaseline} for a
-            position-only baseline, and it predicted {Math.round(players.validation.holdout.predictedScorers)} scorers
-            where {players.validation.holdout.observedScorers} actually scored.
-          </p>
-          <ul className="mt-2" style={{ margin: 0, paddingLeft: 16, fontSize: 12, lineHeight: 1.65, color: "var(--vault-text-faint)" }}>
-            {players.limitations.map((l) => <li key={l}>{l}</li>)}
-          </ul>
+          {/* P213 R-C2: the receipt stays beside the numbers — behind one disclosure whose summary
+              carries the claim. A reader still never takes the validation on trust; the detail no
+              longer competes with the table it validates. */}
+          <details className="mt-3">
+            <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
+              Validated out of sample — the receipt
+            </summary>
+            <p className="mt-1.5" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
+              Fitted on {players.model.fittedAppearances.toLocaleString()} appearances,
+              then tested on a season it had never seen — {players.validation.holdout.n.toLocaleString()} player-matches,
+              log loss {players.validation.holdout.logLoss} against {players.validation.holdout.positionalBaseline} for a
+              position-only baseline, and it predicted {Math.round(players.validation.holdout.predictedScorers)} scorers
+              where {players.validation.holdout.observedScorers} actually scored. Once an eleven is named, a side&rsquo;s
+              goals are shared across the men actually playing — the rows add back to what the match simulation
+              expects that team to score.
+            </p>
+            <ul className="mt-2" style={{ margin: 0, paddingLeft: 16, fontSize: 12, lineHeight: 1.65, color: "var(--vault-text-faint)" }}>
+              {players.limitations.map((l) => <li key={l}>{l}</li>)}
+            </ul>
+          </details>
         </section>
       ) : (
         <section className="mt-8">

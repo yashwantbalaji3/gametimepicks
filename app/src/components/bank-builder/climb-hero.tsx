@@ -146,21 +146,25 @@ export default function ClimbHero({
         <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(20px, 4.4vw, 30px)", fontWeight: 800, lineHeight: 1.06 }}>
           Watch the ladder climb toward $10K
         </h1>
+        {/* P213 R-C2: the essay is now ONE purpose line + the Sprint-035 sample-size truth in one
+            sentence; the mechanics chip-list folds into the disclosure (the header chip already
+            says paper-only). The state banner and ladder below are the page. */}
         <p className="mt-2 text-[13.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 600 }}>
-          Bank Builder is a paper-only ladder. Each lane starts at $100 and climbs toward $10K in 5 steps. A step only
-          advances after every leg wins.
+          A paper ladder: each lane climbs $100 &rarr; $10K in 5 steps, and a step advances only when every leg wins.
         </p>
-        {/* Sprint 035: the record is stated with its sample size, so a completed ladder is not read as
-            a repeatable method. Two ladders have completed, on ten winning legs in total. */}
         <p className="mt-2 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", maxWidth: 600 }}>
-          This is a historical record of paper ladders, not a strategy shown to work. Two have completed,
-          on ten winning legs in total &mdash; far too small a sample to conclude anything repeats. Most
-          lanes stop before the top, and every stop is published here.
+          A historical record, not a strategy shown to work &mdash; two ladders have completed, on ten winning
+          legs, far too small a sample to conclude anything repeats.
         </p>
-        <p className="mt-1.5 font-mono text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
-          paper-only · no real money · each lane independent · a lost step stops that lane · a win rolls the paper return
-          into the next step
-        </p>
+        <details className="mt-1.5">
+          <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+            How the ladder works
+          </summary>
+          <p className="mt-1 font-mono text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
+            each lane independent · a lost step stops that lane · a win rolls the paper return into the next
+            step · most lanes stop before the top, and every stop is published
+          </p>
+        </details>
       </div>
 
       {/* 2 · Current-climb hero — "Where the ladder stands now" */}
