@@ -50,13 +50,13 @@
     .wrap { max-width: none; padding: 12px 8px; }
   }
 </style>
-<div class="wrap" data-expected-releases="146" data-first-release="141-143-—" data-last-release="215-R-A1">
+<div class="wrap" data-expected-releases="152" data-first-release="141-143-—" data-last-release="215-R-E2">
 <header class="doc">
-  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-27T18:55:00Z</span><span>Program 215 · Release A</span></p>
+  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-27T19:00:00Z</span><span>Program 215 · Releases A–E</span></p>
   <h1>The operating record, generated from the committed register</h1>
   <p class="stamp">
-    <span>main @ be10c2aa7</span>
-    <span>Suite: 5231·5228·0·4</span>
+    <span>main @ 98128a0fe</span>
+    <span>Suite: 5255·5250·0·5</span>
     <span>e2e: 385/0/6 named</span>
     <span>Queues: 0 engineering · 7 reality · 5 founder · 0 incident</span>
   </p>
@@ -80,7 +80,7 @@
 
 <section>
   <h2>The release register — every production release, oldest first</h2>
-  <p class="stamp"><span>146 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 215-R-A1 (2026-08-27)</span></p>
+  <p class="stamp"><span>152 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 215-R-E2 (2026-08-27)</span></p>
   <div class="scroll">
     <table>
       <thead><tr><th>Release</th><th>Commit</th><th>Date</th><th>What shipped</th></tr></thead>
@@ -231,13 +231,19 @@
         <tr><td class="num">214-R-H</td><td class="num">0c2f63f12</td><td class="num">2026-08-27</td><td>retired-label sweep over all 290 built routes with every hit CLASSIFIED: 'Parlay Lab → /picks' on 16 game reports renamed to Parlay Center → /build (label pin repointed, contract unchanged); internal 'parlay optimizer' naming dropped from /mlb; Homer Nukes chrome links verified LEGITIMATE (revived 2026-08-17 — the tree outranks stale memory); paper-only ceilings ratchet DOWN on all 16 routes to measured+2</td></tr>
         <tr><td class="num">214-R-I</td><td class="num">9070600a7</td><td class="num">2026-08-27</td><td>P214 close — five releases registered, the train's red gate diagnosed to two real classes and both fixed at the root</td></tr>
         <tr><td class="num">215-R-A1</td><td class="num">8bb32bd24</td><td class="num">2026-08-27</td><td>the pre-event boundary the generator never had: generate_mlb_board refuses started events BEFORE the cost estimate (so a forbidden market is never bought) and carries typed MISSED_COVERAGE receipts; the full-game adapter forces `unavailable` on a started game so the artifact structurally cannot hold a probability. Both fail closed — an unreadable start counts as started, equality is not pregame — and a refused game keeps its entry in the day's denominator. Proven on its first live run: the Aug-27 recovery refused Rockies@Nationals mid-game and published the six that were genuinely pregame <em>Defects caught: the generator had `_captured_before_start` all along, decorating each row with a `researchEligible` flag and gating nothing</em></td></tr>
+        <tr><td class="num">215-R-A2</td><td class="num">87cd457aa</td><td class="num">2026-08-27</td><td>a publication deadline derived from the earliest eligible start (never a fixed hour), six states with UNKNOWN never green, detection as a composite action riding five workflows plus a dense-cron watchdog asking seventeen times a day, and guarded self-recovery capped at one dispatch per ET day <em>Defects caught: /simulate called the refused game ARTIFACT_READY and advertised four market families for it (readiness was a SLATE-level fact every game inherited); the full-game adapter read Date.now() so a pinned regeneration returned different bytes; the refusal's first sentence blamed missing lineup data — true, and standing in for the real reason</em></td></tr>
+        <tr><td class="num">215-R-A3</td><td class="num">69b3854b1</td><td class="num">2026-08-27</td><td>the Aug-27 incident receipt: AUTOMATION_MISSED, the five never-delivered slots with the runs either side proving it was not a platform outage, per-game coverage (6 of 7 recovered, COL @ WSH permanently uncovered and kept in the denominator), 24 credits, and the reconstruction deliberately NOT built</td></tr>
+        <tr><td class="num">215-R-E</td><td class="num">b21ee8288</td><td class="num">2026-08-27</td><td>UFC card coverage reconciles at the write (priced + market-not-open + join-failed = the card, or the capture refuses); every unpriced bout carries its boutId, corners, weight class and next check; MARKET_NOT_OPEN and JOIN_FAILED separated by evidence <em>Defects caught: the Aug-29 Shanghai card published 8 of 13 bouts priced with oddsReady:true and blockers:[] — readiness was `bouts.length &gt; 0`, so one priced fight out of thirteen would have read as a ready, unblocked card; the other five were five English sentences nothing downstream could join to a bout</em></td></tr>
+        <tr><td class="num">215-R-D1</td><td class="num">d02fabc91</td><td class="num">2026-08-27</td><td>the canonical NFL index is re-derived on EVERY window including empty ones, and the commit is ungated to match — a correction computed and not committed is not a correction <em>Defects caught: the index read nextKickoffUtc 2026-08-24, forecastsUpcoming 1, forecastsStarted 0 for a game played four days earlier, across four green runs: the builder sat inside the events!=0 branch and the 18-hour window had been empty since preseason Week 3. The builder was never wrong — it was never called</em></td></tr>
+        <tr><td class="num">215-R-B</td><td class="num">f3d4b11d8</td><td class="num">2026-08-27</td><td>the publication SLO generalised to all four sports (MLB day, NFL window, UFC card, EPL matchweek — one shared judgement, rolled up WORST-OF, every probe on committed artifacts) and the public banner gained a 'late' state measured against the VISITOR'S clock, so a detector that stopped running cannot make a late slate look on time; both inputs optional and absent ones fall back to the patient wording <em>Defects caught: two of my own, both caught by running it: the EPL probe guessed three field names, matched none of the capture's `kickoffIso`, and reported NO_EVENT for a matchweek with ten fixtures three days out; and JOIN_FAILED fired for all five unpriced Shanghai bouts because the authorised UFC call is the BULK endpoint (62 unmatched events, nearly all on cards weeks away) — a rule that fires on every card forever is a constant dressed as a diagnosis</em></td></tr>
+        <tr><td class="num">215-R-E2</td><td class="num">98128a0fe</td><td class="num">2026-08-27</td><td>ufc-odds-refresh repointed from the retired per-event Python path to the authorised bulk capture ufc-fight-week already runs — one receipt, one ledger, one contract; its dump now reports the coverage block and the dated public sibling rides the commit <em>Defects caught: the workflow had been unrunnable for as long as the UFC receipt has existed — the guard refused the per-event path correctly and loudly every time, and nothing had repointed the caller, so the obvious button for 'refresh UFC odds' spent a run printing a refusal. Found by pressing it</em></td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
 <footer class="doc">
-  <p>Register complete: 146 releases · 141-143-— → 215-R-A1 · generated 2026-08-27T18:55:00Z at be10c2aa7.</p>
+  <p>Register complete: 152 releases · 141-143-— → 215-R-E2 · generated 2026-08-27T19:00:00Z at 98128a0fe.</p>
 </footer>
 </div>
-<!-- OPERATING-RECORD-END expected=146 first=141-143-— last=215-R-A1 -->
+<!-- OPERATING-RECORD-END expected=152 first=141-143-— last=215-R-E2 -->
