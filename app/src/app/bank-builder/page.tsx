@@ -42,6 +42,7 @@ import {
   loadPublicBankBuilderLedger,
 } from "@/lib/data-bank-builder";
 import { loadStep5TargetStatus } from "@/lib/bank-builder-step5-target";
+import { RUNBOOKS } from "@/lib/launch/runbook-registry.mjs";
 
 const BANK = getSportIdentity("bank_builder");
 
@@ -335,6 +336,14 @@ export default function BankBuilderPage() {
         </span>
         <span style={{ color: "var(--vault-text-faint)", fontSize: 11, maxWidth: "52ch", textAlign: "right" }}>
           {bbStateExplanation}
+        </span>
+        {/* P211 R-E: the next transition is a fact the runbook already owns — quoted from the ONE
+            registry (guard-tied to the workflow's real cron), never hand-kept here. A live card's
+            next transition is settlement; a waiting lane's is tomorrow's evaluation. */}
+        <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+          {isLive(bbProductState)
+            ? "Next transition: settles overnight from official box scores — the ladder advances or restarts on the graded result."
+            : `Next daily evaluation: ${RUNBOOKS.mlb.products.when} (scheduled; the cron can drift up to ~90 minutes).`}
         </span>
       </div>
 

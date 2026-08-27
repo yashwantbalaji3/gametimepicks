@@ -20,6 +20,7 @@ import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
+import { RUNBOOKS } from "@/lib/launch/runbook-registry.mjs";
 
 export const metadata = {
   title: "Moonshot · GameTime Picks",
@@ -95,6 +96,15 @@ export default function MoonshotPage() {
           pure moonshotV2LadderPolicy spec. Day 1 is live when a lane is active today; Days 2-3 unlock only
           by winning the prior day. Team markets, no props, no forced cards. */}
       <MoonshotLadderV2 live={moonshotLanes.length > 0} currentDay={1} />
+
+      {/* P211 R-E: the next transition, quoted from the ONE runbook registry (guard-tied to the
+          workflow's real cron) — a waiting lane's next transition is tomorrow's evaluation; a live
+          card's is overnight settlement. */}
+      <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+        {moonshotLanes.length
+          ? "Next transition: settles overnight from official results — a win unlocks the next day, a loss ends the run with banked profit kept."
+          : `Next daily evaluation: ${RUNBOOKS.mlb.products.when} (scheduled; the cron can drift up to ~90 minutes).`}
+      </p>
 
       {/* Today's STRUCTURED Moonshot — result + total per game, grouped by game (team markets only). */}
       <section className="flex flex-col gap-3 overflow-x-hidden">

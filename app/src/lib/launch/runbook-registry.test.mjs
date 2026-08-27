@@ -59,3 +59,14 @@ test("quiet states never describe an outage — the registry teaches the differe
   }
   assert.equal(LIFECYCLE_LANES.length, 12);
 });
+
+test("the products row's quoted evaluation time matches the workflow's REAL cron — the public pages quote it", () => {
+  // P211 R-E: /bank-builder and /moonshot render "Next daily evaluation: <when>" from
+  // RUNBOOKS.mlb.products.when. This tie makes that label rot-proof: change the cron and this
+  // fails until the registry row (and therefore both pages) says the new time.
+  const yml = fs.readFileSync(path.join(APP, "..", ".github", "workflows", "daily-products.yml"), "utf8");
+  const m = yml.match(/cron:\s*"(\d+)\s+(\d+)\s+\*\s+\*\s+\*"/);
+  assert.ok(m, "daily-products.yml declares a daily cron");
+  const hhmm = `${m[2].padStart(2, "0")}:${m[1].padStart(2, "0")} UTC`;
+  assert.ok(RUNBOOKS.mlb.products.when.includes(hhmm), `registry when (\"${RUNBOOKS.mlb.products.when}\") must name the real cron time ${hhmm}`);
+});

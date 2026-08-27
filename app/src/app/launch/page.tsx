@@ -21,6 +21,7 @@ import { IA_SECTIONS } from "@/lib/launch/ia-contract.mjs";
 import { buildUiuxEvidence, P184_BASELINE } from "@/lib/launch/uiux-evidence.mjs";
 import { buildProductExperience } from "@/lib/launch/product-experience.mjs";
 import { buildSimulationExperience } from "@/lib/launch/simulation-experience.mjs";
+import { buildDailyProductOps, buildForwardCoveragePanel } from "@/lib/launch/daily-product-ops.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
 import { SPORT_ASSESSMENTS } from "@/lib/sports/sport-assessments.mjs";
@@ -168,6 +169,11 @@ export default function LaunchCommandCenter() {
     try { return JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/audits/product-truth-v1.json"), "utf8")); }
     catch { return null; }
   })();
+
+  /* P211 · Release F: Daily Product Operations + Forward Coverage — rendered verbatim from the
+     one writer's dated artifacts; absence types as the finding. */
+  const dailyOps = buildDailyProductOps({ appDir: APP });
+  const forwardCov = buildForwardCoveragePanel({ appDir: APP });
 
   /* Program 185 · the UI/UX audit, derived from its committed artifact — never typed here. */
   const uiux = buildUiuxEvidence();
@@ -509,6 +515,73 @@ export default function LaunchCommandCenter() {
                   ))}
                 </tbody>
               </table>
+            </section>
+
+            {/* ════ DAILY PRODUCT OPERATIONS (P211 R-F) ═══════════════════════════════════ */}
+            <section aria-labelledby="daily-ops" style={{ marginBottom: 30 }}>
+              <h2 id="daily-ops" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Daily Product Operations · Bank Builder & Moonshot</h2>
+              <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+                Rendered verbatim from the daily receipt writer&apos;s artifact ({dailyOps.present ? `${dailyOps.date} · generated ${dailyOps.generatedAt}` : "absent"}) — lifecycle states typed by the closed machine, policy versions frozen in R-B, nothing hand-set.
+              </p>
+              {dailyOps.present ? (
+                <>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <caption className="sr-only">Daily signature-product lifecycle for {dailyOps.date}</caption>
+                    <thead>
+                      <tr>{["Product", "Lifecycle", "Policy", "Evaluated", "Rejected", "Exposure", "Last transition"].map((h) => <Head key={h}>{h}</Head>)}</tr>
+                    </thead>
+                    <tbody>
+                      {dailyOps.products.map((p: any) => (
+                        <tr key={p.product}>
+                          <Cell>{p.label}</Cell>
+                          <Cell mono>{p.state}{p.incident ? ` · ${p.incident}` : ""}</Cell>
+                          <Cell mono>{p.policyVersion}</Cell>
+                          <Cell mono>{String(p.evaluated)}</Cell>
+                          <Cell mono>{String(p.rejected)}</Cell>
+                          <Cell mono>{`$${p.exposure.toFixed(2)}`}</Cell>
+                          <Cell mono>{p.lastTransition ?? "—"}</Cell>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <p style={{ fontSize: 11, color: "var(--vault-text-mute)", marginTop: 6 }} className="font-mono">
+                    watchdog: {dailyOps.watchdog.length ? dailyOps.watchdog.map((a: any) => `${a.product}:${a.kind}`).join(" · ") : "quiet — no missing evaluation, no stale card, no overdue result, no open incident"}
+                  </p>
+                </>
+              ) : (
+                <p style={{ fontSize: 12, color: "var(--vault-loss-red)" }} className="font-mono">{dailyOps.finding}</p>
+              )}
+            </section>
+
+            {/* ════ FORWARD COVERAGE (P211 R-F) ═══════════════════════════════════════════ */}
+            <section aria-labelledby="forward-cov" style={{ marginBottom: 30 }}>
+              <h2 id="forward-cov" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Forward Coverage · by sport</h2>
+              <p style={{ fontSize: 12, color: "var(--vault-text-mute)", marginBottom: 10 }}>
+                What each sport actually covers ahead of now — scheduled vs priced vs generated vs started — reconciled by construction to the canonical artifacts the public surfaces read ({forwardCov.present ? `${forwardCov.date} · generated ${forwardCov.generatedAt}` : "absent"}).
+              </p>
+              {forwardCov.present ? (
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <caption className="sr-only">Forward coverage for {forwardCov.date}</caption>
+                  <thead>
+                    <tr>{["Sport", "State", "Scheduled", "Priced", "Generated", "Started", "Findings"].map((h) => <Head key={h}>{h}</Head>)}</tr>
+                  </thead>
+                  <tbody>
+                    {forwardCov.sports.map((sp: any) => (
+                      <tr key={sp.sport}>
+                        <Cell mono>{sp.sport.toUpperCase()}</Cell>
+                        <Cell mono>{sp.state}</Cell>
+                        <Cell mono>{sp.counts ? String(sp.counts.scheduled) : "—"}</Cell>
+                        <Cell mono>{sp.counts ? String(sp.counts.priced) : "—"}</Cell>
+                        <Cell mono>{sp.counts ? String(sp.counts.generated) : "—"}</Cell>
+                        <Cell mono>{sp.counts ? String(sp.counts.started) : "—"}</Cell>
+                        <Cell>{sp.findings.length ? sp.findings.join(" | ") : sp.reason ?? "clean"}</Cell>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p style={{ fontSize: 12, color: "var(--vault-text-mute)" }} className="font-mono">{forwardCov.finding}</p>
+              )}
             </section>
 
             {/* ════ SPORTS ════════════════════════════════════════════════════════════════ */}
