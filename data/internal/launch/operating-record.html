@@ -50,13 +50,13 @@
     .wrap { max-width: none; padding: 12px 8px; }
   }
 </style>
-<div class="wrap" data-expected-releases="170" data-first-release="141-143-—" data-last-release="219-R-A">
+<div class="wrap" data-expected-releases="172" data-first-release="141-143-—" data-last-release="220-R-A">
 <header class="doc">
-  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-28T04:38:00Z</span><span>Program 219 · Release A</span></p>
+  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-28T11:25:00Z</span><span>Program 220 · Release A</span></p>
   <h1>The operating record, generated from the committed register</h1>
   <p class="stamp">
-    <span>main @ 5da227823</span>
-    <span>Suite: 5330·5326·0·4</span>
+    <span>main @ c2a311dca</span>
+    <span>Suite: 5344·5340·0·4</span>
     <span>e2e: 385/0/6 named</span>
     <span>Queues: 0 engineering · 7 reality · 5 founder · 0 incident</span>
   </p>
@@ -80,7 +80,7 @@
 
 <section>
   <h2>The release register — every production release, oldest first</h2>
-  <p class="stamp"><span>170 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 219-R-A (2026-08-28)</span></p>
+  <p class="stamp"><span>172 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 220-R-A (2026-08-28)</span></p>
   <div class="scroll">
     <table>
       <thead><tr><th>Release</th><th>Commit</th><th>Date</th><th>What shipped</th></tr></thead>
@@ -255,13 +255,15 @@
         <tr><td class="num">218-R-B</td><td class="num">98a36bde4</td><td class="num">2026-08-27</td><td>register catch-up for P218 R-A and P217 R-B; Operating Record regenerated at 167 rows, 15 pages, verified against the produced PDF bytes <em>Defects caught: the register's own schema guard caught the insertion — rows are newest-first by date and an Aug-27 row had been placed above an Aug-28 one; reordered rather than re-dated</em></td></tr>
         <tr><td class="num">218-R-C</td><td class="num">55a89dc11</td><td class="num">2026-08-28</td><td>R-A's built-HTML guards moved behind a newestSettledDir() helper that returns null when there is no export; verified by moving out/ aside and re-running, which is the CI condition exactly <em>Defects caught: two guards I had just written called readdirSync on out/results/date directly, and the CI gate runs the unit suite BEFORE it builds — so they threw and turned a clean tree red on two consecutive commits while the local gate, with a build on disk, passed every time</em></td></tr>
         <tr><td class="num">219-R-A</td><td class="num">5da227823</td><td class="num">2026-08-28</td><td>the publication SLO's NFL probe now consults the durable forecast-receipt record and joins all three artifacts on providerEventId; NFL reads 16/16 PUBLISHED and the platform state drops from a false MISSED_COVERAGE to PUBLISHING. A guard pins that the detector is not thereby switched off — a started event nobody forecast is still MISSED_COVERAGE <em>Defects caught: two of mine from P215 R-B, found in Phase 0's first read: `published` came from nfl/index.json's `events`, which applies a kickoff lock and correctly retires started games — so every game we DID forecast became 'missed' the moment it kicked off, putting three covered Thursday-night games under an accusation. And the probe joined on a composite `${away}-${home}-${time}` fallback that matched only because two artifacts hold the same values under different field names (dateUtc vs kickoffUtc): it worked by coincidence and would have failed silently on any rename</em></td></tr>
+        <tr><td class="num">219-R-B</td><td class="num">553f33963</td><td class="num">2026-08-28</td><td>register catch-up for P219 R-A and P218 R-C; Operating Record regenerated at 170 rows, 15 pages, verified against the produced PDF bytes <em>Defects caught: the schema guard caught P218 R-A carrying an 08-28 date for a 23:35-ET-on-the-27th commit — a UTC value in an ET column; re-dated rather than reordering the register around a wrong value</em></td></tr>
+        <tr><td class="num">220-R-A</td><td class="num">c2a311dca</td><td class="num">2026-08-28</td><td>Top 10 boards gated per ROW on the ET day derived from each row's own start (eight corruption cases; the live check judges 40 real rows across four boards), refusals published so a short board is explainable; EPL capture refuses a provisional single-slot round and epl-matchweek now fetches the live source; the NFL commit and lane rebuild require their generation step to have PASSED; and the differentiation audit reports UNPROVEN rather than P0 where its evidence is display-rounded <em>Defects caught: three live, found in Phase 0. (1) All ten EPL matchweek fixtures back on one fabricated 14:00Z slot — two workflows, two sources, and the stale one ran last, publishing Crystal Palace v Man City for Saturday afternoon when it kicks off Friday evening. (2) audit-nfl-differentiation reported P0_DEFECT and killed its step exactly as designed, and the artifacts deployed anyway because P215 R-D1 (mine) had ungated that commit to always(). (3) That P0 could not be proven either: the audit's tiebreaker is the win probability rounded to four places, across a slate spanning 0.012 — two of twelve colliding is close to a coin flip, and its comment claimed a precision it did not have. Also: nightly-settle had not run since 18:21 the previous day, so 2026-08-27's cards were unsettled — dispatched, 199 settled, conservation closed</em></td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
 <footer class="doc">
-  <p>Register complete: 170 releases · 141-143-— → 219-R-A · generated 2026-08-28T04:38:00Z at 5da227823.</p>
+  <p>Register complete: 172 releases · 141-143-— → 220-R-A · generated 2026-08-28T11:25:00Z at c2a311dca.</p>
 </footer>
 </div>
-<!-- OPERATING-RECORD-END expected=170 first=141-143-— last=219-R-A -->
+<!-- OPERATING-RECORD-END expected=172 first=141-143-— last=220-R-A -->
