@@ -12,6 +12,8 @@
  */
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 
 import { classify } from "./publication-slo.mjs";
 
@@ -183,4 +185,49 @@ test("WORST-OF · one late sport makes the platform late", () => {
   assert.equal(worstOf(["PUBLISHED", "PUBLISHING", "MISSED_COVERAGE"]), "MISSED_COVERAGE");
   assert.equal(worstOf(["INCIDENT", "UNKNOWN"]), "UNKNOWN", "not knowing outranks a known incident");
   assert.equal(worstOf([]), "PUBLISHED");
+});
+
+/* ── MISSED_COVERAGE IS AN ACCUSATION ─────────────────────────────────────────────────────────── */
+
+test("a started event WE FORECAST is published, not missed", () => {
+  /*
+   * The NFL index applies a kickoff lock and retires a game from `events` once it starts — correct,
+   * because `events` is the upcoming board. Reading `published` from it alone made every game we did
+   * forecast become MISSED_COVERAGE the moment it kicked off: on 2026-08-28 at 00:09 ET that put
+   * PIT@BUF, NE@CLE and SF@LV under a heading saying we failed to cover them, with a per-event
+   * forecast receipt for each sitting on disk.
+   *
+   * The durable record answers "did we cover this"; a list whose job is to forget cannot.
+   */
+  const events = [ev("a", "2026-08-27T23:00:00Z"), ev("b", "2026-08-28T22:00:00Z")];
+  const fromIndexOnly = sport(events, ["b"], "2026-08-28T00:09:00Z");
+  assert.equal(fromIndexOnly.state, "MISSED_COVERAGE", "this is the shape the defect produced");
+
+  const withReceipts = sport(events, ["a", "b"], "2026-08-28T00:09:00Z");
+  assert.equal(withReceipts.state, "PUBLISHED");
+  assert.equal(withReceipts.counts.missedCoverage, 0);
+});
+
+test("a started event we did NOT forecast is still MISSED_COVERAGE", () => {
+  // The repair must not turn the detector off. Coverage we never had stays reported.
+  const v = sport([ev("a", "2026-08-27T23:00:00Z")], [], "2026-08-28T00:09:00Z");
+  assert.equal(v.state, "MISSED_COVERAGE");
+  assert.equal(v.counts.missedCoverage, 1);
+});
+
+test("THE NFL PROBE JOINS ON providerEventId, not a composite fallback", () => {
+  /*
+   * Schedule rows, index events and forecast receipts all carry `providerEventId` and share no other
+   * key. The first version fell through to `${away}-${home}-${time}` on both sides and matched only
+   * because the two artifacts held the same values under different field names (`dateUtc` vs
+   * `kickoffUtc`). It worked by luck and would have broken silently on any rename.
+   */
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/ops/publication-slo.mjs"), "utf8");
+  const blank = (m) => m.replace(/[^\n]/g, " ");
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/\/\/.*$/gm, blank);
+  const nfl = code.slice(code.indexOf("  nfl() {"), code.indexOf("  ufc() {"));
+  assert.match(nfl, /r\.providerEventId/, "schedule rows join on providerEventId");
+  assert.match(nfl, /e\.providerEventId/, "index events join on providerEventId");
+  assert.doesNotMatch(nfl, /\$\{r\.away\?\.abbr\}/, "no composite fallback key may remain");
+  assert.match(nfl, /nflReceiptEventIds\(\)/, "the durable receipt record is consulted");
 });

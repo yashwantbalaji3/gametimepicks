@@ -141,6 +141,26 @@ function boardState() {
  * must never return `[]`, because "I could not tell" and "there is nothing on" are the two states
  * this whole program exists to keep apart.
  */
+/**
+ * Provider event ids of every NFL forecast we have a committed receipt for.
+ *
+ * `data/internal/nfl/forecast-receipts/<date>/<providerEventId>.json` is written when the forecast
+ * is produced and is never removed, so it answers "did we cover this" for a game that has already
+ * been played — which the live index deliberately cannot.
+ */
+function nflReceiptEventIds() {
+  const root = path.join(APP, "..", "data", "internal", "nfl", "forecast-receipts");
+  const ids = new Set();
+  let days = [];
+  try { days = fs.readdirSync(root); } catch { return ids; }
+  for (const day of days) {
+    let files = [];
+    try { files = fs.readdirSync(path.join(root, day)); } catch { continue; }
+    for (const f of files) if (f.endsWith(".json")) ids.add(f.slice(0, -5));
+  }
+  return ids;
+}
+
 const sportProbe = {
   /* MLB's unit is the day. Published = the board carries rows for the game. */
   mlb(games) {
@@ -154,7 +174,19 @@ const sportProbe = {
     };
   },
 
-  /* NFL's unit is the game window. Published = the canonical index carries a forecast for it. */
+  /*
+   * NFL's unit is the game window. Published = a forecast EXISTS for the event — which is not the
+   * same question as "does the live index still list it".
+   *
+   * The index applies a kickoff lock and retires a game from `events` once it starts, which is
+   * correct: `events` is the upcoming board. Reading `published` from it alone meant every game we
+   * DID forecast became MISSED_COVERAGE the moment it kicked off. On 2026-08-28 at 00:09 ET that
+   * put three Thursday-night games — PIT@BUF, NE@CLE, SF@LV — under a heading that says we failed
+   * to cover them, when a per-event forecast receipt for each was sitting on disk.
+   *
+   * MISSED_COVERAGE is an accusation. It has to come from the durable record of what was produced,
+   * not from a list whose job is to forget.
+   */
   nfl() {
     const schedule = readJson(path.join(DATA, "nfl", "schedule", "latest.json"));
     const index = readJson(path.join(DATA, "nfl", "index.json"));
@@ -162,17 +194,26 @@ const sportProbe = {
     // The horizon is the schedule's own scheduled rows inside the next week — not the index's, or a
     // stale index would define away the very events it is failing to cover.
     const horizonEnd = nowMs + 7 * 24 * 3600_000;
+    /*
+     * JOIN ON providerEventId. All three artifacts — schedule rows, index events and forecast
+     * receipts — carry it, and it is the only key they share. The first version fell through to a
+     * composite `${away}-${home}-${time}` on both sides and matched purely because the two happened
+     * to hold the same values under different field names (`dateUtc` vs `kickoffUtc`). It worked,
+     * by luck, and would have stopped the day either side renamed a field.
+     */
     const parsed = schedule.rows
       .filter((r) => r.statusRaw === "STATUS_SCHEDULED")
-      .map((r) => ({ id: String(r.eventId ?? r.id ?? `${r.away?.abbr}-${r.home?.abbr}-${r.dateUtc}`), startUtc: r.dateUtc, label: `${r.away?.abbr ?? "?"} @ ${r.home?.abbr ?? "?"}` }))
-      .filter((e) => Number.isFinite(Date.parse(e.startUtc)));
+      .map((r) => ({ id: String(r.providerEventId ?? ""), startUtc: r.dateUtc, label: `${r.away?.abbr ?? "?"} @ ${r.home?.abbr ?? "?"}` }))
+      .filter((e) => e.id && Number.isFinite(Date.parse(e.startUtc)));
     // Rows that exist but do not parse are a field-name change, not an empty week. Refuse rather
     // than answer — an empty horizon and an unreadable one must never come out the same.
     if (schedule.rows.some((r) => r.statusRaw === "STATUS_SCHEDULED") && !parsed.length) {
       return { events: null, published: new Set() };
     }
     const events = parsed.filter((e) => Date.parse(e.startUtc) <= horizonEnd);
-    const published = new Set((index?.events ?? []).map((e) => String(e.eventId ?? e.id ?? `${e.away?.abbr}-${e.home?.abbr}-${e.kickoffUtc}`)));
+    const published = new Set((index?.events ?? []).map((e) => String(e.providerEventId ?? "")).filter(Boolean));
+    // …plus every event a forecast receipt was written for, which survives kickoff.
+    for (const id of nflReceiptEventIds()) published.add(id);
     return { events, published };
   },
 
