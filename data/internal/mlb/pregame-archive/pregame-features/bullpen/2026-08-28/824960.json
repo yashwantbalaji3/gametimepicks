@@ -1,0 +1,206 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824960,
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T00:10:13.902Z",
+  "availableAt": "2026-08-28T00:10:13.902Z",
+  "eventStartTime": "2026-08-29T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-25",
+    "2026-08-26",
+    "2026-08-27"
+  ],
+  "home": {
+    "teamId": 133,
+    "teamName": "Athletics",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 74,
+      "relievers": [
+        {
+          "id": 665660,
+          "name": "Elvis Alvarado",
+          "appearances": 2,
+          "pitches": 33,
+          "outs": 6,
+          "dates": [
+            "2026-08-25",
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 663687,
+          "name": "Hogan Harris",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-08-25"
+          ]
+        },
+        {
+          "id": 669620,
+          "name": "Brady Basso",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 6,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 665622,
+          "name": "Luis Medina",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-25"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 110,
+    "teamName": "Baltimore Orioles",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 58,
+      "relievers": [
+        {
+          "id": 676742,
+          "name": "Cam Sanders",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 6,
+          "dates": [
+            "2026-08-27"
+          ]
+        },
+        {
+          "id": 689296,
+          "name": "Anthony Nunez",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-27"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 190,
+      "relievers": [
+        {
+          "id": 689296,
+          "name": "Anthony Nunez",
+          "appearances": 2,
+          "pitches": 48,
+          "outs": 9,
+          "dates": [
+            "2026-08-25",
+            "2026-08-27"
+          ]
+        },
+        {
+          "id": 676742,
+          "name": "Cam Sanders",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 6,
+          "dates": [
+            "2026-08-27"
+          ]
+        },
+        {
+          "id": 670329,
+          "name": "Rico Garcia",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 4,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 664991,
+          "name": "Grant Wolfram",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 3,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 552640,
+          "name": "Andrew Kittredge",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 695380,
+          "name": "Alex Hoppe",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 677020,
+          "name": "Josh Walker",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 666974,
+          "name": "Yennier Cano",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-08-25"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 676742,
+        "name": "Cam Sanders",
+        "reason": "37 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-25,2026-08-26,2026-08-27) + feed/live box scores",
+    "capturedAt": "2026-08-28T00:10:13.902Z"
+  },
+  "recordHash": "2a1eb11ff6d71a9e44ebc7bab5fcc933783f381b0298cfdc99bd5a200ec4e2b5"
+}

@@ -4,21 +4,21 @@
   "productEligible": false,
   "kind": "mlb-research-quality",
   "scanned": {
-    "dates": 36,
-    "joinFiles": 485,
-    "marketRows": 65052,
+    "dates": 37,
+    "joinFiles": 500,
+    "marketRows": 65156,
     "settledRows": 61115,
-    "contextualRows": 2354,
+    "contextualRows": 2396,
     "featureRecords": {
-      "pitcher-workload": 2732,
-      "bullpen": 470,
-      "matchup": 470,
-      "lineup": 2801,
-      "batter-splits": 4523,
-      "batter-form": 4507,
-      "park-factors": 470,
-      "batter-vs-pitcher": 4490,
-      "pa-opportunity": 4490
+      "pitcher-workload": 2747,
+      "bullpen": 485,
+      "matchup": 485,
+      "lineup": 2816,
+      "batter-splits": 4524,
+      "batter-form": 4508,
+      "park-factors": 485,
+      "batter-vs-pitcher": 4491,
+      "pa-opportunity": 4491
     }
   },
   "checks": {
@@ -39,8 +39,8 @@
       "verdict": "PASS"
     },
     "staleOdds": {
-      "count": 0,
-      "verdict": "PASS"
+      "count": 1,
+      "verdict": "WARN"
     },
     "joinFailures": {
       "count": 0,
@@ -61,24 +61,31 @@
     "missingOutcomes": [],
     "impossibleStats": [],
     "timestampViolations": [],
-    "staleOdds": [],
+    "staleOdds": [
+      {
+        "date": "2026-08-28",
+        "gamePk": 823178,
+        "freshestCapturedAt": "2026-08-28T00:10:15.197Z",
+        "hoursBeforeFirstPitch": 26.1
+      }
+    ],
     "joinFailures": [],
     "scanned": {
-      "dates": 36,
-      "joinFiles": 485,
-      "marketRows": 65052,
+      "dates": 37,
+      "joinFiles": 500,
+      "marketRows": 65156,
       "settledRows": 61115,
-      "contextualRows": 2354,
+      "contextualRows": 2396,
       "featureRecords": {
-        "pitcher-workload": 2732,
-        "bullpen": 470,
-        "matchup": 470,
-        "lineup": 2801,
-        "batter-splits": 4523,
-        "batter-form": 4507,
-        "park-factors": 470,
-        "batter-vs-pitcher": 4490,
-        "pa-opportunity": 4490
+        "pitcher-workload": 2747,
+        "bullpen": 485,
+        "matchup": 485,
+        "lineup": 2816,
+        "batter-splits": 4524,
+        "batter-form": 4508,
+        "park-factors": 485,
+        "batter-vs-pitcher": 4491,
+        "pa-opportunity": 4491
       }
     },
     "missingTimestamps": [],

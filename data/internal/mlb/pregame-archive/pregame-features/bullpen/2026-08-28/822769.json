@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822769,
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T00:10:13.902Z",
+  "availableAt": "2026-08-28T00:10:13.902Z",
+  "eventStartTime": "2026-08-28T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-25",
+    "2026-08-26",
+    "2026-08-27"
+  ],
+  "home": {
+    "teamId": 141,
+    "teamName": "Toronto Blue Jays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 11,
+      "pitches": 190,
+      "relievers": [
+        {
+          "id": 663893,
+          "name": "Brendon Little",
+          "appearances": 2,
+          "pitches": 37,
+          "outs": 5,
+          "dates": [
+            "2026-08-25",
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 689149,
+          "name": "Chad Dallas",
+          "appearances": 1,
+          "pitches": 37,
+          "outs": 8,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 643511,
+          "name": "Tyler Rogers",
+          "appearances": 2,
+          "pitches": 36,
+          "outs": 5,
+          "dates": [
+            "2026-08-25",
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 623149,
+          "name": "Paul Sewald",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 5,
+          "dates": [
+            "2026-08-25",
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 689254,
+          "name": "Mason Fluharty",
+          "appearances": 2,
+          "pitches": 19,
+          "outs": 5,
+          "dates": [
+            "2026-08-25",
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 686973,
+          "name": "Louis Varland",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 680755,
+          "name": "Braydon Fisher",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 1,
+          "dates": [
+            "2026-08-25"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 136,
+    "teamName": "Seattle Mariners",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 105,
+      "relievers": [
+        {
+          "id": 672841,
+          "name": "Carlos Vargas",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 662253,
+          "name": "Andrés Muñoz",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-08-25"
+          ]
+        },
+        {
+          "id": 678606,
+          "name": "José A. Ferrer",
+          "appearances": 2,
+          "pitches": 21,
+          "outs": 4,
+          "dates": [
+            "2026-08-25",
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 660825,
+          "name": "Eduard Bazardo",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 642100,
+          "name": "Gabe Speier",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-08-26"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-25,2026-08-26,2026-08-27) + feed/live box scores",
+    "capturedAt": "2026-08-28T00:10:13.902Z"
+  },
+  "recordHash": "772235c7498231e75f23bcbe560ca462deb49a6310189039be97d8fb7c5d2af5"
+}

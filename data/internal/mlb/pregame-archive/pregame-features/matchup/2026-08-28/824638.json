@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824638,
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T00:10:14.713Z",
+  "availableAt": "2026-08-28T00:10:14.713Z",
+  "eventStartTime": "2026-08-28T18:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 656849,
+    "name": "David Peterson",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 695076,
+    "name": "Rhett Lowder",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-28T00:10:14.713Z"
+  },
+  "recordHash": "91f6368aeb47e128aa17d44f1bb5b2bddef460916b8e5edb78c3a9dbf3a4abc4"
+}

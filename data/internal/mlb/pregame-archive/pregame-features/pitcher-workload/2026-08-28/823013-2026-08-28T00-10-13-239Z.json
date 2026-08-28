@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823013,
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T00:10:13.239Z",
+  "availableAt": "2026-08-28T00:10:13.239Z",
+  "eventStartTime": "2026-08-29T00:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687273,
+      "name": "Quinn Mathews",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 3,
+        "ipSum": 14,
+        "ipAvg": 4.67,
+        "kAvg": 4.33,
+        "bbAvg": 2.33,
+        "erAvg": 3.33,
+        "hrAvg": 0.33,
+        "kPer9": 8.36,
+        "workloadIpLast5": 14
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 14,
+        "k": 13,
+        "bb": 7,
+        "er": 10,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 683003,
+      "name": "Jared Jones",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22,
+        "ipAvg": 4.4,
+        "kAvg": 4.8,
+        "bbAvg": 2.6,
+        "erAvg": 3.4,
+        "hrAvg": 1,
+        "kPer9": 9.82,
+        "workloadIpLast5": 22
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 68,
+        "k": 77,
+        "bb": 26,
+        "er": 36,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-28T00:10:13.239Z"
+  },
+  "recordHash": "746ae72b2ee901d21e887d291437652dd59ef0f6ed268bd1ec0b088eed054c29"
+}

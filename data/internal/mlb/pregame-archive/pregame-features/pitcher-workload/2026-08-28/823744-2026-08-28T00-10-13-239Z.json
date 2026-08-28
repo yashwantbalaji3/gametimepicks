@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823744,
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T00:10:13.239Z",
+  "availableAt": "2026-08-28T00:10:13.239Z",
+  "eventStartTime": "2026-08-28T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 701656,
+      "name": "Logan Henderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 6.4,
+        "bbAvg": 1.4,
+        "erAvg": 1.4,
+        "hrAvg": 1,
+        "kPer9": 9.29,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 69.33,
+        "k": 79,
+        "bb": 14,
+        "er": 20,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 674003,
+      "name": "Cody Bradford",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 4,
+        "ipSum": 20.67,
+        "ipAvg": 5.17,
+        "kAvg": 3.25,
+        "bbAvg": 1,
+        "erAvg": 1.75,
+        "hrAvg": 0.25,
+        "kPer9": 5.66,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 20.67,
+        "k": 13,
+        "bb": 4,
+        "er": 7,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-28T00:10:13.239Z"
+  },
+  "recordHash": "eda9c76582675aa4e059f8220d7b3aeeca581e78db6367ae71f1df6e17a50ab0"
+}
