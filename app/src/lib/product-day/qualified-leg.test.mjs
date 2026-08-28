@@ -60,3 +60,41 @@ test("refusals are typed, not thrown: a leg without settlement identity names ex
   assert.equal(res2.ok, false);
   if (!res2.ok) assert.equal(res2.refusal.code, "NO_PRICE");
 });
+
+test("SELECTION REFUSES WHAT IT CANNOT IDENTIFY — the ladder builder's own gate", () => {
+  /*
+   * The contract above catches an ungradeable published leg. This pins the fix at the layer that
+   * put it there.
+   *
+   * build-risk-ladder used to stamp `gamePk: … ?? null` and publish the leg anyway, reasoning that
+   * never grading beats grading against a guess. The first half is right; the conclusion was not.
+   * On 2026-08-27 a longshot card shipped with two legs on a game that had started four and a half
+   * hours earlier and could never settle — so the CARD could never settle either. A card whose
+   * result depends on a leg with no outcome is not conservative, it is unfalsifiable.
+   *
+   * Two owners disagreed about the same fact and the guard was the one that was right.
+   */
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/parlays/build-risk-ladder.mjs"), "utf8");
+  const blank = (m) => m.replace(/[^\n]/g, " ");
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/\/\/.*$/gm, blank);
+  assert.match(
+    code,
+    /\.filter\(\(s\) => \(s\.legs \?\? \[\]\)\.every\(\(l\) => gamePkByGameId\.get\(String\(l\.gameId \?\? ""\)\) != null\)\)/,
+    "the candidate pool must drop any slip with a leg it cannot identify, BEFORE scoring",
+  );
+});
+
+test("LIVE · no published ladder card carries a leg without a settlement identity", () => {
+  const dir = path.join(dataRoot, "parlays", "risk-ladder");
+  if (!fs.existsSync(dir)) return;
+  const latest = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().at(-1);
+  if (!latest) return;
+  const doc = JSON.parse(fs.readFileSync(path.join(dir, latest), "utf8"));
+  const orphans = [];
+  for (const c of doc.cards ?? []) {
+    for (const [i, l] of (c.legs ?? []).entries()) {
+      if (l.gamePk == null) orphans.push(`${c.slipId}#${i} (${l.player ?? "?"})`);
+    }
+  }
+  assert.deepEqual(orphans, [], `${latest}: legs that can never grade:\n  ${orphans.join("\n  ")}`);
+});

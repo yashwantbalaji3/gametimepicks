@@ -11,20 +11,12 @@
  */
 import Link from "next/link";
 
-import { surfaceHref } from "@/lib/nav/date-sport-route";
+import DateSportControls from "@/components/nav/date-sport-controls";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import TeamMark from "@/components/ui/team-mark";
 import SimulationStage from "@/components/simulate/simulation-stage";
 import type { SimulateDayView, SimDayEvent, SimSport } from "@/lib/simulate/day-view";
 
-/*
- * Delegated to the shared owner (lib/nav/date-sport-route). This built `/simulate/d/<date>` with no
- * trailing slash while next.config sets `trailingSlash: true`, so every date step a visitor took
- * answered 308 and cost a redirect hop before rendering.
- */
-const dateHref = (view: Pick<SimulateDayView, "today">, date: string | null) =>
-  date == null ? null : surfaceHref("simulate", { date, defaultDate: view.today });
 
 const fmtDay = (date: string) =>
   new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
@@ -97,7 +89,6 @@ function EventCard({ e, onOpen }: { e: SimDayEvent; onOpen: (e: SimDayEvent) => 
 }
 
 export default function SimulateDay({ view }: { view: SimulateDayView }) {
-  const router = useRouter();
   const [sport, setSport] = useState<SimSport | "all">("all");
   const [staged, setStaged] = useState<SimDayEvent | null>(null);
 
@@ -131,76 +122,31 @@ export default function SimulateDay({ view }: { view: SimulateDayView }) {
     return () => window.removeEventListener("popstate", onPop);
   }, [view.sections]);
 
-  const prevHref = dateHref(view, view.prevDate);
-  const nextHref = dateHref(view, view.nextDate);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* ── DATE BAR — sticky on phones so the selected day stays visible while scrolling. ── */}
-      <nav
-        aria-label="Simulation date"
-        className="sticky sm:static z-20 -mx-4 px-4 py-2 sm:mx-0 sm:px-0 flex flex-wrap items-center gap-2"
+      {/* ── DATE + SPORT — the shared control family over the canonical URL owner (P217 WS1). ──
+           This was ~55 lines of inline prev/next/picker plus a hand-rolled chip row. The sticky
+           wrapper stays here because it is a /simulate layout decision, not part of the contract. */}
+      <div
+        className="sticky sm:static z-20 -mx-4 px-4 py-2 sm:mx-0 sm:px-0"
         style={{ top: 0, background: "color-mix(in srgb, var(--vault-scrim-base) 92%, transparent)", backdropFilter: "blur(8px)" }}
       >
-        {prevHref ? (
-          <Link href={prevHref} className="vault-press rounded-full px-3 no-underline inline-flex items-center" style={{ minHeight: 40, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)", fontSize: 12.5 }}>
-            ← {fmtDay(view.prevDate!)}
-          </Link>
-        ) : (
-          <span className="rounded-full px-3 inline-flex items-center" style={{ minHeight: 40, color: "var(--vault-text-faint)", fontSize: 12 }} title="Earlier days live on Results">
-            Start of window
-          </span>
-        )}
-        <span className="rounded-full px-4 inline-flex items-center font-display" style={{ minHeight: 40, border: "1px solid var(--vault-gold-bright)", background: "var(--vault-gold-dim)", color: "var(--vault-gold-bright)", fontSize: 13.5, fontWeight: 750 }}>
-          {view.isToday ? "Today · " : ""}{fmtDay(view.date)}
-        </span>
-        {nextHref ? (
-          <Link href={nextHref} className="vault-press rounded-full px-3 no-underline inline-flex items-center" style={{ minHeight: 40, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)", fontSize: 12.5 }}>
-            {fmtDay(view.nextDate!)} →
-          </Link>
-        ) : null}
-        {!view.isToday ? (
-          <Link href="/simulate" className="vault-press rounded-full px-3 no-underline inline-flex items-center" style={{ minHeight: 40, color: "var(--vault-gold-bright)", fontSize: 12.5, fontWeight: 700 }}>
-            Jump to today
-          </Link>
-        ) : null}
-        <label className="ml-auto inline-flex items-center gap-2" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
-          <span>Date</span>
-          <select
-            value={view.date}
-            onChange={(ev) => { const d = ev.target.value; router.push(dateHref(view, d) ?? "/simulate"); }}
-            aria-label="Jump to a date with events"
-            className="rounded-[8px] px-2 py-1.5"
-            style={{ minHeight: 40, background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 12.5 }}
-          >
-            {view.availableDates.map((d) => (
-              <option key={d} value={d}>{fmtDay(d)}{d === view.today ? " · today" : ""}</option>
-            ))}
-          </select>
-        </label>
-      </nav>
-
-      {/* ── SPORT CHIPS — derived from the registry-backed sections; counts are the rendered rows. ── */}
-      <div role="group" aria-label="Sport filter" className="flex items-center gap-1.5 overflow-x-auto pb-1">
-        <button type="button" onClick={() => pick("all")} aria-pressed={sport === "all"}
-          className="rounded-full px-3 py-1.5 shrink-0"
-          style={{ minHeight: 36, border: `1px solid ${sport === "all" ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`, background: sport === "all" ? "var(--vault-gold-dim)" : "transparent", color: sport === "all" ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 12.5, fontWeight: 650 }}>
-          All · {view.totals.events}
-        </button>
-        {view.sections.map((s) => {
-          const on = sport === s.sport;
-          return (
-            <button key={s.sport} type="button" onClick={() => pick(s.sport)} aria-pressed={on}
-              className="rounded-full px-3 py-1.5 shrink-0 inline-flex items-center gap-1.5"
-              style={{ minHeight: 36, border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`, background: on ? "var(--vault-gold-dim)" : "transparent", color: on ? "var(--vault-gold-bright)" : "var(--vault-text-mute)", fontSize: 12.5, fontWeight: 650 }}>
-              <span aria-hidden>{s.icon}</span>
-              {s.label}
-              <span className="font-mono" style={{ fontSize: 10.5, color: on ? "var(--vault-gold-bright)" : "var(--vault-text-faint)" }}>
-                {s.events.length}{s.emptyState ? ` · ${s.emptyState.replaceAll("_", " ").toLowerCase()}` : ""}
-              </span>
-            </button>
-          );
-        })}
+        <DateSportControls
+          surface="simulate"
+          navLabel="Simulation date"
+          date={view.date}
+          defaultDate={view.today}
+          availableDates={view.availableDates}
+          totalCount={view.totals.events}
+          sports={view.sections.map((sec) => ({
+            id: sec.sport,
+            label: sec.label,
+            icon: sec.icon,
+            count: sec.events.length,
+            emptyReason: sec.emptyState ? sec.emptyState.replaceAll("_", " ").toLowerCase() : null,
+          }))}
+        />
       </div>
 
       {/* ── SECTIONS ── */}

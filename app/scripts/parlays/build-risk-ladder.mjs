@@ -135,9 +135,22 @@ const bucketFor = (american) => BANDS.find(([, fits]) => fits(american))?.[0] ??
  *
  * Legs carry the provider's `gameId`; grading needs MLB's `gamePk`. Resolving that at settlement
  * time would mean re-joining a board that may have moved on, so the gamePk is stamped onto the card
- * when it is PUBLISHED — the same lineage rule the rest of this repo settles under. A leg whose
- * gamePk cannot be resolved is published without one and simply never grades, rather than grading
- * against a guess.
+ * when it is PUBLISHED — the same lineage rule the rest of this repo settles under.
+ *
+ * AN UNRESOLVED LEG IS NOW REFUSED AT SELECTION, NOT PUBLISHED UNGRADED.
+ *
+ * This used to publish it without a gamePk on the reasoning that never grading beats grading
+ * against a guess. The first half of that is right and is kept; the conclusion was not. On
+ * 2026-08-27 a longshot card shipped with two legs on gameId f9efae32… — BAL @ STL, a game that had
+ * started four and a half hours before the card was generated — and neither could ever settle, so
+ * the CARD could never settle either. A card whose result depends on a leg with no outcome is not a
+ * conservative publication, it is an unfalsifiable one.
+ *
+ * The qualified-leg contract (P201) already said so: "a refusal on a published card is a failing
+ * build, because it means an ungradeable or unidentifiable selection reached the public." Two owners
+ * disagreed and the guard was the one that was right. Refusing at selection satisfies both intents —
+ * nothing is graded against a guess, and nothing ungradeable reaches a reader. If too few legs
+ * qualify, the tier is honestly short rather than quietly broken.
  */
 const gamePkByGameId = new Map();
 try {
@@ -220,6 +233,9 @@ const legKey = (l) => `${l.playerName}|${l.market}|${l.side}|${l.line}`;
 for (const tier of TIERS) {
   const pool = poolByTier[tier]
     .filter((s) => combinedDecimal(s) != null)
+    // Every leg must carry a settlement identity BEFORE the card is scored. See the note above the
+    // gamePk map: a card containing a leg that can never grade can never grade itself.
+    .filter((s) => (s.legs ?? []).every((l) => gamePkByGameId.get(String(l.gameId ?? "")) != null))
     .filter((s) => (s.legs ?? []).length <= (BAND_MAX_LEGS[tier] ?? MAX_LEGS))
     .filter((s) => (s.legs ?? []).every((l) => !usedLegs.has(legKey(l))));
   if (!pool.length) {
