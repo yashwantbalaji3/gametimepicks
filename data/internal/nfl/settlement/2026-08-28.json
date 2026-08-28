@@ -3,29 +3,121 @@
  "artifact": "nfl-current-settlement",
  "dataClass": "PRIVATE_PAPER_RECORD",
  "date": "2026-08-28",
- "generatedAt": "2026-08-28T00:19:49Z",
+ "generatedAt": "2026-08-28T23:40:16Z",
  "scope": "NFL current-artifact settlement — a SEPARATE paper record. It never reads or writes MLB money, Bank Builder, Moonshot, or Mr. Dub.",
  "whatIsGraded": "the PRE-START MARKET consensus pinned in each artifact (favourite / home spread / over total). The team model ABSTAINS in preseason, so this is a market-accuracy record and is never reported as model performance.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401873300",
+   "providerEventId": "401873300",
    "matchup": "LAR @ LAC",
+   "kickoffUtc": "2026-08-28T02:00Z",
+   "artifactFile": "data/internal/nfl/current/2026-08-28/401873300-0019Z.json",
+   "lineage": {
+    "artifactGeneratedAt": "2026-08-28T00:19:49Z",
+    "marketCapturedAt": "2026-08-27T23:54:17Z",
+    "evidence": {
+     "schedule": {
+      "asOf": "2026-08-24T13:41:33Z"
+     },
+     "rosters": {
+      "asOf": "2026-08-27T23:54:17Z"
+     },
+     "injuries": {
+      "asOf": "2026-08-27T22:41:17Z"
+     },
+     "odds": {
+      "asOf": "2026-08-27T23:54:17Z"
+     },
+     "strengthCutoff": "2026-08-28T00:19:49Z"
+    },
+    "settlementContractVersion": 1,
+    "settledAt": "2026-08-28T23:40:16Z"
+   },
+   "official": {
+    "status": "STATUS_FINAL",
+    "home": 18,
+    "away": 20
+   },
+   "graded": [
+    {
+     "market": "moneyline",
+     "side": "home",
+     "line": null,
+     "label": "market favourite (60.3% no-vig)",
+     "outcome": "LOSS",
+     "reason": "final 18-20: away, leg took home"
+    },
+    {
+     "market": "point_spread",
+     "side": "home",
+     "line": -3.5,
+     "label": "home -3.5",
+     "outcome": "LOSS",
+     "reason": "margin -2 fails -3.5"
+    },
+    {
+     "market": "total_points",
+     "side": "over",
+     "line": 38,
+     "label": "over 38",
+     "outcome": "PUSH",
+     "reason": "total 38 lands exactly on 38"
+    }
+   ]
+  }
+ ],
+ "pending": [
+  {
+   "canonicalEventId": "nfl-401873301",
+   "matchup": "CIN @ PHI",
    "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-08-28T02:00Z"
+   "kickoffUtc": "2026-08-29T00:00Z"
+  },
+  {
+   "canonicalEventId": "nfl-401873302",
+   "matchup": "WSH @ BAL",
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-08-28T22:00Z",
+   "observedStatus": "STATUS_IN_PROGRESS"
+  },
+  {
+   "canonicalEventId": "nfl-401873304",
+   "matchup": "ATL @ MIA",
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-08-28T23:00Z",
+   "observedStatus": "STATUS_SCHEDULED"
+  },
+  {
+   "canonicalEventId": "nfl-401873308",
+   "matchup": "DET @ IND",
+   "state": "PRE_KICKOFF",
+   "kickoffUtc": "2026-08-29T17:00Z"
+  },
+  {
+   "canonicalEventId": "nfl-401873614",
+   "matchup": "MIN @ DEN",
+   "state": "PRE_KICKOFF",
+   "kickoffUtc": "2026-08-29T01:00Z"
+  },
+  {
+   "canonicalEventId": "nfl-401874048",
+   "matchup": "NO @ DAL",
+   "state": "PRE_KICKOFF",
+   "kickoffUtc": "2026-08-29T00:00Z"
   }
  ],
  "accounting": {
-  "artifactsForDate": 1,
-  "settled": 0,
-  "pending": 1,
+  "artifactsForDate": 7,
+  "settled": 1,
+  "pending": 6,
   "reconciles": true,
-  "legs": 0,
+  "legs": 3,
   "wins": 0,
-  "losses": 0,
-  "pushes": 0,
+  "losses": 2,
+  "pushes": 1,
   "voids": 0,
-  "decisive": 0,
+  "decisive": 2,
   "note": "decisive = WIN + LOSS only; pushes and voids are reported separately and pending is never a loss"
  }
 }
