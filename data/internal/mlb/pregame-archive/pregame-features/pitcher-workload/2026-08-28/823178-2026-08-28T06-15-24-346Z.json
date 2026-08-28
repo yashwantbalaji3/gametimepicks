@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823178,
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T06:15:24.346Z",
+  "availableAt": "2026-08-28T06:15:24.346Z",
+  "eventStartTime": "2026-08-29T02:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 694918,
+      "name": "Blade Tidwell",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 4,
+        "ipSum": 20.67,
+        "ipAvg": 5.17,
+        "kAvg": 4.25,
+        "bbAvg": 2.25,
+        "erAvg": 2.25,
+        "hrAvg": 0.25,
+        "kPer9": 7.4,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 20.67,
+        "k": 17,
+        "bb": 9,
+        "er": 9,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 684442,
+      "name": "Kohl Drake",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 22,
+      "lastStartDate": "2026-08-06",
+      "last5": {
+        "starts": 4,
+        "ipSum": 16.67,
+        "ipAvg": 4.17,
+        "kAvg": 3.25,
+        "bbAvg": 1.5,
+        "erAvg": 2.5,
+        "hrAvg": 0.75,
+        "kPer9": 7.02,
+        "workloadIpLast5": 16.67
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 16.67,
+        "k": 13,
+        "bb": 6,
+        "er": 10,
+        "hr": 3
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-28T06:15:24.346Z"
+  },
+  "recordHash": "bc1b73683a850457239a68fa1742793211241a7942c1b1598bc4839f93a2c81c"
+}

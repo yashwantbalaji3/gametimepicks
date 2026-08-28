@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823504,
   "date": "2026-08-28",
-  "capturedAt": "2026-08-28T00:10:13.902Z",
-  "availableAt": "2026-08-28T00:10:13.902Z",
+  "capturedAt": "2026-08-28T06:15:26.308Z",
+  "availableAt": "2026-08-28T06:15:26.308Z",
   "eventStartTime": "2026-08-28T23:15:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,56 @@
     "teamId": 147,
     "teamName": "New York Yankees",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 48,
+      "relievers": [
+        {
+          "id": 623437,
+          "name": "Justin Topa",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-08-27"
+          ]
+        },
+        {
+          "id": 660787,
+          "name": "Yerry De los Santos",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-27"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 133,
+      "appearances": 9,
+      "pitches": 181,
       "relievers": [
+        {
+          "id": 623437,
+          "name": "Justin Topa",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 6,
+          "dates": [
+            "2026-08-27"
+          ]
+        },
+        {
+          "id": 660787,
+          "name": "Yerry De los Santos",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-25",
+            "2026-08-27"
+          ]
+        },
         {
           "id": 687396,
           "name": "Brent Headrick",
@@ -69,16 +111,6 @@
           ]
         },
         {
-          "id": 660787,
-          "name": "Yerry De los Santos",
-          "appearances": 1,
-          "pitches": 17,
-          "outs": 3,
-          "dates": [
-            "2026-08-25"
-          ]
-        },
-        {
           "id": 605242,
           "name": "Michael Fulmer",
           "appearances": 1,
@@ -100,7 +132,13 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 623437,
+        "name": "Justin Topa",
+        "reason": "34 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 111,
@@ -182,7 +220,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-25,2026-08-26,2026-08-27) + feed/live box scores",
-    "capturedAt": "2026-08-28T00:10:13.902Z"
+    "capturedAt": "2026-08-28T06:15:26.308Z"
   },
-  "recordHash": "97c1ed6596fd61619284bd5cbc2e38068d23bff785e15bf889c0d27c94daa9d6"
+  "recordHash": "12567d67b3716f6a65c2f8c9f204d243128a138383d7c2b265153d4c7a16eb31"
 }
