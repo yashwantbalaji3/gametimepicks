@@ -108,6 +108,31 @@ class CoverageReconciliationTest(unittest.TestCase):
         self.assertEqual(len(cov["startedBeforeGeneration"]), 1)
         self.assertEqual(cov["startedBeforeGeneration"][0]["state"], "MISSED_COVERAGE")
 
+    def test_covered_count_uses_the_key_a_lean_actually_carries(self):
+        """`providerEventId` is stamped on odds ROWS and not copied into leans.
+
+        Keying on it made every lean answer None, so `coveredEventCount` collapsed to 1 and stayed
+        there — on 2026-08-28 the board reported one covered event out of fourteen priced. The
+        boundary itself was unaffected (that reads `startedBeforeGeneration`), but a coverage block
+        publishing a false count is the failure mode a coverage block exists to prevent.
+        """
+        leans = [
+            {"gameId": "a", "awayTeam": "X", "homeTeam": "Y"},
+            {"gameId": "a", "awayTeam": "X", "homeTeam": "Y"},
+            {"gameId": "b", "awayTeam": "P", "homeTeam": "Q"},
+        ]
+        cov = G.build_coverage([{"gameDate": "2026-08-27T23:05:00Z"}], self._summary(), leans=leans)
+        self.assertEqual(cov["coveredEventCount"], 2, "two distinct games, three leans")
+
+        # And the fallback still works for a lean carrying neither id.
+        cov2 = G.build_coverage([{"gameDate": "2026-08-27T23:05:00Z"}], self._summary(),
+                                leans=[{"awayTeam": "X", "homeTeam": "Y"}])
+        self.assertEqual(cov2["coveredEventCount"], 1)
+
+        # A lean identifying nothing is not counted as an event.
+        cov3 = G.build_coverage([{"gameDate": "2026-08-27T23:05:00Z"}], self._summary(), leans=[{}])
+        self.assertEqual(cov3["coveredEventCount"], 0)
+
     def test_a_game_with_no_start_time_is_never_counted_as_covered(self):
         cov = G.build_coverage([{"gameDate": None}], self._summary(), leans=[])
         self.assertEqual(cov["pregameAtGeneration"], 0)

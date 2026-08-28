@@ -932,11 +932,21 @@ def build_coverage(games: list[dict], summary: dict, *, leans: list[dict] | None
     """
     at = summary["generatedAt"]
     started_games = [g for g in games if _has_started(g.get("gameDate"), at=at)]
+    # `gameId` FIRST — it is what a lean actually carries.
+    #
+    # This keyed on `providerEventId`, which the odds ROWS carry but `_build_lean` does not copy
+    # through, so every lean answered None and the set collapsed to one member. The published
+    # `coveredEventCount` has read 1 since P215 on days it should have read fourteen. It is a
+    # reporting field, not the boundary itself, but a false number in a coverage block is exactly
+    # the thing a coverage block exists to prevent.
     covered_keys = set()
     for l in leans or []:
-        key = l.get("providerEventId") or (l.get("awayTeam"), l.get("homeTeam"))
-        if key:
-            covered_keys.add(key if isinstance(key, str) else str(key))
+        key = l.get("gameId") or l.get("providerEventId") or l.get("gamePk")
+        if key is None:
+            key = (l.get("awayTeam"), l.get("homeTeam"))
+            if key == (None, None):
+                continue
+        covered_keys.add(str(key))
     return {
         "generatedAt": at,
         "scheduled": len(games),

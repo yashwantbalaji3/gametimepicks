@@ -25,6 +25,11 @@ const FIXTURES = path.join(APP, "public/data/soccer/epl/fixtures");
 
 /** Files that select a capture out of that directory. */
 const CONSUMERS = [
+  // Tests read this directory too, and the first version of this list walked only scripts and libs.
+  // epl-identity-live.test.mjs kept a `.find()` through P215 and P218 and only surfaced when the
+  // fixture list was corrected — an odds capture keyed to the REAL kickoffs read as eleven orphans
+  // against a fixture file still carrying the fabricated slot.
+  "src/lib/soccer/epl-identity-live.test.mjs",
   "scripts/epl/build-epl-forecasts.mjs",
   "scripts/epl/build-epl-lane-status.mjs",
   "scripts/epl/capture-epl-odds.mjs",

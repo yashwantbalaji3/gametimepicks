@@ -25,8 +25,18 @@ const readJson = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 
 /** The committed full-season capture — the only artifact carrying every club. */
 function seasonCapture() {
+  /*
+   * Sorted, newest last. `readdir().find()` returns whatever the filesystem lists first — the
+   * OLDEST capture — which is the same defect P215 R-C fixed in the forecast builder and P218's
+   * guard then pinned across the producers. It survived here because that guard only walked
+   * scripts and libs, not the test that reads the same directory.
+   *
+   * It surfaced the moment the fixture list was corrected: kickoff time is part of the canonical
+   * eventId, so an odds capture keyed to the REAL kickoffs looked like eleven orphans when joined
+   * against a fixture file still carrying the fabricated 14:00 slot.
+   */
   const dir = path.join(EPL, "fixtures");
-  const file = fs.readdirSync(dir).find((f) => f.startsWith("capture-") && f.endsWith(".json"));
+  const file = fs.readdirSync(dir).filter((f) => f.startsWith("capture-") && f.endsWith(".json")).sort().at(-1);
   assert.ok(file, "a committed season capture is required for this evidence");
   return readJson(path.join(dir, file));
 }
@@ -76,12 +86,37 @@ test("THE JOIN: every odds row lands on a fixture that exists", () => {
     .map((f) => ({ f, d: readJson(path.join(dir, f)) }))
     .filter(({ d }) => d.dataClass === "ODDS_CAPTURE");
 
+  /*
+   * ── CAPTURES TAKEN UNDER THE PRE-CORRECTION SCHEDULE ────────────────────────────────────────
+   *
+   * The canonical eventId embeds the kickoff, so correcting a kickoff changes the identity. Until
+   * 2026-08-28 the fixture list carried openfootball's provisional "all at 15:00" block for
+   * matchweeks 2 and 3 (see capture-selection.test.mjs), and these four odds captures were keyed to
+   * those fabricated times. They are immutable purchased evidence and are NOT rewritten — the
+   * append-only rule is not suspended because a later correction made them inconvenient.
+   *
+   * They are named here instead: dated, explained, and excluded from the join assertion, which
+   * continues to hold for every capture taken since. The list may only shrink — a NEW orphaned
+   * capture means the join is broken now, which is what this test is for.
+   */
+  const PRE_SCHEDULE_CORRECTION = new Set([
+    "capture-2026-08-21.json",
+    "capture-2026-08-22.json",
+    "capture-2026-08-23.json",
+    "capture-2026-08-24.json",
+  ]);
+
   assert.ok(captures.length > 0, "an authorized odds capture must exist for the join to be evidence");
+  let joined = 0;
   for (const { f, d } of captures) {
     assert.ok((d.rows ?? []).length > 0, `${f}: a capture with no rows proves nothing`);
+    if (PRE_SCHEDULE_CORRECTION.has(f)) continue;
+    joined += 1;
     const orphans = d.rows.filter((r) => !ids.has(r.eventId)).map((r) => r.eventId);
     assert.deepEqual(orphans.slice(0, 5), [], `${f}: ${orphans.length} priced row(s) join to no fixture`);
   }
+  assert.ok(joined > 0, "the exception list cannot be allowed to swallow every capture");
+  assert.ok(PRE_SCHEDULE_CORRECTION.size <= 4, "pre-correction exceptions may only shrink");
 });
 
 test("a club the table cannot name is REJECTED, not passed through with the provider spelling", () => {

@@ -11,7 +11,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { COVERAGE_STATES, validateEvent } from "../schedule-contract.mjs";
+import fs from "node:fs";
+import path from "node:path";
+
+import { COVERAGE_STATES, EVENT_STATUS, validateEvent } from "../schedule-contract.mjs";
 import { eplUpcoming, nflUpcoming, nbaUpcoming, ufcUpcoming, allUpcoming } from "./adapters.mjs";
 
 const NOW = "2026-08-09T20:00:00-04:00";
@@ -77,9 +80,27 @@ test("NFL disk truth: the committed ESPN capture flows through the contract — 
   assert.equal(out.sourceVerdict.sourceId, "espn_scoreboard");
   assert.ok(out.events.length >= 10, `expected the preseason window's events, got ${out.events.length}`);
   assert.equal(out.quarantined.length, 0, JSON.stringify(out.quarantined.slice(0, 2)));
+  /*
+   * THE MAPPING, NOT THE MOMENT.
+   *
+   * This asserted every event was SCHEDULED, which is a property of the capture's timing rather than
+   * of the contract. On 2026-08-28 at 19:20 ET the committed capture held one STATUS_IN_PROGRESS
+   * row — a game genuinely in play — and the guard failed as though the taxonomy had broken.
+   *
+   * What is worth pinning is that every raw ESPN status lands INSIDE the closed taxonomy, and that
+   * the two statuses this capture actually contains map to the right members. An unknown status
+   * would still fail, which is the defect the assertion was written for.
+   */
+  const rawCapture = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/schedule/latest.json"), "utf8"));
+  const rawById = new Map((rawCapture.rows ?? []).map((r) => [String(r.providerEventId), r.statusRaw]));
+  const EXPECTED = { STATUS_SCHEDULED: "SCHEDULED", STATUS_IN_PROGRESS: "LIVE" };
   for (const e of out.events) {
     assert.equal(validateEvent(e).ok, true);
-    assert.equal(e.status, "SCHEDULED", "ESPN STATUS_SCHEDULED must normalize through the closed taxonomy");
+    assert.ok(EVENT_STATUS.includes(e.status), `${e.status} is outside the closed taxonomy`);
+    const raw = rawById.get(String(e.providerEventId ?? ""));
+    if (raw && EXPECTED[raw]) {
+      assert.equal(e.status, EXPECTED[raw], `ESPN ${raw} must normalize to ${EXPECTED[raw]}`);
+    }
     assert.match(e.canonicalEventId, /^nfl:nfl:\d{4}-\d{2}-\d{2}:\d+$/, "identity carries ESPN's own event id");
   }
   assert.match(out.seasonContext, /preseason/, "seasonType 1 must label itself preseason, never imply the regular season");
