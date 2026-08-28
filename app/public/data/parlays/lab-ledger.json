@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-28T00:33:01Z",
+ "generatedAt": "2026-08-28T11:00:17Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -23,15 +23,15 @@
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
-   "settledDays": 8,
+   "settledDays": 9,
    "record": {
-    "wins": 2,
-    "losses": 17,
+    "wins": 3,
+    "losses": 18,
     "pushes": 0,
-    "staked": 19,
-    "returned": 5.61,
-    "hitRate": 0.1053,
-    "roi": -0.7049
+    "staked": 21,
+    "returned": 19.44,
+    "hitRate": 0.1429,
+    "roi": -0.0744
    },
    "byTier": {
     "low": {
@@ -45,12 +45,12 @@
     },
     "medium": {
      "wins": 2,
-     "losses": 4,
+     "losses": 5,
      "pushes": 0,
-     "staked": 6,
+     "staked": 7,
      "returned": 5.61,
-     "hitRate": 0.3333,
-     "roi": -0.0656
+     "hitRate": 0.2857,
+     "roi": -0.199
     },
     "high": {
      "wins": 0,
@@ -62,13 +62,13 @@
      "roi": -1
     },
     "longshot": {
-     "wins": 0,
+     "wins": 1,
      "losses": 6,
      "pushes": 0,
-     "staked": 6,
-     "returned": 0,
-     "hitRate": 0,
-     "roi": -1
+     "staked": 7,
+     "returned": 13.83,
+     "hitRate": 0.1429,
+     "roi": 0.976
     }
    }
   },
@@ -78,8 +78,8 @@
    "live": true,
    "evidence": {
     "pricedGames": 11,
-    "pricesCapturedAt": "2026-08-27T23:54:17Z",
-    "priceAgeDays": 0.03,
+    "pricesCapturedAt": "2026-08-28T05:07:26Z",
+    "priceAgeDays": 0.25,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -139,7 +139,7 @@
    "evidence": {
     "pricedGames": 13,
     "pricesCapturedAt": "2026-08-27T22:47:22Z",
-    "priceAgeDays": 0.07,
+    "priceAgeDays": 0.51,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true
    },
@@ -196,11 +196,11 @@
    "id": "epl",
    "label": "Premier League",
    "live": false,
-   "blocked": "the last price capture is 3.2 days old",
+   "blocked": "the last price capture is 3.7 days old",
    "evidence": {
     "pricedGames": 17,
     "pricesCapturedAt": "2026-08-24T18:52:42Z",
-    "priceAgeDays": 3.24,
+    "priceAgeDays": 3.67,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true
    },
@@ -324,9 +324,9 @@
   "firstDay": "2026-05-25",
   "lastDay": "2026-08-27",
   "gradedDays": 59,
-  "wins": 218,
-  "losses": 957,
-  "roi": -0.0679,
+  "wins": 221,
+  "losses": 978,
+  "roi": -0.0807,
   "note": "A measurement of the previous selection policy, kept because it is real. It does not describe what the Lab publishes now."
  }
 }
