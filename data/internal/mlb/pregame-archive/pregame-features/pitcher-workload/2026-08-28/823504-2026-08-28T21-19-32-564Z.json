@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823504,
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T21:19:32.564Z",
+  "availableAt": "2026-08-28T21:19:32.564Z",
+  "eventStartTime": "2026-08-28T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693645,
+      "name": "Cam Schlittler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 7,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 7.2,
+        "bbAvg": 2.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 11.71,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 158,
+        "k": 193,
+        "bb": 37,
+        "er": 38,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 663776,
+      "name": "Patrick Sandoval",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 5.6,
+        "bbAvg": 2.8,
+        "erAvg": 3,
+        "hrAvg": 0.8,
+        "kPer9": 9.82,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 39.67,
+        "k": 41,
+        "bb": 18,
+        "er": 20,
+        "hr": 5
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-28T21:19:32.564Z"
+  },
+  "recordHash": "4e5768649d84a907e9d6d3e0d4c588e4c0bf4a32322e40df9a032fac4e4db3ab"
+}
