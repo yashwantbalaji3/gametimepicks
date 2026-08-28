@@ -50,13 +50,13 @@
     .wrap { max-width: none; padding: 12px 8px; }
   }
 </style>
-<div class="wrap" data-expected-releases="163" data-first-release="141-143-—" data-last-release="216-R-E1">
+<div class="wrap" data-expected-releases="165" data-first-release="141-143-—" data-last-release="217-R-A">
 <header class="doc">
-  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-27T23:05:00Z</span><span>Program 216 · Releases A/C/E</span></p>
+  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-28T02:50:00Z</span><span>Program 217 · Release A</span></p>
   <h1>The operating record, generated from the committed register</h1>
   <p class="stamp">
-    <span>main @ b3647a415</span>
-    <span>Suite: 5308·5305·0·5</span>
+    <span>main @ 34f8d3f88</span>
+    <span>Suite: 5325·5321·0·4</span>
     <span>e2e: 385/0/6 named</span>
     <span>Queues: 0 engineering · 7 reality · 5 founder · 0 incident</span>
   </p>
@@ -80,7 +80,7 @@
 
 <section>
   <h2>The release register — every production release, oldest first</h2>
-  <p class="stamp"><span>163 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 216-R-E1 (2026-08-27)</span></p>
+  <p class="stamp"><span>165 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 217-R-A (2026-08-27)</span></p>
   <div class="scroll">
     <table>
       <thead><tr><th>Release</th><th>Commit</th><th>Date</th><th>What shipped</th></tr></thead>
@@ -248,13 +248,15 @@
         <tr><td class="num">216-R-C</td><td class="num">e85232135</td><td class="num">2026-08-27</td><td>five ledgers reconciled and PROVEN SEPARATE: each internal identity asserted for the first time (settled = W+L+P, staked = one unit per settled card, tiers partition the stream, one slip id once), and the boundary asserted rather than assumed — the board record carries no money fields or money class, no product's cards appear in another's ledger, and there is deliberately NO combined settled figure, its absence guarded. Worst-of state, surfaced on /launch as one row per ledger with no totals row</td></tr>
         <tr><td class="num">216-R-E2</td><td class="num">0b93bebb7</td><td class="num">2026-08-27</td><td>a re-derivation publishes creditCost 0 and a derivedFrom receipt (response hash + acquisition instant), so a free transform is distinguishable from a bought one in the artifact rather than only in a run log; proven live at '0 credit(s) (re-derived, nothing bought)' <em>Defects caught: the cost field read the last ledger entry unconditionally, which on a re-derivation is the EARLIER purchase — a transform that spent nothing claimed a credit, the same class of accounting lie the re-derivation path is guarded against everywhere else</em></td></tr>
         <tr><td class="num">216-R-E1</td><td class="num">635bae6cc</td><td class="num">2026-08-27</td><td>acquisition and transform separated: the raw provider response is persisted with its response hash, the provider's own usage headers and its acquisition instant, and a dispatch inside the spend cooldown now loads it and continues through the SAME transform instead of exiting. Three things the free path may never do, each guarded — contact the provider, record a request for a call that never happened, or re-stamp the cache (which would move acquiredAt forward for bytes nobody re-bought). Reader fails closed on missing file, unknown schema, edited fingerprint, non-200 or a body whose hash no longer matches. Proven live: 13/13 re-derived with cumulative spend unchanged at 16/500 <em>Defects caught: closes the remainder P215 filed against itself — a cooldown is a statement about PURCHASES, and blocking free re-derivation cost three dispatches on 2026-08-27 while a corrected join and a corrected classifier each ran against a live card and changed nothing</em></td></tr>
+        <tr><td class="num">216-R-F</td><td class="num">91608dcba</td><td class="num">2026-08-27</td><td>register catch-up for P216's A1/C/E1/E2 and P215 R-H; Operating Record regenerated at 163 rows, 14 pages, verified against the produced PDF bytes</td></tr>
+        <tr><td class="num">217-R-A</td><td class="num">34f8d3f88</td><td class="num">2026-08-27</td><td>the ten-row workstream register as committed data with a DERIVED classification (SHIPPED requires a commit git contains; a gate must name its own acceptance event; a row may not inherit another's excuse); the shared date/sport control family over P216's URL owner with /simulate migrated off ~55 inline lines and SSR parity proven against the built export; and unidentifiable legs refused at SELECTION in build-risk-ladder <em>Defects caught: a LIVE card that could never settle — today's longshot shipped two legs on BAL @ STL, started 4.5h before the card was generated, neither carrying a gamePk, so neither leg nor card could ever grade; the ladder did that deliberately ('never grading beats grading against a guess') while the P201 qualified-leg contract called it a failing build, and the guard was right. Plus three of my own in the control swap, all caught by diffing the BUILT export: chips dropped out of the prerendered HTML, the date nav lost its surface-specific accessible name, and the Suspense fallback rendered the same hook-using component it was meant to contain</em></td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
 <footer class="doc">
-  <p>Register complete: 163 releases · 141-143-— → 216-R-E1 · generated 2026-08-27T23:05:00Z at b3647a415.</p>
+  <p>Register complete: 165 releases · 141-143-— → 217-R-A · generated 2026-08-28T02:50:00Z at 34f8d3f88.</p>
 </footer>
 </div>
-<!-- OPERATING-RECORD-END expected=163 first=141-143-— last=216-R-E1 -->
+<!-- OPERATING-RECORD-END expected=165 first=141-143-— last=217-R-A -->
