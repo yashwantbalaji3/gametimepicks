@@ -2,37 +2,37 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-08-24T22:07:34Z",
+  "generatedAt": "2026-08-28T05:11:43Z",
   "nextCluster": {
     "kickoffUtc": "2026-08-29T14:00:00.000Z",
     "fixtures": 10,
-    "hoursAway": 111.87
+    "hoursAway": 32.8
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-08-24T19:10:01Z",
-      "ageHours": 2.96
+      "stampedAt": "2026-08-28T05:11:37Z",
+      "ageHours": 0
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-08-24T18:52:42Z",
-      "ageHours": 3.25
+      "ageHours": 82.32
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-08-24T22:07:34Z",
+      "stampedAt": "2026-08-28T05:11:42Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
       "stampedAt": "2026-08-24T18:52:47Z",
-      "ageHours": 3.25
+      "ageHours": 82.32
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-08-24T22:06:55Z",
-      "ageHours": 0.01
+      "stampedAt": "2026-08-28T05:11:39Z",
+      "ageHours": 0
     }
   },
   "cadence": {
@@ -52,13 +52,15 @@
       "headroom": 186,
       "kickoffWindowHours": 30,
       "spendingFirings": 143,
-      "skippedFirings": 571
+      "skippedFirings": 570
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-08-24T22:07:34Z",
-    "counts": {},
-    "rows": 0
+    "generatedAt": "2026-08-28T05:11:42Z",
+    "counts": {
+      "READY_EXCEPT_ODDS": 10
+    },
+    "rows": 10
   },
   "playerSet": {
     "generatedAt": "2026-08-24T18:52:47Z",
@@ -101,14 +103,19 @@
     "all": true
   },
   "productLane": {
-    "live": true,
-    "blocked": null
+    "live": false,
+    "blocked": "the last price capture is 3.4 days old"
   },
   "blockers": [
     {
       "id": "calibration-sample",
       "state": "REALITY_GATED",
       "detail": "calibration needs a preregistered backtest against settled results and 9 match(es) have been graded. No amount of engineering shortens this; matches have to be played."
+    },
+    {
+      "id": "product-lane-closed",
+      "state": "REALITY_GATED",
+      "detail": "the Lab gate has closed this lane: the last price capture is 3.4 days old. It reopens by itself when the evidence returns."
     }
   ]
 }
