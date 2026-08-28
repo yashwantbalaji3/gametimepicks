@@ -2,73 +2,82 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-08-28T05:11:43Z",
+  "generatedAt": "2026-08-28T23:14:24Z",
   "nextCluster": {
-    "kickoffUtc": "2026-08-29T14:00:00.000Z",
-    "fixtures": 10,
-    "hoursAway": 32.8
+    "kickoffUtc": "2026-08-29T11:30:00.000Z",
+    "fixtures": 1,
+    "hoursAway": 12.26
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-08-28T05:11:37Z",
+      "stampedAt": "2026-08-28T23:14:15Z",
       "ageHours": 0
     },
     "odds": {
       "state": "READ",
-      "stampedAt": "2026-08-24T18:52:42Z",
-      "ageHours": 82.32
+      "stampedAt": "2026-08-28T23:14:17Z",
+      "ageHours": 0
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-08-28T05:11:42Z",
+      "stampedAt": "2026-08-28T23:14:21Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-08-24T18:52:47Z",
-      "ageHours": 82.32
+      "stampedAt": "2026-08-28T23:14:22Z",
+      "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-08-28T05:11:39Z",
+      "stampedAt": "2026-08-28T23:14:17Z",
       "ageHours": 0
     }
   },
   "cadence": {
     "lineupCoverage": {
-      "state": "EVERY_CLUSTER_SERVED",
-      "clusters": 3,
-      "covered": 3,
-      "uncoveredMatches": 0,
-      "uncovered": []
+      "state": "GAP",
+      "clusters": 19,
+      "covered": 18,
+      "uncoveredMatches": 1,
+      "uncovered": [
+        {
+          "kickoffIso": "2026-09-12T19:00:00.000Z",
+          "fixtures": 1,
+          "nearestLeadHours": 3,
+          "nearestSlotIso": "2026-09-12T16:00:00.000Z",
+          "covered": false
+        }
+      ]
     },
     "budget": {
       "state": "WITHIN_CEILING",
-      "spent": 28,
-      "projectedRemaining": 286,
-      "projectedTotal": 314,
+      "spent": 30,
+      "projectedRemaining": 406,
+      "projectedTotal": 436,
       "ceiling": 500,
-      "headroom": 186,
+      "headroom": 64,
       "kickoffWindowHours": 30,
-      "spendingFirings": 143,
-      "skippedFirings": 570
+      "spendingFirings": 203,
+      "skippedFirings": 510
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-08-28T05:11:42Z",
+    "generatedAt": "2026-08-28T23:14:21Z",
     "counts": {
-      "READY_EXCEPT_ODDS": 10
+      "CURRENT_PRE_EVENT": 8,
+      "READY_EXCEPT_ODDS": 1
     },
-    "rows": 10
+    "rows": 9
   },
   "playerSet": {
-    "generatedAt": "2026-08-24T18:52:47Z",
+    "generatedAt": "2026-08-28T23:14:22Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
-      "fixtures": 1,
-      "withLineup": 1,
-      "awaitingLineup": 0
+      "fixtures": 8,
+      "withLineup": 0,
+      "awaitingLineup": 8
     },
     "markets": [
       "anytime_goalscorer",
@@ -103,19 +112,14 @@
     "all": true
   },
   "productLane": {
-    "live": false,
-    "blocked": "the last price capture is 3.4 days old"
+    "live": true,
+    "blocked": null
   },
   "blockers": [
     {
       "id": "calibration-sample",
       "state": "REALITY_GATED",
       "detail": "calibration needs a preregistered backtest against settled results and 9 match(es) have been graded. No amount of engineering shortens this; matches have to be played."
-    },
-    {
-      "id": "product-lane-closed",
-      "state": "REALITY_GATED",
-      "detail": "the Lab gate has closed this lane: the last price capture is 3.4 days old. It reopens by itself when the evidence returns."
     }
   ]
 }
