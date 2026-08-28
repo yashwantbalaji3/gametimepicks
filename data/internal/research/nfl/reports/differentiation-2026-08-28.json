@@ -1,0 +1,399 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-model-differentiation",
+  "dataClass": "PRIVATE_RESEARCH",
+  "generatedAt": "2026-08-28T00:19:49Z",
+  "slateDate": "2026-08-28",
+  "eventCount": 13,
+  "engineVersion": "nfl-preseason-public-beta-v1@v1",
+  "config": {
+    "lambda": 0.25,
+    "sigmaMargin": 12.9375,
+    "sigmaTotal": 11.1501,
+    "muTotal": 37.3265,
+    "homeAdvantage": -0.6481,
+    "marginSlope": -0.017442
+  },
+  "heads": [
+    {
+      "head": "margin_and_win",
+      "driver": "marginMean = homeAdvantage + lambda * (marginSlope * d), where d is the cutoff-safe Elo difference between the two teams",
+      "eventSpecific": false,
+      "observedVariationIsNoise": true,
+      "teamSignalState": "NOT_SIGNIFICANT",
+      "tStatistic": -0.5746,
+      "distinctValues": 13,
+      "spread": 0.0111,
+      "classification": "LIMITED_INPUTS",
+      "declaredSharedPrior": true,
+      "missingAdapter": "a team-strength signal that clears |t| >= 2 on preseason data. The current coefficient is t = -0.5746 with a 95% interval spanning zero, so it is switched off rather than published as a direction.",
+      "reading": "the team-strength term is switched off because its coefficient is indistinguishable from zero, so the remaining 1.11pp spread across 13 events is simulation noise around one common mean, not a read on these teams"
+    },
+    {
+      "head": "total",
+      "driver": "base.muTotal — a single preseason scoring climatology constant, identical for every event",
+      "eventSpecific": false,
+      "observedVariationIsNoise": true,
+      "distinctValues": 2,
+      "spread": 1,
+      "classification": "LIMITED_INPUTS",
+      "declaredSharedPrior": true,
+      "missingAdapter": "no per-team offensive/defensive scoring-rate adapter exists. The preseason corpus carries final scores, so one is buildable — but it must clear a preregistered bar on held-out preseason before it is allowed to move a published total.",
+      "reading": "the model has NO game-specific view of scoring. Every event draws its total from the same league prior, so any variation a reader sees between published totals is simulation noise and integer rounding, not a claim about these two teams."
+    }
+  ],
+  "events": [
+    {
+      "canonicalEventId": "nfl-401873300",
+      "matchup": "LAR @ LAC",
+      "kickoffUtc": "2026-08-28T02:00Z",
+      "inputHash": "d77c1081260baf67",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 37,
+        "winProbHome": 0.4606,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 24,
+        "totalP90": 52
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401873302",
+      "matchup": "WSH @ BAL",
+      "kickoffUtc": "2026-08-28T22:00Z",
+      "inputHash": "2ec694d78332dfe3",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 37,
+        "winProbHome": 0.4611,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 15,
+        "totalP10": 23,
+        "totalP90": 51
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401873304",
+      "matchup": "ATL @ MIA",
+      "kickoffUtc": "2026-08-28T23:00Z",
+      "inputHash": "8f021d7c95764f45",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 37,
+        "winProbHome": 0.4627,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 23,
+        "totalP90": 51
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401873307",
+      "matchup": "HOU @ CAR",
+      "kickoffUtc": "2026-08-28T23:00Z",
+      "inputHash": "ef012d1e319500d4",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 37,
+        "winProbHome": 0.4638,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 23,
+        "totalP90": 52
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401873303",
+      "matchup": "NYG @ NYJ",
+      "kickoffUtc": "2026-08-28T23:30Z",
+      "inputHash": "164251f7d982c98e",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 37,
+        "winProbHome": 0.4663,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 23,
+        "totalP90": 52
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401873306",
+      "matchup": "TB @ JAX",
+      "kickoffUtc": "2026-08-28T23:30Z",
+      "inputHash": "23c502b6ae686e1f",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 37,
+        "winProbHome": 0.4603,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 23,
+        "totalP90": 52
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401874048",
+      "matchup": "NO @ DAL",
+      "kickoffUtc": "2026-08-29T00:00Z",
+      "inputHash": "a3fd97baecded6e3",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 37,
+        "winProbHome": 0.4675,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 23,
+        "totalP90": 51
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401874102",
+      "matchup": "ARI @ GB",
+      "kickoffUtc": "2026-08-29T00:00Z",
+      "inputHash": "f37a91dd45d311c0",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 37,
+        "winProbHome": 0.4697,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 23,
+        "totalP90": 51
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401873305",
+      "matchup": "SEA @ KC",
+      "kickoffUtc": "2026-08-29T00:00Z",
+      "inputHash": "8d628f89a7867359",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 37,
+        "winProbHome": 0.4605,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 23,
+        "totalP90": 52
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401873301",
+      "matchup": "CIN @ PHI",
+      "kickoffUtc": "2026-08-29T00:00Z",
+      "inputHash": "9fc97e5413cd287e",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 37,
+        "winProbHome": 0.4604,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 23,
+        "totalP90": 52
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401873614",
+      "matchup": "MIN @ DEN",
+      "kickoffUtc": "2026-08-29T01:00Z",
+      "inputHash": "02a17a55ffb2a110",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 38,
+        "winProbHome": 0.4623,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 23,
+        "totalP90": 52
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401873308",
+      "matchup": "DET @ IND",
+      "kickoffUtc": "2026-08-29T17:00Z",
+      "inputHash": "ad642b4ff226c179",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 38,
+        "winProbHome": 0.4629,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 23,
+        "totalP90": 51
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    },
+    {
+      "canonicalEventId": "nfl-401874394",
+      "matchup": "CHI @ TEN",
+      "kickoffUtc": "2026-08-29T22:00Z",
+      "inputHash": "b6a7b7b3c2f02f0b",
+      "engineVersion": "nfl-preseason-public-beta-v1@v1",
+      "expected": {
+        "marginMean": -1,
+        "marginMedian": -1,
+        "totalMedian": 37,
+        "winProbHome": 0.4586,
+        "projected": {
+          "home": 18,
+          "away": 19
+        }
+      },
+      "intervals": {
+        "marginP10": -17,
+        "marginP90": 16,
+        "totalP10": 23,
+        "totalP90": 52
+      },
+      "receiptGeneratedAt": "2026-08-28T00:19:49Z"
+    }
+  ],
+  "fingerprintCollisions": [],
+  "roundedTies": [
+    {
+      "roundedScore": "19-18",
+      "events": [
+        "LAR @ LAC",
+        "WSH @ BAL",
+        "ATL @ MIA",
+        "HOU @ CAR",
+        "NYG @ NYJ",
+        "TB @ JAX",
+        "NO @ DAL",
+        "ARI @ GB",
+        "SEA @ KC",
+        "CIN @ PHI",
+        "MIN @ DEN",
+        "DET @ IND",
+        "CHI @ TEN"
+      ],
+      "underlyingWinProbabilities": [
+        46.06,
+        46.11,
+        46.27,
+        46.38,
+        46.63,
+        46.03,
+        46.75,
+        46.97,
+        46.05,
+        46.04,
+        46.23,
+        46.29,
+        45.86
+      ],
+      "distributionsDiffer": true,
+      "verdict": "LEGITIMATE — the same rounded scoreline sits on top of distinct distributions; integer football scores are a coarse view of a continuous margin"
+    }
+  ],
+  "p0": [],
+  "verdict": "NO_EVENT_SPECIFIC_SIGNAL"
+}

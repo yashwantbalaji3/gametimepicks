@@ -2,29 +2,29 @@
   "schemaVersion": 1,
   "artifact": "nfl-product-receipts",
   "dataClass": "PUBLIC_DERIVED",
-  "runId": "3d242d410507",
-  "generatedAt": "2026-08-27T18:35:21Z",
+  "runId": "f15fe057591c",
+  "generatedAt": "2026-08-28T00:19:49Z",
   "asOf": {
-    "index": "2026-08-27T18:35:21Z",
-    "eligibility": "2026-08-27T18:35:21Z",
-    "vault": "2026-08-27T18:35:21Z",
-    "markets": "2026-08-27T18:35:21Z"
+    "index": "2026-08-28T00:19:49Z",
+    "eligibility": "2026-08-28T00:19:49Z",
+    "vault": "2026-08-28T00:19:49Z",
+    "markets": "2026-08-27T23:54:17Z"
   },
-  "nextRunUtc": "2026-08-27T21:00:00Z",
-  "eventsInWindow": 15,
+  "nextRunUtc": "2026-08-28T14:30:00Z",
+  "eventsInWindow": 13,
   "lanes": [
     {
       "product": "bank-builder",
       "label": "Bank Builder",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 15,
+      "candidatesConsidered": 13,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 15
+          "count": 13
         }
       ],
       "reconciles": true,
@@ -37,13 +37,13 @@
       "label": "Moonshot",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 15,
+      "candidatesConsidered": 13,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 15
+          "count": 13
         }
       ],
       "reconciles": true,
@@ -56,13 +56,13 @@
       "label": "Card builder",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 15,
+      "candidatesConsidered": 13,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 15
+          "count": 13
         }
       ],
       "reconciles": true,
@@ -74,14 +74,14 @@
       "product": "end-zone-vault",
       "label": "End Zone Vault",
       "state": "NO_PLAY",
-      "stateReason": "173 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
-      "candidatesConsidered": 173,
+      "stateReason": "149 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
+      "candidatesConsidered": 149,
       "rejections": [
         {
           "reason": "NO_PRICED_MARKET",
           "label": "the provider offers no NFL player market in this window",
           "detail": "an unpriced leg can never enter a paper product — there is nothing to settle it against.",
-          "count": 173
+          "count": 149
         }
       ],
       "alsoBlocking": [
