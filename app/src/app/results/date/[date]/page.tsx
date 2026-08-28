@@ -19,7 +19,7 @@ import SettledGameDetail, {
 } from "@/components/settled-game-detail";
 import PlayerResultsCards from "@/components/player-results-cards";
 import { getPlayoffContext } from "@/components/playoff-context";
-import { surfaceHref } from "@/lib/nav/date-sport-route";
+import DateSportControls from "@/components/nav/date-sport-controls";
 
 interface PageProps {
   params: { date: string };
@@ -236,55 +236,26 @@ export default function ResultsDatePage({ params }: PageProps) {
         />
       )}
 
-      {/* Prev / next date navigation */}
-      <section className="mt-12 flex flex-wrap items-center justify-between gap-3">
-        {prevDate ? (
-          <Link
-            href={surfaceHref("results", { date: prevDate }) ?? "/results/"}
-            className="font-mono"
-            style={{
-              color: "var(--vault-gold-bright)",
-              fontSize: 12,
-              textTransform: "uppercase",
-              letterSpacing: "0.14em",
-              textDecoration: "none",
-            }}
-          >
-            ← {prevDate}
-          </Link>
-        ) : (
-          <span />
-        )}
+      {/* ── Prev / today / next + a date picker, from the shared control family (P218 R-A). ──
+           This was a hand-rolled prev/next pair with no picker, so reaching a date three weeks back
+           took three weeks of clicks. The window it navigates is the same `allDatesSorted` the page
+           already computes; the family only renders it. */}
+      <section className="mt-12 flex flex-col gap-3">
+        <DateSportControls
+          surface="results"
+          navLabel="Settled date"
+          defaultLabel="Latest"
+          date={date}
+          defaultDate={allDatesSorted.at(-1) ?? date}
+          availableDates={allDatesSorted}
+        />
         <Link
-          href="/results"
-          className="font-mono"
-          style={{
-            color: "var(--vault-text-mute)",
-            fontSize: 12,
-            textTransform: "uppercase",
-            letterSpacing: "0.14em",
-            textDecoration: "none",
-          }}
+          href="/results/"
+          className="font-mono self-start"
+          style={{ color: "var(--vault-text-mute)", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.14em", textDecoration: "none" }}
         >
           all settled dates
         </Link>
-        {nextDate ? (
-          <Link
-            href={surfaceHref("results", { date: nextDate }) ?? "/results/"}
-            className="font-mono"
-            style={{
-              color: "var(--vault-gold-bright)",
-              fontSize: 12,
-              textTransform: "uppercase",
-              letterSpacing: "0.14em",
-              textDecoration: "none",
-            }}
-          >
-            {nextDate} →
-          </Link>
-        ) : (
-          <span />
-        )}
       </section>
 
       <footer

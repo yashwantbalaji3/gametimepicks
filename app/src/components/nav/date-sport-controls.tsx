@@ -60,6 +60,12 @@ export interface DateSportControlsProps {
   readonly labelledBy?: string;
   /** The surface's own accessible name for the date nav. Defaults to "Date". */
   readonly navLabel?: string;
+  /**
+   * What the surface CALLS its default day. "Today" for forward-looking surfaces; Results defaults
+   * to the newest SETTLED date, which is not today and must not be labelled as such — the first
+   * adoption rendered "Today · Wed, Aug 26" on a page showing yesterday's settled results.
+   */
+  readonly defaultLabel?: string;
 }
 
 /** "Wed, Aug 27" — formatted at UTC noon so the calendar date cannot slip a day in any timezone. */
@@ -186,7 +192,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
  * contains the one thing it exists to contain.
  */
 function DateBar({
-  surface, date, defaultDate, availableDates = [], context = null, labelledBy, navLabel, sport,
+  surface, date, defaultDate, availableDates = [], context = null, labelledBy, navLabel, defaultLabel = "Today", sport,
 }: DateSportControlsProps & { sport: string | null }) {
   const router = useRouter();
   if (!supportsDate(surface)) return null;
@@ -224,7 +230,7 @@ function DateBar({
             aria-current="date"
             style={{ ...PILL, border: "1px solid var(--vault-gold-bright)", background: "var(--vault-gold-dim)", color: "var(--vault-gold-bright)", fontSize: 13.5, fontWeight: 750 }}
           >
-            {date === defaultDate ? "Today · " : ""}{fmtDay(date)}{context ? ` · ${context}` : ""}
+            {date === defaultDate ? `${defaultLabel} · ` : ""}{fmtDay(date)}{context ? ` · ${context}` : ""}
           </span>
 
           {nextHref ? (
@@ -239,7 +245,7 @@ function DateBar({
 
           {todayHref && (
             <Link href={todayHref} className="vault-press px-3" style={{ ...PILL, color: "var(--vault-gold-bright)", fontWeight: 700 }}>
-              Jump to today
+              Jump to {defaultLabel.toLowerCase()}
             </Link>
           )}
 
@@ -259,7 +265,7 @@ function DateBar({
                 style={{ minHeight: 40, background: "color-mix(in srgb, var(--vault-scrim-base) 70%, transparent)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 12.5 }}
               >
                 {availableDates.map((d) => (
-                  <option key={d} value={d}>{fmtDay(d)}{d === defaultDate ? " · today" : ""}</option>
+                  <option key={d} value={d}>{fmtDay(d)}{d === defaultDate ? ` · ${defaultLabel.toLowerCase()}` : ""}</option>
                 ))}
               </select>
             </label>

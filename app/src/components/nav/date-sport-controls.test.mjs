@@ -129,3 +129,32 @@ test("the Suspense fallback contains no hook — otherwise it cannot be a fallba
     assert.doesNotMatch(body, /useSearchParams\(/, `${fn} must not read the query string`);
   }
 });
+
+test("A SURFACE NAMES ITS OWN DEFAULT DAY — Results' default is not today", () => {
+  /*
+   * The first adoption rendered "Today · Wed, Aug 26" on a page showing Aug 26's SETTLED results,
+   * because the control assumed every surface's default day is today. Results defaults to the newest
+   * settled date, which is by definition not today, and calling it today is simply wrong on the one
+   * page whose whole subject is the past.
+   */
+  const settled = fs.readdirSync(path.join(OUT, "results", "date"), { withFileTypes: true })
+    .filter((d) => d.isDirectory()).map((d) => d.name).sort().at(-1);
+  if (!settled) return;
+  const html = built(path.join("results", "date", settled));
+  if (!html) return;
+  const nav = /<nav[^>]*aria-label="Settled date"[\s\S]*?<\/nav>/.exec(html);
+  assert.ok(nav, "the results date page uses the shared family");
+  assert.match(nav[0], /Latest ·/, "the newest settled date is 'Latest', not 'Today'");
+  assert.doesNotMatch(nav[0], /Today ·/, "no page may call a settled date today");
+});
+
+test("the results date page gained a picker it never had", () => {
+  // Prev/next alone meant reaching a date three weeks back took three weeks of clicks.
+  const settled = fs.readdirSync(path.join(OUT, "results", "date"), { withFileTypes: true })
+    .filter((d) => d.isDirectory()).map((d) => d.name).sort().at(-1);
+  if (!settled) return;
+  const html = built(path.join("results", "date", settled));
+  if (!html) return;
+  const nav = /<nav[^>]*aria-label="Settled date"[\s\S]*?<\/nav>/.exec(html);
+  assert.ok(nav && (nav[0].match(/<option/g) ?? []).length > 10, "every settled date is reachable in one step");
+});
