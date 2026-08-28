@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824960,
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T23:47:13.080Z",
+  "availableAt": "2026-08-28T23:47:13.080Z",
+  "eventStartTime": "2026-08-29T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 682052,
+      "name": "Jacob Lopez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 7.4,
+        "bbAvg": 1.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 11.35,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 85.33,
+        "k": 82,
+        "bb": 43,
+        "er": 46,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 687064,
+      "name": "Brandon Young",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 3.8,
+        "bbAvg": 2.2,
+        "erAvg": 2.8,
+        "hrAvg": 1.4,
+        "kPer9": 6.66,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 123.33,
+        "k": 99,
+        "bb": 45,
+        "er": 48,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-28T23:47:13.080Z"
+  },
+  "recordHash": "b0474cbe577a955fdb5ed29eaab4ec14ac935d9cd6d0ba9a95d18aa28efaec51"
+}
