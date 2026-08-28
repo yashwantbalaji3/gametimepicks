@@ -50,13 +50,13 @@
     .wrap { max-width: none; padding: 12px 8px; }
   }
 </style>
-<div class="wrap" data-expected-releases="167" data-first-release="141-143-—" data-last-release="218-R-A">
+<div class="wrap" data-expected-releases="170" data-first-release="141-143-—" data-last-release="219-R-A">
 <header class="doc">
-  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-28T03:44:00Z</span><span>Program 218 · Release A</span></p>
+  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-28T04:38:00Z</span><span>Program 219 · Release A</span></p>
   <h1>The operating record, generated from the committed register</h1>
   <p class="stamp">
-    <span>main @ 1eccd1a4b</span>
-    <span>Suite: 5327·5323·0·4</span>
+    <span>main @ 5da227823</span>
+    <span>Suite: 5330·5326·0·4</span>
     <span>e2e: 385/0/6 named</span>
     <span>Queues: 0 engineering · 7 reality · 5 founder · 0 incident</span>
   </p>
@@ -80,7 +80,7 @@
 
 <section>
   <h2>The release register — every production release, oldest first</h2>
-  <p class="stamp"><span>167 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 218-R-A (2026-08-28)</span></p>
+  <p class="stamp"><span>170 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 219-R-A (2026-08-28)</span></p>
   <div class="scroll">
     <table>
       <thead><tr><th>Release</th><th>Commit</th><th>Date</th><th>What shipped</th></tr></thead>
@@ -251,14 +251,17 @@
         <tr><td class="num">216-R-F</td><td class="num">91608dcba</td><td class="num">2026-08-27</td><td>register catch-up for P216's A1/C/E1/E2 and P215 R-H; Operating Record regenerated at 163 rows, 14 pages, verified against the produced PDF bytes</td></tr>
         <tr><td class="num">217-R-A</td><td class="num">34f8d3f88</td><td class="num">2026-08-27</td><td>the ten-row workstream register as committed data with a DERIVED classification (SHIPPED requires a commit git contains; a gate must name its own acceptance event; a row may not inherit another's excuse); the shared date/sport control family over P216's URL owner with /simulate migrated off ~55 inline lines and SSR parity proven against the built export; and unidentifiable legs refused at SELECTION in build-risk-ladder <em>Defects caught: a LIVE card that could never settle — today's longshot shipped two legs on BAL @ STL, started 4.5h before the card was generated, neither carrying a gamePk, so neither leg nor card could ever grade; the ladder did that deliberately ('never grading beats grading against a guess') while the P201 qualified-leg contract called it a failing build, and the guard was right. Plus three of my own in the control swap, all caught by diffing the BUILT export: chips dropped out of the prerendered HTML, the date nav lost its surface-specific accessible name, and the Suspense fallback rendered the same hook-using component it was meant to contain</em></td></tr>
         <tr><td class="num">217-R-B</td><td class="num">e9eab1411</td><td class="num">2026-08-27</td><td>register catch-up for P217 R-A and P216 R-F; Operating Record regenerated at 165 rows, 14 pages, verified against the produced PDF bytes</td></tr>
-        <tr><td class="num">218-R-A</td><td class="num">1eccd1a4b</td><td class="num">2026-08-28</td><td>both DATE-CAPABLE surfaces now render the shared control family — /results/date/[date] joins /simulate and gains an 81-option date picker it never had (prev/next alone meant reaching a date three weeks back took three weeks of clicks), navigating the same allDatesSorted window the page already computed. The register gains PARTIAL, which counts as OPEN for classification: it exists only so a row can carry live evidence without that evidence being mistaken for completion <em>Defects caught: the control assumed every surface's default day is today, so the first Results build rendered 'Today · Wed, Aug 26' on a page whose entire subject is the past — a surface now names its own default ('Latest' vs 'Today') and a guard forbids any page calling a settled date today</em></td></tr>
+        <tr><td class="num">218-R-A</td><td class="num">1eccd1a4b</td><td class="num">2026-08-27</td><td>both DATE-CAPABLE surfaces now render the shared control family — /results/date/[date] joins /simulate and gains an 81-option date picker it never had (prev/next alone meant reaching a date three weeks back took three weeks of clicks), navigating the same allDatesSorted window the page already computed. The register gains PARTIAL, which counts as OPEN for classification: it exists only so a row can carry live evidence without that evidence being mistaken for completion <em>Defects caught: the control assumed every surface's default day is today, so the first Results build rendered 'Today · Wed, Aug 26' on a page whose entire subject is the past — a surface now names its own default ('Latest' vs 'Today') and a guard forbids any page calling a settled date today</em></td></tr>
+        <tr><td class="num">218-R-B</td><td class="num">98a36bde4</td><td class="num">2026-08-27</td><td>register catch-up for P218 R-A and P217 R-B; Operating Record regenerated at 167 rows, 15 pages, verified against the produced PDF bytes <em>Defects caught: the register's own schema guard caught the insertion — rows are newest-first by date and an Aug-27 row had been placed above an Aug-28 one; reordered rather than re-dated</em></td></tr>
+        <tr><td class="num">218-R-C</td><td class="num">55a89dc11</td><td class="num">2026-08-28</td><td>R-A's built-HTML guards moved behind a newestSettledDir() helper that returns null when there is no export; verified by moving out/ aside and re-running, which is the CI condition exactly <em>Defects caught: two guards I had just written called readdirSync on out/results/date directly, and the CI gate runs the unit suite BEFORE it builds — so they threw and turned a clean tree red on two consecutive commits while the local gate, with a build on disk, passed every time</em></td></tr>
+        <tr><td class="num">219-R-A</td><td class="num">5da227823</td><td class="num">2026-08-28</td><td>the publication SLO's NFL probe now consults the durable forecast-receipt record and joins all three artifacts on providerEventId; NFL reads 16/16 PUBLISHED and the platform state drops from a false MISSED_COVERAGE to PUBLISHING. A guard pins that the detector is not thereby switched off — a started event nobody forecast is still MISSED_COVERAGE <em>Defects caught: two of mine from P215 R-B, found in Phase 0's first read: `published` came from nfl/index.json's `events`, which applies a kickoff lock and correctly retires started games — so every game we DID forecast became 'missed' the moment it kicked off, putting three covered Thursday-night games under an accusation. And the probe joined on a composite `${away}-${home}-${time}` fallback that matched only because two artifacts hold the same values under different field names (dateUtc vs kickoffUtc): it worked by coincidence and would have failed silently on any rename</em></td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
 <footer class="doc">
-  <p>Register complete: 167 releases · 141-143-— → 218-R-A · generated 2026-08-28T03:44:00Z at 1eccd1a4b.</p>
+  <p>Register complete: 170 releases · 141-143-— → 219-R-A · generated 2026-08-28T04:38:00Z at 5da227823.</p>
 </footer>
 </div>
-<!-- OPERATING-RECORD-END expected=167 first=141-143-— last=218-R-A -->
+<!-- OPERATING-RECORD-END expected=170 first=141-143-— last=219-R-A -->
