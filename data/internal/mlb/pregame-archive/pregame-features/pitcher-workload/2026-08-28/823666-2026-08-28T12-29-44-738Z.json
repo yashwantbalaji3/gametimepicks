@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823666,
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T12:29:44.738Z",
+  "availableAt": "2026-08-28T12:29:44.738Z",
+  "eventStartTime": "2026-08-29T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 665152,
+      "name": "Dean Kremer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 4.8,
+        "bbAvg": 2.2,
+        "erAvg": 3.2,
+        "hrAvg": 0.8,
+        "kPer9": 8.1,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 58.67,
+        "k": 58,
+        "bb": 19,
+        "er": 34,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 622491,
+      "name": "Luis Castillo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 4.2,
+        "bbAvg": 1.4,
+        "erAvg": 3.4,
+        "hrAvg": 1.4,
+        "kPer9": 8.1,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 106.67,
+        "k": 94,
+        "bb": 33,
+        "er": 61,
+        "hr": 21
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-28T12:29:44.738Z"
+  },
+  "recordHash": "9d0e2425e68fa71cff3e892700b19550b03078ac2ac60bba88797b2fea9bdc7e"
+}

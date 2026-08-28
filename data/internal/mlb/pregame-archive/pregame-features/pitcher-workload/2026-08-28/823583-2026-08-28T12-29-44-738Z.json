@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823583,
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T12:29:44.738Z",
+  "availableAt": "2026-08-28T12:29:44.738Z",
+  "eventStartTime": "2026-08-28T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 681035,
+      "name": "Christian Scott",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 6.6,
+        "bbAvg": 2,
+        "erAvg": 3,
+        "hrAvg": 0.6,
+        "kPer9": 11.42,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 89.33,
+        "k": 111,
+        "bb": 39,
+        "er": 37,
+        "hr": 10
+      }
+    },
+    "away": {
+      "id": 686613,
+      "name": "Hunter Brown",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 5.2,
+        "bbAvg": 3,
+        "erAvg": 2.2,
+        "hrAvg": 1,
+        "kPer9": 8.56,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 74.33,
+        "k": 76,
+        "bb": 43,
+        "er": 29,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-28T12:29:44.738Z"
+  },
+  "recordHash": "bbfd8b4ca17bab77a15d009edfeb7e24989f4dab9ded7b0bd550c7b40f6b42ea"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823985,
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T12:29:44.738Z",
+  "availableAt": "2026-08-28T12:29:44.738Z",
+  "eventStartTime": "2026-08-29T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 672282,
+      "name": "Reid Detmers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 7,
+      "lastStartDate": "2026-08-21",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 7.2,
+        "bbAvg": 1.4,
+        "erAvg": 1.2,
+        "hrAvg": 0.8,
+        "kPer9": 11.17,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 149,
+        "k": 172,
+        "bb": 44,
+        "er": 60,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 691725,
+      "name": "Andrew Painter",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-08-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 5.2,
+        "bbAvg": 2,
+        "erAvg": 2.2,
+        "hrAvg": 0.6,
+        "kPer9": 8.56,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 82.33,
+        "k": 69,
+        "bb": 30,
+        "er": 56,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-28&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-28T12:29:44.738Z"
+  },
+  "recordHash": "814fb4a101eb567abe3c11f70ac7019ab268e8296cfe9747e6a899f2dd30aa26"
+}

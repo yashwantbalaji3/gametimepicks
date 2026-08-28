@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 822935,
+  "teamId": 135,
+  "name": "San Diego Padres",
+  "side": "away",
+  "date": "2026-08-28",
+  "capturedAt": "2026-08-28T12:30:26.063Z",
+  "availableAt": "2026-08-28T12:30:26.063Z",
+  "eventStartTime": "2026-08-28T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 2,
+  "gamesLast7": 6,
+  "gamesLast10": 8,
+  "travelDistanceKm": 3345,
+  "previousGameDate": "2026-08-26",
+  "previousVenueId": 2680,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=135&startDate=2026-08-14&endDate=2026-08-27",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-28T12:30:26.063Z"
+  },
+  "recordHash": "c7d6116733ad395387e4edebd212157e639927b11cdd71b05773605dd0f9736e"
+}
