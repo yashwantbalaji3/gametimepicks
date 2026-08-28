@@ -22,6 +22,21 @@ const built = (rel) => {
   return fs.existsSync(p) ? fs.readFileSync(p, "utf8") : null;
 };
 
+/**
+ * Newest settled-date directory in the export, or null when there is no export.
+ *
+ * `readdirSync` on a missing `out/` THROWS, and the CI gate runs this suite BEFORE it builds — so
+ * two guards written straight against the directory turned a clean tree into a red gate that said
+ * nothing about the code. Every built-HTML assertion in this file skips when the export is absent,
+ * exactly as `built()` above does; a guard that cannot find its subject has nothing to assert.
+ */
+const newestSettledDir = () => {
+  const dir = path.join(OUT, "results", "date");
+  if (!fs.existsSync(dir)) return null;
+  return fs.readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isDirectory()).map((d) => d.name).sort().at(-1) ?? null;
+};
+
 test("SSR PARITY · the sport chips are in the prerendered HTML, not only after hydration", () => {
   /*
    * The first swap put the chips inside the Suspense boundary and they vanished from the
@@ -137,8 +152,7 @@ test("A SURFACE NAMES ITS OWN DEFAULT DAY — Results' default is not today", ()
    * settled date, which is by definition not today, and calling it today is simply wrong on the one
    * page whose whole subject is the past.
    */
-  const settled = fs.readdirSync(path.join(OUT, "results", "date"), { withFileTypes: true })
-    .filter((d) => d.isDirectory()).map((d) => d.name).sort().at(-1);
+  const settled = newestSettledDir();
   if (!settled) return;
   const html = built(path.join("results", "date", settled));
   if (!html) return;
@@ -150,8 +164,7 @@ test("A SURFACE NAMES ITS OWN DEFAULT DAY — Results' default is not today", ()
 
 test("the results date page gained a picker it never had", () => {
   // Prev/next alone meant reaching a date three weeks back took three weeks of clicks.
-  const settled = fs.readdirSync(path.join(OUT, "results", "date"), { withFileTypes: true })
-    .filter((d) => d.isDirectory()).map((d) => d.name).sort().at(-1);
+  const settled = newestSettledDir();
   if (!settled) return;
   const html = built(path.join("results", "date", settled));
   if (!html) return;
