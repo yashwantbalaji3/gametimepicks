@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-08-28",
- "generatedAt": "2026-08-28T00:19:49Z",
+ "generatedAt": "2026-08-28T05:07:26Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "149 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
+ "reason": "136 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -186,25 +186,6 @@
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
   },
   {
-   "playerId": "nfl-athlete-4430737",
-   "name": "Kyren Williams",
-   "position": "RB",
-   "team": "LAR",
-   "opponent": "LAC",
-   "event": "LAR @ LAC",
-   "providerEventId": "401873300",
-   "kickoffUtc": "2026-08-28T02:00Z",
-   "tdProbability": 0.278435,
-   "probabilityRange": {
-    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ROLE_UNCERTAIN",
-   "roleNote": "preseason: no source-backed evidence of how much this player will play",
-   "marketPrice": null,
-   "shareBasis": "corpus-role 2023-25 stint (nEff 1.53, g 49, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
-  },
-  {
    "playerId": "nfl-athlete-3045147",
    "name": "James Conner",
    "position": "RB",
@@ -241,9 +222,28 @@
    "marketPrice": null,
    "shareBasis": "corpus-role 2023-25 stint (nEff 1.42, g 39, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4696981",
+   "name": "Cam Skattebo",
+   "position": "RB",
+   "team": "NYG",
+   "opponent": "NYJ",
+   "event": "NYG @ NYJ",
+   "providerEventId": "401873303",
+   "kickoffUtc": "2026-08-28T23:30Z",
+   "tdProbability": 0.261725,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "preseason: no source-backed evidence of how much this player will play",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.10, g 7, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
   }
  ],
- "candidateCount": 149,
+ "candidateCount": 136,
  "withheld": [],
  "gates": {
   "required": [
