@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-08-28T05:07:26Z",
+  "generatedAt": "2026-08-28T10:55:03Z",
   "slateDate": "2026-08-28",
   "eventCount": 12,
   "engineVersion": "nfl-preseason-public-beta-v1@v1",
@@ -54,6 +54,7 @@
         "marginMedian": -1,
         "totalMedian": 37,
         "winProbHome": 0.4552,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -78,6 +79,7 @@
         "marginMedian": -1,
         "totalMedian": 37,
         "winProbHome": 0.4585,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -102,6 +104,7 @@
         "marginMedian": -1,
         "totalMedian": 37,
         "winProbHome": 0.466,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -126,6 +129,7 @@
         "marginMedian": -1,
         "totalMedian": 37,
         "winProbHome": 0.4663,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -150,6 +154,7 @@
         "marginMedian": -1,
         "totalMedian": 37,
         "winProbHome": 0.4652,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -174,6 +179,7 @@
         "marginMedian": -1,
         "totalMedian": 37,
         "winProbHome": 0.4674,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -198,6 +204,7 @@
         "marginMedian": -1,
         "totalMedian": 37,
         "winProbHome": 0.4585,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -222,6 +229,7 @@
         "marginMedian": -1,
         "totalMedian": 37,
         "winProbHome": 0.4625,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -246,6 +254,7 @@
         "marginMedian": -1,
         "totalMedian": 37,
         "winProbHome": 0.4665,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -270,6 +279,7 @@
         "marginMedian": -1,
         "totalMedian": 37,
         "winProbHome": 0.4583,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -294,6 +304,7 @@
         "marginMedian": -1,
         "totalMedian": 37,
         "winProbHome": 0.4682,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -318,6 +329,7 @@
         "marginMedian": 0,
         "totalMedian": 38,
         "winProbHome": 0.4754,
+        "winProbIsRounded": true,
         "projected": {
           "home": 18,
           "away": 19
@@ -365,14 +377,10 @@
         47.54
       ],
       "distributionsDiffer": false,
-      "verdict": "P0 — two distinct events produced an identical distribution, not merely an identical rounding"
+      "precision": "DISPLAY_ROUNDED",
+      "verdict": "UNPROVEN — these share a display-rounded win probability, which cannot distinguish an identical distribution from an identical rounding. Their input hashes DIFFER, so the model did read different events. Regenerate with winProbability.homeUnrounded to settle it."
     }
   ],
-  "p0": [
-    {
-      "id": "IDENTICAL_DISTRIBUTION",
-      "detail": "WSH @ BAL, ATL @ MIA, HOU @ CAR, NYG @ NYJ, TB @ JAX, NO @ DAL, ARI @ GB, SEA @ KC, CIN @ PHI, MIN @ DEN, DET @ IND, CHI @ TEN at 19-18"
-    }
-  ],
-  "verdict": "P0_DEFECT"
+  "p0": [],
+  "verdict": "NO_EVENT_SPECIFIC_SIGNAL"
 }

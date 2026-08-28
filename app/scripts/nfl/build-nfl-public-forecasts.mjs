@@ -159,6 +159,22 @@ for (const ev of events) {
         home: Number(pHomeCalibrated.toFixed(4)),
         away: Number((1 - pHomeCalibrated).toFixed(4)),
         tieMass: Number((ties / RUNS).toFixed(4)),
+        /*
+         * FULL PRECISION, FOR THE DIFFERENTIATION AUDIT ONLY — never for display.
+         *
+         * audit-nfl-differentiation exists to tell "the same rounded scoreline over genuinely
+         * different distributions" (legitimate — integer football scores are a coarse view of a
+         * continuous margin) from "two events that produced the SAME distribution" (a P0: the model
+         * stopped reading the event). Its comment said it worked at "higher precision than the
+         * published integers"; it did not. `winProbability.home` was already rounded to four places,
+         * so the audit's tiebreaker had no more resolution than the thing it was adjudicating.
+         *
+         * On 2026-08-28 that raised a P0 on ATL @ MIA and ARI @ GB for both landing on 0.4585. The
+         * published band across the slate spans about 0.012, which four places divide into roughly a
+         * hundred buckets — two of twelve draws colliding there is close to a coin flip, and the
+         * audit had no way to distinguish that from the defect it was named for.
+         */
+        homeUnrounded: pHomeCalibrated,
         calibration: LAMBDA === 0
           ? "Held at 50% by design: on a full held-out preseason this model picked winners no better than a coin flip, so it does not claim a side."
           : `Shrunk toward 50% by a factor fit before testing (λ=${LAMBDA}).`,

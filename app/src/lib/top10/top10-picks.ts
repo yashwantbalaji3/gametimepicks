@@ -15,6 +15,8 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+
+import { etDayOf } from "@/lib/simulate/day-view";
 import { loadRoundOf32Board, type RoundOf32Game } from "@/lib/world-cup/round-of-32";
 import { MARKET_RELIABILITY, type LadderMarket } from "@/lib/methodology/ladder-policy";
 
@@ -44,6 +46,12 @@ export interface Top10Pick {
 export interface Top10Board {
   date: string;
   generatedFrom: string[];
+  /**
+   * Candidates dropped because their event does not fall on `date`, with the reason. Published so a
+   * short board is explainable rather than merely short — "fewer than ten" and "fewer than ten
+   * because four rows belonged to tomorrow" are different facts.
+   */
+  refusedWrongDay: { id: string; reason: string; day: string | null }[];
   overall: Top10Pick[];
   safe: Top10Pick[];
   value: Top10Pick[];
@@ -253,19 +261,62 @@ function diversify(picks: Top10Pick[], cap = 10): Top10Pick[] {
 }
 
 /** Build the full Top 10 board for a slate date. Pure read of committed artifacts; `nowMs` from caller. */
+/**
+ * ── THE SELECTED DAY IS A PROPERTY OF EACH ROW, NOT OF THE FILE IT CAME FROM ───────────────────
+ *
+ * Every producer above reads an artifact keyed by `date` and then trusts that everything inside it
+ * belongs to that day. That trust is doing real work and nothing was checking it: `date` chose the
+ * FILE, and the only per-row time test was `start > now`, which rejects a started or prior-day
+ * event by accident — because those are in the past — while letting TOMORROW's event through, since
+ * a future start passes a future-start test.
+ *
+ * So a board whose window widened, a lean carrying a stale commenceTime, or a producer pointed at
+ * the wrong file would each put another day's pick on today's board, and the board would look
+ * entirely normal. Today's Top 10 is the most prominent thing on the site; a row from another day
+ * sitting in it is not a cosmetic defect.
+ *
+ * The ET day is derived from the row's own start instant, so a late-night game whose UTC date is
+ * tomorrow still belongs to tonight — which is exactly why the calendar date cannot be read off the
+ * ISO string.
+ *
+ * A row that cannot state when its event starts is refused rather than assumed: an unfalsifiable
+ * date is not the selected date.
+ */
+export function refuseWrongDay(picks: Top10Pick[], date: string): { kept: Top10Pick[]; refused: { id: string; reason: string; day: string | null }[] } {
+  const kept: Top10Pick[] = [];
+  const refused: { id: string; reason: string; day: string | null }[] = [];
+  for (const p of picks) {
+    const day = etDayOf(p.startsAt);
+    if (day === null) {
+      refused.push({ id: String(p.id), reason: "no readable start time — a row that cannot say when it starts cannot claim a date", day: null });
+      continue;
+    }
+    if (day !== date) {
+      refused.push({ id: String(p.id), reason: day < date ? "event is on an earlier day" : "event is on a later day", day });
+      continue;
+    }
+    kept.push(p);
+  }
+  return { kept, refused };
+}
+
 export function buildTop10Board(root: string, date: string, nowMs: number): Top10Board {
-  const all = [
+  const candidates = [
     ...wcTeamPicks(root, nowMs),
     ...wcPropPicks(root, date, nowMs),
     ...mlbPropPicks(root, date, nowMs),
   ].sort((a, b) => b.score - a.score);
+
+  const { kept: all, refused: wrongDay } = refuseWrongDay(candidates, date);
 
   const wcTeam = all.filter((p) => p.kind === "team");
   // Team-markets tab: WC knockout team picks while the tournament is live; otherwise fall back to MLB
   // team-market CONTEXT rows (de-vigged market read / watchlist — never a model pick). No WC + no MLB
   // team markets → the tab shows its clean empty state. Only the team TAB falls back; overall/safe/value
   // stay model-pick-only (market-context rows carry no model probability, so they never leak in).
-  const teamRows = wcTeam.length > 0 ? wcTeam : mlbTeamContextRows(root, date, nowMs);
+  // The team TAB's fallback rows go through the same day gate — a market-context row from another
+  // day is as wrong on today's board as a model pick from another day.
+  const teamRows = wcTeam.length > 0 ? wcTeam : refuseWrongDay(mlbTeamContextRows(root, date, nowMs), date).kept;
   const props = all.filter((p) => p.kind === "prop");
   const safe = all.filter((p) => (p.modelProbability ?? 0) >= 0.6 && p.odds <= 150);
   // Sprint 035: the "Value" tab selected rows by model-minus-market difference, i.e. it selected FOR
@@ -278,6 +329,12 @@ export function buildTop10Board(root: string, date: string, nowMs: number): Top1
   return {
     date,
     generatedFrom: [...new Set([...all.map((p) => p.source), ...teamRows.map((p) => p.source)])],
+    /*
+     * Published so a short board is explainable rather than merely short. "Fewer than ten" and
+     * "fewer than ten because four rows belonged to tomorrow" are different facts, and only one of
+     * them tells an operator something is wrong upstream.
+     */
+    refusedWrongDay: wrongDay,
     overall: diversify(all),
     safe: diversify(safe),
     value: diversify(value),

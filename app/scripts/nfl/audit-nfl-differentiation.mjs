@@ -69,12 +69,18 @@ const events = pub.forecasts.map((f) => {
     // by the generator itself. Deriving a second one here would just be a second opinion.
     inputHash: f.model.inputHash,
     engineVersion: `${f.model.id}@v${f.model.version}`,
-    // higher precision than the published integers, which is where differentiation actually lives
+    /*
+     * Full precision where it exists. `winProbability.home` is rounded to four places for display,
+     * which is NOT enough resolution to adjudicate a tie — see the generator's note beside
+     * `homeUnrounded`. Falling back to the rounded value keeps older artifacts readable, and the
+     * tie rule below refuses to call a P0 when that is all it has.
+     */
     expected: {
       marginMean: s.margin.mean ?? s.margin.median,
       marginMedian: s.margin.median,
       totalMedian: s.total.median,
-      winProbHome: s.winProbability.home,
+      winProbHome: s.winProbability.homeUnrounded ?? s.winProbability.home,
+      winProbIsRounded: s.winProbability.homeUnrounded == null,
       projected: s.projectedScore,
     },
     intervals: { marginP10: s.margin.p10, marginP90: s.margin.p90, totalP10: s.total.p10, totalP90: s.total.p90 },
@@ -147,20 +153,42 @@ const tieGroups = [...events.reduce((m, e) => m.set(scoreKey(e), [...(m.get(scor
   .filter(([, g]) => g.length > 1)
   .map(([score, g]) => {
     const ws = g.map((e) => e.expected.winProbHome);
+    const differ = distinct(ws) === ws.length;
+    /*
+     * A P0 here is a claim that two events produced the SAME distribution. Making that claim from a
+     * display-rounded number is making it from evidence that cannot support it — the tie may BE the
+     * rounding, which is exactly the distinction this group exists to draw one level up.
+     *
+     * On 2026-08-28 it raised a P0 on ATL @ MIA and ARI @ GB for both landing on 0.4585. The slate's
+     * win probabilities span about 0.012; four decimal places divide that into roughly a hundred
+     * buckets, so two of twelve draws colliding is close to a coin flip. The audit had no way to
+     * tell that from the defect it is named for.
+     *
+     * An unproven tie is not waved through: it names the events, says what its input hashes show,
+     * and says exactly what would settle it.
+     */
+    const roundedOnly = g.some((e) => e.expected.winProbIsRounded);
+    // `distinct` is numeric (it rounds to six places); input hashes are strings and need their own.
+    const inputsDiffer = new Set(g.map((e) => String(e.inputHash))).size === g.length;
     return {
       roundedScore: score,
       events: g.map((e) => e.matchup),
       underlyingWinProbabilities: ws.map((w) => Number((w * 100).toFixed(2))),
-      distributionsDiffer: distinct(ws) === ws.length,
-      verdict: distinct(ws) === ws.length
+      distributionsDiffer: differ,
+      precision: roundedOnly ? "DISPLAY_ROUNDED" : "FULL",
+      verdict: differ
         ? "LEGITIMATE — the same rounded scoreline sits on top of distinct distributions; integer football scores are a coarse view of a continuous margin"
-        : "P0 — two distinct events produced an identical distribution, not merely an identical rounding",
+        : roundedOnly
+          ? `UNPROVEN — these share a display-rounded win probability, which cannot distinguish an identical distribution from an identical rounding.${inputsDiffer ? " Their input hashes DIFFER, so the model did read different events." : " Their input hashes also match, which IS a defect and is reported separately as IDENTICAL_FINGERPRINT."} Regenerate with winProbability.homeUnrounded to settle it.`
+          : "P0 — two distinct events produced an identical distribution, not merely an identical rounding",
     };
   });
 
 const p0 = [
   ...collisions.map((c) => ({ id: "IDENTICAL_FINGERPRINT", detail: `${c.events.join(", ")} share input hash ${c.hash}` })),
-  ...tieGroups.filter((t) => !t.distributionsDiffer).map((t) => ({ id: "IDENTICAL_DISTRIBUTION", detail: `${t.events.join(", ")} at ${t.roundedScore}` })),
+  // Only a tie proven at FULL precision is a P0. An UNPROVEN tie is reported and surfaced, never a
+  // defect the run dies on — a guard must assert what it can actually show.
+  ...tieGroups.filter((t) => !t.distributionsDiffer && t.precision === "FULL").map((t) => ({ id: "IDENTICAL_DISTRIBUTION", detail: `${t.events.join(", ")} at ${t.roundedScore}` })),
 ];
 
 const report = {

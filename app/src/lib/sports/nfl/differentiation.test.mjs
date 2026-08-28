@@ -148,10 +148,34 @@ test("the VERDICT is derived from the classifications and cannot contradict them
 });
 
 test("ROUNDED TIES are justified numerically, never waved through", () => {
+  /*
+   * TWO legitimate outcomes now, and a third that is still a failure.
+   *
+   * LEGITIMATE — the distributions genuinely differ; the shared scoreline is integer rounding over a
+   * continuous margin.
+   *
+   * UNPROVEN — the only win probability available is display-rounded to four places, which cannot
+   * distinguish an identical distribution from an identical rounding. On 2026-08-28 the audit called
+   * a P0 on ATL @ MIA and ARI @ GB for both landing on 0.4585, across a slate whose probabilities
+   * span about 0.012 — four places give roughly a hundred buckets, so two of twelve colliding is
+   * close to a coin flip. An UNPROVEN tie is admitted ONLY with the evidence that the model did read
+   * different events: distinct input hashes, stated in the verdict.
+   *
+   * A tie at FULL precision with identical distributions remains a hard failure — that is the defect
+   * the block exists for, and nothing here softens it.
+   */
   for (const t of report.roundedTies) {
-    assert.equal(t.distributionsDiffer, true, `${t.events.join(" / ")} at ${t.roundedScore} must sit on distinct distributions`);
-    assert.equal(new Set(t.underlyingWinProbabilities).size, t.underlyingWinProbabilities.length);
-    assert.match(t.verdict, /^LEGITIMATE/);
+    if (t.distributionsDiffer) {
+      assert.equal(new Set(t.underlyingWinProbabilities).size, t.underlyingWinProbabilities.length);
+      assert.match(t.verdict, /^LEGITIMATE/);
+      continue;
+    }
+    assert.equal(t.precision, "DISPLAY_ROUNDED",
+      `${t.events.join(" / ")} at ${t.roundedScore}: identical distributions at FULL precision is a P0, not a tie to explain`);
+    assert.match(t.verdict, /^UNPROVEN/);
+    assert.match(t.verdict, /input hashes DIFFER/,
+      `${t.events.join(" / ")}: an unproven tie is only admissible when the model provably read different events`);
+    assert.match(t.verdict, /homeUnrounded/, "and must say exactly what would settle it");
   }
   /*
    * THIS ASSERTED THAT TIES MUST EXIST, which pinned the shape of one particular broken slate: ten

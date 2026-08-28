@@ -128,6 +128,7 @@ jobs:
           node scripts/nfl/build-nfl-participation.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 48
 
       - name: Generate public-beta NFL forecasts
+        id: generate
         if: steps.window.outputs.events != '0'
         working-directory: app
         run: |
@@ -177,17 +178,34 @@ jobs:
           set -euo pipefail
           node scripts/nfl/build-nfl-index.mjs --now "${{ steps.window.outputs.now }}"
 
+      # Consumes what the step above produced, so it inherits the same gate: rebuilding the lane
+      # from a condemned generation is how the lane came to say 13 events beside a market artifact
+      # saying 11 on 2026-08-28.
       - name: Rebuild the NFL admin lane status
-        if: steps.window.outputs.events != '0'
+        if: steps.window.outputs.events != '0' && steps.generate.outcome == 'success'
         working-directory: app
         run: |
           set -euo pipefail
           node scripts/nfl/build-nfl-lane-status.mjs --now "${{ steps.window.outputs.now }}"
 
-      # The commit is no longer gated on the window either: an empty window still re-derives the
-      # index above, and a correction that is computed and then not committed is not a correction.
+      # ── ALWAYS, BUT NOT WHEN AN AUDIT CONDEMNED WHAT WE WOULD COMMIT ────────────────────────────
+      #
+      # P215 R-D1 ungated this to `always()` so an EMPTY window would still commit the re-derived
+      # index — a correction computed and not committed is not a correction. That was right about
+      # empty windows and wrong about everything else, and it cost exactly what you would expect.
+      #
+      # The generate step ends with two audits that exit non-zero on a P0. On 2026-08-28 at 05:07
+      # audit-nfl-differentiation reported P0_DEFECT — twelve distinct games sharing one distribution,
+      # every score 19-18 — and killed the step, which is precisely what it is for. `always()` then
+      # committed and deployed the artifacts anyway, and /nfl published twelve identical "projected"
+      # scorelines. A guard that fails the run and cannot stop the publish is decoration.
+      #
+      # So: commit when the window was empty (nothing was generated to condemn), and otherwise only
+      # when generation and its audits actually passed.
       - name: Commit the window's artifacts
-        if: always()
+        if: >-
+          always() &&
+          (steps.window.outputs.events == '0' || steps.generate.outcome == 'success')
         run: |
           set -euo pipefail
           git config user.name "gtp-bot"

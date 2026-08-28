@@ -121,13 +121,30 @@ jobs:
       # with app/ as the working directory. Run from the repository root it dies MODULE_NOT_FOUND
       # every single time, and the `|| echo` below caught the failure and printed "fixtures unchanged
       # or unavailable this run" — a reassuring sentence over a step that had never once worked.
-      - name: Refresh the fixture list
+      # ── FETCH THE LIVE SOURCE, like sport-schedules does ────────────────────────────────────────
+      #
+      # This omitted `--from`, and the script's default is a committed snapshot taken during Program
+      # 148. openfootball lists a matchweek's kickoff once and lets following rows inherit it, so
+      # that months-old file still carries the provisional "all at 15:00" block for rounds whose
+      # broadcast slots had not been assigned when it was taken.
+      #
+      # Two workflows therefore captured from two different sources, and whichever ran last won. On
+      # 2026-08-28 this one ran at 05:11 and produced a capture with all ten of matchweek 2 at
+      # 14:00Z; the newest-capture selection added in P215 R-C dutifully picked it, and the public
+      # forecast put Crystal Palace v Manchester City on Saturday afternoon when it kicks off Friday
+      # evening. The live file has had the real slots throughout.
+      - name: Refresh the fixture list (live openfootball; committed snapshot is a fallback, not a source)
         working-directory: app
         run: |
-          set -euo pipefail
+          set -uo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          npx tsx scripts/epl/capture-epl-fixtures.mjs --now "$NOW" || \
-            echo "fixtures unchanged or unavailable this run"
+          TXT="$(mktemp)"
+          if ! curl -sf --max-time 60 "https://raw.githubusercontent.com/openfootball/england/master/2026-27/1-premierleague.txt" -o "$TXT"; then
+            echo "openfootball fetch failed — the committed capture stands (SOURCE_STALE, not an empty matchweek)"
+            exit 0
+          fi
+          npx tsx scripts/epl/capture-epl-fixtures.mjs --now "$NOW" --from "$TXT" || \
+            echo "fixtures unchanged, provisional, or unavailable this run — the previous capture stands"
 
       # Prices, under docs/receipts/ODDS_AUTHORIZATION_EPL.md: EPL only, h2h + totals, us region,
       # bulk endpoint only, 500-credit cumulative ceiling, its own ledger. The receipt cannot fund an

@@ -93,6 +93,52 @@ for (const line of txt.split("\n")) {
 
 if (parsed.length !== 380) { console.error(`REFUSED: parsed ${parsed.length} fixtures, expected exactly 380`); process.exit(1); }
 
+/*
+ * ── A PROVISIONAL BLOCK IS NOT A SCHEDULE ───────────────────────────────────────────────────────
+ *
+ * openfootball lists a matchweek's kickoff time ONCE and lets the following rows inherit it, so a
+ * round whose broadcast slots have not been assigned appears as ten fixtures under a single
+ * traditional 15:00. That is a placeholder, and it is detectable: a real Premier League matchweek
+ * is split across Friday evening, three Saturday slots, two Sunday slots and often a Monday.
+ *
+ * Observed 2026-08-28. Two workflows run this script — sport-schedules fetches the LIVE upstream
+ * file, epl-matchweek omitted `--from` and silently fell back to a committed snapshot taken during
+ * Program 148. The stale one ran last, so a capture with all ten of matchweek 2 at 14:00Z became
+ * the newest, and the newest-capture selection P215 R-C added dutifully picked it. Crystal Palace v
+ * Manchester City is on Friday at 19:00Z; the public forecast said Saturday 14:00Z.
+ *
+ * Refusing here means the previous good capture stands — last-known-good, which is the right
+ * outcome for a source that has temporarily lost detail. Fixing only the workflow would leave the
+ * next stale source free to do this again.
+ *
+ * SCOPED TO THE NEAR WINDOW. The first version of this check refused any provisional matchday and
+ * therefore refused everything: a season file legitimately carries a placeholder slot for matchweek
+ * 30 in March, and 37 of 38 rounds in the committed snapshot look like that. A placeholder only
+ * does damage where a forecast is about to be built on it, so only rounds with a fixture inside the
+ * next fortnight are judged. Beyond that, "not yet scheduled" is the truth.
+ */
+const NEAR_DAYS = 14;
+const nowMs = Date.parse(NOW);
+const nearCutoff = Number.isFinite(nowMs) ? nowMs + NEAR_DAYS * 86_400_000 : null;
+const byMatchday = new Map();
+for (const f of parsed) {
+  const startMs = Date.parse(`${f.dateLocal}T${f.timeLocal}:00Z`);
+  const near = nearCutoff === null || (Number.isFinite(startMs) && startMs >= nowMs && startMs <= nearCutoff);
+  if (!near) continue;
+  if (!byMatchday.has(f.matchday)) byMatchday.set(f.matchday, new Set());
+  byMatchday.get(f.matchday).add(`${f.dateLocal} ${f.timeLocal}`);
+}
+// A single-fixture round (a rescheduled midweek game) genuinely has one slot; two or more fixtures
+// sharing the ONLY slot in the round is the provisional block.
+const provisional = [...byMatchday.entries()].filter(([md, slots]) =>
+  slots.size === 1 && parsed.filter((f) => f.matchday === md).length > 1);
+if (provisional.length) {
+  const rounds = provisional.map(([md, slots]) => `md${md} (all at ${[...slots][0]})`).join(", ");
+  console.error(`REFUSED: ${provisional.length} matchday(s) carry a single kickoff slot for every fixture — that is a provisional block, not a schedule: ${rounds}`);
+  console.error("The previously committed capture stands. Re-run once the source publishes real broadcast slots.");
+  process.exit(1);
+}
+
 const index = buildEplClubIndex();
 const slug = (s) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const clubs = new Set();
