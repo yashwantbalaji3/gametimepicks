@@ -27,16 +27,32 @@
       ]
     },
     "nfl": {
-      "state": "PUBLISHING",
-      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-08-29T20:30:00.000Z",
+      "state": "MISSED_COVERAGE",
+      "reason": "3 of 16 event(s) started with no pre-event forecast; nothing is still pending",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 16,
-        "published": 15,
-        "missedCoverage": 0,
-        "awaiting": 1
+        "published": 13,
+        "missedCoverage": 3,
+        "awaiting": 0
       },
-      "missed": []
+      "missed": [
+        {
+          "id": "PIT-BUF-2026-08-27T23:00Z",
+          "label": "PIT @ BUF",
+          "startUtc": "2026-08-27T23:00Z"
+        },
+        {
+          "id": "NE-CLE-2026-08-28T00:00Z",
+          "label": "NE @ CLE",
+          "startUtc": "2026-08-28T00:00Z"
+        },
+        {
+          "id": "SF-LV-2026-08-28T00:00Z",
+          "label": "SF @ LV",
+          "startUtc": "2026-08-28T00:00Z"
+        }
+      ]
     },
     "ufc": {
       "state": "PUBLISHED",
@@ -62,7 +78,7 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-08-27T23:53:31.160Z",
+  "checkedAt": "2026-08-28T00:29:18.559Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
