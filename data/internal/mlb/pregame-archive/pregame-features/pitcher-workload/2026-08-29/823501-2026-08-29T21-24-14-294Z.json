@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823501,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T21:24:14.294Z",
+  "availableAt": "2026-08-29T21:24:14.294Z",
+  "eventStartTime": "2026-08-29T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608331,
+      "name": "Max Fried",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 16,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 5.8,
+        "bbAvg": 1.6,
+        "erAvg": 1,
+        "hrAvg": 0.2,
+        "kPer9": 10.58,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 86.33,
+        "k": 79,
+        "bb": 27,
+        "er": 27,
+        "hr": 2
+      }
+    },
+    "away": {
+      "id": 687941,
+      "name": "Alec Gamboa",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 12,
+      "lastStartDate": "2026-08-17",
+      "last5": {
+        "starts": 1,
+        "ipSum": 1.33,
+        "ipAvg": 1.33,
+        "kAvg": 1,
+        "bbAvg": 0,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 6.75,
+        "workloadIpLast5": 1.33
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 1.33,
+        "k": 1,
+        "bb": 0,
+        "er": 0,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-29T21:24:14.294Z"
+  },
+  "recordHash": "87e3b0a832939c1a9362420ef89da4650756ea2658ac27be7af226d099860c72"
+}

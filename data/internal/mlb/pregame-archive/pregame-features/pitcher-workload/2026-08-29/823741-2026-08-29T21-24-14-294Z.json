@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823741,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T21:24:14.294Z",
+  "availableAt": "2026-08-29T21:24:14.294Z",
+  "eventStartTime": "2026-08-29T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 675660,
+      "name": "Shane Drohan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 6,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 5.4,
+        "bbAvg": 2.6,
+        "erAvg": 3.6,
+        "hrAvg": 0.6,
+        "kPer9": 8.89,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 78.67,
+        "k": 77,
+        "bb": 30,
+        "er": 40,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 615698,
+      "name": "Cal Quantrill",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 10,
+      "restDays": 6,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 5.6,
+        "bbAvg": 1,
+        "erAvg": 0.6,
+        "hrAvg": 0.2,
+        "kPer9": 8.59,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 10,
+        "ip": 50.33,
+        "k": 40,
+        "bb": 9,
+        "er": 13,
+        "hr": 6
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-29T21:24:14.294Z"
+  },
+  "recordHash": "e910c18d6e6a6df26d72c5f4781cee3075520989970f1ddad9430a69054e1d15"
+}
