@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-29T18:16:23Z",
+ "generatedAt": "2026-08-29T22:59:51Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-preseason-public-beta-v1",
@@ -16,21 +16,21 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 1,
+  "scheduledUpcoming": 0,
   "forecastsTotal": 1,
-  "forecastsUpcoming": 1,
-  "forecastsStarted": 0,
+  "forecastsUpcoming": 0,
+  "forecastsStarted": 1,
   "marketEvents": 1,
   "settled": 0
  },
- "nextKickoffUtc": "2026-08-29T22:00Z",
- "nextMatchup": "CHI @ TEN",
+ "nextKickoffUtc": null,
+ "nextMatchup": null,
  "marketCapturedAt": "2026-08-29T17:50:39Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-08-29T17:50:39Z",
+  "generatedAt": "2026-08-29T18:16:23Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-preseason-public-beta-v1",
   "seasonTypeScope": "preseason",
@@ -70,15 +70,11 @@
     "name": "Chicago Bears"
    },
    "kickoffUtc": "2026-08-29T22:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": -6.5,
-    "leansTo": "CHI",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
    "projectedScore": {
     "home": 18,
     "away": 19
