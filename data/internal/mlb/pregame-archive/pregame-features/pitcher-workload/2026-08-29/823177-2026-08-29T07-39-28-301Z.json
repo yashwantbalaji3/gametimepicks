@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823177,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T07:39:28.301Z",
+  "availableAt": "2026-08-29T07:39:28.301Z",
+  "eventStartTime": "2026-08-29T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 518876,
+      "name": "Merrill Kelly",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 3.4,
+        "bbAvg": 3.6,
+        "erAvg": 4.2,
+        "hrAvg": 0.8,
+        "kPer9": 6.04,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 134.67,
+        "k": 88,
+        "bb": 60,
+        "er": 80,
+        "hr": 26
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-29T07:39:28.301Z"
+  },
+  "recordHash": "0e93ddcbe00235cdad4610e1409bcc8d1df8eb3cc1e5bd781dfdbf4d8eeaf66e"
+}
