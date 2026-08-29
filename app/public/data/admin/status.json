@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-08-29T00:05:19.734Z",
+  "generatedAt": "2026-08-29T11:45:09.552Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -17,7 +17,7 @@
   },
   "slate": {
     "date": "2026-08-28",
-    "dailyPortfolioDate": "2026-08-28",
+    "dailyPortfolioDate": "2026-08-29",
     "activeBankroll": 19065.4,
     "openExposure": 0,
     "worldCupGames": 0,
@@ -29,17 +29,17 @@
     "sources": [
       {
         "source": "mlb/team-markets",
-        "state": "CURRENT",
+        "state": "STALE",
         "artifactDate": "2026-08-28",
         "generatedAt": "2026-08-28T23:34:22.629Z",
-        "ageDays": 0
+        "ageDays": 1
       },
       {
         "source": "mlb/player-props",
-        "state": "CURRENT",
+        "state": "STALE",
         "artifactDate": "2026-08-28",
         "generatedAt": "2026-08-28T23:34:23.467Z",
-        "ageDays": 0
+        "ageDays": 1
       }
     ]
   },
@@ -103,25 +103,81 @@
       ]
     },
     "forwardCoverage": {
-      "present": false,
-      "date": "2026-08-28"
+      "present": true,
+      "date": "2026-08-28",
+      "generatedAt": "2026-08-29T00:05:22Z",
+      "sports": [
+        {
+          "sport": "epl",
+          "state": "DERIVED",
+          "counts": {
+            "scheduled": 19,
+            "priced": 17,
+            "generated": 8,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": [
+            "GENERATION_PENDING:9 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
+          ]
+        },
+        {
+          "sport": "ufc",
+          "state": "DERIVED",
+          "counts": {
+            "scheduled": 13,
+            "priced": 13,
+            "generated": 9,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": []
+        },
+        {
+          "sport": "nfl",
+          "state": "SCHEDULE_ONLY",
+          "counts": {
+            "scheduled": 3,
+            "priced": 3,
+            "generated": 0,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": [
+            "MODEL_ABSENT_BY_DECISION:3 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+          ]
+        },
+        {
+          "sport": "mlb",
+          "state": "DAILY_BY_CONTRACT",
+          "counts": {
+            "scheduled": 15,
+            "priced": 15,
+            "generated": 15,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": [
+            "FUTURE_STAGING_ABSENT_BY_DESIGN:game-specific inputs (probables, lineups, current odds) arrive per game day; a pre-series artifact would be dishonest for repeated matchups"
+          ]
+        }
+      ]
     },
     "dailyLifecycle": {
       "receiptDate": "2026-08-28",
-      "present": false,
-      "watchdog": [
-        {
-          "product": "bank-builder",
-          "kind": "MISSING_DAILY_EVALUATION",
-          "detail": "no daily receipt exists for 2026-08-28"
+      "present": true,
+      "generatedAt": "2026-08-29T00:05:21Z",
+      "watchdog": [],
+      "states": {
+        "bank-builder": {
+          "state": "NO_PLAY",
+          "policyVersion": "bank-builder@1"
         },
-        {
-          "product": "moonshot",
-          "kind": "MISSING_DAILY_EVALUATION",
-          "detail": "no daily receipt exists for 2026-08-28"
+        "moonshot": {
+          "state": "NO_PLAY",
+          "policyVersion": "moonshot@1"
         }
-      ],
-      "states": null
+      }
     }
   },
   "counts": {
@@ -129,74 +185,74 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-08-28T23:39:29.062Z",
-    "ageHours": 0.4,
+    "lastRunAt": "2026-08-29T11:45:08.786Z",
+    "ageHours": 0,
     "ok": true,
     "status": "pass",
-    "phase": "mlb-daily-production"
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
-    "etDate": "2026-08-28",
-    "etTime": "20:05",
+    "etDate": "2026-08-29",
+    "etTime": "07:45",
     "stages": [
       {
         "stage": "schedule",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "09:30",
         "producedBy": "morning-projections"
       },
       {
         "stage": "board",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "09:30",
         "producedBy": "morning-projections"
       },
       {
         "stage": "teamMarkets",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "playerProps",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "simulations",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "predictions",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       }
     ],
-    "readyCount": 6,
+    "readyCount": 0,
     "totalStages": 6,
     "lateCount": 0,
-    "signal": "GREEN",
-    "summary": "every stage for today has been produced"
+    "signal": "YELLOW",
+    "summary": "0/6 produced; the rest are not due yet"
   },
   "learningLoop": {
     "signal": "GREEN",
-    "summary": "learning data complete through 2026-08-27 (36336 rows)",
+    "summary": "learning data complete through 2026-08-28 (36700 rows)",
     "freshness": {
       "healthy": true,
-      "asOfSettledDate": "2026-08-27",
-      "corpusRows": 36336,
-      "ledgerRows": 36336,
+      "asOfSettledDate": "2026-08-28",
+      "corpusRows": 36700,
+      "ledgerRows": 36700,
       "lagDays": 0,
       "problems": []
     },
@@ -217,7 +273,10 @@
     "lastAutopsyRecommendation": "Investigate `batter_hits_runs_rbis` — it carried the widest gap on this date. A single date is NOT evidence; check whether the full-history registry status for it has moved before changing anything."
   },
   "warnings": [
-    "World Cup board is empty (dormant or needs a refresh)."
+    "World Cup board is empty (dormant or needs a refresh).",
+    "Sportsbook source mlb/team-markets is STALE (1d old).",
+    "Sportsbook source mlb/player-props is STALE (1d old).",
+    "Slate (2026-08-28) is behind today (2026-08-29) — refresh/roll forward."
   ],
   "dailyChecklist": [
     {
@@ -226,7 +285,7 @@
     },
     {
       "step": "Slate is current",
-      "done": true
+      "done": false
     },
     {
       "step": "Products generated (WC or MLB)",
@@ -245,9 +304,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-08-28",
-  "nextRefreshDate": "2026-08-29",
-  "nextAction": "No active Bank Builder lane for 2026-08-28 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-08-29",
+  "nextRefreshDate": "2026-08-30",
+  "nextAction": "No active Bank Builder lane for 2026-08-29 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
