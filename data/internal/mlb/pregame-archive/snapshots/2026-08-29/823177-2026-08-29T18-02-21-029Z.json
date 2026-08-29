@@ -1,0 +1,188 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "823177-b1ae30f1ddce262b8aa7624c157e75ed",
+  "snapshotCreatedAt": "2026-08-29T18:02:21.029Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-08-29",
+  "eventId": "823177",
+  "gamePk": 823177,
+  "eventStartTime": "2026-08-29T20:05:00Z",
+  "homeTeam": "SF",
+  "awayTeam": "AZ",
+  "venue": "Oracle Park",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "e3a6ec0c5ab5c14ae9bf0cee03e27ce8",
+  "normalizedPayloadHash": "27f5a57a8ecf4803a1c4a6e779d03f0a",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": false,
+      "value": {
+        "status": "PROJECTED_OR_UNPOSTED"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-08-29T18:02:21.029Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-29T18:02:21.029Z",
+      "timestampProven": true,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823177/feed/live",
+        "requestedAt": "2026-08-29T18:02:21.029Z",
+        "receivedAt": "2026-08-29T18:02:21.029Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Matt Wilkinson",
+        "awayProbable": "Merrill Kelly",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-29T18:02:21.029Z",
+      "availableAt": "2026-08-29T18:02:21.029Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-29T18:02:21.029Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823177/feed/live",
+        "requestedAt": "2026-08-29T18:02:21.029Z",
+        "receivedAt": "2026-08-29T18:02:21.029Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Sunny",
+        "temp": "63",
+        "wind": "13 mph, Out To CF",
+        "roofType": "Open",
+        "dayNight": "day",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-29T18:02:21.029Z",
+      "availableAt": "2026-08-29T18:02:21.029Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-29T18:02:21.029Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823177/feed/live",
+        "requestedAt": "2026-08-29T18:02:21.029Z",
+        "receivedAt": "2026-08-29T18:02:21.029Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Jim Wolf",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Jen Pawol",
+            "type": "First Base"
+          },
+          {
+            "name": "Alex MacKay",
+            "type": "Second Base"
+          },
+          {
+            "name": "Alan Porter",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-08-29T18:02:21.029Z",
+      "availableAt": "2026-08-29T18:02:21.029Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-08-29T18:02:21.029Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/823177/feed/live",
+        "requestedAt": "2026-08-29T18:02:21.029Z",
+        "receivedAt": "2026-08-29T18:02:21.029Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

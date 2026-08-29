@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823582,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T18:02:21.311Z",
+  "availableAt": "2026-08-29T18:02:21.311Z",
+  "eventStartTime": "2026-08-29T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 690997,
+      "name": "Nolan McLean",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 5.2,
+        "bbAvg": 3,
+        "erAvg": 1.8,
+        "hrAvg": 0.8,
+        "kPer9": 7.98,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 148.67,
+        "k": 168,
+        "bb": 58,
+        "er": 53,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 656986,
+      "name": "Bennett Sousa",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-29T18:02:21.311Z"
+  },
+  "recordHash": "7ec9fef96a3fe64462819496e9f506393c99fb45531a539134b8ca65ad4d437e"
+}
