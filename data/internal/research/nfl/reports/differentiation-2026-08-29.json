@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-08-29T03:05:37Z",
+  "generatedAt": "2026-08-29T17:50:39Z",
   "slateDate": "2026-08-29",
-  "eventCount": 2,
+  "eventCount": 1,
   "engineVersion": "nfl-preseason-public-beta-v1@v1",
   "config": {
     "lambda": 0.25,
@@ -22,12 +22,12 @@
       "observedVariationIsNoise": true,
       "teamSignalState": "NOT_SIGNIFICANT",
       "tStatistic": -0.5746,
-      "distinctValues": 2,
-      "spread": 0.0135,
+      "distinctValues": 1,
+      "spread": 0,
       "classification": "LIMITED_INPUTS",
       "declaredSharedPrior": true,
       "missingAdapter": "a team-strength signal that clears |t| >= 2 on preseason data. The current coefficient is t = -0.5746 with a 95% interval spanning zero, so it is switched off rather than published as a direction.",
-      "reading": "the team-strength term is switched off because its coefficient is indistinguishable from zero, so the remaining 1.35pp spread across 2 events is simulation noise around one common mean, not a read on these teams"
+      "reading": "the team-strength term is switched off because its coefficient is indistinguishable from zero, so the remaining 0.00pp spread across 1 events is simulation noise around one common mean, not a read on these teams"
     },
     {
       "head": "total",
@@ -44,41 +44,16 @@
   ],
   "events": [
     {
-      "canonicalEventId": "nfl-401873308",
-      "matchup": "DET @ IND",
-      "kickoffUtc": "2026-08-29T17:00Z",
-      "inputHash": "374a5d6f806155f8",
-      "engineVersion": "nfl-preseason-public-beta-v1@v1",
-      "expected": {
-        "marginMean": -1,
-        "marginMedian": -1,
-        "totalMedian": 37,
-        "winProbHome": 0.4563,
-        "winProbIsRounded": false,
-        "projected": {
-          "home": 18,
-          "away": 19
-        }
-      },
-      "intervals": {
-        "marginP10": -17,
-        "marginP90": 16,
-        "totalP10": 23,
-        "totalP90": 51
-      },
-      "receiptGeneratedAt": "2026-08-29T03:05:37Z"
-    },
-    {
       "canonicalEventId": "nfl-401874394",
       "matchup": "CHI @ TEN",
       "kickoffUtc": "2026-08-29T22:00Z",
-      "inputHash": "bbeae852b16407d3",
+      "inputHash": "4ce20f6ea7d9e2f4",
       "engineVersion": "nfl-preseason-public-beta-v1@v1",
       "expected": {
         "marginMean": -1,
         "marginMedian": -1,
         "totalMedian": 37,
-        "winProbHome": 0.4698,
+        "winProbHome": 0.4722,
         "winProbIsRounded": false,
         "projected": {
           "home": 18,
@@ -89,28 +64,13 @@
         "marginP10": -17,
         "marginP90": 16,
         "totalP10": 23,
-        "totalP90": 51
+        "totalP90": 52
       },
-      "receiptGeneratedAt": "2026-08-29T03:05:37Z"
+      "receiptGeneratedAt": "2026-08-29T17:50:39Z"
     }
   ],
   "fingerprintCollisions": [],
-  "roundedTies": [
-    {
-      "roundedScore": "19-18",
-      "events": [
-        "DET @ IND",
-        "CHI @ TEN"
-      ],
-      "underlyingWinProbabilities": [
-        45.63,
-        46.98
-      ],
-      "distributionsDiffer": true,
-      "precision": "FULL",
-      "verdict": "LEGITIMATE — the same rounded scoreline sits on top of distinct distributions; integer football scores are a coarse view of a continuous margin"
-    }
-  ],
+  "roundedTies": [],
   "p0": [],
   "verdict": "NO_EVENT_SPECIFIC_SIGNAL"
 }
