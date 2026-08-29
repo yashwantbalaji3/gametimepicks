@@ -50,13 +50,13 @@
     .wrap { max-width: none; padding: 12px 8px; }
   }
 </style>
-<div class="wrap" data-expected-releases="172" data-first-release="141-143-—" data-last-release="220-R-A">
+<div class="wrap" data-expected-releases="175" data-first-release="141-143-—" data-last-release="222-R-A">
 <header class="doc">
-  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-28T11:25:00Z</span><span>Program 220 · Release A</span></p>
+  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-08-29T00:45:00Z</span><span>Program 222 · Release A</span></p>
   <h1>The operating record, generated from the committed register</h1>
   <p class="stamp">
-    <span>main @ c2a311dca</span>
-    <span>Suite: 5344·5340·0·4</span>
+    <span>main @ 05651baee</span>
+    <span>Suite: 5358·5354·0·4</span>
     <span>e2e: 385/0/6 named</span>
     <span>Queues: 0 engineering · 7 reality · 5 founder · 0 incident</span>
   </p>
@@ -80,7 +80,7 @@
 
 <section>
   <h2>The release register — every production release, oldest first</h2>
-  <p class="stamp"><span>172 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 220-R-A (2026-08-28)</span></p>
+  <p class="stamp"><span>175 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 222-R-A (2026-08-28)</span></p>
   <div class="scroll">
     <table>
       <thead><tr><th>Release</th><th>Commit</th><th>Date</th><th>What shipped</th></tr></thead>
@@ -257,13 +257,16 @@
         <tr><td class="num">219-R-A</td><td class="num">5da227823</td><td class="num">2026-08-28</td><td>the publication SLO's NFL probe now consults the durable forecast-receipt record and joins all three artifacts on providerEventId; NFL reads 16/16 PUBLISHED and the platform state drops from a false MISSED_COVERAGE to PUBLISHING. A guard pins that the detector is not thereby switched off — a started event nobody forecast is still MISSED_COVERAGE <em>Defects caught: two of mine from P215 R-B, found in Phase 0's first read: `published` came from nfl/index.json's `events`, which applies a kickoff lock and correctly retires started games — so every game we DID forecast became 'missed' the moment it kicked off, putting three covered Thursday-night games under an accusation. And the probe joined on a composite `${away}-${home}-${time}` fallback that matched only because two artifacts hold the same values under different field names (dateUtc vs kickoffUtc): it worked by coincidence and would have failed silently on any rename</em></td></tr>
         <tr><td class="num">219-R-B</td><td class="num">553f33963</td><td class="num">2026-08-28</td><td>register catch-up for P219 R-A and P218 R-C; Operating Record regenerated at 170 rows, 15 pages, verified against the produced PDF bytes <em>Defects caught: the schema guard caught P218 R-A carrying an 08-28 date for a 23:35-ET-on-the-27th commit — a UTC value in an ET column; re-dated rather than reordering the register around a wrong value</em></td></tr>
         <tr><td class="num">220-R-A</td><td class="num">c2a311dca</td><td class="num">2026-08-28</td><td>Top 10 boards gated per ROW on the ET day derived from each row's own start (eight corruption cases; the live check judges 40 real rows across four boards), refusals published so a short board is explainable; EPL capture refuses a provisional single-slot round and epl-matchweek now fetches the live source; the NFL commit and lane rebuild require their generation step to have PASSED; and the differentiation audit reports UNPROVEN rather than P0 where its evidence is display-rounded <em>Defects caught: three live, found in Phase 0. (1) All ten EPL matchweek fixtures back on one fabricated 14:00Z slot — two workflows, two sources, and the stale one ran last, publishing Crystal Palace v Man City for Saturday afternoon when it kicks off Friday evening. (2) audit-nfl-differentiation reported P0_DEFECT and killed its step exactly as designed, and the artifacts deployed anyway because P215 R-D1 (mine) had ungated that commit to always(). (3) That P0 could not be proven either: the audit's tiebreaker is the win probability rounded to four places, across a slate spanning 0.012 — two of twelve colliding is close to a coin flip, and its comment claimed a precision it did not have. Also: nightly-settle had not run since 18:21 the previous day, so 2026-08-27's cards were unsettled — dispatched, 199 settled, conservation closed</em></td></tr>
+        <tr><td class="num">220-R-B</td><td class="num">9f846d9b2</td><td class="num">2026-08-28</td><td>register catch-up for P220 R-A and P219 R-B; Operating Record regenerated at 172 rows, 15 pages, verified against the produced PDF bytes</td></tr>
+        <tr><td class="num">221-R-A</td><td class="num">23073b145</td><td class="num">2026-08-28</td><td>both P0 public contradictions traced and recovered: MLB's chain (board present, markets/props/sims all stopped a day behind) self-recovered to 9 covered pre-start games with 6 named MISSED_COVERAGE, and EPL went to 8 of 9 CURRENT_PRE_EVENT about twelve hours before the next lock, for two credits <em>Defects caught: the EPL odds step had skipped at 05:10 with 'no kickoff within 30h (next is 32.8h away)' — that time was the FABRICATED slot, and the real next kickoff was 13.8h away, so the stale capture suppressed the purchase rather than merely mis-displaying times. Plus: coveredEventCount had read 1 since P215 (keyed on a field leans never carry); epl-identity-live.test.mjs still used readdir().find(); correcting the kickoffs orphaned four historical odds captures, named and dated rather than rewritten; and the NFL taxonomy guard asserted every event was SCHEDULED, a property of when the capture was taken</em></td></tr>
+        <tr><td class="num">222-R-A</td><td class="num">05651baee</td><td class="num">2026-08-28</td><td>the expected-work graph: six daily owners, each declaring the RECEIPT that proves it ran and how its deadline is derived (from the day's first event where one exists, from the clock only where the day is already over). The evaluator consults no run list, no conclusion and no heartbeat — a guard pins that — which is why it sees a cron that produced no run object at all. All four dropped-cron incidents since 2026-08-27 replay as caught, the Aug-27 one at 16:06Z, an hour before first pitch; in reality nobody noticed until 17:48Z. Rides the publication-slo composite action, inheriting detection across a dozen schedules <em>Defects caught: its first local run opened an incident on the risk ladder thirty seconds before the run that wrote it landed — a receipt-based answer read from a stale checkout is a statement about the checkout, so the artifact now records treeHead. And the NFL inversion guard's |r| &lt; 0.6 bar was calibrated for a 12-16 game slate: at seven forecasts r came out -0.6529 with a 1.63pp published spread, which pure noise clears about one time in nine. Now tested for significance, which catches the original -0.9726, an inversion at n=7, AND a genuine -0.65 lean on a full slate that the old bar would have passed</em></td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
 <footer class="doc">
-  <p>Register complete: 172 releases · 141-143-— → 220-R-A · generated 2026-08-28T11:25:00Z at c2a311dca.</p>
+  <p>Register complete: 175 releases · 141-143-— → 222-R-A · generated 2026-08-29T00:45:00Z at 05651baee.</p>
 </footer>
 </div>
-<!-- OPERATING-RECORD-END expected=172 first=141-143-— last=220-R-A -->
+<!-- OPERATING-RECORD-END expected=175 first=141-143-— last=222-R-A -->
