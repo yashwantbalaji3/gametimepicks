@@ -5,16 +5,316 @@
  "moneyClass": "NON_MONEY",
  "sport": "mlb",
  "date": "2026-08-29",
- "generatedAt": "2026-08-29T17:19:48Z",
- "state": "NOT_ELIGIBLE",
- "reason": "no price capture for 2026-08-29 yet — the sport's own generation runs later in the day (newest capture 2026-08-28); only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
- "evidence": {
-  "pricedGames": 0,
-  "pricesCapturedAt": null,
-  "priceAgeDays": null,
-  "settlementSource": "MLB Stats API official box score",
-  "settlementProven": true
- },
- "tiers": [],
- "cells": []
+ "generatedAt": "2026-08-29T18:44:46Z",
+ "state": "PUBLISHED",
+ "bandsUnreachable": [
+  "low",
+  "high"
+ ],
+ "calmestAvailable": "medium",
+ "tiers": [
+  {
+   "id": "bronze",
+   "minBankroll": 0,
+   "maxBankroll": 50,
+   "cardsPerDay": 1,
+   "bands": [
+    "low"
+   ],
+   "offered": 0,
+   "emptyToday": true,
+   "substitute": {
+    "band": "medium",
+    "slipId": "slip_2026-08-28_conservative_ee70eec67f76",
+    "reason": "Nothing on today's board priced in this range. The calmest card available is medium risk, which is a longer price than this bankroll is normally shown — its own record is attached."
+   }
+  },
+  {
+   "id": "silver",
+   "minBankroll": 50,
+   "maxBankroll": 100,
+   "cardsPerDay": 2,
+   "bands": [
+    "low",
+    "medium"
+   ],
+   "offered": 1,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "gold",
+   "minBankroll": 100,
+   "maxBankroll": 250,
+   "cardsPerDay": 3,
+   "bands": [
+    "low",
+    "medium",
+    "high"
+   ],
+   "offered": 1,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "diamond",
+   "minBankroll": 250,
+   "maxBankroll": null,
+   "cardsPerDay": 4,
+   "bands": [
+    "low",
+    "medium",
+    "high",
+    "longshot"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  }
+ ],
+ "cells": [
+  {
+   "tier": "bronze",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "bronze",
+   "band": "medium",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "silver",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "slip_2026-08-28_conservative_ee70eec67f76",
+   "reason": null
+  },
+  {
+   "tier": "silver",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "gold",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "gold",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "slip_2026-08-28_conservative_ee70eec67f76",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "high",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
+  },
+  {
+   "tier": "gold",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 3 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "diamond",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "diamond",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "slip_2026-08-28_conservative_ee70eec67f76",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "high",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
+  },
+  {
+   "tier": "diamond",
+   "band": "longshot",
+   "state": "OFFERED",
+   "slipId": "slip_2026-08-28_aggressive_910e0e45535a",
+   "reason": null
+  }
+ ],
+ "cards": [
+  {
+   "band": "medium",
+   "slipId": "slip_2026-08-28_conservative_ee70eec67f76",
+   "combinedAmerican": 204,
+   "combinedDecimal": 3.036,
+   "legs": [
+    {
+     "player": "Jarren Duran",
+     "team": "BOS",
+     "opponent": "NYY",
+     "playerId": 680776,
+     "gameId": "2458fd8fd2cc9241175e46181d9b3066",
+     "gamePk": 823504,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -117,
+     "result": null
+    },
+    {
+     "player": "Corey Seager",
+     "team": "TEX",
+     "opponent": "MIL",
+     "playerId": 608369,
+     "gameId": "57c478eb2e6623a9a63b654b20634fa1",
+     "gamePk": 823744,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -157,
+     "result": null
+    }
+   ],
+   "status": "pending",
+   "record": {
+    "wins": 52,
+    "losses": 248,
+    "hitRate": 0.1733,
+    "roi": -0.0912
+   }
+  },
+  {
+   "band": "longshot",
+   "slipId": "slip_2026-08-28_aggressive_910e0e45535a",
+   "combinedAmerican": 2971,
+   "combinedDecimal": 30.71,
+   "legs": [
+    {
+     "player": "Jarren Duran",
+     "team": "BOS",
+     "opponent": "NYY",
+     "playerId": 680776,
+     "gameId": "2458fd8fd2cc9241175e46181d9b3066",
+     "gamePk": 823504,
+     "market": "batter_hits_runs_rbis",
+     "marketLabel": "Hits + Runs + RBIs",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -147,
+     "result": null
+    },
+    {
+     "player": "Willson Contreras",
+     "team": "BOS",
+     "opponent": "NYY",
+     "playerId": 575929,
+     "gameId": "2458fd8fd2cc9241175e46181d9b3066",
+     "gamePk": 823504,
+     "market": "batter_hits_runs_rbis",
+     "marketLabel": "Hits + Runs + RBIs",
+     "side": "Over",
+     "line": 1.5,
+     "odds": 118,
+     "result": null
+    },
+    {
+     "player": "Cal Raleigh",
+     "team": "SEA",
+     "opponent": "TOR",
+     "playerId": 663728,
+     "gameId": "365be8fc27b2eb31c003fc150dde54a5",
+     "gamePk": 822769,
+     "market": "batter_hits_runs_rbis",
+     "marketLabel": "Hits + Runs + RBIs",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -147,
+     "result": null
+    },
+    {
+     "player": "Alec Bohm",
+     "team": "PHI",
+     "opponent": "LAA",
+     "playerId": 664761,
+     "gameId": "36f6301129991d3a13de99fc29f5d4bf",
+     "gamePk": 823985,
+     "market": "batter_total_bases",
+     "marketLabel": "Total Bases",
+     "side": "Over",
+     "line": 1.5,
+     "odds": 131,
+     "result": null
+    },
+    {
+     "player": "Corey Seager",
+     "team": "TEX",
+     "opponent": "MIL",
+     "playerId": 608369,
+     "gameId": "57c478eb2e6623a9a63b654b20634fa1",
+     "gamePk": 823744,
+     "market": "batter_hits_runs_rbis",
+     "marketLabel": "Hits + Runs + RBIs",
+     "side": "Over",
+     "line": 1.5,
+     "odds": 116,
+     "result": null
+    }
+   ],
+   "status": "pending",
+   "record": {
+    "wins": 19,
+    "losses": 284,
+    "hitRate": 0.0627,
+    "roi": -0.1877
+   }
+  }
+ ],
+ "note": "A policy view of cards published by the risk ladder. No stake is baked in: bankroll is entered in the reader's own browser and never leaves it. Paper-only, educational; not advice."
 }
