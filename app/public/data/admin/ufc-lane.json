@@ -2,46 +2,47 @@
   "schemaVersion": 1,
   "artifact": "ufc-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-08-28T22:58:42Z",
+  "generatedAt": "2026-08-29T15:23:36Z",
   "nextCard": {
     "name": "UFC Fight Night: Nurmagomedov vs. Song",
     "slateDate": "2026-08-29",
     "bouts": 13,
-    "hoursAway": 8.02
+    "hoursAway": -8.39
   },
   "freshness": {
     "card": {
       "state": "READ",
-      "stampedAt": "2026-08-28T22:57:48Z",
+      "stampedAt": "2026-08-29T15:22:48Z",
       "ageHours": 0.01
     },
     "odds": {
       "state": "READ",
-      "stampedAt": "2026-08-27T22:47:22Z",
-      "ageHours": 24.19
+      "stampedAt": "2026-08-29T15:23:01Z",
+      "ageHours": 0.01
     },
     "ladder": {
       "state": "READ",
-      "stampedAt": "2026-08-28T22:58:41Z",
+      "stampedAt": "2026-08-29T15:23:35Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-08-28T20:00:12+00:00",
-      "ageHours": 2.98
+      "stampedAt": "2026-08-29T13:42:30+00:00",
+      "ageHours": 1.69
     },
     "settled": {
       "state": "READ",
       "stampedAt": "2026-06-15T13:55:00Z",
-      "ageHours": 1785.06
+      "ageHours": 1801.48
     }
   },
   "cards": {
     "state": "PUBLISHED_FOR_THIS_CARD",
     "date": "2026-08-29",
-    "carded": 1,
+    "carded": 0,
     "skipped": [
       "low",
+      "medium",
       "high",
       "longshot"
     ],
@@ -55,17 +56,17 @@
   },
   "credits": {
     "state": "READ",
-    "spent": 16,
+    "spent": 17,
     "ceiling": 500,
-    "requests": 17
+    "requests": 18
   },
   "productLane": {
-    "live": true,
-    "blocked": null
+    "live": false,
+    "blocked": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
   },
   "population": {
     "state": "POPULATION_EXACT",
-    "generatedAt": "2026-08-28T22:57:58Z",
+    "generatedAt": "2026-08-29T15:22:58Z",
     "counts": {
       "expected": 13,
       "captured": 13,
@@ -79,18 +80,18 @@
   "modelVsMarket": {
     "state": "RECONCILED",
     "cumulative": {
-      "n": 10,
+      "n": 16,
       "model": {
-        "logLoss": 0.840112,
-        "brier": 0.299183,
-        "accuracy": 0.5
+        "logLoss": 0.688135,
+        "brier": 0.234893,
+        "accuracy": 0.625
       },
       "market": {
-        "logLoss": 0.714704,
-        "brier": 0.261657
+        "logLoss": 0.697244,
+        "brier": 0.250478
       }
     },
-    "gradedTotal": 10,
+    "gradedTotal": 16,
     "reconciliation": [
       {
         "slateDate": "2026-08-22",
@@ -103,9 +104,9 @@
       {
         "slateDate": "2026-08-29",
         "frozen": 6,
-        "graded": 0,
+        "graded": 6,
         "void": 0,
-        "pending": 6,
+        "pending": 0,
         "reconciles": true
       }
     ],
@@ -135,6 +136,11 @@
       "id": "calibration-sample",
       "state": "REALITY_GATED",
       "detail": "the model has never been scored against a no-vig UFC line, and one card has been settled from official results. Cards have to be fought."
+    },
+    {
+      "id": "product-lane-closed",
+      "state": "REALITY_GATED",
+      "detail": "the Lab gate has closed this lane: only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one. It reopens by itself when the evidence returns."
     }
   ]
 }
