@@ -9,19 +9,30 @@
       "deadlineUtc": "2026-08-30T00:35:00.000Z",
       "counts": {
         "scheduled": 17,
-        "published": 16,
-        "missedCoverage": 0,
+        "published": 14,
+        "missedCoverage": 2,
         "awaiting": 1
       },
-      "missed": []
+      "missed": [
+        {
+          "id": "823539",
+          "label": "Boston Red Sox @ New York Yankees",
+          "startUtc": "2026-08-29T17:05:00Z"
+        },
+        {
+          "id": "824230",
+          "label": "Los Angeles Dodgers @ Detroit Tigers",
+          "startUtc": "2026-08-29T17:10:00Z"
+        }
+      ]
     },
     "nfl": {
       "state": "PUBLISHED",
-      "reason": "all 11 event(s) in the horizon carry a forecast",
+      "reason": "all 2 event(s) in the horizon carry a forecast",
       "deadlineUtc": null,
       "counts": {
-        "scheduled": 11,
-        "published": 11,
+        "scheduled": 2,
+        "published": 2,
         "missedCoverage": 0,
         "awaiting": 0
       }
@@ -117,22 +128,22 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-08-29T16:42:51.643Z",
+  "checkedAt": "2026-08-29T17:26:58.384Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
-  "reason": "board published with 656 rows",
+  "reason": "board published with 572 rows",
   "publishDeadlineUtc": null,
   "scheduledGames": 17,
-  "pregameRemaining": 17,
-  "alreadyStarted": 0,
+  "pregameRemaining": 15,
+  "alreadyStarted": 2,
   "board": {
     "present": true,
-    "leans": 656,
+    "leans": 572,
     "pendingReason": null,
-    "generatedAt": "2026-08-29T14:42:00.535527+00:00",
+    "generatedAt": "2026-08-29T17:19:52.577456+00:00",
     "scheduledGames": 17,
-    "startedBeforeGeneration": 0
+    "startedBeforeGeneration": 2
   },
   "games": [
     {
@@ -140,8 +151,8 @@
       "startUtc": "2026-08-29T17:05:00Z",
       "away": "Boston Red Sox",
       "home": "New York Yankees",
-      "detailedState": "Warmup",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 823501,
@@ -156,8 +167,8 @@
       "startUtc": "2026-08-29T17:10:00Z",
       "away": "Los Angeles Dodgers",
       "home": "Detroit Tigers",
-      "detailedState": "Pre-Game",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 823665,
@@ -196,7 +207,7 @@
       "startUtc": "2026-08-29T20:05:00Z",
       "away": "Arizona Diamondbacks",
       "home": "San Francisco Giants",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -212,7 +223,7 @@
       "startUtc": "2026-08-29T20:05:00Z",
       "away": "Miami Marlins",
       "home": "Washington Nationals",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
