@@ -1,0 +1,232 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823665,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T03:49:33.468Z",
+  "availableAt": "2026-08-29T03:49:33.468Z",
+  "eventStartTime": "2026-08-29T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-26",
+    "2026-08-27",
+    "2026-08-28"
+  ],
+  "home": {
+    "teamId": 142,
+    "teamName": "Minnesota Twins",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 82,
+      "relievers": [
+        {
+          "id": 573124,
+          "name": "Taylor Rogers",
+          "appearances": 1,
+          "pitches": 38,
+          "outs": 5,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 701519,
+          "name": "Travis Adams",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 7,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 681892,
+          "name": "Kody Funderburk",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-28"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 122,
+      "relievers": [
+        {
+          "id": 573124,
+          "name": "Taylor Rogers",
+          "appearances": 1,
+          "pitches": 38,
+          "outs": 5,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 681892,
+          "name": "Kody Funderburk",
+          "appearances": 2,
+          "pitches": 36,
+          "outs": 7,
+          "dates": [
+            "2026-08-26",
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 701519,
+          "name": "Travis Adams",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 7,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 702193,
+          "name": "Andrew Morris",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 656546,
+          "name": "Jeff Hoffman",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-08-26"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 573124,
+        "name": "Taylor Rogers",
+        "reason": "38 pitches yesterday"
+      }
+    ]
+  },
+  "away": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 76,
+      "relievers": [
+        {
+          "id": 696146,
+          "name": "Hagen Smith",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 4,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 691799,
+          "name": "Grant Taylor",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 8,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 663542,
+          "name": "Bryan Hudson",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-28"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 181,
+      "relievers": [
+        {
+          "id": 686563,
+          "name": "Jonathan Cannon",
+          "appearances": 1,
+          "pitches": 66,
+          "outs": 9,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 656794,
+          "name": "Sean Newcomb",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 9,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 696146,
+          "name": "Hagen Smith",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 4,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 691799,
+          "name": "Grant Taylor",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 8,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 663542,
+          "name": "Bryan Hudson",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-28"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 696146,
+        "name": "Hagen Smith",
+        "reason": "33 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-26,2026-08-27,2026-08-28) + feed/live box scores",
+    "capturedAt": "2026-08-29T03:49:33.468Z"
+  },
+  "recordHash": "12c9ddb6e82330aa9399a34c4d2dbac68756d5dc8de3077e256ad9196c09a07f"
+}

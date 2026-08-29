@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824874,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T03:49:35.968Z",
+  "availableAt": "2026-08-29T03:49:35.968Z",
+  "eventStartTime": "2026-08-29T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 527048,
+    "name": "Martín Pérez",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 663372,
+    "name": "Ryan Feltner",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-29T03:49:35.968Z"
+  },
+  "recordHash": "7146d581849e867ca4963e2b1fe6373c4886a04763662afd620f24a2313ed757"
+}

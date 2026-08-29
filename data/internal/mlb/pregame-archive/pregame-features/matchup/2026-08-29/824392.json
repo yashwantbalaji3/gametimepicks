@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824392,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T03:49:35.968Z",
+  "availableAt": "2026-08-29T03:49:35.968Z",
+  "eventStartTime": "2026-08-29T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 656492,
+    "name": "Foster Griffin",
+    "pitchHand": "L"
+  },
+  "awayStartingPitcher": {
+    "id": 663738,
+    "name": "Daniel Lynch IV",
+    "pitchHand": "L"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-08-29T03:49:35.968Z"
+  },
+  "recordHash": "ece93bf786f18df4328d732478e8d802774371d56656d23a5a1179e26818a97b"
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823011,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T03:49:30.860Z",
+  "availableAt": "2026-08-29T03:49:30.860Z",
+  "eventStartTime": "2026-08-29T18:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 681517,
+      "name": "Kyle Leahy",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 5.4,
+        "bbAvg": 0.6,
+        "erAvg": 0.8,
+        "hrAvg": 0,
+        "kPer9": 9.72,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 126.33,
+        "k": 115,
+        "bb": 37,
+        "er": 44,
+        "hr": 12
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-29T03:49:30.860Z"
+  },
+  "recordHash": "6ec4f55e0a57df0c11028cb34008c47a52a440f37fa3976d42a4f6cbe2f74bf6"
+}

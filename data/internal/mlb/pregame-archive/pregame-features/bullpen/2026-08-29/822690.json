@@ -1,0 +1,227 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822690,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T03:49:33.468Z",
+  "availableAt": "2026-08-29T03:49:33.468Z",
+  "eventStartTime": "2026-08-29T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-26",
+    "2026-08-27",
+    "2026-08-28"
+  ],
+  "home": {
+    "teamId": 120,
+    "teamName": "Washington Nationals",
+    "last1Day": {
+      "appearances": 1,
+      "pitches": 24,
+      "relievers": [
+        {
+          "id": 668820,
+          "name": "Max Kranick",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-28"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 10,
+      "pitches": 262,
+      "relievers": [
+        {
+          "id": 702021,
+          "name": "Will Dion",
+          "appearances": 1,
+          "pitches": 56,
+          "outs": 8,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 687377,
+          "name": "Orlando Ribalta",
+          "appearances": 2,
+          "pitches": 54,
+          "outs": 5,
+          "dates": [
+            "2026-08-26",
+            "2026-08-27"
+          ]
+        },
+        {
+          "id": 691384,
+          "name": "Luis Perales",
+          "appearances": 1,
+          "pitches": 53,
+          "outs": 6,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 668820,
+          "name": "Max Kranick",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 690925,
+          "name": "Clayton Beeter",
+          "appearances": 2,
+          "pitches": 21,
+          "outs": 5,
+          "dates": [
+            "2026-08-26",
+            "2026-08-27"
+          ]
+        },
+        {
+          "id": 680899,
+          "name": "Erik Tolman",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 2,
+          "dates": [
+            "2026-08-27"
+          ]
+        },
+        {
+          "id": 676680,
+          "name": "Tom Cosgrove",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 5,
+          "dates": [
+            "2026-08-27"
+          ]
+        },
+        {
+          "id": 678391,
+          "name": "Jorbit Vivas",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-08-26"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 146,
+    "teamName": "Miami Marlins",
+    "last1Day": {
+      "appearances": 2,
+      "pitches": 77,
+      "relievers": [
+        {
+          "id": 687287,
+          "name": "Patrick Monteverde",
+          "appearances": 1,
+          "pitches": 65,
+          "outs": 12,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 676604,
+          "name": "Tyler Zuber",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-28"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 108,
+      "relievers": [
+        {
+          "id": 687287,
+          "name": "Patrick Monteverde",
+          "appearances": 1,
+          "pitches": 65,
+          "outs": 12,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 680767,
+          "name": "Victor Vodnik",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 4,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 676604,
+          "name": "Tyler Zuber",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 690978,
+          "name": "Dax Fulton",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-26"
+          ]
+        },
+        {
+          "id": 676083,
+          "name": "Janson Junk",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-08-26"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 687287,
+        "name": "Patrick Monteverde",
+        "reason": "65 pitches yesterday"
+      }
+    ]
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-26,2026-08-27,2026-08-28) + feed/live box scores",
+    "capturedAt": "2026-08-29T03:49:33.468Z"
+  },
+  "recordHash": "99eb63d38aecb5d59c5b374ae4da37acce270bd58390ae1889d884541daba188"
+}

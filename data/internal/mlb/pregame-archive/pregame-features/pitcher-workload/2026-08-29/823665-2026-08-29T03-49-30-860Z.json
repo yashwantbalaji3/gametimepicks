@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823665,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T03:49:30.860Z",
+  "availableAt": "2026-08-29T03:49:30.860Z",
+  "eventStartTime": "2026-08-29T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 641927,
+      "name": "Bailey Ober",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 6,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 2.8,
+        "bbAvg": 1.4,
+        "erAvg": 2.6,
+        "hrAvg": 1,
+        "kPer9": 4.61,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 108.33,
+        "k": 74,
+        "bb": 29,
+        "er": 54,
+        "hr": 18
+      }
+    },
+    "away": {
+      "id": 607200,
+      "name": "Erick Fedde",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 29,
+      "lastStartDate": "2026-07-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 3.8,
+        "bbAvg": 1,
+        "erAvg": 1.8,
+        "hrAvg": 1,
+        "kPer9": 7.33,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 57.67,
+        "k": 42,
+        "bb": 18,
+        "er": 28,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-29T03:49:30.860Z"
+  },
+  "recordHash": "874b2580b45ab680a9735998fc4f9397678f121e73db5ad7af47d5640d821641"
+}
