@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823539,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T15:29:37.735Z",
+  "availableAt": "2026-08-29T15:29:37.735Z",
+  "eventStartTime": "2026-08-29T17:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607074,
+      "name": "Carlos Rodón",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 6,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 4.8,
+        "bbAvg": 2.2,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 9.26,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 54.33,
+        "k": 58,
+        "bb": 30,
+        "er": 19,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 687562,
+      "name": "Jake Bennett",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 6,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 5,
+        "bbAvg": 1.8,
+        "erAvg": 3.4,
+        "hrAvg": 0.6,
+        "kPer9": 7.94,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 87.67,
+        "k": 67,
+        "bb": 18,
+        "er": 34,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-29T15:29:37.735Z"
+  },
+  "recordHash": "0c76f3e5e6b578ebd67f386fa0ace4a05368f966d9d324ffa1f00d1ac614f5b3"
+}

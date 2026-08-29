@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822936,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T15:29:37.735Z",
+  "availableAt": "2026-08-29T15:29:37.735Z",
+  "eventStartTime": "2026-08-29T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607259,
+      "name": "Nick Martinez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 4,
+        "bbAvg": 0.4,
+        "erAvg": 3.2,
+        "hrAvg": 1.2,
+        "kPer9": 5.93,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 147.67,
+        "k": 87,
+        "bb": 22,
+        "er": 48,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 621111,
+      "name": "Walker Buehler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 3.4,
+        "bbAvg": 1.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 5.81,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 126.33,
+        "k": 108,
+        "bb": 49,
+        "er": 65,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-29T15:29:37.735Z"
+  },
+  "recordHash": "61a389edb20faf0c7554bd174088169c5cc8269892bee339a0260771ebc04824"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824230,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T15:29:37.735Z",
+  "availableAt": "2026-08-29T15:29:37.735Z",
+  "eventStartTime": "2026-08-29T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 672456,
+      "name": "Keider Montero",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 11,
+      "lastStartDate": "2026-08-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 2.2,
+        "bbAvg": 1.6,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 3.58,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 119.33,
+        "k": 73,
+        "bb": 26,
+        "er": 45,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 605483,
+      "name": "Blake Snell",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 6,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 4,
+        "ipSum": 21,
+        "ipAvg": 5.25,
+        "kAvg": 6.5,
+        "bbAvg": 2.25,
+        "erAvg": 1.5,
+        "hrAvg": 0,
+        "kPer9": 11.14,
+        "workloadIpLast5": 21
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 21,
+        "k": 26,
+        "bb": 9,
+        "er": 6,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-29T15:29:37.735Z"
+  },
+  "recordHash": "30fbc28d4aab7d46ee6e0867dcb33226a8f4a173a7a596ab9547f1bc978c848d"
+}

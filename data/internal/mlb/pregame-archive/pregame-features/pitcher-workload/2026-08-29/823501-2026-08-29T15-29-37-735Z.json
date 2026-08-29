@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823501,
+  "date": "2026-08-29",
+  "capturedAt": "2026-08-29T15:29:37.735Z",
+  "availableAt": "2026-08-29T15:29:37.735Z",
+  "eventStartTime": "2026-08-29T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608331,
+      "name": "Max Fried",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 16,
+      "lastStartDate": "2026-08-13",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 5.8,
+        "bbAvg": 1.6,
+        "erAvg": 1,
+        "hrAvg": 0.2,
+        "kPer9": 10.58,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 86.33,
+        "k": 79,
+        "bb": 27,
+        "er": 27,
+        "hr": 2
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-29&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-29T15:29:37.735Z"
+  },
+  "recordHash": "dc958db1b6ae5341598ccdcd5c13c84b347d1db9b5b05d9dc713cf6e6bd520a5"
+}
