@@ -73,6 +73,44 @@ runs:
           echo "::warning::publication SLO for $DATE is $STATE — see app/public/data/ops/publication-slo.json"
         fi
 
+    # ── EVERY DAILY OWNER, NOT JUST THE SLATE ───────────────────────────────────────────────────
+    #
+    # The publication check above watches ONE artifact. Three of the four dropped-cron incidents
+    # since 2026-08-27 were other owners entirely — mlb-daily-production's markets, nightly-settle,
+    # sport-schedules — and nothing was watching any of them. This asks the same question of all of
+    # them, from receipts rather than run lists, so a cron that created no run object is still
+    # visible. It rides here to inherit this action's redundancy across a dozen schedules.
+    - name: Daily-owner SLO (did every owner's work actually happen?)
+      id: owners
+      shell: bash
+      run: |
+        set -uo pipefail
+        NOW_ARG=""; [ -n "${{ inputs.now }}" ] && NOW_ARG="--now ${{ inputs.now }}"
+        node app/scripts/ops/daily-owner-slo.mjs $NOW_ARG || true
+        SLO=app/public/data/ops/daily-owner-slo.json
+        if [ ! -f "$SLO" ]; then
+          echo "::warning::daily-owner-slo produced no artifact"
+          echo "state=UNKNOWN" >> "$GITHUB_OUTPUT"; exit 0
+        fi
+        STATE="$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).state)' "$SLO")"
+        echo "state=$STATE" >> "$GITHUB_OUTPUT"
+        if [ "$STATE" = "INCIDENT" ] || [ "$STATE" = "UNKNOWN" ] || [ "$STATE" = "STALE" ]; then
+          echo "::warning::daily-owner SLO is $STATE — see app/public/data/ops/daily-owner-slo.json"
+        fi
+
+    - name: Alert on a late owner
+      if: steps.owners.outputs.state == 'INCIDENT' || steps.owners.outputs.state == 'STALE'
+      shell: bash
+      env:
+        OPS_WEBHOOK_URL: ${{ inputs.ops-webhook-url }}
+      run: |
+        set -uo pipefail
+        DETAIL="$(node -e '
+          const d = JSON.parse(require("fs").readFileSync("app/public/data/ops/daily-owner-slo.json","utf8"));
+          console.log(d.owners.filter(o => ["INCIDENT","STALE","UNKNOWN"].includes(o.state)).map(o => `${o.id}:${o.state}`).join(" "));
+        ')"
+        node app/scripts/ops-notify.mjs --status fail --phase daily-owner-slo           --date "${{ steps.owners.outputs.date || steps.check.outputs.date }}" --message "$DETAIL" || true
+
     - name: Alert on a late slate
       if: steps.check.outputs.state == 'INCIDENT'
       shell: bash
