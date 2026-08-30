@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823987,
   "date": "2026-08-30",
-  "capturedAt": "2026-08-30T00:55:23.323Z",
-  "availableAt": "2026-08-30T00:55:23.323Z",
+  "capturedAt": "2026-08-30T06:14:00.270Z",
+  "availableAt": "2026-08-30T06:14:00.270Z",
   "eventStartTime": "2026-08-30T20:07:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,55 @@
     "teamId": 108,
     "teamName": "Los Angeles Angels",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 80,
+      "relievers": [
+        {
+          "id": 694680,
+          "name": "Trevor Martin",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 9,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 684665,
+          "name": "Luke Murphy",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 642048,
+          "name": "Tayler Saucedo",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 5,
-      "pitches": 79,
+      "appearances": 8,
+      "pitches": 159,
       "relievers": [
+        {
+          "id": 694680,
+          "name": "Trevor Martin",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 9,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
         {
           "id": 690829,
           "name": "Ben Joyce",
@@ -36,6 +77,27 @@
           "outs": 2,
           "dates": [
             "2026-08-28"
+          ]
+        },
+        {
+          "id": 642048,
+          "name": "Tayler Saucedo",
+          "appearances": 2,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-08-28",
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 684665,
+          "name": "Luke Murphy",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
           ]
         },
         {
@@ -67,41 +129,69 @@
           "dates": [
             "2026-08-28"
           ]
-        },
-        {
-          "id": 642048,
-          "name": "Tayler Saucedo",
-          "appearances": 1,
-          "pitches": 6,
-          "outs": 1,
-          "dates": [
-            "2026-08-28"
-          ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 694680,
+        "name": "Trevor Martin",
+        "reason": "49 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 143,
     "teamName": "Philadelphia Phillies",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
-      "appearances": 3,
-      "pitches": 65,
+      "appearances": 2,
+      "pitches": 48,
       "relievers": [
         {
           "id": 680742,
           "name": "Jonathan Bowlan",
           "appearances": 1,
-          "pitches": 25,
+          "pitches": 24,
           "outs": 3,
           "dates": [
-            "2026-08-28"
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 661395,
+          "name": "Jhoan Duran",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-29"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 113,
+      "relievers": [
+        {
+          "id": 680742,
+          "name": "Jonathan Bowlan",
+          "appearances": 2,
+          "pitches": 49,
+          "outs": 6,
+          "dates": [
+            "2026-08-28",
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 661395,
+          "name": "Jhoan Duran",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-29"
           ]
         },
         {
@@ -131,7 +221,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-27,2026-08-28,2026-08-29) + feed/live box scores",
-    "capturedAt": "2026-08-30T00:55:23.323Z"
+    "capturedAt": "2026-08-30T06:14:00.270Z"
   },
-  "recordHash": "33666b16fa6856eb0e4f97e7ab4102c0ff35b28fbc860c939acb1fb16df925db"
+  "recordHash": "6b2a8aba3ccd7329e7fa125e6adcd8e48d886e9a072afea148e418443a37543b"
 }
