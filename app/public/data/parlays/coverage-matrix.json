@@ -2,18 +2,18 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-08-29T18:47:27Z",
+ "generatedAt": "2026-08-30T18:45:39Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 5,
-  "NO_PLAY": 7,
+  "PUBLISHED": 6,
+  "NO_PLAY": 6,
   "LANE_CLOSED": 8,
   "MISSING": 0
  },
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-08-29",
+   "date": "2026-08-30",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
@@ -23,7 +23,7 @@
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "slip_2026-08-29_conservative_eccb703ffb25"
+     "slipId": "slip_2026-08-30_conservative_1984dceacedd"
     },
     "high": {
      "state": "NO_PLAY",
@@ -31,37 +31,37 @@
     },
     "longshot": {
      "state": "PUBLISHED",
-     "slipId": "slip_2026-08-29_aggressive_732b9f46d3f3"
+     "slipId": "slip_2026-08-30_aggressive_ad582ff3988d"
     }
    }
   },
   {
    "lane": "epl",
-   "date": "2026-08-30",
+   "date": "2026-09-05",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
     "low": {
      "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +153 (medium) … +466 (high)"
+     "reason": "no combination of today's prices lands in this band — 2 legs → +150 (medium) … +328 (high)"
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "epl-medium-2026-08-30"
+     "slipId": "epl-medium-2026-09-05"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "not enough eligible priced fixtures to build a card"
+     "state": "PUBLISHED",
+     "slipId": "epl-high-2026-09-05"
     },
     "longshot": {
      "state": "NO_PLAY",
-     "reason": "not enough eligible priced fixtures to build a card"
+     "reason": "no combination of today's prices lands in this band — 2 legs → +243 (medium) … +322 (high)"
     }
    }
   },
   {
    "lane": "ufc",
-   "date": "2026-08-29",
+   "date": "2026-09-05",
    "laneState": "CLOSED",
    "laneReason": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "tiers": {
@@ -87,43 +87,43 @@
    "lane": "nfl",
    "date": "2026-08-24",
    "laneState": "CLOSED",
-   "laneReason": "only 1 priced game — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "laneReason": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     }
    }
   },
   {
    "lane": "multi",
-   "date": "2026-08-29",
+   "date": "2026-08-30",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
     "low": {
      "state": "NO_PLAY",
-     "reason": "no cross-sport card priced into this band today — 2 legs → +178 (medium)"
+     "reason": "no cross-sport card priced into this band today — 2 legs → +191 (medium)"
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "multi-medium-2026-08-29"
+     "slipId": "multi-medium-2026-08-30"
     },
     "high": {
      "state": "PUBLISHED",
-     "slipId": "multi-high-2026-08-29"
+     "slipId": "multi-high-2026-08-30"
     },
     "longshot": {
      "state": "NO_PLAY",
