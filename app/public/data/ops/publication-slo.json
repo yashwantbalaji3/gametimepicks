@@ -1,30 +1,19 @@
 {
   "kind": "publication-slo",
-  "date": "2026-08-29",
-  "platformState": "INCIDENT",
+  "date": "2026-08-30",
+  "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
-      "state": "INCIDENT",
-      "reason": "1 event(s) have no forecast and the earliest one's deadline (2026-08-30T00:35:00.000Z, 90 min before its start) has passed",
-      "deadlineUtc": "2026-08-30T00:35:00.000Z",
+      "state": "PUBLISHING",
+      "reason": "14 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-08-30T14:45:00.000Z",
       "counts": {
-        "scheduled": 17,
-        "published": 14,
-        "missedCoverage": 2,
-        "awaiting": 1
+        "scheduled": 14,
+        "published": 0,
+        "missedCoverage": 0,
+        "awaiting": 14
       },
-      "missed": [
-        {
-          "id": "823539",
-          "label": "Boston Red Sox @ New York Yankees",
-          "startUtc": "2026-08-29T17:05:00Z"
-        },
-        {
-          "id": "824230",
-          "label": "Los Angeles Dodgers @ Detroit Tigers",
-          "startUtc": "2026-08-29T17:10:00Z"
-        }
-      ]
+      "missed": []
     },
     "nfl": {
       "state": "PUBLISHED",
@@ -128,158 +117,132 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-08-30T01:34:28.570Z",
+  "checkedAt": "2026-08-30T05:26:25.522Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHED",
-  "reason": "board published with 572 rows",
-  "publishDeadlineUtc": null,
-  "scheduledGames": 17,
-  "pregameRemaining": 3,
-  "alreadyStarted": 14,
+  "state": "PUBLISHING",
+  "reason": "today's slate is not published yet and is not late — the deadline is 2026-08-30T14:45:00.000Z",
+  "publishDeadlineUtc": "2026-08-30T14:45:00.000Z",
+  "scheduledGames": 14,
+  "pregameRemaining": 14,
+  "alreadyStarted": 0,
   "board": {
-    "present": true,
-    "leans": 572,
+    "present": false,
+    "leans": 0,
     "pendingReason": null,
-    "generatedAt": "2026-08-29T17:19:52.577456+00:00",
-    "scheduledGames": 17,
-    "startedBeforeGeneration": 2
+    "generatedAt": null
   },
   "games": [
     {
-      "gamePk": 823539,
-      "startUtc": "2026-08-29T17:05:00Z",
-      "away": "Boston Red Sox",
-      "home": "New York Yankees",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 823501,
-      "startUtc": "2026-08-29T23:15:00Z",
-      "away": "Boston Red Sox",
-      "home": "New York Yankees",
-      "detailedState": "In Progress",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 824230,
-      "startUtc": "2026-08-29T17:10:00Z",
-      "away": "Los Angeles Dodgers",
-      "home": "Detroit Tigers",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 823665,
-      "startUtc": "2026-08-29T18:10:00Z",
-      "away": "Chicago White Sox",
-      "home": "Minnesota Twins",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 823011,
-      "startUtc": "2026-08-29T18:15:00Z",
-      "away": "Pittsburgh Pirates",
-      "home": "St. Louis Cardinals",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 824637,
-      "startUtc": "2026-08-29T18:20:00Z",
-      "away": "Cincinnati Reds",
-      "home": "Chicago Cubs",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 822770,
-      "startUtc": "2026-08-29T19:07:00Z",
-      "away": "Seattle Mariners",
-      "home": "Toronto Blue Jays",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 823177,
-      "startUtc": "2026-08-29T20:05:00Z",
-      "away": "Arizona Diamondbacks",
-      "home": "San Francisco Giants",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 823176,
-      "startUtc": "2026-08-30T02:05:00Z",
-      "away": "Arizona Diamondbacks",
-      "home": "San Francisco Giants",
-      "detailedState": "Pre-Game",
-      "pregameAtCheck": true
-    },
-    {
-      "gamePk": 822690,
-      "startUtc": "2026-08-29T20:05:00Z",
+      "gamePk": 822688,
+      "startUtc": "2026-08-30T16:15:00Z",
       "away": "Miami Marlins",
       "home": "Washington Nationals",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 824392,
-      "startUtc": "2026-08-29T20:10:00Z",
-      "away": "Kansas City Royals",
-      "home": "Cleveland Guardians",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 823582,
-      "startUtc": "2026-08-29T20:10:00Z",
-      "away": "Houston Astros",
-      "home": "New York Mets",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 822936,
-      "startUtc": "2026-08-29T20:10:00Z",
-      "away": "San Diego Padres",
-      "home": "Tampa Bay Rays",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 824874,
-      "startUtc": "2026-08-29T20:10:00Z",
-      "away": "Colorado Rockies",
-      "home": "Atlanta Braves",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 823741,
-      "startUtc": "2026-08-29T23:15:00Z",
-      "away": "Texas Rangers",
-      "home": "Milwaukee Brewers",
-      "detailedState": "In Progress",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 824961,
-      "startUtc": "2026-08-30T02:05:00Z",
-      "away": "Baltimore Orioles",
-      "home": "Athletics",
-      "detailedState": "Pre-Game",
+      "detailedState": "Scheduled",
       "pregameAtCheck": true
     },
     {
-      "gamePk": 823986,
-      "startUtc": "2026-08-30T02:07:00Z",
+      "gamePk": 824876,
+      "startUtc": "2026-08-30T17:35:00Z",
+      "away": "Colorado Rockies",
+      "home": "Atlanta Braves",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 823502,
+      "startUtc": "2026-08-30T17:35:00Z",
+      "away": "Boston Red Sox",
+      "home": "New York Yankees",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 822766,
+      "startUtc": "2026-08-30T17:37:00Z",
+      "away": "Seattle Mariners",
+      "home": "Toronto Blue Jays",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 824393,
+      "startUtc": "2026-08-30T17:40:00Z",
+      "away": "Kansas City Royals",
+      "home": "Cleveland Guardians",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 824232,
+      "startUtc": "2026-08-30T17:40:00Z",
+      "away": "Los Angeles Dodgers",
+      "home": "Detroit Tigers",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 822933,
+      "startUtc": "2026-08-30T17:40:00Z",
+      "away": "San Diego Padres",
+      "home": "Tampa Bay Rays",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 823662,
+      "startUtc": "2026-08-30T18:10:00Z",
+      "away": "Chicago White Sox",
+      "home": "Minnesota Twins",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 823740,
+      "startUtc": "2026-08-30T18:10:00Z",
+      "away": "Texas Rangers",
+      "home": "Milwaukee Brewers",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 823010,
+      "startUtc": "2026-08-30T18:15:00Z",
+      "away": "Pittsburgh Pirates",
+      "home": "St. Louis Cardinals",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 823580,
+      "startUtc": "2026-08-30T19:10:00Z",
+      "away": "Houston Astros",
+      "home": "New York Mets",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 824959,
+      "startUtc": "2026-08-30T20:05:00Z",
+      "away": "Baltimore Orioles",
+      "home": "Athletics",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 823987,
+      "startUtc": "2026-08-30T20:07:00Z",
       "away": "Philadelphia Phillies",
       "home": "Los Angeles Angels",
-      "detailedState": "Pre-Game",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 824636,
+      "startUtc": "2026-08-30T23:20:00Z",
+      "away": "Cincinnati Reds",
+      "home": "Chicago Cubs",
+      "detailedState": "Scheduled",
       "pregameAtCheck": true
     }
   ]
