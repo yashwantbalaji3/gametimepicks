@@ -2,7 +2,7 @@
   "generatedFor": null,
   "nextEventDate": null,
   "scheduleReady": true,
-  "oddsReady": true,
+  "oddsReady": false,
   "fighterStatsReady": true,
   "gradingReady": false,
   "backtestReady": false,
@@ -18,22 +18,23 @@
   },
   "projectionsReady": false,
   "parlayReady": false,
-  "publicLevel": "projections-internal",
+  "publicLevel": "schedule-only",
   "blockers": [
+    "odds provider not connected (Odds API MMA)",
     "results grading not implemented",
     "no historical backtest yet"
   ],
   "providerStatus": {
     "schedule": "espn_mma",
-    "odds": "the_odds_api_mma",
+    "odds": "not_connected",
     "fighterStats": "connected",
     "grading": "not_connected",
     "oddsapi": {
       "configured": true,
-      "lastFetchAt": "2026-08-27T22:47:22Z",
-      "eventCount": 13,
-      "marketCount": 13,
-      "oddsReady": true,
+      "lastFetchAt": "2026-08-29T15:23:01Z",
+      "eventCount": 0,
+      "marketCount": 0,
+      "oddsReady": false,
       "warnings": []
     },
     "greco1899_ufcstats_csv": {
@@ -46,9 +47,9 @@
     },
     "greco1899_results": {
       "configured": true,
-      "eventCount": 126,
-      "finalBoutCount": 1529,
-      "latestEventDate": "2026-08-22",
+      "eventCount": 127,
+      "finalBoutCount": 1542,
+      "latestEventDate": "2026-08-29",
       "gradingReady": false,
       "warnings": [
         "grader produced no decisive grades to validate"
@@ -65,6 +66,6 @@
       ]
     }
   },
-  "publicMessage": "UFC odds, fighter stats, and results grading are being connected. Model picks publish only after a backtest passes.",
-  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['results grading not implemented', 'no historical backtest yet']"
+  "publicMessage": "UFC coverage is being built \u2014 schedule available; predictions publish only after odds, fighter stats, results grading, and backtesting are connected.",
+  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['odds provider not connected (Odds API MMA)', 'results grading not implemented', 'no historical backtest yet']"
 }
