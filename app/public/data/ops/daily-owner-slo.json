@@ -1,26 +1,27 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-08-30",
-  "checkedAt": "2026-08-30T13:10:50.145Z",
-  "treeHead": "0fa0db562",
-  "state": "NOT_DUE",
+  "checkedAt": "2026-08-30T16:36:17.352Z",
+  "treeHead": "a246224d2",
+  "state": "INCIDENT",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 14,
   "owners": [
     {
       "id": "mlb-board",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-08-30T14:45:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-08-30T14:45:00.000Z",
+      "receiptAt": "2026-08-30T14:33:40.651631+00:00",
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "mlb/boards/2026-08-30.json"
     },
     {
       "id": "mlb-markets",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-08-30T15:15:00.000Z",
+      "state": "INCIDENT",
+      "reason": "no receipt for 2026-08-30; due 2026-08-30T15:15:00.000Z plus 30m grace has passed",
       "dueAtIso": "2026-08-30T15:15:00.000Z",
       "label": "MLB team markets + player props",
       "workflow": "mlb-daily-production",
@@ -31,8 +32,8 @@
     },
     {
       "id": "mlb-simulations",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-08-30T15:15:00.000Z",
+      "state": "INCIDENT",
+      "reason": "no receipt for 2026-08-30; due 2026-08-30T15:15:00.000Z plus 30m grace has passed",
       "dueAtIso": "2026-08-30T15:15:00.000Z",
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
@@ -43,12 +44,15 @@
     },
     {
       "id": "risk-ladder",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-08-30T15:30:00.000Z",
+      "state": "INCIDENT",
+      "reason": "no receipt for 2026-08-30; due 2026-08-30T15:30:00.000Z plus 45m grace has passed",
       "dueAtIso": "2026-08-30T15:30:00.000Z",
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
+        "mlb-markets"
+      ],
+      "blockedUpstream": [
         "mlb-markets"
       ],
       "receiptPath": null
