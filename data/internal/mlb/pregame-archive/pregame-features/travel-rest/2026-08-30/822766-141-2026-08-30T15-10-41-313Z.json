@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 822766,
+  "teamId": 141,
+  "name": "Toronto Blue Jays",
+  "side": "home",
+  "date": "2026-08-30",
+  "capturedAt": "2026-08-30T15:10:41.313Z",
+  "availableAt": "2026-08-30T15:10:41.313Z",
+  "eventStartTime": "2026-08-30T17:37:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-29",
+  "previousVenueId": 14,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=141&startDate=2026-08-16&endDate=2026-08-29",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-30T15:10:41.313Z"
+  },
+  "recordHash": "a077088f4f82e6ef85bd7954008f750f3e1d64dbbf4ac68f5b77b5125eb522ec"
+}

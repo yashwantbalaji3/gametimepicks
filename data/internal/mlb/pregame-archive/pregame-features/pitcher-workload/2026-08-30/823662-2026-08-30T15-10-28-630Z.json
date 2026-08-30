@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823662,
+  "date": "2026-08-30",
+  "capturedAt": "2026-08-30T15:10:28.630Z",
+  "availableAt": "2026-08-30T15:10:28.630Z",
+  "eventStartTime": "2026-08-30T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 805673,
+      "name": "Zebby Matthews",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-08-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 5.8,
+        "bbAvg": 1.6,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 9.43,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 103.67,
+        "k": 88,
+        "bb": 32,
+        "er": 56,
+        "hr": 19
+      }
+    },
+    "away": {
+      "id": 663855,
+      "name": "Jordan Hicks",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 29,
+      "lastStartDate": "2026-08-01",
+      "last5": {
+        "starts": 1,
+        "ipSum": 1,
+        "ipAvg": 1,
+        "kAvg": 1,
+        "bbAvg": 0,
+        "erAvg": 0,
+        "hrAvg": 0,
+        "kPer9": 9,
+        "workloadIpLast5": 1
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 1,
+        "k": 1,
+        "bb": 0,
+        "er": 0,
+        "hr": 0
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-30&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-30T15:10:28.630Z"
+  },
+  "recordHash": "75d64dd23cd4a10bb95215f22f8a17dd420d8045900b1501042c2fba06c9dc74"
+}
