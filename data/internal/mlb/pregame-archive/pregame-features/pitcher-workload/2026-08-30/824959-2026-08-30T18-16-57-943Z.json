@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824959,
+  "date": "2026-08-30",
+  "capturedAt": "2026-08-30T18:16:57.943Z",
+  "availableAt": "2026-08-30T18:16:57.943Z",
+  "eventStartTime": "2026-08-30T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 605488,
+      "name": "Jeffrey Springs",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.67,
+        "ipAvg": 4.13,
+        "kAvg": 1.6,
+        "bbAvg": 2.4,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 3.48,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 118.33,
+        "k": 92,
+        "bb": 49,
+        "er": 80,
+        "hr": 30
+      }
+    },
+    "away": {
+      "id": 605135,
+      "name": "Chris Bassitt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 5,
+      "lastStartDate": "2026-08-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 3.4,
+        "bbAvg": 1.4,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 5.74,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 63.67,
+        "k": 41,
+        "bb": 25,
+        "er": 35,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-30&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-30T18:16:57.943Z"
+  },
+  "recordHash": "5362500d339965e739aa4b01a2dd67b204d2032485fd3a1fa9e0e0a4844f4609"
+}

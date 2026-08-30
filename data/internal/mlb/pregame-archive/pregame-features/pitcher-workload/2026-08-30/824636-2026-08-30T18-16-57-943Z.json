@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824636,
+  "date": "2026-08-30",
+  "capturedAt": "2026-08-30T18:16:57.943Z",
+  "availableAt": "2026-08-30T18:16:57.943Z",
+  "eventStartTime": "2026-08-30T23:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 684007,
+      "name": "Shota Imanaga",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 7,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 6.2,
+        "bbAvg": 1,
+        "erAvg": 2.2,
+        "hrAvg": 1.6,
+        "kPer9": 11.47,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 145.33,
+        "k": 144,
+        "bb": 34,
+        "er": 61,
+        "hr": 30
+      }
+    },
+    "away": {
+      "id": 695505,
+      "name": "Chase Burns",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 7.2,
+        "bbAvg": 1.6,
+        "erAvg": 2.6,
+        "hrAvg": 0.2,
+        "kPer9": 12,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 139.67,
+        "k": 164,
+        "bb": 49,
+        "er": 43,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-30&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-30T18:16:57.943Z"
+  },
+  "recordHash": "a57a6488df73f4d50113d6add8b7484f85ac16c8e63b1d30b51fa2e8f838655a"
+}

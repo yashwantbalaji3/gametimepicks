@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823987,
+  "date": "2026-08-30",
+  "capturedAt": "2026-08-30T18:16:57.943Z",
+  "availableAt": "2026-08-30T18:16:57.943Z",
+  "eventStartTime": "2026-08-30T20:07:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 579328,
+      "name": "Yusei Kikuchi",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 7,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.33,
+        "ipAvg": 4.27,
+        "kAvg": 4.2,
+        "bbAvg": 1.8,
+        "erAvg": 2.8,
+        "hrAvg": 0.8,
+        "kPer9": 8.86,
+        "workloadIpLast5": 21.33
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 36,
+        "k": 37,
+        "bb": 15,
+        "er": 25,
+        "hr": 5
+      }
+    },
+    "away": {
+      "id": 554430,
+      "name": "Zack Wheeler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.33,
+        "ipAvg": 4.27,
+        "kAvg": 5,
+        "bbAvg": 3,
+        "erAvg": 3.6,
+        "hrAvg": 1.2,
+        "kPer9": 10.55,
+        "workloadIpLast5": 21.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 124.33,
+        "k": 148,
+        "bb": 38,
+        "er": 47,
+        "hr": 19
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-30&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-30T18:16:57.943Z"
+  },
+  "recordHash": "16fc995f5453ed99b038cd2f04aaed25a46fe976b7d46840f6428cb175a2f6f4"
+}
