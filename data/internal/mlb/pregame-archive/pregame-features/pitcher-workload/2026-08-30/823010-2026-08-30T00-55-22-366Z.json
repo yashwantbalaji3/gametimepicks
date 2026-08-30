@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823010,
+  "date": "2026-08-30",
+  "capturedAt": "2026-08-30T00:55:22.366Z",
+  "availableAt": "2026-08-30T00:55:22.366Z",
+  "eventStartTime": "2026-08-30T18:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669461,
+      "name": "Matthew Liberatore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 5,
+      "lastStartDate": "2026-08-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 6.4,
+        "bbAvg": 1,
+        "erAvg": 3.6,
+        "hrAvg": 0.8,
+        "kPer9": 10.94,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 129,
+        "k": 132,
+        "bb": 45,
+        "er": 78,
+        "hr": 23
+      }
+    },
+    "away": {
+      "id": 677952,
+      "name": "Braxton Ashcraft",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-08-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33,
+        "ipAvg": 6.6,
+        "kAvg": 5.2,
+        "bbAvg": 0.8,
+        "erAvg": 1.4,
+        "hrAvg": 1,
+        "kPer9": 7.09,
+        "workloadIpLast5": 33
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 155.33,
+        "k": 161,
+        "bb": 34,
+        "er": 62,
+        "hr": 21
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-30&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-30T00:55:22.366Z"
+  },
+  "recordHash": "1948ccc5ba9c2579e266c641f2328b248c02ec8e57b81a2d19673ce6d27bee9b"
+}

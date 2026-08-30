@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824959,
+  "date": "2026-08-30",
+  "capturedAt": "2026-08-30T00:55:22.366Z",
+  "availableAt": "2026-08-30T00:55:22.366Z",
+  "eventStartTime": "2026-08-30T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 605135,
+      "name": "Chris Bassitt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 5,
+      "lastStartDate": "2026-08-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 3.4,
+        "bbAvg": 1.4,
+        "erAvg": 2,
+        "hrAvg": 0.8,
+        "kPer9": 5.74,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 63.67,
+        "k": 41,
+        "bb": 25,
+        "er": 35,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-30&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-30T00:55:22.366Z"
+  },
+  "recordHash": "237235c981241e09c6aee9344cd73bd3c489c667290b633834f529544fed8846"
+}
