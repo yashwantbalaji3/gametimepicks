@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824959,
+  "teamId": 110,
+  "name": "Baltimore Orioles",
+  "side": "away",
+  "date": "2026-08-30",
+  "capturedAt": "2026-08-30T00:36:13.599Z",
+  "availableAt": "2026-08-30T00:36:13.599Z",
+  "eventStartTime": "2026-08-30T20:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-08-29",
+  "previousVenueId": 2529,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=110&startDate=2026-08-16&endDate=2026-08-29",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-30T00:36:13.599Z"
+  },
+  "recordHash": "20ae3013b03606138f6ff1ca7da071560faadbc2be940d79a0e5ea5f6a8ce554"
+}

@@ -1,0 +1,238 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823502,
+  "date": "2026-08-30",
+  "capturedAt": "2026-08-30T00:36:06.508Z",
+  "availableAt": "2026-08-30T00:36:06.508Z",
+  "eventStartTime": "2026-08-30T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-27",
+    "2026-08-28",
+    "2026-08-29"
+  ],
+  "home": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 86,
+      "relievers": [
+        {
+          "id": 642232,
+          "name": "Ryan Yarbrough",
+          "appearances": 1,
+          "pitches": 60,
+          "outs": 9,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 623437,
+          "name": "Justin Topa",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 660787,
+          "name": "Yerry De los Santos",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-08-29"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 186,
+      "relievers": [
+        {
+          "id": 642232,
+          "name": "Ryan Yarbrough",
+          "appearances": 1,
+          "pitches": 60,
+          "outs": 9,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 623437,
+          "name": "Justin Topa",
+          "appearances": 2,
+          "pitches": 55,
+          "outs": 9,
+          "dates": [
+            "2026-08-27",
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 687396,
+          "name": "Brent Headrick",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 2,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 660787,
+          "name": "Yerry De los Santos",
+          "appearances": 2,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-08-27",
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 5,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-28"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": [
+      {
+        "id": 642232,
+        "name": "Ryan Yarbrough",
+        "reason": "60 pitches yesterday"
+      }
+    ]
+  },
+  "away": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 43,
+      "relievers": [
+        {
+          "id": 594027,
+          "name": "Tyron Guerrero",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 676477,
+          "name": "Garrett Whitlock",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 663558,
+          "name": "Jovani Morán",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 65,
+      "relievers": [
+        {
+          "id": 594027,
+          "name": "Tyron Guerrero",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-28",
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 676477,
+          "name": "Garrett Whitlock",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 663558,
+          "name": "Jovani Morán",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 681544,
+          "name": "Wyatt Olds",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-28"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 2,
+          "dates": [
+            "2026-08-28"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-27,2026-08-28,2026-08-29) + feed/live box scores",
+    "capturedAt": "2026-08-30T00:36:06.508Z"
+  },
+  "recordHash": "c609923bb093e375c183ab333a4064dbb54c9589d01a55b5760e68b88b01e06b"
+}
