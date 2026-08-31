@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822689,
+  "date": "2026-08-31",
+  "capturedAt": "2026-08-31T01:00:59.832Z",
+  "availableAt": "2026-08-31T01:00:59.832Z",
+  "eventStartTime": "2026-08-31T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 702021,
+      "name": "Will Dion",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 687473,
+      "name": "Ryan Gusto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 5,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.33,
+        "ipAvg": 4.87,
+        "kAvg": 3.8,
+        "bbAvg": 1,
+        "erAvg": 1,
+        "hrAvg": 0.8,
+        "kPer9": 7.03,
+        "workloadIpLast5": 24.33
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 54,
+        "k": 44,
+        "bb": 18,
+        "er": 24,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-31&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-31T01:00:59.832Z"
+  },
+  "recordHash": "760e95e5d728bb8ad09748e9a3c2eae31da8cf0763c6760fc6896ab4875663b0"
+}
