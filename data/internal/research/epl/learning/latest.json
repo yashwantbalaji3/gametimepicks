@@ -3,20 +3,20 @@
  "artifact": "epl-learning-report",
  "dataClass": "INTERNAL_RESEARCH",
  "public": false,
- "generatedAt": "2026-08-30T01:03:32Z",
+ "generatedAt": "2026-08-31T01:05:58Z",
  "corpus": {
   "historical": 1520,
-  "currentSeason": 15,
-  "total": 1535,
+  "currentSeason": 19,
+  "total": 1539,
   "season": "2026-27"
  },
  "sample": {
-  "graded": 13,
-  "pairedWithMarket": 8,
+  "graded": 16,
+  "pairedWithMarket": 11,
   "minSampleForComparison": 30
  },
  "coverage": {
-  "paired": 8,
+  "paired": 11,
   "unpaired": {
    "total": 5,
    "byCause": {
@@ -26,28 +26,28 @@
   "engineeringOwnedCauses": []
  },
  "model": {
-  "n": 13,
-  "logLoss": 1.093162,
-  "brier": 0.664774
+  "n": 16,
+  "logLoss": 1.057463,
+  "brier": 0.637144
  },
  "comparison": {
   "state": "SAMPLE_TOO_SMALL",
-  "detail": "8 of 30 matches needed before a difference means anything. The figures below are reported for transparency and support no conclusion in either direction.",
+  "detail": "11 of 30 matches needed before a difference means anything. The figures below are reported for transparency and support no conclusion in either direction.",
   "onPairedMatches": {
    "model": {
-    "logLoss": 1.081147,
-    "brier": 0.666326
+    "logLoss": 1.032499,
+    "brier": 0.625714
    },
    "market": {
-    "logLoss": 1.132384,
-    "brier": 0.694345
+    "logLoss": 1.058652,
+    "brier": 0.639757
    },
-   "logLossDelta": -0.051237,
-   "brierDelta": -0.028019
+   "logLossDelta": -0.026153,
+   "brierDelta": -0.014043
   }
  },
  "stoppingRule": {
   "state": "NOT_YET_ASSESSABLE",
-  "detail": "the rule applies from 30 paired matches; there are 8."
+  "detail": "the rule applies from 30 paired matches; there are 11."
  }
 }
