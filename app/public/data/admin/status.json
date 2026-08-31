@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-08-31T11:45:06.359Z",
+  "generatedAt": "2026-08-31T15:19:00.407Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -185,7 +185,7 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-08-31T11:45:05.574Z",
+    "lastRunAt": "2026-08-31T15:18:59.682Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
@@ -194,56 +194,56 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-08-31",
-    "etTime": "07:45",
+    "etTime": "11:19",
     "stages": [
       {
         "stage": "schedule",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "09:30",
         "producedBy": "morning-projections"
       },
       {
         "stage": "board",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "09:30",
         "producedBy": "morning-projections"
       },
       {
         "stage": "teamMarkets",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "playerProps",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "simulations",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "predictions",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "10:15",
         "producedBy": "mlb-daily-production"
       }
     ],
     "readyCount": 0,
     "totalStages": 6,
-    "lateCount": 0,
-    "signal": "YELLOW",
-    "summary": "0/6 produced; the rest are not due yet"
+    "lateCount": 6,
+    "signal": "RED",
+    "summary": "6 stage(s) overdue: schedule (due 09:30 ET via morning-projections), board (due 09:30 ET via morning-projections), teamMarkets (due 10:15 ET via mlb-daily-production), playerProps (due 10:15 ET via mlb-daily-production), simulations (due 10:15 ET via mlb-daily-production), predictions (due 10:15 ET via mlb-daily-production)"
   },
   "learningLoop": {
     "signal": "GREEN",
