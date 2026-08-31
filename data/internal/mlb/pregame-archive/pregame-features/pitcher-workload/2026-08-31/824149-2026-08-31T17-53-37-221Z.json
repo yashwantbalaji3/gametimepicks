@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824149,
+  "date": "2026-08-31",
+  "capturedAt": "2026-08-31T17:53:37.221Z",
+  "availableAt": "2026-08-31T17:53:37.221Z",
+  "eventStartTime": "2026-09-01T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663567,
+      "name": "Peter Lambert",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 5,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 5,
+        "bbAvg": 2.4,
+        "erAvg": 3.4,
+        "hrAvg": 0.4,
+        "kPer9": 9,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 128,
+        "k": 125,
+        "bb": 51,
+        "er": 52,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 641743,
+      "name": "Anthony Kay",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 4.2,
+        "bbAvg": 1.2,
+        "erAvg": 2.2,
+        "hrAvg": 0.8,
+        "kPer9": 6.67,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 125,
+        "k": 107,
+        "bb": 44,
+        "er": 57,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-31&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-31T17:53:37.221Z"
+  },
+  "recordHash": "a6e120bc9b69ca96ab1f7f5278433c09535d87f7fce3bff73da8bf444a3ea68c"
+}
