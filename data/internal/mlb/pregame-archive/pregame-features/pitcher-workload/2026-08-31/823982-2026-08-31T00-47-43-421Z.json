@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823982,
+  "date": "2026-08-31",
+  "capturedAt": "2026-08-31T00:47:43.421Z",
+  "availableAt": "2026-08-31T00:47:43.421Z",
+  "eventStartTime": "2026-09-01T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 700712,
+      "name": "Walbert Ureña",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 4.8,
+        "bbAvg": 3,
+        "erAvg": 2,
+        "hrAvg": 0.2,
+        "kPer9": 9.39,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 114.67,
+        "k": 110,
+        "bb": 61,
+        "er": 38,
+        "hr": 7
+      }
+    },
+    "away": {
+      "id": 695684,
+      "name": "Elmer Rodríguez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 5,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 3.2,
+        "bbAvg": 2.6,
+        "erAvg": 2.4,
+        "hrAvg": 0.4,
+        "kPer9": 6.26,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 23,
+        "k": 16,
+        "bb": 13,
+        "er": 12,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-31&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-31T00:47:43.421Z"
+  },
+  "recordHash": "30a652716cc1e71285935ebbdd5088e975e1ed8eb7ff899796b01309430ba1cb"
+}

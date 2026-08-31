@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822855,
+  "date": "2026-08-31",
+  "capturedAt": "2026-08-31T00:47:43.421Z",
+  "availableAt": "2026-08-31T00:47:43.421Z",
+  "eventStartTime": "2026-09-01T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 594798,
+      "name": "Jacob deGrom",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20,
+        "ipAvg": 4,
+        "kAvg": 5.4,
+        "bbAvg": 2.6,
+        "erAvg": 3.2,
+        "hrAvg": 0.2,
+        "kPer9": 12.15,
+        "workloadIpLast5": 20
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 130.33,
+        "k": 159,
+        "bb": 37,
+        "er": 61,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 695611,
+      "name": "Gage Jump",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-08-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 5.8,
+        "bbAvg": 3.4,
+        "erAvg": 3.6,
+        "hrAvg": 0.4,
+        "kPer9": 10.3,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 88.33,
+        "k": 97,
+        "bb": 42,
+        "er": 46,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-31&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-31T00:47:43.421Z"
+  },
+  "recordHash": "91f64be807392aa87c0b7760da4fca3dd464cda65dabe497577074fc7c23125b"
+}

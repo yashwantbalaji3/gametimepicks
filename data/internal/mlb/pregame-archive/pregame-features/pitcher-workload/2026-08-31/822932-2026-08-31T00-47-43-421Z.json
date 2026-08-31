@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822932,
+  "date": "2026-08-31",
+  "capturedAt": "2026-08-31T00:47:43.421Z",
+  "availableAt": "2026-08-31T00:47:43.421Z",
+  "eventStartTime": "2026-08-31T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 693855,
+      "name": "Ian Seymour",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 11,
+      "restDays": 11,
+      "lastStartDate": "2026-08-20",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 7.4,
+        "bbAvg": 1.2,
+        "erAvg": 2.4,
+        "hrAvg": 1.6,
+        "kPer9": 12.81,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 11,
+        "ip": 51.67,
+        "k": 71,
+        "bb": 11,
+        "er": 26,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 476594,
+      "name": "Robert Stock",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 5,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.67,
+        "ipAvg": 4.13,
+        "kAvg": 4.2,
+        "bbAvg": 2.6,
+        "erAvg": 3.4,
+        "hrAvg": 0.4,
+        "kPer9": 9.15,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 20.67,
+        "k": 21,
+        "bb": 13,
+        "er": 17,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-31&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-31T00:47:43.421Z"
+  },
+  "recordHash": "32fa659b6044eb9815776d4a34c9f881e3f4a827a7f335f5a357bf560a9a36d2"
+}
