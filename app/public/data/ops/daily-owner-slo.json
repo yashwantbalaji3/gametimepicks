@@ -1,45 +1,48 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-08-31",
-  "checkedAt": "2026-08-31T19:12:41.208Z",
-  "treeHead": "c474bfe17",
-  "state": "STALE",
+  "checkedAt": "2026-08-31T19:44:11.460Z",
+  "treeHead": "8c1700096",
+  "state": "NOT_DUE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 12,
   "owners": [
     {
       "id": "mlb-board",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-08-31T20:35:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-08-31T20:35:00.000Z",
+      "receiptAt": "2026-08-31T19:36:58.581983+00:00",
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "mlb/boards/2026-08-31.json"
     },
     {
       "id": "mlb-markets",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-08-31T21:05:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-08-31T21:05:00.000Z",
+      "receiptAt": "2026-08-31T19:38:47.729Z",
       "label": "MLB team markets + player props",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/team-markets/2026-08-31.json"
     },
     {
       "id": "mlb-simulations",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-08-31T21:05:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-08-31T21:05:00.000Z",
+      "receiptAt": "2026-08-31T19:38:50.000Z",
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/game-simulations/2026-08-31.json"
     },
     {
       "id": "risk-ladder",
@@ -66,10 +69,10 @@
     },
     {
       "id": "schedules",
-      "state": "STALE",
-      "reason": "receipt is 50.3h old against a 24h bound",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-08-31T13:00:00.000Z",
-      "receiptAt": "2026-08-29T16:55:30Z",
+      "receiptAt": "2026-08-31T19:17:50Z",
       "label": "Schedule + injury capture (all sports)",
       "workflow": "sport-schedules",
       "dependsOn": [],

@@ -4,24 +4,23 @@
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "PUBLISHING",
-      "reason": "12 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-08-31T20:35:00.000Z",
-      "counts": {
-        "scheduled": 12,
-        "published": 0,
-        "missedCoverage": 0,
-        "awaiting": 12
-      },
-      "missed": []
-    },
-    "nfl": {
       "state": "PUBLISHED",
-      "reason": "all 2 event(s) in the horizon carry a forecast",
+      "reason": "all 12 event(s) in the horizon carry a forecast",
       "deadlineUtc": null,
       "counts": {
-        "scheduled": 2,
-        "published": 2,
+        "scheduled": 12,
+        "published": 12,
+        "missedCoverage": 0,
+        "awaiting": 0
+      }
+    },
+    "nfl": {
+      "state": "NO_EVENT",
+      "reason": "no events in this sport's forward horizon",
+      "deadlineUtc": null,
+      "counts": {
+        "scheduled": 0,
+        "published": 0,
         "missedCoverage": 0,
         "awaiting": 0
       }
@@ -51,20 +50,22 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-08-31T19:12:40.839Z",
+  "checkedAt": "2026-08-31T19:44:11.052Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHING",
-  "reason": "today's slate is not published yet and is not late — the deadline is 2026-08-31T20:35:00.000Z",
-  "publishDeadlineUtc": "2026-08-31T20:35:00.000Z",
+  "state": "PUBLISHED",
+  "reason": "board published with 533 rows",
+  "publishDeadlineUtc": null,
   "scheduledGames": 12,
   "pregameRemaining": 12,
   "alreadyStarted": 0,
   "board": {
-    "present": false,
-    "leans": 0,
+    "present": true,
+    "leans": 533,
     "pendingReason": null,
-    "generatedAt": null
+    "generatedAt": "2026-08-31T19:36:58.581983+00:00",
+    "scheduledGames": 12,
+    "startedBeforeGeneration": 0
   },
   "games": [
     {
@@ -144,7 +145,7 @@
       "startUtc": "2026-09-01T00:40:00Z",
       "away": "Baltimore Orioles",
       "home": "Colorado Rockies",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
