@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824719,
+  "teamId": 136,
+  "name": "Seattle Mariners",
+  "side": "away",
+  "date": "2026-08-31",
+  "capturedAt": "2026-08-31T20:30:57.308Z",
+  "availableAt": "2026-08-31T20:30:57.308Z",
+  "eventStartTime": "2026-08-31T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 6,
+  "gamesLast10": 9,
+  "travelDistanceKm": 689.3,
+  "previousGameDate": "2026-08-30",
+  "previousVenueId": 14,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=136&startDate=2026-08-17&endDate=2026-08-30",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-08-31T20:30:57.308Z"
+  },
+  "recordHash": "f996974d8e9f4ac1515df498d796759573666bbac9095fe3a67463b0349606ff"
+}

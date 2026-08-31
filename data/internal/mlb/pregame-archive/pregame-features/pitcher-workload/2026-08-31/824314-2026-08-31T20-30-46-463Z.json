@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824314,
+  "date": "2026-08-31",
+  "capturedAt": "2026-08-31T20:30:46.463Z",
+  "availableAt": "2026-08-31T20:30:46.463Z",
+  "eventStartTime": "2026-09-01T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 685299,
+      "name": "Tanner Gordon",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 5,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 3.8,
+        "bbAvg": 1,
+        "erAvg": 3.4,
+        "hrAvg": 1.6,
+        "kPer9": 6.26,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 35.33,
+        "k": 24,
+        "bb": 7,
+        "er": 22,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 700249,
+      "name": "Cade Povich",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 22,
+      "lastStartDate": "2026-08-09",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 3.8,
+        "bbAvg": 1.4,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 7.54,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 22.67,
+        "k": 19,
+        "bb": 7,
+        "er": 12,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-31&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-31T20:30:46.463Z"
+  },
+  "recordHash": "52d2526e3cf8cd4cee26776732cccbc16660354c6971e4320d185e2074fcbbb0"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 825040,
+  "date": "2026-08-31",
+  "capturedAt": "2026-08-31T20:30:46.463Z",
+  "availableAt": "2026-08-31T20:30:46.463Z",
+  "eventStartTime": "2026-09-01T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 694297,
+      "name": "Brandon Pfaadt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 6,
+      "lastStartDate": "2026-08-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33,
+        "ipAvg": 6.6,
+        "kAvg": 4.6,
+        "bbAvg": 1,
+        "erAvg": 1.8,
+        "hrAvg": 0.8,
+        "kPer9": 6.27,
+        "workloadIpLast5": 33
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 83.67,
+        "k": 52,
+        "bb": 15,
+        "er": 27,
+        "hr": 8
+      }
+    },
+    "away": {
+      "id": 605400,
+      "name": "Aaron Nola",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-08-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 7.4,
+        "bbAvg": 2,
+        "erAvg": 1.8,
+        "hrAvg": 1.2,
+        "kPer9": 11.48,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 143,
+        "k": 153,
+        "bb": 49,
+        "er": 80,
+        "hr": 32
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-08-31&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-08-31T20:30:46.463Z"
+  },
+  "recordHash": "8ed85e037c0a33ca54eb5a3897353f66f8096e45299233e5dac9a232310fa0b9"
+}
