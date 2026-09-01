@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "signature-product-lifecycle-coverage",
   "dataClass": "INTERNAL_DERIVED",
-  "generatedAt": "2026-09-01T17:56:47Z",
+  "generatedAt": "2026-09-01T23:30:00Z",
   "state": "GAPS",
   "note": "Every field is evidence — a path that exists, a workflow that names a script, a product the shared state machine lists. No hand-kept statuses.",
   "lifecycleStates": [
@@ -71,17 +71,16 @@
     {
       "id": "end-zone-vault",
       "label": "End Zone Vault",
-      "verdict": "PARTIAL",
+      "verdict": "GOVERNED",
       "present": [
         "producer",
         "publicRoute",
         "automation",
         "ledger",
-        "settlement"
-      ],
-      "missing": [
+        "settlement",
         "lifecycle"
       ],
+      "missing": [],
       "founderGate": null,
       "note": null
     },
@@ -121,8 +120,8 @@
     }
   ],
   "counts": {
-    "GOVERNED": 1,
-    "PARTIAL": 4,
+    "GOVERNED": 2,
+    "PARTIAL": 3,
     "UNGOVERNED": 0,
     "PAUSED_FOUNDER": 1,
     "RETIRED": 0
@@ -130,12 +129,6 @@
   "openGaps": [
     {
       "id": "homer-nukes",
-      "missing": [
-        "lifecycle"
-      ]
-    },
-    {
-      "id": "end-zone-vault",
       "missing": [
         "lifecycle"
       ]

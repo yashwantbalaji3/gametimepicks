@@ -8,20 +8,23 @@
  */
 
 /**
- * THE PRODUCTS THIS MACHINE GOVERNS.
+ * THE PRODUCTS THIS MACHINE GOVERNS — re-exported from the registry that OWNS membership.
  *
- * P228 · F0/F1: this was a literal `["bank-builder", "moonshot"]` inside the watchdog, so "which
- * products have a lifecycle contract" was answerable only by reading that one line. Four other
- * registered products — Homer Nukes, End Zone Vault, and the UFC and EPL card ladders — have
- * producers, public routes, automation, ledgers and settlement, and no shared contract saying an
- * illegal transition is illegal.
+ * P228 · F0/F1 made this a literal `["bank-builder", "moonshot"]`, so "which products have a
+ * lifecycle contract" was answerable only by reading that one line — and closable by editing it.
+ * P230 · F1 moved the decision to `lifecycle-registry.mjs`, where a product enters only by naming an
+ * owner for its producer, selection gate, freeze boundary, settlement adapter, ledger and receipt.
+ * A name cannot be added here at all any more; it is derived.
  *
- * They are deliberately NOT added here yet. A product enters this list when it actually emits daily
- * receipts; listing one that does not would make the watchdog report MISSING_DAILY_EVALUATION every
- * day for a product nobody has wired, and a watchdog that cries wolf is switched off. The gap is
- * stated once, in the lifecycle-coverage artifact, where it can be closed one product at a time.
+ * A product joins on the day its receipt becomes real. The watchdog below reports
+ * MISSING_DAILY_EVALUATION for any governed product with no receipt for the day, so registering one
+ * nobody has wired makes it alarm every day forever — and a watchdog that cries wolf is switched
+ * off, taking the real alarms with it.
  */
-export const GOVERNED_PRODUCTS = Object.freeze(["bank-builder", "moonshot"]);
+import { GOVERNED_PRODUCTS } from "./lifecycle-registry.mjs";
+/* Imported, not `export ... from`: the watchdog below READS this binding, and a bare re-export
+   forwards the name without introducing it into this module's scope. */
+export { GOVERNED_PRODUCTS };
 
 /** The closed state vocabulary, verbatim from the operating contract. */
 export const LIFECYCLE_STATES = Object.freeze([

@@ -226,6 +226,27 @@ jobs:
       #
       # So: commit when the window was empty (nothing was generated to condemn), and otherwise only
       # when generation and its audits actually passed.
+      # P230 · F1 — THE EMPTY WINDOW STILL OWES A RECEIPT.
+      #
+      # The Vault's own contract is that it "evaluates every window", and the builder honours it:
+      # with no upcoming event it returns NO_VAULT and appends a NO_PLAY entry naming the reason.
+      # But it lived only inside the `events != '0'` step above, so in exactly the windows where
+      # "nothing to evaluate" IS the answer, it never ran. The ledger went silent instead of
+      # recording a refusal, and the run still reported success.
+      #
+      # nfl-event-window succeeded 9 times between 08-30 and 09-01 and the Vault ledger gained no
+      # entry on any of those days. A missing receipt that produces no failed run object is the
+      # hardest kind to notice, which is why the product must speak on its quiet days too.
+      #
+      # This runs ONLY on the empty window; when there are events the gated step above still runs it
+      # in order, after the evidence it consumes.
+      - name: End Zone Vault — record the empty window
+        if: steps.window.outputs.events == '0'
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/build-end-zone-vault.mjs --now "${{ steps.window.outputs.now }}"
+
       - name: Commit the window's artifacts
         if: >-
           always() &&

@@ -19,10 +19,11 @@ import { openProductDay, advanceProduct } from "./daily-state-machine.mjs";
 
 /**
  * @param {{
- *   product: "bank-builder"|"moonshot",
+ *   product: string,
  *   date: string,
  *   entry: { state: string, reason?: string|null, card?: any[]|null },
  *   settledDay?: { settledAt?: string, source?: string, lanes?: any[] }|null,
+ *   settlement?: { ref: string, stamp?: string, results: string[], stepAtSettle?: number }|null,
  *   portfolioLane?: { status?: string, currentStep?: number }|null,
  *   progressionFresh?: boolean,
  *   boardHash?: string|null,
@@ -30,6 +31,24 @@ import { openProductDay, advanceProduct } from "./daily-state-machine.mjs";
  *   policyVersion: string,
  * }} input
  */
+/**
+ * Reduce the SHARED dated lanes artifact to the general settlement shape.
+ *
+ * Only lanes belonging to this product and carrying at least one leg count: a lane with no legs is
+ * a placeholder row, and grading a product on another product's lane is the cross-ledger identity
+ * failure the ledger invariants forbid.
+ */
+function settlementFromLanes(settledDay, product, date) {
+  const lanes = (settledDay?.lanes ?? []).filter((l) => l.product === product && (l.legs?.length ?? 0) > 0);
+  if (!lanes.length) return null;
+  return {
+    ref: `settled/${date}.json@${settledDay.settledAt ?? "unstamped"}`,
+    stamp: settledDay.settledAt ?? "lanes",
+    results: lanes.map((l) => l.result ?? "pending"),
+    stepAtSettle: Math.max(...lanes.map((l) => l.step ?? 0)),
+  };
+}
+
 export function deriveLifecycle(input) {
   const { product, date, entry, settledDay, portfolioLane, progressionFresh, boardHash, lockAt, policyVersion } = input;
   let r = openProductDay({ product, productDate: date, priorState: input.priorState ?? null, runId: `open:${product}:${date}`, policyVersion });
@@ -52,20 +71,31 @@ export function deriveLifecycle(input) {
   if (r.state === "INCIDENT") return r; // no lock stamp = an unearned ACTIVE; the machine already failed it closed
 
   // ---- the settlement authority: only its dated artifact moves the day past ACTIVE ------------
-  const settledLanes = (settledDay?.lanes ?? []).filter((l) => l.product === product && (l.legs?.length ?? 0) > 0);
-  if (!settledLanes.length) return r; // card live, settler has nothing real for it yet
-  const results = settledLanes.map((l) => String(l.result ?? "pending").toLowerCase());
-  const settlementRef = `settled/${date}.json@${settledDay.settledAt ?? "unstamped"}`;
+  /*
+   * EACH PRODUCT BRINGS ITS OWN ADAPTER (P230 · F1). Bank Builder and Moonshot are settled by the
+   * shared dated lanes artifact; End Zone Vault, Homer Nukes and the sport card ladders are settled
+   * by their own records and never appear in those lanes. Reading only `settledDay.lanes` here
+   * meant a product outside it could never leave ACTIVE — it would have sat "live" forever while
+   * its real settler graded it elsewhere, which is the unfalsifiable-record shape one step removed.
+   *
+   * `settlement` is the general form: what graded it, and the per-selection results. The lanes
+   * shape is reduced to it so the two products already on this path keep byte-identical receipts.
+   */
+  const settlement = input.settlement ?? settlementFromLanes(settledDay, product, date);
+  if (!settlement || !settlement.results.length) return r; // card live, settler has nothing real for it yet
+  const results = settlement.results.map((x) => String(x ?? "pending").toLowerCase());
+  const settlementRef = settlement.ref;
+  const settledStamp = settlement.stamp ?? "unstamped";
 
   if (results.every((x) => x === "pending")) {
-    return advanceProduct(r, "AWAITING_RESULT", { runId: `await:${date}:${settledDay.settledAt ?? "lanes"}`, cardRef });
+    return advanceProduct(r, "AWAITING_RESULT", { runId: `await:${date}:${settledStamp}`, cardRef });
   }
-  r = advanceProduct(r, "AWAITING_RESULT", { runId: `await:${date}:${settledDay.settledAt ?? "lanes"}`, cardRef });
+  r = advanceProduct(r, "AWAITING_RESULT", { runId: `await:${date}:${settledStamp}`, cardRef });
   if (results.some((x) => x === "void")) {
-    return advanceProduct(r, "VOIDED", { runId: `settle:${date}:${settledDay.settledAt}`, settlementRef });
+    return advanceProduct(r, "VOIDED", { runId: `settle:${date}:${settledStamp}`, settlementRef });
   }
   const lost = results.some((x) => x === "loss" || x === "lost");
-  r = advanceProduct(r, lost ? "SETTLED_LOSS" : "SETTLED_WIN", { runId: `settle:${date}:${settledDay.settledAt}`, settlementRef });
+  r = advanceProduct(r, lost ? "SETTLED_LOSS" : "SETTLED_WIN", { runId: `settle:${date}:${settledStamp}`, settlementRef });
 
   // ---- progression: only the ledger owner's CURRENT portfolio, and only while it is fresh -----
   if (!progressionFresh || !portfolioLane) return r; // stale progression evidence stays unclaimed — SETTLED_* is the honest stop
@@ -75,7 +105,7 @@ export function deriveLifecycle(input) {
     if (portfolioLane.currentStep === 1) return advanceProduct(r, "RESTARTED", { runId: progRunId, progressionRef: `portfolio:${product}:restart→step1` });
     return r;
   }
-  const laneStepAtSettle = Math.max(...settledLanes.map((l) => l.step ?? 0));
+  const laneStepAtSettle = settlement.stepAtSettle ?? 0;
   if ((portfolioLane.currentStep ?? 0) > laneStepAtSettle) {
     return advanceProduct(r, "ADVANCED", { runId: progRunId, progressionRef: `portfolio:${product}:step${laneStepAtSettle}→${portfolioLane.currentStep}` });
   }

@@ -14,6 +14,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { buildCoverage, publishesWithoutSettling } from "../../src/lib/products/lifecycle-coverage.mjs";
+import { PRODUCT_REGISTRY } from "../../src/lib/products/lifecycle-registry.mjs";
 import { LIFECYCLE_STATES } from "../../src/lib/products/daily-state-machine.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -36,9 +37,20 @@ const workflows = (() => {
 })();
 const scheduledSomewhere = (needle) => workflows.some((y) => y.includes(needle));
 
-/** Which products the shared daily state machine actually governs, read from its own source. */
-const machineSource = fs.readFileSync(path.join(APP, "src/lib/products/daily-state-machine.mjs"), "utf8");
-const governedByMachine = (id) => new RegExp(`["'\`]${id}["'\`]`).test(machineSource);
+/**
+ * Which products the shared lifecycle actually governs — asked of the REGISTRY, by exact id.
+ *
+ * This used to regex the state machine's SOURCE for the quoted id, so "has a lifecycle" and
+ * "somebody typed the name" were the same test, and four PARTIAL products were one string edit from
+ * reporting GOVERNED with no receipt behind it. Membership now costs an owner for the producer,
+ * selection gate, freeze, settlement adapter, ledger and receipt (see lib/products/
+ * lifecycle-registry.mjs), and this asks that registry rather than reading a file.
+ *
+ * It is also keyed EXACTLY. The old call sites passed "ufc" and "epl" while the products are
+ * `ufc-cards` and `epl-cards`, so those two rows were answering about ids that do not exist —
+ * a mention of "ufc" anywhere in the machine would have flipped the UFC row true.
+ */
+const governedByMachine = (id) => PRODUCT_REGISTRY.isGoverned(id);
 
 const PRODUCTS = [
   {
@@ -104,8 +116,11 @@ const PRODUCTS = [
       publicRoute: exists(APP, "src/app/ufc/page.tsx"),
       automation: scheduledSomewhere("ufc-fight-week"),
       ledger: exists(DATA, "ufc/graded-picks.json"),
-      settlement: scheduledSomewhere("settle-ufc") || scheduledSomewhere("ufc"),
-      lifecycle: governedByMachine("ufc"),
+      /* NOT `scheduledSomewhere("ufc")` — that matched the odds-capture and stats-refresh
+         workflows, so "this product can be settled" was satisfied by a job that buys prices. The
+         real settler is the post-card results capture and grade. */
+      settlement: scheduledSomewhere("capture-ufc-results") || scheduledSomewhere("grade-ufc-model-vs-market"),
+      lifecycle: governedByMachine("ufc-cards"),
     },
   },
   {
@@ -116,8 +131,8 @@ const PRODUCTS = [
       publicRoute: exists(APP, "src/app/epl/page.tsx"),
       automation: scheduledSomewhere("epl-matchweek"),
       ledger: exists(DATA, "epl/graded-picks.json"),
-      settlement: scheduledSomewhere("settle-epl") || scheduledSomewhere("epl settle"),
-      lifecycle: governedByMachine("epl"),
+      settlement: scheduledSomewhere("settle-epl") || scheduledSomewhere("epl-settle"),
+      lifecycle: governedByMachine("epl-cards"),
     },
   },
 ];

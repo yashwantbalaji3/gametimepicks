@@ -34,6 +34,7 @@ import { buildPersistedDailyPortfolio } from "../../src/lib/daily-portfolio/acco
 import { LIFECYCLE_STATES, productWatchdog } from "../../src/lib/products/daily-state-machine.mjs";
 import { deriveLifecycle } from "../../src/lib/products/daily-lifecycle-derive.mjs";
 import { CURRENT_POLICY } from "../../src/lib/products/selection-policy.mjs";
+import { PRODUCT_REGISTRY } from "../../src/lib/products/lifecycle-registry.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -173,20 +174,53 @@ const dp = read(path.join(DATA, "mr-dub", "daily-portfolio.json"));
 const progressionFresh = Boolean(
   pf?.generatedAt && settledDay?.settledAt && Date.parse(pf.generatedAt) >= Date.parse(settledDay.settledAt),
 );
+/**
+ * WHICH PRODUCTS GET A LIFECYCLE — asked of the registry, not of a literal pair.
+ *
+ * P230 · F1: this read `if (p.product !== "bank-builder" && p.product !== "moonshot") continue;`,
+ * so a product could be registered as governed and still silently receive no lifecycle block here —
+ * the membership claim and the thing that makes it true lived in two places that could disagree.
+ * Now a product is governed exactly when it is registered, and registration costs an owner for each
+ * of its six mechanics.
+ */
+const settlementFor = (product) => {
+  /*
+   * Each product's OWN settlement adapter. Bank Builder and Moonshot are graded by the shared dated
+   * lanes artifact, which `deriveLifecycle` reduces itself. End Zone Vault is graded inside its own
+   * append-only ledger and never appears in those lanes — reading only the shared artifact for it
+   * would leave it ACTIVE forever while its real settler worked elsewhere.
+   */
+  if (product === "end-zone-vault") {
+    if (!vaultEntry?.settlement || vaultEntry.settlement === "NOT_APPLICABLE") return null;
+    return {
+      ref: `end-zone-vault/ledger.json@${vaultEntry.date}`,
+      stamp: vaultEntry.date,
+      /* PENDING_OFFICIAL_RESULT is pending — the Vault has never published a card, and inventing a
+         grade for one that does not exist is the failure this whole release is about. */
+      results: vaultEntry.settlement === "PENDING_OFFICIAL_RESULT"
+        ? ["pending"]
+        : [String(vaultEntry.settlement).toLowerCase()],
+      stepAtSettle: 0,
+    };
+  }
+  return null; // the shared lanes artifact answers for everyone else
+};
+
 const lifecycles = [];
 for (const p of products) {
-  if (p.product !== "bank-builder" && p.product !== "moonshot") continue;
+  if (!PRODUCT_REGISTRY.isGoverned(p.product)) continue;
   const lc = deriveLifecycle({
     product: p.product,
     date: DATE,
     entry: p,
     settledDay,
+    settlement: settlementFor(p.product),
     portfolioLane: p.product === "moonshot" ? pf?.moonshot ?? null : pf?.bankBuilder ?? null,
     progressionFresh,
     boardHash: inputs.mlbBoard.hash,
     // The lock stamp is the ACTIVATION artifact's own stamp for this date — never this run's clock.
     lockAt: dp?.date === DATE ? dp?.generatedAt ?? null : null,
-    policyVersion: CURRENT_POLICY[p.product],
+    policyVersion: CURRENT_POLICY[p.product] ?? PRODUCT_REGISTRY.get(p.product).policyVersion,
   });
   if (!LIFECYCLE_STATES.concat(["VOIDED", "STOPPED"]).includes(lc.state)) {
     console.error(`REFUSED: ${p.product} lifecycle derived ${lc.state} outside the closed vocabulary`); process.exit(2);
