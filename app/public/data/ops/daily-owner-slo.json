@@ -1,45 +1,48 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-01",
-  "checkedAt": "2026-09-01T17:11:39.000Z",
-  "treeHead": "ce75c5f3d",
+  "checkedAt": "2026-09-01T17:32:33.546Z",
+  "treeHead": "adc74108e",
   "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 15,
   "owners": [
     {
       "id": "mlb-board",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-01T21:10:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-01T21:10:00.000Z",
+      "receiptAt": "2026-09-01T17:25:50.467180+00:00",
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "mlb/boards/2026-09-01.json"
     },
     {
       "id": "mlb-markets",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-01T21:40:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-01T21:40:00.000Z",
+      "receiptAt": "2026-09-01T17:27:45.610Z",
       "label": "MLB team markets + player props",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/team-markets/2026-09-01.json"
     },
     {
       "id": "mlb-simulations",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-01T21:40:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-01T21:40:00.000Z",
+      "receiptAt": "2026-09-01T17:27:47.000Z",
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/game-simulations/2026-09-01.json"
     },
     {
       "id": "risk-ladder",
@@ -136,7 +139,7 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 71.3h old against a 48h bound",
+      "reason": "receipt is 71.7h old against a 48h bound",
       "dueAtIso": "2026-09-01T15:00:00.000Z",
       "receiptAt": "2026-08-29T17:50:39Z",
       "label": "NFL market capture",
