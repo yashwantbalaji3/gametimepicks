@@ -19,6 +19,7 @@
  * fallback uses real text so screen readers always read the name.
  */
 import { useState } from "react";
+import { reportIfAlreadyFailed } from "@/lib/ui/image-failure";
 import type { CSSProperties } from "react";
 
 interface Props {
@@ -93,6 +94,8 @@ export default function BrandMark({
             height={height}
             className="gtp-logo-img"
             onError={() => setImgErrored(true)}
+            /* And the failure that fired before this handler existed — see lib/ui/image-failure. */
+            ref={(el) => reportIfAlreadyFailed(el, () => setImgErrored(true))}
             draggable={false}
           />
         </picture>

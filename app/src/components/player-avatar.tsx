@@ -20,6 +20,7 @@
  *   - Hover/focus is purely decorative (no interaction inside)
  */
 import { useState } from "react";
+import { reportIfAlreadyFailed } from "@/lib/ui/image-failure";
 
 interface Props {
   /** NBA stats player ID OR MLB stats player ID, depending on `sport`.
@@ -136,6 +137,8 @@ export default function PlayerAvatar({
           loading="lazy"
           decoding="async"
           onError={() => setErrored(true)}
+          /* And the failure that beat the handler to it — see lib/ui/image-failure. */
+          ref={(el) => reportIfAlreadyFailed(el, () => setErrored(true))}
           className="gtp-player-avatar-img"
           draggable={false}
         />

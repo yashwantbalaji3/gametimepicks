@@ -9,6 +9,7 @@
  * Never a fabricated/licensed logo — only artifact URLs render as images.
  */
 import { useState } from "react";
+import { reportIfAlreadyFailed } from "@/lib/ui/image-failure";
 
 import FlagBadge from "@/components/flag-badge";
 
@@ -34,6 +35,8 @@ export default function TeamMark({
       // eslint-disable-next-line @next/next/no-img-element
       <img
         onError={() => setErrored(true)}
+        /* And the failure that fired before this handler existed — see lib/ui/image-failure. */
+        ref={(el) => reportIfAlreadyFailed(el, () => setErrored(true))}
         src={logoUrl}
         alt={name ?? "team"}
         width={px}

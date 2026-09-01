@@ -17,6 +17,7 @@
  * because the component hydrates without any side effects.
  */
 import { useState } from "react";
+import { reportIfAlreadyFailed } from "@/lib/ui/image-failure";
 import TeamBadge from "./team-badge";
 
 type SportKey = "nba" | "mlb" | "nhl" | "nfl" | "soccer";
@@ -161,6 +162,10 @@ export default function TeamLogo({
         loading="lazy"
         decoding="async"
         onError={() => setFailed(true)}
+        /* And catch the failure that happened BEFORE this handler existed — on a static export the
+           browser fetches while parsing SSR HTML, so an error can fire before hydration and never
+           reach React. See lib/ui/image-failure. */
+        ref={(el) => reportIfAlreadyFailed(el, () => setFailed(true))}
         style={{
           width: px - 8,
           height: px - 8,

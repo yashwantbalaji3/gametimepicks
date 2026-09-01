@@ -17,6 +17,7 @@
  * they are one look would change money surfaces. One fallback POLICY, two appearances.
  */
 import { useState } from "react";
+import { reportIfAlreadyFailed } from "@/lib/ui/image-failure";
 
 function initials(name: string): string {
   return name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -43,6 +44,8 @@ export default function PlayerAvatar({
         height={size}
         loading="lazy"
         onError={() => setErrored(true)}
+        /* And the failure that fired before this handler existed — see lib/ui/image-failure. */
+        ref={(el) => reportIfAlreadyFailed(el, () => setErrored(true))}
         className="rounded-full shrink-0"
         style={{ objectFit: "cover", border: "1px solid var(--vault-rule)" }}
       />
