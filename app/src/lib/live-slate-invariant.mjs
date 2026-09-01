@@ -34,6 +34,12 @@ const HARD_FAILURES = new Set([
   SIM_STATES.OVERSTATED,
 ]);
 
+/*
+ * The engine's own non-"ready" completeness members, plus the "pending" status the earlier version
+ * of this check accepted. Anything outside this set is not a declaration of incompleteness.
+ */
+const DECLARED_INCOMPLETE = new Set(["degraded", "unavailable", "pending"]);
+
 export function isHardFailure(state) {
   return HARD_FAILURES.has(state);
 }
@@ -56,10 +62,29 @@ export function classifySim(sim, claimedPks, boardPks, dateHasCollision) {
   if (dateHasCollision) return SIM_STATES.IDENTITY_CONFLICT;
   if (sim?.market != null) return SIM_STATES.UNSAFE_SOURCE;
 
+  /*
+   * P224: THIS CHECKED A VOCABULARY THE PRODUCER DOES NOT SPEAK.
+   *
+   * The full-game engine's completeness level is `"ready" | "degraded" | "unavailable"`
+   * (lib/mlb/full-game/types.ts). This accepted "unavailable" and "partial" — and "partial" is not
+   * a member, so that arm was dead, while "degraded" (300 of the 474 committed sims) was missing
+   * altogether. A degraded sim IS declaring itself not fully available: it carries the level, the
+   * public status, and notes naming what is absent ("9 of 9 have no posted prop line and are priced
+   * at replacement level").
+   *
+   * The mismatch only surfaced when a degraded sim went UNCLAIMED — gamePk 823176 on 2026-08-29,
+   * the second half of a doubleheader whose market rows joined its twin — and the invariant called
+   * an honest artifact OVERSTATED.
+   *
+   * Read against the producer's own vocabulary, as a CLOSED SET. A first pass here accepted
+   * "anything not \"ready\"", which is the wrong direction: it would have read an unrecognised
+   * level — `{status: "complete", level: "full"}` — as a declaration of partiality and let the
+   * exact mutation this state exists to catch through. Absence of a known incompleteness claim is
+   * not a claim of incompleteness; unknown vocabulary fails closed to OVERSTATED.
+   */
   const status = sim?.status ?? null;
   const level = sim?.completeness?.level ?? null;
-  const declaresPartial =
-    status === "unavailable" || status === "pending" || level === "unavailable" || level === "partial";
+  const declaresPartial = DECLARED_INCOMPLETE.has(level) || DECLARED_INCOMPLETE.has(status);
   if (!declaresPartial) return SIM_STATES.OVERSTATED;
 
   return SIM_STATES.LEGITIMATE;

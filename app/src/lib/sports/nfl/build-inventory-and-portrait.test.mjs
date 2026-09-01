@@ -30,11 +30,27 @@ test("the builder and the money path give a reader THE SAME answer about NFL", a
   const builderReason = BUILD_INVENTORY_EXCLUSIONS.nfl;
   const productRow = eligibility.products.find((p) => p.product === "build-inventory");
   assert.ok(productRow, "the daily evaluation covers the card builder too");
-  // both must cite the SAME gate. Wording may differ between a code constant and reader prose;
-  // the gate must not.
-  for (const text of [builderReason, productRow.reason]) {
-    assert.match(text, /experimental/i, "both name the model's experimental status");
-    assert.match(text, /validated model version|VALIDATED_PICK/, "both name the validated gate");
+  /*
+   * Both must cite the SAME gate. Wording may differ between a code constant and reader prose; the
+   * gate must not.
+   *
+   * P224: unless the evaluation never REACHED the gate. Between a settled slate and the next window
+   * there is no pre-kickoff event to consider, and the artifact answers with the operational blocker
+   * — "no pre-kickoff NFL event was available to evaluate — this says nothing about the model". That
+   * is the honest answer to a different question, not drift, and demanding the model gate there
+   * would push the builder to report a model verdict it never formed.
+   */
+  assert.match(builderReason, /experimental/i, "the builder constant names the model's experimental status");
+  assert.match(builderReason, /validated model version|VALIDATED_PICK/, "and the validated gate");
+
+  const refusedForLackOfEvents = /no pre-kickoff NFL event was available/i.test(productRow.reason);
+  if (refusedForLackOfEvents) {
+    assert.match(productRow.reason, /says nothing about the model/i,
+      "an operational refusal must disclaim any model finding, so the two answers cannot be confused");
+    assert.equal(eligibility.consideredEvents, 0, "and it may only be given when nothing was considered");
+  } else {
+    assert.match(productRow.reason, /experimental/i, "both name the model's experimental status");
+    assert.match(productRow.reason, /validated model version|VALIDATED_PICK/, "both name the validated gate");
   }
   const bankBuilder = eligibility.products.find((p) => p.product === "bank-builder");
   assert.equal(productRow.state, bankBuilder.state,

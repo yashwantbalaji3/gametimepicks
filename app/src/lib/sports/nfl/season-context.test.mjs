@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { seasonContextFor, forwardWindowState, checkFreshness, FRESHNESS_MATRIX } from "./season-context.mjs";
+import { seasonContextFor, forwardWindowState, checkFreshness, FRESHNESS_MATRIX, SEASON_TYPES } from "./season-context.mjs";
 
 test("season type is provider data, never a calendar guess; unknown codes fail closed", () => {
   assert.equal(seasonContextFor({ seasonType: 1, week: 2 }).state, "PRESEASON");
@@ -17,13 +17,44 @@ test("season type is provider data, never a calendar guess; unknown codes fail c
   assert.equal(seasonContextFor({}).state, "UNKNOWN_SEASON_TYPE");
 });
 
-test("REAL ARTIFACT · the committed schedule window is preseason with scheduled events", () => {
+test("REAL ARTIFACT · the committed window's context comes from provider data, in any phase", () => {
+  /*
+   * P224: this asserted PRESEASON against the live capture, with the reason "Aug window is preseason
+   * BY PROVIDER DATA". It was not reading provider data — it was reading the month, which is the one
+   * inference this module's own docblock forbids ("no module may infer it from the calendar month").
+   * The capture has since rolled to the regular-season opener and the test went red while the module
+   * was right.
+   *
+   * The intent that survives every phase: whatever the provider says, the classification agrees with
+   * the row's own seasonType, and a committed forward window reports its events. The 1/2/3 → label
+   * mapping itself is pinned to fixtures in the first test above, so no coverage is lost.
+   */
   const sch = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/schedule/latest.json"), "utf8"));
   const next = sch.rows.filter((r) => r.statusRaw === "STATUS_SCHEDULED")[0];
-  assert.equal(seasonContextFor(next).state, "PRESEASON", "Aug window is preseason BY PROVIDER DATA");
+  assert.ok(next, "the committed capture holds at least one scheduled event");
+
+  const ctx = seasonContextFor(next);
+  assert.equal(ctx.state, SEASON_TYPES[next.seasonType], `provider seasonType ${next.seasonType} must drive the label`);
+  assert.notEqual(ctx.state, "UNKNOWN_SEASON_TYPE", "a live capture carrying an unknown season code is a real defect");
+
   const win = forwardWindowState(sch.rows, sch.generatedAt);
   assert.equal(win.state, "EVENTS_SCHEDULED");
   assert.ok(win.count >= 1);
+});
+
+test("PHASE TRANSITION · every phase, and an empty window, keep their statement", () => {
+  /*
+   * The states the real artifact can only show one of at a time. Without these, a season rollover
+   * silently drops coverage of the phase the calendar just left — which is how the test above rotted.
+   */
+  for (const [code, label] of Object.entries(SEASON_TYPES)) {
+    assert.equal(seasonContextFor({ seasonType: Number(code) }).state, label);
+  }
+  const NOW = "2026-09-01T00:00:00Z";
+  assert.equal(forwardWindowState([{ dateUtc: "2026-09-10T00:20Z", seasonType: 2 }], NOW).state, "EVENTS_SCHEDULED");
+  assert.equal(forwardWindowState([{ dateUtc: "2026-08-13T00:20Z", seasonType: 1 }], NOW).state, "OFFSEASON_OR_WINDOW_GAP",
+    "a window holding only PAST events is a gap, not a season");
+  assert.equal(forwardWindowState([], NOW).state, "OFFSEASON_OR_WINDOW_GAP");
 });
 
 test("offseason is an empty-window statement", () => {

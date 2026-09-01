@@ -28,6 +28,41 @@ test("COUNTS RECONCILE with the artifacts they summarise — no independently co
   assert.equal(idx.model.id, forecasts.model.id, "one model identity across artifacts");
 });
 
+test("THE NEXT KICKOFF IS A SCHEDULE FACT · it cannot be null while a game is scheduled", () => {
+  /*
+   * P224: `nextKickoffUtc` used to name the next FORECAST event, so in every gap between a settled
+   * slate and the next modelled one it published null beside `counts.scheduledUpcoming: 1` — two
+   * neighbouring fields answering different questions with no way for a reader to tell. On
+   * 2026-09-01 the index's only event was CHI @ TEN (played and settled 08-29) while NE @ SEA sat
+   * scheduled and unnamed, and every consumer that derives a slate day from this field got null.
+   *
+   * The two questions now have two fields. This pins that they stay separate AND consistent.
+   */
+  const schedule = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/schedule/latest.json"), "utf8"));
+  const upcomingRows = (schedule.rows ?? [])
+    .filter((r) => r.statusRaw === "STATUS_SCHEDULED" && Date.parse(r.dateUtc) > Date.parse(idx.generatedAt))
+    .sort((a, b) => a.dateUtc.localeCompare(b.dateUtc));
+
+  assert.equal(idx.counts.scheduledUpcoming, upcomingRows.length, "the count reconciles with the committed capture");
+
+  if (upcomingRows.length > 0) {
+    assert.equal(idx.nextKickoffUtc, upcomingRows[0].dateUtc,
+      "a scheduled game exists, so the index must name it — null here is the P224 defect");
+    assert.ok(idx.nextMatchup, "and name the matchup");
+  } else {
+    assert.equal(idx.nextKickoffUtc, null, "with nothing scheduled, the anchor is honestly null");
+  }
+
+  // The forecast question keeps its own field, and it may legitimately be null while a game is
+  // scheduled — that gap is the real state, and hiding it inside the anchor is what broke.
+  assert.ok("nextForecastUtc" in idx, "what we have MODELLED stays visible and separate");
+  if (idx.counts.forecastsUpcoming === 0) {
+    assert.equal(idx.nextForecastUtc, null, "no upcoming forecast means no forecast anchor");
+  } else {
+    assert.ok(idx.nextForecastUtc, "an upcoming forecast names itself");
+  }
+});
+
 test("KICKOFF LOCK preserves the receipt — a started game is hidden from pregame, never deleted", () => {
   for (const e of idx.events) {
     assert.ok(["UPCOMING", "STARTED", "SETTLED"].includes(e.lifecycle));
@@ -37,9 +72,24 @@ test("KICKOFF LOCK preserves the receipt — a started game is hidden from prega
     assert.ok(e.projectedScore && typeof e.projectedScore.home === "number", `${e.matchup}: pre-event numbers preserved`);
     assert.ok(e.winProbability, `${e.matchup}: win probability preserved`);
   }
+  /*
+   * P224 repoint: this asserted that `nextMatchup` names one of the index's own events and that the
+   * event is UPCOMING. That was right while the anchor meant "next FORECAST" — it is not the claim
+   * to make now the anchor means "next SCHEDULED game", which may legitimately have no forecast yet.
+   * The forecast anchor keeps the original assertion verbatim, and the schedule anchor gets the
+   * stronger half of it: whatever it names must never be a game that has already been played.
+   */
+  if (idx.nextForecastMatchup) {
+    const nextForecast = idx.events.find((e) => e.matchup === idx.nextForecastMatchup);
+    assert.ok(nextForecast, "the forecast anchor names one of this index's own events");
+    assert.equal(nextForecast.lifecycle, "UPCOMING", "next forecast kickoff is always an upcoming game");
+  }
   if (idx.nextMatchup) {
-    const next = idx.events.find((e) => e.matchup === idx.nextMatchup);
-    assert.equal(next.lifecycle, "UPCOMING", "next kickoff is always an upcoming game");
+    const forecastForNext = idx.events.find((e) => e.matchup === idx.nextMatchup);
+    if (forecastForNext) {
+      assert.equal(forecastForNext.lifecycle, "UPCOMING",
+        "the next kickoff must never name a game that has already been played — the P224 defect");
+    }
   }
 });
 

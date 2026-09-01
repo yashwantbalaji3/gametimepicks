@@ -46,14 +46,41 @@ const rows = buildUfcCardPredictions(fights, oddsIndex, fighterByName);
  * accurate sentence, and it fails rather than skips because a stale schedule feeding the public
  * /ufc report is a real defect, not a test-environment quirk.
  */
-const schedDates = [...new Set(fights.map((f) => String(f.boutId ?? "").slice(0, 10)))];
-const oddsDates = [...new Set((odds.bouts ?? []).map((b) => String(b.boutId ?? "").slice(0, 10)))];
-const sameCard = schedDates.some((d) => oddsDates.includes(d));
+/*
+ * P224 — TWO REPAIRS TO THE CHECK ABOVE.
+ *
+ * 1. IT COMPARED OPAQUE IDS AS IF THEY WERE DATES. `boutId.slice(0, 10)` assumed a date-prefixed
+ *    id. Bout ids are now ESPN competition ids ("401875226"), so the slice yielded an id fragment
+ *    and the sets could never intersect regardless of whether the artifacts agreed. Compare the
+ *    bout IDENTITIES themselves — the same lesson the UFC coverage classifier already learned when
+ *    it moved off time windows onto fighter identity.
+ *
+ * 2. IT COULD NOT TELL DRIFT FROM "NOT PRICED YET". A card six days out has no posted moneylines,
+ *    and the odds capture says so properly: eventCount 0, oddsReady false, 13 unpriced bouts and
+ *    two named blockers. That is the fail-closed answer working, not two artifacts describing
+ *    different events. Conflating them turned a quiet, correct window into a red gate.
+ *
+ * Drift is still a hard failure — it just has to be actual drift: both artifacts carrying bouts,
+ * for disjoint sets of them.
+ */
+const schedBoutIds = new Set(fights.map((f) => String(f.boutId ?? "")).filter(Boolean));
+const oddsBoutIds = new Set((odds.bouts ?? []).map((b) => String(b.boutId ?? "")).filter(Boolean));
+const pricedOverlap = [...oddsBoutIds].filter((id) => schedBoutIds.has(id));
+/** The odds artifact carries no priced bout at all — an offered-window state, not a join failure. */
+const oddsNotOfferedYet = oddsBoutIds.size === 0;
+const sameCard = oddsNotOfferedYet || pricedOverlap.length > 0;
 
 test("0 · the schedule and the odds describe the same card", () => {
+  if (oddsNotOfferedYet) {
+    // The fail-closed path must still be honest about WHY there is nothing to join.
+    assert.equal(odds.oddsReady, false, "an odds artifact with no priced bout must not claim it is ready");
+    assert.ok((odds.blockers ?? []).length > 0 || (odds.unpricedBouts ?? 0) > 0,
+      "and it must name a blocker or count its unpriced bouts rather than going silently empty");
+    return;
+  }
   assert.ok(sameCard,
-    `card-latest covers ${schedDates.join(", ") || "nothing"} while odds-latest covers ` +
-    `${oddsDates.join(", ") || "nothing"} — the two artifacts describe different events, so every ` +
+    `card-latest covers bouts [${[...schedBoutIds].slice(0, 4).join(", ")}…] while odds-latest covers ` +
+    `[${[...oddsBoutIds].slice(0, 4).join(", ")}…] — the two artifacts describe different events, so every ` +
     `join below is vacuous. They are written by the same job and must not drift.`);
 });
 
@@ -173,8 +200,25 @@ test("9 · every fight has an explicit Predicted Winner + Method of Victory; win
       assert.equal(r.prediction.predictedWinner, "No clear winner", "no odds ⇒ no invented winner");
     }
   }
-  assert.ok(rows.some((r) => r.prediction.predictedWinner !== "No clear winner"), "at least some fights have a named winner");
-  assert.ok(rows.some((r) => r.prediction.methodOfVictory !== "No clear method"), "at least some fights have a method read");
+  /*
+   * P224: these two asserted that SOME fight has a named winner — which is really an assertion that
+   * prices exist, since the loop directly above requires "no odds ⇒ no invented winner". Six days
+   * before a card the provider offers no MMA moneylines, so every row is honestly "No clear winner"
+   * and the engine is doing exactly what the line above demands. Asserting otherwise pressures the
+   * engine toward inventing a winner from no market, which is the one thing it must never do.
+   *
+   * So: when the card is priced, the reads must appear. When it is not, the refusal must be total —
+   * a partially-invented winner would be a far worse defect than a quiet card, and nothing else in
+   * this file would catch it.
+   */
+  if (oddsIndex.size > 0) {
+    assert.ok(rows.some((r) => r.prediction.predictedWinner !== "No clear winner"), "a priced card names winners");
+    assert.ok(rows.some((r) => r.prediction.methodOfVictory !== "No clear method"), "a priced card reads methods");
+  } else {
+    assert.ok(rows.length > 0, "the card still publishes its bouts when unpriced");
+    assert.ok(rows.every((r) => r.prediction.predictedWinner === "No clear winner"),
+      "with no market on file, NO fight may carry a named winner — a winner from no price is invention");
+  }
 });
 
 test("7 · diacritic folding matches accented fighters; genuine unknowns stay honest", () => {

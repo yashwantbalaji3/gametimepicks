@@ -92,10 +92,43 @@ test("REAL SLATE · the next slate's games all simulate under the variant, priva
   for (const g of tonight) {
     const s = simulateNflGame({ fit: FIT, strengthState: STATE, event: g, artifactDate: day, runs: 4000 });
     assert.equal(s.state, "SIMULATED");
-    assert.equal(s.variant, "PRESEASON_CONSERVATIVE", g.shortName);
     assert.equal(s.publicActivation, "OFF");
-    assert.ok(s.winProbability.home > 0.3 && s.winProbability.home < 0.7, `${g.shortName}: shrunk preseason head stays near coin (${s.winProbability.home})`);
+
+    /*
+     * P224: P178 de-rotted this test's DATE and left its SEASON pinned, so it rotted again one
+     * phase later — `PRESEASON_CONSERVATIVE` was asserted against a committed capture that has
+     * since rolled to the regular-season opener (NE @ SEA, seasonType 2). The intent was never
+     * "preseason": it was "the variant follows the provider's own season type, and the preseason
+     * variant actually shrinks". Assert that relationship, which is true in every phase.
+     */
+    const preseason = g.seasonType === 1;
+    assert.equal(s.variant, preseason ? "PRESEASON_CONSERVATIVE" : "REGULAR", `${g.shortName} (seasonType ${g.seasonType})`);
+    if (preseason) {
+      assert.ok(
+        s.winProbability.home > 0.3 && s.winProbability.home < 0.7,
+        `${g.shortName}: shrunk preseason head stays near coin (${s.winProbability.home})`,
+      );
+    }
   }
+});
+
+test("PHASE INVARIANCE · the variant follows season type, and only preseason shrinks", () => {
+  /*
+   * The behaviour the real-slate test above can no longer prove on its own once the calendar leaves
+   * preseason. Pinned to fixtures so BOTH branches stay covered in every phase, forever.
+   */
+  const both = [1, 2].map((seasonType) =>
+    simulateNflGame({
+      fit: FIT, strengthState: STATE, artifactDate: "2026-09-13", runs: 4000,
+      event: { ...EVENT, seasonType },
+    }),
+  );
+  const [pre, reg] = both;
+  assert.equal(pre.variant, "PRESEASON_CONSERVATIVE");
+  assert.equal(reg.variant, "REGULAR");
+  // Shrinking toward zero means the preseason head is strictly nearer the coin than the regular one.
+  const head = (s) => Math.abs(s.winProbability.home - 0.5);
+  assert.ok(head(pre) < head(reg), `preseason must shrink toward the coin (pre ${head(pre)} vs reg ${head(reg)})`);
 });
 
 test("prng sanity: mulberry32 is uniform-ish and deterministic", () => {

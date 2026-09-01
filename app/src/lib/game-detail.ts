@@ -5,6 +5,7 @@
  * projections + player props already share; MLB/NBA join on the board game id. Slugs are
  * deterministic (sport + teams + date). Today's games only (the /games board).
  */
+import { assignPublicGameSlugs, baseGameSlug } from "./mlb/public-game-slug";
 import { buildAliasIndex } from "@/lib/identity/event-identity";
 import {
   loadWorldCupProjections,
@@ -179,9 +180,16 @@ export function slugify(s: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-/** Deterministic slug: <home>-vs-<away>-<date>. Stable across artifacts (team pair + date). */
+/**
+ * Deterministic BASE slug: <a>-vs-<b>-<date>. Stable across artifacts (team pair + date).
+ *
+ * P224: delegates to the shared rule so there is exactly one definition of what a game's slug is.
+ * (The parameters have always been named (home, away) while every caller passes (away, home) — the
+ * output is `${first}-vs-${second}-${date}` either way. Left as-is rather than renamed in a gate
+ * repair; the names are misleading, the behaviour is not.)
+ */
 export function gameSlug(home: string, away: string, date: string): string {
-  return `${slugify(home)}-vs-${slugify(away)}-${date}`;
+  return baseGameSlug(home, away, date);
 }
 
 /**
@@ -302,18 +310,17 @@ function boardDetails(
   // First pass: base slug (team-pair + date) + collision counts. A base shared by >1 game (a doubleheader, or
   // any same-teams-same-date pair) is disambiguated by the stable gamePk/gameId so every game gets exactly ONE
   // unique public slug (one gameId ↔ one URL). Non-colliding games keep the base slug (zero URL churn).
-  const baseCounts = new Map<string, number>();
-  for (const g of games) {
-    const base = gameSlug(g.awayTeamAbbr ?? "?", g.homeTeamAbbr ?? "?", date);
-    baseCounts.set(base, (baseCounts.get(base) ?? 0) + 1);
-  }
-  return games.map((g) => {
+  /* P224: the rule now lives in lib/mlb/public-game-slug.ts so the simulation artifacts assign the
+     SAME slug this route serves. Behaviour here is unchanged — that module is this code, extracted. */
+  const assigned = assignPublicGameSlugs(
+    games.map((g) => ({ away: g.awayTeamAbbr ?? "?", home: g.homeTeamAbbr ?? "?", date, key: g.gamePk ?? g.gameId ?? null })),
+  );
+  return games.map((g, gi) => {
     const home = g.homeTeamAbbr ?? "?";
     const away = g.awayTeamAbbr ?? "?";
     const key = String(g.gamePk ?? g.gameId ?? "");
-    const baseSlug = gameSlug(away, home, date);
-    // Disambiguate a shared base with the stable public game id (gamePk/gameId). Never silently collide.
-    const slug = (baseCounts.get(baseSlug) ?? 0) > 1 && key ? `${baseSlug}-${key}` : baseSlug;
+    const baseSlug = assigned.baseSlugs[gi];
+    const slug = assigned.slugs[gi];
     const playerProps = byGame.get(key) ?? [];
     const buildId = gameIdForBuild(g);
     return {

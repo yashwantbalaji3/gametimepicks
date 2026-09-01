@@ -166,14 +166,33 @@ function nflDay(dataRoot: string, today: string): ProductDay {
    * last slate kicks off (it refreshes on the schedule cadence), and simulations for a played
    * slate are history, not product. Before this check the homepage read those stale sims as a
    * live NFL day — the drift this owner exists to end. Intentional difference, documented.
+   *
+   * P224: that guard could not fire in the case it most needed to. It asked whether the ANCHOR was
+   * in the past, so a NULL anchor read as "not passed" — and null is exactly what the index
+   * published between a settled slate and the next forecast one. On 2026-09-01 this rendered
+   * "1 games simulated · next kickoff unscheduled" for CHI @ TEN, played and settled three days
+   * earlier, while NE @ SEA sat scheduled in the capture. A detector that goes blind precisely when
+   * its subject appears is not a detector.
+   *
+   * The simulated slate states its OWN date, so staleness is decidable without the anchor: sims for
+   * a day before today are history whatever the index says about what comes next.
    */
-  const windowPassed = kickDay != null && kickDay < today;
+  const simSlateDay: string | null = typeof sims?.date === "string" ? sims.date : null;
+  const simsArePast = simSlateDay != null && simSlateDay < today;
+  const windowPassed = (kickDay != null && kickDay < today) || simsArePast;
   if (games.length === 0 || windowPassed) {
     return day("nfl", {
       productDate: today, state: nextKick && !windowPassed ? "EVENT_UPCOMING" : "NO_EVENTS", events: 0, eligible: 0,
-      sourceStamp: sims?.generatedAt ?? index.generatedAt ?? null, nextEventUtc: windowPassed ? null : nextKick,
+      sourceStamp: sims?.generatedAt ?? index.generatedAt ?? null,
+      /* A played slate has nothing actionable, but the next real game is still named — a quiet
+         window should say what is next, not go blank. */
+      nextEventUtc: nextKick,
       note: windowPassed
-        ? `The last simulated slate (${kickDay}) has been played; the next window is not scheduled yet.`
+        ? nextKick
+          /* The passed slate AND the real next game — the old copy said "not scheduled yet" even
+             when the schedule named one, because it only ever looked at a stale anchor. */
+          ? `The last simulated slate (${simSlateDay ?? kickDay}) has been played; next kickoff ${etDay(nextKick)}.`
+          : `The last simulated slate (${simSlateDay ?? kickDay}) has been played; the next window is not scheduled yet.`
         : nextKick ? `No simulated slate yet; next kickoff ${kickDay}.` : "No NFL slate is published.",
       reason: null,
     });

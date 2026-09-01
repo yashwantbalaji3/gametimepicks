@@ -25,7 +25,14 @@ import path from "node:path";
 const APP = process.cwd();
 const PAGE = path.join(APP, "out/ufc/index.html");
 const raw = fs.existsSync(PAGE) ? fs.readFileSync(PAGE, "utf8") : null;
-const text = raw ? raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ") : null;
+/*
+ * P224: scan THIS PAGE'S BODY, not the whole document. The shared navigation lists "EPL Paper
+ * Cards", "UFC Paper Cards" and "NFL Paper Cards" on every route, so a `/Paper cards/` trigger fired
+ * on the chrome rather than on anything /ufc actually renders — a check that cannot tell the page
+ * from its own menu is not checking the page.
+ */
+const mainOf = (html) => (/<main[^>]*>([\s\S]*?)<\/main>/.exec(html ?? "")?.[1] ?? html ?? "");
+const text = raw ? mainOf(raw).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ") : null;
 
 test("if the page SHOWS a price, it must not claim no price is shown", () => {
   if (!text) return;
@@ -36,16 +43,33 @@ test("if the page SHOWS a price, it must not claim no price is shown", () => {
   assert.doesNotMatch(text, /authorisation covers NFL\s*only/i, "a dedicated UFC odds receipt exists");
 });
 
-test("the distinction that survived: SHOWING a price is not being MEASURED against one", () => {
+test("a page that claims MEASUREMENT must state the limits of it", () => {
   if (!text) return;
-  if (!/Paper cards/.test(text)) return;
   /*
-   * The honest half of the retired sentence, and the reason this was a correction rather than a
-   * deletion. No no-vig comparison has ever been run for UFC. Removing the caveat along with the
-   * false part would have quietly upgraded the claim.
+   * P224: this demanded the sentence "the model has never been scored against a no-vig line". That
+   * was true when written and is now false — since 2026-08-22 the model IS graded against the
+   * de-vigged line (16 picks in ufc/graded-picks.json, hit rate 0.625, sampleState
+   * TOO_SMALL_TO_ASSESS), and the page says so. Requiring the old denial would have forced the page
+   * to publish something untrue in order to stay green: the exact failure mode this file was
+   * written to catch, arriving this time inside the guard rather than inside the copy.
+   *
+   * The intent survives without the wording. A page may claim to be measured against the market
+   * ONLY while it also states the limit of that measurement — sample size, or which side the
+   * comparison currently favours. Claiming the comparison with no caveat is the real defect.
    */
-  assert.match(text, /never been (SCORED|scored) against a no-vig line|no-vig/i,
-    "the page must still say the model has not been measured against a price");
+  const claimsMeasurement = /scored against the de-?vig|measured against .{0,24}\b(line|market|price)\b|no-?vig/i.test(text);
+  if (!claimsMeasurement) return;
+  /*
+   * The caveat must be ABOUT THE SAMPLE. A first draft of this pattern accepted a bare "too few",
+   * which every per-fighter blurb on the card satisfies ("3 tracked bouts — too few clear tendencies
+   * to call out"): nine matches, none of them the caveat, so the guard passed on a page with the
+   * caveat deleted. Tie the smallness to the sample or to what it cannot support.
+   */
+  assert.match(
+    text,
+    /(?:sample|graded picks)[^.]{0,60}?too (?:small|few)|too (?:small|few)[^.]{0,60}?(?:to say|to support|to assess|about accuracy)|(?:favours|favors) the market|never been (?:SCORED|scored) against a no-?vig line/i,
+    "the page compares itself to the market, so it must also say how little that comparison can support",
+  );
 });
 
 test("the META DESCRIPTION must not contradict the page", () => {

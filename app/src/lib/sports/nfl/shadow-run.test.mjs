@@ -69,14 +69,27 @@ test("corrupt market rows refuse de-vig and the run falls back to READY_EXCEPT_O
   assert.match(out.reason, /refused de-vig|one-sided/i);
 });
 
-test("REAL ARTIFACTS · the actual next scheduled event (DET@CIN) runs the real ladder end-to-end", () => {
+test("REAL ARTIFACTS · the next scheduled event runs the real ladder end-to-end", () => {
   const sched = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/schedule/latest.json"), "utf8"));
   const next = (sched.rows ?? []).filter((r) => r.statusRaw === "STATUS_SCHEDULED").sort((a, b) => a.dateUtc.localeCompare(b.dateUtc))[0];
   assert.ok(next, "a scheduled event exists in the committed capture");
-  const out = runNflShadow({ event: next, nowIso: "2026-08-12T19:30:00Z", strengthRows: ROWS, fit: FIT, oddsSnapshot: null });
-  // Aug 13 DET@CIN is preseason: the model policy must abstain BEFORE the odds gate is even
-  // consulted — a refusal with the reason in the model's own words, and zero probabilities.
-  assert.equal(out.state, "ABSTAIN");
-  assert.match(out.reason, /preseason/i);
-  assert.ok(!JSON.stringify(out).includes('"probs"'));
+  /*
+   * P224: P178 unpinned this test's EVENT and left its PHASE pinned — the assertion "Aug 13 DET@CIN
+   * is preseason, so ABSTAIN" survived into a capture whose next event is the regular-season opener,
+   * where abstaining would be the bug. The preseason branch has its own fixture test above, so what
+   * belongs here is the phase-appropriate rung of the real ladder on the real event.
+   */
+  const nowIso = new Date(Date.parse(next.dateUtc) - 36 * 3_600_000).toISOString();
+  const out = runNflShadow({ event: next, nowIso, strengthRows: ROWS, fit: FIT, oddsSnapshot: null });
+
+  if (next.seasonType === 1) {
+    assert.equal(out.state, "ABSTAIN", "the model card's preseason policy refuses before the odds gate");
+    assert.match(out.reason, /preseason/i);
+    assert.ok(!JSON.stringify(out).includes('"probs"'), "an abstention publishes no probabilities");
+  } else {
+    // Outside preseason the ladder proceeds to the odds gate, which is the honest blocker here:
+    // no authorized capture for this event yet. Still nothing public, still no odds-free price.
+    assert.equal(out.state, "READY_EXCEPT_ODDS", `seasonType ${next.seasonType} proceeds to the odds gate`);
+    assert.equal(out.publicActivation, "OFF");
+  }
 });

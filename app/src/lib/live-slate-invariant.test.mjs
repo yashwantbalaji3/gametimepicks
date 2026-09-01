@@ -8,6 +8,8 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { classifySim, isHardFailure, SIM_STATES } from "./live-slate-invariant.mjs";
 
 const legitimateSim = () => ({
@@ -73,6 +75,39 @@ test("MUTATION · partial state presented as complete → hard fail", () => {
   const state = classifySim(sim, CLAIMED, BOARD_PKS, NO_COLLISION);
   assert.equal(state, SIM_STATES.OVERSTATED);
   assert.equal(isHardFailure(state), true);
+});
+
+test("VOCABULARY · the classifier speaks the same completeness words the engine emits", () => {
+  /*
+   * P224: the classifier accepted "unavailable" and "partial". The engine emits
+   * `"ready" | "degraded" | "unavailable"` — so the "partial" arm was dead and "degraded" (300 of
+   * the 474 committed sims) fell through to OVERSTATED. It surfaced only when a degraded sim went
+   * unclaimed. Two vocabularies drifting apart is invisible until one specific row lands in the gap,
+   * so pin them to each other.
+   */
+  const types = fs.readFileSync(path.join(process.cwd(), "src/lib/mlb/full-game/types.ts"), "utf8");
+  const decl = /level:\s*((?:"[a-z]+"\s*\|?\s*)+)/.exec(types);
+  assert.ok(decl, "the engine still declares a completeness level union");
+  const emitted = [...decl[1].matchAll(/"([a-z]+)"/g)].map((m) => m[1]);
+  assert.ok(emitted.includes("ready"), `unexpected vocabulary: ${emitted.join(", ")}`);
+
+  const BOARD = new Set([1]);
+  for (const level of emitted) {
+    const state = classifySim({ gamePk: 1, status: level, completeness: { level } }, new Set(), BOARD, false);
+    if (level === "ready") {
+      assert.equal(state, SIM_STATES.OVERSTATED, `"ready" with no market row must still be overstated`);
+    } else {
+      assert.equal(state, SIM_STATES.LEGITIMATE,
+        `the engine emits "${level}" — the classifier must recognise it as a declaration of incompleteness`);
+    }
+  }
+
+  // And a word from neither vocabulary is refused rather than assumed honest.
+  assert.equal(
+    classifySim({ gamePk: 1, status: "mostly-fine", completeness: { level: "mostly-fine" } }, new Set(), BOARD, false),
+    SIM_STATES.OVERSTATED,
+    "an unrecognised level is not a declaration of partiality",
+  );
 });
 
 test("the fixture round-trips byte-identically (mutations never leak between tests)", () => {

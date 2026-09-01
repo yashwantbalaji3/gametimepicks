@@ -46,7 +46,23 @@ test("EACH LADDER STATES ITS OWN SELECTION, and the two do not agree", () => {
   const ufc = readLadder("risk-ladder-ufc");
   const epl = readLadder("risk-ladder-epl");
   if (!ufc || !epl) return;
-  assert.ok(ufc.selection?.length > 0 && epl.selection?.length > 0, "both must declare a selection");
+  /*
+   * P224: this asserted BOTH ladders always declare a selection. A ladder only has a selection when
+   * it published a card — on 2026-09-01 the UFC ladder was honestly `state: "NO_PRICES"` with zero
+   * cards for a card six days out, so it declared none and the loader refused it, exactly as
+   * designed. The claim is about PUBLISHED ladders; an unpublished one has its own contract, which
+   * the block below now pins instead of skipping.
+   */
+  const published = (l) => (l.cards ?? []).length > 0;
+  for (const [sport, l] of [["ufc", ufc], ["epl", epl]]) {
+    if (published(l)) {
+      assert.ok(l.selection?.length > 0, `${sport}: a published ladder must declare how it selected`);
+    } else {
+      assert.ok(!l.selection, `${sport}: a ladder with no card must not narrate a selection it never made`);
+      assert.ok(l.state && l.reason, `${sport}: and it must state WHY it published nothing (${l.state ?? "no state"})`);
+    }
+  }
+  if (!published(ufc) || !published(epl)) return;
   assert.notEqual(ufc.selection, epl.selection, "two sports that select differently must not read identically");
   // UFC is the one model that earned the right to pick a side; EPL's explicitly has not.
   assert.match(ufc.selection, /model's own read/i);
@@ -65,7 +81,18 @@ test("a ladder for a DIFFERENT day is refused", () => {
   // Ladders are dated by the day of their FIXTURES. Serving one regardless is how a set of cards
   // came to carry three dates at once: written 08-18, fighting 08-22, published as 08-21.
   assert.equal(loadSportLabLadder("ufc", "1999-01-01"), null);
-  assert.ok(loadSportLabLadder("ufc", ufc.date), "the ladder's own date must load");
+  /*
+   * P224: "its own date must load" holds only for a ladder that HAS something to serve. An
+   * unpublished ladder must refuse on its own date too — an empty scaffold reaching a surface is
+   * how a product comes to look live while carrying nothing, so the refusal is the stronger claim
+   * and is asserted here rather than skipped.
+   */
+  if ((ufc.cards ?? []).length > 0) {
+    assert.ok(loadSportLabLadder("ufc", ufc.date), "a published ladder's own date must load");
+  } else {
+    assert.equal(loadSportLabLadder("ufc", ufc.date), null,
+      "a ladder with no cards is refused even on its own date — an empty scaffold is not a product");
+  }
 });
 
 test("an unknown sport loads nothing rather than guessing a directory", () => {
@@ -81,7 +108,30 @@ test("leg labels read in the sport's own terms", () => {
 });
 
 test("BUILT EXPORT · each sport's page carries its OWN sentence and not the other's", () => {
-  const read = (p) => (fs.existsSync(p) ? fs.readFileSync(p, "utf8").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ") : null);
+  /*
+   * P224: read each page's <main>, not the whole document. The shared navigation lists "EPL Paper
+   * Cards" and "UFC Paper Cards" on EVERY route, so `page.includes("Paper cards")` fired on the
+   * menu rather than on rendered cards — and on a day /ufc publishes no ladder the UFC branch ran
+   * anyway and demanded a sentence the page had no reason to carry.
+   */
+  /*
+   * ...and DECODE what it reads. The rendered copy carries `&#x27;` for its apostrophes while this
+   * guard was written against `&rsquo;`, so matching raw markup depends on which entity the renderer
+   * happened to emit. Worse, the whole-document scan this replaced was satisfied by Next.js's
+   * embedded RSC payload — the strings are serialised there unescaped — so the guard could pass on a
+   * page whose visible text said nothing of the kind.
+   */
+  const decode = (t) => t
+    .replace(/&#x27;|&#39;|&rsquo;|&apos;/gi, "'")
+    .replace(/&quot;|&ldquo;|&rdquo;/gi, '"')
+    .replace(/&amp;/gi, "&")
+    .replace(/&nbsp;/gi, " ");
+  const read = (p) => {
+    if (!fs.existsSync(p)) return null;
+    const raw = fs.readFileSync(p, "utf8");
+    const main = /<main[^>]*>([\s\S]*?)<\/main>/.exec(raw)?.[1] ?? raw;
+    return decode(main.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ");
+  };
   const eplPage = read(path.join(APP, "out/epl/index.html"));
   const ufcPage = read(path.join(APP, "out/ufc/index.html"));
   if (!eplPage || !ufcPage) return;   // export not built in this run
@@ -95,13 +145,18 @@ test("BUILT EXPORT · each sport's page carries its OWN sentence and not the oth
      * The claim is what matters, and it has two halves that must BOTH be present: the side is the
      * market's, and it is explicitly not the model's. Either half alone is the dangerous version.
      */
-    assert.match(eplPage, /market price|market&rsquo;s own|market's own/i, "EPL's cards must say the side comes from the market");
-    assert.match(eplPage, /never this model&rsquo;s read|never this model's read/i, "and must disclaim the model in the same breath");
+    assert.match(eplPage, /market price|market's own/i, "EPL's cards must say the side comes from the market");
+    assert.match(eplPage, /never this model's read/i, "and must disclaim the model in the same breath");
     assert.doesNotMatch(eplPage, /passed its preregistered bar/i, "EPL must never claim a cleared bar");
   }
   if (ufcPage.includes("Paper cards")) {
-    assert.match(ufcPage, /passed its preregistered bar/i);
-    assert.doesNotMatch(ufcPage, /market&rsquo;s own favourite|market's own favourite/i, "UFC's cards are its model's read, not the price's");
+    /*
+     * The copy says "CLEARED its preregistered bar"; this pinned "passed". The sentence was reworded
+     * and this guard was not — the identical miss the EPL comment above records, in the same file,
+     * one branch down. Match the CLAIM (a preregistered bar that the model met) rather than the verb.
+     */
+    assert.match(ufcPage, /(passed|cleared) its preregistered bar/i, "UFC's cards may state the bar its model met");
+    assert.doesNotMatch(ufcPage, /market's own favourite/i, "UFC's cards are its model's read, not the price's");
   }
 });
 

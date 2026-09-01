@@ -11,6 +11,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 import { buildProductDays, productDayFor, PRODUCT_DAY_SCHEMA_VERSION } from "./product-day.ts";
@@ -75,6 +76,54 @@ test("EQUIVALENCE · nfl day equals the index's own next window; a PAST kickoff 
     assert.ok(["EVENT_UPCOMING", "NO_EVENTS", "INCIDENT"].includes(nfl.state));
     assert.equal(nfl.eligible, 0, "a passed window has nothing actionable");
   }
+});
+
+test("REGRESSION P224 · a NULL anchor beside a played slate is never 'upcoming'", () => {
+  /*
+   * P202 added "a PAST kickoff is not upcoming" but asked the question of the ANCHOR, so a null
+   * anchor read as "not passed" and the guard went blind in the one case it was written for. On
+   * 2026-09-01 the index published nextKickoffUtc: null (its next FORECAST, and none existed)
+   * while the sims held CHI @ TEN, played and settled on 08-29 — and /today rendered
+   * "1 games simulated · next kickoff unscheduled" for a finished game.
+   *
+   * Fixtures, not the live tree: the live artifacts are now correct, so only a fixture can hold
+   * the shape that broke.
+   */
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-productday-"));
+  const write = (rel, doc) => {
+    const full = path.join(root, rel);
+    fs.mkdirSync(path.dirname(full), { recursive: true });
+    fs.writeFileSync(full, JSON.stringify(doc));
+  };
+
+  const sims = { date: "2026-08-29", generatedAt: "2026-08-29T18:16:23Z", games: [{ gameId: "nfl-401874394", slateDate: "2026-08-29" }] };
+
+  // (a) the exact broken shape: a played slate and NO anchor at all.
+  write("nfl/index.json", { generatedAt: "2026-09-01T00:00:00Z", nextKickoffUtc: null, counts: { scheduledUpcoming: 0 }, events: [] });
+  write("nfl/game-simulations/latest.json", sims);
+  const blind = productDayFor("nfl", root, { today: "2026-09-01" });
+  assert.equal(blind.state, "NO_EVENTS", "a played slate with no anchor is history, not an upcoming window");
+  assert.equal(blind.events, 0);
+  assert.equal(blind.eligible, 0);
+  assert.doesNotMatch(blind.note, /games simulated/, "a finished game must not be advertised as today's slate");
+
+  // (b) the same played slate, with the schedule's real next game named: still not upcoming, but
+  //     the quiet window says what is next rather than going blank.
+  write("nfl/index.json", { generatedAt: "2026-09-01T00:00:00Z", nextKickoffUtc: "2026-09-10T00:20Z", counts: { scheduledUpcoming: 1 }, events: [] });
+  const named = productDayFor("nfl", root, { today: "2026-09-01" });
+  assert.equal(named.state, "NO_EVENTS");
+  assert.equal(named.nextEventUtc, "2026-09-10T00:20Z", "a quiet window still names the next real event");
+  assert.match(named.note, /has been played/);
+  assert.doesNotMatch(named.note, /not scheduled yet/, "it IS scheduled — the old copy said otherwise off a stale anchor");
+
+  // (c) and a genuinely current slate is still LIVE — the fix must not suppress real days.
+  write("nfl/game-simulations/latest.json", { ...sims, date: "2026-09-01", games: [{ gameId: "x", slateDate: "2026-09-01" }] });
+  write("nfl/index.json", { generatedAt: "2026-09-01T00:00:00Z", nextKickoffUtc: "2026-09-01T23:00:00Z", counts: { scheduledUpcoming: 1 }, events: [] });
+  const liveDay = productDayFor("nfl", root, { today: "2026-09-01" });
+  assert.equal(liveDay.state, "LIVE");
+  assert.equal(liveDay.events, 1);
+
+  fs.rmSync(root, { recursive: true, force: true });
 });
 
 test("mlb day frames on the board loader's presented slate — the same source /today renders", () => {

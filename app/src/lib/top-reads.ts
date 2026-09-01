@@ -63,8 +63,31 @@ const etToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_
 const PROVENANCE: Record<string, string> = {
   mlb: "Its modelled markets were measured against the sportsbook and demoted to market context — the simulation is published, not claimed to beat a price.",
   epl: "Never scored against a no-vig line.",
-  ufc: "The one model here that cleared its preregistered bar, on a 3,557-fight held-out sample. It has still never been compared against a price.",
+  /*
+   * P224: this ended "It has still never been compared against a price" — typed, and false since
+   * 2026-08-22. The UFC graded ledger now carries the market's own de-vigged probability beside the
+   * model's for every settled bout, and /ufc says so a few sections above: one page asserting both
+   * "the model IS scored against the de-vigged line" and "never been compared against a price".
+   *
+   * The block directly below this one already records why ("A COUNT IN A SENTENCE IS DERIVED, NEVER
+   * TYPED") — the same defect, one paragraph above its own warning. So the second half is derived
+   * from the ledger, and an unreadable ledger yields no clause rather than a claim in either
+   * direction.
+   */
+  ufc: "The one model here that cleared its preregistered bar, on a 3,557-fight held-out sample.",
 };
+
+/**
+ * Whether UFC has actually been compared against a price, from the ledger that would hold it.
+ * Never states a rate — the SIZE of the record is all a sentence like this may carry.
+ */
+function ufcPriceComparisonClause(): string {
+  const graded = read("public/data/ufc/graded-picks.json");
+  const n = graded?.counts?.counted;
+  if (n == null) return "";
+  if (n === 0) return " It has still never been compared against a price.";
+  return ` Since 2026-08-22 each settled bout is graded beside the market's own de-vigged probability — ${n} so far, far too few to support any claim either way.`;
+}
 
 /*
  * A COUNT IN A SENTENCE IS DERIVED, NEVER TYPED.
@@ -86,6 +109,13 @@ function eplGradedClause(): string {
   if (n == null) return "";
   if (n === 0) return " No match has been graded yet.";
   return ` ${n} ${n === 1 ? "match has" : "matches have"} been graded in total — far too few to support any accuracy claim.`;
+}
+
+/** The derived half of each provenance sentence — typed claims here go stale, so nothing is typed. */
+function sportGradedClause(sport: string): string {
+  if (sport === "epl") return eplGradedClause();
+  if (sport === "ufc") return ufcPriceComparisonClause();
+  return "";
 }
 
 export function loadTopReads(): TopReadsSet | null {
@@ -218,7 +248,7 @@ export function loadTopReads(): TopReadsSet | null {
     reads,
     excluded,
     provenance: [...new Set(reads.map((r) => r.sport))]
-      .map((s) => ({ sport: s, state: (PROVENANCE[s] ?? "") + (s === "epl" ? eplGradedClause() : "") })),
+      .map((s) => ({ sport: s, state: (PROVENANCE[s] ?? "") + sportGradedClause(s) })),
   };
 }
 

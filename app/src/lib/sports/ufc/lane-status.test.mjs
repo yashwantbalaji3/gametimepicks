@@ -34,10 +34,23 @@ test("THE LADDER ON THE PAGE MUST BELONG TO THE CARD ON THE PAGE", () => {
    * 2026-08-22 was served through a latest.json fallback and published under 2026-08-21, and no
    * surface anywhere said which fights the prices belonged to.
    */
-  assert.ok(["PUBLISHED_FOR_THIS_CARD", "STALE_FOR_A_DIFFERENT_CARD", "UNKNOWN"].includes(lane.cards.state));
+  /*
+   * P224: the state set gained NO_CARDS_FOR_THIS_CARD. The lane used to call ANY same-dated ladder
+   * "PUBLISHED_FOR_THIS_CARD" and then report `carded: 0, selection: null` beside it — a state named
+   * for publication, asserting a ladder that does not exist. The producer had already fail-closed
+   * (`state: "NO_PRICES"`, "no price capture for this card"); the summary discarded that answer.
+   */
+  assert.ok(["PUBLISHED_FOR_THIS_CARD", "NO_CARDS_FOR_THIS_CARD", "STALE_FOR_A_DIFFERENT_CARD", "UNKNOWN"].includes(lane.cards.state));
   if (lane.cards.state === "PUBLISHED_FOR_THIS_CARD") {
     assert.equal(lane.cards.date, lane.nextCard.slateDate, "a ladder for this card must carry this card's date");
+    assert.ok(lane.cards.carded > 0, "a PUBLISHED state must have an actually published card behind it");
     assert.ok(lane.cards.selection?.length > 0, "and must state how it selected its sides");
+  }
+  if (lane.cards.state === "NO_CARDS_FOR_THIS_CARD") {
+    assert.equal(lane.cards.date, lane.nextCard.slateDate, "an empty ladder still belongs to this card");
+    assert.equal(lane.cards.carded, 0);
+    assert.ok(lane.cards.detail?.length > 0, "and it names WHY nothing was carded");
+    assert.ok(lane.cards.ladderState, "carrying the producer's own verdict rather than replacing it");
   }
 });
 

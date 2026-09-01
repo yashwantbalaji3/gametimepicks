@@ -70,10 +70,31 @@ const nextCard = card?.state === "SCHEDULED_CARD" && card.event
  * fallback and published under 2026-08-21 — three dates for one set of cards. The check is one
  * comparison and it is the difference between a product and a stale artifact wearing today's name.
  */
+/*
+ * P224: THE DATE MATCHING IS NOT ENOUGH — AND THE LADDER ALREADY SAID SO.
+ *
+ * This called any same-dated ladder "PUBLISHED_FOR_THIS_CARD", counting its cards afterwards. On
+ * 2026-09-01 the UFC ladder for the 09-05 card carried `state: "NO_PRICES"`, reason "no price
+ * capture for this card … the newest snapshot covers a different event", `cards: []` and no
+ * selection — and the lane published PUBLISHED_FOR_THIS_CARD with `carded: 0, selection: null`.
+ *
+ * The producer had already fail-closed correctly; the summary threw its answer away and asserted a
+ * published ladder that does not exist. A state named for publication must require a published card.
+ */
 const cards = ladder
-  ? (ladder.date === slate
-      ? { state: "PUBLISHED_FOR_THIS_CARD", date: ladder.date, carded: (ladder.cards ?? []).length, skipped: (ladder.skipped ?? []).map((s) => s.tier), selection: ladder.selection ?? null }
-      : { state: "STALE_FOR_A_DIFFERENT_CARD", detail: `the newest ladder is dated ${ladder.date} but this card is on ${slate ?? "an unknown date"}` })
+  ? (ladder.date !== slate
+      ? { state: "STALE_FOR_A_DIFFERENT_CARD", detail: `the newest ladder is dated ${ladder.date} but this card is on ${slate ?? "an unknown date"}` }
+      : (ladder.cards ?? []).length > 0
+        ? { state: "PUBLISHED_FOR_THIS_CARD", date: ladder.date, carded: ladder.cards.length, skipped: (ladder.skipped ?? []).map((s) => s.tier), selection: ladder.selection ?? null }
+        : {
+            state: "NO_CARDS_FOR_THIS_CARD",
+            date: ladder.date,
+            carded: 0,
+            skipped: (ladder.skipped ?? []).map((s) => s.tier),
+            /* The producer's own verdict, carried rather than replaced. */
+            ladderState: ladder.state ?? null,
+            detail: ladder.reason ?? "the ladder ran for this card and published no tier",
+          })
   : UNKNOWN("no risk ladder has been published");
 
 /*

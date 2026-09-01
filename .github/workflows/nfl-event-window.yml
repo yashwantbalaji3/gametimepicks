@@ -178,6 +178,30 @@ jobs:
           set -euo pipefail
           node scripts/nfl/build-nfl-index.mjs --now "${{ steps.window.outputs.now }}"
 
+      # ── AND THE ARTIFACTS THAT SUMMARISE IT ────────────────────────────────────────────────────
+      #
+      # P224: the fix above was applied to the index and not to its class. Product eligibility and
+      # the run receipts both CONSUME the index and both stayed inside the `events != '0'` branch,
+      # so on a quiet day the index refreshed and they did not. Observed 2026-09-01: the index had
+      # moved CHI @ TEN to SETTLED (0 pre-kickoff events) while product-eligibility still reported
+      # `consideredEvents: 1` and `indexGeneratedAt: 2026-08-29T18:16:23Z` — three days stale,
+      # contradicting the artifact it claims to summarise.
+      #
+      # Both builders are local, deterministic, network-free and refuse rather than invent: on an
+      # empty window they write "no pre-kickoff NFL event was available to evaluate", which is the
+      # honest receipt that the lane RAN and found nothing to look at. That is the whole point of a
+      # receipt, and it is exactly what a quiet day should produce.
+      #
+      # Deliberately NOT extended to build-nfl-game-simulations or the vault: those produce content
+      # rather than summarise it, and they belong behind the audits in the generate step.
+      - name: Re-derive the artifacts that summarise the index (quiet windows included)
+        if: always()
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/build-nfl-product-eligibility.mjs --now "${{ steps.window.outputs.now }}"
+          node scripts/nfl/build-nfl-product-receipts.mjs --now "${{ steps.window.outputs.now }}"
+
       # Consumes what the step above produced, so it inherits the same gate: rebuilding the lane
       # from a condemned generation is how the lane came to say 13 events beside a market artifact
       # saying 11 on 2026-08-28.

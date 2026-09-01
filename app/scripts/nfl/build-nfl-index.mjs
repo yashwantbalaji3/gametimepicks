@@ -92,7 +92,26 @@ if ((markets?.eventCount ?? 0) > 0 && marketRows.length === 0) {
 }
 
 const upcoming = events.filter((e) => e.lifecycle === "UPCOMING").sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
-const scheduledUpcoming = (schedule?.rows ?? []).filter((r) => r.statusRaw === "STATUS_SCHEDULED" && Date.parse(r.dateUtc) > nowMs);
+const scheduledUpcoming = (schedule?.rows ?? [])
+  .filter((r) => r.statusRaw === "STATUS_SCHEDULED" && Date.parse(r.dateUtc) > nowMs)
+  .sort((a, b) => a.dateUtc.localeCompare(b.dateUtc));
+
+/*
+ * P224: THE NEXT KICKOFF IS A SCHEDULE FACT, NOT A FORECAST FACT.
+ *
+ * `nextKickoffUtc` used to read `upcoming[0]`, i.e. the next event WE HAD FORECAST. The moment the
+ * next real game has no forecast yet — every gap between a settled slate and the next modelled one —
+ * it published `null` while `counts.scheduledUpcoming` in the same object said 1. On 2026-09-01 the
+ * only indexed event was CHI @ TEN, played and SETTLED on 08-29, while NE @ SEA (09-10) sat in the
+ * committed capture unnamed. Consumers cannot tell that one field counts the schedule and its
+ * neighbour counts forecasts, and this artifact's own note promises they may read it verbatim.
+ *
+ * So the next kickoff now comes from the schedule, which is what its name has always claimed. What
+ * we have MODELLED stays visible and separate in `counts.forecastsUpcoming` / `nextForecastUtc` —
+ * no information is lost, and the two questions stop sharing one field.
+ */
+const nextScheduled = scheduledUpcoming[0] ?? null;
+const matchupOf = (r) => r?.shortName ?? (r?.away && r?.home ? `${r.away} @ ${r.home}` : null);
 
 const index = {
   schemaVersion: 1,
@@ -114,8 +133,11 @@ const index = {
     marketEvents: marketRows.length,
     settled: events.filter((e) => e.lifecycle === "SETTLED").length,
   },
-  nextKickoffUtc: upcoming[0]?.kickoffUtc ?? null,
-  nextMatchup: upcoming[0]?.matchup ?? null,
+  nextKickoffUtc: nextScheduled?.dateUtc ?? null,
+  nextMatchup: matchupOf(nextScheduled),
+  /* What we have FORECAST, kept distinct from what is SCHEDULED — see the note above. */
+  nextForecastUtc: upcoming[0]?.kickoffUtc ?? null,
+  nextForecastMatchup: upcoming[0]?.matchup ?? null,
   marketCapturedAt: markets?.capturedAt ?? null,
   experimentalRecord: read(path.join(ROOT, "data/internal/nfl/experimental-settlement/summary.json")) ?? {
     settledForecasts: 0,

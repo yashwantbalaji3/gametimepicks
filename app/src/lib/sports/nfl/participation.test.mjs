@@ -83,7 +83,24 @@ test("REAL ARTIFACTS · the next event's pool builds from the real roster + inju
     assert.ok(p.accounting.rosterSize > 60, `${abbr} roster present (${p.accounting.rosterSize})`);
     assert.equal(p.accounting.exact, true, "population-exact");
     for (const row of p.players) assert.ok(PARTICIPATION_STATES.includes(row.state));
-    assert.ok((p.counts.ROLE_UNCERTAIN ?? 0) > 40, `${abbr}: preseason default is ROLE_UNCERTAIN (${p.counts.ROLE_UNCERTAIN}) — no snap scenarios exist yet`);
-    assert.equal(p.counts.ACTIVE_PROJECTED ?? 0, 0, "nobody projects active without a snap scenario in preseason");
+    /*
+     * P224: these two lines asserted the PRESEASON defaults against a capture that has since rolled
+     * to the regular-season opener. The contract at the top of participation.mjs is explicit —
+     * ROLE_UNCERTAIN is "ALWAYS the preseason default", ACTIVE_PROJECTED is the regular-season one —
+     * so the module was right and the test was pinning a phase. Assert per phase, and keep the one
+     * claim that must hold in EVERY phase.
+     */
+    if (event.seasonType === 1) {
+      assert.ok((p.counts.ROLE_UNCERTAIN ?? 0) > 40, `${abbr}: preseason default is ROLE_UNCERTAIN (${p.counts.ROLE_UNCERTAIN}) — no snap scenarios exist yet`);
+      assert.equal(p.counts.ACTIVE_PROJECTED ?? 0, 0, "nobody projects active without a snap scenario in preseason");
+    } else {
+      assert.ok((p.counts.ACTIVE_PROJECTED ?? 0) > 40, `${abbr}: outside preseason the roster projects active (${p.counts.ACTIVE_PROJECTED})`);
+    }
+    /*
+     * THE PHASE-INDEPENDENT CLAIM. ACTIVE_CONFIRMED needs an official game-day actives source that
+     * this platform has no rights to, so it is unreachable by construction. A day it starts
+     * appearing is a source release — or a defect — and either way must not pass silently.
+     */
+    assert.equal(p.counts.ACTIVE_CONFIRMED ?? 0, 0, `${abbr}: ACTIVE_CONFIRMED is unreachable without an official actives source`);
   }
 });

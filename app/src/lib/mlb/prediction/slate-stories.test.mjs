@@ -152,7 +152,16 @@ test("real slate: every headline number matches the game it points at, and no ba
     if (games.length === 0) continue;
 
     for (const s of buildSlateStories(games)) {
-      const src = games.find((g) => g.slug === s.slug);
+      /*
+       * P224: JOIN ON gamePk, NOT SLUG. A doubleheader shares a team-pair + date, and the full-game
+       * board adapter used to publish that colliding base as the slug (fixed in
+       * lib/mlb/public-game-slug.ts — the same rule the public route uses). Historical artifacts
+       * still carry the collision: 2026-08-29 has seventeen rows over fifteen slugs. Looking a story
+       * up by slug therefore returned WHICHEVER TWIN CAME FIRST — here, one with `moneyline: null`,
+       * which is why this read as a crash rather than a mismatch. The story carries the gamePk; it
+       * is the identity, so use it.
+       */
+      const src = games.find((g) => g.gamePk === s.gamePk);
       assert.ok(src, `${f}: story points at a game that is not on the slate`);
 
       if (s.kind === "most-decisive" || s.kind === "closest") {

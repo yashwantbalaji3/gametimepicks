@@ -48,14 +48,31 @@ test("THE TAXONOMY ACCOUNTS FOR THE WHOLE POOL — no candidate leaves unexplain
 test("NO_PLAY IS OVER-DETERMINED — and says so, rather than naming one fixable reason", () => {
   assert.ok(receipt.overDetermined.gates.length >= 3);
   assert.match(receipt.overDetermined.note, /no single small change would open a lane/);
+  /*
+   * P224: this asserted every lane is NO_PLAY, which only holds while there is something to
+   * evaluate. Between a settled slate and the next window the index carries zero pre-kickoff
+   * events, and the builder correctly answers REFUSED — "no pre-kickoff NFL event was available to
+   * evaluate: an operational blocker, not a finding about the model". That distinction is this
+   * workflow's own stated rule, so the test now PINS it instead of flattening the two states.
+   */
   for (const l of receipt.lanes) {
-    assert.equal(l.state, "NO_PLAY");
-    assert.equal(l.card, null);
-    assert.equal(l.exposure, 0);
+    assert.ok(["NO_PLAY", "REFUSED"].includes(l.state), `${l.product}: ${l.state} outside the no-card states`);
+    assert.equal(l.card, null, `${l.product}: a lane without a play publishes no card`);
+    assert.equal(l.exposure, 0, `${l.product}: and no exposure`);
+    // The claim that matters: you cannot report "nothing qualified" having looked at nothing.
+    if (l.candidatesConsidered === 0) {
+      assert.equal(l.state, "REFUSED", `${l.product}: zero candidates is a REFUSAL, never a finding about the model`);
+      assert.match(l.stateReason, /blocker|available to evaluate/i, `${l.product}: and it names the blocker`);
+    }
+    if (l.state === "NO_PLAY") {
+      assert.ok(l.candidatesConsidered > 0, `${l.product}: NO_PLAY means candidates were actually examined`);
+    }
   }
   // the Vault names its second blocking door explicitly rather than hiding it behind the first
   const vault = receipt.lanes.find((l) => l.product === "end-zone-vault");
-  assert.ok(vault.alsoBlocking?.length >= 1, "a second independently-sufficient gate is named");
+  if (vault.state === "NO_PLAY") {
+    assert.ok(vault.alsoBlocking?.length >= 1, "a second independently-sufficient gate is named");
+  }
 });
 
 test("A RUN RECEIPT CARRIES WHAT MAKES IT A RUN — id, as-of, next run, linkage", () => {

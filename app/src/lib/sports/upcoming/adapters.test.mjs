@@ -78,7 +78,17 @@ test("NFL disk truth: the committed ESPN capture flows through the contract — 
   const out = nflUpcoming({ nowIso: "2026-08-09T22:15:00Z" });
   assert.equal(out.sourceVerdict.configured, true);
   assert.equal(out.sourceVerdict.sourceId, "espn_scoreboard");
-  assert.ok(out.events.length >= 10, `expected the preseason window's events, got ${out.events.length}`);
+  /*
+   * P224: this asserted `>= 10` events with the reason "the preseason window's events" — a proxy for
+   * "the capture is real", sized to a preseason week. The committed capture now holds the single
+   * regular-season opener, so the number rotted while the contract it was guarding did not.
+   *
+   * CONSERVATION is the claim that never rots and is strictly stronger than a threshold: every row
+   * the capture committed comes out the other side, either as an event or as a named quarantine.
+   */
+  const rawRows = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/schedule/latest.json"), "utf8")).rows ?? [];
+  assert.ok(rawRows.length > 0, "the committed capture is not empty");
+  assert.equal(out.events.length + out.quarantined.length, rawRows.length, "every committed row is accounted for");
   assert.equal(out.quarantined.length, 0, JSON.stringify(out.quarantined.slice(0, 2)));
   /*
    * THE MAPPING, NOT THE MOMENT.
@@ -103,7 +113,19 @@ test("NFL disk truth: the committed ESPN capture flows through the contract — 
     }
     assert.match(e.canonicalEventId, /^nfl:nfl:\d{4}-\d{2}-\d{2}:\d+$/, "identity carries ESPN's own event id");
   }
-  assert.match(out.seasonContext, /preseason/, "seasonType 1 must label itself preseason, never imply the regular season");
+  /*
+   * The season LABEL must follow the capture's own seasonType — the original claim ("seasonType 1
+   * must label itself preseason, never imply the regular season") with its phase unpinned, so it
+   * keeps working in both directions instead of only the one the calendar happened to be in.
+   */
+  const types = new Set(rawRows.map((r) => r.seasonType));
+  if (types.has(1) && types.size === 1) {
+    assert.match(out.seasonContext, /preseason/i, "seasonType 1 must label itself preseason, never imply the regular season");
+  } else if (types.has(2) && types.size === 1) {
+    assert.match(out.seasonContext, /regular season/i, "seasonType 2 must label itself the regular season");
+    assert.doesNotMatch(out.seasonContext, /preseason/i, "and must not carry the preseason label");
+  }
+  assert.ok(out.seasonContext && out.seasonContext.length > 3, "the window always states which season it describes");
 });
 
 test("NBA disk truth: confirmed 2026-27 events render as PARTIAL-calendar truth, never as the season", () => {

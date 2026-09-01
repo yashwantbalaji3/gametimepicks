@@ -10,6 +10,7 @@
  * league bullpen aggregate, also marked DEGRADED.
  */
 
+import { assignPublicGameSlugs, baseGameSlug } from "../public-game-slug";
 import type { BatterInput, FullGameCompleteness, GameInput, MarketComparison, PitcherInput } from "./types";
 import type { ConfirmedSide } from "./confirmed-lineup";
 
@@ -234,7 +235,13 @@ export function gameInputFromBoard(
     missingFamilies,
   };
 
-  const slug = `${game.awayTeamAbbr.toLowerCase()}-vs-${game.homeTeamAbbr.toLowerCase()}-${game.date}`;
+  /*
+   * P224: the BASE slug only. A doubleheader shares it, so `gameInputsFromBoard` re-assigns the
+   * disambiguated slug once it can see the whole board — a single game cannot know whether its own
+   * pair collides. Building the final slug here is what put two different games under one slug in
+   * the simulation and predictions artifacts.
+   */
+  const slug = baseGameSlug(game.awayTeamAbbr, game.homeTeamAbbr, game.date);
 
   return {
     gamePk: game.gamePk,
@@ -261,5 +268,15 @@ export function gameInputsFromBoard(
   marketByGamePk?: Map<number, MarketComparison>,
   confirmedByGamePk?: Map<number, { away: ConfirmedSide | null; home: ConfirmedSide | null }>,
 ): GameInput[] {
-  return board.games.map((g) => gameInputFromBoard(board, g, marketByGamePk?.get(g.gamePk) ?? null, confirmedByGamePk?.get(g.gamePk) ?? null));
+  const inputs = board.games.map((g) => gameInputFromBoard(board, g, marketByGamePk?.get(g.gamePk) ?? null, confirmedByGamePk?.get(g.gamePk) ?? null));
+  /*
+   * ONE SLUG PER GAME, decided with the whole slate in view and by the SAME rule the public route
+   * uses (lib/mlb/public-game-slug.ts). Non-colliding games keep their base slug, so no existing
+   * URL changes; a doubleheader's halves are split by their own gamePk, matching the page that
+   * actually gets built.
+   */
+  const { slugs } = assignPublicGameSlugs(
+    board.games.map((g) => ({ away: g.awayTeamAbbr, home: g.homeTeamAbbr, date: g.date, key: g.gamePk })),
+  );
+  return inputs.map((input, i) => (slugs[i] === input.slug ? input : { ...input, slug: slugs[i] }));
 }
