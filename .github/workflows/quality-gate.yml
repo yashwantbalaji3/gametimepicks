@@ -61,17 +61,37 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Unit + contract suite
+      # ── PHASE 1: everything that needs no built export ─────────────────────────────────────────
+      #
+      # P225: this used to be the WHOLE suite, run before the build. Forty-three files read `out/`
+      # and every one opens with `if (!fs.existsSync(PAGE)) return;` — an early return inside the
+      # test body, not a skip. In CI they neither failed nor reported as skipped: they reported as
+      # PASSING, having asserted nothing. Measured 2026-09-01: the same 250 tests "pass" with `out/`
+      # present and with it absent. Two guards repaired the night before were never once exercised
+      # by the gate meant to protect them.
+      - name: Unit + contract suite (phase 1 — no built export)
         # The runner reports failures in TAP; `# fail N` is the authority, not the exit code.
         run: |
           set -o pipefail
-          npx tsx --test $(find src -name '*.test.mjs') 2>&1 | tee /tmp/suite.log
+          node scripts/ci/run-suite.mjs --phase unit 2>&1 | tee /tmp/suite.log
           fails=$(grep -cE '^not ok' /tmp/suite.log || true)
           echo "failing tests: ${fails:-0}"
           [ "${fails:-0}" -eq 0 ]
 
       - name: Build the public export
         run: npm run build
+
+      # ── PHASE 2: the guards that read the bytes the build just produced ────────────────────────
+      #
+      # The runner REFUSES this phase when `out/` is missing or when the partition selects no files,
+      # so it cannot reproduce one level up the vacuous pass it exists to remove.
+      - name: Rendered guards (phase 2 — reads the built export)
+        run: |
+          set -o pipefail
+          node scripts/ci/run-suite.mjs --phase post-build 2>&1 | tee /tmp/rendered.log
+          fails=$(grep -cE '^not ok' /tmp/rendered.log || true)
+          echo "failing rendered tests: ${fails:-0}"
+          [ "${fails:-0}" -eq 0 ]
 
       - name: Accessibility — structural (9 launch-critical routes)
         run: node scripts/audit-accessibility.mjs

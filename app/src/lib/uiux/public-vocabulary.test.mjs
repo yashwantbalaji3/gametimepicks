@@ -49,6 +49,38 @@ function visibleText(file) {
   return decode(h.replace(/<[^>]+>/g, " "));
 }
 
+/*
+ * P225: EVIDENCE-STRENGTH CLAIMS.
+ *
+ * The repo already bans the outcome words — "edge", "lock", "guaranteed", "best bet", "profitable",
+ * "beat the market". Nothing banned a claim about how STRONG the evidence is, which is the same
+ * overstatement wearing an academic coat. Found by injecting one into /ufc while proving the CI
+ * re-sequencing: the page turned "the sample is far too small to support any claim" into "the
+ * evidence is compelling and consistent", and not one guard in the suite noticed.
+ *
+ * Deliberately narrow. It fires only when a strength word actually modifies the evidence — "a
+ * compelling matchup" is a description of a fight and stays legal. Zero matches across the built
+ * export when written, so it starts at a true zero rather than a grandfathered exception list.
+ */
+const EVIDENCE_OVERCLAIM = new RegExp(
+  [
+    String.raw`\b(compelling|conclusive|overwhelming|irrefutable|definitive|undeniable)\b[^.]{0,40}\b(evidence|data|record|sample|results?|track record)\b`,
+    String.raw`\b(evidence|data|record|sample|results?|track record)\b[^.]{0,40}\b(compelling|conclusive|overwhelming|irrefutable|definitive|undeniable)\b`,
+    String.raw`\bproven\s+(winner|system|edge|record|profit)`,
+    String.raw`\bconsistently\s+(beats?|outperforms?|wins?|profitable)`,
+  ].join("|"),
+  "i",
+);
+test("no public page claims its evidence is stronger than a sample size can support", () => {
+  if (!hasBuild) return;
+  const offenders = [];
+  for (const p of publicPages()) {
+    const m = EVIDENCE_OVERCLAIM.exec(visibleText(p).replace(/\s+/g, " "));
+    if (m) offenders.push(`${p.replace(OUT, "")}: "${m[0].trim()}"`);
+  }
+  assert.deepEqual(offenders, [], `evidence-strength overclaims:\n  ${offenders.join("\n  ")}`);
+});
+
 test("retired destination names never render on any public page", () => {
   if (!hasBuild) return;
   const offenders = [];

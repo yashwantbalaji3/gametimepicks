@@ -29,7 +29,10 @@
     "research:contract": "tsx scripts/build-public-research-contract.mjs",
     "audit:status-semantics": "tsx scripts/audit-status-semantics.mjs",
     "audit:model-edge": "tsx scripts/audit-model-edge.mjs",
-    "research:experiments": "tsx scripts/model-experiments.mjs"
+    "research:experiments": "tsx scripts/model-experiments.mjs",
+    "suite": "node scripts/ci/run-suite.mjs --phase unit",
+    "suite:built": "node scripts/ci/run-suite.mjs --phase post-build",
+    "gate": "npm run typecheck && npm run suite && npm run build && npm run suite:built"
   },
   "dependencies": {
     "next": "14.2.15",
