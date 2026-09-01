@@ -1,31 +1,31 @@
 # Model Learning Audit
 
-**Rows:** 35553 decisive · **Dates:** 2026-05-16 → 2026-08-30
+**Rows:** 36020 decisive · **Dates:** 2026-05-16 → 2026-08-31
 
 ## Overall
 
 | Measure | Model | Market (de-vigged) |
 |---|---|---|
-| Brier ↓ | 0.2553 | 0.2412 |
-| Log loss ↓ | 0.7068 | 0.6754 |
-| Mean predicted | 59.28% | 50.11% |
-| Observed | 49.84% | — |
+| Brier ↓ | 0.2551 | 0.2412 |
+| Log loss ↓ | 0.7063 | 0.6753 |
+| Mean predicted | 59.27% | 50.11% |
+| Observed | 49.89% | — |
 
-Hit rate **49.84%** (17720/35553), 95% CI [49.32%, 50.36%]. Overconfidence **9.44pp**.
+Hit rate **49.89%** (17969/36020), 95% CI [49.37%, 50.40%]. Overconfidence **9.38pp**.
 
 ## Market registry
 
 | Market | Status | n | Hit rate (95% CI) | Model Brier | Market Brier | Overconfidence |
 |---|---|---|---|---|---|---|
-| `batter_hits` | **RECALIBRATE** | 14524 | 53.57% [52.76%, 54.38%] | 0.2435 | 0.2356 | 6.9pp |
-| `batter_hits_runs_rbis` | **RECALIBRATE** | 12741 | 49.58% [48.71%, 50.45%] | 0.2634 | 0.2476 | 10.3pp |
-| `batter_total_bases` | **DISABLED** | 6529 | 42.52% [41.32%, 43.72%] | 0.2611 | 0.2403 | 12.1pp |
-| `pitcher_strikeouts` | **RECALIBRATE** | 1759 | 48.10% [45.77%, 50.43%] | 0.2731 | 0.2451 | 14.5pp |
+| `batter_hits` | **RECALIBRATE** | 14703 | 53.61% [52.81%, 54.42%] | 0.2432 | 0.2354 | 6.8pp |
+| `batter_hits_runs_rbis` | **RECALIBRATE** | 12920 | 49.63% [48.77%, 50.49%] | 0.2632 | 0.2475 | 10.2pp |
+| `batter_total_bases` | **DISABLED** | 6616 | 42.61% [41.42%, 43.80%] | 0.2609 | 0.2405 | 12.0pp |
+| `pitcher_strikeouts` | **RECALIBRATE** | 1781 | 48.01% [45.69%, 50.33%] | 0.2736 | 0.2453 | 14.6pp |
 
-- `batter_hits` → **RECALIBRATE**: Brier 0.2435 vs market 0.2356; overconfident by 6.9pp
-- `batter_hits_runs_rbis` → **RECALIBRATE**: Brier 0.2634 vs market 0.2476; overconfident by 10.3pp
-- `batter_total_bases` → **DISABLED**: the 95% interval [41.3%, 43.7%] lies entirely below 50% on n=6529
-- `pitcher_strikeouts` → **RECALIBRATE**: Brier 0.2731 vs market 0.2451; overconfident by 14.5pp
+- `batter_hits` → **RECALIBRATE**: Brier 0.2432 vs market 0.2354; overconfident by 6.8pp
+- `batter_hits_runs_rbis` → **RECALIBRATE**: Brier 0.2632 vs market 0.2475; overconfident by 10.2pp
+- `batter_total_bases` → **DISABLED**: the 95% interval [41.4%, 43.8%] lies entirely below 50% on n=6616
+- `pitcher_strikeouts` → **RECALIBRATE**: Brier 0.2736 vs market 0.2453; overconfident by 14.6pp
 
 ## Calibration curve (model)
 
@@ -33,34 +33,34 @@ Hit rate **49.84%** (17720/35553), 95% CI [49.32%, 50.36%]. Overconfidence **9.4
 |---|---|---|---|---|
 | 0.1-0.2 | 1 | 17.0% | 100.0% [20.7%, 100.0%] | **yes** |
 | 0.2-0.3 | 2 | 25.0% | 100.0% [34.2%, 100.0%] | **yes** |
-| 0.3-0.4 | 1721 | 36.5% | 36.0% [33.7%, 38.3%] | no |
-| 0.4-0.5 | 5736 | 45.7% | 40.8% [39.5%, 42.0%] | **yes** |
-| 0.5-0.6 | 10788 | 55.3% | 46.9% [45.9%, 47.8%] | **yes** |
-| 0.6-0.7 | 10890 | 64.9% | 53.7% [52.8%, 54.7%] | **yes** |
-| 0.7-0.8 | 5763 | 73.9% | 60.0% [58.7%, 61.2%] | **yes** |
-| 0.8-0.9 | 614 | 82.8% | 61.2% [57.3%, 65.0%] | **yes** |
-| 0.9-1.0 | 38 | 94.2% | 50.0% [34.8%, 65.2%] | **yes** |
+| 0.3-0.4 | 1751 | 36.5% | 35.9% [33.7%, 38.1%] | no |
+| 0.4-0.5 | 5813 | 45.7% | 40.8% [39.5%, 42.1%] | **yes** |
+| 0.5-0.6 | 10936 | 55.3% | 46.9% [46.0%, 47.8%] | **yes** |
+| 0.6-0.7 | 11031 | 64.9% | 53.8% [52.9%, 54.7%] | **yes** |
+| 0.7-0.8 | 5827 | 73.8% | 60.1% [58.9%, 61.4%] | **yes** |
+| 0.8-0.9 | 620 | 82.8% | 61.3% [57.4%, 65.0%] | **yes** |
+| 0.9-1.0 | 39 | 94.1% | 48.7% [33.9%, 63.8%] | **yes** |
 
 ## Calibration backtest — fitted on the past, scored on the future
 
-Train: 24598 rows (2026-05-16 → 2026-08-07) · Test: 10955 rows (2026-08-08 → 2026-08-30) · split at **2026-08-08**
+Train: 25166 rows (2026-05-16 → 2026-08-08) · Test: 10854 rows (2026-08-09 → 2026-08-31) · split at **2026-08-09**
 
 | Scorer | Brier ↓ | Log loss ↓ | Mean predicted |
 |---|---|---|---|
-| rawModel | 0.2546 | 0.7044 | 59.11% |
-| market | 0.2410 | 0.6750 | 50.03% |
-| platt | 0.2447 | 0.6825 | 49.69% |
-| isotonic | 0.2446 | 0.6822 | 49.69% |
-| _observed_ | — | — | 49.77% |
+| rawModel | 0.2542 | 0.7037 | 59.10% |
+| market | 0.2411 | 0.6752 | 50.04% |
+| platt | 0.2445 | 0.6822 | 49.75% |
+| isotonic | 0.2444 | 0.6819 | 49.76% |
+| _observed_ | — | — | 49.79% |
 
 **ADOPT isotonic for honesty of stated probabilities; it improves out-of-sample but still does not out-score the de-vigged market, so it fixes the claim, not the capability**
 
-Best calibrator: `isotonic` · improves on raw model: **true** (Brier −0.0100) · still loses to market: **true** (gap +0.0036).
+Best calibrator: `isotonic` · improves on raw model: **true** (Brier −0.0098) · still loses to market: **true** (gap +0.0033).
 
 ## By descriptive category
 
 | Category | n | Hit rate | Model Brier | Market Brier | Overconfidence |
 |---|---|---|---|---|---|
-| High | 15758 | 48.88% | 0.2655 | 0.2425 | 14.5pp |
-| Low | 14653 | 50.77% | 0.2477 | 0.2405 | 4.5pp |
-| Medium | 5142 | 50.12% | 0.2458 | 0.2396 | 8.0pp |
+| High | 15946 | 49.03% | 0.2651 | 0.2424 | 14.3pp |
+| Low | 14866 | 50.73% | 0.2477 | 0.2405 | 4.6pp |
+| Medium | 5208 | 50.12% | 0.2457 | 0.2396 | 8.0pp |
