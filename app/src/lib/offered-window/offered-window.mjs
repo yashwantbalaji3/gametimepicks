@@ -12,6 +12,7 @@
  * THE VOCABULARY IS CLOSED. Every event inside the horizon lands in exactly one state:
  *
  *   NOT_OFFERED       the provider lists no supported market for it — evidence, not an outage
+ *   NOT_YET_CAPTURED  scheduled, and OUR OWN acquisition for it has not run yet
  *   OFFERED_UNPRICED  a market exists but carries no usable price yet
  *   OFFERED_PRICED    a usable price is on file
  *   FORECAST_READY    a model artifact exists and is pre-start
@@ -45,11 +46,23 @@ export const OFFERED_STATES = Object.freeze([
   "FORECAST_READY",
   "OFFERED_PRICED",
   "OFFERED_UNPRICED",
+  /*
+   * NOT_YET_CAPTURED — an explicitly named extension, added when today's real slate exposed the gap.
+   *
+   * The event is scheduled inside our horizon and OUR OWN acquisition for it has not run yet. That
+   * is a different fact from NOT_OFFERED ("the provider lists no supported market"), and from
+   * SOURCE_STALE ("we captured, too long ago"). Collapsing it into NOT_OFFERED would report fifteen
+   * games as unofferable five hours before the capture is even due.
+   */
+  "NOT_YET_CAPTURED",
   "NOT_OFFERED",
 ]);
 
 /** States that mean the pipeline still owes this event work. */
 const OWES_WORK = new Set(["OFFERED_PRICED", "FORECAST_READY"]);
+
+/** Scheduled but not captured: awaited, not owed — until the runner marks the capture overdue. */
+const AWAITED = new Set(["NOT_YET_CAPTURED"]);
 
 /** States that are a finding rather than a stage. */
 const FAILURE_STATES = new Set(["JOIN_FAILED", "SOURCE_STALE"]);
@@ -98,6 +111,13 @@ export function classifyEvent(e) {
   if (e.forecast) return state("FORECAST_READY", "a pre-start model artifact exists");
   if (e.priced) return state("OFFERED_PRICED", "a usable price is on file");
   if (e.offered) return state("OFFERED_UNPRICED", "a market exists but carries no usable price yet");
+  /*
+   * "We have not looked yet" is not "there is nothing there". A caller that knows its own capture is
+   * still pending says so; only a caller that HAS captured may report NOT_OFFERED.
+   */
+  if (e.captured === false) {
+    return state("NOT_YET_CAPTURED", e.captureDueReason ?? "scheduled, and our acquisition for it has not run yet");
+  }
   return state("NOT_OFFERED", "the provider lists no supported market — evidence, not an outage");
 }
 
@@ -129,6 +149,7 @@ export function buildSportWindow({ sport, events, horizonHours, nowMs, readable 
       population: 0,
       counts: {},
       owed: [],
+      awaited: [],
       findings: [],
       rows: [],
       conserved: false,
@@ -161,6 +182,7 @@ export function buildSportWindow({ sport, events, horizonHours, nowMs, readable 
   const conserved = summed === rows.length;
 
   const owed = rows.filter((r) => OWES_WORK.has(r.state));
+  const awaited = rows.filter((r) => AWAITED.has(r.state));
   const findings = rows.filter((r) => FAILURE_STATES.has(r.state));
 
   /*
@@ -175,7 +197,7 @@ export function buildSportWindow({ sport, events, horizonHours, nowMs, readable 
           : owed.length > 0 ? "WORK_OWED"
             : "COMPLETE";
 
-  return { sport, state: sportState, horizonHours, population: rows.length, counts, owed, findings, rows, conserved };
+  return { sport, state: sportState, horizonHours, population: rows.length, counts, owed, awaited, findings, rows, conserved };
 }
 
 /** Worst-of across sports. UNKNOWN outranks every known state: not knowing is worse than a defect. */

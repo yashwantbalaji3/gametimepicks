@@ -435,6 +435,15 @@ jobs:
           #    matrix privately and counts-only publicly. Non-fatal for the same reason as the audit
           #    above — a findings report must be VISIBLE, not a reason to abort a settlement that
           #    already succeeded.
+          # 6a) P226 · Release E0 — the day's true MLB event POPULATION, from the FREE StatsAPI
+          #     schedule. The matrix cannot prove "every scheduled event appears once" while its
+          #     denominator comes from the paid ingestion that might have omitted the event. Free,
+          #     no key, schedule only, and it refuses rather than writing an empty day on a network
+          #     failure — writing zero games would erase a real slate from every consumer.
+          for D in "$(TZ=America/New_York date +%F)" "$(TZ=America/New_York date -d tomorrow +%F)"; do
+            npx --yes tsx scripts/mlb/capture-mlb-schedule.mjs --date "$D" --write \
+              || echo "::warning::MLB schedule capture failed for $D — prior capture retained"
+          done
           mkdir -p ../data/internal/offered-window
           npx --yes tsx scripts/offered-window/build-offered-window.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             || echo "::warning::offered-window matrix failed — prior matrix retained"
@@ -517,6 +526,7 @@ jobs:
           # not a receipt, which is the same reasoning that ungated the NFL index re-derivation.
           git add data/internal/audits/ 2>/dev/null || true
           git add data/internal/offered-window/ 2>/dev/null || true
+          git add app/public/data/mlb/statsapi-schedule/ 2>/dev/null || true
           git add app/public/data/ops/offered-window.json 2>/dev/null || true
           git add pipeline/validation/mlb_settled_leans.jsonl 2>/dev/null || true
           git add pipeline/validation/comparison_report_*.json 2>/dev/null || true

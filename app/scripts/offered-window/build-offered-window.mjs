@@ -45,27 +45,38 @@ const withinHours = (iso, h) => { const t = Date.parse(iso ?? ""); return Number
 const MLB_HORIZON_H = 48;
 
 function mlbEvents() {
-  const dates = (() => {
+  /*
+   * THE DENOMINATOR IS THE SCHEDULE, NOT THE BOARD.
+   *
+   * This used to take its population from the newest committed board — an artifact written by the
+   * PAID ingestion. A denominator derived downstream of the thing you are auditing cannot detect an
+   * omission, which is the entire point of conservation: an event the market never offered is simply
+   * absent from a market-driven list. It also meant that before the paid run each day the matrix had
+   * nothing but YESTERDAY to describe, and reported yesterday's started games as the current window.
+   *
+   * The free StatsAPI capture (`mlb/statsapi-schedule/<date>.json`) is the day's true event
+   * population. Board, simulations, predictions and linescores are JOINED onto it by gamePk, so a
+   * scheduled game missing from every one of them is visible rather than invisible.
+   */
+  const sched = read("mlb", "statsapi-schedule", `${DATE}.json`);
+  if (!sched) return null;
+
+  const boardDates = (() => {
     try {
       return fs.readdirSync(path.join(DATA, "mlb", "boards")).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10)).sort();
     } catch { return []; }
   })();
-  /*
-   * WHICH DAY IS THIS WINDOW ABOUT? The newest committed board may be YESTERDAY'S — today's is not
-   * built until ~90 minutes before first pitch. Reporting yesterday's twelve started games without
-   * saying so reads as "today is over", which is a different and false claim. The window carries its
-   * own date, and the caller renders it.
-   */
-  const date = dates.includes(DATE) ? DATE : dates.at(-1);
-  const board = date ? read("mlb", "boards", `${date}.json`) : null;
-  if (!board) return null;
-  const games = board.games ?? [];
-  const { slugs } = assignPublicGameSlugs(games.map((g) => ({ away: g.awayTeamAbbr, home: g.homeTeamAbbr, date, key: g.gamePk })));
+  const board = boardDates.includes(DATE) ? read("mlb", "boards", `${DATE}.json`) : null;
 
-  const leanPks = new Set((board.leans ?? []).map((l) => String(l.gamePk)).filter(Boolean));
-  const sims = new Set(((read("mlb", "full-game-simulations", `${date}.json`)?.games) ?? []).map((g) => String(g.gamePk)));
-  const preds = new Set(((read("mlb", "predictions", `${date}.json`)?.predictions) ?? []).map((g) => String(g.gamePk)));
-  const settled = new Set(Object.keys(read("mlb", "linescores", `${date}.json`) ?? {}));
+  const leanPks = new Set((board?.leans ?? []).map((l) => String(l.gamePk)).filter(Boolean));
+  const sims = new Set(((read("mlb", "full-game-simulations", `${DATE}.json`)?.games) ?? []).map((g) => String(g.gamePk)));
+  const preds = new Set(((read("mlb", "predictions", `${DATE}.json`)?.predictions) ?? []).map((g) => String(g.gamePk)));
+  const settled = new Set(Object.keys(read("mlb", "linescores", `${DATE}.json`) ?? {}));
+
+  const games = sched.games ?? [];
+  const { slugs } = assignPublicGameSlugs(
+    games.map((g) => ({ away: abbrOf(g.away?.name), home: abbrOf(g.home?.name), date: DATE, key: g.gamePk })),
+  );
 
   return games
     .filter((g) => withinHours(g.gameDate, MLB_HORIZON_H))
@@ -76,10 +87,13 @@ function mlbEvents() {
         canonicalId: `mlb-${pk}`,
         startUtc: g.gameDate,
         marketFamilies: leanPks.has(pk) ? ["team", "player"] : [],
-        acquisitionAt: board.generatedAt ?? null,
-        sourceAgeHours: ageHours(board.generatedAt),
+        acquisitionAt: board?.generatedAt ?? null,
+        sourceAgeHours: board ? ageHours(board.generatedAt) : null,
         maxSourceAgeHours: 30,
         joined: g.gamePk != null,
+        /* Only a day we have actually captured may report NOT_OFFERED. */
+        captured: Boolean(board),
+        captureDueReason: `scheduled ${g.gameDate}; the board is built ~90 minutes before first pitch`,
         offered: leanPks.has(pk),
         priced: leanPks.has(pk),
         forecast: sims.has(pk),
@@ -87,9 +101,30 @@ function mlbEvents() {
         publicRoute: `/games/mlb/${slugs[i]}/`,
         settlementId: pk,
         settled: settled.has(pk),
-        refusalReason: g.startedBeforeGeneration ? "generated after first pitch — refused by the pre-event boundary" : null,
+        refusalReason: null,
       };
     });
+}
+
+/** Team abbreviation from a StatsAPI club name, via the shared registry when it resolves. */
+function abbrOf(name) {
+  if (!name) return "?";
+  const words = String(name).split(/\s+/);
+  return (words.at(-1) ?? "?").slice(0, 3).toUpperCase();
+}
+
+/**
+ * Did a capture taken at `captureAt` actually ASK about an event starting at `startUtc`?
+ *
+ * A capture is evidence about the moment it was taken. If it predates the event and does not name
+ * it, the honest reading is that the question is still open — not that the provider offers nothing.
+ * Only a capture recent enough to have seen the event may support a NOT_OFFERED claim; here that is
+ * a capture taken within the last day.
+ */
+function coversEvent(captureAt, startUtc) {
+  const c = Date.parse(captureAt ?? "");
+  if (!Number.isFinite(c)) return false;
+  return (nowMs - c) <= 24 * 3_600_000;
 }
 
 /* ── NFL — the whole offered horizon, not a calendar day ───────────────────────────────────────── */
@@ -105,6 +140,17 @@ function nflEvents() {
   const pricedIds = new Set((markets?.rows ?? []).map((r) => String(r.providerEventId)).filter(Boolean));
   const byForecast = new Map((index.events ?? []).map((e) => [String(e.providerEventId), e]));
 
+  /*
+   * WE NEVER ASKED. The NFL market capture is stamped 2026-08-29T17:50Z with `eventCount: 1`, and
+   * that one event is CHI @ TEN — since played and settled. The only scheduled game, NE @ SEA on
+   * 09-10, has not been probed at all. Reporting it NOT_OFFERED asserts something we did not check:
+   * "the provider lists no supported market" is a claim about the provider, and the evidence only
+   * supports a claim about us. A capture that predates the event and does not name it means the
+   * question is open, not answered.
+   */
+  const captureAt = markets?.capturedAt ?? null;
+  const captureAgeH = ageHours(captureAt);
+
   return (schedule.rows ?? [])
     .filter((r) => withinHours(r.dateUtc, NFL_HORIZON_H))
     .map((r) => {
@@ -115,10 +161,16 @@ function nflEvents() {
         canonicalId: id ? `nfl-${id}` : null,
         startUtc: r.dateUtc,
         marketFamilies: pricedIds.has(id) ? ["h2h"] : [],
-        acquisitionAt: markets?.capturedAt ?? schedule.generatedAt ?? null,
-        sourceAgeHours: ageHours(schedule.generatedAt),
-        maxSourceAgeHours: 30,
+        acquisitionAt: captureAt ?? schedule.generatedAt ?? null,
+        /* The MARKET question is answered by the MARKET capture's age, not the schedule's. Measuring
+           the fresh schedule here made a three-day-old price capture look current. */
+        sourceAgeHours: pricedIds.has(id) ? captureAgeH : null,
+        maxSourceAgeHours: 36,
         joined: Boolean(id),
+        captured: pricedIds.has(id) ? true : coversEvent(captureAt, r.dateUtc),
+        captureDueReason: captureAt
+          ? `the newest NFL market capture is ${captureAt} (${captureAgeH == null ? "?" : captureAgeH.toFixed(0)}h old) and does not name this event — it has not been probed`
+          : "no NFL market capture exists",
         offered: pricedIds.has(id),
         priced: pricedIds.has(id),
         forecast: Boolean(f) && f.lifecycle === "UPCOMING",
@@ -217,14 +269,26 @@ function eplEvents() {
     sourceAgeHours: ageHours(set.oddsCapturedAt ?? set.generatedAt),
     maxSourceAgeHours: 120,
     joined: Boolean(r.eventId),
+    /* Same class as NFL: an odds snapshot taken 2026-08-30 cannot have probed a 09-04 fixture whose
+       market had not opened. The producer's own reason is carried; only the STATE is corrected. */
+    captured: r.state === "READY" ? true : coversEvent(set.oddsCapturedAt ?? set.generatedAt, r.kickoffUtc),
+    captureDueReason: `the newest EPL odds snapshot is ${set.oddsCapturedAt ?? "unknown"} and carries no rows for this fixture — it has not been probed`,
     offered: Boolean(r.probs),
     priced: r.state === "READY",
     forecast: Boolean(r.state) && r.state !== "UNAVAILABLE",
-    published: Boolean(set.public),
+    /*
+     * A SET-LEVEL FLAG IS NOT PER-FIXTURE PUBLICATION. `set.public` says the artifact is a public
+     * one; it says nothing about THIS fixture. Using it made a READY_EXCEPT_ODDS match — whose
+     * probabilities are explicitly withheld — report as PUBLISHED, which is worse than the refusal
+     * it replaced. Identical to the UFC card-level `model` block mistake, made twice in one file.
+     */
+    published: Boolean(set.public) && r.state === "READY",
     publicRoute: r.slug ? `/epl/#${r.slug}` : "/epl/",
     settlementId: r.eventId ?? null,
     settled: false,
-    refusalReason: r.state === "READY_EXCEPT_ODDS" ? (r.unavailableReason ?? "no eligible price for this fixture yet") : null,
+    /* A refusal is a DECISION. When we simply have not asked, NOT_YET_CAPTURED is the truth and the
+       producer's sentence rides along as the reason. */
+    refusalReason: null,
   }));
 }
 

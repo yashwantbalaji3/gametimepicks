@@ -71,6 +71,38 @@ test("REFUSAL · an unreadable start time counts as STARTED — the error that c
   assert.equal(classifyEvent(ev({ startUtc: null })).state, "STARTED", "generating for a possibly-live event is unrecoverable");
 });
 
+test('"WE NEVER ASKED" IS NOT "THERE IS NOTHING THERE"', () => {
+  /*
+   * The distinction that changed two sports' verdicts. NFL's newest market capture was stamped
+   * 08-29 with one event — CHI @ TEN, since played and settled — and the only scheduled game had
+   * never been probed. Reporting it NOT_OFFERED asserts something about the PROVIDER that the
+   * evidence only supports about US. EPL was the same shape: an 08-30 odds snapshot cannot have
+   * probed a 09-04 fixture whose market had not opened.
+   */
+  const neverAsked = classifyEvent(ev({ captured: false, captureDueReason: "the newest capture does not name this event" }));
+  assert.equal(neverAsked.state, "NOT_YET_CAPTURED");
+  assert.match(neverAsked.reason, /does not name this event/);
+
+  // Only a caller that HAS captured may make the claim about the provider.
+  assert.equal(classifyEvent(ev({ captured: true })).state, "NOT_OFFERED");
+  assert.equal(classifyEvent(ev()).state, "NOT_OFFERED", "an unstated capture flag keeps the prior behaviour");
+});
+
+test("NOT_YET_CAPTURED is AWAITED, not owed — and never outranks real evidence", () => {
+  const w = buildSportWindow({
+    sport: "mlb", horizonHours: 48, nowMs: NOW,
+    events: [ev({ canonicalId: "a", captured: false }), ev({ canonicalId: "b", priced: true }), ev({ canonicalId: "c", captured: false })],
+  });
+  assert.equal(w.counts.NOT_YET_CAPTURED, 2);
+  assert.deepEqual(w.awaited.map((r) => r.canonicalId).sort(), ["a", "c"]);
+  assert.deepEqual(w.owed.map((r) => r.canonicalId), ["b"], "an uncaptured event is not a debt until its capture is due");
+
+  // Evidence we DO have always wins over "not captured".
+  for (const extra of [{ offered: true }, { priced: true }, { forecast: true }, { published: true }, { settled: true }]) {
+    assert.notEqual(classifyEvent(ev({ captured: false, ...extra })).state, "NOT_YET_CAPTURED");
+  }
+});
+
 /* ── CONSERVATION ──────────────────────────────────────────────────────────────────────────────── */
 
 test("every event appears exactly once, and the counts sum to the population", () => {
@@ -100,6 +132,7 @@ test("REFUSAL · an empty window is NO_EVENTS and an unreadable one is UNKNOWN �
   assert.equal(buildSportWindow({ sport: "nfl", events: [], horizonHours: 336, nowMs: NOW }).state, "NO_EVENTS");
   const unknown = buildSportWindow({ sport: "epl", events: [], horizonHours: 336, nowMs: NOW, readable: false });
   assert.equal(unknown.state, "UNKNOWN");
+  assert.deepEqual(unknown.awaited, [], "the unreadable shape carries every field a caller reads");
   assert.match(unknown.note, /not the same as nothing scheduled/);
   assert.equal(worstWindowState(["COMPLETE", "NO_EVENTS", "UNKNOWN"]), "UNKNOWN", "not knowing outranks every known state");
   assert.equal(worstWindowState(["COMPLETE", "WORK_OWED", "FINDINGS"]), "FINDINGS");
