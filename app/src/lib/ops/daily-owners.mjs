@@ -204,6 +204,22 @@ export const DAILY_OWNERS = Object.freeze([
     graceMinutes: 150,
     sport: null,
   },
+  {
+    id: "offered-window",
+    label: "Offered-window matrix (all sports)",
+    workflow: "nightly-settle",
+    dependsOn: [],
+    /*
+     * P225 · Release C. The matrix is the authority every other surface consumes, so its own absence
+     * has to be detectable the same way any other owner's is — from a missing durable receipt, never
+     * from a workflow run object. It is date-partitioned, so the receipt is simply today's file.
+     */
+    receipt: { path: (d) => `ops/offered-window.json`, maxAgeHours: 26 },
+    dueFrom: "clock",
+    dueUtcHour: 12,
+    graceMinutes: 150,
+    sport: null,
+  },
 ]);
 
 const MIN = 60_000;

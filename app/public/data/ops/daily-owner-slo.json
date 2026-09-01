@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-01",
-  "checkedAt": "2026-09-01T12:43:32.403Z",
-  "treeHead": "06e1c1554",
+  "checkedAt": "2026-09-01T15:08:33.000Z",
+  "treeHead": "637914f43",
   "state": "NOT_DUE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 15,
@@ -132,6 +132,17 @@
       "workflow": "epl-matchweek",
       "dependsOn": [],
       "receiptPath": "admin/epl-lane.json"
+    },
+    {
+      "id": "offered-window",
+      "state": "HEALTHY",
+      "reason": "receipt present",
+      "dueAtIso": "2026-09-01T12:00:00.000Z",
+      "receiptAt": "2026-09-01T15:07:16Z",
+      "label": "Offered-window matrix (all sports)",
+      "workflow": "nightly-settle",
+      "dependsOn": [],
+      "receiptPath": "ops/offered-window.json"
     }
   ]
 }

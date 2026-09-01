@@ -429,6 +429,15 @@ jobs:
           mkdir -p ../data/internal/audits
           npx --yes tsx scripts/audits/build-event-identity-audit.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             || echo "::warning::event-identity audit failed — prior reconciliation retained"
+          # 6) P225 · Release C — THE OFFERED-WINDOW MATRIX. One deterministic answer to which events
+          #    are offered now, what evidence exists, what is owed and what was refused, across all
+          #    five sports. Reads committed artifacts only: no fetch, no credits. Writes the full
+          #    matrix privately and counts-only publicly. Non-fatal for the same reason as the audit
+          #    above — a findings report must be VISIBLE, not a reason to abort a settlement that
+          #    already succeeded.
+          mkdir -p ../data/internal/offered-window
+          npx --yes tsx scripts/offered-window/build-offered-window.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            || echo "::warning::offered-window matrix failed — prior matrix retained"
 
       - name: Health gate (abort publish on missing/stale/non-reconciling data)
         id: health
@@ -507,6 +516,8 @@ jobs:
           # P224: the identity reconciliation is a receipt — an audit computed and not committed is
           # not a receipt, which is the same reasoning that ungated the NFL index re-derivation.
           git add data/internal/audits/ 2>/dev/null || true
+          git add data/internal/offered-window/ 2>/dev/null || true
+          git add app/public/data/ops/offered-window.json 2>/dev/null || true
           git add pipeline/validation/mlb_settled_leans.jsonl 2>/dev/null || true
           git add pipeline/validation/comparison_report_*.json 2>/dev/null || true
           git add pipeline/validation/mlb_comparison_report_*.json 2>/dev/null || true
