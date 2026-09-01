@@ -2,47 +2,49 @@
   "schemaVersion": 1,
   "artifact": "ufc-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-09-01T05:38:51Z",
+  "generatedAt": "2026-09-01T15:25:19Z",
   "nextCard": {
     "name": "UFC Fight Night: Hooker vs. Parnasse",
     "slateDate": "2026-09-05",
     "bouts": 14,
-    "hoursAway": 106.35
+    "hoursAway": 96.58
   },
   "freshness": {
     "card": {
       "state": "READ",
-      "stampedAt": "2026-08-31T19:27:38Z",
-      "ageHours": 10.19
+      "stampedAt": "2026-09-01T15:24:27Z",
+      "ageHours": 0.01
     },
     "odds": {
       "state": "READ",
-      "stampedAt": "2026-08-29T15:23:01Z",
-      "ageHours": 62.26
+      "stampedAt": "2026-09-01T15:24:39Z",
+      "ageHours": 0.01
     },
     "ladder": {
       "state": "READ",
-      "stampedAt": "2026-08-31T19:28:31Z",
-      "ageHours": 10.17
+      "stampedAt": "2026-09-01T15:25:18Z",
+      "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-08-31T15:58:57+00:00",
-      "ageHours": 13.66
+      "stampedAt": "2026-09-01T13:16:03+00:00",
+      "ageHours": 2.15
     },
     "settled": {
       "state": "READ",
       "stampedAt": "2026-06-15T13:55:00Z",
-      "ageHours": 1863.73
+      "ageHours": 1873.51
     }
   },
   "cards": {
-    "state": "NO_CARDS_FOR_THIS_CARD",
+    "state": "PUBLISHED_FOR_THIS_CARD",
     "date": "2026-09-05",
-    "carded": 0,
-    "skipped": [],
-    "ladderState": "NO_PRICES",
-    "detail": "no price capture for this card (UFC Fight Night: Hooker vs. Parnasse); the newest snapshot covers a different event"
+    "carded": 2,
+    "skipped": [
+      "high",
+      "longshot"
+    ],
+    "selection": "the model's own read — the one model here that passed its preregistered bar. It has never been compared against a no-vig UFC line"
   },
   "settlementReach": {
     "state": "IN_SCOPE",
@@ -52,17 +54,17 @@
   },
   "credits": {
     "state": "READ",
-    "spent": 17,
+    "spent": 18,
     "ceiling": 500,
-    "requests": 18
+    "requests": 19
   },
   "productLane": {
-    "live": false,
-    "blocked": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+    "live": true,
+    "blocked": null
   },
   "population": {
     "state": "POPULATION_EXACT",
-    "generatedAt": "2026-08-31T19:27:48Z",
+    "generatedAt": "2026-09-01T15:24:36Z",
     "counts": {
       "expected": 14,
       "captured": 14,
@@ -132,11 +134,6 @@
       "id": "calibration-sample",
       "state": "REALITY_GATED",
       "detail": "the model has never been scored against a no-vig UFC line, and one card has been settled from official results. Cards have to be fought."
-    },
-    {
-      "id": "product-lane-closed",
-      "state": "REALITY_GATED",
-      "detail": "the Lab gate has closed this lane: only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one. It reopens by itself when the evidence returns."
     }
   ]
 }
