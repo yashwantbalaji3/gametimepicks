@@ -71,11 +71,15 @@ function cardStatusPill(result?: string): TicketStatus {
 }
 
 export default function MoonshotLaneTracker({
-  lane, record, exposure, mode = "full", maxCards, showHistory = true, nowIso,
+  lane, record, exposure, running, mode = "full", maxCards, showHistory = true, nowIso,
 }: {
   lane: MoonshotLane;
   record?: { wins: number; losses: number; voids: number; pending: number };
   exposure?: number;
+  /* Whether the PRODUCT is running, decided by its state owner. The lane artifact's own `status`
+     still reads "active" weeks after the product stopped publishing, so when this is explicitly
+     false the pill reports that rather than the artifact's self-declaration. */
+  running?: boolean;
   /** "full" = standalone /moonshot page; "compact" = embedded preview (e.g. Mr. Dub) with a CTA. */
   mode?: "full" | "compact";
   maxCards?: number;
@@ -114,8 +118,8 @@ export default function MoonshotLaneTracker({
     <section aria-label="Moonshot Lane Tracker" className="flex flex-col gap-4">
       <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid var(--vault-moonshot)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-moonshot) 10%, transparent), color-mix(in srgb, var(--vault-scrim-base) 42%, transparent))" }}>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-moonshot-bright)", fontSize: 10 }}>🌙 Moonshot Lane · daily tracker</span>
-          <StatusPill status={laneStatusPill(lane.status)} dot />
+          <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-moonshot-bright)", fontSize: 10 }}>🌙 Moonshot Lane · lane tracker</span>
+          <StatusPill status={running === false ? "stopped" : laneStatusPill(lane.status)} dot />
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {summary.map(([k, v]) => (
@@ -126,7 +130,8 @@ export default function MoonshotLaneTracker({
           ))}
         </div>
         <p className="mt-2 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
-          A separate, higher-volatility product — <strong style={{ color: "var(--vault-text)" }}>not</strong> part of the core Dual Bank Builder, and its record never blends into the core. Two independent high-upside cards daily · paper-only.
+          A separate, higher-volatility product — <strong style={{ color: "var(--vault-text)" }}>not</strong> part of the core Dual Bank Builder, and its record never blends into the core. Paper-only.
+          {running === false ? " No new cards are being published." : null}
         </p>
       </div>
 

@@ -22,6 +22,11 @@ import { buildFlagship } from "@/lib/mr-dub/flagship";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import { deriveProductState, productStateLabel, isLive } from "@/lib/products/product-state.mjs";
+import {
+  deriveMoonshotState,
+  MOONSHOT_HAS_SCHEDULED_GENERATOR,
+  MOONSHOT_HAS_WIRED_SETTLER,
+} from "@/lib/products/moonshot-state.mjs";
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { ExecutiveDashboard, TodayStatusStrip } from "@/components/mr-dub/flagship/flagship-dashboard";
@@ -61,6 +66,15 @@ export default function MrDubPage() {
   const bankBuilderAlternatives = strongestSlatePicks(root, today, 3);
   const bbProposal = buildBankBuilderProposal(root, today);
   const moonshotLane = loadMoonshotLane();
+  /* The one Moonshot state owner, so this surface and /moonshot cannot drift apart again. */
+  const moonshotState = deriveMoonshotState({
+    lane: moonshotLane,
+    portfolioMoonshot: portfolio?.moonshot ?? null,
+    productLedger: (() => { try { return JSON.parse(fs.readFileSync(path.join(root, "product-ledger", "moonshot.json"), "utf8")); } catch { return null; } })(),
+    hasScheduledGenerator: MOONSHOT_HAS_SCHEDULED_GENERATOR,
+    hasWiredSettler: MOONSHOT_HAS_WIRED_SETTLER,
+    today: currentEtDate(),
+  });
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 pb-28 pt-6 sm:pt-8 flex flex-col gap-6 overflow-x-hidden">
@@ -146,14 +160,29 @@ export default function MrDubPage() {
         <DailyPortfolioSection portfolio={dailyPortfolio} bankBuilderAlternatives={bankBuilderAlternatives} bankBuilderProposal={bbProposal} />
         {portfolio?.moonshot ? (
           <section>
-            <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot Lane" sub="Independent daily high-volatility longshot cards (current MLB player props) — tracked apart from the core ladder. Higher variance by design; settles from official box scores." />
+            {/* Cross-surface agreement: the SAME owner /moonshot renders from. This section used to
+                promise "independent daily … longshot cards" that "settle from official box scores" —
+                nothing generates them, and the cards already published carry no game identity to
+                settle against. It also printed the portfolio's 0-1 as the record while the product
+                ledger holds seven. */}
+            <SectionHeader eyebrow="Separate · high-volatility" title="Moonshot Lane" sub="A separate, higher-volatility paper lane — tracked apart from the core ladder and never blended into its record." />
             <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
-              🌙 Moonshot exposure <span className="font-mono" style={{ color: "var(--vault-moonshot-bright)" }}>{usd(portfolio.moonshot.exposure)}</span> · separate from the core lanes. Record {portfolio.moonshot.record?.wins ?? 0}–{portfolio.moonshot.record?.losses ?? 0}. Does not affect the core Bank Builder record. Paper-only.
+              🌙 {moonshotState.publicNote}
+            </p>
+            <p className="mt-1 mb-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
+              Settled record{" "}
+              <span className="font-mono" style={{ color: "var(--vault-moonshot-bright)" }}>
+                {moonshotState.ledgerRecord ? `${moonshotState.ledgerRecord.wins}–${moonshotState.ledgerRecord.losses}` : "—"}
+              </span>
+              {moonshotState.ledgerRecord?.fromDate ? ` (${moonshotState.ledgerRecord.fromDate} … ${moonshotState.ledgerRecord.throughDate})` : ""}
+              {moonshotState.openCardCount ? ` · ${moonshotState.openCardCount} card(s) left open and ungraded` : ""}
+              . Does not affect the core Bank Builder record. Paper-only.{" "}
+              <Link href="/moonshot" style={{ color: "var(--vault-moonshot-bright)" }}>Full reconciliation →</Link>
             </p>
             {moonshotLane ? (
-              <MoonshotLaneTracker lane={moonshotLane} record={portfolio.moonshot.record} exposure={portfolio.moonshot.exposure} mode="compact" />
+              <MoonshotLaneTracker lane={moonshotLane} record={moonshotState.displayRecord ?? undefined} exposure={portfolio.moonshot.exposure} running={moonshotState.running} mode="compact" />
             ) : (
-              <Link href="/moonshot" className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-moonshot-bright)", textDecoration: "none" }}>Open the Moonshot Lane daily tracker →</Link>
+              <Link href="/moonshot" className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "var(--vault-moonshot-bright)", textDecoration: "none" }}>Open the Moonshot Lane tracker →</Link>
             )}
           </section>
         ) : null}
