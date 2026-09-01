@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823661,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T15:24:05.563Z",
+  "availableAt": "2026-09-01T15:24:05.563Z",
+  "eventStartTime": "2026-09-01T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 702193,
+      "name": "Andrew Morris",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 89,
+      "lastStartDate": "2026-06-04",
+      "last5": {
+        "starts": 2,
+        "ipSum": 3,
+        "ipAvg": 1.5,
+        "kAvg": 1,
+        "bbAvg": 0.5,
+        "erAvg": 1,
+        "hrAvg": 0,
+        "kPer9": 6,
+        "workloadIpLast5": 3
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 3,
+        "k": 2,
+        "bb": 1,
+        "er": 2,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 675512,
+      "name": "Troy Melton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 6,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 4,
+        "bbAvg": 1.4,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 6,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 97,
+        "k": 80,
+        "bb": 28,
+        "er": 20,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-01T15:24:05.563Z"
+  },
+  "recordHash": "e2490bcd30d6a297749e209284c7adfd043c4355d31ba943fd9c7f579689f8c6"
+}
