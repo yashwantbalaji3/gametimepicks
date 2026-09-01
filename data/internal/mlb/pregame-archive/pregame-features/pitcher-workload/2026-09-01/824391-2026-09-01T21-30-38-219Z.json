@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824391,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T21:30:38.219Z",
+  "availableAt": "2026-09-01T21:30:38.219Z",
+  "eventStartTime": "2026-09-01T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 668909,
+      "name": "Gavin Williams",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 7,
+      "lastStartDate": "2026-08-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 7.2,
+        "bbAvg": 2.2,
+        "erAvg": 2.8,
+        "hrAvg": 1.2,
+        "kPer9": 14.29,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 156,
+        "k": 204,
+        "bb": 49,
+        "er": 69,
+        "hr": 27
+      }
+    },
+    "away": {
+      "id": 693686,
+      "name": "Spencer Miles",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 6,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 16,
+        "ipAvg": 3.2,
+        "kAvg": 2,
+        "bbAvg": 0.6,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 5.63,
+        "workloadIpLast5": 16
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 16,
+        "k": 10,
+        "bb": 3,
+        "er": 14,
+        "hr": 2
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-01T21:30:38.219Z"
+  },
+  "recordHash": "dcf9f7f107a1a002412c11f2f75f152f5d01fee19b6f1a54d99a392f73b8bbf0"
+}

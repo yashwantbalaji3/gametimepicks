@@ -1,0 +1,211 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "824391-f51081fbcbb4d3313601c896cf2509fa",
+  "snapshotCreatedAt": "2026-09-01T21:30:38.051Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-09-01",
+  "eventId": "824391",
+  "gamePk": 824391,
+  "eventStartTime": "2026-09-01T22:40:00Z",
+  "homeTeam": "CLE",
+  "awayTeam": "TOR",
+  "venue": "Progressive Field",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "db9513d132507a4e3961e1ea1251d2bf",
+  "normalizedPayloadHash": "17cb2297dcd4d3cc932982fd0f4a206f",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          680757,
+          800050,
+          608070,
+          666176,
+          663993,
+          682657,
+          683953,
+          672275,
+          677587
+        ],
+        "away": [
+          703520,
+          672386,
+          665489,
+          543807,
+          664770,
+          672960,
+          665926,
+          676391,
+          664702
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-01T21:30:38.051Z",
+      "availableAt": "2026-09-01T21:30:38.051Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-01T21:30:38.051Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824391/feed/live",
+        "requestedAt": "2026-09-01T21:30:38.051Z",
+        "receivedAt": "2026-09-01T21:30:38.051Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Gavin Williams",
+        "awayProbable": "Spencer Miles",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-01T21:30:38.051Z",
+      "availableAt": "2026-09-01T21:30:38.051Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-01T21:30:38.051Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824391/feed/live",
+        "requestedAt": "2026-09-01T21:30:38.051Z",
+        "receivedAt": "2026-09-01T21:30:38.051Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Partly Cloudy",
+        "temp": "85",
+        "wind": "9 mph, L To R",
+        "roofType": "Open",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-01T21:30:38.051Z",
+      "availableAt": "2026-09-01T21:30:38.051Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-01T21:30:38.051Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824391/feed/live",
+        "requestedAt": "2026-09-01T21:30:38.051Z",
+        "receivedAt": "2026-09-01T21:30:38.051Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Laz Diaz",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Edwin Jimenez",
+            "type": "First Base"
+          },
+          {
+            "name": "Erich Bacchus",
+            "type": "Second Base"
+          },
+          {
+            "name": "Chris Segal",
+            "type": "Third Base"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-09-01T21:30:38.051Z",
+      "availableAt": "2026-09-01T21:30:38.051Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-09-01T21:30:38.051Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/824391/feed/live",
+        "requestedAt": "2026-09-01T21:30:38.051Z",
+        "receivedAt": "2026-09-01T21:30:38.051Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}
