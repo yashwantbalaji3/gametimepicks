@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824070,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T18:04:14.702Z",
+  "availableAt": "2026-09-01T18:04:14.702Z",
+  "eventStartTime": "2026-09-01T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 677976,
+      "name": "Randy Dobnak",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 6,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 4,
+        "bbAvg": 2.2,
+        "erAvg": 1.6,
+        "hrAvg": 0.2,
+        "kPer9": 7.01,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 42,
+        "k": 30,
+        "bb": 17,
+        "er": 9,
+        "hr": 2
+      }
+    },
+    "away": {
+      "id": 663969,
+      "name": "Tyler Phillips",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 7,
+      "lastStartDate": "2026-08-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 5,
+        "bbAvg": 1.4,
+        "erAvg": 2,
+        "hrAvg": 1,
+        "kPer9": 9.38,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 68.67,
+        "k": 53,
+        "bb": 24,
+        "er": 34,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-01T18:04:14.702Z"
+  },
+  "recordHash": "e117e4d5b17d4907831d595e9a1de431b1759fe2b302df437654e5f4d8deebec"
+}

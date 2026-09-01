@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822929,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T18:04:14.702Z",
+  "availableAt": "2026-09-01T18:04:14.702Z",
+  "eventStartTime": "2026-09-01T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 642547,
+      "name": "Freddy Peralta",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 4,
+        "bbAvg": 1.2,
+        "erAvg": 3.4,
+        "hrAvg": 1,
+        "kPer9": 6.59,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 141,
+        "k": 133,
+        "bb": 54,
+        "er": 80,
+        "hr": 22
+      }
+    },
+    "away": {
+      "id": 640455,
+      "name": "Sean Manaea",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 5,
+      "lastStartDate": "2026-08-27",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 6.4,
+        "bbAvg": 2,
+        "erAvg": 3.4,
+        "hrAvg": 1.4,
+        "kPer9": 9.29,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 79.67,
+        "k": 75,
+        "bb": 23,
+        "er": 38,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-01T18:04:14.702Z"
+  },
+  "recordHash": "cf2743c7316a481ea60c7ffcd1599d3ff184b0371b494b24d6f9d8ec8bb5397d"
+}
