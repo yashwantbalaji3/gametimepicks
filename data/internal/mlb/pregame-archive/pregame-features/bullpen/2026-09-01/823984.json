@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823984,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T00:13:49.050Z",
+  "availableAt": "2026-09-01T00:13:49.050Z",
+  "eventStartTime": "2026-09-02T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-29",
+    "2026-08-30",
+    "2026-08-31"
+  ],
+  "home": {
+    "teamId": 108,
+    "teamName": "Los Angeles Angels",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 143,
+      "relievers": [
+        {
+          "id": 694680,
+          "name": "Trevor Martin",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 9,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 2,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 815083,
+          "name": "Mitch Farris",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 671111,
+          "name": "Sammy Peralta",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 1,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 684665,
+          "name": "Luke Murphy",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 642048,
+          "name": "Tayler Saucedo",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 10,
+      "pitches": 189,
+      "relievers": [
+        {
+          "id": 642232,
+          "name": "Ryan Yarbrough",
+          "appearances": 1,
+          "pitches": 60,
+          "outs": 9,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 657612,
+          "name": "Tim Hill",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 9,
+          "dates": [
+            "2026-08-29",
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 660787,
+          "name": "Yerry De los Santos",
+          "appearances": 2,
+          "pitches": 23,
+          "outs": 4,
+          "dates": [
+            "2026-08-29",
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 687396,
+          "name": "Brent Headrick",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 623437,
+          "name": "Justin Topa",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 605242,
+          "name": "Michael Fulmer",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 1,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 694341,
+          "name": "Brendan Beck",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-29,2026-08-30,2026-08-31) + feed/live box scores",
+    "capturedAt": "2026-09-01T00:13:49.050Z"
+  },
+  "recordHash": "44771b5b2e08ccfa5bc64675464f7880176a20a50b9a5ef665b9776c1a182706"
+}

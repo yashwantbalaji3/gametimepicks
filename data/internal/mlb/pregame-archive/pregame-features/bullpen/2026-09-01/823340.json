@@ -1,0 +1,209 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823340,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T00:13:49.050Z",
+  "availableAt": "2026-09-01T00:13:49.050Z",
+  "eventStartTime": "2026-09-01T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-29",
+    "2026-08-30",
+    "2026-08-31"
+  ],
+  "home": {
+    "teamId": 134,
+    "teamName": "Pittsburgh Pirates",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 10,
+      "pitches": 160,
+      "relievers": [
+        {
+          "id": 669387,
+          "name": "Carmen Mlodzinski",
+          "appearances": 1,
+          "pitches": 50,
+          "outs": 10,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 682254,
+          "name": "Mason Montgomery",
+          "appearances": 2,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-08-29",
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 596133,
+          "name": "Luke Weaver",
+          "appearances": 2,
+          "pitches": 22,
+          "outs": 6,
+          "dates": [
+            "2026-08-29",
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 666808,
+          "name": "Camilo Doval",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 2,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 642397,
+          "name": "Gregory Soto",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 681895,
+          "name": "Evan Sisk",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 1,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 489446,
+          "name": "Kirby Yates",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 670990,
+          "name": "Yohan Ramírez",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-08-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 122,
+      "relievers": [
+        {
+          "id": 675920,
+          "name": "Seth Lonsway",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 6,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 693313,
+          "name": "Carson Seymour",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 4,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 676254,
+          "name": "Ryan Walker",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 671345,
+          "name": "Jason Foley",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 681916,
+          "name": "Dylan Smith",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 805345,
+          "name": "Trent Harris",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 1,
+          "dates": [
+            "2026-08-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-29,2026-08-30,2026-08-31) + feed/live box scores",
+    "capturedAt": "2026-09-01T00:13:49.050Z"
+  },
+  "recordHash": "dd9c3de94314cdb69e2d79b05d5d2a1b242838153361b83fad13b196a91e6cce"
+}

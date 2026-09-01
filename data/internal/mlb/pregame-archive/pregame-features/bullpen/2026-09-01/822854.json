@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822854,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T00:13:49.050Z",
+  "availableAt": "2026-09-01T00:13:49.050Z",
+  "eventStartTime": "2026-09-02T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-29",
+    "2026-08-30",
+    "2026-08-31"
+  ],
+  "home": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 144,
+      "relievers": [
+        {
+          "id": 596001,
+          "name": "Jakob Junis",
+          "appearances": 2,
+          "pitches": 44,
+          "outs": 6,
+          "dates": [
+            "2026-08-29",
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 641302,
+          "name": "Tyler Alexander",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 682608,
+          "name": "Peyton Gray",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 671936,
+          "name": "Adam Macko",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 656756,
+          "name": "Jordan Montgomery",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 656641,
+          "name": "Jacob Latz",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 133,
+    "teamName": "Athletics",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 129,
+      "relievers": [
+        {
+          "id": 695034,
+          "name": "Kade Morris",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 665660,
+          "name": "Elvis Alvarado",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 656240,
+          "name": "Scott Blewett",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 4,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 669620,
+          "name": "Brady Basso",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 688297,
+          "name": "Chris Roycroft",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 660761,
+          "name": "José Suarez",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 665622,
+          "name": "Luis Medina",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-29,2026-08-30,2026-08-31) + feed/live box scores",
+    "capturedAt": "2026-09-01T00:13:49.050Z"
+  },
+  "recordHash": "bb32db6c00ae407596b93a4c10a8dbecaaebe7abc50ee9e0b40eac2c68701d12"
+}

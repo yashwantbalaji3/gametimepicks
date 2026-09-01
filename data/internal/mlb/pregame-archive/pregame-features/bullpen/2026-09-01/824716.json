@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824716,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T00:13:49.050Z",
+  "availableAt": "2026-09-01T00:13:49.050Z",
+  "eventStartTime": "2026-09-01T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-29",
+    "2026-08-30",
+    "2026-08-31"
+  ],
+  "home": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 262,
+      "relievers": [
+        {
+          "id": 678394,
+          "name": "Brayan Bello",
+          "appearances": 1,
+          "pitches": 94,
+          "outs": 13,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 663558,
+          "name": "Jovani Morán",
+          "appearances": 2,
+          "pitches": 52,
+          "outs": 7,
+          "dates": [
+            "2026-08-29",
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 670103,
+          "name": "Raymond Burgos",
+          "appearances": 1,
+          "pitches": 42,
+          "outs": 7,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 655316,
+          "name": "Andruw Monasterio",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 2,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 594027,
+          "name": "Tyron Guerrero",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 676477,
+          "name": "Garrett Whitlock",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 136,
+    "teamName": "Seattle Mariners",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 127,
+      "relievers": [
+        {
+          "id": 689546,
+          "name": "Nick Davila",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 678606,
+          "name": "José A. Ferrer",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 2,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 660825,
+          "name": "Eduard Bazardo",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 2,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 672841,
+          "name": "Carlos Vargas",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 7,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 622554,
+          "name": "Seranthony Domínguez",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 642100,
+          "name": "Gabe Speier",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-29,2026-08-30,2026-08-31) + feed/live box scores",
+    "capturedAt": "2026-09-01T00:13:49.050Z"
+  },
+  "recordHash": "72b9fa93f93917d075d0535c91414062661c307bfa237cd17f3e94025ed1b34e"
+}

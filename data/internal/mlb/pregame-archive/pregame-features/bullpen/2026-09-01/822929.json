@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822929,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T00:13:49.050Z",
+  "availableAt": "2026-09-01T00:13:49.050Z",
+  "eventStartTime": "2026-09-01T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-29",
+    "2026-08-30",
+    "2026-08-31"
+  ],
+  "home": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 118,
+      "relievers": [
+        {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 2,
+          "pitches": 23,
+          "outs": 6,
+          "dates": [
+            "2026-08-29",
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 655889,
+          "name": "Manuel Rodríguez",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 687330,
+          "name": "Kevin Kelly",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 5,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 664076,
+          "name": "Garrett Cleavinger",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 1,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 668984,
+          "name": "Casey Legumina",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 669330,
+          "name": "Tyler Wells",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 592155,
+          "name": "Cam Booser",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 121,
+    "teamName": "New York Mets",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 97,
+      "relievers": [
+        {
+          "id": 650960,
+          "name": "Daniel Duarte",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 702752,
+          "name": "Jonathan Pintaro",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 642376,
+          "name": "Jefry Yan",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 681810,
+          "name": "Austin Warren",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 606965,
+          "name": "Chris Devenski",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 673540,
+          "name": "Kodai Senga",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-29,2026-08-30,2026-08-31) + feed/live box scores",
+    "capturedAt": "2026-09-01T00:13:49.050Z"
+  },
+  "recordHash": "9a5c143a8384ff943f56dbaddb72f96f4163cbdb1aedaa3eb6f365a9c72a1b06"
+}

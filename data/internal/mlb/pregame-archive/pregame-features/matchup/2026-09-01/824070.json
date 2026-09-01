@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 824070,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T00:13:49.981Z",
+  "availableAt": "2026-09-01T00:13:49.981Z",
+  "eventStartTime": "2026-09-01T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 677976,
+    "name": "Randy Dobnak",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 663969,
+    "name": "Tyler Phillips",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-01T00:13:49.981Z"
+  },
+  "recordHash": "3c3d08a414db526f2980311acfff5a8c05273342e7314923ac99ec3b20571ade"
+}

@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824070,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T00:13:49.050Z",
+  "availableAt": "2026-09-01T00:13:49.050Z",
+  "eventStartTime": "2026-09-01T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-29",
+    "2026-08-30",
+    "2026-08-31"
+  ],
+  "home": {
+    "teamId": 118,
+    "teamName": "Kansas City Royals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 140,
+      "relievers": [
+        {
+          "id": 671162,
+          "name": "Connor Thomas",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 7,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 656638,
+          "name": "Alex Lange",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 621016,
+          "name": "Jose Cuas",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 543238,
+          "name": "Anthony Gose",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 5,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 670167,
+          "name": "John Schreiber",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 663878,
+          "name": "Nate Pearson",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 518886,
+          "name": "Craig Kimbrel",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 571912,
+          "name": "Luke Maile",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 146,
+    "teamName": "Miami Marlins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 127,
+      "relievers": [
+        {
+          "id": 656848,
+          "name": "Michael Petersen",
+          "appearances": 2,
+          "pitches": 32,
+          "outs": 5,
+          "dates": [
+            "2026-08-29",
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 690978,
+          "name": "Dax Fulton",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 680767,
+          "name": "Victor Vodnik",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 694795,
+          "name": "Josh Ekness",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 5,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 667652,
+          "name": "Jack Ralston",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-08-29"
+          ]
+        },
+        {
+          "id": 676534,
+          "name": "Calvin Faucher",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 4,
+          "dates": [
+            "2026-08-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-29,2026-08-30,2026-08-31) + feed/live box scores",
+    "capturedAt": "2026-09-01T00:13:49.050Z"
+  },
+  "recordHash": "f26c328f17468f721e068267c8ced9da6e4d9d60bd884688713e3d3f77f4a410"
+}
