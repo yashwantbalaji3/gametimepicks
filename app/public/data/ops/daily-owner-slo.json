@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-01",
-  "checkedAt": "2026-09-01T04:36:51.080Z",
-  "treeHead": "88df46e7a",
+  "checkedAt": "2026-09-01T06:37:41.000Z",
+  "treeHead": "305451fdb",
   "state": "NOT_DUE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 15,
@@ -69,10 +69,68 @@
       "reason": "receipt present",
       "dueAtIso": "2026-09-01T13:00:00.000Z",
       "receiptAt": "2026-08-31T19:17:50Z",
-      "label": "Schedule + injury capture (all sports)",
+      "label": "Schedule capture (NFL) + injury capture",
       "workflow": "sport-schedules",
       "dependsOn": [],
       "receiptPath": "nfl/schedule/latest.json"
+    },
+    {
+      "id": "nfl-index",
+      "state": "HEALTHY",
+      "reason": "receipt present",
+      "dueAtIso": "2026-09-01T15:00:00.000Z",
+      "receiptAt": "2026-09-01T05:38:51Z",
+      "label": "NFL canonical index",
+      "workflow": "nfl-event-window",
+      "dependsOn": [],
+      "receiptPath": "nfl/index.json"
+    },
+    {
+      "id": "nfl-products",
+      "state": "HEALTHY",
+      "reason": "receipt present",
+      "dueAtIso": "2026-09-01T15:00:00.000Z",
+      "receiptAt": "2026-09-01T05:38:51Z",
+      "label": "NFL product eligibility + run receipts",
+      "workflow": "nfl-event-window",
+      "dependsOn": [
+        "nfl-index"
+      ],
+      "receiptPath": "nfl/product-receipts.json"
+    },
+    {
+      "id": "ufc-card",
+      "state": "HEALTHY",
+      "reason": "receipt present",
+      "dueAtIso": "2026-09-01T13:00:00.000Z",
+      "receiptAt": "2026-08-31T19:27:38Z",
+      "label": "UFC card + model read",
+      "workflow": "ufc-fight-week",
+      "dependsOn": [],
+      "receiptPath": "ufc/card-latest.json"
+    },
+    {
+      "id": "ufc-lane",
+      "state": "HEALTHY",
+      "reason": "receipt present",
+      "dueAtIso": "2026-09-01T13:00:00.000Z",
+      "receiptAt": "2026-09-01T05:38:51Z",
+      "label": "UFC lane status",
+      "workflow": "ufc-fight-week",
+      "dependsOn": [
+        "ufc-card"
+      ],
+      "receiptPath": "admin/ufc-lane.json"
+    },
+    {
+      "id": "epl-lane",
+      "state": "NOT_DUE",
+      "reason": "epl-matchweek does not run on this weekday (runs UTC days 0, 4, 5, 6)",
+      "dueAtIso": null,
+      "label": "EPL lane status",
+      "workflow": "epl-matchweek",
+      "dependsOn": [],
+      "receiptPath": "admin/epl-lane.json"
     }
   ]
 }

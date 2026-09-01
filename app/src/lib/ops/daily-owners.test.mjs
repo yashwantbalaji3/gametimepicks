@@ -139,6 +139,69 @@ test("the deadline comes from the day's first event, not from a fixed hour", () 
   assert.equal(new Date(late).toISOString(), "2026-08-29T00:45:00.000Z");
 });
 
+/* ── P224 · RELEASE D — THE SPORTS THE ORIGINAL SIX NEVER COVERED ─────────────────────────────── */
+
+test("A CADENCE THAT IS NOT DAILY IS DECLARED, not assumed", () => {
+  /*
+   * epl-matchweek fires Thursday through Sunday. Given a daily expectation this owner would open an
+   * incident every Monday, Tuesday and Wednesday — and a detector that cries wolf three days in
+   * seven teaches its reader to ignore it, which is the same outcome as having no detector.
+   */
+  const epl = owner("epl-lane");
+  assert.deepEqual(epl.runsOnUtcDays, [0, 4, 5, 6]);
+
+  // 2026-09-01 is a Tuesday: not a run day, so nothing is owed.
+  const tuesday = evaluateOwner(epl, {
+    date: "2026-09-01", nowMs: at("2026-09-02T06:00:00Z"), earliestStartMs: NaN, scheduledCount: 1, receipt: null,
+  });
+  assert.equal(tuesday.state, "NOT_DUE");
+  assert.match(tuesday.reason, /does not run on this weekday/);
+
+  // 2026-09-04 is a Friday: it IS a run day, so a missing receipt past grace is a real incident.
+  const friday = evaluateOwner(epl, {
+    date: "2026-09-04", nowMs: at("2026-09-05T02:00:00Z"), earliestStartMs: NaN, scheduledCount: 1, receipt: null,
+  });
+  assert.equal(friday.state, "INCIDENT", "on a day it does run, silence is still an incident");
+});
+
+test("the sport-specific owners do not go quiet just because that sport has no games", () => {
+  /*
+   * `sport: null` on purpose. The NFL index is re-derived on EVERY window including empty ones —
+   * a quiet NFL week is exactly when it used to freeze a day behind — and the NFL product lanes
+   * still publish their refusal, which IS the receipt that they ran.
+   */
+  for (const id of ["nfl-index", "nfl-products", "ufc-card", "ufc-lane", "epl-lane"]) {
+    assert.equal(owner(id).sport, null, `${id} must not be excused by an empty slate`);
+  }
+  const idx = evaluateOwner(owner("nfl-index"), {
+    date: "2026-09-01", nowMs: at("2026-09-01T18:00:00Z"), earliestStartMs: NaN, scheduledCount: 0, receipt: null,
+  });
+  assert.equal(idx.state, "INCIDENT", "an empty NFL day still owes an index");
+});
+
+test("a latest-style receipt is judged by AGE, not by existence", () => {
+  // These artifacts are not date-partitioned, so a file that simply stopped being rewritten would
+  // otherwise read as present forever.
+  for (const id of ["nfl-index", "nfl-products", "ufc-card", "ufc-lane", "epl-lane", "schedules"]) {
+    assert.ok(owner(id).receipt.maxAgeHours > 0, `${id}: a latest-style receipt needs an age bound`);
+  }
+  const stale = evaluateOwner(owner("ufc-card"), {
+    date: "2026-09-01", nowMs: at("2026-09-03T13:00:00Z"), earliestStartMs: NaN, scheduledCount: 1,
+    receipt: { generatedAt: "2026-08-31T19:27:38Z" },
+  });
+  assert.equal(stale.state, "STALE");
+});
+
+test("the schedules owner says which sport it actually checks", () => {
+  /*
+   * It was labelled "Schedule + injury capture (all sports)" while reading only the NFL capture, so
+   * a dead MLB, EPL or UFC schedule lane would have been reported as a healthy all-sports capture.
+   */
+  const s = owner("schedules");
+  assert.doesNotMatch(s.label, /all sports/i, "the label must not claim coverage the receipt does not have");
+  assert.match(s.receipt.path("2026-09-01", "2026-08-31"), /^nfl\//, "and the label must match the path it reads");
+});
+
 /* ── THE GRAPH ────────────────────────────────────────────────────────────────────────────────── */
 
 test("every owner declares a workflow, a receipt and a derivable deadline", () => {

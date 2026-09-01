@@ -114,13 +114,94 @@ export const DAILY_OWNERS = Object.freeze([
   },
   {
     id: "schedules",
-    label: "Schedule + injury capture (all sports)",
+    /*
+     * P224: labelled "all sports" while its receipt reads ONLY the NFL capture — so a dead MLB, EPL
+     * or UFC schedule lane would have been reported as a healthy all-sports capture. The label now
+     * says what is actually checked; the sibling per-sport owners below cover the rest.
+     */
+    label: "Schedule capture (NFL) + injury capture",
     workflow: "sport-schedules",
     dependsOn: [],
     receipt: { path: () => `nfl/schedule/latest.json`, maxAgeHours: 24 },
     dueFrom: "clock",
     dueUtcHour: 13,
     graceMinutes: 90,
+    sport: null,
+  },
+
+  /* ── P224 · Release D — the sports the six original owners never covered ────────────────────── */
+
+  {
+    id: "nfl-index",
+    label: "NFL canonical index",
+    workflow: "nfl-event-window",
+    dependsOn: [],
+    /*
+     * Re-derived on EVERY window including empty ones, so it is a true daily receipt even in a quiet
+     * NFL week — which is exactly when the index used to freeze a day behind and nobody noticed.
+     */
+    receipt: { path: () => `nfl/index.json`, maxAgeHours: 26 },
+    dueFrom: "clock",
+    dueUtcHour: 15, // the 15:00Z window; the 14:30Z and 21:00Z runs are extra chances, not the deadline
+    graceMinutes: 120,
+    sport: null, // NFL having no games today is not a reason for the index to go unbuilt
+  },
+  {
+    id: "nfl-products",
+    label: "NFL product eligibility + run receipts",
+    workflow: "nfl-event-window",
+    dependsOn: ["nfl-index"],
+    /*
+     * A quiet window still produces these: they refuse with "no pre-kickoff NFL event was available
+     * to evaluate" rather than going unwritten. That refusal IS the receipt that the lane ran.
+     */
+    receipt: { path: () => `nfl/product-receipts.json`, maxAgeHours: 26 },
+    dueFrom: "clock",
+    dueUtcHour: 15,
+    graceMinutes: 150,
+    sport: null,
+  },
+  {
+    id: "ufc-card",
+    label: "UFC card + model read",
+    workflow: "ufc-fight-week",
+    dependsOn: [],
+    /*
+     * ufc-fight-week fires Tue/Thu/Sat at 11:00Z and Sun/Mon/Wed/Fri at 13:00Z — between them every
+     * weekday is covered, so this is a daily receipt with the later of the two hours as its deadline.
+     */
+    receipt: { path: () => `ufc/card-latest.json`, maxAgeHours: 30 },
+    dueFrom: "clock",
+    dueUtcHour: 13,
+    graceMinutes: 180,
+    sport: null,
+  },
+  {
+    id: "ufc-lane",
+    label: "UFC lane status",
+    workflow: "ufc-fight-week",
+    dependsOn: ["ufc-card"],
+    receipt: { path: () => `admin/ufc-lane.json`, maxAgeHours: 30 },
+    dueFrom: "clock",
+    dueUtcHour: 13,
+    graceMinutes: 180,
+    sport: null,
+  },
+  {
+    id: "epl-lane",
+    label: "EPL lane status",
+    workflow: "epl-matchweek",
+    dependsOn: [],
+    receipt: { path: () => `admin/epl-lane.json`, maxAgeHours: 30 },
+    /*
+     * THU–SUN ONLY. epl-matchweek runs at 21:00Z on Thursday, Friday, Saturday and Sunday, each
+     * ahead of the following day's fixtures. Monday to Wednesday it does not run, and asking for a
+     * receipt on those days would open three false incidents a week.
+     */
+    runsOnUtcDays: [0, 4, 5, 6],
+    dueFrom: "clock",
+    dueUtcHour: 21,
+    graceMinutes: 150,
     sport: null,
   },
 ]);
@@ -169,6 +250,28 @@ export function dueAt(owner, { earliestStartMs, date }) {
  */
 export function evaluateOwner(owner, ctx) {
   const { nowMs, date, earliestStartMs, scheduledCount, receipt } = ctx;
+
+  /*
+   * NOT EVERY OWNER RUNS EVERY DAY, and pretending otherwise manufactures incidents.
+   *
+   * `epl-matchweek` fires Thursday through Sunday only. Given a daily expectation it would open an
+   * incident every Monday, Tuesday and Wednesday — a detector that cries wolf three days in seven
+   * teaches its reader to ignore it, which is the same outcome as having no detector at all.
+   *
+   * A cadence is a property of the owner, so it is declared on the owner. An owner without
+   * `runsOnUtcDays` runs daily, which is what the original six do.
+   */
+  if (Array.isArray(owner.runsOnUtcDays)) {
+    const dow = new Date(`${date}T12:00:00Z`).getUTCDay();
+    if (!owner.runsOnUtcDays.includes(dow)) {
+      return {
+        id: owner.id,
+        state: "NOT_DUE",
+        reason: `${owner.workflow} does not run on this weekday (runs UTC days ${owner.runsOnUtcDays.join(", ")})`,
+        dueAtIso: null,
+      };
+    }
+  }
 
   // Not knowing whether work was expected is not the same as knowing none was. An owner whose own
   // inputs are unreadable is UNKNOWN, and UNKNOWN is never green.
