@@ -71,11 +71,14 @@ function TopList({ props, n }: { props: BoardProp[]; n: number }) {
   );
 }
 
-export default function MlbFlagshipSections({ props, games, teamRows, homerBoard, simHref }: {
+export default function MlbFlagshipSections({ props, games, teamRows, homerBoard, homerRecord, simHref }: {
   props: BoardProp[];
   games: ExplorerGame[];
   teamRows: readonly TeamMarketRow[];
   homerBoard: HomerNukesBoard | null;
+  /* The live Homer Nukes record — the honest-limits sentence is derived from it, never from the
+     board artifact's stored snapshot. See lib/mlb/homer-nukes-honesty.mjs. */
+  homerRecord?: unknown;
   simHref: string | null;
 }) {
   const live = props.length > 0;
@@ -115,7 +118,7 @@ export default function MlbFlagshipSections({ props, games, teamRows, homerBoard
        * full-game simulation closes as its own destination. One screen, three columns, no scrolling
        * to discover that a section exists.
        */}
-      {homerBoard ? <HomerNukesBoardSection board={homerBoard} /> : null}
+      {homerBoard ? <HomerNukesBoardSection board={homerBoard} record={homerRecord ?? null} /> : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start">
         <SectionCard id="mlb-player-props" tag="Batters" title="Batter props" sub="Hits · total bases · hits+runs+RBIs, filterable.">

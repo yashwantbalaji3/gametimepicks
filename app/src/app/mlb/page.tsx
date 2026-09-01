@@ -7,6 +7,7 @@
  * (every lean) stays at /mlb/board — this hub surfaces the top projections + a CTA. No fabricated
  * data; lean/game counts come from the live board summary.
  */
+import fs from "node:fs";
 import Link from "next/link";
 import CompetitionBadge from "@/components/ui/competition-badge";
 import TopReadsPanel from "@/components/top-reads-panel";
@@ -114,6 +115,8 @@ export default function MlbLandingPage() {
   const gameCount = summary.scheduledGames || games.length || 0;
   const gameOutlook = getGameOutlook("mlb");
   const homerNukesBoard = loadHomerNukesBoard(path.join(process.cwd(), "public", "data"), date);
+  /* The live record behind the honest-limits sentence (lib/mlb/homer-nukes-honesty.mjs). */
+  const homerNukesRecord = (() => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "mlb", "homer-nukes", "record.json"), "utf8")); } catch { return null; } })();
   const riskLadder = loadRiskLadder(path.join(process.cwd(), "public", "data"), flagshipDate);
   const labLedger = loadLabLedger(path.join(process.cwd(), "public", "data"));
 
@@ -461,6 +464,7 @@ export default function MlbLandingPage() {
           games={flagshipGames}
           teamRows={teamMarketRows}
           homerBoard={homerNukesBoard}
+          homerRecord={homerNukesRecord}
           simHref={featuredSimHref}
         />
       </div>

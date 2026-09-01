@@ -1,3 +1,4 @@
+import { homerNukesHonestLimit } from "@/lib/mlb/homer-nukes-honesty.mjs";
 import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
@@ -40,7 +41,13 @@ function Gauge({ value, max }: { value: number; max: number }) {
   );
 }
 
-export default function HomerNukesBoardSection({ board }: { board: HomerNukesBoard | null }) {
+/*
+ * P224: `honestLimit` is RENDERED from the live record, not from the board's stored copy. The board
+ * artifact stamps the sentence at generation time, so yesterday's board keeps asserting yesterday's
+ * record — which is how "This board has no settled track record yet" survived fourteen graded
+ * slates. The generator and this component call the same rule, so they cannot disagree.
+ */
+export default function HomerNukesBoardSection({ board, record }: { board: HomerNukesBoard | null; record?: unknown }) {
   if (!board || board.picks.length === 0) return null;
   const picks = board.picks;
   const max = Math.max(...picks.map((p) => p.probability));
@@ -141,7 +148,7 @@ export default function HomerNukesBoardSection({ board }: { board: HomerNukesBoa
         <p className="m-0 mt-2" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
           <strong style={{ color: "var(--vault-text)" }}>Not in the model:</strong> {board.model.notModelled.join(", ")}.
         </p>
-        <p className="m-0 mt-2" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>{board.model.honestLimit}</p>
+        <p className="m-0 mt-2" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>{homerNukesHonestLimit(record ?? null)}</p>
       </details>
     </section>
   );

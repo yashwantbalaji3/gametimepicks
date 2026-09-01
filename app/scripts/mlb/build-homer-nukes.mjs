@@ -39,6 +39,7 @@
  *
  *   node app/scripts/mlb/build-homer-nukes.mjs --now <ISO> [--date YYYY-MM-DD] [--write]
  */
+import { homerNukesHonestLimit } from "../../src/lib/mlb/homer-nukes-honesty.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -67,6 +68,15 @@ const get = async (url) => {
   return res.json();
 };
 const pct = (v) => `${(v * 100).toFixed(1)}%`;
+/** The honest-limits sentence, from the ONE rule the page also renders (lib/mlb/homer-nukes-honesty.mjs). */
+function honestLimitSentence() {
+  let rec = null;
+  try {
+    rec = JSON.parse(fs.readFileSync(path.join(APP, "public/data/mlb/homer-nukes/record.json"), "utf8"));
+  } catch { rec = null; }
+  return homerNukesHonestLimit(rec);
+}
+
 const round = (v, n = 4) => Number(v.toFixed(n));
 
 /** Regress an observed rate toward the league rate; `prior` is the sample size at which they weigh equally. */
@@ -179,7 +189,15 @@ async function main() {
         "batting-order slot (trips to the plate are a league average, not this batter's lineup spot)",
         "bullpen faced after the starter leaves",
       ],
-      honestLimit: "This board has no settled track record yet, and no home-run market price is fetched, so it makes no claim to beat a sportsbook. It is the model's own read, published so it can be measured.",
+      /*
+       * P224: DERIVED, because the first half of this sentence expired.
+       *
+       * It was typed as "This board has no settled track record yet" when none existed, and stayed
+       * that way through fourteen graded slates — sitting on the same page as a track-record table.
+       * The second half is still true and stays: no home-run market price is fetched, so the board
+       * makes no claim about a sportsbook.
+       */
+      honestLimit: honestLimitSentence(),
     },
     slate: { games: games.length, candidatesRanked: candidates.length, skipped },
     picks,

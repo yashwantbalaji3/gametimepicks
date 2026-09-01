@@ -40,11 +40,30 @@ function settledDays(dir: string): { date: string; hits: number; picks: number }
       .reverse()
       .map((f) => {
         const r = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
-        const picks = r.picks ?? [];
+        const picks: Array<{ result?: string }> = r.picks ?? [];
+        /*
+         * P224: THE NUMERATOR WAS STRUCTURALLY ZERO.
+         *
+         * This counted `p.homered` — a field the settlement artifact has never written. It records
+         * `result: "hit" | "miss"` and `homeRuns`. So `p.homered` was always `undefined`, the filter
+         * always empty, and the page had reported "0 of N picks homered" since the day it was
+         * written, for any results whatsoever. The inline `{ homered?: boolean }` annotation is
+         * optional, so nothing type-checked it against the producer.
+         *
+         * The real record is 11 hits on 60 graded picks against 14.7 expected — and the page said
+         * zero. Understating a record is as false as overstating one.
+         *
+         * The producer already publishes both counts on `day`; prefer them and only fall back to
+         * counting rows, for the same reason the UFC lane must not re-derive its ladder's verdict.
+         *
+         * UNGRADED PICKS ARE NOT IN THE DENOMINATOR. Ten of the seventy have no official result yet;
+         * counting them as looked-at-and-missed is how "0 of 70" grew a slate at a time.
+         */
+        const graded = picks.filter((p) => p.result === "hit" || p.result === "miss");
         return {
           date: r.date,
-          hits: picks.filter((p: { homered?: boolean }) => p.homered).length,
-          picks: picks.length,
+          hits: typeof r.day?.actual === "number" ? r.day.actual : graded.filter((p) => p.result === "hit").length,
+          picks: typeof r.day?.graded === "number" ? r.day.graded : graded.length,
         };
       });
   } catch {
@@ -57,6 +76,8 @@ export default function HomerNukesPage() {
   const date = activeMlbDate() ?? currentEtDate();
   const board = loadHomerNukesBoard(dataRoot, date);
   const settled = settledDays(path.join(dataRoot, "mlb", "homer-nukes"));
+  /* The live record the honest-limits sentence is derived from — see lib/mlb/homer-nukes-honesty.mjs. */
+  const homerNukesRecord = (() => { try { return JSON.parse(fs.readFileSync(path.join(dataRoot, "mlb", "homer-nukes", "record.json"), "utf8")); } catch { return null; } })();
   const gradedPicks = settled.reduce((n, d) => n + d.picks, 0);
   const gradedHits = settled.reduce((n, d) => n + d.hits, 0);
 
@@ -87,7 +108,7 @@ export default function HomerNukesPage() {
       />
 
       {board ? (
-        <HomerNukesBoardSection board={board} />
+        <HomerNukesBoardSection board={board} record={homerNukesRecord} />
       ) : (
         <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 14 }}>
           Today&rsquo;s home-run board has not been published yet. It is built each morning from the
