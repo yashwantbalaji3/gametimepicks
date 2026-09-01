@@ -192,6 +192,39 @@ test("a latest-style receipt is judged by AGE, not by existence", () => {
   assert.equal(stale.state, "STALE");
 });
 
+test("A DISPATCH-ONLY OWNER REPORTS STALENESS, NEVER A MISSED RUN", () => {
+  /*
+   * `nfl-odds-capture.yml` has workflow_dispatch and no cron, which is exactly why its capture went
+   * 70 hours stale with nothing noticing: there was no slot to miss. No cron is invented here —
+   * the P171 receipt's expiry is "Program 171 close OR the 3,000-credit ceiling", and Program 171
+   * closed long ago, so scheduling automatic captures would spend under a lapsed authorization.
+   *
+   * The owner therefore makes staleness visible without demanding a run.
+   */
+  const o = owner("nfl-markets");
+  assert.equal(o.dispatchOnly, true);
+
+  const absent = evaluateOwner(o, {
+    date: "2026-09-01", nowMs: at("2026-09-01T23:00:00Z"), earliestStartMs: NaN, scheduledCount: 1, receipt: null,
+  });
+  assert.equal(absent.state, "NOT_DUE", "no scheduled slot means no missed run");
+  assert.match(absent.reason, /dispatch-only/);
+
+  const stale = evaluateOwner(o, {
+    date: "2026-09-01", nowMs: at("2026-09-01T16:38:00Z"), earliestStartMs: NaN, scheduledCount: 1,
+    receipt: { generatedAt: "2026-08-29T17:50:39Z" },
+  });
+  assert.equal(stale.state, "STALE", "but an artifact that stopped being refreshed is still a finding");
+  assert.match(stale.reason, /against a 48h bound/);
+
+  const fresh = evaluateOwner(o, {
+    date: "2026-09-01", nowMs: at("2026-09-01T16:38:00Z"), earliestStartMs: NaN, scheduledCount: 1,
+    receipt: { generatedAt: "2026-09-01T15:00:00Z" },
+  });
+  assert.equal(fresh.state, "HEALTHY",
+    "a FRESH capture returning zero offered events is a real answer about the provider — that is the distinction");
+});
+
 test("the schedules owner says which sport it actually checks", () => {
   /*
    * It was labelled "Schedule + injury capture (all sports)" while reading only the NFL capture, so

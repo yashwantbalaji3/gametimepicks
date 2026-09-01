@@ -58,11 +58,14 @@ export const OFFERED_STATES = Object.freeze([
   "NOT_OFFERED",
 ]);
 
-/** States that mean the pipeline still owes this event work. */
-const OWES_WORK = new Set(["OFFERED_PRICED", "FORECAST_READY"]);
-
-/** Scheduled but not captured: awaited, not owed — until the runner marks the capture overdue. */
-const AWAITED = new Set(["NOT_YET_CAPTURED"]);
+/**
+ * States where the pipeline still has work to do for this event.
+ *
+ * Whether that work is OWED or merely AWAITED depends on its deadline — see `buildSportWindow`. A
+ * capture that is not due until Thursday is not a debt on Tuesday, and calling it one turns a
+ * healthy schedule into a permanent backlog nobody can clear.
+ */
+const PENDING_WORK = new Set(["OFFERED_PRICED", "FORECAST_READY", "NOT_YET_CAPTURED"]);
 
 /** States that are a finding rather than a stage. */
 const FAILURE_STATES = new Set(["JOIN_FAILED", "SOURCE_STALE"]);
@@ -169,6 +172,9 @@ export function buildSportWindow({ sport, events, horizonHours, nowMs, readable 
       publicRoute: e.publicRoute ?? null,
       settlementId: e.settlementId ?? null,
       sourceAgeHours: e.sourceAgeHours ?? null,
+      /* When the next acquisition that could advance this row is scheduled. Null when none can be
+         derived, which the owed/awaited split treats as owed rather than as fine. */
+      nextDeadlineUtc: e.nextDeadlineUtc ?? null,
       state: c.state,
       reason: c.reason,
     };
@@ -181,8 +187,22 @@ export function buildSportWindow({ sport, events, horizonHours, nowMs, readable 
   const summed = Object.values(counts).reduce((a, b) => a + b, 0);
   const conserved = summed === rows.length;
 
-  const owed = rows.filter((r) => OWES_WORK.has(r.state));
-  const awaited = rows.filter((r) => AWAITED.has(r.state));
+  /*
+   * OWED vs AWAITED is decided by the DEADLINE, not by the state.
+   *
+   * The EPL fixture on 09-04 had a forecast and no price, and the matrix called it owed — on a
+   * Tuesday, when `epl-matchweek` does not run until Thursday and will capture it a full day before
+   * kickoff. Nothing was wrong; the pipeline was simply not due yet. A row is owed only once its own
+   * acquisition deadline has passed, and every pending row carries that deadline so a reader can see
+   * what is next rather than inferring it.
+   */
+  const pending = rows.filter((r) => PENDING_WORK.has(r.state));
+  const overdue = (r) => {
+    const due = Date.parse(r.nextDeadlineUtc ?? "");
+    return Number.isFinite(due) ? nowMs > due : true; // no derivable deadline ⇒ treat as owed, never as fine
+  };
+  const owed = pending.filter(overdue);
+  const awaited = pending.filter((r) => !overdue(r));
   const findings = rows.filter((r) => FAILURE_STATES.has(r.state));
 
   /*
@@ -200,10 +220,18 @@ export function buildSportWindow({ sport, events, horizonHours, nowMs, readable 
   return { sport, state: sportState, horizonHours, population: rows.length, counts, owed, awaited, findings, rows, conserved };
 }
 
-/** Worst-of across sports. UNKNOWN outranks every known state: not knowing is worse than a defect. */
+/**
+ * Worst-of across sports. UNKNOWN outranks every known state: not knowing is worse than a defect.
+ *
+ * P227 fix: NO_EVENTS used to outrank COMPLETE, so one off-season sport made a fully-accounted
+ * thirty-one-event window read NO_EVENTS across the platform. They are not comparable severities —
+ * both mean "nothing to do" — and between them COMPLETE is the more informative answer, because a
+ * platform with a complete sport is emphatically not a platform with no events. Everything
+ * actionable still outranks both.
+ */
 export function worstWindowState(states) {
-  const order = ["COMPLETE", "NO_EVENTS", "WORK_OWED", "FINDINGS", "INCONSISTENT", "UNKNOWN"];
-  return (states ?? []).reduce((worst, s) => (order.indexOf(s) > order.indexOf(worst) ? s : worst), "COMPLETE");
+  const order = ["NO_EVENTS", "COMPLETE", "WORK_OWED", "FINDINGS", "INCONSISTENT", "UNKNOWN"];
+  return (states ?? []).reduce((worst, s) => (order.indexOf(s) > order.indexOf(worst) ? s : worst), "NO_EVENTS");
 }
 
 /**

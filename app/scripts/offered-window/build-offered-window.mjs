@@ -40,6 +40,44 @@ const DATE = arg("--date", etDate(nowMs));
 const ageHours = (iso) => { const t = Date.parse(iso ?? ""); return Number.isFinite(t) ? (nowMs - t) / 3_600_000 : null; };
 const withinHours = (iso, h) => { const t = Date.parse(iso ?? ""); return Number.isFinite(t) && t - nowMs <= h * 3_600_000; };
 
+
+/**
+ * The next scheduled acquisition that could advance a row, from each sport's REAL workflow cadence.
+ *
+ * These are the crons in .github/workflows, not invented times:
+ *   mlb  the board is built ~90 minutes before first pitch
+ *   nfl  nfl-event-window, 15:00Z daily
+ *   ufc  ufc-fight-week, Tue/Thu/Sat 11:00Z + Sun/Mon/Wed/Fri 13:00Z — daily between them
+ *   epl  epl-matchweek, 21:00Z Thursday through Sunday only
+ *
+ * Returns null when none can be derived; the owner treats a row with no derivable deadline as OWED,
+ * never as fine, because "we cannot say when this will be picked up" is a worse state than "it is
+ * late", not a better one.
+ */
+function nextAcquisitionUtc(sport, startUtc) {
+  const start = Date.parse(startUtc ?? "");
+  if (sport === "mlb") return Number.isFinite(start) ? new Date(start - 90 * 60_000).toISOString() : null;
+
+  const dailyAt = (hourUtc, days = null) => {
+    for (let i = 0; i < 14; i += 1) {
+      const d = new Date(nowMs);
+      d.setUTCDate(d.getUTCDate() + i);
+      d.setUTCHours(hourUtc, 0, 0, 0);
+      if (d.getTime() <= nowMs) continue;
+      if (days && !days.includes(d.getUTCDay())) continue;
+      /* A capture after the event has started cannot advance it. */
+      if (Number.isFinite(start) && d.getTime() > start) return null;
+      return d.toISOString();
+    }
+    return null;
+  };
+
+  if (sport === "nfl") return dailyAt(15);
+  if (sport === "ufc") return dailyAt(13);
+  if (sport === "epl") return dailyAt(21, [0, 4, 5, 6]);
+  return null;
+}
+
 /* ── MLB — the current and next actionable slate ───────────────────────────────────────────────── */
 
 const MLB_HORIZON_H = 48;
@@ -101,6 +139,7 @@ function mlbEvents() {
         publicRoute: `/games/mlb/${slugs[i]}/`,
         settlementId: pk,
         settled: settled.has(pk),
+        nextDeadlineUtc: nextAcquisitionUtc("mlb", g.gameDate),
         refusalReason: null,
       };
     });
@@ -179,6 +218,7 @@ function nflEvents() {
         forecastRevision: f?.receipt?.inputHash ?? null,
         settlementId: id || null,
         settled: f?.lifecycle === "SETTLED",
+        nextDeadlineUtc: nextAcquisitionUtc("nfl", r.dateUtc),
         refusalReason: null,
       };
     });
@@ -241,9 +281,25 @@ function ufcEvents() {
       publicRoute: "/ufc/",
       settlementId: id || null,
       settled: false,
+      nextDeadlineUtc: nextAcquisitionUtc("ufc", b.startUtc),
+      /*
+       * THE PRODUCER'S OWN REFUSAL, CARRIED — third time this file has thrown one away.
+       *
+       * Two bouts came back PRICED with no model read, and the matrix called them OFFERED_PRICED:
+       * work the pipeline owes. They are not owed. The card artifact already says why on each bout —
+       * "Neither fighter has enough UFC history in our corpus to build a read from" — which is a
+       * decision, not a gap. Same shape as the UFC lane discarding the ladder's NO_PRICES and the
+       * EPL fixture reason being dropped: a summary that re-derives a verdict its producer already
+       * reached will eventually disagree with it.
+       *
+       * An unpriced bout keeps the odds artifact's reason; a priced-but-unmodelled bout keeps the
+       * card's. SOURCE_STALE still outranks both — a rotten source is not a decision.
+       */
       refusalReason: staleCapture
-        ? null // SOURCE_STALE outranks a refusal; do not dress a rotten source as a decision
-        : isPriced ? null : (unpricedReason.get(id) ?? "no posted market for this bout at capture time"),
+        ? null
+        : isPriced
+          ? (b.prediction ? null : (b.unmodelledReason ?? "priced, but the model published no read for this bout"))
+          : (unpricedReason.get(id) ?? "no posted market for this bout at capture time"),
     };
   });
 }
@@ -286,6 +342,7 @@ function eplEvents() {
     publicRoute: r.slug ? `/epl/#${r.slug}` : "/epl/",
     settlementId: r.eventId ?? null,
     settled: false,
+    nextDeadlineUtc: nextAcquisitionUtc("epl", r.kickoffUtc),
     /* A refusal is a DECISION. When we simply have not asked, NOT_YET_CAPTURED is the truth and the
        producer's sentence rides along as the reason. */
     refusalReason: null,

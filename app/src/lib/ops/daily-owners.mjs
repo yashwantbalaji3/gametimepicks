@@ -205,6 +205,41 @@ export const DAILY_OWNERS = Object.freeze([
     sport: null,
   },
   {
+    id: "nfl-markets",
+    label: "NFL market capture",
+    workflow: "nfl-odds-capture",
+    dependsOn: [],
+    /*
+     * P227 · E1. The offered window found NFL's newest market capture stamped 2026-08-29 with
+     * eventCount 1 — a game since played and settled — while the only scheduled game had never been
+     * probed. Nothing detected that, because no owner watched this artifact at all.
+     *
+     * The receipt is the capture itself, judged by AGE. That is the distinction the charter asks
+     * for: a fresh capture returning zero offered events is a real answer about the provider and
+     * keeps this owner HEALTHY, while a capture that simply stopped being written goes STALE. Only
+     * the second is a failure, and before this they were indistinguishable.
+     */
+    receipt: { path: () => `nfl/markets/latest.json`, maxAgeHours: 48 },
+    /*
+     * DISPATCH-ONLY. `nfl-odds-capture.yml` has `workflow_dispatch` and no cron, which is why the
+     * capture went 70 hours stale with nothing noticing: there was no scheduled slot to miss.
+     *
+     * No cron is deliberately NOT invented here. The P171 receipt's Expiry is "Program 171 close OR
+     * the 3,000-credit ceiling" — Program 171 closed long ago, so scheduling automatic captures
+     * would spend under an authorization that has lapsed by its own terms. That is a founder
+     * decision, not an implementation choice.
+     *
+     * So this owner exists to make the staleness VISIBLE rather than to demand a run. It never opens
+     * a missed-run incident (nothing schedules it to miss); it reports STALE against the age bound,
+     * which is the honest statement: the artifact has stopped being refreshed.
+     */
+    dispatchOnly: true,
+    dueFrom: "clock",
+    dueUtcHour: 15,
+    graceMinutes: 180,
+    sport: null,
+  },
+  {
     id: "offered-window",
     label: "Offered-window matrix (all sports)",
     workflow: "nightly-settle",
@@ -277,6 +312,20 @@ export function evaluateOwner(owner, ctx) {
    * A cadence is a property of the owner, so it is declared on the owner. An owner without
    * `runsOnUtcDays` runs daily, which is what the original six do.
    */
+  /*
+   * A dispatch-only owner has no scheduled slot, so "no receipt yet" cannot be a missed run. Its
+   * staleness is still judged below — a stale artifact is a real finding whether or not a cron
+   * exists — but its ABSENCE is reported as unscheduled rather than as a dropped job.
+   */
+  if (owner.dispatchOnly && !receipt) {
+    return {
+      id: owner.id,
+      state: "NOT_DUE",
+      reason: `${owner.workflow} is dispatch-only — no scheduled run exists to miss`,
+      dueAtIso: null,
+    };
+  }
+
   if (Array.isArray(owner.runsOnUtcDays)) {
     const dow = new Date(`${date}T12:00:00Z`).getUTCDay();
     if (!owner.runsOnUtcDays.includes(dow)) {

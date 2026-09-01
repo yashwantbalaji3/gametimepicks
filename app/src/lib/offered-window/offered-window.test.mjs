@@ -88,10 +88,16 @@ test('"WE NEVER ASKED" IS NOT "THERE IS NOTHING THERE"', () => {
   assert.equal(classifyEvent(ev()).state, "NOT_OFFERED", "an unstated capture flag keeps the prior behaviour");
 });
 
-test("NOT_YET_CAPTURED is AWAITED, not owed — and never outranks real evidence", () => {
+test("NOT_YET_CAPTURED is AWAITED while its capture is still due — and never outranks real evidence", () => {
+  /* P227: awaited-vs-owed is the DEADLINE's question, so these fixtures carry one. */
+  const later = new Date(NOW + 6 * 3_600_000).toISOString();
   const w = buildSportWindow({
     sport: "mlb", horizonHours: 48, nowMs: NOW,
-    events: [ev({ canonicalId: "a", captured: false }), ev({ canonicalId: "b", priced: true }), ev({ canonicalId: "c", captured: false })],
+    events: [
+      ev({ canonicalId: "a", captured: false, nextDeadlineUtc: later }),
+      ev({ canonicalId: "b", priced: true, nextDeadlineUtc: new Date(NOW - 60_000).toISOString() }),
+      ev({ canonicalId: "c", captured: false, nextDeadlineUtc: later }),
+    ],
   });
   assert.equal(w.counts.NOT_YET_CAPTURED, 2);
   assert.deepEqual(w.awaited.map((r) => r.canonicalId).sort(), ["a", "c"]);
@@ -136,6 +142,44 @@ test("REFUSAL · an empty window is NO_EVENTS and an unreadable one is UNKNOWN �
   assert.match(unknown.note, /not the same as nothing scheduled/);
   assert.equal(worstWindowState(["COMPLETE", "NO_EVENTS", "UNKNOWN"]), "UNKNOWN", "not knowing outranks every known state");
   assert.equal(worstWindowState(["COMPLETE", "WORK_OWED", "FINDINGS"]), "FINDINGS");
+  /*
+   * P227: NO_EVENTS used to outrank COMPLETE, so NBA being off-season made a fully-accounted
+   * thirty-one-event window read NO_EVENTS across the whole platform.
+   */
+  assert.equal(worstWindowState(["COMPLETE", "COMPLETE", "NO_EVENTS"]), "COMPLETE", "one quiet sport must not erase four accounted ones");
+  assert.equal(worstWindowState(["NO_EVENTS", "NO_EVENTS"]), "NO_EVENTS", "but an entirely quiet platform still says so");
+});
+
+test("OWED vs AWAITED is decided by the DEADLINE, not by the state", () => {
+  /*
+   * The EPL fixture on 09-04 had a forecast and no price, and the matrix called it owed — on a
+   * Tuesday, when epl-matchweek does not run until Thursday and captures it a day before kickoff.
+   * Nothing was wrong; the pipeline was not due yet. Calling that a debt turns a healthy schedule
+   * into a backlog nobody can clear.
+   */
+  const soon = new Date(NOW + 36 * 3_600_000).toISOString();
+  const past = new Date(NOW - 3_600_000).toISOString();
+  const w = buildSportWindow({
+    sport: "epl", horizonHours: 336, nowMs: NOW,
+    events: [
+      ev({ canonicalId: "not-due", priced: true, forecast: true, nextDeadlineUtc: soon }),
+      ev({ canonicalId: "overdue", priced: true, forecast: true, nextDeadlineUtc: past }),
+      ev({ canonicalId: "no-deadline", priced: true, forecast: true, nextDeadlineUtc: null }),
+    ],
+  });
+  assert.deepEqual(w.awaited.map((r) => r.canonicalId), ["not-due"]);
+  assert.deepEqual(w.owed.map((r) => r.canonicalId).sort(), ["no-deadline", "overdue"],
+    "a row with no derivable deadline is OWED — 'we cannot say when' is worse than 'it is late', not better");
+  assert.equal(w.state, "WORK_OWED");
+});
+
+test("every pending row carries the deadline a reader needs", () => {
+  const w = buildSportWindow({
+    sport: "mlb", horizonHours: 48, nowMs: NOW,
+    events: [ev({ captured: false, nextDeadlineUtc: new Date(NOW + 7_200_000).toISOString() })],
+  });
+  assert.equal(w.awaited.length, 1);
+  assert.ok(w.rows[0].nextDeadlineUtc, "a pending row without a next deadline tells the reader nothing actionable");
 });
 
 /* ── THE CORRUPTIONS THE CHARTER NAMES ─────────────────────────────────────────────────────────── */

@@ -1,9 +1,9 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-01",
-  "checkedAt": "2026-09-01T16:33:50.698Z",
-  "treeHead": "55ed1d544",
-  "state": "NOT_DUE",
+  "checkedAt": "2026-09-01T16:42:30.000Z",
+  "treeHead": "6ac88fe94",
+  "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 15,
   "owners": [
@@ -134,11 +134,22 @@
       "receiptPath": "admin/epl-lane.json"
     },
     {
+      "id": "nfl-markets",
+      "state": "STALE",
+      "reason": "receipt is 70.9h old against a 48h bound",
+      "dueAtIso": "2026-09-01T15:00:00.000Z",
+      "receiptAt": "2026-08-29T17:50:39Z",
+      "label": "NFL market capture",
+      "workflow": "nfl-odds-capture",
+      "dependsOn": [],
+      "receiptPath": "nfl/markets/latest.json"
+    },
+    {
       "id": "offered-window",
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-09-01T12:00:00.000Z",
-      "receiptAt": "2026-09-01T15:53:27Z",
+      "receiptAt": "2026-09-01T16:41:11Z",
       "label": "Offered-window matrix (all sports)",
       "workflow": "nightly-settle",
       "dependsOn": [],
