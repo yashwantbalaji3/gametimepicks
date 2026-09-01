@@ -250,6 +250,24 @@ export default function LaunchCommandCenter() {
     return { proven: stages.filter((st: { status: string }) => st.status === "PROVEN").length, total: gateTotal, stages };
   };
 
+  /*
+   * P226 · K0 — THE OFFERED-WINDOW PANEL, derived from the committed matrix and nothing else.
+   *
+   * No typed sport counts and no copied status prose: if this panel and the matrix ever disagree,
+   * one of them is a bug rather than a second opinion. Reading the newest committed file means the
+   * panel also shows its own staleness honestly when the nightly run has not happened.
+   */
+  const offeredWindow = (() => {
+    try {
+      const dir = path.join(process.cwd(), "..", "data", "internal", "offered-window");
+      const files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
+      if (files.length === 0) return null;
+      return JSON.parse(fs.readFileSync(path.join(dir, files[files.length - 1]), "utf8"));
+    } catch {
+      return null;
+    }
+  })();
+
   const navRule = "Receipts close work — a browser action can close nothing here.";
 
   // Odds lane (Program 167 · Release C): one fail-closed classifier per expansion sport. No
@@ -390,6 +408,78 @@ export default function LaunchCommandCenter() {
             ) : null}
 
             {/* ── Executive overview: four SEPARATE headlines ─────────────────────────────── */}
+            <section aria-labelledby="offered-window" style={{ marginBottom: 30 }}>
+              <h2 id="offered-window" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Offered window</h2>
+              {!offeredWindow ? (
+                <p style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: 0 }}>
+                  No offered-window matrix is committed. This panel derives entirely from that artifact and
+                  states nothing of its own — an absent matrix is reported, never filled in.
+                </p>
+              ) : (
+                <>
+                  <p style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: "0 0 10px" }}>
+                    {offeredWindow.date} · <strong>{offeredWindow.state}</strong> · {offeredWindow.totals?.events ?? 0} events ·{" "}
+                    {offeredWindow.totals?.owed ?? 0} owed · {offeredWindow.totals?.findings ?? 0} findings ·{" "}
+                    derived from <code>data/internal/offered-window/{offeredWindow.date}.json</code>
+                  </p>
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ borderCollapse: "collapse", fontSize: 12, minWidth: 620 }}>
+                      <thead>
+                        <tr>
+                          {["Sport", "State", "Events", "Owed", "Awaited", "Findings", "Breakdown", "Next event"].map((h) => (
+                            <th key={h} style={{ textAlign: "left", padding: "4px 10px 4px 0", borderBottom: "1px solid var(--vault-rule)", whiteSpace: "nowrap" }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(offeredWindow.sports ?? []).map((sp: {
+                          sport: string; state: string; population: number;
+                          owed?: unknown[]; awaited?: unknown[]; findings?: unknown[];
+                          counts?: Record<string, number>; rows?: Array<{ startUtc: string | null; state: string }>;
+                        }) => {
+                          const next = (sp.rows ?? [])
+                            .filter((r) => r.startUtc && r.state !== "SETTLED" && r.state !== "STARTED")
+                            .map((r) => r.startUtc as string)
+                            .sort()[0] ?? null;
+                          return (
+                            <tr key={sp.sport}>
+                              <td style={{ padding: "4px 10px 4px 0", textTransform: "uppercase" }}>{sp.sport}</td>
+                              <td style={{ padding: "4px 10px 4px 0" }}>{sp.state}</td>
+                              <td style={{ padding: "4px 10px 4px 0" }}>{sp.population}</td>
+                              <td style={{ padding: "4px 10px 4px 0" }}>{(sp.owed ?? []).length}</td>
+                              <td style={{ padding: "4px 10px 4px 0" }}>{(sp.awaited ?? []).length}</td>
+                              <td style={{ padding: "4px 10px 4px 0" }}>{(sp.findings ?? []).length}</td>
+                              <td style={{ padding: "4px 10px 4px 0", color: "var(--vault-text-mute)" }}>
+                                {Object.entries(sp.counts ?? {}).filter(([, n]) => n > 0).map(([k, n]) => `${k}:${n}`).join(" · ") || "—"}
+                              </td>
+                              <td style={{ padding: "4px 10px 4px 0", color: "var(--vault-text-mute)", whiteSpace: "nowrap" }}>{next ?? "—"}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  {/* Identity-level exceptions: owed and findings only. Provider payloads, prices and
+                      spend receipts are not in the matrix and are not rendered here. */}
+                  <details style={{ marginTop: 10 }}>
+                    <summary style={{ fontSize: 12, cursor: "pointer" }}>Exceptions by identity</summary>
+                    <ul style={{ fontSize: 11.5, color: "var(--vault-text-mute)", margin: "8px 0 0", paddingLeft: 18 }}>
+                      {(offeredWindow.sports ?? []).flatMap((sp: { sport: string; owed?: Array<Record<string, unknown>>; findings?: Array<Record<string, unknown>> }) =>
+                        [...(sp.findings ?? []), ...(sp.owed ?? [])].slice(0, 6).map((r) => (
+                          <li key={`${sp.sport}-${String(r.canonicalId)}`} style={{ marginBottom: 3 }}>
+                            <strong>{sp.sport.toUpperCase()}</strong> {String(r.canonicalId ?? "?")} — {String(r.state)} · {String(r.reason ?? "")}
+                          </li>
+                        )),
+                      )}
+                      {(offeredWindow.totals?.owed ?? 0) + (offeredWindow.totals?.findings ?? 0) === 0 ? (
+                        <li>No owed rows and no findings in this window.</li>
+                      ) : null}
+                    </ul>
+                  </details>
+                </>
+              )}
+            </section>
+
             <section aria-labelledby="exec" style={{ marginBottom: 30 }}>
               <h2 id="exec" style={{ fontSize: 15, fontWeight: 700, marginBottom: 12 }}>Executive overview</h2>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
