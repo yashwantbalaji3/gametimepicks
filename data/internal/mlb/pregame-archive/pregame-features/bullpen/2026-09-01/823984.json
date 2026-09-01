@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823984,
   "date": "2026-09-01",
-  "capturedAt": "2026-09-01T01:22:39.539Z",
-  "availableAt": "2026-09-01T01:22:39.539Z",
+  "capturedAt": "2026-09-01T06:00:41.771Z",
+  "availableAt": "2026-09-01T06:00:41.771Z",
   "eventStartTime": "2026-09-02T01:38:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,34 @@
     "teamId": 108,
     "teamName": "Los Angeles Angels",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 23,
+      "relievers": [
+        {
+          "id": 676620,
+          "name": "Blake Weiman",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 642048,
+          "name": "Tayler Saucedo",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 6,
-      "pitches": 143,
+      "appearances": 8,
+      "pitches": 166,
       "relievers": [
         {
           "id": 694680,
@@ -46,6 +67,17 @@
           "outs": 2,
           "dates": [
             "2026-08-30"
+          ]
+        },
+        {
+          "id": 642048,
+          "name": "Tayler Saucedo",
+          "appearances": 2,
+          "pitches": 21,
+          "outs": 6,
+          "dates": [
+            "2026-08-29",
+            "2026-08-31"
           ]
         },
         {
@@ -79,13 +111,13 @@
           ]
         },
         {
-          "id": 642048,
-          "name": "Tayler Saucedo",
+          "id": 676620,
+          "name": "Blake Weiman",
           "appearances": 1,
-          "pitches": 13,
+          "pitches": 15,
           "outs": 3,
           "dates": [
-            "2026-08-29"
+            "2026-08-31"
           ]
         }
       ]
@@ -96,13 +128,44 @@
     "teamId": 147,
     "teamName": "New York Yankees",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 98,
+      "relievers": [
+        {
+          "id": 661563,
+          "name": "Luis Gil",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 6,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 605242,
+          "name": "Michael Fulmer",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 4,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 10,
-      "pitches": 189,
+      "appearances": 13,
+      "pitches": 287,
       "relievers": [
         {
           "id": 642232,
@@ -112,6 +175,37 @@
           "outs": 9,
           "dates": [
             "2026-08-29"
+          ]
+        },
+        {
+          "id": 605242,
+          "name": "Michael Fulmer",
+          "appearances": 2,
+          "pitches": 44,
+          "outs": 5,
+          "dates": [
+            "2026-08-29",
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 661563,
+          "name": "Luis Gil",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 6,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
           ]
         },
         {
@@ -157,16 +251,6 @@
           ]
         },
         {
-          "id": 605242,
-          "name": "Michael Fulmer",
-          "appearances": 1,
-          "pitches": 13,
-          "outs": 1,
-          "dates": [
-            "2026-08-29"
-          ]
-        },
-        {
           "id": 621112,
           "name": "Paul Blackburn",
           "appearances": 1,
@@ -188,12 +272,23 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 661563,
+        "name": "Luis Gil",
+        "reason": "39 pitches yesterday"
+      },
+      {
+        "id": 605242,
+        "name": "Michael Fulmer",
+        "reason": "31 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-29,2026-08-30,2026-08-31) + feed/live box scores",
-    "capturedAt": "2026-09-01T01:22:39.539Z"
+    "capturedAt": "2026-09-01T06:00:41.771Z"
   },
-  "recordHash": "44771b5b2e08ccfa5bc64675464f7880176a20a50b9a5ef665b9776c1a182706"
+  "recordHash": "6f93ff9d892d08859a4b5f64c2eb1365fe834b4ef7e4179499269d61e75cc6af"
 }

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824148,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T06:00:40.937Z",
+  "availableAt": "2026-09-01T06:00:40.937Z",
+  "eventStartTime": "2026-09-02T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669854,
+      "name": "Ronel Blanco",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 25,
+      "lastStartDate": "2026-08-07",
+      "last5": {
+        "starts": 4,
+        "ipSum": 19.33,
+        "ipAvg": 4.83,
+        "kAvg": 4.25,
+        "bbAvg": 2.75,
+        "erAvg": 3.75,
+        "hrAvg": 1.5,
+        "kPer9": 7.91,
+        "workloadIpLast5": 19.33
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 19.33,
+        "k": 17,
+        "bb": 11,
+        "er": 15,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 680732,
+      "name": "Sean Burke",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 6,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24.67,
+        "ipAvg": 4.93,
+        "kAvg": 4.2,
+        "bbAvg": 2.6,
+        "erAvg": 2.6,
+        "hrAvg": 1,
+        "kPer9": 7.66,
+        "workloadIpLast5": 24.67
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 124,
+        "k": 135,
+        "bb": 44,
+        "er": 50,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-01T06:00:40.937Z"
+  },
+  "recordHash": "bc8d2f7ab57aef034804b3f20dc070b96d599df54be9db12c846fd90228b19bf"
+}
