@@ -99,7 +99,31 @@ test("the module documents WHY there is no grade — the blocker is the missing 
 test("BuildLeg model-probability threading: shown where sourced, never derived from odds", () => {
   const src = fs.readFileSync(new URL("../build-legs.ts", import.meta.url), "utf8");
   assert.match(src, /modelProbability\?: number \| null/, "BuildLeg carries the optional field");
-  assert.match(src, /modelProbability: l\.modelProbability \?\? null/, "engine legs thread it through");
+
+  /*
+   * P230 · Release 0 split this thread across two modules: `build-legs.ts` puts the SOURCE value on
+   * the atoms and `build/leg-atoms.ts` hydrates it onto the display leg. Both halves are pinned
+   * here — the guard follows the code it protects rather than being relaxed because the code moved.
+   */
+  assert.match(
+    src,
+    /a\.modelProbability = l\.modelProbability/,
+    "engine atoms carry the SOURCE model probability",
+  );
+  const atoms = fs.readFileSync(new URL("../build/leg-atoms.ts", import.meta.url), "utf8");
+  assert.match(
+    atoms,
+    /modelProbability: a\.modelProbability \?\? null/,
+    "hydration threads it through — absence stays absence",
+  );
+
+  /* THE CLAIM THAT MATTERS: neither half may reconstruct it from the price. A leg the model never
+     scored must render as unmodelled, never as a number implied by its odds. */
+  for (const [name, code] of [["build-legs.ts", src], ["leg-atoms.ts", atoms]]) {
+    const stripped = code.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " ")).replace(/\/\/.*$/gm, "");
+    const derived = /modelProbability[^;\n]*(americanOdds|impliedProbability|fromOdds|l\.odds)/.test(stripped);
+    assert.ok(!derived, `${name} must never derive modelProbability from a price`);
+  }
   assert.match(src, /modelProbability: p\.modelProbability \?\? null/, "WC props thread it through");
 
   const ui = fs.readFileSync(new URL("../../components/build-experience.tsx", import.meta.url), "utf8");

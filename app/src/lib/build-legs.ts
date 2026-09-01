@@ -10,6 +10,7 @@ import { normalizeWcProjections, normalizeWcPlayerProps } from "@/lib/normalize"
 import type { WcProjections, WcPlayerProjections } from "@/lib/world-cup/projections";
 import { classifyPlayerRoles, roleKeyForRow } from "@/lib/world-cup/player-role-quality";
 import { modelQualifies } from "@/lib/world-cup/model-qualified-props";
+import { hydrateBuildLegs, type BuildLegAtoms } from "@/lib/build/leg-atoms";
 
 export interface BuildLeg {
   id: string;
@@ -195,52 +196,67 @@ export function buildOptimizerLegs(slips: OptSlip[] | null | undefined): BuildLe
  * leakage-safe, odds-backed, current slate (no stale/started games). Covers MLB pitcher/hitter props,
  * World Cup team markets, and World Cup player props. Pure adapter — never fabricates.
  */
-export function buildEngineLegs(eligible: import("@/lib/parlays/ui-loader").ParlayLegDisplay[], sourceDate: string | null = null): BuildLeg[] {
-  const out: BuildLeg[] = [];
+export function buildEngineLegAtoms(
+  eligible: import("@/lib/parlays/ui-loader").ParlayLegDisplay[],
+  sourceDate: string | null = null,
+): BuildLegAtoms[] {
+  const out: BuildLegAtoms[] = [];
   const seen = new Set<string>();
-  // Strongest-survival first so the (capped) Build list leads with the most robust legs.
+  // Strongest-survival first so the Build list leads with the most robust legs.
   const sorted = [...eligible].filter((l) => l.odds != null).sort((a, b) => (b.survivalScore ?? 0) - (a.survivalScore ?? 0));
   for (const l of sorted) {
     if (seen.has(l.legId)) continue;
     seen.add(l.legId);
     const sport = l.sportKey as SportKey;
     const eventId = l.legId.split(":")[1] ?? null; // engine legId = SPORT:eventId:market:participant:side
-    const side = l.side ? `${l.side[0].toUpperCase()}${l.side.slice(1)}` : "";
-    const lineStr = l.line != null ? ` ${l.line}` : "";
-    const photo = sport === "world_cup"
-      ? (l.identity.photoUrl ?? null)
-      : sport === "mlb" ? mlbHeadshotUrl(l.identity.playerId)
-      : sport === "nba" ? nbaHeadshotUrl(l.identity.playerId) : null;
-    out.push({
+    /* Atoms only. `label`, `sublabel`, `searchKey`, `marketLabel`, `sportLabel`, `gameLabel`,
+       `photo` and the whole `slipLeg` block are pure functions of these fields and are rebuilt by
+       `hydrateBuildLeg` at the point of use. Optional keys are OMITTED rather than sent as null —
+       across an MLB slate the World Cup fields are absent on every row, and `"key":null` costs the
+       same bytes as a value. */
+    const a: BuildLegAtoms = {
       id: l.legId,
       sport,
-      sportLabel: SPORT_LABEL[sport],
-      gameId: eventId,
-      gameLabel: l.team && l.opponent ? `${l.team} vs ${l.opponent}` : (l.team ?? undefined),
-      label: `${l.participant} · ${l.market}${side ? ` ${side}` : ""}${lineStr}`.trim(),
-      sublabel: `${SPORT_LABEL[sport]} · ${l.market}`,
+      participant: l.participant,
       market: l.market,
-      marketLabel: l.market,
-      riskTier: tierFromOdds(l.odds as number),
       americanOdds: l.odds as number,
-      modelProbability: l.modelProbability ?? null,
-      sourceDate,
-      photo,
-      prelineup: sport === "world_cup" && l.identity.kind === "player",
-      regulationOnly: sport === "world_cup",
-      // Bank-Builder eligibility mirrors the survival floor (team markets only; player props never).
-      bankBuilderEligible: (l.survivalScore ?? 0) >= 80 && l.identity.kind !== "player",
-      searchKey: `${l.participant} ${l.team ?? ""} ${l.market} ${side} ${l.line ?? ""}`.toLowerCase(),
-      slipLeg: {
-        sport, player: l.participant, marketLabel: l.market, side: side || (l.side ?? ""),
-        line: l.line ?? null, americanOdds: l.odds as number,
-        matchup: l.team && l.opponent ? `${l.team} vs ${l.opponent}` : (l.team ?? null),
-        photoUrl: photo, teamAbbr: l.team ?? null, opponentAbbr: l.opponent ?? null,
-      },
-    });
+    };
+    if (eventId != null) a.gameId = eventId;
+    if (l.side != null) a.side = l.side;
+    if (l.line != null) a.line = l.line;
+    if (l.team != null) a.team = l.team;
+    if (l.opponent != null) a.opponent = l.opponent;
+    if (l.modelProbability != null) a.modelProbability = l.modelProbability;
+    if (l.survivalScore != null) a.survivalScore = l.survivalScore;
+    if (sport === "world_cup") {
+      if (l.identity.photoUrl != null) a.photoUrl = l.identity.photoUrl;
+      if (l.identity.kind === "player") a.prelineup = true;
+      a.regulationOnly = true;
+    } else if (l.identity.playerId != null) {
+      a.playerId = l.identity.playerId;
+    }
+    if (l.identity.kind !== "player") a.kind = l.identity.kind;
+    if (sourceDate != null) a.sourceDate = sourceDate;
+    // Bank-Builder eligibility mirrors the survival floor (team markets only; player props never).
+    if ((l.survivalScore ?? 0) >= 80 && l.identity.kind !== "player") a.bankBuilderEligible = true;
+    out.push(a);
   }
-  // Cap to keep the DOM snappy — all WC + the strongest MLB legs (already survival-sorted).
-  return out.slice(0, 180);
+  /*
+   * NO CAP. This returned `out.slice(0, 180)` — an undisclosed truncation that dropped 193 of 373
+   * eligible legs on the 2026-09-01 slate while the marketplace heading beside it said "Legs (373)".
+   * The cap existed to bound a 1010 B/leg row that was 61% derived strings; atoms cost 294 B/leg, so
+   * the full pool is now SMALLER than the capped one was (107 KB against 177 KB). See
+   * `lib/parlays/leg-reachability.test.mjs`.
+   */
+  return out;
+}
+
+/** The hydrated pool. Server callers and tests keep the full `BuildLeg` shape they always had. */
+export function buildEngineLegs(
+  eligible: import("@/lib/parlays/ui-loader").ParlayLegDisplay[],
+  sourceDate: string | null = null,
+): BuildLeg[] {
+  return hydrateBuildLegs(buildEngineLegAtoms(eligible, sourceDate));
 }
 
 /**

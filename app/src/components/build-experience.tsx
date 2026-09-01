@@ -18,6 +18,10 @@
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { BuildLeg } from "@/lib/build-legs";
+import { hydrateBuildLegs, type BuildLegAtoms } from "@/lib/build/leg-atoms";
+
+/** Rows mounted per reveal. Data is never limited by this — only the DOM window is. */
+const POOL_RENDER_WINDOW = 60;
 import { tierFromOdds } from "@/lib/build/risk-tier.mjs";
 import { americanToDecimal, decimalToAmerican, formatAmerican } from "@/lib/odds-math";
 import StakePayoutInput from "@/components/ui/stake-payout-input";
@@ -68,13 +72,21 @@ interface DraftLeg {
 }
 
 export default function BuildExperience({
-  pool, productDate = null, cards = {},
+  pool: poolAtoms, productDate = null, cards = {},
 }: {
-  pool: BuildLeg[];
+  /* ATOMS, not display legs (P230 · Release 0). The server ships what cannot be recomputed and this
+     component derives the rest, so the pool travels at 294 B/leg instead of 1010 and no longer needs
+     the undisclosed 180-leg truncation that was dropping 193 of 373 eligible legs. */
+  pool: BuildLegAtoms[];
   productDate?: string | null;
   /** slipId → seedable card, for /build/custom?card=<slipId> ("Customize this card"). */
   cards?: Record<string, SeedableCard>;
 }) {
+  /* One hydration for the whole pool, memoised on the prop identity: `hydrateBuildLeg` is a pure
+     total function of the atoms, so the legs below are byte-identical to what the server used to
+     serialize. Deriving is not compressing — no displayed value changes. */
+  const pool = useMemo(() => hydrateBuildLegs(poolAtoms), [poolAtoms]);
+
   const [sport, setSport] = useState<string>("All");
   const [risk, setRisk] = useState<string>("All");
   const [q, setQ] = useState("");
@@ -167,6 +179,22 @@ export default function BuildExperience({
       }),
     [pool, sport, risk, market, q, gameFilter],
   );
+
+  /*
+   * PROGRESSIVE DISCLOSURE OVER THE RENDERED ROWS (P230 · Release 0).
+   *
+   * The pool used to be truncated to 180 legs at the producer — undisclosed, and 193 of today's 373
+   * eligible legs simply did not exist for the reader. That cap was really guarding the DOM: every
+   * filtered leg is rendered, so an uncapped pool put ~250 KB of extra markup on the page.
+   *
+   * Data and DOM are now separated. `filtered` holds EVERY matching leg, so search and the filters
+   * can find any of them; only the rendered window grows on request. The count above reports
+   * `filtered.length`, never the window — a reader is told how many legs match, not how many rows
+   * happen to be mounted.
+   */
+  const [rendered, setRendered] = useState(POOL_RENDER_WINDOW);
+  useEffect(() => { setRendered(POOL_RENDER_WINDOW); }, [sport, risk, market, q, gameFilter]);
+  const visible = filtered.slice(0, rendered);
 
   const addLeg = (l: BuildLeg) => { if (l.slipLeg) add({ ...l.slipLeg, key: legKey(l.slipLeg) }); };
 
@@ -329,7 +357,7 @@ export default function BuildExperience({
           ) : null}
         </div>
         <div className="flex flex-col gap-1.5 max-h-[60vh] overflow-y-auto pr-1">
-          {filtered.map((l) => {
+          {visible.map((l) => {
             const key = l.slipLeg ? legKey(l.slipLeg) : null;
             const on = key != null && selectedKeys.has(key);
             // Provable-only compatibility (Program 144 Release F): a hard conflict disables the
@@ -338,7 +366,10 @@ export default function BuildExperience({
             const compat = on ? null : classifyAgainstSelection(l, selectedEngine);
             const blocked = compat?.hardDisable === true || key == null;
             return (
-              <div key={l.id} className="flex items-center gap-2.5 rounded-[7px] px-3 py-2 min-w-0"
+              /* `data-leg-id` is the CANONICAL settlement identity, not a display string: the
+                 reachability spec proves a specific leg past the old 180-cap is mounted, and a
+                 label can change without the leg changing. */
+              <div key={l.id} data-leg-id={l.id} className="flex items-center gap-2.5 rounded-[7px] px-3 py-2 min-w-0"
                 style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}>
                 {!l.photo ? (
                   <span className="gtp-sport-orb shrink-0" style={{ width: 22, height: 22, fontSize: 12, ["--orb-grad" as string]: getSportIdentity(l.sport).gradient }} role="img" aria-label={getSportIdentity(l.sport).label}>
@@ -387,6 +418,17 @@ export default function BuildExperience({
               </div>
             );
           })}
+          {rendered < filtered.length ? (
+            <button
+              type="button"
+              onClick={() => setRendered((n) => n + POOL_RENDER_WINDOW)}
+              className="vault-press w-full rounded-lg"
+              style={{ minHeight: 44, border: "1px solid var(--vault-rule)", color: "var(--vault-text)", fontSize: 12.5, background: "color-mix(in srgb, var(--vault-scrim-base) 40%, transparent)" }}
+            >
+              Show {Math.min(POOL_RENDER_WINDOW, filtered.length - rendered)} more
+              {" · "}{filtered.length - rendered} of {filtered.length} not shown yet
+            </button>
+          ) : null}
           {filtered.length === 0 ? (
             <p className="text-center py-6" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
               {pool.length === 0

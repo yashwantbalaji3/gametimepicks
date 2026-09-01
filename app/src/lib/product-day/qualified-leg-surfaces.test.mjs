@@ -92,7 +92,15 @@ test("the consumers adapt from the one owner — no second qualification module"
   // P208: the builder is the Parlay Center's Build Your Own mode at /build/custom.
   const build = fs.readFileSync(path.join(app, "src/app/build/custom/page.tsx"), "utf8");
   const markets = fs.readFileSync(path.join(app, "src/app/markets/page.tsx"), "utf8");
-  assert.match(build, /buildEngineLegs/, "the builder's pool comes through the canonical engine");
+  /* P230 · Release 0: the page now takes ATOMS from the same producer and lets the client hydrate
+     them, so the canonical engine is entered through `buildEngineLegAtoms`. Both names are named
+     explicitly rather than matching a loose prefix — a page calling some other `buildEngine*` must
+     still fail this. */
+  assert.match(
+    build,
+    /\bbuildEngineLeg(s|Atoms)\b/,
+    "the builder's pool comes through the canonical engine",
+  );
   assert.match(markets, /buildTop10Board/, "Market Center ranks through the canonical board");
   // Neither page implements eligibility of its own: no leakage / started / qualification logic
   // in the page bodies — those words belong to the owners.

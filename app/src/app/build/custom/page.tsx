@@ -11,7 +11,8 @@
  * published artifact — so the link is shareable and the seed is exactly the card of record.
  * ?sport= / ?game= / ?q= prefilter the pool ("Build from this game" deep links).
  */
-import { buildEngineLegs, type BuildLeg } from "@/lib/build-legs";
+import { buildEngineLegAtoms } from "@/lib/build-legs";
+import type { BuildLegAtoms } from "@/lib/build/leg-atoms";
 import { loadTodaySlate, currentSlateDate, explorerSlateView } from "@/lib/parlays/ui-loader";
 import BuildExperience, { type SeedableCard } from "@/components/build-experience";
 import ParlaysExplorer from "@/components/parlays/parlays-explorer";
@@ -38,7 +39,10 @@ export default function ParlayCenterCustomPage() {
      return [] — dead weight presenting as an active source. The archive keeps everything: settled
      WC cards render on their own historical surfaces (game-detail), and the producer functions
      remain for those pages. Active pools are engine-only. */
-  const pool: BuildLeg[] = buildEngineLegs(engineSlateForLegs.eligibleLegs, engineSlateForLegs.date || null);
+  /* ATOMS cross the server→client boundary; `BuildExperience` hydrates them (P230 · Release 0).
+     This call used to hydrate here and serialize 1010 B/leg of mostly-derived strings, which is why
+     it was capped at 180 legs — silently dropping 193 of the 373 the marketplace heading counted. */
+  const pool: BuildLegAtoms[] = buildEngineLegAtoms(engineSlateForLegs.eligibleLegs, engineSlateForLegs.date || null);
 
   const engineSlate = engineSlateForLegs;
   const dataRoot = path.join(process.cwd(), "public", "data");

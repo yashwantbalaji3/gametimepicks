@@ -295,6 +295,23 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
      are unchanged by the payload projection. Only the RENDERED slice needs detail. */
   const sportLegs = slate.eligibleLegs.filter((l) => l.sport === sport);
   const sportLegsWithDetail = sportLegs.filter((l): l is ParlayLegDisplay => !isDetailOmitted(l));
+  /* The marketplace's own reveal state. `shown` resets to one window whenever the query or the
+     sport changes, so pagination can never carry an offset from a different result set — that is
+     the overlap/gap case the reachability guard tests. */
+  const [legQuery, setLegQuery] = useState("");
+  const [shown, setShown] = useState(EXPLORER_LEG_RENDER_CAP);
+  /* Switching sport is a NEW result set, so the reveal window and the query both start over.
+     Carrying `shown` across sports would show a different number of rows than the control says. */
+  const selectSport = (next: string) => { setSport(next); setLegQuery(""); setShown(EXPLORER_LEG_RENDER_CAP); };
+  const legNeedle = legQuery.trim().toLowerCase();
+  const matchedLegs = legNeedle
+    ? sportLegsWithDetail.filter((l) =>
+        `${l.participant} ${l.team ?? ""} ${l.opponent ?? ""} ${l.market} ${l.side ?? ""} ${l.line ?? ""}`
+          .toLowerCase()
+          .includes(legNeedle),
+      )
+    : sportLegsWithDetail;
+  const legsWithoutDetail = sportLegs.length - sportLegsWithDetail.length;
 
   // Honest diagnostics — every empty bucket gets a real reason, never a vague empty state.
   const diag = buildCardFactoryDiagnostics(slate as unknown as TodaySlateView, slate.date);
@@ -332,7 +349,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
           it is omitted as a current tab when it has no eligible cards (a future WC with cards returns automatically). */}
       <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }}>
         {slate.sports.filter((s) => s.sport !== "WORLD_CUP" || s.eligibleCount > 0).map((s) => (
-          <button key={s.sport} onClick={() => setSport(s.sport)}
+          <button key={s.sport} onClick={() => selectSport(s.sport)}
             className="shrink-0 rounded-full px-3 py-1.5 text-[12.5px] font-medium"
             style={{
               background: s.sport === sport ? "var(--vault-accent)" : "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)",
@@ -343,7 +360,7 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
           </button>
         ))}
         {mixedTotal > 0 && (
-          <button onClick={() => setSport("MIXED")}
+          <button onClick={() => selectSport("MIXED")}
             className="shrink-0 rounded-full px-3 py-1.5 text-[12.5px] font-medium"
             style={{
               background: isMixed ? "var(--vault-accent)" : "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)",
@@ -418,10 +435,56 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
 
           {view === "legs" && (
             <Accordion title="Eligible-leg marketplace" subtitle={`${sportLegs.length} legs`} defaultOpen>
-              {sportLegsWithDetail.slice(0, EXPLORER_LEG_RENDER_CAP).map((l) => (
+              {/* SEARCH over every leg this sport has, detailed or not (P230 · Release 0). The
+                  matched set is what paginates, so a leg past the render window is reached by
+                  typing part of its name rather than by scrolling to a number. */}
+              <label className="sr-only" htmlFor="leg-market-search">Search eligible legs</label>
+              <input
+                id="leg-market-search"
+                type="search"
+                value={legQuery}
+                onChange={(e) => { setLegQuery(e.target.value); setShown(EXPLORER_LEG_RENDER_CAP); }}
+                placeholder="Search player, team or market…"
+                className="mb-2 w-full rounded-lg px-3 text-[13px]"
+                style={{ minHeight: 44, background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-border)", color: "var(--vault-text)" }}
+              />
+              <div className="mb-2 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
+                {legQuery.trim()
+                  ? `${matchedLegs.length} of ${sportLegs.length} legs match`
+                  : `showing ${Math.min(shown, matchedLegs.length)} of ${sportLegs.length} legs`}
+              </div>
+              {matchedLegs.slice(0, shown).map((l) => (
                 <div key={l.legId} className="rounded-lg px-2" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)" }}><LegRow leg={l} /></div>
               ))}
-              {sportLegs.length > EXPLORER_LEG_RENDER_CAP && <div className="text-center text-[12px]" style={{ color: "var(--vault-text-faint)" }}>+{sportLegs.length - EXPLORER_LEG_RENDER_CAP} more eligible legs</div>}
+              {matchedLegs.length === 0 && (
+                <div className="py-3 text-center text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
+                  {legQuery.trim()
+                    ? `No eligible leg matches “${legQuery.trim()}”. ${legsWithoutDetail > 0 ? `${legsWithoutDetail} of this sport’s legs carry identity only and are searchable in the builder above.` : ""}`
+                    : "No eligible legs for this sport."}
+                </div>
+              )}
+              {/* PROGRESSIVE DISCLOSURE, not a dead count. This was the inert text
+                  "+N more eligible legs" — the page named rows it gave no way to open. */}
+              {shown < matchedLegs.length && (
+                <button
+                  type="button"
+                  onClick={() => setShown((n) => n + EXPLORER_LEG_RENDER_CAP)}
+                  className="mt-1 w-full rounded-lg text-[12.5px]"
+                  style={{ minHeight: 44, border: "1px solid var(--vault-border)", color: "var(--vault-text)", background: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)" }}
+                >
+                  Show {Math.min(EXPLORER_LEG_RENDER_CAP, matchedLegs.length - shown)} more
+                  {" · "}{matchedLegs.length - shown} remaining
+                </button>
+              )}
+              {/* Identity-only rows are DISCLOSED rather than quietly absent from the total. They
+                  are reachable in the builder pool above, which now carries every priced leg. */}
+              {legsWithoutDetail > 0 && (
+                <div className="mt-2 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
+                  {legsWithoutDetail} of these {sportLegs.length} legs travel as identity only, to keep this
+                  page inside its payload budget. Every one of them is listed, searchable and addable in the
+                  card builder above.
+                </div>
+              )}
             </Accordion>
           )}
         </>
