@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823661,
+  "date": "2026-09-01",
+  "capturedAt": "2026-09-01T01:22:38.071Z",
+  "availableAt": "2026-09-01T01:22:38.071Z",
+  "eventStartTime": "2026-09-01T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687570,
+      "name": "Connor Prielipp",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 6,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 6,
+        "bbAvg": 2.6,
+        "erAvg": 4.6,
+        "hrAvg": 1,
+        "kPer9": 10.13,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 99,
+        "k": 106,
+        "bb": 39,
+        "er": 61,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 675512,
+      "name": "Troy Melton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 6,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 4,
+        "bbAvg": 1.4,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 6,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 97,
+        "k": 80,
+        "bb": 28,
+        "er": 20,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-01&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-01T01:22:38.071Z"
+  },
+  "recordHash": "452b21e7ef08ac52d77f33abcc6a17796e9b9fd7fdc7fbe98c5ca34c5b752592"
+}

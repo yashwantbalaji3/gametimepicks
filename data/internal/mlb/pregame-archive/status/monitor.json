@@ -8,10 +8,10 @@
     "teamMarketCapture": {
       "status": "captured",
       "date": "2026-09-01",
-      "records": 826,
-      "eligible": 826,
-      "creditsSpent": 3,
-      "creditsRemaining": 20000,
+      "records": 948,
+      "eligible": 948,
+      "creditsSpent": 33,
+      "creditsRemaining": 19970,
       "skippedStarted": 9
     },
     "playerPropCapture": {
@@ -19,29 +19,34 @@
       "date": "2026-09-01",
       "mode": "write",
       "eventsCaptured": 3,
-      "eventsOnDate": 12,
+      "eventsOnDate": 11,
       "maxEvents": 3,
       "marketsCaptured": [
+        "pitcher_outs",
         "pitcher_strikeouts",
-        "batter_hits",
         "batter_hits_runs_rbis",
         "batter_total_bases",
-        "pitcher_outs",
         "pitcher_earned_runs",
+        "batter_hits",
         "batter_rbis",
         "batter_runs_scored",
         "batter_home_runs"
       ],
-      "records": 2242,
-      "eligibleRecords": 2242,
-      "paired": 1876,
-      "overOnly": 366,
-      "deVigCoveragePct": 83.7,
+      "records": 1464,
+      "eligibleRecords": 1464,
+      "paired": 1224,
+      "overOnly": 240,
+      "deVigCoveragePct": 83.6,
       "estimatedCredits": 27,
-      "actualCreditsSpent": 27,
-      "creditsRemaining": 19970,
-      "skippedGames": 9,
-      "providerUnavailable": [],
+      "actualCreditsSpent": 18,
+      "creditsRemaining": 19949,
+      "skippedGames": 8,
+      "providerUnavailable": [
+        {
+          "event": "764521fed86b5329011236a43540951b",
+          "reason": "no player-prop markets returned"
+        }
+      ],
       "stoppedEarly": null
     }
   },
@@ -58,7 +63,7 @@
     "datesCollected": 41,
     "marketDatesCollected": 40,
     "playerPropDatesCollected": 40,
-    "avgEligiblePlayerPropRecordsPerDay": 10901,
+    "avgEligiblePlayerPropRecordsPerDay": 10937,
     "estimatedDaysTo30DateGate": 0,
     "pathTo500SettledEligibleRows": "settledEligibleObs=0 until a separate settlement-join mission runs; then each settled prop-lean that was captured pregame becomes 1 eligible row. At current per-day capture, a month of daily collection yields ample raw eligible records; the 500 SETTLED-eligible threshold is measurable only after the settlement join + official grading."
   },
@@ -106,30 +111,30 @@
       "2026-08-31",
       "2026-09-01"
     ],
-    "gamesFinal": 530,
-    "gamesPending": 28,
-    "joinRows": 70953,
-    "settledEligibleRows": 64431,
-    "marketPendingRows": 1006,
+    "gamesFinal": 532,
+    "gamesPending": 26,
+    "joinRows": 70967,
+    "settledEligibleRows": 64941,
+    "marketPendingRows": 472,
     "ambiguousRows": 0,
     "unsupportedRows": 0,
     "joinCoverageByMarket": {
-      "totals": 1970,
-      "spreads": 1060,
-      "h2h": 692,
-      "pitcher_outs": 1266,
-      "pitcher_strikeouts": 1146,
-      "batter_hits": 9190,
-      "batter_hits_runs_rbis": 9230,
-      "batter_rbis": 8294,
-      "batter_total_bases": 11287,
-      "pitcher_earned_runs": 1042,
-      "batter_runs_scored": 8244,
-      "batter_home_runs": 11010
+      "totals": 1980,
+      "spreads": 1064,
+      "h2h": 696,
+      "pitcher_outs": 1280,
+      "pitcher_strikeouts": 1156,
+      "batter_hits": 9272,
+      "batter_hits_runs_rbis": 9314,
+      "batter_rbis": 8362,
+      "batter_total_bases": 11366,
+      "pitcher_earned_runs": 1052,
+      "batter_runs_scored": 8312,
+      "batter_home_runs": 11087
     },
     "earliestValidResearchDate": {
       "dateGate": "41/30 distinct dates · ~0 more daily runs",
-      "settledEligibleGate": "64431/500 · ~0 market-settled days at the observed 1696 settled-eligible rows/day",
+      "settledEligibleGate": "64941/500 · ~0 market-settled days at the observed 1665 settled-eligible rows/day",
       "bindingConstraint": "gate met",
       "note": "Not a promise — recomputed each run from observed collection. First settled-eligible rows accrue when the earliest market-capture date's games are final and re-joined."
     }
@@ -138,7 +143,7 @@
     "minDistinctDates": 30,
     "minSettledEligibleObs": 500,
     "dates": "41/30",
-    "settledEligible": "64431/500",
+    "settledEligible": "64941/500",
     "met": true
   }
 }

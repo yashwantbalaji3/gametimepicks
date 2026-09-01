@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 822687,
   "date": "2026-09-01",
-  "capturedAt": "2026-09-01T00:13:49.050Z",
-  "availableAt": "2026-09-01T00:13:49.050Z",
+  "capturedAt": "2026-09-01T01:22:39.539Z",
+  "availableAt": "2026-09-01T01:22:39.539Z",
   "eventStartTime": "2026-09-01T22:45:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -97,14 +97,45 @@
     "teamId": 144,
     "teamName": "Atlanta Braves",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 48,
+      "relievers": [
+        {
+          "id": 678061,
+          "name": "Ray Kerr",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 10,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 1,
+          "dates": [
+            "2026-08-31"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 6,
-      "pitches": 90,
+      "appearances": 8,
+      "pitches": 138,
       "relievers": [
+        {
+          "id": 678061,
+          "name": "Ray Kerr",
+          "appearances": 1,
+          "pitches": 34,
+          "outs": 10,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
         {
           "id": 608718,
           "name": "Brent Suter",
@@ -116,6 +147,17 @@
           ]
         },
         {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 2,
+          "pitches": 28,
+          "outs": 4,
+          "dates": [
+            "2026-08-30",
+            "2026-08-31"
+          ]
+        },
+        {
           "id": 800311,
           "name": "Didier Fuentes",
           "appearances": 1,
@@ -123,16 +165,6 @@
           "outs": 3,
           "dates": [
             "2026-08-29"
-          ]
-        },
-        {
-          "id": 669276,
-          "name": "Dylan Lee",
-          "appearances": 1,
-          "pitches": 14,
-          "outs": 3,
-          "dates": [
-            "2026-08-30"
           ]
         },
         {
@@ -167,12 +199,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 678061,
+        "name": "Ray Kerr",
+        "reason": "34 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-29,2026-08-30,2026-08-31) + feed/live box scores",
-    "capturedAt": "2026-09-01T00:13:49.050Z"
+    "capturedAt": "2026-09-01T01:22:39.539Z"
   },
-  "recordHash": "02f17b21eabee1d1861a63688d294b5da3bf77b4debea0ba26803b00f58d8d1b"
+  "recordHash": "3326dc68e525eb2fcc93eee95381f68a0296f9b23d54bc089d5ca2e31cbc0041"
 }
