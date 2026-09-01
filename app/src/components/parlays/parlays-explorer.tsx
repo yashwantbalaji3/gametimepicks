@@ -4,6 +4,7 @@
  * sport + risk level, game-specific parlays, the eligible-leg marketplace, and honest no-qualified
  * states. Reads engine display data (props) — never fabricates a card.
  */
+import { isDetailOmitted, EXPLORER_LEG_RENDER_CAP } from "@/lib/parlays/explorer-legs";
 import { useState } from "react";
 import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
@@ -271,7 +272,12 @@ function CoverageMatrix({ data }: { data?: CoverageMatrixData }) {
 export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSlateView; coverage?: CoverageMatrixData }) {
   /* P211 · Release 0: cards arrive with legIds; the ONE legs-by-id index resolves them (ordered,
      fail-open via extraLegs). Same legs, serialized once. */
-  const legsById = new Map<string, ParlayLegDisplay>([...slate.eligibleLegs, ...(slate.extraLegs ?? [])].map((l) => [l.legId, l]));
+  /* Only legs that carry detail can be resolved into a card. Identity-only rows exist so counts stay
+     exact (see projectEligibleLegs); they are never rendered, and indexing them would put a row of
+     blanks on the page the first time the render cap moved. */
+  const legsById = new Map<string, ParlayLegDisplay>(
+    [...slate.eligibleLegs.filter((l): l is ParlayLegDisplay => !isDetailOmitted(l)), ...(slate.extraLegs ?? [])].map((l) => [l.legId, l]),
+  );
   const legsOf = (card: ExplorerCardView): ParlayLegDisplay[] => card.legIds.map((id) => legsById.get(id)).filter((l): l is ParlayLegDisplay => Boolean(l));
   const sportsWithLegs = slate.sports.filter((s) => s.eligibleCount > 0);
   const mixedTotal = RISK_ORDER.reduce((n, lvl) => n + (slate.mixedByRisk[lvl]?.length ?? 0), 0);
@@ -285,7 +291,10 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
   const active = slate.sports.find((s) => s.sport === sport);
   const byRisk = isMixed ? slate.mixedByRisk : (slate.suggestedBySportRisk[sport] ?? {});
   const gameGroups = slate.gameSpecific.filter((g) => g.sport === sport);
+  /* COUNTS include every eligible leg — identity-only rows included — so "Legs (N)" and "+N more"
+     are unchanged by the payload projection. Only the RENDERED slice needs detail. */
   const sportLegs = slate.eligibleLegs.filter((l) => l.sport === sport);
+  const sportLegsWithDetail = sportLegs.filter((l): l is ParlayLegDisplay => !isDetailOmitted(l));
 
   // Honest diagnostics — every empty bucket gets a real reason, never a vague empty state.
   const diag = buildCardFactoryDiagnostics(slate as unknown as TodaySlateView, slate.date);
@@ -409,10 +418,10 @@ export default function ParlaysExplorer({ slate, coverage }: { slate: ExplorerSl
 
           {view === "legs" && (
             <Accordion title="Eligible-leg marketplace" subtitle={`${sportLegs.length} legs`} defaultOpen>
-              {sportLegs.slice(0, 60).map((l) => (
+              {sportLegsWithDetail.slice(0, EXPLORER_LEG_RENDER_CAP).map((l) => (
                 <div key={l.legId} className="rounded-lg px-2" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)" }}><LegRow leg={l} /></div>
               ))}
-              {sportLegs.length > 60 && <div className="text-center text-[12px]" style={{ color: "var(--vault-text-faint)" }}>+{sportLegs.length - 60} more eligible legs</div>}
+              {sportLegs.length > EXPLORER_LEG_RENDER_CAP && <div className="text-center text-[12px]" style={{ color: "var(--vault-text-faint)" }}>+{sportLegs.length - EXPLORER_LEG_RENDER_CAP} more eligible legs</div>}
             </Accordion>
           )}
         </>

@@ -203,14 +203,28 @@ export interface ExplorerCardView extends Omit<SuggestedParlayCard, "legs"> {
 export interface ExplorerGameGroupView extends Omit<GameSpecificParlayGroup, "parlays"> {
   parlays: ExplorerCardView[];
 }
-export interface ExplorerSlateView extends Omit<TodaySlateView, "suggestedBySportRisk" | "mixedByRisk" | "allSuggested" | "gameSpecific"> {
+export interface ExplorerSlateView
+  extends Omit<TodaySlateView, "suggestedBySportRisk" | "mixedByRisk" | "allSuggested" | "gameSpecific" | "eligibleLegs"> {
   suggestedBySportRisk: Record<string, Partial<Record<RiskLevel, ExplorerCardView[]>>>;
   mixedByRisk: Partial<Record<RiskLevel, ExplorerCardView[]>>;
   allSuggested: ExplorerCardView[];
   gameSpecific: ExplorerGameGroupView[];
   /** Legs referenced by a card but missing from eligibleLegs — carried inline so nothing drops. */
   extraLegs: ParlayLegDisplay[];
+  /** Every eligible leg. Rendered ones carry full detail; the rest carry identity only — see
+      `projectEligibleLegs`. Counts and lookups are unchanged. */
+  eligibleLegs: ExplorerLeg[];
 }
+
+/*
+ * The eligible-leg payload contract lives in its own Node-free module because the CLIENT explorer
+ * needs it too; importing this loader from the browser pulled `node:fs` into the bundle.
+ */
+export { EXPLORER_LEG_RENDER_CAP, isDetailOmitted } from "./explorer-legs";
+export type { OmittedLegDisplay } from "./explorer-legs";
+import { EXPLORER_LEG_RENDER_CAP, type OmittedLegDisplay } from "./explorer-legs";
+
+export type ExplorerLeg = ParlayLegDisplay | OmittedLegDisplay;
 
 export function explorerSlateView(slate: TodaySlateView): ExplorerSlateView {
   const known = new Set(slate.eligibleLegs.map((l) => l.legId));
@@ -229,7 +243,47 @@ export function explorerSlateView(slate: TodaySlateView): ExplorerSlateView {
     allSuggested: slate.allSuggested.map(toView),
     gameSpecific: slate.gameSpecific.map((g) => ({ ...g, parlays: g.parlays.map(toView) })),
     extraLegs: [...extraById.values()],
+    eligibleLegs: projectEligibleLegs(slate, {
+      suggestedBySportRisk: Object.fromEntries(Object.entries(slate.suggestedBySportRisk).map(([sport, byRisk]) => [sport, mapRisk(byRisk)])),
+      mixedByRisk: mapRisk(slate.mixedByRisk),
+      allSuggested: slate.allSuggested.map(toView),
+      gameSpecific: slate.gameSpecific.map((g) => ({ ...g, parlays: g.parlays.map(toView) })),
+    }),
   };
+}
+
+/**
+ * Keep the full display object for every leg that is either RENDERED (the first
+ * `EXPLORER_LEG_RENDER_CAP` of its sport) or REFERENCED by a card; carry identity only for the rest.
+ *
+ * The referenced set is computed from the very card collections this view returns, so it cannot
+ * drift from what the component will look up.
+ */
+function projectEligibleLegs(
+  slate: TodaySlateView,
+  views: {
+    suggestedBySportRisk: Record<string, Partial<Record<RiskLevel, ExplorerCardView[]>>>;
+    mixedByRisk: Partial<Record<RiskLevel, ExplorerCardView[]>>;
+    allSuggested: ExplorerCardView[];
+    gameSpecific: ExplorerGameGroupView[];
+  },
+): ExplorerLeg[] {
+  const referenced = new Set<string>();
+  const collect = (cards: ExplorerCardView[] | undefined) => {
+    for (const c of cards ?? []) for (const id of c.legIds ?? []) referenced.add(id);
+  };
+  collect(views.allSuggested);
+  for (const g of views.gameSpecific) collect(g.parlays);
+  for (const byRisk of Object.values(views.suggestedBySportRisk)) collect(Object.values(byRisk).flat() as ExplorerCardView[]);
+  collect(Object.values(views.mixedByRisk).flat() as ExplorerCardView[]);
+
+  const seenPerSport = new Map<string, number>();
+  return slate.eligibleLegs.map((l) => {
+    const n = (seenPerSport.get(l.sport) ?? 0) + 1;
+    seenPerSport.set(l.sport, n);
+    if (n <= EXPLORER_LEG_RENDER_CAP || referenced.has(l.legId)) return l;
+    return { legId: l.legId, sport: l.sport, detailOmitted: true as const };
+  });
 }
 
 function dataRoot(): string {
