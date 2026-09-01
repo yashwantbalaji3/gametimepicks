@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "artifact": "signature-product-lifecycle-coverage",
+  "dataClass": "INTERNAL_DERIVED",
+  "generatedAt": "2026-09-01T17:56:47Z",
+  "state": "GAPS",
+  "note": "Every field is evidence — a path that exists, a workflow that names a script, a product the shared state machine lists. No hand-kept statuses.",
+  "lifecycleStates": [
+    "EVALUATING",
+    "ACTIVE",
+    "AWAITING_RESULT",
+    "SETTLED_WIN",
+    "SETTLED_LOSS",
+    "ADVANCED",
+    "RESTARTED",
+    "NO_PLAY",
+    "OFF_SEASON",
+    "INCIDENT"
+  ],
+  "rows": [
+    {
+      "id": "bank-builder",
+      "label": "Bank Builder",
+      "verdict": "GOVERNED",
+      "present": [
+        "producer",
+        "publicRoute",
+        "automation",
+        "ledger",
+        "settlement",
+        "lifecycle"
+      ],
+      "missing": [],
+      "founderGate": null,
+      "note": null
+    },
+    {
+      "id": "moonshot",
+      "label": "Moonshot",
+      "verdict": "PAUSED_FOUNDER",
+      "present": [
+        "producer",
+        "publicRoute",
+        "ledger",
+        "lifecycle"
+      ],
+      "missing": [
+        "automation",
+        "settlement"
+      ],
+      "founderGate": "MOONSHOT_REPAIR_PAUSE_OR_RETIRE",
+      "note": "P224 proved it can neither generate nor settle; the state owner tells the truth publicly while it waits."
+    },
+    {
+      "id": "homer-nukes",
+      "label": "Homer Nukes",
+      "verdict": "PARTIAL",
+      "present": [
+        "producer",
+        "publicRoute",
+        "automation",
+        "ledger",
+        "settlement"
+      ],
+      "missing": [
+        "lifecycle"
+      ],
+      "founderGate": null,
+      "note": null
+    },
+    {
+      "id": "end-zone-vault",
+      "label": "End Zone Vault",
+      "verdict": "PARTIAL",
+      "present": [
+        "producer",
+        "publicRoute",
+        "automation",
+        "ledger",
+        "settlement"
+      ],
+      "missing": [
+        "lifecycle"
+      ],
+      "founderGate": null,
+      "note": null
+    },
+    {
+      "id": "ufc-cards",
+      "label": "UFC paper cards",
+      "verdict": "PARTIAL",
+      "present": [
+        "producer",
+        "publicRoute",
+        "automation",
+        "ledger",
+        "settlement"
+      ],
+      "missing": [
+        "lifecycle"
+      ],
+      "founderGate": null,
+      "note": null
+    },
+    {
+      "id": "epl-cards",
+      "label": "EPL paper cards",
+      "verdict": "PARTIAL",
+      "present": [
+        "producer",
+        "publicRoute",
+        "automation",
+        "ledger",
+        "settlement"
+      ],
+      "missing": [
+        "lifecycle"
+      ],
+      "founderGate": null,
+      "note": null
+    }
+  ],
+  "counts": {
+    "GOVERNED": 1,
+    "PARTIAL": 4,
+    "UNGOVERNED": 0,
+    "PAUSED_FOUNDER": 1,
+    "RETIRED": 0
+  },
+  "openGaps": [
+    {
+      "id": "homer-nukes",
+      "missing": [
+        "lifecycle"
+      ]
+    },
+    {
+      "id": "end-zone-vault",
+      "missing": [
+        "lifecycle"
+      ]
+    },
+    {
+      "id": "ufc-cards",
+      "missing": [
+        "lifecycle"
+      ]
+    },
+    {
+      "id": "epl-cards",
+      "missing": [
+        "lifecycle"
+      ]
+    }
+  ],
+  "publishesWithoutSettling": [
+    "moonshot"
+  ]
+}

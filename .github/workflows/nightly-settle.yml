@@ -447,6 +447,14 @@ jobs:
           mkdir -p ../data/internal/offered-window
           npx --yes tsx scripts/offered-window/build-offered-window.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             || echo "::warning::offered-window matrix failed — prior matrix retained"
+          # 7) P228 · Release F0 — SIGNATURE-PRODUCT LIFECYCLE COVERAGE. Which products actually have
+          #    a producer, route, automation, ledger, settlement and a shared lifecycle contract —
+          #    every field derived from the repository (a path that exists, a workflow that names a
+          #    script), never a hand-kept status. A product whose producer is deleted shows up as
+          #    ungoverned the same day without anyone remembering to edit a table.
+          mkdir -p ../data/internal/products
+          npx --yes tsx scripts/products/build-lifecycle-coverage.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            || echo "::warning::lifecycle coverage failed — prior inventory retained"
 
       - name: Health gate (abort publish on missing/stale/non-reconciling data)
         id: health
@@ -526,6 +534,7 @@ jobs:
           # not a receipt, which is the same reasoning that ungated the NFL index re-derivation.
           git add data/internal/audits/ 2>/dev/null || true
           git add data/internal/offered-window/ 2>/dev/null || true
+          git add data/internal/products/ 2>/dev/null || true
           git add app/public/data/mlb/statsapi-schedule/ 2>/dev/null || true
           git add app/public/data/ops/offered-window.json 2>/dev/null || true
           git add pipeline/validation/mlb_settled_leans.jsonl 2>/dev/null || true

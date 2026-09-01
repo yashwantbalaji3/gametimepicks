@@ -7,6 +7,22 @@
  * authorised settlement owner remains the only writer of records.
  */
 
+/**
+ * THE PRODUCTS THIS MACHINE GOVERNS.
+ *
+ * P228 · F0/F1: this was a literal `["bank-builder", "moonshot"]` inside the watchdog, so "which
+ * products have a lifecycle contract" was answerable only by reading that one line. Four other
+ * registered products — Homer Nukes, End Zone Vault, and the UFC and EPL card ladders — have
+ * producers, public routes, automation, ledgers and settlement, and no shared contract saying an
+ * illegal transition is illegal.
+ *
+ * They are deliberately NOT added here yet. A product enters this list when it actually emits daily
+ * receipts; listing one that does not would make the watchdog report MISSING_DAILY_EVALUATION every
+ * day for a product nobody has wired, and a watchdog that cries wolf is switched off. The gap is
+ * stated once, in the lifecycle-coverage artifact, where it can be closed one product at a time.
+ */
+export const GOVERNED_PRODUCTS = Object.freeze(["bank-builder", "moonshot"]);
+
 /** The closed state vocabulary, verbatim from the operating contract. */
 export const LIFECYCLE_STATES = Object.freeze([
   "EVALUATING",
@@ -134,7 +150,7 @@ export function productWatchdog(receipts, nowMs, opts = {}) {
   const awaitingMs = opts.awaitingMs ?? 24 * 3600_000;
   const alerts = [];
   const byProduct = new Map(receipts.map((r) => [r.product, r]));
-  for (const product of ["bank-builder", "moonshot"]) {
+  for (const product of opts.products ?? GOVERNED_PRODUCTS) {
     const r = byProduct.get(product);
     if (!r) { alerts.push({ product, kind: "MISSING_DAILY_EVALUATION", detail: "no receipt for the product day" }); continue; }
     if (r.state === "ACTIVE" && r.evidence.lockAt && nowMs - Date.parse(r.evidence.lockAt) > staleActiveMs) {

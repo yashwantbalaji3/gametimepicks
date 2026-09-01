@@ -257,6 +257,19 @@ export default function LaunchCommandCenter() {
    * one of them is a bug rather than a second opinion. Reading the newest committed file means the
    * panel also shows its own staleness honestly when the nightly run has not happened.
    */
+  /*
+   * P228 · F0 — the product lifecycle inventory, derived from the repository by
+   * build-lifecycle-coverage.mjs. Rendered rather than restated, for the same reason the offered
+   * window is: a hand-kept product table drifts the first time a producer is deleted.
+   */
+  const productCoverage = (() => {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(process.cwd(), "..", "data", "internal", "products", "lifecycle-coverage.json"), "utf8"));
+    } catch {
+      return null;
+    }
+  })();
+
   const offeredWindow = (() => {
     try {
       const dir = path.join(process.cwd(), "..", "data", "internal", "offered-window");
@@ -408,6 +421,50 @@ export default function LaunchCommandCenter() {
             ) : null}
 
             {/* ── Executive overview: four SEPARATE headlines ─────────────────────────────── */}
+            <section aria-labelledby="product-lifecycle" style={{ marginBottom: 30 }}>
+              <h2 id="product-lifecycle" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Signature-product lifecycle coverage</h2>
+              {!productCoverage ? (
+                <p style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: 0 }}>
+                  No lifecycle-coverage inventory is committed. This panel derives entirely from that artifact.
+                </p>
+              ) : (
+                <>
+                  <p style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: "0 0 10px" }}>
+                    <strong>{productCoverage.state}</strong> · {(productCoverage.openGaps ?? []).length} product(s) with an open gap ·
+                    every field is evidence, never a hand-kept status
+                  </p>
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ borderCollapse: "collapse", fontSize: 12, minWidth: 580 }}>
+                      <thead>
+                        <tr>
+                          {["Product", "Verdict", "Has", "Missing", "Gate"].map((h) => (
+                            <th key={h} style={{ textAlign: "left", padding: "4px 10px 4px 0", borderBottom: "1px solid var(--vault-rule)", whiteSpace: "nowrap" }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(productCoverage.rows ?? []).map((r: { id: string; verdict: string; present: string[]; missing: string[]; founderGate: string | null }) => (
+                          <tr key={r.id}>
+                            <td style={{ padding: "4px 10px 4px 0" }}>{r.id}</td>
+                            <td style={{ padding: "4px 10px 4px 0" }}>{r.verdict}</td>
+                            <td style={{ padding: "4px 10px 4px 0" }}>{r.present.length}/{r.present.length + r.missing.length}</td>
+                            <td style={{ padding: "4px 10px 4px 0", color: "var(--vault-text-mute)" }}>{r.missing.join(", ") || "—"}</td>
+                            <td style={{ padding: "4px 10px 4px 0", color: "var(--vault-text-mute)" }}>{r.founderGate ?? "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {(productCoverage.publishesWithoutSettling ?? []).length > 0 ? (
+                    <p style={{ fontSize: 11.5, color: "var(--vault-text-mute)", margin: "8px 0 0" }}>
+                      ⚠ Publishes without settling: {(productCoverage.publishesWithoutSettling ?? []).join(", ")} — the shape that
+                      produces a public record nobody can ever check.
+                    </p>
+                  ) : null}
+                </>
+              )}
+            </section>
+
             <section aria-labelledby="offered-window" style={{ marginBottom: 30 }}>
               <h2 id="offered-window" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Offered window</h2>
               {!offeredWindow ? (
