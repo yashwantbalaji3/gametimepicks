@@ -98,6 +98,14 @@ export const INCIDENT_KINDS = Object.freeze({
     mitigation: "the event is listed as owed rather than silently omitted from the denominator",
     clearing: "the event is published or refused with a named reason",
   },
+  RECEIPT_DAY_MISSING: {
+    severity: "P1",
+    cause: "no product receipt exists for the current product day — the daily evaluation did not run, or ran and wrote nothing",
+    owner: "daily product receipts workflow",
+    detection: "incident register — the newest committed receipt is older than the current product day",
+    mitigation: "no product state is claimed for today; every product row on this board is from an earlier day and says so",
+    clearing: "a receipt is written for the current product day",
+  },
   OFFERED_WINDOW_FINDING: {
     severity: "P2",
     cause: "the offered-window conservation equation did not balance",
@@ -121,11 +129,15 @@ function newestDated(dir) {
 /**
  * Build the register from the committed authorities.
  *
- * @param {{ appDir: string }} o
+ * `etDate` is the current product day, INJECTED so this module stays deterministic — same artifacts
+ * plus same date in, same rows out. Omit it only where no clock is available; the staleness row is
+ * then not derivable and the register says nothing about it rather than guessing.
+ *
+ * @param {{ appDir: string, etDate?: string|null }} o
  * @returns {{ present: boolean, state: string, asOf: string|null, actionable: number, rows: any[],
  *              counts: { P1: number, P2: number, P3: number, GATED: number } }}
  */
-export function buildIncidentRegister({ appDir }) {
+export function buildIncidentRegister({ appDir, etDate = null }) {
   const ROOT = path.join(appDir, "..");
   const receipts = newestDated(path.join(ROOT, "data", "internal", "products", "receipts"));
   const coverage = readJson(path.join(ROOT, "data", "internal", "products", "lifecycle-coverage.json"));
@@ -169,6 +181,26 @@ export function buildIncidentRegister({ appDir }) {
       ...(gate ? { clearing: `the founder answers ${gate}; no engineering path exists until then` } : {}),
     });
   };
+
+  /*
+   * THE WHOLE DAY MISSING IS THE FAILURE THE PER-PRODUCT WATCHDOG CANNOT SEE.
+   *
+   * That watchdog alarms for products inside a receipt. If no receipt exists for today, it has
+   * nothing to iterate and reports nothing — so the board read "0 actionable" with the entire day's
+   * evaluation absent. Probed by hiding today's receipt: the register went quiet and called it
+   * GATED_ONLY.
+   *
+   * That is the same shape as the End Zone Vault defect this register was built to surface — silence
+   * mistaken for health — reproduced one level up, in the thing watching for it.
+   */
+  if (etDate && receipts?.date && receipts.date < etDate) {
+    push("RECEIPT_DAY_MISSING", "all-products",
+      `newest receipt is ${receipts.date}; the current product day is ${etDate}`,
+      `products/receipts/${receipts.date}.json`);
+  }
+  if (etDate && !receipts) {
+    push("RECEIPT_DAY_MISSING", "all-products", `no product receipt exists at all for ${etDate}`, "products/receipts/");
+  }
 
   for (const a of receipts?.doc?.watchdog ?? []) {
     push(a.kind, a.product, a.detail ?? "", `products/receipts/${receipts.date}.json`);

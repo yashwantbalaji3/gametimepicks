@@ -122,3 +122,45 @@ test("LIVE · the Vault incident names the receipt that will clear it", () => {
   assert.match(vault.clearing, /a later receipt/, "cleared by evidence, not by assertion");
   assert.match(vault.source, /receipts\/\d{4}-\d{2}-\d{2}\.json/, "and it names the receipt it was read from");
 });
+
+test("A STALE RECEIPT DOES NOT SATISFY A NEW SLOT", () => {
+  /*
+   * The probe the charter names, and it found a real hole. The per-product watchdog alarms for
+   * products INSIDE a receipt; with no receipt for today it has nothing to iterate and reports
+   * nothing, so the board read "0 actionable" while the entire day's evaluation was missing.
+   *
+   * That is the End Zone Vault defect — silence mistaken for health — reproduced one level up, in
+   * the register built to surface it.
+   */
+  if (!reg.present) return;
+  const APP_DIR = process.cwd();
+
+  /* A date far past the newest committed receipt: the day itself must be reported missing. */
+  const stale = buildIncidentRegister({ appDir: APP_DIR, etDate: "2099-01-01" });
+  const missing = stale.rows.find((r) => r.kind === "RECEIPT_DAY_MISSING");
+  assert.ok(missing, "a receipt older than the product day must raise an incident");
+  assert.equal(missing.severity, "P1", "an unevaluated day outranks any single product's failure");
+  assert.ok(stale.actionable >= 1, "and it must be actionable — nobody is gating this");
+  assert.match(missing.detail, /the current product day is 2099-01-01/);
+
+  /* And it must NOT fire when the receipt is for the day being asked about. */
+  const current = buildIncidentRegister({ appDir: APP_DIR, etDate: reg.asOf });
+  assert.ok(
+    !current.rows.some((r) => r.kind === "RECEIPT_DAY_MISSING"),
+    "a receipt for today is not stale — a detector that always fires is switched off",
+  );
+});
+
+test("the console injects the clock rather than the register reading one", () => {
+  /*
+   * Determinism: same artifacts + same date in, same rows out. A module that reads the wall clock
+   * internally cannot be replayed, and every incident board is an artifact somebody replays.
+   */
+  const src = fs.readFileSync(path.join(APP, "src/lib/launch/incident-register.mjs"), "utf8");
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " ")).replace(/\/\/.*$/gm, "");
+  for (const forbidden of ["new Date(", "Date.now(", "currentEtDate"]) {
+    assert.ok(!code.includes(forbidden), `the register must not read a clock (${forbidden}) — it is passed one`);
+  }
+  const page = fs.readFileSync(path.join(APP, "src/app/launch/page.tsx"), "utf8");
+  assert.match(page, /buildIncidentRegister\(\{[^}]*etDate:/, "the console passes the product day in");
+});

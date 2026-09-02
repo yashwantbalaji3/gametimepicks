@@ -181,7 +181,9 @@ export default function LaunchCommandCenter() {
   const dailyOps = buildDailyProductOps({ appDir: APP });
   const forwardCov = buildForwardCoveragePanel({ appDir: APP });
   const ledgers = buildLedgerPanel({ appDir: APP });
-  const incidents = buildIncidentRegister({ appDir: APP });
+  /* The current product day is INJECTED — the register stays deterministic, and a receipt older
+     than today becomes a P1 rather than an empty board. */
+  const incidents = buildIncidentRegister({ appDir: APP, etDate: currentEtDate() });
   /* The gate packets read Moonshot's state through the SAME owner the public page renders, so the
      founder and the visitor are answering about one set of numbers. */
   const gatePackets = buildGatePackets({
