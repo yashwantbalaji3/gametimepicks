@@ -4,16 +4,15 @@
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "PUBLISHING",
-      "reason": "15 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-09-02T15:10:00.000Z",
+      "state": "PUBLISHED",
+      "reason": "all 15 event(s) in the horizon carry a forecast",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 15,
-        "published": 0,
+        "published": 15,
         "missedCoverage": 0,
-        "awaiting": 15
-      },
-      "missed": []
+        "awaiting": 0
+      }
     },
     "nfl": {
       "state": "NO_EVENT",
@@ -40,31 +39,33 @@
     },
     "epl": {
       "state": "PUBLISHING",
-      "reason": "9 event(s) still awaiting a forecast, none of them late yet",
+      "reason": "15 event(s) still awaiting a forecast, none of them late yet",
       "deadlineUtc": "2026-09-05T10:00:00.000Z",
       "counts": {
-        "scheduled": 10,
+        "scheduled": 16,
         "published": 1,
         "missedCoverage": 0,
-        "awaiting": 9
+        "awaiting": 15
       },
       "missed": []
     }
   },
-  "checkedAt": "2026-09-02T12:16:05.661Z",
+  "checkedAt": "2026-09-02T16:31:23.631Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHING",
-  "reason": "today's slate is not published yet and is not late — the deadline is 2026-09-02T15:10:00.000Z",
-  "publishDeadlineUtc": "2026-09-02T15:10:00.000Z",
+  "state": "PUBLISHED",
+  "reason": "board published with 676 rows",
+  "publishDeadlineUtc": null,
   "scheduledGames": 15,
   "pregameRemaining": 15,
   "alreadyStarted": 0,
   "board": {
-    "present": false,
-    "leans": 0,
+    "present": true,
+    "leans": 676,
     "pendingReason": null,
-    "generatedAt": null
+    "generatedAt": "2026-09-02T15:26:14.469850+00:00",
+    "scheduledGames": 15,
+    "startedBeforeGeneration": 0
   },
   "games": [
     {
@@ -72,7 +73,7 @@
       "startUtc": "2026-09-02T16:40:00Z",
       "away": "San Diego Padres",
       "home": "Cincinnati Reds",
-      "detailedState": "Scheduled",
+      "detailedState": "Warmup",
       "pregameAtCheck": true
     },
     {
@@ -80,7 +81,7 @@
       "startUtc": "2026-09-02T17:05:00Z",
       "away": "Atlanta Braves",
       "home": "Washington Nationals",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -88,7 +89,7 @@
       "startUtc": "2026-09-02T18:35:00Z",
       "away": "Athletics",
       "home": "Texas Rangers",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -96,7 +97,7 @@
       "startUtc": "2026-09-02T19:10:00Z",
       "away": "Baltimore Orioles",
       "home": "Colorado Rockies",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -104,7 +105,7 @@
       "startUtc": "2026-09-02T19:40:00Z",
       "away": "Philadelphia Phillies",
       "home": "Arizona Diamondbacks",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {

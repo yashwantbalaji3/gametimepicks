@@ -1,26 +1,27 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-02",
-  "checkedAt": "2026-09-02T12:16:05.922Z",
-  "treeHead": "72d08b100",
-  "state": "STALE",
+  "checkedAt": "2026-09-02T16:31:24.079Z",
+  "treeHead": "8916bfaf0",
+  "state": "INCIDENT",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 15,
   "owners": [
     {
       "id": "mlb-board",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-02T15:10:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-02T15:10:00.000Z",
+      "receiptAt": "2026-09-02T15:26:14.469850+00:00",
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "mlb/boards/2026-09-02.json"
     },
     {
       "id": "mlb-markets",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-02T15:40:00.000Z",
+      "state": "INCIDENT",
+      "reason": "no receipt for 2026-09-02; due 2026-09-02T15:40:00.000Z plus 30m grace has passed",
       "dueAtIso": "2026-09-02T15:40:00.000Z",
       "label": "MLB team markets + player props",
       "workflow": "mlb-daily-production",
@@ -31,8 +32,8 @@
     },
     {
       "id": "mlb-simulations",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-02T15:40:00.000Z",
+      "state": "INCIDENT",
+      "reason": "no receipt for 2026-09-02; due 2026-09-02T15:40:00.000Z plus 30m grace has passed",
       "dueAtIso": "2026-09-02T15:40:00.000Z",
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
@@ -43,12 +44,15 @@
     },
     {
       "id": "risk-ladder",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-02T15:55:00.000Z",
+      "state": "DUE",
+      "reason": "past 2026-09-02T15:55:00.000Z, inside grace",
       "dueAtIso": "2026-09-02T15:55:00.000Z",
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
+        "mlb-markets"
+      ],
+      "blockedUpstream": [
         "mlb-markets"
       ],
       "receiptPath": null
@@ -136,7 +140,7 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 90.4h old against a 48h bound",
+      "reason": "receipt is 94.7h old against a 48h bound",
       "dueAtIso": "2026-09-02T15:00:00.000Z",
       "receiptAt": "2026-08-29T17:50:39Z",
       "label": "NFL market capture",
