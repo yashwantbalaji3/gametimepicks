@@ -99,14 +99,95 @@ The source guard first passed **vacuously** — scanning for the bare identifier
 import, so a component whose `ref` had been deleted reported as covered. It now requires the wiring.
 Both detectors mutation-probed.
 
+## F1 — every signature product under one lifecycle
+
+Four products sat PARTIAL, each missing only `lifecycle`. The check behind that dimension was a regex
+over the state machine's own source for the quoted product id, so the distance between "Homer Nukes
+has a lifecycle contract" and "somebody typed homer-nukes" was a pair of quotes. F1 was one string
+edit from closing. The registry that permits that had to go first, or F1's acceptance test is a
+formality.
+
+Membership now costs an owner for the producer, selection gate, freeze boundary, settlement adapter,
+ledger and receipt. The refusals are the point: a missing owner throws by name; a product without
+settlement cannot register at all (the unfalsifiable-record shape); two products claiming one record
+throw; a duplicate id cannot replace the first. A further guard checks every declared owner
+**resolves on disk** — it caught six paths in my own first draft that I had guessed rather than
+verified.
+
+### What each migration actually required
+
+**End Zone Vault.** Its builder returns `NO_VAULT` and appends a `NO_PLAY` entry when there is no
+upcoming event — it evaluates every window, exactly as its docstring says. But it lived inside a
+workflow step gated on `events != '0'`, so in exactly the windows where "nothing to evaluate" *is*
+the evaluation, it never ran. `nfl-event-window` reported **success nine times between 08-30 and
+09-01** and the ledger gained an entry on none of them. There is no failed run object to find; the
+absence of a receipt was the only evidence and nothing was looking for it.
+
+**Homer Nukes** is a calibration product, and needed a new state. Its record holds `gradedPicks`,
+`predicted`, `actual` and `brier` and no stake at all — a board of ~25% probabilities is *supposed*
+to miss most of them, so five picks with one homer is a well-calibrated day, not a loss. Choosing
+`SETTLED_WIN` or `SETTLED_LOSS` would mint a verdict the product never computes, and that verdict
+would then be summable with the money products' records. `SETTLED_RECORDED` is the honest answer:
+graded, not won or lost, progressing nowhere because there is no bankroll. The registry declares
+`ledgerKind` so this is a property of the product, not a habit of whoever wires it.
+
+**UFC and EPL cards.** The inventory was checking `ufc/graded-picks.json` as evidence these products
+have a ledger — but that is the model's fight-winner pick record, belonging to a *different* product.
+The cards' record is the Parlay Lab ledger. That exposed the ledger rule as too crude: it compared
+paths, and the lab ledger is one artifact holding five genuinely separate streams. The rule now
+enforces record **identity** (path + stream); same artifact different streams is permitted, same
+stream still refused. Refusing a correct registration is how a rule gets loosened until it stops
+catching the wrong ones.
+
+Both ladders are event-driven, so most days carry no card. "No UFC event on 09-01 — the ladder is
+published for 09-05" is a refusal naming where the next card is; only a ladder that does not exist
+*and* has no forward card is an incident.
+
+### A defect in my own wiring, caught by a guard I wrote
+
+The receipt writer passed **one** `lockAt` — the daily-portfolio's activation stamp — to every
+product in the loop, so Homer Nukes reached ACTIVE on Bank Builder's freeze time. A freeze boundary
+borrowed from another product is not a freeze boundary, and ACTIVE is precisely the state that must
+not be reachable without one.
+
+**Coverage: ALL_GOVERNED, open gaps 4 → 0.** Moonshot remains `PAUSED_FOUNDER` on its exact token.
+
+## F2 — a green run that produced nothing
+
+The offered-window matrix already reconciles all five sports and balances: MLB 15/15 published, UFC 7
+published + 7 refused, NFL 2 `NOT_YET_CAPTURED`, EPL 1 forecast-ready, NBA off-season — every sport
+`conserved: true`, zero owed, zero findings. That half of F2 was closed by P226; **verifying it was
+the work, not rebuilding it.**
+
+The other half was not closed. `assert-run-produced` exists because a step's exit code answers "did
+the command return zero" rather than "did the product do its work", and it was wired into three
+workflows. Three of the six governed products could return zero having written nothing —
+`nfl-event-window` (which did, nine times), `mlb-daily-production`, and `nightly-settle`.
+
+The cron watchdog cannot catch this class by design: it asks which **runs** exist, and in every case
+the runs existed and were green. That is the charter's "detected without querying workflow-run
+existence" — the only question that separates them is whether the artifact is on disk, written
+*during* the run.
+
+Rather than three edits somebody must remember to repeat, the rule is a property of being governed: a
+guard walks the registry, finds the workflow running each producer, and fails naming any product
+whose workflow would not notice it producing nothing. It also checks `RUN_STARTED` is stamped before
+use — an unset value makes `--since` compare against the empty string, so the assertion passes on an
+artifact of any age. Coverage that proves nothing is worse than none, because it reads as done.
+
+The guard found a true fact I had to **classify rather than fix**: Moonshot's producer is a library
+module with no schedule. That is its founder gate, already reported as its missing `automation`
+dimension. The registry now carries `founderGate`, with a test pinning the exemption to exactly
+Moonshot and exactly its token so it cannot quietly widen.
+
 ## Register
 
 | Release | Commit | Rollback parent | State |
 | --- | --- | --- | --- |
 | R0 · leg reachability + payload | `a7cb3983b` | `35f39b56a` | shipped, gate pending |
 | Incident · pre-hydration image failure | `7840eb69a` | `a7cb3983b` | shipped, gate pending |
-| F1 · signature products under one lifecycle | — | — | ENGINEERING_OPEN |
-| F2 · offered-window automation | — | — | ENGINEERING_OPEN |
+| F1 · signature products under one lifecycle | `79f0e4192` (+`0a81e4290`) | `16f92755a` | shipped — ALL_GOVERNED |
+| F2 · producer assertions + offered window verified | `4dcb41cef`, `47033c203` | `02f796e33` | shipped |
 | F3 · settlement + independent ledgers | — | — | ENGINEERING_OPEN |
 | G · Top Picks, tier matrix, builder | — | — | ENGINEERING_OPEN |
 | K1 · protected command center | — | — | ENGINEERING_OPEN |
