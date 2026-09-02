@@ -67,6 +67,9 @@ jobs:
     # go red, or the green badge means nothing.
     timeout-minutes: 25
     steps:
+      - name: Stamp the run start
+        run: echo "RUN_STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -125,6 +128,14 @@ jobs:
       - name: 5c) Homer Nukes board
         if: steps.board.outputs.have_board == 'true'
         run: node app/scripts/mlb/build-homer-nukes.mjs --write --date "${{ steps.cfg.outputs.date }}" --now "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+
+      # P230 · F2 — Homer Nukes is a governed product; its board is the freeze the settler reads.
+      # A run that returns zero and writes no board leaves the day unfalsifiable.
+      - name: Assert Homer Nukes produced its board
+        run: |
+          set -euo pipefail
+          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" \
+            "app/public/data/mlb/homer-nukes/${{ steps.cfg.outputs.date }}.json"
       - name: 6) Verify (completeness gate — honest slate status + production health)
         if: steps.board.outputs.have_board == 'true'
         run: node app/scripts/mlb-slate-completeness-gate.mjs --date "${{ steps.cfg.outputs.date }}"

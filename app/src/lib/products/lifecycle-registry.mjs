@@ -143,6 +143,14 @@ export const PRODUCT_REGISTRY = registerProducts([
     ledgerKind: "money",
     label: "Moonshot",
     policyVersion: "moonshot@1",
+    /*
+     * PAUSED on an exact founder token. Its safe engineering is complete and its history is intact;
+     * what it lacks is a scheduled producer, which is already one of the two dimensions the coverage
+     * artifact reports it missing. Carrying the gate HERE lets guards tell "waiting on a person"
+     * apart from "nobody wired it" — counting a deliberate pause as a defect makes the gap list
+     * unreadable and pressures someone into "fixing" a product that is paused on purpose.
+     */
+    founderGate: "MOONSHOT_REPAIR_PAUSE_OR_RETIRE",
     producer: "app/src/lib/moonshot/moonshot-lane.ts",
     selectionGate: "app/src/lib/products/selection-policy.mjs",
     freeze: "app/scripts/promote-bank-builder-proposal.mjs",
