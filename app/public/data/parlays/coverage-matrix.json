@@ -2,18 +2,18 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-01T18:45:55Z",
+ "generatedAt": "2026-09-02T18:53:41Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 6,
-  "NO_PLAY": 10,
+  "PUBLISHED": 7,
+  "NO_PLAY": 9,
   "LANE_CLOSED": 4,
   "MISSING": 0
  },
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-09-01",
+   "date": "2026-09-02",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
@@ -23,15 +23,15 @@
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "slip_2026-09-01_conservative_09997f5f3542"
+     "slipId": "slip_2026-09-02_conservative_f87cbfaf4ea5"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
+     "state": "PUBLISHED",
+     "slipId": "slip_2026-09-02_balanced_dfb953195e67"
     },
     "longshot": {
      "state": "PUBLISHED",
-     "slipId": "slip_2026-09-01_aggressive_36b88c13c50b"
+     "slipId": "slip_2026-09-02_aggressive_b755d45b5390"
     }
    }
   },
@@ -87,29 +87,29 @@
    "lane": "nfl",
    "date": "2026-08-24",
    "laneState": "CLOSED",
-   "laneReason": "the last price capture is 3.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "laneReason": "the last price capture is 4.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 4.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 4.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 4.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 4.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     }
    }
   },
   {
    "lane": "multi",
-   "date": "2026-09-01",
+   "date": "2026-09-02",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
