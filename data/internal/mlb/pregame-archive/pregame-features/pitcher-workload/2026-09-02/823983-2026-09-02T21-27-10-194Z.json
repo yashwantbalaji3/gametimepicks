@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823983,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T21:27:10.194Z",
+  "availableAt": "2026-09-02T21:27:10.194Z",
+  "eventStartTime": "2026-09-03T01:38:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 672282,
+      "name": "Reid Detmers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 5,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 5.8,
+        "bbAvg": 1.2,
+        "erAvg": 1,
+        "hrAvg": 0.4,
+        "kPer9": 8.7,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 155,
+        "k": 174,
+        "bb": 44,
+        "er": 61,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 693645,
+      "name": "Cam Schlittler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 7.2,
+        "bbAvg": 3.2,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 12,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 163.67,
+        "k": 201,
+        "bb": 42,
+        "er": 38,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-02T21:27:10.194Z"
+  },
+  "recordHash": "e37c44a50649338a404cc9972ff7dc770a256dbc82e5a7ccef78c7dab0c979da"
+}
