@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "artifact": "nfl-product-receipts",
   "dataClass": "PUBLIC_DERIVED",
-  "runId": "d3dd57e913a9",
-  "generatedAt": "2026-09-02T18:01:59Z",
+  "runId": "405a6b1987b2",
+  "generatedAt": "2026-09-02T18:30:48Z",
   "asOf": {
-    "index": "2026-09-02T18:01:59Z",
-    "eligibility": "2026-09-02T18:01:59Z",
-    "vault": "2026-08-29T18:16:23Z",
+    "index": "2026-09-02T18:30:48Z",
+    "eligibility": "2026-09-02T18:30:48Z",
+    "vault": "2026-09-02T18:01:59Z",
     "markets": "2026-08-29T17:50:39Z"
   },
   "nextRunUtc": "2026-09-02T21:00:00Z",
@@ -52,17 +52,10 @@
     {
       "product": "end-zone-vault",
       "label": "End Zone Vault",
-      "state": "NO_PLAY",
-      "stateReason": "8 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
-      "candidatesConsidered": 8,
-      "rejections": [
-        {
-          "reason": "NO_PRICED_MARKET",
-          "label": "the provider offers no NFL player market in this window",
-          "detail": "an unpriced leg can never enter a paper product — there is nothing to settle it against.",
-          "count": 8
-        }
-      ],
+      "state": "REFUSED",
+      "stateReason": "no upcoming NFL event in this window to evaluate",
+      "candidatesConsidered": 0,
+      "rejections": [],
       "alsoBlocking": [
         {
           "reason": "NO_VALIDATED_FAMILY",
