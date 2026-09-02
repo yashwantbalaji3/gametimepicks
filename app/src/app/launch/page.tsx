@@ -24,6 +24,9 @@ import { buildSimulationExperience } from "@/lib/launch/simulation-experience.mj
 import { buildDailyProductOps, buildForwardCoveragePanel } from "@/lib/launch/daily-product-ops.mjs";
 import { buildLedgerPanel } from "@/lib/launch/ledger-panel.mjs";
 import { buildIncidentRegister } from "@/lib/launch/incident-register.mjs";
+import { buildGatePackets } from "@/lib/launch/gate-packets.mjs";
+import { deriveMoonshotState, MOONSHOT_HAS_SCHEDULED_GENERATOR, MOONSHOT_HAS_WIRED_SETTLER } from "@/lib/products/moonshot-state.mjs";
+import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { WALKED_ROUTES, PAPER_ONLY_CEILINGS, CONTENT_CONTRACT_VERSION } from "@/lib/launch/public-content-contract.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
@@ -179,6 +182,24 @@ export default function LaunchCommandCenter() {
   const forwardCov = buildForwardCoveragePanel({ appDir: APP });
   const ledgers = buildLedgerPanel({ appDir: APP });
   const incidents = buildIncidentRegister({ appDir: APP });
+  /* The gate packets read Moonshot's state through the SAME owner the public page renders, so the
+     founder and the visitor are answering about one set of numbers. */
+  const gatePackets = buildGatePackets({
+    appDir: APP,
+    moonshotState: (() => {
+      try {
+        const readData = (...seg: string[]) => JSON.parse(fs.readFileSync(path.join(APP, "public", "data", ...seg), "utf8"));
+        return deriveMoonshotState({
+          lane: loadMoonshotLane(),
+          portfolioMoonshot: (() => { try { return readData("mr-dub", "portfolio.json").moonshot ?? null; } catch { return null; } })(),
+          productLedger: (() => { try { return readData("product-ledger", "moonshot.json"); } catch { return null; } })(),
+          hasScheduledGenerator: MOONSHOT_HAS_SCHEDULED_GENERATOR,
+          hasWiredSettler: MOONSHOT_HAS_WIRED_SETTLER,
+          today: currentEtDate(),
+        });
+      } catch { return null; }
+    })(),
+  });
 
   /* Program 185 · the UI/UX audit, derived from its committed artifact — never typed here. */
   const uiux = buildUiuxEvidence();
@@ -428,6 +449,45 @@ export default function LaunchCommandCenter() {
                 moment; there is no field anyone can edit to make one disappear. Rendered as cards
                 rather than a table because a status an operator reads on a phone must not be behind
                 a horizontal scroll. ─────────────────────────────────────────────────────────── */}
+            {/* ── FOUNDER GATES ───────────────────────────────────────────────────────────────
+                Two decisions that are not engineering, presented as questions with their evidence
+                attached rather than as the word "founder-gated". Every figure is derived; nothing
+                here issues a request or mutates a product. ─────────────────────────────────── */}
+            <section aria-labelledby="gate-packets" style={{ marginBottom: 30 }}>
+              <h2 id="gate-packets" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Founder gates — answerable now</h2>
+              <p style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: "0 0 10px" }}>
+                {gatePackets.counts.open} open · answer with the exact token · nothing here has been executed
+              </p>
+              <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 12 }}>
+                {gatePackets.packets.map((p: {
+                  id: string; title: string; question: string; evidence: string[];
+                  answerTokens: { token: string; does: string }[]; dryRun: string;
+                  forbiddenWithoutToken: string; neverShare: string | null;
+                }) => (
+                  <li key={p.id} style={{ border: "1px solid var(--vault-rule)", borderRadius: 8, padding: "12px 14px", background: "var(--vault-wash-faint)" }}>
+                    <strong style={{ fontSize: 13.5 }}>{p.title}</strong>
+                    <p style={{ fontSize: 12.5, margin: "6px 0 8px", color: "var(--vault-text)" }}>{p.question}</p>
+                    <ul style={{ margin: "0 0 8px", paddingLeft: 16, fontSize: 11.5, color: "var(--vault-text-mute)", display: "grid", gap: 2 }}>
+                      {p.evidence.map((e, i) => <li key={i}>{e}</li>)}
+                    </ul>
+                    <div style={{ display: "grid", gap: 4, margin: "0 0 8px" }}>
+                      {p.answerTokens.map((t) => (
+                        <div key={t.token} style={{ display: "flex", gap: 8, flexWrap: "wrap", fontSize: 11.5 }}>
+                          <code style={{ color: "var(--vault-gold-bright)", fontFamily: "monospace" }}>{t.token}</code>
+                          <span style={{ color: "var(--vault-text-mute)", flex: "1 1 220px" }}>{t.does}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p style={{ fontSize: 11, margin: "0 0 4px", color: "var(--vault-text-faint)", fontFamily: "monospace" }}>dry run: {p.dryRun}</p>
+                    <p style={{ fontSize: 11, margin: 0, color: "var(--vault-text-faint)" }}>
+                      Without the token: {p.forbiddenWithoutToken}.
+                      {p.neverShare ? <strong style={{ color: "var(--gtp-bank-heat)" }}> {p.neverShare}</strong> : null}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
             <section aria-labelledby="incidents" style={{ marginBottom: 30 }}>
               <h2 id="incidents" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Incidents — what needs attention now</h2>
               {!incidents.present ? (
