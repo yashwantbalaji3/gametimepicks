@@ -180,6 +180,85 @@ module with no schedule. That is its founder gate, already reported as its missi
 dimension. The registry now carries `founderGate`, with a test pinning the exemption to exactly
 Moonshot and exactly its token so it cannot quietly widen.
 
+## F3 — the tier rows did not sum to the record they sat under
+
+MLB's Parlay Lab record published `returned: 22.62` while its four tier rows summed to 22.61. One
+cent — and exactly the kind of discrepancy that makes a published record impossible to check by
+hand, which is the only way most readers will ever check it. Every bucket rounded its own `returned`
+from its own unrounded accumulation, tiers and record independently; rounding independently is not
+rounding once. The tiers round first and the record is now the sum of the published tiers, so the
+arithmetic a reader can do is the arithmetic that produced the total.
+
+A second hole in the same loop: a card whose tier had no bucket was skipped for the tier and still
+counted in `overall`, so the rows would silently stop summing with nothing to say so. The builder now
+refuses and names the card.
+
+The guard holds W+L+P against the cards staked, checks the published hit rate and ROI agree with the
+published counts, and refuses a rate over zero decisive cards or an ROI over zero stake. It also
+holds **no combined total**: no top-level key sums the five streams, and no top-level scalar happens
+to equal that sum under another name. A calibration ledger may publish no stake, payout, returned,
+ROI or profit — Homer Nukes' record must not become summable with the money products' one artifact
+down.
+
+`byTier` ships as an object; the array reading yields `[]` and would pass every sum vacuously.
+
+## G — the MLB tier grid was resolved on UFC's cron
+
+`build-tier-grid.mjs` builds all five sports and was scheduled only by `ufc-fight-week` and
+`epl-matchweek`. So MLB's four-tier grid was evaluated at another sport's cadence, and its published
+state tracked what time that cron happened to fire:
+
+| generated | state |
+| --- | --- |
+| 08-27 22:44Z · 08-30 23:20Z · 08-31 22:58Z | PUBLISHED · 16 cells |
+| 08-26 13:58Z · 09-01 15:25Z | NOT_ELIGIBLE · 0 cells |
+
+On 09-01 it refused with *"no price capture for 2026-09-01 yet … only 0 priced games"* while the
+board carried **373 priced legs across 15 games**, captured at 17:50Z. The refusal was accurate at
+15:25 and never re-asked — and a stale refusal is indistinguishable from a considered one. Both say
+"not eligible"; neither says when it last looked.
+
+MLB now re-resolves its grid inside `mlb-daily-production`, after its own prices land, and that
+workflow is re-dispatched by the afternoon top-up. The generator is network-free, so this costs
+nothing and no credits. Re-resolved against today: **NOT_ELIGIBLE / 0 cells → PUBLISHED / 16 cells**,
+4 filled, bronze correctly using its labelled substitute rather than a widened band.
+
+## L — the calibration verdicts were checked against each other, never against the data
+
+Seven guards already protect the recalibration decision. Every one compares committed constants to
+other committed constants. None compared them to the ledger — and `MLB_MARKET_CALIBRATION` is a
+hand-maintained table stamped `2026-07-21` over 18,659 leans, while the ledger has since grown past
+35,000 rows through 08-31.
+
+The evidence has not moved, and that is now a measurement rather than an assumption:
+
+| market | n | model Brier | market Brier | overconfidence |
+| --- | --- | --- | --- | --- |
+| pitcher_strikeouts | 1,781 | 0.2736 | 0.2453 | 14.6pp |
+| batter_hits | 14,703 | 0.2432 | 0.2354 | 6.8pp |
+| batter_total_bases | 6,616 | 0.2609 | 0.2405 | 12.0pp |
+| batter_hits_runs_rbis | 12,920 | 0.2632 | 0.2475 | 10.2pp |
+
+The engine runs the real audit rather than reading a cached summary, because a contradiction engine
+fed a committed artifact is checking one constant against another again. The two directions are not
+symmetric: a market claiming `PUBLIC_MODEL_OK` that loses fails hard; a demoted market that starts
+winning also fails, but the message says to run the **preregistered** promotion protocol rather than
+edit the verdict — a bar chosen after seeing the result is not a bar.
+
+## Guards that were vacuous when first written
+
+Three of my own, each caught by its own mutation probe rather than by review:
+
+1. the `node:fs` contract scan matched the **import line** left behind after the wiring was deleted;
+2. the tier-grid workflow scan matched `build-tier-grid.mjs` inside the **comment explaining the
+   defect**, so deleting the step left the guard green — the same class this repository has now
+   recorded seven times, in YAML this time;
+3. the R0 browser spec pinned a **history-stack shape**, reporting a legitimate engine difference as
+   a product regression; the first repair then over-stepped the page, because `page.url()` is read
+   before the navigation it follows has settled.
+
+A guard that has never failed has not been shown to work.
+
 ## Register
 
 | Release | Commit | Rollback parent | State |
@@ -188,12 +267,12 @@ Moonshot and exactly its token so it cannot quietly widen.
 | Incident · pre-hydration image failure | `7840eb69a` | `a7cb3983b` | shipped, gate pending |
 | F1 · signature products under one lifecycle | `79f0e4192` (+`0a81e4290`) | `16f92755a` | shipped — ALL_GOVERNED |
 | F2 · producer assertions + offered window verified | `4dcb41cef`, `47033c203` | `02f796e33` | shipped |
-| F3 · settlement + independent ledgers | — | — | ENGINEERING_OPEN |
-| G · Top Picks, tier matrix, builder | — | — | ENGINEERING_OPEN |
+| F3 · ledger reconciliation | `aa9699db0` | `d5d4bd29b` | shipped |
+| G · tier-grid cadence + freshness | `f19027941` | `acc2c9f4e` | shipped |
 | K1 · protected command center | — | — | ENGINEERING_OPEN |
 | I · public information architecture | — | — | ENGINEERING_OPEN |
 | J · sport scenes, responsive, a11y | — | — | ENGINEERING_OPEN |
-| L · model + publication governance | — | — | ENGINEERING_OPEN |
+| L · calibration contradiction engine | `8ff973a84` → this tip | `fe3ccbc7e` | shipped |
 | M · convergence + production proof | — | — | ENGINEERING_OPEN |
 
 **FOUNDER_GATED:** NFL paid odds renewal (P171 receipt expired by its own terms — no cron added, no
