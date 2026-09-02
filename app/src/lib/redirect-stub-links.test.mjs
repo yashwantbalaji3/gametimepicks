@@ -27,9 +27,21 @@ const APP = process.cwd();
  * must keep landing somewhere real, while our own links go straight to the canonical destination.
  */
 const STUBS = {
-  "/parlay-lab": "/picks",
-  "/parlays": "/picks",
-  "/nba/parlays": "/picks",
+  /*
+   * P231 · I: three of these named `/picks` as the real destination — and `/picks` has since become
+   * a stub itself, redirecting to `/build#suggested-cards`. So the map that exists to stop chained
+   * hops was recording one as the correct answer. A hand-kept list of "where things really go" goes
+   * stale exactly when a route is retired, which is the only time it matters.
+   *
+   * The companion guard `lib/uiux/link-destinations.test.mjs` derives the stub set from the BUILT
+   * export instead, so it cannot go stale and can see hrefs computed from a variable — which is how
+   * two chained links survived this scan for as long as they did.
+   */
+  "/parlay-lab": "/build#suggested-cards",
+  "/parlays": "/build#suggested-cards",
+  "/nba/parlays": "/build#suggested-cards",
+  "/picks": "/build#suggested-cards",
+  "/world-cup": "/results/",
   "/games": "/simulate",
   "/board": "/mlb/board",
   "/projections": "/mlb/board",
@@ -39,7 +51,7 @@ const STUBS = {
   "/ipl": "/today",
   // "/sports" removed in Program 158: no longer a stub — it is a real destination (schedules directory).
   "/nba": "/results/nba",
-  "/mlb/parlays": "/picks",
+  "/mlb/parlays": "/build#suggested-cards",
   // "/homer-nukes" was a stub redirecting to /results while the product was retired. It is a real
   // page again (2026-08-17), so linking it is correct rather than a wasted hop.
 };

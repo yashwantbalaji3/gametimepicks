@@ -316,7 +316,7 @@ export function buildMlbGameLabReport(
   if (bestEdge >= STRONG_EDGE_MIN) {
     productMapping.push({
       label: "Top 10",
-      href: "/picks",
+      href: "/build#suggested-cards",
       note: `Derived: this game's strongest read carries a ${edge1(biggestLeans[0].edgePct)} model gap, high enough to surface among the day's Top 10. Descriptive ranking, not an endorsement.`,
     });
   }

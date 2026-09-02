@@ -76,7 +76,10 @@ export default function YesterdaySummary({ date }: { date: string }) {
       title: "World Cup picks",
       value: `${w}–${l}`,
       sub: finals || "settled from official 90′ finals",
-      href: "/world-cup?tab=results",
+      /* The archive directly (P231 · I). `/world-cup` is a retired stub whose redirect target is
+         fixed, so `?tab=results` was discarded on the way — the link carried an intent the hop threw
+         away. */
+      href: "/results/",
       tone: w >= l ? "win" : "loss",
     });
   }

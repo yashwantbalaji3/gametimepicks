@@ -346,7 +346,7 @@ export function buildWcGameLabReport(
   if (bestEdge >= STRONG_EDGE_MIN) {
     productMapping.push({
       label: "Top 10",
-      href: "/picks",
+      href: "/build#suggested-cards",
       note: `Derived: this game's strongest de-vigged read carries a ${edge1(biggestLeans[0].edgePct)} gap vs the raw price, high enough to surface among the day's Top 10. Descriptive ranking, not an endorsement.`,
     });
   }

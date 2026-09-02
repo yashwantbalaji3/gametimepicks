@@ -172,7 +172,7 @@ export default function WorldCupSpecialsPreviewBox({ data }: { data: June20Speci
           </div>
         )}
 
-        <Link href="/world-cup" className="mt-3 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: GOLD }}>
+        <Link href="/results/" className="mt-3 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: GOLD }}>
           More World Cup projections &amp; cards →
         </Link>
       </div>

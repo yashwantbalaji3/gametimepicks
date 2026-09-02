@@ -26,7 +26,7 @@ export default function BucketBlitzPage() {
     <ProductInDevelopment
       product={product}
       readiness={readiness}
-      scheduleHref="/nba"
+      scheduleHref="/results/nba/"  /* final destination — /nba is a retired redirect */
       scheduleLabel="See the captured NBA schedule"
     />
   );

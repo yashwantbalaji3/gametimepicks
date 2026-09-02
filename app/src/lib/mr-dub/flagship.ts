@@ -329,7 +329,7 @@ export interface TodayStatus {
   activeBankBuilder: JourneyActiveLane[];
 }
 
-const HREF: Record<string, string> = { "bank-builder": "/bank-builder", moonshot: "/moonshot", "wc-specials": "/world-cup", "homer-nukes": "/homer-nukes" };
+const HREF: Record<string, string> = { "bank-builder": "/bank-builder", moonshot: "/moonshot", "wc-specials": "/results/", "homer-nukes": "/homer-nukes" };
 
 /** Orchestrator — reads the canonical artifacts and composes the full flagship model. Server/build-time. */
 export function buildFlagship(root: string, nowIso: string, today: string): Flagship & { todayStatus: TodayStatus } {

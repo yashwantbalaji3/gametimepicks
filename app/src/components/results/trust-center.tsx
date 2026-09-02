@@ -279,7 +279,10 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
             },
             {
               label: "Soccer Specials",
-              href: "/world-cup/",
+              /* P231 · I: this pointed at `/world-cup/`, a retired stub whose redirect target is
+                 `/results/` — so a card ON /results bounced the reader through a stub back to the
+                 page they were already on. `/world-cup-specials` is the real surviving surface. */
+              href: "/world-cup-specials/",
               status: "World Cup model surface",
               detail: "Structured specials + game reads",
             },

@@ -71,6 +71,22 @@ const american = (o?: number | null) => (o == null ? "—" : o > 0 ? `+${o}` : `
 const pct = (n?: number | null) => (n == null ? "—" : `${Math.round(n * 100)}%`);
 
 /** A compact spotlight tile — the single strongest read of a kind, with a "where to find the rest" hint. */
+/**
+ * Where each sport's hub actually LIVES.
+ *
+ * `/nba` and `/world-cup` are retired client-redirect stubs kept so inbound links keep landing; our
+ * own links go straight to the destination, because a stub bounce discards any query the link carried
+ * and costs a full page load either way.
+ */
+const SPORT_HUB_HREF: Record<string, string> = {
+  mlb: "/mlb",
+  nfl: "/nfl",
+  epl: "/epl",
+  ufc: "/ufc",
+  nba: "/results/nba/",
+  world_cup: "/results/",
+};
+
 function SpotlightTile({ eyebrow, title, sub, meta, accent, foot }: {
   eyebrow: string; title: string; sub?: string; meta?: React.ReactNode; accent?: string; foot?: string;
 }) {
@@ -469,7 +485,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
               </div>
             );
           })}
-          <Link href="/parlays?sport=world_cup" className="inline-flex font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>All World Cup multi-game cards →</Link>
+          <Link href="/results/" className="inline-flex font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>All World Cup multi-game cards →</Link>
         </div>
       ) : null}
       {detail.suggestedCards.length > 0 ? (
@@ -962,7 +978,12 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Link href={detail.buildUrl} className="gtp-cta-lava vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 11, fontWeight: 700, textDecoration: "none", minHeight: 42 }}>Build from this game</Link>
           <Link href="/build#suggested-cards" className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 42 }}>Open Parlay Center</Link>
-          <Link href={`/${detail.sport === "world_cup" ? "world-cup" : detail.sport}`} className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 42 }}>View {detail.sportLabel}</Link>
+          {/* The sport HUB, resolved through one map (P231 · I).
+              This built the href from the sport key, so `nba` produced `/nba` and `world_cup`
+              produced `/world-cup` — both retired to redirect stubs. A computed href is invisible to
+              a source-literal scan, which is why the existing stub-link guard could not see it; the
+              built-export guard can. Retired hubs resolve to the archive they actually live in. */}
+          <Link href={SPORT_HUB_HREF[detail.sport] ?? `/${detail.sport}`} className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 42 }}>View {detail.sportLabel}</Link>
         </div>
       </section>
 

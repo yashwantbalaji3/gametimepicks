@@ -54,10 +54,21 @@ export interface CoverageMatrix {
 }
 
 const SCOPE_META: Record<ScopeKey, { name: string; href: string }> = {
-  world_cup_single_game: { name: "World Cup Games", href: "/world-cup" },
-  world_cup_multi_game: { name: "World Cup Multi-Game", href: "/parlays?sport=world_cup" },
-  mlb: { name: "MLB", href: "/picks?sport=mlb" },
-  mixed: { name: "Mixed Sport", href: "/parlays?sport=mixed" },
+  /*
+   * FINAL DESTINATIONS, not retired aliases (P231 · I).
+   *
+   * These pointed at `/picks` and `/parlays`, both retired to client redirects. Two costs, and the
+   * second is the real one: every click paid an extra hop, AND `ClientRedirect` calls
+   * `window.location.replace(to)` with a FIXED target — so `?sport=mlb` was silently discarded on
+   * the way. The link carried the reader's intent and the redirect threw it away.
+   *
+   * `/build/custom` reads `?sport=` client-side, so pointing there honours the intent that the hop
+   * was dropping. World Cup is archived; its destination is the results archive it actually lives in.
+   */
+  world_cup_single_game: { name: "World Cup Games", href: "/results/" },
+  world_cup_multi_game: { name: "World Cup Multi-Game", href: "/results/" },
+  mlb: { name: "MLB", href: "/build/custom?sport=mlb" },
+  mixed: { name: "Mixed Sport", href: "/build#suggested-cards" },
   moonshot: { name: "Moonshot", href: "/bank-builder#moonshot" },
   bank_builder: { name: "Core Bank Builder", href: "/bank-builder" },
 };
