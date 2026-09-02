@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-09-01T15:24:27Z",
+ "generatedAt": "2026-09-02T17:05:07Z",
  "sport": "ufc",
  "state": "SCHEDULED_CARD",
  "event": {
@@ -10,15 +10,7 @@
   "venue": "Accor Arena",
   "boutCount": 14
  },
- "skippedForCoverage": [
-  {
-   "name": "Dana White's Contender Series: Season 10, Week 4",
-   "dateUtc": "2026-09-01T23:00Z",
-   "bouts": 5,
-   "modellableBouts": 0,
-   "reason": "only 0 of 5 bouts have both fighters in the corpus"
-  }
- ],
+ "skippedForCoverage": [],
  "model": {
   "id": "ufc-fight-model@e657fc40b64d",
   "publishes": [
@@ -667,10 +659,282 @@
    "unmodelledReason": null
   },
   {
-   "boutId": "401902947",
+   "boutId": "401898007",
    "weightClass": "Featherweight",
    "scheduledRounds": 3,
    "startUtc": "2026-09-05T19:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "5048900",
+    "name": "Trevor Peek",
+    "record": "9-3-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5048900.png",
+    "priorBoutsInCorpus": 5,
+    "profile": {
+     "bouts": 5,
+     "record": {
+      "wins": 2,
+      "losses": 3
+     },
+     "last5": [
+      {
+       "date": "2024-09-07",
+       "opponent": "Yanal Ashmouz",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2024-04-06",
+       "opponent": "Charlie Campbell",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2023-10-21",
+       "opponent": "Mohammad Yahya",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2023-06-24",
+       "opponent": "Chepe Mariscal",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2023-02-25",
+       "opponent": "Erick Gonzalez",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Lightweight"
+      }
+     ],
+     "strengths": [
+      "Durable — most of his fights reach the judges"
+     ],
+     "weaknesses": [
+      "60% of his tracked bouts are losses"
+     ],
+     "summary": "2-3 in his last 5. 50% of his wins come by finish; 80% of his fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "5310075",
+    "name": "Kurtis Campbell",
+    "record": "8-1-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5310075.png",
+    "priorBoutsInCorpus": 1,
+    "profile": {
+     "bouts": 1,
+     "record": {
+      "wins": 0,
+      "losses": 1
+     },
+     "last5": [
+      {
+       "date": "2026-03-21",
+       "opponent": "Danny Silva",
+       "result": "L",
+       "method": "KO",
+       "round": 2,
+       "weightClass": "Featherweight"
+      }
+     ],
+     "strengths": [
+      "1 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "0-1 in his last 1. 0% of his wins come by finish; 0% of his fights reach the judges."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Kurtis Campbell",
+     "probability": 0.5199,
+     "byFighter": {
+      "Kurtis Campbell": 0.5199,
+      "Trevor Peek": 0.4801
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.3345,
+      "submission": 0.1599,
+      "decision": 0.5056
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.2735,
+      "round2": 0.1459,
+      "round3plus": 0.5806
+     },
+     "goesTheDistance": 0.5056
+    },
+    "priorFights": {
+     "a": 1,
+     "b": 5
+    },
+    "basis": "ONE_FIGHTER_DEBUT",
+    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
+    "reason": "The model separates these two by very little — 52% is close to a coin flip, and nothing in either record breaks the tie cleanly."
+   },
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401911289",
+   "weightClass": "Featherweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-09-05T19:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "4690540",
+    "name": "Muhammad Naimov",
+    "record": "13-4-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4690540.png",
+    "priorBoutsInCorpus": 7,
+    "profile": {
+     "bouts": 7,
+     "record": {
+      "wins": 5,
+      "losses": 2
+     },
+     "last5": [
+      {
+       "date": "2025-12-06",
+       "opponent": "Mairon Santos",
+       "result": "L",
+       "method": "KO",
+       "round": 3,
+       "weightClass": "Featherweight"
+      },
+      {
+       "date": "2025-06-21",
+       "opponent": "Bogdan Grad",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Featherweight"
+      },
+      {
+       "date": "2025-02-01",
+       "opponent": "Kaan Ofli",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Featherweight"
+      },
+      {
+       "date": "2024-06-22",
+       "opponent": "Felipe Lima",
+       "result": "L",
+       "method": "SUB",
+       "round": 3,
+       "weightClass": "Featherweight"
+      },
+      {
+       "date": "2024-02-24",
+       "opponent": "Erik Silva",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Featherweight"
+      }
+     ],
+     "strengths": [
+      "71% win rate across 7 tracked bouts"
+     ],
+     "weaknesses": [
+      "When he loses, he tends to get finished rather than out-pointed"
+     ],
+     "summary": "3-2 in his last 5. 40% of his wins come by finish; 43% of his fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "5192314",
+    "name": "Losene Keita",
+    "record": "16-2-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5192314.png",
+    "priorBoutsInCorpus": 1,
+    "profile": {
+     "bouts": 1,
+     "record": {
+      "wins": 0,
+      "losses": 1
+     },
+     "last5": [
+      {
+       "date": "2026-03-21",
+       "opponent": "Nathaniel Wood",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Featherweight"
+      }
+     ],
+     "strengths": [
+      "1 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "No consistent weakness stands out in the tracked record"
+     ],
+     "summary": "0-1 in his last 1. 0% of his wins come by finish; 100% of his fights reach the judges."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Muhammad Naimov",
+     "probability": 0.6277,
+     "byFighter": {
+      "Losene Keita": 0.3723,
+      "Muhammad Naimov": 0.6277
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.3341,
+      "submission": 0.1361,
+      "decision": 0.5298
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.2431,
+      "round2": 0.142,
+      "round3plus": 0.6149
+     },
+     "goesTheDistance": 0.5298
+    },
+    "priorFights": {
+     "a": 1,
+     "b": 7
+    },
+    "basis": "ONE_FIGHTER_DEBUT",
+    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
+    "reason": "Muhammad Naimov wins 71% of his bouts to Keita's 0% — and the matchup profiles as one that reaches the judges."
+   },
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401902947",
+   "weightClass": "Featherweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-09-05T16:00Z",
    "titleFight": false,
    "red": {
     "athleteId": "4324622",
@@ -816,142 +1080,6 @@
     "basis": "BOTH_FIGHTERS",
     "basisNote": null,
     "reason": "Felipe Lima wins 67% of his bouts to Charrière's 50% — and the matchup profiles as one that reaches the judges."
-   },
-   "unmodelledReason": null
-  },
-  {
-   "boutId": "401911289",
-   "weightClass": "Featherweight",
-   "scheduledRounds": 3,
-   "startUtc": "2026-09-05T19:00Z",
-   "titleFight": false,
-   "red": {
-    "athleteId": "4690540",
-    "name": "Muhammad Naimov",
-    "record": "13-4-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4690540.png",
-    "priorBoutsInCorpus": 7,
-    "profile": {
-     "bouts": 7,
-     "record": {
-      "wins": 5,
-      "losses": 2
-     },
-     "last5": [
-      {
-       "date": "2025-12-06",
-       "opponent": "Mairon Santos",
-       "result": "L",
-       "method": "KO",
-       "round": 3,
-       "weightClass": "Featherweight"
-      },
-      {
-       "date": "2025-06-21",
-       "opponent": "Bogdan Grad",
-       "result": "W",
-       "method": "DEC",
-       "round": 3,
-       "weightClass": "Featherweight"
-      },
-      {
-       "date": "2025-02-01",
-       "opponent": "Kaan Ofli",
-       "result": "W",
-       "method": "DEC",
-       "round": 3,
-       "weightClass": "Featherweight"
-      },
-      {
-       "date": "2024-06-22",
-       "opponent": "Felipe Lima",
-       "result": "L",
-       "method": "SUB",
-       "round": 3,
-       "weightClass": "Featherweight"
-      },
-      {
-       "date": "2024-02-24",
-       "opponent": "Erik Silva",
-       "result": "W",
-       "method": "KO",
-       "round": 1,
-       "weightClass": "Featherweight"
-      }
-     ],
-     "strengths": [
-      "71% win rate across 7 tracked bouts"
-     ],
-     "weaknesses": [
-      "When he loses, he tends to get finished rather than out-pointed"
-     ],
-     "summary": "3-2 in his last 5. 40% of his wins come by finish; 43% of his fights reach the judges."
-    }
-   },
-   "blue": {
-    "athleteId": "5192314",
-    "name": "Losene Keita",
-    "record": "16-2-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5192314.png",
-    "priorBoutsInCorpus": 1,
-    "profile": {
-     "bouts": 1,
-     "record": {
-      "wins": 0,
-      "losses": 1
-     },
-     "last5": [
-      {
-       "date": "2026-03-21",
-       "opponent": "Nathaniel Wood",
-       "result": "L",
-       "method": "DEC",
-       "round": 3,
-       "weightClass": "Featherweight"
-      }
-     ],
-     "strengths": [
-      "1 tracked bouts — too few clear tendencies to call out"
-     ],
-     "weaknesses": [
-      "No consistent weakness stands out in the tracked record"
-     ],
-     "summary": "0-1 in his last 1. 0% of his wins come by finish; 100% of his fights reach the judges."
-    }
-   },
-   "prediction": {
-    "winner": {
-     "name": "Muhammad Naimov",
-     "probability": 0.6277,
-     "byFighter": {
-      "Losene Keita": 0.3723,
-      "Muhammad Naimov": 0.6277
-     }
-    },
-    "method": {
-     "most": "DEC",
-     "probabilities": {
-      "ko": 0.3341,
-      "submission": 0.1361,
-      "decision": 0.5298
-     }
-    },
-    "rounds": {
-     "endsIn": "3+",
-     "probabilities": {
-      "round1": 0.2431,
-      "round2": 0.142,
-      "round3plus": 0.6149
-     },
-     "goesTheDistance": 0.5298
-    },
-    "priorFights": {
-     "a": 1,
-     "b": 7
-    },
-    "basis": "ONE_FIGHTER_DEBUT",
-    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
-    "reason": "Muhammad Naimov wins 71% of his bouts to Keita's 0% — and the matchup profiles as one that reaches the judges."
    },
    "unmodelledReason": null
   },
@@ -1106,142 +1234,6 @@
     "basis": "BOTH_FIGHTERS",
     "basisNote": null,
     "reason": "Mario Pinto wins 100% of his bouts to Spann's 63%, he finishes 67% of his wins and Spann has been finished in 83% of his losses — and the finish profile points to a knockout."
-   },
-   "unmodelledReason": null
-  },
-  {
-   "boutId": "401898007",
-   "weightClass": "Featherweight",
-   "scheduledRounds": 3,
-   "startUtc": "2026-09-05T16:00Z",
-   "titleFight": false,
-   "red": {
-    "athleteId": "5048900",
-    "name": "Trevor Peek",
-    "record": "9-3-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5048900.png",
-    "priorBoutsInCorpus": 5,
-    "profile": {
-     "bouts": 5,
-     "record": {
-      "wins": 2,
-      "losses": 3
-     },
-     "last5": [
-      {
-       "date": "2024-09-07",
-       "opponent": "Yanal Ashmouz",
-       "result": "L",
-       "method": "DEC",
-       "round": 3,
-       "weightClass": "Lightweight"
-      },
-      {
-       "date": "2024-04-06",
-       "opponent": "Charlie Campbell",
-       "result": "L",
-       "method": "DEC",
-       "round": 3,
-       "weightClass": "Lightweight"
-      },
-      {
-       "date": "2023-10-21",
-       "opponent": "Mohammad Yahya",
-       "result": "W",
-       "method": "DEC",
-       "round": 3,
-       "weightClass": "Lightweight"
-      },
-      {
-       "date": "2023-06-24",
-       "opponent": "Chepe Mariscal",
-       "result": "L",
-       "method": "DEC",
-       "round": 3,
-       "weightClass": "Lightweight"
-      },
-      {
-       "date": "2023-02-25",
-       "opponent": "Erick Gonzalez",
-       "result": "W",
-       "method": "KO",
-       "round": 1,
-       "weightClass": "Lightweight"
-      }
-     ],
-     "strengths": [
-      "Durable — most of his fights reach the judges"
-     ],
-     "weaknesses": [
-      "60% of his tracked bouts are losses"
-     ],
-     "summary": "2-3 in his last 5. 50% of his wins come by finish; 80% of his fights reach the judges."
-    }
-   },
-   "blue": {
-    "athleteId": "5310075",
-    "name": "Kurtis Campbell",
-    "record": "8-1-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5310075.png",
-    "priorBoutsInCorpus": 1,
-    "profile": {
-     "bouts": 1,
-     "record": {
-      "wins": 0,
-      "losses": 1
-     },
-     "last5": [
-      {
-       "date": "2026-03-21",
-       "opponent": "Danny Silva",
-       "result": "L",
-       "method": "KO",
-       "round": 2,
-       "weightClass": "Featherweight"
-      }
-     ],
-     "strengths": [
-      "1 tracked bouts — too few clear tendencies to call out"
-     ],
-     "weaknesses": [
-      "No consistent weakness stands out in the tracked record"
-     ],
-     "summary": "0-1 in his last 1. 0% of his wins come by finish; 0% of his fights reach the judges."
-    }
-   },
-   "prediction": {
-    "winner": {
-     "name": "Kurtis Campbell",
-     "probability": 0.5199,
-     "byFighter": {
-      "Kurtis Campbell": 0.5199,
-      "Trevor Peek": 0.4801
-     }
-    },
-    "method": {
-     "most": "DEC",
-     "probabilities": {
-      "ko": 0.3345,
-      "submission": 0.1599,
-      "decision": 0.5056
-     }
-    },
-    "rounds": {
-     "endsIn": "3+",
-     "probabilities": {
-      "round1": 0.2735,
-      "round2": 0.1459,
-      "round3plus": 0.5806
-     },
-     "goesTheDistance": 0.5056
-    },
-    "priorFights": {
-     "a": 1,
-     "b": 5
-    },
-    "basis": "ONE_FIGHTER_DEBUT",
-    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
-    "reason": "The model separates these two by very little — 52% is close to a coin flip, and nothing in either record breaks the tie cleanly."
    },
    "unmodelledReason": null
   },
@@ -1414,7 +1406,7 @@
    "unmodelledReason": null
   },
   {
-   "boutId": "401902946",
+   "boutId": "401916275",
    "weightClass": "Featherweight",
    "scheduledRounds": 3,
    "startUtc": "2026-09-05T16:00Z",
@@ -1485,93 +1477,52 @@
     }
    },
    "blue": {
-    "athleteId": "4914573",
-    "name": "Mairon Santos",
-    "record": "18-1-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4914573.png",
-    "priorBoutsInCorpus": 4,
+    "athleteId": "5445620",
+    "name": "Pavel Andrusca",
+    "record": "8-0-0",
+    "photoUrl": null,
+    "priorBoutsInCorpus": 0,
     "profile": {
-     "bouts": 4,
-     "record": {
-      "wins": 4,
-      "losses": 0
-     },
-     "last5": [
-      {
-       "date": "2025-12-06",
-       "opponent": "Muhammad Naimov",
-       "result": "W",
-       "method": "KO",
-       "round": 3,
-       "weightClass": "Featherweight"
-      },
-      {
-       "date": "2025-05-17",
-       "opponent": "Sodiq Yusuff",
-       "result": "W",
-       "method": "DEC",
-       "round": 3,
-       "weightClass": "Lightweight"
-      },
-      {
-       "date": "2025-03-08",
-       "opponent": "Francis Marshall",
-       "result": "W",
-       "method": "DEC",
-       "round": 3,
-       "weightClass": "Featherweight"
-      },
-      {
-       "date": "2024-08-24",
-       "opponent": "Kaan Ofli",
-       "result": "W",
-       "method": "KO",
-       "round": 2,
-       "weightClass": "Ultimate Fighter 32 Featherweight Tournament Title"
-      }
-     ],
-     "strengths": [
-      "4 tracked bouts — too few clear tendencies to call out"
-     ],
-     "weaknesses": [
-      "No consistent weakness stands out in the tracked record"
-     ],
-     "summary": "4-0 in his last 4. 50% of his wins come by finish; 50% of his fights reach the judges."
+     "bouts": 0,
+     "last5": [],
+     "strengths": [],
+     "weaknesses": [],
+     "summary": null
     }
    },
    "prediction": {
     "winner": {
-     "name": "Mairon Santos",
-     "probability": 0.6171,
+     "name": "Nathaniel Wood",
+     "probability": 0.7501,
      "byFighter": {
-      "Mairon Santos": 0.6171,
-      "Nathaniel Wood": 0.3829
+      "Nathaniel Wood": 0.7501,
+      "Pavel Andrusca": 0.2499
      }
     },
     "method": {
      "most": "DEC",
      "probabilities": {
-      "ko": 0.1888,
-      "submission": 0.127,
-      "decision": 0.6842
+      "ko": 0.1645,
+      "submission": 0.1605,
+      "decision": 0.675
      }
     },
     "rounds": {
      "endsIn": "3+",
      "probabilities": {
-      "round1": 0.1207,
-      "round2": 0.1184,
-      "round3plus": 0.7609
+      "round1": 0.1434,
+      "round2": 0.1089,
+      "round3plus": 0.7478
      },
-     "goesTheDistance": 0.6842
+     "goesTheDistance": 0.675
     },
     "priorFights": {
-     "a": 4,
-     "b": 14
+     "a": 14,
+     "b": 0
     },
-    "basis": "BOTH_FIGHTERS",
-    "basisNote": null,
-    "reason": "Mairon Santos wins 100% of his bouts to Wood's 79%, the shorter record belongs to him (4 vs 14), so the read leans on his opponent's history — and the matchup profiles as one that reaches the judges."
+    "basis": "ONE_FIGHTER_DEBUT",
+    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
+    "reason": null
    },
    "unmodelledReason": null
   },
