@@ -141,6 +141,71 @@ const vault = vaultEntry
   }
   : { product: "end-zone-vault", label: "End Zone Vault", state: "NOT_RUN", reason: `the Vault ledger holds no entry for ${DATE}`, candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: true };
 
+// ---------------------------------------------------------------- Homer Nukes
+/*
+ * A CALIBRATION board, not a money card (P230 · F1). Its record holds gradedPicks, predicted,
+ * actual and Brier — no stake and no bankroll — so its day settles SETTLED_RECORDED rather than
+ * being forced into a win or a loss it never computes.
+ *
+ * The board file for the date IS the freeze: the settler reads `homer-nukes/<date>.json`, so the
+ * picks of record cannot change after publication.
+ */
+const hnBoard = read(path.join(DATA, "mlb", "homer-nukes", `${DATE}.json`));
+const hnSettled = read(path.join(DATA, "mlb", "homer-nukes", `settled-${DATE}.json`));
+const hnPicks = hnBoard?.picks ?? [];
+const homerNukes = hnBoard
+  ? {
+    product: "homer-nukes", label: "Homer Nukes",
+    state: hnPicks.length > 0 ? "ACTIVE" : "NO_PLAY",
+    reason: hnPicks.length > 0
+      ? `${hnPicks.length} model-qualified home-run picks published for the slate`
+      : "the board was built and no candidate cleared the model's threshold",
+    candidatesEvaluated: hnPicks.length,
+    rejections: [],
+    card: hnPicks.length > 0 ? hnPicks : null,
+    ledgerOwned: true,
+  }
+  : { product: "homer-nukes", label: "Homer Nukes", state: "NOT_RUN", reason: `no Homer Nukes board exists for ${DATE}`, candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: true };
+
+// ---------------------------------------------------------------- UFC / EPL paper card ladders
+/*
+ * EVENT-DRIVEN PRODUCTS (P230 · F1). UFC runs on fight nights and EPL on matchweeks, so most
+ * calendar days carry no card — and "no event today" is a REFUSAL with a named reason, never an
+ * incident. The two are distinguished by the ladder's own forward pointer: if `latest.json` is
+ * published for a future date, the producer ran and the product is simply between events. Only a
+ * ladder that does not exist at all is an operational gap.
+ *
+ * The dated ladder file IS the freeze — the settler reads `risk-ladder-<sport>/<date>.json`, so the
+ * cards of record cannot change after publication.
+ */
+const labSettled = read(path.join(DATA, "parlays", "lab-settled", `${DATE}.json`));
+function sportLadderEntry(id, label, sport) {
+  const dir = path.join(DATA, "parlays", `risk-ladder-${sport}`);
+  const dated = read(path.join(dir, `${DATE}.json`));
+  const latest = read(path.join(dir, "latest.json"));
+  const cards = dated?.cards ?? [];
+  if (dated && cards.length > 0) {
+    return { product: id, label, state: "ACTIVE",
+      reason: `${cards.length} paper card${cards.length === 1 ? "" : "s"} published for the ${DATE} event`,
+      candidatesEvaluated: dated.eligibleLegs ?? cards.length, rejections: [], card: cards, ledgerOwned: true };
+  }
+  if (dated) {
+    return { product: id, label, state: "NO_PLAY",
+      reason: (dated.skipped ?? []).map((x) => x.reason ?? x).join(" · ")
+        || "the ladder was built for this date and no tier had enough supported legs",
+      candidatesEvaluated: dated.eligibleLegs ?? 0, rejections: [], card: null, ledgerOwned: true };
+  }
+  if (latest?.date && latest.date !== DATE) {
+    return { product: id, label, state: "NO_PLAY",
+      reason: `no ${label.split(" ")[0]} event on ${DATE} — the ladder is published for ${latest.date}`,
+      candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: true };
+  }
+  return { product: id, label, state: "NOT_RUN", reason: `no ${sport} ladder exists for ${DATE} and no forward card is published`,
+    candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: true };
+}
+const ufcCards = sportLadderEntry("ufc-cards", "UFC paper cards", "ufc");
+const eplCards = sportLadderEntry("epl-cards", "EPL paper cards", "epl");
+
 /*
  * P198 · Release A: the dormant sport writes a receipt too. "Missing receipt is an incident even
  * when the sport is dormant" — the charter's words, and the control plane's C4 guard needs a dated
@@ -159,7 +224,7 @@ const nbaLane = (() => {
     candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: false,
   };
 })();
-const products = [productEntry("bank-builder", "Bank Builder"), productEntry("moonshot", "Moonshot"), vault, nbaLane];
+const products = [productEntry("bank-builder", "Bank Builder"), productEntry("moonshot", "Moonshot"), vault, homerNukes, ufcCards, eplCards, nbaLane];
 for (const p of products) {
   if (!RECEIPT_STATES.includes(p.state)) { console.error(`REFUSED: ${p.product} produced state ${p.state} outside the closed set`); process.exit(2); }
   // the load-bearing invariant: NO_PLAY requires a completed evaluation
@@ -183,6 +248,15 @@ const progressionFresh = Boolean(
  * Now a product is governed exactly when it is registered, and registration costs an owner for each
  * of its six mechanics.
  */
+/** Each product's OWN freeze stamp for this date, or null when it has not frozen one. */
+const lockStampFor = (product) => {
+  if (product === "homer-nukes") return hnBoard?.date === DATE ? hnBoard?.generatedAt ?? null : null;
+  if (product === "end-zone-vault") return vaultEntry?.date === DATE ? `${vaultEntry.date}T00:00:00Z` : null;
+  if (product === "ufc-cards") return ufcCards.state === "ACTIVE" ? read(path.join(DATA, "parlays", "risk-ladder-ufc", `${DATE}.json`))?.generatedAt ?? null : null;
+  if (product === "epl-cards") return eplCards.state === "ACTIVE" ? read(path.join(DATA, "parlays", "risk-ladder-epl", `${DATE}.json`))?.generatedAt ?? null : null;
+  return dp?.date === DATE ? dp?.generatedAt ?? null : null;
+};
+
 const settlementFor = (product) => {
   /*
    * Each product's OWN settlement adapter. Bank Builder and Moonshot are graded by the shared dated
@@ -203,6 +277,37 @@ const settlementFor = (product) => {
       stepAtSettle: 0,
     };
   }
+  if (product === "homer-nukes") {
+    if (!hnSettled) return null; // the settler has not run for this date yet
+    /*
+     * PENDING IS PENDING. The board settles only once every pick carries an official result; a
+     * partially graded day stays AWAITING_RESULT rather than recording a number that will move.
+     */
+    const picks = hnSettled.picks ?? [];
+    if (!picks.length) return null;
+    const ungraded = picks.filter((x) => !x.result || x.result === "pending").length;
+    return {
+      ref: `homer-nukes/settled-${DATE}.json@${hnSettled.settledAt ?? "unstamped"}`,
+      stamp: hnSettled.settledAt ?? DATE,
+      results: ungraded > 0 ? ["pending"] : ["recorded"],
+      graded: hnSettled.day?.graded ?? picks.length,
+      stepAtSettle: 0,
+    };
+  }
+  if (product === "ufc-cards" || product === "epl-cards") {
+    if (!labSettled) return null; // the lab settler has not run for this date
+    const sport = product === "ufc-cards" ? "ufc" : "epl";
+    /* ONLY this sport's cards. The lab receipt carries every stream's cards in one file, and
+       grading a product on another stream's result is the cross-ledger identity failure. */
+    const mine = (labSettled.cards ?? []).filter((c) => c.sport === sport);
+    if (!mine.length) return null;
+    return {
+      ref: `parlays/lab-settled/${DATE}.json@${labSettled.settledAt ?? "unstamped"}`,
+      stamp: labSettled.settledAt ?? DATE,
+      results: mine.map((c) => c.result ?? "pending"),
+      stepAtSettle: 0,
+    };
+  }
   return null; // the shared lanes artifact answers for everyone else
 };
 
@@ -218,8 +323,12 @@ for (const p of products) {
     portfolioLane: p.product === "moonshot" ? pf?.moonshot ?? null : pf?.bankBuilder ?? null,
     progressionFresh,
     boardHash: inputs.mlbBoard.hash,
-    // The lock stamp is the ACTIVATION artifact's own stamp for this date — never this run's clock.
-    lockAt: dp?.date === DATE ? dp?.generatedAt ?? null : null,
+    // The lock stamp is the product's OWN freeze stamp for this date — never this run's clock, and
+    // never another product's. Sharing the daily-portfolio stamp across the loop would have let
+    // Homer Nukes enter ACTIVE on Bank Builder's activation time: a freeze boundary borrowed from a
+    // different product is not a freeze boundary, and ACTIVE is exactly the state that must not be
+    // reachable without one.
+    lockAt: lockStampFor(p.product),
     policyVersion: CURRENT_POLICY[p.product] ?? PRODUCT_REGISTRY.get(p.product).policyVersion,
   });
   if (!LIFECYCLE_STATES.concat(["VOIDED", "STOPPED"]).includes(lc.state)) {

@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "artifact": "signature-product-lifecycle-coverage",
   "dataClass": "INTERNAL_DERIVED",
-  "generatedAt": "2026-09-01T23:30:00Z",
-  "state": "GAPS",
+  "generatedAt": "2026-09-01T23:55:00Z",
+  "state": "ALL_GOVERNED",
   "note": "Every field is evidence — a path that exists, a workflow that names a script, a product the shared state machine lists. No hand-kept statuses.",
   "lifecycleStates": [
     "EVALUATING",
@@ -11,6 +11,7 @@
     "AWAITING_RESULT",
     "SETTLED_WIN",
     "SETTLED_LOSS",
+    "SETTLED_RECORDED",
     "ADVANCED",
     "RESTARTED",
     "NO_PLAY",
@@ -54,17 +55,16 @@
     {
       "id": "homer-nukes",
       "label": "Homer Nukes",
-      "verdict": "PARTIAL",
+      "verdict": "GOVERNED",
       "present": [
         "producer",
         "publicRoute",
         "automation",
         "ledger",
-        "settlement"
-      ],
-      "missing": [
+        "settlement",
         "lifecycle"
       ],
+      "missing": [],
       "founderGate": null,
       "note": null
     },
@@ -87,65 +87,44 @@
     {
       "id": "ufc-cards",
       "label": "UFC paper cards",
-      "verdict": "PARTIAL",
+      "verdict": "GOVERNED",
       "present": [
         "producer",
         "publicRoute",
         "automation",
         "ledger",
-        "settlement"
-      ],
-      "missing": [
+        "settlement",
         "lifecycle"
       ],
+      "missing": [],
       "founderGate": null,
       "note": null
     },
     {
       "id": "epl-cards",
       "label": "EPL paper cards",
-      "verdict": "PARTIAL",
+      "verdict": "GOVERNED",
       "present": [
         "producer",
         "publicRoute",
         "automation",
         "ledger",
-        "settlement"
-      ],
-      "missing": [
+        "settlement",
         "lifecycle"
       ],
+      "missing": [],
       "founderGate": null,
       "note": null
     }
   ],
   "counts": {
-    "GOVERNED": 2,
-    "PARTIAL": 3,
+    "GOVERNED": 5,
+    "PARTIAL": 0,
     "UNGOVERNED": 0,
     "PAUSED_FOUNDER": 1,
     "RETIRED": 0
   },
-  "openGaps": [
-    {
-      "id": "homer-nukes",
-      "missing": [
-        "lifecycle"
-      ]
-    },
-    {
-      "id": "ufc-cards",
-      "missing": [
-        "lifecycle"
-      ]
-    },
-    {
-      "id": "epl-cards",
-      "missing": [
-        "lifecycle"
-      ]
-    }
-  ],
+  "openGaps": [],
   "publishesWithoutSettling": [
     "moonshot"
   ]

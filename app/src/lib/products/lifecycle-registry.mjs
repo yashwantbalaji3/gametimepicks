@@ -29,6 +29,11 @@
  */
 
 /** Every mechanic a governed product day depends on. Absence of any one is a refusal, not a warning. */
+/** The subset of ownership fields that name a file. `ledgerKind` is a classification, not a path. */
+export const OWNERSHIP_PATHS = Object.freeze([
+  "producer", "selectionGate", "freeze", "settlementAdapter", "ledger", "receiptOwner",
+]);
+
 export const LIFECYCLE_OWNERSHIP = Object.freeze([
   "producer",          // what generates the card
   "selectionGate",     // what decides a leg may enter it
@@ -36,7 +41,24 @@ export const LIFECYCLE_OWNERSHIP = Object.freeze([
   "settlementAdapter", // what joins an official result to it
   "ledger",            // its OWN record, shared with nothing
   "receiptOwner",      // what emits its daily receipt
+  "ledgerKind",        // what its record MEASURES — see LEDGER_KINDS
 ]);
+
+/**
+ * WHAT A PRODUCT'S RECORD ACTUALLY MEASURES.
+ *
+ * `money` — a bankroll moves on the result. A card wins or loses; the day settles SETTLED_WIN or
+ *   SETTLED_LOSS and may then ADVANCE, RESTART or STOP.
+ * `calibration` — the record carries gradedPicks, predicted, actual and Brier, and no stake at all.
+ *   A board of ~25% picks is SUPPOSED to miss most of them, so a day where one of five lands is
+ *   neither a win nor a loss. It settles SETTLED_RECORDED and progresses nowhere.
+ *
+ * The distinction is load-bearing, not descriptive. Without it the only way to settle a calibration
+ * board is to choose one of the two money verdicts and mint an outcome the product never computed —
+ * and that fabricated verdict would then be summable with the money products' records, which is
+ * exactly the combined-total failure the ledger invariants exist to prevent.
+ */
+export const LEDGER_KINDS = Object.freeze(["money", "calibration"]);
 
 /**
  * Build the registry. Pure and total: same entries in, same frozen registry out, or a throw naming
@@ -55,6 +77,9 @@ export function registerProducts(entries) {
     if (!e.label || !e.policyVersion) {
       throw new Error(`lifecycle-registry: ${e.id} must declare a label and a policyVersion`);
     }
+    if (e.ledgerKind && !LEDGER_KINDS.includes(e.ledgerKind)) {
+      throw new Error(`lifecycle-registry: ${e.id} declares ledgerKind ${e.ledgerKind}, outside ${LEDGER_KINDS.join("/")}`);
+    }
     const missing = LIFECYCLE_OWNERSHIP.filter((k) => !e[k]);
     if (missing.length) {
       throw new Error(
@@ -62,15 +87,26 @@ export function registerProducts(entries) {
           `Registering it anyway is a label, not a lifecycle.`,
       );
     }
-    /* One ledger per product. Two products writing one record is how a losing lane borrows a
-       winning one's history, and it reads as a single healthy product from the outside. */
-    const shared = ledgers.get(e.ledger);
+    /*
+     * ONE RECORD PER PRODUCT — enforced on ledger IDENTITY, not on the filename.
+     *
+     * The first version of this rule compared paths alone, which is too crude for how this
+     * repository actually stores records: `parlays/lab-ledger.json` is a single artifact holding
+     * five independent streams (mlb, nfl, ufc, epl, multi), each with its own wins, losses, stake
+     * and return. Those records ARE separate; they simply share a file.
+     *
+     * So the identity is the path plus the stream key. Two products may live in one artifact while
+     * owning different streams; two products claiming the SAME stream is the real failure — that is
+     * how a losing lane borrows a winning one's history and reads as one healthy product.
+     */
+    const identity = e.ledgerStream ? `${e.ledger}#${e.ledgerStream}` : e.ledger;
+    const shared = ledgers.get(identity);
     if (shared) {
       throw new Error(
-        `lifecycle-registry: ${e.id} and ${shared} both claim the ledger ${e.ledger} — each product owns exactly one`,
+        `lifecycle-registry: ${e.id} and ${shared} both claim the record ${identity} — each product owns exactly one`,
       );
     }
-    ledgers.set(e.ledger, e.id);
+    ledgers.set(identity, e.id);
     byId.set(e.id, Object.freeze({ ...e }));
   }
   return Object.freeze({
@@ -92,6 +128,7 @@ export function registerProducts(entries) {
 export const PRODUCT_REGISTRY = registerProducts([
   {
     id: "bank-builder",
+    ledgerKind: "money",
     label: "Bank Builder",
     policyVersion: "bank-builder@1",
     producer: "app/scripts/activate-daily-portfolio.mjs",
@@ -103,6 +140,7 @@ export const PRODUCT_REGISTRY = registerProducts([
   },
   {
     id: "moonshot",
+    ledgerKind: "money",
     label: "Moonshot",
     policyVersion: "moonshot@1",
     producer: "app/src/lib/moonshot/moonshot-lane.ts",
@@ -125,6 +163,7 @@ export const PRODUCT_REGISTRY = registerProducts([
    */
   {
     id: "end-zone-vault",
+    ledgerKind: "money",
     label: "End Zone Vault",
     policyVersion: "end-zone-vault@1",
     producer: "app/scripts/nfl/build-end-zone-vault.mjs",
@@ -134,6 +173,65 @@ export const PRODUCT_REGISTRY = registerProducts([
     freeze: "app/src/lib/sports/nfl/end-zone-vault.mjs",
     settlementAdapter: "app/scripts/nfl/settle-nfl-experimental.mjs",
     ledger: "data/internal/nfl/end-zone-vault/ledger.json",
+    receiptOwner: "app/scripts/products/build-daily-product-receipts.mjs",
+  },
+  /*
+   * HOMER NUKES is the first CALIBRATION product to join (P230 · F1).
+   *
+   * Its record holds gradedPicks, predicted, actual and Brier — no stake, no payout, no bankroll.
+   * Settling it as SETTLED_WIN or SETTLED_LOSS would have required choosing a money verdict for a
+   * product that never computes one, so it settles SETTLED_RECORDED instead.
+   */
+  {
+    id: "homer-nukes",
+    label: "Homer Nukes",
+    policyVersion: "homer-nukes@1",
+    ledgerKind: "calibration",
+    producer: "app/scripts/mlb/build-homer-nukes.mjs",
+    selectionGate: "app/src/lib/mlb/homer-nukes-board.ts",
+    /* Its freeze is the dated board artifact: `homer-nukes/<date>.json` is written for the slate and
+       the settler reads that file, so the picks of record cannot change after the fact. */
+    freeze: "app/public/data/mlb/homer-nukes",
+    settlementAdapter: "app/scripts/mlb/settle-homer-nukes.mjs",
+    ledger: "app/public/data/mlb/homer-nukes/record.json",
+    receiptOwner: "app/scripts/products/build-daily-product-receipts.mjs",
+  },
+  /*
+   * THE SPORT CARD LADDERS (P230 · F1).
+   *
+   * The coverage inventory had been checking `ufc/graded-picks.json` as these products' ledger. That
+   * artifact is the model's FIGHT-WINNER pick record — a calibration ledger for a different product
+   * — so the inventory was reporting "the UFC cards have a record" on the strength of something
+   * else's. The cards' actual record is the Parlay Lab ledger, which carries wins, losses, stake and
+   * return per stream: paper money, kept strictly out of the Bank Builder / Moonshot bankroll.
+   *
+   * Both live in one artifact and own different streams, which the identity rule above permits and
+   * the same-stream case still refuses.
+   */
+  {
+    id: "ufc-cards",
+    label: "UFC paper cards",
+    policyVersion: "ufc-cards@1",
+    ledgerKind: "money",
+    producer: "app/scripts/parlays/build-risk-ladder.mjs",
+    selectionGate: "app/scripts/parlays/lab-eligibility.mjs",
+    freeze: "app/public/data/parlays/risk-ladder-ufc",
+    settlementAdapter: "app/scripts/parlays/settle-lab-cards.mjs",
+    ledger: "app/public/data/parlays/lab-ledger.json",
+    ledgerStream: "ufc",
+    receiptOwner: "app/scripts/products/build-daily-product-receipts.mjs",
+  },
+  {
+    id: "epl-cards",
+    label: "EPL paper cards",
+    policyVersion: "epl-cards@1",
+    ledgerKind: "money",
+    producer: "app/scripts/parlays/build-risk-ladder.mjs",
+    selectionGate: "app/scripts/parlays/lab-eligibility.mjs",
+    freeze: "app/public/data/parlays/risk-ladder-epl",
+    settlementAdapter: "app/scripts/parlays/settle-lab-cards.mjs",
+    ledger: "app/public/data/parlays/lab-ledger.json",
+    ledgerStream: "epl",
     receiptOwner: "app/scripts/products/build-daily-product-receipts.mjs",
   },
 ]);

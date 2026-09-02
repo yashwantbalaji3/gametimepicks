@@ -33,6 +33,23 @@ export const LIFECYCLE_STATES = Object.freeze([
   "AWAITING_RESULT",
   "SETTLED_WIN",
   "SETTLED_LOSS",
+  /*
+   * SETTLED_RECORDED — the day is officially graded and the product does not grade it as a win or a
+   * loss (P230 · F1).
+   *
+   * Bank Builder and Moonshot run money ledgers: a card wins or loses and a bankroll moves. Homer
+   * Nukes runs a CALIBRATION ledger — its record carries gradedPicks, predicted, actual and Brier,
+   * and nothing else. A board of ~25% picks is supposed to miss most of them, so "5 picks, 1 hit"
+   * is neither a win nor a loss; it is a day of evidence about how well the probabilities were
+   * calibrated.
+   *
+   * Without this state the only way to settle such a product is to pick one of the two money verdicts
+   * and mint an outcome it never computed. That is a fabricated result, and it would then be
+   * summable with the money products' records — the combined-total failure the ledger invariants
+   * exist to prevent. The state is deliberately terminal-for-the-cycle: nothing progresses off it,
+   * because there is no bankroll to advance.
+   */
+  "SETTLED_RECORDED",
   "ADVANCED",
   "RESTARTED",
   "NO_PLAY",
@@ -44,9 +61,12 @@ export const LIFECYCLE_STATES = Object.freeze([
 export const LIFECYCLE_TRANSITIONS = Object.freeze({
   EVALUATING: ["ACTIVE", "NO_PLAY", "OFF_SEASON", "INCIDENT"],
   ACTIVE: ["AWAITING_RESULT", "VOIDED", "INCIDENT"],
-  AWAITING_RESULT: ["SETTLED_WIN", "SETTLED_LOSS", "VOIDED", "INCIDENT"],
+  AWAITING_RESULT: ["SETTLED_WIN", "SETTLED_LOSS", "SETTLED_RECORDED", "VOIDED", "INCIDENT"],
   SETTLED_WIN: ["ADVANCED", "EVALUATING"],
   SETTLED_LOSS: ["RESTARTED", "STOPPED", "EVALUATING"],
+  /* No progression edge: a calibration ledger has no bankroll to advance or restart. The next
+     product day re-enters EVALUATING through the daily rollover. */
+  SETTLED_RECORDED: ["EVALUATING"],
   ADVANCED: ["EVALUATING"],
   RESTARTED: ["EVALUATING"],
   NO_PLAY: ["EVALUATING"],
@@ -64,6 +84,9 @@ const REQUIRED_EVIDENCE = Object.freeze({
   AWAITING_RESULT: ["cardRef"],
   SETTLED_WIN: ["settlementRef"],
   SETTLED_LOSS: ["settlementRef"],
+  /* The recorded settlement must name what was graded — a settled day with no grading evidence is
+     the same unearned state as an ACTIVE with no lock. */
+  SETTLED_RECORDED: ["settlementRef", "graded"],
   VOIDED: ["settlementRef"],
   ADVANCED: ["progressionRef", "policyVersion"],
   RESTARTED: ["progressionRef", "policyVersion"],

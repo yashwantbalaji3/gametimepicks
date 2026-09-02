@@ -94,6 +94,19 @@ export function deriveLifecycle(input) {
   if (results.some((x) => x === "void")) {
     return advanceProduct(r, "VOIDED", { runId: `settle:${date}:${settledStamp}`, settlementRef });
   }
+  /*
+   * A CALIBRATION board records its day; it does not win or lose it (P230 · F1). Homer Nukes'
+   * ledger holds gradedPicks, predicted, actual and Brier and no stake at all, so choosing one of
+   * the two money verdicts would mint an outcome the product never computes — and that verdict
+   * would then be summable with the money products' records.
+   */
+  if (results.includes("recorded")) {
+    return advanceProduct(r, "SETTLED_RECORDED", {
+      runId: `settle:${date}:${settledStamp}`,
+      settlementRef,
+      graded: settlement.graded ?? null,
+    });
+  }
   const lost = results.some((x) => x === "loss" || x === "lost");
   r = advanceProduct(r, lost ? "SETTLED_LOSS" : "SETTLED_WIN", { runId: `settle:${date}:${settledStamp}`, settlementRef });
 

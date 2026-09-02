@@ -14,13 +14,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { registerProducts, PRODUCT_REGISTRY, GOVERNED_PRODUCTS, LIFECYCLE_OWNERSHIP } from "./lifecycle-registry.mjs";
+import { registerProducts, PRODUCT_REGISTRY, GOVERNED_PRODUCTS, LIFECYCLE_OWNERSHIP, OWNERSHIP_PATHS } from "./lifecycle-registry.mjs";
 import { GOVERNED_PRODUCTS as MACHINE_GOVERNED, productWatchdog } from "./daily-state-machine.mjs";
 
 const complete = (id, over = {}) => ({
   id, label: id, policyVersion: `${id}@1`,
   producer: `producer/${id}`, selectionGate: `gate/${id}`, freeze: `freeze/${id}`,
-  settlementAdapter: `settle/${id}`, ledger: `ledger/${id}.json`, receiptOwner: `receipt/${id}`,
+  settlementAdapter: `settle/${id}`, ledger: `ledger/${id}.json`, receiptOwner: `receipt/${id}`, ledgerKind: "money",
   ...over,
 });
 
@@ -60,15 +60,48 @@ test("A PRODUCT WITHOUT SETTLEMENT CANNOT BE GOVERNED", () => {
   assert.throws(() => registerProducts([entry]), /settlementAdapter/);
 });
 
-test("TWO PRODUCTS MAY NOT SHARE A LEDGER", () => {
+test("TWO PRODUCTS MAY NOT SHARE A RECORD — but may share an artifact", () => {
   /*
    * One record holding two products is how a losing lane borrows a winning one's history — and from
    * outside it reads as a single healthy product.
+   *
+   * The rule is about the RECORD, not the filename. `parlays/lab-ledger.json` is one artifact
+   * holding five independent streams, each with its own wins, losses, stake and return; those
+   * records are genuinely separate and both sport ladders live there. Comparing paths alone would
+   * have refused a correct registration, and refusing correct things teaches people to loosen the
+   * rule until it stops catching the wrong ones.
    */
   assert.throws(
     () => registerProducts([complete("a", { ledger: "shared.json" }), complete("b", { ledger: "shared.json" })]),
-    (e) => /both claim the ledger/.test(e.message) && e.message.includes("a") && e.message.includes("b"),
+    (e) => /both claim the record/.test(e.message) && e.message.includes("a") && e.message.includes("b"),
   );
+
+  /* Same artifact, same STREAM — still the failure, and the one that actually matters. */
+  assert.throws(
+    () => registerProducts([
+      complete("a", { ledger: "lab.json", ledgerStream: "ufc" }),
+      complete("b", { ledger: "lab.json", ledgerStream: "ufc" }),
+    ]),
+    /both claim the record lab\.json#ufc/,
+  );
+
+  /* Same artifact, DIFFERENT streams — permitted, because the records are separate. */
+  const ok = registerProducts([
+    complete("a", { ledger: "lab.json", ledgerStream: "ufc" }),
+    complete("b", { ledger: "lab.json", ledgerStream: "epl" }),
+  ]);
+  assert.deepEqual(ok.ids, ["a", "b"]);
+});
+
+test("LIVE · no two registered products share a record", () => {
+  /* The invariant asserted against the real registry, not a fixture. */
+  const seen = new Map();
+  for (const id of GOVERNED_PRODUCTS) {
+    const p = PRODUCT_REGISTRY.get(id);
+    const identity = p.ledgerStream ? `${p.ledger}#${p.ledgerStream}` : p.ledger;
+    assert.equal(seen.get(identity), undefined, `${id} and ${seen.get(identity)} share ${identity}`);
+    seen.set(identity, id);
+  }
 });
 
 test("REFUSAL · a duplicate id cannot silently replace the first registration", () => {
@@ -128,7 +161,7 @@ test("every registered product's declared owners actually exist on disk", () => 
   const missing = [];
   for (const id of GOVERNED_PRODUCTS) {
     const p = PRODUCT_REGISTRY.get(id);
-    for (const field of LIFECYCLE_OWNERSHIP) {
+    for (const field of OWNERSHIP_PATHS) {
       if (!resolves(p[field])) missing.push(`${id}.${field} → ${p[field]}`);
     }
   }
