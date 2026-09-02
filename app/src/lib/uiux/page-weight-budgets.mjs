@@ -23,4 +23,25 @@ export const BUDGET_KB = Object.freeze({
   "build/custom/index.html": 1400,
   "mlb/index.html": 3000,
   "markets/index.html": 3000,
+  /*
+   * P231 · J — THE SIMULATION AND SPORT ROUTES HAD NO CEILING AT ALL.
+   *
+   * Seven routes were budgeted. The simulation hub, every sport hub, and every signature-product
+   * page were not — including the two heaviest here, `/simulate` (522KB) and `/ufc` (514KB), which
+   * carry the sport scenes this release is about. A page with no budget cannot regress, because
+   * nothing is measuring it; the guard's coverage was the list, not the site.
+   *
+   * Measured 2026-09-02 against the built export, ~2x headroom, which is the ratio the earlier
+   * entries use (index 189→600, today 395→1200). Tight enough that doubling a payload fails.
+   */
+  "simulate/index.html": 1000,        // measured 522KB — the scene bundle lives here
+  "ufc/index.html": 1000,             // measured 514KB
+  "nfl/index.html": 600,              // measured 279KB
+  "methodology/index.html": 500,      // measured 236KB
+  "epl/index.html": 500,              // measured 226KB
+  "bank-builder/index.html": 400,     // measured 181KB
+  "homer-nukes/index.html": 300,      // measured 116KB
+  "sports/index.html": 300,           // measured 115KB
+  "moonshot/index.html": 300,         // measured 112KB
+  "nba/index.html": 200,              // measured 63KB
 });
