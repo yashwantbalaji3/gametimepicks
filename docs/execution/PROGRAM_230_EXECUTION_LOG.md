@@ -261,32 +261,85 @@ A guard that has never failed has not been shown to work.
 
 ## Register
 
+Entry `35f39b56a` → close **`5d0cdeaea`**. Production serves `b11633bb0` (origin/main, one routine
+bot commit past the close tip); `5d0cdeaea` is a **proven ancestor** — stated as ancestry-covering,
+not as equality. Covering gate **run 33576857188 → success**.
+
 | Release | Commit | Rollback parent | State |
 | --- | --- | --- | --- |
-| R0 · leg reachability + payload | `a7cb3983b` | `35f39b56a` | shipped, gate pending |
-| Incident · pre-hydration image failure | `7840eb69a` | `a7cb3983b` | shipped, gate pending |
-| F1 · signature products under one lifecycle | `79f0e4192` (+`0a81e4290`) | `16f92755a` | shipped — ALL_GOVERNED |
-| F2 · producer assertions + offered window verified | `4dcb41cef`, `47033c203` | `02f796e33` | shipped |
+| R0 · leg reachability + payload | `dd22fd0a1` | `35f39b56a` | shipped · verified in production |
+| Incident · pre-hydration image failure | `e1210c42b` | `dd22fd0a1` | closed |
+| F1 · lifecycle registry | `0a81e4290` | `16f92755a` | shipped |
+| F1 · all products governed | `79f0e4192` | `0a81e4290` | shipped · ALL_GOVERNED |
+| F2 · producer assertions | `4dcb41cef` | `02f796e33` | shipped |
 | F3 · ledger reconciliation | `aa9699db0` | `d5d4bd29b` | shipped |
 | G · tier-grid cadence + freshness | `f19027941` | `acc2c9f4e` | shipped |
-| K1 · protected command center | — | — | ENGINEERING_OPEN |
-| I · public information architecture | — | — | ENGINEERING_OPEN |
-| J · sport scenes, responsive, a11y | — | — | ENGINEERING_OPEN |
-| L · calibration contradiction engine | `8ff973a84` → this tip | `fe3ccbc7e` | shipped |
-| M · convergence + production proof | — | — | ENGINEERING_OPEN |
+| L · calibration contradiction engine | `a8a4479d1` | `fe3ccbc7e` | shipped |
+| K1 · protected operator command center | — | — | **ENGINEERING_OPEN** |
+| I · public information architecture | — | — | **ENGINEERING_OPEN** |
+| J · sport scenes, responsive, a11y | — | — | **ENGINEERING_OPEN** |
 
-**FOUNDER_GATED:** NFL paid odds renewal (P171 receipt expired by its own terms — no cron added, no
-paid call made); Moonshot (`MOONSHOT_REPAIR_PAUSE_OR_RETIRE`).
+### Sports — offered window, 2026-09-01
 
-**Classification: MATERIAL_PROGRESS** — executable engineering rows remain.
+| sport | state | offered | disposition | conserved |
+| --- | --- | --- | --- | --- |
+| MLB | COMPLETE | 15 | 15 published | ✅ |
+| NFL | COMPLETE | 2 | 2 not-yet-captured | ✅ |
+| UFC | COMPLETE | 14 | 7 published · 7 refused | ✅ |
+| EPL | COMPLETE | 1 | 1 forecast-ready | ✅ |
+| NBA | NO_EVENTS | 0 | off-season by the league's own schedule | ✅ |
 
-## Suites at close of R0
+32 events, **0 owed, 0 findings**.
 
-| Gate | Result |
+### Products — lifecycle, 2026-09-01
+
+| product | coverage | lifecycle | ledger kind |
+| --- | --- | --- | --- |
+| Bank Builder | GOVERNED | NO_PLAY | money |
+| Homer Nukes | GOVERNED | ACTIVE | calibration |
+| End Zone Vault | GOVERNED | **INCIDENT** | money |
+| UFC cards | GOVERNED | NO_PLAY | money |
+| EPL cards | GOVERNED | NO_PLAY | money |
+| Moonshot | PAUSED_FOUNDER | NO_PLAY | money |
+
+**ALL_GOVERNED · 0 open coverage gaps.**
+
+The Vault's INCIDENT is real and stays open: 2026-09-01 genuinely has no ledger entry, because the
+step that would have written one was skipped by the `events != '0'` gate before the fix landed. The
+cause is closed and the assertion is in place; the row clears when the next `nfl-event-window` run
+produces an entry. **Backfilling those days would be fabrication.**
+
+## Remaining partition
+
+| class | rows |
+| --- | --- |
+| INCIDENT | End Zone Vault 08-30 → 09-01 — cause fixed, clears on the next run |
+| ENGINEERING | K1 · I · J |
+| FOUNDER | NFL paid-odds renewal (P171 expired by its own terms) · Moonshot (`MOONSHOT_REPAIR_PAUSE_OR_RETIRE`) |
+| EXTERNAL | none |
+| REALITY | NFL 2 events not-yet-captured · EPL single fixture in window · NBA off-season |
+
+**Classification: MATERIAL_PROGRESS.** Three executable engineering rows remain, so the law does not
+permit COMPLETE.
+
+## Integrity at close
+
+| item | state |
+| --- | --- |
+| money `mr-dub/portfolio.json` | `affe6b21071f2b3be96bb2774eb347c3` — unchanged |
+| pre-existing stashes | 2, both preserved |
+| founder-owned `vp/` | untouched — no `vp/` path in any commit this session |
+| working tree | clean |
+| paid calls | **none**; no odds/credit/spend artifact touched |
+| owned processes / watchers | 0 |
+
+## Suites at close
+
+| gate | result |
 | --- | --- |
 | typecheck | clean |
-| phase 1 · unit + contract | 639 files → pass |
-| build | clean export |
+| phase 1 · unit + contract | 647 files → pass |
 | phase 2 · rendered guards | 66 files → pass |
-| browser matrix (Chromium/WebKit/Firefox) | 467 passed, 0 failed, 27 skipped |
-| `/build/custom` weight | 705 KB / 1400 KB budget |
+| browser matrix · Chromium / WebKit / Firefox | 467 passed · 0 failed · 27 skipped |
+| CI quality-gate `5d0cdeaea` | run 33576857188 → **success** |
+| `/build/custom` in production | **531.8 KB** / 1400 KB budget |
