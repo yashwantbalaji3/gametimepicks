@@ -1,0 +1,177 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824312,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T00:26:31.303Z",
+  "availableAt": "2026-09-02T00:26:31.303Z",
+  "eventStartTime": "2026-09-02T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-30",
+    "2026-08-31",
+    "2026-09-01"
+  ],
+  "home": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 136,
+      "relievers": [
+        {
+          "id": 663372,
+          "name": "Ryan Feltner",
+          "appearances": 1,
+          "pitches": 71,
+          "outs": 12,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 815081,
+          "name": "Mark Manfredi",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 4,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 693308,
+          "name": "Nick Frasso",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 2,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 657514,
+          "name": "Brennan Bernardino",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 605447,
+          "name": "Jordan Romano",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 110,
+    "teamName": "Baltimore Orioles",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 93,
+      "relievers": [
+        {
+          "id": 664991,
+          "name": "Grant Wolfram",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 677020,
+          "name": "Josh Walker",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 689296,
+          "name": "Anthony Nunez",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 695380,
+          "name": "Alex Hoppe",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 1,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 666974,
+          "name": "Yennier Cano",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 552640,
+          "name": "Andrew Kittredge",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 670329,
+          "name": "Rico Garcia",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 2,
+          "dates": [
+            "2026-08-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-30,2026-08-31,2026-09-01) + feed/live box scores",
+    "capturedAt": "2026-09-02T00:26:31.303Z"
+  },
+  "recordHash": "dce4c0f6bdd2dc929ccd44badce46c95911f335237910abe9106d2d0685a75e1"
+}

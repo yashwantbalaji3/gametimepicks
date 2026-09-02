@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823339,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T00:26:31.303Z",
+  "availableAt": "2026-09-02T00:26:31.303Z",
+  "eventStartTime": "2026-09-02T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-30",
+    "2026-08-31",
+    "2026-09-01"
+  ],
+  "home": {
+    "teamId": 134,
+    "teamName": "Pittsburgh Pirates",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 54,
+      "relievers": [
+        {
+          "id": 666808,
+          "name": "Camilo Doval",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 2,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 682254,
+          "name": "Mason Montgomery",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 596133,
+          "name": "Luke Weaver",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 489446,
+          "name": "Kirby Yates",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 670990,
+          "name": "Yohan Ramírez",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-08-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 53,
+      "relievers": [
+        {
+          "id": 671345,
+          "name": "Jason Foley",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 4,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 5,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 681916,
+          "name": "Dylan Smith",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-30,2026-08-31,2026-09-01) + feed/live box scores",
+    "capturedAt": "2026-09-02T00:26:31.303Z"
+  },
+  "recordHash": "da550284c73d2256bdb01292288a6f742cdf3b86f51e5aa708dcbe46543203c2"
+}

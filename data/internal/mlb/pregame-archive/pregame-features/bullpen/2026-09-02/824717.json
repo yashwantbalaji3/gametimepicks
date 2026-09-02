@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824717,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T00:26:31.303Z",
+  "availableAt": "2026-09-02T00:26:31.303Z",
+  "eventStartTime": "2026-09-02T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-30",
+    "2026-08-31",
+    "2026-09-01"
+  ],
+  "home": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 150,
+      "relievers": [
+        {
+          "id": 663558,
+          "name": "Jovani Morán",
+          "appearances": 1,
+          "pitches": 40,
+          "outs": 4,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 655316,
+          "name": "Andruw Monasterio",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 2,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 687941,
+          "name": "Alec Gamboa",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 6,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 669062,
+          "name": "Erik Miller",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 2,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 547973,
+          "name": "Aroldis Chapman",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 594027,
+          "name": "Tyron Guerrero",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 1,
+          "dates": [
+            "2026-08-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 136,
+    "teamName": "Seattle Mariners",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 116,
+      "relievers": [
+        {
+          "id": 642100,
+          "name": "Gabe Speier",
+          "appearances": 2,
+          "pitches": 29,
+          "outs": 7,
+          "dates": [
+            "2026-08-30",
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 689546,
+          "name": "Nick Davila",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 622554,
+          "name": "Seranthony Domínguez",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-08-30",
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 662253,
+          "name": "Andrés Muñoz",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 4,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 660825,
+          "name": "Eduard Bazardo",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 1,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 681867,
+          "name": "Cooper Criswell",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 1,
+          "dates": [
+            "2026-08-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-30,2026-08-31,2026-09-01) + feed/live box scores",
+    "capturedAt": "2026-09-02T00:26:31.303Z"
+  },
+  "recordHash": "bb1e1be60c01f809cf3d70968e867ebd8c67c600725d461f0f9697ea11d2b86e"
+}

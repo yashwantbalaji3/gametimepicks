@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 825037,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T00:26:31.303Z",
+  "availableAt": "2026-09-02T00:26:31.303Z",
+  "eventStartTime": "2026-09-02T19:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-30",
+    "2026-08-31",
+    "2026-09-01"
+  ],
+  "home": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 59,
+      "relievers": [
+        {
+          "id": 666661,
+          "name": "Juan Morillo",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 642528,
+          "name": "Jonathan Loáisiga",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 656464,
+          "name": "Kevin Ginkel",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 143,
+    "teamName": "Philadelphia Phillies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 109,
+      "relievers": [
+        {
+          "id": 686934,
+          "name": "Alex McFarlane",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-08-30",
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 689147,
+          "name": "Orion Kerkering",
+          "appearances": 2,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-08-30",
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 621237,
+          "name": "José Alvarado",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 5,
+          "dates": [
+            "2026-08-30",
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 661395,
+          "name": "Jhoan Duran",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 548384,
+          "name": "Brooks Raley",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-08-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-30,2026-08-31,2026-09-01) + feed/live box scores",
+    "capturedAt": "2026-09-02T00:26:31.303Z"
+  },
+  "recordHash": "826cd020adac70969f6500b50f513fdb3bf6daa151a834feaa8d72e0b17c9ffb"
+}

@@ -1,0 +1,209 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822931,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T00:26:31.303Z",
+  "availableAt": "2026-09-02T00:26:31.303Z",
+  "eventStartTime": "2026-09-02T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-30",
+    "2026-08-31",
+    "2026-09-01"
+  ],
+  "home": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 112,
+      "relievers": [
+        {
+          "id": 668984,
+          "name": "Casey Legumina",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 5,
+          "dates": [
+            "2026-08-30",
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 655889,
+          "name": "Manuel Rodríguez",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 669330,
+          "name": "Tyler Wells",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 664076,
+          "name": "Garrett Cleavinger",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 592155,
+          "name": "Cam Booser",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 121,
+    "teamName": "New York Mets",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 131,
+      "relievers": [
+        {
+          "id": 650960,
+          "name": "Daniel Duarte",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 2,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 702752,
+          "name": "Jonathan Pintaro",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 642376,
+          "name": "Jefry Yan",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 606965,
+          "name": "Chris Devenski",
+          "appearances": 2,
+          "pitches": 17,
+          "outs": 4,
+          "dates": [
+            "2026-08-30",
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 673540,
+          "name": "Kodai Senga",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 681810,
+          "name": "Austin Warren",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 673380,
+          "name": "Dedniel Núñez",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 681320,
+          "name": "Nate Lavender",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 2,
+          "dates": [
+            "2026-08-31"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-30,2026-08-31,2026-09-01) + feed/live box scores",
+    "capturedAt": "2026-09-02T00:26:31.303Z"
+  },
+  "recordHash": "b8b3154d995237df530a4084d1f405db2d3df153fd65c8d857a4092a30157a85"
+}

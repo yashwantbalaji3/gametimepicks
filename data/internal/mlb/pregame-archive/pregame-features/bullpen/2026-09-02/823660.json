@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823660,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T00:26:31.303Z",
+  "availableAt": "2026-09-02T00:26:31.303Z",
+  "eventStartTime": "2026-09-02T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-08-30",
+    "2026-08-31",
+    "2026-09-01"
+  ],
+  "home": {
+    "teamId": 142,
+    "teamName": "Minnesota Twins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 2,
+      "pitches": 39,
+      "relievers": [
+        {
+          "id": 667297,
+          "name": "Tommy Nance",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 6,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 656546,
+          "name": "Jeff Hoffman",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-08-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 116,
+    "teamName": "Detroit Tigers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 136,
+      "relievers": [
+        {
+          "id": 700270,
+          "name": "Yilber Díaz",
+          "appearances": 1,
+          "pitches": 43,
+          "outs": 6,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 656716,
+          "name": "Zach McKinstry",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 3,
+          "dates": [
+            "2026-08-31"
+          ]
+        },
+        {
+          "id": 663432,
+          "name": "Tanner Rainey",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 1,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 641755,
+          "name": "Tyler Kinley",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 640448,
+          "name": "Kyle Finnegan",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-08-30"
+          ]
+        },
+        {
+          "id": 621097,
+          "name": "Jacob Waguespack",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-08-30"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-08-30,2026-08-31,2026-09-01) + feed/live box scores",
+    "capturedAt": "2026-09-02T00:26:31.303Z"
+  },
+  "recordHash": "07afd52efedab1cd7394471fd3cc861f6c08cef673fddcbd3fa574e90a32be95"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824717,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T00:26:29.958Z",
+  "availableAt": "2026-09-02T00:26:29.958Z",
+  "eventStartTime": "2026-09-02T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663776,
+      "name": "Patrick Sandoval",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 5,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 5.6,
+        "bbAvg": 3.2,
+        "erAvg": 2.8,
+        "hrAvg": 0.6,
+        "kPer9": 9.69,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 45,
+        "k": 48,
+        "bb": 22,
+        "er": 21,
+        "hr": 6
+      }
+    },
+    "away": {
+      "id": 682243,
+      "name": "Bryce Miller",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 10,
+      "lastStartDate": "2026-08-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.33,
+        "ipAvg": 5.07,
+        "kAvg": 4.2,
+        "bbAvg": 2.8,
+        "erAvg": 4.4,
+        "hrAvg": 1.2,
+        "kPer9": 7.46,
+        "workloadIpLast5": 25.33
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 89,
+        "k": 88,
+        "bb": 25,
+        "er": 41,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-02T00:26:29.958Z"
+  },
+  "recordHash": "76c05b95364d2c94be0dd14f271c89b94ce7a025f2016b0e4fd1d128bbc45877"
+}

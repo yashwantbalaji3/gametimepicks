@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824634,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T00:26:29.958Z",
+  "availableAt": "2026-09-02T00:26:29.958Z",
+  "eventStartTime": "2026-09-02T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656849,
+      "name": "David Peterson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 6.2,
+        "bbAvg": 2.2,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 10.21,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 91.33,
+        "k": 83,
+        "bb": 42,
+        "er": 56,
+        "hr": 9
+      }
+    },
+    "away": {
+      "id": 694819,
+      "name": "Jacob Misiorowski",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-27",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 7.4,
+        "bbAvg": 1.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 10.74,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 151,
+        "k": 222,
+        "bb": 35,
+        "er": 29,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-02T00:26:29.958Z"
+  },
+  "recordHash": "6778612295ed0c79f11c8acb7e811c0c9fb4b51c01b660aca9eac581dcf1bd9e"
+}
