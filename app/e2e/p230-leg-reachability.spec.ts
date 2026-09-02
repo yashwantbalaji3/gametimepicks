@@ -96,13 +96,34 @@ test.describe("P230 · eligible-leg reachability", () => {
       page.locator(`[data-leg-id="${tailId}"]`).getByRole("button", { name: "Remove leg" }),
     ).toBeVisible();
 
-    /* Back/forward must not strand the page in a half-rendered state. */
+    /*
+     * Navigating away and coming back must return a working pool with the draft intact.
+     *
+     * This deliberately does NOT choreograph the history stack. Engines disagree on how many entries
+     * a client-routed departure leaves behind — on Firefox the first `goBack()` from /build/ lands
+     * on /build/ again and the second reaches /build/custom/, while Chromium arrives in one hop — so
+     * a fixed number of hops asserts a browser behaviour and reports it as a product regression. (My
+     * first attempt looped until the URL matched and over-stepped the page entirely, because
+     * `page.url()` is read before the navigation it follows has settled.)
+     *
+     * What must hold is the product claim: leave, come back, and the pool works and still knows the
+     * leg you added. `goBack()` is exercised separately for the narrower claim that it does not
+     * error or leave a dead page.
+     */
     await page.goto("/build/");
     await page.goBack();
+    await expect(page.locator("main")).toBeVisible();
+
+    await page.goto(PAGE);
+    await expect.poll(() => page.locator("[data-leg-id]").count(), { timeout: 15_000 }).toBeGreaterThan(0);
     await expect(page.getByText(/\d+ eligible legs?$/).first()).toBeVisible();
-    await page.goForward();
-    await page.goBack();
-    await expect(page.getByRole("button", { name: /Show \d+ more/ }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /Show \d+ more/ }).first()).toBeAttached();
+
+    /* And the leg added from beyond the old cap is still on the draft after all of it. */
+    await page.getByRole("button", { name: /Show \d+ more/ }).first().click();
+    await expect(
+      page.locator(`[data-leg-id="${tailId}"]`).getByRole("button", { name: "Remove leg" }),
+    ).toBeVisible();
   });
 
   test("the reveal control is reachable and operable on a 390px viewport", async ({ page }) => {
