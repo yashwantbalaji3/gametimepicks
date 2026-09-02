@@ -70,10 +70,17 @@ function nflOddsPacket(root) {
       "Every call appends to the authorization ledger before the data is used.",
     ],
     dryRun: "npx tsx app/scripts/nfl/capture-nfl-odds.mjs --dry-run — prints the request plan and credit estimate, issues nothing.",
+    /*
+     * PARAMETERISED, so the authorisation carries its own limits.
+     *
+     * The first draft offered three fixed tokens — renew-as-scoped, renew-narrowed, decline — which
+     * meant the ceiling and expiry would have been inferred from a receipt rather than stated by the
+     * person authorising the spend. An authorisation whose limits someone else filled in is not a
+     * limit. The answer now names the scope, the ceiling and the expiry itself.
+     */
     answerTokens: [
-      { token: "NFL_ODDS_RENEW_AS_SCOPED", does: "renews the same scope with a new ceiling and expiry, which the answer must state" },
-      { token: "NFL_ODDS_RENEW_NARROWED", does: "renews team markets only — no player props, no anytime-TD" },
-      { token: "NFL_ODDS_DECLINE", does: "NFL stays on free data; the offered window keeps reporting NOT_YET_CAPTURED with that reason" },
+      { token: "AUTHORIZE:NFL:<market-scope>:<credit-ceiling>:<expiry>", does: "renews with the scope, cumulative ceiling and expiry YOU state — e.g. AUTHORIZE:NFL:team-markets:500:2026-10-01" },
+      { token: "DEFER", does: "NFL stays on free data; the offered window keeps reporting NOT_YET_CAPTURED with that reason" },
     ],
     forbiddenWithoutToken: "any paid call, any new cron, any broadening of the expired scope",
     neverShare: "This decision authorises SPEND. It is not a credential and must not be answered by anyone who is not the account owner.",
@@ -112,9 +119,9 @@ function moonshotPacket(state) {
     rollback: "Pause and retire are reversible by the same token; repair is a normal release with its own rollback parent.",
     dryRun: "npx tsx app/scripts/products/build-daily-product-receipts.mjs --dry-run — derives Moonshot's day and writes nothing.",
     answerTokens: [
-      { token: "MOONSHOT_REPAIR_PAUSE_OR_RETIRE=REPAIR", does: "authorises building exposure accounting + card registration" },
-      { token: "MOONSHOT_REPAIR_PAUSE_OR_RETIRE=PAUSE", does: "formalises the pause; no code path activates" },
-      { token: "MOONSHOT_REPAIR_PAUSE_OR_RETIRE=RETIRE", does: "withdraws the route; the ledger is archived intact" },
+      { token: "MOONSHOT_REPAIR_PAUSE_OR_RETIRE:REPAIR", does: "authorises building exposure accounting + card registration" },
+      { token: "MOONSHOT_REPAIR_PAUSE_OR_RETIRE:PAUSE", does: "formalises the pause; no code path activates" },
+      { token: "MOONSHOT_REPAIR_PAUSE_OR_RETIRE:RETIRE", does: "withdraws the route; the ledger is archived intact" },
     ],
     forbiddenWithoutToken: "activation, retirement, mutation of the pause state, or any rewrite of its history",
     neverShare: null,
@@ -122,11 +129,47 @@ function moonshotPacket(state) {
 }
 
 /**
- * @param {{ appDir: string, moonshotState?: any }} o
+ * The protected console's delivery packet.
+ *
+ * Not a decision about what to build — the console is built, protected and verified. It is a
+ * decision about whether to RUN the committed redeploy runbook, and it exists because the answer had
+ * quietly been "no" for twenty days while every report said K1 was closed.
  */
-export function buildGatePackets({ appDir, moonshotState = null }) {
+function consoleDeliveryPacket(deployment) {
+  return {
+    id: "gate-console-redeploy",
+    title: "Protected console — run the committed redeploy, or leave it on the 2026-08-12 build",
+    gate: "EXTERNAL",
+    question: "The protected console is live and SSO-protected, and its deployment predates four programs of console work. Redeploy it now?",
+    evidence: [
+      deployment?.detail
+        ? `Delivery verifier: ${deployment.state} — ${deployment.detail}.`
+        : "Delivery verifier could not read the deployment age from this checkout.",
+      "The security boundary is intact and was re-verified: unauthenticated /launch returns 302 to Vercel SSO with zero content bytes, deny responses carry no-store, and public /launch and /ops still 404.",
+      "What is NOT on the deployed build: the derived incident register, both founder decision packets, and every evidence panel added since Program 210.",
+      "The runbook is committed at docs/ADMIN_DEPLOYMENT_GTP_OPS.md and needs no new credentials — the project link already exists in this checkout.",
+    ],
+    rules: [
+      "NEVER re-add a production domain (auto-assigned or custom) to the ops project while the plan lacks production-domain authentication — the ADR records a ~4-minute unauthenticated window created exactly that way, and domain attachment is the only path that reopens it.",
+      "Deployment URLs and the team-scoped generated URL inherit Standard Protection; redeploys do not change that.",
+      "The private host is never committed to this repository, and no verifier prints it.",
+    ],
+    dryRun: "node app/scripts/ops/verify-console-delivery.mjs — reports application-ready, host-configured and content-current separately, deploys nothing.",
+    answerTokens: [
+      { token: "CONSOLE_REDEPLOY:RUN", does: "run the committed runbook now (vercel pull → build --prod → deploy --prebuilt --prod), then re-run verify-admin-access" },
+      { token: "CONSOLE_REDEPLOY:DEFER", does: "the console keeps serving the 2026-08-12 build; the delivery verifier keeps reporting it STALE" },
+    ],
+    forbiddenWithoutToken: "any deploy to the protected project, and any change to its domain or protection settings",
+    neverShare: null,
+  };
+}
+
+/**
+ * @param {{ appDir: string, moonshotState?: any, deployment?: any }} o
+ */
+export function buildGatePackets({ appDir, moonshotState = null, deployment = null }) {
   const root = path.join(appDir, "..");
-  const packets = [nflOddsPacket(root), moonshotPacket(moonshotState)];
+  const packets = [consoleDeliveryPacket(deployment), nflOddsPacket(root), moonshotPacket(moonshotState)];
   return {
     version: GATE_PACKETS_VERSION,
     packets,

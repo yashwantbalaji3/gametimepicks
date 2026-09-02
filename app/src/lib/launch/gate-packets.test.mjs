@@ -22,9 +22,9 @@ const APP = process.cwd();
 const ROOT = path.join(APP, "..");
 const built = buildGatePackets({ appDir: APP });
 
-test("both gates are present and each is answerable", () => {
+test("all three actions are present and each is answerable", () => {
   const ids = built.packets.map((p) => p.id).sort();
-  assert.deepEqual(ids, ["gate-moonshot-disposition", "gate-nfl-odds-renewal"]);
+  assert.deepEqual(ids, ["gate-console-redeploy", "gate-moonshot-disposition", "gate-nfl-odds-renewal"]);
   for (const p of built.packets) {
     assert.ok(p.question.endsWith("?"), `${p.id}: a gate is a QUESTION`);
     assert.ok(p.evidence.length >= 3, `${p.id}: evidence, not an assertion`);
@@ -70,7 +70,10 @@ test("the packet states WHY the authorization ended — the fact that changes th
 test("answer tokens are a CLOSED set and no token is a credential", () => {
   for (const p of built.packets) {
     for (const t of p.answerTokens) {
-      assert.match(t.token, /^[A-Z0-9_=]+$/, `${t.token}: tokens are copy-paste literals, never free text`);
+        /* Literals, or a literal with NAMED placeholders — the NFL answer carries its own scope,
+         ceiling and expiry, because an authorisation whose limits someone else filled in is not a
+         limit. Free prose is still refused. */
+      assert.match(t.token, /^[A-Z0-9_:]+(:<[a-z-]+>)*$/, `${t.token}: tokens are copy-paste literals, never free text`);
       assert.ok(t.does && t.does.length > 10, `${t.token}: says what answering it does`);
       /* A token that looks like a secret would train someone to paste secrets into a console. */
       assert.ok(!/KEY|SECRET|TOKEN_[A-Z0-9]{8}|PASSWORD/.test(t.token), `${t.token}: must not resemble a credential`);
@@ -93,5 +96,55 @@ test("Moonshot's every branch preserves the record", () => {
   const ms = built.packets.find((p) => p.id === "gate-moonshot-disposition");
   assert.match(ms.preserved, /preserved byte-for-byte/);
   assert.equal(Object.keys(ms.consequences).sort().join(","), "pause,repair,retire", "all three answers have a stated consequence");
-  for (const t of ms.answerTokens) assert.match(t.token, /^MOONSHOT_REPAIR_PAUSE_OR_RETIRE=/, "the exact token, with the branch");
+  for (const t of ms.answerTokens) assert.match(t.token, /^MOONSHOT_REPAIR_PAUSE_OR_RETIRE:/, "the exact token, with the branch");
+});
+
+test("the NFL answer carries its OWN ceiling and expiry", () => {
+  /*
+   * Three fixed tokens would have meant the ceiling and expiry were inferred from a receipt rather
+   * than stated by the person authorising the spend. That is not a limit; it is a guess wearing one.
+   */
+  const nfl = built.packets.find((p) => p.id === "gate-nfl-odds-renewal");
+  const authorize = nfl.answerTokens.find((t) => t.token.startsWith("AUTHORIZE:"));
+  assert.ok(authorize, "there is an authorise answer");
+  for (const field of ["market-scope", "credit-ceiling", "expiry"]) {
+    assert.ok(authorize.token.includes(`<${field}>`), `the answer must state its own ${field}`);
+  }
+  assert.ok(nfl.answerTokens.some((t) => t.token === "DEFER"), "and declining is one word");
+});
+
+test("THE CONSOLE PACKET CARRIES THE ADR'S DOMAIN WARNING", () => {
+  /*
+   * The one way to reopen the hole. The ADR records a ~4-minute unauthenticated window created by a
+   * production domain on this project; deployment URLs inherit protection and domains do not. A
+   * packet that asks someone to deploy without repeating that is handing them the loaded half.
+   */
+  const c = built.packets.find((p) => p.id === "gate-console-redeploy");
+  assert.ok(c, "the delivery action is present");
+  assert.equal(c.gate, "EXTERNAL", "it is a host action, not a product decision");
+  const rules = c.rules.join(" ");
+  assert.match(rules, /NEVER re-add a production domain/i);
+  assert.match(rules, /4-minute unauthenticated window|unauthenticated window/i, "and says what happened last time");
+  assert.match(c.dryRun, /verify-console-delivery/, "its dry run is the verifier, which deploys nothing");
+});
+
+test("RENDERED · every packet's rules reach the page, not just the data", () => {
+  /*
+   * This guard checked the MODULE and passed while the console panel rendered evidence, tokens,
+   * dry-run and the forbidden line — and silently dropped `rules`. The most safety-critical sentence
+   * in the whole board ("never re-add a production domain", against a recorded ~4-minute
+   * unauthenticated window) existed in the object and never reached a screen.
+   *
+   * Checking the data is not checking the delivery. This reads the built internal export.
+   */
+  const page = path.join(APP, "out", "launch", "index.html");
+  if (!fs.existsSync(page)) return; // public build prunes /launch — only the internal build has it
+  const text = fs.readFileSync(page, "utf8").replace(/<!--.*?-->/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+
+  for (const p of built.packets) {
+    for (const rule of p.rules ?? []) {
+      const probe = rule.slice(0, 44).replace(/\s+/g, " ");
+      assert.ok(text.includes(probe), `${p.id}: a rule is in the packet and not on the page — "${probe}…"`);
+    }
+  }
 });

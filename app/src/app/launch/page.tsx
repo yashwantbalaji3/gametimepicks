@@ -188,6 +188,17 @@ export default function LaunchCommandCenter() {
      founder and the visitor are answering about one set of numbers. */
   const gatePackets = buildGatePackets({
     appDir: APP,
+    /* The delivery verifier's own verdict, so the redeploy packet quotes a measured age rather than
+       a number somebody typed. Read at build time; a checkout with no Vercel link reports UNKNOWN. */
+    deployment: (() => {
+      try {
+        const out = require("node:child_process").execFileSync(
+          "node", [path.join(APP, "scripts/ops/verify-console-delivery.mjs"), "--json"],
+          { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 240_000 },
+        );
+        return JSON.parse(out).contentCurrent ?? null;
+      } catch { return null; }
+    })(),
     moonshotState: (() => {
       try {
         const readData = (...seg: string[]) => JSON.parse(fs.readFileSync(path.join(APP, "public", "data", ...seg), "utf8"));
@@ -463,6 +474,7 @@ export default function LaunchCommandCenter() {
               <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 12 }}>
                 {gatePackets.packets.map((p: {
                   id: string; title: string; question: string; evidence: string[];
+                  rules?: string[];
                   answerTokens: { token: string; does: string }[]; dryRun: string;
                   forbiddenWithoutToken: string; neverShare: string | null;
                 }) => (
@@ -472,6 +484,16 @@ export default function LaunchCommandCenter() {
                     <ul style={{ margin: "0 0 8px", paddingLeft: 16, fontSize: 11.5, color: "var(--vault-text-mute)", display: "grid", gap: 2 }}>
                       {p.evidence.map((e, i) => <li key={i}>{e}</li>)}
                     </ul>
+                    {/* THE RULES ARE THE SAFETY HALF and were being dropped. The console packet's
+                        first rule is "never re-add a production domain" — the ADR records a real
+                        ~4-minute unauthenticated window created exactly that way. A packet that asks
+                        someone to deploy and shows them the tokens but not the constraint hands them
+                        the loaded half. */}
+                    {p.rules?.length ? (
+                      <ul style={{ margin: "0 0 8px", paddingLeft: 16, fontSize: 11.5, color: "var(--gtp-bank-heat)", display: "grid", gap: 2 }}>
+                        {p.rules.map((r, i) => <li key={i}>{r}</li>)}
+                      </ul>
+                    ) : null}
                     <div style={{ display: "grid", gap: 4, margin: "0 0 8px" }}>
                       {p.answerTokens.map((t) => (
                         <div key={t.token} style={{ display: "flex", gap: 8, flexWrap: "wrap", fontSize: 11.5 }}>
