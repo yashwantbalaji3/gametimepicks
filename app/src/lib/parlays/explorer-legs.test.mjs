@@ -85,8 +85,31 @@ test("LIVE · every eligible leg still travels, and the count the page shows is 
   if (!fs.existsSync(PAGE)) return;
   const raw = fs.readFileSync(PAGE, "utf8");
 
-  const shown = /Legs \((\d+)\)/.exec(raw.replace(/<[^>]+>/g, " "));
-  assert.ok(shown, "the page states its eligible-leg count");
+  const text = raw.replace(/<!--.*?-->/g, "").replace(/<[^>]+>/g, " ");
+  const shown = /Legs \((\d+)\)/.exec(text);
+
+  /*
+   * A THIRD REGIME, and it is the ordinary overnight one.
+   *
+   * `Legs (N)` is the marketplace accordion's heading and only renders for a sport tab that has
+   * legs. Late at night every game has started, the eligible pool is legitimately zero, and the page
+   * renders "0 eligible legs" with a named reason and the builder still mounted — which is correct
+   * behaviour, not a missing count.
+   *
+   * This guard asserted the heading unconditionally and went red at 23:52 ET for the second time in
+   * two days, in the branch next to the one already fixed for the same reason. A guard that fails on
+   * a correct empty slate teaches whoever is on call that this file cries wolf.
+   */
+  if (!shown) {
+    assert.match(text, /\b0 eligible legs?\b/, "an empty pool must still state its count");
+    assert.match(text, /No eligible legs right now/, "and say why, rather than rendering blank");
+    assert.equal(
+      (raw.match(/detailOmitted/g) ?? []).length,
+      0,
+      "nothing may be omitted from a pool that is empty",
+    );
+    return;
+  }
   const total = Number(shown[1]);
 
   const omittedRows = (raw.match(/detailOmitted/g) ?? []).length;
