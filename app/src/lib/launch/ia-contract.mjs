@@ -28,7 +28,11 @@ export const IA_SECTIONS = Object.freeze([
   { group: "Sprints", anchors: ["sprints"], authority: "roadmap horizons + build clock" },
   { group: "Roadmap", anchors: ["roadmap"], authority: "completion-matrix ROADMAP_30D" },
   { group: "Departments", anchors: ["depts", "matrix"], authority: "completion-matrix buckets" },
-  { group: "Incidents & Watches", anchors: ["watches", "ledger"], authority: "watches.mjs + evidence-ledger" },
+  /* `incidents` leads this group: it is the only DERIVED member — every row comes from a watchdog
+     that is reporting right now, so it answers "what needs attention" without anyone maintaining it.
+     `watches` beside it is the reality-gated list, which is a different question (what we are waiting
+     for), and mixing the two would let a time-gated observation read as a failure. */
+  { group: "Incidents & Watches", anchors: ["incidents", "watches", "ledger"], authority: "incident-register (derived from the product watchdog, lifecycle coverage and offered-window findings) + watches.mjs + evidence-ledger" },
   { group: "Evidence", anchors: ["product-truth", "routes-assurance", "product-experience", "simulation-experience", "uiux", "browser-assurance", "registry", "history", "alpha"], authority: "committed audit artifacts, rendered verbatim" },
   { group: "Runbooks & Transition", anchors: ["runbooks", "transition"], authority: "docs/ runbooks + transition checklist (PLANNED only)" },
   { group: "Onboarding", anchors: ["onboarding"], authority: "sanitized operator guide (static, versioned, zero secrets)" },

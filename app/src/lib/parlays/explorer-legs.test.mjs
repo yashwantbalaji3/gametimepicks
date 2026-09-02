@@ -90,18 +90,32 @@ test("LIVE · every eligible leg still travels, and the count the page shows is 
   const total = Number(shown[1]);
 
   const omittedRows = (raw.match(/detailOmitted/g) ?? []).length;
-  assert.ok(omittedRows > 0, "the projection is actually in effect on the built page");
-  assert.ok(
-    omittedRows < total,
-    `every leg was omitted (${omittedRows} of ${total}) — the projection has swallowed the rendered window`,
-  );
 
   /*
-   * The claim that matters: the page's own count includes the omitted rows. If the projection had
-   * dropped them the number would fall, which is the "hiding records" outcome the budget guard
-   * explicitly forbids.
+   * THE ASSERTION DEPENDS ON THE SLATE, and both regimes are real.
+   *
+   * This used to assert `omittedRows > 0` unconditionally, which made it a test of how many games
+   * happened to be on tonight rather than of the projection. It failed at 21:30 ET on a 32-leg slate
+   * — below the per-sport render cap, where omitting nothing is the CORRECT behaviour — so the guard
+   * went red because the product was right. A test that fails when the code succeeds gets deleted by
+   * whoever is on call, and the real claim goes with it.
+   *
+   * The real claim holds either way: nothing is ever dropped, and the projection never swallows the
+   * window it exists to preserve.
    */
-  assert.ok(total > EXPLORER_LEG_RENDER_CAP, "this slate is large enough for the projection to matter");
+  if (total > EXPLORER_LEG_RENDER_CAP) {
+    assert.ok(omittedRows > 0, `a ${total}-leg slate exceeds the ${EXPLORER_LEG_RENDER_CAP} cap — the projection must be in effect`);
+    assert.ok(
+      omittedRows < total,
+      `every leg was omitted (${omittedRows} of ${total}) — the projection has swallowed the rendered window`,
+    );
+  } else {
+    assert.equal(
+      omittedRows,
+      0,
+      `a ${total}-leg slate fits inside the ${EXPLORER_LEG_RENDER_CAP} cap — nothing may be omitted from it`,
+    );
+  }
 });
 
 test("LIVE · the page is under its budget without the budget having moved", () => {

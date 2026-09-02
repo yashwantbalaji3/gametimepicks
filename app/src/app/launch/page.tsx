@@ -23,6 +23,7 @@ import { buildProductExperience } from "@/lib/launch/product-experience.mjs";
 import { buildSimulationExperience } from "@/lib/launch/simulation-experience.mjs";
 import { buildDailyProductOps, buildForwardCoveragePanel } from "@/lib/launch/daily-product-ops.mjs";
 import { buildLedgerPanel } from "@/lib/launch/ledger-panel.mjs";
+import { buildIncidentRegister } from "@/lib/launch/incident-register.mjs";
 import { WALKED_ROUTES, PAPER_ONLY_CEILINGS, CONTENT_CONTRACT_VERSION } from "@/lib/launch/public-content-contract.mjs";
 import BoardFilters from "@/components/launch/board-filters";
 import { sportColumn, DEPARTMENT_BUCKETS } from "@/lib/launch/completion-matrix.mjs";
@@ -177,6 +178,7 @@ export default function LaunchCommandCenter() {
   const dailyOps = buildDailyProductOps({ appDir: APP });
   const forwardCov = buildForwardCoveragePanel({ appDir: APP });
   const ledgers = buildLedgerPanel({ appDir: APP });
+  const incidents = buildIncidentRegister({ appDir: APP });
 
   /* Program 185 · the UI/UX audit, derived from its committed artifact — never typed here. */
   const uiux = buildUiuxEvidence();
@@ -421,6 +423,68 @@ export default function LaunchCommandCenter() {
             ) : null}
 
             {/* ── Executive overview: four SEPARATE headlines ─────────────────────────────── */}
+            {/* ── INCIDENTS ────────────────────────────────────────────────────────────────────
+                What needs attention now, DERIVED. Every row is a watchdog that is reporting at this
+                moment; there is no field anyone can edit to make one disappear. Rendered as cards
+                rather than a table because a status an operator reads on a phone must not be behind
+                a horizontal scroll. ─────────────────────────────────────────────────────────── */}
+            <section aria-labelledby="incidents" style={{ marginBottom: 30 }}>
+              <h2 id="incidents" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Incidents — what needs attention now</h2>
+              {!incidents.present ? (
+                <p style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: 0 }}>
+                  No product receipt, lifecycle coverage or offered-window artifact is committed. This panel
+                  derives entirely from those three; it never holds an incident of its own.
+                </p>
+              ) : (
+                <>
+                  <p style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: "0 0 10px" }}>
+                    <strong>{incidents.state}</strong> · {incidents.actionable} actionable
+                    {incidents.counts.GATED ? ` · ${incidents.counts.GATED} founder-gated` : ""}
+                    {incidents.asOf ? ` · as of ${incidents.asOf}` : ""} · derived from the watchdogs, never hand-kept
+                  </p>
+                  {incidents.rows.length === 0 ? (
+                    <p style={{ fontSize: 12.5, color: "var(--vault-text-mute)", margin: 0 }}>
+                      No watchdog is reporting an open failure. This is the absence of alarms, not a claim that
+                      nothing is wrong — each authority states its own coverage in its section.
+                    </p>
+                  ) : (
+                    <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 10 }}>
+                      {incidents.rows.map((r: {
+                        id: string; kind: string; severity: string; subject: string; detail: string;
+                        source: string; cause: string; owner: string; detection: string;
+                        mitigation: string; clearing: string; founderGate?: string | null;
+                      }) => (
+                        <li key={r.id} style={{
+                          border: "1px solid var(--vault-rule)", borderLeft: `3px solid ${r.founderGate ? "var(--vault-text-faint)" : "var(--gtp-bank-heat)"}`,
+                          borderRadius: 8, padding: "10px 12px", background: "var(--vault-wash-faint)",
+                        }}>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "baseline" }}>
+                            <span style={{ fontFamily: "monospace", fontSize: 10.5, letterSpacing: "0.08em", color: r.founderGate ? "var(--vault-text-faint)" : "var(--gtp-bank-heat)" }}>
+                              {r.severity}
+                            </span>
+                            <strong style={{ fontSize: 13 }}>{r.subject}</strong>
+                            <span style={{ fontSize: 11, color: "var(--vault-text-faint)", fontFamily: "monospace" }}>{r.kind}</span>
+                          </div>
+                          {r.detail ? <p style={{ fontSize: 12, margin: "6px 0 0", color: "var(--vault-text-mute)" }}>{r.detail}</p> : null}
+                          <dl style={{ margin: "8px 0 0", fontSize: 11.5, display: "grid", gap: 3 }}>
+                            {([["Cause", r.cause], ["Owner", r.owner], ["Detected by", r.detection], ["Meanwhile", r.mitigation], ["Clears when", r.clearing]] as [string, string][]).map(([k, v]) => (
+                              <div key={k} style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                                <dt style={{ color: "var(--vault-text-faint)", minWidth: 84 }}>{k}</dt>
+                                <dd style={{ margin: 0, color: "var(--vault-text-mute)", flex: "1 1 200px" }}>{v}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                          <p style={{ fontSize: 10.5, margin: "8px 0 0", color: "var(--vault-text-faint)", fontFamily: "monospace" }}>
+                            evidence: {r.source}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              )}
+            </section>
+
             <section aria-labelledby="product-lifecycle" style={{ marginBottom: 30 }}>
               <h2 id="product-lifecycle" style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Signature-product lifecycle coverage</h2>
               {!productCoverage ? (

@@ -121,9 +121,24 @@ test("displayRecord falls back to the portfolio when no ledger exists", () => {
   assert.equal(s.displayRecord.source, "mr-dub/portfolio.json .moonshot");
 });
 
-test("the founder decision is NAMED, not assumed", () => {
+test("the founder decision is NAMED, not assumed — and its TOKEN is not public copy", () => {
   // Repair, pause or retire is a product decision. The module states the question.
-  assert.match(derive().founderDecision, /MOONSHOT_REPAIR_PAUSE_OR_RETIRE/);
+  const s = derive();
+
+  /* The token is still named, so the decision remains trackable and answerable. */
+  assert.match(s.founderGateToken, /^MOONSHOT_REPAIR_PAUSE_OR_RETIRE$/);
+
+  /*
+   * P231 · K1: the PUBLIC string used to lead with that token, so `/moonshot` printed the exact
+   * phrase the founder types to authorise an action to every visitor. It is operating protocol and
+   * belongs in the protected console.
+   *
+   * Nothing about readiness moved with it: the paused state and the full reason stay public, and
+   * this asserts both halves — the substance is still there, the token is not.
+   */
+  assert.doesNotMatch(s.founderDecision, /MOONSHOT_REPAIR_PAUSE_OR_RETIRE/, "the token is not public copy");
+  assert.match(s.founderDecision, /multi-lane exposure accounting/, "the reason it is paused stays public");
+  assert.match(s.founderDecision, /retire it is a product decision/, "and so does the open question");
 });
 
 /* ── THE OTHER STATES ─────────────────────────────────────────────────────────────────────────── */

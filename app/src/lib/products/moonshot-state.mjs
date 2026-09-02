@@ -279,10 +279,26 @@ export function deriveMoonshotState({
         : null,
     contradictions,
     publicNote,
-    /* The one question this module refuses to answer, named so it can be tracked. */
+    /*
+     * The one question this module refuses to answer, split in two (P231 · K1).
+     *
+     * The public string used to LEAD WITH THE ANSWER TOKEN — `/moonshot` rendered "Open decision:
+     * MOONSHOT_REPAIR_PAUSE_OR_RETIRE — publishing needs…" to every visitor. The token is the exact
+     * phrase the founder types to authorise an action on this product; it is operating protocol, and
+     * a public page is not where it belongs.
+     *
+     * NOTHING ABOUT READINESS IS HIDDEN BY THIS. The paused state and the full reason it is paused
+     * stay public, word for word — concealing those would be the worse failure. Only the token moves,
+     * to the protected console where the decision is actually answered.
+     */
     founderDecision:
       lifecycle === "ABANDONED" || lifecycle === "NOT_GENERATING"
-        ? "MOONSHOT_REPAIR_PAUSE_OR_RETIRE — publishing needs multi-lane exposure accounting in the paper ledger; settling needs the lane's cards registered as product cards with game identity on every leg. Whether to build both, formally pause the product, or retire it is a product decision."
+        ? "Publishing needs multi-lane exposure accounting in the paper ledger; settling needs the lane's cards registered as product cards with game identity on every leg. Whether to build both, formally pause the product, or retire it is a product decision."
+        : null,
+    /** The answer token. PROTECTED-CONSOLE ONLY — never rendered on a public route. */
+    founderGateToken:
+      lifecycle === "ABANDONED" || lifecycle === "NOT_GENERATING"
+        ? "MOONSHOT_REPAIR_PAUSE_OR_RETIRE"
         : null,
   };
 }
