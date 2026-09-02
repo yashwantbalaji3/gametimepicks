@@ -94,6 +94,16 @@ for (const f of receiptFiles) {
     if (!stream) continue;
     const st = String(c.result ?? "pending").toLowerCase();
     if (!["win", "loss", "push"].includes(st)) continue;
+    /*
+     * A card whose tier has no bucket used to be skipped for the tier and still counted in
+     * `overall`, so the tier rows silently stopped summing to the headline — the parts and the whole
+     * disagreeing with nothing to say so. An unrecognised tier is a defect in the producer, not a
+     * row to quietly drop.
+     */
+    if (!stream.byTier[c.tier]) {
+      console.error(`REFUSED: ${c.sport ?? "mlb"} card ${c.slipId ?? "?"} has tier "${c.tier}" with no bucket — the tier rows would stop summing to the record`);
+      process.exit(2);
+    }
     for (const bucket of [stream.byTier[c.tier], stream.overall]) {
       if (!bucket) continue;
       if (st === "push") { bucket.pushes++; continue; }
@@ -107,11 +117,28 @@ for (const f of receiptFiles) {
 
 for (const s of STREAMS) {
   const stream = live[s.id];
-  for (const bucket of [...Object.values(stream.byTier), stream.overall]) {
+  /*
+   * THE PARTS MUST SUM TO THE WHOLE (P230 · F3).
+   *
+   * Every bucket used to round its own `returned` from its own unrounded accumulation — tiers and
+   * the overall record alike. Rounding independently is not the same as rounding once: MLB's record
+   * published 22.62 while its four tier rows summed to 22.61, so a reader adding the rows got a
+   * different number than the headline they sat under. One cent, and exactly the kind of thing that
+   * makes a record impossible to check.
+   *
+   * The tiers round first and the record is then the SUM OF THE PUBLISHED TIERS, so the arithmetic
+   * a reader can do by hand is the arithmetic that produced the total. `roi` is recomputed from the
+   * reconciled figure rather than the pre-rounding one, so the published ratio matches the published
+   * numerator.
+   */
+  const tierBuckets = Object.values(stream.byTier);
+  for (const bucket of tierBuckets) bucket.returned = round(bucket.returned, 2);
+  stream.overall.returned = round(tierBuckets.reduce((n, b) => n + b.returned, 0), 2);
+
+  for (const bucket of [...tierBuckets, stream.overall]) {
     const decisive = bucket.wins + bucket.losses;
     bucket.hitRate = decisive ? round(bucket.wins / decisive) : null;
     bucket.roi = bucket.staked ? round((bucket.returned - bucket.staked) / bucket.staked) : null;
-    bucket.returned = round(bucket.returned, 2);
   }
 }
 
