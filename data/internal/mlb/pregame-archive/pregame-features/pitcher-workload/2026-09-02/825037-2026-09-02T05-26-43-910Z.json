@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 825037,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T05:26:43.910Z",
+  "availableAt": "2026-09-02T05:26:43.910Z",
+  "eventStartTime": "2026-09-02T19:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 664199,
+      "name": "Taylor Clarke",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    },
+    "away": {
+      "id": 691725,
+      "name": "Andrew Painter",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 5,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.33,
+        "ipAvg": 5.47,
+        "kAvg": 5.2,
+        "bbAvg": 2,
+        "erAvg": 2.4,
+        "hrAvg": 0.4,
+        "kPer9": 8.56,
+        "workloadIpLast5": 27.33
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 88.33,
+        "k": 75,
+        "bb": 33,
+        "er": 59,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-02T05:26:43.910Z"
+  },
+  "recordHash": "d4fa17f06f80f6e956a302d8944ebe7bedb55e9e62b63848f5c89bbecdb9c0e8"
+}

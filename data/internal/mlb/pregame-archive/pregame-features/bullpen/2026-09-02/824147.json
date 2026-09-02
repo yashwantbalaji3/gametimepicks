@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824147,
   "date": "2026-09-02",
-  "capturedAt": "2026-09-02T00:41:34.915Z",
-  "availableAt": "2026-09-02T00:41:34.915Z",
+  "capturedAt": "2026-09-02T05:26:45.533Z",
+  "availableAt": "2026-09-02T05:26:45.533Z",
   "eventStartTime": "2026-09-03T00:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,45 @@
     "teamId": 117,
     "teamName": "Houston Astros",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 94,
+      "relievers": [
+        {
+          "id": 837227,
+          "name": "Tatsuya Imai",
+          "appearances": 1,
+          "pitches": 59,
+          "outs": 9,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 678906,
+          "name": "Kai-Wei Teng",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-09-01"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 8,
-      "pitches": 153,
+      "appearances": 10,
+      "pitches": 247,
       "relievers": [
+        {
+          "id": 837227,
+          "name": "Tatsuya Imai",
+          "appearances": 1,
+          "pitches": 59,
+          "outs": 9,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
         {
           "id": 650556,
           "name": "Bryan Abreu",
@@ -37,6 +68,16 @@
           "dates": [
             "2026-08-30",
             "2026-08-31"
+          ]
+        },
+        {
+          "id": 678906,
+          "name": "Kai-Wei Teng",
+          "appearances": 1,
+          "pitches": 35,
+          "outs": 6,
+          "dates": [
+            "2026-09-01"
           ]
         },
         {
@@ -92,19 +133,61 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 837227,
+        "name": "Tatsuya Imai",
+        "reason": "59 pitches yesterday"
+      },
+      {
+        "id": 678906,
+        "name": "Kai-Wei Teng",
+        "reason": "35 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 145,
     "teamName": "Chicago White Sox",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 56,
+      "relievers": [
+        {
+          "id": 663855,
+          "name": "Jordan Hicks",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 663542,
+          "name": "Bryan Hudson",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 4,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 691799,
+          "name": "Grant Taylor",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 4,
-      "pitches": 157,
+      "appearances": 7,
+      "pitches": 213,
       "relievers": [
         {
           "id": 664353,
@@ -137,6 +220,26 @@
           ]
         },
         {
+          "id": 663855,
+          "name": "Jordan Hicks",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 663542,
+          "name": "Bryan Hudson",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 4,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
           "id": 699823,
           "name": "Tyler Davis",
           "appearances": 1,
@@ -144,6 +247,16 @@
           "outs": 3,
           "dates": [
             "2026-08-31"
+          ]
+        },
+        {
+          "id": 691799,
+          "name": "Grant Taylor",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
           ]
         }
       ]
@@ -153,7 +266,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-30,2026-08-31,2026-09-01) + feed/live box scores",
-    "capturedAt": "2026-09-02T00:41:34.915Z"
+    "capturedAt": "2026-09-02T05:26:45.533Z"
   },
-  "recordHash": "d60c43423ae800de18d74c4e5b960f798c982fef59dada9addbc3e06fd881bd4"
+  "recordHash": "a8d0b0cba28ab36dd6df3dfb525c80b5de72ba7950500719af40ff0bcb1d3505"
 }

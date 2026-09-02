@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824390,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T05:26:43.910Z",
+  "availableAt": "2026-09-02T05:26:43.910Z",
+  "eventStartTime": "2026-09-02T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 676282,
+      "name": "Joey Cantillo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 7,
+      "lastStartDate": "2026-08-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 22.67,
+        "ipAvg": 4.53,
+        "kAvg": 4.2,
+        "bbAvg": 3.2,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 8.34,
+        "workloadIpLast5": 22.67
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 136.33,
+        "k": 145,
+        "bb": 70,
+        "er": 56,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 656302,
+      "name": "Dylan Cease",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 5,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 8.6,
+        "bbAvg": 2.8,
+        "erAvg": 1.4,
+        "hrAvg": 0.6,
+        "kPer9": 12.48,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 150.33,
+        "k": 217,
+        "bb": 65,
+        "er": 39,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-02T05:26:43.910Z"
+  },
+  "recordHash": "418056ca7fbcf307ab9cbf6e11a02d280ebe9b3a4b135a0ff5b26c1f60544188"
+}

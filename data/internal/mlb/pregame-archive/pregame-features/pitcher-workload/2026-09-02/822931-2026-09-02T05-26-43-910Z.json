@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822931,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T05:26:43.910Z",
+  "availableAt": "2026-09-02T05:26:43.910Z",
+  "eventStartTime": "2026-09-02T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 643377,
+      "name": "Griffin Jax",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 31,
+      "lastStartDate": "2026-08-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 6.4,
+        "bbAvg": 1.6,
+        "erAvg": 2.2,
+        "hrAvg": 0.4,
+        "kPer9": 10.8,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 82.67,
+        "k": 90,
+        "bb": 23,
+        "er": 29,
+        "hr": 11
+      }
+    },
+    "away": {
+      "id": 663795,
+      "name": "Justin Hagenman",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-02T05:26:43.910Z"
+  },
+  "recordHash": "49ee28262f55547d8f9f42333898c3e6882cb64394fb1c25f9056dc46105ae6a"
+}
