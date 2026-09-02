@@ -326,7 +326,7 @@ export default function HomePage() {
           day's risk-coverage matrix (the evaluation of record). No-play chips render as prominently
           as published cards — the refusal is the product working, not a gap to hide. */}
       {parlayPreview ? (
-        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} />
+        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} todayEt={currentEtDate()} />
       ) : null}
 
       {/* 6 — Flagship products, powered by the simulations. Each card carries its own current status,

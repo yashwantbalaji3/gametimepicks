@@ -33,6 +33,8 @@ export interface SuggestedParlaysPreviewProps {
   live: PreviewLane[];
   closed: PreviewClosedLane[];
   tierIntent: Record<string, string>;
+  /** The build's frozen ET day, so a lane can say whether its card is behind or ahead of the reader. */
+  todayEt?: string | null;
 }
 
 const TIER_SHORT: Record<string, string> = {
@@ -72,7 +74,18 @@ function TierChip({ tier, state, intent }: { tier: string; state: string; intent
   );
 }
 
-export default function SuggestedParlaysPreview({ live, closed, tierIntent }: SuggestedParlaysPreviewProps) {
+/**
+ * "Sep 5" — plus a plain word when the date is not the build's own day, because "Sep 1" alone does
+ * not tell a reader whether that is behind or ahead of them.
+ */
+function laneDateLabel(date: string, todayEt: string | null): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const label = new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+  if (!todayEt || todayEt === date) return label;
+  return `${label} · ${date > todayEt ? "next card" : "last published"}`;
+}
+
+export default function SuggestedParlaysPreview({ live, closed, tierIntent, todayEt = null }: SuggestedParlaysPreviewProps) {
   if (!live.length && !closed.length) return null;
   return (
     <section aria-label="Today's suggested parlays by risk tier" className="flex flex-col gap-3">
@@ -81,8 +94,12 @@ export default function SuggestedParlaysPreview({ live, closed, tierIntent }: Su
           <div className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
             Parlay Center · four risk evaluations per lane
           </div>
+          {/* NOT "Today's" (P232 · C). Lanes are event-driven: UFC and EPL carry the card for their
+              next fight night or matchweek, and MLB carries the last published product day. On
+              2026-09-02 this heading sat over 09-01, 09-05, 09-05 and 09-01 — wrong about all four,
+              inches below a strip reading "0 events today". Each lane now states its own date. */}
           <h2 className="font-display tracking-tight" style={{ fontSize: 22, fontWeight: 800, color: "var(--vault-text)" }}>
-            Today&rsquo;s suggested cards
+            Suggested cards by risk tier
           </h2>
         </div>
         <Link
@@ -113,8 +130,18 @@ export default function SuggestedParlaysPreview({ live, closed, tierIntent }: Su
             className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[12px] px-4 py-3"
             style={{ border: "1px solid var(--vault-border-strong)", background: "var(--vault-bg-raised, transparent)" }}
           >
-            <span className="font-mono" style={{ fontSize: 12.5, fontWeight: 700, color: "var(--vault-text)", minWidth: 110 }}>
-              {lane.label}
+            <span className="flex flex-col" style={{ minWidth: 110 }}>
+              <span className="font-mono" style={{ fontSize: 12.5, fontWeight: 700, color: "var(--vault-text)" }}>
+                {lane.label}
+              </span>
+              {/* The date the card belongs to. A row of tier chips with no date cannot be read —
+                  "no play" on a lane is a different fact depending on whether it is today's
+                  evaluation or last week's. */}
+              {lane.date ? (
+                <span className="font-mono" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
+                  {laneDateLabel(lane.date, todayEt)}
+                </span>
+              ) : null}
             </span>
             <div className="flex flex-wrap items-center gap-1.5">
               {lane.tiers.map((t) => (

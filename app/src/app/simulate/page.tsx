@@ -11,6 +11,7 @@ import { buildSimulateDay } from "@/lib/simulate/day-view";
 import HowToRead from "@/components/how-to-read";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import SimulationExplorer from "@/components/games/simulation-explorer";
+import { currentEtDate } from "@/lib/freshness";
 
 export const metadata = {
   title: "Simulate · GameTime Picks",
@@ -37,7 +38,7 @@ export default function SimulatePage() {
       <HowToRead preset="simulate" title="How to read a simulation" />
 
       {/* Slate-wide simulated outcomes + player impact — depth AFTER the chooser. */}
-      <SimulationExplorer />
+      <SimulationExplorer selectedDate={currentEtDate()} />
 
       {/* Honest market-coverage matrix — what each sport simulates, and every gap with the reason. */}
       <SimulationCoverageMatrix />

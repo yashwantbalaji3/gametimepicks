@@ -323,7 +323,7 @@ export default function TodayPage() {
           renders, reading the day's risk-coverage matrix — one owner, two surfaces, no re-derivation.
           The daily command center shows the daily product's evaluations, no-play chips included. */}
       {parlayPreview ? (
-        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} />
+        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} todayEt={currentEtDate()} />
       ) : null}
 
       {/* 2b — Game Predictions table: the model's answer for every game, canonical + first-glance */}

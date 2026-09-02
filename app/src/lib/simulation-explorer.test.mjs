@@ -46,7 +46,23 @@ test("the derivation lives ONCE in the component, not duplicated into the page",
   assert.match(explorer, /buildAllGameDetails\(\)/, "the component reads the canonical details");
   assert.match(explorer, /\.filter\(\(d\) => d\.sport === "mlb" && d\.fullGameSim\)/, "only games with a real full-game artifact");
   assert.ok(!/buildAllGameDetails/.test(page), "the page duplicates no data logic");
-  assert.match(page, /<SimulationExplorer \/>/, "the page just renders it");
+
+  /*
+   * P232 · C: the page now passes the build's ET day so the explorer can say WHICH slate its cards
+   * belong to — it was rendering 09-01's fifteen games under a 09-02 header that said "no MLB games
+   * on this date". Passing the clock is not data logic; the page already owns `currentEtDate()` and
+   * every other dated surface takes it the same way.
+   *
+   * The claim is unchanged and still enforced: the page may hand over props, never derive data. So
+   * this pins the props it is allowed to pass rather than pinning the tag to be propless.
+   */
+  const tag = /<SimulationExplorer([^/>]*)\/>/.exec(page);
+  assert.ok(tag, "the page renders the explorer");
+  const props = tag[1].trim();
+  assert.ok(
+    props === "" || /^selectedDate=\{currentEtDate\(\)\}$/.test(props),
+    `the page may pass only the clock, got: ${props || "(none)"}`,
+  );
   assert.ok(!/simulateFullGame|buildGamePredictionDecision/.test(explorer), "the component does not recompute predictions");
 });
 
