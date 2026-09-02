@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822851,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T14:58:49.951Z",
+  "availableAt": "2026-09-02T14:58:49.951Z",
+  "eventStartTime": "2026-09-02T18:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 674003,
+      "name": "Cody Bradford",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 5,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 2.6,
+        "bbAvg": 1.2,
+        "erAvg": 2,
+        "hrAvg": 0.2,
+        "kPer9": 4.44,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 26.33,
+        "k": 13,
+        "bb": 6,
+        "er": 10,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 682052,
+      "name": "Jacob Lopez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 7,
+        "bbAvg": 1.6,
+        "erAvg": 1.6,
+        "hrAvg": 0.6,
+        "kPer9": 10.86,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 90.33,
+        "k": 88,
+        "bb": 46,
+        "er": 47,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-02T14:58:49.951Z"
+  },
+  "recordHash": "9a0cf6d8ef4882c52d7973983eef5f90592ca949c2938912b98658bd10d1659f"
+}

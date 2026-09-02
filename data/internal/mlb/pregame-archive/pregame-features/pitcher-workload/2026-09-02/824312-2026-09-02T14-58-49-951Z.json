@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824312,
+  "date": "2026-09-02",
+  "capturedAt": "2026-09-02T14:58:49.951Z",
+  "availableAt": "2026-09-02T14:58:49.951Z",
+  "eventStartTime": "2026-09-02T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608372,
+      "name": "Tomoyuki Sugano",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23,
+        "ipAvg": 4.6,
+        "kAvg": 3.4,
+        "bbAvg": 1,
+        "erAvg": 4.4,
+        "hrAvg": 1.2,
+        "kPer9": 6.65,
+        "workloadIpLast5": 23
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 125.67,
+        "k": 75,
+        "bb": 29,
+        "er": 73,
+        "hr": 27
+      }
+    },
+    "away": {
+      "id": 669432,
+      "name": "Trevor Rogers",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 6,
+      "lastStartDate": "2026-08-27",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 6.4,
+        "bbAvg": 1,
+        "erAvg": 3,
+        "hrAvg": 1.2,
+        "kPer9": 10.29,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 137.67,
+        "k": 121,
+        "bb": 37,
+        "er": 67,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-02&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-02T14:58:49.951Z"
+  },
+  "recordHash": "d26fdade9a19276cd6ab12220203ce9e05da99b63bdf3aece0a26ba25a1086ed"
+}
