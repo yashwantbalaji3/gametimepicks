@@ -3,15 +3,268 @@
  "artifact": "epl-model-read",
  "dataClass": "INTERNAL_RESEARCH",
  "public": false,
- "generatedAt": "2026-08-31T22:58:17Z",
- "forecastGeneratedAt": "2026-08-31T22:58:15Z",
+ "generatedAt": "2026-09-03T23:12:04Z",
+ "forecastGeneratedAt": "2026-09-03T23:12:00Z",
  "validation": "NOT_VALIDATED_OUT_OF_SAMPLE — zero matches have been scored against a no-vig price",
  "note": "An operator view. Every figure is a probability or a signed difference in percentage points, and nothing here is ordered by opportunity or marked for action. A cold-start fixture's disagreement reflects the model having no history for a promoted club, not a view about the match.",
  "counts": {
-  "fixtures": 0,
-  "withMarket": 0,
-  "agreeOnHighest": 0,
-  "disagreeOnHighest": 0
+  "fixtures": 9,
+  "withMarket": 9,
+  "agreeOnHighest": 7,
+  "disagreeOnHighest": 2
  },
- "rows": []
+ "rows": [
+  {
+   "eventId": "soccer:epl:ipswich-town-v-liverpool:20260904t1900",
+   "matchup": "Ipswich Town v Liverpool",
+   "kickoffUtc": "2026-09-04T19:00:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 5.7,
+    "draw": 10.8,
+    "away": 83.5,
+    "expectedGoals": 3.815
+   },
+   "market": {
+    "home": 17,
+    "draw": 19.4,
+    "away": 63.5
+   },
+   "differencePoints": {
+    "home": -11.3,
+    "draw": -8.7,
+    "away": 20
+   },
+   "widestDisagreement": {
+    "outcome": "away",
+    "points": 20
+   },
+   "modelHighestOutcome": "away",
+   "marketHighestOutcome": "away"
+  },
+  {
+   "eventId": "soccer:epl:bournemouth-v-newcastle-united:20260905t1130",
+   "matchup": "Newcastle United v Bournemouth",
+   "kickoffUtc": "2026-09-05T11:30:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 65.6,
+    "draw": 17.7,
+    "away": 16.7,
+    "expectedGoals": 3.7212
+   },
+   "market": {
+    "home": 44.7,
+    "draw": 26,
+    "away": 29.3
+   },
+   "differencePoints": {
+    "home": 21,
+    "draw": -8.4,
+    "away": -12.6
+   },
+   "widestDisagreement": {
+    "outcome": "home",
+    "points": 21
+   },
+   "modelHighestOutcome": "home",
+   "marketHighestOutcome": "home"
+  },
+  {
+   "eventId": "soccer:epl:nottingham-forest-v-tottenham-hotspur:20260905t1400",
+   "matchup": "Nottingham Forest v Tottenham Hotspur",
+   "kickoffUtc": "2026-09-05T14:00:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 35,
+    "draw": 25.1,
+    "away": 40,
+    "expectedGoals": 2.8359
+   },
+   "market": {
+    "home": 39.4,
+    "draw": 27.8,
+    "away": 32.8
+   },
+   "differencePoints": {
+    "home": -4.4,
+    "draw": -2.7,
+    "away": 7.1
+   },
+   "widestDisagreement": {
+    "outcome": "away",
+    "points": 7.1
+   },
+   "modelHighestOutcome": "away",
+   "marketHighestOutcome": "home"
+  },
+  {
+   "eventId": "soccer:epl:coventry-city-v-manchester-city:20260905t1400",
+   "matchup": "Manchester City v Coventry City",
+   "kickoffUtc": "2026-09-05T14:00:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 99,
+    "draw": 1,
+    "away": 0,
+    "expectedGoals": 4.8056
+   },
+   "market": {
+    "home": 81.3,
+    "draw": 11.9,
+    "away": 6.8
+   },
+   "differencePoints": {
+    "home": 17.7,
+    "draw": -11,
+    "away": -6.8
+   },
+   "widestDisagreement": {
+    "outcome": "home",
+    "points": 17.7
+   },
+   "modelHighestOutcome": "home",
+   "marketHighestOutcome": "home"
+  },
+  {
+   "eventId": "soccer:epl:brentford-v-sunderland:20260905t1400",
+   "matchup": "Brentford v Sunderland",
+   "kickoffUtc": "2026-09-05T14:00:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 54.7,
+    "draw": 24.2,
+    "away": 21.1,
+    "expectedGoals": 2.628
+   },
+   "market": {
+    "home": 58.2,
+    "draw": 24.1,
+    "away": 17.6
+   },
+   "differencePoints": {
+    "home": -3.5,
+    "draw": 0.1,
+    "away": 3.5
+   },
+   "widestDisagreement": {
+    "outcome": "home",
+    "points": -3.5
+   },
+   "modelHighestOutcome": "home",
+   "marketHighestOutcome": "home"
+  },
+  {
+   "eventId": "soccer:epl:crystal-palace-v-fulham:20260905t1400",
+   "matchup": "Fulham v Crystal Palace",
+   "kickoffUtc": "2026-09-05T14:00:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 42.6,
+    "draw": 26.2,
+    "away": 31.2,
+    "expectedGoals": 2.6013
+   },
+   "market": {
+    "home": 41.3,
+    "draw": 28,
+    "away": 30.7
+   },
+   "differencePoints": {
+    "home": 1.3,
+    "draw": -1.8,
+    "away": 0.6
+   },
+   "widestDisagreement": {
+    "outcome": "draw",
+    "points": -1.8
+   },
+   "modelHighestOutcome": "home",
+   "marketHighestOutcome": "home"
+  },
+  {
+   "eventId": "soccer:epl:aston-villa-v-hull-city:20260905t1630",
+   "matchup": "Hull City v Aston Villa",
+   "kickoffUtc": "2026-09-05T16:30:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 84,
+    "draw": 15.3,
+    "away": 0.7,
+    "expectedGoals": 1.9723
+   },
+   "market": {
+    "home": 23.2,
+    "draw": 25.8,
+    "away": 51
+   },
+   "differencePoints": {
+    "home": 60.7,
+    "draw": -10.5,
+    "away": -50.2
+   },
+   "widestDisagreement": {
+    "outcome": "home",
+    "points": 60.7
+   },
+   "modelHighestOutcome": "home",
+   "marketHighestOutcome": "away"
+  },
+  {
+   "eventId": "soccer:epl:everton-v-manchester-united:20260906t1300",
+   "matchup": "Everton v Manchester United",
+   "kickoffUtc": "2026-09-06T13:00:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 34.2,
+    "draw": 28.3,
+    "away": 37.6,
+    "expectedGoals": 2.3084
+   },
+   "market": {
+    "home": 28.8,
+    "draw": 27.1,
+    "away": 44.1
+   },
+   "differencePoints": {
+    "home": 5.4,
+    "draw": 1.2,
+    "away": -6.6
+   },
+   "widestDisagreement": {
+    "outcome": "away",
+    "points": -6.6
+   },
+   "modelHighestOutcome": "away",
+   "marketHighestOutcome": "away"
+  },
+  {
+   "eventId": "soccer:epl:arsenal-v-chelsea:20260906t1530",
+   "matchup": "Arsenal v Chelsea",
+   "kickoffUtc": "2026-09-06T15:30:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 65.1,
+    "draw": 19.1,
+    "away": 15.8,
+    "expectedGoals": 3.2309
+   },
+   "market": {
+    "home": 56.5,
+    "draw": 24.9,
+    "away": 18.6
+   },
+   "differencePoints": {
+    "home": 8.6,
+    "draw": -5.8,
+    "away": -2.8
+   },
+   "widestDisagreement": {
+    "outcome": "home",
+    "points": 8.6
+   },
+   "modelHighestOutcome": "home",
+   "marketHighestOutcome": "home"
+  }
+ ]
 }
