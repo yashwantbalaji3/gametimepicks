@@ -5,10 +5,9 @@
  "moneyClass": "NON_MONEY",
  "sport": "ufc",
  "date": "2026-09-05",
- "generatedAt": "2026-09-02T17:06:02Z",
+ "generatedAt": "2026-09-03T14:47:31Z",
  "state": "PUBLISHED",
  "bandsUnreachable": [
-  "high",
   "longshot"
  ],
  "calmestAvailable": "low",
@@ -48,7 +47,7 @@
     "medium",
     "high"
    ],
-   "offered": 2,
+   "offered": 3,
    "emptyToday": false,
    "substitute": null
   },
@@ -63,7 +62,7 @@
     "high",
     "longshot"
    ],
-   "offered": 2,
+   "offered": 3,
    "emptyToday": false,
    "substitute": null
   }
@@ -142,9 +141,9 @@
   {
    "tier": "gold",
    "band": "high",
-   "state": "NO_CARD",
-   "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +128 (medium); 3 legs → +190 (medium)"
+   "state": "OFFERED",
+   "slipId": "ufc-high-2026-09-05",
+   "reason": null
   },
   {
    "tier": "gold",
@@ -170,25 +169,41 @@
   {
    "tier": "diamond",
    "band": "high",
-   "state": "NO_CARD",
-   "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +128 (medium); 3 legs → +190 (medium)"
+   "state": "OFFERED",
+   "slipId": "ufc-high-2026-09-05",
+   "reason": null
   },
   {
    "tier": "diamond",
    "band": "longshot",
    "state": "NO_CARD",
    "slipId": null,
-   "reason": "no card priced into this band — 2 legs → +128 (medium); 3 legs → +190 (medium)"
+   "reason": "not enough priced bouts with a model read to build a card"
   }
  ],
  "cards": [
   {
    "band": "low",
    "slipId": "ufc-low-2026-09-05",
-   "combinedAmerican": -111,
-   "combinedDecimal": 1.902,
+   "combinedAmerican": -114,
+   "combinedDecimal": 1.878,
    "legs": [
+    {
+     "sport": "ufc",
+     "eventId": "401916275",
+     "player": "Nathaniel Wood",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -300,
+     "decimal": 1.3333333333333333,
+     "modelProbability": 0.7501,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/3950354.png",
+     "opponent": "Pavel Andrusca",
+     "team": null
+    },
     {
      "sport": "ufc",
      "eventId": "401914473",
@@ -197,28 +212,12 @@
      "marketLabel": "Fight winner",
      "side": "win",
      "line": null,
-     "odds": -250,
-     "decimal": 1.4,
+     "odds": -245,
+     "decimal": 1.4081632653061225,
      "modelProbability": 0.6942,
      "modelId": "ufc-fight-model@e657fc40b64d",
      "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5289841.png",
      "opponent": "Punahele Soriano",
-     "team": null
-    },
-    {
-     "sport": "ufc",
-     "eventId": "401875227",
-     "player": "Mario Pinto",
-     "market": "fight_winner",
-     "marketLabel": "Fight winner",
-     "side": "win",
-     "line": null,
-     "odds": -279,
-     "decimal": 1.3584229390681004,
-     "modelProbability": 0.6651,
-     "modelId": "ufc-fight-model@e657fc40b64d",
-     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5218817.png",
-     "opponent": "Ryan Spann",
      "team": null
     }
    ],
@@ -228,9 +227,25 @@
   {
    "band": "medium",
    "slipId": "ufc-medium-2026-09-05",
-   "combinedAmerican": 243,
-   "combinedDecimal": 3.433,
+   "combinedAmerican": 118,
+   "combinedDecimal": 2.176,
    "legs": [
+    {
+     "sport": "ufc",
+     "eventId": "401875227",
+     "player": "Mario Pinto",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -310,
+     "decimal": 1.3225806451612903,
+     "modelProbability": 0.6651,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5218817.png",
+     "opponent": "Ryan Spann",
+     "team": null
+    },
     {
      "sport": "ufc",
      "eventId": "401911286",
@@ -239,14 +254,24 @@
      "marketLabel": "Fight winner",
      "side": "win",
      "line": null,
-     "odds": -150,
-     "decimal": 1.6666666666666665,
+     "odds": -155,
+     "decimal": 1.6451612903225805,
      "modelProbability": 0.6141,
      "modelId": "ufc-fight-model@e657fc40b64d",
      "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4083018.png",
      "opponent": "Axel Sola",
      "team": null
-    },
+    }
+   ],
+   "status": "pending",
+   "record": null
+  },
+  {
+   "band": "high",
+   "slipId": "ufc-high-2026-09-05",
+   "combinedAmerican": 334,
+   "combinedDecimal": 4.341,
+   "legs": [
     {
      "sport": "ufc",
      "eventId": "401911287",
@@ -255,12 +280,44 @@
      "marketLabel": "Fight winner",
      "side": "win",
      "line": null,
-     "odds": 106,
-     "decimal": 2.06,
+     "odds": 100,
+     "decimal": 2,
      "modelProbability": 0.6007,
      "modelId": "ufc-fight-model@e657fc40b64d",
      "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5122175.png",
      "opponent": "Nora Cornolle",
+     "team": null
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401911288",
+     "player": "Oumar Sy",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -230,
+     "decimal": 1.434782608695652,
+     "modelProbability": 0.5662,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5074120.png",
+     "opponent": "Modestas Bukauskas",
+     "team": null
+    },
+    {
+     "sport": "ufc",
+     "eventId": "401902947",
+     "player": "Felipe Lima",
+     "market": "fight_winner",
+     "marketLabel": "Fight winner",
+     "side": "win",
+     "line": null,
+     "odds": -195,
+     "decimal": 1.5128205128205128,
+     "modelProbability": 0.549,
+     "modelId": "ufc-fight-model@e657fc40b64d",
+     "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5101694.png",
+     "opponent": "Morgan Charrière",
      "team": null
     }
    ],
