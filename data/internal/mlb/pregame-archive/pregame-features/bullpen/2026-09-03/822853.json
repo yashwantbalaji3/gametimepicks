@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 822853,
   "date": "2026-09-03",
-  "capturedAt": "2026-09-03T00:53:09.213Z",
-  "availableAt": "2026-09-03T00:53:09.213Z",
+  "capturedAt": "2026-09-03T05:28:23.245Z",
+  "availableAt": "2026-09-03T05:28:23.245Z",
   "eventStartTime": "2026-09-04T00:05:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -145,14 +145,76 @@
     "teamId": 139,
     "teamName": "Tampa Bay Rays",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 4,
+      "pitches": 108,
+      "relievers": [
+        {
+          "id": 655889,
+          "name": "Manuel Rodríguez",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 5,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 7,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 592155,
+          "name": "Cam Booser",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 4,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 6,
-      "pitches": 106,
+      "appearances": 10,
+      "pitches": 214,
       "relievers": [
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 2,
+          "pitches": 52,
+          "outs": 10,
+          "dates": [
+            "2026-08-31",
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 655889,
+          "name": "Manuel Rodríguez",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 5,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
         {
           "id": 664076,
           "name": "Garrett Cleavinger",
@@ -175,13 +237,23 @@
           ]
         },
         {
-          "id": 571927,
-          "name": "Steven Matz",
+          "id": 592155,
+          "name": "Cam Booser",
           "appearances": 1,
-          "pitches": 22,
+          "pitches": 26,
+          "outs": 4,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 1,
+          "pitches": 19,
           "outs": 3,
           "dates": [
-            "2026-08-31"
+            "2026-09-02"
           ]
         },
         {
@@ -206,12 +278,23 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 655889,
+        "name": "Manuel Rodríguez",
+        "reason": "33 pitches yesterday"
+      },
+      {
+        "id": 571927,
+        "name": "Steven Matz",
+        "reason": "30 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-08-31,2026-09-01,2026-09-02) + feed/live box scores",
-    "capturedAt": "2026-09-03T00:53:09.213Z"
+    "capturedAt": "2026-09-03T05:28:23.245Z"
   },
-  "recordHash": "d01f99fea87f57725628c3be0102d4b62719fc6f9bf0c26ae727b7f77d3bce70"
+  "recordHash": "36b6f5eeb9f7d3f0621418c313697108c3ad7466af099aa90e628fa2ce3666cc"
 }

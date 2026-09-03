@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824632,
+  "date": "2026-09-03",
+  "capturedAt": "2026-09-03T05:28:22.608Z",
+  "availableAt": "2026-09-03T05:28:22.608Z",
+  "eventStartTime": "2026-09-03T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 592332,
+      "name": "Kevin Gausman",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.8,
+        "bbAvg": 1.4,
+        "erAvg": 3.2,
+        "hrAvg": 1,
+        "kPer9": 9.32,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 155.33,
+        "k": 156,
+        "bb": 43,
+        "er": 78,
+        "hr": 20
+      }
+    },
+    "away": {
+      "id": 701656,
+      "name": "Logan Henderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 6,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32.33,
+        "ipAvg": 6.47,
+        "kAvg": 6.4,
+        "bbAvg": 1,
+        "erAvg": 1.6,
+        "hrAvg": 1.2,
+        "kPer9": 8.91,
+        "workloadIpLast5": 32.33
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 76.33,
+        "k": 86,
+        "bb": 14,
+        "er": 21,
+        "hr": 11
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-03T05:28:22.608Z"
+  },
+  "recordHash": "501cec208eff702569f2b139dcde0885655c5c3662fd1476e4c88deadf90f40d"
+}

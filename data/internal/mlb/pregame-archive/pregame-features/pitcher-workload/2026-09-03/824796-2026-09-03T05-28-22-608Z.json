@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824796,
+  "date": "2026-09-03",
+  "capturedAt": "2026-09-03T05:28:22.608Z",
+  "availableAt": "2026-09-03T05:28:22.608Z",
+  "eventStartTime": "2026-09-03T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687064,
+      "name": "Brandon Young",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 6,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27,
+        "ipAvg": 5.4,
+        "kAvg": 3.6,
+        "bbAvg": 2,
+        "erAvg": 2.2,
+        "hrAvg": 1.2,
+        "kPer9": 6,
+        "workloadIpLast5": 27
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 130.33,
+        "k": 103,
+        "bb": 46,
+        "er": 49,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 687562,
+      "name": "Jake Bennett",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 5,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.6,
+        "bbAvg": 1.4,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 9,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 93.67,
+        "k": 74,
+        "bb": 18,
+        "er": 34,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-03T05:28:22.608Z"
+  },
+  "recordHash": "01d410793e28d91e53c4eccb2e889a13442f103fe5311931f551b2a3843d20bd"
+}
