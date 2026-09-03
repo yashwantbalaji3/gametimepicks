@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824796,
+  "date": "2026-09-03",
+  "capturedAt": "2026-09-03T00:53:08.631Z",
+  "availableAt": "2026-09-03T00:53:08.631Z",
+  "eventStartTime": "2026-09-03T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": null,
+    "away": {
+      "id": 687562,
+      "name": "Jake Bennett",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 5,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 5.6,
+        "bbAvg": 1.4,
+        "erAvg": 2.8,
+        "hrAvg": 0.4,
+        "kPer9": 9,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 93.67,
+        "k": 74,
+        "bb": 18,
+        "er": 34,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-03T00:53:08.631Z"
+  },
+  "recordHash": "9134650f8719ac1ccdc952217fbb48b87df4d678eb988c2d17e9c96a021baeea"
+}
