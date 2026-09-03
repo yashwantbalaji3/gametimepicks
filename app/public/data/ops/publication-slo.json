@@ -1,18 +1,25 @@
 {
   "kind": "publication-slo",
   "date": "2026-09-03",
-  "platformState": "PUBLISHING",
+  "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
-      "state": "PUBLISHED",
-      "reason": "all 9 event(s) in the horizon carry a forecast",
+      "state": "MISSED_COVERAGE",
+      "reason": "1 of 9 event(s) started with no pre-event forecast; nothing is still pending",
       "deadlineUtc": null,
       "counts": {
         "scheduled": 9,
-        "published": 9,
-        "missedCoverage": 0,
+        "published": 8,
+        "missedCoverage": 1,
         "awaiting": 0
-      }
+      },
+      "missed": [
+        {
+          "id": "823337",
+          "label": "San Francisco Giants @ Pittsburgh Pirates",
+          "startUtc": "2026-09-03T16:35:00Z"
+        }
+      ]
     },
     "nfl": {
       "state": "PUBLISHING",
@@ -51,22 +58,22 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-09-03T16:20:09.840Z",
+  "checkedAt": "2026-09-03T17:17:15.981Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
-  "reason": "board published with 403 rows",
+  "reason": "board published with 358 rows",
   "publishDeadlineUtc": null,
   "scheduledGames": 9,
-  "pregameRemaining": 9,
-  "alreadyStarted": 0,
+  "pregameRemaining": 7,
+  "alreadyStarted": 2,
   "board": {
     "present": true,
-    "leans": 403,
+    "leans": 358,
     "pendingReason": null,
-    "generatedAt": "2026-09-03T15:19:17.600976+00:00",
+    "generatedAt": "2026-09-03T17:09:50.073485+00:00",
     "scheduledGames": 9,
-    "startedBeforeGeneration": 0
+    "startedBeforeGeneration": 1
   },
   "games": [
     {
@@ -74,16 +81,16 @@
       "startUtc": "2026-09-03T16:35:00Z",
       "away": "San Francisco Giants",
       "home": "Pittsburgh Pirates",
-      "detailedState": "Warmup",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 824388,
       "startUtc": "2026-09-03T17:10:00Z",
       "away": "Toronto Blue Jays",
       "home": "Cleveland Guardians",
-      "detailedState": "Pre-Game",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 824144,

@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-03",
-  "checkedAt": "2026-09-03T16:20:10.251Z",
-  "treeHead": "699f46be8",
+  "checkedAt": "2026-09-03T17:17:16.402Z",
+  "treeHead": "f80b288f3",
   "state": "INCIDENT",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 9,
@@ -12,7 +12,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-09-03T15:05:00.000Z",
-      "receiptAt": "2026-09-03T15:19:17.600976+00:00",
+      "receiptAt": "2026-09-03T17:09:50.073485+00:00",
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
@@ -20,39 +20,38 @@
     },
     {
       "id": "mlb-markets",
-      "state": "INCIDENT",
-      "reason": "no receipt for 2026-09-03; due 2026-09-03T15:35:00.000Z plus 30m grace has passed",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-03T15:35:00.000Z",
+      "receiptAt": "2026-09-03T17:11:37.460Z",
       "label": "MLB team markets + player props",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/team-markets/2026-09-03.json"
     },
     {
       "id": "mlb-simulations",
-      "state": "INCIDENT",
-      "reason": "no receipt for 2026-09-03; due 2026-09-03T15:35:00.000Z plus 30m grace has passed",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-03T15:35:00.000Z",
+      "receiptAt": "2026-09-03T17:11:39.000Z",
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/game-simulations/2026-09-03.json"
     },
     {
       "id": "risk-ladder",
-      "state": "DUE",
-      "reason": "past 2026-09-03T15:50:00.000Z, inside grace",
+      "state": "INCIDENT",
+      "reason": "no receipt for 2026-09-03; due 2026-09-03T15:50:00.000Z plus 45m grace has passed",
       "dueAtIso": "2026-09-03T15:50:00.000Z",
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
-        "mlb-markets"
-      ],
-      "blockedUpstream": [
         "mlb-markets"
       ],
       "receiptPath": null
@@ -71,7 +70,7 @@
     {
       "id": "schedules",
       "state": "STALE",
-      "reason": "receipt is 47.3h old against a 24h bound",
+      "reason": "receipt is 48.2h old against a 24h bound",
       "dueAtIso": "2026-09-03T13:00:00.000Z",
       "receiptAt": "2026-09-01T17:03:06Z",
       "label": "Schedule capture (NFL) + injury capture",
@@ -130,7 +129,7 @@
     {
       "id": "epl-lane",
       "state": "STALE",
-      "reason": "receipt is 65.4h old against a 30h bound",
+      "reason": "receipt is 66.3h old against a 30h bound",
       "dueAtIso": "2026-09-03T21:00:00.000Z",
       "receiptAt": "2026-08-31T22:58:16Z",
       "label": "EPL lane status",
@@ -141,7 +140,7 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 118.5h old against a 48h bound",
+      "reason": "receipt is 119.4h old against a 48h bound",
       "dueAtIso": "2026-09-03T15:00:00.000Z",
       "receiptAt": "2026-08-29T17:50:39Z",
       "label": "NFL market capture",
