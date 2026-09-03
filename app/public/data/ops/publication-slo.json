@@ -4,16 +4,15 @@
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "PUBLISHING",
-      "reason": "9 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-09-03T15:05:00.000Z",
+      "state": "PUBLISHED",
+      "reason": "all 9 event(s) in the horizon carry a forecast",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 9,
-        "published": 0,
+        "published": 9,
         "missedCoverage": 0,
-        "awaiting": 9
-      },
-      "missed": []
+        "awaiting": 0
+      }
     },
     "nfl": {
       "state": "PUBLISHING",
@@ -29,43 +28,45 @@
     },
     "ufc": {
       "state": "PUBLISHING",
-      "reason": "5 event(s) still awaiting a forecast, none of them late yet",
+      "reason": "4 event(s) still awaiting a forecast, none of them late yet",
       "deadlineUtc": "2026-09-05T14:30:00.000Z",
       "counts": {
         "scheduled": 14,
-        "published": 9,
+        "published": 10,
         "missedCoverage": 0,
-        "awaiting": 5
+        "awaiting": 4
       },
       "missed": []
     },
     "epl": {
       "state": "PUBLISHING",
-      "reason": "16 event(s) still awaiting a forecast, none of them late yet",
+      "reason": "18 event(s) still awaiting a forecast, none of them late yet",
       "deadlineUtc": "2026-09-05T10:00:00.000Z",
       "counts": {
-        "scheduled": 17,
+        "scheduled": 19,
         "published": 1,
         "missedCoverage": 0,
-        "awaiting": 16
+        "awaiting": 18
       },
       "missed": []
     }
   },
-  "checkedAt": "2026-09-03T12:14:25.931Z",
+  "checkedAt": "2026-09-03T16:20:09.840Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHING",
-  "reason": "today's slate is not published yet and is not late — the deadline is 2026-09-03T15:05:00.000Z",
-  "publishDeadlineUtc": "2026-09-03T15:05:00.000Z",
+  "state": "PUBLISHED",
+  "reason": "board published with 403 rows",
+  "publishDeadlineUtc": null,
   "scheduledGames": 9,
   "pregameRemaining": 9,
   "alreadyStarted": 0,
   "board": {
-    "present": false,
-    "leans": 0,
+    "present": true,
+    "leans": 403,
     "pendingReason": null,
-    "generatedAt": null
+    "generatedAt": "2026-09-03T15:19:17.600976+00:00",
+    "scheduledGames": 9,
+    "startedBeforeGeneration": 0
   },
   "games": [
     {
@@ -73,7 +74,7 @@
       "startUtc": "2026-09-03T16:35:00Z",
       "away": "San Francisco Giants",
       "home": "Pittsburgh Pirates",
-      "detailedState": "Scheduled",
+      "detailedState": "Warmup",
       "pregameAtCheck": true
     },
     {
@@ -81,7 +82,7 @@
       "startUtc": "2026-09-03T17:10:00Z",
       "away": "Toronto Blue Jays",
       "home": "Cleveland Guardians",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -89,7 +90,7 @@
       "startUtc": "2026-09-03T18:10:00Z",
       "away": "Chicago White Sox",
       "home": "Houston Astros",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
