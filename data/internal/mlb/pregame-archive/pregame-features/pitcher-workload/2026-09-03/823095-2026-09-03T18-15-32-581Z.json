@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823095,
+  "date": "2026-09-03",
+  "capturedAt": "2026-09-03T18:15:32.581Z",
+  "availableAt": "2026-09-03T18:15:32.581Z",
+  "eventStartTime": "2026-09-04T01:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 807739,
+      "name": "Kade Anderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 5,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 2,
+        "ipSum": 10,
+        "ipAvg": 5,
+        "kAvg": 4,
+        "bbAvg": 2.5,
+        "erAvg": 2.5,
+        "hrAvg": 1,
+        "kPer9": 7.2,
+        "workloadIpLast5": 10
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 10,
+        "k": 8,
+        "bb": 5,
+        "er": 5,
+        "hr": 2
+      }
+    },
+    "away": {
+      "id": 678022,
+      "name": "Jack Perkins",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 12,
+      "restDays": 5,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4.6,
+        "bbAvg": 2.4,
+        "erAvg": 4,
+        "hrAvg": 1.2,
+        "kPer9": 8.63,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 12,
+        "ip": 55.67,
+        "k": 64,
+        "bb": 27,
+        "er": 47,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-03T18:15:32.581Z"
+  },
+  "recordHash": "47d0bf4ea0b12fd08c30c3ae14f412d3ef8dd8f765bf6070f2b2342eb8beec5f"
+}
