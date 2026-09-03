@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823337,
+  "date": "2026-09-03",
+  "capturedAt": "2026-09-03T14:52:47.069Z",
+  "availableAt": "2026-09-03T14:52:47.069Z",
+  "eventStartTime": "2026-09-03T16:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669199,
+      "name": "Lake Bachar",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 5,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 10.67,
+        "ipAvg": 2.13,
+        "kAvg": 2.4,
+        "bbAvg": 1.4,
+        "erAvg": 0.8,
+        "hrAvg": 0.2,
+        "kPer9": 10.13,
+        "workloadIpLast5": 10.67
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 16.33,
+        "k": 18,
+        "bb": 8,
+        "er": 4,
+        "hr": 1
+      }
+    },
+    "away": {
+      "id": 694918,
+      "name": "Blade Tidwell",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 6,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 4.2,
+        "bbAvg": 2,
+        "erAvg": 3,
+        "hrAvg": 0.8,
+        "kPer9": 7.36,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 25.67,
+        "k": 21,
+        "bb": 10,
+        "er": 15,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-03T14:52:47.069Z"
+  },
+  "recordHash": "bf50f2b039032af08226fc482c23c9aa70b9352d66c60a7fbfec97491f48c356"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824388,
+  "date": "2026-09-03",
+  "capturedAt": "2026-09-03T14:52:47.069Z",
+  "availableAt": "2026-09-03T14:52:47.069Z",
+  "eventStartTime": "2026-09-03T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 676440,
+      "name": "Tanner Bibee",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 6,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 5.6,
+        "bbAvg": 1.6,
+        "erAvg": 2.8,
+        "hrAvg": 1.2,
+        "kPer9": 8.4,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 162.33,
+        "k": 128,
+        "bb": 46,
+        "er": 70,
+        "hr": 26
+      }
+    },
+    "away": {
+      "id": 667755,
+      "name": "José Soriano",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 5,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 4.4,
+        "bbAvg": 2,
+        "erAvg": 2.6,
+        "hrAvg": 0.4,
+        "kPer9": 6.99,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 151.33,
+        "k": 149,
+        "bb": 67,
+        "er": 58,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-03T14:52:47.069Z"
+  },
+  "recordHash": "0c004e26442d8f4d2c456cd033de2c4704eb68f113463cf808ad69ae474b9001"
+}
