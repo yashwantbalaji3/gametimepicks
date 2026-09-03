@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824069,
+  "date": "2026-09-03",
+  "capturedAt": "2026-09-03T00:33:00.353Z",
+  "availableAt": "2026-09-03T00:33:00.353Z",
+  "eventStartTime": "2026-09-03T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608379,
+      "name": "Michael Wacha",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32.33,
+        "ipAvg": 6.47,
+        "kAvg": 5,
+        "bbAvg": 0.8,
+        "erAvg": 1.8,
+        "hrAvg": 1.2,
+        "kPer9": 6.96,
+        "workloadIpLast5": 32.33
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 170.67,
+        "k": 136,
+        "bb": 42,
+        "er": 63,
+        "hr": 22
+      }
+    },
+    "away": {
+      "id": 645261,
+      "name": "Sandy Alcantara",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 5,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33,
+        "ipAvg": 6.6,
+        "kAvg": 4,
+        "bbAvg": 1.8,
+        "erAvg": 1.8,
+        "hrAvg": 0.2,
+        "kPer9": 5.45,
+        "workloadIpLast5": 33
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 189.67,
+        "k": 140,
+        "bb": 50,
+        "er": 73,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-03&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-03T00:33:00.353Z"
+  },
+  "recordHash": "3cf672fe1f59ea58e6d7ee279292ab38b45863abf13f1898371870066432ef2b"
+}
