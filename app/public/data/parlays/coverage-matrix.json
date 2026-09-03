@@ -2,18 +2,18 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-02T18:53:41Z",
+ "generatedAt": "2026-09-03T18:51:39Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 7,
-  "NO_PLAY": 9,
-  "LANE_CLOSED": 4,
+  "PUBLISHED": 5,
+  "NO_PLAY": 3,
+  "LANE_CLOSED": 12,
   "MISSING": 0
  },
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-09-02",
+   "date": "2026-09-03",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
@@ -23,39 +23,39 @@
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "slip_2026-09-02_conservative_f87cbfaf4ea5"
+     "slipId": "slip_2026-09-03_conservative_f900ffd5dd71"
     },
     "high": {
-     "state": "PUBLISHED",
-     "slipId": "slip_2026-09-02_balanced_dfb953195e67"
+     "state": "NO_PLAY",
+     "reason": "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
     },
     "longshot": {
      "state": "PUBLISHED",
-     "slipId": "slip_2026-09-02_aggressive_b755d45b5390"
+     "slipId": "slip_2026-09-03_aggressive_bb7c938c16cb"
     }
    }
   },
   {
    "lane": "epl",
    "date": "2026-09-05",
-   "laneState": "LIVE",
-   "laneReason": null,
+   "laneState": "CLOSED",
+   "laneReason": "the last price capture is 3.8 days old",
    "tiers": {
     "low": {
-     "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +151 (medium) … +345 (high)"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.8 days old"
     },
     "medium": {
-     "state": "PUBLISHED",
-     "slipId": "epl-medium-2026-09-05"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.8 days old"
     },
     "high": {
-     "state": "PUBLISHED",
-     "slipId": "epl-high-2026-09-05"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.8 days old"
     },
     "longshot": {
-     "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +248 (medium) … +331 (high)"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.8 days old"
     }
    }
   },
@@ -74,12 +74,12 @@
      "slipId": "ufc-medium-2026-09-05"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "no card priced into this band — 2 legs → +128 (medium); 3 legs → +190 (medium)"
+     "state": "PUBLISHED",
+     "slipId": "ufc-high-2026-09-05"
     },
     "longshot": {
      "state": "NO_PLAY",
-     "reason": "no card priced into this band — 2 legs → +128 (medium); 3 legs → +190 (medium)"
+     "reason": "not enough priced bouts with a model read to build a card"
     }
    }
   },
@@ -87,47 +87,47 @@
    "lane": "nfl",
    "date": "2026-08-24",
    "laneState": "CLOSED",
-   "laneReason": "the last price capture is 4.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "laneReason": "the last price capture is 5.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 5.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 5.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 5.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 4.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 5.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     }
    }
   },
   {
    "lane": "multi",
-   "date": "2026-09-02",
+   "date": "2026-09-03",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
     "low": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-03T14:47:31Z; the next scheduled run re-evaluates under current eligibility"
     },
     "medium": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-03T14:47:31Z; the next scheduled run re-evaluates under current eligibility"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-03T14:47:31Z; the next scheduled run re-evaluates under current eligibility"
     },
     "longshot": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-03T14:47:31Z; the next scheduled run re-evaluates under current eligibility"
     }
    }
   }
