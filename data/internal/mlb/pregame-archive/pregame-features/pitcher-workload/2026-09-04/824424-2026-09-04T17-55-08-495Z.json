@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824424,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T17:55:08.495Z",
+  "availableAt": "2026-09-04T17:55:08.495Z",
+  "eventStartTime": "2026-09-04T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 671106,
+      "name": "Logan Allen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 48,
+      "lastStartDate": "2026-07-18",
+      "last5": {
+        "starts": 1,
+        "ipSum": 3.33,
+        "ipAvg": 3.33,
+        "kAvg": 3,
+        "bbAvg": 3,
+        "erAvg": 2,
+        "hrAvg": 0,
+        "kPer9": 8.1,
+        "workloadIpLast5": 3.33
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 3.33,
+        "k": 3,
+        "bb": 3,
+        "er": 2,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 672456,
+      "name": "Keider Montero",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.67,
+        "ipAvg": 5.73,
+        "kAvg": 2.6,
+        "bbAvg": 1.6,
+        "erAvg": 1.8,
+        "hrAvg": 0.6,
+        "kPer9": 4.08,
+        "workloadIpLast5": 28.67
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 124.67,
+        "k": 76,
+        "bb": 27,
+        "er": 46,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-04T17:55:08.495Z"
+  },
+  "recordHash": "6481b3ef840b9d4a38042be769ee96f6a5ff1e5346ca582b9f2df55a3203e5e6"
+}

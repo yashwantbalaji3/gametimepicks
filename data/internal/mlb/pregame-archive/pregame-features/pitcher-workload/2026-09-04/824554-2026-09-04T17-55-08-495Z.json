@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824554,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T17:55:08.495Z",
+  "availableAt": "2026-09-04T17:55:08.495Z",
+  "eventStartTime": "2026-09-04T23:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607200,
+      "name": "Erick Fedde",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 13,
+      "restDays": 6,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 4.2,
+        "bbAvg": 1.2,
+        "erAvg": 2.2,
+        "hrAvg": 1,
+        "kPer9": 8.1,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 13,
+        "ip": 62.67,
+        "k": 46,
+        "bb": 20,
+        "er": 30,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 805673,
+      "name": "Zebby Matthews",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 19,
+      "restDays": 5,
+      "lastStartDate": "2026-08-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 31,
+        "ipAvg": 6.2,
+        "kAvg": 4.8,
+        "bbAvg": 1.2,
+        "erAvg": 2,
+        "hrAvg": 0.6,
+        "kPer9": 6.97,
+        "workloadIpLast5": 31
+      },
+      "seasonToDate": {
+        "starts": 19,
+        "ip": 112,
+        "k": 93,
+        "bb": 32,
+        "er": 57,
+        "hr": 19
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-04T17:55:08.495Z"
+  },
+  "recordHash": "f08065ca364db5e296bab1482a1bfc1907bb09597b93f1ffa62710bd9bc6c310"
+}
