@@ -2,18 +2,18 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-03T18:51:39Z",
+ "generatedAt": "2026-09-04T18:33:46Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 5,
-  "NO_PLAY": 3,
-  "LANE_CLOSED": 12,
+  "PUBLISHED": 7,
+  "NO_PLAY": 9,
+  "LANE_CLOSED": 4,
   "MISSING": 0
  },
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-09-03",
+   "date": "2026-09-04",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
@@ -23,39 +23,39 @@
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "slip_2026-09-03_conservative_f900ffd5dd71"
+     "slipId": "slip_2026-09-04_conservative_7c390b35b2d0"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
+     "state": "PUBLISHED",
+     "slipId": "slip_2026-09-04_balanced_2bee02c34d6f"
     },
     "longshot": {
-     "state": "PUBLISHED",
-     "slipId": "slip_2026-09-03_aggressive_bb7c938c16cb"
+     "state": "NO_PLAY",
+     "reason": "every card in this tier reused a leg already on the ladder, or ran past the five-leg cap"
     }
    }
   },
   {
    "lane": "epl",
    "date": "2026-09-05",
-   "laneState": "CLOSED",
-   "laneReason": "the last price capture is 3.8 days old",
+   "laneState": "LIVE",
+   "laneReason": null,
    "tiers": {
     "low": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.8 days old"
+     "state": "NO_PLAY",
+     "reason": "no combination of today's prices lands in this band — 2 legs → +154 (medium) … +365 (high)"
     },
     "medium": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.8 days old"
+     "state": "PUBLISHED",
+     "slipId": "epl-medium-2026-09-05"
     },
     "high": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.8 days old"
+     "state": "PUBLISHED",
+     "slipId": "epl-high-2026-09-05"
     },
     "longshot": {
-     "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.8 days old"
+     "state": "NO_PLAY",
+     "reason": "no combination of today's prices lands in this band — 2 legs → +255 (medium) … +358 (high)"
     }
    }
   },
@@ -87,47 +87,47 @@
    "lane": "nfl",
    "date": "2026-08-24",
    "laneState": "CLOSED",
-   "laneReason": "the last price capture is 5.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "laneReason": "the last price capture is 6.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 5.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 6.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 5.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 6.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 5.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 6.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 5.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 6.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     }
    }
   },
   {
    "lane": "multi",
-   "date": "2026-09-03",
+   "date": "2026-09-04",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
     "low": {
-     "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-03T14:47:31Z; the next scheduled run re-evaluates under current eligibility"
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
     },
     "medium": {
-     "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-03T14:47:31Z; the next scheduled run re-evaluates under current eligibility"
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
     },
     "high": {
-     "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-03T14:47:31Z; the next scheduled run re-evaluates under current eligibility"
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
     },
     "longshot": {
-     "state": "LANE_CLOSED",
-     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-03T14:47:31Z; the next scheduled run re-evaluates under current eligibility"
+     "state": "NO_PLAY",
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
     }
    }
   }

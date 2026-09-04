@@ -1,0 +1,394 @@
+{
+ "schemaVersion": 1,
+ "artifact": "daily-product-receipt",
+ "dataClass": "PRIVATE_OPERATING_RECORD",
+ "date": "2026-09-04",
+ "generatedAt": "2026-09-04T18:33:44Z",
+ "states": [
+  "NOT_RUN",
+  "INPUTS_MISSING",
+  "STALE",
+  "INCIDENT",
+  "NO_PLAY",
+  "ACTIVE",
+  "PENDING_RESULT",
+  "SETTLED",
+  "VOID",
+  "OFF_SEASON"
+ ],
+ "lifecycleStates": [
+  "EVALUATING",
+  "ACTIVE",
+  "AWAITING_RESULT",
+  "SETTLED_WIN",
+  "SETTLED_LOSS",
+  "SETTLED_RECORDED",
+  "ADVANCED",
+  "RESTARTED",
+  "NO_PLAY",
+  "OFF_SEASON",
+  "INCIDENT"
+ ],
+ "inputs": {
+  "mlbBoard": {
+   "date": "2026-09-04",
+   "present": true,
+   "games": 16,
+   "leans": 689,
+   "hash": "84407832c24c"
+  },
+  "nflMarket": {
+   "present": true,
+   "capturedAt": "2026-08-29T17:50:39Z",
+   "events": 1
+  },
+  "nflModelEligible": false,
+  "nflNote": "NFL contributes NO legs: PUBLIC_EXPERIMENTAL — sportsbook prices are not a GameTimePicks pick"
+ },
+ "products": [
+  {
+   "product": "bank-builder",
+   "label": "Bank Builder",
+   "state": "NO_PLAY",
+   "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage",
+   "candidatesEvaluated": 0,
+   "rejections": [
+    {
+     "lane": "A",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 model-qualified legs — awaiting a full card"
+    },
+    {
+     "lane": "B",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 model-qualified legs — awaiting a full card"
+    }
+   ],
+   "card": null,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "bank-builder@1",
+    "evidence": {
+     "policyVersion": "bank-builder@1",
+     "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:bank-builder:2026-09-04"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-04:84407832c24c"
+     }
+    ]
+   }
+  },
+  {
+   "product": "moonshot",
+   "label": "Moonshot",
+   "state": "NO_PLAY",
+   "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage",
+   "candidatesEvaluated": 0,
+   "rejections": [
+    {
+     "lane": "A",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 3,
+     "reason": "only 0/3 model-qualified legs — awaiting a full lane"
+    },
+    {
+     "lane": "B",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 3,
+     "reason": "only 0/3 model-qualified legs — awaiting a full lane"
+    }
+   ],
+   "card": null,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "moonshot@1",
+    "evidence": {
+     "policyVersion": "moonshot@1",
+     "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:moonshot:2026-09-04"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-04:84407832c24c"
+     }
+    ]
+   }
+  },
+  {
+   "product": "end-zone-vault",
+   "label": "End Zone Vault",
+   "state": "NO_PLAY",
+   "reason": "no upcoming NFL event in this window to evaluate",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "end-zone-vault@1",
+    "evidence": {
+     "policyVersion": "end-zone-vault@1",
+     "reason": "no upcoming NFL event in this window to evaluate"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:end-zone-vault:2026-09-04"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-04:84407832c24c"
+     }
+    ]
+   }
+  },
+  {
+   "product": "homer-nukes",
+   "label": "Homer Nukes",
+   "state": "ACTIVE",
+   "reason": "5 model-qualified home-run picks published for the slate",
+   "candidatesEvaluated": 5,
+   "rejections": [],
+   "card": [
+    {
+     "playerId": 681715,
+     "player": "Heriberto Hernández",
+     "teamId": 146,
+     "teamAbbr": "MIA",
+     "teamName": "Miami Marlins",
+     "opponentAbbr": "CHC",
+     "opponentTeamId": 112,
+     "matchup": "CHC @ MIA",
+     "gamePk": 823824,
+     "gameDate": "2026-09-04T23:10:00Z",
+     "venue": "loanDepot park",
+     "opposingPitcher": "Shota Imanaga",
+     "opposingPitcherId": 684007,
+     "probability": 0.2717,
+     "seasonHr": 23,
+     "seasonPa": 408,
+     "seasonRate": 0.05637,
+     "adjustedRate": 0.07259,
+     "pitcherHrAllowed": 33,
+     "pitcherBattersFaced": 616,
+     "pitcherMultiplier": 1.52,
+     "reason": "23 HR in 408 plate appearances (5.6% of trips, league 3.0%). Shota Imanaga has been more homer-prone than average (33 allowed in 616 batters faced), lifting it to 27.2%."
+    },
+    {
+     "playerId": 695506,
+     "player": "Jac Caglianone",
+     "teamId": 118,
+     "teamAbbr": "KC",
+     "teamName": "Kansas City Royals",
+     "opponentAbbr": "TOR",
+     "opponentTeamId": 141,
+     "matchup": "TOR @ KC",
+     "gamePk": 824067,
+     "gameDate": "2026-09-05T00:10:00Z",
+     "venue": "Kauffman Stadium",
+     "opposingPitcher": "Jameson Taillon",
+     "opposingPitcherId": 592791,
+     "probability": 0.2704,
+     "seasonHr": 23,
+     "seasonPa": 505,
+     "seasonRate": 0.04554,
+     "adjustedRate": 0.07221,
+     "pitcherHrAllowed": 26,
+     "pitcherBattersFaced": 362,
+     "pitcherMultiplier": 1.753,
+     "reason": "23 HR in 505 plate appearances (4.6% of trips, league 3.0%). Jameson Taillon has been more homer-prone than average (26 allowed in 362 batters faced), lifting it to 27.0%."
+    },
+    {
+     "playerId": 665052,
+     "player": "Griffin Conine",
+     "teamId": 146,
+     "teamAbbr": "MIA",
+     "teamName": "Miami Marlins",
+     "opponentAbbr": "CHC",
+     "opponentTeamId": 112,
+     "matchup": "CHC @ MIA",
+     "gamePk": 823824,
+     "gameDate": "2026-09-04T23:10:00Z",
+     "venue": "loanDepot park",
+     "opposingPitcher": "Shota Imanaga",
+     "opposingPitcherId": 684007,
+     "probability": 0.2595,
+     "seasonHr": 14,
+     "seasonPa": 242,
+     "seasonRate": 0.05785,
+     "adjustedRate": 0.06891,
+     "pitcherHrAllowed": 33,
+     "pitcherBattersFaced": 616,
+     "pitcherMultiplier": 1.52,
+     "reason": "14 HR in 242 plate appearances (5.8% of trips, league 3.0%). Shota Imanaga has been more homer-prone than average (33 allowed in 616 batters faced), lifting it to 25.9%."
+    },
+    {
+     "playerId": 695600,
+     "player": "Carter Jensen",
+     "teamId": 118,
+     "teamAbbr": "KC",
+     "teamName": "Kansas City Royals",
+     "opponentAbbr": "TOR",
+     "opponentTeamId": 141,
+     "matchup": "TOR @ KC",
+     "gamePk": 824067,
+     "gameDate": "2026-09-05T00:10:00Z",
+     "venue": "Kauffman Stadium",
+     "opposingPitcher": "Jameson Taillon",
+     "opposingPitcherId": 592791,
+     "probability": 0.2557,
+     "seasonHr": 22,
+     "seasonPa": 525,
+     "seasonRate": 0.0419,
+     "adjustedRate": 0.0678,
+     "pitcherHrAllowed": 26,
+     "pitcherBattersFaced": 362,
+     "pitcherMultiplier": 1.753,
+     "reason": "22 HR in 525 plate appearances (4.2% of trips, league 3.0%). Jameson Taillon has been more homer-prone than average (26 allowed in 362 batters faced), lifting it to 25.6%."
+    },
+    {
+     "playerId": 670541,
+     "player": "Yordan Alvarez",
+     "teamId": 117,
+     "teamAbbr": "HOU",
+     "teamName": "Houston Astros",
+     "opponentAbbr": "AZ",
+     "opponentTeamId": 109,
+     "matchup": "AZ @ HOU",
+     "gamePk": 824146,
+     "gameDate": "2026-09-05T00:10:00Z",
+     "venue": "Daikin Park",
+     "opposingPitcher": "Merrill Kelly",
+     "opposingPitcherId": 518876,
+     "probability": 0.2544,
+     "seasonHr": 37,
+     "seasonPa": 609,
+     "seasonRate": 0.06076,
+     "adjustedRate": 0.0674,
+     "pitcherHrAllowed": 26,
+     "pitcherBattersFaced": 616,
+     "pitcherMultiplier": 1.267,
+     "reason": "37 HR in 609 plate appearances (6.1% of trips, league 3.0%). Merrill Kelly has been more homer-prone than average (26 allowed in 616 batters faced), lifting it to 25.4%."
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "homer-nukes@1",
+    "evidence": {
+     "policyVersion": "homer-nukes@1",
+     "cardRef": "card+card+card+card+card",
+     "lockAt": "2026-09-04T17:38:07.000Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:homer-nukes:2026-09-04"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-04:84407832c24c"
+     }
+    ]
+   }
+  },
+  {
+   "product": "ufc-cards",
+   "label": "UFC paper cards",
+   "state": "NO_PLAY",
+   "reason": "no UFC event on 2026-09-04 — the ladder is published for 2026-09-05",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "ufc-cards@1",
+    "evidence": {
+     "policyVersion": "ufc-cards@1",
+     "reason": "no UFC event on 2026-09-04 — the ladder is published for 2026-09-05"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:ufc-cards:2026-09-04"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-04:84407832c24c"
+     }
+    ]
+   }
+  },
+  {
+   "product": "epl-cards",
+   "label": "EPL paper cards",
+   "state": "NO_PLAY",
+   "reason": "no EPL event on 2026-09-04 — the ladder is published for 2026-09-05",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "epl-cards@1",
+    "evidence": {
+     "policyVersion": "epl-cards@1",
+     "reason": "no EPL event on 2026-09-04 — the ladder is published for 2026-09-05"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:epl-cards:2026-09-04"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-04:84407832c24c"
+     }
+    ]
+   }
+  },
+  {
+   "product": "nba-lanes",
+   "label": "NBA (all lanes)",
+   "state": "OFF_SEASON",
+   "reason": "the league is off-season by its own published schedule (results capture state OFF_SEASON); no NBA lane evaluates until real events and the activation gates exist",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": false
+  }
+ ],
+ "watchdog": [],
+ "authorities": {
+  "bankBuilder": "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
+  "moonshot": "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
+  "vault": "data/internal/nfl/end-zone-vault/ledger.json (append-only, owned by the Vault)",
+  "money": "NOT THIS SCRIPT — no money artifact is read for state or written at all"
+ },
+ "honesty": [
+  "INPUTS_MISSING is not NO_PLAY: a missing slate is an operational gap, and saying 'nothing qualified' would be a lie about a decision that never happened",
+  "every rejection reason is copied verbatim from the live activation policy — this receipt invents none",
+  "NFL contributes legs only when its MODEL layer is publishable; captured sportsbook prices never qualify a leg by themselves"
+ ]
+}
