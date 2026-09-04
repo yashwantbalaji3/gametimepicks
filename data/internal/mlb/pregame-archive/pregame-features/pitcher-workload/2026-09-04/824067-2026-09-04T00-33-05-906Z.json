@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824067,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T00:33:05.906Z",
+  "availableAt": "2026-09-04T00:33:05.906Z",
+  "eventStartTime": "2026-09-05T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663738,
+      "name": "Daniel Lynch IV",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 6,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 15.67,
+        "ipAvg": 3.13,
+        "kAvg": 2.2,
+        "bbAvg": 1.4,
+        "erAvg": 2.2,
+        "hrAvg": 0.6,
+        "kPer9": 6.32,
+        "workloadIpLast5": 15.67
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 15.67,
+        "k": 11,
+        "bb": 7,
+        "er": 11,
+        "hr": 3
+      }
+    },
+    "away": {
+      "id": 592791,
+      "name": "Jameson Taillon",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 25,
+      "lastStartDate": "2026-08-10",
+      "last5": {
+        "starts": 5,
+        "ipSum": 17.33,
+        "ipAvg": 3.47,
+        "kAvg": 3.6,
+        "bbAvg": 2.2,
+        "erAvg": 3,
+        "hrAvg": 1.2,
+        "kPer9": 9.35,
+        "workloadIpLast5": 17.33
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 84,
+        "k": 75,
+        "bb": 32,
+        "er": 53,
+        "hr": 26
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-04T00:33:05.906Z"
+  },
+  "recordHash": "25961a653af8994511251153e4db760ab8ae9fe84222db22d365873450f17e85"
+}

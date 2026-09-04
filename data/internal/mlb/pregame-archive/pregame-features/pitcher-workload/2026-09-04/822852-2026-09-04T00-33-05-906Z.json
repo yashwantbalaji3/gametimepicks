@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822852,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T00:33:05.906Z",
+  "availableAt": "2026-09-04T00:33:05.906Z",
+  "eventStartTime": "2026-09-05T00:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 677958,
+      "name": "Kumar Rocker",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-08-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.67,
+        "ipAvg": 4.33,
+        "kAvg": 5.2,
+        "bbAvg": 3,
+        "erAvg": 3,
+        "hrAvg": 0.8,
+        "kPer9": 10.8,
+        "workloadIpLast5": 21.67
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 117,
+        "k": 108,
+        "bb": 52,
+        "er": 62,
+        "hr": 18
+      }
+    },
+    "away": {
+      "id": 607259,
+      "name": "Nick Martinez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.33,
+        "ipAvg": 6.07,
+        "kAvg": 4.4,
+        "bbAvg": 0.4,
+        "erAvg": 2.6,
+        "hrAvg": 0.6,
+        "kPer9": 6.53,
+        "workloadIpLast5": 30.33
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 153.67,
+        "k": 91,
+        "bb": 22,
+        "er": 51,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-04T00:33:05.906Z"
+  },
+  "recordHash": "7434e0b58baed579064917b72e2a80ea48849551c09425dc63ee7906df89bcb7"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823338,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T00:33:05.906Z",
+  "availableAt": "2026-09-04T00:33:05.906Z",
+  "eventStartTime": "2026-09-04T22:45:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 683003,
+      "name": "Jared Jones",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 16,
+      "restDays": 7,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.67,
+        "ipAvg": 4.13,
+        "kAvg": 5,
+        "bbAvg": 2.4,
+        "erAvg": 3.4,
+        "hrAvg": 1,
+        "kPer9": 10.89,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 16,
+        "ip": 72.67,
+        "k": 83,
+        "bb": 27,
+        "er": 39,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 696270,
+      "name": "Ryan Johnson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 14,
+      "restDays": 6,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 3,
+        "bbAvg": 3.2,
+        "erAvg": 1,
+        "hrAvg": 0.8,
+        "kPer9": 5.13,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 14,
+        "ip": 67.33,
+        "k": 49,
+        "bb": 33,
+        "er": 36,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-04T00:33:05.906Z"
+  },
+  "recordHash": "c962ed62020fc17bfd8cd15350b83d1dc8da4fbe1241b217c80b9892d1339b31"
+}
