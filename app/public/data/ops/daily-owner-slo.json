@@ -1,9 +1,9 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-04",
-  "checkedAt": "2026-09-04T18:32:05.806Z",
-  "treeHead": "0c4754491",
-  "state": "INCIDENT",
+  "checkedAt": "2026-09-04T19:02:53.945Z",
+  "treeHead": "7f83fc8a6",
+  "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 16,
   "owners": [
@@ -46,15 +46,16 @@
     },
     {
       "id": "risk-ladder",
-      "state": "INCIDENT",
-      "reason": "no receipt for 2026-09-04; due 2026-09-04T17:25:00.000Z plus 45m grace has passed",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-04T17:25:00.000Z",
+      "receiptAt": "2026-09-04T18:33:42Z",
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
         "mlb-markets"
       ],
-      "receiptPath": null
+      "receiptPath": "parlays/risk-ladder/2026-09-04.json"
     },
     {
       "id": "settlement",
@@ -140,7 +141,7 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 144.7h old against a 48h bound",
+      "reason": "receipt is 145.2h old against a 48h bound",
       "dueAtIso": "2026-09-04T15:00:00.000Z",
       "receiptAt": "2026-08-29T17:50:39Z",
       "label": "NFL market capture",
