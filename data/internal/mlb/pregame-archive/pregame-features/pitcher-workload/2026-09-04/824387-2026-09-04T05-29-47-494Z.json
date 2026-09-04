@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824387,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T05:29:47.494Z",
+  "availableAt": "2026-09-04T05:29:47.494Z",
+  "eventStartTime": "2026-09-04T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 656492,
+      "name": "Foster Griffin",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 4.6,
+        "bbAvg": 1.8,
+        "erAvg": 2.2,
+        "hrAvg": 0.8,
+        "kPer9": 8.28,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 154.33,
+        "k": 139,
+        "bb": 39,
+        "er": 55,
+        "hr": 23
+      }
+    },
+    "away": {
+      "id": 808825,
+      "name": "Andrew Sears",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-04T05:29:47.494Z"
+  },
+  "recordHash": "99a2ab65cff936f5324f27fd5e58ad951a8d05d9210473ff45f47fed7de2e5f2"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823579,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T05:29:47.494Z",
+  "availableAt": "2026-09-04T05:29:47.494Z",
+  "eventStartTime": "2026-09-04T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 690997,
+      "name": "Nolan McLean",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 4.8,
+        "bbAvg": 3.2,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 7.2,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 155.67,
+        "k": 172,
+        "bb": 61,
+        "er": 53,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 683363,
+      "name": "Matt Wilkinson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 3,
+        "ipSum": 11.67,
+        "ipAvg": 3.89,
+        "kAvg": 2,
+        "bbAvg": 0.67,
+        "erAvg": 2,
+        "hrAvg": 0.33,
+        "kPer9": 4.63,
+        "workloadIpLast5": 11.67
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 11.67,
+        "k": 6,
+        "bb": 2,
+        "er": 6,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-04T05:29:47.494Z"
+  },
+  "recordHash": "2c51de699d3ca4a8de81c44c1c91e211529e35745c0d406540391d5c17db5aee"
+}

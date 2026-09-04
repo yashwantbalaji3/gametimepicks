@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 824311,
   "date": "2026-09-04",
-  "capturedAt": "2026-09-04T00:33:06.696Z",
-  "availableAt": "2026-09-04T00:33:06.696Z",
+  "capturedAt": "2026-09-04T05:29:49.773Z",
+  "availableAt": "2026-09-04T05:29:49.773Z",
   "eventStartTime": "2026-09-05T00:40:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -118,13 +118,54 @@
     "teamId": 138,
     "teamName": "St. Louis Cardinals",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 4,
+      "pitches": 71,
+      "relievers": [
+        {
+          "id": 666277,
+          "name": "George Soriano",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 676617,
+          "name": "Riley O'Brien",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 1,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 685464,
+          "name": "Cade Winquest",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 592773,
+          "name": "Ryne Stanek",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 11,
-      "pitches": 237,
+      "appearances": 15,
+      "pitches": 308,
       "relievers": [
         {
           "id": 681676,
@@ -135,6 +176,17 @@
           "dates": [
             "2026-09-01",
             "2026-09-02"
+          ]
+        },
+        {
+          "id": 666277,
+          "name": "George Soriano",
+          "appearances": 2,
+          "pitches": 51,
+          "outs": 6,
+          "dates": [
+            "2026-09-02",
+            "2026-09-03"
           ]
         },
         {
@@ -161,11 +213,34 @@
         {
           "id": 685464,
           "name": "Cade Winquest",
-          "appearances": 1,
-          "pitches": 25,
-          "outs": 3,
+          "appearances": 2,
+          "pitches": 38,
+          "outs": 6,
           "dates": [
-            "2026-09-01"
+            "2026-09-01",
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 676617,
+          "name": "Riley O'Brien",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 4,
+          "dates": [
+            "2026-09-02",
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 592773,
+          "name": "Ryne Stanek",
+          "appearances": 2,
+          "pitches": 25,
+          "outs": 6,
+          "dates": [
+            "2026-09-02",
+            "2026-09-03"
           ]
         },
         {
@@ -178,45 +253,21 @@
             "2026-09-01",
             "2026-09-02"
           ]
-        },
-        {
-          "id": 666277,
-          "name": "George Soriano",
-          "appearances": 1,
-          "pitches": 20,
-          "outs": 3,
-          "dates": [
-            "2026-09-02"
-          ]
-        },
-        {
-          "id": 676617,
-          "name": "Riley O'Brien",
-          "appearances": 1,
-          "pitches": 17,
-          "outs": 3,
-          "dates": [
-            "2026-09-02"
-          ]
-        },
-        {
-          "id": 592773,
-          "name": "Ryne Stanek",
-          "appearances": 1,
-          "pitches": 15,
-          "outs": 3,
-          "dates": [
-            "2026-09-02"
-          ]
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 666277,
+        "name": "George Soriano",
+        "reason": "31 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-01,2026-09-02,2026-09-03) + feed/live box scores",
-    "capturedAt": "2026-09-04T00:33:06.696Z"
+    "capturedAt": "2026-09-04T05:29:49.773Z"
   },
-  "recordHash": "4a0a7fa71aea1fae3c11eea818ff9d8bbd3aa156806eca7fdd053a41cf783000"
+  "recordHash": "5abce655451b5992026b1cc3c7aed5ea0944f396101ba919073703540682143b"
 }

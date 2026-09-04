@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 822852,
   "date": "2026-09-04",
-  "capturedAt": "2026-09-04T00:33:06.696Z",
-  "availableAt": "2026-09-04T00:33:06.696Z",
+  "capturedAt": "2026-09-04T05:29:49.773Z",
+  "availableAt": "2026-09-04T05:29:49.773Z",
   "eventStartTime": "2026-09-05T00:05:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,34 @@
     "teamId": 140,
     "teamName": "Texas Rangers",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 35,
+      "relievers": [
+        {
+          "id": 681217,
+          "name": "Chase Silseth",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 596001,
+          "name": "Jakob Junis",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 189,
+      "appearances": 9,
+      "pitches": 224,
       "relievers": [
         {
           "id": 656756,
@@ -46,6 +67,17 @@
           "outs": 4,
           "dates": [
             "2026-09-01"
+          ]
+        },
+        {
+          "id": 681217,
+          "name": "Chase Silseth",
+          "appearances": 2,
+          "pitches": 38,
+          "outs": 5,
+          "dates": [
+            "2026-09-01",
+            "2026-09-03"
           ]
         },
         {
@@ -79,13 +111,13 @@
           ]
         },
         {
-          "id": 681217,
-          "name": "Chase Silseth",
+          "id": 596001,
+          "name": "Jakob Junis",
           "appearances": 1,
-          "pitches": 18,
-          "outs": 2,
+          "pitches": 15,
+          "outs": 3,
           "dates": [
-            "2026-09-01"
+            "2026-09-03"
           ]
         },
         {
@@ -106,14 +138,35 @@
     "teamId": 139,
     "teamName": "Tampa Bay Rays",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 42,
+      "relievers": [
+        {
+          "id": 668984,
+          "name": "Casey Legumina",
+          "appearances": 1,
+          "pitches": 42,
+          "outs": 9,
+          "dates": [
+            "2026-09-03"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 167,
+      "appearances": 8,
+      "pitches": 209,
       "relievers": [
+        {
+          "id": 668984,
+          "name": "Casey Legumina",
+          "appearances": 1,
+          "pitches": 42,
+          "outs": 9,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
         {
           "id": 655889,
           "name": "Manuel Rodríguez",
@@ -186,12 +239,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 668984,
+        "name": "Casey Legumina",
+        "reason": "42 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-01,2026-09-02,2026-09-03) + feed/live box scores",
-    "capturedAt": "2026-09-04T00:33:06.696Z"
+    "capturedAt": "2026-09-04T05:29:49.773Z"
   },
-  "recordHash": "baad223b8fdaf3a3b3e35e854d62850de148e9b3c1b43de08af1ee147a3f6972"
+  "recordHash": "ef1817d6f18946d4ce996af3c9f3db2e0011c585443012467e7dc3828a5a5a2b"
 }

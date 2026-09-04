@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823905,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T05:29:47.494Z",
+  "availableAt": "2026-09-04T05:29:47.494Z",
+  "eventStartTime": "2026-09-05T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 605483,
+      "name": "Blake Snell",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 6,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 7.2,
+        "bbAvg": 2.4,
+        "erAvg": 1.4,
+        "hrAvg": 0,
+        "kPer9": 12.46,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 26,
+        "k": 36,
+        "bb": 12,
+        "er": 7,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 800600,
+      "name": "Jackson Kent",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 7,
+      "lastStartDate": "2026-08-28",
+      "last5": {
+        "starts": 4,
+        "ipSum": 19.33,
+        "ipAvg": 4.83,
+        "kAvg": 4.25,
+        "bbAvg": 3.75,
+        "erAvg": 3,
+        "hrAvg": 0.25,
+        "kPer9": 7.91,
+        "workloadIpLast5": 19.33
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 19.33,
+        "k": 17,
+        "bb": 15,
+        "er": 12,
+        "hr": 1
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-04T05:29:47.494Z"
+  },
+  "recordHash": "3dd21520c5e18f9cae5155b62ebbc2a9723961a8179339db0fe315e1f2287700"
+}
