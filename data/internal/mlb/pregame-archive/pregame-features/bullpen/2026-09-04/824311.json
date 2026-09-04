@@ -1,0 +1,222 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824311,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T00:18:00.082Z",
+  "availableAt": "2026-09-04T00:18:00.082Z",
+  "eventStartTime": "2026-09-05T00:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-01",
+    "2026-09-02",
+    "2026-09-03"
+  ],
+  "home": {
+    "teamId": 115,
+    "teamName": "Colorado Rockies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 10,
+      "pitches": 154,
+      "relievers": [
+        {
+          "id": 675848,
+          "name": "Juan Mejia",
+          "appearances": 2,
+          "pitches": 34,
+          "outs": 5,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 677955,
+          "name": "Jaden Hill",
+          "appearances": 2,
+          "pitches": 30,
+          "outs": 6,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 680604,
+          "name": "Blas Castaño",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 623474,
+          "name": "Jimmy Herget",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 4,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 688642,
+          "name": "Zach Agnos",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 605447,
+          "name": "Jordan Romano",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 693308,
+          "name": "Nick Frasso",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 657514,
+          "name": "Brennan Bernardino",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-09-01"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 138,
+    "teamName": "St. Louis Cardinals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 11,
+      "pitches": 237,
+      "relievers": [
+        {
+          "id": 681676,
+          "name": "Ryan Fernandez",
+          "appearances": 2,
+          "pitches": 51,
+          "outs": 8,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 700669,
+          "name": "Gordon Graceffo",
+          "appearances": 1,
+          "pitches": 48,
+          "outs": 9,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 703725,
+          "name": "Luis Gastelum",
+          "appearances": 2,
+          "pitches": 38,
+          "outs": 6,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 685464,
+          "name": "Cade Winquest",
+          "appearances": 1,
+          "pitches": 25,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 677865,
+          "name": "Justin Bruihl",
+          "appearances": 2,
+          "pitches": 23,
+          "outs": 4,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 666277,
+          "name": "George Soriano",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 676617,
+          "name": "Riley O'Brien",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 592773,
+          "name": "Ryne Stanek",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-01,2026-09-02,2026-09-03) + feed/live box scores",
+    "capturedAt": "2026-09-04T00:18:00.082Z"
+  },
+  "recordHash": "4a0a7fa71aea1fae3c11eea818ff9d8bbd3aa156806eca7fdd053a41cf783000"
+}

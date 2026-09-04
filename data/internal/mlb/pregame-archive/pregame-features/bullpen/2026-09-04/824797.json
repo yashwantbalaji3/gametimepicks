@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824797,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T00:18:00.082Z",
+  "availableAt": "2026-09-04T00:18:00.082Z",
+  "eventStartTime": "2026-09-04T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-01",
+    "2026-09-02",
+    "2026-09-03"
+  ],
+  "home": {
+    "teamId": 110,
+    "teamName": "Baltimore Orioles",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 9,
+      "pitches": 122,
+      "relievers": [
+        {
+          "id": 677020,
+          "name": "Josh Walker",
+          "appearances": 2,
+          "pitches": 30,
+          "outs": 5,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 664991,
+          "name": "Grant Wolfram",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 2,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 801725,
+          "name": "Luis De León",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 676742,
+          "name": "Cam Sanders",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 552640,
+          "name": "Andrew Kittredge",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 695380,
+          "name": "Alex Hoppe",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 2,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 670329,
+          "name": "Rico Garcia",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 666974,
+          "name": "Yennier Cano",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 111,
+    "teamName": "Boston Red Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 187,
+      "relievers": [
+        {
+          "id": 678394,
+          "name": "Brayan Bello",
+          "appearances": 1,
+          "pitches": 69,
+          "outs": 9,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 681544,
+          "name": "Wyatt Olds",
+          "appearances": 1,
+          "pitches": 53,
+          "outs": 7,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 687941,
+          "name": "Alec Gamboa",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 6,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 669711,
+          "name": "Greg Weissert",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 670103,
+          "name": "Raymond Burgos",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 6,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-01,2026-09-02,2026-09-03) + feed/live box scores",
+    "capturedAt": "2026-09-04T00:18:00.082Z"
+  },
+  "recordHash": "fab7f1b9ece5badd677686af3b905731f6fdf87f474bc6c0c9c30547043c3497"
+}

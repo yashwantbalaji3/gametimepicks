@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823418,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T00:18:00.082Z",
+  "availableAt": "2026-09-04T00:18:00.082Z",
+  "eventStartTime": "2026-09-04T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-01",
+    "2026-09-02",
+    "2026-09-03"
+  ],
+  "home": {
+    "teamId": 143,
+    "teamName": "Philadelphia Phillies",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 45,
+      "relievers": [
+        {
+          "id": 680742,
+          "name": "Jonathan Bowlan",
+          "appearances": 2,
+          "pitches": 33,
+          "outs": 7,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 663767,
+          "name": "Chase Shugart",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 177,
+      "relievers": [
+        {
+          "id": 608718,
+          "name": "Brent Suter",
+          "appearances": 1,
+          "pitches": 50,
+          "outs": 6,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 622694,
+          "name": "Elieser Hernández",
+          "appearances": 1,
+          "pitches": 44,
+          "outs": 9,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 682989,
+          "name": "Victor Mederos",
+          "appearances": 2,
+          "pitches": 29,
+          "outs": 6,
+          "dates": [
+            "2026-09-01",
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 686628,
+          "name": "Blake Burkhalter",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-09-01"
+          ]
+        },
+        {
+          "id": 800311,
+          "name": "Didier Fuentes",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 689266,
+          "name": "Dylan Dodd",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-01,2026-09-02,2026-09-03) + feed/live box scores",
+    "capturedAt": "2026-09-04T00:18:00.082Z"
+  },
+  "recordHash": "84eed1e3f6dad44ba359d56bf5461aabc08bc7ed659d4a1e1ac7c19c2819b301"
+}

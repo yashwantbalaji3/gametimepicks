@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823418,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T00:17:58.275Z",
+  "availableAt": "2026-09-04T00:17:58.275Z",
+  "eventStartTime": "2026-09-04T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 650911,
+      "name": "Cristopher Sánchez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 6,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.67,
+        "ipAvg": 6.13,
+        "kAvg": 6.8,
+        "bbAvg": 1.2,
+        "erAvg": 1.4,
+        "hrAvg": 0.4,
+        "kPer9": 9.98,
+        "workloadIpLast5": 30.67
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 175.33,
+        "k": 202,
+        "bb": 39,
+        "er": 49,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 519242,
+      "name": "Chris Sale",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 8,
+      "lastStartDate": "2026-08-27",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33,
+        "ipAvg": 6.6,
+        "kAvg": 8.6,
+        "bbAvg": 0.4,
+        "erAvg": 1.2,
+        "hrAvg": 0,
+        "kPer9": 11.73,
+        "workloadIpLast5": 33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 144,
+        "k": 177,
+        "bb": 28,
+        "er": 33,
+        "hr": 8
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-04T00:17:58.275Z"
+  },
+  "recordHash": "d23dfa27cffeaad17aa10ed2fd26739b4d088bec3a169e899fb3151c679de08c"
+}
