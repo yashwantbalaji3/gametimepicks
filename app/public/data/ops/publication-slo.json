@@ -4,16 +4,15 @@
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "PUBLISHING",
-      "reason": "16 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-09-04T16:40:00.000Z",
+      "state": "PUBLISHED",
+      "reason": "all 16 event(s) in the horizon carry a forecast",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 16,
-        "published": 0,
+        "published": 16,
         "missedCoverage": 0,
-        "awaiting": 16
-      },
-      "missed": []
+        "awaiting": 0
+      }
     },
     "nfl": {
       "state": "PUBLISHING",
@@ -52,20 +51,22 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-09-04T16:17:03.334Z",
+  "checkedAt": "2026-09-04T17:07:08.063Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHING",
-  "reason": "today's slate is not published yet and is not late — the deadline is 2026-09-04T16:40:00.000Z",
-  "publishDeadlineUtc": "2026-09-04T16:40:00.000Z",
+  "state": "PUBLISHED",
+  "reason": "board published with 689 rows",
+  "publishDeadlineUtc": null,
   "scheduledGames": 16,
   "pregameRemaining": 16,
   "alreadyStarted": 0,
   "board": {
-    "present": false,
-    "leans": 0,
+    "present": true,
+    "leans": 689,
     "pendingReason": null,
-    "generatedAt": null
+    "generatedAt": "2026-09-04T16:58:45.767751+00:00",
+    "scheduledGames": 16,
+    "startedBeforeGeneration": 0
   },
   "games": [
     {
@@ -73,7 +74,7 @@
       "startUtc": "2026-09-04T18:10:00Z",
       "away": "Detroit Tigers",
       "home": "Cleveland Guardians",
-      "detailedState": "Pre-Game",
+      "detailedState": "Delayed Start",
       "pregameAtCheck": true
     },
     {
