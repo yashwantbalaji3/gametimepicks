@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823093,
+  "date": "2026-09-04",
+  "capturedAt": "2026-09-04T14:47:50.113Z",
+  "availableAt": "2026-09-04T14:47:50.113Z",
+  "eventStartTime": "2026-09-05T02:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 669302,
+      "name": "Logan Gilbert",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 5,
+      "lastStartDate": "2026-08-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 27.67,
+        "ipAvg": 5.53,
+        "kAvg": 5.4,
+        "bbAvg": 2.4,
+        "erAvg": 2,
+        "hrAvg": 1,
+        "kPer9": 8.78,
+        "workloadIpLast5": 27.67
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 160.33,
+        "k": 166,
+        "bb": 40,
+        "er": 61,
+        "hr": 22
+      }
+    },
+    "away": {
+      "id": 695034,
+      "name": "Kade Morris",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 1,
+      "restDays": 90,
+      "lastStartDate": "2026-06-06",
+      "last5": {
+        "starts": 1,
+        "ipSum": 4,
+        "ipAvg": 4,
+        "kAvg": 4,
+        "bbAvg": 3,
+        "erAvg": 9,
+        "hrAvg": 3,
+        "kPer9": 9,
+        "workloadIpLast5": 4
+      },
+      "seasonToDate": {
+        "starts": 1,
+        "ip": 4,
+        "k": 4,
+        "bb": 3,
+        "er": 9,
+        "hr": 3
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-04T14:47:50.113Z"
+  },
+  "recordHash": "1afbd3bb16ed3b00668280ec4f54efd0abcc76ac1144a1905121d23b83fb29ee"
+}
