@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-03T18:51:38Z",
+ "generatedAt": "2026-09-04T09:50:23Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -14,23 +14,24 @@
   {
    "id": "mlb",
    "label": "MLB",
-   "live": true,
+   "live": false,
+   "blocked": "no price capture for 2026-09-04 yet — the sport's own generation runs later in the day (newest capture 2026-09-03); only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "evidence": {
-    "pricedGames": 6,
-    "pricesCapturedAt": "2026-09-03T17:53:31.224Z",
-    "priceAgeDays": 0.04,
+    "pricedGames": 0,
+    "pricesCapturedAt": null,
+    "priceAgeDays": null,
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
-   "settledDays": 15,
+   "settledDays": 16,
    "record": {
-    "wins": 4,
-    "losses": 29,
+    "wins": 5,
+    "losses": 30,
     "pushes": 0,
-    "staked": 33,
-    "returned": 22.61,
-    "hitRate": 0.1212,
-    "roi": -0.3148
+    "staked": 35,
+    "returned": 26.32,
+    "hitRate": 0.1429,
+    "roi": -0.248
    },
    "byTier": {
     "low": {
@@ -43,13 +44,13 @@
      "roi": -1
     },
     "medium": {
-     "wins": 3,
+     "wins": 4,
      "losses": 9,
      "pushes": 0,
-     "staked": 12,
-     "returned": 8.78,
-     "hitRate": 0.25,
-     "roi": -0.2683
+     "staked": 13,
+     "returned": 12.49,
+     "hitRate": 0.3077,
+     "roi": -0.0392
     },
     "high": {
      "wins": 0,
@@ -62,12 +63,12 @@
     },
     "longshot": {
      "wins": 1,
-     "losses": 12,
+     "losses": 13,
      "pushes": 0,
-     "staked": 13,
+     "staked": 14,
      "returned": 13.83,
-     "hitRate": 0.0769,
-     "roi": 0.0638
+     "hitRate": 0.0714,
+     "roi": -0.0121
     }
    }
   },
@@ -75,11 +76,11 @@
    "id": "nfl",
    "label": "NFL",
    "live": false,
-   "blocked": "the last price capture is 5.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "blocked": "the last price capture is 5.7 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-08-29T17:50:39Z",
-    "priceAgeDays": 5.04,
+    "priceAgeDays": 5.67,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -139,7 +140,7 @@
    "evidence": {
     "pricedGames": 10,
     "pricesCapturedAt": "2026-09-03T14:46:47Z",
-    "priceAgeDays": 0.17,
+    "priceAgeDays": 0.79,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true
    },
@@ -195,12 +196,11 @@
   {
    "id": "epl",
    "label": "Premier League",
-   "live": false,
-   "blocked": "the last price capture is 3.8 days old",
+   "live": true,
    "evidence": {
     "pricedGames": 18,
-    "pricesCapturedAt": "2026-08-30T23:20:32Z",
-    "priceAgeDays": 3.81,
+    "pricesCapturedAt": "2026-09-03T23:11:57Z",
+    "priceAgeDays": 0.44,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true
    },
@@ -259,12 +259,12 @@
    "live": true,
    "evidence": {
     "liveSports": [
-     "mlb",
-     "ufc"
+     "ufc",
+     "epl"
     ],
     "liveLabels": [
-     "MLB",
-     "UFC"
+     "UFC",
+     "Premier League"
     ]
    },
    "settledDays": 0,
@@ -322,11 +322,11 @@
   "label": "Before the 2026-08-17 selection change",
   "summary": "Up to six cards per tier, legs reused across tiers, cards up to six legs",
   "firstDay": "2026-05-25",
-  "lastDay": "2026-09-02",
-  "gradedDays": 65,
-  "wins": 254,
-  "losses": 1089,
-  "roi": -0.0136,
+  "lastDay": "2026-09-03",
+  "gradedDays": 66,
+  "wins": 257,
+  "losses": 1110,
+  "roi": -0.0256,
   "note": "A measurement of the previous selection policy, kept because it is real. It does not describe what the Lab publishes now."
  }
 }
