@@ -2,37 +2,37 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-09-05T17:52:37Z",
+  "generatedAt": "2026-09-05T18:00:50Z",
   "nextCluster": {
     "kickoffUtc": "2026-09-06T13:00:00.000Z",
     "fixtures": 1,
-    "hoursAway": 19.12
+    "hoursAway": 18.99
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
       "stampedAt": "2026-09-05T17:52:30Z",
-      "ageHours": 0
+      "ageHours": 0.14
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-09-05T17:26:59Z",
-      "ageHours": 0.43
+      "ageHours": 0.56
     },
     "forecasts": {
       "state": "READ",
       "stampedAt": "2026-09-05T17:52:36Z",
-      "ageHours": 0
+      "ageHours": 0.14
     },
     "playerProjections": {
       "state": "READ",
       "stampedAt": "2026-09-05T17:52:37Z",
-      "ageHours": 0
+      "ageHours": 0.14
     },
     "results": {
       "state": "READ",
       "stampedAt": "2026-09-05T17:52:31Z",
-      "ageHours": 0
+      "ageHours": 0.14
     }
   },
   "cadence": {
@@ -114,5 +114,11 @@
     "live": true,
     "blocked": null
   },
-  "blockers": []
+  "blockers": [
+    {
+      "id": "calibration-sample",
+      "state": "REALITY_GATED",
+      "detail": "calibration needs a preregistered backtest at the MLB bar, and the stopping rule applies from 30 matches paired with a market baseline. 23 match(es) are graded and 18 are paired. No amount of engineering shortens this; matches have to be played."
+    }
+  ]
 }

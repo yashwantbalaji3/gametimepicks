@@ -369,8 +369,8 @@ export default function GameSimulationRunner({
   /*
    * ARRIVING WITH THE INTENT ALREADY EXPRESSED. `?play=1` is written by the /simulate card the
    * reader clicked, so this is a user action that survived a navigation — not a dialog that opens
-   * by itself on page load. Read at hydration, which is the static-export-safe pattern this app
-   * already uses for its other query state.
+   * by itself on page load. Read at hydration, which is the pattern this app already uses for its
+   * other query state under `output: "export"` — there is no server to read a query string.
    */
   useEffect(() => {
     if (!playable) return;

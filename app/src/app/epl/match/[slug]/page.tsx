@@ -28,6 +28,8 @@ import { notFound } from "next/navigation";
 import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
 import { loadEplForecasts, findEplForecastAnywhere, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture } from "@/lib/sports/epl/forecast-view";
+import PresentationLauncher from "@/components/simulate/presentation-launcher";
+import { buildEplPresentation } from "@/lib/simulate/presentation/epl";
 
 /**
  * One page per fixture that EVER carried a distribution — enumerated from the dated archive, not
@@ -113,6 +115,21 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           {ET(row.kickoffUtc)} ET{row.matchweek ? ` · Matchweek ${row.matchweek}` : ""} · Premier League
         </p>
       </header>
+
+      {/* ── The presentation. Placed under the identity and ABOVE the limitation panel, because the
+             frame carries that limitation in its own chapter; a reader who plays it is not skipping
+             the caveat, they are being read it. ── */}
+      <div className="mt-5">
+        <PresentationLauncher
+          presentation={buildEplPresentation(row, {
+            displayDate: (row.kickoffUtc ?? "").slice(0, 10),
+            /* The same sentence the panel below prints, from the same source — a graded count that
+               appears twice must not be able to disagree with itself. */
+            trackRecord: set?.trackRecord ?? null,
+          })}
+          label="Play the match forecast"
+        />
+      </div>
 
       {/*
         ── The limitation, ABOVE the first number ──────────────────────────────────────────────

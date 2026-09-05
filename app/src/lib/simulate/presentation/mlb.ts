@@ -173,6 +173,7 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
       stats,
       bars,
       rows: [],
+      axisCaption: runCount ? "Total runs · share of simulated games" : "Total runs · share of the distribution",
       holdMs: HOLD.dense,
     });
   }

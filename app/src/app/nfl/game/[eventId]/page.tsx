@@ -21,6 +21,8 @@ import { notFound } from "next/navigation";
 
 import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
+import PresentationLauncher from "@/components/simulate/presentation-launcher";
+import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -115,6 +117,41 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
     .filter((x) => x.providerEventId !== f.providerEventId)
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
 
+  /*
+   * THE PRESENTATION SOURCE. Built from the artifacts this page already read, deriving readiness
+   * from the SAME `teamSignal` the header above uses — so the frame cannot call a game
+   * simulation-ready while the section header beside it calls it baseline-only. Kickoff/lifecycle
+   * come from the index; a started game presents its FROZEN pre-event forecast, labelled.
+   */
+  const presentation = buildNflPresentation(
+    {
+      providerEventId: f.providerEventId,
+      canonicalEventId: `nfl-${f.providerEventId}`,
+      matchup: f.matchup,
+      kickoffUtc: f.kickoffUtc,
+      home: f.home,
+      away: f.away,
+      lifecycle: started ? "STARTED" : "UPCOMING",
+      locked: started,
+      state: idxEvent?.state ?? (started ? "STARTED" : "PUBLIC_EXPERIMENTAL"),
+      projectedScore: s.projectedScore,
+      winProbability: { home: s.winProbability.home, away: s.winProbability.away },
+      total: s.total,
+      hasMarket: typeof mc.marketHomeWinPct === "number",
+      venue: f.venue,
+      playerCandidates: sim?.players?.length ?? 0,
+      reportHref: `/nfl/game/${f.providerEventId}/`,
+      readiness: f.teamSignal?.state === "APPLIED" ? "SIMULATION_READY" : "BASELINE_ONLY",
+      simulationReady: f.teamSignal?.state === "APPLIED",
+      readinessReason:
+        f.teamSignal?.note ??
+        (f.teamSignal?.state === "APPLIED"
+          ? "Event-specific inputs measurably moved this game's distribution."
+          : "No event-specific signal cleared the significance gate, so this run uses a shared prior."),
+    },
+    { indexGeneratedAt: f.generatedAt, runCount: f.model?.simulations ?? null, modelVersion: f.model?.id ?? null },
+  );
+
   const Stat = ({ label, value, sub }: { label: string; value: string; sub?: string }) => (
     <div style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px" }}>
       <p style={{ margin: 0, fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{label}</p>
@@ -148,6 +185,14 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             This game has kicked off. Everything below is exactly what was published before kickoff and has not been changed since — that is the point of keeping it.
           </p>
         ) : null}
+        {/* P234 · C — the same control as the other three sports. A started game plays its frozen
+            pre-event forecast, labelled as one; it is never re-presented as a current read. */}
+        <div style={{ marginTop: 16 }}>
+          <PresentationLauncher
+            presentation={presentation}
+            label={started ? "Play the frozen forecast" : "Play the game forecast"}
+          />
+        </div>
       </header>
 
       <section aria-labelledby="sim-summary" style={{ marginTop: 26 }}>

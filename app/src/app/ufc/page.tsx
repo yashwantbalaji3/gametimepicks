@@ -18,6 +18,8 @@ import Explain from "@/components/ui/explain";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, topForSport } from "@/lib/top-reads";
 import UfcCard, { type UfcCardArtifact } from "@/components/sports/ufc-card";
+import PresentationLauncher from "@/components/simulate/presentation-launcher";
+import { buildUfcPresentation } from "@/lib/simulate/presentation/ufc";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import path from "node:path";
@@ -128,6 +130,13 @@ export default function UfcArchivePage() {
         <p className="max-w-2xl font-mono text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
           Winner, method and finishing round for every bout on the next card. Paper and educational.
         </p>
+        {/* P234 · C — the card walkthrough. Same control, same interaction as the other three
+            sports; the chapters behind it are UFC's own (the card, the main event's winner, method
+            and round) and every one of them is gated on the model's published verdicts. */}
+        <PresentationLauncher
+          presentation={buildUfcPresentation(card)}
+          label="Play the card"
+        />
         {/*
           THIS PARAGRAPH WAS ASSERTING THE OPPOSITE OF THE PAGE.
           It read "No sportsbook price is shown or compared — our odds authorisation covers NFL only".

@@ -111,8 +111,41 @@ const proven = GATE_STAGES.filter((s) => stages[s.id]?.status === "PROVEN").leng
 // ── blockers, each stating WHOSE move it is ─────────────────────────────────────────────────────
 const record = loadEplGradedRecord();
 const blockers = [];
-if (!record || record.team.matches < 20) {
-  blockers.push({ id: "calibration-sample", state: "REALITY_GATED", detail: `calibration needs a preregistered backtest against settled results and ${record?.team.matches ?? 0} match(es) have been graded. No amount of engineering shortens this; matches have to be played.` });
+
+/*
+ * THE CALIBRATION BLOCKER IS DERIVED FROM THE STAGE, NOT FROM A COUNT BESIDE IT.
+ *
+ * It used to fire on `record.team.matches < 20`. On 2026-09-05 the afternoon's settlements took the
+ * graded count to 23 and the blocker vanished — while the calibration stage stayed UNPROVEN and
+ * `gate.remaining` still listed it. The lane then reported a stage nobody was blocked on, which is
+ * the shape of every stalled item in this repository: a gap with no owner.
+ *
+ * Two things went wrong and both are fixed here. The threshold measured the wrong quantity — the
+ * stopping rule needs PAIRED matches (a market baseline alongside the forecast), and the paired
+ * count trails the graded one. And the blocker was allowed to disappear while its stage remained
+ * remaining, when the only thing that may clear it is the stage being PROVEN.
+ *
+ * The STATE still moves, because the distinction the guard cares about is real: below the rule's
+ * sample this is REALITY_GATED and no engineering shortens it, and once the sample is there it
+ * becomes ENGINEERING — a backtest somebody has to run.
+ */
+const PAIRED_FOR_STOPPING_RULE = 30;
+const paired = (() => {
+  try {
+    const j = JSON.parse(fs.readFileSync(path.join(APP, "..", "data/internal/research/epl/learning/latest.json"), "utf8"));
+    const n = j?.sample?.pairedWithMarket;
+    return Number.isFinite(n) ? n : null;
+  } catch { return null; }
+})();
+if (stages.calibration?.status !== "PROVEN") {
+  const graded = record?.team.matches ?? 0;
+  blockers.push(
+    paired == null
+      ? { id: "calibration-sample", state: "ENGINEERING", detail: "the learning artifact could not be read, so the calibration sample is unknown — which is not the same as insufficient." }
+      : paired < PAIRED_FOR_STOPPING_RULE
+        ? { id: "calibration-sample", state: "REALITY_GATED", detail: `calibration needs a preregistered backtest at the MLB bar, and the stopping rule applies from ${PAIRED_FOR_STOPPING_RULE} matches paired with a market baseline. ${graded} match(es) are graded and ${paired} are paired. No amount of engineering shortens this; matches have to be played.` }
+        : { id: "calibration-backtest", state: "ENGINEERING", detail: `${paired} matches are now paired with a market baseline, past the ${PAIRED_FOR_STOPPING_RULE} the stopping rule needs. The sample no longer blocks this: the preregistered backtest has not been run.` },
+  );
 }
 if (stages.data?.status !== "PROVEN") {
   const cold = (forecasts?.rows ?? []).filter((r) => r.coldStart?.home || r.coldStart?.away).length;

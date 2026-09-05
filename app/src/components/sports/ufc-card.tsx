@@ -53,18 +53,21 @@ export type UfcCardArtifact = {
   /** The artifact's own stamp. /ufc renders it so a reader can tell a stale read from a fresh one. */
   generatedAt?: string;
   state?: string;
-  event?: { name?: string; startUtc?: string; venue?: string | null; boutCount?: number; slateDate?: string };
+  event?: { name?: string; startUtc?: string; venue?: string | null; boutCount?: number; slateDate?: string; providerEventId?: string };
   /** Nearer cards the model has too little history to read — disclosed by /ufc, never dropped. */
   skippedForCoverage?: Array<{ name: string; dateUtc: string; bouts: number; modellableBouts: number; reason: string }>;
   model?: {
+    /** The producer's model identifier, e.g. `ufc-fight-model@e657fc40b64d`. */
+    id?: string;
     publishes?: string[];
     verdicts?: Record<string, string>;
     corpus?: { fights?: number | null; from?: string | null; to?: string | null; source?: string | null };
     evidence?: {
       heldOutFights?: number | null;
-      winner?: { accuracy?: number; baselineAccuracy?: number; logLoss?: number; baselineLogLoss?: number } | null;
-      method?: { accuracy?: number; baselineAccuracy?: number; logLoss?: number; baselineLogLoss?: number } | null;
-      round?: { accuracy?: number; baselineAccuracy?: number; logLoss?: number; baselineLogLoss?: number } | null;
+      /** `n` is the held-out sample the accuracy was measured on — an accuracy without it is a number without a denominator. */
+      winner?: { accuracy?: number; baselineAccuracy?: number; logLoss?: number; baselineLogLoss?: number; n?: number } | null;
+      method?: { accuracy?: number; baselineAccuracy?: number; logLoss?: number; baselineLogLoss?: number; n?: number } | null;
+      round?: { accuracy?: number; baselineAccuracy?: number; logLoss?: number; baselineLogLoss?: number; n?: number } | null;
     };
     notModelled?: Record<string, string>;
   };

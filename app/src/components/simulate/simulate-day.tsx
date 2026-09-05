@@ -15,6 +15,9 @@ import DateSportControls from "@/components/nav/date-sport-controls";
 import { useEffect, useMemo, useState } from "react";
 import TeamMark from "@/components/ui/team-mark";
 import SimulationStage from "@/components/simulate/simulation-stage";
+/* The pure module, NOT day-view: day-view reads the filesystem, and importing a constant
+   from it here put `node:fs` in the client bundle and failed the export build. */
+import { READY_STATES } from "@/lib/simulate/ready-states.mjs";
 import type { SimulateDayView, SimDayEvent, SimSport } from "@/lib/simulate/day-view";
 
 
@@ -37,12 +40,19 @@ export const STATE_TONE: Record<SimDayEvent["state"], { fg: string; bg: string; 
 
 function EventCard({ e, onOpen }: { e: SimDayEvent; onOpen: (e: SimDayEvent) => void }) {
   const tone = STATE_TONE[e.state];
-  /* SETTLED results navigate directly (nothing is "generated" for a final). MLB's ready games
-     also navigate directly: their report OWNS the richer in-page generation experience (the
-     GameSimulationRunner's gated reveal) — playing the stage first would stack two generation
-     ceremonies on one click. Every other non-settled state opens the SimulationStage: ready
-     states emerge into their report, non-ready states end in the stated refusal in place. */
-  const viaStage = e.state !== "SETTLED" && !(e.sport === "mlb" && e.state === "SIMULATION_READY");
+  /*
+   * P234 · C — EVERY ready state now navigates directly, not just MLB's.
+   *
+   * The rule used to name one sport because only MLB's report owned a richer in-page reveal.
+   * All four now do: the card's href carries `?play=1`, so the click lands on the report with the
+   * bounded presentation already open. Routing a ready event through the stage first would put a
+   * loading ceremony in front of a presentation — two ceremonies for one click, which is the thing
+   * the stage was originally kept out of MLB's path to avoid.
+   *
+   * Non-ready states still open the stage, because that is where they belong: it ends REFUSED in
+   * place with the event's own reason, without a navigation to a report that has nothing to show.
+   */
+  const viaStage = e.state !== "SETTLED" && !READY_STATES.includes(e.state);
   const body = (
     <>
       <span className="flex items-center justify-between gap-2 min-w-0">

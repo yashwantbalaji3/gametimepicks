@@ -100,8 +100,13 @@ export const STATE_ACTION: Record<SimEventState, string> = {
   SETTLED: "View result",
 };
 
-/** Ready = the event's own state says a model artifact is presentable (charter's readiness contract). */
-export const READY_STATES: readonly SimEventState[] = ["SIMULATION_READY", "MODEL_ONLY_NO_MARKET", "BASELINE_ONLY"];
+/**
+ * Ready = the event's own state says a model artifact is presentable (charter's readiness contract).
+ * Defined in a filesystem-free module and re-exported here, so a client component can ask the
+ * question without pulling `node:fs` into the browser bundle. One definition, two entry points.
+ */
+import { READY_STATES } from "./ready-states.mjs";
+export { READY_STATES };
 
 /** ET calendar day of an ISO instant (date-only format — immune to the Intl hour-24 trap). */
 export function etDayOf(iso: string | null | undefined): string | null {
@@ -249,7 +254,9 @@ function eplSection(date: string, today: string): SportDaySection {
     const settled = date < today || Date.parse(r.kickoffUtc) < Date.now() - 3 * 3600_000;
     const hasProbs = r.probs != null;
     const state: SimEventState = settled ? "SETTLED" : hasProbs ? "SIMULATION_READY" : "ARTIFACT_READY";
-    const href = r.slug ? eplMatchHref(r.slug) : "/epl";
+    /* P234 · C — a fixture with a published forecast opens its presentation on arrival. eplMatchHref
+       already ends in a slash, so the query attaches without tripping the trailingSlash redirect. */
+    const href = r.slug ? `${eplMatchHref(r.slug)}?play=1` : "/epl";
     return {
       sport: "epl", id: `epl:${r.eventId}`,
       matchup: r.matchup,
@@ -309,7 +316,7 @@ function ufcSection(date: string, today: string): SportDaySection {
       state,
       stateReason: settled ? "This card is complete — settled bouts live on Results." : predicted === 0 ? "No bout on this card has enough fighter history to model — the schedule is shown without a read." : null,
       markets: predicted > 0 ? ["Fight winner"] : [],
-      href: settled ? "/results/picks/ufc" : "/ufc",
+      href: settled ? "/results/picks/ufc" : predicted > 0 ? "/ufc/?play=1" : "/ufc",
       actionLabel: settled ? STATE_ACTION.SETTLED : predicted > 0 ? `View ${predicted} of ${bouts.length} bout reads` : STATE_ACTION.SCHEDULE_ONLY,
     });
   } else {
@@ -353,7 +360,7 @@ function nflSection(date: string, today: string): SportDaySection {
       state,
       stateReason: settled ? "Kicked off or final — the report shows the frozen forecast and result." : state === "BASELINE_ONLY" ? e.readinessReason : state === "MODEL_ONLY_NO_MARKET" ? "Model distribution published; no market price is attached to this event." : null,
       markets: e.hasMarket ? ["Moneyline", "Total"] : [],
-      href: `/nfl/game/${e.providerEventId}`,
+      href: `/nfl/game/${e.providerEventId}/${READY_STATES.includes(state) ? "?play=1" : ""}`,
       actionLabel: STATE_ACTION[state],
     });
   }

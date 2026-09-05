@@ -64,6 +64,13 @@ export interface PresentationChapter {
   readonly bars: readonly PresentationBar[];
   /** Bullet rows (player picks, limits). Kept short so the frame never needs a scrollbar. */
   readonly rows: readonly { readonly label: string; readonly detail: string; readonly value?: string }[];
+  /**
+   * Axis caption for a chapter that draws a distribution. It lives HERE rather than in the player
+   * because units belong to the sport: the player hardcoded "Total runs · share of simulated games"
+   * and printed it under an EPL goals histogram, which was both the wrong unit and a run-count claim
+   * for a model that runs no trials.
+   */
+  readonly axisCaption?: string;
   /** Milliseconds this chapter holds during auto-play. Longer for denser chapters. */
   readonly holdMs: number;
 }
@@ -93,8 +100,15 @@ export interface PresentationManifest {
   readonly venue: string | null;
   readonly home: { readonly name: string; readonly abbr: string; readonly logo: string | null };
   readonly away: { readonly name: string; readonly abbr: string; readonly logo: string | null };
-  /** The report's own readiness verdict, carried. `degraded` is shown, not hidden. */
-  readonly readiness: "ready" | "degraded";
+  /**
+   * The report's own verdict, carried. `degraded` is shown, not hidden.
+   *
+   * `archived` is the retrospective reading: the event has started or settled, so no new forecast
+   * may be generated for it — but the FROZEN pre-event forecast still exists and is worth showing,
+   * labelled with its true event date and never framed as a live read. Refusing to show it at all
+   * would confuse "cannot forecast this now" with "cannot display what we forecast then".
+   */
+  readonly readiness: "ready" | "degraded" | "archived";
   readonly provenance: PresentationProvenance;
   readonly supportedChapters: readonly ChapterKind[];
   readonly chapters: readonly PresentationChapter[];

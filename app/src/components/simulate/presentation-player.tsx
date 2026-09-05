@@ -171,7 +171,8 @@ function ChapterBody({ chapter, accent, accentSoft, sport, run }: {
       return (
         <div className="flex flex-col gap-3">
           <StatRow stats={chapter.stats} />
-          <Histogram bars={chapter.bars} accent={accent} caption="Total runs · share of simulated games" />
+          {/* The caption is the CHAPTER's, never this component's — units belong to the sport. */}
+          <Histogram bars={chapter.bars} accent={accent} caption={chapter.axisCaption ?? ""} />
         </div>
       );
     case "scores":
@@ -360,12 +361,23 @@ export default function PresentationPlayer({
             <span className="font-mono uppercase tracking-[0.14em] truncate" style={{ color: theme.accent, fontSize: 9.5 }}>
               {theme.label} · simulation presentation
             </span>
-            <span className="font-display truncate" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 800 }}>{title}</span>
+            {/* Wraps to two lines rather than truncating. "UFC Fight Night: Hooker vs. Parna…" is a
+                recording with no legible event name on it, and the frame has the room. */}
+            <span
+              className="font-display"
+              style={{
+                color: "var(--vault-text)", fontSize: 15, fontWeight: 800, lineHeight: 1.25,
+                display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+              }}
+            >
+              {title}
+            </span>
             {manifest ? (
               <span className="font-mono truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
                 {manifest.displayDate}
                 {manifest.venue ? ` · ${manifest.venue}` : ""}
                 {manifest.readiness === "degraded" ? " · degraded run" : ""}
+                {manifest.readiness === "archived" ? " · frozen pre-event forecast" : ""}
               </span>
             ) : null}
           </div>
