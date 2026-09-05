@@ -31,6 +31,28 @@ const DIR = path.join(APP, "public/data/soccer/epl/forecasts");
 const RECOVERED = path.join(DIR, "recovered.json");
 const doc = fs.existsSync(RECOVERED) ? JSON.parse(fs.readFileSync(RECOVERED, "utf8")) : null;
 
+/**
+ * Is the repository's history present?
+ *
+ * `actions/checkout` clones at depth 1 by default, so CI has the tip and nothing else. Two
+ * assertions below read committed revisions, and they failed there while passing locally — the
+ * classic shape of a test that assumed its author's environment. They now say so and skip, rather
+ * than failing on an absence that is not a defect.
+ *
+ * Coverage is not lost with them: the artifact-only assertions prove the recovered forecast equals
+ * its source file byte for byte, that its provenance is complete and internally consistent, and
+ * that it predates its kickoff. What the git checks add is the last mile — that the commit NAMED in
+ * the provenance really published that slug — which is exactly the thing a full clone can answer
+ * and a shallow one cannot.
+ */
+const hasHistory = (() => {
+  if (!doc?.rows?.length) return false;
+  try {
+    execFileSync("git", ["cat-file", "-e", `${doc.rows[0].recovery.slugSourceCommit}^{commit}`], { cwd: REPO, stdio: "ignore" });
+    return true;
+  } catch { return false; }
+})();
+
 test("the recovery artifact exists and is non-empty — everything below is vacuous otherwise", () => {
   assert.ok(doc, "no recovery artifact");
   assert.ok((doc.rows ?? []).length > 0, "the recovery artifact recovered nothing");
@@ -69,7 +91,8 @@ test("THE RECOVERED FORECAST IS THE ONE THAT WAS PUBLISHED, unaltered", () => {
   }
 });
 
-test("THE SLUG WAS RECOVERED, NOT DERIVED — a committed public revision carried it", () => {
+test("THE SLUG WAS RECOVERED, NOT DERIVED — a committed public revision carried it", (t) => {
+  if (!hasHistory) return t.skip("shallow checkout — the named commits are not in this clone");
   for (const r of doc.rows) {
     const raw = execFileSync("git", ["show", `${r.recovery.slugSourceCommit}:app/public/data/soccer/epl/forecasts/latest.json`], { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
     const rev = JSON.parse(raw);
@@ -111,7 +134,8 @@ test("THE ARCHIVE GAINS EXACTLY THE RECOVERED FIXTURES, and no duplicates", () =
   }
 });
 
-test("A RERUN PRODUCES IDENTICAL LOGICAL OUTPUT", () => {
+test("A RERUN PRODUCES IDENTICAL LOGICAL OUTPUT", (t) => {
+  if (!hasHistory) return t.skip("shallow checkout — the recovery tool reads git history and cannot run here");
   const before = JSON.parse(fs.readFileSync(RECOVERED, "utf8"));
   /* Written to a temp path: a test must not leave the repository dirty, and pointing this at the
      committed artifact put the test's own clock into a tracked file on every run. */
@@ -140,6 +164,24 @@ test("AN EVENT WITH NO PUBLISHED SLUG STAYS MISSING — the repair is fail-close
   for (const r of doc.rows) {
     assert.ok(r.eventId && eventIds.has(r.eventId), "a recovered row lost its canonical identity");
     assert.notEqual(r.slug, r.eventId, "a slug was taken verbatim from an event id");
+  }
+});
+
+test("THE PROVENANCE IS INTERNALLY CONSISTENT — checkable with no git at all", () => {
+  /* Carries the weight the git assertions cannot in a shallow clone: the slug must belong to the
+     event id it claims, the commit must be a real object name, and the three timestamps must be
+     ordered as the story requires — forecast, then publication, then this repair. */
+  for (const r of doc.rows) {
+    assert.match(r.recovery.slugSourceCommit, /^[0-9a-f]{40}$/, `${r.slug}: not a commit id`);
+    const stem = String(r.eventId).split(":")[2] ?? "";
+    assert.ok(stem.length > 0, `${r.slug}: no identity stem in its event id`);
+    assert.ok(r.slug.startsWith(stem) || stem.startsWith(r.slug.replace(/-\d{4}-\d{2}-\d{2}$/, "")),
+      `${r.slug}: the slug does not belong to event id ${r.eventId}`);
+    const forecast = Date.parse(r.recovery.forecastGeneratedAt);
+    const published = Date.parse(r.recovery.slugPublishedAt);
+    const repaired = Date.parse(r.recovery.materializedAt);
+    assert.ok(forecast <= published, `${r.slug}: its slug was published before the forecast existed`);
+    assert.ok(published < repaired, `${r.slug}: the repair is dated before the publication it cites`);
   }
 });
 
