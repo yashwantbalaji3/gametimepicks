@@ -1,21 +1,22 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-05",
-  "checkedAt": "2026-09-05T11:23:34.820Z",
-  "treeHead": "768b9fb48",
+  "checkedAt": "2026-09-05T15:07:38.589Z",
+  "treeHead": "4d850887b",
   "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 15,
   "owners": [
     {
       "id": "mlb-board",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-05T18:40:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-05T18:40:00.000Z",
+      "receiptAt": "2026-09-05T12:59:21.270891+00:00",
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "mlb/boards/2026-09-05.json"
     },
     {
       "id": "mlb-markets",
@@ -104,7 +105,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-09-05T13:00:00.000Z",
-      "receiptAt": "2026-09-04T16:49:46Z",
+      "receiptAt": "2026-09-05T13:36:44Z",
       "label": "UFC card + model read",
       "workflow": "ufc-fight-week",
       "dependsOn": [],
@@ -115,7 +116,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-09-05T13:00:00.000Z",
-      "receiptAt": "2026-09-04T16:50:42Z",
+      "receiptAt": "2026-09-05T13:37:39Z",
       "label": "UFC lane status",
       "workflow": "ufc-fight-week",
       "dependsOn": [
@@ -128,7 +129,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-09-05T21:00:00.000Z",
-      "receiptAt": "2026-09-04T22:47:57Z",
+      "receiptAt": "2026-09-05T13:40:47Z",
       "label": "EPL lane status",
       "workflow": "epl-matchweek",
       "dependsOn": [],
@@ -137,7 +138,7 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 161.5h old against a 48h bound",
+      "reason": "receipt is 165.3h old against a 48h bound",
       "dueAtIso": "2026-09-05T15:00:00.000Z",
       "receiptAt": "2026-08-29T17:50:39Z",
       "label": "NFL market capture",
