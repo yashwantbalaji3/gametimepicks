@@ -9,7 +9,7 @@ EPL publication classification, receipt-deadline detector, stale learning artifa
 silence, and the mid-flight-day guard class. Proof: offered window COMPLETE / 0 owed; 650 unit + 71
 rendered green.
 
-## B — the performance read model · **NEXT**
+## B — the performance read model · **SHIPPED** (`40b152a15`)
 
 *Current state:* five ledgers exist and are correctly separate (`lab-ledger` 5 streams × 4 tiers,
 `graded-picks` per sport, `mr-dub/portfolio`, `product-ledger/*`, `model_audit`). None is queryable
@@ -26,7 +26,7 @@ published cards and a leg is never counted as a parlay.
 *Proof:* one manually recomputed cohort per primary sport and per available tier; source-to-view
 agreement; zero-decisive renders "unavailable", not 0%.
 
-## C — the filterable results journey · **the first substantial user outcome**
+## C — the filterable results journey · **SHIPPED** (`40b152a15`) — the first substantial user outcome
 
 *Current state:* `/results` has zero filter controls. Verified in the built HTML.
 

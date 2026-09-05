@@ -24,6 +24,7 @@ import { fileURLToPath } from "node:url";
 import { buildSportWindow, worstWindowState, publicSummary } from "../../src/lib/offered-window/offered-window.mjs";
 import { assignPublicGameSlugs } from "../../src/lib/mlb/public-game-slug.ts";
 import { loadEplForecasts } from "../../src/lib/sports/epl/forecast-view.ts";
+import { carriesPublishableProbabilities } from "../../src/lib/offered-window/forecast-publication.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const DATA = path.join(APP, "public", "data");
@@ -346,10 +347,13 @@ function eplEvents() {
      *
      * Publication is not a label, so this no longer tests one. A fixture is published when the set
      * is public AND this row actually carries the probabilities — the thing publication consists of.
-     * That separates the two states on all 87 committed rows (29 withheld carry none; all 58
-     * pre-event rows carry them) and cannot go stale behind a rename.
+     * That separates the two states on every committed row and cannot go stale behind a rename.
+     *
+     * P234 narrowed the remaining hole: `Boolean(r.probs)` is satisfied by `{}` and by a row whose
+     * three outcomes are null or NaN — truthy objects that a reader could not be shown. The rule now
+     * asks whether the row carries a real three-outcome distribution. See forecast-publication.mjs.
      */
-    published: Boolean(set.public) && Boolean(r.probs),
+    published: Boolean(set.public) && carriesPublishableProbabilities(r.probs),
     publicRoute: r.slug ? `/epl/#${r.slug}` : "/epl/",
     settlementId: r.eventId ?? null,
     settled: false,
