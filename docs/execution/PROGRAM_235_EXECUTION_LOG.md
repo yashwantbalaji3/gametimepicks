@@ -30,7 +30,7 @@ registered themselves. Carried as a finding; the settler covers them regardless 
 | B process + gate | P234's leaked watcher | `scripts/ops/run-job.sh`, existing `watch-gate.sh` | `npx tsx --test src/lib/ops/job-status.test.mjs` | **SHIPPED** `b639c5d40` | — |
 | C forecast history | P234 archive gap (Newcastle 11:30Z) | `recover-forecast-history.mjs` | recovered fixture reachable from `/epl` | **SHIPPED** `8694e8624` | generalize to MLB/NFL/UFC if their sources show the same shape |
 | D full results explorer | P234 Release E/F | `build-model-results-index.mjs`, `model-results-explorer.tsx` | index reconciles with `graded-picks.json`; drill-down serves | **SHIPPED** `66928794a` | extend beyond MLB when another sport publishes per-row detail |
-| E odds + coverage | P234 `ACQUISITION_UNSCHEDULED` | `build-offered-window.mjs` | dry-run plan + receipts | NOT STARTED | authorization inventory |
+| E odds + coverage | P234 `ACQUISITION_UNSCHEDULED` | `p171-authorization.mjs`, `acquisition-cadence.mjs` | expired receipt refuses without spending | **SHIPPED (engineering)** `fb5d43184` · **ACQUISITION_ACTIVE for UFC/EPL, GATED for NFL** | founder renewal for NFL |
 | F daily products | Release A lifecycle | product pages | product card → settled record | NOT STARTED | — |
 | G forward evaluation | P234 registrations | `evaluate-candidate.mjs` | reports INSUFFICIENT_SAMPLE until eligible | NOT STARTED | — |
 | H four-sport journeys | P234 Release H | e2e specs | cross-engine + recording layouts | NOT STARTED | — |
@@ -183,3 +183,61 @@ whole rather than overlapping it.
   so it can also fail softly. A Release F question.
 - **Not covered by the replay harness, with reasons:** `bank-builder` and `moonshot` settle through a
   Python-pipeline shell wrapper requiring a venv; `homer-nukes` grades from a live StatsAPI fetch.
+
+
+## Release E — the other half of the founder's sentence had no code behind it
+
+`fb5d43184`. **No paid call. No token synthesized.**
+
+### Authorization inventory (from the committed receipts, not from memory)
+
+| sport | scope | ceiling | markets | expiry | recurring | spend | status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| NFL | `americanfootball_nfl` | 3,000 | team + props + anytime-TD | **Program 171 close OR the ceiling** | program-scoped | 69 / 3,000 | **GATED — lapsed** |
+| UFC | `mma_mixed_martial_arts` | 500 | `h2h` only | the ceiling | **yes** — fight-week Tue/Thu/Sat 07:00 ET | 20 / 500 | **ACTIVE** |
+| EPL | `soccer_epl` | 500 | 1X2 + totals | the ceiling | **yes** — ≤3 captures per matchweek | (own ledger) | **ACTIVE** |
+
+### I mis-traced two workflows in P234
+
+It mapped NFL to `nfl-odds-capture.yml` and UFC to `ufc-odds-refresh.yml`, found no cron in either,
+and reported both as `ACQUISITION_UNSCHEDULED`. **Both are dispatch-only tools.** The jobs that run
+are `nfl-event-window.yml` (3 crons, `capture-nfl-odds.mjs --authorized`) and `ufc-fight-week.yml`
+(4 crons at Tue/Thu/Sat 11:00 UTC — the exact cadence the UFC receipt authorizes). Naming a workflow
+after a sport does not make it the job that runs. A guard now binds the mapping to evidence: the
+named workflow must exist **and** invoke that sport's capture script.
+
+### The expiry term was parsed by nothing
+
+`Expiry | Program 171 close OR the 3,000-credit cumulative ceiling, whichever first` — two
+conditions, of which only the numeric one ever had code. Nothing overspent (69 of 3,000 across 107
+requests); the founder's own end condition was simply unread, and the only thing stopping recent
+calls was an empty event window.
+
+A program-scoped expiry cannot be evaluated from the receipt, and inferring it from the running
+session's name would be the script deciding its own authorization — so it fails closed and names the
+renewal. **UFC and EPL expire at their ceilings alone and stay authorized**, which a test pins: this
+must not disable two live recurring acquisitions to fix a third.
+
+An expired allowance exits **0** with `AUTHORIZATION_EXPIRED`, not 2. A malformed receipt is a broken
+file and should fail loudly; a lapsed one is a decision owed, and a scheduled workflow going red
+three times a week for a state nobody can fix by rerunning it is as unreadable as one permanently
+green. Verified live: refuses, spends nothing, ledger unchanged at 69.
+
+`ACQUISITION_UNAUTHORIZED` joins the window vocabulary, distinct from `UNSCHEDULED` because the
+remedies differ. NFL's 16 events now carry it.
+
+### Five guards were repointed, and one was about to pass vacuously
+
+They used the live receipt as a fixture while testing scope, ceiling, floor and fail-closed parsing —
+none about expiry. Repointed to a renewed fixture. One asserted a call is refused before the ceiling
+is crossed, which **an unparsed authorization satisfies trivially**; it now asserts the fixture
+parses first, and that a call inside the ceiling is still allowed.
+
+### ENGINEERING_COMPLETE vs ACQUISITION_ACTIVE
+
+- **UFC · ACQUISITION_ACTIVE** — recurring, authorized, scheduled, 20/500 spent.
+- **EPL · ACQUISITION_ACTIVE** — recurring, authorized, scheduled.
+- **NFL · ENGINEERING_COMPLETE, ACQUISITION_GATED** — the capture, ledger, ceiling guard and clean
+  refusal all work; the allowance is lapsed. Needs `AUTHORIZE:NFL:<scope>:<ceiling>:<expiry>` or
+  `DEFER`. **A renewal is a founder edit to the receipt's Expiry row, not a code change** — a test
+  proves a ceiling-only expiry restores authorization with nothing else altered.
