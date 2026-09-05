@@ -81,63 +81,7 @@ export function loadSettledCards(dataRoot) {
   return rows;
 }
 
-/** The dates actually covered, ascending. Used to bound the pickers to real data. */
-export function coveredDates(cards) {
-  return [...new Set(cards.map((c) => c.date))].sort();
-}
-
-/**
- * Filter by an inclusive date range and the existing selectors.
- * A reversed range returns a typed refusal rather than silently swapping the ends or returning all
- * time — a reader who typed the ends the wrong way round asked a question, and answering a different
- * one is worse than saying so.
- *
- * @returns {{ ok: true, cards: object[] } | { ok: false, reason: string }}
- */
-export function filterCards(cards, { from = null, to = null, sport = null, tier = null } = {}) {
-  const valid = (d) => d == null || /^\d{4}-\d{2}-\d{2}$/.test(d);
-  if (!valid(from)) return { ok: false, reason: `"${from}" is not a date in YYYY-MM-DD form.` };
-  if (!valid(to)) return { ok: false, reason: `"${to}" is not a date in YYYY-MM-DD form.` };
-  if (from && to && from > to) {
-    return { ok: false, reason: `The range starts after it ends (${from} → ${to}). Nothing can fall inside it.` };
-  }
-  const out = cards.filter((c) => {
-    if (from && c.date < from) return false;
-    if (to && c.date > to) return false;
-    if (sport && sport !== "all" && c.sport !== sport) return false;
-    if (tier && tier !== "all" && c.tier !== tier) return false;
-    return true;
-  });
-  return { ok: true, cards: out };
-}
-
-/**
- * Pool a card set. Counts are SUMMED; nothing here averages a rate, and a set with no decided card
- * reports `available: false` rather than a zero.
- */
-export function poolCards(cards) {
-  const wins = cards.filter((c) => c.won).length;
-  const losses = cards.filter((c) => c.lost).length;
-  const pushes = cards.filter((c) => c.pushed).length;
-  const pending = cards.filter((c) => c.pending).length;
-  const decisive = wins + losses;
-  return {
-    cards: cards.length,
-    wins, losses, pushes, pending, decisive,
-    hitRate: decisive > 0
-      ? { value: wins / decisive, decisive, available: true, reason: null }
-      : { value: null, decisive: 0, available: false, reason: cards.length ? "no card in this selection has settled yet" : "no card in this selection" },
-  };
-}
-
-/** The sport × tier grid. Empty cells are typed, never dropped — an absent tier is information. */
-export function cardGrid(cards, { sports, tiers }) {
-  return sports.map((sport) => ({
-    sport,
-    cells: tiers.map((tier) => {
-      const subset = cards.filter((c) => c.sport === sport && c.tier === tier);
-      return { tier, ...poolCards(subset), slipIds: subset.map((c) => c.slipId) };
-    }),
-    total: poolCards(cards.filter((c) => c.sport === sport)),
-  }));
-}
+/* The pure operations live in a filesystem-free module so a client component can import them
+   without pulling `node:fs` into the browser bundle. Re-exported here so loader-side callers keep
+   one import. */
+export { coveredDates, filterCards, poolCards, cardGrid, dailySeries } from "./card-math.mjs";

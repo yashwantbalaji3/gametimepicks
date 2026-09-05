@@ -17,6 +17,10 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { RECORD_TYPES, RISK_TIERS, filterRows, poolRows } from "@/lib/results/read-model.mjs";
+/* The PURE module. `dated-cards.mjs` reads node:fs, and importing from it here put fs in the
+   client bundle and failed the export build — the second time this exact wall was hit. */
+import { dailySeries } from "@/lib/results/card-math.mjs";
+import ResultsTrend from "@/components/results/results-trend";
 
 export interface ResultRow {
   recordType: string;
@@ -221,6 +225,15 @@ export default function ResultsExplorer({
     if (!dateFilterable || rangeError) return [];
     return cards.filter((c) => (!from || c.date >= from) && (!to || c.date <= to));
   }, [cards, dateFilterable, rangeError, from, to]);
+
+  /* The trend runs over the SAME `selectedCards` as the headline above it, bounded by the range the
+     reader chose — so an empty tail is drawn rather than trimmed away. */
+  const series = useMemo(
+    () => (dateFilterable && !rangeError
+      ? dailySeries(selectedCards, { from: from || null, to: to || null })
+      : { days: [], cumulative: [], pooled: null }),
+    [dateFilterable, rangeError, selectedCards, from, to],
+  );
 
   const applyRange = (f: string, t: string) => { setFrom(f); setTo(t); sync({ from: f, to: t }); };
   const today = dateFilterable ? etToday() : "";
@@ -501,6 +514,14 @@ export default function ResultsExplorer({
             Mixed-sport cards are their own row and are never counted inside a single sport.
           </p>
         </div>
+      ) : null}
+
+      {/* ── THE TREND, over exactly the cards selected above. ── */}
+      {/* A range containing NO card draws no chart. Drawing one is not dishonest — every day would
+             correctly read as a gap — but a "day by day" heading over an empty window is noise
+             directly beneath a headline that already says there is nothing in the selection. */}
+      {dateFilterable && !rangeError && selectedCards.length > 0 && series.days.length > 0 ? (
+        <ResultsTrend days={series.days} cumulative={series.cumulative} label={`${rangeLabel} · ${sport === "all" ? "all sports" : sport}${tier === "all" ? "" : ` · ${tier}`}`} />
       ) : null}
 
       {/* ── THE SLIPS THEMSELVES. The drill-down the grid links into. ── */}

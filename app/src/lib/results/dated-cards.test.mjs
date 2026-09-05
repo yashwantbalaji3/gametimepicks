@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { loadSettledCards, coveredDates, filterCards, poolCards, cardGrid, DATE_FILTERABLE } from "./dated-cards.mjs";
+import { loadSettledCards, coveredDates, filterCards, poolCards, cardGrid, dailySeries, DATE_FILTERABLE } from "./dated-cards.mjs";
 
 const APP = process.cwd();
 const DATA = path.join(APP, "public", "data");
@@ -145,4 +145,116 @@ test("pending cards are in no decisive denominator", () => {
   assert.equal(pooled.decisive, pooled.wins + pooled.losses);
   assert.ok(pooled.pending >= 0);
   assert.equal(pooled.cards, pooled.wins + pooled.losses + pooled.pushes + pooled.pending, "every card is in exactly one bucket");
+});
+
+/* ── trends · Release F ─────────────────────────────────────────────────────────────────────── */
+
+const day = (date, result, tier = "medium", sport = "mlb") => ({
+  date, slipId: `${sport}-${tier}-${date}-${result}`, sport, sports: [sport], tier, result,
+  decided: result === "win" || result === "loss", won: result === "win", lost: result === "loss",
+  pushed: result === "push" || result === "void",
+  pending: !["win", "loss", "push", "void"].includes(result),
+  combinedDecimal: 2, legs: ["win"], legCount: 1,
+});
+
+test("A ZERO-EVENT DAY IS A GAP, NEVER A 0% LOSS", () => {
+  const s = dailySeries([day("2026-09-01", "win"), day("2026-09-03", "loss")]);
+  assert.equal(s.days.length, 3, "every calendar day in the range is drawn, including the empty one");
+  const middle = s.days.find((d) => d.date === "2026-09-02");
+  assert.equal(middle.hasData, false);
+  assert.equal(middle.rate, null, "a day with no card has no rate — 0% would draw a loss nobody took");
+  assert.equal(middle.decisive, 0);
+});
+
+test("A DAY OF ONLY PENDING CARDS HAS NO RATE EITHER", () => {
+  const s = dailySeries([day("2026-09-01", "pending"), day("2026-09-01", "pending")]);
+  const d = s.days[0];
+  assert.equal(d.hasData, true, "cards exist");
+  assert.equal(d.decisive, 0);
+  assert.equal(d.rate, null, "pending outcomes are in no decisive denominator");
+  assert.equal(d.pending, 2);
+});
+
+test("a day of only pushes has cards, no decisive outcomes, and no rate", () => {
+  const s = dailySeries([day("2026-09-01", "push"), day("2026-09-01", "void")]);
+  assert.equal(s.days[0].pushes, 2);
+  assert.equal(s.days[0].rate, null);
+});
+
+test("THE CUMULATIVE RATE IS POOLED FROM SUMS, NOT AVERAGED FROM DAYS", () => {
+  /* Day one: 1-0 (100%). Day two: 0-9 (0%). Averaging the daily rates gives 50%; pooling the
+     counts gives 10%. A fixture where the two agree would prove nothing. */
+  const cards = [day("2026-09-01", "win"), ...Array.from({ length: 9 }, (_, i) => day("2026-09-02", "loss", "medium", "mlb"))]
+    .map((c, i) => ({ ...c, slipId: `s${i}` }));
+  const s = dailySeries(cards);
+  const last = s.cumulative[s.cumulative.length - 1];
+  assert.equal(last.wins, 1);
+  assert.equal(last.losses, 9);
+  assert.equal(last.rate, 1 / 10, "pooled");
+  const averaged = (1 + 0) / 2;
+  assert.notEqual(last.rate, averaged, "the fixture must distinguish the two methods");
+});
+
+test("THE SERIES TOTALS EQUAL THE POOLED HEADLINE — a chart may not disagree with its own number", () => {
+  const cards = [
+    day("2026-09-01", "win"), day("2026-09-01", "loss"),
+    day("2026-09-03", "loss"), day("2026-09-03", "push"), day("2026-09-03", "pending"),
+    day("2026-09-05", "win"),
+  ].map((c, i) => ({ ...c, slipId: `s${i}` }));
+  const s = dailySeries(cards);
+  const summed = s.days.reduce((a, d) => ({ w: a.w + d.wins, l: a.l + d.losses, n: a.n + d.cards }), { w: 0, l: 0, n: 0 });
+  assert.equal(summed.w, s.pooled.wins);
+  assert.equal(summed.l, s.pooled.losses);
+  assert.equal(summed.n, cards.length);
+  const last = s.cumulative[s.cumulative.length - 1];
+  assert.equal(last.wins, s.pooled.wins);
+  assert.equal(last.losses, s.pooled.losses);
+  assert.equal(last.rate, s.pooled.hitRate.value);
+});
+
+test("UNEQUAL DAILY DENOMINATORS weight by count, not by day", () => {
+  const cards = [
+    day("2026-09-01", "win"),
+    ...Array.from({ length: 20 }, () => day("2026-09-02", "loss")),
+  ].map((c, i) => ({ ...c, slipId: `s${i}` }));
+  const s = dailySeries(cards);
+  assert.equal(s.days[0].rate, 1, "a one-card day is 100% on its own");
+  assert.equal(s.days[1].rate, 0, "a twenty-card day of losses is 0% on its own");
+  assert.equal(s.cumulative[1].rate, 1 / 21, "and the pooled rate is one win in twenty-one, not 50%");
+});
+
+test("a one-record cohort reports its single outcome and its sample size of one", () => {
+  const s = dailySeries([day("2026-09-01", "loss")]);
+  assert.equal(s.days.length, 1);
+  assert.equal(s.days[0].rate, 0, "one decided loss genuinely is 0% — of one");
+  assert.equal(s.days[0].decisive, 1);
+  assert.equal(s.pooled.hitRate.available, true);
+  assert.equal(s.pooled.hitRate.decisive, 1);
+});
+
+test("an empty cohort produces no series rather than a flat line at zero", () => {
+  const s = dailySeries([]);
+  assert.deepEqual(s.days, []);
+  assert.deepEqual(s.cumulative, []);
+  assert.equal(s.pooled.hitRate.available, false);
+});
+
+test("EXPLICIT BOUNDS DRAW THE EMPTY TAIL — a period with nothing recent must show that", () => {
+  const s = dailySeries([day("2026-09-01", "win")], { from: "2026-09-01", to: "2026-09-05" });
+  assert.equal(s.days.length, 5);
+  assert.equal(s.days.filter((d) => d.hasData).length, 1);
+  assert.equal(s.days[4].rate, null, "the last four days are empty and must read as empty");
+  /* The cumulative line holds its value across the gap rather than falling — nothing happened. */
+  assert.equal(s.cumulative[4].rate, 1);
+  assert.equal(s.cumulative[4].decisive, 1);
+});
+
+test("LIVE · the daily series over the committed cards reconciles with the whole", () => {
+  if (!cards.length) return;
+  const s = dailySeries(cards);
+  const summed = s.days.reduce((a, d) => ({ w: a.w + d.wins, l: a.l + d.losses }), { w: 0, l: 0 });
+  const whole = poolCards(cards);
+  assert.equal(summed.w, whole.wins);
+  assert.equal(summed.l, whole.losses);
+  assert.ok(s.days.some((d) => !d.hasData), "the committed range contains days with no settled card, and they must be drawn as gaps");
 });
