@@ -22,11 +22,23 @@ import { loadCurrentEplResults } from "../../src/lib/soccer/epl-current-results.
 import { loadOfficialUfcResults, fighterIndexForDate } from "../../src/lib/sports/ufc/official-results.mjs";
 import { classifyReceiptChange, RECEIPT_CHANGE } from "../../src/lib/parlays/receipt-completion.mjs";
 
-const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
+
+/*
+ * `--app-root` EXISTS SO THIS SETTLER CAN BE REPLAYED WITHOUT TOUCHING THE REAL LEDGER.
+ *
+ * Program 234 shipped without the per-product replay harness it had scoped, because there was no way
+ * to run the actual settlement function against anything but the live tree — and a settlement test
+ * that writes to the live tree is not a test anybody will run twice. The flag defaults to this
+ * script's own location, so every scheduled invocation behaves exactly as before; the replay harness
+ * points it at a disposable snapshot.
+ *
+ * It is deliberately a path override and nothing else: no branch in this file reads it to decide
+ * what to grade or how, so an isolated run exercises the same code an operator's run does.
+ */
+const APP = path.resolve(arg("--app-root") ?? path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", ".."));
 const LADDER = path.join(APP, "public", "data", "parlays", "risk-ladder");
 const RECEIPTS = path.join(APP, "public", "data", "parlays", "lab-settled");
-
-const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
 const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(1); }
 const apply = process.argv.includes("--apply");
@@ -320,6 +332,21 @@ for (const card of ladder.cards ?? []) {
   const result = results.includes("pending") && !results.includes("loss") ? "pending"
     : decisive.includes("loss") ? "loss"
     : decisive.length && decisive.every((r) => r === "win") ? "win"
+    /*
+     * A CARD WHOSE EVERY LEG PUSHED IS SETTLED, NOT PENDING.
+     *
+     * Pushes are filtered out of `decisive`, so an all-push card left `decisive` empty: not pending,
+     * no loss, no winning leg to satisfy the clause above — and it fell through to "pending" and
+     * stayed there. Nothing would ever revisit it, because settlement targets ET-yesterday and the
+     * completion rule only moves a card OUT of pending when a result arrives, and every result had
+     * already arrived. It is the exact failure this file's own comments describe: publishable,
+     * gradeable, and sitting pending forever while the published record computes over the cards that
+     * happened to settle.
+     *
+     * An NFL tie on a two-way moneyline reaches this in one leg. Found by the Program 235 replay
+     * harness, which grades one of every outcome rather than whatever a live day happened to supply.
+     */
+    : results.length && results.every((r) => r === "push") ? "push"
     : "pending";
   /* Derived, never hardcoded: a card stamped "mlb" while holding a fight leg makes the receipt
      lie about what was graded, and the attribution is what the record is built from. */
