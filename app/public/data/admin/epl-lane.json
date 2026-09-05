@@ -2,44 +2,44 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-09-05T16:11:32Z",
+  "generatedAt": "2026-09-05T17:27:05Z",
   "nextCluster": {
-    "kickoffUtc": "2026-09-05T16:30:00.000Z",
+    "kickoffUtc": "2026-09-06T13:00:00.000Z",
     "fixtures": 1,
-    "hoursAway": 0.31
+    "hoursAway": 19.55
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-09-05T16:11:26Z",
+      "stampedAt": "2026-09-05T17:26:58Z",
       "ageHours": 0
     },
     "odds": {
       "state": "READ",
-      "stampedAt": "2026-09-05T16:11:27Z",
+      "stampedAt": "2026-09-05T17:26:59Z",
       "ageHours": 0
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-09-05T16:11:31Z",
+      "stampedAt": "2026-09-05T17:27:03Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-09-05T16:11:31Z",
+      "stampedAt": "2026-09-05T17:27:04Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-09-05T16:11:28Z",
+      "stampedAt": "2026-09-05T17:27:00Z",
       "ageHours": 0
     }
   },
   "cadence": {
     "lineupCoverage": {
       "state": "GAP",
-      "clusters": 15,
-      "covered": 14,
+      "clusters": 14,
+      "covered": 13,
       "uncoveredMatches": 1,
       "uncovered": [
         {
@@ -53,29 +53,29 @@
     },
     "budget": {
       "state": "WITHIN_CEILING",
-      "spent": 60,
+      "spent": 62,
       "projectedRemaining": 376,
-      "projectedTotal": 436,
+      "projectedTotal": 438,
       "ceiling": 500,
-      "headroom": 64,
+      "headroom": 62,
       "kickoffWindowHours": 30,
       "spendingFirings": 188,
       "skippedFirings": 501
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-09-05T16:11:31Z",
+    "generatedAt": "2026-09-05T17:27:03Z",
     "counts": {
-      "CURRENT_PRE_EVENT": 3
+      "CURRENT_PRE_EVENT": 2
     },
-    "rows": 3
+    "rows": 2
   },
   "playerSet": {
-    "generatedAt": "2026-09-05T16:11:31Z",
+    "generatedAt": "2026-09-05T17:27:04Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
-      "fixtures": 3,
-      "withLineup": 1,
+      "fixtures": 2,
+      "withLineup": 0,
       "awaitingLineup": 2
     },
     "markets": [
@@ -84,10 +84,10 @@
     ]
   },
   "record": {
-    "sampleState": "TOO_SMALL_TO_ASSESS",
-    "matches": 19,
-    "hits": 10,
-    "meanLogLoss": 1.0244856315789475,
+    "sampleState": "ACCUMULATING",
+    "matches": 23,
+    "hits": 11,
+    "meanLogLoss": 1.0193066521739131,
     "playerRows": 1230,
     "playerVoided": 1020
   },
@@ -114,11 +114,5 @@
     "live": true,
     "blocked": null
   },
-  "blockers": [
-    {
-      "id": "calibration-sample",
-      "state": "REALITY_GATED",
-      "detail": "calibration needs a preregistered backtest against settled results and 19 match(es) have been graded. No amount of engineering shortens this; matches have to be played."
-    }
-  ]
+  "blockers": []
 }
