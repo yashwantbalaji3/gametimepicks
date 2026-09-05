@@ -95,6 +95,9 @@ export default function ParlayCenterSuggestedPage() {
         ledger={labLedger}
         pool={swapPool}
         grid={tierGrid}
+        /* The artifact's own date and the real ET date, so the heading's "Today's" is a claim the
+           data supports rather than a word baked into the component. */
+        slateDate={riskLadder?.date ?? null}
       />
 
       {/* ── EVERY LANE, ONE DESTINATION (P201 · D2) ─────────────────────────────────────────────

@@ -501,6 +501,8 @@ export default function MlbLandingPage() {
             gradedDays={riskLadder.record.gradedDays}
             bettorTiers={riskLadder.bettorTiers}
             ledger={labLedger}
+            /* Same claim, same evidence: "today's card" is only said when the artifact's date says so. */
+            slateDate={riskLadder.date ?? null}
             /* The whole eligible slate is the bench. benchFor narrows it to same-market,
                comparable-price, no-game-already-on-the-card candidates. */
             pool={mlbProps.map((p) => ({

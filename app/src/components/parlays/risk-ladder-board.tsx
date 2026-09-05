@@ -216,9 +216,24 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
 
 export default function RiskLadderBoard({
   cards, skipped, overallRoi, gradedDays, pool = [], bettorTiers = [], ledger = null, entryShowsTitle = true,
-  grid = null,
+  grid = null, slateDate = null,
 }: {
   cards: readonly LadderCard[];
+  /**
+   * The date the published ladder is FOR.
+   *
+   * The heading said "Today's card at each risk level" and this component had no date at all, so it
+   * could not have known. The loader is fail-closed on the date, so a ladder for another day returns
+   * null rather than rendering — but the page asks for `currentSlateDate() ?? currentEtDate()`, and
+   * a slate date is not always today.
+   *
+   * It now STATES the date instead of claiming the day. The first version compared against a `today`
+   * computed in the server component, which is the frozen-clock trap this repository has hit before:
+   * under `output: "export"` that value is baked into the HTML at build time and is wrong for every
+   * reader after midnight. A date the artifact owns is true whenever it is read; a day computed at
+   * build time is only true until the next one.
+   */
+  slateDate?: string | null;
   skipped: readonly LadderSkip[];
   overallRoi: number | null;
   gradedDays: number;
@@ -270,7 +285,9 @@ export default function RiskLadderBoard({
           Risk ladder · paper
         </span>
         <h2 id="risk-ladder-heading" className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800 }}>
-          Today&rsquo;s card at each risk level
+          {/* The date the card is FOR — a fact the artifact carries — rather than "today", which
+              would be a claim about when the page is read. */}
+          {slateDate ? `Card at each risk level \u00b7 ${slateDate}` : "Card at each risk level"}
         </h2>
         <p className="m-0 max-w-[70ch]" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
           {/* Re-worded at the restart. "Every tier is losing money — 48 graded days, −9.4%" was
