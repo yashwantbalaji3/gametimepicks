@@ -94,7 +94,27 @@ if (!AUTHORIZED) {
   console.log("DRY-RUN (default): no network call was made, nothing was spent. Pass --authorized with --receipt to execute.");
   process.exit(0);
 }
-if (!authorization.ok) { console.error(`REFUSED: authorization did not parse: ${authorization.errors.join("; ")}`); process.exit(2); }
+if (!authorization.ok) {
+  /*
+   * AN EXPIRED ALLOWANCE IS A DECISION OWED, NOT A BROKEN JOB.
+   *
+   * A malformed receipt means somebody damaged the file, and that should fail loudly. An expiry that
+   * has passed means the founder's own end condition was reached and a renewal is owed — the chain
+   * around this step runs perfectly well on the last committed capture, exactly as `skip_odds` does.
+   * Failing here would turn a scheduled workflow red three times a week for a state nobody can fix
+   * by rerunning it, and a permanently red job is as unreadable as a permanently green one.
+   *
+   * Either way NOTHING IS SPENT. The difference is only whether the pipeline treats it as a fault.
+   */
+  const expiryOnly = authorization.errors.length > 0 && authorization.errors.every((e) => e.startsWith("expiry:"));
+  if (expiryOnly) {
+    console.log(`AUTHORIZATION_EXPIRED: ${authorization.errors.join("; ")}`);
+    console.log("no paid call was made. The chain continues against the last committed capture; a renewed receipt re-enables acquisition.");
+    process.exit(0);
+  }
+  console.error(`REFUSED: authorization did not parse: ${authorization.errors.join("; ")}`);
+  process.exit(2);
+}
 if (!windowRows.length) { console.log("NO_EVENTS: no pre-start events in the window — an empty slate is an answer, not a call"); process.exit(0); }
 
 const secretState = classifyOddsSecret(process.env);

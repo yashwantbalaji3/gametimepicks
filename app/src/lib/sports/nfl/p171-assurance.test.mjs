@@ -73,10 +73,22 @@ test("CORRUPTION · post-start generation and late evidence can never pass as CU
 });
 
 test("CORRUPTION · the odds client refuses other sports and any call past the program ceiling", () => {
-  const auth = parseAuthorizationReceipt(fs.readFileSync(path.join(ROOT, "docs/receipts/ODDS_AUTHORIZATION_P171.md"), "utf8"));
+  /*
+   * A RENEWED FIXTURE, so the ceiling check below still means something.
+   *
+   * This asserts that a call is refused BEFORE the 3,000-credit ceiling is crossed. Program 235 made
+   * the parser enforce the receipt's expiry term as well, and the live NFL allowance has lapsed —
+   * which would make `authorization.ok` false and the refusal below pass for the wrong reason,
+   * proving only that an unparsed receipt funds nothing. Normalizing the expiry row keeps the
+   * ceiling arithmetic under test; the lapse itself is pinned in authorization-expiry.test.mjs.
+   */
+  const committed = fs.readFileSync(path.join(ROOT, "docs/receipts/ODDS_AUTHORIZATION_P171.md"), "utf8");
+  const auth = parseAuthorizationReceipt(committed.replace(/^\|\s*Expiry\s*\|.*$/mi, "| Expiry | the 3,000-credit cumulative ceiling |"));
+  assert.equal(auth.ok, true, `the fixture must parse, or the ceiling check below is vacuous: ${auth.errors?.join("; ")}`);
   assert.equal(auth.sport, "nfl");
   const ledger = { ...emptyLedger("r"), cumulativeCredits: 2999 };
   assert.equal(assertCallAllowed({ authorization: auth, ledger, worstCaseCredits: 3, purpose: "x" }).ok, false);
+  assert.equal(assertCallAllowed({ authorization: auth, ledger, worstCaseCredits: 1, purpose: "x" }).ok, true, "and a call inside the ceiling is still allowed");
   const capture = fs.readFileSync(path.join(APP, "scripts/nfl/capture-nfl-odds.mjs"), "utf8");
   assert.doesNotMatch(capture, /basketball_nba|soccer_epl|mma_mixed|baseball_mlb/);
   const canary = fs.readFileSync(path.join(APP, "scripts/ops/odds-canary.mjs"), "utf8");

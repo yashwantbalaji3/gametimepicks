@@ -65,6 +65,15 @@ export const OFFERED_STATES = Object.freeze([
    * decision nobody has taken", and those need different words because they need different actions.
    */
   "ACQUISITION_UNSCHEDULED",
+  /*
+   * ACQUISITION_UNAUTHORIZED — the job exists and runs, and its allowance has lapsed.
+   *
+   * Distinct from UNSCHEDULED because the remedy is different: one needs a cron, the other needs a
+   * founder decision. Program 234 collapsed NFL into UNSCHEDULED on a mis-traced workflow — the
+   * scheduled caller was `nfl-event-window.yml` all along. What is actually true is that its receipt
+   * expires at "Program 171 close", and only the ceiling half of that sentence had code behind it.
+   */
+  "ACQUISITION_UNAUTHORIZED",
   "NOT_OFFERED",
 ]);
 
@@ -98,6 +107,8 @@ const FAILURE_STATES = new Set(["JOIN_FAILED", "SOURCE_STALE"]);
  * @param {boolean} e.published            it reached a public surface
  * @param {boolean} [e.acquisitionScheduled] false when no cron will ever perform this sport's capture
  * @param {string|null} [e.acquisitionGateReason]
+ * @param {boolean} [e.acquisitionAuthorized] false when the sport's receipt no longer parses as current
+ * @param {string|null} [e.acquisitionAuthReason]
  * @param {string|null} e.refusalReason    a typed refusal, when we declined
  * @param {boolean} e.settled
  */
@@ -138,6 +149,11 @@ export function classifyEvent(e) {
      */
     if (e.acquisitionScheduled === false) {
       return state("ACQUISITION_UNSCHEDULED", e.acquisitionGateReason ?? "no scheduled acquisition exists for this sport — it runs only when dispatched by hand");
+    }
+    /* Scheduled AND lapsed: the job will run and refuse. Reporting it as merely uncaptured would
+       have a reader waiting for a capture that the capture itself declines to make. */
+    if (e.acquisitionAuthorized === false) {
+      return state("ACQUISITION_UNAUTHORIZED", e.acquisitionAuthReason ?? "the odds authorization for this sport has lapsed — its scheduled capture runs and refuses, spending nothing");
     }
     return state("NOT_YET_CAPTURED", e.captureDueReason ?? "scheduled, and our acquisition for it has not run yet");
   }

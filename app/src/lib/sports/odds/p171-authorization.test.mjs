@@ -14,7 +14,29 @@ import {
 } from "./p171-authorization.mjs";
 
 const ROOT = path.join(process.cwd(), "..");
-const receiptText = fs.readFileSync(path.join(ROOT, "docs/receipts/ODDS_AUTHORIZATION_P171.md"), "utf8");
+const committedReceipt = fs.readFileSync(path.join(ROOT, "docs/receipts/ODDS_AUTHORIZATION_P171.md"), "utf8");
+
+/*
+ * THE FIXTURE IS A RENEWED RECEIPT, and the live one is checked separately.
+ *
+ * Every assertion in this file is about scope, ceiling, floor or fail-closed parsing — none is about
+ * expiry. They used the committed receipt as their fixture, and Program 235 gave the parser the
+ * other half of that receipt's own expiry sentence ("Program 171 close OR the 3,000-credit ceiling,
+ * whichever first"), which only the numeric half had ever enforced. The live allowance is therefore
+ * lapsed, and these guards would fail for a reason none of them is testing.
+ *
+ * So the fixture normalizes the expiry row and nothing else. The properties below are unchanged and
+ * still fail if scope, ceiling, floor or the fail-closed rule regresses; the live receipt's actual
+ * expiry state is pinned in authorization-expiry.test.mjs, where it belongs.
+ */
+const receiptText = committedReceipt.replace(/^\|\s*Expiry\s*\|.*$/mi, "| Expiry | the 3,000-credit cumulative ceiling |");
+
+test("THE LIVE RECEIPT IS LAPSED, and this file's fixture is deliberately not it", () => {
+  /* Stated here so a reader of this file is not misled by the renewed fixture above. */
+  const live = parseAuthorizationReceipt(committedReceipt);
+  assert.equal(live.ok, false, "the committed NFL receipt is no longer expired — update this file's framing");
+  assert.ok(live.errors.every((e) => e.startsWith("expiry:")), `it fails for a reason other than expiry: ${live.errors.join("; ")}`);
+});
 
 test("the committed founder receipt parses to exactly the authorized terms", () => {
   const r = parseAuthorizationReceipt(receiptText);

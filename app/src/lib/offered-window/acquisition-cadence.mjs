@@ -18,12 +18,35 @@
  * GitHub's scheduling, because the only thing that matters here is whether anything will ever run.
  */
 
-/** Which workflow performs each sport's market acquisition. */
+/**
+ * Which workflow performs each sport's market acquisition — THE SCHEDULED CALLER, not the file whose
+ * name matches the sport.
+ *
+ * Program 234 mapped NFL to `nfl-odds-capture.yml` and UFC to `ufc-odds-refresh.yml`. Both are
+ * dispatch-only tools, so both sports were reported as having no scheduled acquisition at all — and
+ * both were wrong. `ufc-fight-week.yml` runs Tuesday, Thursday and Saturday at 11:00 UTC (the exact
+ * cadence the UFC receipt authorizes) and calls `capture-ufc-odds.mjs --apply`; `nfl-event-window.yml`
+ * runs three crons and calls `capture-nfl-odds.mjs --authorized`. Naming a workflow after a sport does
+ * not make it the job that runs, which is the trap the charter warned about: trace the real callers
+ * before concluding nothing is scheduled.
+ *
+ * `capturesWith` is the script the sport's acquisition actually invokes, and the guard beside this
+ * module asserts the named workflow really invokes it — so the mapping cannot drift back onto a file
+ * that merely sounds right.
+ */
 export const ACQUISITION_WORKFLOW = Object.freeze({
-  nfl: "nfl-odds-capture.yml",
-  ufc: "ufc-odds-refresh.yml",
+  nfl: "nfl-event-window.yml",
+  ufc: "ufc-fight-week.yml",
   epl: "epl-matchweek.yml",
   mlb: "mlb-pregame-capture.yml",
+});
+
+/** The capture each sport's workflow must be shown to invoke. */
+export const ACQUISITION_SCRIPT = Object.freeze({
+  nfl: "capture-nfl-odds.mjs",
+  ufc: "capture-ufc-odds.mjs",
+  epl: "capture-epl-odds.mjs",
+  mlb: "capture-mlb-pregame-markets.mjs",
 });
 
 /**

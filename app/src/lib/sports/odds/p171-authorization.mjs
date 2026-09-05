@@ -70,6 +70,30 @@ export function parseSportAuthorizationReceipt(markdown, sport) {
   if (!(ceiling > 0)) errors.push("ceiling: no cumulative credit ceiling found");
   if (!/do not retry\s+blindly/i.test(text.replace(/\n/g, " "))) errors.push("discipline: no-blind-retry term not found");
 
+  /*
+   * THE EXPIRY TERM WAS READ BY NOBODY.
+   *
+   * Scope and ceiling were both enforced; the expiry row was parsed by nothing. The NFL receipt says
+   * "Program 171 close OR the 3,000-credit cumulative ceiling, whichever first" — two conditions, of
+   * which only the numeric one was ever checked. Program 171 closed long ago, and a scheduled
+   * credit-bearing job has gone on citing that receipt since, most recently spending three credits
+   * on 2026-08-29. The ceiling was never in danger (69 of 3,000); the OTHER half of the founder's
+   * own sentence simply had no code behind it.
+   *
+   * A program-scoped expiry cannot be evaluated from the receipt alone — nothing in the text says
+   * whether that program is still open, and inferring it from a session's own name would be the
+   * script deciding its own authorization. So it fails closed and names the decision, which is what
+   * an expiry the holder cannot verify should do.
+   */
+  const expiry = expiryTerm(text);
+  if (expiry.kind === "PROGRAM_SCOPED") {
+    errors.push(
+      `expiry: this receipt expires at ${expiry.programCloseCondition} and nothing here can confirm that program is still open — a renewal is required before another paid call (${expiry.raw})`,
+    );
+  } else if (expiry.kind === "UNKNOWN") {
+    errors.push("expiry: no expiry term found — a receipt without one cannot be shown to be current");
+  }
+
   if (errors.length) return { ok: false, errors };
   return {
     ok: true,
@@ -77,8 +101,29 @@ export function parseSportAuthorizationReceipt(markdown, sport) {
     sportKey: spec.sportKey,
     ceiling,
     floor: 0,
+    expiry,
     ledgerRelPath: LEDGER_RELPATH[sport] ?? null,
   };
+}
+
+/**
+ * Classify a receipt's expiry term.
+ *
+ * CEILING_ONLY   the allowance runs until its own credit ceiling — self-evaluating, and current for
+ *                as long as the ledger says so. UFC and EPL are both written this way.
+ * PROGRAM_SCOPED it also expires when a named program closes. That is a fact about the world, not
+ *                about this file, so the receipt cannot establish it and the parser refuses.
+ * UNKNOWN        no expiry row at all.
+ */
+export function expiryTerm(receiptText) {
+  const text = String(receiptText ?? "").replace(/^>\s?/gm, "");
+  const row = text.match(/^\|\s*Expiry\s*\|(.+?)\|\s*$/mi);
+  if (!row) return { kind: "UNKNOWN", raw: null };
+  const raw = row[1].trim();
+  const program = raw.match(/\b(Program\s+\d+)\s+close\b/i);
+  if (program) return { kind: "PROGRAM_SCOPED", programCloseCondition: program[1], raw };
+  if (/ceiling/i.test(raw)) return { kind: "CEILING_ONLY", raw };
+  return { kind: "UNKNOWN", raw };
 }
 
 /** Parse the committed receipt. Fail-closed: every operative term must be present and exact. */
@@ -95,9 +140,33 @@ export function parseAuthorizationReceipt(markdown) {
     errors.push("floor: the no-floor term not found — the legacy floor stays in force");
   }
   if (!/do not retry\s+blindly/i.test(text.replace(/\n/g, " "))) errors.push("discipline: no-blind-retry term not found");
+
+  /*
+   * THE SAME EXPIRY TERM, ENFORCED HERE TOO.
+   *
+   * The comment below records that ONE allowance covered Programs 171 and 172 under a single
+   * receipt. It is now Program 235, and the receipt's own expiry row — "Program 171 close OR the
+   * 3,000-credit cumulative ceiling, whichever first" — has never had code behind its first half.
+   * The allowance stayed inside its ceiling throughout (69 of 3,000), so nothing overspent; the
+   * founder's stated end condition was simply unread.
+   *
+   * Whether that program is still open is a fact this file cannot establish, so it refuses and names
+   * the renewal. Enforcing only the half that is convenient to check is how a circuit breaker
+   * becomes a formality.
+   */
+  const expiry = expiryTerm(text);
+  if (expiry.kind === "PROGRAM_SCOPED") {
+    errors.push(
+      `expiry: this receipt expires at ${expiry.programCloseCondition} close and nothing here can confirm that program is still open — a renewal is required before another paid call`,
+    );
+  } else if (expiry.kind === "UNKNOWN") {
+    errors.push("expiry: no expiry term found — a receipt without one cannot be shown to be current");
+  }
+
   if (errors.length) return { ok: false, errors };
   return {
     ok: true,
+    expiry,
     // ONE allowance, not one per program: Program 172 continues under the SAME committed receipt,
     // so the ledger's cumulative total spans 171 and 172 and the ceiling is never re-issued.
     program: "P171-172",

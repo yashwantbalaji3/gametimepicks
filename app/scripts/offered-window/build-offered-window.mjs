@@ -26,6 +26,7 @@ import { assignPublicGameSlugs } from "../../src/lib/mlb/public-game-slug.ts";
 import { loadEplForecasts } from "../../src/lib/sports/epl/forecast-view.ts";
 import { carriesPublishableProbabilities } from "../../src/lib/offered-window/forecast-publication.mjs";
 import { acquisitionCadences, ACQUISITION_WORKFLOW } from "../../src/lib/offered-window/acquisition-cadence.mjs";
+import { parseSportAuthorizationReceipt } from "../../src/lib/sports/odds/p171-authorization.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const DATA = path.join(APP, "public", "data");
@@ -64,6 +65,26 @@ const withinHours = (iso, h) => { const t = Date.parse(iso ?? ""); return Number
  * dispatch-only. Sixteen NFL events therefore advertised a 15:00Z deadline that nothing would meet.
  * The source of truth for "when will this be captured" has to be the thing doing the capturing.
  */
+/**
+ * Is each sport's odds allowance still current?
+ *
+ * Read from the committed receipt, not assumed. NFL's expires at "Program 171 close" and only the
+ * ceiling half of that sentence had code behind it until Program 235; UFC's and EPL's expire at
+ * their own credit ceilings and remain current.
+ */
+const AUTHORIZATION = (() => {
+  const receipts = { nfl: "ODDS_AUTHORIZATION_P171.md", ufc: "ODDS_AUTHORIZATION_UFC.md", epl: "ODDS_AUTHORIZATION_EPL.md" };
+  const out = {};
+  for (const [sport, file] of Object.entries(receipts)) {
+    try {
+      const text = fs.readFileSync(path.join(APP, "..", "docs", "receipts", file), "utf8");
+      const parsed = parseSportAuthorizationReceipt(text, sport);
+      out[sport] = { ok: parsed.ok, reason: parsed.ok ? null : parsed.errors.join("; "), receipt: `docs/receipts/${file}` };
+    } catch { out[sport] = { ok: false, reason: `its receipt could not be read`, receipt: `docs/receipts/${file}` }; }
+  }
+  return out;
+})();
+
 const CADENCE = (() => {
   const dir = path.join(APP, "..", ".github", "workflows");
   const texts = {};
@@ -240,6 +261,10 @@ function nflEvents() {
         /* Derived from nfl's own acquisition workflow, so a sport with no cron is typed as
            gated rather than as merely late. */
         acquisitionScheduled: CADENCE.nfl?.scheduled !== false,
+        acquisitionAuthorized: AUTHORIZATION.nfl?.ok !== false,
+        acquisitionAuthReason: AUTHORIZATION.nfl?.ok === false
+          ? `the NFL odds authorization has lapsed (${AUTHORIZATION.nfl.receipt}): ${AUTHORIZATION.nfl.reason}. Its scheduled capture still runs and refuses, spending nothing.`
+          : null,
         acquisitionGateReason: CADENCE.nfl?.scheduled === false
           ? `no scheduled acquisition exists for NFL: ${CADENCE.nfl.workflow} ${CADENCE.nfl.reason}`
           : null,

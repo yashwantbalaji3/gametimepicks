@@ -34,9 +34,21 @@ test("the committed EPL receipt parses, with the terms the founder chose", () =>
 });
 
 test("EVERY receipt authorizes exactly one sport — the full matrix", () => {
+  /*
+   * SCOPE EXCLUSIVITY, NOT CURRENCY. This matrix asks whether a receipt can fund a sport it does not
+   * name. Program 235 made the parser enforce the expiry term as well, and the NFL receipt's expiry
+   * ("Program 171 close") has passed — so its diagonal cell would fail here for a reason this test
+   * is not about. The expiry row is normalized so the matrix still measures scope.
+   *
+   * The diagonal is kept rather than dropped: without it a parser that refused everything would
+   * satisfy the off-diagonal cells and pass. The live expiry state is pinned in
+   * authorization-expiry.test.mjs.
+   */
+  const currentTerms = (md) => md.replace(/^\|\s*Expiry\s*\|.*$/mi, "| Expiry | the cumulative credit ceiling |");
   const docs = Object.fromEntries(Object.entries(RECEIPTS).map(([s, f]) => [s, read(f)]).filter(([, md]) => md));
   const sports = Object.keys(AUTHORIZED_SPORTS);
-  for (const [owner, md] of Object.entries(docs)) {
+  for (const [owner, md0] of Object.entries(docs)) {
+    const md = currentTerms(md0);
     for (const sport of sports) {
       const ok = parseSportAuthorizationReceipt(md, sport).ok;
       if (sport === owner) assert.ok(ok, `the ${owner} receipt must authorize ${owner}`);
