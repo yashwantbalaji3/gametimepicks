@@ -187,3 +187,87 @@ not touch it, and no test in the corpus removes anything under `out/`.
 Not fixed, deliberately: the cause is unidentified, and a resilient walker that swallowed a vanished
 entry would convert an unknown concurrency signal into silence on a boundary guard that scans the
 public export for founder gate tokens. Recorded with its reproduction rather than guessed at.
+
+## Release D — recording mode, and the flake that had been hiding in the gate
+
+`b11c51070` (mode) · `f2a4ec509` (the three board types).
+
+**What a reader gets.** The same player, re-composed into a crop they can screen-record: 9:16, 4:5
+and 16:9, a three-second countdown, Start replays from chapter one, and after that the pointer never
+moves again. Every control sits **outside** the capture rectangle — measured in coordinates by the
+browser suite, not asserted in prose — while the event, its date, the readiness label, the domain and
+the paper-only disclosure stay inside it, where they cannot be cropped away from the statistics they
+qualify.
+
+Three composition defects, each found by looking at the frames rather than the DOM:
+
+| defect | fix |
+| --- | --- |
+| the first 9:16 cut was a third empty black — header pinned top, numbers floating mid-frame | header and body are one centred block; the sport's own scene (aria-hidden, motion-gated) fills tall crops behind the text without adding a claim |
+| 16:9 **clipped its dense chapters silently** — content hidden, no scrollbar, nothing to say anything was missing | landscape had width nobody was using: rows in two columns, and the closing chapter puts its scene beside its rows |
+| type sized for a desktop panel, not a phone-sized recording | larger in a recording |
+
+**The three board types.** Today's Top 10 (`/today`), a published parlay card (`/build`) and a
+results recap (`/results`). Each refuses the overstatement available to it: a six-pick board has six
+rows and a sentence about the other four; a card shows its combined price *with* the tier's own
+record beside it and states that its legs are not independent; a recap carries period, population,
+record and denominator, and reads "unavailable" rather than 0% at zero decisive.
+
+**A number that was exactly double.** The first live recap read "14-70 across 84 decided" beside a
+page showing "7-35 · 42 decisive". The read model emits a whole-stream row **and** a row per tier
+within it, and I had summed both — a total pooled with its own parts. It now refuses a mixed-
+granularity set rather than choosing a level, because choosing would be the same guess that produced
+the wrong number. Only putting the two numbers side by side caught it.
+
+**THE FLAKE, DIAGNOSED.** `founder-token-boundary` had failed three times in six gate runs with
+ENOENT partway through walking a directory that existed before and after, passed in isolation every
+time, and passed in CI. The cause: `suite-phases.test.mjs` proved "no export ⇒ the rendered phase
+refuses" by **renaming `app/out` aside and back** — while the seventy sibling guards that read `out/`
+ran in the same parallel batch. For the length of one spawn the export vanished underneath them.
+
+The runner now takes `--app` and the refusal is proven against a scratch tree, so no test moves the
+artifact its siblings are reading. Three consecutive clean rendered runs where two of the previous
+six had failed. **The guard was never the problem and was not touched.**
+
+## Release E — the record can be asked about a period
+
+`d211a1036`.
+
+The first question was whether a date filter would be honest at all. P233's five ledgers are
+**aggregates**: `lab-ledger.json` holds one record per stream and none of the cards behind it, and a
+date control over an aggregate narrows the label without narrowing the number.
+
+Dated detail exists for exactly one population. `lab-settled/<date>.json` carries every card that
+settled that day, and summed it reproduces the published ledger **exactly** — 6-31 MLB across all
+four of its tiers, 0-2 UFC, 1-2 EPL. That reconciliation is a test, and the whole feature rests on it.
+Model picks publish 60 sampled rows against 37,958 counted, so they get **no** date control and a
+sentence saying why.
+
+**The defect caught while building it:** a 7-day headline of 3-10 sat directly above per-sport rows
+reading 6-31 from the all-time ledger, with nothing on screen saying they counted different periods.
+Same cards for both now, and a test asserts they sum.
+
+Shipped honest by construction: a reversed range refuses rather than widening to all time; an empty
+period reads "no card in this selection", never 0%; a trailing `+n` marks unsettled cards that are in
+no rate; mixed-sport cards are their own population; the date basis (the cohort's publication day,
+not whichever leg settled first) sits beside the control that depends on it; and every populated
+grid cell opens the slips behind it, each carrying date, tier, legs, price, result and slip id.
+
+## Release F — a trend that cannot flatter the record
+
+`65767a9d6`. Day-by-day and cumulative views over exactly the selected cards, with the numbers behind
+them in a readable table.
+
+- a day with nothing on it is a **marked gap** with no rate — at 0% it would draw a loss nobody took,
+  and skipped it would compress three quiet weeks into one bad afternoon;
+- columns are drawn at the height of their **decided sample**, so a one-card day cannot look like a
+  trend, and the cumulative rate is pooled from running sums. The unit fixture is chosen so the two
+  methods **disagree** (averaging days → 50%, pooling counts → 10%), because one where they agree
+  proves nothing;
+- pending outcomes are in no decisive denominator anywhere;
+- the chart carries its own caution: a rising line is not evidence the model learned.
+
+**The client-bundle wall, hit a second time.** Importing the series function into the explorer pulled
+`node:fs` into the browser bundle and failed the export build — the same class as `READY_STATES` in
+Release C. The pure card math now lives in `lib/results/card-math.mjs` with no fs anywhere in its
+import graph, re-exported from the loader module so there is still one definition of each rule.
