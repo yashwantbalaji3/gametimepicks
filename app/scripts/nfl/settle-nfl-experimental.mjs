@@ -35,6 +35,20 @@ const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -
  */
 const ROOT = path.resolve(arg("--repo-root") ?? path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", ".."));
 const APP = path.join(ROOT, "app");
+
+/*
+ * `--dry-run` EXISTS BECAUSE THIS SCRIPT HAS NO SAFE WAY TO BE LOOKED AT.
+ *
+ * The parlay settler defaults to dry and needs `--apply`; this one writes unconditionally. That
+ * asymmetry is a trap, and it caught me during Program 235: a smoke test run against the live tree
+ * to confirm `--repo-root` had not changed default behaviour re-stamped `generatedAt` on two real
+ * artifacts. The grades were identical — which is itself evidence the settler is idempotent on
+ * content — but my clock had leaked into a committed record, and it had to be reverted.
+ *
+ * The default is unchanged, so every scheduled run behaves exactly as before. This only gives an
+ * operator a way to ask what would happen without making it happen.
+ */
+const dryRun = process.argv.includes("--dry-run");
 const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(1); }
 const DATE = arg("--date", NOW.slice(0, 10));
@@ -207,7 +221,8 @@ const receipt = {
 if (!receipt.accounting.reconciles) { console.error(`REFUSED: population gap — ${receipts.size} receipts ≠ ${allEvents.length} settled + ${pending.length} pending + ${quarantined.length} quarantined`); process.exit(2); }
 
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
-fs.writeFileSync(outPath, JSON.stringify(receipt, null, 1));
+if (dryRun) console.log(`dry-run — would write ${path.relative(ROOT, outPath)}`);
+else fs.writeFileSync(outPath, JSON.stringify(receipt, null, 1));
 
 /*
  * THE SUMMARY IS A LIFETIME RECORD, SO IT IS BUILT FROM EVERY DATED RECEIPT.
@@ -267,7 +282,7 @@ const lifetime = (() => {
  * the headline flips to that cohort at its honest small n; preseason keeps its own block under
  * `cohorts`, unchanged, instead of padding the new season's record.
  */
-fs.writeFileSync(path.join(path.dirname(outPath), "summary.json"), JSON.stringify({
+if (!dryRun) fs.writeFileSync(path.join(path.dirname(outPath), "summary.json"), JSON.stringify({
   schemaVersion: 2, artifact: "nfl-experimental-record", dataClass: "PUBLIC_DERIVED", generatedAt: NOW,
   ledger: "experimental-forecast", modelVersion: receipt.modelVersion,
   seasonTypeScope: lifetime.seasonTypeScope,
