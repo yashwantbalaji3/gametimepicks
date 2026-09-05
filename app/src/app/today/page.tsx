@@ -24,6 +24,8 @@ import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import { buildTop10Board } from "@/lib/top10/top10-picks";
+import PresentationLauncher from "@/components/simulate/presentation-launcher";
+import { buildTop10Presentation } from "@/lib/simulate/presentation/boards";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { slateGames, slateReadinessNote } from "@/lib/today/slate-games";
@@ -333,6 +335,16 @@ export default function TodayPage() {
 
       {/* 3 — Top model picks: BY CATEGORY when the MLB slate supports it, else the cross-sport list */}
       {picksByCategory.length > 0 ? <TodayTopPicksByCategory categories={picksByCategory} /> : <TodayTopModelPicks picks={topPicks} />}
+
+      {/* P234 · D — the board as a recordable presentation. It reads the SAME `top10.overall` the
+          list above renders, so the frame cannot show a pick the page does not, and it carries the
+          board's own count: six qualified picks is six rows and a sentence, never ten. */}
+      <div className="mt-2">
+        <PresentationLauncher
+          presentation={buildTop10Presentation(top10)}
+          label="Play today's board"
+        />
+      </div>
 
       {/* 3b — TOP 10 BY SPORT (P201 · charter C): the per-sport view over the SAME ranked owner the
           homepage's strongest-reads panel uses — grouping is presentation, never a second ranking.

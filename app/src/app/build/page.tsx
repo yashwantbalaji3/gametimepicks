@@ -23,6 +23,8 @@ import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
+import PresentationLauncher from "@/components/simulate/presentation-launcher";
+import { buildParlayPresentation } from "@/lib/simulate/presentation/boards";
 import { loadRiskLadder, loadLabLedger, loadTierGrid } from "@/lib/parlays/risk-ladder";
 import { loadMlbPropsBoard } from "@/lib/mlb/mlb-props";
 import path from "node:path";
@@ -71,6 +73,18 @@ export default function ParlayCenterSuggestedPage() {
       <ParlayCenterTabs active="suggested" />
 
       {/* The guided entry, first. */}
+      {/* P234 · D — the published card as a recordable presentation. It reads the FIRST card of the
+          same ladder the board below renders; it creates nothing and publishes nothing, and it puts
+          the tier's own record beside the combined price rather than showing the price alone. */}
+      {riskLadder?.cards?.length ? (
+        <div className="mb-3">
+          <PresentationLauncher
+            presentation={buildParlayPresentation(riskLadder.cards[0], { date: riskLadder.date })}
+            label="Play the published card"
+          />
+        </div>
+      ) : null}
+
       <RiskLadderBoard
         entryShowsTitle={false}
         cards={riskLadder?.cards ?? []}

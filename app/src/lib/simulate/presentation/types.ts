@@ -22,8 +22,13 @@
  * carries. A sport with no player model has no player chapter; it does not get an empty one.
  */
 
-/** Sports the player can present. Matches the simulate day-view's vocabulary. */
-export type PresentationSport = "mlb" | "nfl" | "epl" | "ufc";
+/**
+ * What the player can present. The four sports, plus `board` for the content types that are not one
+ * event: today's Top 10, a published parlay, a results recap. `board` has no entry in the sport
+ * theme registry and resolves to the generic arena, which is the correct answer rather than a gap —
+ * a Top 10 spanning two sports must not wear either one's colours.
+ */
+export type PresentationSport = "mlb" | "nfl" | "epl" | "ufc" | "board";
 
 export type ChapterKind =
   | "event"

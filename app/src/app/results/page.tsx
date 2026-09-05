@@ -86,6 +86,8 @@ import { buildRiskSectionDrilldown } from "@/lib/results-drilldown";
 import YesterdaySummary from "@/components/yesterday-summary";
 import TrustCenter from "@/components/results/trust-center";
 import ResultsExplorer, { type ResultRow } from "@/components/results/results-explorer";
+import PresentationLauncher from "@/components/simulate/presentation-launcher";
+import { buildResultsRecapPresentation } from "@/lib/simulate/presentation/boards";
 import { buildResultRows } from "@/lib/results/read-model.mjs";
 import fs from "node:fs";
 import { getTrustCenterModel } from "@/lib/results-trust-center";
@@ -231,6 +233,22 @@ export default function ResultsPage() {
           named absence where nothing has settled. The rows are PROJECTED from the committed ledgers
           (lib/results/read-model), never recomputed here. */}
       <ResultsExplorer rows={buildResultRows(resultSources()) as ResultRow[]} />
+
+      {/* P234 · D — the record as a recordable recap, over the SAME projected rows the explorer
+          filters. It carries the period, the population and the denominator; zero decisive outcomes
+          reads "unavailable", never 0%; and the pooled rate is summed counts, never averaged rates. */}
+      <div className="mt-3">
+        <PresentationLauncher
+          presentation={buildResultsRecapPresentation(
+            /* WHOLE-STREAM ROWS ONLY. The read model also emits a row per risk tier for each stream;
+               passing both would pool a total with its own parts and double every count. */
+            (buildResultRows(resultSources()) as ResultRow[])
+              .filter((r) => r.recordType === "suggested-parlay" && r.tier === null),
+            { period: "all settled history", population: "Suggested parlays", href: "/results/" },
+          )}
+          label="Play the record recap"
+        />
+      </div>
 
       {/* ── RECORD DIRECTORY (P200) ──────────────────────────────────────────────────────────────
           The site keeps SEPARATE records because they answer different questions over different
