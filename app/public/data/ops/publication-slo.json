@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-09-05",
-  "platformState": "INCIDENT",
+  "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
@@ -27,16 +27,22 @@
       "missed": []
     },
     "ufc": {
-      "state": "INCIDENT",
-      "reason": "4 event(s) have no forecast and the earliest one's deadline (2026-09-05T14:30:00.000Z, 90 min before its start) has passed",
-      "deadlineUtc": "2026-09-05T14:30:00.000Z",
+      "state": "PUBLISHING",
+      "reason": "3 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-09-05T17:30:00.000Z",
       "counts": {
         "scheduled": 14,
         "published": 10,
-        "missedCoverage": 0,
-        "awaiting": 4
+        "missedCoverage": 1,
+        "awaiting": 3
       },
-      "missed": []
+      "missed": [
+        {
+          "id": "401902948",
+          "label": "Luis Felipe Dias vs Matthieu Letho Duclos",
+          "startUtc": "2026-09-05T16:00Z"
+        }
+      ]
     },
     "epl": {
       "state": "PUBLISHING",
@@ -51,7 +57,7 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-09-05T15:07:38.188Z",
+  "checkedAt": "2026-09-05T16:21:42.325Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
@@ -64,7 +70,7 @@
     "present": true,
     "leans": 673,
     "pendingReason": null,
-    "generatedAt": "2026-09-05T12:59:21.270891+00:00",
+    "generatedAt": "2026-09-05T16:13:14.631906+00:00",
     "scheduledGames": 15,
     "startedBeforeGeneration": 0
   },
