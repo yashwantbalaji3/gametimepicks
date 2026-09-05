@@ -35,6 +35,7 @@ import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import {
   loadEplForecasts,
+  loadEplForecastArchive,
   forecastRows,
   unpricedRows,
   eplMatchHref,
@@ -143,6 +144,14 @@ export default function EplPage() {
   type Feed = { sport?: string; events?: unknown[]; totals?: { upcoming?: number }; sourceVerdict?: { sourceId?: string | null; fetchedAt?: string | null } };
   const feed = (allUpcoming({ nowIso: new Date().toISOString() }) as unknown as Feed[]).find((x) => x.sport === "epl");
   const set: EplForecastSet | null = loadEplForecasts();
+  /*
+   * PLAYED fixtures, newest first. The archive holds every fixture ever forecast; the live set holds
+   * the ones still ahead. The difference is the history, and it had no page linking to it.
+   */
+  const liveSlugs = new Set((set?.rows ?? []).map((r) => r.slug).filter(Boolean));
+  const archived: EplForecastRow[] = loadEplForecastArchive()
+    .filter((r: EplForecastRow) => Boolean(r.slug) && Boolean(r.probs) && !liveSlugs.has(r.slug as string))
+    .sort((a: EplForecastRow, b: EplForecastRow) => String(b.kickoffUtc ?? "").localeCompare(String(a.kickoffUtc ?? "")));
   const topReads = loadTopReads();
   const priced = forecastRows(set);
   const unpriced = unpricedRows(set);
@@ -314,6 +323,45 @@ export default function EplPage() {
           />
         </section>
       )}
+
+      {/* ── 1b · THE ARCHIVE ───────────────────────────────────────────────────────────────────
+           Every fixture this model has published a distribution for, whether or not it is still in
+           the forecast window. `/epl/match/[slug]` is generated for all of them and, until now,
+           nothing linked to the played ones: their pages were reachable only by typing the URL —
+           the same orphan-route class Program 234 closed for `/nfl/game/[eventId]`.
+
+           It also gives the Program 235 recovery somewhere to land. A forecast published before its
+           kickoff and then lost to a schema change is only genuinely recovered when a reader can
+           get to it, and a route with no path to it is not a delivered feature. */}
+      {archived.length > 0 ? (
+        <section className="mt-8 scroll-mt-24" id="epl-archive">
+          <SectionHeader
+            eyebrow={`Archive · ${archived.length} played`}
+            title="Every fixture we published a forecast for"
+            sub="What the model said before each kickoff, kept exactly as it was published. These are past fixtures; nothing here is a current read."
+          />
+          <ul className="mt-4 flex flex-col gap-2 m-0 p-0" style={{ listStyle: "none" }}>
+            {archived.map((r) => (
+              <li key={r.slug as string}>
+                <Link
+                  href={eplMatchHref(r.slug as string)}
+                  className="vault-glow-hover flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-[10px] px-3 py-2.5 no-underline"
+                  style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", color: "inherit" }}
+                >
+                  <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 650 }}>{r.matchup}</span>
+                  <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+                    {String(r.kickoffUtc ?? "").slice(0, 10)}
+                    {r.matchweek ? ` · matchweek ${r.matchweek}` : ""}
+                  </span>
+                  <span className="ml-auto font-mono uppercase tracking-[0.12em]" style={{ color: "var(--sport-soccer)", fontSize: 10 }}>
+                    Open forecast →
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {/* ── 2 · SIMULATIONS ────────────────────────────────────────────────────────────────────── */}
       {reportable.length > 0 ? (

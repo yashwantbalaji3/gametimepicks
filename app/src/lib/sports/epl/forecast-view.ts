@@ -130,6 +130,26 @@ export function reportableRows(set: EplForecastSet | null): EplForecastRow[] {
 export function loadEplForecastArchive(): EplForecastRow[] {
   const dir = path.join(process.cwd(), "public/data/soccer/epl/forecasts");
   const bySlug = new Map<string, EplForecastRow>();
+
+  /*
+   * RECOVERED ROWS FIRST, so anything else supersedes them (P235 · Release C).
+   *
+   * This loader keys on `slug && probs`. The producer did not always emit a slug, so nine dated rows
+   * with full probabilities were present in the archive FILE and invisible to the archive LOADER —
+   * and one of them, Arsenal v Coventry City, kicked off before the next dated file was written and
+   * therefore never reappeared with one. Its forecast was public with probabilities in three
+   * committed revisions, the last 42 minutes before kickoff, and it had no report page.
+   *
+   * `recovered.json` carries those rows with the slug they were actually published under, recovered
+   * from the committed revision that published it rather than derived from the event id. Nothing in
+   * it was regenerated. It is read at the LOWEST precedence: a dated file or the live set always
+   * wins, so a repair can never mask a real forecast.
+   */
+  try {
+    const recovered = JSON.parse(fs.readFileSync(path.join(dir, "recovered.json"), "utf8"));
+    for (const r of recovered?.rows ?? []) if (r?.slug && r?.probs) bySlug.set(r.slug, r as EplForecastRow);
+  } catch { /* no recovery artifact — the archive is simply what the dated files hold */ }
+
   let files: string[] = [];
   try { files = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort(); } catch { /* no archive */ }
   for (const f of files) {

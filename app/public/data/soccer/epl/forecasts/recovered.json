@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epl-forecast-recovery",
+  "dataClass": "PUBLIC_DERIVED",
+  "competition": "epl",
+  "materializedAt": "2026-09-05T22:22:54Z",
+  "note": "Forecasts that were published publicly with probabilities before their kickoff and are absent from the archive the product reads, because the producer had not yet started emitting slugs. Nothing here was regenerated: every probability, model id and state is the dated artifact's own, and each row carries the commit that published its slug. This is a view of what was said at the time, not a new forecast.",
+  "rows": [
+    {
+      "eventId": "soccer:epl:arsenal-v-coventry-city:20260821t1900",
+      "matchup": "Arsenal v Coventry City",
+      "kickoffUtc": "2026-08-21T19:00:00Z",
+      "matchweek": 1,
+      "state": "CURRENT_PRE_EVENT",
+      "unavailableReason": null,
+      "probs": {
+        "home": 0.69144,
+        "draw": 0.17808,
+        "away": 0.13048
+      },
+      "expectedGoals": 3.2365,
+      "over25": 0.62772,
+      "coldStart": {
+        "home": false,
+        "away": true
+      },
+      "slug": "arsenal-v-coventry-city-2026-08-21",
+      "recovery": {
+        "method": "slug recovered from a committed public revision carrying the same canonical eventId; probabilities, model and state are the dated artifact's own and are unmodified",
+        "forecastSourceFile": "app/public/data/soccer/epl/forecasts/2026-08-20.json",
+        "forecastGeneratedAt": "2026-08-20T23:21:41Z",
+        "slugSourceCommit": "b2985ad59bbf0c335c5c7c9d44a85ab8e129fbb3",
+        "slugPublishedAt": "2026-08-21T18:18:26Z",
+        "materializedAt": "2026-09-05T22:22:54Z"
+      }
+    }
+  ]
+}
