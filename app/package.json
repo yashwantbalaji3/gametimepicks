@@ -32,7 +32,9 @@
     "research:experiments": "tsx scripts/model-experiments.mjs",
     "suite": "node scripts/ci/run-suite.mjs --phase unit",
     "suite:built": "node scripts/ci/run-suite.mjs --phase post-build",
-    "gate": "npm run typecheck && npm run suite && npm run build && npm run suite:built"
+    "gate": "npm run typecheck && npm run suite && npm run build && npm run suite:built",
+    "job": "scripts/ops/run-job.sh",
+    "watch:gate": "scripts/ops/watch-gate.sh"
   },
   "dependencies": {
     "next": "14.2.15",
