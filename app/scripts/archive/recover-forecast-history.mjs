@@ -44,10 +44,20 @@ const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..
 const REPO = path.resolve(APP, "..");
 const FORECASTS = path.join(APP, "public/data/soccer/epl/forecasts");
 const PUBLIC_LATEST = "app/public/data/soccer/epl/forecasts/latest.json";
-const OUT = path.join(FORECASTS, "recovered.json");
+let OUT = path.join(FORECASTS, "recovered.json");
 
 const apply = process.argv.includes("--apply");
+/*
+ * `--out` EXISTS SO A TEST NEVER WRITES TO THE REPOSITORY.
+ *
+ * The rerun-identity test re-applies the recovery and compares the two outputs. Pointed at the
+ * committed artifact it rewrote `materializedAt` on every run, leaving the working tree dirty and
+ * putting a test's clock into a tracked file — the same shape as the smoke test that re-stamped a
+ * settlement receipt earlier in this program. It writes to a temp path instead.
+ */
+const outArg = (() => { const i = process.argv.indexOf("--out"); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : null; })();
 const NOW = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+if (outArg) OUT = path.resolve(outArg);
 
 const git = (...args) => execFileSync("git", args, { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };

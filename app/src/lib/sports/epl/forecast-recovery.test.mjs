@@ -20,6 +20,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import { execFileSync } from "node:child_process";
 
 import { loadEplForecastArchive, findEplForecastAnywhere } from "./forecast-view.ts";
@@ -112,8 +113,12 @@ test("THE ARCHIVE GAINS EXACTLY THE RECOVERED FIXTURES, and no duplicates", () =
 
 test("A RERUN PRODUCES IDENTICAL LOGICAL OUTPUT", () => {
   const before = JSON.parse(fs.readFileSync(RECOVERED, "utf8"));
-  execFileSync("npx", ["tsx", "scripts/archive/recover-forecast-history.mjs", "--apply"], { cwd: APP, encoding: "utf8" });
-  const after = JSON.parse(fs.readFileSync(RECOVERED, "utf8"));
+  /* Written to a temp path: a test must not leave the repository dirty, and pointing this at the
+     committed artifact put the test's own clock into a tracked file on every run. */
+  const tmp = path.join(os.tmpdir(), `gtp-recovery-rerun-${process.pid}.json`);
+  execFileSync("npx", ["tsx", "scripts/archive/recover-forecast-history.mjs", "--apply", "--out", tmp], { cwd: APP, encoding: "utf8" });
+  const after = JSON.parse(fs.readFileSync(tmp, "utf8"));
+  fs.rmSync(tmp, { force: true });
   /* materializedAt is this run's own clock and legitimately differs; everything else must not. */
   const strip = (d) => ({
     ...d, materializedAt: null,

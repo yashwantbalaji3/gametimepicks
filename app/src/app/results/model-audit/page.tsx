@@ -26,6 +26,7 @@ import { isPredictionDisabled } from "@/lib/mlb/model-calibration-status";
 import { loadRecentAccounting } from "@/lib/research/results-accounting-loader";
 import HitRateSparkline from "@/components/hit-rate-sparkline";
 import CandidateReadout, { type ReadoutRow } from "@/components/results/candidate-readout";
+import ModelResultsExplorer, { type ModelDay, type ModelCoverage } from "@/components/results/model-results-explorer";
 import fs from "node:fs";
 import nodePath from "node:path";
 
@@ -34,6 +35,26 @@ export const metadata = {
   description:
     "Settled-data audit of the GameTime Picks projection model — per-market, per-side, per-confidence, per-difference-band and per-game cuts, every one sourced from real settled rows. Educational only.",
 };
+
+/**
+ * The full per-day model-pick history, compacted for the page.
+ *
+ * The whole index is 76KB and the page does not need all of it; what it needs is every date's
+ * counts, its market breakdown and its partition URL — about 19KB. Embedding those URLs is also
+ * what keeps the export prune from deleting the partitions: the sweep keeps only data paths the
+ * shipped output actually names, and a path mentioned solely inside another JSON is not named.
+ */
+function loadModelResults(): { days: ModelDay[]; coverage: ModelCoverage } | null {
+  try {
+    const doc = JSON.parse(fs.readFileSync(nodePath.join(process.cwd(), "public/data/mlb/results/model-index.json"), "utf8"));
+    const days: ModelDay[] = (doc.days ?? []).map((d: ModelDay) => ({
+      date: d.date, wins: d.wins, losses: d.losses, pushes: d.pushes, rows: d.rows,
+      rowsUrl: d.rowsUrl, byMarket: d.byMarket,
+    }));
+    if (!days.length) return null;
+    return { days, coverage: doc.coverage as ModelCoverage };
+  } catch { return null; }
+}
 
 /** The committed readout, or nothing. An unreadable file publishes no section rather than an empty one. */
 function loadCandidateReadout(): { rows: ReadoutRow[]; range: [string, string] | null } {
@@ -45,6 +66,7 @@ function loadCandidateReadout(): { rows: ReadoutRow[]; range: [string, string] |
 
 export default function ModelAuditPage() {
   const { rows: candidateRows, range: candidateAuditRange } = loadCandidateReadout();
+  const modelResults = loadModelResults();
   const audit = loadModelAudit();
   if (!audit) {
     return (
@@ -83,6 +105,11 @@ export default function ModelAuditPage() {
 
       <SportBlock sport={nba} accent="nba" />
       <SportBlock sport={mlb} accent="mlb" />
+
+      {/* P235 · D — the whole settled history, not the 60-row sample the aggregate published beside
+          a 37,958-row denominator. Filters and headline figures come from the embedded per-day
+          summary; opening a day fetches that day alone. */}
+      {modelResults ? <ModelResultsExplorer days={modelResults.days} coverage={modelResults.coverage} /> : null}
 
       {/* P234 · H — what the candidate machinery currently says. Refusals are kept and published:
           an evaluation system that only showed its wins would be the thing it exists to prevent. */}
