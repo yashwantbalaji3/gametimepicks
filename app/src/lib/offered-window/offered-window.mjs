@@ -55,6 +55,16 @@ export const OFFERED_STATES = Object.freeze([
    * games as unofferable five hours before the capture is even due.
    */
   "NOT_YET_CAPTURED",
+  /*
+   * ACQUISITION_UNSCHEDULED — the event is inside our horizon and NOTHING WILL EVER CAPTURE IT
+   * unless a person acts.
+   *
+   * Sixteen NFL events sat NOT_YET_CAPTURED with a deadline of tomorrow 15:00Z. There is no NFL
+   * acquisition: its workflow is dispatch-only, carries no cron, and last ran 23 days earlier. The
+   * hour came from a literal in the builder. "Not run yet" reads as wait; the truth was "gated on a
+   * decision nobody has taken", and those need different words because they need different actions.
+   */
+  "ACQUISITION_UNSCHEDULED",
   "NOT_OFFERED",
 ]);
 
@@ -86,6 +96,8 @@ const FAILURE_STATES = new Set(["JOIN_FAILED", "SOURCE_STALE"]);
  * @param {boolean} e.priced               a usable price is on file
  * @param {boolean} e.forecast             a pre-start model artifact exists
  * @param {boolean} e.published            it reached a public surface
+ * @param {boolean} [e.acquisitionScheduled] false when no cron will ever perform this sport's capture
+ * @param {string|null} [e.acquisitionGateReason]
  * @param {string|null} e.refusalReason    a typed refusal, when we declined
  * @param {boolean} e.settled
  */
@@ -119,6 +131,14 @@ export function classifyEvent(e) {
    * still pending says so; only a caller that HAS captured may report NOT_OFFERED.
    */
   if (e.captured === false) {
+    /*
+     * A capture that is not merely late but UNSCHEDULED is a different fact and gets its own state.
+     * Reported as NOT_YET_CAPTURED it joins the pending-work set and waits for a deadline that no
+     * job exists to meet.
+     */
+    if (e.acquisitionScheduled === false) {
+      return state("ACQUISITION_UNSCHEDULED", e.acquisitionGateReason ?? "no scheduled acquisition exists for this sport — it runs only when dispatched by hand");
+    }
     return state("NOT_YET_CAPTURED", e.captureDueReason ?? "scheduled, and our acquisition for it has not run yet");
   }
   return state("NOT_OFFERED", "the provider lists no supported market — evidence, not an outage");

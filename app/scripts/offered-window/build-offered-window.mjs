@@ -25,6 +25,7 @@ import { buildSportWindow, worstWindowState, publicSummary } from "../../src/lib
 import { assignPublicGameSlugs } from "../../src/lib/mlb/public-game-slug.ts";
 import { loadEplForecasts } from "../../src/lib/sports/epl/forecast-view.ts";
 import { carriesPublishableProbabilities } from "../../src/lib/offered-window/forecast-publication.mjs";
+import { acquisitionCadences, ACQUISITION_WORKFLOW } from "../../src/lib/offered-window/acquisition-cadence.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const DATA = path.join(APP, "public", "data");
@@ -55,7 +56,26 @@ const withinHours = (iso, h) => { const t = Date.parse(iso ?? ""); return Number
  * never as fine, because "we cannot say when this will be picked up" is a worse state than "it is
  * late", not a better one.
  */
+/**
+ * THE CADENCE, READ FROM THE JOBS THAT WOULD PERFORM IT.
+ *
+ * Every deadline below used to come from a literal in `nextAcquisitionUtc` — `dailyAt(15)` for NFL,
+ * `dailyAt(13)` for UFC — and neither sport has a scheduled acquisition at all. Both workflows are
+ * dispatch-only. Sixteen NFL events therefore advertised a 15:00Z deadline that nothing would meet.
+ * The source of truth for "when will this be captured" has to be the thing doing the capturing.
+ */
+const CADENCE = (() => {
+  const dir = path.join(APP, "..", ".github", "workflows");
+  const texts = {};
+  for (const file of Object.values(ACQUISITION_WORKFLOW)) {
+    try { texts[file] = fs.readFileSync(path.join(dir, file), "utf8"); } catch { /* unreadable → unscheduled */ }
+  }
+  return acquisitionCadences(texts);
+})();
+
 function nextAcquisitionUtc(sport, startUtc) {
+  /* No scheduled job ⇒ no deadline. A date here would be a promise nobody made. */
+  if (CADENCE[sport] && CADENCE[sport].scheduled === false) return null;
   const start = Date.parse(startUtc ?? "");
   if (sport === "mlb") return Number.isFinite(start) ? new Date(start - 90 * 60_000).toISOString() : null;
 
@@ -133,6 +153,12 @@ function mlbEvents() {
         /* Only a day we have actually captured may report NOT_OFFERED. */
         captured: Boolean(board),
         captureDueReason: `scheduled ${g.gameDate}; the board is built ~90 minutes before first pitch`,
+        /* Derived from mlb's own acquisition workflow, so a sport with no cron is typed as
+           gated rather than as merely late. */
+        acquisitionScheduled: CADENCE.mlb?.scheduled !== false,
+        acquisitionGateReason: CADENCE.mlb?.scheduled === false
+          ? `no scheduled acquisition exists for MLB: ${CADENCE.mlb.workflow} ${CADENCE.mlb.reason}`
+          : null,
         offered: leanPks.has(pk),
         priced: leanPks.has(pk),
         forecast: sims.has(pk),
@@ -211,6 +237,12 @@ function nflEvents() {
         captureDueReason: captureAt
           ? `the newest NFL market capture is ${captureAt} (${captureAgeH == null ? "?" : captureAgeH.toFixed(0)}h old) and does not name this event — it has not been probed`
           : "no NFL market capture exists",
+        /* Derived from nfl's own acquisition workflow, so a sport with no cron is typed as
+           gated rather than as merely late. */
+        acquisitionScheduled: CADENCE.nfl?.scheduled !== false,
+        acquisitionGateReason: CADENCE.nfl?.scheduled === false
+          ? `no scheduled acquisition exists for NFL: ${CADENCE.nfl.workflow} ${CADENCE.nfl.reason}`
+          : null,
         offered: pricedIds.has(id),
         priced: pricedIds.has(id),
         forecast: Boolean(f) && f.lifecycle === "UPCOMING",
@@ -330,6 +362,12 @@ function eplEvents() {
        market had not opened. The producer's own reason is carried; only the STATE is corrected. */
     captured: r.state === "READY" ? true : coversEvent(set.oddsCapturedAt ?? set.generatedAt, r.kickoffUtc),
     captureDueReason: `the newest EPL odds snapshot is ${set.oddsCapturedAt ?? "unknown"} and carries no rows for this fixture — it has not been probed`,
+    /* Derived from epl's own acquisition workflow, so a sport with no cron is typed as
+       gated rather than as merely late. */
+    acquisitionScheduled: CADENCE.epl?.scheduled !== false,
+    acquisitionGateReason: CADENCE.epl?.scheduled === false
+      ? `no scheduled acquisition exists for EPL: ${CADENCE.epl.workflow} ${CADENCE.epl.reason}`
+      : null,
     offered: Boolean(r.probs),
     priced: r.state === "READY",
     forecast: Boolean(r.state) && r.state !== "UNAVAILABLE",
