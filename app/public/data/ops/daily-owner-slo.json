@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-09-05",
-  "checkedAt": "2026-09-05T17:26:29.900Z",
-  "treeHead": "2a211f812",
+  "checkedAt": "2026-09-05T18:14:33.626Z",
+  "treeHead": "7dd188a07",
   "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 15,
@@ -46,15 +46,16 @@
     },
     {
       "id": "risk-ladder",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-09-05T19:25:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-09-05T19:25:00.000Z",
+      "receiptAt": "2026-09-05T17:31:36Z",
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
         "mlb-markets"
       ],
-      "receiptPath": null
+      "receiptPath": "parlays/risk-ladder/2026-09-05.json"
     },
     {
       "id": "settlement",
@@ -131,7 +132,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-09-05T21:00:00.000Z",
-      "receiptAt": "2026-09-05T16:11:32Z",
+      "receiptAt": "2026-09-05T18:00:50Z",
       "label": "EPL lane status",
       "workflow": "epl-matchweek",
       "dependsOn": [],
@@ -140,7 +141,7 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 167.6h old against a 48h bound",
+      "reason": "receipt is 168.4h old against a 48h bound",
       "dueAtIso": "2026-09-05T15:00:00.000Z",
       "receiptAt": "2026-08-29T17:50:39Z",
       "label": "NFL market capture",
