@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824145,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T13:40:54.528Z",
+  "availableAt": "2026-09-05T13:40:54.528Z",
+  "eventStartTime": "2026-09-05T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 814490,
+      "name": "Ethan Pecko",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 3,
+      "restDays": 6,
+      "lastStartDate": "2026-08-30",
+      "last5": {
+        "starts": 3,
+        "ipSum": 13,
+        "ipAvg": 4.33,
+        "kAvg": 3,
+        "bbAvg": 3,
+        "erAvg": 3,
+        "hrAvg": 1.33,
+        "kPer9": 6.23,
+        "workloadIpLast5": 13
+      },
+      "seasonToDate": {
+        "starts": 3,
+        "ip": 13,
+        "k": 9,
+        "bb": 9,
+        "er": 9,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 694297,
+      "name": "Brandon Pfaadt",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 15,
+      "restDays": 5,
+      "lastStartDate": "2026-08-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 32.33,
+        "ipAvg": 6.47,
+        "kAvg": 4.2,
+        "bbAvg": 1,
+        "erAvg": 2.2,
+        "hrAvg": 1,
+        "kPer9": 5.85,
+        "workloadIpLast5": 32.33
+      },
+      "seasonToDate": {
+        "starts": 15,
+        "ip": 89.67,
+        "k": 53,
+        "bb": 16,
+        "er": 29,
+        "hr": 9
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-05T13:40:54.528Z"
+  },
+  "recordHash": "6aa05614ae1d37084296c80126b8bf2b32b933f123710c00350e2bb2ca143025"
+}

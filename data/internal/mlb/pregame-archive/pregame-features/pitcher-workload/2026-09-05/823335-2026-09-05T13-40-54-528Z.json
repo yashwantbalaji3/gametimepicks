@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823335,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T13:40:54.528Z",
+  "availableAt": "2026-09-05T13:40:54.528Z",
+  "eventStartTime": "2026-09-05T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 677952,
+      "name": "Braxton Ashcraft",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-08-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33,
+        "ipAvg": 6.6,
+        "kAvg": 4.8,
+        "bbAvg": 0.8,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 6.55,
+        "workloadIpLast5": 33
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 160.33,
+        "k": 164,
+        "bb": 35,
+        "er": 64,
+        "hr": 21
+      }
+    },
+    "away": {
+      "id": 579328,
+      "name": "Yusei Kikuchi",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 6,
+      "lastStartDate": "2026-08-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25,
+        "ipAvg": 5,
+        "kAvg": 4.8,
+        "bbAvg": 1.2,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 8.64,
+        "workloadIpLast5": 25
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 43,
+        "k": 43,
+        "bb": 16,
+        "er": 27,
+        "hr": 7
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-05T13:40:54.528Z"
+  },
+  "recordHash": "f2e3e17380271a9a2a2ab33d009c134252e15f14c98ddab38c047fa718c3b7f1"
+}

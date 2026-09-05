@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823904,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T13:40:54.528Z",
+  "availableAt": "2026-09-05T13:40:54.528Z",
+  "eventStartTime": "2026-09-06T01:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 607192,
+      "name": "Tyler Glasnow",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 6,
+      "lastStartDate": "2026-08-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.67,
+        "ipAvg": 5.33,
+        "kAvg": 6.6,
+        "bbAvg": 1.6,
+        "erAvg": 1.4,
+        "hrAvg": 0.6,
+        "kPer9": 11.14,
+        "workloadIpLast5": 26.67
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 51.67,
+        "k": 62,
+        "bb": 14,
+        "er": 16,
+        "hr": 5
+      }
+    },
+    "away": {
+      "id": 676917,
+      "name": "Cade Cavalli",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 7,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 8.8,
+        "bbAvg": 1.8,
+        "erAvg": 1,
+        "hrAvg": 1,
+        "kPer9": 13.2,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 152.67,
+        "k": 177,
+        "bb": 46,
+        "er": 53,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-05T13:40:54.528Z"
+  },
+  "recordHash": "e4ee7144f1f00290b433a7f25947f7ac937091d8166a2bca85b84a1349432e2c"
+}
