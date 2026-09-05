@@ -85,6 +85,9 @@ import { buildLearningSignalRows } from "@/lib/learning-signals";
 import { buildRiskSectionDrilldown } from "@/lib/results-drilldown";
 import YesterdaySummary from "@/components/yesterday-summary";
 import TrustCenter from "@/components/results/trust-center";
+import ResultsExplorer, { type ResultRow } from "@/components/results/results-explorer";
+import { buildResultRows } from "@/lib/results/read-model.mjs";
+import fs from "node:fs";
 import { getTrustCenterModel } from "@/lib/results-trust-center";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
 
@@ -93,6 +96,25 @@ export const metadata = {
   description:
     "The official paper-card record, open exposure, settlement status, and money-independent model-performance receipts — one public trust center.",
 };
+
+/**
+ * The committed ledgers the explorer projects. Read-only, and each stays its own population — the
+ * read model refuses to pool across them.
+ */
+function resultSources() {
+  const DATA = path.join(process.cwd(), "public", "data");
+  const read = (rel: string) => {
+    try { return JSON.parse(fs.readFileSync(path.join(DATA, rel), "utf8")); } catch { return null; }
+  };
+  return {
+    labLedger: read("parlays/lab-ledger.json"),
+    gradedBySport: Object.fromEntries(
+      ["mlb", "nfl", "epl", "ufc"].map((s) => [s, read(`${s}/graded-picks.json`)]).filter(([, v]) => v),
+    ),
+    portfolio: read("mr-dub/portfolio.json"),
+    moonshot: read("product-ledger/moonshot.json"),
+  };
+}
 
 export default function ResultsPage() {
   const summary = getOptimizerSummary();
@@ -203,6 +225,12 @@ export default function ResultsPage() {
          divider is the deeper transparency + projection audit, retained in full so no trust surface is
          hidden. */}
       <TrustCenter model={getTrustCenterModel()} />
+
+      {/* THE RECORD, ASKABLE (P233 · C). Everything above states a headline; this is the first way to
+          narrow it — record type, sport and risk tier, with the denominator beside every rate and a
+          named absence where nothing has settled. The rows are PROJECTED from the committed ledgers
+          (lib/results/read-model), never recomputed here. */}
+      <ResultsExplorer rows={buildResultRows(resultSources()) as ResultRow[]} />
 
       {/* ── RECORD DIRECTORY (P200) ──────────────────────────────────────────────────────────────
           The site keeps SEPARATE records because they answer different questions over different
