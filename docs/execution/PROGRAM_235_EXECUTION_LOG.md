@@ -28,8 +28,8 @@ registered themselves. Carried as a finding; the settler covers them regardless 
 | --- | --- | --- | --- | --- | --- |
 | A replay safety | P234 matrix row: PARTIAL, harness unbuilt | `settle-lab-cards.mjs`, `settle-nfl-experimental.mjs` | `npx tsx --test src/lib/products/replay-safety*.test.mjs` | **SHIPPED** `7fa36c9c7` `511f171e5` `4ca211d47` | extend to homer-nukes if its network dependence can be recorded |
 | B process + gate | P234's leaked watcher | `scripts/ops/run-job.sh`, existing `watch-gate.sh` | `npx tsx --test src/lib/ops/job-status.test.mjs` | **SHIPPED** `b639c5d40` | — |
-| C forecast history | P234 archive gap (Newcastle 11:30Z) | TBD | dated journey reaches a recovered report | NOT STARTED | inventory each sport's durable source |
-| D full results explorer | P234 Release E/F | `results-explorer.tsx`, `card-math.mjs` | filter + drill-down reconcile to source | NOT STARTED | inspect model-pick detail coverage first |
+| C forecast history | P234 archive gap (Newcastle 11:30Z) | `recover-forecast-history.mjs` | recovered fixture reachable from `/epl` | **SHIPPED** `8694e8624` | generalize to MLB/NFL/UFC if their sources show the same shape |
+| D full results explorer | P234 Release E/F | `build-model-results-index.mjs`, `model-results-explorer.tsx` | index reconciles with `graded-picks.json`; drill-down serves | **SHIPPED** `66928794a` | extend beyond MLB when another sport publishes per-row detail |
 | E odds + coverage | P234 `ACQUISITION_UNSCHEDULED` | `build-offered-window.mjs` | dry-run plan + receipts | NOT STARTED | authorization inventory |
 | F daily products | Release A lifecycle | product pages | product card → settled record | NOT STARTED | — |
 | G forward evaluation | P234 registrations | `evaluate-candidate.mjs` | reports INSUFFICIENT_SAMPLE until eligible | NOT STARTED | — |
@@ -116,3 +116,70 @@ exactly one test lives through a real deadline, and it is two seconds.
 **Dogfooded:** this release's gate ran through the wrapper — SUCCESS, exit 0, 195s,
 `deadlineEnforced: true`, tested tree on the receipt, 5,279 unit and 444 rendered. Zero owned
 processes at close.
+
+
+## Release C — the archive gap was real, and it was not the one that was reported
+
+`8694e8624`.
+
+**P234 named the wrong fixture.** Newcastle v Bournemouth is in `2026-09-03.json` and
+`2026-09-04.json`: the dated files are named by GENERATION date, not kickoff date, so a fixture
+forecast the evening before appears under that evening's file. Its page has been reachable
+throughout, and retirement of started events behaved correctly. A test proves that rather than
+repeating the claim.
+
+**The real gap is a schema transition.** Nine dated rows carry full probabilities and no `slug`,
+because the producer had not started emitting one; `loadEplForecastArchive` keys on `slug && probs`,
+so they sit in the file and are absent from the product. Eight reappear in later dated files. One
+does not: Arsenal v Coventry City kicked off at 19:00Z on 2026-08-21 and the next dated file was
+written at 23:51Z. Its forecast was public with probabilities in three committed revisions, the last
+**42 minutes before kickoff**, and it had no report page.
+
+The repair regenerates nothing. It recovers the AUTHENTIC slug from the committed public revision
+carrying the same canonical `eventId` and carries the forecast through byte-identical; a row whose
+slug appears in no such revision is left missing, because deriving one from the event id would
+produce a plausible string that was never published. Forecast creation, slug publication and the
+repair are three fields, and tests pin that the recovered forecast predates its kickoff, equals its
+source, can never shadow a dated row, reruns identically, and leaks no private payload.
+
+Dry run reports recoverable / already represented / conflicting / unavailable — today **1 / 8 / 0 / 0**.
+
+**It stopped one step short at first.** The recovered page existed and nothing linked to it — the
+orphan-route class P234 closed for `/nfl/game`. `/epl` now carries an archive of every fixture ever
+forecast, labelled as past, which un-orphans all of them at once. Guard scans the built export and
+is mutation-probed.
+
+## Release D — 40,072 settled picks, of which 60 were reachable
+
+`66928794a`.
+
+`graded-picks.json` counts 40,072 graded model picks and publishes 60. The rest were never missing —
+they sit one row per pick in the per-date calibration files — but nothing could reach them: the
+export prune keeps only data files the shipped output names, and it considers only `.json`, so not
+one `.jsonl` had ever survived a build.
+
+**The reconciliation is the feature**, so the producer refuses without it: the detail must reproduce
+the published aggregate exactly — 19,015 wins, 18,943 losses, 2,114 pushes, 37,958 decisive — and
+exits 2 when it does not.
+
+Architecture forced by the deployment: the page carries a compact per-day summary (~19KB) with each
+partition's URL, which is enough for every filter and headline without a fetch **and** is what keeps
+the prune from deleting the 85 partitions. `model-index.json` itself is a build-time input, named by
+nothing shipped, and is correctly pruned — verified 404 on production while every partition serves.
+
+`edgePct`, `confidence` and the source path are stripped in the PRODUCER, so a reader opening the
+JSON sees what the page sees. The browser suite proves the market families exactly **partition** the
+whole rather than overlapping it.
+
+## Findings carried forward
+
+- **Registry gap.** Six products are registered; the lab ledger carries five streams and four ladder
+  directories. MLB and NFL paper cards and the mixed-sport population are produced and settled by the
+  same owners without being registered.
+- **EPL learning report lags its own grades.** Twice in two programs the control plane refused to
+  build because the artifact said 23/18 (then 24/19) while the ledger recounted one more.
+  `epl-settle.yml` does regenerate it, but grades arriving through a different job's results capture
+  leave it stale until settle next runs — and that regeneration step is `|| echo "::warning::"`,
+  so it can also fail softly. A Release F question.
+- **Not covered by the replay harness, with reasons:** `bank-builder` and `moonshot` settle through a
+  Python-pipeline shell wrapper requiring a venv; `homer-nukes` grades from a live StatsAPI fetch.
