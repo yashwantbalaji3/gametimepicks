@@ -159,3 +159,31 @@ Money `md5 affe6b21071f2b3be96bb2774eb347c3` unchanged.
 | --- | --- |
 | `card-latest.json` still emits the expired "covers NFL only" sentence | producer fix — Release I |
 | `/nfl/game/[eventId]` is an **orphan route**: nothing in the built export links to it | navigation — Release I |
+
+### Correction — Release B's tip was red in CI, and I called it green
+
+`e355a092d`'s commit message reports "5157 unit ... all green". That was true of a tree I had
+already edited past. I ran the unit suite, then added the `?play=1` handler — whose comment contained
+the words "static-export-safe" — then built, ran the browser specs and the *rendered* suite, and
+committed. The banned-copy guards are phase-1 unit tests: they never saw the tree I pushed.
+`\bsafe\b` matches across a hyphen, so five of them failed, along with two control-plane tests that
+had drifted on the afternoon's EPL settlements.
+
+CI run `33981089047` on `e355a092d`: **failure**, 9 failing tests. Every one is fixed in
+`178d0f47c`, whose full `npm run gate` was green locally on the exact committed tree and whose CI run
+`33982736245` is **success**. Production covers the fixed tip.
+
+The process fix is one line: run the gate *after* the last edit and immediately before the commit,
+not before the last edit. A suite result is about a tree, not about a session.
+
+### Open finding — a flaky guard on the deploy gate
+
+`founder-token-boundary.test.mjs` failed twice in four local `suite:built` runs, both times with
+`ENOENT` from `readdirSync` **mid-walk** on a date-based route directory that exists before and
+after (`out/results/date/2026-07-31`, then `out/mlb/board/2026-08-06`). It passes on three
+consecutive isolated runs and passed on the immediate re-run, and it passed in CI on both tips. I did
+not touch it, and no test in the corpus removes anything under `out/`.
+
+Not fixed, deliberately: the cause is unidentified, and a resilient walker that swallowed a vanished
+entry would convert an unknown concurrency signal into silence on a boundary guard that scans the
+public export for founder gate tokens. Recorded with its reproduction rather than guessed at.
