@@ -1,0 +1,651 @@
+{
+ "schemaVersion": 1,
+ "artifact": "daily-product-receipt",
+ "dataClass": "PRIVATE_OPERATING_RECORD",
+ "date": "2026-09-05",
+ "generatedAt": "2026-09-05T17:31:38Z",
+ "states": [
+  "NOT_RUN",
+  "INPUTS_MISSING",
+  "STALE",
+  "INCIDENT",
+  "NO_PLAY",
+  "ACTIVE",
+  "PENDING_RESULT",
+  "SETTLED",
+  "VOID",
+  "OFF_SEASON"
+ ],
+ "lifecycleStates": [
+  "EVALUATING",
+  "ACTIVE",
+  "AWAITING_RESULT",
+  "SETTLED_WIN",
+  "SETTLED_LOSS",
+  "SETTLED_RECORDED",
+  "ADVANCED",
+  "RESTARTED",
+  "NO_PLAY",
+  "OFF_SEASON",
+  "INCIDENT"
+ ],
+ "inputs": {
+  "mlbBoard": {
+   "date": "2026-09-05",
+   "present": true,
+   "games": 15,
+   "leans": 673,
+   "hash": "5a729460cb2f"
+  },
+  "nflMarket": {
+   "present": true,
+   "capturedAt": "2026-08-29T17:50:39Z",
+   "events": 1
+  },
+  "nflModelEligible": false,
+  "nflNote": "NFL contributes NO legs: PUBLIC_EXPERIMENTAL — sportsbook prices are not a GameTimePicks pick"
+ },
+ "products": [
+  {
+   "product": "bank-builder",
+   "label": "Bank Builder",
+   "state": "NO_PLAY",
+   "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage",
+   "candidatesEvaluated": 0,
+   "rejections": [
+    {
+     "lane": "A",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 model-qualified legs — awaiting a full card"
+    },
+    {
+     "lane": "B",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 model-qualified legs — awaiting a full card"
+    }
+   ],
+   "card": null,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "bank-builder@1",
+    "evidence": {
+     "policyVersion": "bank-builder@1",
+     "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:bank-builder:2026-09-05"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-05:5a729460cb2f"
+     }
+    ]
+   }
+  },
+  {
+   "product": "moonshot",
+   "label": "Moonshot",
+   "state": "NO_PLAY",
+   "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage",
+   "candidatesEvaluated": 0,
+   "rejections": [
+    {
+     "lane": "A",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 3,
+     "reason": "only 0/3 model-qualified legs — awaiting a full lane"
+    },
+    {
+     "lane": "B",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 3,
+     "reason": "only 0/3 model-qualified legs — awaiting a full lane"
+    }
+   ],
+   "card": null,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "moonshot@1",
+    "evidence": {
+     "policyVersion": "moonshot@1",
+     "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:moonshot:2026-09-05"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-05:5a729460cb2f"
+     }
+    ]
+   }
+  },
+  {
+   "product": "end-zone-vault",
+   "label": "End Zone Vault",
+   "state": "NO_PLAY",
+   "reason": "no upcoming NFL event in this window to evaluate",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "end-zone-vault@1",
+    "evidence": {
+     "policyVersion": "end-zone-vault@1",
+     "reason": "no upcoming NFL event in this window to evaluate"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:end-zone-vault:2026-09-05"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-09-05:5a729460cb2f"
+     }
+    ]
+   }
+  },
+  {
+   "product": "homer-nukes",
+   "label": "Homer Nukes",
+   "state": "ACTIVE",
+   "reason": "5 model-qualified home-run picks published for the slate",
+   "candidatesEvaluated": 5,
+   "rejections": [],
+   "card": [
+    {
+     "playerId": 696100,
+     "player": "Hunter Goodman",
+     "teamId": 115,
+     "teamAbbr": "COL",
+     "teamName": "Colorado Rockies",
+     "opponentAbbr": "STL",
+     "opponentTeamId": 138,
+     "matchup": "STL @ COL",
+     "gamePk": 824310,
+     "gameDate": "2026-09-06T00:10:00Z",
+     "venue": "Coors Field",
+     "opposingPitcher": "Matthew Liberatore",
+     "opposingPitcherId": 669461,
+     "probability": 0.2825,
+     "seasonHr": 36,
+     "seasonPa": 502,
+     "seasonRate": 0.07171,
+     "adjustedRate": 0.0759,
+     "pitcherHrAllowed": 25,
+     "pitcherBattersFaced": 589,
+     "pitcherMultiplier": 1.267,
+     "reason": "36 HR in 502 plate appearances (7.2% of trips, league 3.0%). Matthew Liberatore has been more homer-prone than average (25 allowed in 589 batters faced), lifting it to 28.3%."
+    },
+    {
+     "playerId": 670042,
+     "player": "Luke Raley",
+     "teamId": 136,
+     "teamAbbr": "SEA",
+     "teamName": "Seattle Mariners",
+     "opponentAbbr": "ATH",
+     "opponentTeamId": 133,
+     "matchup": "ATH @ SEA",
+     "gamePk": 823094,
+     "gameDate": "2026-09-06T01:40:00Z",
+     "venue": "T-Mobile Park",
+     "opposingPitcher": "Jeffrey Springs",
+     "opposingPitcherId": 605488,
+     "probability": 0.2661,
+     "seasonHr": 15,
+     "seasonPa": 287,
+     "seasonRate": 0.05226,
+     "adjustedRate": 0.0709,
+     "pitcherHrAllowed": 33,
+     "pitcherBattersFaced": 548,
+     "pitcherMultiplier": 1.64,
+     "reason": "15 HR in 287 plate appearances (5.2% of trips, league 3.0%). Jeffrey Springs has been more homer-prone than average (33 allowed in 548 batters faced), lifting it to 26.6%."
+    },
+    {
+     "playerId": 686527,
+     "player": "Dominic Canzone",
+     "teamId": 136,
+     "teamAbbr": "SEA",
+     "teamName": "Seattle Mariners",
+     "opponentAbbr": "ATH",
+     "opponentTeamId": 133,
+     "matchup": "ATH @ SEA",
+     "gamePk": 823094,
+     "gameDate": "2026-09-06T01:40:00Z",
+     "venue": "T-Mobile Park",
+     "opposingPitcher": "Jeffrey Springs",
+     "opposingPitcherId": 605488,
+     "probability": 0.2594,
+     "seasonHr": 21,
+     "seasonPa": 444,
+     "seasonRate": 0.0473,
+     "adjustedRate": 0.0689,
+     "pitcherHrAllowed": 33,
+     "pitcherBattersFaced": 548,
+     "pitcherMultiplier": 1.64,
+     "reason": "21 HR in 444 plate appearances (4.7% of trips, league 3.0%). Jeffrey Springs has been more homer-prone than average (33 allowed in 548 batters faced), lifting it to 25.9%."
+    },
+    {
+     "playerId": 663728,
+     "player": "Cal Raleigh",
+     "teamId": 136,
+     "teamAbbr": "SEA",
+     "teamName": "Seattle Mariners",
+     "opponentAbbr": "ATH",
+     "opponentTeamId": 133,
+     "matchup": "ATH @ SEA",
+     "gamePk": 823094,
+     "gameDate": "2026-09-06T01:40:00Z",
+     "venue": "T-Mobile Park",
+     "opposingPitcher": "Jeffrey Springs",
+     "opposingPitcherId": 605488,
+     "probability": 0.2587,
+     "seasonHr": 21,
+     "seasonPa": 446,
+     "seasonRate": 0.04709,
+     "adjustedRate": 0.06869,
+     "pitcherHrAllowed": 33,
+     "pitcherBattersFaced": 548,
+     "pitcherMultiplier": 1.64,
+     "reason": "21 HR in 446 plate appearances (4.7% of trips, league 3.0%). Jeffrey Springs has been more homer-prone than average (33 allowed in 548 batters faced), lifting it to 25.9%."
+    },
+    {
+     "playerId": 681715,
+     "player": "Heriberto Hernández",
+     "teamId": 146,
+     "teamAbbr": "MIA",
+     "teamName": "Miami Marlins",
+     "opponentAbbr": "CHC",
+     "opponentTeamId": 112,
+     "matchup": "CHC @ MIA",
+     "gamePk": 823823,
+     "gameDate": "2026-09-05T20:10:00Z",
+     "venue": "loanDepot park",
+     "opposingPitcher": "Javier Assad",
+     "opposingPitcherId": 665871,
+     "probability": 0.2284,
+     "seasonHr": 23,
+     "seasonPa": 412,
+     "seasonRate": 0.05583,
+     "adjustedRate": 0.05978,
+     "pitcherHrAllowed": 15,
+     "pitcherBattersFaced": 332,
+     "pitcherMultiplier": 1.259,
+     "reason": "23 HR in 412 plate appearances (5.6% of trips, league 3.0%). Javier Assad has been more homer-prone than average (15 allowed in 332 batters faced), lifting it to 22.8%."
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "homer-nukes@1",
+    "evidence": {
+     "policyVersion": "homer-nukes@1",
+     "cardRef": "card+card+card+card+card",
+     "lockAt": "2026-09-05T16:50:50.000Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:homer-nukes:2026-09-05"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-05:5a729460cb2f"
+     }
+    ]
+   }
+  },
+  {
+   "product": "ufc-cards",
+   "label": "UFC paper cards",
+   "state": "ACTIVE",
+   "reason": "3 paper cards published for the 2026-09-05 event",
+   "candidatesEvaluated": 8,
+   "rejections": [],
+   "card": [
+    {
+     "tier": "low",
+     "slipId": "ufc-low-2026-09-05",
+     "combinedAmerican": -111,
+     "combinedDecimal": 1.905,
+     "legs": [
+      {
+       "sport": "ufc",
+       "eventId": "401916275",
+       "player": "Nathaniel Wood",
+       "market": "fight_winner",
+       "marketLabel": "Fight winner",
+       "side": "win",
+       "line": null,
+       "odds": -299,
+       "decimal": 1.334448160535117,
+       "modelProbability": 0.7501,
+       "modelId": "ufc-fight-model@e657fc40b64d",
+       "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/3950354.png",
+       "opponent": "Pavel Andrusca",
+       "team": null
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401914473",
+       "player": "Daniil Donchenko",
+       "market": "fight_winner",
+       "marketLabel": "Fight winner",
+       "side": "win",
+       "line": null,
+       "odds": -234,
+       "decimal": 1.4273504273504274,
+       "modelProbability": 0.6942,
+       "modelId": "ufc-fight-model@e657fc40b64d",
+       "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5289841.png",
+       "opponent": "Punahele Soriano",
+       "team": null
+      }
+     ],
+     "status": "pending",
+     "tierRecord": null
+    },
+    {
+     "tier": "medium",
+     "slipId": "ufc-medium-2026-09-05",
+     "combinedAmerican": 110,
+     "combinedDecimal": 2.099,
+     "legs": [
+      {
+       "sport": "ufc",
+       "eventId": "401875227",
+       "player": "Mario Pinto",
+       "market": "fight_winner",
+       "marketLabel": "Fight winner",
+       "side": "win",
+       "line": null,
+       "odds": -350,
+       "decimal": 1.2857142857142856,
+       "modelProbability": 0.6651,
+       "modelId": "ufc-fight-model@e657fc40b64d",
+       "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5218817.png",
+       "opponent": "Ryan Spann",
+       "team": null
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401911286",
+       "player": "Farés Ziam",
+       "market": "fight_winner",
+       "marketLabel": "Fight winner",
+       "side": "win",
+       "line": null,
+       "odds": -158,
+       "decimal": 1.6329113924050633,
+       "modelProbability": 0.6141,
+       "modelId": "ufc-fight-model@e657fc40b64d",
+       "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4083018.png",
+       "opponent": "Axel Sola",
+       "team": null
+      }
+     ],
+     "status": "pending",
+     "tierRecord": null
+    },
+    {
+     "tier": "high",
+     "slipId": "ufc-high-2026-09-05",
+     "combinedAmerican": 384,
+     "combinedDecimal": 4.839,
+     "legs": [
+      {
+       "sport": "ufc",
+       "eventId": "401911287",
+       "player": "Klaudia Syguła",
+       "market": "fight_winner",
+       "marketLabel": "Fight winner",
+       "side": "win",
+       "line": null,
+       "odds": -115,
+       "decimal": 1.8695652173913042,
+       "modelProbability": 0.6007,
+       "modelId": "ufc-fight-model@e657fc40b64d",
+       "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5122175.png",
+       "opponent": "Nora Cornolle",
+       "team": null
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401911288",
+       "player": "Oumar Sy",
+       "market": "fight_winner",
+       "marketLabel": "Fight winner",
+       "side": "win",
+       "line": null,
+       "odds": -242,
+       "decimal": 1.4132231404958677,
+       "modelProbability": 0.5662,
+       "modelId": "ufc-fight-model@e657fc40b64d",
+       "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5074120.png",
+       "opponent": "Modestas Bukauskas",
+       "team": null
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401902947",
+       "player": "Felipe Lima",
+       "market": "fight_winner",
+       "marketLabel": "Fight winner",
+       "side": "win",
+       "line": null,
+       "odds": -215,
+       "decimal": 1.4651162790697674,
+       "modelProbability": 0.549,
+       "modelId": "ufc-fight-model@e657fc40b64d",
+       "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5101694.png",
+       "opponent": "Morgan Charrière",
+       "team": null
+      },
+      {
+       "sport": "ufc",
+       "eventId": "401898007",
+       "player": "Kurtis Campbell",
+       "market": "fight_winner",
+       "marketLabel": "Fight winner",
+       "side": "win",
+       "line": null,
+       "odds": -400,
+       "decimal": 1.25,
+       "modelProbability": 0.5199,
+       "modelId": "ufc-fight-model@e657fc40b64d",
+       "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5310075.png",
+       "opponent": "Trevor Peek",
+       "team": null
+      }
+     ],
+     "status": "pending",
+     "tierRecord": null
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "ufc-cards@1",
+    "evidence": {
+     "policyVersion": "ufc-cards@1",
+     "cardRef": "card+card+card",
+     "lockAt": "2026-09-05T13:37:38Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:ufc-cards:2026-09-05"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-05:5a729460cb2f"
+     }
+    ]
+   }
+  },
+  {
+   "product": "epl-cards",
+   "label": "EPL paper cards",
+   "state": "ACTIVE",
+   "reason": "2 paper cards published for the 2026-09-05 event",
+   "candidatesEvaluated": 5,
+   "rejections": [],
+   "card": [
+    {
+     "tier": "medium",
+     "slipId": "epl-medium-2026-09-05",
+     "combinedAmerican": 212,
+     "combinedDecimal": 3.119,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:brentford-v-sunderland:20260905t1400",
+       "player": null,
+       "matchup": "Brentford v Sunderland",
+       "kickoffUtc": "2026-09-05T14:00:00Z",
+       "team": "Brentford",
+       "market": "match_result",
+       "marketLabel": "Match result",
+       "side": "home",
+       "line": null,
+       "odds": -140,
+       "decimal": 1.7142857142857144,
+       "books": 11
+      },
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:nottingham-forest-v-tottenham-hotspur:20260905t1400",
+       "player": null,
+       "matchup": "Nottingham Forest v Tottenham Hotspur",
+       "kickoffUtc": "2026-09-05T14:00:00Z",
+       "team": null,
+       "market": "total_goals",
+       "marketLabel": "Total goals 2.5",
+       "side": "over",
+       "line": 2.5,
+       "odds": -122,
+       "decimal": 1.819672131147541,
+       "books": 7
+      }
+     ],
+     "status": "pending",
+     "tierRecord": null
+    },
+    {
+     "tier": "high",
+     "slipId": "epl-high-2026-09-05",
+     "combinedAmerican": 533,
+     "combinedDecimal": 6.332,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:aston-villa-v-hull-city:20260905t1630",
+       "player": null,
+       "matchup": "Hull City v Aston Villa",
+       "kickoffUtc": "2026-09-05T16:30:00Z",
+       "team": "Aston Villa",
+       "market": "match_result",
+       "marketLabel": "Match result",
+       "side": "away",
+       "line": null,
+       "odds": -120,
+       "decimal": 1.8333333333333335,
+       "books": 11
+      },
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:coventry-city-v-manchester-city:20260905t1400",
+       "player": null,
+       "matchup": "Manchester City v Coventry City",
+       "kickoffUtc": "2026-09-05T14:00:00Z",
+       "team": null,
+       "market": "total_goals",
+       "marketLabel": "Total goals 3.5",
+       "side": "under",
+       "line": 3.5,
+       "odds": -118,
+       "decimal": 1.847457627118644,
+       "books": 7
+      },
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:crystal-palace-v-fulham:20260905t1400",
+       "player": null,
+       "matchup": "Fulham v Crystal Palace",
+       "kickoffUtc": "2026-09-05T14:00:00Z",
+       "team": null,
+       "market": "total_goals",
+       "marketLabel": "Total goals 2.5",
+       "side": "under",
+       "line": 2.5,
+       "odds": -115,
+       "decimal": 1.8695652173913042,
+       "books": 7
+      }
+     ],
+     "status": "pending",
+     "tierRecord": null
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "epl-cards@1",
+    "evidence": {
+     "policyVersion": "epl-cards@1",
+     "cardRef": "card+card",
+     "lockAt": "2026-09-05T13:40:49Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:epl-cards:2026-09-05"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-09-05:5a729460cb2f"
+     }
+    ]
+   }
+  },
+  {
+   "product": "nba-lanes",
+   "label": "NBA (all lanes)",
+   "state": "OFF_SEASON",
+   "reason": "the league is off-season by its own published schedule (results capture state OFF_SEASON); no NBA lane evaluates until real events and the activation gates exist",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": false
+  }
+ ],
+ "watchdog": [],
+ "authorities": {
+  "bankBuilder": "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
+  "moonshot": "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
+  "vault": "data/internal/nfl/end-zone-vault/ledger.json (append-only, owned by the Vault)",
+  "money": "NOT THIS SCRIPT — no money artifact is read for state or written at all"
+ },
+ "honesty": [
+  "INPUTS_MISSING is not NO_PLAY: a missing slate is an operational gap, and saying 'nothing qualified' would be a lie about a decision that never happened",
+  "every rejection reason is copied verbatim from the live activation policy — this receipt invents none",
+  "NFL contributes legs only when its MODEL layer is publishable; captured sportsbook prices never qualify a leg by themselves"
+ ]
+}
