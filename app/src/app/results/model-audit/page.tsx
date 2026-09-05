@@ -25,6 +25,9 @@ import { formatPercent } from "@/lib/format";
 import { isPredictionDisabled } from "@/lib/mlb/model-calibration-status";
 import { loadRecentAccounting } from "@/lib/research/results-accounting-loader";
 import HitRateSparkline from "@/components/hit-rate-sparkline";
+import CandidateReadout, { type ReadoutRow } from "@/components/results/candidate-readout";
+import fs from "node:fs";
+import nodePath from "node:path";
 
 export const metadata = {
   title: "Model audit deep-dive · GameTime Picks",
@@ -32,7 +35,16 @@ export const metadata = {
     "Settled-data audit of the GameTime Picks projection model — per-market, per-side, per-confidence, per-difference-band and per-game cuts, every one sourced from real settled rows. Educational only.",
 };
 
+/** The committed readout, or nothing. An unreadable file publishes no section rather than an empty one. */
+function loadCandidateReadout(): { rows: ReadoutRow[]; range: [string, string] | null } {
+  try {
+    const doc = JSON.parse(fs.readFileSync(nodePath.join(process.cwd(), "..", "data", "internal", "model-eval", "latest-readout.json"), "utf8"));
+    return { rows: (doc.rows ?? []) as ReadoutRow[], range: (doc.auditDateRange ?? null) as [string, string] | null };
+  } catch { return { rows: [], range: null }; }
+}
+
 export default function ModelAuditPage() {
+  const { rows: candidateRows, range: candidateAuditRange } = loadCandidateReadout();
   const audit = loadModelAudit();
   if (!audit) {
     return (
@@ -71,6 +83,10 @@ export default function ModelAuditPage() {
 
       <SportBlock sport={nba} accent="nba" />
       <SportBlock sport={mlb} accent="mlb" />
+
+      {/* P234 · H — what the candidate machinery currently says. Refusals are kept and published:
+          an evaluation system that only showed its wins would be the thing it exists to prevent. */}
+      <CandidateReadout rows={candidateRows} auditRange={candidateAuditRange} />
 
       <HonestyFooter generatedAt={audit.generatedAt} />
     </main>

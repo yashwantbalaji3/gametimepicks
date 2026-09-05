@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "artifact": "model-eval-readout",
+  "dataClass": "INTERNAL_RESEARCH",
+  "auditDateRange": [
+    "2026-05-16",
+    "2026-09-04"
+  ],
+  "rows": [
+    {
+      "id": "mlb-isotonic-2026-08",
+      "sport": "mlb",
+      "state": "PRIOR_OBSERVATION",
+      "candidate": "isotonic-v1",
+      "incumbent": "raw-model",
+      "metric": "brier",
+      "cohort": [
+        "2026-08-11",
+        "2026-09-04"
+      ],
+      "n": 11829,
+      "coverage": 1,
+      "delta": 0.008596560355742855,
+      "verdict": "INCONCLUSIVE",
+      "reasons": [
+        "brier improved by 0.008597, past the bar — but this window was scored before its terms were fixed, so it is context and not a test"
+      ],
+      "registrationValid": true,
+      "nextEvaluationCondition": null
+    },
+    {
+      "id": "mlb-isotonic-2026-09-forward",
+      "sport": "mlb",
+      "state": "PREREGISTERED",
+      "candidate": "isotonic-v1",
+      "incumbent": "raw-model",
+      "metric": "brier",
+      "cohort": [
+        "2026-08-11",
+        "2026-09-04"
+      ],
+      "n": 11829,
+      "coverage": null,
+      "delta": null,
+      "verdict": "WINDOW_NOT_OPEN",
+      "reasons": [
+        "this cohort ends 2026-09-04 and the registration's window opens 2026-09-06 — there is nothing to score yet"
+      ],
+      "registrationValid": true,
+      "nextEvaluationCondition": "Run once 2000 decisive rows have settled on or after 2026-09-06. At roughly 400 decisive rows a day that is about five settled slates; running it earlier returns INSUFFICIENT_SAMPLE by design rather than an early answer."
+    }
+  ],
+  "note": "Verdicts under frozen terms. PROMOTION_EARNED is a recommendation; promotion is a separate governed act."
+}

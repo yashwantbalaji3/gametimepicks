@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "artifact": "model-eval-registrations",
+  "dataClass": "INTERNAL_RESEARCH",
+  "note": "Frozen terms for candidate-versus-incumbent evaluations. A registration is written BEFORE its evaluation window opens; one written afterwards is marked PRIOR_OBSERVATION and can never earn a promotion, however good its numbers are. Promotion is a governed act performed by a person against the readout — nothing in this repository promotes a model.",
+  "registrations": [
+    {
+      "id": "mlb-isotonic-2026-08",
+      "sport": "mlb",
+      "state": "PRIOR_OBSERVATION",
+      "why": "The isotonic calibrator was already fitted and scored on this window before these terms were written down. Recording it as a preregistration would be choosing the terms to fit a result that was already known, which is the exact dishonesty the mechanism exists to prevent. It is kept as the baseline observation the next window will be measured against.",
+      "candidateVersion": "isotonic-v1",
+      "incumbentVersion": "raw-model",
+      "trainingCutoff": "2026-08-10",
+      "evaluationOpensAt": "2026-08-11",
+      "featureSources": ["app/public/data/mlb/results/calibration/*.jsonl"],
+      "eligibility": "decisive settled MLB player-prop rows carrying both a model probability and a de-vigged market probability",
+      "metric": "brier",
+      "minimumDecisiveRows": 2000,
+      "minimumCoverage": 0.9,
+      "requiredImprovement": 0.005,
+      "registeredAt": "2026-09-05"
+    },
+    {
+      "id": "mlb-isotonic-2026-09-forward",
+      "sport": "mlb",
+      "state": "PREREGISTERED",
+      "why": "The forward test. Terms fixed on 2026-09-05 for a window that opens on 2026-09-06, so no row inside it has been scored under this candidate yet. This is the registration that can actually earn something.",
+      "candidateVersion": "isotonic-v1",
+      "incumbentVersion": "raw-model",
+      "trainingCutoff": "2026-09-05",
+      "evaluationOpensAt": "2026-09-06",
+      "featureSources": ["app/public/data/mlb/results/calibration/*.jsonl"],
+      "eligibility": "decisive settled MLB player-prop rows carrying both a model probability and a de-vigged market probability",
+      "metric": "brier",
+      "minimumDecisiveRows": 2000,
+      "minimumCoverage": 0.9,
+      "requiredImprovement": 0.005,
+      "registeredAt": "2026-09-05",
+      "nextEvaluationCondition": "Run once 2000 decisive rows have settled on or after 2026-09-06. At roughly 400 decisive rows a day that is about five settled slates; running it earlier returns INSUFFICIENT_SAMPLE by design rather than an early answer."
+    }
+  ]
+}
