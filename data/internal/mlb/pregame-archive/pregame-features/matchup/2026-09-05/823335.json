@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 823335,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T00:18:33.175Z",
+  "availableAt": "2026-09-05T00:18:33.175Z",
+  "eventStartTime": "2026-09-05T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 677952,
+    "name": "Braxton Ashcraft",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 579328,
+    "name": "Yusei Kikuchi",
+    "pitchHand": "L"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-05T00:18:33.175Z"
+  },
+  "recordHash": "5c55cbbc7f9c42183edfa4ade0447594318c1f4e9af9b1af37baec899c97c4e0"
+}

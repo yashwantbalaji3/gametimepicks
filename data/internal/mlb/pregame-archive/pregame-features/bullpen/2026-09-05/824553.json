@@ -1,0 +1,177 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824553,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T00:18:31.588Z",
+  "availableAt": "2026-09-05T00:18:31.588Z",
+  "eventStartTime": "2026-09-05T23:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04"
+  ],
+  "home": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 94,
+      "relievers": [
+        {
+          "id": 656794,
+          "name": "Sean Newcomb",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 6,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 805326,
+          "name": "Tyler Schweitzer",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 6,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 664353,
+          "name": "José Urquidy",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 699823,
+          "name": "Tyler Davis",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 1,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 670950,
+          "name": "Trevor Richards",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 142,
+    "teamName": "Minnesota Twins",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 116,
+      "relievers": [
+        {
+          "id": 667297,
+          "name": "Tommy Nance",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 4,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 681892,
+          "name": "Kody Funderburk",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 5,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 621345,
+          "name": "A.J. Minter",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 4,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 672782,
+          "name": "Yoendrys Gómez",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 5,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 656546,
+          "name": "Jeff Hoffman",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 573124,
+          "name": "Taylor Rogers",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 2,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 701519,
+          "name": "Travis Adams",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-02,2026-09-03,2026-09-04) + feed/live box scores",
+    "capturedAt": "2026-09-05T00:18:31.588Z"
+  },
+  "recordHash": "331addfda89f54a4d4e81aa531594fa1706e608a7bf786fda6f9f39afd3600a0"
+}

@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823335,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T00:18:31.588Z",
+  "availableAt": "2026-09-05T00:18:31.588Z",
+  "eventStartTime": "2026-09-05T22:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04"
+  ],
+  "home": {
+    "teamId": 134,
+    "teamName": "Pittsburgh Pirates",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 159,
+      "relievers": [
+        {
+          "id": 694753,
+          "name": "Khristian Curtis",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 9,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 669387,
+          "name": "Carmen Mlodzinski",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 9,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 685126,
+          "name": "Brandon Eisert",
+          "appearances": 2,
+          "pitches": 28,
+          "outs": 5,
+          "dates": [
+            "2026-09-02",
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 666808,
+          "name": "Camilo Doval",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 670990,
+          "name": "Yohan Ramírez",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 596133,
+          "name": "Luke Weaver",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 682254,
+          "name": "Mason Montgomery",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 108,
+    "teamName": "Los Angeles Angels",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 61,
+      "relievers": [
+        {
+          "id": 684665,
+          "name": "Luke Murphy",
+          "appearances": 1,
+          "pitches": 29,
+          "outs": 2,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 670245,
+          "name": "Ryan Watson",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 690829,
+          "name": "Ben Joyce",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 676620,
+          "name": "Blake Weiman",
+          "appearances": 1,
+          "pitches": 1,
+          "outs": 1,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-02,2026-09-03,2026-09-04) + feed/live box scores",
+    "capturedAt": "2026-09-05T00:18:31.588Z"
+  },
+  "recordHash": "604d1774539bd9bb22458f3691b259b020b616be21d17c75de82e3eb86df199a"
+}

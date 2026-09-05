@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 822850,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T00:18:31.588Z",
+  "availableAt": "2026-09-05T00:18:31.588Z",
+  "eventStartTime": "2026-09-05T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04"
+  ],
+  "home": {
+    "teamId": 140,
+    "teamName": "Texas Rangers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 132,
+      "relievers": [
+        {
+          "id": 656756,
+          "name": "Jordan Montgomery",
+          "appearances": 1,
+          "pitches": 52,
+          "outs": 9,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 687239,
+          "name": "Ben Peoples",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 695239,
+          "name": "Robby Ahlstrom",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 681217,
+          "name": "Chase Silseth",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 596001,
+          "name": "Jakob Junis",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 150,
+      "relievers": [
+        {
+          "id": 668984,
+          "name": "Casey Legumina",
+          "appearances": 1,
+          "pitches": 42,
+          "outs": 9,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 655889,
+          "name": "Manuel Rodríguez",
+          "appearances": 1,
+          "pitches": 33,
+          "outs": 5,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 571927,
+          "name": "Steven Matz",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 7,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 592155,
+          "name": "Cam Booser",
+          "appearances": 1,
+          "pitches": 26,
+          "outs": 4,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-02,2026-09-03,2026-09-04) + feed/live box scores",
+    "capturedAt": "2026-09-05T00:18:31.588Z"
+  },
+  "recordHash": "9ba12ddaad6e75d0642a954c68291e739466cf1499309a12c601c13265cb57bb"
+}

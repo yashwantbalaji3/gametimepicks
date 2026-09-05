@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823904,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T00:18:31.588Z",
+  "availableAt": "2026-09-05T00:18:31.588Z",
+  "eventStartTime": "2026-09-06T01:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04"
+  ],
+  "home": {
+    "teamId": 119,
+    "teamName": "Los Angeles Dodgers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 98,
+      "relievers": [
+        {
+          "id": 592779,
+          "name": "Brock Stewart",
+          "appearances": 2,
+          "pitches": 23,
+          "outs": 5,
+          "dates": [
+            "2026-09-02",
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 623465,
+          "name": "Evan Phillips",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 681911,
+          "name": "Alex Vesia",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 4,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 656945,
+          "name": "Tanner Scott",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 676263,
+          "name": "Jack Dreyer",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 683618,
+          "name": "Edgardo Henriquez",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-09-03"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 120,
+    "teamName": "Washington Nationals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 112,
+      "relievers": [
+        {
+          "id": 668820,
+          "name": "Max Kranick",
+          "appearances": 1,
+          "pitches": 49,
+          "outs": 4,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 683000,
+          "name": "Riley Cornelio",
+          "appearances": 1,
+          "pitches": 47,
+          "outs": 8,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 677588,
+          "name": "José Tena",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 663362,
+          "name": "Matt Waldron",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 2,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-02,2026-09-03,2026-09-04) + feed/live box scores",
+    "capturedAt": "2026-09-05T00:18:31.588Z"
+  },
+  "recordHash": "50940074c1df16dbea8958bee6b29115a988d76e796c846ca32d2899e6075edd"
+}

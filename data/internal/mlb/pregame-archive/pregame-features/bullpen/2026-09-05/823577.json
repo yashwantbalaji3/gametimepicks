@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823577,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T00:18:31.588Z",
+  "availableAt": "2026-09-05T00:18:31.588Z",
+  "eventStartTime": "2026-09-05T20:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04"
+  ],
+  "home": {
+    "teamId": 121,
+    "teamName": "New York Mets",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 87,
+      "relievers": [
+        {
+          "id": 681320,
+          "name": "Nate Lavender",
+          "appearances": 1,
+          "pitches": 30,
+          "outs": 5,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 650960,
+          "name": "Daniel Duarte",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 4,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 606965,
+          "name": "Chris Devenski",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 673380,
+          "name": "Dedniel Núñez",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 4,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 702752,
+          "name": "Jonathan Pintaro",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 137,
+    "teamName": "San Francisco Giants",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 142,
+      "relievers": [
+        {
+          "id": 665665,
+          "name": "Reiver Sanmartin",
+          "appearances": 2,
+          "pitches": 40,
+          "outs": 5,
+          "dates": [
+            "2026-09-02",
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 676254,
+          "name": "Ryan Walker",
+          "appearances": 2,
+          "pitches": 37,
+          "outs": 5,
+          "dates": [
+            "2026-09-02",
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 805345,
+          "name": "Trent Harris",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 681916,
+          "name": "Dylan Smith",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 693313,
+          "name": "Carson Seymour",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 5,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 671345,
+          "name": "Jason Foley",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-02,2026-09-03,2026-09-04) + feed/live box scores",
+    "capturedAt": "2026-09-05T00:18:31.588Z"
+  },
+  "recordHash": "b97095ee283482556d10e433ccb6a89f661abbeaadf9c097da92e8f929f31f0a"
+}

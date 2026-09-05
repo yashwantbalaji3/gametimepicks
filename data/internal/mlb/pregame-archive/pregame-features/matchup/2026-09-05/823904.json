@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "mlb-pregame-matchup-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "batter_matchup",
+  "gamePk": 823904,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T00:18:33.175Z",
+  "availableAt": "2026-09-05T00:18:33.175Z",
+  "eventStartTime": "2026-09-06T01:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; handedness is static, lineup is a pregame state",
+  "homeStartingPitcher": {
+    "id": 607192,
+    "name": "Tyler Glasnow",
+    "pitchHand": "R"
+  },
+  "awayStartingPitcher": {
+    "id": 676917,
+    "name": "Cade Cavalli",
+    "pitchHand": "R"
+  },
+  "homeBatters": [],
+  "awayBatters": [],
+  "lineupPosted": false,
+  "leakageRule": "handedness = static player fact; batting order + batters come from the pregame-eligible lineup snapshot; no postgame info",
+  "roadmap": "season vs-L/vs-R splits + recent hitting form are the next matchup additions (per-batter, best captured once per day after the lineup posts)",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(hydrate=probablePitcher) + people?personIds= (handedness) + pregame lineup snapshot",
+    "capturedAt": "2026-09-05T00:18:33.175Z"
+  },
+  "recordHash": "1daa8ef44532d8ff9f8acacedb0725d5aa66448768f0eb55d1695586c436e1b4"
+}

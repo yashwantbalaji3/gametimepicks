@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823257,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T00:18:31.588Z",
+  "availableAt": "2026-09-05T00:18:31.588Z",
+  "eventStartTime": "2026-09-05T23:15:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04"
+  ],
+  "home": {
+    "teamId": 135,
+    "teamName": "San Diego Padres",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 76,
+      "relievers": [
+        {
+          "id": 666745,
+          "name": "Jhony Brito",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 5,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 593974,
+          "name": "Wandy Peralta",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 4,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 606996,
+          "name": "Kyle Hart",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 688158,
+          "name": "David Morgan",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 1,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 2,
+      "pitches": 37,
+      "relievers": [
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        },
+        {
+          "id": 605242,
+          "name": "Michael Fulmer",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-02"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-02,2026-09-03,2026-09-04) + feed/live box scores",
+    "capturedAt": "2026-09-05T00:18:31.588Z"
+  },
+  "recordHash": "c71e29e43aa9c0afb8140589d7a64a1b5245c286b27fe6cf10ecf1f18c9c5932"
+}
