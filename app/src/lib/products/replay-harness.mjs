@@ -73,6 +73,22 @@ export function seed(store, relPath, doc) {
   return full;
 }
 
+/**
+ * Copy a real committed artifact into the store, unchanged.
+ *
+ * Recorded fixtures beat synthesized ones wherever the repository already has the shape: a
+ * hand-written receipt drifts from the producer the moment the producer changes, and the drift is
+ * silent. Where a case needs values no live day produced, the tests synthesize deliberately and say
+ * so; everything else is copied.
+ */
+export function copyInto(store, repoDir, relPath) {
+  const from = path.join(repoDir, relPath);
+  const to = path.join(store, relPath);
+  fs.mkdirSync(path.dirname(to), { recursive: true });
+  fs.cpSync(from, to, { recursive: true });
+  return to;
+}
+
 export function readStore(store, relPath) {
   try { return JSON.parse(fs.readFileSync(path.join(store, relPath), "utf8")); } catch { return null; }
 }
@@ -116,6 +132,58 @@ export function businessState(store, date) {
 export function receiptFiles(store) {
   const dir = path.join(store, "public/data/parlays/lab-settled");
   try { return fs.readdirSync(dir).sort(); } catch { return []; }
+}
+
+/* ── END ZONE VAULT · a second product, a different lifecycle ─────────────────────────────────── */
+
+export const SETTLE_NFL_EXPERIMENTAL = "app/scripts/nfl/settle-nfl-experimental.mjs";
+
+/**
+ * Run the NFL experimental-forecast settler against the store.
+ *
+ * Its roots differ from the parlay settler's: it addresses the REPOSITORY root, because its receipts
+ * and ledger live under `data/internal/` rather than under `app/public/`. The store therefore mirrors
+ * a repo, not an app — which is exactly the kind of per-product difference the charter warns against
+ * assuming away.
+ */
+export function runVaultSettler(store, { now, date, repoDir }) {
+  if (!now) throw new Error("replay-harness: a controlled clock (`now`) is required");
+  const args = [path.join(repoDir, SETTLE_NFL_EXPERIMENTAL), "--now", now, "--repo-root", store];
+  if (date) args.push("--date", date);
+  const r = spawnSync("npx", ["tsx", ...args], { cwd: path.join(store, "app"), encoding: "utf8", env: { ...process.env } });
+  return { status: r.status ?? 1, stdout: r.stdout ?? "", stderr: r.stderr ?? "" };
+}
+
+/** A repo-shaped store: the vault settler reads `<root>/data` and `<root>/app/public`. */
+export function makeRepoStore(prefix = "gtp-replay-repo-", appDir = process.cwd()) {
+  const store = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  fs.mkdirSync(path.join(store, "app"), { recursive: true });
+  for (const entry of ["node_modules", "src", "scripts"]) {
+    try { fs.symlinkSync(path.join(appDir, entry), path.join(store, "app", entry), "dir"); } catch { /* best effort */ }
+  }
+  try { fs.copyFileSync(path.join(appDir, "tsconfig.json"), path.join(store, "app", "tsconfig.json")); } catch { /* alias resolution fails loudly */ }
+  return store;
+}
+
+/**
+ * The vault's business state: which events were graded and how. Excludes the settler's own wall-clock
+ * stamps for the same reason the parlay comparison does.
+ */
+export function vaultState(store, date) {
+  const doc = readStore(store, `data/internal/nfl/experimental-settlement/${date}.json`);
+  if (!doc) return null;
+  /* The receipt nests provenance under `lineage` and the outcome under `grade`. Reading them from
+     the top level returned undefined for every event, which made the first version of the
+     forecast-of-record test pass its comparison against two identical arrays of nothing. */
+  const events = (doc.events ?? []).map((e) => ({
+    providerEventId: e.providerEventId,
+    receiptFile: e.lineage?.receiptFile ?? null,
+    forecastGeneratedAt: e.lineage?.forecastGeneratedAt ?? null,
+    inputHash: e.lineage?.inputHash ?? null,
+    winnerHit: e.grade?.winnerHit ?? null,
+    grade: e.grade ? JSON.stringify(e.grade) : null,
+  })).sort((a, b) => String(a.providerEventId).localeCompare(String(b.providerEventId)));
+  return { date: doc.date, ledger: doc.ledger, modelVersion: doc.modelVersion, events };
 }
 
 /** Count of cards by outcome. A population of zero is a test that proves nothing; callers assert on it. */

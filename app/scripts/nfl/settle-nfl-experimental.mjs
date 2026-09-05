@@ -24,9 +24,17 @@ import { fileURLToPath } from "node:url";
 
 import { summariseByCohort } from "../../src/lib/sports/nfl/experimental-summary.mjs";
 
-const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const ROOT = path.join(APP, "..");
 const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : f; };
+
+/*
+ * `--repo-root` EXISTS SO THIS SETTLER CAN BE REPLAYED WITHOUT TOUCHING THE REAL LEDGER, the same
+ * reason the parlay settler grew `--app-root` in Program 235. It is a path override and nothing
+ * else — no branch below reads it to decide what to grade or how — so an isolated replay exercises
+ * exactly the code a scheduled run does. Default is this script's own location, so every existing
+ * invocation is unchanged.
+ */
+const ROOT = path.resolve(arg("--repo-root") ?? path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", ".."));
+const APP = path.join(ROOT, "app");
 const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(1); }
 const DATE = arg("--date", NOW.slice(0, 10));
