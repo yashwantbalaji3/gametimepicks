@@ -379,6 +379,60 @@ export default function NflHubPage() {
         ) : null}
       </section>
 
+      {/* ── GAME REPORTS · P234 · Release I ───────────────────────────────────────────────────
+           `/nfl/game/[eventId]` is statically generated for every forecast this project has
+           published, and until now NOTHING in the export linked to it. The route was reachable
+           only by typing it. That is the same defect Program 178 recorded for the Simulate lobby —
+           "discovery was the defect; the artifacts were real" — and it is worth fixing on its own
+           terms rather than waiting for a slate that makes it look busy.
+
+           Each row states the game's OWN state, so a settled preseason report is offered as what it
+           is: a frozen pre-event forecast beside a played game, never a current read. */}
+      {(forecastArtifact?.forecasts ?? []).length ? (
+        <section aria-labelledby="nfl-reports" id="nfl-reports" className="scroll-mt-24">
+          <SectionHeader
+            eyebrow="Per-game reports"
+            title="Every forecast we published"
+            sub="Each one shows what the model said before kickoff, and is labelled with where that game now stands."
+          />
+          <ul className="mt-3 flex flex-col gap-2 m-0 p-0" style={{ listStyle: "none" }}>
+            {((forecastArtifact?.forecasts ?? []) as Array<{
+              providerEventId: string; matchup: string; kickoffUtc: string; seasonType: number; week: number;
+            }>)
+              .slice()
+              .sort((a, b) => b.kickoffUtc.localeCompare(a.kickoffUtc))
+              .slice(0, 12)
+              .map((f) => {
+                const lifecycle = eventById.get(f.providerEventId)?.lifecycle ?? "UPCOMING";
+                const played = lifecycle !== "UPCOMING";
+                return (
+                  <li key={f.providerEventId}>
+                    <Link
+                      href={`/nfl/game/${f.providerEventId}/`}
+                      className="vault-glow-hover flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-[10px] px-3 py-2.5 no-underline"
+                      style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", color: "inherit" }}
+                    >
+                      <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 650 }}>{f.matchup}</span>
+                      <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+                        {f.kickoffUtc.slice(0, 10)} · {f.seasonType === 1 ? "preseason" : "regular season"} week {f.week}
+                      </span>
+                      <span
+                        className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.08em]"
+                        style={{ fontSize: 9, color: played ? "var(--vault-text-mute)" : "var(--vault-gold-bright)", background: "var(--vault-wash-soft)" }}
+                      >
+                        {played ? "played · frozen forecast" : "upcoming"}
+                      </span>
+                      <span className="ml-auto font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>
+                        Open report →
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+          </ul>
+        </section>
+      ) : null}
+
       {laterGames.length ? (
         <section aria-labelledby="nfl-later" id="nfl-later">
           <SectionHeader

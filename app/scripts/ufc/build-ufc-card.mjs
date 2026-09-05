@@ -445,9 +445,23 @@ const artifact = {
       method: evaluation.heads?.method ?? null,
       round: evaluation.heads?.round ?? null,
     },
+    /*
+     * WHAT THIS ARTIFACT DOES NOT CARRY — a statement about ITS OWN CONTENTS, not about policy.
+     *
+     * This said "our authorisation to buy odds covers NFL only, so there is no captured UFC line to
+     * show". That expired: UFC prices are captured under a UFC receipt of their own
+     * (docs/receipts/ODDS_AUTHORIZATION_UFC.md), and `odds-latest.json` and
+     * `graded-moneylines-latest.json` exist beside this file. /ufc had already been corrected for
+     * printing the same claim above the prices it denied; the producer went on emitting it, so
+     * every consumer that trusted the artifact inherited a contradiction the page had shed.
+     *
+     * The replacement describes the shape of THIS document rather than the state of a policy,
+     * because a sentence about a policy expires the moment the policy changes and nothing here
+     * would notice. A sentence about what a file contains stays true as long as the file does.
+     */
     notModelled: {
       moneyline:
-        "No sportsbook price is published or compared. Our authorisation to buy odds covers NFL only, so there is no captured UFC line to show — the win probability here is the model's own, standing alone.",
+        "This card publishes the model's own probabilities and carries no price beside them. UFC prices are captured separately and live in the odds and moneyline-grading artifacts; they are not joined into this document.",
     },
   },
   bouts: card,
