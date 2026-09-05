@@ -43,7 +43,26 @@ test("THE NEXT KICKOFF IS A SCHEDULE FACT · it cannot be null while a game is s
     .filter((r) => r.statusRaw === "STATUS_SCHEDULED" && Date.parse(r.dateUtc) > Date.parse(idx.generatedAt))
     .sort((a, b) => a.dateUtc.localeCompare(b.dateUtc));
 
-  assert.equal(idx.counts.scheduledUpcoming, upcomingRows.length, "the count reconciles with the committed capture");
+  /*
+   * TWO PRODUCERS, TWO CADENCES (P233 · A). `sport-schedules` recaptures the NFL schedule on its own
+   * clock; `nfl-event-window` rebuilds this index on another. On 2026-09-05 the schedule was
+   * recaptured at 15:41Z carrying a sixteenth upcoming game while the index still read 15 from
+   * 09-04T22:48Z — seventeen hours old and one game behind an input that did not exist when it was
+   * built. Requiring exact equality asks an artifact to reconcile with its own future.
+   *
+   * The claim that survives is the one that matters: the index can be BEHIND the schedule, never
+   * ahead of it. A count exceeding the capture would be invented.
+   */
+  const captureAt = schedule.capturedAt ?? schedule.generatedAt ?? null;
+  const captureIsNewer = Boolean(captureAt) && Date.parse(captureAt) > Date.parse(idx.generatedAt);
+
+  assert.ok(
+    idx.counts.scheduledUpcoming <= upcomingRows.length,
+    `the index counts ${idx.counts.scheduledUpcoming} upcoming games and the capture holds ${upcomingRows.length} — an index may lag its schedule, never exceed it`,
+  );
+  if (!captureIsNewer) {
+    assert.equal(idx.counts.scheduledUpcoming, upcomingRows.length, "the count reconciles with the committed capture");
+  }
 
   if (upcomingRows.length > 0) {
     assert.equal(idx.nextKickoffUtc, upcomingRows[0].dateUtc,
