@@ -85,7 +85,8 @@ import { buildLearningSignalRows } from "@/lib/learning-signals";
 import { buildRiskSectionDrilldown } from "@/lib/results-drilldown";
 import YesterdaySummary from "@/components/yesterday-summary";
 import TrustCenter from "@/components/results/trust-center";
-import ResultsExplorer, { type ResultRow } from "@/components/results/results-explorer";
+import ResultsExplorer, { type ResultRow, type SettledCard } from "@/components/results/results-explorer";
+import { loadSettledCards, DATE_BASIS_NOTE } from "@/lib/results/dated-cards.mjs";
 import PresentationLauncher from "@/components/simulate/presentation-launcher";
 import { buildResultsRecapPresentation } from "@/lib/simulate/presentation/boards";
 import { buildResultRows } from "@/lib/results/read-model.mjs";
@@ -232,7 +233,14 @@ export default function ResultsPage() {
           narrow it — record type, sport and risk tier, with the denominator beside every rate and a
           named absence where nothing has settled. The rows are PROJECTED from the committed ledgers
           (lib/results/read-model), never recomputed here. */}
-      <ResultsExplorer rows={buildResultRows(resultSources()) as ResultRow[]} />
+      <ResultsExplorer
+        rows={buildResultRows(resultSources()) as ResultRow[]}
+        /* The per-card dated rows. They reconcile with the ledger exactly — stream and tier — which
+           is what lets a filtered figure sit beside the site's published one without contradicting
+           it. Populations without this detail get no date control and a stated reason. */
+        cards={loadSettledCards(path.join(process.cwd(), "public", "data")) as SettledCard[]}
+        dateBasisNote={DATE_BASIS_NOTE}
+      />
 
       {/* P234 · D — the record as a recordable recap, over the SAME projected rows the explorer
           filters. It carries the period, the population and the denominator; zero decisive outcomes
