@@ -31,6 +31,9 @@ import {
   SIMULATION_MIN_DURATION_MS,
   SIMULATION_STAGES,
 } from "./simulation-animation";
+import PresentationPlayer from "@/components/simulate/presentation-player";
+import type { PresentationResult } from "@/lib/simulate/presentation/types";
+import { isPresentable } from "@/lib/simulate/presentation/types";
 
 /**
  * The dashboard modules the reveal unlocks — shown BEFORE the click as locked/preview pills ONLY (labels,
@@ -323,6 +326,7 @@ export default function GameSimulationRunner({
   marketSnapshot,
   homeLogo,
   awayLogo,
+  presentation,
 }: {
   view: GameSimulationView;
   /** Rendered ONLY in the done phase, below the dashboard — the dense report + spotlight + tabs shell,
@@ -333,12 +337,21 @@ export default function GameSimulationRunner({
   marketSnapshot?: React.ReactNode;
   homeLogo?: string | null;
   awayLogo?: string | null;
+  /**
+   * THE BOUNDED PRESENTATION (P234 · Release B). When the report projects into a manifest, the reveal
+   * IS the presentation: chapters in a fixed frame, each skippable, the dashboard waiting underneath.
+   * When it does not, the original staged animation still runs on its 10s gate — the fallback is kept
+   * rather than removed, because a sport or a game without a manifest must not lose its reveal.
+   */
+  presentation?: PresentationResult | null;
 }) {
   const [phase, setPhase] = useState<"idle" | "revealing" | "done">("idle");
   const [stage, setStage] = useState(0);
   const timersRef = useRef<number[]>([]);
 
   const ready = view.status === "ready" || view.status === "stale";
+  /** A manifest that actually built. A refusal is still handed to the player, which states its reason. */
+  const playable = isPresentable(presentation ?? null);
 
   // Clear any pending stage timers on unmount so a mid-animation navigation never fires a stray setState.
   useEffect(() => {
@@ -353,12 +366,32 @@ export default function GameSimulationRunner({
   // elapsed. NO data work, NO randomness — the payload is already loaded; this only stages its reveal, so
   // the same artifact is shown for every click. The done phase is GATED on SIMULATION_MIN_DURATION_MS: the
   // dashboard cannot appear on a sub-10s timer.
+  /*
+   * ARRIVING WITH THE INTENT ALREADY EXPRESSED. `?play=1` is written by the /simulate card the
+   * reader clicked, so this is a user action that survived a navigation — not a dialog that opens
+   * by itself on page load. Read at hydration, which is the static-export-safe pattern this app
+   * already uses for its other query state.
+   */
+  useEffect(() => {
+    if (!playable) return;
+    let wanted = false;
+    try { wanted = new URLSearchParams(window.location.search).get("play") === "1"; } catch { wanted = false; }
+    if (wanted) setPhase((cur) => (cur === "idle" ? "revealing" : cur));
+  }, [playable]);
+
   const start = useCallback(() => {
     if (!ready) return;
     for (const t of timersRef.current) window.clearTimeout(t);
     timersRef.current = [];
     setPhase("revealing");
     setStage(0);
+
+    /*
+     * THE PRESENTATION DRIVES ITSELF. With a manifest, the reveal is the player's chapter clock and
+     * the dashboard appears when the READER finishes or closes it — never on a timer this component
+     * owns. That is strictly stronger than the 10s gate below: there is no timer to shorten.
+     */
+    if (playable) return;
 
     const stageCount = SIMULATION_STAGES.length;
     const perStage = SIMULATION_MIN_DURATION_MS / stageCount; // ≈1.25s per stage across the 10s
@@ -375,7 +408,7 @@ export default function GameSimulationRunner({
       setPhase("done");
     }, SIMULATION_MIN_DURATION_MS);
     timersRef.current.push(doneTimer);
-  }, [ready]);
+  }, [ready, playable]);
 
   // ── Unavailable: calm, non-broken. The existing Game Lab report stays visible above this. ──
   if (view.status === "unavailable" || view.status === "error") {
@@ -505,7 +538,13 @@ export default function GameSimulationRunner({
       {/* Reveal animation — the 10s sport-specific staging (premium baseball diamond + team marks for MLB).
           The dashboard is gated on SIMULATION_MIN_DURATION_MS in `start`, so it never appears before the
           animation finishes. Team logos are threaded through (monogram fallback when null). */}
-      {phase === "revealing" ? <SportSimulationAnimation sport={view.sport} view={view} stage={stage} homeLogo={homeLogo} awayLogo={awayLogo} /> : null}
+      {phase === "revealing" && presentation ? (
+        /* Closing the presentation — by button, Escape, or backdrop — lands the reader on the full
+           dashboard. There is no second ceremony to sit through on the way. */
+        <PresentationPlayer presentation={presentation} onClose={() => setPhase("done")} />
+      ) : phase === "revealing" ? (
+        <SportSimulationAnimation sport={view.sport} view={view} stage={stage} homeLogo={homeLogo} awayLogo={awayLogo} />
+      ) : null}
 
       {/* After reveal: the precomputed artifact, reorganized into the 10-section dashboard. A gentle
           fade/slide-in makes the animation→dashboard handoff feel intentional (motion-gated). */}

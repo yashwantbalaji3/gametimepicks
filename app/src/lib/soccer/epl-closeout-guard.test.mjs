@@ -58,6 +58,17 @@ const CROSS_LANE_READERS = [
    */
   "src/lib/offered-window/epl-publication.test.mjs",
   /*
+   * forecast-publication.test.mjs (P234 · A): the same control plane, one hole further in. P233's
+   * rule derives publication from the presence of probabilities, which left `{}` and a row of NaNs
+   * reading as published; the narrowed rule asks whether the row carries a distribution a reader
+   * could be shown.
+   *
+   * It reads the committed EPL rows for the same reason its sibling above does — a rule about what
+   * publication consists of can only be proven against the things actually published. Control
+   * plane, not a surface.
+   */
+  "src/lib/offered-window/forecast-publication.test.mjs",
+  /*
    * closure-packet-sources (P196 · Release A/D): the completion control plane reads every sport's
    * own artifacts by design — EPL's forecast set for the current-event verdict and the graded
    * ledger for the live calibration recount that guard C7 compares against the learning artifact.

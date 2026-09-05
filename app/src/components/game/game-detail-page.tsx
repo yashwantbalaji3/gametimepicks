@@ -12,6 +12,7 @@ import type { PublicProjection } from "@/lib/normalize";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import MlbGameLabReport from "@/components/game/mlb-game-lab-report";
 import GameSimulationRunner from "@/components/game/game-simulation-runner";
+import { buildMlbPresentation } from "@/lib/simulate/presentation/mlb";
 import MlbGameCenter from "@/components/game/mlb-game-center";
 import MlbSimulationResultSummary from "@/components/game/mlb-simulation-result-summary";
 import MlbSimulationReportV2 from "@/components/game/mlb-simulation-report-v2";
@@ -839,6 +840,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           homeLogo={detail.homeLogo}
           awayLogo={detail.awayLogo}
           postReveal={mlbGameFirstReport}
+          /* P234 · B — the bounded presentation, projected from THIS report at build time. A refusal
+             is passed through rather than swallowed, so the player states a reason instead of the
+             page silently falling back to the old staged animation. */
+          presentation={buildMlbPresentation(detail)}
         />
 
         {/* Persistent disclosure — visible regardless of phase. */}

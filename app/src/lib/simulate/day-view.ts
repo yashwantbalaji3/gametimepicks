@@ -187,9 +187,19 @@ function mlbSection(date: string, today: string): SportDaySection {
           : leans > 0
             ? "ARTIFACT_READY"
             : "SCHEDULE_ONLY";
+    /*
+     * P234 · B — a ready game opens its PRESENTATION, not just its page. `?play=1` is the reader's
+     * own click carried across the navigation, so /simulate is one action rather than two.
+     *
+     * The trailing slash goes BEFORE the query deliberately. `trailingSlash: true` means
+     * `/games/mlb/x?play=1` is answered with a 308 to `/games/mlb/x/`, and this project has already
+     * lost query intent to exactly that redirect once.
+     */
     const href = settled
       ? "/results"
-      : detail ? `/games/mlb/${detail.slug}` : "/mlb";
+      : detail
+        ? `/games/mlb/${detail.slug}/${simReady ? "?play=1" : ""}`
+        : "/mlb";
     return {
       sport: "mlb", id: `mlb:${pk || `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`,
       matchup: `${g.awayTeamAbbr ?? "?"} @ ${g.homeTeamAbbr ?? "?"}`,
