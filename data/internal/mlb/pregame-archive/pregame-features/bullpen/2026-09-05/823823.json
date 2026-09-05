@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823823,
   "date": "2026-09-05",
-  "capturedAt": "2026-09-05T00:29:24.157Z",
-  "availableAt": "2026-09-05T00:29:24.157Z",
+  "capturedAt": "2026-09-05T05:15:19.201Z",
+  "availableAt": "2026-09-05T05:15:19.201Z",
   "eventStartTime": "2026-09-05T20:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,22 +20,75 @@
     "teamId": 146,
     "teamName": "Miami Marlins",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
-    },
-    "last3Days": {
-      "appearances": 8,
-      "pitches": 85,
+      "appearances": 3,
+      "pitches": 100,
       "relievers": [
+        {
+          "id": 687134,
+          "name": "Bradley Blalock",
+          "appearances": 1,
+          "pitches": 66,
+          "outs": 9,
+          "dates": [
+            "2026-09-04"
+          ]
+        },
+        {
+          "id": 667652,
+          "name": "Jack Ralston",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 1,
+          "dates": [
+            "2026-09-04"
+          ]
+        },
         {
           "id": 694795,
           "name": "Josh Ekness",
           "appearances": 1,
-          "pitches": 26,
-          "outs": 3,
+          "pitches": 17,
+          "outs": 2,
           "dates": [
-            "2026-09-02"
+            "2026-09-04"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 11,
+      "pitches": 185,
+      "relievers": [
+        {
+          "id": 687134,
+          "name": "Bradley Blalock",
+          "appearances": 1,
+          "pitches": 66,
+          "outs": 9,
+          "dates": [
+            "2026-09-04"
+          ]
+        },
+        {
+          "id": 694795,
+          "name": "Josh Ekness",
+          "appearances": 2,
+          "pitches": 43,
+          "outs": 5,
+          "dates": [
+            "2026-09-02",
+            "2026-09-04"
+          ]
+        },
+        {
+          "id": 667652,
+          "name": "Jack Ralston",
+          "appearances": 2,
+          "pitches": 25,
+          "outs": 4,
+          "dates": [
+            "2026-09-02",
+            "2026-09-04"
           ]
         },
         {
@@ -70,16 +123,6 @@
           ]
         },
         {
-          "id": 667652,
-          "name": "Jack Ralston",
-          "appearances": 1,
-          "pitches": 8,
-          "outs": 3,
-          "dates": [
-            "2026-09-02"
-          ]
-        },
-        {
           "id": 676604,
           "name": "Tyler Zuber",
           "appearances": 1,
@@ -101,20 +144,47 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 687134,
+        "name": "Bradley Blalock",
+        "reason": "66 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 112,
     "teamName": "Chicago Cubs",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 1,
+      "pitches": 46,
+      "relievers": [
+        {
+          "id": 650644,
+          "name": "Aaron Civale",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 9,
+          "dates": [
+            "2026-09-04"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 8,
-      "pitches": 101,
+      "appearances": 9,
+      "pitches": 147,
       "relievers": [
+        {
+          "id": 650644,
+          "name": "Aaron Civale",
+          "appearances": 1,
+          "pitches": 46,
+          "outs": 9,
+          "dates": [
+            "2026-09-04"
+          ]
+        },
         {
           "id": 669020,
           "name": "Ryan Rolison",
@@ -188,12 +258,18 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 650644,
+        "name": "Aaron Civale",
+        "reason": "46 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-02,2026-09-03,2026-09-04) + feed/live box scores",
-    "capturedAt": "2026-09-05T00:29:24.157Z"
+    "capturedAt": "2026-09-05T05:15:19.201Z"
   },
-  "recordHash": "c0a6546d29d0c4a50a23ccc576bf27eb4efeabd25538d1653fef8b4204b7b2c7"
+  "recordHash": "f426db04850e24cba0919a7b4d91ea681ad547e40a54bbe379e062fe8804ceed"
 }
