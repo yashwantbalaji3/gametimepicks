@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 822850,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T17:02:22.878Z",
+  "availableAt": "2026-09-05T17:02:22.878Z",
+  "eventStartTime": "2026-09-05T23:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 594798,
+      "name": "Jacob deGrom",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 5,
+      "lastStartDate": "2026-08-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 6.4,
+        "bbAvg": 1.6,
+        "erAvg": 2.2,
+        "hrAvg": 0.2,
+        "kPer9": 12.17,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 137.33,
+        "k": 167,
+        "bb": 37,
+        "er": 61,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 656876,
+      "name": "Drew Rasmussen",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 6,
+      "lastStartDate": "2026-08-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 5.4,
+        "bbAvg": 1.4,
+        "erAvg": 2,
+        "hrAvg": 0.2,
+        "kPer9": 8.38,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 146.33,
+        "k": 149,
+        "bb": 27,
+        "er": 48,
+        "hr": 13
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-05T17:02:22.878Z"
+  },
+  "recordHash": "b46e260f949256d1cee9b34eec4b6c9787a556ef8e9d6118c3b579adc76bd624"
+}

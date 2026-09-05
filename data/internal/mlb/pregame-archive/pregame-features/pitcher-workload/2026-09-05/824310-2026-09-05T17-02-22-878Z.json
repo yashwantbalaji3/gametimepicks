@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824310,
+  "date": "2026-09-05",
+  "capturedAt": "2026-09-05T17:02:22.878Z",
+  "availableAt": "2026-09-05T17:02:22.878Z",
+  "eventStartTime": "2026-09-06T00:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 690279,
+      "name": "Mason Adams",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 2,
+      "restDays": 6,
+      "lastStartDate": "2026-08-30",
+      "last5": {
+        "starts": 2,
+        "ipSum": 9,
+        "ipAvg": 4.5,
+        "kAvg": 5,
+        "bbAvg": 2.5,
+        "erAvg": 1.5,
+        "hrAvg": 1,
+        "kPer9": 10,
+        "workloadIpLast5": 9
+      },
+      "seasonToDate": {
+        "starts": 2,
+        "ip": 9,
+        "k": 10,
+        "bb": 5,
+        "er": 3,
+        "hr": 2
+      }
+    },
+    "away": {
+      "id": 669461,
+      "name": "Matthew Liberatore",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-08-30",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26,
+        "ipAvg": 5.2,
+        "kAvg": 6.8,
+        "bbAvg": 1.2,
+        "erAvg": 4.2,
+        "hrAvg": 1.2,
+        "kPer9": 11.77,
+        "workloadIpLast5": 26
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 134.67,
+        "k": 141,
+        "bb": 47,
+        "er": 81,
+        "hr": 25
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-05T17:02:22.878Z"
+  },
+  "recordHash": "4bb926f5672102c62982dc42da8b79ca27647b95e60f7a40a32cb0e0a05d5ad6"
+}
