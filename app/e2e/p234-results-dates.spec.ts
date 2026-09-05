@@ -139,6 +139,28 @@ test.describe("P234 · results by date", () => {
     await expect(first).toContainText(/win|loss|pending|push|void/i); // how it settled
   });
 
+  test("THE SPORT FILTER FILTERS THE TABLE, not only the headline", async ({ page }) => {
+    /*
+     * My own date tests all ran with "all sports" selected, so none of them exercised narrowing —
+     * and the per-sport table went on listing every sport beside a headline that had narrowed to
+     * one. P233's empty-combination guard caught it. This is that gap, closed.
+     */
+    const s = await parlays(page);
+    await s.getByRole("button", { name: "All history", exact: true }).click();
+
+    const options = await s.getByLabel("Sport").locator("option").all();
+    const values = (await Promise.all(options.map((o) => o.getAttribute("value")))).filter((v) => v && v !== "all") as string[];
+    test.skip(!values.length, "no sport streams in this ledger");
+
+    for (const sport of values.slice(0, 3)) {
+      await s.getByLabel("Sport").selectOption(sport);
+      const rows = s.locator("table").first().locator("tbody tr");
+      const headers = await rows.locator("th").allInnerTexts();
+      expect(headers.length, `${sport} produced no row at all — an empty stream is still information`).toBeGreaterThan(0);
+      expect(headers.length, `selecting ${sport} still lists ${headers.length} sports`).toBe(1);
+    }
+  });
+
   test("an empty grid cell is a dash, never a zero record", async ({ page }) => {
     const s = await parlays(page);
     await s.getByRole("button", { name: "All history", exact: true }).click();

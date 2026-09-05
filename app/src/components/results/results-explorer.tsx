@@ -219,7 +219,19 @@ export default function ResultsExplorer({
     };
   }, [selectedCards]);
 
-  const gridSports = useMemo(() => [...new Set(cards.map((c) => c.sport))].sort(), [cards]);
+  /*
+   * THE SPORT LIST COMES FROM THE LEDGER, NOT FROM THE CARDS.
+   *
+   * Derived from the cards, a stream with nothing settled — NFL, and the mixed-sport population —
+   * disappeared from the table entirely. A reader selecting it saw an empty section rather than
+   * "NFL · no settled cards yet", which is the fact they came for: the stream exists and has
+   * graded nothing. An absent row reads as an absent stream.
+   */
+  const gridSports = useMemo(() => {
+    const fromLedger = ofType.map((r) => r.sport).filter(Boolean);
+    const fromCards = cards.map((c) => c.sport);
+    return [...new Set([...fromLedger, ...fromCards])].sort();
+  }, [ofType, cards]);
   /** The cards inside the DATE range only — the grid answers "in this period", not "ever". */
   const inRange = useMemo(() => {
     if (!dateFilterable || rangeError) return [];
@@ -400,7 +412,11 @@ export default function ResultsExplorer({
                 </tr>
               </thead>
               <tbody>
-                {gridSports.map((sp) => {
+                {/* THE SPORT FILTER MUST FILTER THIS TABLE. It did not: selecting NFL still listed
+                    MLB, EPL and UFC with their percentages beside a headline that had narrowed to
+                    NFL. P233's empty-combination guard caught it — my own date tests all ran with
+                    "all sports" selected and never exercised the narrowing. */}
+                {gridSports.filter((sp) => sport === "all" || sp === sport).map((sp) => {
                   const mine = inRange.filter((c) => c.sport === sp && (tier === "all" || c.tier === tier));
                   const w = mine.filter((c) => c.won).length;
                   const l = mine.filter((c) => c.lost).length;
@@ -410,7 +426,10 @@ export default function ResultsExplorer({
                       <th scope="row" style={{ textAlign: "left", padding: "7px 12px 7px 0", fontWeight: 600 }}>{SPORT_LABEL[sp] ?? sp}</th>
                       <td style={{ padding: "7px 12px 7px 0" }}>
                         {dec === 0
-                          ? <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{mine.length ? "nothing settled yet" : "no card in this period"}</span>
+                          /* "no settled cards yet" is the site's established phrase for an empty
+                             population and the words its guard pins; a synonym here would be a
+                             second vocabulary for one fact. */
+                          ? <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>no settled cards yet</span>
                           : <><strong>{(w / dec * 100).toFixed(1)}%</strong> <span style={{ fontFamily: "monospace", fontSize: 12 }}>{w}-{l}</span></>}
                       </td>
                       <td style={{ padding: "7px 12px 7px 0", fontFamily: "monospace", fontSize: 12 }}>{dec}</td>

@@ -48,12 +48,15 @@ export default defineConfig({
     {
       name: "webkit-a11y",
       use: { ...devices["Desktop Safari"] },
-      testMatch: /accessibility\.spec\.ts|route-assurance\.spec\.ts|p185-color-mix\.spec\.ts|p185-motion-roles\.spec\.ts|p202-journey-matrix\.spec\.ts|p214-scene-matrix\.spec\.ts|p230-leg-reachability\.spec\.ts/,
+      testMatch: /accessibility\.spec\.ts|route-assurance\.spec\.ts|p185-color-mix\.spec\.ts|p185-motion-roles\.spec\.ts|p202-journey-matrix\.spec\.ts|p214-scene-matrix\.spec\.ts|p230-leg-reachability\.spec\.ts|p234-player-responsive\.spec\.ts/,
     },
     {
       name: "firefox-a11y",
       use: { ...devices["Desktop Firefox"] },
-      testMatch: /accessibility\.spec\.ts|route-assurance\.spec\.ts|p185-color-mix\.spec\.ts|p185-motion-roles\.spec\.ts|p202-journey-matrix\.spec\.ts|p214-scene-matrix\.spec\.ts|p230-leg-reachability\.spec\.ts/,
+      /* The player joins the cross-engine set because its failures were engine-shaped: a stacking
+         context that let the footer paint over its controls, and a fixed frame whose fit depends on
+         flex rounding. Neither is visible from source, and neither is Chromium-only. */
+      testMatch: /accessibility\.spec\.ts|route-assurance\.spec\.ts|p185-color-mix\.spec\.ts|p185-motion-roles\.spec\.ts|p202-journey-matrix\.spec\.ts|p214-scene-matrix\.spec\.ts|p230-leg-reachability\.spec\.ts|p234-player-responsive\.spec\.ts/,
     },
   ],
   webServer: {
