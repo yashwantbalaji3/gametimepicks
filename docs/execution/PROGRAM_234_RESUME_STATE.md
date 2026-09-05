@@ -1,8 +1,8 @@
 # Program 234 — resume state
 
 **Entry** `dd068e5c5` (P233's close; `de298affe` ⊂ `dd068e5c5`, one lineage, nothing to reconcile).
-**Current tip** `65767a9d6`, pushed, CI-green lineage, **serving in production** (build marker
-`65767a9d` built 2026-09-05T19:29:40Z). Money `md5 affe6b21071f2b3be96bb2774eb347c3` unchanged; both
+**Current tip** `ef2f1ea07`, pushed. Releases A–J complete; see the execution log's departmental
+matrix for what is done, blocked and not applicable. Money `md5 affe6b21071f2b3be96bb2774eb347c3` unchanged; both
 pre-existing stashes and founder-owned `vp/` untouched.
 
 ## Done
@@ -15,17 +15,22 @@ pre-existing stashes and founder-owned `vp/` untouched.
 | D | recording mode (9:16 / 4:5 / 16:9, countdown, chrome outside the crop) + Top 10 / parlay / recap presentations; the gate's flaky guard diagnosed and its cause removed | `b11c51070`, `f2a4ec509` |
 | E | `/results` date ranges + presets, sport x risk grid, slip drill-down — on per-card rows that reconcile with the ledger exactly | `d211a1036` |
 | F | daily and cumulative trends over the same population; empty days are gaps, rates pooled from sums | `65767a9d6` |
+| G | `ACQUISITION_UNSCHEDULED` — NFL/UFC deadlines were invented from literals; 72h coverage verified met | `52f432c6f` |
+| H | preregistered candidate evaluation; both live verdicts are refusals and both are published | `69bc2919c` |
+| I | UFC producer's expired odds claim; `/nfl/game/[eventId]` orphan route | `0caaefa34` |
+| J | cross-engine + responsive player suite; the sport filter that did not filter | `ef2f1ea07` |
 
-## Next executable action — Release G, current coverage and daily products
+## Next executable action
 
-A–F are shipped, gated and live. What remains is G (offered-window coverage for NFL/EPL/UFC across
-the next 72h, and one proven lifecycle per active product), H (the candidate-vs-incumbent comparison
-harness), and I (navigation follow-through, the two open findings below, and the departmental
-matrix).
+The charter's scope is met. The largest genuinely-remaining engineering item is the one the matrix
+marks PARTIAL: **a per-product idempotent replay harness** proving a re-run produces no duplicate
+debit, credit or slip publication. The offered window and settlement paths are verified; a harness
+that replays a full lifecycle per active product is not built.
 
-Start with the two open findings — both are small, both are real, and both belong to I:
-the expired UFC `notModelled.moneyline` sentence in its producer, and `/nfl/game/[eventId]` being an
-orphan route nothing in the export links to.
+After that, the forward model registration comes due: run
+`npx tsx scripts/model-learning-audit.mjs --json /tmp/audit.json && npx tsx scripts/model-eval/evaluate-candidate.mjs --audit /tmp/audit.json --write`
+once 2,000 decisive rows have settled on or after 2026-09-06 (about five slates). Running it earlier
+returns INSUFFICIENT_SAMPLE by design.
 
 ## Do not repeat
 
@@ -50,9 +55,13 @@ orphan route nothing in the export links to.
 
 ## Open findings
 
-- `ufc/card-latest.json` still emits the expired "our authorisation to buy odds covers NFL only".
-  The presentation refuses to carry it and a test pins that, but the producer is unfixed.
-- `/nfl/game/[eventId]` is an orphan route — nothing in the built export links to it.
+Both of the findings carried out of Release C are **closed** (`0caaefa34`). Remaining:
+
+- **Product lifecycle replay** is unproven per product (matrix: PARTIAL). Nothing is known to be
+  wrong; it is untested.
+- A background `until`-loop that the harness moves off the foreground **loses its bound** and runs
+  unattended. Watch for a condition that can actually occur, and never grep a marker written to a
+  different stream than the file being watched.
 
 ## Unresolved founder tokens (unchanged, not populated)
 

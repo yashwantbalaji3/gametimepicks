@@ -271,3 +271,85 @@ them in a readable table.
 `node:fs` into the browser bundle and failed the export build — the same class as `READY_STATES` in
 Release C. The pure card math now lives in `lib/results/card-math.mjs` with no fs anywhere in its
 import graph, re-exported from the loader module so there is still one definition of each rule.
+
+## Releases G, H, I, J
+
+### G — a deadline nothing was scheduled to meet · `52f432c6f`
+
+Sixteen NFL events sat `NOT_YET_CAPTURED` — "scheduled, and our acquisition for it has not run yet"
+— each advertising a `nextDeadlineUtc` of tomorrow 15:00Z. **There is no NFL acquisition.**
+`nfl-odds-capture.yml` is `workflow_dispatch` only, carries no cron, and last ran 2026-08-13. The
+15:00Z came from a literal in the builder; `ufc-odds-refresh.yml` was the same with 13:00Z invented
+for it.
+
+That reads as *wait* when the truth is *gated on a decision nobody has taken*. The cadence is now
+derived from the workflow that would perform the capture: no cron ⇒ no deadline, and the event is
+typed `ACQUISITION_UNSCHEDULED` — distinct from schedule-only, no-market and stale-price, which is
+the separation the charter asks for.
+
+**Verified, not built:** 72-hour forward coverage is already met wherever supply exists (EPL looks
+96h ahead and found all three fixtures in that window; NFL 336h; UFC through the next card with
+nothing skipped). MLB's `PUBLISHED: 0` in the committed matrix was a **timing snapshot** — the
+window ran 15:20Z, the slate landed 16:21Z. A fresh run reads 13 published.
+
+### H — a candidate cannot promote itself · `69bc2919c`
+
+The comparison already existed; the **governance** did not. A registration freezes candidate
+version, training cutoff, feature sources, eligibility, metric, minimum sample, coverage floor and
+required margin. `decide()` is pure — no clock, no files — so a cohort always reproduces its verdict,
+and it refuses in five distinct ways.
+
+The honesty it is built around: **the isotonic result was already known.** A preregistration written
+today for a window already scored would be choosing terms to fit the answer. So a registration
+carries a state, and a `PRIOR_OBSERVATION` can never earn a promotion however good its numbers are.
+Both live verdicts are refusals, and both are published on `/results/model-audit`:
+
+| registration | verdict | why |
+| --- | --- | --- |
+| `mlb-isotonic-2026-08` (prior observation) | **INCONCLUSIVE** | Brier improved 0.0086, past the 0.005 bar — the number cleared and the process did not |
+| `mlb-isotonic-2026-09-forward` (preregistered) | **WINDOW NOT OPEN** | its window opens 2026-09-06; the condition to run it is stated |
+
+"Not yet" and "contaminated" were one verdict at first. Both refuse and produce no metric, but they
+call for different actions, so they no longer share a word.
+
+### I — two claims that had outlived their evidence · `0caaefa34`
+
+The UFC card artifact still emitted "our authorisation to buy odds covers NFL only". A UFC receipt
+exists and `odds-latest.json` sits in the same directory. `/ufc` had **already** been corrected for
+printing that sentence above the prices it denied — but on the page, so the producer went on
+emitting it and every consumer inherited a contradiction the page had shed. The replacement states
+what the document contains rather than what the project may buy, and a guard pins that as a rule.
+
+`/nfl/game/[eventId]` was generated for every published forecast and **nothing linked to it**. The
+hub now lists them, each labelled with where that game stands. Its guard scans the built export, not
+the source, because a link behind an unsatisfied condition passes a source check and fails a reader.
+
+### J — the sport filter did not filter · `ef2f1ea07`
+
+Release E's per-sport table ignored the sport selector: choosing NFL still listed MLB, EPL and UFC
+beneath a headline that had narrowed to NFL. **Every one of my date tests ran with "all sports"
+selected**, so none exercised narrowing; P233's empty-combination guard did, and failed. A second
+regression in the same area hid streams with nothing graded, so an empty stream read as an absent
+one.
+
+The player now runs on WebKit and Firefox as well as Chromium, at 360/390/768/1024/1440/1920 with
+real heights. Both of its known failure shapes are engine-sensitive and invisible from source.
+
+## Departmental matrix
+
+| department | state | evidence |
+| --- | --- | --- |
+| Simulation player (4 sports) | **DONE** | 8 chapters MLB, sport-native EPL/UFC/NFL adapters; 20 browser assertions; live on production |
+| Recording mode | **DONE** | 9:16 / 4:5 / 16:9, countdown, controls measured outside the crop; 8 assertions |
+| Board presentations | **DONE** | Top 10, published parlay, results recap on `/today`, `/build`, `/results`; 15 unit assertions |
+| Results by date | **DONE** | per-card rows reconcile with the ledger stream-and-tier; 11 browser assertions |
+| Trends | **DONE** | daily + cumulative, gaps not zeroes, pooled from sums; 8 browser + 10 unit |
+| Offered-window coverage | **DONE** | `ACQUISITION_UNSCHEDULED`; 72h coverage verified met |
+| Model evaluation | **DONE (system); candidate REJECTED/INCONCLUSIVE)** | the outcome is a refusal, which is a valid outcome |
+| Navigation findings | **DONE** | UFC producer claim; NFL orphan route |
+| Cross-browser / responsive | **DONE** | 542 browser tests, 3 engines; 321 accessibility |
+| Product lifecycle replay | **PARTIAL** | offered-window and settlement verified; a full idempotent replay harness per product was not built |
+| NFL odds authorisation | **BLOCKED — founder** | `AUTHORIZE:NFL:<scope>:<ceiling>:<expiry>` or `DEFER`; now correctly typed rather than reported as pending |
+| Moonshot disposition | **BLOCKED — founder** | `MOONSHOT_REPAIR_PAUSE_OR_RETIRE:<branch>` |
+| Protected console redeploy | **BLOCKED — founder** | `CONSOLE_REDEPLOY:RUN`; boundary intact, 404 on public |
+| NBA | **NOT APPLICABLE** | off-season; typed `NO_EVENTS`, no model project opened |
