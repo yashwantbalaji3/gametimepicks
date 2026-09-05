@@ -202,6 +202,22 @@ jobs:
             echo "GRADE_STATUS=refused" >> "$GITHUB_ENV"
           fi
 
+      # The count the learning report quotes comes from the ledger this job just wrote to. Without
+      # this step the report goes stale the moment a match is graded here, and stays stale until
+      # epl-settle next runs on its own single cron — which is exactly what happened twice, in
+      # Programs 234 and 235: the control plane refused to build because the artifact said 23 graded
+      # while the ledger recounted 24. epl-settle already grades and then reports, in that order;
+      # this job graded and did not, so the two paths disagreed about the same file.
+      #
+      # Soft-failing on purpose, like its twin in epl-settle: the report legitimately refuses when
+      # the ledger is unreadable, and that must not lose the grades this run produced. A stale
+      # artifact is not silent either way — STALE_CALIBRATION_COUNT refuses the control-plane build.
+      - name: Report what the ledger says about the model
+        working-directory: app
+        run: |
+          set -uo pipefail
+          npx tsx scripts/epl/report-epl-learning.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write ||             echo "::warning::EPL learning report refused"
+
       # ---- Player grading ----
       #
       # The team forecasts have been graded since they existed; player projections shipped without any
@@ -330,6 +346,7 @@ jobs:
                   data/internal/research/epl/forecasts \
                   data/internal/research/epl/model-read \
                   data/internal/research/epl/corpus-current-season.json \
+                  data/internal/research/epl/learning \
                   data/internal/research/odds/epl/authorization-ledger.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
           git commit -m "auto: epl matchweek refresh $(date -u +%Y-%m-%d) [skip ci]"
