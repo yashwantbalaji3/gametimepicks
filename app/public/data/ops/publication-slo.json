@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-09-05",
-  "platformState": "INCIDENT",
+  "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
@@ -27,16 +27,31 @@
       "missed": []
     },
     "ufc": {
-      "state": "INCIDENT",
-      "reason": "3 event(s) have no forecast and the earliest one's deadline (2026-09-05T17:30:00.000Z, 90 min before its start) has passed",
-      "deadlineUtc": "2026-09-05T17:30:00.000Z",
+      "state": "MISSED_COVERAGE",
+      "reason": "4 of 14 event(s) started with no pre-event forecast; nothing is still pending",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 14,
         "published": 10,
-        "missedCoverage": 1,
-        "awaiting": 3
+        "missedCoverage": 4,
+        "awaiting": 0
       },
       "missed": [
+        {
+          "id": "401875226",
+          "label": "Dan Hooker vs Salahdine Parnasse",
+          "startUtc": "2026-09-05T19:00Z"
+        },
+        {
+          "id": "401898006",
+          "label": "Michael Page vs Nursulton Ruziboev",
+          "startUtc": "2026-09-05T19:00Z"
+        },
+        {
+          "id": "401911289",
+          "label": "Muhammad Naimov vs Losene Keita",
+          "startUtc": "2026-09-05T19:00Z"
+        },
         {
           "id": "401902948",
           "label": "Luis Felipe Dias vs Matthieu Letho Duclos",
@@ -57,7 +72,7 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-09-05T18:28:43.899Z",
+  "checkedAt": "2026-09-05T19:13:00.871Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
@@ -96,7 +111,7 @@
       "startUtc": "2026-09-05T22:05:00Z",
       "away": "Atlanta Braves",
       "home": "Philadelphia Phillies",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -104,7 +119,7 @@
       "startUtc": "2026-09-05T22:10:00Z",
       "away": "Detroit Tigers",
       "home": "Cleveland Guardians",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -112,7 +127,7 @@
       "startUtc": "2026-09-05T22:40:00Z",
       "away": "Los Angeles Angels",
       "home": "Pittsburgh Pirates",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -120,7 +135,7 @@
       "startUtc": "2026-09-05T22:40:00Z",
       "away": "Milwaukee Brewers",
       "home": "Cincinnati Reds",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -136,7 +151,7 @@
       "startUtc": "2026-09-05T23:05:00Z",
       "away": "Tampa Bay Rays",
       "home": "Texas Rangers",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -144,7 +159,7 @@
       "startUtc": "2026-09-05T23:10:00Z",
       "away": "Toronto Blue Jays",
       "home": "Kansas City Royals",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -152,7 +167,7 @@
       "startUtc": "2026-09-05T23:10:00Z",
       "away": "Minnesota Twins",
       "home": "Chicago White Sox",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -160,7 +175,7 @@
       "startUtc": "2026-09-05T23:15:00Z",
       "away": "Arizona Diamondbacks",
       "home": "Houston Astros",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
@@ -176,7 +191,7 @@
       "startUtc": "2026-09-06T00:10:00Z",
       "away": "St. Louis Cardinals",
       "home": "Colorado Rockies",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     },
     {
