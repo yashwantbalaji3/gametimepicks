@@ -123,6 +123,35 @@ test("LIVE · the Vault incident names the receipt that will clear it", () => {
   assert.match(vault.source, /receipts\/\d{4}-\d{2}-\d{2}\.json/, "and it names the receipt it was read from");
 });
 
+test("ABSENT IS NOT OVERDUE — the detector waits for the deadline", () => {
+  /*
+   * P233 · A: the first version fired whenever the newest receipt predated the product day. At
+   * 15:05Z it reported P1 for a receipt whose producer is scheduled at 15:30Z and which historically
+   * lands nearer 18:40Z after cron drift. The board said "1 actionable" about a job that was not
+   * yet late — this register's own crying-wolf failure, pointed at itself.
+   */
+  const APP_DIR = process.cwd();
+  const day = "2099-01-01";
+  const before = buildIncidentRegister({ appDir: APP_DIR, etDate: day, nowUtcMs: Date.parse(`${day}T15:05:00Z`) });
+  assert.ok(
+    !before.rows.some((r) => r.kind === "RECEIPT_DAY_MISSING"),
+    "a receipt that is not yet due is not an incident",
+  );
+  assert.ok(
+    before.pending.some((p) => p.kind === "RECEIPT_DAY_PENDING"),
+    "but it stays VISIBLE as pending — absence before a deadline is still a fact worth showing",
+  );
+  const pendingRow = before.pending.find((p) => p.kind === "RECEIPT_DAY_PENDING");
+  assert.ok(pendingRow.dueAtUtc, "and it names when it becomes late");
+
+  /* Past the deadline it is an incident, and it is actionable. */
+  const after = buildIncidentRegister({ appDir: APP_DIR, etDate: day, nowUtcMs: Date.parse(`${day}T23:00:00Z`) });
+  const overdue = after.rows.find((r) => r.kind === "RECEIPT_DAY_MISSING");
+  assert.ok(overdue, "past its deadline the missing receipt is an incident");
+  assert.equal(overdue.severity, "P1");
+  assert.ok(after.actionable >= 1);
+});
+
 test("A STALE RECEIPT DOES NOT SATISFY A NEW SLOT", () => {
   /*
    * The probe the charter names, and it found a real hole. The per-product watchdog alarms for
@@ -136,7 +165,7 @@ test("A STALE RECEIPT DOES NOT SATISFY A NEW SLOT", () => {
   const APP_DIR = process.cwd();
 
   /* A date far past the newest committed receipt: the day itself must be reported missing. */
-  const stale = buildIncidentRegister({ appDir: APP_DIR, etDate: "2099-01-01" });
+  const stale = buildIncidentRegister({ appDir: APP_DIR, etDate: "2099-01-01", nowUtcMs: Date.parse("2099-01-01T23:00:00Z") });
   const missing = stale.rows.find((r) => r.kind === "RECEIPT_DAY_MISSING");
   assert.ok(missing, "a receipt older than the product day must raise an incident");
   assert.equal(missing.severity, "P1", "an unevaluated day outranks any single product's failure");
@@ -144,7 +173,7 @@ test("A STALE RECEIPT DOES NOT SATISFY A NEW SLOT", () => {
   assert.match(missing.detail, /the current product day is 2099-01-01/);
 
   /* And it must NOT fire when the receipt is for the day being asked about. */
-  const current = buildIncidentRegister({ appDir: APP_DIR, etDate: reg.asOf });
+  const current = buildIncidentRegister({ appDir: APP_DIR, etDate: reg.asOf, nowUtcMs: Date.parse(`${reg.asOf}T23:00:00Z`) });
   assert.ok(
     !current.rows.some((r) => r.kind === "RECEIPT_DAY_MISSING"),
     "a receipt for today is not stale — a detector that always fires is switched off",
@@ -158,9 +187,14 @@ test("the console injects the clock rather than the register reading one", () =>
    */
   const src = fs.readFileSync(path.join(APP, "src/lib/launch/incident-register.mjs"), "utf8");
   const code = src.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " ")).replace(/\/\/.*$/gm, "");
-  for (const forbidden of ["new Date(", "Date.now(", "currentEtDate"]) {
-    assert.ok(!code.includes(forbidden), `the register must not read a clock (${forbidden}) — it is passed one`);
-  }
+  /*
+   * Forbid READING a clock, not formatting a timestamp. `new Date(ms).toISOString()` is a pure
+   * conversion of a value that was passed in; banning the constructor outright rejected that too,
+   * which pushes an author toward a worse formatting hack rather than toward determinism.
+   */
+  assert.ok(!/\bnew Date\(\s*\)/.test(code), "the register must not construct a clock — it is passed one");
+  assert.ok(!code.includes("Date.now("), "the register must not read Date.now() — it is passed one");
+  assert.ok(!code.includes("currentEtDate"), "the register must not resolve the product day itself");
   const page = fs.readFileSync(path.join(APP, "src/app/launch/page.tsx"), "utf8");
   assert.match(page, /buildIncidentRegister\(\{[^}]*etDate:/, "the console passes the product day in");
 });

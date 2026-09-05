@@ -9,6 +9,7 @@
  * thing on it to find.
  */
 import { test } from "node:test";
+import { artifactAbsence } from "../../testing/day-in-flight.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -94,7 +95,18 @@ test("BUILT EXPORT · the simulations reach a reader WITHOUT a click", () => {
   const rendered = fs.readFileSync(page, "utf8")
     .replace(/<script[\s\S]*?<\/script>/g, "")
     .replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
-  assert.match(rendered, /Simulations ·/, "the MLB hub must carry a simulations section in its rendered body");
+    /*
+   * A MID-FLIGHT DAY HAS NO SIMULATIONS SECTION YET (P233 · A). `mlb-daily-production` builds the
+   * full-game artifacts on cron 14:15Z with observed landings 17:00-17:54Z; a build run before that
+   * legitimately renders a hub with no simulations. Past the producer's deadline the absence is the
+   * finding and this still fails.
+   */
+  {
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+    const absence = artifactAbsence({ appDir: process.cwd(), relDir: "public/data/mlb/full-game-simulations", date: today, producer: "mlb-daily-production" });
+    if (absence.inFlight) return;
+  }
+assert.match(rendered, /Simulations ·/, "the MLB hub must carry a simulations section in its rendered body");
   assert.ok(rendered.includes("Open the simulation"), "and each card must offer the way in");
   // No market claim may attach itself to a simulation number.
   assert.match(rendered, /not compared against any sportsbook price/,

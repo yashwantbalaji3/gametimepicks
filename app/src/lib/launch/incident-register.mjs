@@ -100,7 +100,7 @@ export const INCIDENT_KINDS = Object.freeze({
   },
   RECEIPT_DAY_MISSING: {
     severity: "P1",
-    cause: "no product receipt exists for the current product day — the daily evaluation did not run, or ran and wrote nothing",
+    cause: "the product receipt for the current day is OVERDUE — its producer's deadline has passed and no receipt exists",
     owner: "daily product receipts workflow",
     detection: "incident register — the newest committed receipt is older than the current product day",
     mitigation: "no product state is claimed for today; every product row on this board is from an earlier day and says so",
@@ -118,6 +118,25 @@ export const INCIDENT_KINDS = Object.freeze({
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
+/**
+ * When the day's product receipt becomes LATE.
+ *
+ * `daily-products` is scheduled at 15:30 UTC, and GitHub's queue routinely delays it — the four
+ * runs before this was written landed 18:31, 18:50, 18:52 and 18:31 UTC. A deadline set at the cron
+ * time would alarm every single day for three hours about a job that always arrives. The grace is
+ * therefore measured against observed drift, not against the schedule's intent, and is stated here
+ * rather than buried in a comparison.
+ */
+const RECEIPT_DUE_UTC_HOUR = 15;   // the daily-products cron
+const RECEIPT_GRACE_HOURS = 5;     // observed queue drift, ~3h, with margin
+
+function receiptDeadlineUtc(etDate, dueHour = RECEIPT_DUE_UTC_HOUR, graceHours = RECEIPT_GRACE_HOURS) {
+  if (!etDate) return null;
+  const [y, m, d] = etDate.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return Date.UTC(y, m - 1, d, dueHour) + graceHours * 3600_000;
+}
+
 /** Newest dated JSON in a directory, or null. Dates are the filenames; no clock is read. */
 function newestDated(dir) {
   try {
@@ -133,21 +152,24 @@ function newestDated(dir) {
  * plus same date in, same rows out. Omit it only where no clock is available; the staleness row is
  * then not derivable and the register says nothing about it rather than guessing.
  *
- * @param {{ appDir: string, etDate?: string|null }} o
- * @returns {{ present: boolean, state: string, asOf: string|null, actionable: number, rows: any[],
+ * @param {{ appDir: string, etDate?: string|null, nowUtcMs?: number|null,
+ *            receiptDueUtcHour?: number, receiptGraceHours?: number }} o
+ * @returns {{ present: boolean, state: string, asOf: string|null, actionable: number, rows: any[], pending: any[],
  *              counts: { P1: number, P2: number, P3: number, GATED: number } }}
  */
-export function buildIncidentRegister({ appDir, etDate = null }) {
+export function buildIncidentRegister({ appDir, etDate = null, nowUtcMs = null, ...opts } = {}) {
   const ROOT = path.join(appDir, "..");
   const receipts = newestDated(path.join(ROOT, "data", "internal", "products", "receipts"));
   const coverage = readJson(path.join(ROOT, "data", "internal", "products", "lifecycle-coverage.json"));
   const offered = newestDated(path.join(ROOT, "data", "internal", "offered-window"));
 
   if (!receipts && !coverage && !offered) {
-    return { present: false, state: "UNKNOWN", asOf: null, actionable: 0, rows: [], counts: { P1: 0, P2: 0, P3: 0, GATED: 0 } };
+    return { present: false, state: "UNKNOWN", asOf: null, actionable: 0, rows: [], pending: [], counts: { P1: 0, P2: 0, P3: 0, GATED: 0 } };
   }
 
   const rows = [];
+  /** Work that is not yet late. Visible, never counted as an incident. */
+  const pending = [];
   /*
    * A FOUNDER GATE IS NOT AN ACTIONABLE INCIDENT.
    *
@@ -193,13 +215,35 @@ export function buildIncidentRegister({ appDir, etDate = null }) {
    * That is the same shape as the End Zone Vault defect this register was built to surface — silence
    * mistaken for health — reproduced one level up, in the thing watching for it.
    */
-  if (etDate && receipts?.date && receipts.date < etDate) {
-    push("RECEIPT_DAY_MISSING", "all-products",
-      `newest receipt is ${receipts.date}; the current product day is ${etDate}`,
-      `products/receipts/${receipts.date}.json`);
-  }
-  if (etDate && !receipts) {
-    push("RECEIPT_DAY_MISSING", "all-products", `no product receipt exists at all for ${etDate}`, "products/receipts/");
+  /*
+   * ABSENT IS NOT OVERDUE (P233 · A).
+   *
+   * The first version fired whenever the newest receipt predated the product day. At 15:05Z on
+   * 2026-09-05 it reported P1 — for a receipt whose producer is scheduled at 15:30Z and which
+   * historically lands nearer 18:40Z after GitHub's cron drift. The board said "1 actionable" about
+   * a job that was not yet late.
+   *
+   * That is the failure this register exists to avoid, pointed at itself: a watchdog that cries wolf
+   * gets switched off, and it takes the true alarms with it. A missing receipt is still VISIBLE
+   * before its deadline — as PENDING, which is a fact — and becomes an incident only once the
+   * deadline passes.
+   */
+  const dueAt = receiptDeadlineUtc(etDate, opts.receiptDueUtcHour, opts.receiptGraceHours);
+  const overdue = Boolean(nowUtcMs && dueAt && nowUtcMs > dueAt);
+
+  if (etDate && (!receipts || receipts.date < etDate)) {
+    const detail = receipts
+      ? `newest receipt is ${receipts.date}; the current product day is ${etDate}`
+      : `no product receipt exists at all for ${etDate}`;
+    if (overdue) {
+      push("RECEIPT_DAY_MISSING", "all-products", detail,
+        receipts ? `products/receipts/${receipts.date}.json` : "products/receipts/");
+    } else {
+      pending.push({
+        kind: "RECEIPT_DAY_PENDING", subject: "all-products", detail,
+        dueAtUtc: dueAt ? new Date(dueAt).toISOString() : null,
+      });
+    }
   }
 
   for (const a of receipts?.doc?.watchdog ?? []) {
@@ -238,6 +282,8 @@ export function buildIncidentRegister({ appDir, etDate = null }) {
     state: actionable === 0 ? (rows.length ? "GATED_ONLY" : "CLEAR") : counts.P1 > 0 ? "P1_OPEN" : "OPEN",
     asOf: receipts?.date ?? offered?.date ?? null,
     rows,
+    /* Named separately so the console can show "due at HH:MM" without it reading as a failure. */
+    pending,
     counts,
   };
 }

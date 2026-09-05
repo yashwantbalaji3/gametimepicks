@@ -334,11 +334,22 @@ function eplEvents() {
     forecast: Boolean(r.state) && r.state !== "UNAVAILABLE",
     /*
      * A SET-LEVEL FLAG IS NOT PER-FIXTURE PUBLICATION. `set.public` says the artifact is a public
-     * one; it says nothing about THIS fixture. Using it made a READY_EXCEPT_ODDS match — whose
+     * one; it says nothing about THIS fixture. Using it alone made a READY_EXCEPT_ODDS match — whose
      * probabilities are explicitly withheld — report as PUBLISHED, which is worse than the refusal
      * it replaced. Identical to the UFC card-level `model` block mistake, made twice in one file.
+     *
+     * THAT CORRECTION THEN REACHED FOR A STATE NAME, and named one the producer does not use. Its
+     * vocabulary is `CURRENT_PRE_EVENT` and `READY_EXCEPT_ODDS`; it has never emitted a bare
+     * `"READY"` in any committed artifact. The condition was unsatisfiable, so EPL reported
+     * WORK_OWED on days it published successfully — seven fixtures owed on 2026-09-05 against a
+     * public artifact carrying seven sets of win/draw/win probabilities.
+     *
+     * Publication is not a label, so this no longer tests one. A fixture is published when the set
+     * is public AND this row actually carries the probabilities — the thing publication consists of.
+     * That separates the two states on all 87 committed rows (29 withheld carry none; all 58
+     * pre-event rows carry them) and cannot go stale behind a rename.
      */
-    published: Boolean(set.public) && r.state === "READY",
+    published: Boolean(set.public) && Boolean(r.probs),
     publicRoute: r.slug ? `/epl/#${r.slug}` : "/epl/",
     settlementId: r.eventId ?? null,
     settled: false,

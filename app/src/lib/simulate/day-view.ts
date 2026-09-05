@@ -206,7 +206,16 @@ function mlbSection(date: string, today: string): SportDaySection {
             ? "The board for this slate has no model leans yet — check back closer to game time."
             : state === "SETTLED"
               ? "This game is final; the record lives on Results."
-              : null,
+              /*
+               * ARTIFACT_READY WAS SILENT (P233 · A). The board carries model leans for this game
+               * but the full-game simulation has not been generated yet — a real, ordinary state
+               * that a reader met as a label with no explanation, on a card whose action says
+               * "Review artifact & limits". Every other non-ready state says what it is; this one
+               * simply had not been given its sentence.
+               */
+              : state === "ARTIFACT_READY"
+                ? "Model leans are published for this game; the 10,000-run full-game simulation has not been generated yet. Market reads are available now, the simulated report follows."
+                : null,
       // A refused game claims no market families. It listed all four before, which is a stronger
       // falsehood than the silent readiness that came with it.
       markets: state === "MISSED_COVERAGE" ? [] : state === "ARTIFACT_READY" || simReady ? ["Moneyline", "Run line", "Total", ...(board.propsAvailable ? ["Player props"] : [])] : [],

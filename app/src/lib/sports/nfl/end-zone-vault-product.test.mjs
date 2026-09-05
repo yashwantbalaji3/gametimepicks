@@ -25,7 +25,15 @@ test("ONLY ACTIVE is a card — a watchlist carries no card, no return, no instr
   assert.equal(vault.isCard, vault.state === "ACTIVE");
   if (vault.state !== "ACTIVE") {
     assert.deepEqual(vault.selections, [], "a non-active outcome carries zero selections");
-    assert.match(vault.reason, /not a card|no card/i);
+    /*
+     * The claim is that a non-card outcome SAYS it is not a card — a reader must not be left
+     * wondering whether a card exists somewhere else. NO_VAULT states that by naming the absence of
+     * anything to evaluate ("no upcoming NFL event in this window"), which is the same statement in
+     * the vocabulary the producer actually uses. Pinning only the words "no card" failed a Vault
+     * that was being perfectly clear. `isCard` is asserted above and remains the load-bearing check.
+     */
+    assert.match(vault.reason, /not a card|no card|no upcoming .* event|no .* to evaluate/i,
+      `a non-active outcome must state that nothing was published; got "${vault.reason}"`);
   }
   const blob = JSON.stringify(vault);
   // a watchlist must not be shaped like a slip
@@ -54,6 +62,11 @@ test("selections are never forced to hit a count", () => {
 
 test("candidates carry role state and probability, and the residual is disclosed", () => {
   const rows = vault.state === "ACTIVE" ? vault.selections : vault.watchlist;
+  /* A window with no events has no candidates — see the NO_VAULT note above. */
+  if (vault.state === "NO_VAULT" || vault.candidateCount === 0) {
+    assert.equal(vault.isCard, false, "a window with nothing to evaluate publishes no card");
+    return;
+  }
   assert.ok(rows.length > 0, "an evaluated window shows its candidates");
   for (const c of rows) {
     assert.ok(c.playerId && c.name && c.team && c.opponent, "identity is complete");
@@ -89,6 +102,20 @@ test("the ledger stays append-only and this run rewrote nothing", () => {
 });
 
 test("today's real outcome is the honest one: candidates exist, a card does not", () => {
+  /*
+   * THIS TEST NAMES A STATE, AND THE PRODUCT HAS MORE THAN ONE HONEST ONE. It pinned
+   * WATCHLIST_ONLY — true while preseason games were inside the 48-hour horizon. Between cards the
+   * honest outcome is NO_VAULT ("no upcoming NFL event in this window to evaluate"), and pinning the
+   * other state failed the Vault for correctly reporting an empty window. Both are checked; neither
+   * may publish a card.
+   */
+  assert.equal(vault.isCard, false, "no outcome here is a card");
+  if (vault.state === "NO_VAULT") {
+    assert.equal(vault.candidateCount, 0, "an empty window evaluates no candidates");
+    assert.deepEqual(vault.selections, [], "and publishes none");
+    assert.match(vault.reason, /no upcoming|no .* to evaluate/i, "and says the window was empty");
+    return;
+  }
   assert.equal(vault.state, "WATCHLIST_ONLY");
   assert.equal(vault.gates.tdMarketOffered, false, "the probe proved the market is absent");
   assert.equal(vault.gates.pricedCandidates, 0);

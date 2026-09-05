@@ -16,6 +16,7 @@ import path from "node:path";
 
 import { latestMarketDate, loadMarketCenter } from "./load.ts";
 import { getGameDetail, gameDetailParams } from "../game-detail.ts";
+import { artifactAbsence } from "../testing/day-in-flight.mjs";
 
 const APP = path.resolve(process.cwd());
 
@@ -37,7 +38,28 @@ test("the Game Report and Market Center agree on every shared game", () => {
   const center = loadMarketCenter(date, date, `${date}T17:00:00Z`);
   const report = reportGamesByGameId();
 
-  assert.ok(report.size > 0, "the report must expose canonical market intelligence for MLB games");
+  /*
+   * A MID-FLIGHT DAY IS NOT A DEFECT (P233 · A). `gameDetailParams()` is today's games, and today's
+   * market intelligence is produced by mlb-daily-production — scheduled 14:15Z, observed landing
+   * 17:00–17:54Z. Run before that and this asserted a gap that did not exist. Past the deadline the
+   * absence IS the finding, and this still fails with that sentence.
+   */
+  if (report.size === 0) {
+    /*
+     * TODAY's date, not `latestMarketDate()`. The report side comes from `gameDetailParams()`, which
+     * is today's games; the Market Center side is the newest market date. Checking the absence
+     * against the market date asked whether YESTERDAY's artifact exists — it does — and reported the
+     * producer as late when it simply had not run for today yet.
+     */
+    const today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit",
+    }).format(new Date());
+    const absence = artifactAbsence({
+      appDir: APP, relDir: "public/data/mlb/team-markets", date: today, producer: "mlb-daily-production",
+    });
+    if (absence.inFlight) return; // stated, not silently skipped — the reason is in `absence.reason`
+    assert.fail(`the report exposes no MLB market intelligence — ${absence.reason ?? "and the producer is past its deadline"}`);
+  }
 
   /**
    * SPRINT 041 — games whose BOARD identity was corrupted before the doubleheader fix landed.

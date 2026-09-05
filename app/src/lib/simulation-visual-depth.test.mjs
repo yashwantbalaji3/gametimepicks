@@ -7,6 +7,7 @@
  * label). No money change; no banned copy.
  */
 import test from "node:test";
+import { artifactAbsence } from "./testing/day-in-flight.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -54,6 +55,17 @@ test("FUNCTIONAL: today's sim picks carry the real fields the visuals read (mode
   // MLB All-Star break (Jul 13–16): 0 MLB games on the active slate is a valid honest empty state — there
   // are no sim picks to inspect. Assert the pick fields only when the slate carries a ready MLB sim.
   if (mlb.length === 0) return;
+  /*
+   * GAMES WITHOUT SIMULATIONS YET IS A MID-FLIGHT DAY, NOT A DEFECT (P233 · A). The schedule lands
+   * early; `mlb-daily-production` builds the simulations later — cron 14:15Z, observed landings
+   * 17:00-17:54Z. Between those the slate has games and no ready sims, and asserting readiness there
+   * fails a system that is working. Past the producer's deadline the absence IS the finding.
+   */
+  {
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+    const absence = artifactAbsence({ appDir: process.cwd(), relDir: "public/data/mlb/game-simulations", date: today, producer: "mlb-daily-production" });
+    if (absence.inFlight) return;
+  }
   const d = mlb.find((x) => x.gameLabSimulation?.status === "ready");
   const p = d?.gameLabSimulation?.generatedPicks?.[0];
   assert.ok(p, "a generated pick exists");

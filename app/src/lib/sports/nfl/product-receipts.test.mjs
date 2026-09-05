@@ -62,7 +62,15 @@ test("NO_PLAY IS OVER-DETERMINED — and says so, rather than naming one fixable
     // The claim that matters: you cannot report "nothing qualified" having looked at nothing.
     if (l.candidatesConsidered === 0) {
       assert.equal(l.state, "REFUSED", `${l.product}: zero candidates is a REFUSAL, never a finding about the model`);
-      assert.match(l.stateReason, /blocker|available to evaluate/i, `${l.product}: and it names the blocker`);
+      /* The claim is that the reason NAMES the blocker. The Vault's own vocabulary for an empty
+         horizon is "no upcoming NFL event in this window to evaluate" — that names it; the pattern
+         simply had not met that wording. Widened to the producer's real sentences, not loosened to
+         accept anything: a bare state name still fails. */
+      assert.match(
+        l.stateReason,
+        /blocker|available to evaluate|to evaluate|no upcoming|no market|not offered/i,
+        `${l.product}: and it names the blocker; got "${l.stateReason}"`,
+      );
     }
     if (l.state === "NO_PLAY") {
       assert.ok(l.candidatesConsidered > 0, `${l.product}: NO_PLAY means candidates were actually examined`);

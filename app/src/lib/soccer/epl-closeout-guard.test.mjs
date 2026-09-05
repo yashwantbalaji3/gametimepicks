@@ -47,6 +47,17 @@ const CROSS_LANE_READERS = [
   // it is asserting, or it cannot assert it.
   "src/lib/sports/learning-paths",
   /*
+   * epl-publication.test.mjs (P233 · A): the offered-window control plane classifies EVERY sport,
+   * and its EPL rule tested for a state the producer never emits — `r.state === "READY"` against a
+   * vocabulary of CURRENT_PRE_EVENT / READY_EXCEPT_ODDS. The condition was unsatisfiable, so EPL
+   * reported WORK_OWED on days it published successfully.
+   *
+   * Proving that requires reading the EPL forecast rows themselves: the guard has to name the path
+   * it is asserting. Same standing as the learning-path registry above — this is the cross-sport
+   * control plane checking its own classification, not a surface reaching into the lane.
+   */
+  "src/lib/offered-window/epl-publication.test.mjs",
+  /*
    * closure-packet-sources (P196 · Release A/D): the completion control plane reads every sport's
    * own artifacts by design — EPL's forecast set for the current-event verdict and the graded
    * ledger for the live calibration recount that guard C7 compares against the learning artifact.

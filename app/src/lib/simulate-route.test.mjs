@@ -4,6 +4,7 @@
  * with artifact-backed badges, and links to the game pages. Static-export safe; no money change.
  */
 import test from "node:test";
+import { artifactAbsence } from "./testing/day-in-flight.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -49,6 +50,17 @@ test("FUNCTIONAL: when today's slate carries MLB games, they surface as simulati
   // MLB All-Star break (Jul 13–16): 0 MLB games on the active slate is a valid honest empty state — the
   // lobby simply lists no MLB cards. Assert the simulation-ready wiring only when the slate has games.
   if (mlb.length === 0) return;
+  /*
+   * GAMES WITHOUT SIMULATIONS YET IS A MID-FLIGHT DAY, NOT A DEFECT (P233 · A). The schedule lands
+   * early; `mlb-daily-production` builds the simulations later — cron 14:15Z, observed landings
+   * 17:00-17:54Z. Between those the slate has games and no ready sims, and asserting readiness there
+   * fails a system that is working. Past the producer's deadline the absence IS the finding.
+   */
+  {
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+    const absence = artifactAbsence({ appDir: process.cwd(), relDir: "public/data/mlb/game-simulations", date: today, producer: "mlb-daily-production" });
+    if (absence.inFlight) return;
+  }
   const ready = mlb.filter((d) => d.gameLabSimulation?.status === "ready");
   assert.ok(ready.length >= 1, "at least one simulation-ready MLB game is available to list");
   assert.ok(ready.every((d) => d.slug), "each has a slug → a real game page to link to");
