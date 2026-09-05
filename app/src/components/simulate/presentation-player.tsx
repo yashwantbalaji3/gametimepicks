@@ -137,10 +137,16 @@ function Histogram({ bars, accent, caption }: { bars: readonly PresentationBar[]
   );
 }
 
-function DetailRows({ rows }: { rows: PresentationChapter["rows"] }) {
+/**
+ * `columns: 2` is for the landscape crop, where a five-row chapter overflowed a 16:9 box and was
+ * silently clipped by the frame's own `overflow-hidden` — content hidden, no scrollbar, nothing to
+ * tell a reader anything was missing. Truncating the list would have been worse than the clip;
+ * landscape has width nobody was using, so the rows use it.
+ */
+function DetailRows({ rows, columns = 1 }: { rows: PresentationChapter["rows"]; columns?: 1 | 2 }) {
   if (!rows.length) return null;
   return (
-    <ul className="flex flex-col gap-1.5 m-0 p-0" style={{ listStyle: "none" }}>
+    <ul className={`m-0 p-0 gap-1.5 ${columns === 2 ? "grid grid-cols-2" : "flex flex-col"}`} style={{ listStyle: "none" }}>
       {rows.map((r, i) => (
         <li key={`${r.label}-${i}`} className="flex items-baseline gap-2 rounded-[6px] px-2 py-1.5"
           style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-border)" }}>
@@ -153,18 +159,30 @@ function DetailRows({ rows }: { rows: PresentationChapter["rows"] }) {
   );
 }
 
-function ChapterBody({ chapter, accent, accentSoft, sport, run }: {
+function ChapterBody({ chapter, accent, accentSoft, sport, run, wide }: {
   chapter: PresentationChapter; accent: string; accentSoft: string; sport: string; run: number;
+  /** True in the landscape crop, where rows lay out in two columns instead of overflowing. */
+  wide?: boolean;
 }) {
   const theme = themeFor(sport);
+  const rowColumns: 1 | 2 = wide && chapter.rows.length > 3 ? 2 : 1;
   switch (chapter.kind) {
     case "event":
     case "closing":
+      /*
+       * SIDE BY SIDE IN LANDSCAPE. Stacked, the scene plus three rows overflowed a 16:9 crop by
+       * twelve pixels and the last row was clipped away with nothing to indicate it. A wide frame
+       * has the width for both, so the shape of the crop decides the arrangement.
+       */
       return (
-        <div className="flex flex-col gap-3">
+        <div className={wide ? "flex flex-row items-center gap-4" : "flex flex-col gap-3"}>
           {/* The scene is decorative and aria-hidden; it is keyed on `run` so a replay redraws it. */}
-          <div key={`scene-${run}`}><SimulationScene scene={theme.scene} accent={accent} accentSoft={accentSoft} phase="SUMMARIZING" /></div>
-          <DetailRows rows={chapter.rows} />
+          <div key={`scene-${run}`} className={wide ? "w-1/2 shrink-0" : ""}>
+            <SimulationScene scene={theme.scene} accent={accent} accentSoft={accentSoft} phase="SUMMARIZING" />
+          </div>
+          <div className={wide ? "flex-1 min-w-0" : ""}>
+            <DetailRows rows={chapter.rows} />
+          </div>
         </div>
       );
     case "distribution":
@@ -184,7 +202,7 @@ function ChapterBody({ chapter, accent, accentSoft, sport, run }: {
       );
     case "players":
     case "limits":
-      return <DetailRows rows={chapter.rows} />;
+      return <DetailRows rows={chapter.rows} columns={rowColumns} />;
     default:
       return (
         <div className="flex flex-col gap-3">
@@ -235,6 +253,30 @@ export default function PresentationPlayer({
    */
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  /*
+   * RECORDING MODE (P234 · Release D). Not a second player and not a second source of predictions —
+   * the same manifest, the same chapters, re-composed into a fixed crop the reader can screen-record
+   * without scrolling or moving the pointer.
+   *
+   * `capture` is the box a recording should contain. Every control lives OUTSIDE it, so a capture of
+   * that rectangle carries the presentation and none of the furniture. What never leaves the box is
+   * the part a viewer needs to judge what they are seeing: the event, its date, the readiness label,
+   * and the brand it came from.
+   */
+  const [recording, setRecording] = useState(false);
+  const [chosenRatio, setChosenRatio] = useState<FrameRatio>(ratio);
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  /* The countdown is a courtesy before a recording, not a loading bar: it counts down from three,
+     it is skippable, and it never appears unless the reader asked to record. */
+  useEffect(() => {
+    if (countdown == null) return;
+    if (countdown <= 0) { setCountdown(null); act("REPLAY"); return; }
+    const t = window.setTimeout(() => setCountdown((n) => (n == null ? null : n - 1)), 1000);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown]);
 
   type PlayerAction = "START" | "PAUSE" | "RESUME" | "NEXT" | "PREV" | "REPLAY" | "FAIL";
   const act = useCallback(
@@ -329,7 +371,13 @@ export default function PresentationPlayer({
   const chapter = chapters[ctx.index] ?? null;
   const completed = ctx.state === "COMPLETED";
   const unavailable = ctx.state === "UNAVAILABLE" || ctx.state === "ERROR";
-  const frameAspect = RATIO_CSS[ratio];
+  /* In recording mode the crop is fixed to the chosen composition; in page mode the frame keeps its
+     natural height so a chapter is never letterboxed into a shape nobody asked for. */
+  const activeRatio: FrameRatio = recording ? chosenRatio : ratio;
+  const frameAspect = RATIO_CSS[activeRatio];
+  /* Landscape is wider because 16:9 derives its HEIGHT from its width: at 720 the box was 405px
+     tall and the dense chapters did not fit. */
+  const captureWidth = activeRatio === "portrait" ? 420 : activeRatio === "feed" ? 500 : activeRatio === "landscape" ? 900 : 680;
 
   const title = manifest ? manifest.title : "Simulation unavailable";
   const reportHref = manifest ? manifest.reportHref : (presentation as { reportHref: string }).reportHref;
@@ -346,15 +394,34 @@ export default function PresentationPlayer({
         aria-modal="true"
         aria-label={`${theme.label} simulation presentation · ${title}`}
         onClick={(e) => e.stopPropagation()}
-        className={`flex flex-col rounded-[14px] overflow-hidden w-full ${hidden ? "gtp-sim-paused" : ""}`}
-        style={{
-          maxWidth: ratio === "portrait" ? 420 : ratio === "feed" ? 520 : 680,
-          maxHeight: "94vh",
-          aspectRatio: frameAspect,
-          background: "var(--vault-panel-elevated)",
-          border: `1px solid ${theme.accent}`,
-        }}
+        className="flex flex-col items-center gap-2 w-full"
+        style={{ maxWidth: captureWidth, maxHeight: "96vh" }}
       >
+        {/* ── THE CAPTURE FRAME. Everything a recording should contain, and nothing else. ── */}
+        <div
+          data-capture-frame
+          className={`relative flex flex-col rounded-[14px] overflow-hidden w-full ${hidden ? "gtp-sim-paused" : ""}`}
+          style={{
+            maxHeight: recording ? "82vh" : "88vh",
+            aspectRatio: frameAspect,
+            /* OPAQUE in recording mode. The in-page scrim lets the site show faintly through, which
+               is fine on a screen and wrong in a captured rectangle. */
+            background: recording ? "var(--vault-ink-black)" : "var(--vault-panel-elevated)",
+            border: `1px solid ${theme.accent}`,
+            boxShadow: recording ? `0 0 0 1px var(--vault-border), 0 0 0 5px color-mix(in srgb, ${theme.accent} 22%, transparent)` : undefined,
+          }}
+        >
+        {/* ── the recording backdrop. A two-statistic chapter cannot fill a 9:16 crop, and the
+               first portrait cut was a third empty black. This is the sport's own scene, already
+               aria-hidden and already behind the global reduced-motion guard, held at low opacity
+               behind the text: it fills the frame without adding a single claim to it. Landscape
+               does not need it — the content already spans the width. ── */}
+        {recording && chosenRatio !== "landscape" ? (
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0" style={{ opacity: 0.22 }}>
+            <SimulationScene scene={theme.scene} accent={theme.accent} accentSoft={theme.accentSoft} phase="SUMMARIZING" />
+          </div>
+        ) : null}
+
         {/* ── header: identity is never hidden, in any frame ── */}
         <div className="flex items-start justify-between gap-2 px-4 pt-3 pb-2 shrink-0">
           <div className="min-w-0 flex flex-col">
@@ -432,25 +499,62 @@ export default function PresentationPlayer({
               ) : null}
             </div>
           ) : chapter ? (
-            <>
+            /*
+             * ONE CENTRED STACK, not a header pinned to the top with the body floating below it.
+             * The first 9:16 crop put the sentence at the top, the numbers in the middle, and about
+             * a third of the frame of empty black between them — a recording of mostly nothing.
+             * Header and body are one block now, centred together, so a tall crop is filled rather
+             * than padded.
+             */
+            <div className="flex-1 min-h-0 flex flex-col justify-center gap-4">
               <div className="shrink-0 flex flex-col gap-1">
-                <span className="font-mono uppercase tracking-[0.14em]" style={{ color: theme.accent, fontSize: 9.5 }}>
+                <span className="font-mono uppercase tracking-[0.14em]" style={{ color: theme.accent, fontSize: recording ? 11 : 9.5 }}>
                   Chapter {ctx.index + 1} of {chapters.length} · {chapter.title}
                 </span>
-                {/* THE TRUTH CARRIER. Colour and motion decorate; this line states. */}
-                <p role="status" aria-live="polite" className="m-0" style={{ color: "var(--vault-text)", fontSize: 13.5, lineHeight: 1.5, fontWeight: 550 }}>
+                {/* THE TRUTH CARRIER. Colour and motion decorate; this line states. Larger in a
+                    recording, where the frame will be watched at phone size. */}
+                <p role="status" aria-live="polite" className="m-0"
+                  style={{ color: "var(--vault-text)", fontSize: recording ? 16 : 13.5, lineHeight: 1.5, fontWeight: 550 }}>
                   {chapter.line}
                 </p>
               </div>
-              <div className="flex-1 min-h-0 flex flex-col justify-center gap-3">
-                <ChapterBody chapter={chapter} accent={theme.accent} accentSoft={theme.accentSoft} sport={presentation.sport} run={ctx.run} />
+              <div className="flex flex-col gap-3">
+                <ChapterBody chapter={chapter} accent={theme.accent} accentSoft={theme.accentSoft} sport={presentation.sport} run={ctx.run} wide={activeRatio === "landscape"} />
               </div>
-            </>
+            </div>
           ) : null}
         </div>
 
-        {/* ── controls: outside the story, always reachable ── */}
-        <div className="shrink-0 flex flex-wrap items-center gap-2 px-4 py-3" style={{ borderTop: "1px solid var(--vault-border)" }}>
+        {/* ── the brand strip, INSIDE the crop. A recording that does not say where it came from
+               is unattributable, and a viewer cannot check a number they cannot trace. The
+               paper-only disclosure rides here too, so it cannot be cropped away from the
+               statistics it qualifies. ── */}
+        <div
+          className="shrink-0 flex items-center justify-between gap-2 px-4 py-2"
+          style={{ borderTop: "1px solid var(--vault-border)", background: recording ? "color-mix(in srgb, var(--vault-ink-black) 60%, transparent)" : "transparent" }}
+        >
+          <span className="font-mono uppercase tracking-[0.14em] truncate" style={{ color: theme.accent, fontSize: 9 }}>
+            gametimepicks.yashwantbalaji.com
+          </span>
+          <span className="font-mono uppercase tracking-[0.1em] shrink-0" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+            Paper-only · educational
+          </span>
+        </div>
+
+        {/* ── the countdown, INSIDE the crop and over everything. Skippable, and it only exists
+               because a person about to hit record asked for it. ── */}
+        {countdown != null && countdown > 0 ? (
+          <div className="absolute inset-0 flex items-center justify-center" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 88%, transparent)" }}>
+            <span className="font-display tabular-nums" style={{ color: theme.accent, fontSize: 84, fontWeight: 800, lineHeight: 1 }}>{countdown}</span>
+          </div>
+        ) : null}
+        </div>
+
+        {/* ══ EVERYTHING BELOW IS OUTSIDE THE CAPTURE FRAME ══════════════════════════════════════
+             Controls, the format chooser and the route out. A screen recording cropped to the
+             rectangle above contains none of it — which is the whole point of the split — while
+             pause and exit stay one click (or one key) away for the person recording. */}
+        <div className="shrink-0 flex flex-wrap items-center gap-2 w-full px-1 py-2">
           {manifest && !unavailable ? (
             <>
               <button type="button" onClick={() => act(completed ? "REPLAY" : ctx.state === "PLAYING" ? "PAUSE" : ctx.state === "PAUSED" ? "RESUME" : "START")}
@@ -475,6 +579,68 @@ export default function PresentationPlayer({
             Full report →
           </Link>
         </div>
+
+        {/* ── the recording row. Also outside the crop. ── */}
+        {manifest && !unavailable ? (
+          <div className="shrink-0 flex flex-wrap items-center gap-2 w-full px-1 pb-1">
+            <button
+              type="button"
+              onClick={() => setRecording((r) => !r)}
+              aria-pressed={recording}
+              className="vault-press rounded-full px-3 inline-flex items-center gap-1.5"
+              style={{
+                minHeight: 36,
+                border: `1px solid ${recording ? theme.accent : "var(--vault-border-strong)"}`,
+                color: recording ? theme.accent : "var(--vault-text-mute)",
+                fontSize: 11.5, fontWeight: 700,
+              }}
+            >
+              <span aria-hidden style={{ fontSize: 9 }}>●</span>
+              {recording ? "Recording layout on" : "Recording layout"}
+            </button>
+
+            {recording ? (
+              <>
+                <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>Format</span>
+                {([
+                  ["portrait", "9:16"],
+                  ["feed", "4:5"],
+                  ["landscape", "16:9"],
+                ] as Array<[FrameRatio, string]>).map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setChosenRatio(id)}
+                    aria-pressed={chosenRatio === id}
+                    className="vault-press rounded-full px-3 inline-flex items-center font-mono"
+                    style={{
+                      minHeight: 36,
+                      border: `1px solid ${chosenRatio === id ? theme.accent : "var(--vault-border)"}`,
+                      color: chosenRatio === id ? theme.accent : "var(--vault-text-faint)",
+                      fontSize: 11,
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+                {/* Start = countdown, then replay from chapter one. The reader presses record on
+                    their own tool during the count, and the presentation begins at zero. */}
+                <button
+                  type="button"
+                  onClick={() => { act("PAUSE"); setCountdown(3); }}
+                  className="vault-press rounded-full px-4 inline-flex items-center ml-auto"
+                  style={{ minHeight: 36, border: `1px solid ${theme.accent}`, color: theme.accent, fontSize: 11.5, fontWeight: 700 }}
+                >
+                  Start presentation ↻
+                </button>
+              </>
+            ) : (
+              <span style={{ color: "var(--vault-text-faint)", fontSize: 10.5, lineHeight: 1.5 }}>
+                Crops the frame to 9:16, 4:5 or 16:9 and moves these controls outside it.
+              </span>
+            )}
+          </div>
+        ) : null}
       </div>
     </div>
   );

@@ -36,10 +36,20 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const OUT = path.join(APP, "out");
-
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
+
+/**
+ * The tree to partition and to look for a built export in. Defaults to this app, and is overridable
+ * ONLY so the refusal test can prove "no export ⇒ the phase fails" against a scratch tree.
+ *
+ * It used to prove that by renaming the real `out/` aside and back. That test runs in the same
+ * parallel batch as the seventy guards which read `out/`, so for the length of one spawn the export
+ * vanished underneath them — and `founder-token-boundary` failed with ENOENT partway through walking
+ * a directory that existed before and after. Intermittent, unreproducible in isolation, on the
+ * deploy gate. A test must not move the artifact its siblings are reading.
+ */
+const APP = path.resolve(arg("--app", path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..")));
+const OUT = path.join(APP, "out");
 const PHASE = arg("--phase", "all");
 if (!["unit", "post-build", "all"].includes(PHASE)) {
   console.error(`REFUSED: --phase must be unit | post-build | all (got ${PHASE})`);

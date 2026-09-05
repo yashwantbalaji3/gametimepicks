@@ -19,6 +19,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import os from "node:os";
 
 const APP = process.cwd();
 const GATE = path.join(APP, "..", ".github", "workflows", "quality-gate.yml");
@@ -52,17 +53,36 @@ test("REFUSAL · the rendered phase will not run without a built export", () => 
   /*
    * Without this the runner would reproduce the defect one level up: a full row of green from a
    * phase that never opened a file. Proven by running it, not by reading it.
+   *
+   * AGAINST A SCRATCH TREE, NOT THE REAL EXPORT. This used to rename `app/out` aside for the length
+   * of the spawn below and put it back afterwards. It runs in the same parallel batch as the seventy
+   * guards that read `out/`, so the export disappeared underneath them mid-run: `founder-token-
+   * boundary` failed three times in six local gate runs with ENOENT partway through walking a
+   * directory that existed before and after, passed in isolation every time, and passed in CI —
+   * the exact profile of a flake nobody can reproduce. A test may not move the artifact its
+   * siblings are reading, so the runner now takes `--app` and this points it somewhere disposable.
    */
-  const parked = path.join(APP, "..", ".gtp-out-parked-by-test");
-  const out = path.join(APP, "out");
-  const hadOut = fs.existsSync(out);
-  if (hadOut) fs.renameSync(out, parked);
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-suite-phase-"));
+  const realExportBefore = fs.existsSync(path.join(APP, "out"));
   try {
-    const r = spawnSync("node", [RUNNER, "--phase", "post-build"], { cwd: APP, encoding: "utf8" });
+    /* One test file that mentions out/, so the partition selects it and the phase is non-empty —
+       otherwise the runner would refuse for the wrong reason and this would prove nothing. */
+    fs.mkdirSync(path.join(scratch, "src"), { recursive: true });
+    fs.writeFileSync(path.join(scratch, "src", "scratch.test.mjs"), 'import "node:test"; /* reads out/ */\n');
+    assert.equal(fs.existsSync(path.join(scratch, "out")), false, "the scratch tree must have no export");
+
+    const r = spawnSync("node", [RUNNER, "--phase", "post-build", "--app", scratch], { cwd: APP, encoding: "utf8" });
     assert.notEqual(r.status, 0, "a missing export must fail the phase, never pass it");
     assert.match(r.stderr, /needs a built export/i, "and say why");
+
+    /* And the real export is exactly as it was — the property whose absence caused the flake. */
+    assert.equal(
+      fs.existsSync(path.join(APP, "out")),
+      realExportBefore,
+      "this test moved the real export; that is what its siblings were failing on",
+    );
   } finally {
-    if (hadOut) fs.renameSync(parked, out);
+    fs.rmSync(scratch, { recursive: true, force: true });
   }
 });
 
