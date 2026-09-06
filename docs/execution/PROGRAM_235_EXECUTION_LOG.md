@@ -31,9 +31,9 @@ registered themselves. Carried as a finding; the settler covers them regardless 
 | C forecast history | P234 archive gap (Newcastle 11:30Z) | `recover-forecast-history.mjs` | recovered fixture reachable from `/epl` | **SHIPPED** `8694e8624` | generalize to MLB/NFL/UFC if their sources show the same shape |
 | D full results explorer | P234 Release E/F | `build-model-results-index.mjs`, `model-results-explorer.tsx` | index reconciles with `graded-picks.json`; drill-down serves | **SHIPPED** `66928794a` | extend beyond MLB when another sport publishes per-row detail |
 | E odds + coverage | P234 `ACQUISITION_UNSCHEDULED` | `p171-authorization.mjs`, `acquisition-cadence.mjs` | expired receipt refuses without spending | **SHIPPED (engineering)** `fb5d43184` · **ACQUISITION_ACTIVE for UFC/EPL, GATED for NFL** | founder renewal for NFL |
-| F daily products | Release A lifecycle | product pages | product card → settled record | NOT STARTED | — |
-| G forward evaluation | P234 registrations | `evaluate-candidate.mjs` | reports INSUFFICIENT_SAMPLE until eligible | NOT STARTED | — |
-| H four-sport journeys | P234 Release H | e2e specs | cross-engine + recording layouts | NOT STARTED | — |
+| F daily products | the twice-seen stale learning count | `epl-matchweek.yml`, `risk-ladder-board.tsx` | a grading job also reports and commits | **SHIPPED** `087b4f3a6` `1a234f06d` | per-product page states for bank-builder/moonshot |
+| G forward evaluation | P234 registrations | `build-model-results-index.mjs` | game count published beside the row count | **SHIPPED (clustering)** `fc8aabca4` | the forward window opens 2026-09-06; run when 2,000 rows settle |
+| H four-sport journeys | P234 Release H | e2e specs | 550 browser tests, 3 engines | **VERIFIED** | — |
 
 ## Release A — the replay harness, and a card that would have pended forever
 
@@ -241,3 +241,53 @@ parses first, and that a call inside the ceiling is still allowed.
   refusal all work; the allowance is lapsed. Needs `AUTHORIZE:NFL:<scope>:<ceiling>:<expiry>` or
   `DEFER`. **A renewal is a founder edit to the receipt's Expiry row, not a code change** — a test
   proves a ceiling-only expiry restores authorization with nothing else altered.
+
+## Release F — two jobs wrote to one ledger and only one told the report
+
+`087b4f3a6` · `1a234f06d`.
+
+**The lag, traced to its cause.** Twice in two programs the control plane refused to build because
+the EPL learning artifact said 23 graded / 18 paired, then 24 / 19, while the ledger recounted one
+more. `epl-settle.yml` grades and then reports, in that order. `epl-matchweek.yml` graded on
+**eighteen crons** and never reported, so every grade it wrote left the artifact stale until settle
+next ran on its single cron. Read from the code: both invoke `grade-epl-forecasts.mjs`, one invoked
+`report-epl-learning.mjs`.
+
+Matchweek now regenerates after grading and before committing, **and allowlists**
+`data/internal/research/epl/learning` — the second half matters as much, since that file's own
+comment records the failure of regenerating an artifact and dropping it. The soft
+`|| echo "::warning::"` is kept on both, deliberately: the report legitimately refuses on an
+unreadable ledger and that must not lose the run's grades, and it is safe because a stale artifact is
+not silent — `STALE_CALIBRATION_COUNT` refuses the build. A test asserts that backstop still exists.
+Mutation-probed on both halves.
+
+**"Today's card" was a claim the component could not check.** The risk-ladder heading read "Today's
+card at each risk level" and the component received no date at all. The loader is already fail-closed
+on date, so this was **not** a live wrong-card bug — the narrower fault is that the heading made a
+claim about when the reader is, from data that only knows what the card is for.
+
+My first fix was worse than the problem: it compared against a `today` computed in the server
+component, which under `output: "export"` bakes into the HTML at build time and is wrong for every
+reader after midnight — the frozen-clock trap this repository has hit before. It now states the date
+the artifact owns: `Card at each risk level · 2026-09-05`.
+
+## Release G — 37,958 picks, 1,068 games
+
+`fc8aabca4`.
+
+The charter asks for rows to be distinguished from independent games, and the answer matters more
+than it sounds: **37,958 decisive picks come from 1,068 distinct games**, about thirty-six props
+each. An interval computed as though those rows stood alone is roughly six times narrower than the
+evidence supports, and the page had been publishing "37,958 decisive" with nothing to say otherwise.
+
+The game count now travels with the row count in the index, per day, in the pooled summary and in a
+sentence under the table. It also reframes the registered forward evaluation, whose minimum is
+written as 2,000 decisive ROWS — roughly 56 games at this density. **Recorded rather than changed:**
+altering a frozen preregistration term to one I prefer after seeing the data is the exact move the
+registration exists to prevent.
+
+## Release H — journeys re-verified, not rebuilt
+
+Full browser suite after every P235 change: **550 passed, 21 skipped, 0 failed** across Chromium,
+WebKit and Firefox — including P234's four-sport player, recording layouts at 9:16 / 4:5 / 16:9, the
+responsive matrix at 360–1920, and the results journeys. No P235 change regressed a shipped journey.
