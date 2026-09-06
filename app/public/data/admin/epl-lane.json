@@ -2,36 +2,36 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-09-06T17:27:18Z",
+  "generatedAt": "2026-09-06T22:51:08Z",
   "nextCluster": {
     "kickoffUtc": "2026-09-12T14:00:00.000Z",
     "fixtures": 5,
-    "hoursAway": 140.54
+    "hoursAway": 135.15
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-09-06T17:27:09Z",
+      "stampedAt": "2026-09-06T22:50:57Z",
       "ageHours": 0
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-09-06T15:00:44Z",
-      "ageHours": 2.44
+      "ageHours": 7.84
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-09-06T17:27:17Z",
+      "stampedAt": "2026-09-06T22:51:07Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
       "stampedAt": "2026-09-06T15:00:51Z",
-      "ageHours": 2.44
+      "ageHours": 7.84
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-09-06T17:27:11Z",
+      "stampedAt": "2026-09-06T22:50:59Z",
       "ageHours": 0
     }
   },
@@ -60,11 +60,11 @@
       "headroom": 64,
       "kickoffWindowHours": 30,
       "spendingFirings": 185,
-      "skippedFirings": 499
+      "skippedFirings": 498
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-09-06T17:27:17Z",
+    "generatedAt": "2026-09-06T22:51:07Z",
     "counts": {},
     "rows": 0
   },
@@ -83,11 +83,11 @@
   },
   "record": {
     "sampleState": "ACCUMULATING",
-    "matches": 25,
-    "hits": 11,
-    "meanLogLoss": 1.0634603200000001,
-    "playerRows": 1338,
-    "playerVoided": 1100
+    "matches": 26,
+    "hits": 12,
+    "meanLogLoss": 1.0390216153846155,
+    "playerRows": 1400,
+    "playerVoided": 1118
   },
   "gate": {
     "maturity": "SCAFFOLDED",
@@ -116,7 +116,7 @@
     {
       "id": "calibration-sample",
       "state": "REALITY_GATED",
-      "detail": "calibration needs a preregistered backtest at the MLB bar, and the stopping rule applies from 30 matches paired with a market baseline. 25 match(es) are graded and 20 are paired. No amount of engineering shortens this; matches have to be played."
+      "detail": "calibration needs a preregistered backtest at the MLB bar, and the stopping rule applies from 30 matches paired with a market baseline. 26 match(es) are graded and 21 are paired. No amount of engineering shortens this; matches have to be played."
     }
   ]
 }
