@@ -21,6 +21,8 @@ const loadUfc = (n) => JSON.parse(fs.readFileSync(path.join(process.cwd(), "publ
  * passed only because it and the odds were equally stale, which made every join below vacuous. The
  * card is rebuilt every fight-week run and is the same artifact the odds capture prices.
  */
+import { oddsCoverCard, ODDS_COVER } from "../sports/ufc/odds-cover-card.mjs";
+
 const card = loadUfc("card-latest.json");
 const fights = eventFightsFromCard(card.bouts);
 const odds = loadUfc("odds-latest.json");
@@ -63,12 +65,25 @@ const rows = buildUfcCardPredictions(fights, oddsIndex, fighterByName);
  * Drift is still a hard failure — it just has to be actual drift: both artifacts carrying bouts,
  * for disjoint sets of them.
  */
+/*
+ * P238 — A THIRD REPAIR, and the same lesson again.
+ *
+ * The window this check must tolerate is wider than "the odds carry no bout". `odds-latest.json` is
+ * a POINTER, and the card builder rolls to the next event as soon as one is scheduled while the
+ * odds capture runs Tue/Thu/Sat. On 2026-09-06 that left the card on "Noche UFC: Silva vs. Delgado"
+ * (event 600060772, 13 bouts) and the odds on the FINISHED "Hooker vs. Parnasse" (600059993, 10
+ * bouts). Both artifacts carried bouts, for disjoint sets — which the previous rule called drift.
+ *
+ * It is not drift. It is a card that has not been priced yet, beside a stale pointer to a completed
+ * event. `oddsCoverCard` names the difference: a mismatched EVENT id is NOT_YET, and only two
+ * artifacts claiming the SAME event while sharing no bout are the defect this guard exists to catch.
+ */
+const cover = oddsCoverCard(card, odds);
 const schedBoutIds = new Set(fights.map((f) => String(f.boutId ?? "")).filter(Boolean));
 const oddsBoutIds = new Set((odds.bouts ?? []).map((b) => String(b.boutId ?? "")).filter(Boolean));
 const pricedOverlap = [...oddsBoutIds].filter((id) => schedBoutIds.has(id));
-/** The odds artifact carries no priced bout at all — an offered-window state, not a join failure. */
-const oddsNotOfferedYet = oddsBoutIds.size === 0;
-const sameCard = oddsNotOfferedYet || pricedOverlap.length > 0;
+const oddsNotOfferedYet = cover.state === ODDS_COVER.NOT_YET;
+const sameCard = cover.state !== ODDS_COVER.DRIFT;
 
 test("0 · the schedule and the odds describe the same card", () => {
   if (oddsNotOfferedYet) {
@@ -211,7 +226,14 @@ test("9 · every fight has an explicit Predicted Winner + Method of Victory; win
    * a partially-invented winner would be a far worse defect than a quiet card, and nothing else in
    * this file would catch it.
    */
-  if (oddsIndex.size > 0) {
+  /*
+   * "PRICED" MEANS PRICED FOR THIS CARD. `oddsIndex.size > 0` counts entries in the odds artifact,
+   * which on 2026-09-06 held ten bouts from a FINISHED event while the card had rolled to the next
+   * one. Non-empty, entirely unjoinable, and this assertion then demanded winners the engine was
+   * right to withhold — pressuring it toward the one thing it must never do, inventing a winner
+   * from no market.
+   */
+  if (cover.state === ODDS_COVER.COVERS) {
     assert.ok(rows.some((r) => r.prediction.predictedWinner !== "No clear winner"), "a priced card names winners");
     assert.ok(rows.some((r) => r.prediction.methodOfVictory !== "No clear method"), "a priced card reads methods");
   } else {

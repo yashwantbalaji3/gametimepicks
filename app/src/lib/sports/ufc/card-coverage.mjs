@@ -53,7 +53,7 @@
  * @param {Function} args.fighterKeys `(bout) => [keyA, keyB]`, the per-FIGHTER fold. This is what
  *   separates a missed join on our own card from another promotion's fight in the same payload.
  */
-export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyOf, fighterKeys }) {
+export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyOf, fighterKeys, cardEventId = null, oddsEventId = null }) {
   const bouts = Array.isArray(cardBouts) ? cardBouts : [];
 
   // Everyone we know is fighting on this card, as individual folded names.
@@ -99,8 +99,27 @@ export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyO
     unmatchedProviderEvents: unmatchedProviderEvents.length,
   };
 
+  /*
+   * DO THE TWO ARTIFACTS DESCRIBE THE SAME EVENT?
+   *
+   * Readiness counted priced bouts and never asked. On 2026-09-06 the card builder rolled forward to
+   * "Noche UFC: Silva vs. Delgado" (event 600060772) while odds-latest still held the finished
+   * "UFC Fight Night: Hooker vs. Parnasse" (600059993) — the odds capture runs Tue/Thu/Sat and had
+   * not reached the new card. Every bout id in one artifact was absent from the other, so every
+   * join was vacuous; nothing joined, and only that accident kept a stale price off the page.
+   *
+   * A capture for a DIFFERENT event is not partial coverage of this one. It is no coverage, and it
+   * is named as such rather than counted.
+   */
+  const eventMismatch = Boolean(cardEventId && oddsEventId && String(cardEventId) !== String(oddsEventId));
+
   const blockers = [];
-  if (!pricedCount) blockers.push("the provider returned no h2h market that joined to this card");
+  if (eventMismatch) {
+    blockers.push(
+      `the odds artifact describes event ${oddsEventId}, not this card (${cardEventId}) — no prices have been captured for it yet`,
+    );
+  }
+  if (!pricedCount && !eventMismatch) blockers.push("the provider returned no h2h market that joined to this card");
   if (coverage.joinFailed) {
     blockers.push(
       `${coverage.joinFailed} bout(s) could not be joined to a provider event that exists — a defect, not a closed market`,
@@ -117,8 +136,10 @@ export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyO
     blockers,
     // Ready means the WHOLE card is priced. A partially priced card still publishes the fights it
     // has; it is simply not a state anything downstream may treat as complete.
-    oddsReady: pricedCount > 0 && pricedCount === bouts.length,
-    partiallyPriced: pricedCount > 0 && pricedCount < bouts.length,
+    // Ready requires the whole card priced AND the prices to be for THIS card.
+    oddsReady: !eventMismatch && pricedCount > 0 && pricedCount === bouts.length,
+    partiallyPriced: !eventMismatch && pricedCount > 0 && pricedCount < bouts.length,
+    eventMismatch,
   };
 }
 

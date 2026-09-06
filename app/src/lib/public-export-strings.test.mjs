@@ -33,7 +33,18 @@ export const BANNED = [
   { id: "local-paths", re: /\/Users\/|\/home\/runner\// },
   { id: "localhost", re: /\blocalhost\b/ },
   { id: "secret-names", re: /OPS_WEBHOOK_URL|ODDS_API_KEY|NEXT_PUBLIC_ANALYTICS_(?:ENABLED|ENDPOINT)/ },
-  { id: "protected-hashes", re: /affe6b21071f2b3be96bb2774eb347c3|cb80473f88f3cb5f67208fa568925295|\bmd5\b/i },
+  /*
+   * The two protected money hashes stay matched literally. The generic half used to be the bare word
+   * `\bmd5\b`, which is not a hash — it is a word — and on 2026-09-06 it flagged four public pages
+   * over the EPL canonical event id `epl:premier-league:2026-09-18:2026-27:md5:brentford-v-chelsea`,
+   * where "md5" is an id-scheme segment label. That is identity data, not a leaked digest.
+   *
+   * The fix keeps the original intent — "md5" in PROSE is internal language — and excludes the case
+   * where it is a colon-delimited segment of an identifier. A first attempt also flagged any bare
+   * 32-char hex run, which was worse: this repository uses content-derived 32-hex ids as public
+   * game identity, so that clause failed on legitimate gameIds across the build.
+   */
+  { id: "protected-hashes", re: /affe6b21071f2b3be96bb2774eb347c3|cb80473f88f3cb5f67208fa568925295|(?<![:\w-])md5(?![:\w-])/i },
   { id: "repo-mechanics", re: /\bgit (?:rebase|push|stash|checkout)\b|force-push/ },
   { id: "dev-markers", re: /\bTODO:|\bFIXME\b/ },
   { id: "ops-language", re: /founder decision|mutation test|pipefail|wall-clock proof/i },
@@ -70,6 +81,7 @@ test("known-positive: each banned class is caught individually", () => {
     ["local-paths", "read from /Users/someone/repo/app/data.json"],
     ["secret-names", "set OPS_WEBHOOK_URL to receive alerts"],
     ["protected-hashes", "verify the md5 before deploying"],
+    ["protected-hashes", "the bankroll is affe6b21071f2b3be96bb2774eb347c3"],
     ["repo-mechanics", "then git rebase onto main and push"],
     ["dev-markers", "TODO: remove before launch"],
     ["ops-language", "closes the wall-clock proof for pipefail"],
@@ -78,6 +90,27 @@ test("known-positive: each banned class is caught individually", () => {
     const hits = scanDocument(text);
     assert.ok(hits.some((h) => h.id === id), `'${text}' must be caught by ${id}, got ${JSON.stringify(hits)}`);
   }
+});
+
+test("known-negative: an id-scheme segment is not a leaked hash", () => {
+  /*
+   * The counter-case to the narrowing above. `md5` as a SEGMENT LABEL inside a canonical event id is
+   * identity data that belongs on the page; flagging it made four correct public pages fail. If this
+   * ever starts matching again, the pattern has widened back into a word match.
+   */
+  const benign = [
+    "epl:premier-league:2026-09-18:2026-27:md5:brentford-v-chelsea",
+    "canonical id epl:premier-league:2026-09-19:2026-27:md5:tottenham-hotspur-v-aston-villa",
+  ];
+  for (const text of benign) {
+    const hits = scanDocument(text).filter((h) => h.id === "protected-hashes");
+    assert.deepEqual(hits, [], `'${text}' is an identifier, not a hash leak`);
+  }
+  // A public content-derived game id is 32 hex characters and belongs on the page.
+  assert.deepEqual(scanDocument('"gameId":"35ced11ee1bb21f179e3ac5a39a75fd2"').filter((h) => h.id === "protected-hashes"), []);
+  // …and the narrowing must not have cost us either real thing.
+  assert.ok(scanDocument("verify the md5 first").some((h) => h.id === "protected-hashes"));
+  assert.ok(scanDocument("bankroll affe6b21071f2b3be96bb2774eb347c3").some((h) => h.id === "protected-hashes"));
 });
 
 // ── the sweep of the real export, when a build exists ──────────────────────────

@@ -116,3 +116,16 @@ test("BUILT · no hub row offers a report link for a sport that has no report ro
   assert.match(renderedText(html), /card-level report/, "UFC must say its reports are card-level");
   assert.ok(!/href="\/ufc\/bout\//.test(html), "UFC must not link to a per-bout route that is not generated");
 });
+
+test("BUILT · a period with nothing scheduled still prints its zero", () => {
+  // The counts line returned nothing at all on an empty period, so a reader could not tell "we
+  // looked and there are none" from "this section failed to render". EPL hit it the moment its
+  // matchweek rolled past.
+  for (const sport of HUBS) {
+    const f = path.join(OUT, sport, "index.html");
+    if (!fs.existsSync(f)) continue;
+    const text = renderedText(fs.readFileSync(f, "utf8"));
+    assert.match(text, /\d+ scheduled · \d+ with a report · \d+ with a supported read/,
+      `${sport}: no counts line — an empty period must still say zero`);
+  }
+});

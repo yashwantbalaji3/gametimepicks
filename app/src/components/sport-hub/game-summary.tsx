@@ -55,11 +55,23 @@ export default function GameSummary({
   const upcoming = ordered.filter((r) => !r.started);
   const played = ordered.filter((r) => r.started);
 
+  /*
+   * AN EMPTY PERIOD STILL COUNTS TO ZERO.
+   *
+   * This returned the reason alone and no counts, so a hub with nothing scheduled printed no numbers
+   * at all — and a reader could not tell "we looked and there are none" from "this section did not
+   * render". EPL hit it the moment its matchweek rolled past. Zero is an answer; it is printed.
+   */
   if (ordered.length === 0) {
     return (
-      <p className="m-0 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-        {emptyReason ?? `No ${unitLabel.toLowerCase()} are scheduled for this period.`}
-      </p>
+      <div>
+        <p className="m-0 mb-2 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+          0 scheduled · 0 with a report · 0 with a supported read
+        </p>
+        <p className="m-0 text-[13px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+          {emptyReason ?? `No ${unitLabel.toLowerCase()} are scheduled for this period.`}
+        </p>
+      </div>
     );
   }
 

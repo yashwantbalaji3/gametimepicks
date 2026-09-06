@@ -321,6 +321,9 @@ const {
   coverage, unpriced, unmatchedProviderEvents, blockers, oddsReady, partiallyPriced,
 } = classifyCardCoverage({
   cardBouts: card.bouts ?? [],
+  // Identity, so a capture for a DIFFERENT event can never be counted as coverage of this card.
+  cardEventId: card.event?.providerEventId ?? null,
+  oddsEventId: matchedEvent?.id ?? matchedEvent?.providerEventId ?? card.event?.providerEventId ?? null,
   pricedByKey: priced,
   matchedKeys: consumed,
   // The keys a bout CLAIMED, which for an aliased join is the provider's spelling rather than the

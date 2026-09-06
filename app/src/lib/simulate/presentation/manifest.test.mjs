@@ -157,8 +157,20 @@ test("THE PROJECTION IS PURE — two builds of the same report are identical", (
 });
 
 test("ONE REVISION ONLY — mismatched artifact hashes refuse", () => {
-  const d = mlb().find((g) => g.fullGameSim && g.prediction);
+  /*
+   * PICK A GAME THAT ACTUALLY PRESENTS.
+   *
+   * This selected the first game carrying both fields, which on 2026-09-06 was MIL @ CIN — the one
+   * game of fifteen whose simulation is `unavailable` because first pitch preceded the slate's
+   * generation. It refused for THAT reason, the assertion that it refuses passed, and the hash check
+   * below was never reached. A guard that passes because of an unrelated refusal is proving nothing.
+   *
+   * So: a game that presents cleanly, and an assertion that it does, before tampering with it.
+   */
+  const d = mlb().find((g) => g.fullGameSim && g.prediction && isPresentable(buildMlbPresentation(g)));
   if (!d) return;
+  assert.ok(isPresentable(buildMlbPresentation(d)), "the fixture game must present cleanly, or the tamper proves nothing");
+
   const tampered = {
     ...d,
     prediction: { ...d.prediction, artifactHash: "a-different-revision-entirely" },

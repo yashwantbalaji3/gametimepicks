@@ -231,6 +231,24 @@ jobs:
             --apply --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             || echo "::warning::ladder settlement failed — prior ledger retained, cards stay pending"
 
+      # ---- Public model-results index (Program 235, scheduled by Program 238) ----
+      #
+      # `build-model-results-index.mjs` partitions every settled model pick for /results/model-audit.
+      # It was built with a hard reconciliation guard — it refuses to write unless its detail matches
+      # graded-picks.json exactly — and then scheduled by nothing. Grading ran nightly and moved the
+      # aggregate; the index did not, so the guard began failing on a stale artifact. A producer with
+      # a strict contract and no caller does not stay correct, it just fails later.
+      #
+      # It runs here, after grading, for the same reason the ladder settler does: this is the job
+      # that changes the numbers it derives from.
+      - name: Rebuild the public model-results index
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          cd app
+          npx tsx scripts/results/build-model-results-index.mjs --apply \
+            || echo "::warning::model-results index refused to write — prior index retained"
+
       # ---- Roll the daily portfolio forward to TODAY (ET) ----
       #
       # Was step 5/6 inside settle_soccer_day.sh, which is invoked above under continue-on-error. The
@@ -574,6 +592,8 @@ jobs:
           # Program 236: the product lifecycle ledger — settled outcomes and ladder positions for
           # Bank Builder and Moonshot. Not money; the protected artifacts stay out of this list.
           git add app/public/data/products/lifecycle/ 2>/dev/null || true
+          # Program 238: the model-results index + its dated partitions, rebuilt above.
+          git add app/public/data/mlb/results/ 2>/dev/null || true
           git add app/public/data/parlays/optimizer-summary.json 2>/dev/null || true
           # Daily learning artifact (settled-outcomes only) + its report. The
           # optimizer reads selection-policy-latest.json with a conservative

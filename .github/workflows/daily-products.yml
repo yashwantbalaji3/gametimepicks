@@ -23,7 +23,25 @@
 # correct outcome — the page then says "No qualified card today" instead of a fifteen-day-old lie.
 name: daily-products
 
+# ─────────────────────────────────────────────────────────────────────────────────────────────────
+# THE DEPENDENCY, WHICH USED TO BE A COINCIDENCE.
+#
+# This job reads `mlb/team-markets/<date>.json`. That artifact is written by mlb-daily-production.
+# Both were driven only by their own timers — producer at 14:15 UTC, consumer at 15:30 — and the
+# producer's real write times were 16:50 on 2026-09-05 and 17:05 on 2026-09-06, both AFTER the
+# consumer's nominal hour. Cards were generated on both days only because the consumer was late too:
+# 17:29 and 17:39. The margin was thirty-nine minutes, then thirty-four. Two independent timers
+# drifting the same way twice is not an ordering guarantee.
+#
+# `workflow_run` makes it one. This now runs BECAUSE the producer finished, not because a clock
+# struck. The cron stays as a bounded recovery for a producer run that never happens at all, and it
+# checks for an existing receipt first so a recovery cannot duplicate a generation that already
+# succeeded.
+# ─────────────────────────────────────────────────────────────────────────────────────────────────
 on:
+  workflow_run:
+    workflows: ["mlb-daily-production"]
+    types: [completed]
   schedule:
     # 15:30 UTC ≈ 11:30 ET — AFTER the inputs this job consumes actually exist.
     #
@@ -61,6 +79,11 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # A producer that failed has not produced anything to consume. A `completed` workflow_run fires
+    # for failure and cancellation too, so the conclusion is checked rather than assumed.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Record the run start
         run: echo "RUN_STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
@@ -93,7 +116,45 @@ jobs:
           H=$(cat app/public/data/mr-dub/portfolio.json app/public/data/mr-dub/bank-builder-locks.json | md5sum | cut -d' ' -f1)
           echo "hash=$H" >> "$GITHUB_OUTPUT"
 
+      # ── RECOVERY GUARD ────────────────────────────────────────────────────────────────────────
+      # The cron exists only for a producer run that never happens. If products were already
+      # generated for this date, a recovery must not run again and write a second card: it checks
+      # the dated receipt the previous run left behind. A workflow_run trigger skips this — being
+      # invoked BY the producer is the signal that there is something new to consume.
+      - name: Skip a recovery that is not needed
+        id: recovery
+        if: github.event_name == 'schedule'
+        run: |
+          set -euo pipefail
+          DATE="${{ steps.d.outputs.date }}"
+          R="data/internal/products/receipts/${DATE}.json"
+          if [ -f "$R" ] && node -e "
+            const r = require('./$R');
+            const active = JSON.stringify(r.products ?? {}).includes('\"ACTIVE\"');
+            process.exit(active ? 0 : 1);
+          "; then
+            echo "already-generated=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::products for $DATE already carry an ACTIVE card — recovery not needed"
+          else
+            echo "already-generated=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── INPUT GATE ────────────────────────────────────────────────────────────────────────────
+      # More than "the file is there": right date, right sport, parseable, non-empty or validly
+      # empty, every game carrying the start time the pre-event filter needs, and written inside the
+      # freshness bound. A producer run that went green with an empty unintended output fails here.
+      # Exit 0 = usable pool or a legitimately empty slate; 20-23 = a named refusal.
+      - name: The input must actually be usable
+        id: pool
+        if: steps.recovery.outputs.already-generated != 'true'
+        run: |
+          set -euo pipefail
+          npx tsx app/scripts/products/check-pool-ready.mjs \
+            --date "${{ steps.d.outputs.date }}" \
+            --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
       - name: Generate daily products (NETWORK-FREE — no provider, no credits)
+        if: steps.recovery.outputs.already-generated != 'true'
         run: |
           set -euo pipefail
           DATE="${{ steps.d.outputs.date }}"
