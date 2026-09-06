@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 824142,
+  "date": "2026-09-06",
+  "capturedAt": "2026-09-06T00:10:08.872Z",
+  "availableAt": "2026-09-06T00:10:08.872Z",
+  "eventStartTime": "2026-09-06T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-03",
+    "2026-09-04",
+    "2026-09-05"
+  ],
+  "home": {
+    "teamId": 117,
+    "teamName": "Houston Astros",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 7,
+      "pitches": 97,
+      "relievers": [
+        {
+          "id": 656986,
+          "name": "Bennett Sousa",
+          "appearances": 2,
+          "pitches": 39,
+          "outs": 7,
+          "dates": [
+            "2026-09-03",
+            "2026-09-04"
+          ]
+        },
+        {
+          "id": 650556,
+          "name": "Bryan Abreu",
+          "appearances": 2,
+          "pitches": 23,
+          "outs": 7,
+          "dates": [
+            "2026-09-03",
+            "2026-09-04"
+          ]
+        },
+        {
+          "id": 623352,
+          "name": "Josh Hader",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-04"
+          ]
+        },
+        {
+          "id": 805123,
+          "name": "AJ Blubaugh",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-09-03"
+          ]
+        },
+        {
+          "id": 660853,
+          "name": "Enyel De Los Santos",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 1,
+          "dates": [
+            "2026-09-04"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 109,
+    "teamName": "Arizona Diamondbacks",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 2,
+      "pitches": 25,
+      "relievers": [
+        {
+          "id": 571882,
+          "name": "Derek Law",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-09-04"
+          ]
+        },
+        {
+          "id": 679885,
+          "name": "Justin Martinez",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-04"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-03,2026-09-04,2026-09-05) + feed/live box scores",
+    "capturedAt": "2026-09-06T00:10:08.872Z"
+  },
+  "recordHash": "5390217ce427fcf61c5e0981080a75f35e501d3bbae112475a527544505f16ea"
+}
