@@ -24,6 +24,8 @@ import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-
 import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
+import LifecycleRecord from "@/components/products/lifecycle-record";
+import { loadLifecycleLedger, settledCardsFor, positionFor } from "@/lib/products/lifecycle-view";
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
@@ -99,6 +101,10 @@ export default function MoonshotPage() {
      rendered — which is what lit "Day 1 · LIVE" and promised overnight settlement here. */
   const moonshotLanes = dailyPortfolio.cards.filter((c) => c.product === "moonshot" && isPublishedCard(c));
   const structured = buildStructuredMoonshot(path.join(process.cwd(), "public", "data"), today);
+
+  /* The Moonshot card frozen on 2026-08-17 sat unsettled for nineteen days because no job read this
+     lane. The ledger now carries its graded outcome and the ladder position that followed. */
+  const msLedger = loadLifecycleLedger();
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
@@ -202,6 +208,13 @@ export default function MoonshotPage() {
           </p>
         ) : null}
       </section>
+
+      <LifecycleRecord
+        cards={settledCardsFor(msLedger, "moonshot")}
+        position={positionFor(msLedger, "moonshot")}
+        positionLabel="The Moonshot ladder"
+        emptyReason="No Moonshot card has been graded yet. When a card's games finish, its legs and the official numbers they were graded against appear here."
+      />
 
       {/* History — the day-by-day lane tracker (stopped / restart state) below the live ladder. */}
       <div className="flex flex-col gap-3">

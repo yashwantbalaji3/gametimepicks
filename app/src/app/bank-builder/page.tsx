@@ -19,6 +19,8 @@ import FreshnessBadge from "@/components/ui/freshness-badge";
 import { deriveProductState, productStateLabel, productStateExplanation, isLive } from "@/lib/products/product-state.mjs";
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
+import LifecycleRecord from "@/components/products/lifecycle-record";
+import { loadLifecycleLedger, settledCardsFor, positionFor } from "@/lib/products/lifecycle-view";
 import ClimbHero, { type ClimbLane, type ClimbRung, type ClimbClearedDetail } from "@/components/bank-builder/climb-hero";
 import { readLaneReviewCard } from "@/lib/bank-builder/review-card";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
@@ -312,6 +314,12 @@ export default function BankBuilderPage() {
     })
     .filter((l): l is ClimbLane => l !== null);
 
+  /* Settled outcomes come from the lifecycle ledger, which is the only place they exist. Both lanes
+     carried a card frozen on 2026-08-17 that no job ever graded; the ledger now records what the
+     official box scores said and where each lane stands as a result. */
+  const bbLedger = loadLifecycleLedger();
+  const bbSettled = settledCardsFor(bbLedger, "bank-builder");
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
       {/* Operating state from THIS product's own artifact (Program 140). The badge previously took
@@ -388,6 +396,14 @@ export default function BankBuilderPage() {
         Paper-only educational tracking.{" "}
         <Link href="/learn#bank-builder" className="underline" style={{ color: "var(--vault-text-mute)" }}>How it works →</Link>
       </p>
+      <div className="mt-6">
+        <LifecycleRecord
+          cards={bbSettled}
+          position={positionFor(bbLedger, "bank-builder-lane-A")}
+          positionLabel="Lane A"
+          emptyReason="No Bank Builder card has been graded yet. When a card's games finish, its legs and the official numbers they were graded against appear here."
+        />
+      </div>
     </div>
   );
 }

@@ -104,3 +104,59 @@ that cannot run. That is why it survived this long.
 | `active` | any leg lost | `lost` → cycle closes, next cycle initialised once | realize −seed; step resets to 1 |
 | `active` | any leg unresolved | `active` | hold; never a fabricated loss |
 | `active` | all legs push/void | **neutral, non-advancing** | documented paper state; never a false win, never permanent pending |
+
+## Phase B — the transition contract, and settling the stranded cards
+
+Three modules, each pure where it can be:
+
+- `src/lib/products/lifecycle.mjs` — the transition machine. No fs, no clock, no network. 13 tests.
+- `src/lib/products/mlb-prop-grading.mjs` — one owner for "what does this market settle on". The
+  arithmetic previously lived only inside `settle-mlb-player-props.mjs`; a second settler would have
+  meant two definitions of a total base. 10 tests.
+- `src/lib/products/ladder-settlement.mjs` — reads both card stores, grades, applies transitions.
+  Root and box-score source are injected, so the replay suite runs against a temp fixture with no
+  network at all. 14 tests.
+
+All 37 mutation-probed: eleven deliberate breaks (all-push → win, loss stops deciding early, empty
+card counts as a win, decided cards re-gradeable, double advance, identity drops the cycle,
+idempotency index ignored, writes redirected into the source store, withheld write unnamed, dry run
+writes anyway, unsettleable market graded blind) each produced failures. No guard passes vacuously.
+
+### The write that was refused
+
+`build-mr-dub-ledger.mjs` reads both card stores and writes `mr-dub/portfolio.json` — the protected
+paper bankroll. Grading the 2026-08-17 cards in place would therefore restate a financial record that
+predates this program, as a side effect of the next ledger rebuild. The instruction is explicit that
+protected history stays byte-identical.
+
+So settlement writes a PROSPECTIVE store, `public/data/products/lifecycle/`, referencing each
+historical card by identity and mutating neither source artifact. The refused write is named in the
+receipt itself (`withheldWrite`) rather than quietly skipped, and a test asserts it stays named.
+
+Idempotency had to move with it. Because the settler no longer marks the cards it grades, it cannot
+use them to remember its own work — the first version re-settled the same card on every run. The
+ledger carries a cumulative `settledIndex` instead: a card in it is finished, and no later run
+re-grades it, including one whose feed now disagrees.
+
+### The nineteen-day cards, settled
+
+    bank-builder:a:c3:s1:2026-08-17   Kyle Tucker under 1.5 hits → 0 WON
+                                      Gabriel Moreno over 0.5 hits → 1 WON        card WON → step 2
+    bank-builder:b:c3:s2:2026-08-17   Shane McClanahan under 4.5 K → 3 WON
+                                      Luis Campusano over 1.5 H+R+RBI → 0 LOST    card LOST → run 4
+    moonshot:a:c1:s1:2026-08-17       Gabriel Moreno over 1.5 TB → 1 LOST
+                                      Shane McClanahan under 4.5 K → 3 WON
+                                      Luis Campusano over 1.5 H+R+RBI → 0 LOST    card LOST → run 2
+
+Kyle Tucker's line was verified independently against the box score before applying: 0 hits in 5 AB,
+game Final, official date 2026-08-17. One advance and two restarts — the first real progression
+either product has recorded.
+
+Verified after applying: portfolio `affe6b21071f2b3be96bb2774eb347c3` and bank-builder-locks
+`cb80473f88f3cb5f67208fa568925295` byte-identical; both card stores byte-identical; a rerun settles
+0 and holds 3.
+
+Both product pages now render the settled record — every leg, the official number it was graded
+against, and the resulting ladder position — or say plainly that nothing has been graded yet.
+
+Gate: SUCCESS 196s · 5359 unit · 447 rendered.
