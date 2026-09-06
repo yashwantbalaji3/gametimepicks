@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824552,
+  "date": "2026-09-06",
+  "capturedAt": "2026-09-06T20:57:36.350Z",
+  "availableAt": "2026-09-06T20:57:36.350Z",
+  "eventStartTime": "2026-09-06T22:20:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663542,
+      "name": "Bryan Hudson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 7,
+      "restDays": 19,
+      "lastStartDate": "2026-08-18",
+      "last5": {
+        "starts": 5,
+        "ipSum": 6,
+        "ipAvg": 1.2,
+        "kAvg": 0.8,
+        "bbAvg": 0,
+        "erAvg": 0.6,
+        "hrAvg": 0.6,
+        "kPer9": 6,
+        "workloadIpLast5": 6
+      },
+      "seasonToDate": {
+        "starts": 7,
+        "ip": 8,
+        "k": 6,
+        "bb": 1,
+        "er": 3,
+        "hr": 3
+      }
+    },
+    "away": {
+      "id": 641927,
+      "name": "Bailey Ober",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 21,
+      "restDays": 8,
+      "lastStartDate": "2026-08-29",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 3.2,
+        "bbAvg": 1.4,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 5.47,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 21,
+        "ip": 113.33,
+        "k": 79,
+        "bb": 31,
+        "er": 55,
+        "hr": 18
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-06&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-06T20:57:36.350Z"
+  },
+  "recordHash": "ffd4fa69f78bd5505935fe311067adea156805397f0419ec920777639066904e"
+}
