@@ -5,16 +5,344 @@
  "moneyClass": "NON_MONEY",
  "sport": "mlb",
  "date": "2026-09-06",
- "generatedAt": "2026-09-06T16:04:13Z",
- "state": "NOT_ELIGIBLE",
- "reason": "no price capture for 2026-09-06 yet — the sport's own generation runs later in the day (newest capture 2026-09-05); only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
- "evidence": {
-  "pricedGames": 0,
-  "pricesCapturedAt": null,
-  "priceAgeDays": null,
-  "settlementSource": "MLB Stats API official box score",
-  "settlementProven": true
- },
- "tiers": [],
- "cells": []
+ "generatedAt": "2026-09-06T16:27:45Z",
+ "state": "PUBLISHED",
+ "bandsUnreachable": [
+  "low"
+ ],
+ "calmestAvailable": "medium",
+ "tiers": [
+  {
+   "id": "bronze",
+   "minBankroll": 0,
+   "maxBankroll": 50,
+   "cardsPerDay": 1,
+   "bands": [
+    "low"
+   ],
+   "offered": 0,
+   "emptyToday": true,
+   "substitute": {
+    "band": "medium",
+    "slipId": "slip_2026-09-05_conservative_ca54196217e8",
+    "reason": "Nothing on today's board priced in this range. The calmest card available is medium risk, which is a longer price than this bankroll is normally shown — its own record is attached."
+   }
+  },
+  {
+   "id": "silver",
+   "minBankroll": 50,
+   "maxBankroll": 100,
+   "cardsPerDay": 2,
+   "bands": [
+    "low",
+    "medium"
+   ],
+   "offered": 1,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "gold",
+   "minBankroll": 100,
+   "maxBankroll": 250,
+   "cardsPerDay": 3,
+   "bands": [
+    "low",
+    "medium",
+    "high"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "diamond",
+   "minBankroll": 250,
+   "maxBankroll": null,
+   "cardsPerDay": 4,
+   "bands": [
+    "low",
+    "medium",
+    "high",
+    "longshot"
+   ],
+   "offered": 3,
+   "emptyToday": false,
+   "substitute": null
+  }
+ ],
+ "cells": [
+  {
+   "tier": "bronze",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "bronze",
+   "band": "medium",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "silver",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "slip_2026-09-05_conservative_ca54196217e8",
+   "reason": null
+  },
+  {
+   "tier": "silver",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "gold",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "gold",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "slip_2026-09-05_conservative_ca54196217e8",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "high",
+   "state": "OFFERED",
+   "slipId": "slip_2026-09-05_balanced_e0d9e48237f7",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 3 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "diamond",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no priced card in this tier on today's slate"
+  },
+  {
+   "tier": "diamond",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "slip_2026-09-05_conservative_ca54196217e8",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "high",
+   "state": "OFFERED",
+   "slipId": "slip_2026-09-05_balanced_e0d9e48237f7",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "longshot",
+   "state": "OFFERED",
+   "slipId": "slip_2026-09-05_balanced_5b027bb92333",
+   "reason": null
+  }
+ ],
+ "cards": [
+  {
+   "band": "medium",
+   "slipId": "slip_2026-09-05_conservative_ca54196217e8",
+   "combinedAmerican": 186,
+   "combinedDecimal": 2.857,
+   "legs": [
+    {
+     "player": "Keibert Ruiz",
+     "team": "WSH",
+     "opponent": "LAD",
+     "playerId": 660688,
+     "gameId": "ab0bc299e48e6a4feb43688eda780998",
+     "gamePk": 823904,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -118,
+     "result": null
+    },
+    {
+     "player": "Elly De La Cruz",
+     "team": "CIN",
+     "opponent": "MIL",
+     "playerId": 682829,
+     "gameId": "9744b17bfe52474717b2c23f7700752f",
+     "gamePk": 824468,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -183,
+     "result": null
+    }
+   ],
+   "status": "pending",
+   "record": {
+    "wins": 63,
+    "losses": 285,
+    "hitRate": 0.181,
+    "roi": -0.0398
+   }
+  },
+  {
+   "band": "high",
+   "slipId": "slip_2026-09-05_balanced_e0d9e48237f7",
+   "combinedAmerican": 598,
+   "combinedDecimal": 6.976,
+   "legs": [
+    {
+     "player": "Sean Murphy",
+     "team": "ATL",
+     "opponent": "PHI",
+     "playerId": 669221,
+     "gameId": "335cdc2989ec57b83bd603b5beeb7fcc",
+     "gamePk": 823419,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -109,
+     "result": null
+    },
+    {
+     "player": "Rafael Devers",
+     "team": "SF",
+     "opponent": "NYM",
+     "playerId": 646240,
+     "gameId": "c5b03415dadb8213241501d56b4926bc",
+     "gamePk": 823577,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -176,
+     "result": null
+    },
+    {
+     "player": "Bryce Harper",
+     "team": "PHI",
+     "opponent": "ATL",
+     "playerId": 547180,
+     "gameId": "335cdc2989ec57b83bd603b5beeb7fcc",
+     "gamePk": 823419,
+     "market": "batter_total_bases",
+     "marketLabel": "Total Bases",
+     "side": "Over",
+     "line": 1.5,
+     "odds": 132,
+     "result": null
+    }
+   ],
+   "status": "pending",
+   "record": {
+    "wins": 44,
+    "losses": 304,
+    "hitRate": 0.1264,
+    "roi": 0.0814
+   }
+  },
+  {
+   "band": "longshot",
+   "slipId": "slip_2026-09-05_balanced_5b027bb92333",
+   "combinedAmerican": 664,
+   "combinedDecimal": 7.637,
+   "legs": [
+    {
+     "player": "Ryan Gusto",
+     "team": "MIA",
+     "opponent": "CHC",
+     "playerId": 687473,
+     "gameId": "c3af289a1433ac426961691deab41154",
+     "gamePk": 823823,
+     "market": "pitcher_strikeouts",
+     "marketLabel": "Strikeouts",
+     "side": "Under",
+     "line": 3.5,
+     "odds": 114,
+     "result": null
+    },
+    {
+     "player": "Jazz Chisholm Jr.",
+     "team": "NYY",
+     "opponent": "SD",
+     "playerId": 665862,
+     "gameId": "c5179877e1918c6fb96b0d90a77e9ef9",
+     "gamePk": 823257,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": -135,
+     "result": null
+    },
+    {
+     "player": "Jacob Young",
+     "team": "WSH",
+     "opponent": "LAD",
+     "playerId": 696285,
+     "gameId": "ab0bc299e48e6a4feb43688eda780998",
+     "gamePk": 823904,
+     "market": "batter_hits",
+     "marketLabel": "Hits",
+     "side": "Over",
+     "line": 0.5,
+     "odds": 105,
+     "result": null
+    }
+   ],
+   "status": "pending",
+   "record": {
+    "wins": 24,
+    "losses": 327,
+    "hitRate": 0.0684,
+    "roi": -0.0547
+   }
+  }
+ ],
+ "note": "A policy view of cards published by the risk ladder. No stake is baked in: bankroll is entered in the reader's own browser and never leaves it. Paper-only, educational; not advice."
 }
