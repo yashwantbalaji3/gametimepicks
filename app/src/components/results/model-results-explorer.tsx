@@ -144,10 +144,13 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
   return (
     <section aria-labelledby="model-results-h" className="mt-10 flex flex-col gap-3">
       <h2 id="model-results-h" className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 750 }}>
-        Every settled model pick
+        Every settled MLB model pick
       </h2>
       <p className="m-0 text-[13px] leading-relaxed max-w-2xl" style={{ color: "var(--vault-text-mute)" }}>
-        All {coverage.rows.toLocaleString()} graded picks across {coverage.dates} settled days,
+        {/* NAMED, because the cross-sport block above this one reports a DIFFERENT population —
+            41,593 decisive across MLB and NBA, of which these are the MLB 37,958. Two correct
+            numbers on one page need labels, or a reader is left to assume one of them is wrong. */}
+        All {coverage.rows.toLocaleString()} graded MLB picks across {coverage.dates} settled days,
         {" "}{coverage.firstDate} to {coverage.lastDate} — not a sample of them. Pushes are neither a win
         nor a loss and are in no rate below. Every row carries both the model's probability and the
         market's, so the two are compared on the same picks.

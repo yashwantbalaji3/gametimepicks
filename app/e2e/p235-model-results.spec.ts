@@ -8,7 +8,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
 const section = (page: Page) =>
-  page.locator("section").filter({ has: page.getByRole("heading", { name: "Every settled model pick" }) });
+  page.locator("section").filter({ has: page.getByRole("heading", { name: "Every settled MLB model pick" }) });
 
 const open = async (page: Page) => {
   await page.goto("/results/model-audit/");
@@ -20,7 +20,7 @@ const open = async (page: Page) => {
 test.describe("P235 · full model results", () => {
   test("the whole population is stated, not a sample", async ({ page }) => {
     const s = await open(page);
-    await expect(s).toContainText(/All [\d,]+ graded picks across \d+ settled days/);
+    await expect(s).toContainText(/All [\d,]+ graded MLB picks across \d+ settled days/);
     await expect(s).toContainText(/not a sample of them/i);
     await expect(s).toContainText(/Pushes are neither a win nor a loss/i);
   });
