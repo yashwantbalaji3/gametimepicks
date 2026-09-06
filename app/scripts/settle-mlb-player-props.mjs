@@ -22,6 +22,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { sumActiveExposure } from "../src/lib/daily-portfolio/exposure.ts";
+import { teamMarketKeyOf, isTeamMarket, gradeTeamLeg, findLinescore } from "../src/lib/products/mlb-team-market-grading.mjs";
 import { fileURLToPath } from "node:url";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -97,6 +98,16 @@ async function boxFor(gamePk) {
   return out;
 }
 
+/** The committed final scores for the slate being settled. Free StatsAPI, already on disk — the
+ *  same cache `build-mlb-product-settlement.mjs` grades team markets from. */
+const LINESCORES_FOR_DATE = (() => {
+  const p = path.join(APP, "..", "data", "internal", "mlb", "linescores", `${DATE}.json`);
+  try {
+    const doc = JSON.parse(fs.readFileSync(p, "utf8"));
+    return Array.isArray(doc) ? doc : (doc.games ?? []);
+  } catch { return []; }
+})();
+
 const dp = JSON.parse(fs.readFileSync(DP, "utf8"));
 if (dp.date !== DATE) {
   /*
@@ -129,6 +140,29 @@ for (const lane of dp.lanes ?? []) {
   if (lane.status !== "active") continue;
   const results = [];
   for (const leg of lane.legs ?? []) {
+    /*
+     * TEAM MARKETS FIRST, because since Program 236 that is what these products publish.
+     *
+     * This settler looks a PLAYER up in a box score. On 2026-09-06 Bank Builder and Moonshot
+     * published four cards of moneyline and total-runs legs — no player, and the board's
+     * content-derived gameId in place of a gamePk — so every leg came back "player absent from the
+     * official box score" and the cards could never have settled. They graded settleable=false.
+     *
+     * A team leg is graded from the committed linescore cache instead, joined on team names and the
+     * slate date, with a doubleheader refused rather than guessed.
+     */
+    const teamKey = teamMarketKeyOf(leg);
+    if (teamKey && isTeamMarket(teamKey)) {
+      const found = findLinescore(leg, LINESCORES_FOR_DATE, DATE);
+      const g = found.ok
+        ? gradeTeamLeg({ marketKey: teamKey, selection: leg.selection, matchup: leg.matchup, line: found.line })
+        : { result: "pending", actual: null, note: found.reason };
+      leg.settlement = { ...(leg.settlement ?? {}), result: g.result, official: g.actual, source: "statsapi_linescore", ...(g.note ? { note: g.note } : {}) };
+      results.push(g.result);
+      if (g.result === "pending" || g.result === "unavailable") pending++; else graded++;
+      console.log(`  ${lane.productLabel} ${lane.lane}: ${leg.selection} (${teamKey}) → ${g.actual ?? "—"} ${String(g.result).toUpperCase()}${g.note ? ` (${g.note})` : ""}`);
+      continue;
+    }
     const gamePk = String(leg.eventId ?? (leg.legId ?? "").split(":")[2] ?? "");
     const market = leg.marketType ?? leg.market;
     const player = leg.participantName ?? leg.participant?.replace(/\s+(Over|Under)\s.*$/, "") ?? "";
@@ -154,9 +188,16 @@ for (const lane of dp.lanes ?? []) {
     results.push(r); graded++;
     console.log(`  ${lane.productLabel} ${lane.lane}: ${player} ${leg.side} ${line} ${market} → ${actual} ${r.toUpperCase()}`);
   }
+  /*
+   * ALL-PUSH IS A PUSH. `decisive` excludes pushes, so a card whose every leg pushed left it empty
+   * and fell through to "pending" — for ever. The same defect was fixed in the Parlay Lab settler
+   * (P235) and the ladder settler (P236); this is the third copy of the rule, and the last one that
+   * still had it.
+   */
   const decisive = results.filter((r) => r !== "push");
   lane.result = decisive.includes("lost") ? "lost"
     : decisive.length && decisive.every((r) => r === "won") ? "won"
+    : results.length && results.every((r) => r === "push") ? "push"
     : "pending";
   if (lane.result !== "pending") {
     lane.status = lane.result;
