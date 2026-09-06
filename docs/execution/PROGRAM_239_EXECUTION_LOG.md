@@ -77,3 +77,43 @@ published legs against synthetic finals on their own real shapes, so it cannot p
 population.
 
 Gate: SUCCESS 213s · 5421 unit · 458 rendered.
+
+## Release C — the daily chain, proven
+
+### The trust boundary on the new trigger
+
+A `workflow_run` job runs the DEFAULT branch's workflow file with `contents: write`. The producer is
+dispatchable, so a run started from any other branch would have chained into a privileged consumer.
+The job now also requires `workflow_run.head_branch == default_branch`. The producer has no
+`pull_request` trigger, so a fork cannot reach it at all — that half was already closed; this closes
+the in-repository half.
+
+The consumer never executes anything from the triggering run: no artifact download, no `ref:` from
+the trigger payload. It checks out the default branch and reads one committed JSON artifact, which
+the pool gate validates for date, sport, schema, population and freshness before generation. Three
+tests pin all of it.
+
+### End to end, on the real settler
+
+`daily-chain.test.mjs` runs `scripts/settle-mlb-player-props.mjs` itself — the script `nightly-settle`
+invokes — in a child process against a disposable repo-shaped store, through a narrow `--app-root`
+seam. Every fixture carries the leg shape the generator actually writes, because that shape is what
+defeated settlement.
+
+| Scenario | Proven |
+|---|---|
+| Winning card | settles `won`, exposure released to 0 |
+| One losing leg | whole card `lost` |
+| Unfinished game | holds `pending`, stays active, keeps its $100 |
+| All-push card | `push` with the seed returned — not permanent pending |
+| Replay | a second run moves nothing, and does not re-stamp `settledAt` |
+| Two lanes | settle independently; one won, one lost, no overwrite |
+| Doubleheader | holds, and says why |
+| Dry run | decides everything, writes nothing |
+| Fixture root | the real portfolio is byte-identical afterwards |
+
+Nine scenarios, five mutation-probed (team-market branch removed → 6 failures, all-push back to
+pending, exposure kept after settlement, doubleheader taking game one, dry run writing anyway) — all
+caught.
+
+Gate: SUCCESS 212s · 5433 unit · 458 rendered.

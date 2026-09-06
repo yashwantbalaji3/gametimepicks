@@ -25,7 +25,14 @@ import { sumActiveExposure } from "../src/lib/daily-portfolio/exposure.ts";
 import { teamMarketKeyOf, isTeamMarket, gradeTeamLeg, findLinescore } from "../src/lib/products/mlb-team-market-grading.mjs";
 import { fileURLToPath } from "node:url";
 
-const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+/* A narrow root seam so the replay harness can run THIS settler — not a copy of its rules — against
+ * a disposable fixture store. Production default is unchanged: the app directory beside this file. */
+const APP = (() => {
+  const i = process.argv.indexOf("--app-root");
+  return i > -1 && process.argv[i + 1]
+    ? path.resolve(process.argv[i + 1])
+    : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+})();
 const DP = path.join(APP, "public", "data", "mr-dub", "daily-portfolio.json");
 /**
  * Settlement must survive the daily roll. `daily-portfolio.json` is REGENERATED every morning by the

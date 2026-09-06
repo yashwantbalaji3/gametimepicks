@@ -79,11 +79,24 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # A producer that failed has not produced anything to consume. A `completed` workflow_run fires
-    # for failure and cancellation too, so the conclusion is checked rather than assumed.
+    # THE TRUST BOUNDARY ON A workflow_run TRIGGER.
+    #
+    # Two separate things are checked, and both matter:
+    #
+    #   conclusion — a `completed` event fires for failure and cancellation too, so a producer that
+    #     wrote nothing must not start the consumer.
+    #   head_branch — a workflow_run job runs with the DEFAULT branch's workflow file and
+    #     `contents: write`. The producer is dispatchable, so a run started from any other branch
+    #     would otherwise chain into a privileged consumer. Only the default branch may trigger it.
+    #
+    # The producer has no `pull_request` trigger, so a fork cannot reach this at all; this closes the
+    # in-repository half. The consumer checks out the default branch (no `ref:`) and never executes
+    # anything from the triggering run — it reads one committed JSON artifact, which the pool gate
+    # then validates for date, sport, schema, population and freshness before generation.
     if: >-
       github.event_name != 'workflow_run' ||
-      github.event.workflow_run.conclusion == 'success'
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == github.event.repository.default_branch)
     steps:
       - name: Record the run start
         run: echo "RUN_STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"

@@ -85,3 +85,27 @@ test("every run block in this workflow is valid shell", () => {
   }
   assert.ok(checked >= 5, `only ${checked} run blocks parsed — the extractor is not finding them`);
 });
+
+test("a workflow_run trigger cannot come from a non-default branch", () => {
+  /*
+   * A workflow_run job runs the DEFAULT branch's workflow file with `contents: write`. The producer
+   * is dispatchable, so without this a run started from any other branch would chain into a
+   * privileged consumer. The producer has no `pull_request` trigger, so a fork cannot reach it at
+   * all; this closes the in-repository half.
+   */
+  assert.match(SRC, /workflow_run\.head_branch\s*==\s*github\.event\.repository\.default_branch/,
+    "the triggering run's branch is not checked");
+});
+
+test("the consumer never executes anything from the triggering run", () => {
+  // It checks out the default branch (no `ref:`) and reads ONE committed JSON artifact, which the
+  // pool gate validates before generation. No artifact download, no ref from the trigger payload.
+  assert.ok(!/download-artifact/.test(SRC), "the consumer downloads an artifact from the triggering run");
+  assert.ok(!/ref:\s*\$\{\{\s*github\.event\.workflow_run/.test(SRC), "the consumer checks out the triggering run's ref");
+});
+
+test("the producer cannot be triggered by a pull request", () => {
+  const producer = read("mlb-daily-production.yml");
+  const onBlock = producer.slice(producer.indexOf("\non:"), producer.search(/^(concurrency|permissions|jobs):/m));
+  assert.ok(!/pull_request/.test(onBlock), "the producer accepts pull_request — a fork could chain into the consumer");
+});
