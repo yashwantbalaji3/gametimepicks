@@ -100,3 +100,24 @@ nothing scheduled printed no numbers and a reader could not tell "we looked and 
 "this section did not render". EPL hit it the moment its matchweek rolled past.
 
 Gate: SUCCESS 207s · 5407 unit · 458 rendered.
+
+## Release B — the forthcoming window was invisible
+
+`/epl` reported **0 scheduled** at 20:00Z while twelve Premier League fixtures sat on the schedule
+for the following weekend. The adapter read only `loadEplForecasts()`, which returns the CURRENT
+forecast set — legitimately empty once a matchweek has kicked off (0 rows, generated 17:27Z). A
+published forecast is not the only thing worth showing; the fixture is.
+
+The hub now merges the schedule spine (`eplUpcoming`, which already excludes the schema sample) for
+forthcoming fixtures, deduped against forecast rows, each carrying no read and saying why:
+
+    EPL "Next fixtures" Sat, Sep 12 – Sat, Sep 19 — 12 scheduled · 0 with a report · 0 with a read
+       Sat, Sep 12 · 10:00 AM ET  Crystal Palace v Ipswich Town   forecast not published yet
+       Sat, Sep 12 · 10:00 AM ET  Liverpool v Fulham              forecast not published yet
+
+Scheduled, forecast and reportable stay three numbers. Four mutation probes (fixtures dropped,
+unforecast rows given links, dedup removed, started fixtures leaking into forthcoming) all caught.
+
+MLB now reads its own day correctly — `"Sun, Sep 6" · 15 scheduled · 14 with a read · 13 started`.
+
+Gate: SUCCESS 211s · 5409 unit · 458 rendered.

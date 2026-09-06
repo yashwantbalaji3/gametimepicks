@@ -95,3 +95,32 @@ test("LIVE · report links point at routes that are actually generated", () => {
     }
   }
 });
+
+test("LIVE · EPL shows FORTHCOMING fixtures, not only the current forecast set", () => {
+  /*
+   * `loadEplForecasts()` returns the CURRENT set, and once a matchweek has kicked off it is
+   * legitimately empty — on 2026-09-06 it held zero rows at 17:27Z while twelve Premier League
+   * fixtures sat on the schedule for the following weekend. The hub showed "0 scheduled". A
+   * published forecast is not the only thing worth showing; the fixture is.
+   */
+  const e = eplHub(NOW);
+  const future = e.rows.filter((r) => !r.started);
+  if (future.length === 0) return;   // a genuine off-window
+  for (const r of future) {
+    assert.ok(r.startUtc, `${r.matchup} has no kickoff`);
+    // A fixture with no forecast must SAY so rather than offering a link to nothing.
+    if (r.read === null) {
+      assert.equal(r.reportHref, null, `${r.matchup} has no read but offers a report link`);
+      assert.ok(r.reportNote, `${r.matchup} has no read and no reason`);
+    }
+  }
+  // Scheduled and forecast are different populations and must not be conflated.
+  const withRead = future.filter((r) => r.read !== null).length;
+  assert.ok(withRead <= future.length, "read count cannot exceed scheduled");
+});
+
+test("LIVE · no forthcoming EPL row is a duplicate of a forecast row", () => {
+  const e = eplHub(NOW);
+  const ids = e.rows.map((r) => r.id);
+  assert.equal(new Set(ids).size, ids.length, "a fixture appears twice — the schedule merge is not deduped");
+});

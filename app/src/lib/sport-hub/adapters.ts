@@ -9,6 +9,7 @@
 import { buildAllGameDetails, urlSport } from "@/lib/game-detail";
 import type { PublicGameDetail } from "@/lib/game-detail";
 import { loadEplForecasts, loadEplForecastArchive } from "@/lib/sports/epl/forecast-view";
+import { eplUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import type { EplForecastRow } from "@/lib/sports/epl/forecast-view";
 import { DEFAULT_LABELS, type HubGameRow, type HubRead, type SportHubModel } from "./contract";
 
@@ -189,9 +190,44 @@ export function eplHub(nowIso: string): SportHubModel {
       reportNote: r.slug ? undefined : (r.unavailableReason ?? "no published forecast"),
     };
   });
+  /*
+   * THE FORTHCOMING WINDOW, which was invisible.
+   *
+   * `loadEplForecasts()` returns the CURRENT set, and once a matchweek's fixtures have kicked off it
+   * is legitimately empty — on 2026-09-06 it held zero rows at 17:27Z. The hub then showed "0
+   * scheduled" while twelve Premier League fixtures were on the schedule for the following weekend.
+   * A published forecast is not the only thing worth showing; the fixture itself is.
+   *
+   * Scheduled fixtures with no published forecast appear with no read and say why. That keeps the
+   * three populations distinct — scheduled, forecast, reportable — instead of hiding the first two
+   * behind the third.
+   */
+  const covered = new Set(rows.map((r) => r.id));
+  const upcoming = eplUpcoming({ nowIso, artifact: null });
+  for (const ev of (upcoming?.events ?? []) as Array<Record<string, any>>) {
+    const id = String(ev.canonicalEventId ?? ev.providerEventId ?? "");
+    if (!id || covered.has(id)) continue;
+    const kickoff = ev.scheduledStartUtc ?? null;
+    if (!kickoff || Date.parse(kickoff) <= nowMs) continue;   // forthcoming only
+    rows.push({
+      id,
+      startUtc: kickoff,
+      startLabel: startLabelOf({ iso: kickoff, exact: true }),
+      matchup: `${ev.competitors?.home?.name ?? "TBD"} v ${ev.competitors?.away?.name ?? "TBD"}`,
+      status: "scheduled",
+      started: false,
+      read: null,
+      reportState: "NONE",
+      reportHref: null,
+      reportNote: "forecast not published yet",
+    });
+  }
+
+  const nextUp = rows.filter((r) => !r.started).sort((a, b) => String(a.startUtc).localeCompare(String(b.startUtc)))[0];
   return {
     sport: "epl", sportLabel: "Premier League", labels: { ...DEFAULT_LABELS, games: "Fixtures" },
-    periodLabel: live[0]?.matchweek ? `Matchweek ${live[0].matchweek}` : "Next fixtures",
+    periodLabel: live[0]?.matchweek ? `Matchweek ${live[0].matchweek}`
+      : nextUp ? `Next fixtures` : "No fixtures scheduled",
     periodRange: rangeOf(rows),
     freshness: set?.generatedAt ?? null,
     rows,
