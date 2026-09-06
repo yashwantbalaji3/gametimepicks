@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824142,
+  "date": "2026-09-06",
+  "capturedAt": "2026-09-06T17:26:06.893Z",
+  "availableAt": "2026-09-06T17:26:06.893Z",
+  "eventStartTime": "2026-09-06T18:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663567,
+      "name": "Peter Lambert",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 6,
+      "lastStartDate": "2026-08-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 4.6,
+        "bbAvg": 3,
+        "erAvg": 3.4,
+        "hrAvg": 0.4,
+        "kPer9": 8.63,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 132.67,
+        "k": 131,
+        "bb": 56,
+        "er": 54,
+        "hr": 13
+      }
+    },
+    "away": {
+      "id": 593958,
+      "name": "Eduardo Rodriguez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-09-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30.67,
+        "ipAvg": 6.13,
+        "kAvg": 6,
+        "bbAvg": 2,
+        "erAvg": 1.4,
+        "hrAvg": 0.2,
+        "kPer9": 8.8,
+        "workloadIpLast5": 30.67
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 167,
+        "k": 122,
+        "bb": 55,
+        "er": 48,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-06&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-06T17:26:06.893Z"
+  },
+  "recordHash": "16af62690525aec7dca3f418732c6fcc74b7c11e8db2e4deb9b17279fd85039d"
+}
