@@ -26,6 +26,7 @@ import { buildLedgerPanel } from "@/lib/launch/ledger-panel.mjs";
 import { buildIncidentRegister } from "@/lib/launch/incident-register.mjs";
 import { buildGatePackets } from "@/lib/launch/gate-packets.mjs";
 import { deriveMoonshotState, MOONSHOT_HAS_SCHEDULED_GENERATOR, MOONSHOT_HAS_WIRED_SETTLER } from "@/lib/products/moonshot-state.mjs";
+import { loadLifecycleLedger, settledCardIds } from "@/lib/products/lifecycle-view";
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import { WALKED_ROUTES, PAPER_ONLY_CEILINGS, CONTENT_CONTRACT_VERSION } from "@/lib/launch/public-content-contract.mjs";
 import BoardFilters from "@/components/launch/board-filters";
@@ -203,6 +204,9 @@ export default function LaunchCommandCenter() {
       try {
         const readData = (...seg: string[]) => JSON.parse(fs.readFileSync(path.join(APP, "public", "data", ...seg), "utf8"));
         return deriveMoonshotState({
+    /* Cards the lifecycle ledger has graded. The settler never rewrites the lane artifact — it
+       feeds the protected bankroll — so without this a settled card reads as pending for ever. */
+    settledCardIds: settledCardIds(loadLifecycleLedger(), "moonshot"),
           lane: loadMoonshotLane(),
           portfolioMoonshot: (() => { try { return readData("mr-dub", "portfolio.json").moonshot ?? null; } catch { return null; } })(),
           productLedger: (() => { try { return readData("product-ledger", "moonshot.json"); } catch { return null; } })(),

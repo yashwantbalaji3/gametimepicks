@@ -72,6 +72,10 @@ test("and the pause itself is STILL public — the token moved, the truth did no
   const page = path.join(OUT, "moonshot", "index.html");
   if (!fs.existsSync(page)) return;
   const txt = fs.readFileSync(page, "utf8").replace(/<[^>]+>/g, " ");
-  assert.match(txt, /multi-lane exposure accounting/, "the reason the product is paused stays public");
+  assert.match(txt, /multi-lane exposure accounting/, "the reason the product cannot publish stays public");
   assert.match(txt, /product decision/, "and so does the open question");
+  // Program 236 resolved the settling half of that blocker, and the page must say so rather than
+  // keep quoting a limitation that no longer holds. The disclosure narrowing is as important as the
+  // disclosure existing: a stale blocker is how a product stays shut after it has been repaired.
+  assert.match(txt, /graded nightly from the official box score/, "the half that WAS fixed is stated too");
 });

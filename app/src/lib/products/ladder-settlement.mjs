@@ -141,7 +141,8 @@ async function settleLadder(root, fetchBox, nowIso, changes, prior) {
       step.settledAt = nowIso;
       step.settlementSource = "MLB Stats API official box score (feed/live), joined by gamePk";
       step.cardIdentity = id;
-      changes.push({ product: "bank-builder", lane: laneLetter, id, result, transition: pos.transition, applied: true,
+      changes.push({ product: "bank-builder", lane: laneLetter, id, sourceCardId: step.cardId ?? null,
+        result, transition: pos.transition, applied: true,
         reason: pos.reason, nextCycle: pos.cycle, nextStep: pos.step, legs: graded.map(summarise) });
       // The ladder's own position follows the settled rung.
       run.cycle = pos.cycle;
@@ -180,7 +181,11 @@ async function settleMoonshot(root, fetchBox, nowIso, changes, prior) {
     step.status = "settled";
     step.settledAt = nowIso;
     step.cardIdentity = id;
-    changes.push({ product: "moonshot", lane: "a", id, result, transition: pos.transition, applied: true,
+    /* The lane artifact's own id, carried so a reader of this ledger can point at the exact card it
+     * graded without re-deriving an identity. The settler never rewrites that artifact, so this is
+     * the only link between the two. */
+    changes.push({ product: "moonshot", lane: "a", id, sourceCardId: card.cardId ?? null,
+      result, transition: pos.transition, applied: true,
       reason: pos.reason, nextCycle: pos.cycle, nextStep: pos.step, legs: graded.map(summarise) });
     doc.cycle = pos.cycle;
     doc.currentStep = pos.step;

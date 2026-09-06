@@ -27,6 +27,7 @@ import {
   MOONSHOT_HAS_SCHEDULED_GENERATOR,
   MOONSHOT_HAS_WIRED_SETTLER,
 } from "@/lib/products/moonshot-state.mjs";
+import { loadLifecycleLedger, settledCardIds } from "@/lib/products/lifecycle-view";
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { ExecutiveDashboard, TodayStatusStrip } from "@/components/mr-dub/flagship/flagship-dashboard";
@@ -68,6 +69,8 @@ export default function MrDubPage() {
   const moonshotLane = loadMoonshotLane();
   /* The one Moonshot state owner, so this surface and /moonshot cannot drift apart again. */
   const moonshotState = deriveMoonshotState({
+    /* Cards the lifecycle ledger has graded — the settler never rewrites the lane artifact. */
+    settledCardIds: settledCardIds(loadLifecycleLedger(), "moonshot"),
     lane: moonshotLane,
     portfolioMoonshot: portfolio?.moonshot ?? null,
     productLedger: (() => { try { return JSON.parse(fs.readFileSync(path.join(root, "product-ledger", "moonshot.json"), "utf8")); } catch { return null; } })(),

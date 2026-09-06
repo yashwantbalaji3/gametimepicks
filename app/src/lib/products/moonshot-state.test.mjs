@@ -234,14 +234,27 @@ test("LIVE · the declared generator constant matches the workflow directory", (
 
 test("LIVE · the declared settler constant matches what nightly-settle can reach", () => {
   /*
-   * `settle-paper-product-cards.mjs` walks `data/internal/product-cards/`. The Aug-17 lane cards were
-   * never registered there, so the settler has never seen them. If that directory appears, the
-   * constant and this guard need revisiting together.
+   * THE QUESTION THIS ASKS CHANGED, and the old one had become misleading.
+   *
+   * It used to check whether `settle-paper-product-cards.mjs` — which walks a directory that does not
+   * exist — could see the lane's cards. It could not, and never will. But that is a fact about ONE
+   * settler, and the constant it pinned claims something broader: that nothing scheduled can settle
+   * this product. Program 236 wired a settler that reads the lane artifact directly, so the narrow
+   * check would have kept reporting "no settler" while cards were being graded nightly.
+   *
+   * The real question is whether a SCHEDULED workflow invokes something that reaches the lane.
    */
-  const cards = path.join(process.cwd(), "public", "data", "internal", "product-cards");
-  const registered = fs.existsSync(cards) && fs.readdirSync(cards).length > 0;
-  assert.equal(registered, false, "product cards now exist — re-check whether Moonshot's open cards are reachable");
-  assert.equal(MOONSHOT_HAS_WIRED_SETTLER, false, "the constant must match the tree above");
+  const wf = path.join(REPO, ".github", "workflows");
+  if (!fs.existsSync(wf)) return;
+  const scheduled = fs.readdirSync(wf).filter((f) => f.endsWith(".yml")).filter((f) => {
+    const src = fs.readFileSync(path.join(wf, f), "utf8");
+    return /^\s*-\s*cron:/m.test(src) && src.includes("settle-ladder-cards");
+  });
+  assert.ok(scheduled.length > 0, "no scheduled workflow runs the ladder settler — Moonshot's cards are unreachable again");
+
+  const settler = fs.readFileSync(path.join(process.cwd(), "src", "lib", "products", "ladder-settlement.mjs"), "utf8");
+  assert.match(settler, /MOONSHOT_REL/, "the settler no longer references the Moonshot lane artifact");
+  assert.equal(MOONSHOT_HAS_WIRED_SETTLER, true, "the constant must match the tree above");
 });
 
 test("LIVE · no public surface claims Moonshot publishes daily", () => {
@@ -294,7 +307,37 @@ test("LIVE · the real artifacts still derive to ABANDONED", () => {
     hasWiredSettler: MOONSHOT_HAS_WIRED_SETTLER,
     today: TODAY,
   });
-  assert.equal(s.lifecycle, "ABANDONED");
-  assert.equal(s.openCardCount, 2);
+  // SETTLING, not ABANDONED, since Program 236 wired a settler that reaches this lane. The distinction
+  // is the whole point of the state: an open card with a settler coming for it is pending; one with
+  // nothing coming is abandoned, and calling that "pending" promises a settlement no code can deliver.
+  assert.equal(s.lifecycle, "SETTLING");
+  assert.ok(s.openCardCount >= 1);
   assert.ok(s.contradictions.length >= 3, `expected the known contradictions, got ${s.contradictions.length}`);
+
+  // And a card the ledger has graded stops counting as open — the settler leaves the lane artifact
+  // untouched on purpose, so this is the only thing that closes it.
+  const graded = deriveMoonshotState({
+    lane: laneDoc, productLedger: read("product-ledger/moonshot.json"),
+    portfolioMoonshot: read("mr-dub/portfolio.json")?.moonshot ?? null,
+    hasScheduledGenerator: MOONSHOT_HAS_SCHEDULED_GENERATOR, hasWiredSettler: MOONSHOT_HAS_WIRED_SETTLER,
+    today: TODAY, settledCardIds: (read("products/lifecycle/latest.json")?.cards ?? [])
+      .filter((c) => c.applied && c.product === "moonshot").map((c) => c.sourceCardId).filter(Boolean),
+  });
+  assert.ok(graded.openCardCount < s.openCardCount, "a ledger-settled card must not still read as open");
+});
+
+test("the gamePk inside a legId counts as game identity", () => {
+  // The recorded reason Moonshot "could not be settled" was that no leg carried a gamePk. Every leg
+  // does; it lives in the legId rather than a field, and looking only at fields kept the product shut
+  // for nineteen days. All three cards graded from the official box score with no new data.
+  const lane = { generatedAt: "2026-08-17T14:00:00Z", ladder: [{ step: 1, status: "active", card: { cardId: "c1", result: null,
+    legs: [{ legId: "moonshot:mlb:824725:batter_total_bases:Gabriel_Moreno" }] } }] };
+  const s = deriveMoonshotState({ lane, productLedger: null, portfolioMoonshot: null,
+    hasScheduledGenerator: false, hasWiredSettler: true, today: "2026-09-05" });
+  assert.equal(s.lifecycle, "SETTLING", "a leg whose legId carries a gamePk is settleable");
+  const noId = { ...lane, ladder: [{ step: 1, status: "active", card: { cardId: "c1", result: null, legs: [{ legId: "moonshot:mlb:no-game" }] } }] };
+  const s2 = deriveMoonshotState({ lane: noId, productLedger: null, portfolioMoonshot: null,
+    hasScheduledGenerator: false, hasWiredSettler: true, today: "2026-09-05" });
+  assert.ok(s2.contradictions.some((c) => /identity|settle/i.test(JSON.stringify(c))) || s2.lifecycle !== "SETTLING",
+    "a leg with genuinely no game identity must still be flagged");
 });

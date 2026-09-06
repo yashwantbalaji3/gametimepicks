@@ -32,15 +32,20 @@
  *      card, but it is dispatch-only (its cron was a one-off World Cup window, since expired and
  *      removed), World Cup scoped, and AUTO_PLACE_MOONSHOT defaults false.
  *
- *   2. The wired settler cannot see these cards. `nightly-settle` runs
- *      `settle-paper-product-cards.mjs`, which walks `data/internal/product-cards/` — a directory
- *      that does not exist. The Aug-17 cards were written by a manual restart script straight into
- *      the lane artifact and were never registered as product cards. They are also missing the game
- *      identity a settler needs: not one of the six legs carries a gamePk, so even registered they
- *      could not be joined to an official box score.
+ *   2. (CLOSED, Program 236.) The wired settler could not see these cards. `settle-paper-product-cards.mjs`
+ *      walks `data/internal/product-cards/`, a directory that does not exist, and the Aug-17 cards
+ *      were written straight into the lane artifact without ever being registered there.
  *
- * So the cards are ABANDONED, not pending: published, unsettleable as written, and nothing is coming
- * for them. Presenting them as "pending" would promise a settlement that no code path can deliver.
+ *      This note also carried a second reason that was simply WRONG, and it is worth recording
+ *      because it is what kept the product dead: "not one of the six legs carries a gamePk, so even
+ *      registered they could not be joined to an official box score." Every leg carries one. It sits
+ *      inside the legId — `moonshot:mlb:824725:batter_total_bases:Gabriel_Moreno` — rather than in a
+ *      field of its own, and reading only the fields made it look absent. All three cards were graded
+ *      from the official box score on 2026-09-06 with no new data of any kind.
+ *
+ *      `scripts/products/settle-ladder-cards.mjs` now reads this lane artifact directly and runs
+ *      nightly. A cause that was never true is a worse trap than a broken pipeline, because nobody
+ *      re-checks it.
  *
  * WHAT THIS DOES
  * --------------
@@ -74,7 +79,12 @@ export const MOONSHOT_LIFECYCLE = [
  * guard that fails the build is a stronger signal than a value that silently flips.
  */
 export const MOONSHOT_HAS_SCHEDULED_GENERATOR = false;
-export const MOONSHOT_HAS_WIRED_SETTLER = false;
+/* TRUE since Program 236: `scripts/products/settle-ladder-cards.mjs` is invoked by nightly-settle and
+ * reads `moonshot-lane/active.json` directly, grading each leg from the official StatsAPI box score
+ * joined by the gamePk carried in its legId. The three cards open since 2026-08-17 settled on
+ * 2026-09-06. It records outcomes in a prospective lifecycle ledger and never rewrites the protected
+ * bankroll, which is why settling them did not restate money that predates the repair. */
+export const MOONSHOT_HAS_WIRED_SETTLER = true;
 
 const DAY = 86_400_000;
 const dayOf = (iso) => (typeof iso === "string" ? iso.slice(0, 10) : null);
@@ -100,15 +110,29 @@ const isLoss = (o) => /^los[ts]$/i.test(String(o ?? ""));
  * A leg is settleable only if it names the game it belongs to. `gamePk` is MLB's identity and the key
  * every official-results join in this repository uses; a leg without one cannot be matched to a box
  * score by any means that is not name-guessing.
+ *
+ * IT IS NOT ALWAYS A FIELD. This looked only at `gamePk` / `gameId` / `fixtureId` and concluded that
+ * none of the Aug-17 legs had game identity — which became the recorded reason the product could not
+ * be settled, and kept it shut for nineteen days. Every one of those legs carries its gamePk inside
+ * the legId: `moonshot:mlb:824725:batter_total_bases:Gabriel_Moreno`. The identity was there the
+ * whole time, in a place nothing thought to look.
  */
-function openCardsOf(lane) {
+const gameIdentityOf = (leg) =>
+  leg?.gamePk ?? leg?.gameId ?? leg?.fixtureId ??
+  (String(leg?.legId ?? "").split(":").find((p) => /^\d{4,}$/.test(p)) ?? null);
+
+function openCardsOf(lane, settledCardIds = new Set()) {
   const out = [];
   const visit = (ladder, laneId) => {
     for (const step of ladder ?? []) {
       const card = step?.card;
       if (!card || isWin(card.result) || isLoss(card.result)) continue;
+      // A card the lifecycle ledger has already graded is CLOSED, whatever this artifact still says.
+      // The settler deliberately does not rewrite the lane — that artifact feeds the protected
+      // bankroll — so the lane alone would report a settled card as open for ever.
+      if (card.cardId && settledCardIds.has(card.cardId)) continue;
       const legs = Array.isArray(card.legs) ? card.legs : [];
-      const legsWithoutGameId = legs.filter((l) => !l.gamePk && !l.gameId && !l.fixtureId).length;
+      const legsWithoutGameId = legs.filter((l) => !gameIdentityOf(l)).length;
       out.push({
         cardId: card.cardId ?? null,
         laneId: laneId ?? null,
@@ -149,17 +173,20 @@ export function isPublishedCard(card) {
  * @param {boolean}     args.hasScheduledGenerator does ANY workflow generate this product
  * @param {boolean}     args.hasWiredSettler       can ANY wired settler reach its open cards
  * @param {string}      args.today                 ET product date
+ * @param {string[]}   [args.settledCardIds]       card ids the lifecycle ledger has already graded
  */
 export function deriveMoonshotState({
   lane, portfolioMoonshot, productLedger,
   hasScheduledGenerator, hasWiredSettler, today,
+  /** Card ids the lifecycle ledger has graded. Passed in; this module still reads nothing. */
+  settledCardIds = [],
 }) {
   const contradictions = [];
 
   const laneDate = dayOf(lane?.generatedAt);
   const daysSince = laneDate ? daysBetween(laneDate, today) : null;
 
-  const openCards = openCardsOf(lane);
+  const openCards = openCardsOf(lane, new Set(settledCardIds));
   const openExposure = openCards.reduce((s, c) => s + (c.stake ?? 0), 0);
   const unsettleable = openCards.filter((c) => !c.settleable);
 
@@ -291,13 +318,23 @@ export function deriveMoonshotState({
      * stay public, word for word — concealing those would be the worse failure. Only the token moves,
      * to the protected console where the decision is actually answered.
      */
+    /*
+     * GATED ON THE BLOCKER, NOT ON THE LABEL.
+     *
+     * This used to render only when the lifecycle read ABANDONED or NOT_GENERATING. Program 236 wired
+     * a settler, which moved the label to SETTLING — and the disclosure silently disappeared even
+     * though the product still cannot publish. A notice that vanishes because a DIFFERENT problem was
+     * fixed is worse than no notice: the page would have gone quiet about a live limitation.
+     *
+     * Publishing is blocked exactly while nothing generates the product. That is the condition.
+     */
     founderDecision:
-      lifecycle === "ABANDONED" || lifecycle === "NOT_GENERATING"
-        ? "Publishing needs multi-lane exposure accounting in the paper ledger; settling needs the lane's cards registered as product cards with game identity on every leg. Whether to build both, formally pause the product, or retire it is a product decision."
+      !hasScheduledGenerator || lifecycle === "ABANDONED"
+        ? "Settling is resolved: the lane's cards are graded nightly from the official box score. Publishing still needs multi-lane exposure accounting in the paper ledger, because the Mr. Dub ledger models a single active card and two concurrent lanes would mis-account the money. Whether to build that, formally pause the product, or retire it is a product decision."
         : null,
     /** The answer token. PROTECTED-CONSOLE ONLY — never rendered on a public route. */
     founderGateToken:
-      lifecycle === "ABANDONED" || lifecycle === "NOT_GENERATING"
+      !hasScheduledGenerator || lifecycle === "ABANDONED"
         ? "MOONSHOT_REPAIR_PAUSE_OR_RETIRE"
         : null,
   };

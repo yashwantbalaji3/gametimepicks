@@ -25,7 +25,7 @@ import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import LifecycleRecord from "@/components/products/lifecycle-record";
-import { loadLifecycleLedger, settledCardsFor, positionFor } from "@/lib/products/lifecycle-view";
+import { loadLifecycleLedger, settledCardsFor, positionFor, settledCardIds } from "@/lib/products/lifecycle-view";
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
@@ -81,6 +81,9 @@ export default function MoonshotPage() {
    * cards it left open.
    */
   const moonshot = deriveMoonshotState({
+    /* Cards the lifecycle ledger has graded. The settler never rewrites the lane artifact — it
+       feeds the protected bankroll — so without this a settled card reads as pending for ever. */
+    settledCardIds: settledCardIds(loadLifecycleLedger(), "moonshot"),
     lane,
     portfolioMoonshot,
     productLedger: readData("product-ledger", "moonshot.json"),

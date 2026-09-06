@@ -17,7 +17,7 @@ export interface LifecycleLeg {
   actual: number | null; result: string; note?: string;
 }
 export interface LifecycleCard {
-  product: string; lane: string; id: string; result: string;
+  product: string; lane: string; id: string; sourceCardId?: string | null; result: string;
   transition: string; applied: boolean; reason: string;
   nextCycle?: number; nextStep?: number; legs: LifecycleLeg[];
 }
@@ -49,6 +49,16 @@ export function settledCardsFor(ledger: LifecycleLedger | null, product: string)
 /** Where a lane stands after its last settled card. `key` is "bank-builder-lane-A" or "moonshot". */
 export function positionFor(ledger: LifecycleLedger | null, key: string): LifecyclePosition | null {
   return ledger?.positions?.[key] ?? null;
+}
+
+/** Card ids the ledger has graded, for a deriver that must not count a settled card as open. The
+ *  settler never rewrites the lane artifact — it feeds the protected bankroll — so without this the
+ *  lane reports a graded card as pending for ever. */
+export function settledCardIds(ledger: LifecycleLedger | null, product?: string): string[] {
+  return (ledger?.cards ?? [])
+    .filter((c) => c.applied && (!product || c.product === product))
+    .map((c) => c.sourceCardId)
+    .filter((id): id is string => Boolean(id));
 }
 
 /** Plain-English summary of one settled card, for a caption. Never says "safe", never promises. */

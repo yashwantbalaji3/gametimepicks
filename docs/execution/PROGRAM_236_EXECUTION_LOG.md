@@ -222,3 +222,55 @@ already covered that case — the guard I had added was a no-op, so it was rever
 unfalsifiable code.
 
 Gate: SUCCESS 206s · 5370 unit · 447 rendered.
+
+## Phase A (closed) — the recorded reason Moonshot could not settle was false
+
+`moonshot-state.mjs` declared `MOONSHOT_HAS_WIRED_SETTLER = false` and documented two causes. The
+first was true: `settle-paper-product-cards.mjs` walks a directory that does not exist. The second
+was not:
+
+> not one of the six legs carries a gamePk, so even registered they could not be joined to an
+> official box score
+
+Every leg carries one. It lives inside the legId —
+`moonshot:mlb:824725:batter_total_bases:Gabriel_Moreno` — and `openCardsOf` checked only
+`gamePk`/`gameId`/`fixtureId` FIELDS, so it read as absent. All three cards graded from the official
+box score with no new data of any kind. A cause that was never true is a worse trap than a broken
+pipeline, because nobody re-checks it.
+
+Corrected: `gameIdentityOf` reads the legId as well as the fields, the constant is now `true` with the
+scheduled settler named, and its live guard was repointed. The old guard asked whether ONE settler
+(`settle-paper-product-cards.mjs`) could reach the cards; the constant it pinned claims something
+broader, so it would have kept reporting "no settler" while cards were graded nightly. It now asks
+whether any SCHEDULED workflow runs a settler that reads the lane artifact.
+
+Moonshot derives to **SETTLING**, not ABANDONED. The distinction is the point of the state: an open
+card with a settler coming for it is pending; one with nothing coming is abandoned, and calling that
+"pending" promises a settlement no code can deliver.
+
+### A disclosure that vanished because a different problem was fixed
+
+Moving the lifecycle label silently removed the public notice: `founderDecision` rendered only for
+ABANDONED/NOT_GENERATING, so wiring a settler made the page go quiet about a limitation that still
+holds — publishing is still blocked by multi-lane exposure accounting. Caught by the founder-token
+boundary guard's counter-check, which exists precisely so the token scan cannot be satisfied by
+deleting the disclosure.
+
+The notice is now gated on the actual blocker (`!hasScheduledGenerator`), and its text narrowed
+honestly: settling is resolved and says so; publishing is not and says why. The guard asserts both
+halves, so a stale blocker cannot quietly outlive its repair either.
+
+### The founder's repair decision
+
+The instruction chooses **repair and prospective resumption**. Recorded here with what it did and did
+not unblock:
+
+| | State |
+|---|---|
+| Settling | **Repaired.** Scheduled nightly; three cards graded 2026-09-06. |
+| Card generation | **Repaired.** Live pool; lanes build at +3463 / +12099 at the generation hour. |
+| Publishing to the paper ladder | **Still gated.** Needs multi-lane exposure accounting in the Mr. Dub ledger, which models one active card. Not built here; building it would change money accounting. |
+
+The founder gate token is unchanged and remains console-only. No token was synthesised.
+
+Gate: SUCCESS 197s · 5371 unit · 447 rendered.

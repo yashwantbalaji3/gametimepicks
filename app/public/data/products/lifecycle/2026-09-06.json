@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "artifact": "product-lifecycle-settlement",
+  "generatedAt": "2026-09-06T01:33:11Z",
+  "settled": 3,
+  "held": 0,
+  "stores": {
+    "bankBuilder": true,
+    "moonshot": true
+  },
+  "withheldWrite": {
+    "target": "app/public/data/mr-dub/portfolio.json",
+    "via": "app/scripts/build-mr-dub-ledger.mjs",
+    "reason": "that builder derives the protected paper bankroll from these two card stores; grading cards frozen on 2026-08-17 in place would restate financial history that predates this settlement. Outcomes are recorded here instead; the money record is unchanged."
+  },
+  "positions": {
+    "bank-builder-lane-A": {
+      "cycle": 3,
+      "step": 2,
+      "afterCard": "bank-builder:a:c3:s1:2026-08-17",
+      "result": "won",
+      "transition": "advance"
+    },
+    "bank-builder-lane-B": {
+      "cycle": 4,
+      "step": 1,
+      "afterCard": "bank-builder:b:c3:s2:2026-08-17",
+      "result": "lost",
+      "transition": "restart"
+    },
+    "moonshot": {
+      "cycle": 2,
+      "step": 1,
+      "afterCard": "moonshot:a:c1:s1:2026-08-17",
+      "result": "lost",
+      "transition": "restart"
+    }
+  },
+  "settledIndex": {
+    "bank-builder:a:c3:s1:2026-08-17": {
+      "result": "won",
+      "settledAt": "2026-09-06T01:33:11Z"
+    },
+    "bank-builder:b:c3:s2:2026-08-17": {
+      "result": "lost",
+      "settledAt": "2026-09-06T01:33:11Z"
+    },
+    "moonshot:a:c1:s1:2026-08-17": {
+      "result": "lost",
+      "settledAt": "2026-09-06T01:33:11Z"
+    }
+  },
+  "cards": [
+    {
+      "product": "bank-builder",
+      "lane": "A",
+      "id": "bank-builder:a:c3:s1:2026-08-17",
+      "sourceCardId": null,
+      "result": "won",
+      "transition": "advance",
+      "applied": true,
+      "reason": "card won — cycle 3 advances to step 2",
+      "nextCycle": 3,
+      "nextStep": 2,
+      "legs": [
+        {
+          "player": "Kyle Tucker",
+          "market": "batter_hits",
+          "side": "under",
+          "line": 1.5,
+          "actual": 0,
+          "result": "won"
+        },
+        {
+          "player": "Gabriel Moreno",
+          "market": "batter_hits",
+          "side": "over",
+          "line": 0.5,
+          "actual": 1,
+          "result": "won"
+        }
+      ]
+    },
+    {
+      "product": "bank-builder",
+      "lane": "B",
+      "id": "bank-builder:b:c3:s2:2026-08-17",
+      "sourceCardId": null,
+      "result": "lost",
+      "transition": "restart",
+      "applied": true,
+      "reason": "card lost — cycle 3 closes and cycle 4 opens at step 1",
+      "nextCycle": 4,
+      "nextStep": 1,
+      "legs": [
+        {
+          "player": "Shane McClanahan",
+          "market": "pitcher_strikeouts",
+          "side": "under",
+          "line": 4.5,
+          "actual": 3,
+          "result": "won"
+        },
+        {
+          "player": "Luis Campusano",
+          "market": "batter_hits_runs_rbis",
+          "side": "over",
+          "line": 1.5,
+          "actual": 0,
+          "result": "lost"
+        }
+      ]
+    },
+    {
+      "product": "moonshot",
+      "lane": "a",
+      "id": "moonshot:a:c1:s1:2026-08-17",
+      "sourceCardId": "moonshot-2026-08-17-mlb-a",
+      "result": "lost",
+      "transition": "restart",
+      "applied": true,
+      "reason": "card lost — cycle 1 closes and cycle 2 opens at step 1",
+      "nextCycle": 2,
+      "nextStep": 1,
+      "legs": [
+        {
+          "player": "Gabriel Moreno",
+          "market": "batter_total_bases",
+          "side": "over",
+          "line": 1.5,
+          "actual": 1,
+          "result": "lost"
+        },
+        {
+          "player": "Shane McClanahan",
+          "market": "pitcher_strikeouts",
+          "side": "under",
+          "line": 4.5,
+          "actual": 3,
+          "result": "won"
+        },
+        {
+          "player": "Luis Campusano",
+          "market": "batter_hits_runs_rbis",
+          "side": "over",
+          "line": 1.5,
+          "actual": 0,
+          "result": "lost"
+        }
+      ]
+    }
+  ]
+}
