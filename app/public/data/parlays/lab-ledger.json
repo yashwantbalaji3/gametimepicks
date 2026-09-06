@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-06T11:44:31Z",
+ "generatedAt": "2026-09-06T17:40:24Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -14,12 +14,11 @@
   {
    "id": "mlb",
    "label": "MLB",
-   "live": false,
-   "blocked": "no price capture for 2026-09-06 yet — the sport's own generation runs later in the day (newest capture 2026-09-05); only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "live": true,
    "evidence": {
-    "pricedGames": 0,
-    "pricesCapturedAt": null,
-    "priceAgeDays": null,
+    "pricedGames": 14,
+    "pricesCapturedAt": "2026-09-06T17:05:41.176Z",
+    "priceAgeDays": 0.02,
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
@@ -76,11 +75,11 @@
    "id": "nfl",
    "label": "NFL",
    "live": false,
-   "blocked": "the last price capture is 7.7 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "blocked": "the last price capture is 8.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-08-29T17:50:39Z",
-    "priceAgeDays": 7.75,
+    "priceAgeDays": 7.99,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -141,7 +140,7 @@
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-09-05T13:36:57Z",
-    "priceAgeDays": 0.92,
+    "priceAgeDays": 1.17,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true
    },
@@ -199,9 +198,9 @@
    "label": "Premier League",
    "live": true,
    "evidence": {
-    "pricedGames": 20,
-    "pricesCapturedAt": "2026-09-05T22:29:43Z",
-    "priceAgeDays": 0.55,
+    "pricedGames": 18,
+    "pricesCapturedAt": "2026-09-06T15:00:44Z",
+    "priceAgeDays": 0.11,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true
    },
@@ -257,13 +256,14 @@
   {
    "id": "multi",
    "label": "Multi-sport",
-   "live": false,
-   "blocked": "a cross-sport card needs two live sports; only Premier League is cleared",
+   "live": true,
    "evidence": {
     "liveSports": [
+     "mlb",
      "epl"
     ],
     "liveLabels": [
+     "MLB",
      "Premier League"
     ]
    },

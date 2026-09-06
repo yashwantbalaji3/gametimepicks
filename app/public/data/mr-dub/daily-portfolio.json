@@ -1,29 +1,29 @@
 {
   "version": "daily-portfolio-v1",
   "date": "2026-09-06",
-  "generatedAt": "2026-09-06T11:44:37.046Z",
+  "generatedAt": "2026-09-06T17:40:19.184Z",
   "activeBankroll": 19065.4,
   "crownBankroll": 20465.4,
-  "openExposure": 0,
-  "availableBankroll": 19065.4,
-  "potentialReturn": 0,
+  "openExposure": 250,
+  "availableBankroll": 18815.4,
+  "potentialReturn": 3205.03,
   "products": {
     "bankBuilder": {
-      "exposure": 0,
+      "exposure": 200,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 0
+        "pending": 2
       }
     },
     "moonshot": {
-      "exposure": 0,
+      "exposure": 50,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 0
+        "pending": 2
       }
     }
   },
@@ -35,26 +35,55 @@
       "lane": "A",
       "step": 1,
       "clearedSteps": 0,
-      "status": "awaiting",
+      "status": "active",
       "stake": 100,
       "exposure": 100,
       "targetReturn": 200,
-      "fitsTarget": false,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 100,
-      "legCount": 0,
+      "fitsTarget": true,
+      "combinedOdds": 124,
+      "combinedDecimal": 2.2354,
+      "potentialReturn": 223.54,
+      "legCount": 2,
       "targetLegs": 2,
-      "legs": [],
+      "legs": [
+        {
+          "id": "MLB:35ced11ee1bb21f179e3ac5a39a75fd2:mlb_moneyline:Seattle_Mariners_to_win",
+          "matchup": "Athletics @ Seattle Mariners",
+          "market": "Moneyline",
+          "selection": "Seattle Mariners to win",
+          "player": null,
+          "odds": -205,
+          "provider": "draftkings",
+          "modelConfidence": 0.6422,
+          "kickoffEt": "4:10 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:35484b18fe129394ebc819752a8b92c1:mlb_moneyline:Los_Angeles_Dodgers_to_win",
+          "matchup": "Washington Nationals @ Los Angeles Dodgers",
+          "market": "Moneyline",
+          "selection": "Los Angeles Dodgers to win",
+          "player": null,
+          "odds": -199,
+          "provider": "draftkings",
+          "modelConfidence": 0.6364,
+          "kickoffEt": "10:11 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
       "correlationNote": "Correlation checked: no shared game with Lane B — the two lanes can advance independently.",
-      "shortfallNote": "Fewer than 2 model-qualified legs available — awaiting a full card.",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Awaiting a full card — fewer than 2 model-qualified legs available.",
-        "No combo reaches the $200 goal — strongest available shown as a candidate."
+        "Safest-fit (MLB): chosen to MAXIMIZE the chance all 2 legs land — estimated 41% combined hit probability at Tier 2 (moderate), not the longest-odds card.",
+        "Combined +124 rides $100 toward the $200 rung goal (avg leg confidence 64%)."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no priced slate has been published for 2026-09-06 yet — this is a missing input, not a slate that came up short"
+        "eligible": true,
+        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
       }
     },
     {
@@ -64,26 +93,55 @@
       "lane": "B",
       "step": 1,
       "clearedSteps": 0,
-      "status": "awaiting",
+      "status": "active",
       "stake": 100,
       "exposure": 100,
       "targetReturn": 200,
-      "fitsTarget": false,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 100,
-      "legCount": 0,
+      "fitsTarget": true,
+      "combinedOdds": 200,
+      "combinedDecimal": 3,
+      "potentialReturn": 300,
+      "legCount": 2,
       "targetLegs": 2,
-      "legs": [],
+      "legs": [
+        {
+          "id": "MLB:855005fb1370a5252daf5699bd5fce84:mlb_moneyline:Chicago_White_Sox_to_win",
+          "matchup": "Minnesota Twins @ Chicago White Sox",
+          "market": "Moneyline",
+          "selection": "Chicago White Sox to win",
+          "player": null,
+          "odds": -150,
+          "provider": "draftkings",
+          "modelConfidence": 0.5734,
+          "kickoffEt": "6:20 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:d545cab19c6dbf61ef08fc9c481877f8:mlb_moneyline:Toronto_Blue_Jays_to_win",
+          "matchup": "Toronto Blue Jays @ Kansas City Royals",
+          "market": "Moneyline",
+          "selection": "Toronto Blue Jays to win",
+          "player": null,
+          "odds": -125,
+          "provider": "draftkings",
+          "modelConfidence": 0.5313,
+          "kickoffEt": "2:11 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
       "correlationNote": "Correlation checked: no shared game with Lane A — the two lanes can advance independently.",
-      "shortfallNote": "Fewer than 2 model-qualified legs available — awaiting a full card.",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Awaiting a full card — fewer than 2 model-qualified legs available.",
-        "No combo reaches the $200 goal — strongest available shown as a candidate."
+        "Value lane (MLB): the most SURVIVABLE 2-leg card inside the +200..+700 band — ~30% combined hit probability at Tier 2 (moderate), picked for a bigger jump per win without chasing the longest price.",
+        "Combined +200 rides $100 → $300 (clears the $200 rung goal; avg leg confidence 55%)."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no priced slate has been published for 2026-09-06 yet — this is a missing input, not a slate that came up short"
+        "eligible": true,
+        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
       }
     },
     {
@@ -93,26 +151,87 @@
       "lane": "A",
       "step": 1,
       "clearedSteps": 0,
-      "status": "awaiting",
+      "status": "active",
       "stake": 25,
       "exposure": 25,
       "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 25,
-      "legCount": 0,
-      "targetLegs": 3,
-      "legs": [],
+      "combinedOdds": 1089,
+      "combinedDecimal": 11.8907,
+      "potentialReturn": 297.27,
+      "legCount": 4,
+      "targetLegs": 4,
+      "legs": [
+        {
+          "id": "MLB:d545cab19c6dbf61ef08fc9c481877f8:mlb_total_runs:Under_9.5",
+          "matchup": "Toronto Blue Jays @ Kansas City Royals",
+          "market": "Total Runs",
+          "selection": "Under 9.5",
+          "player": null,
+          "odds": -117,
+          "provider": "draftkings",
+          "modelConfidence": 0.5152,
+          "kickoffEt": "2:11 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:35ced11ee1bb21f179e3ac5a39a75fd2:mlb_total_runs:Over_7",
+          "matchup": "Athletics @ Seattle Mariners",
+          "market": "Total Runs",
+          "selection": "Over 7",
+          "player": null,
+          "odds": -118,
+          "provider": "draftkings",
+          "modelConfidence": 0.5174,
+          "kickoffEt": "4:10 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:855005fb1370a5252daf5699bd5fce84:mlb_total_runs:Over_8.5",
+          "matchup": "Minnesota Twins @ Chicago White Sox",
+          "market": "Total Runs",
+          "selection": "Over 8.5",
+          "player": null,
+          "odds": -112,
+          "provider": "draftkings",
+          "modelConfidence": 0.5043,
+          "kickoffEt": "6:20 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:35484b18fe129394ebc819752a8b92c1:mlb_total_runs:Over_8",
+          "matchup": "Washington Nationals @ Los Angeles Dodgers",
+          "market": "Total Runs",
+          "selection": "Over 8",
+          "player": null,
+          "odds": -120,
+          "provider": "draftkings",
+          "modelConfidence": 0.5205,
+          "kickoffEt": "10:11 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
       "correlationNote": null,
-      "shortfallNote": "Only 0 structured team leg(s) available — no player props forced.",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Higher-upside: 0 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 0% across 0 legs · combined 0."
+        "Higher-upside: 4 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
+        "Avg model confidence 51% across 4 legs · combined +1089."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no priced slate has been published for 2026-09-06 yet — this is a missing input, not a slate that came up short"
+        "eligible": true,
+        "reason": "all legs pre-event and outside the cutoff"
+      },
+      "narrative": {
+        "title": "Mixed knockout angles",
+        "story": "A spread of independent knockout angles across the window — different games, different markets, one longshot ticket. Diversified, so no single game script carries it."
       }
     },
     {
@@ -122,32 +241,150 @@
       "lane": "B",
       "step": 1,
       "clearedSteps": 0,
-      "status": "awaiting",
+      "status": "active",
       "stake": 25,
       "exposure": 25,
       "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 0,
-      "combinedDecimal": 1,
-      "potentialReturn": 25,
-      "legCount": 0,
-      "targetLegs": 3,
-      "legs": [],
-      "correlationNote": null,
-      "shortfallNote": "Only 0 structured team leg(s) available — no player props forced.",
+      "combinedOdds": 9437,
+      "combinedDecimal": 95.3687,
+      "potentialReturn": 2384.22,
+      "legCount": 8,
+      "targetLegs": 8,
+      "legs": [
+        {
+          "id": "MLB:d545cab19c6dbf61ef08fc9c481877f8:mlb_total_runs:Under_9.5",
+          "matchup": "Toronto Blue Jays @ Kansas City Royals",
+          "market": "Total Runs",
+          "selection": "Under 9.5",
+          "player": null,
+          "odds": -117,
+          "provider": "draftkings",
+          "modelConfidence": 0.5152,
+          "kickoffEt": "2:11 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:d545cab19c6dbf61ef08fc9c481877f8:mlb_run_line:Kansas_City_Royals_+1.5",
+          "matchup": "Toronto Blue Jays @ Kansas City Royals",
+          "market": "Run Line",
+          "selection": "Kansas City Royals +1.5",
+          "player": null,
+          "odds": -155,
+          "provider": "draftkings",
+          "modelConfidence": 0.5809,
+          "kickoffEt": "2:11 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:35ced11ee1bb21f179e3ac5a39a75fd2:mlb_total_runs:Over_7",
+          "matchup": "Athletics @ Seattle Mariners",
+          "market": "Total Runs",
+          "selection": "Over 7",
+          "player": null,
+          "odds": -118,
+          "provider": "draftkings",
+          "modelConfidence": 0.5174,
+          "kickoffEt": "4:10 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:35ced11ee1bb21f179e3ac5a39a75fd2:mlb_run_line:Athletics_+1.5",
+          "matchup": "Athletics @ Seattle Mariners",
+          "market": "Run Line",
+          "selection": "Athletics +1.5",
+          "player": null,
+          "odds": -135,
+          "provider": "draftkings",
+          "modelConfidence": 0.5491,
+          "kickoffEt": "4:10 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:855005fb1370a5252daf5699bd5fce84:mlb_total_runs:Over_8.5",
+          "matchup": "Minnesota Twins @ Chicago White Sox",
+          "market": "Total Runs",
+          "selection": "Over 8.5",
+          "player": null,
+          "odds": -112,
+          "provider": "draftkings",
+          "modelConfidence": 0.5043,
+          "kickoffEt": "6:20 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:855005fb1370a5252daf5699bd5fce84:mlb_run_line:Minnesota_Twins_+1.5",
+          "matchup": "Minnesota Twins @ Chicago White Sox",
+          "market": "Run Line",
+          "selection": "Minnesota Twins +1.5",
+          "player": null,
+          "odds": -170,
+          "provider": "draftkings",
+          "modelConfidence": 0.6018,
+          "kickoffEt": "6:20 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:35484b18fe129394ebc819752a8b92c1:mlb_total_runs:Over_8",
+          "matchup": "Washington Nationals @ Los Angeles Dodgers",
+          "market": "Total Runs",
+          "selection": "Over 8",
+          "player": null,
+          "odds": -120,
+          "provider": "draftkings",
+          "modelConfidence": 0.5205,
+          "kickoffEt": "10:11 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        },
+        {
+          "id": "MLB:35484b18fe129394ebc819752a8b92c1:mlb_run_line:Washington_Nationals_+1.5",
+          "matchup": "Washington Nationals @ Los Angeles Dodgers",
+          "market": "Run Line",
+          "selection": "Washington Nationals +1.5",
+          "player": null,
+          "odds": -131,
+          "provider": "draftkings",
+          "modelConfidence": 0.5412,
+          "kickoffEt": "10:11 PM ET",
+          "risk": "Higher-volatility",
+          "photoUrl": null,
+          "teamLogo": null
+        }
+      ],
+      "correlationNote": "4 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter).",
+      "shortfallNote": null,
       "whyThisCard": [
-        "Higher-upside: 0 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 0% across 0 legs · combined 0."
+        "Higher-upside: 8 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
+        "Avg model confidence 54% across 8 legs · combined +9437.",
+        "4 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter)."
       ],
       "activationEligibility": {
-        "eligible": false,
-        "reason": "no priced slate has been published for 2026-09-06 yet — this is a missing input, not a slate that came up short"
+        "eligible": true,
+        "reason": "all legs pre-event and outside the cutoff"
+      },
+      "narrative": {
+        "title": "Mixed knockout angles",
+        "story": "A spread of independent knockout angles across the window — different games, different markets, one longshot ticket. Diversified, so no single game script carries it."
       }
     }
   ],
   "settlement": {
-    "status": "none",
+    "status": "pending",
     "realizedPnl": 0
   },
-  "note": "Daily paper portfolio candidates — no exposure placed; active bankroll and crown unchanged."
+  "note": "Active daily paper portfolio — open exposure is at risk; active bankroll and crown are unchanged until official settlement."
 }
