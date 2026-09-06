@@ -19,7 +19,10 @@ const has = (f) => args.includes(f);
 const val = (f, d) => { const i = args.indexOf(f); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
 const date = val("--date", new Date().toISOString().slice(0, 10));
 const apply = has("--apply");
-const nowIso = new Date().toISOString();
+/* Clock seam. Generation is scheduled at 15:30 UTC, before first pitch; run at any other hour the
+ * pre-event filter legitimately empties the pool, and "0 legs" then says nothing about the slate.
+ * Production default is unchanged — the wall clock. */
+const nowIso = val("--now", new Date().toISOString());
 // cwd-robust: this script must run from app/ (for the @/ alias) but may also be invoked from the repo
 // root. Resolve public/data either way so readMoney always finds the canonical portfolio.json (a wrong
 // root previously made it silently fall back to a stale single-ladder bankroll).

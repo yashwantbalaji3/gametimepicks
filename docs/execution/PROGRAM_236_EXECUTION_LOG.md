@@ -160,3 +160,65 @@ Both product pages now render the settled record — every leg, the official num
 against, and the resulting ladder position — or say plainly that nothing has been graded yet.
 
 Gate: SUCCESS 196s · 5359 unit · 447 rendered.
+
+## Phase C — a pool that exists
+
+`src/lib/daily-portfolio/mlb-team-legs.ts` reads `public/data/mlb/team-markets/<date>.json` — the
+live artifact the MLB board job already writes daily — and emits the same `ModelPick` contract the
+retired World Cup loader did. Measured on 2026-09-05: **45 legs across 15 games**, three markets each,
+where the pool had been 0.
+
+Only the three markets `build-mlb-product-settlement.mjs` grades from the committed linescore cache
+are emitted. Settleability is a precondition, not a later concern; this program exists because three
+ungraded cards sat pending for nineteen days.
+
+`modelProbability` is the bookmaker's DE-VIGGED number, exactly as the World Cup loader used it, and
+`edge` is 0 on every leg. This repository's own calibration work demoted every modelled MLB market to
+market-context, so quoting the market's own probability is the honest input.
+
+### What the products do now
+
+At the scheduled generation hour (15:30 UTC, before first pitch):
+
+    Bank Builder  A   2/2 legs   +102    $100 → $202.45   eligible
+    Bank Builder  B   2/2 legs   +201    $100 → $300.81   eligible
+    Moonshot      A   6/6 legs  +3463    $25  → $890.63   eligible
+    Moonshot      B   8/8 legs +12099    $25  → $3049.72  eligible
+
+Run at any other hour the pre-event filter legitimately empties the pool — at 01:16 UTC only 3 of 45
+legs remain, because the slate has been played. `activate-daily-portfolio.mjs` gained a `--now` seam
+so that can be demonstrated rather than argued about; production default is unchanged.
+
+### The 28-leg card
+
+Moonshot groups legs into per-game structures and took EVERY game on the slate. There was no bound.
+On a World Cup day of four sparsely-priced matches that yielded three to five legs and the missing
+cap was invisible. On a fifteen-game MLB slate the first run produced:
+
+    Moonshot A   28 legs   +1,420,977,392   $25 → $355,244,372.91
+    Moonshot B   41 legs   +780,461,779,727 $25 → $195,115,444,956.64
+
+A latent defect my change exposed rather than caused. The ceiling is now ten legs — the largest lane
+this product was ever designed to publish, since its own deepest-slate test builds Lane A at exactly
+ten and the historical June-23 production slate builds Lane B at eight. Every existing card fits
+underneath unchanged: the June-23 lanes still build 5 legs at +818 and 8 legs at +3893, both active.
+
+Two attempts were needed. The first capped each lane independently at five, which broke two things:
+the historical Lane B fell to 4 legs and stopped clearing its floor, and the lanes ranked to
+different game sets, silently breaking the documented tier relationship where B is a superset of A.
+The bound now sizes the shared game set on the AGGRESSIVE lane, so both draw from the same games and
+the superset holds by construction.
+
+**Stated limitation:** this bounds an absurdity; it is not a payout constraint. A ten-leg longshot can
+still quote a return well above the lane's $1,000 ladder target, because the +700 floor is a minimum
+with no maximum beside it. Recorded, not papered over.
+
+### Two of my own tests were vacuous
+
+Mutation probing caught them. A test asserting the de-vigged favourite is chosen used a fixture where
+the home side was the favourite, so hardcoding `ml.home` passed it; it now checks both directions. And
+a "sport with no draw keeps its moneyline" guard could not fail, because the existing `?? ml` fallback
+already covered that case — the guard I had added was a no-op, so it was reverted rather than kept as
+unfalsifiable code.
+
+Gate: SUCCESS 206s · 5370 unit · 447 rendered.

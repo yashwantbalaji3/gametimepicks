@@ -20,6 +20,7 @@ import { readLaneRungs, selectSafestTargetFitCard, SEED_EXPOSURE, type Generated
 import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
 import { loadMlbModelPicks } from "./mlb-model-picks";
 import { loadWorldCupTeamLegs } from "./wc-team-legs";
+import { loadMlbTeamLegs } from "./mlb-team-legs";
 import { moonshotNarrative } from "../world-cup/wc-editorial";
 import { sumActiveExposure } from "./exposure";
 
@@ -363,7 +364,19 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   // high-implied player props (e.g. a −480 "Over 0.5 shots") that out-rank the moneyline favorites in the
   // safest-target-fit selector and produce a weak prop-stacked ladder instead of Spain ML / Portugal ML.
   // A team leg has `player == null`; a player prop names the player. Filter the whole pool once.
-  const bbPool = [...wcTeam, ...wcFill, ...loadMlbModelPicks(root, nowIso, date)].filter((p) => p.player == null);
+  // ── THE LIVE TEAM-LEG POOL ──────────────────────────────────────────────────────────────────
+  // `wcTeam` and `wcFill` both read the World Cup, which has been archived for months: measured on
+  // 2026-09-05 they returned 0 and 0. The MLB fill behind them is player props only, and the
+  // team-only filter below removed all 55 of them. Bank Builder's pool was therefore empty on every
+  // slate, and the page said "fewer than 2 model-qualified legs" as though the day had come up short.
+  //
+  // The MLB team-market artifact is the live source of the same shape — moneyline, total and run
+  // line for the full slate, at real prices, and all three are graded by the existing MLB product
+  // settlement from the committed linescore cache. The retired sources stay ahead of it in the list
+  // so that if the World Cup pool is ever repopulated it takes precedence exactly as before; today
+  // they contribute nothing and the MLB legs are the pool.
+  const mlbTeam = preEvent(loadMlbTeamLegs(root, nowIso, date));
+  const bbPool = [...wcTeam, ...wcFill, ...mlbTeam, ...loadMlbModelPicks(root, nowIso, date)].filter((p) => p.player == null);
   const nowMs = Date.parse(nowIso);
   const lanes: PortfolioLane[] = [];
 
@@ -409,7 +422,21 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
 
   // ── Moonshot: up to 5 higher-upside longshot legs per lane (min 3, ≥+700 floor), from the pool MINUS
   //    the Bank Builder legs (distinct lanes). A thin slate leaves lanes AWAITING — never forced. ──
-  const poolForMoon = pool.filter((p) => !usedBB.has(p.id));
+  //
+  //    THE POOL, which was the whole problem. `pool` is the World Cup, archived months ago: it
+  //    returns 0 picks, so Moonshot has published "only 0/3 model-qualified legs" every single day
+  //    while a full MLB slate went by. That reads as a thin slate; the truth was that no slate could
+  //    ever qualify. MLB player props are the live source of the shape this lane was built for, and
+  //    the MLB team markets are the live source of the shape this lane was rebuilt for — Moonshot is
+  //    STRUCTURED team markets grouped by game (result + total), not player-prop stacks — and all
+  //    three are graded by the existing MLB product settlement. Settleability is the precondition,
+  //    not an afterthought: a leg nobody can grade must never be selected.
+  //
+  //    The +700 floor is UNCHANGED and does the deciding. On a slate priced like 2026-09-05, where
+  //    every prop is a favourite between -113 and -274, three legs cannot reach it and the lane will
+  //    correctly publish no card. That is a real answer about the day's prices rather than a claim
+  //    about an empty pool, and it is the answer the floor exists to give.
+  const poolForMoon = [...pool, ...mlbTeam].filter((p) => !usedBB.has(p.id));
   const cands = buildDailyLaneCandidates(poolForMoon, date);
   let moonshotExposure = 0;
   for (const c of [cands.moonshotA, cands.moonshotB] as LaneCandidate[]) {

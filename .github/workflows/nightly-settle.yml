@@ -210,6 +210,27 @@ jobs:
             npx tsx scripts/settle-mlb-player-props.mjs $DATE_ARG --apply
           fi
 
+      # ---- Bank Builder ladder + Moonshot lane settlement (Program 236) ----
+      #
+      # The step above settles `mr-dub/daily-portfolio.json`. That file has held four zero-leg lanes
+      # for months, so it grades nothing and exits 0 — which is why nobody noticed that the two
+      # artifacts holding the products' REAL cards were opened by no settler at all. Both froze cards
+      # on 2026-08-17 whose games went final that night; they were still pending nineteen days later.
+      #
+      # This grades them from the free official StatsAPI box score — no provider credits — and writes
+      # a PROSPECTIVE lifecycle ledger. It deliberately does not mutate the card stores themselves:
+      # build-mr-dub-ledger derives the protected bankroll from those, and rewriting them would
+      # restate financial history as a side effect. Re-running settles nothing new, so a repeated
+      # night is a genuine no-op rather than a second advance.
+      - name: Settle the Bank Builder ladder and Moonshot lane
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          cd app
+          npx tsx scripts/products/settle-ladder-cards.mjs \
+            --apply --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            || echo "::warning::ladder settlement failed — prior ledger retained, cards stay pending"
+
       # ---- Roll the daily portfolio forward to TODAY (ET) ----
       #
       # Was step 5/6 inside settle_soccer_day.sh, which is invoked above under continue-on-error. The
@@ -550,6 +571,9 @@ jobs:
           git add app/public/data/parlays/optimizer-graded/ 2>/dev/null || true
           # Bank Builder paper-bankroll ledger (settled-only durable history).
           git add app/public/data/bank-builder/ 2>/dev/null || true
+          # Program 236: the product lifecycle ledger — settled outcomes and ladder positions for
+          # Bank Builder and Moonshot. Not money; the protected artifacts stay out of this list.
+          git add app/public/data/products/lifecycle/ 2>/dev/null || true
           git add app/public/data/parlays/optimizer-summary.json 2>/dev/null || true
           # Daily learning artifact (settled-outcomes only) + its report. The
           # optimizer reads selection-policy-latest.json with a conservative

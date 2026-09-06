@@ -70,6 +70,30 @@ export const BANK_BUILDER_MAX_ODDS = 400; // a high-hit-rate addable leg, never 
  *  slates can't always field two full 5-leg lanes), provided the combined price clears the longshot floor. */
 export const MOONSHOT_TARGET_LEGS = 5;
 export const MOONSHOT_MIN_LEGS = 3;
+/**
+ * The ceiling on a Moonshot lane, in legs.
+ *
+ * There was none. The builder took EVERY game on the slate, which stayed harmless only while the
+ * pool was a World Cup day of four sparsely-priced matches. Pointed at a fifteen-game MLB slate it
+ * produced a 28-leg Lane A at +1,420,977,392 and a 41-leg Lane B at +780,461,779,727 — a $25 stake
+ * advertising a $355 million return. That is not a longshot; it is a number with no meaning.
+ *
+ * Ten is the largest lane this product was ever designed to publish, not a number chosen to make
+ * something pass: the deepest slate its own tests describe — five structured games, result and total
+ * each — builds Lane A at exactly ten legs, and the historical June-23 production slate builds Lane
+ * B at eight. Every existing card fits underneath it unchanged; what does not fit is a fifteen-game
+ * baseball slate, which is the case that had no answer at all.
+ *
+ * The bound is applied to the AGGRESSIVE lane when choosing which games take part, so both lanes
+ * draw from the same games and Lane B stays a superset of Lane A by construction — a tier
+ * relationship this product documents and tests. Capping each lane on its own let them rank to
+ * different game sets and silently broke it.
+ *
+ * It bounds an absurdity; it is not a payout constraint. A ten-leg longshot can still quote a return
+ * well above this lane's $1,000 ladder target, and the +700 floor is a minimum with no maximum
+ * beside it. That gap is real and is recorded rather than papered over.
+ */
+export const MOONSHOT_MAX_LEGS = 10;
 export const MOONSHOT_MIN_COMBINED_ODDS = 700; // +700 — a genuine longshot, not a glorified Bank Builder card
 const TEAM_MARKETS: Record<string, string> = {
   moneyline_90: "Match Result",
@@ -229,13 +253,35 @@ function splitMoonshotLanes(sorted: ModelPick[], used: Set<string>): { laneA: Mo
 
 /** Pick the STRUCTURED result + total(/BTTS) legs for one game from its team-market picks. Draw-leaning
  *  games (moneyline favourite < 55%) prefer a draw-protected result (DNB → DC) over a raw moneyline win. */
+/**
+ * The market FAMILIES this structure is built from, named per sport.
+ *
+ * The keys were hardcoded to the World Cup's vocabulary, so when that competition was archived the
+ * structure had nothing to group and Moonshot published "0/3 model-qualified legs" every day. A
+ * result leg is a result leg whether it is called `moneyline_90` or `mlb_moneyline`; what the
+ * structure needs is the ROLE each market plays in a game, not the name one sport gives it.
+ *
+ * `secondary` is the leg paired with the result. Soccer pairs a goals total; baseball pairs a runs
+ * total, with the run line as the alternative when a game has no posted total. There is no baseball
+ * analogue of both-teams-to-score, which is why the aggressive lane simply finds no third leg on an
+ * MLB slate rather than substituting something that does not mean the same thing.
+ */
+const RESULT_MARKETS = ["moneyline_90", "mlb_moneyline"] as const;
+const DRAW_PROTECTED_MARKETS = ["draw_no_bet", "double_chance"] as const;
+const TOTAL_MARKETS = ["match_total_goals", "mlb_total_runs"] as const;
+const ALT_SECONDARY_MARKETS = ["btts", "mlb_run_line"] as const;
+
 function structuredGamePair(gameLegs: ModelPick[], includeBtts: boolean): ModelPick[] {
   const byMarket = (k: string) => gameLegs.find((l) => l.marketKey === k) ?? null;
-  const ml = byMarket("moneyline_90");
+  const firstOf = (keys: readonly string[]) => { for (const k of keys) { const hit = byMarket(k); if (hit) return hit; } return null; };
+  const ml = firstOf(RESULT_MARKETS);
   const dnb = byMarket("draw_no_bet");
   const dc = byMarket("double_chance");
-  const total = byMarket("match_total_goals");
-  const btts = byMarket("btts");
+  const total = firstOf(TOTAL_MARKETS);
+  const btts = firstOf(ALT_SECONDARY_MARKETS);
+  // Draw protection is a soccer concept, and it needs no sport guard: on a league with no draw
+  // markets `dnb` and `dc` are both null, so `dnb ?? dc ?? ml` and `ml ?? dnb ?? dc` resolve to the
+  // same moneyline leg either way. A guard here looked prudent and could not change an outcome.
   const drawLean = !ml || ml.modelProbability < 0.55;
   const result = drawLean ? (dnb ?? dc ?? ml) : (ml ?? dnb ?? dc);
   const out: ModelPick[] = [];
@@ -251,10 +297,40 @@ function structuredGamePair(gameLegs: ModelPick[], includeBtts: boolean): ModelP
 function buildStructuredMoonshotLanes(teamPool: ModelPick[], stake: number, date: string): { laneA: LaneCandidate; laneB: LaneCandidate } {
   const byGame = new Map<string, ModelPick[]>();
   for (const p of teamPool) byGame.set(p.gameId, [...(byGame.get(p.gameId) ?? []), p]);
+  /*
+   * WHICH GAMES TAKE PART, decided ONCE for both lanes.
+   *
+   * The selection rule, fixed before its output was looked at:
+   *   · a game's structure is ranked by the combined model probability of its legs, highest first —
+   *     the best-supported structures, not the longest prices;
+   *   · structures are taken WHOLE, never split, because half a result-and-total pair is not the
+   *     thing this lane is built from;
+   *   · games are admitted while the AGGRESSIVE lane still fits MOONSHOT_MAX_LEGS.
+   *
+   * Sizing on the aggressive lane is what keeps Lane B a superset of Lane A. Capping each lane
+   * independently let them rank to different game sets, which silently broke that relationship.
+   * The +700 floor is untouched and still decides whether either lane qualifies at all.
+   */
+  const chosenGames = new Set<string>();
+  {
+    const ranked = [...byGame.entries()]
+      .map(([gameId, gameLegs]) => ({ gameId, pair: structuredGamePair(gameLegs, true) }))
+      .filter((g) => g.pair.length >= 1)
+      .map((g) => ({ ...g, support: g.pair.reduce((p, l) => p * (l.modelProbability || 0), 1) }))
+      .sort((a, b) => b.support - a.support);
+    let used = 0;
+    for (const g of ranked) {
+      if (used + g.pair.length > MOONSHOT_MAX_LEGS) continue;
+      chosenGames.add(g.gameId);
+      used += g.pair.length;
+    }
+  }
+
   const mkLane = (lane: "A" | "B", includeBtts: boolean): LaneCandidate => {
     const legs: ModelPick[] = [];
     let pairedGames = 0;
-    for (const gameLegs of byGame.values()) {
+    for (const [gameId, gameLegs] of byGame) {
+      if (!chosenGames.has(gameId)) continue;
       const pair = structuredGamePair(gameLegs, includeBtts);
       if (pair.length >= 1) { legs.push(...pair); if (pair.length >= 2) pairedGames += 1; }
     }
