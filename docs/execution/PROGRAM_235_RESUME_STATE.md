@@ -1,6 +1,6 @@
 # Program 235 — resume state
 
-**Entry** `9f5ecbf3e` · **current tip** `4c9cdd180`, pushed.
+**Entry** `9f5ecbf3e` · **current tip** `763718e8c`, pushed. Releases A–H all shipped or verified.
 Money `portfolio.json md5 affe6b21071f2b3be96bb2774eb347c3` and
 `bank-builder-locks.json md5 cb80473f88f3cb5f67208fa568925295` unchanged. Both stashes and
 founder-owned `vp/` untouched. **No paid call in this program.**
@@ -14,21 +14,25 @@ founder-owned `vp/` untouched. **No paid call in this program.**
 | C | forecast history recovered (P234 named the wrong fixture); `/epl` archive un-orphans every played fixture | `8694e8624` `cf5f81524` |
 | D | all 40,072 settled model picks reachable and filterable, reconciled to the published aggregate | `66928794a` |
 | E | odds authorization expiry enforced; two mis-traced workflows corrected; `ACQUISITION_UNAUTHORIZED` | `fb5d43184` |
+| F | the stale EPL learning count fixed at its cause (a grading job that never reported); the ladder heading states its date instead of claiming the day | `087b4f3a6` `1a234f06d` |
+| G | 37,958 picks are 1,068 games — the clustering now travels with every row count | `fc8aabca4` |
+| H | full browser suite re-verified: 550 passed, 0 failed, three engines | — |
 
-## Next executable action — Release F
+## Next executable action
 
-Start with the finding already recorded: **the EPL learning report lags its own grades.** Twice in
-two programs the control plane refused to build because the artifact said 23/18 (then 24/19) while
-the ledger recounted one more. `epl-settle.yml` does regenerate it, but grades arriving through a
-different job's results capture leave it stale until settle next runs — and that regeneration step
-is `|| echo "::warning::"`, so it can also fail softly. Decide whether the regeneration belongs to
-whichever job writes a grade.
+The charter's scope is met. What remains is genuinely remaining, not deferred:
 
-Then F's own scope: each active product's page showing its current card or an explicit
-no-card/pending state, and slip-level results kept separate from leg-level and from the model-pick
-ledger.
-
-**G** (forward evaluation) and **H** (four-sport journey verification) are untouched.
+1. **The forward model evaluation** opens 2026-09-06 and needs 2,000 decisive rows — about five
+   settled slates, and at this corpus's density roughly 56 independent games. Run
+   `npx tsx scripts/model-learning-audit.mjs --json /tmp/audit.json && npx tsx scripts/model-eval/evaluate-candidate.mjs --audit /tmp/audit.json --write`.
+   Running it earlier returns INSUFFICIENT_SAMPLE by design.
+2. **Bank Builder and Moonshot replay coverage.** They settle through `scripts/automation_settle.sh`,
+   a Python-pipeline wrapper needing a venv and a repo-root `.git` — a materially different lifecycle
+   from the two products the harness covers. `homer-nukes` grades from a live StatsAPI fetch.
+3. **Per-product page states** for bank-builder and moonshot (current card / no-card / pending), the
+   half of Release F not reached.
+4. **The registry gap:** MLB and NFL paper cards and the mixed-sport population are produced and
+   settled by registered owners without being registered themselves.
 
 ## Do not repeat
 
