@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 824794,
+  "teamId": 111,
+  "name": "Boston Red Sox",
+  "side": "away",
+  "date": "2026-09-06",
+  "capturedAt": "2026-09-06T00:24:18.579Z",
+  "availableAt": "2026-09-06T00:24:18.579Z",
+  "eventStartTime": "2026-09-06T17:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 7,
+  "gamesLast10": 10,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-09-05",
+  "previousVenueId": 2,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=111&startDate=2026-08-23&endDate=2026-09-05",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-09-06T00:24:18.579Z"
+  },
+  "recordHash": "82c760c43f6ac3b9d1e982f71c4de17e9a979b594167dc22f8eccd5cef9899e2"
+}

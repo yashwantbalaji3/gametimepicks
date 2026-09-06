@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 822848,
+  "teamId": 139,
+  "name": "Tampa Bay Rays",
+  "side": "away",
+  "date": "2026-09-06",
+  "capturedAt": "2026-09-06T00:24:18.579Z",
+  "availableAt": "2026-09-06T00:24:18.579Z",
+  "eventStartTime": "2026-09-06T18:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 1,
+  "gamesLast7": 7,
+  "gamesLast10": 9,
+  "travelDistanceKm": 0,
+  "previousGameDate": "2026-09-05",
+  "previousVenueId": 5325,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=139&startDate=2026-08-23&endDate=2026-09-05",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-09-06T00:24:18.579Z"
+  },
+  "recordHash": "83d0a7a9183e4b6541a2936d2a31da02f0875920057f7d490d6f23defb4c8367"
+}

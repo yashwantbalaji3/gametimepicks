@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824469,
+  "date": "2026-09-06",
+  "capturedAt": "2026-09-06T00:24:07.822Z",
+  "availableAt": "2026-09-06T00:24:07.822Z",
+  "eventStartTime": "2026-09-06T16:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 663903,
+      "name": "Brady Singer",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 27,
+      "restDays": 6,
+      "lastStartDate": "2026-08-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 4,
+        "bbAvg": 1.2,
+        "erAvg": 3.4,
+        "hrAvg": 1,
+        "kPer9": 6.43,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 27,
+        "ip": 141.67,
+        "k": 117,
+        "bb": 45,
+        "er": 76,
+        "hr": 26
+      }
+    },
+    "away": {
+      "id": 690986,
+      "name": "Kyle Harrison",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 22,
+      "restDays": 6,
+      "lastStartDate": "2026-08-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 5.8,
+        "bbAvg": 1.8,
+        "erAvg": 2.6,
+        "hrAvg": 1.8,
+        "kPer9": 11.19,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 22,
+        "ip": 107,
+        "k": 130,
+        "bb": 29,
+        "er": 41,
+        "hr": 19
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-06&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-06T00:24:07.822Z"
+  },
+  "recordHash": "007b3c6c0136ae4a6f5011e99b344dc8cb2df90ef8daffa00293ae210251f778"
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824385,
+  "date": "2026-09-06",
+  "capturedAt": "2026-09-06T00:24:07.822Z",
+  "availableAt": "2026-09-06T00:24:07.822Z",
+  "eventStartTime": "2026-09-06T17:40:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 668909,
+      "name": "Gavin Williams",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 5,
+      "lastStartDate": "2026-09-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 24,
+        "ipAvg": 4.8,
+        "kAvg": 7.8,
+        "bbAvg": 2.2,
+        "erAvg": 2.8,
+        "hrAvg": 1.2,
+        "kPer9": 14.63,
+        "workloadIpLast5": 24
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 163,
+        "k": 217,
+        "bb": 50,
+        "er": 69,
+        "hr": 27
+      }
+    },
+    "away": {
+      "id": 695549,
+      "name": "Jackson Jobe",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 5,
+      "restDays": 6,
+      "lastStartDate": "2026-08-31",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.33,
+        "ipAvg": 4.67,
+        "kAvg": 3.8,
+        "bbAvg": 2,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 7.33,
+        "workloadIpLast5": 23.33
+      },
+      "seasonToDate": {
+        "starts": 5,
+        "ip": 23.33,
+        "k": 19,
+        "bb": 10,
+        "er": 12,
+        "hr": 4
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-06&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-06T00:24:07.822Z"
+  },
+  "recordHash": "85c475cbc29439fafa69a577a79bd13e1e7802d890c2ea13e3c76ab48d9681b7"
+}
