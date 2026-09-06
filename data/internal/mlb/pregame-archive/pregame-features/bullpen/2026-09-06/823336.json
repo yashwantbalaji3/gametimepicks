@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823336,
   "date": "2026-09-06",
-  "capturedAt": "2026-09-06T00:24:09.400Z",
-  "availableAt": "2026-09-06T00:24:09.400Z",
+  "capturedAt": "2026-09-06T05:29:36.207Z",
+  "availableAt": "2026-09-06T05:29:36.207Z",
   "eventStartTime": "2026-09-06T17:35:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,13 +20,34 @@
     "teamId": 134,
     "teamName": "Pittsburgh Pirates",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 70,
+      "relievers": [
+        {
+          "id": 676755,
+          "name": "Isaac Mattson",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 6,
+          "dates": [
+            "2026-09-05"
+          ]
+        },
+        {
+          "id": 670990,
+          "name": "Yohan Ramírez",
+          "appearances": 1,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-09-05"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 7,
-      "pitches": 154,
+      "appearances": 9,
+      "pitches": 224,
       "relievers": [
         {
           "id": 694753,
@@ -36,6 +57,27 @@
           "outs": 9,
           "dates": [
             "2026-09-03"
+          ]
+        },
+        {
+          "id": 670990,
+          "name": "Yohan Ramírez",
+          "appearances": 2,
+          "pitches": 46,
+          "outs": 9,
+          "dates": [
+            "2026-09-03",
+            "2026-09-05"
+          ]
+        },
+        {
+          "id": 676755,
+          "name": "Isaac Mattson",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 6,
+          "dates": [
+            "2026-09-05"
           ]
         },
         {
@@ -60,16 +102,6 @@
           ]
         },
         {
-          "id": 670990,
-          "name": "Yohan Ramírez",
-          "appearances": 1,
-          "pitches": 15,
-          "outs": 3,
-          "dates": [
-            "2026-09-03"
-          ]
-        },
-        {
           "id": 685126,
           "name": "Brandon Eisert",
           "appearances": 1,
@@ -91,20 +123,73 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 676755,
+        "name": "Isaac Mattson",
+        "reason": "39 pitches yesterday"
+      },
+      {
+        "id": 670990,
+        "name": "Yohan Ramírez",
+        "reason": "31 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 108,
     "teamName": "Los Angeles Angels",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 3,
+      "pitches": 47,
+      "relievers": [
+        {
+          "id": 684665,
+          "name": "Luke Murphy",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-09-05"
+          ]
+        },
+        {
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-05"
+          ]
+        },
+        {
+          "id": 670245,
+          "name": "Ryan Watson",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-09-05"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 2,
-      "pitches": 36,
+      "appearances": 5,
+      "pitches": 83,
       "relievers": [
+        {
+          "id": 820862,
+          "name": "José Fermin",
+          "appearances": 2,
+          "pitches": 31,
+          "outs": 6,
+          "dates": [
+            "2026-09-04",
+            "2026-09-05"
+          ]
+        },
         {
           "id": 696519,
           "name": "Samy Natera Jr.",
@@ -116,13 +201,23 @@
           ]
         },
         {
-          "id": 820862,
-          "name": "José Fermin",
+          "id": 684665,
+          "name": "Luke Murphy",
           "appearances": 1,
-          "pitches": 12,
+          "pitches": 22,
           "outs": 3,
           "dates": [
-            "2026-09-04"
+            "2026-09-05"
+          ]
+        },
+        {
+          "id": 670245,
+          "name": "Ryan Watson",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-09-05"
           ]
         }
       ]
@@ -132,7 +227,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-03,2026-09-04,2026-09-05) + feed/live box scores",
-    "capturedAt": "2026-09-06T00:24:09.400Z"
+    "capturedAt": "2026-09-06T05:29:36.207Z"
   },
-  "recordHash": "f0f0dfe112ecdada5b9a5c4c165215d0e097e338bc6f153971af0c52bd419f99"
+  "recordHash": "15ec17fe40d68b4102c577e04d94e6daac9108068f1e775b687abb5298c74783"
 }
