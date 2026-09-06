@@ -129,3 +129,36 @@ test("THE PRODUCER REFUSES TO WRITE WHEN THE DETAIL DISAGREES WITH THE AGGREGATE
   assert.match(src, /REFUSED: the detail does not reconcile/, "the producer has no reconciliation refusal");
   assert.match(src, /process\.exit\(2\)/, "the refusal does not exit non-zero");
 });
+
+/* ── clustering · Program 235 · Release G ─────────────────────────────────────────────────────── */
+
+test("ROWS ARE NOT INDEPENDENT OBSERVATIONS — the game count travels with them", () => {
+  if (!index) return;
+  assert.ok(index.coverage.games > 0, "no game count is published");
+  assert.ok(
+    index.coverage.games < index.coverage.rows,
+    "the game count equals the row count — either the clustering vanished or the field is being computed wrong",
+  );
+  /* The whole point: the ratio is large enough that treating rows as independent materially
+     understates uncertainty. ~36 props per game across this corpus. */
+  const perGame = index.coverage.rows / index.coverage.games;
+  assert.ok(perGame > 5, `only ${perGame.toFixed(1)} picks per game — re-check whether this caveat still applies`);
+});
+
+test("every day reports its own game count, and never more games than picks", () => {
+  if (!index) return;
+  for (const d of index.days) {
+    assert.ok(Number.isFinite(d.games), `${d.date}: no game count`);
+    assert.ok(d.games > 0, `${d.date}: zero games for ${d.rows} picks`);
+    assert.ok(d.games <= d.rows, `${d.date}: ${d.games} games from ${d.rows} picks is impossible`);
+  }
+});
+
+test("A DAY'S GAME COUNT MATCHES ITS PARTITION", () => {
+  if (!index) return;
+  for (const d of index.days.slice(0, 12)) {
+    const doc = JSON.parse(fs.readFileSync(path.join(ROWS, `${d.date}.json`), "utf8"));
+    const distinct = new Set(doc.rows.map((r) => `${r.date}:${r.gameId ?? "?"}`)).size;
+    assert.equal(d.games, distinct, `${d.date}: index says ${d.games} games, its partition holds ${distinct}`);
+  }
+});

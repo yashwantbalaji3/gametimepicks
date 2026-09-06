@@ -84,12 +84,21 @@ for (const file of files) {
   if (rows.length) byDate.set(date, rows);
 }
 
-/** Counts for one row set. Pushes are neither a win nor a loss and are never in a rate. */
+/**
+ * Counts for one row set. Pushes are neither a win nor a loss and are never in a rate.
+ *
+ * `games` is the count of DISTINCT games those rows came from, and it is the number that governs
+ * uncertainty. Across the whole corpus 37,958 decisive picks come from 1,061 games — about
+ * thirty-six props each — so an interval computed as though the rows were independent is roughly
+ * six times narrower than the evidence supports. Publishing the row count without it invites
+ * exactly that error, so both travel together everywhere.
+ */
 const tally = (rows) => {
   const wins = rows.filter((r) => r.outcome === "win").length;
   const losses = rows.filter((r) => r.outcome === "loss").length;
   const pushes = rows.filter((r) => r.outcome === "push").length;
-  return { rows: rows.length, wins, losses, pushes, decisive: wins + losses };
+  const games = new Set(rows.map((r) => `${r.date}:${r.gameId ?? "?"}`)).size;
+  return { rows: rows.length, wins, losses, pushes, decisive: wins + losses, games };
 };
 
 const index = [];
@@ -145,7 +154,7 @@ fs.writeFileSync(INDEX, JSON.stringify({
   coverage: {
     dates: byDate.size, firstDate: index[0]?.date ?? null, lastDate: index[index.length - 1]?.date ?? null,
     ...totals,
-    note: "Every settled model pick this project has graded, one row per pick. Reconciled against graded-picks.json at build time; the build refuses if the two disagree.",
+    note: "Every settled model pick this project has graded, one row per pick. Reconciled against graded-picks.json at build time; the build refuses if the two disagree. `games` counts the distinct games those picks came from — the rows are clustered within games and are not independent observations.",
   },
   days: index,
 }, null, 2) + "\n");

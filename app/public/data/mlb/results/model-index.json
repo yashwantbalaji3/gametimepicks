@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "mlb-model-results-index",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-05T22:27:57Z",
+  "generatedAt": "2026-09-05T23:57:41Z",
   "sport": "mlb",
   "coverage": {
     "dates": 85,
@@ -13,7 +13,8 @@
     "losses": 18943,
     "pushes": 2114,
     "decisive": 37958,
-    "note": "Every settled model pick this project has graded, one row per pick. Reconciled against graded-picks.json at build time; the build refuses if the two disagree."
+    "games": 1068,
+    "note": "Every settled model pick this project has graded, one row per pick. Reconciled against graded-picks.json at build time; the build refuses if the two disagree. `games` counts the distinct games those picks came from — the rows are clustered within games and are not independent observations."
   },
   "days": [
     {
@@ -24,27 +25,31 @@
       "losses": 128,
       "pushes": 0,
       "decisive": 272,
+      "games": 14,
       "byMarket": {
         "batter_hits": {
           "rows": 163,
           "wins": 88,
           "losses": 75,
           "pushes": 0,
-          "decisive": 163
+          "decisive": 163,
+          "games": 13
         },
         "batter_total_bases": {
           "rows": 86,
           "wins": 45,
           "losses": 41,
           "pushes": 0,
-          "decisive": 86
+          "decisive": 86,
+          "games": 13
         },
         "pitcher_strikeouts": {
           "rows": 23,
           "wins": 11,
           "losses": 12,
           "pushes": 0,
-          "decisive": 23
+          "decisive": 23,
+          "games": 13
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-05-16.json"
@@ -57,27 +62,31 @@
       "losses": 161,
       "pushes": 0,
       "decisive": 310,
+      "games": 14,
       "byMarket": {
         "batter_hits": {
           "rows": 214,
           "wins": 103,
           "losses": 111,
           "pushes": 0,
-          "decisive": 214
+          "decisive": 214,
+          "games": 14
         },
         "batter_total_bases": {
           "rows": 76,
           "wins": 37,
           "losses": 39,
           "pushes": 0,
-          "decisive": 76
+          "decisive": 76,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 20,
           "wins": 9,
           "losses": 11,
           "pushes": 0,
-          "decisive": 20
+          "decisive": 20,
+          "games": 13
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-05-18.json"
@@ -90,27 +99,31 @@
       "losses": 82,
       "pushes": 0,
       "decisive": 162,
+      "games": 7,
       "byMarket": {
         "batter_hits": {
           "rows": 110,
           "wins": 59,
           "losses": 51,
           "pushes": 0,
-          "decisive": 110
+          "decisive": 110,
+          "games": 7
         },
         "batter_total_bases": {
           "rows": 42,
           "wins": 17,
           "losses": 25,
           "pushes": 0,
-          "decisive": 42
+          "decisive": 42,
+          "games": 7
         },
         "pitcher_strikeouts": {
           "rows": 10,
           "wins": 4,
           "losses": 6,
           "pushes": 0,
-          "decisive": 10
+          "decisive": 10,
+          "games": 6
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-05-21.json"
@@ -123,20 +136,23 @@
       "losses": 101,
       "pushes": 0,
       "decisive": 228,
+      "games": 14,
       "byMarket": {
         "batter_hits": {
           "rows": 203,
           "wins": 115,
           "losses": 88,
           "pushes": 0,
-          "decisive": 203
+          "decisive": 203,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 25,
           "wins": 12,
           "losses": 13,
           "pushes": 0,
-          "decisive": 25
+          "decisive": 25,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-05-22.json"
@@ -149,27 +165,31 @@
       "losses": 146,
       "pushes": 0,
       "decisive": 285,
+      "games": 13,
       "byMarket": {
         "batter_hits": {
           "rows": 189,
           "wins": 93,
           "losses": 96,
           "pushes": 0,
-          "decisive": 189
+          "decisive": 189,
+          "games": 13
         },
         "batter_total_bases": {
           "rows": 77,
           "wins": 40,
           "losses": 37,
           "pushes": 0,
-          "decisive": 77
+          "decisive": 77,
+          "games": 12
         },
         "pitcher_strikeouts": {
           "rows": 19,
           "wins": 6,
           "losses": 13,
           "pushes": 0,
-          "decisive": 19
+          "decisive": 19,
+          "games": 12
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-05-23.json"
@@ -182,27 +202,31 @@
       "losses": 147,
       "pushes": 0,
       "decisive": 293,
+      "games": 13,
       "byMarket": {
         "batter_hits": {
           "rows": 185,
           "wins": 96,
           "losses": 89,
           "pushes": 0,
-          "decisive": 185
+          "decisive": 185,
+          "games": 13
         },
         "batter_total_bases": {
           "rows": 84,
           "wins": 36,
           "losses": 48,
           "pushes": 0,
-          "decisive": 84
+          "decisive": 84,
+          "games": 13
         },
         "pitcher_strikeouts": {
           "rows": 24,
           "wins": 14,
           "losses": 10,
           "pushes": 0,
-          "decisive": 24
+          "decisive": 24,
+          "games": 12
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-05-25.json"
@@ -215,34 +239,39 @@
       "losses": 302,
       "pushes": 0,
       "decisive": 584,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 230,
           "wins": 121,
           "losses": 109,
           "pushes": 0,
-          "decisive": 230
+          "decisive": 230,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 230,
           "wins": 108,
           "losses": 122,
           "pushes": 0,
-          "decisive": 230
+          "decisive": 230,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 99,
           "wins": 39,
           "losses": 60,
           "pushes": 0,
-          "decisive": 99
+          "decisive": 99,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 25,
           "wins": 14,
           "losses": 11,
           "pushes": 0,
-          "decisive": 25
+          "decisive": 25,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-05-27.json"
@@ -255,34 +284,39 @@
       "losses": 122,
       "pushes": 0,
       "decisive": 214,
+      "games": 6,
       "byMarket": {
         "batter_hits": {
           "rows": 87,
           "wins": 46,
           "losses": 41,
           "pushes": 0,
-          "decisive": 87
+          "decisive": 87,
+          "games": 6
         },
         "batter_hits_runs_rbis": {
           "rows": 87,
           "wins": 33,
           "losses": 54,
           "pushes": 0,
-          "decisive": 87
+          "decisive": 87,
+          "games": 6
         },
         "batter_total_bases": {
           "rows": 29,
           "wins": 10,
           "losses": 19,
           "pushes": 0,
-          "decisive": 29
+          "decisive": 29,
+          "games": 6
         },
         "pitcher_strikeouts": {
           "rows": 11,
           "wins": 3,
           "losses": 8,
           "pushes": 0,
-          "decisive": 11
+          "decisive": 11,
+          "games": 6
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-05-28.json"
@@ -295,34 +329,39 @@
       "losses": 245,
       "pushes": 0,
       "decisive": 537,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 206,
           "wins": 120,
           "losses": 86,
           "pushes": 0,
-          "decisive": 206
+          "decisive": 206,
+          "games": 14
         },
         "batter_hits_runs_rbis": {
           "rows": 207,
           "wins": 118,
           "losses": 89,
           "pushes": 0,
-          "decisive": 207
+          "decisive": 207,
+          "games": 14
         },
         "batter_total_bases": {
           "rows": 104,
           "wins": 44,
           "losses": 60,
           "pushes": 0,
-          "decisive": 104
+          "decisive": 104,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 20,
           "wins": 10,
           "losses": 10,
           "pushes": 0,
-          "decisive": 20
+          "decisive": 20,
+          "games": 13
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-05-29.json"
@@ -335,34 +374,39 @@
       "losses": 273,
       "pushes": 0,
       "decisive": 567,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 223,
           "wins": 126,
           "losses": 97,
           "pushes": 0,
-          "decisive": 223
+          "decisive": 223,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 223,
           "wins": 119,
           "losses": 104,
           "pushes": 0,
-          "decisive": 223
+          "decisive": 223,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 93,
           "wins": 32,
           "losses": 61,
           "pushes": 0,
-          "decisive": 93
+          "decisive": 93,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 28,
           "wins": 17,
           "losses": 11,
           "pushes": 0,
-          "decisive": 28
+          "decisive": 28,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-05-30.json"
@@ -375,34 +419,39 @@
       "losses": 154,
       "pushes": 0,
       "decisive": 306,
+      "games": 9,
       "byMarket": {
         "batter_hits": {
           "rows": 122,
           "wins": 65,
           "losses": 57,
           "pushes": 0,
-          "decisive": 122
+          "decisive": 122,
+          "games": 8
         },
         "batter_hits_runs_rbis": {
           "rows": 122,
           "wins": 67,
           "losses": 55,
           "pushes": 0,
-          "decisive": 122
+          "decisive": 122,
+          "games": 8
         },
         "batter_total_bases": {
           "rows": 47,
           "wins": 16,
           "losses": 31,
           "pushes": 0,
-          "decisive": 47
+          "decisive": 47,
+          "games": 8
         },
         "pitcher_strikeouts": {
           "rows": 15,
           "wins": 4,
           "losses": 11,
           "pushes": 0,
-          "decisive": 15
+          "decisive": 15,
+          "games": 9
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-01.json"
@@ -415,34 +464,39 @@
       "losses": 274,
       "pushes": 0,
       "decisive": 579,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 226,
           "wins": 126,
           "losses": 100,
           "pushes": 0,
-          "decisive": 226
+          "decisive": 226,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 226,
           "wins": 120,
           "losses": 106,
           "pushes": 0,
-          "decisive": 226
+          "decisive": 226,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 101,
           "wins": 48,
           "losses": 53,
           "pushes": 0,
-          "decisive": 101
+          "decisive": 101,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 11,
           "losses": 15,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-02.json"
@@ -455,34 +509,39 @@
       "losses": 304,
       "pushes": 0,
       "decisive": 569,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 223,
           "wins": 105,
           "losses": 118,
           "pushes": 0,
-          "decisive": 223
+          "decisive": 223,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 225,
           "wins": 105,
           "losses": 120,
           "pushes": 0,
-          "decisive": 225
+          "decisive": 225,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 92,
           "wins": 41,
           "losses": 51,
           "pushes": 0,
-          "decisive": 92
+          "decisive": 92,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 29,
           "wins": 14,
           "losses": 15,
           "pushes": 0,
-          "decisive": 29
+          "decisive": 29,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-03.json"
@@ -495,34 +554,39 @@
       "losses": 201,
       "pushes": 0,
       "decisive": 387,
+      "games": 9,
       "byMarket": {
         "batter_hits": {
           "rows": 146,
           "wins": 75,
           "losses": 71,
           "pushes": 0,
-          "decisive": 146
+          "decisive": 146,
+          "games": 9
         },
         "batter_hits_runs_rbis": {
           "rows": 146,
           "wins": 69,
           "losses": 77,
           "pushes": 0,
-          "decisive": 146
+          "decisive": 146,
+          "games": 9
         },
         "batter_total_bases": {
           "rows": 82,
           "wins": 35,
           "losses": 47,
           "pushes": 0,
-          "decisive": 82
+          "decisive": 82,
+          "games": 9
         },
         "pitcher_strikeouts": {
           "rows": 13,
           "wins": 7,
           "losses": 6,
           "pushes": 0,
-          "decisive": 13
+          "decisive": 13,
+          "games": 8
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-04.json"
@@ -535,34 +599,39 @@
       "losses": 295,
       "pushes": 0,
       "decisive": 591,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 225,
           "wins": 119,
           "losses": 106,
           "pushes": 0,
-          "decisive": 225
+          "decisive": 225,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 225,
           "wins": 113,
           "losses": 112,
           "pushes": 0,
-          "decisive": 225
+          "decisive": 225,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 114,
           "wins": 51,
           "losses": 63,
           "pushes": 0,
-          "decisive": 114
+          "decisive": 114,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 27,
           "wins": 13,
           "losses": 14,
           "pushes": 0,
-          "decisive": 27
+          "decisive": 27,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-05.json"
@@ -575,34 +644,39 @@
       "losses": 297,
       "pushes": 0,
       "decisive": 548,
+      "games": 14,
       "byMarket": {
         "batter_hits": {
           "rows": 212,
           "wins": 114,
           "losses": 98,
           "pushes": 0,
-          "decisive": 212
+          "decisive": 212,
+          "games": 14
         },
         "batter_hits_runs_rbis": {
           "rows": 212,
           "wins": 91,
           "losses": 121,
           "pushes": 0,
-          "decisive": 212
+          "decisive": 212,
+          "games": 14
         },
         "batter_total_bases": {
           "rows": 98,
           "wins": 34,
           "losses": 64,
           "pushes": 0,
-          "decisive": 98
+          "decisive": 98,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 12,
           "losses": 14,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-06.json"
@@ -615,34 +689,39 @@
       "losses": 312,
       "pushes": 0,
       "decisive": 593,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 225,
           "wins": 119,
           "losses": 106,
           "pushes": 0,
-          "decisive": 225
+          "decisive": 225,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 223,
           "wins": 100,
           "losses": 123,
           "pushes": 0,
-          "decisive": 223
+          "decisive": 223,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 119,
           "wins": 49,
           "losses": 70,
           "pushes": 0,
-          "decisive": 119
+          "decisive": 119,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 13,
           "losses": 13,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-07.json"
@@ -655,34 +734,39 @@
       "losses": 158,
       "pushes": 0,
       "decisive": 304,
+      "games": 8,
       "byMarket": {
         "batter_hits": {
           "rows": 118,
           "wins": 63,
           "losses": 55,
           "pushes": 0,
-          "decisive": 118
+          "decisive": 118,
+          "games": 8
         },
         "batter_hits_runs_rbis": {
           "rows": 118,
           "wins": 55,
           "losses": 63,
           "pushes": 0,
-          "decisive": 118
+          "decisive": 118,
+          "games": 8
         },
         "batter_total_bases": {
           "rows": 53,
           "wins": 21,
           "losses": 32,
           "pushes": 0,
-          "decisive": 53
+          "decisive": 53,
+          "games": 8
         },
         "pitcher_strikeouts": {
           "rows": 15,
           "wins": 7,
           "losses": 8,
           "pushes": 0,
-          "decisive": 15
+          "decisive": 15,
+          "games": 8
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-08.json"
@@ -695,34 +779,39 @@
       "losses": 250,
       "pushes": 0,
       "decisive": 588,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 225,
           "wins": 138,
           "losses": 87,
           "pushes": 0,
-          "decisive": 225
+          "decisive": 225,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 225,
           "wins": 125,
           "losses": 100,
           "pushes": 0,
-          "decisive": 225
+          "decisive": 225,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 110,
           "wins": 63,
           "losses": 47,
           "pushes": 0,
-          "decisive": 110
+          "decisive": 110,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 28,
           "wins": 12,
           "losses": 16,
           "pushes": 0,
-          "decisive": 28
+          "decisive": 28,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-09.json"
@@ -735,34 +824,39 @@
       "losses": 263,
       "pushes": 0,
       "decisive": 583,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 225,
           "wins": 131,
           "losses": 94,
           "pushes": 0,
-          "decisive": 225
+          "decisive": 225,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 225,
           "wins": 122,
           "losses": 103,
           "pushes": 0,
-          "decisive": 225
+          "decisive": 225,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 107,
           "wins": 50,
           "losses": 57,
           "pushes": 0,
-          "decisive": 107
+          "decisive": 107,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 17,
           "losses": 9,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-10.json"
@@ -775,34 +869,39 @@
       "losses": 166,
       "pushes": 0,
       "decisive": 314,
+      "games": 7,
       "byMarket": {
         "batter_hits": {
           "rows": 114,
           "wins": 59,
           "losses": 55,
           "pushes": 0,
-          "decisive": 114
+          "decisive": 114,
+          "games": 7
         },
         "batter_hits_runs_rbis": {
           "rows": 114,
           "wins": 49,
           "losses": 65,
           "pushes": 0,
-          "decisive": 114
+          "decisive": 114,
+          "games": 7
         },
         "batter_total_bases": {
           "rows": 72,
           "wins": 34,
           "losses": 38,
           "pushes": 0,
-          "decisive": 72
+          "decisive": 72,
+          "games": 7
         },
         "pitcher_strikeouts": {
           "rows": 14,
           "wins": 6,
           "losses": 8,
           "pushes": 0,
-          "decisive": 14
+          "decisive": 14,
+          "games": 7
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-11.json"
@@ -815,34 +914,39 @@
       "losses": 314,
       "pushes": 0,
       "decisive": 603,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 226,
           "wins": 111,
           "losses": 115,
           "pushes": 0,
-          "decisive": 226
+          "decisive": 226,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 226,
           "wins": 111,
           "losses": 115,
           "pushes": 0,
-          "decisive": 226
+          "decisive": 226,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 119,
           "wins": 54,
           "losses": 65,
           "pushes": 0,
-          "decisive": 119
+          "decisive": 119,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 32,
           "wins": 13,
           "losses": 19,
           "pushes": 0,
-          "decisive": 32
+          "decisive": 32,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-12.json"
@@ -855,34 +959,39 @@
       "losses": 282,
       "pushes": 0,
       "decisive": 569,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 215,
           "wins": 118,
           "losses": 97,
           "pushes": 0,
-          "decisive": 215
+          "decisive": 215,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 215,
           "wins": 105,
           "losses": 110,
           "pushes": 0,
-          "decisive": 215
+          "decisive": 215,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 112,
           "wins": 55,
           "losses": 57,
           "pushes": 0,
-          "decisive": 112
+          "decisive": 112,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 27,
           "wins": 9,
           "losses": 18,
           "pushes": 0,
-          "decisive": 27
+          "decisive": 27,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-13.json"
@@ -895,34 +1004,39 @@
       "losses": 252,
       "pushes": 0,
       "decisive": 546,
+      "games": 14,
       "byMarket": {
         "batter_hits": {
           "rows": 202,
           "wins": 111,
           "losses": 91,
           "pushes": 0,
-          "decisive": 202
+          "decisive": 202,
+          "games": 14
         },
         "batter_hits_runs_rbis": {
           "rows": 202,
           "wins": 105,
           "losses": 97,
           "pushes": 0,
-          "decisive": 202
+          "decisive": 202,
+          "games": 14
         },
         "batter_total_bases": {
           "rows": 117,
           "wins": 63,
           "losses": 54,
           "pushes": 0,
-          "decisive": 117
+          "decisive": 117,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 25,
           "wins": 15,
           "losses": 10,
           "pushes": 0,
-          "decisive": 25
+          "decisive": 25,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-14.json"
@@ -935,34 +1049,39 @@
       "losses": 218,
       "pushes": 0,
       "decisive": 401,
+      "games": 10,
       "byMarket": {
         "batter_hits": {
           "rows": 153,
           "wins": 77,
           "losses": 76,
           "pushes": 0,
-          "decisive": 153
+          "decisive": 153,
+          "games": 10
         },
         "batter_hits_runs_rbis": {
           "rows": 153,
           "wins": 67,
           "losses": 86,
           "pushes": 0,
-          "decisive": 153
+          "decisive": 153,
+          "games": 10
         },
         "batter_total_bases": {
           "rows": 81,
           "wins": 32,
           "losses": 49,
           "pushes": 0,
-          "decisive": 81
+          "decisive": 81,
+          "games": 10
         },
         "pitcher_strikeouts": {
           "rows": 14,
           "wins": 7,
           "losses": 7,
           "pushes": 0,
-          "decisive": 14
+          "decisive": 14,
+          "games": 10
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-15.json"
@@ -975,34 +1094,39 @@
       "losses": 283,
       "pushes": 89,
       "decisive": 545,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 248,
           "wins": 107,
           "losses": 103,
           "pushes": 38,
-          "decisive": 210
+          "decisive": 210,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 248,
           "wins": 100,
           "losses": 110,
           "pushes": 38,
-          "decisive": 210
+          "decisive": 210,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 104,
           "wins": 40,
           "losses": 53,
           "pushes": 11,
-          "decisive": 93
+          "decisive": 93,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 34,
           "wins": 15,
           "losses": 17,
           "pushes": 2,
-          "decisive": 32
+          "decisive": 32,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-16.json"
@@ -1015,34 +1139,39 @@
       "losses": 256,
       "pushes": 23,
       "decisive": 551,
+      "games": 14,
       "byMarket": {
         "batter_hits": {
           "rows": 219,
           "wins": 114,
           "losses": 95,
           "pushes": 10,
-          "decisive": 209
+          "decisive": 209,
+          "games": 14
         },
         "batter_hits_runs_rbis": {
           "rows": 220,
           "wins": 115,
           "losses": 95,
           "pushes": 10,
-          "decisive": 210
+          "decisive": 210,
+          "games": 14
         },
         "batter_total_bases": {
           "rows": 111,
           "wins": 52,
           "losses": 56,
           "pushes": 3,
-          "decisive": 108
+          "decisive": 108,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 24,
           "wins": 14,
           "losses": 10,
           "pushes": 0,
-          "decisive": 24
+          "decisive": 24,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-17.json"
@@ -1055,34 +1184,39 @@
       "losses": 164,
       "pushes": 48,
       "decisive": 306,
+      "games": 9,
       "byMarket": {
         "batter_hits": {
           "rows": 138,
           "wins": 64,
           "losses": 54,
           "pushes": 20,
-          "decisive": 118
+          "decisive": 118,
+          "games": 9
         },
         "batter_hits_runs_rbis": {
           "rows": 138,
           "wins": 54,
           "losses": 64,
           "pushes": 20,
-          "decisive": 118
+          "decisive": 118,
+          "games": 9
         },
         "batter_total_bases": {
           "rows": 62,
           "wins": 18,
           "losses": 36,
           "pushes": 8,
-          "decisive": 54
+          "decisive": 54,
+          "games": 9
         },
         "pitcher_strikeouts": {
           "rows": 16,
           "wins": 6,
           "losses": 10,
           "pushes": 0,
-          "decisive": 16
+          "decisive": 16,
+          "games": 8
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-18.json"
@@ -1095,34 +1229,39 @@
       "losses": 231,
       "pushes": 44,
       "decisive": 535,
+      "games": 14,
       "byMarket": {
         "batter_hits": {
           "rows": 227,
           "wins": 128,
           "losses": 81,
           "pushes": 18,
-          "decisive": 209
+          "decisive": 209,
+          "games": 14
         },
         "batter_hits_runs_rbis": {
           "rows": 227,
           "wins": 123,
           "losses": 86,
           "pushes": 18,
-          "decisive": 209
+          "decisive": 209,
+          "games": 14
         },
         "batter_total_bases": {
           "rows": 102,
           "wins": 47,
           "losses": 47,
           "pushes": 8,
-          "decisive": 94
+          "decisive": 94,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 23,
           "wins": 6,
           "losses": 17,
           "pushes": 0,
-          "decisive": 23
+          "decisive": 23,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-19.json"
@@ -1135,34 +1274,39 @@
       "losses": 245,
       "pushes": 47,
       "decisive": 532,
+      "games": 14,
       "byMarket": {
         "batter_hits": {
           "rows": 229,
           "wins": 119,
           "losses": 89,
           "pushes": 21,
-          "decisive": 208
+          "decisive": 208,
+          "games": 14
         },
         "batter_hits_runs_rbis": {
           "rows": 229,
           "wins": 112,
           "losses": 96,
           "pushes": 21,
-          "decisive": 208
+          "decisive": 208,
+          "games": 14
         },
         "batter_total_bases": {
           "rows": 95,
           "wins": 41,
           "losses": 49,
           "pushes": 5,
-          "decisive": 90
+          "decisive": 90,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 15,
           "losses": 11,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 13
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-20.json"
@@ -1175,34 +1319,39 @@
       "losses": 238,
       "pushes": 71,
       "decisive": 492,
+      "games": 14,
       "byMarket": {
         "batter_hits": {
           "rows": 219,
           "wins": 105,
           "losses": 81,
           "pushes": 33,
-          "decisive": 186
+          "decisive": 186,
+          "games": 14
         },
         "batter_hits_runs_rbis": {
           "rows": 228,
           "wins": 97,
           "losses": 98,
           "pushes": 33,
-          "decisive": 195
+          "decisive": 195,
+          "games": 14
         },
         "batter_total_bases": {
           "rows": 91,
           "wins": 36,
           "losses": 50,
           "pushes": 5,
-          "decisive": 86
+          "decisive": 86,
+          "games": 13
         },
         "pitcher_strikeouts": {
           "rows": 25,
           "wins": 16,
           "losses": 9,
           "pushes": 0,
-          "decisive": 25
+          "decisive": 25,
+          "games": 13
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-21.json"
@@ -1215,34 +1364,39 @@
       "losses": 257,
       "pushes": 72,
       "decisive": 471,
+      "games": 13,
       "byMarket": {
         "batter_hits": {
           "rows": 214,
           "wins": 93,
           "losses": 90,
           "pushes": 31,
-          "decisive": 183
+          "decisive": 183,
+          "games": 13
         },
         "batter_hits_runs_rbis": {
           "rows": 214,
           "wins": 82,
           "losses": 101,
           "pushes": 31,
-          "decisive": 183
+          "decisive": 183,
+          "games": 13
         },
         "batter_total_bases": {
           "rows": 94,
           "wins": 31,
           "losses": 53,
           "pushes": 10,
-          "decisive": 84
+          "decisive": 84,
+          "games": 13
         },
         "pitcher_strikeouts": {
           "rows": 21,
           "wins": 8,
           "losses": 13,
           "pushes": 0,
-          "decisive": 21
+          "decisive": 21,
+          "games": 12
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-22.json"
@@ -1255,34 +1409,39 @@
       "losses": 302,
       "pushes": 50,
       "decisive": 573,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 245,
           "wins": 111,
           "losses": 112,
           "pushes": 22,
-          "decisive": 223
+          "decisive": 223,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 245,
           "wins": 103,
           "losses": 120,
           "pushes": 22,
-          "decisive": 223
+          "decisive": 223,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 107,
           "wins": 46,
           "losses": 55,
           "pushes": 6,
-          "decisive": 101
+          "decisive": 101,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 11,
           "losses": 15,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 13
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-06-24.json"
@@ -1295,34 +1454,39 @@
       "losses": 211,
       "pushes": 20,
       "decisive": 437,
+      "games": 12,
       "byMarket": {
         "batter_hits": {
           "rows": 174,
           "wins": 87,
           "losses": 79,
           "pushes": 8,
-          "decisive": 166
+          "decisive": 166,
+          "games": 12
         },
         "batter_hits_runs_rbis": {
           "rows": 173,
           "wins": 93,
           "losses": 72,
           "pushes": 8,
-          "decisive": 165
+          "decisive": 165,
+          "games": 12
         },
         "batter_total_bases": {
           "rows": 90,
           "wins": 40,
           "losses": 46,
           "pushes": 4,
-          "decisive": 86
+          "decisive": 86,
+          "games": 12
         },
         "pitcher_strikeouts": {
           "rows": 20,
           "wins": 6,
           "losses": 14,
           "pushes": 0,
-          "decisive": 20
+          "decisive": 20,
+          "games": 9
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-01.json"
@@ -1335,34 +1499,39 @@
       "losses": 152,
       "pushes": 24,
       "decisive": 366,
+      "games": 9,
       "byMarket": {
         "batter_hits": {
           "rows": 154,
           "wins": 92,
           "losses": 52,
           "pushes": 10,
-          "decisive": 144
+          "decisive": 144,
+          "games": 9
         },
         "batter_hits_runs_rbis": {
           "rows": 154,
           "wins": 80,
           "losses": 64,
           "pushes": 10,
-          "decisive": 144
+          "decisive": 144,
+          "games": 9
         },
         "batter_total_bases": {
           "rows": 66,
           "wins": 32,
           "losses": 30,
           "pushes": 4,
-          "decisive": 62
+          "decisive": 62,
+          "games": 9
         },
         "pitcher_strikeouts": {
           "rows": 16,
           "wins": 10,
           "losses": 6,
           "pushes": 0,
-          "decisive": 16
+          "decisive": 16,
+          "games": 9
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-02.json"
@@ -1375,34 +1544,39 @@
       "losses": 268,
       "pushes": 42,
       "decisive": 534,
+      "games": 13,
       "byMarket": {
         "batter_hits": {
           "rows": 218,
           "wins": 105,
           "losses": 94,
           "pushes": 19,
-          "decisive": 199
+          "decisive": 199,
+          "games": 13
         },
         "batter_hits_runs_rbis": {
           "rows": 218,
           "wins": 100,
           "losses": 99,
           "pushes": 19,
-          "decisive": 199
+          "decisive": 199,
+          "games": 13
         },
         "batter_total_bases": {
           "rows": 114,
           "wins": 49,
           "losses": 61,
           "pushes": 4,
-          "decisive": 110
+          "decisive": 110,
+          "games": 13
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 12,
           "losses": 14,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 13
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-03.json"
@@ -1415,27 +1589,31 @@
       "losses": 150,
       "pushes": 18,
       "decisive": 292,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 197,
           "wins": 89,
           "losses": 91,
           "pushes": 17,
-          "decisive": 180
+          "decisive": 180,
+          "games": 12
         },
         "batter_total_bases": {
           "rows": 90,
           "wins": 40,
           "losses": 49,
           "pushes": 1,
-          "decisive": 89
+          "decisive": 89,
+          "games": 12
         },
         "pitcher_strikeouts": {
           "rows": 23,
           "wins": 13,
           "losses": 10,
           "pushes": 0,
-          "decisive": 23
+          "decisive": 23,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-04.json"
@@ -1448,34 +1626,39 @@
       "losses": 161,
       "pushes": 16,
       "decisive": 325,
+      "games": 8,
       "byMarket": {
         "batter_hits": {
           "rows": 130,
           "wins": 64,
           "losses": 58,
           "pushes": 8,
-          "decisive": 122
+          "decisive": 122,
+          "games": 8
         },
         "batter_hits_runs_rbis": {
           "rows": 130,
           "wins": 64,
           "losses": 58,
           "pushes": 8,
-          "decisive": 122
+          "decisive": 122,
+          "games": 8
         },
         "batter_total_bases": {
           "rows": 67,
           "wins": 29,
           "losses": 38,
           "pushes": 0,
-          "decisive": 67
+          "decisive": 67,
+          "games": 8
         },
         "pitcher_strikeouts": {
           "rows": 14,
           "wins": 7,
           "losses": 7,
           "pushes": 0,
-          "decisive": 14
+          "decisive": 14,
+          "games": 8
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-06.json"
@@ -1488,34 +1671,39 @@
       "losses": 62,
       "pushes": 6,
       "decisive": 121,
+      "games": 9,
       "byMarket": {
         "batter_hits": {
           "rows": 68,
           "wins": 38,
           "losses": 25,
           "pushes": 5,
-          "decisive": 63
+          "decisive": 63,
+          "games": 4
         },
         "batter_hits_runs_rbis": {
           "rows": 16,
           "wins": 6,
           "losses": 9,
           "pushes": 1,
-          "decisive": 15
+          "decisive": 15,
+          "games": 1
         },
         "batter_total_bases": {
           "rows": 27,
           "wins": 10,
           "losses": 17,
           "pushes": 0,
-          "decisive": 27
+          "decisive": 27,
+          "games": 4
         },
         "pitcher_strikeouts": {
           "rows": 16,
           "wins": 5,
           "losses": 11,
           "pushes": 0,
-          "decisive": 16
+          "decisive": 16,
+          "games": 9
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-07.json"
@@ -1528,34 +1716,39 @@
       "losses": 299,
       "pushes": 58,
       "decisive": 586,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 252,
           "wins": 123,
           "losses": 103,
           "pushes": 26,
-          "decisive": 226
+          "decisive": 226,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 252,
           "wins": 108,
           "losses": 118,
           "pushes": 26,
-          "decisive": 226
+          "decisive": 226,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 110,
           "wins": 39,
           "losses": 65,
           "pushes": 6,
-          "decisive": 104
+          "decisive": 104,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 30,
           "wins": 17,
           "losses": 13,
           "pushes": 0,
-          "decisive": 30
+          "decisive": 30,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-08.json"
@@ -1568,34 +1761,39 @@
       "losses": 147,
       "pushes": 22,
       "decisive": 319,
+      "games": 12,
       "byMarket": {
         "batter_hits": {
           "rows": 194,
           "wins": 101,
           "losses": 77,
           "pushes": 16,
-          "decisive": 178
+          "decisive": 178,
+          "games": 12
         },
         "batter_hits_runs_rbis": {
           "rows": 34,
           "wins": 20,
           "losses": 11,
           "pushes": 3,
-          "decisive": 31
+          "decisive": 31,
+          "games": 2
         },
         "batter_total_bases": {
           "rows": 89,
           "wins": 41,
           "losses": 45,
           "pushes": 3,
-          "decisive": 86
+          "decisive": 86,
+          "games": 11
         },
         "pitcher_strikeouts": {
           "rows": 24,
           "wins": 10,
           "losses": 14,
           "pushes": 0,
-          "decisive": 24
+          "decisive": 24,
+          "games": 12
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-09.json"
@@ -1608,27 +1806,31 @@
       "losses": 91,
       "pushes": 42,
       "decisive": 212,
+      "games": 13,
       "byMarket": {
         "batter_hits": {
           "rows": 187,
           "wins": 92,
           "losses": 64,
           "pushes": 31,
-          "decisive": 156
+          "decisive": 156,
+          "games": 12
         },
         "batter_total_bases": {
           "rows": 46,
           "wins": 18,
           "losses": 17,
           "pushes": 11,
-          "decisive": 35
+          "decisive": 35,
+          "games": 7
         },
         "pitcher_strikeouts": {
           "rows": 21,
           "wins": 11,
           "losses": 10,
           "pushes": 0,
-          "decisive": 21
+          "decisive": 21,
+          "games": 12
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-10.json"
@@ -1641,34 +1843,39 @@
       "losses": 291,
       "pushes": 42,
       "decisive": 529,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 225,
           "wins": 109,
           "losses": 97,
           "pushes": 19,
-          "decisive": 206
+          "decisive": 206,
+          "games": 14
         },
         "batter_hits_runs_rbis": {
           "rows": 225,
           "wins": 82,
           "losses": 124,
           "pushes": 19,
-          "decisive": 206
+          "decisive": 206,
+          "games": 14
         },
         "batter_total_bases": {
           "rows": 94,
           "wins": 32,
           "losses": 58,
           "pushes": 4,
-          "decisive": 90
+          "decisive": 90,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 27,
           "wins": 15,
           "losses": 12,
           "pushes": 0,
-          "decisive": 27
+          "decisive": 27,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-11.json"
@@ -1681,34 +1888,39 @@
       "losses": 19,
       "pushes": 30,
       "decisive": 42,
+      "games": 5,
       "byMarket": {
         "batter_hits": {
           "rows": 32,
           "wins": 6,
           "losses": 7,
           "pushes": 19,
-          "decisive": 13
+          "decisive": 13,
+          "games": 2
         },
         "batter_hits_runs_rbis": {
           "rows": 16,
           "wins": 9,
           "losses": 4,
           "pushes": 3,
-          "decisive": 13
+          "decisive": 13,
+          "games": 1
         },
         "batter_total_bases": {
           "rows": 18,
           "wins": 5,
           "losses": 5,
           "pushes": 8,
-          "decisive": 10
+          "decisive": 10,
+          "games": 2
         },
         "pitcher_strikeouts": {
           "rows": 6,
           "wins": 3,
           "losses": 3,
           "pushes": 0,
-          "decisive": 6
+          "decisive": 6,
+          "games": 4
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-21.json"
@@ -1721,34 +1933,39 @@
       "losses": 296,
       "pushes": 65,
       "decisive": 553,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 236,
           "wins": 110,
           "losses": 99,
           "pushes": 27,
-          "decisive": 209
+          "decisive": 209,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 236,
           "wins": 93,
           "losses": 116,
           "pushes": 27,
-          "decisive": 209
+          "decisive": 209,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 118,
           "wins": 39,
           "losses": 68,
           "pushes": 11,
-          "decisive": 107
+          "decisive": 107,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 28,
           "wins": 15,
           "losses": 13,
           "pushes": 0,
-          "decisive": 28
+          "decisive": 28,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-22.json"
@@ -1761,34 +1978,39 @@
       "losses": 98,
       "pushes": 13,
       "decisive": 193,
+      "games": 5,
       "byMarket": {
         "batter_hits": {
           "rows": 83,
           "wins": 38,
           "losses": 39,
           "pushes": 6,
-          "decisive": 77
+          "decisive": 77,
+          "games": 5
         },
         "batter_hits_runs_rbis": {
           "rows": 83,
           "wins": 39,
           "losses": 38,
           "pushes": 6,
-          "decisive": 77
+          "decisive": 77,
+          "games": 5
         },
         "batter_total_bases": {
           "rows": 31,
           "wins": 14,
           "losses": 16,
           "pushes": 1,
-          "decisive": 30
+          "decisive": 30,
+          "games": 5
         },
         "pitcher_strikeouts": {
           "rows": 9,
           "wins": 4,
           "losses": 5,
           "pushes": 0,
-          "decisive": 9
+          "decisive": 9,
+          "games": 5
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-23.json"
@@ -1801,34 +2023,39 @@
       "losses": 307,
       "pushes": 46,
       "decisive": 598,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 251,
           "wins": 118,
           "losses": 113,
           "pushes": 20,
-          "decisive": 231
+          "decisive": 231,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 251,
           "wins": 115,
           "losses": 116,
           "pushes": 20,
-          "decisive": 231
+          "decisive": 231,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 112,
           "wins": 42,
           "losses": 64,
           "pushes": 6,
-          "decisive": 106
+          "decisive": 106,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 30,
           "wins": 16,
           "losses": 14,
           "pushes": 0,
-          "decisive": 30
+          "decisive": 30,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-24.json"
@@ -1841,34 +2068,39 @@
       "losses": 281,
       "pushes": 42,
       "decisive": 553,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 246,
           "wins": 121,
           "losses": 103,
           "pushes": 22,
-          "decisive": 224
+          "decisive": 224,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 229,
           "wins": 107,
           "losses": 105,
           "pushes": 17,
-          "decisive": 212
+          "decisive": 212,
+          "games": 14
         },
         "batter_total_bases": {
           "rows": 93,
           "wins": 33,
           "losses": 57,
           "pushes": 3,
-          "decisive": 90
+          "decisive": 90,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 27,
           "wins": 11,
           "losses": 16,
           "pushes": 0,
-          "decisive": 27
+          "decisive": 27,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-25.json"
@@ -1881,34 +2113,39 @@
       "losses": 297,
       "pushes": 33,
       "decisive": 594,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 243,
           "wins": 120,
           "losses": 110,
           "pushes": 13,
-          "decisive": 230
+          "decisive": 230,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 243,
           "wins": 112,
           "losses": 118,
           "pushes": 13,
-          "decisive": 230
+          "decisive": 230,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 116,
           "wins": 52,
           "losses": 57,
           "pushes": 7,
-          "decisive": 109
+          "decisive": 109,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 25,
           "wins": 13,
           "losses": 12,
           "pushes": 0,
-          "decisive": 25
+          "decisive": 25,
+          "games": 13
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-26.json"
@@ -1921,34 +2158,39 @@
       "losses": 228,
       "pushes": 64,
       "decisive": 441,
+      "games": 12,
       "byMarket": {
         "batter_hits": {
           "rows": 196,
           "wins": 94,
           "losses": 74,
           "pushes": 28,
-          "decisive": 168
+          "decisive": 168,
+          "games": 12
         },
         "batter_hits_runs_rbis": {
           "rows": 196,
           "wins": 81,
           "losses": 87,
           "pushes": 28,
-          "decisive": 168
+          "decisive": 168,
+          "games": 12
         },
         "batter_total_bases": {
           "rows": 96,
           "wins": 31,
           "losses": 57,
           "pushes": 8,
-          "decisive": 88
+          "decisive": 88,
+          "games": 12
         },
         "pitcher_strikeouts": {
           "rows": 17,
           "wins": 7,
           "losses": 10,
           "pushes": 0,
-          "decisive": 17
+          "decisive": 17,
+          "games": 10
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-27.json"
@@ -1961,34 +2203,39 @@
       "losses": 206,
       "pushes": 17,
       "decisive": 368,
+      "games": 10,
       "byMarket": {
         "batter_hits": {
           "rows": 147,
           "wins": 66,
           "losses": 73,
           "pushes": 8,
-          "decisive": 139
+          "decisive": 139,
+          "games": 10
         },
         "batter_hits_runs_rbis": {
           "rows": 147,
           "wins": 59,
           "losses": 80,
           "pushes": 8,
-          "decisive": 139
+          "decisive": 139,
+          "games": 10
         },
         "batter_total_bases": {
           "rows": 74,
           "wins": 28,
           "losses": 45,
           "pushes": 1,
-          "decisive": 73
+          "decisive": 73,
+          "games": 10
         },
         "pitcher_strikeouts": {
           "rows": 17,
           "wins": 9,
           "losses": 8,
           "pushes": 0,
-          "decisive": 17
+          "decisive": 17,
+          "games": 10
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-30.json"
@@ -2001,34 +2248,39 @@
       "losses": 129,
       "pushes": 24,
       "decisive": 275,
+      "games": 10,
       "byMarket": {
         "batter_hits": {
           "rows": 158,
           "wins": 82,
           "losses": 61,
           "pushes": 15,
-          "decisive": 143
+          "decisive": 143,
+          "games": 10
         },
         "batter_hits_runs_rbis": {
           "rows": 43,
           "wins": 23,
           "losses": 17,
           "pushes": 3,
-          "decisive": 40
+          "decisive": 40,
+          "games": 3
         },
         "batter_total_bases": {
           "rows": 80,
           "wins": 35,
           "losses": 39,
           "pushes": 6,
-          "decisive": 74
+          "decisive": 74,
+          "games": 10
         },
         "pitcher_strikeouts": {
           "rows": 18,
           "wins": 6,
           "losses": 12,
           "pushes": 0,
-          "decisive": 18
+          "decisive": 18,
+          "games": 9
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-07-31.json"
@@ -2041,34 +2293,39 @@
       "losses": 102,
       "pushes": 17,
       "decisive": 173,
+      "games": 7,
       "byMarket": {
         "batter_hits": {
           "rows": 111,
           "wins": 47,
           "losses": 52,
           "pushes": 12,
-          "decisive": 99
+          "decisive": 99,
+          "games": 7
         },
         "batter_hits_runs_rbis": {
           "rows": 16,
           "wins": 4,
           "losses": 10,
           "pushes": 2,
-          "decisive": 14
+          "decisive": 14,
+          "games": 1
         },
         "batter_total_bases": {
           "rows": 51,
           "wins": 13,
           "losses": 35,
           "pushes": 3,
-          "decisive": 48
+          "decisive": 48,
+          "games": 6
         },
         "pitcher_strikeouts": {
           "rows": 12,
           "wins": 7,
           "losses": 5,
           "pushes": 0,
-          "decisive": 12
+          "decisive": 12,
+          "games": 6
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-03.json"
@@ -2081,34 +2338,39 @@
       "losses": 274,
       "pushes": 26,
       "decisive": 566,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 231,
           "wins": 122,
           "losses": 97,
           "pushes": 12,
-          "decisive": 219
+          "decisive": 219,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 231,
           "wins": 112,
           "losses": 107,
           "pushes": 12,
-          "decisive": 219
+          "decisive": 219,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 105,
           "wins": 48,
           "losses": 55,
           "pushes": 2,
-          "decisive": 103
+          "decisive": 103,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 25,
           "wins": 10,
           "losses": 15,
           "pushes": 0,
-          "decisive": 25
+          "decisive": 25,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-04.json"
@@ -2121,34 +2383,39 @@
       "losses": 351,
       "pushes": 27,
       "decisive": 601,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 242,
           "wins": 112,
           "losses": 118,
           "pushes": 12,
-          "decisive": 230
+          "decisive": 230,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 242,
           "wins": 87,
           "losses": 143,
           "pushes": 12,
-          "decisive": 230
+          "decisive": 230,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 115,
           "wins": 40,
           "losses": 72,
           "pushes": 3,
-          "decisive": 112
+          "decisive": 112,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 29,
           "wins": 11,
           "losses": 18,
           "pushes": 0,
-          "decisive": 29
+          "decisive": 29,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-05.json"
@@ -2161,34 +2428,39 @@
       "losses": 188,
       "pushes": 27,
       "decisive": 415,
+      "games": 11,
       "byMarket": {
         "batter_hits": {
           "rows": 168,
           "wins": 78,
           "losses": 78,
           "pushes": 12,
-          "decisive": 156
+          "decisive": 156,
+          "games": 11
         },
         "batter_hits_runs_rbis": {
           "rows": 168,
           "wins": 93,
           "losses": 63,
           "pushes": 12,
-          "decisive": 156
+          "decisive": 156,
+          "games": 11
         },
         "batter_total_bases": {
           "rows": 86,
           "wins": 47,
           "losses": 36,
           "pushes": 3,
-          "decisive": 83
+          "decisive": 83,
+          "games": 11
         },
         "pitcher_strikeouts": {
           "rows": 20,
           "wins": 9,
           "losses": 11,
           "pushes": 0,
-          "decisive": 20
+          "decisive": 20,
+          "games": 11
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-06.json"
@@ -2201,34 +2473,39 @@
       "losses": 299,
       "pushes": 41,
       "decisive": 567,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 241,
           "wins": 113,
           "losses": 109,
           "pushes": 19,
-          "decisive": 222
+          "decisive": 222,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 241,
           "wins": 106,
           "losses": 116,
           "pushes": 19,
-          "decisive": 222
+          "decisive": 222,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 100,
           "wins": 35,
           "losses": 62,
           "pushes": 3,
-          "decisive": 97
+          "decisive": 97,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 14,
           "losses": 12,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-07.json"
@@ -2241,34 +2518,39 @@
       "losses": 271,
       "pushes": 32,
       "decisive": 568,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 238,
           "wins": 131,
           "losses": 93,
           "pushes": 14,
-          "decisive": 224
+          "decisive": 224,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 238,
           "wins": 117,
           "losses": 107,
           "pushes": 14,
-          "decisive": 224
+          "decisive": 224,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 95,
           "wins": 34,
           "losses": 57,
           "pushes": 4,
-          "decisive": 91
+          "decisive": 91,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 29,
           "wins": 15,
           "losses": 14,
           "pushes": 0,
-          "decisive": 29
+          "decisive": 29,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-08.json"
@@ -2281,34 +2563,39 @@
       "losses": 291,
       "pushes": 34,
       "decisive": 574,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 239,
           "wins": 116,
           "losses": 107,
           "pushes": 16,
-          "decisive": 223
+          "decisive": 223,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 239,
           "wins": 115,
           "losses": 108,
           "pushes": 16,
-          "decisive": 223
+          "decisive": 223,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 104,
           "wins": 40,
           "losses": 62,
           "pushes": 2,
-          "decisive": 102
+          "decisive": 102,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 12,
           "losses": 14,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-09.json"
@@ -2321,34 +2608,39 @@
       "losses": 194,
       "pushes": 29,
       "decisive": 389,
+      "games": 10,
       "byMarket": {
         "batter_hits": {
           "rows": 161,
           "wins": 80,
           "losses": 69,
           "pushes": 12,
-          "decisive": 149
+          "decisive": 149,
+          "games": 10
         },
         "batter_hits_runs_rbis": {
           "rows": 161,
           "wins": 74,
           "losses": 75,
           "pushes": 12,
-          "decisive": 149
+          "decisive": 149,
+          "games": 10
         },
         "batter_total_bases": {
           "rows": 77,
           "wins": 34,
           "losses": 38,
           "pushes": 5,
-          "decisive": 72
+          "decisive": 72,
+          "games": 10
         },
         "pitcher_strikeouts": {
           "rows": 19,
           "wins": 7,
           "losses": 12,
           "pushes": 0,
-          "decisive": 19
+          "decisive": 19,
+          "games": 10
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-10.json"
@@ -2361,34 +2653,39 @@
       "losses": 312,
       "pushes": 34,
       "decisive": 597,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 243,
           "wins": 123,
           "losses": 105,
           "pushes": 15,
-          "decisive": 228
+          "decisive": 228,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 243,
           "wins": 112,
           "losses": 116,
           "pushes": 15,
-          "decisive": 228
+          "decisive": 228,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 118,
           "wins": 42,
           "losses": 72,
           "pushes": 4,
-          "decisive": 114
+          "decisive": 114,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 27,
           "wins": 8,
           "losses": 19,
           "pushes": 0,
-          "decisive": 27
+          "decisive": 27,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-11.json"
@@ -2401,34 +2698,39 @@
       "losses": 305,
       "pushes": 38,
       "decisive": 592,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 243,
           "wins": 117,
           "losses": 110,
           "pushes": 16,
-          "decisive": 227
+          "decisive": 227,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 243,
           "wins": 111,
           "losses": 116,
           "pushes": 16,
-          "decisive": 227
+          "decisive": 227,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 116,
           "wins": 44,
           "losses": 66,
           "pushes": 6,
-          "decisive": 110
+          "decisive": 110,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 28,
           "wins": 15,
           "losses": 13,
           "pushes": 0,
-          "decisive": 28
+          "decisive": 28,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-12.json"
@@ -2441,34 +2743,39 @@
       "losses": 187,
       "pushes": 33,
       "decisive": 326,
+      "games": 9,
       "byMarket": {
         "batter_hits": {
           "rows": 144,
           "wins": 60,
           "losses": 69,
           "pushes": 15,
-          "decisive": 129
+          "decisive": 129,
+          "games": 9
         },
         "batter_hits_runs_rbis": {
           "rows": 144,
           "wins": 52,
           "losses": 77,
           "pushes": 15,
-          "decisive": 129
+          "decisive": 129,
+          "games": 9
         },
         "batter_total_bases": {
           "rows": 54,
           "wins": 16,
           "losses": 35,
           "pushes": 3,
-          "decisive": 51
+          "decisive": 51,
+          "games": 9
         },
         "pitcher_strikeouts": {
           "rows": 17,
           "wins": 11,
           "losses": 6,
           "pushes": 0,
-          "decisive": 17
+          "decisive": 17,
+          "games": 9
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-13.json"
@@ -2481,34 +2788,39 @@
       "losses": 259,
       "pushes": 39,
       "decisive": 517,
+      "games": 14,
       "byMarket": {
         "batter_hits": {
           "rows": 222,
           "wins": 113,
           "losses": 92,
           "pushes": 17,
-          "decisive": 205
+          "decisive": 205,
+          "games": 14
         },
         "batter_hits_runs_rbis": {
           "rows": 222,
           "wins": 104,
           "losses": 101,
           "pushes": 17,
-          "decisive": 205
+          "decisive": 205,
+          "games": 14
         },
         "batter_total_bases": {
           "rows": 88,
           "wins": 26,
           "losses": 57,
           "pushes": 5,
-          "decisive": 83
+          "decisive": 83,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 24,
           "wins": 15,
           "losses": 9,
           "pushes": 0,
-          "decisive": 24
+          "decisive": 24,
+          "games": 12
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-14.json"
@@ -2521,34 +2833,39 @@
       "losses": 274,
       "pushes": 42,
       "decisive": 558,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 240,
           "wins": 122,
           "losses": 100,
           "pushes": 18,
-          "decisive": 222
+          "decisive": 222,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 240,
           "wins": 112,
           "losses": 110,
           "pushes": 18,
-          "decisive": 222
+          "decisive": 222,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 94,
           "wins": 35,
           "losses": 53,
           "pushes": 6,
-          "decisive": 88
+          "decisive": 88,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 15,
           "losses": 11,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-15.json"
@@ -2561,34 +2878,39 @@
       "losses": 278,
       "pushes": 52,
       "decisive": 547,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 238,
           "wins": 111,
           "losses": 105,
           "pushes": 22,
-          "decisive": 216
+          "decisive": 216,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 238,
           "wins": 112,
           "losses": 104,
           "pushes": 22,
-          "decisive": 216
+          "decisive": 216,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 95,
           "wins": 33,
           "losses": 54,
           "pushes": 8,
-          "decisive": 87
+          "decisive": 87,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 28,
           "wins": 13,
           "losses": 15,
           "pushes": 0,
-          "decisive": 28
+          "decisive": 28,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-16.json"
@@ -2601,34 +2923,39 @@
       "losses": 192,
       "pushes": 28,
       "decisive": 382,
+      "games": 11,
       "byMarket": {
         "batter_hits": {
           "rows": 159,
           "wins": 78,
           "losses": 68,
           "pushes": 13,
-          "decisive": 146
+          "decisive": 146,
+          "games": 10
         },
         "batter_hits_runs_rbis": {
           "rows": 159,
           "wins": 76,
           "losses": 70,
           "pushes": 13,
-          "decisive": 146
+          "decisive": 146,
+          "games": 10
         },
         "batter_total_bases": {
           "rows": 75,
           "wins": 32,
           "losses": 41,
           "pushes": 2,
-          "decisive": 73
+          "decisive": 73,
+          "games": 10
         },
         "pitcher_strikeouts": {
           "rows": 17,
           "wins": 4,
           "losses": 13,
           "pushes": 0,
-          "decisive": 17
+          "decisive": 17,
+          "games": 10
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-17.json"
@@ -2641,34 +2968,39 @@
       "losses": 276,
       "pushes": 29,
       "decisive": 578,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 237,
           "wins": 139,
           "losses": 85,
           "pushes": 13,
-          "decisive": 224
+          "decisive": 224,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 237,
           "wins": 108,
           "losses": 116,
           "pushes": 13,
-          "decisive": 224
+          "decisive": 224,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 109,
           "wins": 43,
           "losses": 63,
           "pushes": 3,
-          "decisive": 106
+          "decisive": 106,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 24,
           "wins": 12,
           "losses": 12,
           "pushes": 0,
-          "decisive": 24
+          "decisive": 24,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-18.json"
@@ -2681,34 +3013,39 @@
       "losses": 278,
       "pushes": 32,
       "decisive": 553,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 235,
           "wins": 116,
           "losses": 104,
           "pushes": 15,
-          "decisive": 220
+          "decisive": 220,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 235,
           "wins": 110,
           "losses": 110,
           "pushes": 15,
-          "decisive": 220
+          "decisive": 220,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 92,
           "wins": 34,
           "losses": 56,
           "pushes": 2,
-          "decisive": 90
+          "decisive": 90,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 23,
           "wins": 15,
           "losses": 8,
           "pushes": 0,
-          "decisive": 23
+          "decisive": 23,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-19.json"
@@ -2721,34 +3058,39 @@
       "losses": 179,
       "pushes": 27,
       "decisive": 324,
+      "games": 9,
       "byMarket": {
         "batter_hits": {
           "rows": 144,
           "wins": 65,
           "losses": 67,
           "pushes": 12,
-          "decisive": 132
+          "decisive": 132,
+          "games": 9
         },
         "batter_hits_runs_rbis": {
           "rows": 144,
           "wins": 63,
           "losses": 69,
           "pushes": 12,
-          "decisive": 132
+          "decisive": 132,
+          "games": 9
         },
         "batter_total_bases": {
           "rows": 45,
           "wins": 9,
           "losses": 33,
           "pushes": 3,
-          "decisive": 42
+          "decisive": 42,
+          "games": 9
         },
         "pitcher_strikeouts": {
           "rows": 18,
           "wins": 8,
           "losses": 10,
           "pushes": 0,
-          "decisive": 18
+          "decisive": 18,
+          "games": 9
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-20.json"
@@ -2761,34 +3103,39 @@
       "losses": 257,
       "pushes": 29,
       "decisive": 560,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 241,
           "wins": 130,
           "losses": 97,
           "pushes": 14,
-          "decisive": 227
+          "decisive": 227,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 241,
           "wins": 123,
           "losses": 104,
           "pushes": 14,
-          "decisive": 227
+          "decisive": 227,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 81,
           "wins": 37,
           "losses": 43,
           "pushes": 1,
-          "decisive": 80
+          "decisive": 80,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 13,
           "losses": 13,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-21.json"
@@ -2801,34 +3148,39 @@
       "losses": 280,
       "pushes": 33,
       "decisive": 564,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 244,
           "wins": 121,
           "losses": 108,
           "pushes": 15,
-          "decisive": 229
+          "decisive": 229,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 244,
           "wins": 117,
           "losses": 112,
           "pushes": 15,
-          "decisive": 229
+          "decisive": 229,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 82,
           "wins": 34,
           "losses": 45,
           "pushes": 3,
-          "decisive": 79
+          "decisive": 79,
+          "games": 14
         },
         "pitcher_strikeouts": {
           "rows": 27,
           "wins": 12,
           "losses": 15,
           "pushes": 0,
-          "decisive": 27
+          "decisive": 27,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-22.json"
@@ -2841,34 +3193,39 @@
       "losses": 259,
       "pushes": 46,
       "decisive": 528,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 229,
           "wins": 108,
           "losses": 100,
           "pushes": 21,
-          "decisive": 208
+          "decisive": 208,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 231,
           "wins": 107,
           "losses": 103,
           "pushes": 21,
-          "decisive": 210
+          "decisive": 210,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 92,
           "wins": 42,
           "losses": 46,
           "pushes": 4,
-          "decisive": 88
+          "decisive": 88,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 22,
           "wins": 12,
           "losses": 10,
           "pushes": 0,
-          "decisive": 22
+          "decisive": 22,
+          "games": 14
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-23.json"
@@ -2881,34 +3238,39 @@
       "losses": 190,
       "pushes": 25,
       "decisive": 378,
+      "games": 10,
       "byMarket": {
         "batter_hits": {
           "rows": 162,
           "wins": 82,
           "losses": 68,
           "pushes": 12,
-          "decisive": 150
+          "decisive": 150,
+          "games": 10
         },
         "batter_hits_runs_rbis": {
           "rows": 162,
           "wins": 72,
           "losses": 78,
           "pushes": 12,
-          "decisive": 150
+          "decisive": 150,
+          "games": 10
         },
         "batter_total_bases": {
           "rows": 59,
           "wins": 24,
           "losses": 34,
           "pushes": 1,
-          "decisive": 58
+          "decisive": 58,
+          "games": 10
         },
         "pitcher_strikeouts": {
           "rows": 20,
           "wins": 10,
           "losses": 10,
           "pushes": 0,
-          "decisive": 20
+          "decisive": 20,
+          "games": 10
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-24.json"
@@ -2921,34 +3283,39 @@
       "losses": 274,
       "pushes": 43,
       "decisive": 554,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 240,
           "wins": 125,
           "losses": 95,
           "pushes": 20,
-          "decisive": 220
+          "decisive": 220,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 240,
           "wins": 108,
           "losses": 112,
           "pushes": 20,
-          "decisive": 220
+          "decisive": 220,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 91,
           "wins": 33,
           "losses": 55,
           "pushes": 3,
-          "decisive": 88
+          "decisive": 88,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 26,
           "wins": 14,
           "losses": 12,
           "pushes": 0,
-          "decisive": 26
+          "decisive": 26,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-25.json"
@@ -2961,34 +3328,39 @@
       "losses": 293,
       "pushes": 47,
       "decisive": 572,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 244,
           "wins": 114,
           "losses": 110,
           "pushes": 20,
-          "decisive": 224
+          "decisive": 224,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 244,
           "wins": 111,
           "losses": 113,
           "pushes": 20,
-          "decisive": 224
+          "decisive": 224,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 107,
           "wins": 41,
           "losses": 59,
           "pushes": 7,
-          "decisive": 100
+          "decisive": 100,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 24,
           "wins": 13,
           "losses": 11,
           "pushes": 0,
-          "decisive": 24
+          "decisive": 24,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-26.json"
@@ -3001,34 +3373,39 @@
       "losses": 87,
       "pushes": 19,
       "decisive": 180,
+      "games": 5,
       "byMarket": {
         "batter_hits": {
           "rows": 83,
           "wins": 42,
           "losses": 32,
           "pushes": 9,
-          "decisive": 74
+          "decisive": 74,
+          "games": 5
         },
         "batter_hits_runs_rbis": {
           "rows": 83,
           "wins": 38,
           "losses": 36,
           "pushes": 9,
-          "decisive": 74
+          "decisive": 74,
+          "games": 5
         },
         "batter_total_bases": {
           "rows": 23,
           "wins": 8,
           "losses": 14,
           "pushes": 1,
-          "decisive": 22
+          "decisive": 22,
+          "games": 5
         },
         "pitcher_strikeouts": {
           "rows": 10,
           "wins": 5,
           "losses": 5,
           "pushes": 0,
-          "decisive": 10
+          "decisive": 10,
+          "games": 5
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-27.json"
@@ -3041,34 +3418,39 @@
       "losses": 182,
       "pushes": 7,
       "decisive": 357,
+      "games": 9,
       "byMarket": {
         "batter_hits": {
           "rows": 146,
           "wins": 74,
           "losses": 69,
           "pushes": 3,
-          "decisive": 143
+          "decisive": 143,
+          "games": 9
         },
         "batter_hits_runs_rbis": {
           "rows": 146,
           "wins": 71,
           "losses": 72,
           "pushes": 3,
-          "decisive": 143
+          "decisive": 143,
+          "games": 9
         },
         "batter_total_bases": {
           "rows": 54,
           "wins": 22,
           "losses": 31,
           "pushes": 1,
-          "decisive": 53
+          "decisive": 53,
+          "games": 9
         },
         "pitcher_strikeouts": {
           "rows": 18,
           "wins": 8,
           "losses": 10,
           "pushes": 0,
-          "decisive": 18
+          "decisive": 18,
+          "games": 9
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-28.json"
@@ -3081,34 +3463,39 @@
       "losses": 252,
       "pushes": 23,
       "decisive": 489,
+      "games": 14,
       "byMarket": {
         "batter_hits": {
           "rows": 202,
           "wins": 99,
           "losses": 92,
           "pushes": 11,
-          "decisive": 191
+          "decisive": 191,
+          "games": 13
         },
         "batter_hits_runs_rbis": {
           "rows": 202,
           "wins": 91,
           "losses": 100,
           "pushes": 11,
-          "decisive": 191
+          "decisive": 191,
+          "games": 13
         },
         "batter_total_bases": {
           "rows": 88,
           "wins": 39,
           "losses": 48,
           "pushes": 1,
-          "decisive": 87
+          "decisive": 87,
+          "games": 13
         },
         "pitcher_strikeouts": {
           "rows": 20,
           "wins": 8,
           "losses": 12,
           "pushes": 0,
-          "decisive": 20
+          "decisive": 20,
+          "games": 12
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-29.json"
@@ -3121,34 +3508,39 @@
       "losses": 133,
       "pushes": 25,
       "decisive": 268,
+      "games": 7,
       "byMarket": {
         "batter_hits": {
           "rows": 111,
           "wins": 49,
           "losses": 51,
           "pushes": 11,
-          "decisive": 100
+          "decisive": 100,
+          "games": 7
         },
         "batter_hits_runs_rbis": {
           "rows": 111,
           "wins": 52,
           "losses": 48,
           "pushes": 11,
-          "decisive": 100
+          "decisive": 100,
+          "games": 7
         },
         "batter_total_bases": {
           "rows": 58,
           "wins": 25,
           "losses": 30,
           "pushes": 3,
-          "decisive": 55
+          "decisive": 55,
+          "games": 7
         },
         "pitcher_strikeouts": {
           "rows": 13,
           "wins": 9,
           "losses": 4,
           "pushes": 0,
-          "decisive": 13
+          "decisive": 13,
+          "games": 6
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-30.json"
@@ -3161,34 +3553,39 @@
       "losses": 218,
       "pushes": 23,
       "decisive": 467,
+      "games": 12,
       "byMarket": {
         "batter_hits": {
           "rows": 189,
           "wins": 102,
           "losses": 77,
           "pushes": 10,
-          "decisive": 179
+          "decisive": 179,
+          "games": 12
         },
         "batter_hits_runs_rbis": {
           "rows": 189,
           "wins": 95,
           "losses": 84,
           "pushes": 10,
-          "decisive": 179
+          "decisive": 179,
+          "games": 12
         },
         "batter_total_bases": {
           "rows": 90,
           "wins": 43,
           "losses": 44,
           "pushes": 3,
-          "decisive": 87
+          "decisive": 87,
+          "games": 12
         },
         "pitcher_strikeouts": {
           "rows": 22,
           "wins": 9,
           "losses": 13,
           "pushes": 0,
-          "decisive": 22
+          "decisive": 22,
+          "games": 11
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-08-31.json"
@@ -3201,34 +3598,39 @@
       "losses": 260,
       "pushes": 37,
       "decisive": 571,
+      "games": 15,
       "byMarket": {
         "batter_hits": {
           "rows": 238,
           "wins": 120,
           "losses": 101,
           "pushes": 17,
-          "decisive": 221
+          "decisive": 221,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 238,
           "wins": 124,
           "losses": 97,
           "pushes": 17,
-          "decisive": 221
+          "decisive": 221,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 105,
           "wins": 52,
           "losses": 50,
           "pushes": 3,
-          "decisive": 102
+          "decisive": 102,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 27,
           "wins": 15,
           "losses": 12,
           "pushes": 0,
-          "decisive": 27
+          "decisive": 27,
+          "games": 15
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-09-01.json"
@@ -3241,34 +3643,39 @@
       "losses": 221,
       "pushes": 43,
       "decisive": 494,
+      "games": 13,
       "byMarket": {
         "batter_hits": {
           "rows": 213,
           "wins": 109,
           "losses": 85,
           "pushes": 19,
-          "decisive": 194
+          "decisive": 194,
+          "games": 13
         },
         "batter_hits_runs_rbis": {
           "rows": 213,
           "wins": 110,
           "losses": 84,
           "pushes": 19,
-          "decisive": 194
+          "decisive": 194,
+          "games": 13
         },
         "batter_total_bases": {
           "rows": 89,
           "wins": 42,
           "losses": 42,
           "pushes": 5,
-          "decisive": 84
+          "decisive": 84,
+          "games": 13
         },
         "pitcher_strikeouts": {
           "rows": 22,
           "wins": 12,
           "losses": 10,
           "pushes": 0,
-          "decisive": 22
+          "decisive": 22,
+          "games": 13
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-09-02.json"
@@ -3281,34 +3688,39 @@
       "losses": 127,
       "pushes": 25,
       "decisive": 289,
+      "games": 8,
       "byMarket": {
         "batter_hits": {
           "rows": 126,
           "wins": 70,
           "losses": 45,
           "pushes": 11,
-          "decisive": 115
+          "decisive": 115,
+          "games": 8
         },
         "batter_hits_runs_rbis": {
           "rows": 126,
           "wins": 61,
           "losses": 54,
           "pushes": 11,
-          "decisive": 115
+          "decisive": 115,
+          "games": 8
         },
         "batter_total_bases": {
           "rows": 47,
           "wins": 22,
           "losses": 22,
           "pushes": 3,
-          "decisive": 44
+          "decisive": 44,
+          "games": 8
         },
         "pitcher_strikeouts": {
           "rows": 15,
           "wins": 9,
           "losses": 6,
           "pushes": 0,
-          "decisive": 15
+          "decisive": 15,
+          "games": 8
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-09-03.json"
@@ -3321,34 +3733,39 @@
       "losses": 284,
       "pushes": 34,
       "decisive": 584,
+      "games": 16,
       "byMarket": {
         "batter_hits": {
           "rows": 241,
           "wins": 121,
           "losses": 105,
           "pushes": 15,
-          "decisive": 226
+          "decisive": 226,
+          "games": 15
         },
         "batter_hits_runs_rbis": {
           "rows": 241,
           "wins": 114,
           "losses": 112,
           "pushes": 15,
-          "decisive": 226
+          "decisive": 226,
+          "games": 15
         },
         "batter_total_bases": {
           "rows": 107,
           "wins": 49,
           "losses": 54,
           "pushes": 4,
-          "decisive": 103
+          "decisive": 103,
+          "games": 15
         },
         "pitcher_strikeouts": {
           "rows": 29,
           "wins": 16,
           "losses": 13,
           "pushes": 0,
-          "decisive": 29
+          "decisive": 29,
+          "games": 16
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-09-04.json"

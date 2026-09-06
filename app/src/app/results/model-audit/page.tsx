@@ -49,7 +49,7 @@ function loadModelResults(): { days: ModelDay[]; coverage: ModelCoverage } | nul
     const doc = JSON.parse(fs.readFileSync(nodePath.join(process.cwd(), "public/data/mlb/results/model-index.json"), "utf8"));
     const days: ModelDay[] = (doc.days ?? []).map((d: ModelDay) => ({
       date: d.date, wins: d.wins, losses: d.losses, pushes: d.pushes, rows: d.rows,
-      rowsUrl: d.rowsUrl, byMarket: d.byMarket,
+      games: d.games, rowsUrl: d.rowsUrl, byMarket: d.byMarket,
     }));
     if (!days.length) return null;
     return { days, coverage: doc.coverage as ModelCoverage };

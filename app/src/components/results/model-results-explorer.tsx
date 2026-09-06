@@ -25,13 +25,15 @@ import { useEffect, useMemo, useState } from "react";
 export interface ModelDay {
   date: string;
   wins: number; losses: number; pushes: number; rows: number;
+  /** Distinct games these picks came from — the unit that governs uncertainty, not the row count. */
+  games: number;
   rowsUrl: string;
   byMarket: Record<string, { wins: number; losses: number; pushes: number }>;
 }
 
 export interface ModelCoverage {
   dates: number; firstDate: string | null; lastDate: string | null;
-  rows: number; wins: number; losses: number; pushes: number; decisive: number;
+  rows: number; wins: number; losses: number; pushes: number; decisive: number; games: number;
 }
 
 interface DetailRow {
@@ -101,13 +103,14 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
 
   /** Pooled from SUMMED COUNTS, never averaged across days. */
   const pooled = useMemo(() => {
-    let wins = 0, losses = 0, pushes = 0;
+    let wins = 0, losses = 0, pushes = 0, games = 0;
     for (const d of selected) {
+      games += d.games ?? 0;
       if (market === "all") { wins += d.wins; losses += d.losses; pushes += d.pushes; continue; }
       const m = d.byMarket?.[market];
       if (m) { wins += m.wins; losses += m.losses; pushes += m.pushes; }
     }
-    return { wins, losses, pushes, decisive: wins + losses };
+    return { wins, losses, pushes, decisive: wins + losses, games };
   }, [selected, market]);
 
   /* Opening a day fetches that day alone. A failure says so rather than rendering an empty table. */
@@ -207,6 +210,7 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
             <span style={{ fontSize: 11.5, color: "var(--vault-text-mute)", fontFamily: "monospace" }}>
               {pooled.decisive.toLocaleString()} decisive
               {pooled.pushes ? ` · ${pooled.pushes.toLocaleString()} push` : ""}
+              {pooled.games ? ` · ${pooled.games.toLocaleString()} games` : ""}
               {` · ${selected.length} day${selected.length === 1 ? "" : "s"}`}
             </span>
           </div>
@@ -294,9 +298,14 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
       ) : null}
 
       <p className="m-0" style={{ fontSize: 11, color: "var(--vault-text-faint)", lineHeight: 1.55, maxWidth: 760 }}>
-        Model and market probabilities are shown side by side on the same picks. A hit rate is not a
-        return: these are probability calls with no stake attached, and nothing here is a betting
-        record. Educational and paper-only.
+        <strong style={{ color: "var(--vault-text-mute)" }}>These picks are not independent
+        observations.</strong> They cluster inside games — roughly {coverage.games > 0 ? Math.round(coverage.rows / coverage.games) : 0} props
+        per game across the whole record — so the effective sample is far closer to the game count
+        than to the row count, and any confidence interval computed as though each pick stood alone
+        would be several times narrower than the evidence supports.
+        {" "}Model and market probabilities are shown side by side on the same picks. A hit rate is
+        not a return: these are probability calls with no stake attached, and nothing here is a
+        betting record. Educational and paper-only.
       </p>
     </section>
   );
