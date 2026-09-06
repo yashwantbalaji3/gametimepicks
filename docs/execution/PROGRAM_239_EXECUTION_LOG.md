@@ -117,3 +117,26 @@ pending, exposure kept after settlement, doubleheader taking game one, dry run w
 caught.
 
 Gate: SUCCESS 212s · 5433 unit · 458 rendered.
+
+### A real card, traced through real settlement
+
+Not a fixture. Today's published card, today's official results, run in a temp store so nothing
+production-owned was written out of band (the linescore cache belongs to `nightly-settle`):
+
+    Bank Builder B: Toronto Blue Jays to win (mlb_moneyline) → 1-6  LOST
+                    Chicago White Sox to win               → —     PENDING (game is Pre-Game)
+      → Bank Builder Lane B: LOST
+
+    Moonshot A:     Under 9.5 (mlb_total_runs)             → 7     WON
+    Moonshot B:     Kansas City Royals +1.5 (mlb_run_line) → 1-6   WON
+      → both lanes PENDING (other legs still In Progress / Scheduled)
+
+Lane B settles **LOST immediately**, while its second leg has not even started — a parlay with a
+losing leg cannot be saved, and that is the one early decision the rules permit. Every other leg
+holds with its true reason: "game is In Progress", "Pre-Game", "Scheduled".
+
+Verified independently against StatsAPI: Toronto Blue Jays 1 @ Kansas City Royals 6, Final.
+Toronto to win → LOST. Total 7 → Under 9.5 WON. KC margin 5 + 1.5 = 6.5 → WON. All three agree.
+
+Nothing was applied. Production settlement runs on `nightly-settle` at 05:30/07:30 UTC, which
+settles ET-yesterday — that is tonight's run for today's cards, and it is the pending observation.
