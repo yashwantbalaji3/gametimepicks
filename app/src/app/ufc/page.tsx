@@ -14,7 +14,7 @@
  * fail-closed gate. Paper-only and educational throughout; no stake is filled in anywhere.
  */
 import fs from "node:fs";
-import HubHeader from "@/components/sport-hub/hub-header";
+import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import { ufcHub } from "@/lib/sport-hub/adapters";
 import Explain from "@/components/ui/explain";
 import TopReadsPanel from "@/components/top-reads-panel";
@@ -136,10 +136,11 @@ export default function UfcArchivePage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       {/* Program 237: the events come first on every sport page. */}
-      <section id="ufc-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
 
       {/* P208 · Release C — shared section nav; every hub capability one action from here. */}
+      <HubTitle model={__hubModel} />
       <SportHubNav sport="ufc" />
+      <section id="ufc-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
       <header id="ufc-overview" className="flex flex-col gap-2 scroll-mt-24">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 24, fontWeight: 700 }}>

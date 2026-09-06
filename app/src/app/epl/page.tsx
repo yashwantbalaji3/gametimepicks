@@ -23,7 +23,7 @@
  * with no top-flight history, so they run at the league-average baseline.
  */
 import type { Metadata } from "next";
-import HubHeader from "@/components/sport-hub/hub-header";
+import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import { eplHub } from "@/lib/sport-hub/adapters";
 import Link from "next/link";
 
@@ -207,11 +207,11 @@ export default function EplPage() {
   return (
     <main className="mx-auto w-full max-w-[1100px] px-4 py-6">
       {/* Program 237: the events come first on every sport page. */}
-      <section id="epl-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
 
       {/* P208 · Release C — shared section nav; every hub capability one action from here. */}
       <div className="mb-4">
-        <SportHubNav
+        <HubTitle model={__hubModel} />
+      <SportHubNav
           sport="epl"
           anchors={[
             "epl-overview",
@@ -221,6 +221,7 @@ export default function EplPage() {
           ]}
         />
       </div>
+      <section id="epl-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
       <section id="epl-overview" className="scroll-mt-24">
       <SportOverviewHero
         compact

@@ -23,7 +23,7 @@
  * Data: build-time reads of COMMITTED PUBLIC artifacts only (no network, no private research).
  */
 import type { Metadata } from "next";
-import HubHeader from "@/components/sport-hub/hub-header";
+import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import { nflHub } from "@/lib/sport-hub/adapters";
 import Explain from "@/components/ui/explain";
 import fs from "node:fs";
@@ -253,6 +253,7 @@ export default function NflHubPage() {
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden flex flex-col gap-10">
       {/* P208 · Release C — shared section nav; conditional sections pass through only when they
           rendered, so no strip item is dead. */}
+      <HubTitle model={__hubModel} />
       <SportHubNav
         sport="nfl"
         anchors={[

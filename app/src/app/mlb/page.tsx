@@ -8,7 +8,7 @@
  * data; lean/game counts come from the live board summary.
  */
 import fs from "node:fs";
-import HubHeader from "@/components/sport-hub/hub-header";
+import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import { mlbHub } from "@/lib/sport-hub/adapters";
 import Link from "next/link";
 import CompetitionBadge from "@/components/ui/competition-badge";
@@ -391,7 +391,6 @@ export default function MlbLandingPage() {
   return (
     <div data-sport="mlb" className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       {/* Program 237: the events come first on every sport page. */}
-      <section id="mlb-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
 
       <div className="mb-6">
         <MlbSectionTabs />
@@ -400,7 +399,8 @@ export default function MlbLandingPage() {
       {/* P208 · Release C — the shared section nav: every hub capability one action from here.
           Conditional sections pass through only when they rendered, so no strip item is dead. */}
       <div className="mb-4">
-        <SportHubNav
+        <HubTitle model={__hubModel} />
+      <SportHubNav
           sport="mlb"
           anchors={[
             "mlb-games",
@@ -411,6 +411,7 @@ export default function MlbLandingPage() {
           ]}
         />
       </div>
+      <section id="mlb-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
 
       {/* Slate liveness (real ET clock) — on an MLB no-games day (e.g. the All-Star break) this says so
           plainly instead of presenting the most-recent board as live. Hidden on a live day. */}

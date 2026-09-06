@@ -85,3 +85,39 @@ component, invisible to a source scan. The same computed-value blindness that ha
 here before. Each page now owns its section element with a literal id.
 
 Gate: SUCCESS 199s · 5385 unit · 447 rendered.
+
+### A sticky bar over the page title, found by looking
+
+The section strip is `position: sticky`. Placed immediately before the heading it overlapped the
+`<h1>` by 29px **at rest** — measured in the browser at scrollY 0, before any scrolling:
+
+    nav   top 170  bottom 217
+    h1    top 189  bottom 229     overlap: true
+
+No DOM assertion about either element on its own would have found this. It needed a real browser and
+a look at the rendered page, which is why the charter asks for one.
+
+The header is now split: title and period ABOVE the sticky strip, events below it. That is also
+exactly the order the charter specifies — header and period controls, then the game summary — so the
+fix and the requirement turned out to be the same change. Re-measured: `overlap: false`, heading at
+184–218, strip at 418–464, and document order verified in all four built exports.
+
+### Verified by clicking, not by grep
+
+`/mlb` at 375×812: fifteen cards, distinct real first pitches (9:40, 9:10, 8:10 PM ET), each with the
+model's own line and a "View record" link. Followed `/games/mlb/ath-vs-sea-2026-09-05/` — the report
+opens with its 10,000-run precomputed simulation. `/epl` and `/ufc` at desktop width: strip, then
+title, then the table.
+
+### A guard of mine that was measuring markup
+
+The first built-export assertion used `/\d+ scheduled/` and failed against the real page, because
+React writes `15<!-- --> scheduled` — text nodes separated by comment markers. Asserting on raw HTML
+is how a guard here passes or fails for reasons that have nothing to do with the page. It now strips
+comments, scripts and tags first and asserts on rendered text, and pins the three counts as three
+separate numbers so "scheduled" can never quietly become "simulated".
+
+3 built-export guards, all mutation-probed (strip before heading, counts collapsed to one, UFC given
+a per-bout link) — every break produced a failure.
+
+Gate: SUCCESS 198s · 5379 unit · 456 rendered.

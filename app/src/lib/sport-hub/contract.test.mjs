@@ -51,3 +51,68 @@ test("an empty slate counts to zero without throwing", () => {
   assert.deepEqual(hubCounts([]), { scheduled: 0, withReport: 0, withRead: 0, started: 0 });
   assert.deepEqual(orderRows([]), []);
 });
+
+/* ── AGAINST THE BUILT EXPORT ─────────────────────────────────────────────────────────────────── */
+import fs from "node:fs";
+import path from "node:path";
+
+const OUT = path.join(process.cwd(), "out");
+const HUBS = ["mlb", "nfl", "epl", "ufc"];
+
+/**
+ * Rendered TEXT, not markup.
+ *
+ * React splits adjacent expressions with `<!-- -->` separators, so the export contains
+ * `15<!-- --> scheduled` and a plain /\d+ scheduled/ finds nothing. Asserting against raw HTML is
+ * how a guard here comes to pass or fail for reasons that have nothing to do with the page.
+ */
+const renderedText = (html) => html
+  .replace(/<!--[\s\S]*?-->/g, "")
+  .replace(/<script[\s\S]*?<\/script>/gi, " ")
+  .replace(/<[^>]+>/g, " ")
+  .replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&#x27;/g, "'").replace(/&quot;/g, '"')
+  .replace(/\s+/g, " ");
+
+test("BUILT · the page heading is never underneath the sticky section strip", () => {
+  /*
+   * The strip is `position: sticky`. Rendered immediately BEFORE the heading it overlapped the h1 by
+   * 29px at rest — measured in a browser at scrollY 0, before any scrolling. A sticky bar riding over
+   * a page title is the "sticky elements that obscure content" failure exactly, and no DOM assertion
+   * about either element on its own would have caught it. Document order is what fixes it, so
+   * document order is what is pinned.
+   */
+  for (const sport of HUBS) {
+    const f = path.join(OUT, sport, "index.html");
+    if (!fs.existsSync(f)) continue;
+    const html = fs.readFileSync(f, "utf8");
+    const h1 = html.indexOf("<h1");
+    const nav = html.search(/<nav[^>]*aria-label="[^"]*sections"/i);
+    assert.ok(h1 !== -1, `${sport}: no h1 in the export`);
+    assert.ok(nav !== -1, `${sport}: no section strip in the export`);
+    assert.ok(h1 < nav, `${sport}: the sticky strip precedes the heading and will cover it`);
+  }
+});
+
+test("BUILT · every hub opens with its events, and counts are printed separately", () => {
+  for (const sport of HUBS) {
+    const f = path.join(OUT, sport, "index.html");
+    if (!fs.existsSync(f)) continue;
+    const html = fs.readFileSync(f, "utf8");
+    assert.ok(html.includes(`id="${sport}-games"`), `${sport}: no events section`);
+    const text = renderedText(html);
+    // "N scheduled · N with a report · N with a supported read" — three numbers, not one.
+    assert.match(text, /\d+ scheduled/, `${sport}: no scheduled count`);
+    assert.match(text, /\d+ with a supported read/, `${sport}: read count not printed separately`);
+    // The three counts must be able to DIFFER; a page printing one number three times has collapsed
+    // "scheduled" into "simulated", which is the claim this whole section exists to avoid.
+    assert.match(text, /\d+ scheduled · \d+ with a report · \d+ with a supported read/, `${sport}: counts not printed as three`);
+  }
+});
+
+test("BUILT · no hub row offers a report link for a sport that has no report route", () => {
+  const f = path.join(OUT, "ufc", "index.html");
+  if (!fs.existsSync(f)) return;
+  const html = fs.readFileSync(f, "utf8");
+  assert.match(renderedText(html), /card-level report/, "UFC must say its reports are card-level");
+  assert.ok(!/href="\/ufc\/bout\//.test(html), "UFC must not link to a per-bout route that is not generated");
+});
