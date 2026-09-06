@@ -8,6 +8,8 @@
  * data; lean/game counts come from the live board summary.
  */
 import fs from "node:fs";
+import HubHeader from "@/components/sport-hub/hub-header";
+import { mlbHub } from "@/lib/sport-hub/adapters";
 import Link from "next/link";
 import CompetitionBadge from "@/components/ui/competition-badge";
 import TopReadsPanel from "@/components/top-reads-panel";
@@ -380,8 +382,17 @@ export default function MlbLandingPage() {
     { key: "methodology", label: "Methodology", badge: null, content: methodologyTab },
   ];
 
+  /* Program 237. Build-time clock, deliberately: this is a static export and every other date on
+     this page is resolved the same way, with the freshness badge re-deriving the real ET clock in
+     the browser. It decides ORDERING and grouping only — each row's status text comes from the
+     artifact's own eventPhase, so a day-old build cannot invent a game state. */
+  const __hubModel = mlbHub(new Date().toISOString());
+
   return (
     <div data-sport="mlb" className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
+      {/* Program 237: the events come first on every sport page. */}
+      <section id="mlb-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
+
       <div className="mb-6">
         <MlbSectionTabs />
       </div>
@@ -392,6 +403,7 @@ export default function MlbLandingPage() {
         <SportHubNav
           sport="mlb"
           anchors={[
+            "mlb-games",
             "mlb-overview", "mlb-board",
             ...(simSet ? ["mlb-sims"] : []),
             ...(riskLadder ? ["mlb-ladder"] : []),

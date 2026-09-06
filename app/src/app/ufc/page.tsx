@@ -14,6 +14,8 @@
  * fail-closed gate. Paper-only and educational throughout; no stake is filled in anywhere.
  */
 import fs from "node:fs";
+import HubHeader from "@/components/sport-hub/hub-header";
+import { ufcHub } from "@/lib/sport-hub/adapters";
 import Explain from "@/components/ui/explain";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, topForSport } from "@/lib/top-reads";
@@ -111,8 +113,31 @@ export default function UfcArchivePage() {
       ? { name: sched.eventName, day: fmtDay(sched.eventDate) }
       : null;
 
+  /* Program 237. Bouts first, from the card artifact's own per-bout forecast. `unmodelledReason` is
+     carried through verbatim: a bout the model declines to call shows that reason rather than a
+     number, which is the difference between "we have no read" and "we have a weak one". */
+  const __hubModel = ufcHub(
+    new Date().toISOString(),
+    (card?.bouts ?? []).map((b: any) => ({
+      id: String(b.boutId),
+      matchup: `${b.red?.name ?? "TBD"} vs ${b.blue?.name ?? "TBD"}`,
+      startUtc: b.startUtc ?? null,
+      read: b.prediction?.winner?.name && typeof b.prediction.winner.probability === "number"
+        ? {
+            label: `${b.prediction.winner.name} · ${Math.round(b.prediction.winner.probability * 100)}%`,
+            kind: "MODEL_FORECAST" as const,
+            detail: b.prediction?.method?.most ? `${b.prediction.method.most} most likely` : "winner",
+          }
+        : null,
+    })),
+    card?.event?.name ?? "Current card",
+  );
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
+      {/* Program 237: the events come first on every sport page. */}
+      <section id="ufc-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
+
       {/* P208 · Release C — shared section nav; every hub capability one action from here. */}
       <SportHubNav sport="ufc" />
       <header id="ufc-overview" className="flex flex-col gap-2 scroll-mt-24">

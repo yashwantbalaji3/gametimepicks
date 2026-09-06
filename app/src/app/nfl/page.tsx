@@ -23,6 +23,8 @@
  * Data: build-time reads of COMMITTED PUBLIC artifacts only (no network, no private research).
  */
 import type { Metadata } from "next";
+import HubHeader from "@/components/sport-hub/hub-header";
+import { nflHub } from "@/lib/sport-hub/adapters";
 import Explain from "@/components/ui/explain";
 import fs from "node:fs";
 import path from "node:path";
@@ -237,6 +239,11 @@ export default function NflHubPage() {
     </span>
   );
 
+  /* Program 237. The games come first here too. This adapter deliberately does NOT label the board
+     "this week": every NFL artifact on disk runs 2026-08-14 to 2026-08-29 with no prediction, no
+     simulation and no market snapshot, so it is a preseason archive and says so. */
+  const __hubModel = nflHub(new Date().toISOString());
+
   return (
     // P176: adopt the SHARED application shell /mlb uses (vault-page-shell, 1440px) instead of
     // a 900px document. Same class, same padding scale, same overflow guard — the largest single
@@ -249,12 +256,14 @@ export default function NflHubPage() {
       <SportHubNav
         sport="nfl"
         anchors={[
+          "nfl-games",
           "nfl-slate",
           ...(vault && (vault.watchlist?.length || vault.selections?.length) ? ["nfl-vault"] : []),
           ...(marketRows.length ? ["nfl-markets"] : []),
           "nfl-results", "nfl-coverage",
         ]}
       />
+      <section id="nfl-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
       {/* P177-A: the shared sport hero. The freshness badge rides in the badge slot and
           re-derives the REAL browser ET date after mount, so a slate page left open overnight
           stops claiming to be today's. */}
