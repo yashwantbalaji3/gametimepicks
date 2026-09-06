@@ -121,3 +121,49 @@ separate numbers so "scheduled" can never quietly become "simulated".
 a per-bout link) — every break produced a failure.
 
 Gate: SUCCESS 198s · 5379 unit · 456 rendered.
+
+## Phase F — "no card today" and "no slate today" were the same sentence
+
+### The timing that makes it live
+
+    mlb-daily-production  cron 14:15 UTC   writes mlb/team-markets/<date>.json
+    daily-products        cron 15:30 UTC   reads it to build the candidate pool
+
+The 2026-09-05 team-market file's own `generatedAt` is **16:50:41Z** — an hour and twenty minutes
+after generation was scheduled. That day produced a pool only because cron drift pushed
+daily-products to 17:29. Both jobs drift 2–3 hours here; drift the other way and the generator reads
+nothing.
+
+### What it said when it read nothing
+
+Measured against a date with no artifact at all:
+
+    bank-builder-lane-a-step-1 | fewer than 2 model-qualified legs — awaiting a full card
+
+The same sentence it produces after weighing forty-five candidates and rejecting them. An operator
+reading that cannot tell a job that has not run from a slate that offered nothing — and this exact
+conflation is what let the retired World Cup pool sit dead for months behind a message that read like
+a thin evening.
+
+`input-availability.mjs` separates three states — `PRICED`, `INPUTS_MISSING`, `NO_EVENTS` — each with
+its own sentence, and a test asserts all three sentences differ. Now:
+
+    no priced slate  → "no priced slate has been published for 2026-09-06 yet — this is a
+                        missing input, not a slate that came up short"
+    priced slate     → Bank Builder 2 legs, Moonshot 6 and 8 legs, all qualifying
+
+Six tests. An unreadable artifact is reported as `NO_EVENTS`, never `PRICED` — a corrupt file must
+not read as a healthy slate.
+
+### Publication state, kept in three parts
+
+| | |
+|---|---|
+| Engineering ready | **Yes.** Both products build qualifying cards from the live pool. |
+| Publication enabled | **At the scheduled hour only.** Demonstrated with a pinned clock at 15:30 UTC — a fixture demonstration, not proof of current publication. |
+| Observed scheduled operation | **No.** The first daily-products run with the repaired pool is today at 15:30 UTC; the P236 fix landed at ~01:00 UTC, after yesterday's run. |
+
+The nightly-settle run carrying the new ladder-settler step had not fired at the time of writing
+(most recent: 2026-09-05T11:20Z). Cron drift here is 2–3h, so its window is open, not missed.
+
+Gate: SUCCESS 200s · 5385 unit · 456 rendered.

@@ -21,6 +21,7 @@ import { selectCrossLaneBankBuilder } from "./bank-builder-correlation-review";
 import { loadMlbModelPicks } from "./mlb-model-picks";
 import { loadWorldCupTeamLegs } from "./wc-team-legs";
 import { loadMlbTeamLegs } from "./mlb-team-legs";
+import { poolAvailability, emptyPoolReason } from "./input-availability.mjs";
 import { moonshotNarrative } from "../world-cup/wc-editorial";
 import { sumActiveExposure } from "./exposure";
 
@@ -78,7 +79,8 @@ export interface PersistedDailyPortfolio {
 
 const PRODUCT_LABEL: Record<string, string> = { "bank-builder": "Bank Builder", moonshot: "Moonshot" };
 
-export function laneEligibility(lane: LaneCandidate, nowMs: number): ActivationEligibility {
+export function laneEligibility(lane: LaneCandidate, nowMs: number, emptyReason: string | null = null): ActivationEligibility {
+  if (lane.legCount === 0 && emptyReason) return { eligible: false, reason: emptyReason };
   if (lane.legCount < lane.targetLegs) return { eligible: false, reason: `only ${lane.legCount}/${lane.targetLegs} model-qualified legs — awaiting a full lane` };
   // P177-C: the SPORT gate, checked before anything else about the legs themselves. NFL was
   // excluded from the paper products only because no NFL loader was ever written — an omission,
@@ -143,7 +145,8 @@ function toBBLane(g: GeneratedLane, status: PortfolioLane["status"], eligibility
 }
 
 /** Activation eligibility for a Bank Builder generated lane (pre-event, cutoff, full + target-fit). */
-function bbEligibility(g: GeneratedLane, nowMs: number): ActivationEligibility {
+function bbEligibility(g: GeneratedLane, nowMs: number, emptyReason: string | null = null): ActivationEligibility {
+  if (g.legs.length === 0 && emptyReason) return { eligible: false, reason: emptyReason };
   if (g.legs.length < 2) return { eligible: false, reason: "fewer than 2 model-qualified legs — awaiting a full card" };
   if (!g.fitsTarget) return { eligible: false, reason: `no 2-leg combo reaches the Step ${g.step} target — candidate only` };
   for (const l of g.legs) {
@@ -377,6 +380,21 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   // they contribute nothing and the MLB legs are the pool.
   const mlbTeam = preEvent(loadMlbTeamLegs(root, nowIso, date));
   const bbPool = [...wcTeam, ...wcFill, ...mlbTeam, ...loadMlbModelPicks(root, nowIso, date)].filter((p) => p.player == null);
+
+  /*
+   * WHICH KIND OF EMPTY IS THIS?
+   *
+   * A lane with no legs says "fewer than 2 model-qualified legs — awaiting a full card" whether it
+   * weighed forty-five candidates and rejected them all, or whether its input artifact did not
+   * exist. Those are different facts and only one of them is about the slate.
+   *
+   * The timing makes it live rather than theoretical: generation is scheduled at 15:30 UTC and the
+   * team-market pool it reads was written at 16:50 on 2026-09-05 — later. That day produced a pool
+   * only because cron drift pushed generation to 17:29. Drift the other way and the generator reads
+   * nothing, and would publish a no-card that is really a job that has not run.
+   */
+  const availability = poolAvailability(root, date);
+  const missingInputReason = emptyPoolReason(availability.status, date);
   const nowMs = Date.parse(nowIso);
   const lanes: PortfolioLane[] = [];
 
@@ -395,7 +413,7 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
     const { laneA, laneB } = selectCrossLaneBankBuilder(bbPool, rungs.laneA, rungs.laneB);
     for (const g of [laneA, laneB]) {
       g.legs.forEach((l) => usedBB.add(l.id));
-      const elig = bbEligibility(g, nowMs);
+      const elig = bbEligibility(g, nowMs, missingInputReason);
       const status: PortfolioLane["status"] = g.legs.length < 2 ? "awaiting" : (activate && elig.eligible ? "active" : "candidate");
       lanes.push(toBBLane(g, status, elig));
     }
@@ -408,7 +426,7 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
       if (!rung) continue;
       const g = selectSafestTargetFitCard(bbPool, rung, usedBB);
       g.legs.forEach((l) => usedBB.add(l.id));
-      const elig = bbEligibility(g, nowMs);
+      const elig = bbEligibility(g, nowMs, missingInputReason);
       const status: PortfolioLane["status"] = g.legs.length < 2 ? "awaiting" : (activate && elig.eligible ? "active" : "candidate");
       lanes.push(toBBLane(g, status, elig));
     }
@@ -440,7 +458,7 @@ export function buildPersistedDailyPortfolio(root: string, nowIso: string, date:
   const cands = buildDailyLaneCandidates(poolForMoon, date);
   let moonshotExposure = 0;
   for (const c of [cands.moonshotA, cands.moonshotB] as LaneCandidate[]) {
-    const elig = laneEligibility(c, nowMs);
+    const elig = laneEligibility(c, nowMs, missingInputReason);
     let status: PortfolioLane["status"] = c.legCount < c.targetLegs ? "awaiting" : "candidate";
     if (activate && elig.eligible) {
       if (moonshotExposure + c.stake > MOONSHOT_MAX_EXPOSURE) { lanes.push(toPortfolioLane(c, "candidate", { eligible: false, reason: `Moonshot exposure cap $${MOONSHOT_MAX_EXPOSURE} reached` })); continue; }
