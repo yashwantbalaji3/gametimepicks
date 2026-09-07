@@ -84,10 +84,41 @@ const markets = read(path.join(APP, "public/data/nfl/markets/latest.json"));
 const marketByEvent = new Map((markets?.rows ?? []).map((r) => [r.providerEventId, r]));
 
 const nowMs = Date.parse(NOW);
-const events = (schedule?.rows ?? [])
-  .filter((r) => r.statusRaw === "STATUS_SCHEDULED" && Date.parse(r.dateUtc) > nowMs && Date.parse(r.dateUtc) <= nowMs + LOOKAHEAD_H * 3.6e6)
+/*
+ * P244 · Release A: THE POPULATION IS THE CURRENT WEEK, NOT A CLOCK WINDOW.
+ *
+ * NFL's natural period is season/phase/week (the same rule that moved EPL to its official
+ * matchweek in P243). The old hour lookahead delivered a week in slices: at T-18h the workflow
+ * saw only the opener, published one forecast, and fifteen games of the same official week sat
+ * schedule-only for days. Eligibility is now every pre-start scheduled event of the CURRENT
+ * week — the earliest (seasonType, week) pair with an unplayed game — and the hour lookahead
+ * survives only as a backstop for rows carrying no week at all.
+ *
+ * Model semantics are unchanged: strength is fit strictly to finals before --now, each event's
+ * receipt is immutable with pre-kickoff revisions on later refreshes, and settlement grades the
+ * latest pre-kickoff revision. Generating earlier is an earlier honest snapshot, refreshed by
+ * every later run until kickoff.
+ */
+const preStart = (schedule?.rows ?? []).filter((r) => r.statusRaw === "STATUS_SCHEDULED" && Date.parse(r.dateUtc) > nowMs);
+const currentPeriod = (() => {
+  const withWeek = preStart.filter((r) => r.seasonType != null && r.week != null);
+  if (!withWeek.length) return null;
+  return withWeek.reduce((best, r) =>
+    !best || r.seasonType < best.seasonType || (r.seasonType === best.seasonType && r.week < best.week) ? r : best,
+  null);
+})();
+const events = preStart
+  .filter((r) =>
+    currentPeriod
+      ? (r.seasonType === currentPeriod.seasonType && r.week === currentPeriod.week)
+        || Date.parse(r.dateUtc) <= nowMs + LOOKAHEAD_H * 3.6e6
+      : Date.parse(r.dateUtc) <= nowMs + LOOKAHEAD_H * 3.6e6)
   .sort((a, b) => a.dateUtc.localeCompare(b.dateUtc));
-console.log(`window: ${events.length} pre-start events within ${LOOKAHEAD_H}h of ${NOW}`);
+console.log(
+  currentPeriod
+    ? `population: ${events.length} pre-start event(s) of seasonType ${currentPeriod.seasonType} week ${currentPeriod.week} (+${LOOKAHEAD_H}h backstop) at ${NOW}`
+    : `window: ${events.length} pre-start events within ${LOOKAHEAD_H}h of ${NOW} (no week metadata on the schedule)`,
+);
 
 /*
  * ── P240 · THE REGULAR SEASON PUBLISHES UNDER ITS OWN, ALREADY-EVALUATED IDENTITY ──────────────
@@ -225,10 +256,19 @@ for (const ev of events) {
       regressedToSeason: strength.regressedToSeason, scheduleAsOf: schedule.generatedAt,
     })).digest("hex").slice(0, 16);
 
+    /*
+     * P244: coherence, WITHIN SAMPLING NOISE. A dead-even game legitimately prints a ±1 median
+     * margin beside a ~50.0% win rate — one distribution read two ways, not a contradiction
+     * (BAL @ IND, p=0.500, median +1, refused on the strict sign rule). The binomial noise of a
+     * 10,000-run rate is σ≈0.005, so a probability within 3σ of a coin flip cannot contradict a
+     * one-point median. A MATERIAL sign conflict — a clear favourite on one number and the other
+     * side on the other — still refuses.
+     */
+    const COIN_FLIP_EPS = 0.015; // 3σ of a 10k-run win rate at p≈0.5
     // coherence: the published median margin and the published win side must agree in sign
     const medMargin = sim.marginQuantiles.p50;
     const pHome = sim.winProbability.home;
-    if ((medMargin > 0 && pHome < 0.5) || (medMargin < 0 && pHome > 0.5)) {
+    if ((medMargin > 0 && pHome < 0.5 - COIN_FLIP_EPS) || (medMargin < 0 && pHome > 0.5 + COIN_FLIP_EPS)) {
       refused.push({ providerEventId: ev.providerEventId, state: "INCOHERENT", reason: `median margin ${medMargin} disagrees with win probability ${pHome.toFixed(3)} — refusing rather than publishing two contradictory numbers` });
       continue;
     }
@@ -312,9 +352,10 @@ for (const ev of events) {
   // the win probability IS the simulation's own home-win rate over the calibrated distribution —
   // not a second formula that could drift from the scoreline shown beside it
   const pHomeCalibrated = homeWins / RUNS;
-  // coherence check: the published median margin and the published win side must agree in sign
+  // coherence check: material sign conflicts refuse; a coin-flip rate beside a ±1 median is one
+  // distribution rounded two ways (P244 — same 3σ tolerance as the regular-season path above).
   const medMargin = q(sortNum(margins), 0.5);
-  if ((medMargin > 0 && pHomeCalibrated < 0.5) || (medMargin < 0 && pHomeCalibrated > 0.5)) {
+  if ((medMargin > 0 && pHomeCalibrated < 0.5 - 0.015) || (medMargin < 0 && pHomeCalibrated > 0.5 + 0.015)) {
     refused.push({ providerEventId: ev.providerEventId, state: "INCOHERENT", reason: `median margin ${medMargin} disagrees with win probability ${pHomeCalibrated.toFixed(3)} — refusing rather than publishing two contradictory numbers` });
     continue;
   }

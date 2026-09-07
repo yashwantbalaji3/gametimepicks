@@ -58,7 +58,11 @@ jobs:
         with:
           node-version: "20"
 
-      # The window gate: no pre-start events → the whole run is a clean NO_EVENTS skip.
+      # P244 · Release A: the gate is the CURRENT WEEK, not an hour window. The old 18h gate meant
+      # a full official week could sit schedule-only for days while its opener approached; the
+      # forecast builder now populates the whole current (seasonType, week) period, so this gate
+      # only asks whether ANY pre-start event of that period exists. The lookahead input survives
+      # as the backstop for schedules carrying no week metadata.
       - name: Check the event window
         id: window
         working-directory: app
@@ -70,10 +74,19 @@ jobs:
             const fs=require('fs');
             const s=JSON.parse(fs.readFileSync('public/data/nfl/schedule/latest.json','utf8'));
             const now=Date.parse('$NOW'), h=Number('${{ github.event.inputs.lookahead_hours || 18 }}');
-            console.log(s.rows.filter(r=>r.statusRaw==='STATUS_SCHEDULED'&&Date.parse(r.dateUtc)>now&&Date.parse(r.dateUtc)<=now+h*3.6e6).length);
+            const pre=s.rows.filter(r=>r.statusRaw==='STATUS_SCHEDULED'&&Date.parse(r.dateUtc)>now);
+            const withWeek=pre.filter(r=>r.seasonType!=null&&r.week!=null);
+            let n;
+            if(withWeek.length){
+              const best=withWeek.reduce((b,r)=>!b||r.seasonType<b.seasonType||(r.seasonType===b.seasonType&&r.week<b.week)?r:b,null);
+              n=pre.filter(r=>(r.seasonType===best.seasonType&&r.week===best.week)||Date.parse(r.dateUtc)<=now+h*3.6e6).length;
+            } else {
+              n=pre.filter(r=>Date.parse(r.dateUtc)<=now+h*3.6e6).length;
+            }
+            console.log(n);
           ")
           echo "events=$COUNT" >> "$GITHUB_OUTPUT"
-          if [ "$COUNT" -eq 0 ]; then echo "NO_EVENTS: nothing pre-start inside the window — clean skip, not an outage"; fi
+          if [ "$COUNT" -eq 0 ]; then echo "NO_EVENTS: no pre-start event in the current week or backstop window — clean skip, not an outage"; fi
 
       - name: Authorized odds capture (receipt-gated, the only credit-bearing step)
         if: steps.window.outputs.events != '0' && github.event.inputs.skip_odds != 'true'

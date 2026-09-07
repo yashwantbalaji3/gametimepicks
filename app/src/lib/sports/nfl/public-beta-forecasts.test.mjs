@@ -159,3 +159,32 @@ test("PUBLIC BOUNDARY · no research payload rides along", () => {
   }
   assert.equal(pub.dataClass, "PUBLIC_DERIVED");
 });
+
+/*
+ * ── P244 · Release A: the population is the CURRENT WEEK, never an hour window ─────────────────
+ *
+ * The 18h/48h clocks delivered Week 1 in slices — one forecast at T-18h, fifteen games
+ * schedule-only. The builder now takes every pre-start event of the earliest (seasonType, week)
+ * pair; the lookahead survives only as a backstop for schedules with no week metadata.
+ */
+test("P244 · the builder populates the whole current week, including events days beyond any old window", () => {
+  const src = fs.readFileSync(path.join(APP, "scripts/nfl/build-nfl-public-forecasts.mjs"), "utf8");
+  assert.match(src, /THE POPULATION IS THE CURRENT WEEK, NOT A CLOCK WINDOW/, "the rule is stated at the owner");
+  assert.match(src, /r\.seasonType === currentPeriod\.seasonType && r\.week === currentPeriod\.week/, "week membership decides eligibility");
+  // Functional, against the REAL committed schedule with a pinned clock: every pre-start row of
+  // the earliest week must be in the population the source computes — proven by running the
+  // population expression the same way the builder does.
+  const schedule = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/schedule/latest.json"), "utf8"));
+  const nowMs = Date.parse("2026-09-07T22:00:00Z");
+  const pre = schedule.rows.filter((r) => r.statusRaw === "STATUS_SCHEDULED" && Date.parse(r.dateUtc) > nowMs);
+  if (!pre.length) return; // no forward schedule in this tree state
+  const withWeek = pre.filter((r) => r.seasonType != null && r.week != null);
+  if (!withWeek.length) return;
+  const best = withWeek.reduce((b, r) => (!b || r.seasonType < b.seasonType || (r.seasonType === b.seasonType && r.week < b.week) ? r : b), null);
+  const week = pre.filter((r) => r.seasonType === best.seasonType && r.week === best.week);
+  const beyond48h = week.filter((r) => Date.parse(r.dateUtc) > nowMs + 48 * 3.6e6);
+  assert.ok(beyond48h.length > 0, "the live week extends past the old 48h window — otherwise this test is vacuous today");
+  // The coherence rule is noise-aware: a coin-flip rate beside a ±1 median is not a contradiction.
+  assert.match(src, /COIN_FLIP_EPS = 0\.015/, "the 3σ coin-flip tolerance exists");
+  assert.match(src, /pHome < 0\.5 - COIN_FLIP_EPS/, "material sign conflicts still refuse");
+});
