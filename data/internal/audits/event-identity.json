@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "event-identity-audit",
   "dataClass": "INTERNAL_DERIVED",
-  "generatedAt": "2026-09-06T11:45:12Z",
+  "generatedAt": "2026-09-07T10:36:08Z",
   "state": "FINDINGS",
   "note": "Identity and slug reconciliation across every sport's committed artifacts. NO_EVENTS means the checks were vacuous for that sport, which is a statement about the window rather than a pass.",
   "sports": [
     {
       "sport": "mlb",
       "verdict": "FINDINGS",
-      "rows": 2340,
+      "rows": 2385,
       "populations": [
         {
           "scope": "boards/2026-05-16",
@@ -1048,6 +1048,24 @@
           "rows": 15,
           "identified": 15,
           "findings": 0
+        },
+        {
+          "scope": "boards/2026-09-06",
+          "rows": 15,
+          "identified": 15,
+          "findings": 0
+        },
+        {
+          "scope": "full-game-simulations/2026-09-06",
+          "rows": 15,
+          "identified": 15,
+          "findings": 0
+        },
+        {
+          "scope": "predictions/2026-09-06",
+          "rows": 15,
+          "identified": 15,
+          "findings": 0
         }
       ],
       "findings": [
@@ -1125,34 +1143,95 @@
     },
     {
       "sport": "ufc",
-      "verdict": "OK",
-      "rows": 24,
+      "verdict": "FINDINGS",
+      "rows": 23,
       "populations": [
         {
           "scope": "card-latest",
-          "rows": 14,
-          "identified": 14,
+          "rows": 13,
+          "identified": 13,
           "findings": 0
         },
         {
           "scope": "odds-latest",
           "rows": 10,
           "identified": 10,
-          "findings": 0
+          "findings": 10
         }
       ],
-      "findings": [],
+      "findings": [
+        {
+          "kind": "UNJOINED_DERIVED",
+          "sport": "ufc",
+          "scope": "odds-latest",
+          "detail": "row 0 (id 401911286) is absent upstream"
+        },
+        {
+          "kind": "UNJOINED_DERIVED",
+          "sport": "ufc",
+          "scope": "odds-latest",
+          "detail": "row 1 (id 401914473) is absent upstream"
+        },
+        {
+          "kind": "UNJOINED_DERIVED",
+          "sport": "ufc",
+          "scope": "odds-latest",
+          "detail": "row 2 (id 401898007) is absent upstream"
+        },
+        {
+          "kind": "UNJOINED_DERIVED",
+          "sport": "ufc",
+          "scope": "odds-latest",
+          "detail": "row 3 (id 401902947) is absent upstream"
+        },
+        {
+          "kind": "UNJOINED_DERIVED",
+          "sport": "ufc",
+          "scope": "odds-latest",
+          "detail": "row 4 (id 401875227) is absent upstream"
+        },
+        {
+          "kind": "UNJOINED_DERIVED",
+          "sport": "ufc",
+          "scope": "odds-latest",
+          "detail": "row 5 (id 401911288) is absent upstream"
+        },
+        {
+          "kind": "UNJOINED_DERIVED",
+          "sport": "ufc",
+          "scope": "odds-latest",
+          "detail": "row 6 (id 401916275) is absent upstream"
+        },
+        {
+          "kind": "UNJOINED_DERIVED",
+          "sport": "ufc",
+          "scope": "odds-latest",
+          "detail": "row 7 (id 401914474) is absent upstream"
+        },
+        {
+          "kind": "UNJOINED_DERIVED",
+          "sport": "ufc",
+          "scope": "odds-latest",
+          "detail": "row 8 (id 401911287) is absent upstream"
+        },
+        {
+          "kind": "UNJOINED_DERIVED",
+          "sport": "ufc",
+          "scope": "odds-latest",
+          "detail": "row 9 (id 401913130) is absent upstream"
+        }
+      ],
       "note": null
     },
     {
       "sport": "epl",
       "verdict": "OK",
-      "rows": 24,
+      "rows": 26,
       "populations": [
         {
           "scope": "graded-picks",
-          "rows": 24,
-          "identified": 24,
+          "rows": 26,
+          "identified": 26,
           "findings": 0
         }
       ],
@@ -1161,7 +1240,7 @@
     }
   ],
   "totals": {
-    "rows": 2405,
-    "findings": 8
+    "rows": 2451,
+    "findings": 18
   }
 }
