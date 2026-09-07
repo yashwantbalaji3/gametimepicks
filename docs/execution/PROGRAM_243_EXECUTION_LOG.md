@@ -29,35 +29,23 @@ This file is THE single backlog (charter §2). Historical unresolved items are m
 
 ## Backlog (id · dependency · owner-path · acceptance · state)
 
-- A-1 today-population split (—) · src/lib/top-reads.ts + homepage section · today board holds ONLY
-  ET-today events; future reads in an explicitly "upcoming" section; guard on populations · OPEN
-- A-2 one Moonshot current state (—) · src/app/moonshot/page.tsx + one derived state owner ·
-  hero/sections consume ONE object; prod shows single coherent state · OPEN
-- A-3 count reconciliation (—) · simulate/today/mlb owners · scheduled/published/missed counted
-  separately; same-scope counts agree across pages; explorer never counts unavailable as simulated · OPEN
-- A-4 NFL current-summary hygiene (—) · nfl hub page · current week summary carries no archived
-  prices/preseason copy at the top; archive stays disclosed · OPEN (minimal here; full = C-NFL)
-- A-5 EPL "Today's ladder" future-dated heading (—) · sport-lab-cards.tsx · heading derives from
-  card date · OPEN
-- A-6 publication deadlines per event (R3) · publication-slo owner · deadline = earliest event −
-  measured margin; recovery starts before earliest event · OPEN (verify current, then fix)
-- A-7 recovery chaining (P242 finding) · publication-slo action + workflows · fallback proven via
-  artifacts · OPEN
-- B-1 shared event/period read model · new adapter over producers · consumed by hubs/home/simulate/
-  picks/parlays/results · OPEN
-- B-2 registry migration (R7) · sport-capability-registry + 6 consumers · claims match current
-  evidence; consumers migrated · OPEN
-- C-NFL week experience (R5) · nfl-event-window + builders + hub · full selected-week table with
-  direct reports; regular-season branch wired; window rationalized · OPEN
-- C-EPL matchweek experience (R6) · epl-matchweek + build-epl-forecasts + hub · matchweek
-  eligibility replaces 96h; reports for supported fixtures · OPEN
+- A-1 today-population split · DONE 6c48a4993 (topToday/topUpcoming + sportPanelReads; verified on prod)
+- A-2 one Moonshot current state · DONE 6c48a4993 (WC-board section removed; published lanes render; empty state quotes publicNote; contradiction gone on prod)
+- A-3 count reconciliation · DONE 6c48a4993 (explorer excludes unavailable rows; guards population-exact)
+- A-4 NFL prices-layer honesty · DONE 6c48a4993 + eaee528d8 (LIVE requires future kickoff; ARCHIVED_CAPTURE state; status builder in the always-rederive class)
+- A-5 EPL ladder heading · DONE 6c48a4993 (ladderDayLabel)
+- A-6 publication deadlines · DONE (verified: deadline = earliest − 90min already existed; pre-deadline recovery added in A-7)
+- A-7 recovery chain · DONE 6c48a4993 (pre-deadline overdue dispatch at deadline−75min; loud 403; chain-completion step; actions:write on 4 carriers). Live proof pending the next natural drift
+- B-1 shared event/period read model · DONE 95647043e (src/lib/events/read-model.ts; 10/10 incl. live reconciliation); consumed by /nfl hub (C-NFL); further consumers migrate opportunistically
+- B-2 registry migration · DONE 4ae4a7c5f (EXPERIMENTAL_PUBLIC for NFL/EPL; UFC deliberately unchanged — its graduation-decision artifact is the standing authority, supersession = Release G)
+- C-NFL week experience · DONE eaee528d8 (hub leads with Week 1 · 16 games via read model; per-row window reasons; status re-derives every window). Residual: /nfl/week/[key] routes when a git-conserved week register exists (single week in capture today)
+- C-EPL matchweek experience · DONE 42a91e717 + be346f283 (matchweek eligibility; model-only pre-odds forecasts with the market comparison honestly absent; natural run published 10 MW4 rows)
 - C-UFC bout journeys (R8 keep-gaps) · ufc hub · stable per-bout routes; reasons for gaps · OPEN
 - C-MLB day navigation · simulate/day owners · today+selectable days; provisional tomorrow · OPEN
-- D-1 product lifecycle registry completeness · lifecycle-registry + coverage · every settled
-  stream registered once · OPEN
+- D-1 registry completeness · DONE 35ecaa8df (mlb-cards + multi-cards governed with real owners; nfl-cards = recorded CLOSED_STREAM; membership guard vs lab-ledger streams)
 - D-2 one product-state object (R2 root) · products state owner · all pages consume it · OPEN
   (A-2 delivers the Moonshot slice)
-- D-3 replay-safe progression tests · settle owners · duplicate/replay/partial fixtures · OPEN
+- D-3 replay safety · NATURAL EVIDENCE 2026-09-07: products generated twice (18:18 dispatch + 18:30 natural chain) → ONE pending Bank Builder card, $100 exposure, no duplicate stake/card ids; P211 machine tests stand
 - E-1 consistent IA (A22 carry-over) · navigation.ts + hub shells · five primaries; identical hub
   order · OPEN
 - F-1 route+control inventory & 18-combo matrix · e2e · charter §9 · OPEN (starts during A–E)
