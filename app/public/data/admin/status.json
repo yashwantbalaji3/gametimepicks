@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-07T18:30:11.447Z",
+  "generatedAt": "2026-09-07T18:31:24.695Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -62,7 +62,7 @@
           "legs": 2,
           "combinedOdds": 120,
           "stake": 100,
-          "potentialReturn": 219.96,
+          "potentialReturn": 220.3,
           "selections": [
             "Minnesota Twins +1.5",
             "Toronto Blue Jays to win"
@@ -91,12 +91,12 @@
           "status": "active",
           "step": 1,
           "legs": 6,
-          "combinedOdds": 3284,
+          "combinedOdds": 3262,
           "stake": 25,
-          "potentialReturn": 846.1,
+          "potentialReturn": 840.51,
           "selections": [
             "Detroit Tigers to win",
-            "Over 7.5",
+            "Under 8",
             "San Diego Padres to win",
             "Over 8",
             "Over 7.5",
@@ -108,12 +108,12 @@
           "status": "active",
           "step": 1,
           "legs": 8,
-          "combinedOdds": 9169,
+          "combinedOdds": 9008,
           "stake": 25,
-          "potentialReturn": 2317.21,
+          "potentialReturn": 2277.02,
           "selections": [
             "Detroit Tigers to win",
-            "Over 7.5",
+            "Under 8",
             "San Diego Padres to win",
             "Over 8",
             "Over 7.5",
@@ -231,16 +231,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-07T18:30:10.760Z",
+    "lastRunAt": "2026-09-07T18:30:12.156Z",
     "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-07",
-    "etTime": "14:30",
+    "etTime": "14:31",
     "stages": [
       {
         "stage": "schedule",
