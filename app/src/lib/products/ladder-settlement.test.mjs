@@ -217,3 +217,85 @@ test("a missing store is absence, not failure", async () => {
   assert.equal(r.settled, 0);
   assert.equal(r.cards.length, 0);
 });
+
+/*
+ * ── P240 · the dual-lane Moonshot shape ────────────────────────────────────────────────────────
+ *
+ * The live artifact carries lanes[] (laneId A/B) beside a legacy top-level ladder that duplicates
+ * lane A. The settler read only the legacy ladder: lane A settled while lane B's card — same
+ * slate, same official finals — stayed "awaiting official results" for twenty days. These pin the
+ * dual-shape rule (lanes[] wins, legacy identity continuity for lane A) and the cumulative
+ * positions block (a later partial run must never erase another lane's position).
+ */
+const dualMoonDoc = (legsA, legsB) => ({
+  id: "moonshot-lane-mlb-2026-08-17", cycle: 1, currentStep: 1,
+  ladder: [
+    { step: 1, status: "active", stake: 25, card: { cardId: "m-a", slateDate: "2026-08-17", result: null, legs: legsA } },
+    { step: 2, status: "upcoming", stake: 100 },
+  ],
+  lanes: [
+    { laneId: "A", status: "active", ladder: [
+      { step: 1, status: "active", stake: 25, card: { cardId: "m-a", slateDate: "2026-08-17", result: null, legs: legsA } },
+      { step: 2, status: "upcoming", stake: 100 },
+    ] },
+    { laneId: "B", status: "active", ladder: [
+      { step: 1, status: "active", stake: 25, card: { cardId: "m-b", slateDate: "2026-08-17", result: null, legs: legsB } },
+      { step: 2, status: "upcoming", stake: 100 },
+    ] },
+  ],
+});
+
+test("dual-lane Moonshot: BOTH lanes settle, and the legacy duplicate of lane A is not graded twice", async () => {
+  const root = store();
+  put(root, MOONSHOT_REL, dualMoonDoc(
+    [leg("Gabriel Moreno", "batter_hits", "over", 1.5, "824725")],
+    [leg("Kyle Tucker", "batter_hits", "under", 0.5, "824320")],
+  ));
+  const { fetchBox } = boxSource({
+    "824725": { final: true, byPlayer: bat("gabriel moreno", { hits: 3 }) },  // lane A WINS
+    "824320": { final: true, byPlayer: bat("kyle tucker", { hits: 2 }) },     // lane B LOSES
+  });
+  const r = await settleProductLadders({ root, fetchBox, nowIso: NOW, apply: true });
+  const applied = r.cards.filter((c) => c.applied);
+  assert.equal(applied.length, 2, "one settlement per lane, none for the legacy duplicate");
+  assert.deepEqual(applied.map((c) => c.id).sort(), ["moonshot:a:c1:s1:2026-08-17", "moonshot:b:c1:s1:2026-08-17"]);
+  assert.equal(applied.find((c) => c.lane === "a").sourceCardId, "m-a");
+  assert.equal(applied.find((c) => c.lane === "b").sourceCardId, "m-b");
+  // lane A keeps the legacy "moonshot" position key (it IS the legacy lane); lane B gets its own
+  assert.deepEqual([pos(root, "moonshot").cycle, pos(root, "moonshot").step], [1, 2]);       // won → advance
+  assert.deepEqual([pos(root, "moonshot-lane-B").cycle, pos(root, "moonshot-lane-B").step], [2, 1]); // lost → restart
+});
+
+test("a lane already in the prior index HOLDs under its unchanged legacy identity while the other settles", async () => {
+  const root = store();
+  put(root, MOONSHOT_REL, dualMoonDoc(
+    [leg("Gabriel Moreno", "batter_hits", "over", 1.5, "824725")],
+    [leg("Kyle Tucker", "batter_hits", "under", 0.5, "824320")],
+  ));
+  // The production history: an earlier run (legacy-shape settler) settled lane A only.
+  put(root, LIFECYCLE_DIR.concat(["latest.json"]), {
+    generatedAt: "2026-09-06T01:33:11Z",
+    settledIndex: { "moonshot:a:c1:s1:2026-08-17": { result: "lost", settledAt: "2026-09-06T01:33:11Z" } },
+    positions: {
+      "bank-builder-lane-A": { cycle: 3, step: 2, afterCard: "bank-builder:a:c3:s1:2026-08-17", result: "won", transition: "advance" },
+      "moonshot": { cycle: 2, step: 1, afterCard: "moonshot:a:c1:s1:2026-08-17", result: "lost", transition: "restart" },
+    },
+    cards: [],
+  });
+  const { fetchBox } = boxSource({
+    "824320": { final: true, byPlayer: bat("kyle tucker", { hits: 2 }) },     // lane B LOSES
+  });
+  const r = await settleProductLadders({ root, fetchBox, nowIso: NOW, apply: true });
+  const a = r.cards.find((c) => c.id === "moonshot:a:c1:s1:2026-08-17");
+  assert.equal(a.applied, false, "lane A holds — settled by the earlier run, never re-graded");
+  assert.match(a.reason, /already settled lost/);
+  const b = r.cards.find((c) => c.id === "moonshot:b:c1:s1:2026-08-17");
+  assert.equal(b.applied, true);
+  assert.equal(b.result, CARD.LOST);
+  // THE CUMULATIVE POSITIONS RULE: this partial run wrote only lane B's position itself, and the
+  // ledger still carries every position the earlier run recorded.
+  assert.deepEqual(pos(root, "moonshot-lane-B"), { cycle: 2, step: 1, afterCard: "moonshot:b:c1:s1:2026-08-17", result: "lost", transition: TRANSITION.RESTART });
+  assert.equal(pos(root, "moonshot").cycle, 2, "the prior run's lane-A position survives the partial run");
+  assert.equal(pos(root, "bank-builder-lane-A").step, 2, "and so does the other product's");
+  assert.equal(Object.keys(ledger(root).settledIndex).length, 2, "the settled index accumulates");
+});

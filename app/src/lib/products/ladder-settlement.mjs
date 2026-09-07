@@ -72,6 +72,18 @@ function priorIndex(root) {
 }
 
 /**
+ * Positions are as cumulative as the settled index, and for the same reason (P240). Each run's
+ * ledger used to carry positionsOf(THIS run's applied changes) only — correct on the first run,
+ * which settled every lane at once, and wrong on every later partial run: settling one late card
+ * would have REPLACED latest.json with a positions block naming only that lane, and every other
+ * lane's position — data the pages render — would have vanished from the artifact. Prior positions
+ * carry forward; a lane that settles again overwrites its own entry and nobody else's.
+ */
+function priorPositions(root) {
+  return { ...(readJson(path.join(root, ...LIFECYCLE_DIR, "latest.json"))?.positions ?? {}) };
+}
+
+/**
  * Grade every leg of one card. Returns the per-leg outcomes plus a note for anything not decided,
  * so a pending card can explain itself instead of just staying pending.
  */
@@ -157,53 +169,73 @@ async function settleMoonshot(root, fetchBox, nowIso, changes, prior) {
   const file = path.join(root, ...MOONSHOT_REL);
   const doc = readJson(file);
   if (!doc) return null;
-  const cycle = Number(doc.cycle ?? 1);
-  for (const step of doc.ladder ?? []) {
-    const card = step.card;
-    if (!card) continue;
-    const id = cardIdentity({ product: "moonshot", lane: "a", cycle, step: step.step, slateDate: card.slateDate ?? (doc.id ?? "").slice(-10) ?? "unknown" });
-    const already = prior[id];
-    if (already) {
-      changes.push({ product: "moonshot", lane: "a", id, result: already.result, transition: TRANSITION.HOLD,
-        applied: false, reason: `already settled ${already.result} on ${already.settledAt} — not re-graded`, legs: [] });
-      continue;
-    }
-    const graded = await gradeLegs(card.legs ?? [], fetchBox);
-    const result = gradeCard(graded.map((g) => g.result));
-    if (!settlementIsNew(card.result ?? (step.status === "active" ? CARD.PENDING : card.result), result)) {
-      changes.push({ product: "moonshot", lane: "a", id, result, transition: TRANSITION.HOLD, applied: false,
-        reason: graded.find((g) => g.note)?.note ?? "already settled or nothing final yet", legs: graded.map(summarise) });
-      continue;
-    }
-    graded.forEach((g) => stampLeg(g.leg, g, nowIso));
-    const pos = nextPosition({ cycle, step: step.step, maxStep: MAX_STEP.moonshot }, result);
-    card.result = result;
-    step.status = "settled";
-    step.settledAt = nowIso;
-    step.cardIdentity = id;
-    /* The lane artifact's own id, carried so a reader of this ledger can point at the exact card it
-     * graded without re-deriving an identity. The settler never rewrites that artifact, so this is
-     * the only link between the two. */
-    changes.push({ product: "moonshot", lane: "a", id, sourceCardId: card.cardId ?? null,
-      result, transition: pos.transition, applied: true,
-      reason: pos.reason, nextCycle: pos.cycle, nextStep: pos.step, legs: graded.map(summarise) });
-    doc.cycle = pos.cycle;
-    doc.currentStep = pos.step;
-    if (pos.transition === TRANSITION.ADVANCE) {
-      const nxt = (doc.ladder ?? []).find((s) => s.step === pos.step);
-      if (nxt && nxt.status === "upcoming") nxt.status = "awaiting-card";
+  /*
+   * BOTH SHAPES, THE STATE MODULE'S OWN RULE (P240). The live artifact carries a dual-lane
+   * `lanes[]` (laneId A/B, one card each) ALONGSIDE a legacy top-level `ladder` that duplicates
+   * lane A. This function read only the legacy ladder: lane A settled under its legacy identity
+   * while lane B's card — same slate, same official finals — stayed "awaiting official results"
+   * for twenty days, and /moonshot rendered a settled Lost row beside a false wait for one
+   * product. moonshot-state.mjs already resolves the dual shape (lanes[] wins, the legacy ladder
+   * is its duplicate); the settler now applies the same rule, so the two can never again disagree
+   * about which cards exist. Lane A's identity is unchanged (`moonshot:a:…`), so every previously
+   * written settlement HOLDs by the prior index rather than re-grading.
+   */
+  const laneSets = (doc.lanes ?? []).length
+    ? doc.lanes.map((l) => ({ ladder: l.ladder ?? [], laneId: String(l.laneId ?? "a").toLowerCase(), holder: l }))
+    : [{ ladder: doc.ladder ?? [], laneId: "a", holder: doc }];
+  for (const { ladder, laneId, holder } of laneSets) {
+    const cycle = Number(holder.cycle ?? doc.cycle ?? 1);
+    for (const step of ladder) {
+      const card = step.card;
+      if (!card) continue;
+      const id = cardIdentity({ product: "moonshot", lane: laneId, cycle, step: step.step, slateDate: card.slateDate ?? (doc.id ?? "").slice(-10) ?? "unknown" });
+      const already = prior[id];
+      if (already) {
+        changes.push({ product: "moonshot", lane: laneId, id, result: already.result, transition: TRANSITION.HOLD,
+          applied: false, reason: `already settled ${already.result} on ${already.settledAt} — not re-graded`, legs: [] });
+        continue;
+      }
+      const graded = await gradeLegs(card.legs ?? [], fetchBox);
+      const result = gradeCard(graded.map((g) => g.result));
+      if (!settlementIsNew(card.result ?? (step.status === "active" ? CARD.PENDING : card.result), result)) {
+        changes.push({ product: "moonshot", lane: laneId, id, result, transition: TRANSITION.HOLD, applied: false,
+          reason: graded.find((g) => g.note)?.note ?? "already settled or nothing final yet", legs: graded.map(summarise) });
+        continue;
+      }
+      graded.forEach((g) => stampLeg(g.leg, g, nowIso));
+      const pos = nextPosition({ cycle, step: step.step, maxStep: MAX_STEP.moonshot }, result);
+      card.result = result;
+      step.status = "settled";
+      step.settledAt = nowIso;
+      step.cardIdentity = id;
+      /* The lane artifact's own id, carried so a reader of this ledger can point at the exact card it
+       * graded without re-deriving an identity. The settler never rewrites that artifact, so this is
+       * the only link between the two. */
+      changes.push({ product: "moonshot", lane: laneId, id, sourceCardId: card.cardId ?? null,
+        result, transition: pos.transition, applied: true,
+        reason: pos.reason, nextCycle: pos.cycle, nextStep: pos.step, legs: graded.map(summarise) });
+      holder.cycle = pos.cycle;
+      holder.currentStep = pos.step;
+      if (pos.transition === TRANSITION.ADVANCE) {
+        const nxt = ladder.find((s) => s.step === pos.step);
+        if (nxt && nxt.status === "upcoming") nxt.status = "awaiting-card";
+      }
     }
   }
   return { file, doc };
 }
 
 /** The ladder position each product ends on, so a page can render "cycle 4 · step 1" without
- *  replaying the card list itself. */
+ *  replaying the card list itself. Moonshot lane "a" keeps the bare "moonshot" key — it IS the
+ *  legacy single lane, and the key carries that lineage for every reader already holding it; the
+ *  dual shape's other lanes get their own keys, bank-builder-style (P240). */
 function positionsOf(changes) {
   const out = {};
   for (const c of changes) {
     if (!c.applied) continue;
-    const key = c.product === "bank-builder" ? `bank-builder-lane-${c.lane}` : c.product;
+    const key = c.product === "bank-builder"
+      ? `bank-builder-lane-${c.lane}`
+      : c.lane === "a" ? "moonshot" : `moonshot-lane-${String(c.lane).toUpperCase()}`;
     out[key] = { cycle: c.nextCycle, step: c.nextStep, afterCard: c.id, result: c.result, transition: c.transition };
   }
   return out;
@@ -244,7 +276,7 @@ export async function settleProductLadders({ root, fetchBox, nowIso, apply = fal
         + "cards frozen on 2026-08-17 in place would restate financial history that predates this "
         + "settlement. Outcomes are recorded here instead; the money record is unchanged.",
     },
-    positions: positionsOf(changes),
+    positions: { ...priorPositions(root), ...positionsOf(changes) },
     settledIndex: { ...prior, ...Object.fromEntries(applied.map((c) => [c.id, { result: c.result, settledAt: nowIso }])) },
     cards: changes,
   };

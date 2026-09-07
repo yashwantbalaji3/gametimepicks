@@ -80,10 +80,17 @@ export default function MoonshotPage() {
    * away. `running` is false here because nothing generates the product and nothing can settle the
    * cards it left open.
    */
+  // Today's daily portfolio — computed BEFORE the state derivation so the derived sentence knows
+  // the revived daily lane published today (P240): the page must never say "not produced" beside
+  // today's live card.
+  const today = currentSlateDate() ?? currentEtDate();
+  const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  const moonshotLanes = dailyPortfolio.cards.filter((c) => c.product === "moonshot" && isPublishedCard(c));
   const moonshot = deriveMoonshotState({
     /* Cards the lifecycle ledger has graded. The settler never rewrites the lane artifact — it
        feeds the protected bankroll — so without this a settled card reads as pending for ever. */
     settledCardIds: settledCardIds(loadLifecycleLedger(), "moonshot"),
+    todayPublishedCardCount: moonshotLanes.length,
     lane,
     portfolioMoonshot,
     productLedger: readData("product-ledger", "moonshot.json"),
@@ -93,8 +100,7 @@ export default function MoonshotPage() {
   });
 
   // Today's daily portfolio — the activated Moonshot A/B lanes render as the lead ladder.
-  const today = currentSlateDate() ?? currentEtDate();
-  const dailyPortfolio = buildDailyPortfolio(path.join(process.cwd(), "public", "data"), new Date().toISOString(), today);
+  // (loaded above, before the state derivation)
   // Open exposure is a LIVE figure and must come from today's slate, not from portfolio.json — that
   // artifact is the SETTLED-money authority and correctly reports 0 settled exposure. Reading it here
   // made the tracker say "$0.00 exposure" on the same page whose header said "$50.00 placed".
@@ -102,7 +108,6 @@ export default function MoonshotPage() {
   /* Liveness needs LEGS. The daily portfolio synthesizes two empty Moonshot placeholders for every
      date, so the previous `filter(product === "moonshot")` was true on every day the site has ever
      rendered — which is what lit "Day 1 · LIVE" and promised overnight settlement here. */
-  const moonshotLanes = dailyPortfolio.cards.filter((c) => c.product === "moonshot" && isPublishedCard(c));
   const structured = buildStructuredMoonshot(path.join(process.cwd(), "public", "data"), today);
 
   /* The Moonshot card frozen on 2026-08-17 sat unsettled for nineteen days because no job read this

@@ -174,12 +174,15 @@ export function isPublishedCard(card) {
  * @param {boolean}     args.hasWiredSettler       can ANY wired settler reach its open cards
  * @param {string}      args.today                 ET product date
  * @param {string[]}   [args.settledCardIds]       card ids the lifecycle ledger has already graded
+ * @param {number}      [args.todayPublishedCardCount] published (legs > 0) Moonshot cards in today's daily portfolio — the revived daily lane
  */
 export function deriveMoonshotState({
   lane, portfolioMoonshot, productLedger,
   hasScheduledGenerator, hasWiredSettler, today,
   /** Card ids the lifecycle ledger has graded. Passed in; this module still reads nothing. */
   settledCardIds = [],
+  /** Published (legs > 0) Moonshot cards in TODAY'S daily portfolio — the revived daily lane. */
+  todayPublishedCardCount = 0,
 }) {
   const contradictions = [];
 
@@ -256,6 +259,13 @@ export function deriveMoonshotState({
   if (!lane && !productLedger && !portfolioMoonshot) lifecycle = "UNKNOWN";
   else if (openCards.length && !hasWiredSettler) lifecycle = "ABANDONED";
   else if (openCards.length) lifecycle = "SETTLING";
+  // P240: the product was revived as a DAILY lane inside the daily portfolio (P239) while this
+  // legacy ladder store stays frozen historical bytes. Today's published daily card is generation
+  // evidence this module must not contradict — before this branch, the page rendered "no scheduled
+  // job generates one" (or "today's has not been produced") directly beside today's live card.
+  // The caller passes the count from the daily portfolio, legs > 0 only; this module still reads
+  // nothing.
+  else if (todayPublishedCardCount > 0) lifecycle = "PUBLISHED";
   else if (!hasScheduledGenerator) lifecycle = "NOT_GENERATING";
   else if (laneDate === today) lifecycle = "PUBLISHED";
   else lifecycle = "STALE";

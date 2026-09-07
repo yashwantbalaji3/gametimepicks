@@ -341,3 +341,30 @@ test("the gamePk inside a legId counts as game identity", () => {
   assert.ok(s2.contradictions.some((c) => /identity|settle/i.test(JSON.stringify(c))) || s2.lifecycle !== "SETTLING",
     "a leg with genuinely no game identity must still be flagged");
 });
+
+test("P240 · today's published daily card outranks the frozen legacy lane: PUBLISHED, never a false 'not produced'", () => {
+  // The legacy store is 20 days stale and every legacy card is lifecycle-settled; the daily
+  // portfolio published a real Moonshot card today. The sentence must describe the live product.
+  const s = deriveMoonshotState({
+    lane: { id: "moonshot-lane-mlb-2026-08-17", generatedAt: "2026-08-17T14:00:00Z", status: "active",
+      ladder: [{ step: 1, status: "active", card: { cardId: "m-a", result: null, legs: [{ legId: "MLB:824725:x:y" }] } }] },
+    portfolioMoonshot: null, productLedger: null,
+    hasScheduledGenerator: false, hasWiredSettler: true,
+    today: "2026-09-06",
+    settledCardIds: ["m-a"],
+    todayPublishedCardCount: 2,
+  });
+  assert.equal(s.lifecycle, "PUBLISHED");
+  assert.match(s.publicNote, /Today's Moonshot card is published/);
+  // and with a legacy card still genuinely open, SETTLING still wins — an open card is never hidden
+  const open = deriveMoonshotState({
+    lane: { id: "moonshot-lane-mlb-2026-08-17", generatedAt: "2026-08-17T14:00:00Z", status: "active",
+      ladder: [{ step: 1, status: "active", card: { cardId: "m-b", result: null, legs: [{ legId: "MLB:824725:x:y" }] } }] },
+    portfolioMoonshot: null, productLedger: null,
+    hasScheduledGenerator: false, hasWiredSettler: true,
+    today: "2026-09-06",
+    settledCardIds: [],
+    todayPublishedCardCount: 2,
+  });
+  assert.equal(open.lifecycle, "SETTLING");
+});
