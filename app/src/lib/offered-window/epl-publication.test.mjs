@@ -72,10 +72,14 @@ test("probabilities separate published from withheld on every committed row", ()
    */
   const rows = allRows();
   if (!rows.length) return;
-  const withheld = rows.filter((r) => r.state === "READY_EXCEPT_ODDS");
+  /* P243 · C-EPL: a flagged MODEL-ONLY row carries the model's own grid pre-odds — published by
+     the probs rule, labelled so a reader (and this guard) can tell it from a paired forecast. */
+  const withheld = rows.filter((r) => r.state === "READY_EXCEPT_ODDS" && !r.modelOnly);
+  const modelOnly = rows.filter((r) => r.state === "READY_EXCEPT_ODDS" && r.modelOnly);
   const published = rows.filter((r) => r.state !== "READY_EXCEPT_ODDS" && r.state);
-  assert.ok(withheld.length && published.length, "both regimes are represented in the committed history");
+  assert.ok(withheld.length + modelOnly.length > 0 && published.length > 0, "both regimes are represented in the committed history");
   assert.ok(!withheld.some((r) => r.probs), "a withheld row must never carry probabilities");
+  assert.ok(modelOnly.every((r) => r.probs), "a model-only row must carry its grid");
   assert.ok(published.every((r) => r.probs), "a pre-event row must always carry them");
 });
 
@@ -97,6 +101,10 @@ test("LIVE · a day whose public artifact carries probabilities is not reported 
   const doc = JSON.parse(fs.readFileSync(artifact, "utf8"));
   const withProbs = (doc.rows ?? []).filter((r) => r.probs).length;
   if (!doc.public || withProbs === 0) return;
+  /* TWO PRODUCERS, TWO CADENCES (P233's own lesson): the offered window regenerates on its jobs,
+     the forecast artifact on the matchweek workflow. A window doc older than the artifact it is
+     judged against cannot yet know what published — assert only in the causal direction. */
+  if (String(window.doc.generatedAt ?? "") < String(doc.generatedAt ?? "")) return;
 
   /*
    * The claim is that a published fixture is not OWED — not that PUBLISHED equals the artifact's

@@ -68,12 +68,21 @@ test("EVERY committed pre-event row is still published", () => {
 });
 
 test("every withheld row is refused, on the numbers rather than the label", () => {
+  /*
+   * P243 · C-EPL: READY_EXCEPT_ODDS split into two honest sub-cases. A MODEL-ONLY row (flagged)
+   * carries the model's own grid — its numbers reached a public page, so it IS published, and the
+   * probs-derived rule classifies it so with no state name involved. A row that is neither paired
+   * nor model-only still withholds everything, and that half of the old assertion stands.
+   */
   const rows = committedRows();
   if (!rows.length) return;
-  const withheld = rows.filter((r) => r.state === "READY_EXCEPT_ODDS");
-  if (!withheld.length) return;
+  const withheld = rows.filter((r) => r.state === "READY_EXCEPT_ODDS" && !r.modelOnly);
   for (const r of withheld) {
     assert.equal(carriesPublishableProbabilities(r.probs), false, `${r.matchup} withholds its odds and must not read as published`);
+  }
+  const modelOnly = rows.filter((r) => r.state === "READY_EXCEPT_ODDS" && r.modelOnly);
+  for (const r of modelOnly) {
+    assert.equal(carriesPublishableProbabilities(r.probs), true, `${r.matchup} is flagged model-only and must carry a real grid`);
   }
 });
 

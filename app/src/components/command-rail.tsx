@@ -114,7 +114,7 @@ export default function CommandRail() {
         <BrandMark variant="rail" />
       </Link>
 
-      <nav className="flex-1 px-3 py-2 flex flex-col gap-0.5 overflow-y-auto">
+      <nav aria-label="Primary (rail)" className="flex-1 px-3 py-2 flex flex-col gap-0.5 overflow-y-auto">
         {ITEMS.map((item) => {
           const active = isActive(item);
           return (

@@ -29,8 +29,13 @@ test.describe("P242 · direct report journey", () => {
     const main = page.locator("main#main-content");
     await expect(main).toContainText(/Simulation complete|Simulation not yet available/);
     if (await main.getByText("Simulation complete").count()) {
-      /* Report sections render directly (the old post-reveal content). */
-      await expect(main.getByText("Player simulation board").first()).toBeVisible();
+      /* Report sections are one TAB-CLICK away (the V2.5 report is tabbed by design — never a
+         generation ceremony). The journey clicks the tab and sees the board. */
+      const tab = main.getByRole("tab", { name: /players/i }).or(main.getByRole("button", { name: /players/i })).first();
+      if (await tab.count()) {
+        await tab.click();
+        await expect(main.getByText("Player simulation board").first()).toBeVisible();
+      }
       /* Paper-only disclosure survives on the page. */
       await expect(main).toContainText(/Paper-only/i);
     }
