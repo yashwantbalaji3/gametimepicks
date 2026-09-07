@@ -223,8 +223,18 @@ const foldClub = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f
  * So this stays empty and the quarantine below names any club that fails to join, which turns
  * Thursday's first run into the evidence this table should be built from. Guessing now would mean
  * shipping an alias nobody has checked, in the one place where a wrong guess is invisible.
+ *
+ * THE FIRST OBSERVED ALIAS (P240). The 2026-09-06T15:00:44Z capture quarantined the same club
+ * twice — Coventry v "Brighton and Hove Albion" (c97a93b9…) and "Brighton and Hove Albion" v
+ * Arsenal (b5b058d0…) — because the provider spells out "and" where the committed fixture source
+ * writes "&": foldClub drops "&" as punctuation ("brighton hove albion") but keeps the word
+ * ("brighton and hove albion"). Exactly one fixture club folds to the target form across all 20
+ * (collision-checked against the full committed season), so this is the observed-evidence entry
+ * the comment above was waiting for, not a guess. It heals both rows at the next matchday capture.
  */
-const CLUB_ALIASES = {};
+const CLUB_ALIASES = {
+  "brighton and hove albion": "brighton hove albion",
+};
 const clubKey = (s) => { const f = foldClub(s); return CLUB_ALIASES[f] ?? f; };
 
 const fixtures = loadFixtures();

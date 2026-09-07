@@ -47,17 +47,20 @@ test("an unjoinable or ambiguous provider event is quarantined, never guessed", 
   assert.match(BODY, /hits\.length === 0/, "the zero-match case needs its own reason");
 });
 
-test("the club alias table is empty until a real capture supplies evidence", () => {
+test("the club alias table holds exactly the observed entries, never memory", () => {
   /*
    * An alias is a claim that two names are the same club, and a wrong one puts one match's prices on
-   * another. The first draft was written from memory and was backwards — it mapped full official
-   * names to abbreviations while the fixture source writes the full forms, so every entry would have
-   * broken a join that otherwise worked. No EPL capture has ever succeeded, so the provider's club
-   * strings have not been observed. This stays empty until they have been.
+   * another. This table started EMPTY by rule until a real capture supplied evidence, and the first
+   * evidence arrived on 2026-09-06T15:00:44Z: two quarantined rows (c97a93b9…, b5b058d0…) both
+   * naming "Brighton and Hove Albion" — the provider spells out the "and" that the committed
+   * fixture source writes as "&", which foldClub strips as punctuation. Collision-checked against
+   * all 20 committed season clubs: exactly one folds to the target form (P240).
    *
-   * When Thursday's quarantine names real mismatches, add them WITH that receipt and change this
-   * test to assert those specific entries.
+   * The table must hold THESE entries and nothing else. A new quarantined name earns a new entry
+   * with its own receipt — added here beside it, never from memory.
    */
   const table = /const CLUB_ALIASES = \{([\s\S]*?)\};/.exec(BODY)?.[1] ?? "";
-  assert.equal(table.trim(), "", "aliases must be added from an observed capture, never from memory");
+  const entries = table.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+  assert.deepEqual(entries, ['"brighton and hove albion": "brighton hove albion",'],
+    "every alias must trace to an observed quarantine receipt — this table holds exactly the evidenced set");
 });
