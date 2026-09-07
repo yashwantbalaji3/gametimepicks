@@ -3,18 +3,247 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-09-07",
- "generatedAt": "2026-09-07T19:04:34Z",
+ "generatedAt": "2026-09-07T22:06:57Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
- "state": "NO_VAULT",
- "reason": "no upcoming NFL event in this window to evaluate",
+ "state": "WATCHLIST_ONLY",
+ "reason": "224 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
  "isCard": false,
  "selections": [],
- "watchlist": [],
- "candidateCount": 0,
+ "watchlist": [
+  {
+   "playerId": "nfl-athlete-3121023",
+   "name": "Dallas Goedert",
+   "position": "TE",
+   "team": "PHI",
+   "opponent": "WSH",
+   "event": "WSH @ PHI",
+   "providerEventId": "401872929",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "tdProbability": 0.467078,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 44, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4429795",
+   "name": "Jahmyr Gibbs",
+   "position": "RB",
+   "team": "DET",
+   "opponent": "NO",
+   "event": "NO @ DET",
+   "providerEventId": "401872923",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "tdProbability": 0.443215,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.51, g 53, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4426385",
+   "name": "Zach Charbonnet",
+   "position": "RB",
+   "team": "SEA",
+   "opponent": "NE",
+   "event": "NE @ SEA",
+   "providerEventId": "401872656",
+   "kickoffUtc": "2026-09-10T00:20Z",
+   "tdProbability": 0.421449,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 46, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4685382",
+   "name": "Omarion Hampton",
+   "position": "RB",
+   "team": "LAC",
+   "opponent": "ARI",
+   "event": "ARI @ LAC",
+   "providerEventId": "401872926",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "tdProbability": 0.39573,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.24, g 9, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-5123663",
+   "name": "Isaac TeSlaa",
+   "position": "WR",
+   "team": "DET",
+   "opponent": "NO",
+   "event": "NO @ DET",
+   "providerEventId": "401872923",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "tdProbability": 0.368641,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.43, g 14, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4430737",
+   "name": "Kyren Williams",
+   "position": "RB",
+   "team": "LAR",
+   "opponent": "SF",
+   "event": "SF @ LAR",
+   "providerEventId": "401872657",
+   "kickoffUtc": "2026-09-11T00:35Z",
+   "tdProbability": 0.364741,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.53, g 49, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4890973",
+   "name": "Ashton Jeanty",
+   "position": "RB",
+   "team": "LV",
+   "opponent": "MIA",
+   "event": "MIA @ LV",
+   "providerEventId": "401872928",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "tdProbability": 0.353538,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.37, g 12, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-5083076",
+   "name": "Harold Fannin Jr.",
+   "position": "TE",
+   "team": "CLE",
+   "opponent": "JAX",
+   "event": "CLE @ JAX",
+   "providerEventId": "401872922",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "tdProbability": 0.352908,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.41, g 13, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-3043078",
+   "name": "Derrick Henry",
+   "position": "RB",
+   "team": "BAL",
+   "opponent": "IND",
+   "event": "BAL @ IND",
+   "providerEventId": "401872659",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "tdProbability": 0.351653,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.50, g 35, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4432665",
+   "name": "Brock Bowers",
+   "position": "TE",
+   "team": "LV",
+   "opponent": "MIA",
+   "event": "MIA @ LV",
+   "providerEventId": "401872928",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "tdProbability": 0.342587,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.36, g 26, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4430807",
+   "name": "Bijan Robinson",
+   "position": "RB",
+   "team": "ATL",
+   "opponent": "PIT",
+   "event": "ATL @ PIT",
+   "providerEventId": "401872658",
+   "kickoffUtc": "2026-09-13T17:00Z",
+   "tdProbability": 0.33642,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.48, g 46, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4360761",
+   "name": "Michael Wilson",
+   "position": "WR",
+   "team": "ARI",
+   "opponent": "LAC",
+   "event": "ARI @ LAC",
+   "providerEventId": "401872926",
+   "kickoffUtc": "2026-09-13T20:25Z",
+   "tdProbability": 0.329167,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ROLE_UNCERTAIN",
+   "roleNote": "no source-backed evidence yet of how much this player will play in this game",
+   "marketPrice": null,
+   "shareBasis": "corpus-role 2023-25 stint (nEff 1.51, g 43, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-08-13T06:30:00Z"
+  }
+ ],
+ "candidateCount": 224,
  "withheld": [],
  "gates": {
   "required": [

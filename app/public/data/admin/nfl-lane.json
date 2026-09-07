@@ -2,38 +2,41 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-08-29T18:16:23Z",
+ "generatedAt": "2026-09-07T22:06:57Z",
  "program": "P171",
  "nextWindow": {
-  "matchup": "CHI @ TEN",
-  "kickoffUtc": "2026-08-29T22:00Z",
-  "seasonType": 1,
-  "week": 4,
-  "hoursToKickoff": 3.73,
-  "eventsInWindow": 1
+  "matchup": "NE @ SEA",
+  "kickoffUtc": "2026-09-10T00:20Z",
+  "seasonType": 2,
+  "week": 1,
+  "hoursToKickoff": 50.22,
+  "eventsInWindow": 16
  },
  "freshness": {
   "schedule": {
-   "state": "FRESH",
-   "detail": "as of 2026-08-29T16:55:30Z (FRESH)"
+   "state": "STALE",
+   "detail": "as of 2026-09-05T15:41:47Z (STALE)"
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-08-29T18:16:23Z (FRESH)"
+   "detail": "as of 2026-09-07T22:06:57Z (FRESH)"
   },
   "injuries": {
    "state": "FRESH",
-   "detail": "as of 2026-08-29T16:55:32Z (FRESH)"
+   "detail": "as of 2026-09-07T17:59:25Z (FRESH)"
   },
   "odds": {
-   "state": "FRESH",
-   "detail": "as of 2026-08-29T17:50:39Z (FRESH)"
+   "state": "STALE",
+   "detail": "as of 2026-08-29T17:50:39Z (STALE)"
   }
  },
  "regularSeason": {
   "verdict": {
-   "state": "READY_WITH_DESIGN_CAPS",
-   "operationalGaps": [],
+   "state": "OPERATIONAL_GAPS",
+   "operationalGaps": [
+    "schedule:STALE",
+    "prices:STALE"
+   ],
    "designCaps": [
     "activesInactives",
     "depthCharts",
@@ -43,8 +46,8 @@
   "matrix": [
    {
     "id": "schedule",
-    "state": "AVAILABLE",
-    "detail": "schedule as of 2026-08-29T16:55:30Z"
+    "state": "STALE",
+    "detail": "schedule as of 2026-09-05T15:41:47Z"
    },
    {
     "id": "teamStrength",
@@ -54,12 +57,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-08-29T16:55:32Z"
+    "detail": "injuries as of 2026-09-07T17:59:25Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-08-29T18:16:23Z"
+    "detail": "rosters as of 2026-09-07T22:06:57Z"
    },
    {
     "id": "participationRoles",
@@ -88,7 +91,7 @@
    },
    {
     "id": "prices",
-    "state": "AVAILABLE",
+    "state": "STALE",
     "detail": "prices as of 2026-08-29T17:50:39Z"
    }
   ]
@@ -112,10 +115,10 @@
   }
  },
  "credits": {
-  "state": "AUTHORIZED",
+  "state": "UNKNOWN",
   "programSpend": 69,
-  "ceiling": 3000,
-  "remainingProgram": 2931,
+  "ceiling": null,
+  "remainingProgram": null,
   "providerRemaining": 8779,
   "openingBalance": {
    "capturedAt": "2026-08-13T08:57:07Z",
@@ -124,7 +127,7 @@
    "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
   },
   "requests": 107,
-  "detail": "69 of 3000 Program 171 credits across 107 requests; provider reports 8779 remaining"
+  "detail": "authorization receipt did not parse — no paid call may run"
  },
  "models": {
   "roleShares": {
@@ -164,9 +167,9 @@
  },
  "vault": {
   "state": "NO_PLAY",
-  "date": "2026-08-29",
-  "entries": 9,
-  "corrections": 1
+  "date": "2026-09-07",
+  "entries": 15,
+  "corrections": 0
  },
  "gate": {
   "maturity": "SCAFFOLDED",
@@ -180,11 +183,6 @@
   "detail": "nfl-event-window.yml is deployed with two daily window passes, but a workflow file is not cadence proof — promotion waits for terminal scheduled receipts"
  },
  "blockers": [
-  {
-   "id": "preseason-participation",
-   "state": "REALITY_GATED",
-   "detail": "preseason: no dated+sourced snap scenarios exist, so every player market is ROLE_UNCERTAIN and the team model abstains by its model card. Clears when the regular season starts (or a participation source is authorized)."
-  },
   {
    "id": "player-markets-absent",
    "state": "NO_MARKET",

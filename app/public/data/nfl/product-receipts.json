@@ -2,24 +2,31 @@
   "schemaVersion": 1,
   "artifact": "nfl-product-receipts",
   "dataClass": "PUBLIC_DERIVED",
-  "runId": "d674dc82c1d8",
-  "generatedAt": "2026-09-07T19:04:34Z",
+  "runId": "60072730c507",
+  "generatedAt": "2026-09-07T22:06:57Z",
   "asOf": {
-    "index": "2026-09-07T19:04:34Z",
-    "eligibility": "2026-09-07T19:04:34Z",
-    "vault": "2026-09-07T18:51:58Z",
+    "index": "2026-09-07T22:06:57Z",
+    "eligibility": "2026-09-07T22:06:57Z",
+    "vault": "2026-09-07T22:06:57Z",
     "markets": "2026-08-29T17:50:39Z"
   },
-  "nextRunUtc": "2026-09-07T21:00:00Z",
-  "eventsInWindow": 0,
+  "nextRunUtc": "2026-09-08T14:30:00Z",
+  "eventsInWindow": 16,
   "lanes": [
     {
       "product": "bank-builder",
       "label": "Bank Builder",
-      "state": "REFUSED",
-      "stateReason": "no pre-kickoff NFL event was available to evaluate — an operational blocker, not a finding about the model",
-      "candidatesConsidered": 0,
-      "rejections": [],
+      "state": "NO_PLAY",
+      "stateReason": "every candidate was rejected; see the taxonomy below",
+      "candidatesConsidered": 16,
+      "rejections": [
+        {
+          "reason": "NOT_VALIDATED_MODEL",
+          "label": "the team model is experimental, not validated",
+          "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
+          "count": 16
+        }
+      ],
       "reconciles": true,
       "card": null,
       "exposure": 0,
@@ -28,10 +35,17 @@
     {
       "product": "moonshot",
       "label": "Moonshot",
-      "state": "REFUSED",
-      "stateReason": "no pre-kickoff NFL event was available to evaluate — an operational blocker, not a finding about the model",
-      "candidatesConsidered": 0,
-      "rejections": [],
+      "state": "NO_PLAY",
+      "stateReason": "every candidate was rejected; see the taxonomy below",
+      "candidatesConsidered": 16,
+      "rejections": [
+        {
+          "reason": "NOT_VALIDATED_MODEL",
+          "label": "the team model is experimental, not validated",
+          "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
+          "count": 16
+        }
+      ],
       "reconciles": true,
       "card": null,
       "exposure": 0,
@@ -40,10 +54,17 @@
     {
       "product": "build-inventory",
       "label": "Card builder",
-      "state": "REFUSED",
-      "stateReason": "no pre-kickoff NFL event was available to evaluate — an operational blocker, not a finding about the model",
-      "candidatesConsidered": 0,
-      "rejections": [],
+      "state": "NO_PLAY",
+      "stateReason": "every candidate was rejected; see the taxonomy below",
+      "candidatesConsidered": 16,
+      "rejections": [
+        {
+          "reason": "NOT_VALIDATED_MODEL",
+          "label": "the team model is experimental, not validated",
+          "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
+          "count": 16
+        }
+      ],
       "reconciles": true,
       "card": null,
       "exposure": 0,
@@ -52,10 +73,17 @@
     {
       "product": "end-zone-vault",
       "label": "End Zone Vault",
-      "state": "REFUSED",
-      "stateReason": "no upcoming NFL event in this window to evaluate",
-      "candidatesConsidered": 0,
-      "rejections": [],
+      "state": "NO_PLAY",
+      "stateReason": "224 model candidates, but no card: the sportsbooks are not offering anytime-touchdown markets for these games and preseason playing time is unknown, so no player's role is established. A watchlist is something to look at — it is not a card, carries no return, and is not an instruction to bet.",
+      "candidatesConsidered": 224,
+      "rejections": [
+        {
+          "reason": "NO_PRICED_MARKET",
+          "label": "the provider offers no NFL player market in this window",
+          "detail": "an unpriced leg can never enter a paper product — there is nothing to settle it against.",
+          "count": 224
+        }
+      ],
       "alsoBlocking": [
         {
           "reason": "NO_VALIDATED_FAMILY",
