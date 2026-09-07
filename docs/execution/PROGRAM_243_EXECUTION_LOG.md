@@ -46,10 +46,22 @@ This file is THE single backlog (charter §2). Historical unresolved items are m
 - D-2 one product-state object (R2 root) · products state owner · all pages consume it · OPEN
   (A-2 delivers the Moonshot slice)
 - D-3 replay safety · NATURAL EVIDENCE 2026-09-07: products generated twice (18:18 dispatch + 18:30 natural chain) → ONE pending Bank Builder card, $100 exposure, no duplicate stake/card ids; P211 machine tests stand
-- E-1 consistent IA (A22 carry-over) · navigation.ts + hub shells · five primaries; identical hub
-  order · OPEN
+- E-1 five-primary IA · DONE 577a02444 (Home·Sports·Simulations·Picks & Parlays·Results identical desktop+mobile; guards rebased with old→new notes; thumb-bar width guard caught the 11-char overflow). Hub-order normalization: /nfl matches the charter order; /mlb //epl //ufc audit = F residual notes
 - F-1 route+control inventory & 18-combo matrix · e2e · charter §9 · OPEN (starts during A–E)
 - F-2 nested-main landmarks (P242 chip) · 15 routes · one main landmark per page · OPEN
 - G-1 forward populations & research reconciliation (EPL player-v2 provenance, NFL families) · OPEN
 
 ## Release A (in progress)
+
+
+## Release C/E evidence (prod, 2026-09-07 ~20:40Z)
+
+- NFL: https://gametimepicks.yashwantbalaji.com/nfl/ — "Week 1 · regular season · Wed, Sep 9 – Mon,
+  Sep 14", all 16 games, per-row window/missed reasons (was: August preseason table first).
+- EPL: all ten MW4 match reports LIVE with the model-only pre-odds label — e.g.
+  /epl/match/manchester-united-v-manchester-city-2026-09-13/ (24.4/24.2/51.4 + exact-score matrix).
+  Chain: matchweek eligibility → shadow modelOnly grid → public artifact → pages, published by the
+  natural epl-matchweek workflow (3 dispatched runs; the third carried the full plumbing).
+- Nav: five primaries render identically in both bars on the built export.
+- MLB missed coverage (Sep-7: 11/5/6) preserved everywhere; explorer population excludes misses.
+- UFC: 13 accounted (11 modelled + 2 reasoned gaps) — unchanged by design.
