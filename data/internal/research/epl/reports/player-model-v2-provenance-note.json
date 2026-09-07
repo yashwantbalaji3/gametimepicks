@@ -1,0 +1,15 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-player-v2-provenance-note",
+ "dataClass": "INTERNAL_RESEARCH_GOVERNANCE",
+ "public": false,
+ "notedAt": "2026-09-07T20:55:00Z",
+ "finding": "Commit provenance does not support the preregistration claim: the ACCEPTED backtest (player-model-v2-backtest.json, generatedAt 2026-08-21T04:52:50Z) was generated BEFORE the preregistration file was first committed (22abc4e4f, 2026-08-21T04:55:56Z), and the report's stated registeredAt (06:15:00Z) postdates both commits. The evaluation therefore ran before its bars were registered in the tamper-evident record.",
+ "evidence": [
+  "git log 22abc4e4f (preregistration-player-v2.json created 2026-08-21T04:55:56Z)",
+  "git log 9199b6ff9 (backtest committed 2026-08-21T04:55:57Z, generatedAt 04:52:50Z)",
+  "data/internal/research/epl/reports/player-model-v2-backtest.json preregistration.registeredAt=06:15:00Z"
+ ],
+ "disposition": "The ACCEPTED verdict is NOT voided by this note (the audit's framing: an audit item, not proof of invalid research) \u2014 but the acceptance may not be described as preregistered, and any future promotion resting on v2 must either re-run under a genuinely pre-committed protocol or carry this caveat. Appended beside the report; the report itself is not rewritten.",
+ "supersedes": null
+}

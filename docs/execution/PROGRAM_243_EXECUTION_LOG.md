@@ -49,7 +49,17 @@ This file is THE single backlog (charter §2). Historical unresolved items are m
 - E-1 five-primary IA · DONE 577a02444 (Home·Sports·Simulations·Picks & Parlays·Results identical desktop+mobile; guards rebased with old→new notes; thumb-bar width guard caught the 11-char overflow). Hub-order normalization: /nfl matches the charter order; /mlb //epl //ufc audit = F residual notes
 - F-1 route+control inventory & 18-combo matrix · e2e · charter §9 · OPEN (starts during A–E)
 - F-2 nested-main landmarks (P242 chip) · 15 routes · one main landmark per page · OPEN
-- G-1 forward populations & research reconciliation (EPL player-v2 provenance, NFL families) · OPEN
+- G-1 research reconciliation · EPL player-v2 provenance RESOLVED AGAINST the preregistration claim:
+  git shows the ACCEPTED backtest generated 04:52:50Z, BEFORE its preregistration was first
+  committed (22abc4e4f, 04:55:56Z); the report's stated registeredAt (06:15Z) postdates both.
+  Finding recorded as data/internal/research/epl/reports/player-model-v2-provenance-note.json
+  (appended, nothing rewritten; verdict not voided — but 'preregistered' may not be claimed for it,
+  and any promotion resting on v2 re-runs under a genuinely pre-committed protocol or carries the
+  caveat). Public rendered copy makes no preregistration claim (comments only). Forward populations
+  keep collecting (EPL learning refreshed by today's natural runs); NFL family states derive from
+  model-status (refreshed every window since C-NFL). Admin console: /ops·/preview·/launch pruned
+  from the export every build (build log receipt). Legal manifest still records counsel review
+  required with no approval entry — an OUTSTANDING EXTERNAL APPROVAL, not an engineering gap.
 
 ## Release A (in progress)
 

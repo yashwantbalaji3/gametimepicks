@@ -38,8 +38,10 @@ test.describe("P243 · charter journeys", () => {
   test("EPL: matchweek hub → open a fixture forecast → back preserves the hub", async ({ page }) => {
     watchConsole(page);
     await page.goto("/epl/");
-    const link = main(page).locator('a[href^="/epl/match/"]').first();
-    test.skip(!(await link.count()), "no EPL fixture report link in this build (pre-forecast window)");
+    /* The first match link in DOM order can sit inside a collapsed archive disclosure — the
+       journey clicks what a reader can actually see. */
+    const link = main(page).locator('a[href^="/epl/match/"]:visible').first();
+    test.skip(!(await link.count()), "no visible EPL fixture report link in this build (pre-forecast window)");
     const href = await link.getAttribute("href");
     await link.click();
     await page.waitForURL(`**${href}`);
