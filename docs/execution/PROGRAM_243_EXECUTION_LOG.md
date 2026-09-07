@@ -75,3 +75,83 @@ This file is THE single backlog (charter §2). Historical unresolved items are m
 - Nav: five primaries render identically in both bars on the built export.
 - MLB missed coverage (Sep-7: 11/5/6) preserved everywhere; explorer population excludes misses.
 - UFC: 13 accounted (11 modelled + 2 reasoned gaps) — unchanged by design.
+
+## FINAL REPORT (2026-09-07, ~21:20Z / 17:20 ET)
+
+### §12 verdicts (each scoped to its evidence)
+
+1. **CURRENT EVENT COVERAGE — DELIVERED.** The shared read model's period table at close
+   (same-scope counts every page must agree with):
+   | sport | period | scheduled | model published | missed pre-event | unsupported (reasoned) |
+   |---|---|---|---|---|---|
+   | MLB | 2026-09-07 (day) | 11 | 5 | 6 (preserved, never backfilled) | 0 |
+   | NFL | Week 1 · regular | 16 | 0 (each publishes inside its own T-18h event window; first window opens Sep 9 ~06:20Z) | 0 | 0 |
+   | EPL | Matchweek 4 | 10 | 10 (model-only pre-odds; prices join ≤30h before kickoff) | 0 | 0 |
+   | UFC | Noche UFC · Sep 12 | 13 | 11 | 0 | 2 (named reasons) |
+   A reasoned unsupported event is accounted for, not simulated; a report without prices is a
+   valid forecast, not a qualified priced pick.
+
+2. **PRODUCT LIFECYCLE — DELIVERED (one named residual).** Every settled stream is registered
+   once (mlb-cards + multi-cards governed with real owners; nfl-cards a recorded CLOSED stream;
+   membership guard vs the ledger's own stream list). Replay safety observed NATURALLY today:
+   double generation (18:18 + 18:30Z) produced one card set, one $100 exposure, no duplicate ids.
+   Residual: D-2's full one-object migration beyond Moonshot/Bank Builder (their live surfaces
+   are coherent today — /moonshot one derived state; /bank-builder Step 1 of 5 · Cycle 13 · $100
+   everywhere).
+
+3. **RESULTS ACCOUNTING — STANDING (verified, not rebuilt).** The P233 explorer + canonical
+   accounting render on /results; registry membership now covers every stream feeding it; the
+   19-14 protected record byte-identical all session (md5 affe6b21… verified at baseline and
+   pinned in the suite).
+
+4. **PUBLIC UI — DELIVERED.** Five primaries (Home · Sports · Simulations · Picks & Parlays ·
+   Results) identical on desktop top bar, rail (now an accessibly-NAMED landmark) and thumb bar;
+   direct reports everywhere (P242 preserved); today-populations pure; hub leads = natural
+   periods.
+
+5. **BROWSER/VIEWPORT CERTIFICATION — PASS within tested scope.** Final tree: unit/contract
+   5484/0 · built-HTML 462/0 · Playwright **526 passed / 0 failed / 18 reality-typed skips**
+   across chromium + firefox-a11y + webkit-a11y, including the new 6-viewport matrix
+   (360/390/430/768/1366/1440 × 9 routes: overflow, nav reachability, thumb-bar clipping) and
+   the charter journeys (NFL week, EPL matchweek→fixture→back, UFC gaps, MLB day nav, parlay
+   customize, product coherence, results, nav parity). Skips are typed live-state absences, not
+   passes. Scope limits: representative-template dedup per the existing p206 control inventory
+   (every route's links/buttons named + resolving); deeper per-instance interaction records
+   remain the F residual.
+
+6. **REAL-DEVICE CHECK — REAL_DEVICE_CHECK_PENDING.** Playwright WebKit ≠ physical iPhone
+   Safari. Checklist: open /, /simulate, /nfl, /epl match page, /build on iPhone Safari +
+   Android Chrome; verify thumb bar (5 items + Menu), no horizontal scroll, report tabs tap,
+   back-navigation, reduced-motion.
+
+7. **OPERATIONAL ON-TIME EVIDENCE — REPAIRED + ARMED, natural pass pending.** Today's real
+   trace: 6/11 MLB games missed pre-event (recorded, kept); root causes fixed at the owners
+   (pre-deadline recovery at publish-deadline−75min; loud 403; actions:write on all four
+   carriers; chain-completion for suppressed workflow_run; NFL status in the always-rederive
+   class). SLO state at close: PUBLISHED. The proof this holds is the next natural drift — a
+   deadline-based claim, not a promise.
+
+8. **OUTSTANDING EXTERNAL APPROVALS (naming, not hiding):** legal terms/privacy =
+   LEGAL_COUNSEL_REQUIRED, approval null (structural ship-block for final legal text) ·
+   NFL price authorization expired (draft receipt awaits founder) · UFC reclassification gated
+   on superseding its graduation-decision artifact (registered process) · Moonshot pause token ·
+   EPL player-v2: provenance note recorded — the ACCEPTED backtest predates its committed
+   preregistration; 'preregistered' may not be claimed for it.
+
+### One real working report per sport (production, verified rendered)
+- MLB: https://gametimepicks.yashwantbalaji.com/games/mlb/ath-vs-sea-2026-09-06/ (full direct report)
+- NFL: https://gametimepicks.yashwantbalaji.com/nfl/ (Week 1 · 16 games · per-row reasons); game page /nfl/game/401873308/
+- EPL: https://gametimepicks.yashwantbalaji.com/epl/match/manchester-united-v-manchester-city-2026-09-13/ (model-only pre-odds, 24.4/24.2/51.4 + score matrix)
+- UFC: https://gametimepicks.yashwantbalaji.com/ufc/ (13 bouts · 11 reads · 2 reasoned gaps)
+- Products: /bank-builder (Step 1 of 5 · Cycle 13) · /build (Sep-7 3-card ladder) · /results
+
+### Remaining gaps, each with an owner class
+- ENGINEERING: F per-instance interaction records; D-2 full product-state object; /nfl/week/[key]
+  routes (needs a git-conserved week register); hub-order normalization pass for /mlb //epl //ufc
+  bodies; nested-main landmarks (P242 chip).
+- FUTURE EVIDENCE: NFL Sep-9 first regular-season generation; next natural cron drift proving the
+  pre-deadline recovery; EPL night-before price join (≤30h); forward evaluation ≈ Sep 10.
+- AUTHORIZATION: NFL odds renewal · UFC graduation supersession · Moonshot resume · legal counsel.
+- DEVICE: REAL_DEVICE_CHECK_PENDING (checklist above).
+
+Broad public launch remains a separate decision while the external approvals stand.
