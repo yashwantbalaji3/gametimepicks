@@ -3,16 +3,16 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-research-progress",
-  "lastUpdated": "2026-09-06T22:39:54.772Z",
+  "lastUpdated": "2026-09-07T00:15:23.422Z",
   "datasetHealth": {
-    "totalObservations": 5617,
-    "validObservations": 5617,
+    "totalObservations": 4115,
+    "validObservations": 4115,
     "invalidObservations": 0,
     "qualityStatus": "PASS",
-    "averageFeatureCoverage": 0.937,
-    "marketProbabilityCoveragePct": 83.9,
+    "averageFeatureCoverage": 0.935,
+    "marketProbabilityCoveragePct": 84.1,
     "marketsCovered": 12,
-    "datesCovered": 4,
+    "datesCovered": 3,
     "latestSettlementDate": "2026-09-06",
     "readyForResearch": false,
     "readyReason": "modeling BLOCKED: needs 30 distinct observation dates AND 500 settled observations AND out-of-sample validation AND founder approval"
@@ -21,11 +21,11 @@
     "qualifyingObservationDates": 4,
     "requiredObservationDates": 30,
     "remainingObservationDates": 26,
-    "observations": 5617,
+    "observations": 4115,
     "remainingObservations": 0,
     "observationTargetMet": true,
     "dateTargetMet": false,
-    "dailyObservationRate": 1404,
+    "dailyObservationRate": 1029,
     "latestQualifyingDate": "2026-09-06",
     "consecutiveHealthyCaptureDates": 4,
     "estimatedCompletion": {
@@ -36,18 +36,18 @@
     "bindingConstraint": "dates",
     "note": "Dataset readiness only — NOT model readiness. Modeling stays BLOCKED past the gate until out-of-sample validation + founder approval. A projected completion date never implies a model exists."
   },
-  "datesCollected": 45,
-  "gamesObserved": 6082,
-  "observations": 5617,
-  "observationDates": 4,
+  "datesCollected": 46,
+  "gamesObserved": 6093,
+  "observations": 4115,
+  "observationDates": 3,
   "lastSuccessfulObservation": "2026-09-06",
-  "capturedMarketLeans": 80191,
-  "teamMarketLeans": 6002,
+  "capturedMarketLeans": 80255,
+  "teamMarketLeans": 6066,
   "playerPropLeans": 74189,
   "marketDistribution": {
-    "h2h": 1210,
-    "spreads": 1774,
-    "totals": 3018
+    "h2h": 1226,
+    "spreads": 1800,
+    "totals": 3040
   },
   "propDistribution": {
     "pitcher_outs": 1608,
@@ -65,7 +65,7 @@
     "loss": 43842,
     "push": 198,
     "unavailable": 3849,
-    "pending": 289
+    "pending": 353
   },
   "settledOutcomes": {
     "win": 32013,
@@ -87,17 +87,17 @@
     "batter_hits_runs_rbis": 0
   },
   "featureCoverage": {
-    "featureCoveragePct": 94.4,
-    "lineupCoveragePct": 86.6,
+    "featureCoveragePct": 93.7,
+    "lineupCoveragePct": 85.1,
     "marketCoveragePct": 100,
     "byFamily": {
-      "confirmed_lineup": 86.6,
+      "confirmed_lineup": 85.1,
       "pitcher_status": 100,
       "bullpen": 0,
       "plate_appearance_opportunity": 0,
       "markets": 0,
       "environment": 100,
-      "umpire": 91.1
+      "umpire": 89.5
     }
   },
   "missingFeatures": [
@@ -106,8 +106,8 @@
     "markets"
   ],
   "settlement": {
-    "joinDates": 46,
-    "joinedGames": 628,
+    "joinDates": 47,
+    "joinedGames": 639,
     "finalGames": 625,
     "perDate": {
       "2026-07-21": {
@@ -431,24 +431,31 @@
         "marketLeans": 1657,
         "settledEligible": 1246,
         "pending": 279
+      },
+      "2026-09-07": {
+        "games": 11,
+        "final": 0,
+        "marketLeans": 64,
+        "settledEligible": 0,
+        "pending": 64
       }
     }
   },
   "dailyHealth": {
-    "date": "2026-09-06",
-    "capturedGames": 15,
-    "finalGames": 13,
-    "marketLeansCaptured": 1657,
-    "settledEligible": 1246,
-    "observationsCreated": 1254,
+    "date": "2026-09-07",
+    "capturedGames": 11,
+    "finalGames": 0,
+    "marketLeansCaptured": 64,
+    "settledEligible": 0,
+    "observationsCreated": 0,
     "hasFreeze": true,
     "hasMarketSnapshots": true,
-    "note": "final + market-covered — observations should be produced"
+    "note": "games not final yet — captured leans stay pending until finalization"
   },
   "gate": {
     "datesTarget": 30,
     "observationsTarget": 500,
-    "datesCollected": 46,
+    "datesCollected": 47,
     "observations": 73742,
     "datesRemaining": 0,
     "observationsRemaining": 0,

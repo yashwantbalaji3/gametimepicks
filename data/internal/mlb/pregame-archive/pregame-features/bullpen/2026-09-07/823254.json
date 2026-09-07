@@ -1,0 +1,212 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 823254,
+  "date": "2026-09-07",
+  "capturedAt": "2026-09-07T00:15:03.735Z",
+  "availableAt": "2026-09-07T00:15:03.735Z",
+  "eventStartTime": "2026-09-07T21:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-09-04",
+    "2026-09-05",
+    "2026-09-06"
+  ],
+  "home": {
+    "teamId": 135,
+    "teamName": "San Diego Padres",
+    "last1Day": {
+      "appearances": 3,
+      "pitches": 51,
+      "relievers": [
+        {
+          "id": 695243,
+          "name": "Mason Miller",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 3,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 699134,
+          "name": "Bradgley Rodriguez",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-06"
+          ]
+        }
+      ]
+    },
+    "last3Days": {
+      "appearances": 11,
+      "pitches": 200,
+      "relievers": [
+        {
+          "id": 695243,
+          "name": "Mason Miller",
+          "appearances": 2,
+          "pitches": 43,
+          "outs": 9,
+          "dates": [
+            "2026-09-04",
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 656288,
+          "name": "Griffin Canning",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 8,
+          "dates": [
+            "2026-09-05"
+          ]
+        },
+        {
+          "id": 670970,
+          "name": "Adrian Morejon",
+          "appearances": 2,
+          "pitches": 33,
+          "outs": 6,
+          "dates": [
+            "2026-09-04",
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 666745,
+          "name": "Jhony Brito",
+          "appearances": 1,
+          "pitches": 22,
+          "outs": 6,
+          "dates": [
+            "2026-09-05"
+          ]
+        },
+        {
+          "id": 699134,
+          "name": "Bradgley Rodriguez",
+          "appearances": 2,
+          "pitches": 20,
+          "outs": 6,
+          "dates": [
+            "2026-09-04",
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 593974,
+          "name": "Wandy Peralta",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-09-05"
+          ]
+        },
+        {
+          "id": 688158,
+          "name": "David Morgan",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 4,
+          "dates": [
+            "2026-09-05"
+          ]
+        },
+        {
+          "id": 673513,
+          "name": "Yuki Matsui",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-09-04"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 120,
+    "teamName": "Washington Nationals",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 106,
+      "relievers": [
+        {
+          "id": 695378,
+          "name": "Jack Sinclair",
+          "appearances": 2,
+          "pitches": 40,
+          "outs": 5,
+          "dates": [
+            "2026-09-04",
+            "2026-09-05"
+          ]
+        },
+        {
+          "id": 691384,
+          "name": "Luis Perales",
+          "appearances": 1,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-09-04"
+          ]
+        },
+        {
+          "id": 690925,
+          "name": "Clayton Beeter",
+          "appearances": 1,
+          "pitches": 23,
+          "outs": 2,
+          "dates": [
+            "2026-09-05"
+          ]
+        },
+        {
+          "id": 680899,
+          "name": "Erik Tolman",
+          "appearances": 1,
+          "pitches": 19,
+          "outs": 2,
+          "dates": [
+            "2026-09-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-09-04,2026-09-05,2026-09-06) + feed/live box scores",
+    "capturedAt": "2026-09-07T00:15:03.735Z"
+  },
+  "recordHash": "68deadf82f06216573c8a2870a7d4505376081d3a51dfb442c5e3ace9061b4f3"
+}
