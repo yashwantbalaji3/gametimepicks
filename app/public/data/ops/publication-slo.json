@@ -47,16 +47,15 @@
       ]
     },
     "nfl": {
-      "state": "PUBLISHING",
-      "reason": "15 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-09-09T22:50:00.000Z",
+      "state": "PUBLISHED",
+      "reason": "all 15 event(s) in the horizon carry a forecast",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 15,
-        "published": 0,
+        "published": 15,
         "missedCoverage": 0,
-        "awaiting": 15
-      },
-      "missed": []
+        "awaiting": 0
+      }
     },
     "ufc": {
       "state": "PUBLISHING",
@@ -82,7 +81,7 @@
       }
     }
   },
-  "checkedAt": "2026-09-07T21:43:30.206Z",
+  "checkedAt": "2026-09-07T22:08:13.238Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
@@ -137,7 +136,7 @@
       "startUtc": "2026-09-07T18:10:00Z",
       "away": "Arizona Diamondbacks",
       "home": "Kansas City Royals",
-      "detailedState": "Game Over",
+      "detailedState": "Final",
       "pregameAtCheck": false
     },
     {
@@ -153,7 +152,7 @@
       "startUtc": "2026-09-07T19:10:00Z",
       "away": "Minnesota Twins",
       "home": "Detroit Tigers",
-      "detailedState": "In Progress",
+      "detailedState": "Final",
       "pregameAtCheck": false
     },
     {
@@ -185,7 +184,7 @@
       "startUtc": "2026-09-08T02:05:00Z",
       "away": "Toronto Blue Jays",
       "home": "Athletics",
-      "detailedState": "Scheduled",
+      "detailedState": "Pre-Game",
       "pregameAtCheck": true
     }
   ]
