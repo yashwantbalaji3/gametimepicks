@@ -57,6 +57,7 @@ function pick(
     team,
     odds, provider,
     modelProbability: round4(prob),
+    probabilitySource: "market-devigged", // self-describing: the artifact says what the header above says
     edge: 0,                            // the market's own de-vigged number — no edge is claimed
     volatility: (prob >= 0.6 ? "low" : "medium") as ModelPick["volatility"],
     risk: prob >= 0.6 ? "Lower-volatility" : "Higher-volatility",

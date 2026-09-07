@@ -30,7 +30,7 @@ export const ACTIVATION_CUTOFF_MIN = 30;
 export const MOONSHOT_MAX_EXPOSURE = 50;
 
 export interface ActivationEligibility { eligible: boolean; reason: string }
-export interface PortfolioLaneLeg { id: string; matchup: string; market: string; selection: string; player: string | null; odds: number; provider: string | null; modelConfidence: number; kickoffEt: string; risk: string; photoUrl?: string | null; teamLogo?: string | null }
+export interface PortfolioLaneLeg { id: string; matchup: string; market: string; selection: string; player: string | null; odds: number; provider: string | null; modelConfidence: number; probabilitySource?: "market-devigged" | "model"; kickoffEt: string; risk: string; photoUrl?: string | null; teamLogo?: string | null }
 export interface PortfolioLane {
   id: string;
   product: "bank-builder" | "moonshot";
@@ -113,7 +113,7 @@ function whyThisCard(lane: LaneCandidate): string[] {
   return why;
 }
 
-const toLeg = (p: ModelPick): PortfolioLaneLeg => ({ id: p.id, matchup: p.matchup, market: p.marketLabel, selection: p.selection, player: p.player, odds: p.odds, provider: p.provider, modelConfidence: p.modelProbability, kickoffEt: p.kickoffEt, risk: p.risk, photoUrl: p.playerPortrait ?? null, teamLogo: p.teamLogo ?? null });
+const toLeg = (p: ModelPick): PortfolioLaneLeg => ({ id: p.id, matchup: p.matchup, market: p.marketLabel, selection: p.selection, player: p.player, odds: p.odds, provider: p.provider, modelConfidence: p.modelProbability, probabilitySource: p.probabilitySource ?? (p.edge === 0 ? "market-devigged" : "model"), kickoffEt: p.kickoffEt, risk: p.risk, photoUrl: p.playerPortrait ?? null, teamLogo: p.teamLogo ?? null });
 
 function toPortfolioLane(lane: LaneCandidate, status: PortfolioLane["status"], eligibility: ActivationEligibility): PortfolioLane {
   return {

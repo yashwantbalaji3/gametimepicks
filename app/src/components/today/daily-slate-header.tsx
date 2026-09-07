@@ -74,7 +74,10 @@ export default function TodayDailySlateHeader({
           ))
         ) : (
           <span className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 10, color: "var(--vault-text-faint)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-border)" }}>
-            No live sport on this slate
+            {/* On a PAST slate the truthful chip is that the slate has closed — "no live sport"
+                beside "15 MLB games" read as a contradiction, when it only meant nothing is live
+                RIGHT NOW on yesterday's slate (P240 · F). */}
+            {slateRelative ? "Slate closed — nothing live now" : "No live sport on this slate"}
           </span>
         )}
         {mlbGames > 0 ? (

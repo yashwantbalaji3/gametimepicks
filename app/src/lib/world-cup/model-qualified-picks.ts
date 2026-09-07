@@ -37,6 +37,12 @@ export interface ModelPick {
   odds: number;
   provider: string | null;
   modelProbability: number;
+  /** WHERE modelProbability comes from. "market-devigged" = the bookmaker's own probability with
+   *  the margin removed and edge 0 by construction (the MLB team-market pool since every modelled
+   *  MLB market was demoted to market-context); "model" = an actual model output. The field exists
+   *  because the NAME modelProbability overstates the market case, and a public artifact should
+   *  say so itself rather than rely on a comment in a loader (P240 · Release E). */
+  probabilitySource?: "market-devigged" | "model";
   edge: number;
   volatility: Volatility;
   risk: string;            // "Lower-volatility" | "Higher-volatility"

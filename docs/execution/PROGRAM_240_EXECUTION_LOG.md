@@ -132,3 +132,49 @@ routes exist once forecasts publish; settlement consumes the same receipt shape 
 settler). Odds remain founder-gated — exact priced request drafted at
 docs/receipts/DRAFT_ODDS_AUTHORIZATION_NFL_2026_REGULAR.md (Option A: team markets, 250-credit
 ceiling, ceiling-anchored expiry that parses under the committed expiryTerm()).
+
+## Releases C2/D committed · E provenance · F/G verification pass (Sep 7, ~03:00–04:30 ET)
+
+Pushed `7c9f0b1bb`..`cc0a655ba` (5 commits: MLB window, EPL alias, NFL Week 1, dual-lane
+settler + Moonshot reconciliation, route table). CI quality-gate running on the cumulative tree.
+Note: the run on `b94d27c0d` was CANCELLED by the later push's concurrency group — its coverage
+comes from the cumulative run, not its own.
+
+**Release D residual finding, fixed**: the moonshot store carries lanes[] (A and B) beside a
+legacy top-level ladder duplicating lane A. The settler read only the legacy ladder — lane B's
+card (`moonshot-2026-08-17-mlb-b`) was NEVER settled and /moonshot showed a settled Lost row
+beside "1 card awaiting official results" for one product. Dry-run against the real store with
+the dual-shape fix: lane B grades LOST from official box scores (Bregman 3 ✓, Lowe 2 ✓,
+Marsee 0 ✗), restarts at cycle 2; all three prior settlements HOLD under unchanged identities.
+Tonight's scheduled run applies it. Also fixed: positions are now as cumulative as the settled
+index (a later partial run would have erased other lanes' positions from latest.json).
+The exact blocked operation for ladder-resume generation is already named on /moonshot: multi-lane
+exposure accounting in the Mr. Dub paper ledger (models a single active card). Repair-and-resume
+stands; the accounting build is the remaining engineering, not re-decided here.
+
+**Release E**: provenance now self-describing — `probabilitySource: "market-devigged"` travels on
+MLB team legs and portfolio lanes (the field name `modelConfidence` overstated the market case;
+surfaces were already honest: "market favourites" vs "model's own read"). Stream registry
+verified live: graded-picks for all four sports refreshed nightly (MLB 60 · NFL 45 · UFC 16 ·
+EPL 24 rows at 2026-09-06T11:44Z).
+
+**Release F/G verification (built export, browser)**: homepage journey honest (publish-state
+banner, per-sport states, direct Simulate/Picks/Parlay actions, NFL "next kickoff 2026-09-09");
+/simulate/d/2026-09-09 renders 16 events with full week navigation and honest SCHEDULE_ONLY
+copy; /nfl shows all 16 Week 1 games ("The rest of Week 1", REGULAR SEASON · WEEK 1 chips,
+"Settled window" archive label); /moonshot coherent; /results renders the canonical 19-14 ·
+$19,065.40 · crown $20,465.40 with the $250 daily exposure correctly isolated. Mobile (375px):
+stacked cards, six-primary bottom bar, no horizontal traps. Presentation player (MLB Sep-6):
+diamond theme, 8 chapters, real distribution content (total-runs histogram, median 8, book 7,
+51% over), honest "degraded run" from the artifact's own status, recording layout with
+9:16/4:5/16:9 pills and controls outside the crop. Screenshots captured while the pane was
+visible; later checks textual (pane hidden — not a defect).
+
+**Release H**: forward evaluation `mlb-isotonic-2026-09-forward` (frozen 2026-09-05, opens
+2026-09-06, minimum 2,000 decisive rows, brier, +0.005): **0 eligible rows** — the newest
+calibration file is 2026-09-05; the window's first rows land with tonight's settle
+(~370–500/day → threshold ≈ Sep 10–12). No evaluation may run; correctly not run.
+
+Pending acceptance events: tonight's nightly-settle (~09:30–11:45Z, drifted crons) settles the
+four Sep-6 daily cards AND applies moonshot lane B; the daily-products workflow_run trigger's
+first natural exercise follows the next mlb-daily-production completion (~14:15Z+).
