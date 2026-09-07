@@ -179,8 +179,8 @@ const homerNukes = hnBoard
  * cards of record cannot change after publication.
  */
 const labSettled = read(path.join(DATA, "parlays", "lab-settled", `${DATE}.json`));
-function sportLadderEntry(id, label, sport) {
-  const dir = path.join(DATA, "parlays", `risk-ladder-${sport}`);
+function sportLadderEntry(id, label, sport, dirName = `risk-ladder-${sport}`) {
+  const dir = path.join(DATA, "parlays", dirName);
   const dated = read(path.join(dir, `${DATE}.json`));
   const latest = read(path.join(dir, "latest.json"));
   const cards = dated?.cards ?? [];
@@ -205,6 +205,31 @@ function sportLadderEntry(id, label, sport) {
 }
 const ufcCards = sportLadderEntry("ufc-cards", "UFC paper cards", "ufc");
 const eplCards = sportLadderEntry("epl-cards", "EPL paper cards", "epl");
+/* P243 · D-1: the MLB risk ladder settles daily and the multi grid freezes per-date — both were
+   settled streams outside the governed set. The MLB ladder's dir carries no sport suffix. */
+const mlbCards = sportLadderEntry("mlb-cards", "MLB suggested cards", "mlb", "risk-ladder");
+const multiCards = (() => {
+  const dated = read(path.join(DATA, "parlays", "tier-grid", `multi-${DATE}.json`));
+  const latest = read(path.join(DATA, "parlays", "tier-grid", "multi-latest.json"));
+  const cards = dated?.cards ?? [];
+  if (dated && cards.length > 0) {
+    return { product: "multi-cards", label: "Multi-sport paper cards", state: "ACTIVE",
+      reason: `${cards.length} multi-sport card${cards.length === 1 ? "" : "s"} frozen for ${DATE}`,
+      candidatesEvaluated: cards.length, rejections: [], card: cards, ledgerOwned: true };
+  }
+  if (dated) {
+    return { product: "multi-cards", label: "Multi-sport paper cards", state: "NO_PLAY",
+      reason: dated.state ? String(dated.state) : "the multi grid was built for this date and no card qualified",
+      candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: true };
+  }
+  if (latest?.state && latest.state !== "ACTIVE") {
+    return { product: "multi-cards", label: "Multi-sport paper cards", state: "NO_PLAY",
+      reason: `multi grid state ${latest.state} — the stream opens only when two single-sport streams are live`,
+      candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: true };
+  }
+  return { product: "multi-cards", label: "Multi-sport paper cards", state: "NOT_RUN",
+    reason: `no multi grid exists for ${DATE}`, candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: true };
+})();
 
 /*
  * P198 · Release A: the dormant sport writes a receipt too. "Missing receipt is an incident even
@@ -224,7 +249,7 @@ const nbaLane = (() => {
     candidatesEvaluated: 0, rejections: [], card: null, ledgerOwned: false,
   };
 })();
-const products = [productEntry("bank-builder", "Bank Builder"), productEntry("moonshot", "Moonshot"), vault, homerNukes, ufcCards, eplCards, nbaLane];
+const products = [productEntry("bank-builder", "Bank Builder"), productEntry("moonshot", "Moonshot"), vault, homerNukes, ufcCards, eplCards, mlbCards, multiCards, nbaLane];
 for (const p of products) {
   if (!RECEIPT_STATES.includes(p.state)) { console.error(`REFUSED: ${p.product} produced state ${p.state} outside the closed set`); process.exit(2); }
   // the load-bearing invariant: NO_PLAY requires a completed evaluation
@@ -254,6 +279,8 @@ const lockStampFor = (product) => {
   if (product === "end-zone-vault") return vaultEntry?.date === DATE ? `${vaultEntry.date}T00:00:00Z` : null;
   if (product === "ufc-cards") return ufcCards.state === "ACTIVE" ? read(path.join(DATA, "parlays", "risk-ladder-ufc", `${DATE}.json`))?.generatedAt ?? null : null;
   if (product === "epl-cards") return eplCards.state === "ACTIVE" ? read(path.join(DATA, "parlays", "risk-ladder-epl", `${DATE}.json`))?.generatedAt ?? null : null;
+  if (product === "mlb-cards") return mlbCards.state === "ACTIVE" ? read(path.join(DATA, "parlays", "risk-ladder", `${DATE}.json`))?.generatedAt ?? null : null;
+  if (product === "multi-cards") return multiCards.state === "ACTIVE" ? read(path.join(DATA, "parlays", "tier-grid", `multi-${DATE}.json`))?.generatedAt ?? null : null;
   return dp?.date === DATE ? dp?.generatedAt ?? null : null;
 };
 
@@ -294,9 +321,9 @@ const settlementFor = (product) => {
       stepAtSettle: 0,
     };
   }
-  if (product === "ufc-cards" || product === "epl-cards") {
+  if (product === "ufc-cards" || product === "epl-cards" || product === "multi-cards") {
     if (!labSettled) return null; // the lab settler has not run for this date
-    const sport = product === "ufc-cards" ? "ufc" : "epl";
+    const sport = product === "ufc-cards" ? "ufc" : product === "epl-cards" ? "epl" : "multi";
     /* ONLY this sport's cards. The lab receipt carries every stream's cards in one file, and
        grading a product on another stream's result is the cross-ledger identity failure. */
     const mine = (labSettled.cards ?? []).filter((c) => c.sport === sport);
@@ -305,6 +332,21 @@ const settlementFor = (product) => {
       ref: `parlays/lab-settled/${DATE}.json@${labSettled.settledAt ?? "unstamped"}`,
       stamp: labSettled.settledAt ?? DATE,
       results: mine.map((c) => c.result ?? "pending"),
+      stepAtSettle: 0,
+    };
+  }
+  if (product === "mlb-cards") {
+    /* The MLB ladder settles through the optimizer grading lane (nightly-settle), never the
+       shared money lanes — its record derives from optimizer-graded/<date>.json. */
+    const g = read(path.join(DATA, "parlays", "optimizer-graded", `${DATE}.json`));
+    if (!g) return null;
+    const slips = [];
+    for (const tier of Object.values(g.publicRiskSections ?? {})) for (const x of tier?.all ?? []) slips.push(x);
+    if (!slips.length) return null;
+    return {
+      ref: `parlays/optimizer-graded/${DATE}.json@${g.generatedAt ?? "unstamped"}`,
+      stamp: g.generatedAt ?? DATE,
+      results: slips.map((x) => String(x.status ?? "pending").toLowerCase()),
       stepAtSettle: 0,
     };
   }

@@ -167,3 +167,29 @@ test("every registered product's declared owners actually exist on disk", () => 
   }
   assert.deepEqual(missing, [], `declared owners that do not exist: ${missing.join("; ")}`);
 });
+
+/*
+ * ── P243 · D-1: every settled stream is accounted for — governed or explicitly closed ──────────
+ *
+ * The lab ledger carries five streams; the registry named two while "ALL_GOVERNED" stood. A
+ * stream that settles outside the registry is exactly the unaccounted-stream defect the coverage
+ * artifact exists to prevent, so the membership is asserted against the ledger's OWN stream list.
+ */
+test("P243 D-1 · lab-ledger streams ⊆ governed ledgerStreams ∪ CLOSED_STREAMS", async () => {
+  const { PRODUCT_REGISTRY, CLOSED_STREAMS } = await import("./lifecycle-registry.mjs");
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const ledger = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/parlays/lab-ledger.json"), "utf8"));
+  const ledgerStreams = (ledger.streams ?? []).map((s) => s.stream ?? s.id ?? s.sport).filter(Boolean);
+  const governed = new Set(PRODUCT_REGISTRY.ids.map((id) => PRODUCT_REGISTRY.get(id).ledgerStream).filter(Boolean));
+  // The MLB ladder's ledger is optimizer-graded (no lab stream key); its lab stream key is "mlb".
+  governed.add("mlb");
+  const closed = new Set(CLOSED_STREAMS.map((s) => s.ledgerStream));
+  for (const s of ledgerStreams) {
+    assert.ok(governed.has(s) || closed.has(s), `ledger stream "${s}" is neither governed nor recorded closed`);
+  }
+  // And closure is recorded with its reason + artifacts.
+  for (const c of CLOSED_STREAMS) {
+    assert.ok(c.closure && c.freeze && c.ledger, `${c.id}: a closure without reason+artifacts is an unlisted stream with extra steps`);
+  }
+});

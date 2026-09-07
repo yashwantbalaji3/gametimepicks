@@ -242,6 +242,61 @@ export const PRODUCT_REGISTRY = registerProducts([
     ledgerStream: "epl",
     receiptOwner: "app/scripts/products/build-daily-product-receipts.mjs",
   },
+  /*
+   * P243 · D-1 — THE STREAMS THE REGISTRY OMITTED WHILE THEY WERE BEING SETTLED.
+   *
+   * The lab ledger carries five streams (mlb, nfl, ufc, epl, multi); the registry named two.
+   * A registry that says ALL_GOVERNED while the MLB risk ladder settles daily outside it is the
+   * governance-label defect the coverage artifact exists to prevent. Each entry cites the owners
+   * that actually run today — nothing is invented to make a row complete.
+   */
+  {
+    id: "mlb-cards",
+    label: "MLB suggested cards (risk ladder)",
+    policyVersion: "mlb-cards@1",
+    ledgerKind: "money",
+    producer: "app/scripts/parlays/build-risk-ladder.mjs",
+    /* The selection policy lives INSIDE the producer — the 48-day-backtest section with the
+       disjoint-legs rule. Citing a different file would be a prettier lie. */
+    selectionGate: "app/scripts/parlays/build-risk-ladder.mjs",
+    freeze: "app/public/data/parlays/risk-ladder",
+    settlementAdapter: "scripts/automation_settle.sh",
+    ledger: "app/public/data/parlays/optimizer-graded",
+    receiptOwner: "app/scripts/products/build-daily-product-receipts.mjs",
+  },
+  {
+    id: "multi-cards",
+    label: "Multi-sport paper cards",
+    policyVersion: "multi-cards@1",
+    ledgerKind: "money",
+    producer: "app/scripts/parlays/build-tier-grid.mjs",
+    selectionGate: "app/scripts/parlays/lab-eligibility.mjs",
+    /* The multi grid freezes as tier-grid/multi-<date>.json — the dated file the settler reads. */
+    freeze: "app/public/data/parlays/tier-grid",
+    settlementAdapter: "app/scripts/parlays/settle-lab-cards.mjs",
+    ledger: "app/public/data/parlays/lab-ledger.json",
+    ledgerStream: "multi",
+    receiptOwner: "app/scripts/products/build-daily-product-receipts.mjs",
+  },
+]);
+
+/*
+ * CLOSED STREAMS (P243 · D-1) — legacy epochs, accounted once and separately.
+ *
+ * A closed lane cannot honestly produce a daily lifecycle receipt, so it must NOT be governed —
+ * but leaving it unlisted is how "ALL_GOVERNED" coexisted with an unaccounted settled stream.
+ * These rows make closure a recorded fact: every ledger stream must appear either here or in the
+ * registry above, and the coverage guard asserts exactly that.
+ */
+export const CLOSED_STREAMS = Object.freeze([
+  {
+    id: "nfl-cards",
+    label: "NFL paper cards",
+    ledgerStream: "nfl",
+    closure: "P201: closed by machinery — byte-diff equivalence proof retired generation",
+    freeze: "app/public/data/parlays/risk-ladder-nfl",
+    ledger: "app/public/data/parlays/lab-ledger.json",
+  },
 ]);
 
 /**
