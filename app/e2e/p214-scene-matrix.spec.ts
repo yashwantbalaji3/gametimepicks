@@ -74,24 +74,13 @@ for (const sport of SPORTS) {
         return;
       }
 
-      if (state === "SIMULATION_READY" && sport === "MLB") {
-        // MLB ready routes DIRECT: the report owns the generation ceremony (no stacked scenes).
+      if (state === "SIMULATION_READY") {
+        // P242: EVERY ready state routes DIRECT to its full report — the staged hand-off is
+        // retired for ready events; the stage survives only as the refusal dialog below.
         await expect(card).toHaveAttribute("href", /.+/);
         const href = await card.getAttribute("href");
         await card.click();
         await page.waitForURL(`**${href}`);
-        await expect(page.locator("h1").first()).toBeVisible();
-        return;
-      }
-
-      if (state === "SIMULATION_READY") {
-        // The stage runs the real script and lands on the report.
-        const beforeUrl = page.url();
-        await card.click();
-        const dialog = page.locator('[role="dialog"]');
-        await expect(dialog).toBeVisible();
-        await expect(dialog.locator('[role="status"]')).toBeVisible();
-        await page.waitForURL((u) => u.toString() !== beforeUrl, { timeout: 20_000 });
         await expect(page.locator("h1").first()).toBeVisible();
         return;
       }
