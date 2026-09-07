@@ -6,6 +6,8 @@
  * numbers they see are the ones the rest of the site publishes.
  */
 import { test, expect, type Page } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
 
 const section = (page: Page) =>
   page.locator("section").filter({ has: page.getByRole("heading", { name: "Every settled MLB model pick" }) });
@@ -34,9 +36,13 @@ test.describe("P235 · full model results", () => {
     expect(rec, `no record in the summary block: ${text.slice(0, 160)}`).not.toBeNull();
     const wins = Number(rec![1].replace(/,/g, ""));
     const losses = Number(rec![2].replace(/,/g, ""));
-    /* The same counts the audit page's own aggregate reports. */
-    expect(wins).toBe(19015);
-    expect(losses).toBe(18943);
+    /* The same counts the audit page's own aggregate reports — read from the COMMITTED artifact,
+       never a literal: the record grows nightly, and a number frozen on the day this spec was
+       written (19,015) began failing the moment the next slate graded (P241; the memory rule —
+       tests pinning today's data fail when the product succeeds). */
+    const idx = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/mlb/results/model-index.json"), "utf8"));
+    expect(wins).toBe(idx.coverage.wins);
+    expect(losses).toBe(idx.coverage.losses);
     const dec = /([\d,]+) decisive/.exec(text);
     expect(Number(dec![1].replace(/,/g, ""))).toBe(wins + losses);
   });
