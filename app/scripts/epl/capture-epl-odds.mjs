@@ -32,7 +32,16 @@ import {
   assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, LEDGER_RELPATH,
 } from "../../src/lib/sports/odds/p171-authorization.mjs";
 
-const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+/* A narrow root seam so tests can run THIS capture — not a copy of its window rules — against a
+ * disposable fixture store. Production default is unchanged: the app directory above this file.
+ * The seam cannot widen a purchase: markets/regions/sport key stay constants, and the receipt is
+ * still read from the (relocated) repo root and parsed by the same authorization code. */
+const APP = (() => {
+  const i = process.argv.indexOf("--app-root");
+  return i > -1 && process.argv[i + 1]
+    ? path.resolve(process.argv[i + 1])
+    : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+})();
 const REPO = path.resolve(APP, "..");
 const RECEIPT = path.join(REPO, "docs", "receipts", "ODDS_AUTHORIZATION_EPL.md");
 const LEDGER = path.join(REPO, LEDGER_RELPATH.epl);
@@ -111,7 +120,25 @@ const KICKOFF_WINDOW_H = Number(arg("--require-kickoff-within-hours", "30"));
     }
     const next = all.filter((t) => t > nowMs).sort((a, b) => a - b)[0];
     const away = next ? ((next - nowMs) / 3_600_000).toFixed(1) : null;
-    console.log(`epl odds: SKIPPED — no kickoff within ${KICKOFF_WINDOW_H}h${next ? ` (next is ${away}h away, ${new Date(next).toISOString()})` : " (no fixtures remain)"}. Nothing bought.`);
+    // The skip must leave evidence it was a DECISION, not a dead producer. Between matchweeks this
+    // branch is the correct outcome for days at a time, and a run that exits 0 writing nothing is
+    // indistinguishable from a capture that stopped running — which is exactly what the run-level
+    // artifact assert exists to catch, so it went red on every legitimate gap (three times on
+    // 2026-09-06 alone). A refusal (unreadable fixtures, bad receipt) still writes nothing: only a
+    // capture that READ the fixtures and answered "no kickoff coming" earns this receipt.
+    fs.mkdirSync(OUT, { recursive: true });
+    const decidedAt = new Date(nowMs).toISOString();
+    fs.writeFileSync(path.join(OUT, "capture-decision.json"), JSON.stringify({
+      artifact: "epl-odds-capture-decision",
+      decision: "skipped-no-kickoff-in-window",
+      windowHours: KICKOFF_WINDOW_H,
+      nextKickoffIso: next ? new Date(next).toISOString() : null,
+      hoursAway: away ? Number(away) : null,
+      decidedAt,
+      generatedAt: decidedAt,
+      creditsSpent: 0,
+    }, null, 2) + "\n");
+    console.log(`epl odds: SKIPPED — no kickoff within ${KICKOFF_WINDOW_H}h${next ? ` (next is ${away}h away, ${new Date(next).toISOString()})` : " (no fixtures remain)"}. Nothing bought. Decision recorded.`);
     process.exit(0);
   }
 }

@@ -381,6 +381,16 @@ jobs:
           # discarded. The ordering is fixed; this fixes the classification. 90 minutes gives the
           # 60-minute window slack for a long run without tolerating a capture that has stopped.
           #
+          # THE FIXTURE GAP IS ALSO A LEGITIMATE SKIP, AND IT NEEDS EVIDENCE. The capture is
+          # REQUIRED to buy nothing when no kickoff falls inside its 30-hour window — between
+          # matchweeks that is the correct outcome for days at a time. On 2026-09-06 the
+          # unconditional freshness assert failed this job three times on exactly that state (next
+          # kickoff 135h away). The capture now writes a dated capture-decision.json when — and only
+          # when — it read the fixtures and decided the window was empty; the wrapper below accepts
+          # a decision written DURING THIS RUN as the second valid proof the capture executed.
+          # A refusal, a crash, or a capture that stopped running writes neither artifact and still
+          # goes red. (P233: never assert a state the producer legitimately never emits.)
+          #
           # A DRY RUN IS EXEMPT, and only a dry run. dry_run exists so the chain can be rehearsed
           # against the last committed capture for zero credits — it does not call the provider, so
           # it cannot possibly refresh this file, and asserting otherwise made dry_run unable to pass
@@ -390,8 +400,9 @@ jobs:
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             echo "::notice::dry run — odds freshness NOT asserted; this run called no provider and refreshed no prices."
           else
-            node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --max-age-min 90 \
-              app/public/data/soccer/epl/odds/latest.json
+            node app/scripts/ops/assert-odds-fresh-or-skipped.mjs --since "$RUN_STARTED" --max-age-min 90 \
+              --odds app/public/data/soccer/epl/odds/latest.json \
+              --decision app/public/data/soccer/epl/odds/capture-decision.json
           fi
 
       # Raised AFTER the commit, so a refusal reports loudly without costing the run its artifacts.
