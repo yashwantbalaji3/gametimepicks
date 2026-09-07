@@ -34,8 +34,14 @@ test("a genuinely empty pool still publishes, with reasons", () => {
    * real no-play, and hiding it behind the same refusal would make a quiet day look like an outage
    * — which is the failure this repo's product-state contract exists to prevent.
    */
-  assert.match(BODY, /hadPool = Boolean\(gradedToday\?\.publicRiskSections\) \|\| \(snapshotToday\?\.slips \?\? \[\]\)\.length > 0/,
+  // P242: the pool sources are graded-today OR the same-day optimizer document (identical shape,
+  // written by every morning-projections run) OR the legacy snapshot — poolDoc folds the first two.
+  assert.match(BODY, /hadPool = Boolean\(poolDoc\) \|\| \(snapshotToday\?\.slips \?\? \[\]\)\.length > 0/,
     "the pool test must read the real sources, so a present-but-unqualifying pool still publishes");
+  assert.match(BODY, /gradedToday\?\.publicRiskSections \? gradedToday/,
+    "graded-today stays the first pool source");
+  assert.match(BODY, /optimizerToday\?\.publicRiskSections \? optimizerToday/,
+    "the same-day optimizer document is the fallback pool (SKIP_NBA recovery days)");
 });
 
 test("PRODUCTION TRUTH · the published ladder is not a blank day over a live pool", () => {

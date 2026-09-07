@@ -161,18 +161,30 @@ try {
 } catch { /* no board — legs publish without a gamePk and stay ungraded */ }
 
 const gradedToday = readJson(path.join(GRADED, `${DATE}.json`));
+/*
+ * P242: the same-day OPTIMIZER artifact is the graded artifact before settling — identical shape,
+ * identical publicRiskSections, written by every morning-projections run. The legacy
+ * snapshot_parlays step is skipped whenever the run carries SKIP_NBA=1 (which the publication
+ * watchdog's recovery dispatch always sets), so on a watchdog-recovered day the ladder used to
+ * find no pool at all and daily-products failed its own produced-artifacts assert (2026-09-07).
+ * Reading the optimizer document directly removes the dead NBA coupling from this lane's inputs.
+ */
+const optimizerToday = readJson(path.join(APP, "public", "data", "parlays", "optimizer", `${DATE}.json`));
 const snapshotToday = readJson(path.join(SNAPSHOTS, `${DATE}.json`));
+const poolDoc = gradedToday?.publicRiskSections ? gradedToday
+  : optimizerToday?.publicRiskSections ? optimizerToday
+  : null;
 
 /** tier → candidate slips, from whichever source exists for this date. */
 const poolByTier = Object.fromEntries(TIERS.map((t) => [t, []]));
-if (gradedToday?.publicRiskSections) {
+if (poolDoc) {
   // File by PRICE, never by the section the slip arrived in. These two paths used to disagree: the
   // snapshot branch below derived the tier with bucketFor, while this branch trusted the upstream
   // `publicRiskSections.<tier>` key. When the upstream label and the price disagreed, the ladder
   // published the card under the wrong band — a +353 card sold as "medium" on 2026-08-19, which
   // understates the risk to the reader. Both branches now use the one canonical band rule, so a
   // published card always sits in the band it is filed under.
-  for (const { slip } of slipsFor(gradedToday)) {
+  for (const { slip } of slipsFor(poolDoc)) {
     const d = combinedDecimal(slip);
     if (d == null) continue;                       // unpriced: the band cannot be verified, so it is not published
     const tier = bucketFor(toAmerican(d));
@@ -430,7 +442,7 @@ const payload = {
  * So an empty result is only published when there was a real pool to be empty of. With no pool at
  * all the previous artifact stands, which is correct — it is the last thing that was actually true.
  */
-const hadPool = Boolean(gradedToday?.publicRiskSections) || (snapshotToday?.slips ?? []).length > 0;
+const hadPool = Boolean(poolDoc) || (snapshotToday?.slips ?? []).length > 0;
 if (!hadPool && cards.length === 0) {
   console.log(`risk ladder ${DATE}: no candidate pool exists yet — refusing to overwrite the published ladder with an empty day.`);
   console.log("  (the card factory writes its snapshot later in the morning; this job will produce cards once it has)");
