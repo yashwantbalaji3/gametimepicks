@@ -179,3 +179,44 @@ HEAD b08dd6892+bots → pulled; prod ⊇ P243 final; protected md5s canonical; n
   regime-aware differentiation audit whose public prose no longer says "preseason" over Week 1).
 - Hub cards repointed to /nfl/game/<id>/ (the 16 /games/nfl sim links 404'd — participation-gated
   route); fix pushed d30c15300, deploy in flight.
+
+## P244 TONIGHT CHECKPOINT (2026-09-07 ~23:35Z / 19:35 ET — ahead of the 23:59 ET mark)
+
+### The §10 table (verified populations, tonight)
+| sport | period | scheduled | report-ready | unpriced reports | fresh priced | player families | qualified cards | missed pre-event |
+|---|---|---|---|---|---|---|---|---|
+| NFL | Week 1 · regular | 16 | 16 (all team reports) | 16 (P171 receipt expired — honest NO_MARKET) | 0 | 0 supported (participation source absent this far out; families stay per-family typed) | 0 (lane closed by machinery) | 0 |
+| EPL | Matchweek 4 | 10 | 10 (model-only pre-odds) | 10 | 0 (night-before capture ≤30h, by rule) | scorer head only, in-window | 3-band ladder (priced Sep-12 set) | 0 |
+| UFC | Noche UFC · Sep 12 | 13 | 11 (+2 reasoned gaps) | 0 (Tue capture cadence) | 0 | n/a | ladder awaiting prices | 0 |
+| MLB | 2026-09-07 (day) | 11 | 5 | — | day-of authorized | market-context per receipt | BB A/B + ladder 3 cards | 6 (preserved) |
+
+### NFL Week 1 — the direct answers
+- Can a user browse the week tonight and open real reports? **YES — verified rendered on prod:**
+  hub table "16 scheduled · 16 with a report", 16 working /nfl/game/<id>/ links (0 dead links
+  after d30c15300 deployed; 4/4 sampled 200 with full content).
+- Did the obsolete short-window gate actually get removed from the full path? **YES at every
+  layer traced:** workflow outer gate (current-week membership), forecast builder (weekly
+  population, hour lookahead = weekless-schedule backstop only), and the guard corpus that
+  enforced the old regime. Player-family generation remains honestly participation-gated —
+  an input gate with a named source, not a clock.
+- Model: nfl-regular-season-public-v1 (PUBLIC_EXPERIMENTAL), generated 2026-09-07T22:06:57Z by
+  the natural workflow run, immutable receipts + pre-kickoff revision lineage; every report
+  carries score/margin/total distributions, win probabilities with explicit tie mass, input
+  freshness and the no-market-claim humility line.
+- Example URLs: /nfl/game/401872656/ (NE@SEA · 61.7% SEA · total 45 [28–62]) · /nfl/game/401872659/
+  (BAL@IND coin-flip published under the 3σ coherence rule).
+
+### Certification on tonight's tree
+suite 5484/0 · built 463/0 · Playwright 523/0 with 21 reality-typed skips (3 engines, 6-viewport
+matrix + charter journeys). CI: cumulative run on c88740942 in flight at checkpoint.
+
+### D-2 progress + named remainder
+deriveBankBuilderState ships: one object, four record systems, measures named (live vs settled
+exposure; crowned ladders vs store positions vs label counter), divergences TYPED — the live tree
+surfaces lane A generated step 1 vs the P211 store's advance→step 2. Whose counter governs is the
+founder-gated multi-lane exposure accounting; surfaces migrate when it resolves.
+
+### Hub-order deltas measured (E residual, exact)
+MLB: ladder (products) renders after sims/report cards — one section swap owed. NFL: no
+methodology anchor; picks=markets naming. EPL: cards section unanchored in nav. UFC: bespoke
+shell. Reorder deferred with these coordinates; nothing hides.
