@@ -7,8 +7,8 @@
  * copy recap) now render as first-class SECTIONS of the primary V2.5 report
  * (`mlb-simulation-report-v2.tsx`), and the old dense dashboard is demoted into ONE collapsed
  * "Advanced simulation detail" block inside that report. This pins that structure — the fast answer-first
- * read stays above the single collapse, the collapse stays behind the Generate gate, sections render only
- * with real content (honest empty state otherwise), and money is untouched.
+ * read stays above the single collapse, the report renders directly (P242 retired the click gate),
+ * sections render only with real content (honest empty state otherwise), and money is untouched.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -60,11 +60,11 @@ test("3 · disclosures are closed by default and mobile-safe (native <details>, 
   assert.doesNotMatch(comp, /<details[^>]*\sopen[>\s]/, "the <details> is not hard-coded open");
 });
 
-test("4 · the report (and its collapse) stays behind the Generate gate — postReveal only in the done phase", () => {
-  const done = runner.indexOf('phase === "done"');
-  const postReveal = runner.indexOf("{postReveal ?");
-  assert.ok(done > 0 && postReveal > done, "the V2.5 report (postReveal) is injected inside the done-phase branch");
-  // The collapsed advanced detail lives inside that gated report, never as a pre-click sibling.
+test("4 · the report composes through postReveal (rendered directly since P242) with its advanced collapse", () => {
+  // The runner renders the V2.5 report directly — postReveal is null-guarded only, never phase-gated.
+  assert.match(runner, /\{postReveal \? <div/, "the V2.5 report is composed through postReveal (null-guarded)");
+  assert.doesNotMatch(runner, /phase === /, "no phase gate remains in the runner (ceremony retired, P242)");
+  // The collapsed advanced detail lives inside that report, never as a duplicate sibling.
   assert.match(v2, /AdvancedDisclosure label="Advanced simulation detail"/);
 });
 

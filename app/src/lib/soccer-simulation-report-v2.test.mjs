@@ -17,14 +17,14 @@ const PAGE = read("src/components/game/game-detail-page.tsx");
 test("the WC report uses SoccerSimulationReportV2, fed the fixture's own player props", () => {
   assert.match(PAGE, /const wcReport = \(\s*<SoccerSimulationReportV2/, "WC post-reveal is the V2 report");
   assert.match(PAGE, /playerProps=\{detail\.playerProps\}/, "V2 gets the fixture-scoped player props (not a global pool)");
-  assert.match(PAGE, /postReveal=\{wcReport\}/, "V2 is gated behind Generate (postReveal)");
+  assert.match(PAGE, /postReveal=\{wcReport\}/, "V2 is handed to the runner (rendered directly since P242)");
 });
 
-test("no 'Generate Market Dashboard' anywhere; runner CTA stays 'Generate Simulation Report'", () => {
+test("no Generate CTA anywhere — the ceremony is retired (P242)", () => {
   const runner = read("src/components/game/wc-simulation-runner.tsx");
   assert.doesNotMatch(PAGE, /Generate Market Dashboard/);
   assert.doesNotMatch(V2, /Generate Market Dashboard/);
-  assert.doesNotMatch(runner, /Generate Market Dashboard/);
+  assert.doesNotMatch(runner, /Generate Market Dashboard|Generate Simulation Report/);
 });
 
 test("old advanced report / market dashboard is DEMOTED below the main result, collapsed", () => {

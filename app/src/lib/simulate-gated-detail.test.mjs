@@ -1,19 +1,21 @@
 /**
- * GATED MLB GAME-DETAIL + PREMIUM REVEAL — pins the product rule that an MLB game-detail page which has a
- * simulation shows a CLEAN matchup hero + the Generate card ONLY before the click, and gates the dense
- * model report, Model spotlight, posted prices, prop tables, distributions, and the price tabs BEHIND the
- * ≥10-second reveal (CONDITIONAL RENDER via postReveal in the done phase — absent from the pre-click DOM).
+ * DIRECT MLB GAME-DETAIL REPORT (P242) — pins the product rule that an MLB game-detail page which has a
+ * simulation renders the FULL unified report DIRECTLY: one click on an event lands on the dashboard.
+ * The old ceremony (Generate card, locked pills, ≥10-second staged reveal) is retired by founder
+ * decision and must not return. The ONE-unified-report structure survives: the dense report,
+ * spotlight and tabs still reach the page only through the runner's postReveal slot — as report
+ * composition, no longer as a click gate.
  *
  * These are real-timer-free SOURCE assertions on the three components + a couple of functional/money checks.
  *
- *   1. SIMULATION_MIN_DURATION_MS === 10000; the done phase is gated on the CONSTANT (no sub-10s literal).
- *   2. The runner renders `postReveal` ONLY in the done phase (guarded by `phase === "done"`), never idle/revealing.
- *   3. game-detail-page MLB-sim passes report + spotlight + tabs to postReveal and does NOT render
- *      <MlbGameLabReport / spotlight / <SportShell as always-visible siblings on that path.
+ *   1. The runner carries NO reveal gate: no SIMULATION_MIN_DURATION_MS, no timers, no phase state.
+ *   2. The runner renders `postReveal` directly (null-guarded only — never phase-gated).
+ *   3. game-detail-page MLB-sim passes report + spotlight + tabs through postReveal and does NOT render
+ *      <MlbGameLabReport / spotlight / <SportShell as duplicate siblings on that path.
  *   4. The MLB-sim matchup hero uses TeamMark with detail.homeLogo/detail.awayLogo and drops the
  *      "Top pick"/"Top prop" price quick-reads.
- *   5. The WC / non-sim path is unchanged (world_cup still renders its report/spotlight/tabs directly).
- *   6. The animation renders team logos (TeamMark) + a diamond + 8 stages; "1,000-run" only when allowed; no "10,000"/"Monte Carlo".
+ *   5. The WC / non-sim path renders its report/spotlight/tabs directly.
+ *   6. The dormant animation module keeps honest content (team logos, diamond, 8 stages; no "10,000"/"Monte Carlo").
  *   7. No fabricated soccer data in the animation (no scoreline/first-scorer/xG/corner-kick/yellow-card); reduced-motion guard exists.
  *   8. No banned copy in game-detail-page.tsx + game-simulation-runner.tsx + simulation-animation.tsx.
  *   9. Canonical money file (portfolio.json) md5 unchanged.
@@ -43,49 +45,31 @@ const BANNED =
 const BANNED_PAGE =
   /\bguaranteed\b|\block\b|\bsafest\b|can'?t lose|sure thing|risk-?free|free money|easy money|Monte Carlo|live betting/i;
 
-// ── 1 · the done phase is gated on the 10s constant, never a sub-10s numeric literal ──────────────
-test("SIMULATION_MIN_DURATION_MS === 10000 and the done phase is gated on the constant (no sub-10s literal)", () => {
+// ── 1 · the runner has NO reveal gate — the ceremony stays retired (P242) ─────────────────────────
+test("the runner has no reveal gate: no min-duration constant, no timers, no phase state", () => {
+  // The dormant animation module still exports the historical constant unchanged…
   assert.equal(SIMULATION_MIN_DURATION_MS, 10000);
-  // Reuse simulation-animation.test.mjs's assertion style: every setTimeout that sets phase "done" must
-  // use the constant as its delay, and NO numeric-literal timer may set the done phase.
-  const doneTimerRe = /window\.setTimeout\(\s*\(\)\s*=>\s*\{[^}]*setPhase\("done"\)[^}]*\},\s*([A-Za-z0-9_.]+)\s*\)/g;
-  const matches = [...RUNNER_SRC.matchAll(doneTimerRe)];
-  assert.ok(matches.length >= 1, "expected a setTimeout that reveals the dashboard");
-  for (const m of matches) {
-    assert.equal(m[1], "SIMULATION_MIN_DURATION_MS", `done-phase timer delay must be the constant, got "${m[1]}"`);
-  }
-  assert.doesNotMatch(
-    RUNNER_SRC,
-    /window\.setTimeout\(\s*\(\)\s*=>\s*\{[^}]*setPhase\("done"\)[^}]*\},\s*\d+\s*\)/,
-    "the done phase must NOT be set on a numeric (sub-10s) timer",
-  );
+  // …but the runner references NONE of the ceremony machinery.
+  assert.doesNotMatch(RUNNER_SRC, /SIMULATION_MIN_DURATION_MS/, "no min-duration gate in the runner");
+  assert.doesNotMatch(RUNNER_SRC, /setTimeout|setInterval/, "no timers of any kind in the runner");
+  assert.doesNotMatch(RUNNER_SRC, /useState|setPhase|"revealing"|"idle"/, "no phase machine in the runner");
+  assert.doesNotMatch(RUNNER_SRC, /Generate Simulation/, "no Generate CTA in the runner");
 });
 
-// ── 2 · postReveal renders ONLY in the done phase (not idle / not revealing) ───────────────────────
-test("the runner renders postReveal ONLY in the done phase", () => {
+// ── 2 · postReveal renders DIRECTLY (null-guarded only, never phase-gated) ─────────────────────────
+test("the runner renders postReveal directly — null-guarded, never phase-gated", () => {
   // postReveal is a declared prop.
   assert.match(RUNNER_SRC, /postReveal\?: React\.ReactNode/, "postReveal is an optional ReactNode prop");
-  // The ONLY render of `{postReveal}` is inside the `phase === "done"` block. We assert the postReveal
-  // render appears AFTER the done gate and BEFORE the next phase check, and that no idle/revealing branch
-  // references postReveal.
-  const doneIdx = RUNNER_SRC.indexOf('phase === "done"');
-  const postRevealIdx = RUNNER_SRC.indexOf("{postReveal}");
-  assert.ok(doneIdx > 0, "a done-phase branch exists");
-  assert.ok(postRevealIdx > doneIdx, "postReveal is rendered inside the done-phase block (after the done gate)");
-  // It is conditionally rendered (postReveal ? ... : null) — not an always-on sibling.
-  assert.match(RUNNER_SRC, /postReveal \? <div[^>]*>\{postReveal\}<\/div> : null/, "postReveal is conditionally rendered in done");
-  // The idle branch must NOT reference postReveal (nothing gated leaks pre-click).
-  const idleBlock = RUNNER_SRC.slice(RUNNER_SRC.indexOf('phase === "idle"'), RUNNER_SRC.indexOf('phase === "revealing"'));
-  assert.ok(!idleBlock.includes("postReveal"), "the idle (pre-click) branch never renders postReveal");
-  const revealingBlock = RUNNER_SRC.slice(RUNNER_SRC.indexOf('phase === "revealing"'), doneIdx);
-  assert.ok(!revealingBlock.includes("postReveal"), "the revealing branch never renders postReveal");
+  // It renders as part of the direct dashboard, guarded only against absence — no phase condition.
+  assert.match(RUNNER_SRC, /postReveal \? <div[^>]*>\{postReveal\}<\/div> : null/, "postReveal is null-guarded only");
+  assert.doesNotMatch(RUNNER_SRC, /phase === /, "no phase conditions anywhere in the runner");
 });
 
-// ── 3 · the MLB-sim path passes report+spotlight+tabs to postReveal, NOT as always-visible siblings ─
-test("MLB-sim page gates report + spotlight + tabs behind the reveal via postReveal (not pre-click siblings)", () => {
+// ── 3 · the MLB-sim path composes report+spotlight+tabs through postReveal, NOT as duplicate siblings ─
+test("MLB-sim page composes report + spotlight + tabs through postReveal (one report, no duplicate siblings)", () => {
   assert.match(DETAIL_SRC, /const isMlbSim = SIMULATION_SPORTS\.has\(detail\.sport\) && !!detail\.gameLabSimulation/, "the simulation gate is defined (sport-agnostic since P183)");
-  // The gated detail is handed to the runner via postReveal — now the ONE unified report (mlbReportDetails),
-  // not a competing tabbed dashboard; the market snapshot node is threaded into the V2.5 report (its §10).
+  // The detail is handed to the runner via postReveal — the ONE unified report (rendered directly since
+  // P242), not a competing tabbed dashboard; the market snapshot node is threaded into the V2.5 report (§10).
   assert.match(DETAIL_SRC, /marketSnapshotNode=\{gameCenter\}/, "market snapshot node threaded into the V2.5 report");
   assert.match(DETAIL_SRC, /postReveal=\{mlbGameFirstReport\}/, "the unified report detail goes into postReveal (gated)");
   // The runner returns EARLY for the MLB-sim path, so the sibling report/spotlight/tabs render below is

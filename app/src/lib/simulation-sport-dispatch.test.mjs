@@ -1,10 +1,11 @@
 /**
- * SPORT DISPATCH (Phase 5) — the simulation staging + the runner dispatch on the REAL sport.
+ * SPORT DISPATCH — the dormant staging module's per-sport surfaces (P242: the staged ceremony is
+ * retired from the runner; the module remains as reference source).
  *
  * MLB keeps the baseball diamond; any other sport degrades HONESTLY to a generic staging shell that
  * says so plainly — never a baseball diamond for a non-baseball game, and never fabricated sport data
- * (no scoreline / first-scorer / xG / corners / cards). There is no soccer artifact yet, so these are
- * structural assertions on the dispatch wiring + the honest fallback (the only truthful thing to test).
+ * (no scoreline / first-scorer / xG / corners / cards). These content invariants stay pinned so any
+ * future revival starts honest; the live rule is that the runner mounts NONE of it.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -26,11 +27,11 @@ function fnBody(src, header) {
   return nextIdx < 0 ? after : after.slice(0, nextIdx);
 }
 
-// ── 1 · the runner dispatches on the REAL view.sport, not a hardcoded literal ─────────────────────
-test("runner dispatches the animation on the real view.sport (no hardcoded sport literal)", () => {
-  assert.ok(RUNNER_SRC.includes("<SportSimulationAnimation sport={view.sport}"), "render uses view.sport");
-  assert.ok(!RUNNER_SRC.includes('SportSimulationAnimation sport="mlb"'), 'no hardcoded sport="mlb" literal remains');
-  // The view genuinely carries a sport field (the data path is real, not invented in the component).
+// ── 1 · the runner mounts NO staged animation at all (P242 — the report renders directly) ─────────
+test("runner does not mount the staged animation; the view still carries the real sport", () => {
+  assert.ok(!RUNNER_SRC.includes("SportSimulationAnimation"), "the runner does not mount the staged animation");
+  assert.ok(!RUNNER_SRC.includes("simulation-animation"), "the runner does not import the staging module");
+  // The view genuinely carries a sport field (the data path is real, not invented in a component).
   assert.match(VIEW_SRC, /sport:\s*string/, "GameSimulationView declares a sport field");
   assert.match(VIEW_SRC, /sport:\s*result\.sport/, "the view is populated from the artifact's real sport");
 });

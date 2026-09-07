@@ -193,17 +193,13 @@ function mlbSection(date: string, today: string): SportDaySection {
             ? "ARTIFACT_READY"
             : "SCHEDULE_ONLY";
     /*
-     * P234 · B — a ready game opens its PRESENTATION, not just its page. `?play=1` is the reader's
-     * own click carried across the navigation, so /simulate is one action rather than two.
-     *
-     * The trailing slash goes BEFORE the query deliberately. `trailingSlash: true` means
-     * `/games/mlb/x?play=1` is answered with a 308 to `/games/mlb/x/`, and this project has already
-     * lost query intent to exactly that redirect once.
+     * P242 — a ready game opens its REPORT, directly. The `?play=1` presentation hand-off was
+     * retired with the recording experience; the full dashboard renders on arrival.
      */
     const href = settled
       ? "/results"
       : detail
-        ? `/games/mlb/${detail.slug}/${simReady ? "?play=1" : ""}`
+        ? `/games/mlb/${detail.slug}/`
         : "/mlb";
     return {
       sport: "mlb", id: `mlb:${pk || `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`,
@@ -287,7 +283,7 @@ function eplSection(date: string, today: string): SportDaySection {
     const state: SimEventState = settled ? "SETTLED" : hasProbs ? "SIMULATION_READY" : "ARTIFACT_READY";
     /* P234 · C — a fixture with a published forecast opens its presentation on arrival. eplMatchHref
        already ends in a slash, so the query attaches without tripping the trailingSlash redirect. */
-    const href = r.slug ? `${eplMatchHref(r.slug)}?play=1` : "/epl";
+    const href = r.slug ? eplMatchHref(r.slug) : "/epl";
     return {
       sport: "epl", id: `epl:${r.eventId}`,
       matchup: r.matchup,
@@ -347,7 +343,7 @@ function ufcSection(date: string, today: string): SportDaySection {
       state,
       stateReason: settled ? "This card is complete — settled bouts live on Results." : predicted === 0 ? "No bout on this card has enough fighter history to model — the schedule is shown without a read." : null,
       markets: predicted > 0 ? ["Fight winner"] : [],
-      href: settled ? "/results/picks/ufc" : predicted > 0 ? "/ufc/?play=1" : "/ufc",
+      href: settled ? "/results/picks/ufc" : "/ufc",
       actionLabel: settled ? STATE_ACTION.SETTLED : predicted > 0 ? `View ${predicted} of ${bouts.length} bout reads` : STATE_ACTION.SCHEDULE_ONLY,
     });
   } else {
@@ -391,7 +387,7 @@ function nflSection(date: string, today: string): SportDaySection {
       state,
       stateReason: settled ? "Kicked off or final — the report shows the frozen forecast and result." : state === "BASELINE_ONLY" ? e.readinessReason : state === "MODEL_ONLY_NO_MARKET" ? "Model distribution published; no market price is attached to this event." : null,
       markets: e.hasMarket ? ["Moneyline", "Total"] : [],
-      href: `/nfl/game/${e.providerEventId}/${READY_STATES.includes(state) ? "?play=1" : ""}`,
+      href: `/nfl/game/${e.providerEventId}/`,
       actionLabel: STATE_ACTION[state],
     });
   }

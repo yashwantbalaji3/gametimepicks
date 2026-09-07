@@ -111,12 +111,18 @@ test("an MLB detail whose game is in the artifact exposes gameLabSimulation.stat
   assert.equal(typeof view.allowsRunCountClaim, "boolean");
 });
 
-// ── 2 · The runner renders a "Generate Simulation" affordance when ready ────────────────────────
-test("GameSimulationRunner exposes a 'Generate Simulation' affordance", () => {
-  assert.match(RUNNER_SRC, /Generate Simulation/, "runner must offer a 'Generate Simulation' button");
-  // It is a real interactive control (a button with an onClick), not static text.
-  assert.match(RUNNER_SRC, /<button/, "runner must render a button");
-  assert.match(RUNNER_SRC, /onClick=\{start\}/, "the Generate button must trigger the reveal");
+// ── 2 · The runner renders the report DIRECTLY — the Generate ceremony is retired (P242) ─────────
+test("GameSimulationRunner renders the dashboard directly — no 'Generate Simulation' ceremony", () => {
+  // The founder retired the recording/presentation experience: one click on an event lands on the
+  // full report. No Generate button, no start callback, no phase timers, no locked preview pills.
+  assert.doesNotMatch(RUNNER_SRC, /Generate Simulation/, "the Generate ceremony must stay retired");
+  assert.doesNotMatch(RUNNER_SRC, /onClick=\{start\}/, "no start callback — nothing to click before the report");
+  assert.doesNotMatch(RUNNER_SRC, /DASHBOARD_PREVIEW_PILLS/, "no locked dashboard preview pills");
+  assert.doesNotMatch(RUNNER_SRC, /window\.setTimeout/, "no reveal timers of any kind");
+  assert.doesNotMatch(RUNNER_SRC, /setPhase|useState/, "no phase machine — the report is not client state");
+  // The direct path renders the dashboard container unconditionally for ready/stale views.
+  assert.match(RUNNER_SRC, /rendered DIRECTLY as the 10-section dashboard \(P242\)/, "the direct-render decision is stated in source");
+  assert.match(RUNNER_SRC, /className="gtp-sim-reveal flex flex-col gap-4"/, "the dashboard container renders unconditionally");
   assert.match(RUNNER_SRC, /"use client"/, "runner must be a client component");
 });
 

@@ -17,7 +17,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createContext as createSimContext, advance, scriptForReadiness, PHASE_COPY, PHASE_DURATION_MS } from "@/lib/simulate/state-machine.mjs";
+import { createContext as createSimContext, advance, scriptForReadiness, PHASE_COPY } from "@/lib/simulate/state-machine.mjs";
 import { themeFor } from "@/lib/simulate/themes";
 import SimulationScene from "@/components/simulate/scenes";
 import type { SimDayEvent } from "@/lib/simulate/day-view";
@@ -67,11 +67,13 @@ export default function SimulationStage({ event, onClose }: { event: SimDayEvent
     }
   }, [ctx.phase, event.href, router, script.terminal]);
 
-  // Drive the machine on a deterministic clock. Reduced motion keeps the same truthful phases at a
-  // quicker cadence (the scene itself is static under the global guard).
+  // Drive the machine on a deterministic clock — but FAST (P242). The stage now serves only
+  // non-ready states (ready events navigate straight to their reports), so nothing is being
+  // generated here: the phases exist to structure the refusal, not to simulate work. The old
+  // per-phase cadence (PHASE_DURATION_MS) narrated a generation that was not happening; the
+  // reader now reaches the terminal answer in well under a second.
   useEffect(() => {
-    const reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const tick = reduced ? 220 : PHASE_DURATION_MS;
+    const tick = 150;
     const timer = window.setInterval(() => {
       if (pausedRef.current) return;
       setCtx((cur) => {

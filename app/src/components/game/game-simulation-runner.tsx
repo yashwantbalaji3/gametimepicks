@@ -1,14 +1,15 @@
 "use client";
 
 /**
- * GameSimulationRunner — the "Generate Simulation" REVEAL for one MLB fixture.
+ * GameSimulationRunner — the DIRECT simulation report for one MLB fixture (P242).
  *
  * It renders the PRECOMPUTED, deterministic simulation view built at BUILD TIME by
  * `buildGameSimulationView` (@/lib/game-simulations/game-lab-view) and threaded through
- * `game-detail.ts` as a prop. This component is animation-ONLY: clicking "Generate Simulation"
- * plays a staged reveal from pure client state (setTimeout + CSS), then shows the artifact that was
- * ALREADY loaded. It does NOT fetch, read the filesystem, write anything, or randomize — every user
- * sees the SAME picks for the same game + model version.
+ * `game-detail.ts` as a prop — immediately, with no click, no countdown, and no staged reveal.
+ * The founder retired that ceremony: the numbers are deterministic and already loaded, so one
+ * click on an event lands on the full report. This component does NOT fetch, read the
+ * filesystem, write anything, or randomize — every user sees the SAME picks for the same
+ * game + model version.
  *
  * HONESTY (mirrors the artifact contract + validator):
  *   • The word "simulated" / a run count appears ONLY when the view says so:
@@ -17,38 +18,12 @@
  *   • Histograms render ONLY when `view.distributions` is present (a real, non-empty block).
  *   • No xG / corners / cards / first-scorer — those are declared "not generated" and shown as such.
  *   • Copy is deterministic + paper-only, and stays inside the honest-language allowlist (no hype /
- *     no certainty / no in-play-wagering terms). The reveal replays a precomputed, seeded artifact.
- *
- * The existing `MlbGameLabReport` stays visible regardless — this is an additive reveal beside it.
+ *     no certainty / no in-play-wagering terms). Everything shown is the precomputed artifact.
  */
 
-import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 import type { GameSimulationView } from "@/lib/game-simulations/game-lab-view";
 import type { SimGeneratedPick } from "@/lib/game-simulations/types";
-import {
-  SportSimulationAnimation,
-  SIMULATION_MIN_DURATION_MS,
-  SIMULATION_STAGES,
-} from "./simulation-animation";
-import PresentationPlayer from "@/components/simulate/presentation-player";
-import type { PresentationResult } from "@/lib/simulate/presentation/types";
-import { isPresentable } from "@/lib/simulate/presentation/types";
-
-/**
- * The dashboard modules the reveal unlocks — shown BEFORE the click as locked/preview pills ONLY (labels,
- * never data), so the user knows what is coming without seeing any posted price, prop, or distribution.
- */
-const DASHBOARD_PREVIEW_PILLS = [
-  "Simulation coverage",
-  "Player board",
-  "Model leads",
-  "Market agreement",
-  "Distributions",
-  "Settlement",
-  "Product tags",
-  "Market snapshot",
-] as const;
 
 // ── formatters (always fall back to an em dash; never render undefined/NaN) ──
 const dash = (v: string | number | null | undefined) =>
@@ -310,15 +285,6 @@ export function buildRecap(view: GameSimulationView): string {
 
 
 
-/**
- * PropTable — a scrollable table of ALL generated picks (capped at a sensible top-N with an honest
- * "showing top N of M" note when capped). Every cell is null-guarded. This is the full ledger of what
- * the run produced, paper-only.
- */
-const PROP_TABLE_CAP = 12;
-
-
-
 
 export default function GameSimulationRunner({
   view,
@@ -326,90 +292,22 @@ export default function GameSimulationRunner({
   marketSnapshot,
   homeLogo,
   awayLogo,
-  presentation,
 }: {
   view: GameSimulationView;
-  /** Rendered ONLY in the done phase, below the dashboard — the dense report + spotlight + tabs shell,
-   *  so on an MLB-sim page they are ABSENT from the pre-click DOM (gated behind the reveal). */
+  /** The dense report + spotlight + tabs shell, rendered below the dashboard. */
   postReveal?: React.ReactNode;
   /** The market-snapshot node (MlbGameCenter) — rendered as report section 2 (right after the header,
-   *  before the model output) so "what the book says" leads the read. Gated (done phase only). */
+   *  before the model output) so "what the book says" leads the read. */
   marketSnapshot?: React.ReactNode;
   homeLogo?: string | null;
   awayLogo?: string | null;
-  /**
-   * THE BOUNDED PRESENTATION (P234 · Release B). When the report projects into a manifest, the reveal
-   * IS the presentation: chapters in a fixed frame, each skippable, the dashboard waiting underneath.
-   * When it does not, the original staged animation still runs on its 10s gate — the fallback is kept
-   * rather than removed, because a sport or a game without a manifest must not lose its reveal.
-   */
-  presentation?: PresentationResult | null;
 }) {
-  const [phase, setPhase] = useState<"idle" | "revealing" | "done">("idle");
-  const [stage, setStage] = useState(0);
-  const timersRef = useRef<number[]>([]);
-
-  const ready = view.status === "ready" || view.status === "stale";
-  /** A manifest that actually built. A refusal is still handed to the player, which states its reason. */
-  const playable = isPresentable(presentation ?? null);
-
-  // Clear any pending stage timers on unmount so a mid-animation navigation never fires a stray setState.
-  useEffect(() => {
-    return () => {
-      for (const t of timersRef.current) window.clearTimeout(t);
-      timersRef.current = [];
-    };
-  }, []);
-
-  // Pure client STAGING: advance `stage` across SIMULATION_STAGES over SIMULATION_MIN_DURATION_MS (≈1.25s
-  // each), then flip to the done dashboard only after the FULL SIMULATION_MIN_DURATION_MS (10s) has
-  // elapsed. NO data work, NO randomness — the payload is already loaded; this only stages its reveal, so
-  // the same artifact is shown for every click. The done phase is GATED on SIMULATION_MIN_DURATION_MS: the
-  // dashboard cannot appear on a sub-10s timer.
   /*
-   * ARRIVING WITH THE INTENT ALREADY EXPRESSED. `?play=1` is written by the /simulate card the
-   * reader clicked, so this is a user action that survived a navigation — not a dialog that opens
-   * by itself on page load. Read at hydration, which is the pattern this app already uses for its
-   * other query state under `output: "export"` — there is no server to read a query string.
+   * DIRECT BY DECISION (P242). This component used to gate the precomputed dashboard behind a
+   * click-to-generate card, a 10-second staged reveal and, when a manifest built, the chapter
+   * presentation player. The founder retired that ceremony: the dashboard renders immediately.
+   * The forecast artifacts and this dashboard are unchanged.
    */
-  useEffect(() => {
-    if (!playable) return;
-    let wanted = false;
-    try { wanted = new URLSearchParams(window.location.search).get("play") === "1"; } catch { wanted = false; }
-    if (wanted) setPhase((cur) => (cur === "idle" ? "revealing" : cur));
-  }, [playable]);
-
-  const start = useCallback(() => {
-    if (!ready) return;
-    for (const t of timersRef.current) window.clearTimeout(t);
-    timersRef.current = [];
-    setPhase("revealing");
-    setStage(0);
-
-    /*
-     * THE PRESENTATION DRIVES ITSELF. With a manifest, the reveal is the player's chapter clock and
-     * the dashboard appears when the READER finishes or closes it — never on a timer this component
-     * owns. That is strictly stronger than the 10s gate below: there is no timer to shorten.
-     */
-    if (playable) return;
-
-    const stageCount = SIMULATION_STAGES.length;
-    const perStage = SIMULATION_MIN_DURATION_MS / stageCount; // ≈1.25s per stage across the 10s
-
-    // Advance the pre-completion stages [1 .. stageCount-2] on evenly-spaced timers. The final
-    // "complete" stage + the dashboard are BOTH gated on the full SIMULATION_MIN_DURATION_MS below.
-    for (let i = 1; i < stageCount - 1; i += 1) {
-      const t = window.setTimeout(() => setStage(i), Math.round(perStage * i));
-      timersRef.current.push(t);
-    }
-    // The done gate: only at SIMULATION_MIN_DURATION_MS do we mark the final stage AND reveal the dashboard.
-    const doneTimer = window.setTimeout(() => {
-      setStage(stageCount - 1);
-      setPhase("done");
-    }, SIMULATION_MIN_DURATION_MS);
-    timersRef.current.push(doneTimer);
-  }, [ready, playable]);
-
   // ── Unavailable: calm, non-broken. The existing Game Lab report stays visible above this. ──
   if (view.status === "unavailable" || view.status === "error") {
     return (
@@ -417,7 +315,7 @@ export default function GameSimulationRunner({
         className="flex flex-col gap-1.5 rounded-[14px] px-4 py-4"
         style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-border)" }}
       >
-        <Eyebrow color="var(--vault-text-faint)">Generate Simulation</Eyebrow>
+        <Eyebrow color="var(--vault-text-faint)">Model simulation</Eyebrow>
         <span style={{ color: "var(--vault-text-mute)", fontSize: 13, fontWeight: 600 }}>
           Simulation not yet available for this game
         </span>
@@ -450,106 +348,9 @@ export default function GameSimulationRunner({
         </div>
       ) : null}
 
-      {/* Before click: the premium pre-sim "Generate card" — headline, explanation, a locked dashboard-
-          preview pill row (LABELS ONLY, never data), then the prominent Generate button. The dense report,
-          posted prices, prop tables, distributions, and price tabs are GATED behind the reveal (they live
-          in `postReveal`, rendered only in the done phase) so nothing priced is in this pre-click DOM. */}
-      {phase === "idle" ? (
-        <div
-          className="relative overflow-hidden flex flex-col gap-5 rounded-[18px] px-5 py-7 sm:px-7 sm:py-8"
-          style={{
-            border: "1px solid var(--vault-border-strong)",
-            background:
-              "radial-gradient(130% 150% at 50% 0%, color-mix(in srgb, var(--vault-accent) 13%, transparent) 0%, transparent 55%), linear-gradient(140deg, color-mix(in srgb, var(--vault-scrim-slate) 96%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-neutral) 99%, transparent) 100%)",
-            boxShadow: "0 22px 56px -28px color-mix(in srgb, var(--vault-ink-black) 78%, transparent)",
-          }}
-        >
-          {/* faint field-grid texture behind the CTA (decorative, motion-free) */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{
-              backgroundImage:
-                "linear-gradient(color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--vault-accent) 5%, transparent) 1px, transparent 1px)",
-              backgroundSize: "28px 28px",
-              opacity: 0.55,
-              maskImage: "radial-gradient(120% 90% at 50% 0%, var(--vault-ink-black) 30%, transparent 82%)",
-              WebkitMaskImage: "radial-gradient(120% 90% at 50% 0%, var(--vault-ink-black) 30%, transparent 82%)",
-            }}
-          />
-          <div className="relative flex flex-col gap-2">
-            <Eyebrow>Model simulation</Eyebrow>
-            <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(23px, 3.4vw, 28px)", fontWeight: 800, lineHeight: 1.06, letterSpacing: "-0.02em" }}>
-              {view.allowsRunCountClaim && view.runCount != null
-                ? `Generate the ${view.runCount.toLocaleString()}-run simulation`
-                : "Generate the model simulation"}
-            </h2>
-            <span style={{ color: "var(--vault-text-mute)", fontSize: 13, lineHeight: 1.55, maxWidth: 560 }}>
-              A precomputed model artifact — the same result for every user. The dashboard unlocks after the reveal. Paper-only.
-            </span>
-          </div>
-
-          {/* dashboard preview — LOCKED labels only (no numbers, no picks). What the reveal will unlock. */}
-          <div className="relative flex flex-col gap-2">
-            <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
-              Unlocks after the reveal
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {DASHBOARD_PREVIEW_PILLS.map((label) => (
-                <span
-                  key={label}
-                  className="inline-flex items-center gap-1.5 rounded-[8px] px-2.5 py-1.5 font-mono uppercase tracking-[0.08em]"
-                  style={{ background: "color-mix(in srgb, var(--vault-scrim-neutral) 50%, transparent)", border: "1px dashed var(--vault-rule)", color: "var(--vault-text-faint)", fontSize: 9.5 }}
-                >
-                  <span aria-hidden style={{ fontSize: 8.5, opacity: 0.85 }}>🔒</span>
-                  {label}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
-              <span style={{ color: "var(--vault-text-mute)" }}>Model</span> {dash(view.modelVersion)}
-            </span>
-            {view.allowsRunCountClaim && view.runCount != null ? (
-              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
-                <span style={{ color: "var(--vault-text-mute)" }}>Runs</span> {view.runCount.toLocaleString()}
-              </span>
-            ) : null}
-            <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
-              {freshnessLabel(view.generatedAt)}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={start}
-            className="gtp-cta-lava vault-press relative inline-flex items-center justify-center gap-2 self-start rounded-[12px] px-6 font-mono uppercase tracking-[0.14em]"
-            style={{ fontSize: 13, fontWeight: 700, minHeight: 50, border: "none", cursor: "pointer" }}
-          >
-            <span aria-hidden style={{ fontSize: 13 }}>▶</span> Generate Simulation
-          </button>
-          <span className="relative font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
-            ≈10-second reveal · then the full model dashboard
-          </span>
-        </div>
-      ) : null}
-
-      {/* Reveal animation — the 10s sport-specific staging (premium baseball diamond + team marks for MLB).
-          The dashboard is gated on SIMULATION_MIN_DURATION_MS in `start`, so it never appears before the
-          animation finishes. Team logos are threaded through (monogram fallback when null). */}
-      {phase === "revealing" && presentation ? (
-        /* Closing the presentation — by button, Escape, or backdrop — lands the reader on the full
-           dashboard. There is no second ceremony to sit through on the way. */
-        <PresentationPlayer presentation={presentation} onClose={() => setPhase("done")} />
-      ) : phase === "revealing" ? (
-        <SportSimulationAnimation sport={view.sport} view={view} stage={stage} homeLogo={homeLogo} awayLogo={awayLogo} />
-      ) : null}
-
-      {/* After reveal: the precomputed artifact, reorganized into the 10-section dashboard. A gentle
-          fade/slide-in makes the animation→dashboard handoff feel intentional (motion-gated). */}
-      {phase === "done" ? (
-        <div className="gtp-sim-reveal flex flex-col gap-4">
+      {/* The precomputed artifact, rendered DIRECTLY as the 10-section dashboard (P242) — a gentle
+          motion-gated entrance is all that remains of the old reveal. */}
+      <div className="gtp-sim-reveal flex flex-col gap-4">
           {/* Scoped reveal transition — soft fade + rise, disabled under reduced motion (content stays). */}
           <style
             dangerouslySetInnerHTML={{
@@ -649,7 +450,6 @@ export default function GameSimulationRunner({
             </Link>
           </nav>
         </div>
-      ) : null}
     </section>
   );
 }

@@ -1,5 +1,12 @@
 "use client";
 /**
+ * DORMANT — NOT MOUNTED ANYWHERE PUBLIC (P242). The founder retired the recording/presentation
+ * experience on 2026-09-07; every public mount (six launcher call sites, the MLB runner's player
+ * hand-off, and every `?play=1` href) was removed, so this module is unreachable from the public
+ * bundle and no flag can re-enable it. It is retained as reference for a possible future
+ * private/recording tool; deleting it is safe if that never happens.
+ */
+/**
  * THE PRESENTATION PLAYER — Program 234 · Release B.
  *
  * One bounded frame, one click, one complete narrative. The reader presses play and may then leave

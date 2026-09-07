@@ -223,8 +223,8 @@ test("V2.5 player board renders the full pick table (scrollable, honest empty st
   assert.ok(V2_SRC.includes("No simulated player lines for this game yet."), "honest empty state when there are no picks");
 });
 
-// ── 12 · the dashboard modules now render as V2.5 sections; runner keeps animation + gate + header ──
-test("dashboard modules live in the V2.5 report; runner keeps the animation, idle button, and header", () => {
+// ── 12 · the dashboard modules render as V2.5 sections; runner renders them DIRECTLY (P242) ─────────
+test("dashboard modules live in the V2.5 report; runner renders the report directly with its header", () => {
   for (const marker of [
     'title="Player simulation board"', // pick table (was PropTable)
     'title="Biggest model leads"', // leans (was GeneratedPickCard grid / MainTakeaways)
@@ -234,17 +234,14 @@ test("dashboard modules live in the V2.5 report; runner keeps the animation, idl
   ]) {
     assert.ok(V2_SRC.includes(marker), `V2.5 section present: ${marker}`);
   }
-  // The runner's done-phase header stays (section 1) — the summary + explicit model-projection label.
+  // The runner's report header stays (section 1) — the summary + explicit model-projection label.
   assert.match(RUNNER_SRC, /Model projection · not a final score/, "projected numbers labelled a model projection");
-  // The runner reveals the V2.5 report as the single primary report in the done phase.
-  assert.match(RUNNER_SRC, /\{postReveal \?/, "the V2.5 report is revealed as postReveal");
-  // Phase-2 animation is still rendered for the animating phase — dispatched on the real view.sport, now
-  // threading the optional team logos through (the `stage={stage}` prefix is unchanged; extra props follow).
-  assert.match(RUNNER_SRC, /<SportSimulationAnimation sport=\{view\.sport\} view=\{view\} stage=\{stage\}/, "animation still renders for the animating phase");
-  assert.match(RUNNER_SRC, /phase === "revealing"/, "the animating phase branch is intact");
-  // The idle Generate button remains.
-  assert.match(RUNNER_SRC, /Generate Simulation/, "idle Generate button label present");
-  assert.match(RUNNER_SRC, /onClick=\{start\}/, "idle Generate button still wired to start()");
+  // The runner composes the V2.5 report as the single primary report, rendered directly (null-guarded only).
+  assert.match(RUNNER_SRC, /\{postReveal \?/, "the V2.5 report is composed through postReveal");
+  // The ceremony stays retired (P242): no staged animation, no phase machine, no Generate CTA.
+  assert.doesNotMatch(RUNNER_SRC, /SportSimulationAnimation/, "no staged animation in the runner");
+  assert.doesNotMatch(RUNNER_SRC, /phase === "revealing"|setPhase|useState/, "no phase machine in the runner");
+  assert.doesNotMatch(RUNNER_SRC, /Generate Simulation|onClick=\{start\}/, "no Generate CTA in the runner");
 });
 
 // ── 13 · NO banned copy anywhere in the runner source ────────────────────────────────────────────

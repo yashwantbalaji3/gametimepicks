@@ -93,19 +93,19 @@ test("5 · NO 10,000-run claim — soccer is a market-implied dashboard, not a s
   assert.doesNotMatch(stripComments(deriverSrc), /runCount|10,?000/); // no runCount field, no 10k literal
   assert.doesNotMatch(stripComments(runnerSrc), /10,?000[- ]?run|runCount/); // no run-count claim in copy
   assert.match(runnerSrc, /market-implied/i); // honest source label is preserved (market-implied, not a sampled sim)
-  assert.match(runnerSrc, /Generate Simulation Report/); // product verb matches MLB ("Simulation Report")
-  assert.doesNotMatch(runnerSrc, /Generate Market Dashboard/); // the weaker "Market Dashboard" verb is gone
+  // The Generate ceremony is retired (P242): no CTA of any name in the runner.
+  assert.doesNotMatch(runnerSrc, /Generate Simulation Report|Generate Market Dashboard/);
 });
 
-test("6 · game-detail attaches wcGameCenter; page gates it behind Generate (postReveal)", () => {
+test("6 · game-detail attaches wcGameCenter; page renders it directly via the runner (P242)", () => {
   assert.match(detailLoaderSrc, /wcGameCenter: getWcGameCenter\(matchId\)/);
-  // The WC-sim branch hands ONE unified report (wcReport) to the runner's postReveal (revealed after Generate).
+  // The WC-sim branch hands ONE unified report (wcReport) to the runner, which renders it directly.
   assert.match(detailPageSrc, /const isWcSim = detail\.sport === "world_cup" && !!detail\.wcGameCenter/);
-  assert.match(detailPageSrc, /postReveal=\{wcReport\}/, "WC post-reveal is the gated unified report");
-  // The gated report now leads with the shared FreeSim shell; the WC Game Center is handed to the shell's
-  // Details as the advanced market dashboard — still inside postReveal, absent from the pre-click DOM.
-  assert.match(detailPageSrc, /wcReport = \(\s*<SoccerSimulationReportV2/, "WC post-reveal is the V2 simulation report");
-  assert.match(detailPageSrc, /<MultiSportReportShell report=\{freeSimReport\} advanced=\{<WcGameCenter gameCenter=\{gc\} expanded=\{detail\.wcExpanded\}/, "the WC Game Center stays gated inside the demoted advanced block (still in postReveal)");
+  assert.match(detailPageSrc, /postReveal=\{wcReport\}/, "the unified report is handed to the runner (rendered directly)");
+  // The report leads with the shared FreeSim shell; the WC Game Center is handed to the shell's
+  // Details as the advanced market dashboard.
+  assert.match(detailPageSrc, /wcReport = \(\s*<SoccerSimulationReportV2/, "the WC report is the V2 simulation report");
+  assert.match(detailPageSrc, /<MultiSportReportShell report=\{freeSimReport\} advanced=\{<WcGameCenter gameCenter=\{gc\} expanded=\{detail\.wcExpanded\}/, "the WC Game Center stays inside the demoted advanced block");
 });
 
 test("7 · money md5 unchanged; the layer is money-independent", () => {

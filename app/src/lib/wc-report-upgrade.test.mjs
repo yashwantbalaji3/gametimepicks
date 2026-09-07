@@ -11,10 +11,13 @@ import path from "node:path";
 const APP = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 
-test("WC runner uses 'Generate Simulation Report' (not 'Market Dashboard') + keeps the market-implied source", () => {
+test("WC runner renders the report DIRECTLY (Generate ceremony retired, P242) + keeps the market-implied source", () => {
   const src = read("src/components/game/wc-simulation-runner.tsx");
-  assert.match(src, /Generate Simulation Report/, "product verb matches MLB");
-  assert.doesNotMatch(src, /Generate Market Dashboard/, "the weaker 'Market Dashboard' verb is gone");
+  // The founder retired the Generate ceremony: no CTA, no phase machine, no timers, no locked pills.
+  assert.doesNotMatch(src, /Generate Simulation Report|Generate Market Dashboard/, "no Generate CTA of any name");
+  assert.doesNotMatch(src, /useState|setTimeout|SIMULATION_MIN_DURATION_MS/, "no phase machine or reveal timers");
+  assert.doesNotMatch(src, /🔒/, "no locked module pills");
+  assert.match(src, /renders immediately/, "the direct-render decision is stated in source");
   assert.match(src, /market-implied/i, "source is still disclosed as market-implied");
   // (no-10k-claim in VISIBLE copy is enforced comment-stripped by wc-game-center.test.mjs)
 });

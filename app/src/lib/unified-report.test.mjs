@@ -81,10 +81,11 @@ test("5 · soccer stays market-implied (NO run-count claim); MLB keeps its 10,00
   assert.doesNotMatch(wcBlock, /10,?000[- ]?run/i, "no 10,000-run claim in the WC unified report");
 });
 
-test("6 · the gate is intact — the unified detail is only in postReveal (done phase)", () => {
-  // The runner renders postReveal only in the done phase (existing gate); game-detail hands the detail
-  // via postReveal, never as a pre-click sibling.
-  assert.match(runner, /phase === "done"[\s\S]*?\{postReveal \?/, "postReveal renders in the done phase");
+test("6 · one unified report — the detail composes only through postReveal (rendered directly since P242)", () => {
+  // The runner renders postReveal directly (null-guarded, no phase gate); game-detail hands the detail
+  // via postReveal, never as a duplicate sibling.
+  assert.match(runner, /\{postReveal \? <div/, "postReveal composes the unified detail");
+  assert.doesNotMatch(runner, /phase === /, "no phase gate remains in the runner (ceremony retired, P242)");
   // Neither MLB report content nor WcGameCenter is rendered as a bare sibling in the sim branches.
   const mlbIdx = detailPage.indexOf("if (isMlbSim) {");
   const mlbEnd = detailPage.indexOf("\n  return (", mlbIdx);

@@ -3,6 +3,10 @@
 /**
  * SIMULATION ANIMATION — the sport-specific "Generate Simulation" staging (Phase 6).
  *
+ * DORMANT — NOT MOUNTED ANYWHERE PUBLIC (P242). The founder retired the staged reveal: the runner
+ * renders the precomputed report directly. This file is retained as reference source (its content
+ * guards keep it honest for any future revival); it can be deleted once nothing imports it.
+ *
  * A purely COSMETIC, deterministic, client-only staging animation that plays for a fixed
  * `SIMULATION_MIN_DURATION_MS` (10s) while the user waits, before the runner reveals the ALREADY-loaded
  * precomputed artifact. This file does NO data work, NO fetch, NO fs, NO randomness — it only renders a

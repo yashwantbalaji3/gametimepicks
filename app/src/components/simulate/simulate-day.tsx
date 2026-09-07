@@ -41,16 +41,10 @@ export const STATE_TONE: Record<SimDayEvent["state"], { fg: string; bg: string; 
 function EventCard({ e, onOpen }: { e: SimDayEvent; onOpen: (e: SimDayEvent) => void }) {
   const tone = STATE_TONE[e.state];
   /*
-   * P234 · C — EVERY ready state now navigates directly, not just MLB's.
-   *
-   * The rule used to name one sport because only MLB's report owned a richer in-page reveal.
-   * All four now do: the card's href carries `?play=1`, so the click lands on the report with the
-   * bounded presentation already open. Routing a ready event through the stage first would put a
-   * loading ceremony in front of a presentation — two ceremonies for one click, which is the thing
-   * the stage was originally kept out of MLB's path to avoid.
-   *
-   * Non-ready states still open the stage, because that is where they belong: it ends REFUSED in
-   * place with the event's own reason, without a navigation to a report that has nothing to show.
+   * P242 — EVERY ready state navigates directly to its full report; the `?play=1` presentation
+   * hand-off was retired with the recording experience. Non-ready states still open the stage,
+   * because that is where they belong: it ends REFUSED in place with the event's own reason,
+   * without a navigation to a report that has nothing to show.
    */
   const viaStage = e.state !== "SETTLED" && !READY_STATES.includes(e.state);
   const body = (

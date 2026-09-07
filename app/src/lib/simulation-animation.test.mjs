@@ -1,18 +1,18 @@
 /**
- * SIMULATION ANIMATION (Phase 6) — the 10-second, sport-specific "Generate Simulation" staging.
+ * SIMULATION ANIMATION — now a DORMANT module (P242): the staged "Generate Simulation" ceremony is
+ * retired from every public mount by founder decision; the runner renders the report directly.
  *
- * These pin the NEW client animation + its wiring into the runner:
- *   1. `SIMULATION_MIN_DURATION_MS === 10000`.
+ * These pin the dormant module's content invariants (so a future revival starts honest) and — the
+ * live rule — that the runner carries NONE of the ceremony:
+ *   1. `SIMULATION_MIN_DURATION_MS === 10000` (historical constant, unchanged).
  *   2. `SIMULATION_STAGES` has 8 labels and ends with "Simulation complete".
- *   3. `stageAtElapsed` — t=0 → stage 0; just before the min duration → NOT the final "complete" stage
- *      (dashboard hidden before 10s); at/after the min duration → the final stage (dashboard allowed).
- *   4. The runner GATES the done-phase on `SIMULATION_MIN_DURATION_MS` and does NOT set "done" on a
- *      sub-10s timer.
+ *   3. `stageAtElapsed` — pure timing helper still gates its final stage on the full duration.
+ *   4. The runner has NO reveal ceremony: no animation mount, no timers, no phase machine, no CTA.
  *   5. The animation source renders a baseball DIAMOND (bases + mound markers) for MLB.
  *   6. The checklist renders all 8 stages.
  *   7. Run-count copy is gated on `allowsRunCountClaim`.
  *   8. A reduced-motion guard exists and does NOT gate the stage sequence.
- *   9. NO banned copy in the new component + the runner.
+ *   9. NO banned copy in the animation module + the runner.
  *  10. Canonical money file is untouched (portfolio.json md5).
  *
  * The pure `stageAtElapsed` timing is exercised WITHOUT real timers (it takes elapsed as an argument).
@@ -81,33 +81,15 @@ test("stageAtElapsed: t=0 → stage 0; just before 10s → NOT final; at/after 1
   }
 });
 
-// ── 4 · the runner gates the done-phase on the constant, never a sub-10s timer ───────────────────
-test("the runner gates the done-phase on SIMULATION_MIN_DURATION_MS (no sub-10s done timer)", () => {
-  // The runner imports + references the min-duration constant.
-  assert.match(RUNNER_SRC, /SIMULATION_MIN_DURATION_MS/, "runner references the min-duration constant");
-  // It flips to the done dashboard.
-  assert.match(RUNNER_SRC, /setPhase\("done"\)/, "runner flips to the done phase");
-
-  // Every setTimeout that sets phase "done" MUST use the constant as its delay — never a numeric literal.
-  // Find each `window.setTimeout(() => { ... setPhase("done") ... }, <delay>)` and assert the delay is the constant.
-  const doneTimerRe = /window\.setTimeout\(\s*\(\)\s*=>\s*\{[^}]*setPhase\("done"\)[^}]*\},\s*([A-Za-z0-9_.]+)\s*\)/g;
-  const matches = [...RUNNER_SRC.matchAll(doneTimerRe)];
-  assert.ok(matches.length >= 1, "expected a setTimeout that reveals the dashboard");
-  for (const m of matches) {
-    assert.equal(m[1], "SIMULATION_MIN_DURATION_MS", `done-phase timer delay must be the constant, got "${m[1]}"`);
-  }
-
-  // Belt-and-suspenders: no numeric-literal timer sets the done phase (guards against a sub-10s regression).
-  assert.doesNotMatch(
-    RUNNER_SRC,
-    /window\.setTimeout\(\s*\(\)\s*=>\s*\{[^}]*setPhase\("done"\)[^}]*\},\s*\d+\s*\)/,
-    "the done phase must NOT be set on a numeric (sub-10s) timer",
-  );
-  // The old fast reveal path is gone.
-  assert.doesNotMatch(RUNNER_SRC, /STEP_MS|RevealSequence|REVEAL_STEPS/, "the old sub-10s reveal path is removed");
-
-  // The runner renders the new animation for MLB.
-  assert.match(RUNNER_SRC, /<SportSimulationAnimation sport=\{view\.sport\} view=\{view\} stage=\{stage\}/, "runner renders the sport animation, dispatched on the real view.sport");
+// ── 4 · the runner carries NO reveal ceremony at all (P242 — direct report by founder decision) ───
+test("the runner has no reveal ceremony: no animation mount, no timers, no phase machine", () => {
+  // The animation module stays as dormant source (its content invariants above still hold), but the
+  // runner renders the precomputed dashboard DIRECTLY — nothing from the ceremony may return.
+  assert.doesNotMatch(RUNNER_SRC, /SIMULATION_MIN_DURATION_MS/, "no min-duration gate in the runner");
+  assert.doesNotMatch(RUNNER_SRC, /SportSimulationAnimation|simulation-animation/, "the runner does not mount the staged animation");
+  assert.doesNotMatch(RUNNER_SRC, /setPhase|useState|setTimeout|setInterval/, "no phase machine or timers in the runner");
+  assert.doesNotMatch(RUNNER_SRC, /STEP_MS|RevealSequence|REVEAL_STEPS/, "the old sub-10s reveal path stays removed");
+  assert.doesNotMatch(RUNNER_SRC, /Generate Simulation/, "no Generate CTA in the runner");
 });
 
 // ── 5 · the animation renders a baseball diamond for MLB ─────────────────────────────────────────

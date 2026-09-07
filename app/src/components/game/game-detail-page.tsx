@@ -12,7 +12,6 @@ import type { PublicProjection } from "@/lib/normalize";
 import SportShell, { type ShellTab } from "@/components/ui/sport-shell";
 import MlbGameLabReport from "@/components/game/mlb-game-lab-report";
 import GameSimulationRunner from "@/components/game/game-simulation-runner";
-import { buildMlbPresentation } from "@/lib/simulate/presentation/mlb";
 import MlbGameCenter from "@/components/game/mlb-game-center";
 import MlbSimulationResultSummary from "@/components/game/mlb-simulation-result-summary";
 import MlbSimulationReportV2 from "@/components/game/mlb-simulation-report-v2";
@@ -833,17 +832,13 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           </div>
         </section>
 
-        {/* The simulation runner is the whole experience: idle (generate card + preview pills) → reveal
-            (≥10s animation) → done (dashboard + the gated report/spotlight/tabs + post-reveal nav). */}
+        {/* The full dashboard renders directly (P242) — no generate card, no staged reveal, no
+            presentation modal. The numbers are precomputed and deterministic; the page shows them. */}
         <GameSimulationRunner
           view={sim}
           homeLogo={detail.homeLogo}
           awayLogo={detail.awayLogo}
           postReveal={mlbGameFirstReport}
-          /* P234 · B — the bounded presentation, projected from THIS report at build time. A refusal
-             is passed through rather than swallowed, so the player states a reason instead of the
-             page silently falling back to the old staged animation. */
-          presentation={buildMlbPresentation(detail)}
         />
 
         {/* Persistent disclosure — visible regardless of phase. */}
@@ -854,19 +849,12 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     );
   }
 
-  // ── World Cup market-implied dashboard: a gated Generate flow (no runCount claim). The Game Center
-  //    + the existing WC report are handed to the runner's postReveal — revealed ONLY after Generate,
-  //    absent from the pre-click DOM (no probability/total leak). ──
+  // ── World Cup market-implied dashboard (no runCount claim). The Game Center + the existing WC
+  //    report render DIRECTLY below the matchup hero — the Generate ceremony is retired (P242);
+  //    these are archive pages and the report is precomputed. ──
   const isWcSim = detail.sport === "world_cup" && !!detail.wcGameCenter;
   if (isWcSim) {
     const gc = detail.wcGameCenter!;
-    const supported = [
-      gc.matchResult && "Match result",
-      gc.doubleChance && "Double chance",
-      gc.drawNoBet && "Draw no bet",
-      gc.total && "Match total",
-      gc.btts && "BTTS",
-    ].filter(Boolean) as string[];
     const wcReportEl = detail.gameLabWc ? <div><WcGameLabReport view={detail.gameLabWc} /></div> : null;
     // ── ONE unified report (Soccer/WC). The market-implied Match Result Center (WcGameCenter) is the
     // answer-first spine — market snapshot + match center + expanded markets + a regulation-time read,
@@ -942,7 +930,6 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           awayCode={gc.awayCode}
           stageLabel={gc.stage}
           kickoff={gc.kickoffUtc}
-          supportedMarkets={supported}
           postReveal={wcReport}
         />
         <p className="mt-6 font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
