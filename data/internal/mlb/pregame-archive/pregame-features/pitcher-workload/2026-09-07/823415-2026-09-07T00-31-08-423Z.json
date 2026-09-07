@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823415,
+  "date": "2026-09-07",
+  "capturedAt": "2026-09-07T00:31:08.423Z",
+  "availableAt": "2026-09-07T00:31:08.423Z",
+  "eventStartTime": "2026-09-07T17:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 666200,
+      "name": "Jesús Luzardo",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 6,
+      "lastStartDate": "2026-09-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33,
+        "ipAvg": 6.6,
+        "kAvg": 9,
+        "bbAvg": 1.6,
+        "erAvg": 1.2,
+        "hrAvg": 0.6,
+        "kPer9": 12.27,
+        "workloadIpLast5": 33
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 169.67,
+        "k": 209,
+        "bb": 51,
+        "er": 57,
+        "hr": 15
+      }
+    },
+    "away": {
+      "id": 656550,
+      "name": "Grant Holmes",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 5,
+      "lastStartDate": "2026-09-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 2.4,
+        "bbAvg": 1.8,
+        "erAvg": 1.8,
+        "hrAvg": 0.2,
+        "kPer9": 4.56,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 127.67,
+        "k": 100,
+        "bb": 55,
+        "er": 53,
+        "hr": 19
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-07T00:31:08.423Z"
+  },
+  "recordHash": "12fcb01b91ad62fd79e866731c16010a1e252b12f2ff8bc0691f13477c283f04"
+}

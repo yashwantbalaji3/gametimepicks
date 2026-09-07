@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824958,
+  "date": "2026-09-07",
+  "capturedAt": "2026-09-07T00:31:08.423Z",
+  "availableAt": "2026-09-07T00:31:08.423Z",
+  "eventStartTime": "2026-09-08T02:05:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 682052,
+      "name": "Jacob Lopez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 5,
+      "lastStartDate": "2026-09-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 6.6,
+        "bbAvg": 1.8,
+        "erAvg": 1.6,
+        "hrAvg": 0.8,
+        "kPer9": 9.9,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 96.33,
+        "k": 95,
+        "bb": 48,
+        "er": 49,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 656302,
+      "name": "Dylan Cease",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 26,
+      "restDays": 5,
+      "lastStartDate": "2026-09-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 7.4,
+        "bbAvg": 2.6,
+        "erAvg": 1.4,
+        "hrAvg": 0.6,
+        "kPer9": 11.1,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 26,
+        "ip": 156.33,
+        "k": 221,
+        "bb": 65,
+        "er": 39,
+        "hr": 10
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-07T00:31:08.423Z"
+  },
+  "recordHash": "c453096c14b447ee183fddccd5f20701d2b909562766503a537b3665278f2a9a"
+}
