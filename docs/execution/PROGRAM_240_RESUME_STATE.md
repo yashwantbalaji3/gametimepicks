@@ -71,3 +71,16 @@ multi-lane exposure accounting: build / pause / retire (product decision).
     npx tsx --test app/src/lib/products/ladder-settlement.test.mjs     # dual-lane scenarios
     npx tsx --test app/src/lib/sports/epl/odds-capture-decision.test.mjs
     npx tsx app/scripts/products/settle-ladder-cards.mjs               # dry run vs real store
+
+## Addendum (Sep 7, ~12:45Z): settlement observed, held, repaired — `aeaca6e9e`
+
+Pending acceptance event 1 resolved with a finding and a fix. The first nightly run (34112073923,
+10:33Z, success) applied the dual-lane moonshot settlement naturally (lane B LOST → cycle 2;
+positions cumulative — the fix worked first try) but held all sixteen Sep-6 daily-card legs:
+the workflow fetched linescores AFTER the settle step, and the settler's rolled-branch would have
+left the day pending for ever. Repaired in `aeaca6e9e` (fetch-before-grade, receipt-embedded
+identities + catch-up under pending→decided, model-results index reordered after graded-picks,
+UFC identity-audit card-roll window fixed) and the Sep-6 day remediated through the same settler:
+**BB-A WON · BB-B LOST · Moonshot A LOST · Moonshot B LOST** (16/16 decisive, receipt carries the
+provenance note). Remaining observations: CI on `aeaca6e9e`; tonight's second cron exercising the
+fixed workflow end-to-end; the daily-products workflow_run first natural firing (~15:00Z+).
