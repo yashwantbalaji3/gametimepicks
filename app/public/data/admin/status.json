@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-09-07T18:51:13.990Z",
+  "generatedAt": "2026-09-07T18:53:48.551Z",
   "canonical": {
     "record": "19-14",
     "bankroll": 19065.4,
@@ -19,7 +19,7 @@
     "date": "2026-09-07",
     "dailyPortfolioDate": "2026-09-07",
     "activeBankroll": 19065.4,
-    "openExposure": 250,
+    "openExposure": 100,
     "worldCupGames": 0,
     "mlbGames": 11,
     "mlbSlate": "2026-09-07"
@@ -44,8 +44,8 @@
     ]
   },
   "productReadiness": {
-    "bankBuilder": "active · 2 lane(s)",
-    "moonshot": "active · 2 lane(s)",
+    "bankBuilder": "active · 1 lane(s)",
+    "moonshot": "awaiting approval",
     "top10": "live",
     "worldCup": "dormant (no board)",
     "mlb": "live · 11 game(s)",
@@ -53,19 +53,19 @@
   },
   "products": {
     "bankBuilder": {
-      "activeLanes": 2,
+      "activeLanes": 1,
       "lanes": [
         {
           "lane": "A",
-          "status": "active",
+          "status": "candidate",
           "step": 1,
           "legs": 2,
-          "combinedOdds": 120,
+          "combinedOdds": 124,
           "stake": 100,
-          "potentialReturn": 220.3,
+          "potentialReturn": 223.57,
           "selections": [
-            "Minnesota Twins +1.5",
-            "Toronto Blue Jays to win"
+            "Toronto Blue Jays to win",
+            "Minnesota Twins +1.5"
           ]
         },
         {
@@ -84,16 +84,16 @@
       ]
     },
     "moonshot": {
-      "activeLanes": 2,
+      "activeLanes": 0,
       "lanes": [
         {
           "lane": "A",
-          "status": "active",
+          "status": "candidate",
           "step": 1,
           "legs": 6,
-          "combinedOdds": 3262,
+          "combinedOdds": 3272,
           "stake": 25,
-          "potentialReturn": 840.51,
+          "potentialReturn": 843,
           "selections": [
             "Detroit Tigers to win",
             "Under 8",
@@ -105,12 +105,12 @@
         },
         {
           "lane": "B",
-          "status": "active",
+          "status": "candidate",
           "step": 1,
           "legs": 8,
-          "combinedOdds": 9008,
+          "combinedOdds": 9035,
           "stake": 25,
-          "potentialReturn": 2277.02,
+          "potentialReturn": 2283.77,
           "selections": [
             "Detroit Tigers to win",
             "Under 8",
@@ -227,20 +227,20 @@
     }
   },
   "counts": {
-    "activeProducts": 3,
-    "pendingApprovals": 0
+    "activeProducts": 2,
+    "pendingApprovals": 3
   },
   "workflowHealth": {
-    "lastRunAt": "2026-09-07T18:51:13.175Z",
+    "lastRunAt": "2026-09-07T18:51:14.823Z",
     "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-09-07",
-    "etTime": "14:51",
+    "etTime": "14:53",
     "stages": [
       {
         "stage": "schedule",

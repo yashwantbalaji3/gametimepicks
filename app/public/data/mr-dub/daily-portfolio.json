@@ -1,29 +1,29 @@
 {
   "version": "daily-portfolio-v1",
   "date": "2026-09-07",
-  "generatedAt": "2026-09-07T18:31:23.531Z",
+  "generatedAt": "2026-09-07T18:53:46.843Z",
   "activeBankroll": 19065.4,
   "crownBankroll": 20465.4,
-  "openExposure": 250,
-  "availableBankroll": 18815.4,
-  "potentialReturn": 3645.76,
+  "openExposure": 100,
+  "availableBankroll": 18965.4,
+  "potentialReturn": 307.93,
   "products": {
     "bankBuilder": {
-      "exposure": 200,
+      "exposure": 100,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 2
+        "pending": 1
       }
     },
     "moonshot": {
-      "exposure": 50,
+      "exposure": 0,
       "record": {
         "wins": 0,
         "losses": 0,
         "voids": 0,
-        "pending": 2
+        "pending": 0
       }
     }
   },
@@ -35,32 +35,17 @@
       "lane": "A",
       "step": 1,
       "clearedSteps": 0,
-      "status": "active",
+      "status": "candidate",
       "stake": 100,
       "exposure": 100,
       "targetReturn": 200,
       "fitsTarget": true,
-      "combinedOdds": 120,
-      "combinedDecimal": 2.203,
-      "potentialReturn": 220.3,
+      "combinedOdds": 124,
+      "combinedDecimal": 2.2357,
+      "potentialReturn": 223.57,
       "legCount": 2,
       "targetLegs": 2,
       "legs": [
-        {
-          "id": "MLB:a410afcc86bee1b6cbe7e60eafd8d50e:mlb_run_line:Minnesota_Twins_+1.5",
-          "matchup": "Minnesota Twins @ Detroit Tigers",
-          "market": "Run Line",
-          "selection": "Minnesota Twins +1.5",
-          "player": null,
-          "odds": -207,
-          "provider": "draftkings",
-          "modelConfidence": 0.6446,
-          "probabilitySource": "market-devigged",
-          "kickoffEt": "3:11 PM ET",
-          "risk": "Lower-volatility",
-          "photoUrl": null,
-          "teamLogo": null
-        },
         {
           "id": "MLB:56329e0195eb8df1d61a2ced249e623d:mlb_moneyline:Toronto_Blue_Jays_to_win",
           "matchup": "Toronto Blue Jays @ Athletics",
@@ -75,17 +60,32 @@
           "risk": "Lower-volatility",
           "photoUrl": null,
           "teamLogo": null
+        },
+        {
+          "id": "MLB:a410afcc86bee1b6cbe7e60eafd8d50e:mlb_run_line:Minnesota_Twins_+1.5",
+          "matchup": "Minnesota Twins @ Detroit Tigers",
+          "market": "Run Line",
+          "selection": "Minnesota Twins +1.5",
+          "player": null,
+          "odds": -198,
+          "provider": "draftkings",
+          "modelConfidence": 0.6351,
+          "probabilitySource": "market-devigged",
+          "kickoffEt": "3:11 PM ET",
+          "risk": "Lower-volatility",
+          "photoUrl": null,
+          "teamLogo": null
         }
       ],
       "correlationNote": "Correlation checked: no shared game with Lane B — the two lanes can advance independently.",
       "shortfallNote": null,
       "whyThisCard": [
-        "Safest-fit (MLB): chosen to MAXIMIZE the chance all 2 legs land — estimated 42% combined hit probability at Tier 3 (higher variance), not the longest-odds card.",
-        "Combined +120 rides $100 toward the $200 rung goal (avg leg confidence 64%)."
+        "Safest-fit (MLB): chosen to MAXIMIZE the chance all 2 legs land — estimated 41% combined hit probability at Tier 3 (higher variance), not the longest-odds card.",
+        "Combined +124 rides $100 toward the $200 rung goal (avg leg confidence 64%)."
       ],
       "activationEligibility": {
-        "eligible": true,
-        "reason": "all legs pre-event, outside the cutoff, and the card reaches the rung target"
+        "eligible": false,
+        "reason": "Minnesota Twins @ Detroit Tigers within 30m of kickoff"
       }
     },
     {
@@ -155,14 +155,14 @@
       "lane": "A",
       "step": 1,
       "clearedSteps": 0,
-      "status": "active",
+      "status": "candidate",
       "stake": 25,
       "exposure": 25,
       "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 3262,
-      "combinedDecimal": 33.6204,
-      "potentialReturn": 840.51,
+      "combinedOdds": 3272,
+      "combinedDecimal": 33.72,
+      "potentialReturn": 843,
       "legCount": 6,
       "targetLegs": 6,
       "legs": [
@@ -172,9 +172,9 @@
           "market": "Moneyline",
           "selection": "Detroit Tigers to win",
           "player": null,
-          "odds": -126,
+          "odds": -123,
           "provider": "draftkings",
-          "modelConfidence": 0.5333,
+          "modelConfidence": 0.527,
           "probabilitySource": "market-devigged",
           "kickoffEt": "3:11 PM ET",
           "risk": "Higher-volatility",
@@ -187,9 +187,9 @@
           "market": "Total Runs",
           "selection": "Under 8",
           "player": null,
-          "odds": -117,
+          "odds": -119,
           "provider": "draftkings",
-          "modelConfidence": 0.5152,
+          "modelConfidence": 0.5195,
           "probabilitySource": "market-devigged",
           "kickoffEt": "3:11 PM ET",
           "risk": "Higher-volatility",
@@ -261,12 +261,12 @@
       "shortfallNote": null,
       "whyThisCard": [
         "Higher-upside: 6 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 53% across 6 legs · combined +3262.",
+        "Avg model confidence 53% across 6 legs · combined +3272.",
         "2 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter)."
       ],
       "activationEligibility": {
-        "eligible": true,
-        "reason": "all legs pre-event and outside the cutoff"
+        "eligible": false,
+        "reason": "Minnesota Twins @ Detroit Tigers within 30m of kickoff"
       },
       "narrative": {
         "title": "Mixed knockout angles",
@@ -280,14 +280,14 @@
       "lane": "B",
       "step": 1,
       "clearedSteps": 0,
-      "status": "active",
+      "status": "candidate",
       "stake": 25,
       "exposure": 25,
       "targetReturn": null,
       "fitsTarget": true,
-      "combinedOdds": 9008,
-      "combinedDecimal": 91.0807,
-      "potentialReturn": 2277.02,
+      "combinedOdds": 9035,
+      "combinedDecimal": 91.3507,
+      "potentialReturn": 2283.77,
       "legCount": 8,
       "targetLegs": 8,
       "legs": [
@@ -297,9 +297,9 @@
           "market": "Moneyline",
           "selection": "Detroit Tigers to win",
           "player": null,
-          "odds": -126,
+          "odds": -123,
           "provider": "draftkings",
-          "modelConfidence": 0.5333,
+          "modelConfidence": 0.527,
           "probabilitySource": "market-devigged",
           "kickoffEt": "3:11 PM ET",
           "risk": "Higher-volatility",
@@ -312,9 +312,9 @@
           "market": "Total Runs",
           "selection": "Under 8",
           "player": null,
-          "odds": -117,
+          "odds": -119,
           "provider": "draftkings",
-          "modelConfidence": 0.5152,
+          "modelConfidence": 0.5195,
           "probabilitySource": "market-devigged",
           "kickoffEt": "3:11 PM ET",
           "risk": "Higher-volatility",
@@ -416,12 +416,12 @@
       "shortfallNote": null,
       "whyThisCard": [
         "Higher-upside: 8 model-qualified longshot legs (up to 5, min 3) for a longer combined price.",
-        "Avg model confidence 55% across 8 legs · combined +9008.",
+        "Avg model confidence 55% across 8 legs · combined +9035.",
         "4 game(s) contribute a result + total pair — same-game legs are correlated; the combined price is a MODEL ESTIMATE (a book prices correlated legs shorter)."
       ],
       "activationEligibility": {
-        "eligible": true,
-        "reason": "all legs pre-event and outside the cutoff"
+        "eligible": false,
+        "reason": "Minnesota Twins @ Detroit Tigers within 30m of kickoff"
       },
       "narrative": {
         "title": "Mixed knockout angles",
