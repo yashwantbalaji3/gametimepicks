@@ -124,18 +124,56 @@ export function activeMlbDate(): string | null {
  * Enumerate every MLB schedule file on disk. Used by the upcoming-slate
  * strip on /mlb to show the full next-week window even when only the
  * latest date has a board file with leans.
+ *
+ * The UNION of both schedule owners, deliberately. `schedule/` is written by the paid day-of
+ * ingestion, so it never reaches past tomorrow; `statsapi-schedule/` is the free StatsAPI
+ * population capture (P226's matrix denominator), which nightly-settle now commits a week ahead.
+ * Listing only the paid dir meant every future day the repo genuinely knew about was invisible:
+ * /simulate/d/2026-09-07 404'd while its population sat committed, and the day pages told readers
+ * "No MLB games on this date" against a 15-game slate (P240 audit, 80 of 91 window games).
  */
 export function getMlbAvailableScheduleDates(): string[] {
-  try {
-    const dir = path.join(DATA_DIR, "schedule");
-    if (!fs.existsSync(dir)) return [];
-    return fs
-      .readdirSync(dir)
-      .filter((f) => f.endsWith(".json"))
-      .map((f) => f.replace(/\.json$/, ""))
-      .sort();
-  } catch (err) {
-    console.warn("[data-mlb] could not list schedule/:", err);
-    return [];
+  const dates = new Set<string>();
+  for (const sub of ["schedule", "statsapi-schedule"]) {
+    try {
+      const dir = path.join(DATA_DIR, sub);
+      if (!fs.existsSync(dir)) continue;
+      for (const f of fs.readdirSync(dir)) {
+        if (f.endsWith(".json")) dates.add(f.replace(/\.json$/, ""));
+      }
+    } catch (err) {
+      console.warn(`[data-mlb] could not list ${sub}/:`, err);
+    }
   }
+  return [...dates].sort();
+}
+
+/** One row of the free StatsAPI population capture (schedule only — no odds, no model claim). */
+export interface MlbStatsapiScheduleGame {
+  gamePk: number;
+  gameDate: string | null;
+  status: string | null;
+  doubleHeader?: string;
+  gameNumber?: number;
+  away: { id: number | null; name: string | null };
+  home: { id: number | null; name: string | null };
+  venue: string | null;
+}
+
+/**
+ * The day's true event population from the free StatsAPI capture, or null when that day was never
+ * captured. Distinct from the board on purpose: this proves a game is SCHEDULED and nothing more,
+ * so its consumers may only render schedule-only states from it.
+ */
+export function getMlbStatsapiScheduleForDate(date: string): {
+  date: string;
+  capturedAt: string | null;
+  games: MlbStatsapiScheduleGame[];
+} | null {
+  const raw = readMlbJson<{ date?: string; capturedAt?: string; games?: MlbStatsapiScheduleGame[] } | null>(
+    path.join("statsapi-schedule", `${date}.json`),
+    null,
+  );
+  if (!raw || !Array.isArray(raw.games)) return null;
+  return { date: raw.date ?? date, capturedAt: raw.capturedAt ?? null, games: raw.games };
 }

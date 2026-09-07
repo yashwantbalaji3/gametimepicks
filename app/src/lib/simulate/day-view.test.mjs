@@ -99,3 +99,41 @@ test("the built export carries the date pages the selector enumerates", () => {
   assert.match(html, /aria-label="Simulation date"/, "date bar renders");
   assert.match(html, /aria-label="Sport filter"/, "sport chips render");
 });
+
+test("a future day with only a committed StatsAPI population renders SCHEDULE_ONLY, never 'no games'", () => {
+  /*
+   * P240 — the board and every model artifact are day-of, so before the population fallback a
+   * future date with a committed 15-game slate rendered "No MLB games on this date". The claim
+   * pinned here is shape, not a date: for EVERY future date whose statsapi-schedule file is
+   * committed, the MLB section must carry exactly that population, each row SCHEDULE_ONLY with
+   * no market families (the capture proves SCHEDULED and nothing more), unless a real board
+   * already upgraded the day. Dateless by design — the capture window rolls forward daily.
+   */
+  const dir = path.join(APP, "public", "data", "mlb", "statsapi-schedule");
+  const today = buildSimulateDay().today;
+  const futureDates = fs.readdirSync(dir).map((f) => f.replace(/\.json$/, "")).filter((d) => d > today);
+  assert.ok(futureDates.length >= 1, "the widened capture commits future populations — none found");
+  for (const d of futureDates) {
+    const pop = JSON.parse(fs.readFileSync(path.join(dir, `${d}.json`), "utf8"));
+    const mlb = buildSimulateDay(d, { today }).sections.find((s) => s.sport === "mlb");
+    assert.ok(mlb.events.length >= pop.games.length, `${d}: population ${pop.games.length}, rendered ${mlb.events.length}`);
+    for (const e of mlb.events.filter((ev) => ev.state === "SCHEDULE_ONLY")) {
+      assert.deepEqual(e.markets, [], `${d}: a schedule-only row may not claim a market family`);
+      assert.ok(e.stateReason, `${d}: a schedule-only row explains itself`);
+    }
+  }
+});
+
+test("the population fallback never reaches into the past — a past day with no board stays a results question", () => {
+  // 2026-09-03's board exists (settled day) but the guard is general: for the OLDEST in-window past
+  // day, no MLB row may be SCHEDULE_ONLY — the fallback is gated date > today.
+  const dates = availableSimulateDates();
+  const today = buildSimulateDay().today;
+  const past = dates.filter((d) => d < today);
+  for (const d of past) {
+    const mlb = buildSimulateDay(d, { today }).sections.find((s) => s.sport === "mlb");
+    for (const e of mlb?.events ?? []) {
+      assert.notEqual(e.state, "SCHEDULE_ONLY", `${d}: past MLB day rendered a schedule-only row`);
+    }
+  }
+});

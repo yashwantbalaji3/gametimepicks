@@ -479,7 +479,13 @@ jobs:
           #     denominator comes from the paid ingestion that might have omitted the event. Free,
           #     no key, schedule only, and it refuses rather than writing an empty day on a network
           #     failure — writing zero games would erase a real slate from every consumer.
-          for D in "$(TZ=America/New_York date +%F)" "$(TZ=America/New_York date -d tomorrow +%F)"; do
+          #     P240 · widened from [today, tomorrow] to today+6: the simulate date pages and the
+          #     /mlb upcoming strip can only show a day whose population is committed, and capturing
+          #     two days meant five of the next week's slates did not exist anywhere in the repo
+          #     (80 of 91 scheduled games in the Sep 7–13 audit window were missing-source). Still
+          #     free, still schedule-only — odds and models remain day-of by design.
+          for i in 0 1 2 3 4 5 6; do
+            D="$(TZ=America/New_York date -d "+${i} day" +%F)"
             npx --yes tsx scripts/mlb/capture-mlb-schedule.mjs --date "$D" --write \
               || echo "::warning::MLB schedule capture failed for $D — prior capture retained"
           done

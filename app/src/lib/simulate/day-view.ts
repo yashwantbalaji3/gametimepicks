@@ -14,7 +14,7 @@
  * Server-only (fs via the owners it calls).
  */
 import { currentEtDate } from "@/lib/freshness";
-import { getMlbBoardForDate, getMlbPowerForDate, getMlbAvailableScheduleDates } from "@/lib/data-mlb";
+import { getMlbBoardForDate, getMlbPowerForDate, getMlbAvailableScheduleDates, getMlbStatsapiScheduleForDate } from "@/lib/data-mlb";
 import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { loadEplForecasts, reportableRows, eplMatchHref, type EplForecastRow } from "@/lib/sports/epl/forecast-view";
@@ -238,6 +238,32 @@ function mlbSection(date: string, today: string): SportDaySection {
       actionLabel: STATE_ACTION[state],
     };
   });
+  /*
+   * P240 · beyond the board's day-of horizon the free StatsAPI population still knows the slate.
+   * The board and every model artifact are generated ON game day; before this fallback a future
+   * date with a committed 15-game population rendered "No MLB games on this date", which is a
+   * falsehood, not an empty state. These rows prove SCHEDULED and nothing more — the capture is
+   * schedule-only, so the state is pinned SCHEDULE_ONLY and no market family is claimed. Only a
+   * FUTURE day may use it: a past day with no board has no pregame artifact to point at, and its
+   * record question belongs to /results.
+   */
+  if (events.length === 0 && date > today) {
+    const statsapi = getMlbStatsapiScheduleForDate(date);
+    for (const g of statsapi?.games ?? []) {
+      events.push({
+        sport: "mlb", id: `mlb:${g.gamePk}`,
+        matchup: `${g.away?.name ?? "?"} @ ${g.home?.name ?? "?"}`,
+        away: { name: g.away?.name ?? "?", logo: mlbTeamLogoUrl(g.away?.id ?? undefined) ?? null },
+        home: { name: g.home?.name ?? "?", logo: mlbTeamLogoUrl(g.home?.id ?? undefined) ?? null },
+        startUtc: g.gameDate ?? null,
+        startLabel: g.gameDate ? etTime(g.gameDate) : "TBD",
+        venue: g.venue ?? null,
+        state: "SCHEDULE_ONLY",
+        stateReason: "Official scheduled game (MLB StatsAPI). Forecasts are generated on game day, after probable pitchers and markets exist — the board, simulations and predictions for this slate arrive that morning.",
+        markets: [], href: "/mlb", actionLabel: STATE_ACTION.SCHEDULE_ONLY,
+      });
+    }
+  }
   return {
     sport: "mlb", label: "MLB", icon: getSportIdentity("mlb").icon,
     emptyState: events.length ? null : "NO_CURRENT_EVENT",
