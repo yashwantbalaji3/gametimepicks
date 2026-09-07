@@ -87,7 +87,13 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
         <h2 id={`upcoming-${s.sport}-h`} style={{ margin: 0, fontSize: 17, letterSpacing: "0.01em" }}>{s.competitionLabel}</h2>
         <span style={{ fontSize: 12, color: "var(--text-mute)" }}>{s.seasonContext}</span>
         <span style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-mute)", border: "1px solid var(--vault-border-strong)", borderRadius: 999, padding: "2px 10px" }}>
-          {COVERAGE_WORDS[s.coverage] ?? s.coverage}
+          {/* SCHEDULE_ONLY describes THIS section. For a sport whose hub publishes model output,
+             "not modelled" was a false site-wide claim (P241 · A20 — /epl carries forecasts, a
+             validated scorer model and priced cards). The coverage AXIS stays closed; only the
+             rendered words become hub-aware. */}
+          {s.coverage === "SCHEDULE_ONLY" && SPORT_HUB[s.sport]
+            ? "Schedule section — model output lives on the hub"
+            : COVERAGE_WORDS[s.coverage] ?? s.coverage}
         </span>
       </div>
 
@@ -129,8 +135,9 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
         P185-G · THE SENTENCE MADE A SITE-WIDE CLAIM THIS PAGE CANNOT VERIFY.
 
         It read "This sport has no simulations, no predictions and no picks ON THIS SITE" — and
-        rendered under UFC, where /ufc publishes winner, method and finishing round for every bout
-        on the next card from a model trained on 8,642 decisive bouts. Understating is the safer
+        rendered under UFC, where /ufc publishes winner, method and finishing round for the modelled
+        bouts of the next card (a bout without tracked history is disclosed, never guessed) from a
+        model trained on 8,642 decisive bouts. Understating is the safer
         direction than overstating and it is still a contradiction between two public surfaces.
 
         The coverage STATE above is deliberately NOT touched. It is a gated claim — the schedule

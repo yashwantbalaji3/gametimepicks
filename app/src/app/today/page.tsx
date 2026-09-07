@@ -88,7 +88,11 @@ export default function TodayPage() {
 
   // ── Simulation-ready games — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
-  const { featured, readyCount } = featuredSimulations(details, serverToday);
+  /* simulationsToday is the only number that may back a sentence containing "today"; allCurrent
+     tells the leans section when the pool fell back to the archive (P241 · A12 — "36 ready" was
+     the whole historical pool, not this slate). */
+  const { featured, readyCount, simulationsToday, allCurrent } = featuredSimulations(details, serverToday);
+  const slateReadyCount = today === serverToday ? simulationsToday : (allCurrent ? readyCount : 0);
 
   // ── EVERY game on the presented slate — honest per-game action so none is stranded, GROUPED by
   //    readiness (Simulations ready › Model reads › Market context › Reports) via the shared availability
@@ -217,10 +221,10 @@ export default function TodayPage() {
   const glanceCards: GlanceCard[] = [
     {
       label: "Simulations",
-      value: readyCount > 0 ? `${readyCount} ready` : "None ready",
-      sub: readyCount > 0 ? "deterministic game sims" : "return with the next slate",
+      value: slateReadyCount > 0 ? `${slateReadyCount} ready` : "None ready",
+      sub: slateReadyCount > 0 ? "deterministic game sims" : "return with the next slate",
       href: "/simulate",
-      tone: readyCount > 0 ? "gold" : "mute",
+      tone: slateReadyCount > 0 ? "gold" : "mute",
     },
     {
       label: "Top model reads",
@@ -257,7 +261,7 @@ export default function TodayPage() {
   const noPlayNotes: string[] = [];
   if (bbNoPlay) noPlayNotes.push(`Bank Builder is no-play today (${bbStepPhrase}, ${openExposureLabel} open exposure) — the ladder never forces a card to keep a streak alive.`);
   if (!moonshotActive) noPlayNotes.push("Moonshot is no-play — the high-variance lane only plays when a qualified longshot appears, and today none did.");
-  if (readyCount === 0) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
+  if (slateReadyCount === 0) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
   noPlayNotes.push("Pending is not a loss: a card settles only against the official final, and unsettled cards are never counted against the record.");
 
   // ── Section 10 · Secondary links — compact link cards out (no large widgets duplicated here). ──
@@ -362,7 +366,8 @@ export default function TodayPage() {
       ) : null}
 
       {/* 4 — Simulation-backed games (real ready artifacts only) */}
-      <TodaySimulationLeans featured={featured} readyCount={readyCount} />
+      {/* Only current simulations belong on Today — the archive lives in /simulate (P241 · A12). */}
+      {allCurrent ? <TodaySimulationLeans featured={featured} readyCount={slateReadyCount} /> : null}
 
       {/* 4b — Every game on the slate: grouped by readiness, one honest per-game action, factual summary */}
       <TodayFullSlate groups={slate.groups} summary={slate.summary} readinessNote={slateReadiness} />

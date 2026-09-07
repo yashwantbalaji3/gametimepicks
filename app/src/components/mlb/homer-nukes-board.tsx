@@ -47,7 +47,7 @@ function Gauge({ value, max }: { value: number; max: number }) {
  * record — which is how "This board has no settled track record yet" survived fourteen graded
  * slates. The generator and this component call the same rule, so they cannot disagree.
  */
-export default function HomerNukesBoardSection({ board, record }: { board: HomerNukesBoard | null; record?: unknown }) {
+export default function HomerNukesBoardSection({ board, record, isTodaysSlate = true }: { board: HomerNukesBoard | null; record?: unknown; isTodaysSlate?: boolean }) {
   if (!board || board.picks.length === 0) return null;
   const picks = board.picks;
   const max = Math.max(...picks.map((p) => p.probability));
@@ -61,7 +61,7 @@ export default function HomerNukesBoardSection({ board, record }: { board: Homer
             <span aria-hidden>💣</span> Homer Nukes · {board.slate.games} games
           </div>
           <h2 id="homer-nukes-heading" className="mt-1" style={{ color: "var(--vault-text)", fontWeight: 800, fontSize: 22, lineHeight: 1.15 }}>
-            Most likely to go deep today
+            {isTodaysSlate ? "Most likely to go deep today" : "Most likely to go deep — this slate"}
           </h2>
           <p className="m-0 mt-1.5 max-w-[68ch]" style={{ color: "var(--vault-text-mute)", fontSize: 13.5, lineHeight: 1.55 }}>
             The model&apos;s five highest home-run probabilities from {board.slate.candidatesRanked} batter-vs-starter
@@ -77,7 +77,7 @@ export default function HomerNukesBoardSection({ board, record }: { board: Homer
       {shared ? (
         <p className="m-0 mb-3 rounded-[8px] px-3 py-2" style={{ background: "var(--sport-theme-wash)", border: "1px solid var(--sport-theme-rule)", color: "var(--vault-text-mute)", fontSize: 12.5 }}>
           {shared.count} of these {picks.length} face <strong style={{ color: "var(--vault-text)" }}>{shared.pitcher}</strong> — the model reads him as
-          today&apos;s most homer-prone start, so the board clusters there on purpose.
+          {isTodaysSlate ? " today's" : " that slate's"} most homer-prone start, so the board clusters there on purpose.
         </p>
       ) : null}
 

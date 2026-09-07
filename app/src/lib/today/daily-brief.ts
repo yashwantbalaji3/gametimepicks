@@ -73,6 +73,8 @@ export interface DailyBriefOverview {
 }
 
 export interface DailyBrief {
+  /** True when the presented slate's ET date is before the real clock's — every game is over. */
+  slateIsPast: boolean;
   slateDate: string;
   /** Max simulation `generatedAt` across today's ready sims (ISO), or null. */
   lastUpdatedIso: string | null;
@@ -188,7 +190,14 @@ export function buildDailyBrief(
   const spotlight = ranked[0] ? toBriefGame(ranked[0]) : null;
   const attention = ranked.slice(1, 1 + count).map(toBriefGame);
   const gamesInProgress = [spotlight, ...attention].filter((g) => g?.started).length;
+  /* A game on a PAST ET slate whose first pitch has passed is finished, not "underway" — the
+     binary start-state has no "final", so the closed-slate framing is decided here from the real
+     clock's own ET date (P241 · A12: "4 games are underway" rendered under a header that already
+     said the slate had closed). */
+  const nowEtDate = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(opts?.nowMs ?? Date.now()));
+  const slateIsPast = today < nowEtDate;
   return {
+    slateIsPast,
     slateDate: today,
     lastUpdatedIso,
     overview,

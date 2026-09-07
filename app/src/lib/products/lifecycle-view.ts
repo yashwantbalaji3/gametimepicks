@@ -31,13 +31,51 @@ export interface LifecycleLedger {
   cards: LifecycleCard[];
 }
 
-const FILE = path.join(process.cwd(), "public", "data", "products", "lifecycle", "latest.json");
+const DIR = path.join(process.cwd(), "public", "data", "products", "lifecycle");
+const FILE = path.join(DIR, "latest.json");
 
 export function loadLifecycleLedger(): LifecycleLedger | null {
   try {
     const doc = JSON.parse(fs.readFileSync(FILE, "utf8"));
     return Array.isArray(doc?.cards) ? doc : null;
   } catch { return null; }
+}
+
+/**
+ * THE LEDGER'S cards[] IS ONE RUN'S STORY; HISTORY IS THE UNION OF THE DATED FILES (P241 · A19).
+ *
+ * latest.json records what THIS run decided — an applied settlement, or a hold. The night after a
+ * card settles, its applying run rotates out of latest and its row becomes a bare "already
+ * settled" hold, so a view reading latest alone watched settled cards fall back to "awaiting
+ * official results" and Won/Lost history rows vanish. The dated files are append-only receipts of
+ * every applying run; their union, deduplicated by card identity with applied rows winning, is
+ * the complete settled record. positions/settledIndex stay cumulative in latest by construction.
+ */
+export function loadLifecycleHistory(): LifecycleLedger | null {
+  const latest = loadLifecycleLedger();
+  const byId = new Map<string, LifecycleCard>();
+  try {
+    const files = fs.readdirSync(DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
+    for (const f of [...files.map((x) => path.join(DIR, x)), FILE]) {
+      try {
+        const doc = JSON.parse(fs.readFileSync(f, "utf8"));
+        for (const c of doc?.cards ?? []) {
+          if (!c?.id) continue;
+          const prior = byId.get(c.id);
+          if (!prior || (c.applied && !prior.applied)) byId.set(c.id, c);
+        }
+      } catch { /* one unreadable dated file must not hide the others */ }
+    }
+  } catch { /* no directory — fall through to latest alone */ }
+  if (!latest && byId.size === 0) return null;
+  return {
+    generatedAt: latest?.generatedAt ?? "",
+    settled: [...byId.values()].filter((c) => c.applied).length,
+    held: latest?.held ?? 0,
+    positions: latest?.positions ?? {},
+    withheldWrite: latest?.withheldWrite,
+    cards: [...byId.values()],
+  };
 }
 
 /** The settled cards belonging to one product, newest ledger first. `applied` cards only — a held

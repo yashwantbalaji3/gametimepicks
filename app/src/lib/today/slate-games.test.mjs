@@ -65,7 +65,7 @@ test("factual summary counts each tier, never a performance claim", () => {
     game({ slug: "m1-2026-07-23", ...model() }),
     game({ slug: "r1-2026-07-23" }),
   ];
-  const { summary } = slateGames(details, TODAY);
+  const { summary } = slateGames(details, TODAY, { nowMs: Date.parse(`${TODAY}T18:00:00Z`) });
   assert.equal(summary.text, "5 games today · 3 simulations ready · 1 model read · 1 awaiting inputs");
   assert.equal(summary.counts.simulation, 3);
   assert.doesNotMatch(summary.text, /\b(edge|best|lock|top|value|confidence)\b/i);
@@ -125,7 +125,7 @@ test("13b · game with no honest matchup (missing team) is dropped, not rendered
 });
 
 test("14 · no-games day → empty board, honest zero summary, no groups", () => {
-  const r = slateGames([], TODAY);
+  const r = slateGames([], TODAY, { nowMs: Date.parse(`${TODAY}T18:00:00Z`) });
   assert.equal(r.total, 0);
   assert.equal(r.groups.length, 0);
   assert.equal(r.summary.text, "0 games today");
@@ -144,7 +144,7 @@ test("16 · partial slate: mix of ready + awaiting groups correctly with an hone
     game({ slug: "s2-2026-07-23", ...sim() }),
     game({ slug: "pend-2026-07-23", dataStatus: [{ status: "pending", label: "Player props" }] }),
   ];
-  const { groups, summary } = slateGames(details, TODAY);
+  const { groups, summary } = slateGames(details, TODAY, { nowMs: Date.parse(`${TODAY}T18:00:00Z`) });
   assert.deepEqual(groups.map((g) => g.level), ["simulation", "report"]);
   assert.equal(summary.text, "3 games today · 2 simulations ready · 1 awaiting inputs");
   assert.match(groups.find((g) => g.level === "report").games[0].explanation, /Awaiting inputs/);
@@ -181,4 +181,10 @@ test("simReadyCount (back-compat) counts only genuine ready simulations", () => 
   const r = slateGames(details, TODAY);
   assert.equal(r.total, 4);
   assert.equal(r.simReadyCount, 2);
+});
+
+test("a PAST slate's summary says \"on this slate\", never \"today\" (P241 · A11)", () => {
+  const details = [game({ slug: "s1-2026-07-23", ...sim() })];
+  const { summary } = slateGames(details, TODAY, { nowMs: Date.parse("2026-07-24T18:00:00Z") });
+  assert.match(summary.text, /^1 game on this slate/);
 });

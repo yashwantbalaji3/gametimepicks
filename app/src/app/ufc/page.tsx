@@ -49,7 +49,7 @@ export const metadata = {
    */
   title: "UFC — Next Card Model Read & Settled Archive · GameTime Picks",
   description:
-    "An experimental fight model's read on every bout of the next UFC card — winner, method and finishing round — with paper cards built from posted fight-winner prices. Paper-only and educational, never advice. The settled archive below covers one officially graded card.",
+    "An experimental fight model's read on the next UFC card — winner, method and finishing round for every bout with enough tracked history, with the unmodelled ones disclosed. Paper cards from posted fight-winner prices; paper-only and educational, never advice.",
 };
 
 function loadJSONUfc<T>(name: string): T | null {

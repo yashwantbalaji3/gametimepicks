@@ -42,7 +42,7 @@ function AttentionRow({ g }: { g: BriefSpotlightGame }) {
 }
 
 export default function TodayMlbBrief({ brief, recapHref }: { brief: DailyBrief; recapHref?: string | null }) {
-  const { overview, spotlight, attention, lastUpdatedIso, gamesInProgress } = brief;
+  const { overview, spotlight, attention, lastUpdatedIso, gamesInProgress, slateIsPast } = brief;
   if (overview.games === 0) return null; // no slate → the slate header / liveness banner already says so
   const updated = formatEtTime(lastUpdatedIso);
   const spotlightRange = spotlight ? rangeLabel(spotlight) : null;
@@ -62,7 +62,11 @@ export default function TodayMlbBrief({ brief, recapHref }: { brief: DailyBrief;
       </p>
 
       {/* During games — make returning to a preserved pregame simulation clear, without implying a live prediction. */}
-      {gamesInProgress > 0 ? (
+      {slateIsPast ? (
+        <p style={{ color: "var(--vault-text-mute)", fontSize: 10.5, lineHeight: 1.3 }}>
+          This slate has finished — the simulations shown are the preserved pregame reads, kept exactly as published before first pitch.
+        </p>
+      ) : gamesInProgress > 0 ? (
         <p style={{ color: "var(--vault-text-mute)", fontSize: 10.5, lineHeight: 1.3 }}>
           {gamesInProgress} {gamesInProgress === 1 ? "game is" : "games are"} underway — the simulations shown are the preserved pregame reads, not live predictions.
         </p>
@@ -74,7 +78,7 @@ export default function TodayMlbBrief({ brief, recapHref }: { brief: DailyBrief;
           <div className="flex items-center gap-2">
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}>Simulation spotlight</span>
             {spotlight.started ? (
-              <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 8, color: "var(--vault-text-mute)", background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" }}>In progress</span>
+              <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 8, color: "var(--vault-text-mute)", background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" }}>{slateIsPast ? "Slate finished" : "In progress"}</span>
             ) : null}
           </div>
           <div className="flex items-center justify-between gap-3">

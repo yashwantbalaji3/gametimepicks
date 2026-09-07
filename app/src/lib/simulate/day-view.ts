@@ -247,7 +247,10 @@ function mlbSection(date: string, today: string): SportDaySection {
    * FUTURE day may use it: a past day with no board has no pregame artifact to point at, and its
    * record question belongs to /results.
    */
-  if (events.length === 0 && date > today) {
+  if (events.length === 0 && date >= today) {
+    // date === today covers the pre-publication morning (P241 · A10): the board generates
+    // ~11:30-13:30 ET, and before it lands the day's committed population must still render —
+    // "No MLB games on this date" was false eleven times over on the audit morning.
     const statsapi = getMlbStatsapiScheduleForDate(date);
     for (const g of statsapi?.games ?? []) {
       events.push({
@@ -259,7 +262,9 @@ function mlbSection(date: string, today: string): SportDaySection {
         startLabel: g.gameDate ? etTime(g.gameDate) : "TBD",
         venue: g.venue ?? null,
         state: "SCHEDULE_ONLY",
-        stateReason: "Official scheduled game (MLB StatsAPI). Forecasts are generated on game day, after probable pitchers and markets exist — the board, simulations and predictions for this slate arrive that morning.",
+        stateReason: date === today
+          ? "Official scheduled game (MLB StatsAPI). Today's board, simulations and predictions are generated late morning ET, after probable pitchers and markets exist — check back shortly."
+          : "Official scheduled game (MLB StatsAPI). Forecasts are generated on game day, after probable pitchers and markets exist — the board, simulations and predictions for this slate arrive that morning.",
         markets: [], href: "/mlb", actionLabel: STATE_ACTION.SCHEDULE_ONLY,
       });
     }

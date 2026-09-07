@@ -244,7 +244,7 @@ export default function MlbLandingPage() {
         })}
       </div>
     ) : (
-      <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>The MLB Stats API will return today&apos;s games shortly.</p>
+      <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>{isTodaysSlate ? <>The MLB Stats API will return today&apos;s games shortly.</> : <>No schedule artifact is on disk for this slate.</>}</p>
     );
 
   // Honest slate freshness — the board date vs the REAL today (client re-computes with the browser clock),
@@ -271,19 +271,19 @@ export default function MlbLandingPage() {
           </div>
         </section>
       )}
-      <section aria-label="Today's slate">
+      <section aria-label={isTodaysSlate ? "Today's slate" : `Slate for ${date}`}>
         <SectionHeader eyebrow={`Slate · ${date}`} title={games.length === 0 ? "Schedule warming up" : `${games.length} game${games.length === 1 ? "" : "s"} on the slate`} />
         {slateTiles}
       </section>
       {/* Availability lens — same shared contract as /today, with a bridge to the full daily board. */}
-      <MlbSlateAvailability summary={mlbSlate.summary} games={mlbSlate.games} slateDate={mlbSlateDate} />
+      <MlbSlateAvailability summary={mlbSlate.summary} games={mlbSlate.games} slateDate={mlbSlateDate} isTodaysSlate={isTodaysSlate} />
     </div>
   );
 
   const gamesTab = (
     <div className="flex flex-col gap-8">
-      <section aria-label="Today's slate">
-        <SectionHeader eyebrow={`Slate · ${date}`} title={`${games.length} game${games.length === 1 ? "" : "s"} today`} rightSlot={games.length > 0 ? <Link href="/mlb/board" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>Open board →</Link> : undefined} />
+      <section aria-label={isTodaysSlate ? "Today's slate" : `Slate for ${date}`}>
+        <SectionHeader eyebrow={`Slate · ${date}`} title={isTodaysSlate ? `${games.length} game${games.length === 1 ? "" : "s"} today` : `${games.length} game${games.length === 1 ? "" : "s"} · ${date}`} rightSlot={games.length > 0 ? <Link href="/mlb/board" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>Open board →</Link> : undefined} />
         {slateTiles}
       </section>
       <GameOutlookSection outlook={gameOutlook} slateDate={date} />
@@ -473,6 +473,8 @@ export default function MlbLandingPage() {
           market columns sit in rather than floating above an unrelated block. */}
       <div className="mt-4 scroll-mt-24" id="mlb-board">
         <MlbFlagshipSections
+          isTodaysSlate={isTodaysSlate}
+          slateDate={flagshipDate}
           props={mlbProps}
           games={flagshipGames}
           teamRows={teamMarketRows}
@@ -490,7 +492,7 @@ export default function MlbLandingPage() {
       */}
       {simSet ? (
         <div id="mlb-sims" className="scroll-mt-24">
-          <MlbSimulationsSection set={simSet} hrefFor={(c) => gameHrefByMatchId("mlb", c.gamePk)} />
+          <MlbSimulationsSection set={simSet} hrefFor={(c) => gameHrefByMatchId("mlb", c.gamePk)}  isTodaysSlate={isTodaysSlate} />
         </div>
       ) : null}
 

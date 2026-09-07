@@ -89,3 +89,16 @@ test("LIVE ARTIFACT · the corpus reports its own lag honestly", () => {
   assert.equal(j.freshnessStatus, expected, `a ${j.latestEventLagDays}-day lag must report ${expected}`);
   assert.ok(rank[j.freshnessStatus] != null);
 });
+
+test("a future card is NOT_YET_FOUGHT — never past tense, never awaiting (P241 · A09)", () => {
+  const cov = resultsCoverage({ cardEventDate: "2026-09-12", corpusLatestEvent: "2026-09-05", nowIso: "2026-09-07T15:00:00Z" });
+  assert.equal(cov.state, "NOT_YET_FOUGHT");
+  const note = coverageNote(cov);
+  assert.match(note, /scheduled for 2026-09-12/);
+  assert.match(note, /has not been fought yet/);
+  assert.doesNotMatch(note, /was fought/);
+  assert.match(note, /Nothing is overdue/);
+  // the day the card happens, the machine hands back to the covered/awaiting pair
+  const fightNight = resultsCoverage({ cardEventDate: "2026-09-12", corpusLatestEvent: "2026-09-05", nowIso: "2026-09-12T23:00:00Z" });
+  assert.equal(fightNight.state, "AWAITING_SOURCE");
+});

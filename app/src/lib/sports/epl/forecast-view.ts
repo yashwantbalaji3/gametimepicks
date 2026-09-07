@@ -284,8 +284,18 @@ export function playersForFixture(set: EplPlayerProjections | null, slug: string
  * dominate — that is what the model says and flattening it to "one per club" would be editing the
  * output to look balanced.
  */
-export function topScorersAcross(set: EplPlayerProjections | null, limit = 12): Array<EplPlayerRow & { matchup: string; slug: string; lineupState: string }> {
-  const all = (set?.fixtures ?? []).flatMap((f) =>
+export function topScorersAcross(set: EplPlayerProjections | null, limit = 12, nowIso?: string): Array<EplPlayerRow & { matchup: string; slug: string; lineupState: string }> {
+  /* A ranking rendered under a current heading may only rank CURRENT fixtures (P241 · A06): the
+     Sep-6 Arsenal–Chelsea scorers stood in a today-labelled board on Sep 7 because nothing here
+     read the fixture's kickoff. A kicked-off fixture's rows belong to the archive, which the hub
+     already renders one section down. Callers without a clock keep the old behavior. */
+  const nowMs = nowIso ? Date.parse(nowIso) : null;
+  const fixtures = (set?.fixtures ?? []).filter((f) => {
+    if (nowMs == null) return true;
+    const k = Date.parse(f.kickoffUtc ?? "");
+    return !Number.isFinite(k) || k > nowMs;
+  });
+  const all = fixtures.flatMap((f) =>
     f.players.map((p) => ({ ...p, matchup: f.matchup, slug: f.slug, lineupState: f.lineupState })),
   );
   return all.sort((a, b) => b.probability - a.probability || String(a.name).localeCompare(String(b.name))).slice(0, limit);

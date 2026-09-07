@@ -197,7 +197,7 @@ export default function EplPage() {
    */
   const labLadder = loadCurrentSportLabLadder("epl");
   const eplGraded = loadGradedPicks("epl");
-  const topScorers = topScorersAcross(players, 12);
+  const topScorers = topScorersAcross(players, 12, nowIso);
   /* Every fixture still awaiting its XI ⇒ the whole board reads as conditional. */
   const awaitingLineup = (players?.counts.withLineup ?? 0) === 0;
   const capturedAt = feed?.sourceVerdict?.fetchedAt ?? null;
@@ -230,11 +230,23 @@ export default function EplPage() {
         sport="Premier League"
         tagline="match result · scorelines · goals · margin"
         statusKind={priced.length > 0 ? "live" : "linesPending"}
-        statusCaption={priced.length > 0 ? `${priced.length} fixture${priced.length === 1 ? "" : "s"} simulated` : "no priced fixtures"}
+        /* Forecast availability and price availability are DIFFERENT facts on different clocks
+           (P241 · A05): the forecast file legitimately empties between matchweeks while the next
+           matchday's ladder below carries real posted prices. A blanket "no priced fixtures" was
+           false against the page's own cards; the caption now states each fact from its own
+           owner. */
+        statusCaption={priced.length > 0
+          ? `${priced.length} fixture${priced.length === 1 ? "" : "s"} simulated`
+          : labLadder
+            ? `between matchweeks · ${ladderDayLabel(labLadder.date)} cards priced below`
+            : "between matchweeks · forecasts open ~4 days before kickoff"}
         matchupLine={next ? `Next matchday · ${next.label}` : "Between matchweeks"}
         accent="wc"
         stats={[
-          { label: "Fixtures simulated", value: String(priced.length), sub: `of ${priced.length + unpriced.length} in the window` },
+          { label: "Fixtures simulated", value: String(priced.length),
+            sub: priced.length + unpriced.length > 0
+              ? `of ${priced.length + unpriced.length} in the window`
+              : "forecast window opens ~96h before kickoff" },
           // DERIVED, never a literal. This read "0 / no track record yet" as hard-coded text, which
           // was true until the first match was graded and false immediately afterwards. The caption
           // is owned by the loader so the small-sample warning cannot be dropped for a tidier hero.

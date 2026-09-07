@@ -13,7 +13,7 @@ import type { MlbSimCard, MlbSimSet } from "@/lib/mlb/full-game/hub-cards";
 const ET_TIME = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" });
 const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
 
-function SimCard({ c, href }: { c: MlbSimCard; href: string }) {
+function SimCard({ c, href, isTodaysSlateRow = true }: { c: MlbSimCard; href: string; isTodaysSlateRow?: boolean }) {
   return (
     <Link
       href={href}
@@ -44,7 +44,7 @@ function SimCard({ c, href }: { c: MlbSimCard; href: string }) {
       */}
       {c.awaitingLineup ? (
         <p className="font-mono mt-1" style={{ margin: 0, fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-          batting order not posted yet · refreshes hourly
+          {isTodaysSlateRow ? "batting order not posted yet · refreshes hourly" : "batting order was never posted — simulated from posted lines"}
         </p>
       ) : null}
       <p className="font-mono mt-2" style={{ margin: 0, fontSize: 10.5, color: "var(--vault-accent)" }}>Open the simulation →</p>
@@ -52,7 +52,7 @@ function SimCard({ c, href }: { c: MlbSimCard; href: string }) {
   );
 }
 
-export default function MlbSimulationsSection({ set, hrefFor }: { set: MlbSimSet; hrefFor: (c: MlbSimCard) => string | null }) {
+export default function MlbSimulationsSection({ set, hrefFor, isTodaysSlate = true }: { set: MlbSimSet; hrefFor: (c: MlbSimCard) => string | null; isTodaysSlate?: boolean }) {
   const rows = set.cards.map((c) => ({ c, href: hrefFor(c) })).filter((r): r is { c: MlbSimCard; href: string } => Boolean(r.href));
   if (rows.length === 0) return null;
   return (
@@ -63,14 +63,14 @@ export default function MlbSimulationsSection({ set, hrefFor }: { set: MlbSimSet
         sub="Every game on the slate simulated pitch by pitch from the posted lineups — win probability, the run-total distribution, the likeliest final scores, the run line and a simulated box score. These are the model's own numbers and are not compared against any sportsbook price."
       />
       <div className="mt-4 grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))" }}>
-        {rows.map(({ c, href }) => <SimCard key={c.slug} c={c} href={href} />)}
+        {rows.map(({ c, href }) => <SimCard key={c.slug} c={c} href={href} isTodaysSlateRow={isTodaysSlate} />)}
       </div>
       <p className="mt-3" style={{ fontSize: 12, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
         {/* The run count is quoted only when the whole set agrees on one — never one game's figure
             standing in for the rest. */}
         {set.runCount ? `${set.runCount.toLocaleString()} complete games simulated per matchup. ` : ""}
         {set.readyCount} of {set.cards.length} are built on both confirmed batting orders; the rest use the
-        batters who have posted lines so far and refresh as the orders arrive.
+        batters who had posted lines{isTodaysSlate ? " so far and refresh as the orders arrive" : " at generation time — this slate is closed, so nothing refreshes"}.
       </p>
     </section>
   );

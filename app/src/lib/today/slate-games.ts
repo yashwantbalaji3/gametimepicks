@@ -158,7 +158,10 @@ export function slateGames(
 
   const flat = groups.flatMap((g) => g.games);
   const total = flat.length;
-  const summaryParts = [`${total} game${total === 1 ? "" : "s"} today`];
+  /* "today" is a claim about the CLOCK, not the slate (P241 · A11): a past slate's summary reads
+     "on this slate" instead. Derived from the caller's own nowMs against the slate date in ET. */
+  const nowEt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(opts?.nowMs ?? Date.now()));
+  const summaryParts = [`${total} game${total === 1 ? "" : "s"} ${today == null || today === nowEt ? "today" : "on this slate"}`];
   for (const level of AVAILABILITY_ORDER) {
     if (counts[level] > 0) summaryParts.push(summaryPhrase(level, counts[level]));
   }

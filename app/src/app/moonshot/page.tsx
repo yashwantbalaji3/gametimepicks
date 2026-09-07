@@ -25,7 +25,7 @@ import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
 import { buildDailyPortfolio } from "@/lib/mr-dub/daily-portfolio";
 import LifecycleRecord from "@/components/products/lifecycle-record";
-import { loadLifecycleLedger, settledCardsFor, positionFor, settledCardIds } from "@/lib/products/lifecycle-view";
+import { loadLifecycleHistory, settledCardsFor, positionFor, settledCardIds } from "@/lib/products/lifecycle-view";
 import { currentEtDate } from "@/lib/freshness";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
@@ -89,7 +89,7 @@ export default function MoonshotPage() {
   const moonshot = deriveMoonshotState({
     /* Cards the lifecycle ledger has graded. The settler never rewrites the lane artifact — it
        feeds the protected bankroll — so without this a settled card reads as pending for ever. */
-    settledCardIds: settledCardIds(loadLifecycleLedger(), "moonshot"),
+    settledCardIds: settledCardIds(loadLifecycleHistory(), "moonshot"),
     todayPublishedCardCount: moonshotLanes.length,
     lane,
     portfolioMoonshot,
@@ -112,7 +112,7 @@ export default function MoonshotPage() {
 
   /* The Moonshot card frozen on 2026-08-17 sat unsettled for nineteen days because no job read this
      lane. The ledger now carries its graded outcome and the ladder position that followed. */
-  const msLedger = loadLifecycleLedger();
+  const msLedger = loadLifecycleHistory();
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">

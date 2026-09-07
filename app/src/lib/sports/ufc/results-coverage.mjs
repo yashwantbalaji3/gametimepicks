@@ -26,6 +26,8 @@ export const COVERAGE = Object.freeze({
   COVERED: "COVERED",
   /** Our card is newer than anything in the corpus. Waiting on the upstream publication. */
   AWAITING_SOURCE: "AWAITING_SOURCE",
+  /** The card has not happened yet — nothing is owed by anyone (P241 · A09). */
+  NOT_YET_FOUGHT: "NOT_YET_FOUGHT",
   /** One side or the other could not be read. Never reported as a lag. */
   UNKNOWN: "UNKNOWN",
 });
@@ -56,8 +58,15 @@ export function resultsCoverage({ cardEventDate, corpusLatestEvent, nowIso = nul
   const covered = corpus >= card;
   const lagDays = Math.round((Date.parse(`${card}T00:00:00Z`) - Date.parse(`${corpus}T00:00:00Z`)) / 86_400_000);
   const now = nowIso ? dayOf(nowIso) : null;
+  /*
+   * EVENT TIME GOVERNS TENSE (P241 · A09). Without this state, a card dated five days AHEAD read
+   * "this card was fought on 2026-09-12" — the machine only knew covered/behind, so a future card
+   * fell into "behind" and inherited its past tense. A card whose day has not arrived is not
+   * awaiting anything; the corpus owes nothing until the fights happen.
+   */
+  const notYetFought = now != null && card > now;
   return {
-    state: covered ? COVERAGE.COVERED : COVERAGE.AWAITING_SOURCE,
+    state: notYetFought ? COVERAGE.NOT_YET_FOUGHT : covered ? COVERAGE.COVERED : COVERAGE.AWAITING_SOURCE,
     cardEventDate: card,
     corpusLatestEvent: corpus,
     /** How far the corpus sits behind our card. Zero or negative once covered. */
@@ -70,6 +79,9 @@ export function resultsCoverage({ cardEventDate, corpusLatestEvent, nowIso = nul
 /** Reader-facing, and it must never imply the cards lost or that anything is wrong with them. */
 export function coverageNote(cov) {
   if (cov.state === COVERAGE.COVERED) return null;
+  if (cov.state === COVERAGE.NOT_YET_FOUGHT) {
+    return `This card is scheduled for ${cov.cardEventDate} and has not been fought yet — its legs settle from the official results after the fights happen. Nothing is overdue.`;
+  }
   if (cov.state === COVERAGE.UNKNOWN) return "The official results artifact could not be read, so whether this card has been graded is unknown.";
   const waited = cov.waitingDays != null && cov.waitingDays > 0
     ? ` It has been ${cov.waitingDays} day${cov.waitingDays === 1 ? "" : "s"}.`

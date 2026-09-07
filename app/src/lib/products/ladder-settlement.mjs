@@ -135,7 +135,11 @@ async function settleLadder(root, fetchBox, nowIso, changes, prior) {
       const id = cardIdentity({ product: "bank-builder", lane: laneLetter, cycle, step: step.step, slateDate: step.slateDate ?? doc.run.date ?? "unknown" });
       const already = prior[id];
       if (already) {
-        changes.push({ product: "bank-builder", lane: laneLetter, id, result: already.result, transition: TRANSITION.HOLD,
+        // The HOLD carries the lane artifact's own card id too (P241 · A19): the page derives its
+        // open-card set from the ledger, and a HOLD without the id made a settled card read as
+        // open again the night after its settling run rotated out of `cards[]`.
+        changes.push({ product: "bank-builder", lane: laneLetter, id, sourceCardId: step.cardId ?? null,
+          result: already.result, transition: TRANSITION.HOLD, alreadySettled: true,
           applied: false, reason: `already settled ${already.result} on ${already.settledAt} — not re-graded`, legs: [] });
         continue;
       }
@@ -191,7 +195,8 @@ async function settleMoonshot(root, fetchBox, nowIso, changes, prior) {
       const id = cardIdentity({ product: "moonshot", lane: laneId, cycle, step: step.step, slateDate: card.slateDate ?? (doc.id ?? "").slice(-10) ?? "unknown" });
       const already = prior[id];
       if (already) {
-        changes.push({ product: "moonshot", lane: laneId, id, result: already.result, transition: TRANSITION.HOLD,
+        changes.push({ product: "moonshot", lane: laneId, id, sourceCardId: card.cardId ?? null,
+          result: already.result, transition: TRANSITION.HOLD, alreadySettled: true,
           applied: false, reason: `already settled ${already.result} on ${already.settledAt} — not re-graded`, legs: [] });
         continue;
       }
@@ -277,6 +282,15 @@ export async function settleProductLadders({ root, fetchBox, nowIso, apply = fal
         + "settlement. Outcomes are recorded here instead; the money record is unchanged.",
     },
     positions: { ...priorPositions(root), ...positionsOf(changes) },
+    /* Cumulative, like positions and the settled index (P241 · A19): the set of lane-artifact card
+     * ids the lifecycle has ever settled. cards[] is one run's story; the page's open-card
+     * derivation needs the whole one. */
+    settledSourceCardIds: [...new Set([
+      ...(readJson(path.join(root, ...LIFECYCLE_DIR, "latest.json"))?.settledSourceCardIds ?? []),
+      // applied settlements and prior-index holds ONLY — a "nothing final yet" hold is also
+      // TRANSITION.HOLD and its card is genuinely still open.
+      ...changes.filter((c) => c.sourceCardId && (c.applied || c.alreadySettled)).map((c) => c.sourceCardId),
+    ])],
     settledIndex: { ...prior, ...Object.fromEntries(applied.map((c) => [c.id, { result: c.result, settledAt: nowIso }])) },
     cards: changes,
   };

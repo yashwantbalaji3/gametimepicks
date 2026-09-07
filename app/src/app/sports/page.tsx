@@ -25,7 +25,7 @@ import { UpcomingSportsSections, type SportSchedule } from "@/components/sports/
 export const metadata: Metadata = {
   title: "Upcoming Sports — Schedules · GameTime Picks",
   description:
-    "Premier League, NFL, NBA and UFC schedule status — what data exists, where it comes from, and what is honestly not published yet. NFL and MLB are simulated; the rest are schedule information only.",
+    "Premier League, NFL, NBA and UFC schedule status — what data exists, where it comes from, and what is honestly not published yet. MLB, NFL, EPL and UFC are modelled on their own hubs; NBA carries schedules only.",
 };
 
 export default function UpcomingSportsPage() {
@@ -42,11 +42,12 @@ export default function UpcomingSportsPage() {
         schedule source, when it was captured, or the specific reason nothing is published yet.
         The{" "}
         <Link href="/mlb/" style={{ color: "var(--vault-gold)" }}>MLB Simulation Center</Link> is the
-        one fully modelled sport. The{" "}
-        <Link href="/nfl/" style={{ color: "var(--vault-gold)" }}>NFL</Link> and{" "}
+        most fully modelled sport. The{" "}
+        <Link href="/nfl/" style={{ color: "var(--vault-gold)" }}>NFL</Link>,{" "}
+        <Link href="/epl/" style={{ color: "var(--vault-gold)" }}>Premier League</Link> and{" "}
         <Link href="/ufc/" style={{ color: "var(--vault-gold)" }}>UFC</Link> hubs each state what
-        they publish and how experimental it is. Premier League and NBA carry schedules only, and
-        each section below names the specific blocker rather than promising a date.
+        they publish and how experimental it is. NBA carries schedules only, and each section below
+        names the specific blocker rather than promising a date.
       </p>
       <div style={{ marginTop: 24 }}>
         <UpcomingSportsSections sports={sports} />

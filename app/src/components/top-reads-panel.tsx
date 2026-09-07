@@ -19,6 +19,10 @@ import type { TopRead, TopReadsSet } from "@/lib/top-reads";
 
 const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
 
+/** "Sat, Sep 12" from an ET date string — UTC-noon math so the day never shifts. */
+const shortEtDate = (iso: string) =>
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
+
 const SPORT_KEY: Record<string, "mlb" | "nfl" | "soccer"> = { mlb: "mlb", epl: "soccer" };
 
 function ReadRow({ r }: { r: TopRead }) {
@@ -36,6 +40,11 @@ function ReadRow({ r }: { r: TopRead }) {
             {r.headline}
           </span>
           <span className="font-mono" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
+            {/* A future read wears its date (P241 · A01): "today" panels may show what is next,
+                but never as if it plays today. */}
+            {r.timeframe === "upcoming" && r.eventEtDate ? (
+              <span style={{ color: "var(--vault-gold-bright)", fontWeight: 700 }}>{shortEtDate(r.eventEtDate)} · </span>
+            ) : null}
             {r.sportLabel} · {r.market}{r.context ? ` · ${r.context}` : ""}
           </span>
         </span>
@@ -64,12 +73,15 @@ export default function TopReadsPanel({
 }) {
   if (reads.length === 0) return null;
   const sports = [...new Set(reads.map((r) => r.sport))];
+  const hasToday = reads.some((r) => r.timeframe === "today");
   return (
     <section className="mt-8" id="top-reads">
       <SectionHeader
         eyebrow={eyebrow}
         title={title}
-        sub={sub ?? "What each simulation is most confident about today, ranked by the model's own probability — not by any gap against a sportsbook price. A watchlist, not a bet."}
+        sub={sub ?? (hasToday
+          ? "What each simulation is most confident about today, ranked by the model's own probability — not by any gap against a sportsbook price. A watchlist, not a bet."
+          : "Nothing plays today — these are the model's next dated reads, ranked by its own probability. Not a gap against any sportsbook price; a watchlist, not a bet.")}
       />
       <div className="mt-3 rounded-[12px] overflow-hidden" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
         {reads.map((r, i) => (

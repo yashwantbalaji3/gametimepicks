@@ -90,7 +90,7 @@ export default function HomePage() {
 
   // ── Featured simulations — REAL ready artifacts only, via the shared selector (no new data path) ──
   const details = buildAllGameDetails();
-  const { featured, readyCount, simulationsToday } = featuredSimulations(details, currentEtDate());
+  const { featured, readyCount, simulationsToday, allCurrent } = featuredSimulations(details, currentEtDate());
   const topReads = loadTopReads();
   // What each featured simulation CONCLUDED — a lookup over the canonical objects.
   const gameAnswers = buildHomeGameAnswers(details);
@@ -197,7 +197,9 @@ export default function HomePage() {
       card: {
         href: "/nfl",
         label: "NFL Simulations",
-        blurb: "Projected score, win probability and a full player board from 10,000 simulated games.",
+        /* Capability copy derives from what the hub actually publishes (P241 · A03): the player
+           families are all rejected/held, so no sentence here may promise a "full player board". */
+        blurb: "Projected score and win probability for each game from 10,000 simulated runs — experimental, and clearly labelled.",
         status: (nflDay?.events ?? 0) > 0 ? `${nflDay?.events} games · ${nflPicks.toLocaleString()} player markets` : (nflDay?.note ?? stateLabel(nflState)),
         statusSub: "experimental simulations",
         cta: "Open NFL hub",
@@ -210,7 +212,13 @@ export default function HomePage() {
       card: {
         href: "/ufc",
         label: "UFC",
-        blurb: (ufcDay?.eligible ?? 0) > 0 ? "Winner, method of victory and finishing round for every bout on the card." : "No upcoming card has enough fighter history to model — the schedule is published without a read.",
+        /* "every bout" was contradicted by the status line one row below (11 of 13). The blurb
+           states the same fraction the status does (P241 · A03). */
+        blurb: (ufcDay?.eligible ?? 0) > 0
+          ? (ufcDay?.eligible === ufcDay?.events
+            ? "Winner, method of victory and finishing round for every bout on the card."
+            : `Winner, method of victory and finishing round for ${ufcDay?.eligible} of the card's ${ufcDay?.events} bouts — the rest lack tracked history and say so.`)
+          : "No upcoming card has enough fighter history to model — the schedule is published without a read.",
         status: (ufcDay?.eligible ?? 0) > 0 ? `${ufcDay?.eligible} of ${ufcDay?.events} bouts predicted` : stateLabel(ufcState, { artifactDate: ufcDay?.productDate ?? undefined }),
         statusSub: (ufcDay?.eligible ?? 0) > 0 ? "experimental" : "schedule only · no fighter history yet",
         cta: (ufcDay?.eligible ?? 0) > 0 ? "Open UFC hub" : "View the fight card",
@@ -318,7 +326,12 @@ export default function HomePage() {
           set={topReads}
           reads={topOverall(topReads, 10)}
           eyebrow="Across every sport"
-          title="The model's strongest reads today"
+          /* The title is judged against event dates (P241 · A01): the panel's rows carry their own
+             timeframe, so a day with nothing playing gets the honest heading instead of "today"
+             over next week's card. */
+          title={topOverall(topReads, 10).some((r) => r.timeframe === "today")
+            ? "The model's strongest reads today"
+            : "The model's next reads — upcoming"}
         />
       ) : null}
 
@@ -375,7 +388,7 @@ export default function HomePage() {
       </section>
 
       {/* 7 — Featured simulations (real ready artifacts only) */}
-      <FeaturedSimulationsSection featured={featured} readyCount={readyCount} answers={gameAnswers} />
+      <FeaturedSimulationsSection featured={featured} readyCount={readyCount} answers={gameAnswers} allCurrent={allCurrent} />
 
       {/* 8 — How it works */}
       <HowItWorks />

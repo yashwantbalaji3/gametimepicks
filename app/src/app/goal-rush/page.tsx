@@ -14,7 +14,7 @@ import { gateKeyFor, signatureFor } from "@/lib/products/signature-products";
 export const metadata = {
   title: "Goal Rush · GameTime Picks",
   description:
-    "The Premier League signature product, in development. What is captured today, and every stage still standing between that and a published read. No picks — there is no validated scorer model yet.",
+    "The Premier League signature product, in development. Its inputs exist — authorized matchweek odds and a validated anytime-goalscorer model on /epl — but the product assembled from them does not, so no picks publish here yet.",
 };
 
 export default function GoalRushPage() {

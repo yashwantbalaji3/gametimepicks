@@ -20,7 +20,7 @@ import { deriveProductState, productStateLabel, productStateExplanation, isLive 
 import { currentEtHour } from "@/lib/daily-freshness-slo.mjs";
 import { buildPublicDualLadder, type PublicStepStatus } from "@/lib/bank-builder/public-dual-ladder";
 import LifecycleRecord from "@/components/products/lifecycle-record";
-import { loadLifecycleLedger, settledCardsFor, positionFor } from "@/lib/products/lifecycle-view";
+import { loadLifecycleHistory, settledCardsFor, positionFor } from "@/lib/products/lifecycle-view";
 import ClimbHero, { type ClimbLane, type ClimbRung, type ClimbClearedDetail } from "@/components/bank-builder/climb-hero";
 import { readLaneReviewCard } from "@/lib/bank-builder/review-card";
 import BankBuilderSkippedCard from "@/components/bank-builder/bank-builder-skipped-card";
@@ -317,7 +317,7 @@ export default function BankBuilderPage() {
   /* Settled outcomes come from the lifecycle ledger, which is the only place they exist. Both lanes
      carried a card frozen on 2026-08-17 that no job ever graded; the ledger now records what the
      official box scores said and where each lane stands as a result. */
-  const bbLedger = loadLifecycleLedger();
+  const bbLedger = loadLifecycleHistory();
   const bbSettled = settledCardsFor(bbLedger, "bank-builder");
 
   return (

@@ -16,6 +16,8 @@ export interface FeaturedSimulationsProps {
   featured: FeaturedSimulation[];
   /** Total ready simulations across the slate (>= featured.length). Drives the honest "+N more" line. */
   readyCount: number;
+  /** From featuredSimulations(): false when the pool fell back to stale cards — the archive framing. */
+  allCurrent?: boolean;
   /**
    * Sprint 015 · Phase 1 — what each simulation CONCLUDED, keyed by slug, from `buildHomeGameAnswers`.
    * Optional: a card with no entry (or with null fields) renders exactly as it did before, so the homepage
@@ -60,7 +62,11 @@ function Crest({ team, abbr, logo, isWc, sport }: { team: string; abbr: string |
   );
 }
 
-function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer }) {
+/** "Aug 28" from an ISO date — UTC-noon math so the day never shifts. */
+const shortDate = (iso: string) =>
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+
+function SimCard({ s, answer, archival = false }: { s: FeaturedSimulation; answer?: HomeGameAnswer; archival?: boolean }) {
   const away = s.teams?.away?.trim() || "—";
   const home = s.teams?.home?.trim() || "—";
   const isWc = s.sport === "world_cup";
@@ -86,11 +92,14 @@ function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer
             ? { fontSize: 8.5, fontWeight: 700, color: "var(--vault-gold)", background: "color-mix(in srgb, var(--vault-pending) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-pending) 35%, transparent)" }
             : { fontSize: 8.5, fontWeight: 700, color: "var(--vault-success)", background: "var(--vault-success-dim)", border: "1px solid color-mix(in srgb, var(--gtp-success-on-dark) 35%, transparent)" }}
         >
-          {s.mode === "market-implied" ? "Market-implied" : "Simulation Ready"}
+          {/* An archived report never wears the current-opportunity badge (P241 · A02). */}
+          {archival ? "Archived report" : s.mode === "market-implied" ? "Market-implied" : "Simulation Ready"}
         </span>
       </div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono" style={{ fontSize: 10.5 }}>
         <span style={{ color: "var(--vault-text-faint)" }}>{sportLabel}</span>
+        {/* Every card wears its event date — an August game must say August (P241 · A02). */}
+        {s.date ? <span style={{ color: archival ? "var(--vault-gold)" : "var(--vault-text-mute)", fontWeight: archival ? 700 : 400 }}>{shortDate(s.date)}</span> : null}
         {s.runCountLabel ? <span style={{ color: "var(--vault-text-mute)" }}>{s.runCountLabel}</span> : null}
         {s.pickCount > 0 ? (
           <span style={{ color: "var(--vault-text-mute)" }}>
@@ -121,32 +130,43 @@ function SimCard({ s, answer }: { s: FeaturedSimulation; answer?: HomeGameAnswer
       ) : null}
 
       <span className="mt-auto inline-flex w-fit items-center rounded-full px-3 py-1 font-mono uppercase tracking-[0.1em]"
-        style={{ background: "var(--gtp-bank-lava-cta)", color: "var(--vault-on-accent-deep)", fontSize: 9.5, fontWeight: 700 }}>
-        Generate Simulation →
+        style={archival
+          ? { background: "var(--vault-wash-soft)", border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)", fontSize: 9.5, fontWeight: 700 }
+          : { background: "var(--gtp-bank-lava-cta)", color: "var(--vault-on-accent-deep)", fontSize: 9.5, fontWeight: 700 }}>
+        {archival ? "View archived report →" : "Generate Simulation →"}
       </span>
     </Link>
   );
 }
 
-export default function FeaturedSimulationsSection({ featured, readyCount, answers }: FeaturedSimulationsProps) {
+export default function FeaturedSimulationsSection({ featured, readyCount, answers, allCurrent = true }: FeaturedSimulationsProps) {
   const hasFeatured = readyCount > 0 && featured.length > 0;
+  /* When no current/upcoming game has a simulation, the pool is the archive — say so in the
+     heading, on every badge and CTA, and never advertise a "+N more simulation-ready" queue of
+     August games (P241 · A02). The archive stays reachable; it stops masquerading as today. */
+  const archival = hasFeatured && !allCurrent;
   return (
     <section aria-label="Featured simulations" className="flex flex-col gap-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>
-          Featured simulations
+          {archival ? "From the simulation archive" : "Featured simulations"}
         </h2>
+        {archival ? (
+          <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+            No current slate has a simulation yet — recent reports below
+          </span>
+        ) : null}
       </div>
 
       {hasFeatured ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
             {featured.map((s) => (
-              <SimCard key={s.slug} s={s} answer={answers?.[s.slug]} />
+              <SimCard key={s.slug} s={s} answer={answers?.[s.slug]} archival={archival} />
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            {readyCount > featured.length ? (
+            {!archival && readyCount > featured.length ? (
               <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
                 +{readyCount - featured.length} more simulation-ready below
               </span>

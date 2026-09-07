@@ -40,6 +40,10 @@ export interface TopRead {
   market: string;
   context: string;
   href: string | null;
+  /** The event's America/New_York date — the fact "today" claims are judged against (P241 · A01). */
+  eventEtDate: string | null;
+  /** Derived at build: today's reads vs dated upcoming ones. Past reads never enter the set. */
+  timeframe: "today" | "upcoming";
 }
 
 export interface TopReadsSet {
@@ -118,17 +122,42 @@ function sportGradedClause(sport: string): string {
   return "";
 }
 
+/** Date-only ET day of a UTC instant — immune to the Intl hour-24 trap because no hour is asked for. */
+const etDayOf = (iso: string | null | undefined): string | null => {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return null;
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(t));
+};
+
 export function loadTopReads(): TopReadsSet | null {
   const today = etToday();
   const reads: TopRead[] = [];
   const excluded: Array<{ sport: string; reason: string }> = [];
+  /*
+   * TODAY MEANS THE EVENT'S ET DATE (P241 · A01/A06/A12). This set feeds panels titled "today",
+   * and on the audit morning it was 100% future UFC bouts and finished EPL fixtures, because no
+   * source consulted its event date. Every read now carries eventEtDate; a PAST event never
+   * enters (its home is the archive/results surfaces), and a future one is typed "upcoming" so
+   * the panels can label it instead of implying it plays today.
+   */
+  const push = (r: Omit<TopRead, "timeframe">) => {
+    if (r.eventEtDate && r.eventEtDate < today) {
+      // One exclusion note per sport+reason — the panel renders these, and a per-row entry
+      // turned fifty dropped goalscorers into fifty identical footnotes.
+      const reason = `past event ${r.eventEtDate} — archived, never a "today" read`;
+      if (!excluded.some((e) => e.sport === r.sport && e.reason === reason)) excluded.push({ sport: r.sport, reason });
+      return;
+    }
+    reads.push({ ...r, timeframe: r.eventEtDate && r.eventEtDate > today ? "upcoming" : "today" });
+  };
 
   /* ── MLB: game markets, from the deterministic prediction layer ─────────────────────────────── */
   const mlb = read(`public/data/mlb/predictions/${today}.json`);
   for (const p of mlb?.predictions ?? []) {
     const ml = p.moneyline;
     if (ml?.simulationProbability != null && p.slug) {
-      reads.push({
+      push({
         sport: "mlb", sportLabel: "MLB", kind: "team",
         headline: `${ml.team} to win`,
         subject: ml.team, team: ml.team, photoUrl: null,
@@ -136,13 +165,14 @@ export function loadTopReads(): TopReadsSet | null {
         market: "Moneyline",
         context: `${p.awayTeam} @ ${p.homeTeam} · simulated median ${p.projectedScore?.away ?? "?"}–${p.projectedScore?.home ?? "?"}`,
         href: `/games/mlb/${p.slug}/`,
+        eventEtDate: today,
       });
     }
     const tot = p.total;
     if (tot?.overProbability != null && p.slug) {
       const over = tot.pick === "OVER";
-      reads.push({
-        sport: "mlb", sportLabel: "MLB", kind: "team",
+      push({
+        sport: "mlb", sportLabel: "MLB", kind: "team", eventEtDate: today,
         headline: `${over ? "Over" : "Under"} ${tot.line} runs`,
         subject: `${p.awayTeam} @ ${p.homeTeam}`, team: p.homeTeam, photoUrl: null,
         probability: over ? tot.overProbability : tot.underProbability,
@@ -164,8 +194,8 @@ export function loadTopReads(): TopReadsSet | null {
   const hr = read(`public/data/mlb/homer-nukes/${today}.json`);
   for (const p of hr?.picks ?? []) {
     if (p?.probability == null || !p.player) continue;
-    reads.push({
-      sport: "mlb", sportLabel: "MLB", kind: "player",
+    push({
+      sport: "mlb", sportLabel: "MLB", kind: "player", eventEtDate: today,
       headline: `${p.player} to homer`,
       subject: p.player, team: p.teamAbbr ?? null, photoUrl: null,
       probability: p.probability,
@@ -181,8 +211,8 @@ export function loadTopReads(): TopReadsSet | null {
     if (r.state !== "CURRENT_PRE_EVENT" || !r.probs) continue;
     const best = [["home", r.probs.home, r.homeClub], ["draw", r.probs.draw, null], ["away", r.probs.away, r.awayClub]]
       .sort((a, b) => (b[1] as number) - (a[1] as number))[0];
-    reads.push({
-      sport: "epl", sportLabel: "Premier League", kind: "team",
+    push({
+      sport: "epl", sportLabel: "Premier League", kind: "team", eventEtDate: etDayOf(r.kickoffUtc),
       headline: best[0] === "draw" ? "Draw" : `${best[2]} to win`,
       subject: (best[2] as string) ?? r.matchup, team: (best[2] as string) ?? null, photoUrl: null,
       probability: best[1] as number,
@@ -198,8 +228,8 @@ export function loadTopReads(): TopReadsSet | null {
          and "Bernd Leno to score · 0%" ranked into the model's strongest reads. A ranked read IS a
          positive model probability; anything else stays off the board. */
       if (pl.probability == null || !(pl.probability > 0 && pl.probability < 1)) continue;
-      reads.push({
-        sport: "epl", sportLabel: "Premier League", kind: "player",
+      push({
+        sport: "epl", sportLabel: "Premier League", kind: "player", eventEtDate: etDayOf(f.kickoffUtc),
         headline: `${pl.name} to score`,
         subject: pl.name, team: pl.teamName ?? null, photoUrl: null,
         probability: pl.probability,
@@ -217,8 +247,9 @@ export function loadTopReads(): TopReadsSet | null {
     if (!w?.probability) continue;
     const side = b.red?.name === w.name ? b.red : b.blue;
     const opp = b.red?.name === w.name ? b.blue?.name : b.red?.name;
-    reads.push({
+    push({
       sport: "ufc", sportLabel: "UFC", kind: "player",
+      eventEtDate: etDayOf(b.startUtc) ?? ufc?.event?.slateDate ?? null,
       headline: `${w.name} to beat ${opp ?? "opponent"}`,
       subject: w.name, team: null, photoUrl: side?.photoUrl ?? null,
       probability: w.probability,

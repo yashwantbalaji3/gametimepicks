@@ -47,11 +47,14 @@ export default function MlbSlateAvailability({
   games,
   slateDate,
   cap = 4,
+  isTodaysSlate = true,
 }: {
   summary: SlateSummary;
   games: SlateGameRow[];
   slateDate: string;
   cap?: number;
+  /** The selected period governs the "today" in the title (P241 · A11). */
+  isTodaysSlate?: boolean;
 }) {
   if (games.length === 0) return null;
   const shown = games.slice(0, cap);
@@ -59,7 +62,7 @@ export default function MlbSlateAvailability({
   return (
     <section aria-label="MLB slate availability" className="flex flex-col gap-2.5 rounded-[14px] px-4 py-4" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)" }}>
       <div className="flex items-baseline justify-between gap-2">
-        <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>Today&rsquo;s MLB availability</h3>
+        <h3 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 700 }}>{isTodaysSlate ? <>Today&rsquo;s MLB availability</> : <>MLB availability · this slate</>}</h3>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{slateDate}</span>
       </div>
       {/* Factual count line — the SAME availability language as /today, never a performance claim. */}

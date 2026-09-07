@@ -36,11 +36,12 @@ function SectionCard({ id, tag, title, sub, children }: { id: string; tag: strin
 }
 
 const GATE_NOTE = "Today's MLB board has not been posted yet — waiting on the sportsbooks. This section fills in automatically the moment real MLB markets post; no fabricated picks in the meantime.";
-function GatedSlot({ label }: { label: string }) {
+const GATE_NOTE_PAST = "This slate's board was never posted for this market — no fabricated picks fill the gap.";
+function GatedSlot({ label, isTodaysSlate = true }: { label: string; isTodaysSlate?: boolean }) {
   return (
     <div className="rounded-[10px] px-3.5 py-4 text-center" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-rule)" }}>
       <p className="font-semibold" style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>{label}</p>
-      <p className="mx-auto mt-1 max-w-sm text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>{GATE_NOTE}</p>
+      <p className="mx-auto mt-1 max-w-sm text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>{isTodaysSlate ? GATE_NOTE : GATE_NOTE_PAST}</p>
     </div>
   );
 }
@@ -71,7 +72,10 @@ function TopList({ props, n }: { props: BoardProp[]; n: number }) {
   );
 }
 
-export default function MlbFlagshipSections({ props, games, teamRows, homerBoard, homerRecord, simHref }: {
+export default function MlbFlagshipSections({ props, games, teamRows, homerBoard, homerRecord, simHref, isTodaysSlate = true, slateDate }: {
+  /** The selected period governs every "today" in this tree (P241 · A11). */
+  isTodaysSlate?: boolean;
+  slateDate?: string;
   props: BoardProp[];
   games: ExplorerGame[];
   teamRows: readonly TeamMarketRow[];
@@ -87,7 +91,7 @@ export default function MlbFlagshipSections({ props, games, teamRows, homerBoard
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
-        <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>MLB — today&rsquo;s board</h2>
+        <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 19, fontWeight: 800 }}>{isTodaysSlate ? <>MLB — today&rsquo;s board</> : <>MLB board · {slateDate ?? "latest slate"}</>}</h2>
         <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Home runs · batters · pitchers · teams · games</span>
       </div>
 
@@ -118,7 +122,7 @@ export default function MlbFlagshipSections({ props, games, teamRows, homerBoard
        * full-game simulation closes as its own destination. One screen, three columns, no scrolling
        * to discover that a section exists.
        */}
-      {homerBoard ? <HomerNukesBoardSection board={homerBoard} record={homerRecord ?? null} /> : null}
+      {homerBoard ? <HomerNukesBoardSection board={homerBoard} record={homerRecord ?? null} isTodaysSlate={isTodaysSlate} /> : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 items-start">
         <SectionCard id="mlb-player-props" tag="Batters" title="Batter props" sub="Hits · total bases · hits+runs+RBIs, filterable.">
