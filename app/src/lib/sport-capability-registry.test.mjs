@@ -28,7 +28,7 @@ import {
 } from "./sport-capability-registry.ts";
 
 const REPO = path.join(process.cwd(), "..");
-const STATES = ["FULL_MODEL", "HISTORICAL_ONLY", "RESEARCH_ONLY", "SCAFFOLD_ONLY", "DISABLED"];
+const STATES = ["FULL_MODEL", "EXPERIMENTAL_PUBLIC", "HISTORICAL_ONLY", "RESEARCH_ONLY", "SCAFFOLD_ONLY", "DISABLED"];
 
 test("fails CLOSED — anything unrecognised is DISABLED, never assumed capable", () => {
   for (const bad of ["", null, undefined, "cricket-league-that-does-not-exist", "NFL2", "  "]) {
@@ -59,11 +59,14 @@ test("every sport declares a REASON and EVIDENCE, and the evidence actually exis
 test("permissions derive from STATE alone — no per-sport exceptions can creep in", () => {
   for (const c of SPORT_CAPABILITIES) {
     const full = c.state === "FULL_MODEL";
+    // P243 · B-2: EXPERIMENTAL_PUBLIC shows its published experimental forecasts and accrues a
+    // live record, but still may NOT enter official prediction products.
+    const experimental = c.state === "EXPERIMENTAL_PUBLIC";
     assert.equal(canEnterPredictionProducts(c.key), full, `${c.key}: prediction products = FULL_MODEL only`);
-    assert.equal(canShowLiveProjections(c.key), full, `${c.key}: live projections = FULL_MODEL only`);
+    assert.equal(canShowLiveProjections(c.key), full || experimental, `${c.key}: live projections = FULL_MODEL or EXPERIMENTAL_PUBLIC`);
     assert.equal(
       resultsMode(c.key),
-      full ? "live" : c.state === "HISTORICAL_ONLY" ? "archive" : "none",
+      full || experimental ? "live" : c.state === "HISTORICAL_ONLY" ? "archive" : "none",
       `${c.key}: results mode follows state`,
     );
     assert.equal(isPubliclyListed(c.key), c.state !== "DISABLED");
@@ -89,8 +92,11 @@ test("only FULL_MODEL sports may enter official prediction products", () => {
 
 test("badge text never promises more than the state supports", () => {
   for (const s of STATES) assert.ok(CAPABILITY_BADGE[s], `${s} has badge text`);
-  // Only FULL_MODEL may mention predictions/simulations in its badge.
-  for (const s of STATES.filter((s) => s !== "FULL_MODEL")) {
+  // Only genuinely predictive states may mention predictions/simulations in their badge —
+  // FULL_MODEL, and EXPERIMENTAL_PUBLIC whose published output IS simulations (worn with the
+  // word "experimental" so the badge cannot oversell).
+  assert.match(CAPABILITY_BADGE.EXPERIMENTAL_PUBLIC, /experimental/i, "the experimental badge names its tier");
+  for (const s of STATES.filter((s) => s !== "FULL_MODEL" && s !== "EXPERIMENTAL_PUBLIC")) {
     assert.ok(
       !/prediction|simulation|projection|parlay/i.test(CAPABILITY_BADGE[s]),
       `${s} badge must not imply predictive capability: "${CAPABILITY_BADGE[s]}"`,

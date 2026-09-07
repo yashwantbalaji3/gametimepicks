@@ -22,6 +22,13 @@
 export type CapabilityState =
   /** Live modelled product: simulations, predictions, and graded results all real and current. */
   | "FULL_MODEL"
+  /**
+   * Public EXPERIMENTAL forecasts (P243 · B-2): real simulations/forecasts publish under an
+   * explicit experimental banner, settled results accrue against them, but the sport has NOT
+   * cleared the bar to enter official prediction products. NFL and EPL live here: schedules,
+   * routes, evaluated models and graded records all exist — calling them DISABLED was false.
+   */
+  | "EXPERIMENTAL_PUBLIC"
   /** Real settled history worth publishing, but NO live capability right now (off-season, dead source). */
   | "HISTORICAL_ONLY"
   /** Internal research exists and is leakage-safe, but nothing is validated for public prediction use. */
@@ -129,18 +136,28 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
   {
     key: "epl",
     label: "EPL",
-    state: "DISABLED",
+    state: "EXPERIMENTAL_PUBLIC",
     reason:
-      "Nothing is published at all — not even a schedule. Listed as a future intention only, so it must never imply coverage.",
-    evidence: ["app/src/lib/sports-coverage.ts"],
+      "Fixtures, exact-Poisson match forecasts, a validated scorer head and priced paper cards all publish under an experimental banner, and the lab ledger grades them; the model has not beaten the market out of sample, so nothing enters official prediction products.",
+    evidence: [
+      "app/public/data/epl/graded-picks.json",
+      ".github/workflows/epl-matchweek.yml",
+      "app/public/data/parlays/lab-ledger.json",
+      "data/internal/research/epl/learning/latest.json",
+    ],
   },
   {
     key: "nfl",
     label: "NFL",
-    state: "DISABLED",
+    state: "EXPERIMENTAL_PUBLIC",
     reason:
-      "Nothing exists: no provider, no schedule, no route, no ingest. Any NFL surface would be entirely fabricated.",
-    evidence: ["app/scripts/build-market-coverage-matrix.mjs"],
+      "Schedule capture, public experimental game simulations, an evaluated regular-season identity and 45 graded picks all exist; the preseason model picked winners no better than a coin flip on its held-out season, so nothing enters official prediction products.",
+    evidence: [
+      "app/public/data/nfl/index.json",
+      ".github/workflows/nfl-event-window.yml",
+      "app/public/data/nfl/graded-picks.json",
+      "data/internal/research/nfl/regular-season-public-card-v1.json",
+    ],
   },
 ];
 
@@ -177,9 +194,14 @@ export function canEnterPredictionProducts(sport: string | null | undefined): bo
   return capabilityState(sport) === "FULL_MODEL";
 }
 
-/** May we show forward-looking projections/simulations for this sport? FULL_MODEL only. */
+/**
+ * May we show forward-looking projections/simulations for this sport? FULL_MODEL, plus
+ * EXPERIMENTAL_PUBLIC — whose surfaces carry the experimental banner and whose outputs are the
+ * genuinely published forecasts, never product picks.
+ */
 export function canShowLiveProjections(sport: string | null | undefined): boolean {
-  return capabilityState(sport) === "FULL_MODEL";
+  const s = capabilityState(sport);
+  return s === "FULL_MODEL" || s === "EXPERIMENTAL_PUBLIC";
 }
 
 /**
@@ -191,7 +213,7 @@ export function canShowLiveProjections(sport: string | null | undefined): boolea
  */
 export function resultsMode(sport: string | null | undefined): "live" | "archive" | "none" {
   const s = capabilityState(sport);
-  if (s === "FULL_MODEL") return "live";
+  if (s === "FULL_MODEL" || s === "EXPERIMENTAL_PUBLIC") return "live";
   if (s === "HISTORICAL_ONLY") return "archive";
   return "none";
 }
@@ -209,6 +231,7 @@ export const FULL_MODEL_SPORTS: ReadonlyArray<string> = SPORT_CAPABILITIES.filte
 /** Honest, capability-driven badge text. Replaces labels that promised more than the data supports. */
 export const CAPABILITY_BADGE: Record<CapabilityState, string> = {
   FULL_MODEL: "Simulations + Predictions",
+  EXPERIMENTAL_PUBLIC: "Experimental simulations",
   HISTORICAL_ONLY: "Historical archive",
   RESEARCH_ONLY: "Research only",
   SCAFFOLD_ONLY: "Schedule only",
