@@ -87,7 +87,7 @@ test("the primary nav stays a clean simulate-first spine (no non-live sport prom
     if (at === -1) continue;
     assert.ok(at > dividerIdx, `${href} is secondary, not the primary spine`);
   }
-  assert.ok(/href: "\/simulate", label: "Simulate", group: "now"/.test(nav), "/simulate leads the Now cluster");
+  assert.ok(/href: "\/simulate", label: "Simulations", group: "now"/.test(nav), "/simulate leads the Now cluster");
 });
 
 test("Results, Bank Builder, and Simulate remain reachable (trust/record never hidden)", () => {

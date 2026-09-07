@@ -20,15 +20,16 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
   // These assertions match on href+label and stay group-agnostic — they are about WHICH destinations
   // lead the spine, not about the shape of the object that describes them.
   const nav = fs.readFileSync("src/components/nav.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
-  // Simulate leads the primary nav (the game-simulation lobby); the old "Game Lab" primary label is gone.
-  assert.match(nav, /\{ href: "\/simulate", label: "Simulate"/, "Simulate is a nav item");
+  // P243 · E: the destination is named "Simulations" (the charter's five primaries); the old
+  // "Game Lab"/"Games" labels stay gone.
+  assert.match(nav, /\{ href: "\/simulate", label: "Simulations"/, "Simulations is a nav item");
   assert.ok(!/label: "Games"/.test(nav) && !/label: "Game Lab"/.test(nav), "the old 'Games'/'Game Lab' primary label is gone");
   const dividerIdx = nav.indexOf("beforeDivider: true");
   const idx = (s) => nav.indexOf(s);
   // P196: order is no longer a hand-picked lead sequence — the spine is grouped by the question a
   // reader is asking, and `beforeDivider` is computed at the group boundary. What survives is the
   // real invariant: the simulate-first destinations lead the NOW cluster, never a paper product.
-  for (const [href, label] of [["/today", "Today"], ["/simulate", "Simulate"]]) {
+  for (const [href, label] of [["/today", "Today"], ["/simulate", "Simulations"]]) {
     const decl = nav.slice(nav.indexOf(`href: "${href}"`));
     const body = decl.slice(0, decl.indexOf("},"));
     assert.match(body, new RegExp(`label: "${label}"`), `${label} keeps its label`);
@@ -64,14 +65,14 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
   assert.ok(!nav.includes('href: "/world-cup-specials"'), "Soccer Specials is NOT in the active nav");
 });
 
-test("MOBILE_NAV_ITEMS is the FIVE thumb destinations in canonical order (P208 charter 3B)", () => {
-  // P208: the bar carries Home / Today / Simulate / Picks / Parlay; Results and Sports live in the
-  // labelled Menu sheet the component adds as the sixth slot — the sheet derives from the same
-  // canonical list (rail minus bar), so losing a bar slot removed no destination.
+test("MOBILE_NAV_ITEMS is the FIVE primary destinations in canonical order (P243 charter E)", () => {
+  // P243 · E: the five primaries are the SAME set on every surface — Home / Sports / Simulations /
+  // Picks & Parlays / Results. Today and Picks stay first-class rail/footer routes reached from
+  // Home and the parlay destination; the Menu sheet still derives rail-minus-bar.
   assert.equal(MOBILE_NAV_ITEMS.length, 5);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "today", "games", "markets", "lab"],
+    ["home", "sports", "games", "lab", "results"],
   );
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/diamond-specials"), "no Diamond Specials nav item");
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/homer-nukes"), "no retired Homer Nukes nav item");
@@ -82,29 +83,32 @@ test("retired /homer-nukes + removed /diamond-specials both map to no bucket", (
   assert.equal(resolveMobileNavBucket("/diamond-specials"), null, "removed route → no bucket");
 });
 
-test("MOBILE_NAV_ITEMS labels are the UNIFIED six-primary set, matching every other surface", () => {
+test("MOBILE_NAV_ITEMS labels are the UNIFIED five-primary set, matching every other surface", () => {
   const byHref = Object.fromEntries(
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
   // Label unification: mobile matches the desktop nav / command rail / footer labels exactly.
   assert.equal(byHref["/"], "Home");
-  assert.equal(byHref["/today"], "Today");
-  assert.equal(byHref["/simulate"], "Simulate");
-  assert.equal(byHref["/markets"], "Picks");
-  assert.equal(byHref["/build"], "Parlay Center");
-  // P208: Results + Sports moved to the labelled Menu sheet — off the bar, still one tap away.
-  assert.equal(byHref["/sports"], undefined);
-  assert.equal(byHref["/results"], undefined);
+  assert.equal(byHref["/sports"], "Sports");
+  assert.equal(byHref["/simulate"], "Simulations");
+  assert.equal(byHref["/build"], "Picks & Parlays");
+  assert.equal(byHref["/results"], "Results");
+  // P243 · E: Today and the ranked-picks board left the bar for the rail/Menu sheet — still one
+  // tap away, never phone-unreachable.
+  assert.equal(byHref["/today"], undefined);
+  assert.equal(byHref["/markets"], undefined);
   // Retired routes and products stay off the bar (the products live on the rail/footer).
   assert.equal(byHref["/picks"], undefined, "no retired route in the mobile spine");
-  assert.equal(byHref["/bank-builder"], undefined, "products lost their slots to the six primary");
+  assert.equal(byHref["/bank-builder"], undefined, "products lost their slots to the five primary");
   assert.equal(byHref["/moonshot"], undefined);
   assert.equal(byHref["/mr-dub"], undefined);
   assert.equal(byHref["/homer-nukes"], undefined, "Homer Nukes retired — no nav tab");
   // The thumb-width shortLabels stay prefix-or-subset of the real label (WCAG 2.5.3).
   const short = Object.fromEntries(MOBILE_NAV_ITEMS.map((i) => [i.href, i.shortLabel]));
-  assert.equal(short["/markets"], "Picks");
-  assert.equal(short["/build"], "Parlay");
+  assert.equal(short["/build"], "Parlays");
+  for (const i of MOBILE_NAV_ITEMS) {
+    assert.ok(i.label.includes(i.shortLabel), `${i.href}: shortLabel "${i.shortLabel}" must appear within "${i.label}"`);
+  }
 });
 
 test("products highlight nothing: Bank Builder / Moonshot / Mr. Dub lost their slots to the six primary (P201)", () => {

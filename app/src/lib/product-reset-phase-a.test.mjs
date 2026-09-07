@@ -67,7 +67,11 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
   const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
   const sportsItems = nav.match(/href: "\/sports"/g) ?? [];
   assert.equal(sportsItems.length, 1, "exactly ONE /sports nav item — the canonical discovery path");
-  assert.match(nav, /label: "Sports · Schedules"/, "the nav label says Schedules, never a bare sport-hub claim");
+  /* P243 · E: "Sports" is one of the charter's five primaries, so the label is the bare word now.
+     The overstatement invariant did not move into the label — it lives where it always belonged:
+     the PAGE states each sport's coverage in rendered words (hub-aware SCHEDULE_ONLY copy,
+     P241 · A20), and the assertions below keep checking exactly that. */
+  assert.match(nav, /href: "\/sports", label: "Sports", group: "now"/, "Sports is the primary cross-sport directory");
   // P185: the rule was never "no sport links" — it was "no nav link for a sport that publishes
   // nothing", written when MLB was the only modelled sport. NFL now publishes full-game simulations
   // and a player board, so it earns its place beside MLB; EPL and UFC still publish nothing and stay
@@ -170,5 +174,6 @@ test("the raw builder never fronts the beginner: /build leads with Suggested Par
   assert.match(suggested, /\/build\/custom/, "the builder mode is one visible action away");
   assert.match(read("src/app/build/custom/page.tsx"), /Build Your Own/, "the builder is its own mode, not the beginner's first screen");
   const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
-  assert.match(nav, /href: "\/build", label: "(Build|Parlay Center)", group: "now"/, "/build sits in the Now cluster beside the tools it belongs with, never as its own pillar");
+  /* P243 · E: the destination is named "Picks & Parlays" — still the Now cluster, still suggested-first. */
+  assert.match(nav, /href: "\/build", label: "(Build|Parlay Center|Picks & Parlays)", group: "now"/, "/build sits in the Now cluster beside the tools it belongs with, never as its own pillar");
 });

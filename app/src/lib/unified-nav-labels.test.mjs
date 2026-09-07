@@ -22,8 +22,10 @@ const mobileByHref = Object.fromEntries(MOBILE_NAV_ITEMS.map((i) => [i.href, i.l
 const UNIFIED = {
   "/": "Home",
   "/markets": "Picks",
-  "/build": "Parlay Center",
-  "/simulate": "Simulate",
+  /* P243 · E: the charter's five primaries renamed two destinations everywhere at once. */
+  "/build": "Picks & Parlays",
+  "/simulate": "Simulations",
+  "/sports": "Sports",
   "/today": "Today",
   "/results": "Results",
   "/bank-builder": "Bank Builder",

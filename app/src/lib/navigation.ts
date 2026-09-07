@@ -104,20 +104,31 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    */
   { href: "/", label: "Home", group: "now", glyph: "⌂", desc: "Start here — what can I do right now?",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "home" },
+  /* P243 · E: Sports is the second of the five primaries — the cross-sport directory, with each
+     hub one click deeper in the Sports group below. */
+  { href: "/sports", label: "Sports", group: "now", glyph: "🗓", desc: "Every sport's schedule and hub",
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "sports" },
+  /* P243 · E: the charter's five primaries are Home · Sports · Simulations · Picks & Parlays ·
+     Results. Today stays a first-class route — Home leads with the current/upcoming choice and
+     links it — but it leaves the top bar and the thumb bar. */
   { href: "/today", label: "Today", group: "now", glyph: "▤", desc: "Tonight's slate at a glance",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "today" },
-  { href: "/simulate", label: "Simulate", group: "now", glyph: "▶", desc: "Pick a game, run its report",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "games" },
+    surfaces: ["rail", "footer"], bucket: "today" },
+  /* shortLabel: the bar's 9-char budget rejects "Simulations" (11) and WCAG 2.5.3 requires the
+     painted word to appear within the accessible name — "Sim" is the contiguous prefix that fits. */
+  { href: "/simulate", label: "Simulations", group: "now", glyph: "▶", desc: "Pick a game, open its report",
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "games", shortLabel: "Sim" },
   /* "Picks" is the reader's word for this job; "Market Center" was ours. The route keeps its
      canonical URL — the label changes everywhere at once because every surface derives from here. */
   { href: "/markets", label: "Picks", group: "now", glyph: "◈", desc: "Model picks beside the sportsbook price",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "markets" },
-  { href: "/build", label: "Parlay Center", group: "now", glyph: "✎", desc: "Suggested cards, or build your own",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "lab", shortLabel: "Parlay" },
+    surfaces: ["rail", "footer"], bucket: "markets" },
+  /* One shared picks-and-parlays destination (charter E): /build keeps its two modes (suggested →
+     custom) and links the ranked picks board; /markets stays a first-class deep route. */
+  { href: "/build", label: "Picks & Parlays", group: "now", glyph: "✎", desc: "Suggested cards, ranked picks, or build your own",
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "lab", shortLabel: "Parlays" },
   /* Sixth primary. Off the `mobile` bar by the charter's own bar spec (Home/Today/Simulate/Picks/
      Parlay + Menu); the mobile Menu sheet renders every rail destination the bar lacks. */
   { href: "/results", label: "Results", group: "now", glyph: "≡", desc: "Settled track record",
-    surfaces: ["top", "rail", "footer"], bucket: "results" },
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "results" },
 
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
   { href: "/mlb", label: "MLB", note: "live", group: "sports", glyph: "⚾", desc: "Baseball hub",
@@ -141,8 +152,6 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     surfaces: ["rail", "footer"] },
   /* No `note`: the label already ends in "Schedules", and "Sports · Schedules · schedules" is
      what a note that repeats its own label looks like. */
-  { href: "/sports", label: "Sports · Schedules", group: "sports", glyph: "🗓", desc: "EPL · NFL · NBA · UFC schedules",
-    surfaces: ["top", "rail", "footer"], bucket: "sports", shortLabel: "Sports" },
 
   // ── PRODUCTS ───────────────────────────────────────────────────────────────────────────────────
   { href: "/bank-builder", label: "Bank Builder", group: "products", glyph: "▰", desc: "Conservative paper card",
