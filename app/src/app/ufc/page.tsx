@@ -32,7 +32,7 @@ import SportLabCards from "@/components/sport-lab-cards";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { eventState, eventHeading, EVENT_STATE } from "@/lib/sports/event-lifecycle.mjs";
-import { loadSportLabLadder } from "@/lib/parlays/sport-lab-cards";
+import { loadSportLabLadder, loadSportLabStreamRecord } from "@/lib/parlays/sport-lab-cards";
 
 export const metadata = {
   /*
@@ -254,7 +254,7 @@ export default function UfcArchivePage() {
         </p>
       </section>
 
-      {labLadder ? <SportLabCards ladder={labLadder} nameEvent={false} /> : null}
+      {labLadder ? <SportLabCards ladder={labLadder} nameEvent={false} tierRecords={loadSportLabStreamRecord("ufc")?.byTier} /> : null}
 
       {/*
         THE RECORD — ONE CHRONOLOGY, ERAS LABELLED (P196 · Release C).

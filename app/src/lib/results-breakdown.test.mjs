@@ -69,14 +69,15 @@ test("summarizeByRiskSection: empty input → all zeros", () => {
   assert.equal(out.unaligned.total, 0);
 });
 
-test("summarizeByRiskSection: 2-leg -110/-110 → Low", () => {
+test("summarizeByRiskSection: 2-leg -110/-110 → Medium (canonical bands, P241 · A13)", () => {
   const out = summarizeByRiskSection([
     _mkSlip({ status: "win", odds: [-110, -110] }),
   ]);
-  assert.equal(out.sections.low.total, 1);
-  assert.equal(out.sections.low.wins, 1);
-  assert.equal(out.sections.low.decisive, 1);
-  assert.equal(out.sections.low.hitRate, 1);
+  // -110 × -110 → ~+265: the canonical medium band — the same tier this slip wears everywhere.
+  assert.equal(out.sections.medium.total, 1);
+  assert.equal(out.sections.medium.wins, 1);
+  assert.equal(out.sections.medium.decisive, 1);
+  assert.equal(out.sections.medium.hitRate, 1);
 });
 
 test("summarizeByRiskSection: pushes excluded from hit rate", () => {
@@ -84,11 +85,11 @@ test("summarizeByRiskSection: pushes excluded from hit rate", () => {
     _mkSlip({ status: "win", odds: [-110, -110] }),
     _mkSlip({ status: "push", odds: [-110, -110] }),
   ]);
-  assert.equal(out.sections.low.total, 2);
-  assert.equal(out.sections.low.wins, 1);
-  assert.equal(out.sections.low.pushes, 1);
-  assert.equal(out.sections.low.decisive, 1);
-  assert.equal(out.sections.low.hitRate, 1);
+  assert.equal(out.sections.medium.total, 2);
+  assert.equal(out.sections.medium.wins, 1);
+  assert.equal(out.sections.medium.pushes, 1);
+  assert.equal(out.sections.medium.decisive, 1);
+  assert.equal(out.sections.medium.hitRate, 1);
 });
 
 test("summarizeByRiskSection: pending excluded from decisive", () => {
@@ -96,11 +97,11 @@ test("summarizeByRiskSection: pending excluded from decisive", () => {
     _mkSlip({ status: "pending", odds: [-110, -110] }),
     _mkSlip({ status: "loss", odds: [-110, -110] }),
   ]);
-  assert.equal(out.sections.low.total, 2);
-  assert.equal(out.sections.low.pending, 1);
-  assert.equal(out.sections.low.losses, 1);
-  assert.equal(out.sections.low.decisive, 1);
-  assert.equal(out.sections.low.hitRate, 0);
+  assert.equal(out.sections.medium.total, 2);
+  assert.equal(out.sections.medium.pending, 1);
+  assert.equal(out.sections.medium.losses, 1);
+  assert.equal(out.sections.medium.decisive, 1);
+  assert.equal(out.sections.medium.hitRate, 0);
 });
 
 test("summarizeByRiskSection: 5 legs at -110 → Longshot", () => {
@@ -116,15 +117,15 @@ test("summarizeByRiskSection: 5 legs at -110 → Longshot", () => {
   assert.equal(out.sections.high.total, 0);
 });
 
-test("summarizeByRiskSection: 4 legs at -110 (Longshot odds but not legs) → unaligned", () => {
+test("summarizeByRiskSection: 4 legs at -110 → Longshot (legs are descriptive, never a gate)", () => {
   const out = summarizeByRiskSection([
     _mkSlip({ status: "loss", odds: [-110, -110, -110, -110] }),
   ]);
-  // 4 × -110 → +1234 (Longshot odds), but 4 legs is below Longshot's
-  // 5-leg floor → unaligned by the strict gate.
-  assert.equal(out.sections.longshot.total, 0);
-  assert.equal(out.unaligned.total, 1);
-  assert.equal(out.unaligned.losses, 1);
+  // 4 × -110 → +1234: canonical longshot. Under the old leg-count gate this real settled card
+  // fell to "unaligned" — a loss silently outside every section's record.
+  assert.equal(out.sections.longshot.total, 1);
+  assert.equal(out.sections.longshot.losses, 1);
+  assert.equal(out.unaligned.total, 0);
 });
 
 test("summarizeByRiskSection: slip with a null-odds leg → unaligned", () => {

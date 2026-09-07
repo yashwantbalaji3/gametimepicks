@@ -15,7 +15,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
-import { loadLabRecord, labSampleCaption } from "@/lib/parlays/lab-record";
+import { loadLabRecord, labSampleCaption, labCounts } from "@/lib/parlays/lab-record";
 
 export const metadata: Metadata = {
   title: "Suggested-Card Record · GameTime Picks",
@@ -127,7 +127,7 @@ export default function ParlayLabRecordPage() {
             <section className="mt-8">
               <SectionHeader
                 eyebrow="Card by card"
-                title={`${rec.cards.length} settled cards`}
+                title={`${labCounts(rec).decisive} settled cards${labCounts(rec).pending ? ` · ${labCounts(rec).pending} pending` : ""}`}
                 sub="The raw record behind the table above — every suggested card that has been graded, newest first."
               />
               <div className="mt-3 overflow-x-auto">

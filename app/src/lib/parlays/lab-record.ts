@@ -140,14 +140,28 @@ export function loadLabRecord(): LabRecord | null {
   };
 }
 
+/** Decisive (won/lost/pushed) and pending, counted apart — cards.length wears neither word. */
+export function labCounts(rec: LabRecord | null): { total: number; decisive: number; pending: number } {
+  const total = rec?.cards.length ?? 0;
+  const pending = rec?.cards.filter((c) => c.result === "pending").length ?? 0;
+  return { total, decisive: total - pending, pending };
+}
+
 /** How much any of this is worth saying. Deliberately blunt at these sample sizes. */
 export function labSampleCaption(rec: LabRecord | null): string {
   if (!rec) return "The Lab record could not be read.";
-  const graded = rec.cards.length;
-  if (graded === 0) return "No suggested card has been settled yet, so there is no record to show.";
+  /*
+   * "SETTLED" MEANS DECIDED (P241 · A16). cards.length counted every PUBLISHED card — nine of
+   * the fifty-eight were still pending, and this caption called all fifty-eight settled while
+   * /results split the same pool into 49 decisive · 9 pending. Pending is not settled; the two
+   * counts now travel together, with the same denominators the explorer uses.
+   */
+  const { total, decisive, pending } = labCounts(rec);
+  if (total === 0) return "No suggested card has been settled yet, so there is no record to show.";
+  const pendingClause = pending > 0 ? ` (${pending} more await official results and are in no rate here)` : "";
   if (rec.sportsWithRecord.length === 1) {
-    return `${graded} suggested cards have been settled, all of them ${rec.sportsWithRecord[0].toUpperCase()}. ` +
+    return `${decisive} suggested cards have settled, all of them ${rec.sportsWithRecord[0].toUpperCase()}${pendingClause}. ` +
       "Far too few, and from one sport, to say anything about how the Lab performs.";
   }
-  return `${graded} suggested cards settled across ${rec.sportsWithRecord.length} sports — still a small sample.`;
+  return `${decisive} suggested cards settled across ${rec.sportsWithRecord.length} sports${pendingClause} — still a small sample.`;
 }

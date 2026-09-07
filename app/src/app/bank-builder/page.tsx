@@ -375,7 +375,19 @@ export default function BankBuilderPage() {
       {!dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active" && c.legs.length > 0)
         && !climbLanes.some((l) => l.reviewMode) ? (
         <div className="mt-5">
-          {bbProposal.available
+          {/* ONE product state (P241 · A18): the header said "waiting on today's data" while this
+              panel said "no qualified card today" — "we never ran" and "we ran and nothing
+              qualified" are different facts, and the skipped card may only claim the second. When
+              the state machine says the inputs have not arrived, the panel says exactly that. */}
+          {bbProductState === "INPUTS_STALE" || bbProductState === "INPUTS_MISSING" ? (
+            <div className="rounded-[12px] px-4 py-4" style={{ background: "var(--vault-wash-faint)", border: "1px dashed var(--vault-border)" }}>
+              <p className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>Waiting on today&rsquo;s data</p>
+              <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6 }}>
+                Today&rsquo;s source data has not arrived yet, so no card has been assessed — this is not a
+                no-play call. The evaluation runs the moment the day&rsquo;s board posts.
+              </p>
+            </div>
+          ) : bbProposal.available
             ? <BankBuilderProposalCard proposal={bbProposal} />
             : <BankBuilderSkippedCard alternatives={strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3)} />}
         </div>

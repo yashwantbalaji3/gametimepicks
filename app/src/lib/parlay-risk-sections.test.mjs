@@ -32,6 +32,13 @@ function mkSlip(slipId, legCount, odds) {
   };
 }
 
+/*
+ * P241 · A13 — THE SECTION BANDS ARE THE CANONICAL PARLAY_ODDS_BANDS NOW. This suite used to pin
+ * a private fourth band table (low <+300, medium 300-599, …) plus a leg-count gate that silently
+ * dropped real cards. The same +206 two-leg card read "Low Risk" here and Medium on the risk
+ * ladder beside it. The pins below assert the canonical bounds (low -200..+100, medium ..+300,
+ * high ..+600, longshot 600+), odds-only classification, and legs as description, never a gate.
+ */
 test("RISK_SECTION_ORDER: Low → Medium → High → Longshot", () => {
   assert.deepEqual(
     [...RISK_SECTION_ORDER],
@@ -39,14 +46,14 @@ test("RISK_SECTION_ORDER: Low → Medium → High → Longshot", () => {
   );
 });
 
-test("classifyOddsSection: half-open boundaries (no double-counting)", () => {
+test("classifyOddsSection: canonical-band boundaries (no double-counting)", () => {
   assert.equal(classifyOddsSection(-200), "low");
-  assert.equal(classifyOddsSection(299), "low");
+  assert.equal(classifyOddsSection(100), "low");
+  assert.equal(classifyOddsSection(101), "medium");
   assert.equal(classifyOddsSection(300), "medium");
-  assert.equal(classifyOddsSection(599), "medium");
+  assert.equal(classifyOddsSection(301), "high");
   assert.equal(classifyOddsSection(600), "high");
-  assert.equal(classifyOddsSection(999), "high");
-  assert.equal(classifyOddsSection(1000), "longshot");
+  assert.equal(classifyOddsSection(601), "longshot");
   assert.equal(classifyOddsSection(5000), "longshot");
 });
 
@@ -57,40 +64,40 @@ test("classifyOddsSection: missing odds → null", () => {
   assert.equal(classifyOddsSection(Number.POSITIVE_INFINITY), null);
 });
 
-test("classifySlipBySection: +299 with 2 legs → Low", () => {
-  assert.equal(classifySlipBySection(299, 2), "low");
+test("classifySlipBySection: +299 with 2 legs → Medium (the canonical band, matching the ladder)", () => {
+  assert.equal(classifySlipBySection(299, 2), "medium");
 });
 
-test("classifySlipBySection: +299 with 4 legs → null (leg count out of Low range)", () => {
-  assert.equal(classifySlipBySection(299, 4), null);
+test("classifySlipBySection: legs never exclude a priced slip — description, not a gate", () => {
+  assert.equal(classifySlipBySection(299, 4), "medium");
 });
 
 test("classifySlipBySection: +300 with 3 legs → Medium", () => {
   assert.equal(classifySlipBySection(300, 3), "medium");
 });
 
-test("classifySlipBySection: +599 with 4 legs → Medium", () => {
-  assert.equal(classifySlipBySection(599, 4), "medium");
+test("classifySlipBySection: +599 with 4 legs → High (canonical band)", () => {
+  assert.equal(classifySlipBySection(599, 4), "high");
 });
 
-test("classifySlipBySection: +600 with 4 legs → High", () => {
+test("classifySlipBySection: +600 with 4 legs → High (inclusive upper bound)", () => {
   assert.equal(classifySlipBySection(600, 4), "high");
 });
 
-test("classifySlipBySection: +999 with 5 legs → High", () => {
-  assert.equal(classifySlipBySection(999, 5), "high");
+test("classifySlipBySection: +999 with 5 legs → Longshot (canonical band)", () => {
+  assert.equal(classifySlipBySection(999, 5), "longshot");
 });
 
 test("classifySlipBySection: +1000 with 5 legs → Longshot", () => {
   assert.equal(classifySlipBySection(1000, 5), "longshot");
 });
 
-test("classifySlipBySection: +1000 with 4 legs → null (4 is below Longshot's 5-leg floor)", () => {
-  assert.equal(classifySlipBySection(1000, 4), null);
+test("classifySlipBySection: +1000 with 4 legs → Longshot (legs are descriptive)", () => {
+  assert.equal(classifySlipBySection(1000, 4), "longshot");
 });
 
-test("classifySlipBySection: +500 with 2 legs → null (2 below Medium's 3-leg floor)", () => {
-  assert.equal(classifySlipBySection(500, 2), null);
+test("classifySlipBySection: +500 with 2 legs → High (never silently dropped)", () => {
+  assert.equal(classifySlipBySection(500, 2), "high");
 });
 
 test("classifySlipBySection: negative odds with 2 legs → Low", () => {
@@ -121,11 +128,11 @@ test("getRiskSectionDisplay: labels match the user spec; no 'safe'/'safety'", ()
     }
   }
   assert.equal(getRiskSectionDisplay("low").label, "Low Risk");
-  assert.equal(getRiskSectionDisplay("low").oddsRange, "under +300");
-  assert.equal(getRiskSectionDisplay("low").legRange, "2–3 legs");
-  assert.equal(getRiskSectionDisplay("medium").legRange, "3–4 legs");
-  assert.equal(getRiskSectionDisplay("high").legRange, "4–5 legs");
-  assert.equal(getRiskSectionDisplay("longshot").legRange, "5–6 legs");
+  assert.equal(getRiskSectionDisplay("low").oddsRange, "-200 to +100");
+  assert.match(getRiskSectionDisplay("low").legRange, /^typically /);
+  assert.match(getRiskSectionDisplay("medium").legRange, /^typically /);
+  assert.match(getRiskSectionDisplay("high").legRange, /^typically /);
+  assert.match(getRiskSectionDisplay("longshot").legRange, /^typically /);
 });
 
 test("combinedAmericanOddsFromLegs: any null leg → null", () => {
@@ -163,21 +170,22 @@ test("groupSlipsByRiskSection: strict alignment + excluded bucket", () => {
   const sectionCounts = Object.fromEntries(
     sections.map((s) => [s.section, s.slips.length]),
   );
-  assert.equal(sectionCounts.low, 1, "expected 1 aligned Low slip");
-  assert.equal(sectionCounts.medium, 1, "expected 1 aligned Medium slip");
-  assert.equal(sectionCounts.high, 0);
-  assert.equal(sectionCounts.longshot, 1, "expected 1 aligned Longshot");
-  // 4-leg @ +1234 (Longshot odds but only 4 legs) → excluded.
-  // Null-odds slip → excluded.
-  assert.equal(excluded.length, 2);
+  // Canonical bands, odds-only (P241 · A13): ~+200 → medium; ~+545 → high; both -110×4 (+1234)
+  // and -110×5 (+2448) → longshot regardless of leg count. Only the null-odds slip is excluded —
+  // legs never silently drop a priced card any more.
+  assert.equal(sectionCounts.low ?? 0, 0);
+  assert.equal(sectionCounts.medium, 1, "expected 1 Medium slip (~+200)");
+  assert.equal(sectionCounts.high, 1, "expected 1 High slip (~+545)");
+  assert.equal(sectionCounts.longshot, 2, "both longshot-priced slips stay visible");
+  assert.equal(excluded.length, 1, "only the null-odds slip is excluded");
 });
 
 test("classifyRiskSection (back-compat shim): odds-only classification", () => {
   // Used by the per-card chip (lane label). +700 always reads "High"
   // even when leg count would block strict section assignment.
-  assert.equal(classifyRiskSection(150), "low");
-  assert.equal(classifyRiskSection(400), "medium");
-  assert.equal(classifyRiskSection(700), "high");
+  assert.equal(classifyRiskSection(150), "medium");
+  assert.equal(classifyRiskSection(400), "high");
+  assert.equal(classifyRiskSection(700), "longshot");
   assert.equal(classifyRiskSection(1500), "longshot");
   assert.equal(classifyRiskSection(null), "low");
 });
@@ -213,15 +221,13 @@ test("countDisplaySlips: server sections → sum of section lengths", () => {
   assert.equal(n, 3);
 });
 
-test("countDisplaySlips: no sections → strict client bucketing of visible slips", () => {
-  // a: 2 legs @ -200 → +125 combined, 2 legs → Low (counts)
-  // b: 3 legs @ -200 → +237 combined, 3 legs → Low (counts)
-  // bad: 6 legs @ -1000 → +77 combined (Low odds) but 6 legs is out of
-  //      Low's 2–3 range → excluded from every section → NOT counted.
+test("countDisplaySlips: no sections → client bucketing counts every priced slip", () => {
+  // Canonical bands, odds-only (P241 · A13): +125 → medium, +237 → medium, +77 → low.
+  // Legs are descriptive; a priced slip is never silently dropped from the count.
   const n = countDisplaySlips({
-    slips: [mkSlip("a", 2, -200), mkSlip("b", 3, -200), mkSlip("bad", 6, -1000)],
+    slips: [mkSlip("a", 2, -200), mkSlip("b", 3, -200), mkSlip("long", 6, -1000)],
   });
-  assert.equal(n, 2);
+  assert.equal(n, 3);
 });
 
 test("countDisplaySlips: empty / absent inputs → 0", () => {

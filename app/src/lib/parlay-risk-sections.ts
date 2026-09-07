@@ -63,54 +63,62 @@ export interface RiskSectionDisplay {
   legHighInclusive: number;
 }
 
+/*
+ * ONE TAXONOMY (P241 · A13). These bounds were a private fourth band table, shifted one notch
+ * from the canonical PARLAY_ODDS_BANDS — the same +206 two-leg card read "Low Risk" here while
+ * the risk ladder, bucketing by the canonical bands, called it Medium beside it. The bounds now
+ * ARE the canonical ones, and the leg ranges became DESCRIPTIVE ("typically …") rather than a
+ * second gate: a slip whose leg count fell outside its band's window was silently dropped from
+ * public display, which is how a real card vanishes without a state.
+ */
 const SECTION_DISPLAY: Record<RiskSectionKey, RiskSectionDisplay> = {
   low: {
     key: "low",
     label: "Low Risk",
-    oddsRange: "under +300",
-    legRange: "2–3 legs",
-    subtitle: "Shorter combined odds, fewer legs.",
+    oddsRange: "-200 to +100",
+    legRange: "typically 2 legs",
+    subtitle: "Shortest combined odds.",
     accentVar: "var(--risk-low)",
-    oddsLowInclusive: Number.NEGATIVE_INFINITY,
-    oddsHighExclusive: 300,
-    legLowInclusive: 2,
-    legHighInclusive: 3,
+    oddsLowInclusive: -200,
+    oddsHighExclusive: 101,
+    legLowInclusive: 1,
+    legHighInclusive: 10,
   },
   medium: {
     key: "medium",
     label: "Medium Risk",
-    oddsRange: "+300 to +599",
-    legRange: "3–4 legs",
-    subtitle: "Balanced combined odds and leg count.",
+    oddsRange: "+100 to +300",
+    legRange: "typically 2–3 legs",
+    subtitle: "Balanced combined odds.",
     accentVar: "var(--risk-medium)",
-    oddsLowInclusive: 300,
-    oddsHighExclusive: 600,
-    legLowInclusive: 3,
-    legHighInclusive: 4,
+    oddsLowInclusive: 101,
+    oddsHighExclusive: 301,
+    legLowInclusive: 1,
+    legHighInclusive: 10,
   },
   high: {
     key: "high",
     label: "High Risk",
-    oddsRange: "+600 to +999",
-    legRange: "4–5 legs",
-    subtitle: "Longer combined odds, more legs.",
+    oddsRange: "+300 to +600",
+    legRange: "typically 3–4 legs",
+    subtitle: "Longer combined odds.",
     accentVar: "var(--risk-high)",
-    oddsLowInclusive: 600,
-    oddsHighExclusive: 1000,
-    legLowInclusive: 4,
-    legHighInclusive: 5,
+    oddsLowInclusive: 301,
+    oddsHighExclusive: 601,
+    legLowInclusive: 1,
+    legHighInclusive: 10,
   },
   longshot: {
     key: "longshot",
     label: "Longshot",
-    oddsRange: "+1000 and up",
-    legRange: "5–6 legs",
-    subtitle: "Longest combined odds, most legs.",
+    oddsRange: "+600 and up",
+    legRange: "typically 4–6 legs",
+    subtitle: "Longest combined odds.",
     accentVar: "var(--risk-longshot)",
-    oddsLowInclusive: 1000,
+    oddsLowInclusive: 601,
     oddsHighExclusive: Number.POSITIVE_INFINITY,
-    legLowInclusive: 5,
-    legHighInclusive: 6,
+    legLowInclusive: 1,
+    legHighInclusive: 10,
   },
 };
 

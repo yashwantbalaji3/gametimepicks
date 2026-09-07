@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { WcParlays, WcProjections, WcPlayerProjections } from "@/lib/world-cup/projections";
 import { americanToDecimal, decimalToAmerican } from "@/lib/odds-math";
+import { getRiskBucketForCombinedOdds } from "@/lib/parlays/risk-odds-bands";
 import { mlbHeadshotUrl } from "@/lib/player-headshots";
 
 /** Daily mixed-sport cards (built by pipeline.daily.build_mixed_sport_cards). The artifact already
@@ -301,9 +302,22 @@ export function normalizeNbaLeans(board: NbaBoardLike | null): PublicProjection[
 }
 
 // ── NBA / MLB optimizer-slip adapter (defensive — works for either slip shape) ──
+/*
+ * THE TIER IS THE PRICE'S, NEVER THE LANE'S (P241 · A13). This table mapped the GENERATION
+ * PROFILE (conservative/balanced/aggressive) straight onto the risk badge, which is a different
+ * axis: a "conservative" build can combine to +206, and the risk ladder — bucketing the same slip
+ * by the canonical price bands — called it Medium while this adapter called it Low. One current
+ * slip, two tiers, side by side. The canonical bands now decide; the profile survives only as
+ * the fallback when no combined price exists to judge.
+ */
 const PROFILE_TIER: Record<string, RiskTier> = {
   conservative: "Low", balanced: "Medium", aggressive: "High", lottery: "Longshot",
   low: "Low", medium: "Medium", high: "High", longshot: "Longshot",
+};
+const BUCKET_TIER: Record<string, RiskTier> = { low: "Low", medium: "Medium", high: "High", longshot: "Longshot" };
+const tierFromPrice = (americanOdds: number | null | undefined, profile: string): RiskTier => {
+  const bucket = typeof americanOdds === "number" ? getRiskBucketForCombinedOdds(americanOdds) : null;
+  return (bucket && BUCKET_TIER[bucket]) ?? PROFILE_TIER[profile.toLowerCase()] ?? "Medium";
 };
 type LooseLeg = {
   playerName?: string; displayName?: string; teamAbbr?: string; opponentAbbr?: string;
@@ -352,7 +366,7 @@ export function normalizeOptimizerSlips(
       sports: finalSports,
       sportLabels: finalSports.map(label),
       cardType: finalSports.length > 1 ? "mixed_sport" : "single_sport",
-      riskTier: PROFILE_TIER[(s.profile ?? s.riskProfile ?? "").toLowerCase()] ?? "Medium",
+      riskTier: tierFromPrice(s.combinedAmerican ?? decimalToAmerican(dec), s.profile ?? s.riskProfile ?? ""),
       legs: legs.map((l) => {
         const raw = l as {
           sport?: string; playerName?: string; marketLabel?: string; side?: string;

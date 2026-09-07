@@ -220,3 +220,32 @@ export function ladderDayLabel(date: string, todayEt: string = etToday()): strin
     .format(new Date(`${date}T12:00:00Z`));
   return `Ladder for ${named}`;
 }
+
+/** One tier's settled numbers from the lab ledger, decisive-aware. */
+export interface SportLabTierRecord { wins: number; losses: number; pushes: number }
+export interface SportLabStreamRecord {
+  wins: number; losses: number; pushes: number; settledDays: number;
+  byTier: Record<string, SportLabTierRecord>;
+}
+
+/**
+ * THE LANE'S REAL SETTLED RECORD (P241 · A15). The card pages asserted "no settled record yet"
+ * unconditionally — written before these lanes had graded anything and never revisited, while
+ * /results showed the same stream at EPL 2–4 and UFC 0–2 from the lab ledger. This reads that
+ * ledger — the ONE record owner for the suggested-lane stream — and returns null only when the
+ * stream genuinely has no decisive card.
+ */
+export function loadSportLabStreamRecord(sport: string): SportLabStreamRecord | null {
+  try {
+    const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public", "data", "parlays", "lab-ledger.json"), "utf8"));
+    const stream = (doc?.streams ?? []).find((x: { id?: string }) => x?.id === sport);
+    const rec = stream?.record;
+    if (!rec || (rec.wins ?? 0) + (rec.losses ?? 0) + (rec.pushes ?? 0) === 0) return null;
+    const byTier: Record<string, SportLabTierRecord> = {};
+    for (const [tier, t] of Object.entries(stream?.byTier ?? {})) {
+      const tt = t as SportLabTierRecord;
+      if ((tt.wins ?? 0) + (tt.losses ?? 0) + (tt.pushes ?? 0) > 0) byTier[tier] = { wins: tt.wins ?? 0, losses: tt.losses ?? 0, pushes: tt.pushes ?? 0 };
+    }
+    return { wins: rec.wins ?? 0, losses: rec.losses ?? 0, pushes: rec.pushes ?? 0, settledDays: stream?.settledDays ?? 0, byTier };
+  } catch { return null; }
+}

@@ -39,7 +39,7 @@ test("normalizeWcPlayerProps preserves player + lineup status", () => {
   assert.equal(out[0].marketLabel, "Shots");
 });
 
-test("normalizeOptimizerSlips computes combined odds + maps risk profile", () => {
+test("normalizeOptimizerSlips computes combined odds + prices the risk tier (P241 · A13)", () => {
   const out = normalizeOptimizerSlips([
     { slipId: "s1", riskProfile: "conservative", sport: "mlb",
       legs: [{ playerName: "A", marketLabel: "Hits", side: "Under", line: 1.5, oddsForSide: -120 },
@@ -47,7 +47,9 @@ test("normalizeOptimizerSlips computes combined odds + maps risk profile", () =>
   ], { date: "2026-06-11" });
   assert.equal(out.length, 1);
   assert.deepEqual(out[0].sports, ["mlb"]);
-  assert.equal(out[0].riskTier, "Low");
+  // -120 × +150 combines to ~+358 — the canonical price band says High, whatever the
+  // generation lane was called. The profile is provenance, not the badge.
+  assert.equal(out[0].riskTier, "High");
   assert.equal(out[0].legs.length, 2);
   assert.ok(out[0].combinedAmericanOdds !== 0);
 });

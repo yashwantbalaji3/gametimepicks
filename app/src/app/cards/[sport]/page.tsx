@@ -21,7 +21,7 @@ import Link from "next/link";
 
 import SportLabCards from "@/components/sport-lab-cards";
 import SectionHeader from "@/components/section-header";
-import { loadCurrentSportLabLadder, ladderDayLabel, type SportLabLadder } from "@/lib/parlays/sport-lab-cards";
+import { loadCurrentSportLabLadder, ladderDayLabel, type SportLabLadder, loadSportLabStreamRecord } from "@/lib/parlays/sport-lab-cards";
 import { loadUfcResultsCoverage } from "@/lib/sports/ufc/coverage-loader";
 
 /** Lanes that can carry a card product, with the hub each one belongs to. */
@@ -52,6 +52,7 @@ export const dynamicParams = false;
 
 export function generateMetadata({ params }: { params: { sport: string } }): Metadata {
   const lane = LANES[params.sport];
+  const streamRecord = loadSportLabStreamRecord(params.sport);
   const ladder = loadCurrentSportLabLadder(params.sport);
   if (!lane) return { title: "Paper cards · GameTime Picks" };
   return {
@@ -65,6 +66,7 @@ export function generateMetadata({ params }: { params: { sport: string } }): Met
 
 export default function SportCardsPage({ params }: { params: { sport: string } }) {
   const lane = LANES[params.sport];
+  const streamRecord = loadSportLabStreamRecord(params.sport);
   if (!lane) return null;              // dynamicParams=false means this is unreachable
   const ladder = loadCurrentSportLabLadder(params.sport);
   /* Only UFC grades from a third-party corpus, so only UFC can be waiting on one. */
@@ -79,7 +81,7 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
       />
 
       {ladder ? (
-        <SportLabCards ladder={ladder} eyebrow={ladderDayLabel(ladder.date)} />
+        <SportLabCards ladder={ladder} eyebrow={ladderDayLabel(ladder.date)} tierRecords={streamRecord?.byTier} />
       ) : (
         /*
           THE EMPTY STATE, NAMED. A ladder empties as its events start — by late afternoon a slate
@@ -95,15 +97,26 @@ export default function SportCardsPage({ params }: { params: { sport: string } }
       )}
 
       {/*
-        THE RECORD, STATED RATHER THAN OMITTED. These lanes have settled nothing yet. A product page
-        that simply showed no record would read as a clean slate; saying so is the difference between
-        "nothing has been graded" and "nothing has gone wrong".
+        THE RECORD, STATED FROM ITS OWNER (P241 · A15). This paragraph was written before these
+        lanes had graded anything ("These lanes have settled nothing yet") and never revisited —
+        /results showed the same stream at EPL 2–4 while this page claimed no record existed. The
+        lab ledger is the record owner; whatever it says renders here, denominators included.
       */}
-      <p className="mt-6" style={{ fontSize: 12.5, lineHeight: 1.7, color: "var(--vault-text-mute)" }}>
-        No {lane.label} card has been settled yet, so this lane has no win/loss record to show. Every leg
-        here settles from an official result once the {params.sport === "ufc" ? "card is fought" : "matches finish"} —
-        a card that could not be graded would never be published.
-      </p>
+      {streamRecord ? (
+        <p className="mt-6" style={{ fontSize: 12.5, lineHeight: 1.7, color: "var(--vault-text-mute)" }}>
+          This lane&rsquo;s settled record so far: <strong style={{ color: "var(--vault-text)" }}>
+          {streamRecord.wins}&ndash;{streamRecord.losses}{streamRecord.pushes ? ` (${streamRecord.pushes} push)` : ""}</strong>{" "}
+          across {streamRecord.settledDays} settled day{streamRecord.settledDays === 1 ? "" : "s"} — far too few to
+          support any performance claim. Every leg settles from an official result; the full card-by-card
+          detail lives on the <Link href="/results/parlay-lab/" style={{ color: "var(--vault-gold-bright)" }}>Suggested-Card Record</Link>.
+        </p>
+      ) : (
+        <p className="mt-6" style={{ fontSize: 12.5, lineHeight: 1.7, color: "var(--vault-text-mute)" }}>
+          No {lane.label} card has been settled yet, so this lane has no win/loss record to show. Every leg
+          here settles from an official result once the {params.sport === "ufc" ? "card is fought" : "matches finish"} —
+          a card that could not be graded would never be published.
+        </p>
+      )}
 
       {/*
         "ONCE THE CARD IS FOUGHT" STOPPED BEING THE WHOLE ANSWER.

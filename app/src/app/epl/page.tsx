@@ -49,7 +49,7 @@ import { gradedRecordCaption, loadEplGradedRecord } from "@/lib/sports/epl/grade
 import SportLabCards from "@/components/sport-lab-cards";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
-import { loadCurrentSportLabLadder, ladderDayLabel } from "@/lib/parlays/sport-lab-cards";
+import { loadCurrentSportLabLadder, ladderDayLabel, loadSportLabStreamRecord } from "@/lib/parlays/sport-lab-cards";
 import { loadEplPlayerProjections, topScorersAcross } from "@/lib/sports/epl/forecast-view";
 
 export const metadata: Metadata = {
@@ -546,7 +546,7 @@ export default function EplPage() {
         </section>
       )}
 
-      {labLadder ? <SportLabCards ladder={labLadder} eyebrow={ladderDayLabel(labLadder.date)} /> : null}
+      {labLadder ? <SportLabCards ladder={labLadder} eyebrow={ladderDayLabel(labLadder.date)} tierRecords={loadSportLabStreamRecord("epl")?.byTier} /> : null}
 
       {/*
         WHAT THE MODEL SAID, AND WHAT ACTUALLY HAPPENED — the same section on every sport.

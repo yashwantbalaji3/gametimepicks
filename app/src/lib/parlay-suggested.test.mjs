@@ -681,32 +681,36 @@ function bSlip({ slipId, status = "pending", score = 1, legs = [], sameGame = fa
   };
 }
 
-// Two-leg fixtures in each section, distinct games, no settled outcome.
+// Two-leg fixtures in each CANONICAL band (P241 · A13), distinct games, no settled outcome:
+// -270×-270 → ~+88 (low) · -110×-110 → ~+265 (medium) · +120×+120 → ~+384 (high) ·
+// +200×+200 → +800 (longshot).
 const B_LOW = bSlip({
   slipId: "low",
   score: 1.0,
-  legs: [bLeg({ odds: -110, gameId: "g1" }), bLeg({ odds: -110, gameId: "g2" })],
+  legs: [bLeg({ odds: -270, gameId: "g1" }), bLeg({ odds: -270, gameId: "g2" })],
 });
 const B_MED = bSlip({
   slipId: "med",
   score: 2.0,
-  legs: [bLeg({ odds: 120, gameId: "g3" }), bLeg({ odds: 120, gameId: "g4" })],
+  legs: [bLeg({ odds: -110, gameId: "g3" }), bLeg({ odds: -110, gameId: "g4" })],
 });
 const B_HIGH = bSlip({
   slipId: "high",
   score: 3.0,
-  legs: [bLeg({ odds: 200, gameId: "g5" }), bLeg({ odds: 200, gameId: "g6" })],
+  legs: [bLeg({ odds: 120, gameId: "g5" }), bLeg({ odds: 120, gameId: "g6" })],
 });
 const B_LONGSHOT = bSlip({
   slipId: "ls",
   score: 4.0,
-  legs: [bLeg({ odds: 300, gameId: "g7" }), bLeg({ odds: 300, gameId: "g8" })],
+  legs: [bLeg({ odds: 200, gameId: "g7" }), bLeg({ odds: 200, gameId: "g8" })],
 });
 
 test("selectBuilderSlip: risk preference — Low beats Medium/High even at lower score", () => {
   // B_LOW has the LOWEST raw score but the lowest-risk section, so the
-  // section preference must dominate the confidence score.
-  const r = selectBuilderSlip([B_HIGH, B_MED, B_LOW], { minDecimal: 2, stepNumber: 1 });
+  // section preference must dominate the confidence score. The target sits below the low band's
+  // dec-2.0 ceiling (canonical low tops at +100 — a dec-2 rung can never be filled by a low slip,
+  // the tier-grid's own band reality).
+  const r = selectBuilderSlip([B_HIGH, B_MED, B_LOW], { minDecimal: 1.5, stepNumber: 1 });
   assert.ok(r);
   assert.equal(r.slip.slipId, "low");
   assert.equal(r.section, "low");
@@ -720,11 +724,12 @@ test("selectBuilderSlip: within a section, higher suggestedScore wins", () => {
 });
 
 test("selectBuilderSlip: returns combined American + decimal that cleared the target", () => {
-  const r = selectBuilderSlip([B_LOW], { minDecimal: 2, stepNumber: 1 });
+  const r = selectBuilderSlip([B_LOW], { minDecimal: 1.5, stepNumber: 1 });
   assert.ok(r);
-  assert.equal(r.combinedAmerican, 264);
-  assert.ok(Math.abs(r.combinedDecimal - 3.6446) < 0.01,
-    `expected ~3.6446, got ${r.combinedDecimal}`);
+  // -270 × -270 → dec 1.3704² ≈ 1.8779 → american ≈ -114 (decimal below 2.0 prices negative)
+  assert.ok(Math.abs(r.combinedDecimal - 1.8779) < 0.01,
+    `expected ~1.8779, got ${r.combinedDecimal}`);
+  assert.ok(r.combinedAmerican >= -115 && r.combinedAmerican <= -113, `got ${r.combinedAmerican}`);
 });
 
 test("selectBuilderSlip: NEVER surfaces a settled slip; prefers a pending one", () => {
@@ -944,7 +949,8 @@ test("selectPlus100BuilderSlip: picks the ideal-band slip CLOSEST to +100", () =
   assert.ok(r);
   assert.equal(r.slip.slipId, "p101");
   assert.equal(r.combinedAmerican, 101);
-  assert.equal(r.section, "low");
+  // +101 sits in the canonical MEDIUM band (100 < a ≤ 300); the +100 anchor logic is unchanged.
+  assert.equal(r.section, "medium");
 });
 
 test("selectPlus100BuilderSlip: ignores slips outside BOTH bands (never stretches to a +264/+800 slip)", () => {

@@ -34,7 +34,14 @@ export default function SportLabCards({
    * looks like a duplicate rather than two different things.
    */
   nameEvent = true,
-}: { ladder: SportLabLadder; eyebrow?: string; nameEvent?: boolean }) {
+  tierRecords,
+}: {
+  ladder: SportLabLadder;
+  eyebrow?: string;
+  nameEvent?: boolean;
+  /** Per-tier settled records from the lab ledger — the lane's real history (P241 · A15). */
+  tierRecords?: Record<string, { wins: number; losses: number; pushes: number }>;
+}) {
   const substitutes = deriveBandSubstitutes(ladder);
   return (
     <section className="mt-8" id="cards">
@@ -93,8 +100,16 @@ export default function SportLabCards({
                 </li>
               ))}
             </ul>
-            {/* Null, never 0-0: a zeroed record reads as a measured result rather than an absent one. */}
-            <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>No settled record yet — this lane has graded no card.</p>
+            {/* The tier's real record when the ledger has one; the honest absence otherwise —
+                never 0-0, which reads as a measured result (P241 · A15). */}
+            {tierRecords?.[c.tier] ? (
+              <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>
+                This tier so far: {tierRecords[c.tier]!.wins}&ndash;{tierRecords[c.tier]!.losses}
+                {tierRecords[c.tier]!.pushes ? ` (${tierRecords[c.tier]!.pushes} push)` : ""} — a tiny sample, not a performance claim.
+              </p>
+            ) : (
+              <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>No settled record yet — this tier has graded no card.</p>
+            )}
             {/* P210 · Release B: a lane card is a starting point, not just a display. Every leg is
                 decomposed in the artifact, so the card seeds the shared draft — the same engine,
                 stake math and conflict rules a hand-built card uses. A card with an unpriced leg
