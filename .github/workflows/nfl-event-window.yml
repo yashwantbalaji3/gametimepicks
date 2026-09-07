@@ -204,6 +204,10 @@ jobs:
           set -euo pipefail
           node scripts/nfl/build-nfl-product-eligibility.mjs --now "${{ steps.window.outputs.now }}"
           node scripts/nfl/build-nfl-product-receipts.mjs --now "${{ steps.window.outputs.now }}"
+          # P243 · C-NFL: model-status is the same class — local, deterministic, summarising — and
+          # it sat Aug-29-stale through nine quiet days, telling the hub "prices LIVE" over a
+          # finished preseason (the A-4 defect's delivery half). It re-derives on every window.
+          node scripts/nfl/build-nfl-public-status.mjs --now "${{ steps.window.outputs.now }}"
 
       # Consumes what the step above produced, so it inherits the same gate: rebuilding the lane
       # from a condemned generation is how the lane came to say 13 events beside a market artifact

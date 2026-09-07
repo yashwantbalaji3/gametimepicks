@@ -85,8 +85,20 @@ test("EVERY game on the derived slate day renders, and every simulated one opens
   // rather than the bespoke /nfl/game route built before NFL fed the shared contract. The intent
   // ("every simulated game opens a full report") is better served, not weakened.
   assert.match(hub, /\/games\/nfl\/\$\{g\.away\.abbr\.toLowerCase\(\)\}-vs-\$\{g\.home\.abbr\.toLowerCase\(\)\}/);
-  // a game WITHOUT a simulation is stated as such rather than rendered blank
-  assert.match(hub, /No simulation was published for this game/);
+  // a game WITHOUT a simulation is stated as such rather than rendered blank — and since P243
+  // C-NFL the absence carries its REASON: a future game names its event window; a game that
+  // kicked off unforecast is missed coverage, never backfilled.
+  assert.match(hub, /Simulation publishes inside this game's own event window/);
+  assert.match(hub, /missed coverage, never backfilled/);
+});
+
+test("P243 C-NFL · the lead section is the NATURAL WEEK from the shared read model", () => {
+  assert.match(hub, /loadNflEvents|currentPeriodKey/, "period membership comes from the read model");
+  assert.match(hub, /eventsInPeriod\(nflEvents, weekKey\)/, "the selected period's events scope the table");
+  assert.match(hub, /weekIds\.has\(String\(r\.providerEventId\)\)/, "schedule rows are scoped by period membership, not by one ET day");
+  // The missed-coverage count renders when present — a miss is preserved in the header, not folded.
+  assert.match(hub, /missedPreEvent \? `, \$\{weekCounts\.missedPreEvent\} missed pre-event coverage` : ""/,
+    "the week header preserves missed coverage as its own count");
 });
 
 test("the hub CONSUMES canonical state and does not recompute lifecycle", () => {

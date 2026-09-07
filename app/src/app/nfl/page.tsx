@@ -41,6 +41,7 @@ import FreshnessBadge from "@/components/ui/freshness-badge";
 import { currentEtDate } from "@/lib/freshness";
 import { getSportIdentity } from "@/lib/sport-identity";
 import { deriveSlateAnchor } from "@/lib/sports/nfl/slate-anchor.mjs";
+import { loadNflEvents, currentPeriodKey, eventsInPeriod, periodCounts } from "@/lib/events/read-model";
 import { seasonContextFor } from "@/lib/sports/nfl/season-context.mjs";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
@@ -184,12 +185,24 @@ export default function NflHubPage() {
   // The anchor rule lives in ONE place — see lib/sports/nfl/slate-anchor.mjs for why the guard must
   // call the same function rather than keeping its own copy of the expression.
   const { anchorUtc, slateDay } = deriveSlateAnchor(index, allScheduled);
-  const slateGames = slateDay ? allScheduled.filter((r) => etDay(r.dateUtc) === slateDay) : [];
-  // The cap is 16 — a full NFL week — not 9. During Week 1 the slate day holds only the Wednesday
-  // opener, so every other game of the official week sits in laterGames; at 9 the hub silently hid
-  // six of the sixteen (MIA@LV through DEN@KC in the P240 audit). The schedule capture's own
-  // ~9-day window already bounds this list; the slice only guards against a capture that widens.
-  const laterGames = slateDay ? allScheduled.filter((r) => etDay(r.dateUtc) > slateDay).slice(0, 16) : allScheduled.slice(0, 16);
+  /*
+   * P243 · C-NFL: the lead section is the NATURAL PERIOD — the whole selected week from the
+   * shared read model — never one ET day. Day-anchored, Week 1 rendered as a one-game
+   * "slate" (the Wednesday opener) with fifteen games demoted to a schedule footnote; a
+   * reader looking for Sunday's games found a schedule, not the week. The period membership
+   * comes from the read model (one owner); the rendering rows stay the schedule capture's own.
+   */
+  const nflEvents = loadNflEvents(new Date().toISOString());
+  const weekKey = currentPeriodKey(nflEvents, new Date().toISOString());
+  const weekEvents = weekKey ? eventsInPeriod(nflEvents, weekKey) : [];
+  const weekCounts = periodCounts(weekEvents);
+  const weekIds = new Set(weekEvents.map((e) => e.providerAliases[0]?.id));
+  const weekLabel = weekEvents[0] ? `${weekEvents[0].period.label}${weekEvents[0].phase ? ` · ${weekEvents[0].phase} season` : ""}` : null;
+  const slateGames = weekIds.size
+    ? allScheduled.filter((r) => weekIds.has(String(r.providerEventId)))
+    : slateDay ? allScheduled.filter((r) => etDay(r.dateUtc) === slateDay) : [];
+  // Games in FUTURE periods beyond the selected week (none while the capture window holds one week).
+  const laterGames = allScheduled.filter((r) => !weekIds.has(String(r.providerEventId)) && (!slateDay || etDay(r.dateUtc) > slateDay)).slice(0, 16);
   // The section title states the phase of the games it introduces, derived from their own rows —
   // it was the literal "Later this preseason", which became a false label the day the regular
   // season arrived. One phase+week across every row earns the specific title; a mixed list stays
@@ -307,10 +320,10 @@ export default function NflHubPage() {
           : "upcoming"
         }
         statusCaption={slateGames.length > 0 ? `${slateGames.length} game${slateGames.length === 1 ? "" : "s"}` : undefined}
-        matchupLine={slateDay ? `${slateLabel} · ${slateGames.length} game${slateGames.length === 1 ? "" : "s"} on the slate` : undefined}
+        matchupLine={weekLabel ? `${weekLabel} · ${slateGames.length} game${slateGames.length === 1 ? "" : "s"}` : slateDay ? `${slateLabel} · ${slateGames.length} game${slateGames.length === 1 ? "" : "s"} on the slate` : undefined}
         badge={<FreshnessBadge slateDate={slateDay} serverToday={currentEtDate()} noun="slate" />}
         stats={[
-          { label: "Games on the slate", value: String(slateGames.length), sub: slateDay ?? "no capture" },
+          { label: weekLabel ? "Games this week" : "Games on the slate", value: String(slateGames.length), sub: weekLabel ?? slateDay ?? "no capture" },
           { label: "Simulated", value: String(simulatedOnSlate), sub: simulatedOnSlate > 0 ? "10,000 runs each" : "none published" },
           { label: "Sportsbook prices", value: String(index?.counts?.marketEvents ?? marketRows.length), sub: markets?.capturedAt ? `captured ${markets.capturedAt.slice(11, 16)}Z` : "no capture" },
         ]}
@@ -350,12 +363,18 @@ export default function NflHubPage() {
           One card per game, each carrying its own simulation and its own full report. */}
       <section aria-labelledby="nfl-slate" id="nfl-slate" className="scroll-mt-24">
         <SectionHeader
-          eyebrow={slateDay ? `Slate · ${slateDay}` : "Slate"}
-          title={slateGames.length === 0 ? "No slate in the capture window" : `${slateLabel} — ${slateGames.length} game${slateGames.length === 1 ? "" : "s"}`}
+          eyebrow={weekLabel ? "This week" : slateDay ? `Slate · ${slateDay}` : "Slate"}
+          title={
+            slateGames.length === 0
+              ? "No slate in the capture window"
+              : weekLabel
+                ? `${weekLabel} — ${slateGames.length} game${slateGames.length === 1 ? "" : "s"}`
+                : `${slateLabel} — ${slateGames.length} game${slateGames.length === 1 ? "" : "s"}`
+          }
           sub={
             slateGames.length === 0
               ? "No scheduled games remain in the committed schedule capture. Nothing is invented to fill this space."
-              : `Every game on this slate, with the simulation we published for it before kickoff. ${simulatedOnSlate} of ${slateGames.length} are simulated; a game without one says so rather than showing a blank. ${forecastCard?.honestLimit ?? ""}`
+              : `The full ${weekLabel ?? "slate"}: ${simulatedOnSlate} of ${slateGames.length} carry a published simulation${weekCounts.missedPreEvent ? `, ${weekCounts.missedPreEvent} missed pre-event coverage` : ""}; the rest publish inside each game's own event window (from 18 hours before kickoff) and say so on their card. ${forecastCard?.honestLimit ?? ""}`
           }
           rightSlot={experimentalChip}
         />
@@ -383,7 +402,13 @@ export default function NflHubPage() {
                 }
                 href={sim ? `/games/nfl/${g.away.abbr.toLowerCase()}-vs-${g.home.abbr.toLowerCase()}-${etDaySlug(g.dateUtc)}` : undefined}
                 hrefLabel="Open full simulation →"
-                footnote={sim ? calibrationById.get(g.providerEventId) : "No simulation was published for this game."}
+                footnote={
+                  sim
+                    ? calibrationById.get(g.providerEventId)
+                    : started
+                      ? "Kicked off before a forecast was published — missed coverage, never backfilled."
+                      : "Simulation publishes inside this game's own event window (from 18 hours before kickoff)."
+                }
               >
                 {sim && e?.winProbability && e?.total ? (
                   <dl style={{ margin: 0, display: "grid", gridTemplateColumns: "auto 1fr", gap: "3px 10px", fontSize: 12 }}>

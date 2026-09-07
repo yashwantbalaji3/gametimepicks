@@ -12,6 +12,7 @@ import { loadEplForecasts, loadEplForecastArchive } from "@/lib/sports/epl/forec
 import { eplUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import type { EplForecastRow } from "@/lib/sports/epl/forecast-view";
 import { DEFAULT_LABELS, type HubGameRow, type HubRead, type SportHubModel } from "./contract";
+import { loadNflEvents, currentPeriodKey, eventsInPeriod } from "@/lib/events/read-model";
 
 const ET = "America/New_York";
 
@@ -29,6 +30,13 @@ function startOf(d: Record<string, any>): { iso: string | null; exact: boolean }
   if (typeof iso === "string" && Number.isFinite(Date.parse(iso))) return { iso, exact: true };
   return { iso: typeof d.date === "string" ? d.date : null, exact: false };
 }
+
+/** "Wed, Sep 9 · 8:20 PM ET" — the full instant, for rows sourced from the read model. */
+const etDateTimeLabel = (iso: string) => {
+  const d = new Date(iso);
+  return `${d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: ET })} · `
+    + `${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: ET })} ET`;
+};
 
 const dayLabel = (day: string) => {
   const d = new Date(`${day}T12:00:00Z`);   // midday, so no timezone shift can move the date
@@ -133,11 +141,10 @@ export function mlbHub(nowIso: string): SportHubModel {
 }
 
 /**
- * NFL, and the reason it does not lead with a week.
+ * NFL leads with its natural week (P243 · C-NFL).
  *
- * The charter asks NFL to default to the official week and phase. The artifacts do not contain one:
- * every NFL game on the board runs 2026-08-14 to 2026-08-29, carries no prediction, no simulation,
- * no market snapshot and no projections, and its dataStatus reads "Lines pending for this game."
+ * The details-backed fallback below still describes the archived preseason window; the primary
+ * path reads the shared event/period read model, whose schedule capture carries week + phase.
  * Those are preseason fixtures, and the last of them was nine days before this was written.
  *
  * Labelling that "This week" — as the first version did — would be the page inventing a current
@@ -145,6 +152,51 @@ export function mlbHub(nowIso: string): SportHubModel {
  * on every row says the rest. Nothing here is padded to match the other three sports.
  */
 export function nflHub(nowIso: string): SportHubModel {
+  /*
+   * P243 · C-NFL: the hub's period is the NFL's NATURAL period — season/phase/week from the
+   * shared read model — not "whatever game details exist". Sourced from buildAllGameDetails,
+   * this table was 22 August preseason forecasts titled "Settled window" while the committed
+   * schedule already held all 16 regular-season Week 1 games; the current week must lead.
+   * The preseason archive stays reachable through the details-backed archive sections below.
+   */
+  const events = loadNflEvents(nowIso);
+  const key = currentPeriodKey(events, nowIso);
+  const period = key ? eventsInPeriod(events, key) : [];
+  if (period.length > 0) {
+    const rows = [...period]
+      .sort((a, b) => String(a.scheduledUtc ?? "").localeCompare(String(b.scheduledUtc ?? "")))
+      .map((e): HubGameRow => {
+        const started = e.status === "IN_PROGRESS" || e.status === "FINAL";
+        return {
+          id: e.eventId,
+          startUtc: e.scheduledUtc,
+          startLabel: e.scheduledUtc ? etDateTimeLabel(e.scheduledUtc) : "TBD",
+          matchup: e.participants.away && e.participants.home ? `${e.participants.away} at ${e.participants.home}` : e.eventId,
+          status: e.status.toLowerCase().replace(/_/g, " "),
+          started,
+          read: null, // no supported read exists for these events yet — stated, never implied
+          reportState: e.dimensions.model === "PUBLISHED" ? (started ? "ARCHIVE" : "READY") : "NONE",
+          reportHref: e.dimensions.model === "PUBLISHED" ? e.reportHref : null,
+          reportNote:
+            e.dimensions.model === "MISSED_PREEVENT"
+              ? "Kicked off before a forecast was published — missed coverage, never backfilled."
+              : e.dimensions.model === "NOT_PUBLISHED"
+                ? "Forecast publishes inside this game's own event window (from 18 hours before kickoff)."
+                : undefined,
+        };
+      });
+    const first = period[0];
+    return {
+      sport: "nfl", sportLabel: "NFL", labels: { ...DEFAULT_LABELS, games: "Games" },
+      periodLabel: `${first.period.label}${first.phase ? ` · ${first.phase} season` : ""}`,
+      periodRange: rangeOf(rows),
+      freshness: null,
+      rows,
+      present: ["games", "products", "simulations", "picks", "results"],
+      emptyReason: "No NFL games are in the committed schedule capture.",
+    };
+  }
+  // Fallback: no schedule capture — the details-backed archive keeps the hub honest rather than blank.
   const rows = gameRows("nfl", Date.parse(nowIso));
   const allStarted = rows.length > 0 && rows.every((r) => r.started);
   const anyRead = rows.some((r) => r.read !== null);
