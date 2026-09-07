@@ -115,12 +115,14 @@ test("LIVE EPL: fixtures adapt with matchweek periods; a fixture outside 96h is 
     assert.match(e.period.key, /-mw\d+$/, "matchweek period key");
     assert.ok(e.providerAliases.length >= 1, "alias lineage");
   }
-  // The old 96h forecast window must not bound VISIBILITY: any captured fixture further out than
-  // 96h still appears, dimensioned honestly.
+  // The old 96h forecast window bounds NOTHING any more: a captured fixture further out still
+  // appears, and since C-EPL(2) its whole MATCHWEEK may legitimately carry published model-only
+  // forecasts. What survives: capture is stated, and a future fixture can never be missed coverage.
   const far = events.filter((e) => Date.parse(e.scheduledUtc ?? "0") - Date.parse(NOW) > 96 * 3600_000);
   for (const e of far) {
     assert.equal(e.dimensions.schedule, "CAPTURED");
-    assert.ok(["NOT_PUBLISHED", "UNSUPPORTED"].includes(e.dimensions.model), "no forecast claimed outside the window");
+    assert.ok(["PUBLISHED", "NOT_PUBLISHED", "UNSUPPORTED"].includes(e.dimensions.model), "a future fixture is published or honestly not — never missed");
+    assert.notEqual(e.dimensions.model, "MISSED_PREEVENT", "a future fixture cannot be missed coverage");
   }
 });
 

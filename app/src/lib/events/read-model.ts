@@ -175,12 +175,14 @@ export function loadEplEvents(nowIso: string): CanonicalEvent[] {
   const fixtures = (newestCapture ? readJson("soccer", "epl", "fixtures", newestCapture) : null) as
     | { season?: string; fixtures?: Array<Record<string, unknown>>; rows?: Array<Record<string, unknown>> }
     | null;
-  const forecasts = readJson("soccer", "epl", "forecasts", "latest.json") as { rows?: Array<{ eventId?: string; state?: string }> } | null;
+  const forecasts = readJson("soccer", "epl", "forecasts", "latest.json") as { rows?: Array<{ eventId?: string; state?: string; probs?: unknown }> } | null;
   const graded = readJson("epl", "graded-picks.json") as { rows?: Array<{ eventId?: string }> } | null;
   const nowMs = Date.parse(nowIso);
   const season = fixtures?.season ? String(fixtures.season) : null;
+  /* Publication is the NUMBERS reaching a public row, not a state name (the P233 rule the offered
+     window already uses): CURRENT_PRE_EVENT rows and flagged model-only rows both carry probs. */
   const published = new Set(
-    (forecasts?.rows ?? []).filter((f) => f.state === "FORECAST" || f.state === "PUBLISHED" || (!f.state && f.eventId)).map((f) => String(f.eventId)),
+    (forecasts?.rows ?? []).filter((f) => f.probs != null && f.eventId).map((f) => String(f.eventId)),
   );
   const settled = new Set((graded?.rows ?? []).map((g) => String(g.eventId ?? "")));
 
