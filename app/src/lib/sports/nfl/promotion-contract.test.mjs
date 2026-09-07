@@ -109,9 +109,15 @@ test("THE VERDICT IS REJECTED, and nothing was loosened to avoid it", () => {
   assert.ok(failing.includes("MARGIN_DISPERSION"), "the primary bar is the one that failed");
   assert.match(bakeoff.consequence, /BASELINE_ONLY stays public/);
   assert.match(bakeoff.consequence, /a lock boundary, not a reason to lower a bar/);
-  // the shipped champion is untouched: the public forecasts still carry the P178 gate
+  // the shipped champion is untouched: the PRESEASON gate still applies to preseason artifacts.
+  // P244: the regular-season identity publishes under its own evaluated Elo head (teamSignal
+  // APPLIED) — that is a different, separately promoted model, not this bakeoff's candidate.
   const pub = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/forecasts/latest.json"), "utf8"));
-  for (const f of pub.forecasts) assert.equal(f.teamSignal.state, "NOT_SIGNIFICANT");
+  if (pub.model?.id !== "nfl-regular-season-public-v1") {
+    for (const f of pub.forecasts) assert.equal(f.teamSignal.state, "NOT_SIGNIFICANT");
+  } else {
+    for (const f of pub.forecasts) assert.equal(f.teamSignal.state, "APPLIED", "the regular head declares its team evidence");
+  }
 });
 
 test("THE REPORT NAMES WHAT IT IS — and what it is not", () => {

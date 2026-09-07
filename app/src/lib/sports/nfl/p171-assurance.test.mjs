@@ -106,8 +106,14 @@ test("STATE RENDERING · every unavailable state is distinct, and none is silent
   assert.match(artifact.families.anytimeTd.scorerPriceState, /NO_MARKET/);
   assert.ok(artifact.families.playerProps.reason, "an abstaining family always carries its reason");
   const lane = JSON.parse(fs.readFileSync(path.join(APP, "public/data/admin/nfl-lane.json"), "utf8"));
-  const blockerStates = new Set(lane.blockers.map((b) => b.state));
-  assert.ok(blockerStates.size >= 3, "blockers are typed distinctly, not lumped as 'blocked'");
+  /* P244: the old floor (≥3 distinct states) pinned a blocker COUNT — the moment weekly forecasts
+     published, a real blocker legitimately cleared and the floor punished progress. The intent
+     survives directly: whatever blockers remain are each SPECIFICALLY typed, never a generic
+     'blocked', and each carries its own state word. */
+  for (const b of lane.blockers) {
+    assert.match(String(b.state ?? ""), /^[A-Z_]{4,}$/, `blocker ${b.id ?? "?"} has no typed state`);
+    assert.notEqual(String(b.state).toUpperCase(), "BLOCKED", "a generic 'blocked' is a lump, not a type");
+  }
 });
 
 test("PROTECTED · every P171 artifact class stays out of public output, and money is untouched", () => {

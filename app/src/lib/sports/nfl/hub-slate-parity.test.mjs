@@ -84,7 +84,10 @@ test("EVERY game on the derived slate day renders, and every simulated one opens
   // P183: the hub now links the SHARED experience at /games/nfl/<slug> — the same page MLB uses —
   // rather than the bespoke /nfl/game route built before NFL fed the shared contract. The intent
   // ("every simulated game opens a full report") is better served, not weakened.
-  assert.match(hub, /\/games\/nfl\/\$\{g\.away\.abbr\.toLowerCase\(\)\}-vs-\$\{g\.home\.abbr\.toLowerCase\(\)\}/);
+  // P244: the card links the FORECAST report route (generated for every published forecast);
+  // the /games/nfl deep-sim page exists only when a participation-backed simulation was produced,
+  // and sixteen dead sim links shipped the night the weekly population landed without it.
+  assert.match(hub, /\/nfl\/game\/\$\{g\.providerEventId\}\//);
   // a game WITHOUT a simulation is stated as such rather than rendered blank — and since P243
   // C-NFL the absence carries its REASON: a future game names its event window; a game that
   // kicked off unforecast is missed coverage, never backfilled.

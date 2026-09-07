@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-09-07T22:06:57Z",
+  "generatedAt": "2026-09-07T22:50:00Z",
   "slateDate": "2026-09-07",
   "eventCount": 16,
   "engineVersion": "nfl-regular-season-public-v1@v1",
@@ -18,16 +18,15 @@
     {
       "head": "margin_and_win",
       "driver": "marginMean = homeAdvantage + lambda * (marginSlope * d), where d is the cutoff-safe Elo difference between the two teams",
-      "eventSpecific": false,
-      "observedVariationIsNoise": true,
-      "teamSignalState": "NOT_SIGNIFICANT",
+      "eventSpecific": true,
+      "observedVariationIsNoise": false,
+      "teamSignalState": "APPLIED",
       "tStatistic": -0.5746,
       "distinctValues": 16,
       "spread": 0.217357,
-      "classification": "LIMITED_INPUTS",
-      "declaredSharedPrior": true,
-      "missingAdapter": "a team-strength signal that clears |t| >= 2 on preseason data. The current coefficient is t = -0.5746 with a 95% interval spanning zero, so it is switched off rather than published as a direction.",
-      "reading": "the team-strength term is switched off because its coefficient is indistinguishable from zero, so the remaining 21.74pp spread across 16 events is simulation noise around one common mean, not a read on these teams"
+      "classification": "EVENT_SPECIFIC",
+      "declaredSharedPrior": false,
+      "reading": "win probability spans 46.22%-67.95% across 16 events, so the engine is consuming team-specific evidence"
     },
     {
       "head": "total",
@@ -514,5 +513,5 @@
     }
   ],
   "p0": [],
-  "verdict": "NO_EVENT_SPECIFIC_SIGNAL"
+  "verdict": "PARTIALLY_EVENT_SPECIFIC"
 }

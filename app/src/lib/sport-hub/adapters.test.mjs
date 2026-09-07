@@ -116,7 +116,10 @@ test("LIVE · report links point at routes that are actually generated", () => {
   for (const m of [mlbHub(NOW), nflHub(NOW), eplHub(NOW)]) {
     for (const r of m.rows) {
       if (!r.reportHref) continue;
-      assert.match(r.reportHref, /^\/(games\/(mlb|nfl)|epl\/match)\/[^/]+\/$/, `${m.sport}: ${r.reportHref} is not a known report route`);
+      // P244: /nfl/game/<id>/ is the forecast report route, generated for every published
+      // forecast; the /games/nfl deep-sim route exists only when a participation-backed game
+      // simulation was produced.
+      assert.match(r.reportHref, /^\/(games\/(mlb|nfl)|nfl\/game|epl\/match)\/[^/]+\/$/, `${m.sport}: ${r.reportHref} is not a known report route`);
     }
   }
 });

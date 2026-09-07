@@ -45,7 +45,16 @@ test("THE DEFECT IS REPRODUCED FROM THE ARTIFACTS — not argued about", () => {
   if (distinct.size === 1 && pub.forecasts.length > 1) {
     assert.ok(spreadPp < 3, `all ${pub.forecasts.length} games render ${[...distinct][0]} within a ${spreadPp.toFixed(2)}pp win spread`);
   }
-  assert.ok(pub.forecasts.every(sharedPrior), "every current forecast is a declared shared prior");
+  /* P244: "this ever stops being true" happened, with the evidence this comment demanded — the
+     regular-season Elo head (held-out log loss 0.6478 vs 0.6931) publishes team-specific
+     forecasts (16 distinct scores, 21.7pp win spread on Week 1). The shared-prior claim now
+     applies exactly to the artifacts whose model makes it: the preseason identity. */
+  if (pub.model?.id !== "nfl-regular-season-public-v1") {
+    assert.ok(pub.forecasts.every(sharedPrior), "every current preseason forecast is a declared shared prior");
+  } else {
+    assert.ok(pub.forecasts.every((f) => !sharedPrior(f)), "every regular forecast declares its applied team evidence");
+    assert.ok(distinct.size > 1, "regular forecasts are event-specific — one repeated score would be the old defect back");
+  }
 });
 
 test("A SHARED-PRIOR FORECAST MAY NOT CARRY THE GREEN SIMULATION-READY BADGE", () => {

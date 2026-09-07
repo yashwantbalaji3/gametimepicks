@@ -26,7 +26,12 @@ const INDEX = path.join(process.cwd(), "public/data/nfl/index.json");
 /** The committed index event, mapped to the eligibility shape the adapter reads. */
 function frozenEvent() {
   if (!fs.existsSync(INDEX)) return null;
-  const e = (JSON.parse(fs.readFileSync(INDEX, "utf8")).events ?? [])[0];
+  /* P244: "frozen" means PLAYED. events[0] was safe while the index held only archived preseason
+     games; the weekly population now leads with future Week-1 games, and asserting the archived
+     treatment on an unplayed game asserts a bug. The fixture is the first event whose kickoff has
+     passed — none on disk is an honest skip (the dormant layer's own convention). */
+  const e = (JSON.parse(fs.readFileSync(INDEX, "utf8")).events ?? [])
+    .find((x) => x?.kickoffUtc && Date.parse(x.kickoffUtc) < Date.now());
   if (!e?.winProbability) return null;
   return {
     ...e,

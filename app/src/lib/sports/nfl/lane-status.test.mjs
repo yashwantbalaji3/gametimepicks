@@ -21,8 +21,17 @@ test("the lane artifact is internal, stamped, and derived from committed receipt
   assert.equal(lane.markets.events, read(path.join(APP, "public/data/nfl/markets/latest.json")).eventCount);
   const ledger = read(path.join(ROOT, "data/internal/research/odds/nfl/p171-ledger.json"));
   assert.equal(lane.credits.programSpend, ledger.cumulativeCredits, "spend is read from the ledger, never typed");
-  assert.equal(lane.credits.ceiling, 3000);
-  assert.equal(lane.credits.remainingProgram, 3000 - ledger.cumulativeCredits);
+  /* P244: the P171 receipt has EXPIRED. The generator's own rule — missing evidence renders
+     UNKNOWN, never green and never zero — now applies to the ceiling: a live receipt parses 3000,
+     an expired/unparseable one renders UNKNOWN with the reason and no derived numbers. */
+  if (lane.credits.state === "UNKNOWN") {
+    assert.equal(lane.credits.ceiling, null, "no ceiling may be invented from an unparseable receipt");
+    assert.equal(lane.credits.remainingProgram, null, "no remaining figure without a ceiling");
+    assert.match(String(lane.credits.detail ?? ""), /receipt|authoriz/i, "the UNKNOWN carries its reason");
+  } else {
+    assert.equal(lane.credits.ceiling, 3000);
+    assert.equal(lane.credits.remainingProgram, 3000 - ledger.cumulativeCredits);
+  }
   assert.ok(lane.credits.openingBalance?.providerRequestsRemaining > 0, "provider-verified opening balance is recorded");
 });
 

@@ -400,7 +400,12 @@ export default function NflHubPage() {
                     <span className="font-mono" style={{ fontSize: 10, letterSpacing: "0.08em", color: "var(--sport-nfl)" }}>SIMULATED</span>
                   ) : null
                 }
-                href={sim ? `/games/nfl/${g.away.abbr.toLowerCase()}-vs-${g.home.abbr.toLowerCase()}-${etDaySlug(g.dateUtc)}` : undefined}
+                /* P244: `sim` here means the INDEX carries a projection — which since the weekly
+                   population comes from the FORECAST artifact. The deep /games/nfl page exists only
+                   when a full game-simulation artifact was produced (participation-gated), so the
+                   card links the forecast report route that generates for every published forecast;
+                   sixteen dead sim links shipped on the first weekly build. */
+                href={sim ? `/nfl/game/${g.providerEventId}/` : undefined}
                 hrefLabel="Open full simulation →"
                 footnote={
                   sim

@@ -102,7 +102,20 @@ const winProbs = events.map((e) => e.expected.winProbHome);
 const margins = events.map((e) => e.expected.marginMean);
 const totals = events.map((e) => e.expected.totalMedian);
 
-const teamSignalApplied = sig?.significant === true;
+/*
+ * P244: THE GATE IS THE PUBLISHED MODEL'S OWN, not the preseason receipt unconditionally.
+ *
+ * signal-significance.json is the PRESEASON team-term test (t=-0.575, zeroed — correct for
+ * nfl-preseason-public-beta-v1). The regular-season identity publishes under its OWN evaluated
+ * Elo-logistic head (held-out 2025, log loss 0.6478), where the team term is the model. Reading
+ * the preseason receipt against a regular artifact told the audit the shipped forecasts "must
+ * not" read strength while every row's teamSignal said APPLIED — a stale claim about the wrong
+ * regime. The published artifact's rows carry their regime; the audit follows them.
+ */
+const publishedRegular = pub?.model?.id === "nfl-regular-season-public-v1";
+const rowsSayApplied = (pub?.forecasts ?? []).length > 0
+  && (pub.forecasts ?? []).every((f) => f?.teamSignal?.state === "APPLIED");
+const teamSignalApplied = publishedRegular ? rowsSayApplied : sig?.significant === true;
 
 const heads = [
   {
@@ -113,7 +126,7 @@ const heads = [
     // Reading that as differentiation is the same error the total head already taught us to avoid.
     eventSpecific: teamSignalApplied,
     observedVariationIsNoise: !teamSignalApplied,
-    teamSignalState: sig?.significant ? "APPLIED" : "NOT_SIGNIFICANT",
+    teamSignalState: teamSignalApplied ? "APPLIED" : "NOT_SIGNIFICANT",
     tStatistic: sig?.fitted?.tStatistic ?? null,
     distinctValues: distinct(winProbs),
     spread: spread(winProbs),
@@ -242,10 +255,13 @@ const publicSummary = {
       ? (teamSignalApplied
           ? `This part uses each team's own strength, so it differs from game to game — across this slate our win percentages range from ${(Math.min(...winProbs) * 100).toFixed(1)}% to ${(Math.max(...winProbs) * 100).toFixed(1)}%.`
           : "We tested whether this model can tell which of two preseason teams is better, and it cannot — the measurement is indistinguishable from no effect at all. So we switched that part off rather than publish a favourite we cannot justify. The small differences you see between games are the simulation's own randomness, not a view on the teams.")
-      : "This part does NOT look at the two teams. Every game draws its point total from the same preseason average, so if two games show a similar total that is not a claim about those teams — it is the same starting number in both.",
+      : `This part does NOT look at the two teams. Every game draws its point total from the same league ${publishedRegular ? "scoring" : "preseason"} average, so if two games show a similar total that is not a claim about those teams — it is the same starting number in both.`,
   })),
-  whyGamesLookAlike:
-    "Preseason games on this slate look similar to each other because, right now, this model genuinely cannot tell them apart. Scoring comes from one league-wide preseason average, and the team-strength input was measured and found to carry no usable signal, so it is switched off. Similar-looking numbers are the honest output of a model that knows very little — not a coincidence, and not a bug.",
+  /* P244: the sentence names the regime it describes — "preseason" over a regular slate was a
+     stale claim the moment the regular identity published. */
+  whyGamesLookAlike: publishedRegular
+    ? "Game totals on this slate look similar because the total head draws every game from one league scoring average — that part of the model does not read the teams. Win probabilities DO differ by team: they come from an evaluated strength rating. Similar totals are the honest output of a shared prior, not a coincidence and not a bug."
+    : "Preseason games on this slate look similar to each other because, right now, this model genuinely cannot tell them apart. Scoring comes from one league-wide preseason average, and the team-strength input was measured and found to carry no usable signal, so it is switched off. Similar-looking numbers are the honest output of a model that knows very little — not a coincidence, and not a bug.",
   whatWeFoundAndFixed:
     "An earlier version of this page applied the team-strength input anyway. Because the measured effect pointed slightly the wrong way, it was quietly favouring the WEAKER side in every game. We caught it, tested the input properly, and switched it off.",
   whatWouldChangeIt:

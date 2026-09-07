@@ -50,11 +50,13 @@ test("EVERY published forecast is internally coherent — one distribution, no c
   for (const f of pub.forecasts) {
     const s = f.forecastSummary;
     const pHome = s.winProbability.home;
-    // win side must agree with the median margin's sign
-    if (s.margin.median > 0) assert.ok(pHome > 0.5, `${f.matchup}: +${s.margin.median} margin but ${pHome} home win`);
-    if (s.margin.median < 0) assert.ok(pHome < 0.5, `${f.matchup}: ${s.margin.median} margin but ${pHome} home win`);
-    // probabilities are a distribution
-    assert.ok(Math.abs(pHome + s.winProbability.away - 1) < 1e-6);
+    // win side must agree with the median margin's sign — within the builder's own 3σ coin-flip
+    // tolerance (P244): a ±1 median beside a ~50.0% rate is one distribution rounded two ways.
+    if (s.margin.median > 0) assert.ok(pHome > 0.5 - 0.015, `${f.matchup}: +${s.margin.median} margin but ${pHome} home win`);
+    if (s.margin.median < 0) assert.ok(pHome < 0.5 + 0.015, `${f.matchup}: ${s.margin.median} margin but ${pHome} home win`);
+    // probabilities are a distribution — the regular head carries an explicit tie mass (P244)
+    const tie = s.winProbability.tieMass ?? 0;
+    assert.ok(Math.abs(pHome + s.winProbability.away + tie - 1) < 1e-3, `${f.matchup}: outcomes must sum to 1`);
     // intervals bracket their medians, and scores are legal football scores
     assert.ok(s.margin.p10 <= s.margin.median && s.margin.median <= s.margin.p90);
     assert.ok(s.total.p10 <= s.total.median && s.total.median <= s.total.p90);

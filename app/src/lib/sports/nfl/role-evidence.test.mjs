@@ -15,7 +15,13 @@ const src = fs.readFileSync(path.join(APP, "scripts/nfl/build-nfl-role-evidence.
 test("the artifact is event-bound, private, and reconciles", () => {
   assert.equal(ev.dataClass, "PRIVATE_RESEARCH");
   assert.equal(ev.accounting.exact, true);
-  assert.ok(ev.events.length > 0);
+  /* P244: the weekly window can open days before an actives source exists — the builder then
+     writes an EMPTY, exactly-accounted artifact (eventsInWindow 0) rather than inventing roles.
+     Zero events with exact accounting is that honest state; a non-empty artifact must classify. */
+  if (ev.events.length === 0) {
+    assert.equal(ev.accounting.eventsInWindow, 0, "an empty artifact must account for an empty window, not a dropped one");
+    return;
+  }
   for (const e of ev.events) {
     assert.ok(e.canonicalEventId && e.kickoffUtc && e.matchup);
     assert.equal(Object.keys(e.teams).length, 2, "both teams are classified");
