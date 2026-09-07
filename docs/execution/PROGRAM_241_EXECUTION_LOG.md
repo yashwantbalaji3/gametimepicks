@@ -64,3 +64,65 @@ R5 products (A13 A14 A18 A19) →
 R6 results (A15 A16 A17) →
 R7 copy/support/beta ops (A03 A07 A20 A21 A23 A24) + final QA matrix.
 Each release: gate, commit, verify journey.
+
+## Final report (2026-09-07, ~12:30 ET)
+
+**Verdict: FRIENDS_BETA_READY** — every §12 condition has live evidence; three follow-ups are
+named and dated below, none of them a friends-journey P0/P1.
+
+### 1 · What a friend can use now — five tested production URLs (all verified rendered post-deploy)
+- https://gametimepicks.yashwantbalaji.com/ — honest launchpad; "next reads — upcoming" with real
+  event dates; archive-framed simulations
+- https://gametimepicks.yashwantbalaji.com/simulate/d/2026-09-07/ — today's real 11-game slate
+  pre-publication (was a false "No MLB games")
+- https://gametimepicks.yashwantbalaji.com/nfl/ — Week 1 leads; the August table is a one-click
+  archive disclosure
+- https://gametimepicks.yashwantbalaji.com/build/ — Review chip wearing its slate date; stake
+  truly empty by default
+- https://gametimepicks.yashwantbalaji.com/results/ — the filterable explorer leads; the
+  protected 19-14 record keeps its own named section
+
+### 2 · Before/after
+Homepage: "strongest reads today" listing Sep-12 UFC + Sep-6 EPL → dated upcoming reads under an
+honest title; August NFL sims badged "Simulation Ready · Generate" → "From the simulation
+archive · View archived report", dates on every card. Hubs: /nfl 22-row August table first →
+current week first; /mlb "today's board/today's availability/refreshes hourly" on a closed slate
+→ period-derived copy throughout; /epl "no priced fixtures" over priced cards → both facts from
+their own owners, scorer ranking scoped to current fixtures, validation banners scoped per head;
+/ufc future card "was fought" → NOT_YET_FOUGHT; dead "card-level report" cells → per-bout anchors.
+
+### 3 · A01–A24 disposition — see the register above. 23 FIXED (A23's artifact regenerates on
+Tuesday's natural fight-week run), 1 PARTIAL (A22: rail 24→19; the full IA re-cut is its own
+release). Every fix carries a guard updated by that guard's own logic; four rot-class pins
+(hardcoded aggregates/dates) were rebased onto their artifacts.
+
+### 4 · Four-sport table (at report time, 2026-09-07 ~16:30Z)
+| Sport | Period | Scheduled | Forecasts | Prices | Player markets | Products | Results |
+|---|---|---|---|---|---|---|---|
+| MLB | day (Sep 7) | 11 (free StatsAPI, rendered) | generate on the day-of chain (late today; site honest) | day-of authorized | props day-of; all modeled markets market-context by receipt | BB/Moonshot lanes daily | explorer + model audit (41,228 rows) |
+| NFL | Week 1 (16 games, verified) | 16 rendered | generate inside Sep-9 event window under the evaluated RS identity | founder-gated (draft receipt ready) | rejected/held — refused typed | cards lane closed by machinery | graded-picks 45 rows |
+| EPL | MW4 Sep 12–13 (9 in window) | 9 rendered | window opens ~Sep 8 (96h) | captured Sep-6, next matchday cards priced (7) | validated scorer head (renders in window) | risk-ladder published | lab 2–4 + graded 24 |
+| UFC | Noche Sep 12 (13 bouts) | 13 rendered | 11/13 modeled; 2 disclosed | NOT_YET → Tue 11:00Z cron (auth 480/500) | n/a | ladder awaiting prices | lab 0–2 + graded 16 |
+
+### 5 · Natural vs repaired evidence (kept apart)
+NATURAL: moonshot lane-B settlement + cumulative positions (run 34112073923); the repaired settle
+chain end-to-end (run 34128380515: fetch-before-grade, decisive-receipt no-op, honest catch-up
+holds, consistent index pair); 497-pass three-engine browser matrix. REPAIRED: Sep-6 daily-card
+receipt (re-graded through the same settler from pre-roll evidence, provenance note in the
+receipt). PENDING NATURAL: today's producer chain (late but in drift envelope — watcher armed);
+the daily-products workflow_run first firing; Sep-9's first regular-season NFL generation;
+Tuesday's UFC regeneration carrying the neutral narratives.
+
+### 6 · Remaining, named
+- A22 full IA consolidation + hub-body vocabulary unification (own release).
+- Founder gates (unchanged): AUTHORIZE:NFL (priced draft ready) · CONSOLE_REDEPLOY:RUN ·
+  multi-lane exposure accounting build/pause/retire.
+- Forward evaluation: first 492/2,000 rows; eligibility ≈ Sep 10 — do not run before.
+
+### 7 · Deployment & hygiene
+P241 commits: `f3ac5ddbb` (R1) · `75aba2cc5` (R5/R6) · `afed5d657` (R2/R7) · `d5fdba87c`
+(e2e+register). Prod verified serving `afed5d65` (all UI work; d5fd is docs/spec-only and deploys
+behind it). Local gate green 4×; CI green through `aeaca6e9e`+`f3ac…` chain (cumulative run on
+`d5fdba87c` in progress at report time — watcher armed). Browser coverage: Chromium + Firefox +
+WebKit incl. a11y contrast probes at mobile/tablet/desktop. Zero provider credits spent. Protected
+money untouched. No orphan processes beyond armed watchers (CI + producer), which self-terminate.
