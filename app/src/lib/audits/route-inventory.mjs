@@ -96,9 +96,19 @@ export const ROUTE_TABLE = Object.freeze({
   "/ipl": { classification: "redirect", owner: "product", purpose: "retired IPL hub", redirectTo: "/" },
   "/goal-rush": { classification: "product", owner: "product", purpose: "Goal Rush (Premier League signature product) — NAMED AND UNBUILT. Publishes no pick: states what is captured today and which of the twelve gate stages remain, both derived from lib/products/product-readiness. Flips on its own when the stages go green", dataOwner: "derived from sport-assessments + the committed EPL fixture capture", freshness: "no freshness claim — the page makes no time-sensitive claim to be stale" },
   "/bucket-blitz": { classification: "product", owner: "product", purpose: "Bucket Blitz (NBA signature product) — NAMED AND UNBUILT. Same contract as /goal-rush: derived gate stages, captured-schedule facts, no pick", dataOwner: "derived from sport-assessments + the committed NBA schedule capture", freshness: "no freshness claim — the page makes no time-sensitive claim to be stale" },
-  "/homer-nukes": { classification: "redirect", owner: "product", purpose: "retired product", redirectTo: "/results" },
+  /*
+   * P240 · two rows had drifted from the pages they describe, and the guard class that reconciles
+   * this table checks nav→internal and redirect TARGETS — never "does a redirect-classified page
+   * actually redirect" — so the drift was invisible until the route audit walked the pages:
+   *   · /homer-nukes was revived on P214 (its home-run probabilities now derive from free StatsAPI
+   *     data the product owns) but stayed classified "redirect", which dropped a live product from
+   *     sitemap.xml — the registry misdescribed a real destination.
+   *   · /world-cup-specials renders a noindex ARCHIVE page (no ClientRedirect in it at all); the
+   *     "archive" class this table already uses for /results/nba is its truthful row.
+   */
+  "/homer-nukes": { classification: "public", owner: "product", purpose: "Homer Nukes (revived P214): five independent home-run probabilities per slate, each settling on its own — a list, not a parlay", dataOwner: "home-run board derived from free StatsAPI data", freshness: "board artifact generatedAt" },
   "/world-cup": { classification: "redirect", owner: "product", purpose: "closed WC destination", redirectTo: "/results" },
-  "/world-cup-specials": { classification: "redirect", owner: "product", purpose: "closed WC product", redirectTo: "/results" },
+  "/world-cup-specials": { classification: "archive", owner: "product", purpose: "closed WC product — noindex archive page, proof retained", dataOwner: "frozen archive", freshness: "frozen — archive is dated by design" },
 });
 
 const norm = (r) => (r === "" ? "/" : r);
