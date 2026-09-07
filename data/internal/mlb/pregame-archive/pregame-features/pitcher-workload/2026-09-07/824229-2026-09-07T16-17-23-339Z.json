@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824229,
+  "date": "2026-09-07",
+  "capturedAt": "2026-09-07T16:17:23.339Z",
+  "availableAt": "2026-09-07T16:17:23.339Z",
+  "eventStartTime": "2026-09-07T19:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 675512,
+      "name": "Troy Melton",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 17,
+      "restDays": 6,
+      "lastStartDate": "2026-09-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 4,
+        "bbAvg": 1.2,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 6.35,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 17,
+        "ip": 102.33,
+        "k": 84,
+        "bb": 29,
+        "er": 25,
+        "hr": 12
+      }
+    },
+    "away": {
+      "id": 657746,
+      "name": "Joe Ryan",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 34,
+      "lastStartDate": "2026-08-04",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 5,
+        "bbAvg": 1,
+        "erAvg": 3.6,
+        "hrAvg": 1.4,
+        "kPer9": 7.94,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 125.67,
+        "k": 138,
+        "bb": 27,
+        "er": 51,
+        "hr": 17
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-07T16:17:23.339Z"
+  },
+  "recordHash": "cf030d93e987fef6b180ed1bf8cb20c61f30eb2ab9611b991d3b55aa82d6a657"
+}
