@@ -47,3 +47,12 @@ test("the source keeps the matchweek rule and the backstop, in that order", () =
   assert.match(src, /Number\(f\.matchweek\) === currentMw \|\| k <= nowMs \+ LOOKAHEAD_H/,
     "matchweek eligibility with the lookahead as backstop only");
 });
+
+test("P243 · the model-only grid is PLUMBED end to end (the field-never-copied class)", () => {
+  const src = fs.readFileSync(path.join(APP, "scripts/epl/build-epl-forecasts.mjs"), "utf8");
+  // The internal row copies the shadow run's block…
+  assert.match(src, /modelOnly: out\.modelOnly \?\? null/, "internal row carries the shadow run's modelOnly block");
+  // …and the public row reads from THAT row, with the flag and the numbers.
+  assert.match(src, /modelOnly: r\.state === "READY_EXCEPT_ODDS" && r\.modelOnly \? true : false/, "public flag");
+  assert.match(src, /r\.model\?\.probs \?\? r\.modelOnly\?\.probs \?\? null/, "public probs fall back to the model-only grid");
+});

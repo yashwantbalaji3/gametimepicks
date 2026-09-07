@@ -138,6 +138,11 @@ const rows = upcoming.map((fixture) => {
      * no prediction. Nothing failed, because a missing field reads exactly like a quiet one.
      */
     model: out.artifact?.model ? { ...out.artifact.model } : null,
+    /* P243 · C-EPL: the pre-odds MODEL-ONLY grid rides the internal row too — my first version
+       mapped it in publicRows from a field this row never carried, so the public artifact shipped
+       modelOnly:false with null numbers while the shadow run had computed the whole grid. A field
+       that was never copied reads exactly like one that was never produced. */
+    modelOnly: out.modelOnly ?? null,
     /*
      * THE MARKET BASELINE, PERSISTED — PRIVATE ROWS ONLY.
      *
