@@ -233,10 +233,17 @@ const publicRows = rows.map((r) => ({
   state: r.state,
   /* A fixture we could not price says so, with its reason, instead of vanishing from the list. */
   unavailableReason: r.state === "CURRENT_PRE_EVENT" ? null : (r.reason ?? r.rule ?? "not priced"),
-  probs: r.model?.probs ?? null,
-  expectedGoals: r.model?.totals?.expected ?? null,
-  over25: r.model?.totals?.over25 ?? null,
-  coldStart: r.model?.coldStart ?? null,
+  /*
+   * P243 · C-EPL: pre-odds rows carry the MODEL-ONLY grid. The charter's rule — an independent
+   * team forecast must not wait on paid price acquisition — and its limit: what a missing market
+   * removes is the COMPARISON, so `modelOnly: true` travels WITH the numbers, and the paired
+   * evaluation population (state === CURRENT_PRE_EVENT everywhere downstream) is untouched.
+   */
+  modelOnly: r.state === "READY_EXCEPT_ODDS" && r.modelOnly ? true : false,
+  probs: r.model?.probs ?? r.modelOnly?.probs ?? null,
+  expectedGoals: r.model?.totals?.expected ?? r.modelOnly?.totals?.expected ?? null,
+  over25: r.model?.totals?.over25 ?? r.modelOnly?.totals?.over25 ?? null,
+  coldStart: r.model?.coldStart ?? r.modelOnly?.coldStart ?? null,
   /*
    * THE DISTRIBUTION IS THE PRODUCT, so the reader gets the distribution — not a five-number
    * summary of one. Every field here is an exact sum over the same grid that produced `probs`
@@ -248,16 +255,16 @@ const publicRows = rows.map((r) => ({
    * not start reading as evidence the model is right — which is why `validation` and `trackRecord`
    * below stay on the artifact and the page prints them beside the numbers.
    */
-  lambdas: r.model?.lambdas ?? null,
-  totals: r.model?.totals ?? null,
-  teamGoals: r.model?.teamGoals ?? null,
-  btts: r.model?.btts ?? null,
+  lambdas: r.model?.lambdas ?? r.modelOnly?.lambdas ?? null,
+  totals: r.model?.totals ?? r.modelOnly?.totals ?? null,
+  teamGoals: r.model?.teamGoals ?? r.modelOnly?.teamGoals ?? null,
+  btts: r.model?.btts ?? r.modelOnly?.btts ?? null,
   cleanSheet: r.model?.cleanSheet ?? null,
   doubleChance: r.model?.doubleChance ?? null,
   margin: r.model?.margin ?? null,
-  topScorelines: r.model?.topScorelines ?? null,
+  topScorelines: r.model?.topScorelines ?? r.modelOnly?.topScorelines ?? null,
   topScorelinesMass: r.model?.topScorelinesMass ?? null,
-  modelId: r.model?.modelId ?? null,
+  modelId: r.model?.modelId ?? r.modelOnly?.modelId ?? null,
 }));
 
 /**

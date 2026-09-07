@@ -198,6 +198,13 @@ test("committed EPL artifacts: samples stay non-public; only a membership-verifi
     const dir = path.join(APP, EPL_ARTIFACT_ROOT, subroot);
     for (const name of fs.readdirSync(dir).filter((f) => f.endsWith(".json"))) {
       const data = JSON.parse(read(path.join(dir, name)));
+      /* P243: the odds-capture DECISION receipt (P233's zero-spend proof) is internal operating
+         record — it must still classify itself explicitly, which is the rule this test protects. */
+      if (data.artifact === "epl-odds-capture-decision") {
+        assert.equal(data.public, false, `${subroot}/${name}: a decision receipt is never display data`);
+        assert.equal(data.dataClass, "OPERATING_RECEIPT", `${subroot}/${name}: explicit classification required`);
+        continue;
+      }
       if (data.public === true) {
         assert.equal(data.dataClass, "FIXTURE_CAPTURE", `${subroot}/${name}: only a real capture may be public`);
         assert.ok(data.membershipVerification?.sources?.length >= 2, `${subroot}/${name}: public capture requires the dual-source membership receipt`);

@@ -43,6 +43,9 @@ export interface EplForecastRow {
   state: string;
   unavailableReason: string | null;
   probs: { home: number; draw: number; away: number } | null;
+  /** P243 · C-EPL: true when the numbers are the model's own PRE-ODDS grid — no market comparison
+   *  exists yet, and the row is not part of the paired model-vs-market evaluation. */
+  modelOnly?: boolean;
   expectedGoals: number | null;
   over25: number | null;
   coldStart: { home: boolean; away: boolean } | null;
@@ -100,12 +103,16 @@ export function loadEplForecasts(): EplForecastSet | null {
  * it stays in `set.rows` with its reason so the fixture list can name it rather than drop it.
  */
 export function forecastRows(set: EplForecastSet | null): EplForecastRow[] {
-  return (set?.rows ?? []).filter((r) => r.state === "CURRENT_PRE_EVENT" && r.probs != null);
+  return (set?.rows ?? []).filter(
+    (r) => (r.state === "CURRENT_PRE_EVENT" || (r.state === "READY_EXCEPT_ODDS" && r.modelOnly)) && r.probs != null,
+  );
 }
 
 /** Rows the ladder declined to price, each carrying the reason it declined. Never silently dropped. */
 export function unpricedRows(set: EplForecastSet | null): EplForecastRow[] {
-  return (set?.rows ?? []).filter((r) => !(r.state === "CURRENT_PRE_EVENT" && r.probs != null));
+  return (set?.rows ?? []).filter(
+    (r) => !((r.state === "CURRENT_PRE_EVENT" || (r.state === "READY_EXCEPT_ODDS" && r.modelOnly)) && r.probs != null),
+  );
 }
 
 /**

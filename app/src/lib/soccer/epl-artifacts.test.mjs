@@ -162,6 +162,16 @@ test("every committed EPL artifact validates clean; samples stay non-public, cap
     const dir = path.join(APP, EPL_ARTIFACT_ROOT, subroot);
     for (const name of fs.readdirSync(dir).filter((f) => f.endsWith(".json"))) {
       const data = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8"));
+      /*
+       * P243: the capture DECISION is a lane artifact of its own kind (P233's skip receipt — the
+       * proof a >30h day spent zero credits on purpose). It carries no fixture rows and no
+       * competition field; its contract is the decision + the zero-spend stamp.
+       */
+      if (data.artifact === "epl-odds-capture-decision") {
+        assert.ok(data.decision && data.decidedAt, `${name}: a decision artifact must say what was decided and when`);
+        assert.equal(typeof data.creditsSpent, "number", `${name}: the spend must be stated`);
+        continue;
+      }
       assert.equal(data.competition, "epl", name);
       if (data.dataClass === "ODDS_CAPTURE") {
         /*

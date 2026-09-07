@@ -130,6 +130,11 @@ const KICKOFF_WINDOW_H = Number(arg("--require-kickoff-within-hours", "30"));
     const decidedAt = new Date(nowMs).toISOString();
     fs.writeFileSync(path.join(OUT, "capture-decision.json"), JSON.stringify({
       artifact: "epl-odds-capture-decision",
+      /* P243: the lane convention is EXPLICIT classification — "absent is not false wherever a
+         deletion rule keys on the value" is this repo's own recorded lesson. The decision receipt
+         is internal operating record, never display data. */
+      dataClass: "OPERATING_RECEIPT",
+      public: false,
       decision: "skipped-no-kickoff-in-window",
       windowHours: KICKOFF_WINDOW_H,
       nextKickoffIso: next ? new Date(next).toISOString() : null,

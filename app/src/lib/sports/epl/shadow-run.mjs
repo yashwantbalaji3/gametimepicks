@@ -66,8 +66,31 @@ export function runEplShadow({ fixture, nowIso, strengthState, oddsSnapshot = nu
     return {
       ...base,
       state: "READY_EXCEPT_ODDS",
-      reason: oddsSnapshot ? "odds snapshot stale/post-start or carries no three-way rows for this fixture — probabilities withheld" : "no authorized odds snapshot — the pre-authorization end state; probabilities withheld, not approximated",
+      reason: oddsSnapshot ? "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet" : "no authorized odds snapshot — the pre-authorization end state; no market comparison exists yet",
       coldStart: matrix.coldStart,
+      /*
+       * P243 · C-EPL: THE MODEL'S OWN NUMBERS NO LONGER WAIT FOR A PAID CAPTURE.
+       *
+       * The charter's rule: an independent team forecast must not put price acquisition on its
+       * critical path — withheld here, /epl showed a whole matchweek of priced CARDS and zero
+       * forecasts until the night-before odds run. What a missing market actually removes is the
+       * COMPARISON, so exactly that stays absent: `modelOnly` carries the same grid the paired
+       * artifact would carry, labelled model-only, and everything price-anchored (de-vig, market
+       * agreement, evaluation pairing) still requires CURRENT_PRE_EVENT. Every grader and
+       * projection consumer filters on that state, so the paired evaluation population is
+       * untouched by construction.
+       */
+      modelOnly: {
+        modelId: strengthState.modelId,
+        probs: matrix.oneXTwo,
+        totals: matrix.totals,
+        teamGoals: matrix.teamGoals,
+        btts: matrix.btts,
+        topScorelines: matrix.topScorelines,
+        lambdas: matrix.lambdas,
+        coldStart: matrix.coldStart,
+        note: "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation",
+      },
       publicActivation: "OFF",
     };
   }

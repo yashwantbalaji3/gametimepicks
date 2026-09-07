@@ -237,9 +237,12 @@ export function eplHub(nowIso: string): SportHubModel {
       status: started ? "started or final" : "scheduled",
       started,
       read,
-      reportState: r.slug ? (started ? "ARCHIVE" : "READY") : "NONE",
-      reportHref: r.slug ? `/epl/match/${r.slug}/` : null,
-      reportNote: r.slug ? undefined : (r.unavailableReason ?? "no published forecast"),
+      /* A report link exists only when the fixture page will actually render — the per-slug loader
+         keys on slug AND probs, so a slugged row with no numbers yet (pre-model-only artifacts, or
+         an ABSTAIN) would link to nothing. P243: model-only rows carry probs and light up here. */
+      reportState: r.slug && p ? (started ? "ARCHIVE" : "READY") : "NONE",
+      reportHref: r.slug && p ? `/epl/match/${r.slug}/` : null,
+      reportNote: r.slug && p ? undefined : (r.unavailableReason ?? "no published forecast"),
     };
   });
   /*

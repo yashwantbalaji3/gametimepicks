@@ -127,6 +127,16 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
         </p>
       </section>
 
+      {/* P243 · C-EPL: a pre-odds forecast says so beside its numbers — what a missing market
+          removes is the COMPARISON, and this row is not part of the paired evaluation. */}
+      {row.modelOnly ? (
+        <p className="mt-3" style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
+          <strong style={{ color: "var(--vault-text)" }}>Model-only, pre-odds:</strong> no authorized market
+          snapshot covers this fixture yet, so there is no market comparison here — only the model&apos;s own
+          numbers. Prices join closer to kickoff, and this snapshot refreshes until then.
+        </p>
+      ) : null}
+
       {row.coldStart?.home || row.coldStart?.away ? (
         <p className="mt-3" style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
           <strong style={{ color: "var(--vault-text)" }}>Cold start:</strong>{" "}

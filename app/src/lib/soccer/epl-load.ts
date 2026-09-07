@@ -96,7 +96,12 @@ export function loadEplArtifacts(): EplLoadedArtifacts {
    * a display loader loads display artifacts.
    */
   const oddsFiles = readJsonFiles<EplOddsArtifact>("odds")
-    .filter(({ data }) => (data as { dataClass?: string }).dataClass !== "ODDS_CAPTURE");
+    .filter(({ data }) => {
+      const dc = (data as { dataClass?: string }).dataClass;
+      /* OPERATING_RECEIPT is the odds-capture decision (P233's zero-spend proof) — an internal
+         receipt, not display data, excluded for the same reason ODDS_CAPTURE is. */
+      return dc !== "ODDS_CAPTURE" && dc !== "OPERATING_RECEIPT";
+    });
 
   const fixtureValidations = fixtureFiles.map(({ file, data }) => ({
     file,
