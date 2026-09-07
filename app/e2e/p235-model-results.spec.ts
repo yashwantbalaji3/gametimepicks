@@ -98,11 +98,13 @@ test.describe("P235 · full model results", () => {
     const expected = Number(/Open (\d+) picks/.exec(label)![1]);
     await opener.click();
 
-    /* The detail table appears with that day's rows — player, game, selection, both probabilities. */
+    /* The detail table appears with that day's rows — player, game, selection, both probabilities.
+       POLL the count rather than sampling it once: under full-matrix load the rows hydrate over
+       several frames, and counting at first paint reads a partial table (496-pass matrix's one
+       recurring flake). The expected number itself is still exact. */
     const rows = s.locator("table").last().locator("tbody tr");
     await expect(rows.first()).toBeVisible({ timeout: 15_000 });
-    const count = await rows.count();
-    expect(count).toBe(Math.min(expected, 250));
+    await expect.poll(() => rows.count(), { timeout: 15_000 }).toBe(Math.min(expected, 250));
     await expect(rows.first()).toContainText(/%/);
   });
 
