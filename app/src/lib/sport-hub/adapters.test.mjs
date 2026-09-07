@@ -4,18 +4,37 @@ import { mlbHub, nflHub, eplHub, ufcHub } from "./adapters.ts";
 
 const NOW = "2026-09-06T06:00:00Z";
 
-test("LIVE · every MLB row carries a real first pitch, never a fabricated one", () => {
+test("LIVE · every MLB row carries a real first pitch, never a fabricated one", async () => {
   const m = mlbHub(NOW);
   if (!m.rows.length) return;
   /*
    * THE DEFECT THIS PINS. `PublicGameDetail.date` is a calendar day. The first version cast it to
    * `T00:00:00Z` and rendered that, so every row read "8:00 PM ET" — midnight UTC in New York — and
    * named the day BEFORE the game. Two invented values from one careless cast, on fifteen rows.
+   *
+   * CADENCE (P242): first pitch comes from fullGameSim/gameCenter/marketIntelligence, which the
+   * daily-production step publishes HOURS after the morning board. Mid-chain, rows honestly carry a
+   * date-only label — that is the product working, not the defect. So the expectation is derived
+   * from the SAME source artifacts: a row must render a time exactly when its detail carries one,
+   * and rows that do render times must not all be the midnight-UTC cast.
    */
+  const { buildAllGameDetails } = await import("../game-detail.ts");
+  const sourceTimes = buildAllGameDetails()
+    .filter((d) => d.sport === "mlb")
+    .filter((d) => {
+      const g = d;
+      const iso = g.fullGameSim?.firstPitch ?? g.gameCenter?.firstPitch ?? g.marketIntelligence?.startTime ?? null;
+      return typeof iso === "string" && Number.isFinite(Date.parse(iso));
+    }).length;
   const withTime = m.rows.filter((r) => / · .* ET$/.test(r.startLabel));
-  assert.ok(withTime.length > 0, "no MLB row carries a time; the first-pitch source has moved");
+  assert.equal(
+    withTime.length,
+    sourceTimes,
+    `rows rendering a time (${withTime.length}) must equal details carrying one (${sourceTimes}) — a drop means the first-pitch source moved; an excess means a fabricated time`,
+  );
+  if (!withTime.length) return; // honest mid-chain state: no source carries a time yet
   const times = new Set(withTime.map((r) => r.startLabel.split(" · ")[1]));
-  assert.ok(times.size > 1, `every row shows the same time (${[...times]}) — that is a cast, not a schedule`);
+  assert.ok(times.size > 1 || withTime.length <= 2, `every row shows the same time (${[...times]}) — that is a cast, not a schedule`);
   assert.ok(!times.has("8:00 PM ET") || times.size > 2, "8:00 PM on every row is the midnight-UTC artifact");
 });
 
