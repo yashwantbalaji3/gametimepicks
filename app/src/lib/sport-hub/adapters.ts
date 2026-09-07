@@ -237,19 +237,23 @@ export function eplHub(nowIso: string): SportHubModel {
 }
 
 /**
- * UFC. A bout is not a game, and there is no per-bout report route — the card is the unit. Every row
- * therefore says so once, in `reportNote`, rather than linking somewhere that does not exist.
+ * UFC. A bout is not a game and has no standalone report ROUTE — but it does have its own rendered
+ * detail on the card page (profile, reason, model read), and a summary row that only said
+ * "card-level report" made every bout a dead end (P241 · A08). A modelled bout's row now anchors
+ * straight to its own section on the card; an unmodelled bout keeps the honest note.
  */
 export function ufcHub(nowIso: string, bouts: Array<{ id: string; matchup: string; startUtc: string | null; status?: string; read?: HubRead | null }>, eventLabel: string): SportHubModel {
   const nowMs = Date.parse(nowIso);
   const rows: HubGameRow[] = bouts.map((b): HubGameRow => {
     const started = startedOf({ iso: b.startUtc, exact: Boolean(b.startUtc) }, nowMs);
+    const hasRead = b.read != null;
     return {
       id: b.id, startUtc: b.startUtc, startLabel: startLabelOf({ iso: b.startUtc, exact: Boolean(b.startUtc) }),
       matchup: b.matchup, status: b.status ?? (started ? "started or final" : "scheduled"),
       started, read: b.read ?? null,
-      reportState: "NONE", reportHref: null,
-      reportNote: "card-level report",
+      reportState: hasRead ? "READY" : "NONE",
+      reportHref: hasRead ? `#bout-${b.id}` : null,
+      reportNote: hasRead ? "bout details below" : "not modelled — no tracked history",
     };
   });
   return {

@@ -127,7 +127,8 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
             }] : []),
           ];
           return (
-            <div key={b.boutId} className="flex flex-col gap-2">
+            // The anchor the hub's bout rows deep-link to (P241 · A08).
+            <div key={b.boutId} id={`bout-${b.boutId}`} className="flex flex-col gap-2 scroll-mt-24">
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <span className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 9, color: i === 0 ? "var(--sport-ufc)" : "var(--vault-text-faint)" }}>
                   {i === 0 ? "Main event · " : ""}{b.weightClass} · {b.scheduledRounds} rounds

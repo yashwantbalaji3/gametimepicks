@@ -17,15 +17,23 @@ function money(n: number): string {
 
 export default function StakePayoutInput({
   combinedAmerican,
-  defaultStake = 25,
+  defaultStake = null,
   lockedStake,
 }: {
   combinedAmerican: number;
-  defaultStake?: number;
+  /*
+   * NULL BY DEFAULT (P241 · A14). The surface promises "no stake is ever filled in for you", the
+   * tier-grid doctrine says a default stake is a recommendation nobody asked for — and this input
+   * rendered pre-filled with $25 anyway, so the page's example returns quietly assumed a stake
+   * the reader never entered. The field now starts empty; returns render once a stake is typed
+   * (or a quick button pressed), exactly as the copy says.
+   */
+  defaultStake?: number | null;
   /** When set (e.g. Bank Builder), the stake is fixed and not editable. */
   lockedStake?: number | null;
 }) {
-  const [raw, setRaw] = useState<string>(String(lockedStake ?? defaultStake));
+  const [raw, setRaw] = useState<string>(lockedStake != null ? String(lockedStake) : defaultStake != null ? String(defaultStake) : "");
+  const entered = raw.trim() !== "";
   const stake = lockedStake ?? sanitizeStake(raw) ?? 0;
   const dec = americanToDecimal(combinedAmerican);
   const ret = stake * dec;
@@ -91,18 +99,26 @@ export default function StakePayoutInput({
       )}
 
       <div className="flex items-center justify-between gap-2 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-        <div className="flex flex-col">
-          <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>To return</span>
-          <span className="font-display tabular" style={{ color: "var(--vault-success)", fontSize: 16, fontWeight: 700 }}>
-            {money(ret)}
+        {lockedStake != null || entered ? (
+          <>
+            <div className="flex flex-col">
+              <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>To return</span>
+              <span className="font-display tabular" style={{ color: "var(--vault-success)", fontSize: 16, fontWeight: 700 }}>
+                {money(ret)}
+              </span>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Profit</span>
+              <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>
+                +{money(profit)}
+              </span>
+            </div>
+          </>
+        ) : (
+          <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>
+            Enter a paper stake to see the projected return — nothing is pre-filled.
           </span>
-        </div>
-        <div className="flex flex-col items-end">
-          <span className="font-mono uppercase" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>Profit</span>
-          <span className="font-display tabular" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>
-            +{money(profit)}
-          </span>
-        </div>
+        )}
       </div>
       {/* No per-instance "Paper only — not betting advice." here.
        *

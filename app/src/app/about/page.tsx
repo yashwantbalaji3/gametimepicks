@@ -36,13 +36,14 @@ export default function AboutPage() {
         </Section>
 
         <Section title="How projections work">
-          For each player on tonight's slate, we pull recent game logs
-          (last 5 and last 10 games), the season average, and home /
-          away context. The model blends those into a per-market
-          projection — points, rebounds, assists for NBA, strikeouts
-          and hits/total bases for MLB — and compares it to the
-          bookmaker line. We never invent inputs; if a player log is
-          missing, the projection is suppressed.
+          For each event on the slate we pull the inputs the sport&apos;s own
+          model declares — game logs, season rates and home/away context for
+          MLB player markets; team-strength ratings for NFL; goal-rate models
+          for the Premier League; tracked fight history for UFC — and run a
+          deterministic simulation. Where a sportsbook line exists it is shown
+          for context, never as an input. We never invent inputs; if a
+          player&apos;s log or a fighter&apos;s history is missing, the read is
+          suppressed and the page says so.
         </Section>
 
         <Section title="How to read a projection">
@@ -139,16 +140,20 @@ export default function AboutPage() {
               a real hit rate after games settle.
             </li>
             <li>
-              Wider market coverage on NBA/MLB game lines (moneyline,
-              spreads, totals already shipped for NBA playoff games).
+              Wider market coverage across the four live sports as each
+              market clears its own evaluation bar — never before.
             </li>
           </ul>
         </Section>
 
-        <Section title="Model watchlist (latest: May 24, 2026)">
-          Honest read of where the model is performing and where it isn&apos;t,
-          based on every settled projection on disk. We update this when the
-          numbers shift.
+        <Section title="Model watchlist — archived snapshot (May 24, 2026)">
+          {/* ARCHIVED, NOT CURRENT (P241 · A24): this section describes the NBA/MLB era and is
+              kept as a dated snapshot of how the watchlist read then. The CURRENT model states
+              live on System Status and each sport hub's own coverage table — never here. */}
+          An archived read from the NBA/MLB era of the site, kept for the
+          record. For current model states, see System Status and each sport
+          hub&apos;s coverage table — those derive from live receipts; this
+          snapshot does not update.
           <ul className="mt-3 space-y-1 list-disc pl-5">
             <li>
               <strong style={{ color: "var(--vault-success)" }}>

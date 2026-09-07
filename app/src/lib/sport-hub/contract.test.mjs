@@ -109,11 +109,16 @@ test("BUILT · every hub opens with its events, and counts are printed separatel
   }
 });
 
-test("BUILT · no hub row offers a report link for a sport that has no report route", () => {
+test("BUILT · UFC bout rows anchor to their rendered detail, never to a route that is not generated (P241 · A08)", () => {
   const f = path.join(OUT, "ufc", "index.html");
   if (!fs.existsSync(f)) return;
   const html = fs.readFileSync(f, "utf8");
-  assert.match(renderedText(html), /card-level report/, "UFC must say its reports are card-level");
+  // A modelled bout deep-links to its own section on the card page…
+  assert.ok(/href="#bout-\d+"/.test(html), "modelled bouts must anchor to their bout detail");
+  assert.ok(/id="bout-\d+"/.test(html), "and the anchored bout sections must exist on the page");
+  // …an unmodelled bout says why it has no read…
+  assert.match(renderedText(html), /not modelled — no tracked history/);
+  // …and no row ever links a per-bout ROUTE that is not generated.
   assert.ok(!/href="\/ufc\/bout\//.test(html), "UFC must not link to a per-bout route that is not generated");
 });
 

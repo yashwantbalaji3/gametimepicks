@@ -78,7 +78,7 @@ export interface PublicSuggestedCard {
     slipLeg?: import("@/lib/slip/leg-identity").SlipLegInput;
   }>;
   combinedAmericanOdds: number;
-  defaultStake: number;
+  defaultStake: number | null;
   isPublic: boolean;
   bankBuilderEligible: boolean;
   whyThisCard?: string[];
@@ -402,7 +402,7 @@ export function normalizeOptimizerSlips(
         };
       }),
       combinedAmericanOdds: s.combinedAmerican ?? decimalToAmerican(dec),
-      defaultStake: 25,
+      defaultStake: null,
       isPublic: true,
       bankBuilderEligible: false,
       whyThisCard: s.rationale ? [s.rationale] : undefined,
@@ -476,7 +476,7 @@ export function normalizeUfcCards(
       americanOdds: 0, // model-only V1: no market odds → stake/payout not shown for UFC
     })),
     combinedAmericanOdds: 0,
-    defaultStake: 25,
+    defaultStake: null,
     isPublic: true,
     bankBuilderEligible: false,
     whyThisCard: c.rationale ? [c.rationale] : undefined,

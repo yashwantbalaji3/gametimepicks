@@ -23,8 +23,12 @@ const suggested = strip(fs.readFileSync(path.join(APP, "src/app/build/page.tsx")
 const custom = strip(fs.readFileSync(path.join(APP, "src/app/build/custom/page.tsx"), "utf8"));
 
 test("each mode's status is decided by what that mode shows", () => {
-  assert.match(suggested, /status=\{ladderCardCount > 0 \|\| suggestedCards\.length > 0 \? "pregame" : "data_pending"\}/,
-    "the Suggested page badges from its own cards — never from the builder's pool");
+  // P241 · A14: the badge still derives ONLY from this page's own cards — and now also from the
+  // slate's own date, so yesterday's cards read "Review", never "Pregame slate".
+  assert.match(suggested, /status=\{ladderDate >= currentEtDate\(\) && \(ladderCardCount > 0 \|\| suggestedCards\.length > 0\) \? "pregame" : ladderCardCount > 0 \|\| suggestedCards\.length > 0 \? "review" : "data_pending"\}/,
+    "the Suggested page badges from its own cards and the slate's own date");
+  assert.match(suggested, /slateDate=\{ladderDate\}/,
+    "the slate's date renders beside the badge — a chip without its date is how Pregame lied");
   assert.doesNotMatch(suggested, /builderLegs/,
     "the builder's pool no longer speaks on the Suggested page at all");
   assert.match(custom, /status=\{pool\.length > 0 \? "pregame" : "data_pending"\}/,

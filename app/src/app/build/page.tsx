@@ -63,11 +63,18 @@ export default function ParlayCenterSuggestedPage() {
         /* P185 scoping, restated for the split page: THIS page's status is decided by what THIS
            page can show — the ladder and the optimizer's cards. The builder's pool now has its own
            page (/build/custom) whose header speaks for it. */
-        status={ladderCardCount > 0 || suggestedCards.length > 0 ? "pregame" : "data_pending"}
+        /* The slate's own date decides the chip (P241 · A14): "Pregame slate" was derived from
+           card COUNT alone, so yesterday's cards wore it all morning while today's board was
+           still unpublished. A behind-today slate reads as the review of the latest slate, and
+           the date renders beside it either way. */
+        status={ladderDate >= currentEtDate() && (ladderCardCount > 0 || suggestedCards.length > 0) ? "pregame" : ladderCardCount > 0 || suggestedCards.length > 0 ? "review" : "data_pending"}
+        slateDate={ladderDate}
         counts={{ suggestedCards: ladderCardCount }}
         primaryAction={{ label: "Build your own card", href: "/build/custom" }}
         secondaryAction={{ label: "How it works", href: "/methodology" }}
-        note="Model-built cards at every risk level, each carrying its own settled record. Start from one and customize it, swap any leg you do not like, or switch to Build Your Own. Paper-only — no stake is ever filled in for you."
+        note={ladderDate >= currentEtDate()
+          ? "Model-built cards at every risk level, each carrying its own settled record. Start from one and customize it, swap any leg you do not like, or switch to Build Your Own. Paper-only — no stake is ever filled in for you."
+          : `These are the latest published cards (${ladderDate}) — today's arrive when the board posts. Customizing an expired card is a hypothetical replay; it cannot enter today's ledger. Paper-only — no stake is ever filled in for you.`}
       />
 
       <ParlayCenterTabs active="suggested" />

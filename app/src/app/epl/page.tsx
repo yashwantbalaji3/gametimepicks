@@ -269,7 +269,10 @@ export default function EplPage() {
         style={{ background: "var(--vault-panel)", border: "1px solid color-mix(in srgb, var(--sport-soccer) 40%, var(--vault-rule))" }}
       >
         <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6 }}>
-          <strong style={{ color: "var(--sport-soccer)" }}>Not validated out of sample.</strong>{" "}
+          {/* SCOPE THE CLAIM TO ITS HEAD (P241 · A07): "not validated" here is about the TEAM
+              match model; a validated player head renders further down with its own receipt.
+              Unscoped, the two banners read as one model contradicting itself. */}
+          <strong style={{ color: "var(--sport-soccer)" }}>Team match model — not validated out of sample.</strong>{" "}
           {/* The FALLBACK fires only when the artifact is unreadable, so it must not assert a record
               either way. It used to claim no match had been graded, which was a statement about the
               world made from an inability to read a file — and it became false the night the first
@@ -470,7 +473,7 @@ export default function EplPage() {
               longer competes with the table it validates. */}
           <details className="mt-3">
             <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-              Validated out of sample — the receipt
+              Player head ({players.model.id}) — validated out of sample, the receipt
             </summary>
             <p className="mt-1.5" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
               Fitted on {players.model.fittedAppearances.toLocaleString()} appearances,

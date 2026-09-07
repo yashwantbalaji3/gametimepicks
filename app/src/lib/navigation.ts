@@ -172,13 +172,13 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * nothing, and the pages say so in words.
    */
   { href: "/cards/epl", label: "EPL Paper Cards", note: "market favourites", group: "products", glyph: "⚽",
-    desc: "Premier League card ladder", surfaces: ["rail", "footer"] },
+    desc: "Premier League card ladder", surfaces: ["footer"] },
   { href: "/cards/ufc", label: "UFC Paper Cards", note: "model's own read", group: "products", glyph: "🥊",
-    desc: "Fight card ladder", surfaces: ["rail", "footer"] },
+    desc: "Fight card ladder", surfaces: ["footer"] },
   /* P201: the NFL lane earned its destination when its cards became gradeable. Market favourites,
      never the rejected model's read — the note says which, exactly as EPL's does. */
   { href: "/cards/nfl", label: "NFL Paper Cards", note: "market favourites", group: "products", glyph: "🏈",
-    desc: "NFL card ladder", surfaces: ["rail", "footer"] },
+    desc: "NFL card ladder", surfaces: ["footer"] },
 
   // ── RECORD ─────────────────────────────────────────────────────────────────────────────────────
   /*
@@ -187,7 +187,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * only the second had a record page.
    */
   { href: "/results/parlay-lab", label: "Suggested-Card Record", group: "record", glyph: "▦",
-    desc: "Every suggested card, all sports, settled", surfaces: ["rail", "footer"] },
+    desc: "Every suggested card, all sports, settled", surfaces: ["footer"] },
   /*
    * The other half of publishing forecasts. Every hub showed what its model predicted and almost
    * none showed how those predictions turned out — an asymmetry that always flatters, because
@@ -196,7 +196,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * how a rail stops being read.
    */
   { href: "/results/picks", label: "Picks vs Outcomes", group: "record", glyph: "◎",
-    desc: "What each model predicted, and what happened", surfaces: ["rail", "footer"] },
+    desc: "What each model predicted, and what happened", surfaces: ["footer"] },
   { href: "/learn", label: "How It Works", group: "record", glyph: "✦", desc: "Start here",
     surfaces: ["rail", "footer"] },
   { href: "/methodology", label: "Methodology", group: "record", glyph: "◳", desc: "The model, in depth",

@@ -29,11 +29,15 @@ const TIERS: Array<{ tier: string; tone: string; note: string }> = [
   { tier: "Longshot", tone: "var(--vault-text-mute)", note: "High-variance combos, clearly labeled. Fun to track; rarely hits." },
 ];
 
+/* Four live sports, described from what each hub actually publishes (P241 · A24 — this list
+   still said UFC had "no fight model" and omitted EPL/NFL entirely). */
 const SPORTS: Array<{ name: string; note: string }> = [
-  { name: "MLB", note: "The only sport with a live model. Player-prop simulations — pitcher strikeouts, batter hits, total bases — run against the posted line, plus game-level market context." },
+  { name: "MLB", note: "The most fully modelled sport: 10,000-run game simulations, player-prop distributions, Homer Nukes, and game-level market context — regenerated daily." },
+  { name: "NFL", note: "Experimental team simulations — projected score and win probability per game, clearly labelled, with the evaluation receipts on the hub." },
+  { name: "Premier League", note: "Match-result and total-goals forecasts each matchweek, plus a validated anytime-goalscorer player head and priced matchday cards." },
+  { name: "UFC", note: "A fight model trained on tracked bout history: winner, method and finishing round for every bout with enough data — the unmodelled ones say so." },
   { name: "NBA", note: "History only. The settled record from earlier seasons stays readable, but nothing new is being modelled or published for NBA." },
-  { name: "UFC", note: "Market-implied only. Win probabilities are read from the posted price; there is no fight model behind them, and no method / distance / round markets." },
-  { name: "World Cup", note: "Closed. The 2026 tournament ran 90-minute regulation only (a Draw was a real third outcome). Kept as an archive of what was published at the time." },
+  { name: "World Cup", note: "Closed. Kept as an archive of what was published at the time." },
 ];
 
 const GATES: Array<{ label: string; note: string }> = [
@@ -81,7 +85,7 @@ export default function LearnPage() {
             { n: "1", t: "Today", d: "What's live now", href: "/today" },
             { n: "2", t: "Simulate", d: "Pick a game, any sport", href: "/simulate" },
             { n: "3", t: "Parlay Center", d: "The model's cards, or build your own", href: "/build" },
-            { n: "4", t: "Build", d: "Make your own", href: "/build" },
+            { n: "4", t: "Results", d: "How it all settled", href: "/results" },
           ].map((s) => (
             <Link key={s.n} href={s.href} className="vault-press flex flex-col gap-0.5" style={{ textDecoration: "none" }}>
               <span className="font-mono" style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}>{s.n}</span>

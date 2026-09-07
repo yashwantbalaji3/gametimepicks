@@ -223,16 +223,11 @@ export default function ResultsPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
-      {/* Trust Center lead: official record, exposure, settlement status, product cards, Bank Builder
-         settled history, and the money-INDEPENDENT MLB model-performance summary. Everything below the
-         divider is the deeper transparency + projection audit, retained in full so no trust surface is
-         hidden. */}
-      <TrustCenter model={getTrustCenterModel()} />
-
-      {/* THE RECORD, ASKABLE (P233 · C). Everything above states a headline; this is the first way to
-          narrow it — record type, sport and risk tier, with the denominator beside every rate and a
-          named absence where nothing has settled. The rows are PROJECTED from the committed ledgers
-          (lib/results/read-model), never recomputed here. */}
+      {/* THE EXPLORER LEADS (P241 · A17). The reader's question is "how did X do?" — record type,
+          sport, risk tier and date range, denominator beside every rate. The Trust Center's eight
+          stacked sections used to render first, pushing the one interactive answer surface a full
+          522-line lead away; the protected portfolio keeps its own clearly-named section directly
+          below, losing nothing but the front seat. */}
       <ResultsExplorer
         rows={buildResultRows(resultSources()) as ResultRow[]}
         /* The per-card dated rows. They reconcile with the ledger exactly — stream and tier — which
@@ -241,6 +236,12 @@ export default function ResultsPage() {
         cards={loadSettledCards(path.join(process.cwd(), "public", "data")) as SettledCard[]}
         dateBasisNote={DATE_BASIS_NOTE}
       />
+
+      {/* Trust Center: official record, exposure, settlement status, product cards, Bank Builder
+         settled history, and the money-INDEPENDENT MLB model-performance summary. Everything below the
+         divider is the deeper transparency + projection audit, retained in full so no trust surface is
+         hidden. */}
+      <TrustCenter model={getTrustCenterModel()} />
 
       {/* P234 · D — the record as a recordable recap, over the SAME projected rows the explorer
           filters. It carries the period, the population and the denominator; zero decisive outcomes

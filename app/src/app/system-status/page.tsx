@@ -92,7 +92,14 @@ export default function SystemStatusPage() {
         </h1>
         <p className="mt-3 text-[15px] leading-relaxed text-[var(--text-mute)]">
           Every stage below reports for itself. The overall state is the worst of them — we do not
-          average a failure away behind four successes.
+          average a failure away behind four successes.{" "}
+          {/* SCOPE (P241 · A21): the stages here cover the research/settlement pipeline. An overall
+              OK is a claim about THOSE stages, not about every public page or today's publication
+              having landed — that lives on each surface's own freshness banner. */}
+          <strong style={{ color: "var(--text)" }}>Scope:</strong> these stages cover the data,
+          settlement and calibration pipeline. Whether <em>today&rsquo;s</em> boards and cards have
+          published yet is a separate, per-surface fact — each page&rsquo;s own freshness banner
+          carries it, and a green pipeline does not mean today&rsquo;s slate is up.
         </p>
       </header>
 

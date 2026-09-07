@@ -261,7 +261,7 @@ export default function BuildExperience({
               </div>
             ))}
           </div>
-          <StakePayoutInput combinedAmerican={combinedAmerican} defaultStake={25} />
+          <StakePayoutInput combinedAmerican={combinedAmerican} />
           {(correlated || hasPrelineup || hasSoccer || draft.length < 2 || bankEligible || staleCount > 0) ? (
             <div className="flex flex-col gap-1 pt-1" style={{ borderTop: "1px solid var(--vault-rule)" }}>
               {draft.length < 2 ? <StatusChip label="Single leg — add another for a parlay" /> : null}

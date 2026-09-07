@@ -37,6 +37,26 @@ export function HubTitle({ model }: { model: SportHubModel }) {
 }
 
 export default function HubHeader({ model }: { model: SportHubModel }) {
+  /*
+   * A SETTLED WINDOW IS AN ARCHIVE, NOT THE FRONT TABLE (P241 · A04). On the first regular-season
+   * morning, /nfl opened with a 22-row August preseason table — every row started-or-final —
+   * before the reader ever saw the current week. The adapter already knows this state
+   * (periodLabel "Settled window"); the shared contract keeps the table, one click away, and lets
+   * the current period lead. A live window renders exactly as before.
+   */
+  if (model.periodLabel === "Settled window") {
+    return (
+      <details className="rounded-[12px]" style={{ border: "1px solid var(--vault-border)", background: "var(--vault-wash-faint)" }}>
+        <summary className="cursor-pointer px-4 py-3 text-[13.5px] font-semibold" style={{ color: "var(--vault-text-mute)" }}>
+          Settled window{model.periodRange ? ` · ${model.periodRange}` : ""} — open the archive table
+          ({model.rows.length} {model.labels.games.toLowerCase()})
+        </summary>
+        <div className="px-4 pb-4">
+          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} />
+        </div>
+      </details>
+    );
+  }
   return (
     <div>
       <h2 className="m-0 mb-3 text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{model.labels.games}</h2>

@@ -154,7 +154,7 @@ export default function UfcArchivePage() {
           </span>
         </div>
         <p className="max-w-2xl font-mono text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-          Winner, method and finishing round for every bout on the next card. Paper and educational.
+          Winner, method and finishing round for every bout with enough tracked history — the rest say so. Paper and educational.
         </p>
         {/* P234 · C — the card walkthrough. Same control, same interaction as the other three
             sports; the chapters behind it are UFC's own (the card, the main event's winner, method

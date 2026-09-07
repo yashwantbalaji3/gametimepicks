@@ -67,17 +67,19 @@ test("LIVE · EPL rows without a published forecast still appear, with the reaso
   }
 });
 
-test("UFC bouts never claim a per-bout report route that does not exist", () => {
+test("UFC bouts: a modelled bout anchors to its own detail; an unmodelled one never fakes a route (P241 · A08)", () => {
   const u = ufcHub(NOW, [
-    { id: "b1", matchup: "A vs B", startUtc: "2026-09-07T02:00:00Z" },
+    { id: "b1", matchup: "A vs B", startUtc: "2026-09-07T02:00:00Z", read: { label: "A", detail: "winner 60%" } },
     { id: "b2", matchup: "C vs D", startUtc: null },
   ], "UFC 999");
   assert.equal(u.labels.games, "Bouts");
-  for (const r of u.rows) {
-    assert.equal(r.reportState, "NONE");
-    assert.equal(r.reportHref, null);
-    assert.match(r.reportNote, /card-level/);
-  }
+  const modelled = u.rows.find((r) => r.id === "b1");
+  assert.equal(modelled.reportState, "READY");
+  assert.equal(modelled.reportHref, "#bout-b1", "a modelled bout deep-links to its rendered detail");
+  const unmodelled = u.rows.find((r) => r.id === "b2");
+  assert.equal(unmodelled.reportState, "NONE");
+  assert.equal(unmodelled.reportHref, null);
+  assert.match(unmodelled.reportNote, /not modelled/);
   assert.equal(u.rows[1].startLabel, "TBD", "an unscheduled bout must not be given a time");
   assert.ok(!u.present.includes("products"), "UFC has no signature product; the section is omitted, not empty");
 });
