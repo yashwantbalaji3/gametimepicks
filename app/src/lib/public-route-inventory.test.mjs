@@ -283,7 +283,10 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
   // now FALSE and was replaced rather than left to contradict the page. The invariant it protected
   // — never implying a proven or market-beating model — is asserted directly instead.
   assert.doesNotMatch(nflHub, /No NFL predictions, picks, or\s+simulations are published/, "that line is no longer true and must not linger");
-  assert.match(nflHub, /experimental\s+preseason simulations/i, "the page says plainly what it publishes");
+  // P240 RS cutover: the phase in the tagline/lead is no longer a literal — it renders the
+  // canonical index's own phaseLabel, so the words follow the published model. The guard got
+  // STRICTER: it now pins that the page cannot hardcode a phase at all.
+  assert.match(nflHub, /Experimental \$\{index\?\.model\?\.phaseLabel/, "the page derives its phase from the canonical index, never a hardcoded literal");
   assert.match(nflHub, /not a claim to beat the sportsbook market/i, "and what it does not claim");
   /*
    * The coin-flip limit is now RENDERED FROM THE MODEL ARTIFACT rather than retyped in the page, so
@@ -297,7 +300,15 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
    */
   assert.match(nflHub, /plainEnglish\?\.honestLimit/, "the lead renders the model's own honest limit, not a retyped copy");
   const nflModel = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/index.json"), "utf8"))?.model;
-  assert.match(nflModel?.plainEnglish?.honestLimit ?? "", /coin flip/i, "the honest limit states the coin-flip result");
+  // Each published identity carries ITS OWN measured limit (P240): the preseason card's is the
+  // coin-flip result; the regular-season card's is the held-out-2025 result plus the market
+  // non-claim. Accepting either without checking which is live would let the wrong caveat ride.
+  if (nflModel?.id === "nfl-regular-season-public-v1") {
+    assert.match(nflModel?.plainEnglish?.honestLimit ?? "", /64% of winners/i, "the regular card states its held-out result");
+    assert.match(nflModel?.plainEnglish?.honestLimit ?? "", /NOT been shown to beat the sportsbook market/i, "and its market non-claim");
+  } else {
+    assert.match(nflModel?.plainEnglish?.honestLimit ?? "", /coin flip/i, "the preseason honest limit states the coin-flip result");
+  }
   assert.doesNotMatch(nflModel?.plainEnglish?.honestLimit ?? "", /barely better/i, "and never softens it to 'barely better'");
   assert.doesNotMatch(nflHub, /\b(edge|lock|best bet|profitable|guaranteed)\b/i, "no validated-tier vocabulary");
   // P172-C: the literal "PRIVATE_ONLY" moved out of typed prose into the DERIVED status artifact.
@@ -312,7 +323,9 @@ test("no SCAFFOLD_ONLY or DISABLED sport keeps a live public hub", async () => {
       `team simulation state ${st.state} outside the allowed set`);
     if (st.state !== "LIVE") assert.ok(st.nextGate || st.state === "UNKNOWN", "a held or experimental layer names the gate that would release it");
     if (st.state === "PUBLIC_EXPERIMENTAL") {
-      assert.match(st.detail, /coin flip/i, "an experimental claim carries its honest limit inline");
+      // The inline honest limit is per-phase (P240): preseason states the coin-flip result,
+      // regular season states the held-out-2025 result. Both must carry the market non-claim.
+      assert.match(st.detail, /coin flip|64% of winners/i, "an experimental claim carries its honest limit inline");
       assert.match(st.detail, /no claim to beat/i);
       assert.match(st.nextGate, /validated pick/i, "and names the stronger tier it has not reached");
     }

@@ -56,7 +56,7 @@ export const SPORT_LEG_RULES: Readonly<Record<LegSportKey, SportLegRule>> = Obje
     label: "NFL",
     eligible: false,
     reason:
-      "the NFL model is an explicitly experimental preseason beta. Its outputs classify as PUBLIC_EXPERIMENTAL or EXPERIMENTAL_LEAN, and only a VALIDATED_PICK may become a product leg — so no NFL forecast can enter a paper card today, however large its difference from the market looks",
+      "the NFL model is explicitly experimental. Its outputs classify as PUBLIC_EXPERIMENTAL or EXPERIMENTAL_LEAN, and only a VALIDATED_PICK may become a product leg — so no NFL forecast can enter a paper card today, however large its difference from the market looks",
     whatWouldQualify: [
       "an NFL model version that meets its own preregistered promotion bar on held-out data",
       "a settled experimental record with enough graded games to measure calibration",

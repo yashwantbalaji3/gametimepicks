@@ -143,6 +143,18 @@ for (const ev of index.events.filter((e) => e.lifecycle === "UPCOMING")) {
   const part = read(`data/internal/nfl/participation/${day}/${ev.providerEventId}.json`);
   const fc = forecasts.forecasts.find((f) => f.providerEventId === ev.providerEventId);
   if (!part || !fc) { refusals.push({ providerEventId: ev.providerEventId, matchup: ev.matchup, reason: !part ? "no participation artifact" : "no frozen forecast" }); continue; }
+  /*
+   * P240 · PRESEASON USAGE SHARES CARRY NO CLAIM INTO THE REGULAR SEASON. Every player draw below
+   * samples p.preseasonShare — depth-rank shares measured on 292 preseason team-games, built
+   * precisely because preseason usage must not be derived from regular-season usage. The inverse
+   * is just as false: a Week 1 starter's workload is not his preseason share, and publishing rows
+   * drawn from it would manufacture participation evidence the charter forbids. Regular-season
+   * player rows wait for regular-season role evidence with its own receipt.
+   */
+  if (fc.seasonType !== 1) {
+    refusals.push({ providerEventId: ev.providerEventId, matchup: ev.matchup, reason: "regular-season player rows need regular-season role evidence — the committed usage shares are preseason-measured and carry no claim into this phase" });
+    continue;
+  }
 
   const rng = mulberry32(fnv1a(`nfl-gamesim-v1::${ev.providerEventId}::${fc.model.inputHash}`));
   const players = new Map();   // playerId -> { meta, samples }

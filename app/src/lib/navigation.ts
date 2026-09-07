@@ -122,7 +122,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
   { href: "/mlb", label: "MLB", note: "live", group: "sports", glyph: "⚾", desc: "Baseball hub",
     surfaces: ["rail", "footer"] },
-  { href: "/nfl", label: "NFL", note: "preseason", group: "sports", glyph: "🏈", desc: "Football hub · preseason simulations",
+  { href: "/nfl", label: "NFL", note: "experimental sims", group: "sports", glyph: "🏈", desc: "Football hub · experimental simulations",
     surfaces: ["rail", "footer"] },
   { href: "/ufc", label: "UFC", note: "fight card + archive", group: "sports", glyph: "🥊", desc: "Fight card + settled archive",
     surfaces: ["rail", "footer"] },

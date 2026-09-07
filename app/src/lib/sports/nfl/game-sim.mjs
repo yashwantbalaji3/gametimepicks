@@ -95,6 +95,11 @@ export function simulateNflGame({ fit, strengthState, event, artifactDate, runs 
   let coverHome = 0, coverPush = 0, overHits = 0, overPush = 0;
   const homeScores = [];
   const awayScores = [];
+  // Snapped margins/totals, kept so consumers can publish margin/total intervals from THIS
+  // distribution rather than re-deriving one of their own that could disagree with it (P240 —
+  // the public forecast schema carries margin/total p10-p90).
+  const marginsSnapped = [];
+  const totalsSnapped = [];
   const bandCounts = new Map();
   for (let i = 0; i < runs; i++) {
     const [z1, z2] = normalPair(rng);
@@ -104,6 +109,8 @@ export function simulateNflGame({ fit, strengthState, event, artifactDate, runs 
     const a = snapScore((total - margin) / 2);
     homeScores.push(h);
     awayScores.push(a);
+    marginsSnapped.push(h - a);
+    totalsSnapped.push(h + a);
     if (h > a) { homeWins += 1; if (i < runs / 2) halfAWins += 1; }
     else if (h === a) ties += 1;
     if (lines?.spread != null) {
@@ -147,7 +154,12 @@ export function simulateNflGame({ fit, strengthState, event, artifactDate, runs 
     runs,
     matchup: `${away} @ ${home}`,
     features: { eloDiffEffective: Number(d.toFixed(2)), marginMean: Number(marginMean.toFixed(2)), sigmaMargin: Number(sigmaM.toFixed(2)), muTotal: fit.params.muTotal, sigmaTotal: Number(sigmaT.toFixed(2)), strengthCutoffIso: strengthState.cutoffIso },
-    winProbability: { home: Number(pHome.toFixed(4)), away: Number((1 - pHome - pTie).toFixed(4)), tie: Number(pTie.toFixed(4)), head: "elo-logistic (replay-validated); tie mass from the score simulation" },
+    // homeUnrounded ships at full precision for the differentiation audit's tiebreaker ONLY —
+    // the 08-28 lesson: a tiebreaker rounded to the same four places as the published number has
+    // no more resolution than the thing it adjudicates.
+    winProbability: { home: Number(pHome.toFixed(4)), away: Number((1 - pHome - pTie).toFixed(4)), tie: Number(pTie.toFixed(4)), homeUnrounded: pHome, head: "elo-logistic (replay-validated); tie mass from the score simulation" },
+    marginQuantiles: quantiles(marginsSnapped),
+    totalQuantiles: quantiles(totalsSnapped),
     scoreImpliedWinDiagnostic: { home: Number(scoreImpliedHome.toFixed(4)), headAgreementGap: Number(Math.abs(scoreImpliedHome - pHome).toFixed(4)), note: "margin-probit vs elo-logistic divergence — visible by design, never silently substituted" },
     convergence: { splitHalfGap: Number(halfGap.toFixed(4)), binomialSE: Number(se.toFixed(4)), note: "split halves of the same deterministic stream; SE at n — demand more runs if either exceeds your tolerance" },
     scores: {

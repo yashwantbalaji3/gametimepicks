@@ -52,9 +52,9 @@ export const NFL_COVERAGE: MarketCoverage[] = [
   {
     sport: "nfl", market: "team_score", publicLabel: "Projected score",
     status: "experimental", predictionSource: "independent_sim",
-    requiredData: ["schedule", "cutoff-versioned strength state", "preseason scoring model"],
+    requiredData: ["schedule", "cutoff-versioned strength state", "phase-appropriate scoring model"],
     settlementSupport: "supported",
-    publicExplanation: "10,000 simulations of the final score per game. Early model: on a season it had never seen it picked winners no better than a coin flip, so win percentages stay near even and it is never presented as sharper than the sportsbook price.",
+    publicExplanation: "10,000 simulations of the final score per game, always marked experimental. The preseason identity picked winners no better than a coin flip on a held-out preseason, so its win percentages stayed near even; the regular-season identity picked about 64% of winners on a held-out 2025 season. Neither is presented as sharper than the sportsbook price.",
   },
   {
     sport: "nfl", market: "moneyline", publicLabel: "Win chance",
@@ -82,14 +82,14 @@ export const NFL_COVERAGE: MarketCoverage[] = [
     status: "settlement_blocked", predictionSource: "independent_sim",
     requiredData: ["current role evidence", "an offered touchdown market"],
     settlementSupport: "pending",
-    publicExplanation: "The scoring model is calibrated, but nobody publishes preseason playing time and the books offer no touchdown market for these games — so it appears as a watchlist, never a card.",
+    publicExplanation: "The scoring model is calibrated, but playing time for these games has no source-backed evidence yet and our current capture holds no touchdown market for them — so it appears as a watchlist, never a card.",
   },
   {
     sport: "nfl", market: "player_props", publicLabel: "Passing / rushing / receiving",
     status: "provider_needed", predictionSource: "none",
     requiredData: ["event-bound player availability", "an offered player market"],
     settlementSupport: "pending",
-    publicExplanation: "Withheld: no source publishes who dresses for a preseason game or how much they play, so a projection would be invented rather than measured.",
+    publicExplanation: "Withheld: no source in our pipeline confirms who dresses for a game or how much they play, so a projection would be invented rather than measured.",
   },
 ];
 
@@ -248,7 +248,7 @@ export function coverageForSport(sport: MarketSport): MarketCoverage[] {
 export const COVERAGE_SPORTS: { key: MarketSport; label: string; note: string }[] = [
   { key: "mlb", label: "MLB", note: "market-anchored + 10k player-prop sim" },
   // P175-C: NFL joins the SHARED coverage registry rather than getting a forked matrix.
-  { key: "nfl", label: "NFL", note: "experimental 10k preseason score simulation — not product-eligible" },
+  { key: "nfl", label: "NFL", note: "experimental 10k score simulation — not product-eligible" },
   { key: "soccer", label: "Soccer", note: "market-implied 90' read — no live tournament right now" },
   { key: "ufc", label: "UFC", note: "experimental — market-implied, not product-eligible" },
 ];

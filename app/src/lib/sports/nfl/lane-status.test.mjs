@@ -37,7 +37,15 @@ test("missing evidence renders UNKNOWN, never green and never zero", () => {
 
 test("blockers are typed and reality-gated, including the ones nobody can code away", () => {
   const byId = Object.fromEntries(lane.blockers.map((b) => [b.id, b]));
-  assert.equal(byId["preseason-participation"].state, "REALITY_GATED");
+  // P240: the preseason-participation blocker is emitted only while the NEXT event is preseason —
+  // its own detail says it clears when the regular season starts, and on 2026-09-09 it did. The
+  // pin is conditional on presence, which is the builder's own contract, not a weakening: when
+  // present it must still be REALITY_GATED, and it may never appear against a regular-season
+  // next event (that would be the false phase claim coming back).
+  if (byId["preseason-participation"]) {
+    assert.equal(byId["preseason-participation"].state, "REALITY_GATED");
+    assert.match(byId["preseason-participation"].detail, /^preseason:/);
+  }
   assert.equal(byId["player-markets-absent"].state, "NO_MARKET");
   assert.match(byId["player-markets-absent"].detail, /not a retry target/);
   // P178: this pinned NOT_YET_OBSERVABLE, which was true until the first NFL forecast actually

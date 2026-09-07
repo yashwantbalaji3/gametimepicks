@@ -64,23 +64,44 @@ test("EVERY published forecast is internally coherent — one distribution, no c
   }
 });
 
-test("HUMILITY · win percentages stay near a coin and never claim a side strongly", () => {
+test("HUMILITY · each phase claims exactly what its own evaluation earned", () => {
+  /*
+   * P240: the 0.35–0.65 band is the PRESEASON model's humility — its held-out result was a coin
+   * flip, so a strong side would be an unearned claim. The regular-season identity earned a real
+   * (still experimental) read on held-out 2025, so its probabilities may leave that band; what it
+   * may never do is publish a near-certain side, or skip the calibration sentence.
+   */
   for (const f of pub.forecasts) {
     const p = f.forecastSummary.winProbability.home;
-    assert.ok(p > 0.35 && p < 0.65, `${f.matchup}: ${p} is a stronger claim than this model has earned`);
+    if (f.seasonType === 1) {
+      assert.ok(p > 0.35 && p < 0.65, `${f.matchup}: ${p} is a stronger claim than the preseason model has earned`);
+    } else {
+      assert.equal(f.model.id, "nfl-regular-season-public-v1", `${f.matchup}: a non-preseason forecast must carry the regular-season identity`);
+      assert.ok(p > 0.05 && p < 0.95, `${f.matchup}: ${p} is a stronger claim than any experimental model may publish`);
+    }
     assert.ok(f.forecastSummary.winProbability.calibration, "every forecast explains its calibration in words");
   }
 });
 
 test("MARKET INDEPENDENCE · odds are carried for comparison and are not an input", () => {
   const src = fs.readFileSync(path.join(APP, "scripts/nfl/build-nfl-public-forecasts.mjs"), "utf8");
-  const hashBlock = src.slice(src.indexOf("const inputHash"), src.indexOf("digest(\"hex\")"));
+  // BOTH phases' input hashes (P240 added the regular-season one) — every hash block is scanned,
+  // so a new phase cannot quietly hash a price. A zero-match is itself a failure: a guard that
+  // finds no hash blocks is vacuous, not passing.
+  const hashBlocks = [...src.matchAll(/const inputHash[\s\S]*?digest\("hex"\)/g)];
+  assert.ok(hashBlocks.length >= 2, `expected both phases' input-hash blocks, found ${hashBlocks.length}`);
   // `muTotal` is the model's own scoring climatology — match market IDENTIFIERS, not any word
   // containing "total", or the guard flags the model's own parameter as a market leak.
-  assert.doesNotMatch(hashBlock, /\b(market|markets|consensus|marketSpreadHome|marketTotal|books?)\b/i,
-    "the market must not enter the input hash");
+  for (const [block] of hashBlocks) {
+    assert.doesNotMatch(block, /\b(market|markets|consensus|marketSpreadHome|marketTotal|books?)\b/i,
+      "the market must not enter the input hash");
+  }
   const simBlock = src.slice(src.indexOf("for (let i = 0; i < RUNS"), src.indexOf("const hS ="));
   assert.doesNotMatch(simBlock, /market|consensus/i, "the simulation loop cannot read a price");
+  // The regular path simulates through the evaluated engine — its call carries model inputs only,
+  // no lines and no prices (game-sim's own evaluation pins that engine's market independence).
+  assert.match(src, /simulateNflGame\(\{ fit: rsFit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS \}\)/,
+    "the regular-season sim call passes model inputs only");
   for (const f of pub.forecasts) {
     if (f.marketComparison.state === "MARKET_VIEW") {
       assert.match(f.marketComparison.note, /has not been shown to beat the market/);

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-regular-season-public-card",
+  "dataClass": "PUBLIC_DERIVED",
+  "modelId": "nfl-regular-season-public-v1",
+  "version": 1,
+  "generatedAt": "2026-09-07T04:10:00Z",
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "note": "The public identity for regular-season team forecasts (P240). Every number it publishes is produced by the two ALREADY-EVALUATED private engines it names in derivedFrom — nothing here is a new fit, a re-fit, or a promotion. Promotion to any stronger label belongs exclusively to the frozen walk-forward contract (regular-season-evaluation-contract.json) and its own receipts; this card cannot satisfy that contract and does not claim to.",
+  "derivedFrom": [
+    { "modelId": "nfl-model-v1-elo-analytic", "version": 1, "receipt": "reports/model-v1-evaluation.json", "role": "win/margin/total heads: elo-logistic win probability over cutoff Elo, analytic normal margin and total, params frozen at the committed evaluation (train 2023-24, held-out 2025)" },
+    { "modelId": "nfl-gamesim-v1-joint-normal", "version": 1, "receipt": "reports/gamesim-v1-evaluation.json", "role": "the joint score simulation those heads are published through; its consistency receipt pins sim == analytic within 0.0001" }
+  ],
+  "separateFrom": "nfl-preseason-public-beta-v1 — the preseason identity and its coin-flip honest limit describe PRESEASON games only; the two identities never merge (the preseason-model-card precedent). Preseason games keep the preseason path and its abstentions.",
+  "plainEnglish": {
+    "what": "A simulated score range and win chance for every regular-season NFL game, generated from a team-strength rating (Elo) that has watched three seasons of finals, and frozen before kickoff.",
+    "honestLimit": "Tested on a full held-out 2025 season this model picked about 64% of winners (log loss 0.6478 against a coin's 0.6931). It has NOT been shown to beat the sportsbook market, and its 2026 walk-forward evaluation starts at Week 1 under bars that were frozen in August — until that sample accumulates, every forecast is experimental.",
+    "whatItIsGoodFor": "An honest, reproducible pre-kickoff baseline: which side is likelier, by how much, and how wide the range really is (80% score intervals covered 80.15% on held-out 2025 regular-season games).",
+    "whyPublishItAtAll": "The frozen evaluation contract requires pre-kickoff forecasts-of-record to exist before any of them can be judged. Publishing them, clearly labeled, is how the record accumulates without a single number being backfilled."
+  },
+  "metrics": {
+    "heldOutSeason": 2025,
+    "winner": { "nDecisive": 285, "logLoss": 0.6478, "coinLogLoss": 0.6931, "ece": 0.0446, "regularSliceAccuracy": 0.639 },
+    "margin": { "mae": 10.262 },
+    "total": { "mae": 10.997 },
+    "scores": { "teamScoreMAE": 7.584, "interval80Coverage": 0.8015 }
+  },
+  "trainedOn": "2023-2024 regular + postseason finals (570 observations); Elo state advances chronologically through every non-preseason final since, with one-third regression to the mean at each season boundary — the exact protocol the receipts describe.",
+  "lastEvaluated": "2026-08-12T19:30:00Z",
+  "nextReview": "under the frozen 2026 walk-forward contract: first reading at 64 decisive games and 4 completed weeks, no promotion in either direction before that"
+}

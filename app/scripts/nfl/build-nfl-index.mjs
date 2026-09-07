@@ -35,7 +35,17 @@ const forecastsArtifact = read(path.join(APP, "public/data/nfl/forecasts/latest.
 const markets = read(path.join(APP, "public/data/nfl/markets/latest.json"));
 const results = read(path.join(APP, "public/data/nfl/results/latest.json"));
 const status = read(path.join(APP, "public/data/nfl/model-status.json"));
-const card = read(path.join(ROOT, "data/internal/research/nfl/public-beta-model-card-v1.json"));
+// The card follows the model the forecasts artifact actually published under (P240): this line
+// hardwired the preseason card, so the index — and /nfl's lead paragraph, which renders
+// index.model.plainEnglish verbatim — would have described Week 1 forecasts with the preseason
+// coin-flip honest limit. The forecasts artifact names its model; the index looks that card up.
+const CARD_BY_MODEL = {
+  "nfl-preseason-public-beta-v1": "data/internal/research/nfl/public-beta-model-card-v1.json",
+  "nfl-regular-season-public-v1": "data/internal/research/nfl/regular-season-public-card-v1.json",
+};
+const cardPath = CARD_BY_MODEL[read(path.join(APP, "public/data/nfl/forecasts/latest.json"))?.model?.id]
+  ?? "data/internal/research/nfl/public-beta-model-card-v1.json";
+const card = read(path.join(ROOT, cardPath));
 
 const nowMs = Date.parse(NOW);
 const marketByEvent = new Map((markets?.rows ?? []).map((r) => [r.providerEventId, r]));
@@ -123,6 +133,11 @@ const index = {
     id: forecastsArtifact?.model?.id ?? null,
     version: forecastsArtifact?.model?.version ?? null,
     launchState: forecastsArtifact?.model?.launchState ?? null,
+    // The phase label public surfaces render beside "Experimental … simulations" — derived from
+    // the published model identity here, in the ONE canonical state, so no page hardcodes a phase.
+    phaseLabel: forecastsArtifact?.model?.id === "nfl-regular-season-public-v1" ? "regular-season"
+      : forecastsArtifact?.model?.id === "nfl-preseason-public-beta-v1" ? "preseason"
+      : null,
     plainEnglish: card?.plainEnglish ?? null,
   },
   counts: {

@@ -133,9 +133,13 @@ for (const ev of events) {
   const shadow = runNflShadow({ event: ev, nowIso: NOW, strengthRows: finals, fit, injuriesArtifact: injuries, oddsSnapshot });
   const pool = buildActivePool({ event: ev, registry, injuriesArtifact: injuries, nowIso: NOW });
 
-  // strength for the sims: name-keyed rows behind an abbr-aware wrapper
+  // strength for the sims: name-keyed rows behind an abbr-aware wrapper. The target game's
+  // season rides along (P240): a Week-1 game of a season no final has reached yet gets the
+  // protocol's one-third boundary regression, exactly as the evaluated walk-forward applies it.
   const { strengthStateAt } = await import("../../src/lib/sports/nfl/strength-state.mjs");
-  const strength = strengthStateAt({ rows: finals.filter((r) => r.dateUtc < ev.dateUtc), cutoffIso: NOW });
+  const evDate = new Date(Date.parse(ev.dateUtc));
+  const evSeason = evDate.getUTCMonth() >= 7 ? evDate.getUTCFullYear() : evDate.getUTCFullYear() - 1;
+  const strength = strengthStateAt({ rows: finals.filter((r) => r.dateUtc < ev.dateUtc), cutoffIso: NOW, regressToSeason: evSeason });
   const wrapped = { ...strength, ratingFor: (t) => strength.ratingFor(abbrToName.get(t) ?? t) };
 
   const gamesim = simulateNflGame({ fit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS });
@@ -204,7 +208,15 @@ for (const ev of events) {
       strengthCutoff: NOW,
     },
     families: {
-      teamModel: { state: shadow.state, reason: shadow.reason ?? null, note: "model-v1 preseason policy abstains; the research sim below is REDUCED_PRESEASON and RESEARCH_ONLY" },
+      teamModel: {
+        state: shadow.state,
+        reason: shadow.reason ?? null,
+        // The note states the phase's own policy (P240): the preseason sentence was hardcoded and
+        // contradicted the artifact's derived state on every regular-season event.
+        note: (ev.seasonType ?? 0) === 1
+          ? "model-v1 preseason policy abstains; the research sim below is REDUCED_PRESEASON and RESEARCH_ONLY"
+          : "model-v1 applies in the regular season; the research sim below runs the evaluated fit and is RESEARCH_ONLY",
+      },
       market: marketFamily,
       playerProps: {
         state: (ev.seasonType ?? 0) === 1 ? "ROLE_UNCERTAIN" : "SEE_PROMOTION",

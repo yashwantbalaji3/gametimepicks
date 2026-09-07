@@ -666,7 +666,7 @@ function nflDetails(): PublicGameDetail[] {
         // carry, and the artifact's own status stands. Fail-closed would hide finished games.
         simulationReady: nflReadyByMatchId.get(String(d.matchId ?? "")) ?? undefined,
         gameLabSimulation: buildGameSimulationView(result, {
-          modelVersion: String(art?.modelVersion ?? "nfl-preseason-public-beta-v1"),
+          modelVersion: String(art?.modelVersion ?? "unknown"),
           simulationVersion: 1,
           runCount: Number(art?.runCount ?? 10000),
           generatedAt: String(art?.generatedAt ?? ""),

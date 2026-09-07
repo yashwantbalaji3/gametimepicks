@@ -71,12 +71,27 @@ if (!preseason || !regular) {
       checkable: { heldOutSeason: "2025 preseason", games: preseason.accounting.testGames, winnerLogLoss: w.model.logLoss, coinLogLoss: w.baselines.coin.logLoss },
     };
 } else {
-  teamSim = {
-    state: "REGULAR_SEASON_ELIGIBLE",
-    headline: "Regular-season simulations are eligible",
-    detail: "The evaluated regular-season model applies to this window; publication still requires a current pre-kickoff artifact and a fresh market capture.",
-    nextGate: "A current pre-kickoff simulation artifact for each game.",
-  };
+  // P240: the branch promised "the evaluated regular-season model applies to this window" but
+  // never looked at forecasts/latest.json, so it would keep saying "awaiting artifact" over the
+  // rendered Week 1 forecasts. Same live-detection the preseason branch uses, same honesty rules:
+  // the win figure is the committed held-out receipt's, and no market claim is made.
+  const live = read(path.join(APP, "public/data/nfl/forecasts/latest.json"));
+  const rsLive = live?.model?.id === "nfl-regular-season-public-v1" && (live?.forecasts ?? []).length > 0;
+  const w = regular.metrics?.model ?? {};
+  teamSim = rsLive
+    ? {
+      state: "PUBLIC_EXPERIMENTAL",
+      headline: "Experimental regular-season simulations are published",
+      detail: `We publish a simulated score range and win chance for every game, clearly marked experimental (${live.forecasts.length} games forecast today under ${live.model.id}). On a full held-out 2025 season the model behind it picked about 64% of winners (log loss ${w.logLoss ?? 0.6478} against a coin's 0.6931), and it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.`,
+      nextGate: "A validated pick additionally needs the frozen 2026 walk-forward evaluation to pass its own bars — 64 decisive games and 4 completed weeks before any reading counts.",
+      checkable: { forecasts: live.forecasts.length, model: live.model.id, heldOutWinnerLogLoss: w.logLoss ?? null, coinLogLoss: 0.6931 },
+    }
+    : {
+      state: "REGULAR_SEASON_ELIGIBLE",
+      headline: "Regular-season simulations are eligible",
+      detail: "The evaluated regular-season model applies to this window; publication still requires a current pre-kickoff artifact, generated inside each game's own event window.",
+      nextGate: "A current pre-kickoff simulation artifact for each game.",
+    };
 }
 
 // ---------------------------------------------------------------- market prices
@@ -127,13 +142,19 @@ const playerFamilies = [
 ];
 
 // ---------------------------------------------------------------- anytime TD
+// The playing-time sentence states the PHASE's actual reason (P240): "preseason playing time is
+// unknown" was hardcoded and becomes false copy in a regular-season window, where the true gap is
+// that current role evidence has not yet cleared its own bar for these games.
+const roleReason = windowIsPreseason
+  ? "preseason playing time is unknown"
+  : "current role evidence for these games has not cleared its own bar";
 const anytimeTd = td
   ? {
     state: probeFoundNothing ? "NO_MARKET" : "ROLE_UNCERTAIN",
     headline: "Anytime touchdown: held",
     detail: probeFoundNothing
-      ? "The scoring model is calibrated, but the sportsbooks are not offering touchdown markets for these preseason games, and preseason playing time is unknown. Both must change before anything publishes."
-      : "The scoring model is calibrated, but preseason playing time is unknown, so no scorer is published.",
+      ? `The scoring model is calibrated, but the sportsbooks are not offering touchdown markets for these games in our current capture, and ${roleReason}. Both must change before anything publishes.`
+      : `The scoring model is calibrated, but ${roleReason}, so no scorer is published.`,
     nextGate: "An offered anytime-touchdown market plus current role evidence.",
   }
   : { state: "UNKNOWN", headline: "Anytime touchdown: no calibration on file", detail: "No claim is made without a calibration receipt." };

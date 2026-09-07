@@ -48,7 +48,7 @@ import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 export const metadata: Metadata = {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
   description:
-    "Every game on the next NFL slate with its experimental preseason simulation, the sportsbook prices captured before kickoff, and an honest market-by-market coverage table. Educational and paper-only.",
+    "Every game on the next NFL slate with its experimental simulation, the sportsbook prices captured before kickoff, and an honest market-by-market coverage table. Educational and paper-only.",
 };
 
 const read = (rel: string) => {
@@ -185,7 +185,26 @@ export default function NflHubPage() {
   // call the same function rather than keeping its own copy of the expression.
   const { anchorUtc, slateDay } = deriveSlateAnchor(index, allScheduled);
   const slateGames = slateDay ? allScheduled.filter((r) => etDay(r.dateUtc) === slateDay) : [];
-  const laterGames = slateDay ? allScheduled.filter((r) => etDay(r.dateUtc) > slateDay).slice(0, 9) : allScheduled.slice(0, 9);
+  // The cap is 16 — a full NFL week — not 9. During Week 1 the slate day holds only the Wednesday
+  // opener, so every other game of the official week sits in laterGames; at 9 the hub silently hid
+  // six of the sixteen (MIA@LV through DEN@KC in the P240 audit). The schedule capture's own
+  // ~9-day window already bounds this list; the slice only guards against a capture that widens.
+  const laterGames = slateDay ? allScheduled.filter((r) => etDay(r.dateUtc) > slateDay).slice(0, 16) : allScheduled.slice(0, 16);
+  // The section title states the phase of the games it introduces, derived from their own rows —
+  // it was the literal "Later this preseason", which became a false label the day the regular
+  // season arrived. One phase+week across every row earns the specific title; a mixed list stays
+  // generic rather than guessing.
+  const laterContexts = laterGames.map((g) => seasonContextFor(g));
+  const laterTitle = (() => {
+    if (!laterGames.length) return "Coming up";
+    const first = laterContexts[0];
+    const uniform = laterContexts.every((c) => c.state === first.state && c.week === first.week);
+    if (!uniform) return "Coming up";
+    if (first.state === "REGULAR_SEASON" && first.week != null) return `The rest of Week ${first.week}`;
+    if (first.state === "PRESEASON") return "Later this preseason";
+    if (first.state === "POSTSEASON") return "Postseason schedule";
+    return "Coming up";
+  })();
   const simulatedOnSlate = slateGames.filter((g) => eventById.get(g.providerEventId)?.projectedScore).length;
 
   const forecastArtifact = read("nfl/forecasts/latest.json");
@@ -271,7 +290,7 @@ export default function NflHubPage() {
       <SportOverviewHero
         eyebrow="NFL · public beta"
         sport="NFL"
-        tagline="Experimental preseason simulations"
+        tagline={`Experimental ${index?.model?.phaseLabel ? `${index.model.phaseLabel} ` : ""}simulations`}
         accent="nfl"
         icon={identity.icon}
         iconGradient={identity.gradient}
@@ -318,7 +337,7 @@ export default function NflHubPage() {
          * should be read, and a guard holds it here on purpose.
          */}
         <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))" }}>
-          Experimental preseason simulations — not picks. {index?.model?.plainEnglish?.honestLimit}
+          Experimental {index?.model?.phaseLabel ? `${index.model.phaseLabel} ` : ""}simulations — not picks. {index?.model?.plainEnglish?.honestLimit}
         </p>
         <Explain label="Where the data comes from">
           Everything on this page derives from committed public captures, and the coverage table
@@ -447,7 +466,7 @@ export default function NflHubPage() {
         <section aria-labelledby="nfl-later" id="nfl-later">
           <SectionHeader
             eyebrow="Schedule"
-            title="Later this preseason"
+            title={laterTitle}
             sub={schedule ? `From the committed schedule capture (${schedule.generatedAt}). Simulations publish inside each game's own event window, not weeks ahead.` : "No schedule capture is readable — shown as missing rather than guessed."}
           />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 10 }}>
@@ -508,7 +527,7 @@ export default function NflHubPage() {
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12, color: "var(--vault-text-mute)" }}>{c.event}</td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, fontFamily: "var(--font-mono, monospace)" }}>{(c.tdProbability * 100).toFixed(1)}%</td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, color: "var(--vault-text-mute)" }}>
-                      {c.roleState === "ACTIVE_EXPECTED" ? "Expected to play" : "Unknown — preseason"}
+                      {c.roleState === "ACTIVE_EXPECTED" ? "Expected to play" : "Playing time unknown"}
                     </td>
                   </tr>
                 ))}

@@ -23,7 +23,7 @@ const isFinal = (r) => /^STATUS_FINAL/.test(r?.statusRaw ?? "");
  * (home/away as names, ftHome/ftAway, seasonType or phase) and/or current results captures —
  * the caller supplies one merged, deduplicated list; this function sorts, filters, and folds.
  */
-export function strengthStateAt({ rows, cutoffIso }) {
+export function strengthStateAt({ rows, cutoffIso, regressToSeason = null }) {
   const cutoff = Date.parse(cutoffIso ?? "");
   if (!Number.isFinite(cutoff)) throw new Error("strengthStateAt: cutoffIso required");
   const { K, HOME_ADVANTAGE, MEAN, SEASON_REGRESSION } = ELO_PARAMS;
@@ -53,10 +53,28 @@ export function strengthStateAt({ rows, cutoffIso }) {
     elo.set(away, get(away) + K * ((1 - score) - (1 - exp)));
     folded += 1;
   }
+  /*
+   * THE SEASON BOUNDARY IS PART OF THE EVALUATED PROTOCOL, NOT AN OPTIONAL EXTRA (P240).
+   *
+   * walkForwardObservations regresses every rating one third toward the mean BEFORE the first
+   * game of a new season contributes a prediction — that is the state the committed evaluation
+   * measured. The fold above can only fire that regression while folding a game of the new
+   * season, so a Week-1 cutoff (no new-season finals exist yet) would otherwise hand the caller
+   * LAST season's unregressed ratings: for the 2026 opener that is a ~20-Elo overstatement of the
+   * champion (~1.4 points of margin) relative to the protocol the receipts describe. A caller
+   * predicting a game in a season LATER than the last one folded passes that season here and gets
+   * the same regression the walk-forward would have applied. Idempotent by the same rule the fold
+   * uses: a target season equal to the last folded season regresses nothing.
+   */
+  if (regressToSeason != null && lastSeason !== null && regressToSeason > lastSeason) {
+    for (const [t, r] of elo) elo.set(t, r + (MEAN - r) * SEASON_REGRESSION);
+  }
   return {
     version: NFL_STRENGTH_VERSION,
     params: ELO_PARAMS,
     cutoffIso,
+    lastSeasonFolded: lastSeason,
+    regressedToSeason: regressToSeason != null && lastSeason !== null && regressToSeason > lastSeason ? regressToSeason : null,
     gamesFolded: folded,
     ratings: Object.fromEntries([...elo.entries()].sort()),
     ratingFor: (team) => elo.get(team) ?? MEAN,

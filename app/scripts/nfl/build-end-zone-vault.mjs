@@ -108,7 +108,9 @@ for (const f of upcoming) {
         tdProbability: prob.probability,
         probabilityRange: { note: "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual" },
         roleState: roleEvidence ? "ACTIVE_EXPECTED" : "ROLE_UNCERTAIN",
-        roleNote: roleEvidence ? "roster and injury evidence support expected participation" : "preseason: no source-backed evidence of how much this player will play",
+        // The uncertain-role sentence names the actual gap, not a hardcoded phase (P240): this
+        // line used to say "preseason:" and became false copy the day Week 1 entered the window.
+        roleNote: roleEvidence ? "roster and injury evidence support expected participation" : "no source-backed evidence yet of how much this player will play in this game",
         marketPrice: null,
         shareBasis: p.shareBasis,
         modelVersion: calibration?.receipt ?? null,

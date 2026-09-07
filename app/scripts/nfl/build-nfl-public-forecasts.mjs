@@ -23,11 +23,20 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
-import { mulberry32, snapScore } from "../../src/lib/sports/nfl/game-sim.mjs";
+import { mulberry32, snapScore, simulateNflGame } from "../../src/lib/sports/nfl/game-sim.mjs";
 import { fnv1a } from "../../src/lib/sports/research/replay-runner.mjs";
-import { strengthStateAt } from "../../src/lib/sports/nfl/strength-state.mjs";
+import { strengthStateAt, ELO_PARAMS } from "../../src/lib/sports/nfl/strength-state.mjs";
 
-const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+/* A narrow root seam so tests can run THIS builder — not a copy of its rules — against a
+ * disposable repo-shaped store. Production default is unchanged: the app directory above this
+ * file. The seam cannot change what publishes: every model input is still read from the
+ * (relocated) committed receipts, and the banned-string scan still runs on the payload. */
+const APP = (() => {
+  const i = process.argv.indexOf("--app-root");
+  return i > -1 && process.argv[i + 1]
+    ? path.resolve(process.argv[i + 1])
+    : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+})();
 const ROOT = path.join(APP, "..");
 const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : f; };
 const NOW = arg("--now");
@@ -80,6 +89,84 @@ const events = (schedule?.rows ?? [])
   .sort((a, b) => a.dateUtc.localeCompare(b.dateUtc));
 console.log(`window: ${events.length} pre-start events within ${LOOKAHEAD_H}h of ${NOW}`);
 
+/*
+ * ── P240 · THE REGULAR SEASON PUBLISHES UNDER ITS OWN, ALREADY-EVALUATED IDENTITY ──────────────
+ *
+ * This builder was preseason-hardwired: no seasonType branch existed, so the first Week 1 window
+ * would have published regular-season games under the preseason card — coin-flip win head,
+ * preseason-fitted sigmas, and copy citing a held-out preseason those games were never part of.
+ * The status artifact's own REGULAR_SEASON_ELIGIBLE branch had promised the opposite: "the
+ * evaluated regular-season model applies to this window."
+ *
+ * The regular path below reuses, without refitting, the two engines whose receipts are committed:
+ * nfl-model-v1-elo-analytic (train 2023–24, held-out 2025: log loss 0.6478 vs coin 0.6931) through
+ * nfl-gamesim-v1-joint-normal (sim == analytic within 1e-4; 80% intervals covered 80.15%). Frozen
+ * params from the evaluation receipt; Elo state folded chronologically over the committed corpus
+ * plus any joined current-season finals, with the protocol's one-third season-boundary regression
+ * applied explicitly for a target season no final has reached yet. No preseason significance gate
+ * here — that receipt measured a preseason fit, and the frozen regular-season contract's cohort
+ * rule keeps the phases' evidence apart in BOTH directions. Promotion beyond PUBLIC_EXPERIMENTAL
+ * belongs to that contract alone; nothing in this file can satisfy it.
+ */
+const rsEval = read(path.join(ROOT, "data/internal/research/nfl/reports/model-v1-evaluation.json"));
+const rsCard = read(path.join(ROOT, "data/internal/research/nfl/regular-season-public-card-v1.json"));
+// Only RESOLVED phases join the window question: a row with no seasonType is refused per-event
+// below (PHASE_UNRESOLVED), and letting its absence into this set would turn one broken row into
+// a whole-run refusal.
+const windowSeasonTypes = new Set(events.map((e) => e.seasonType).filter((t) => t != null));
+// The card also labels an EMPTY window's artifact, so the phase question includes the schedule
+// ahead of the window, not only the events inside it.
+const scheduleHasRegularAhead = (schedule?.rows ?? []).some((r) => r.statusRaw === "STATUS_SCHEDULED" && Date.parse(r.dateUtc) > nowMs && r.seasonType != null && r.seasonType !== 1);
+const windowHasRegular = events.some((e) => e.seasonType != null && e.seasonType !== 1) || (events.length === 0 && scheduleHasRegularAhead);
+if (windowHasRegular && (!rsEval?.fitParams || !rsCard)) {
+  console.error("REFUSED: regular-season events are in the window but the evaluated fit or public card is unreadable — a forecast may not publish without its receipts");
+  process.exit(2);
+}
+if (windowSeasonTypes.size > 1) {
+  // Never happens on the real calendar (phases do not interleave inside one lookahead window);
+  // if it ever does, publishing both under one top-level card would mislabel one of them.
+  console.error(`REFUSED: window straddles season phases (${[...windowSeasonTypes].join(",")}) — one artifact publishes under one card`);
+  process.exit(4);
+}
+const windowIsPreseason = windowSeasonTypes.size === 1 && windowSeasonTypes.has(1);
+
+/** NFL season of a kickoff: August onward belongs to that calendar year's season; January–July
+ * games (playoffs, Super Bowl) belong to the season that started the PRIOR August. */
+const nflSeasonOf = (iso) => {
+  const d = new Date(Date.parse(iso));
+  return d.getUTCMonth() >= 7 ? d.getUTCFullYear() : d.getUTCFullYear() - 1;
+};
+
+/** Corpus finals plus joined current-season finals, one name-keyed row space, deduplicated by
+ * provider event id (the corpus ends at the 2026-02-08 Super Bowl; results captures carry the
+ * season as it happens). Preseason rows are carried through — the fold itself refuses them. */
+const mergedFinals = (() => {
+  const byId = new Map();
+  for (const r of finals) byId.set(String(r.providerEventId ?? `${r.dateUtc}:${r.home}`), r);
+  const resultsArtifact = read(path.join(APP, "public/data/nfl/results/latest.json"));
+  for (const r of resultsArtifact?.rows ?? []) {
+    if (!/^STATUS_FINAL/.test(r.statusRaw ?? "")) continue;
+    if (!Number.isInteger(r.ftHome) || !Number.isInteger(r.ftAway)) continue;
+    const id = String(r.providerEventId ?? "");
+    if (!id || byId.has(id)) continue;
+    const homeName = typeof r.home === "string" ? r.home : r.home?.name;
+    const awayName = typeof r.away === "string" ? r.away : r.away?.name;
+    if (!homeName || !awayName || !r.dateUtc) continue;
+    byId.set(id, {
+      providerEventId: id,
+      season: nflSeasonOf(r.dateUtc),
+      seasonType: r.seasonType ?? null,
+      dateUtc: r.dateUtc,
+      home: homeName,
+      away: awayName,
+      ftHome: r.ftHome,
+      ftAway: r.ftAway,
+      statusRaw: r.statusRaw,
+    });
+  }
+  return [...byId.values()];
+})();
+
 const normalPair = (rng) => {
   const u1 = Math.max(1e-12, rng());
   const u2 = rng();
@@ -94,7 +181,104 @@ const refused = [];
 for (const ev of events) {
   const kickoff = Date.parse(ev.dateUtc);
   if (!ev.home?.abbr || !ev.away?.abbr) { refused.push({ providerEventId: ev.providerEventId, state: "IDENTITY_MISSING", reason: "participants unresolved — identity is never guessed" }); continue; }
+  if (ev.seasonType == null) { refused.push({ providerEventId: ev.providerEventId, state: "PHASE_UNRESOLVED", reason: "no seasonType on the schedule row — the phase decides which evaluated model applies, and it is never guessed" }); continue; }
 
+  const market = marketByEvent.get(ev.providerEventId) ?? null;
+  const marketFresh = market && markets.capturedAt < ev.dateUtc;
+  const marketComparison = marketFresh
+    ? {
+      state: "MARKET_VIEW",
+      capturedAt: markets.capturedAt,
+      books: market.books.length,
+      marketHomeWinPct: market.consensus.homeWinProbNoVig,
+      marketSpreadHome: market.consensus.spreadHome,
+      marketTotal: market.consensus.total,
+      note: "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model has not been shown to beat the market.",
+    }
+    : { state: "NO_MARKET", note: "No current sportsbook capture covers this game." };
+
+  let forecast;
+  if (ev.seasonType !== 1) {
+    // ── the regular-season path: the evaluated engines, frozen params, explicit boundary ───────
+    const nameOf = new Map([[ev.home.abbr, ev.home.name], [ev.away.abbr, ev.away.name]]);
+    const targetSeason = nflSeasonOf(ev.dateUtc);
+    const strength = strengthStateAt({
+      rows: mergedFinals.filter((r) => r.dateUtc < ev.dateUtc),
+      cutoffIso: NOW,
+      regressToSeason: targetSeason,
+    });
+    // The ratings map is keyed by full team name (the corpus rows); the schedule row speaks abbr.
+    const wrapped = { ...strength, ratingFor: (t) => strength.ratingFor(nameOf.get(t) ?? t) };
+    const rsFit = { params: rsEval.fitParams };
+    const sim = simulateNflGame({ fit: rsFit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS });
+    if (sim.state !== "SIMULATED") {
+      refused.push({ providerEventId: ev.providerEventId, state: "SIM_ABSTAINED", reason: sim.reason ?? "the simulation abstained" });
+      continue;
+    }
+    const dExact = wrapped.ratingFor(ev.home.abbr) + ELO_PARAMS.HOME_ADVANTAGE - wrapped.ratingFor(ev.away.abbr);
+    const inputHash = crypto.createHash("md5").update(JSON.stringify({
+      modelId: rsCard.modelId, version: rsCard.version, eventId: ev.providerEventId, kickoff: ev.dateUtc,
+      d: Number(dExact.toFixed(6)),
+      marginSlope: rsEval.fitParams.marginSlope, sigmaMargin: rsEval.fitParams.sigmaMargin,
+      muTotal: rsEval.fitParams.muTotal, sigmaTotal: rsEval.fitParams.sigmaTotal,
+      strengthCutoff: strength.cutoffIso, gamesFolded: strength.gamesFolded,
+      regressedToSeason: strength.regressedToSeason, scheduleAsOf: schedule.generatedAt,
+    })).digest("hex").slice(0, 16);
+
+    // coherence: the published median margin and the published win side must agree in sign
+    const medMargin = sim.marginQuantiles.p50;
+    const pHome = sim.winProbability.home;
+    if ((medMargin > 0 && pHome < 0.5) || (medMargin < 0 && pHome > 0.5)) {
+      refused.push({ providerEventId: ev.providerEventId, state: "INCOHERENT", reason: `median margin ${medMargin} disagrees with win probability ${pHome.toFixed(3)} — refusing rather than publishing two contradictory numbers` });
+      continue;
+    }
+
+    forecast = {
+      providerEventId: ev.providerEventId,
+      canonicalEventId: `nfl-${ev.providerEventId}`,
+      matchup: `${ev.away.abbr} @ ${ev.home.abbr}`,
+      home: { abbr: ev.home.abbr, name: ev.home.name },
+      away: { abbr: ev.away.abbr, name: ev.away.name },
+      kickoffUtc: ev.dateUtc,
+      seasonType: ev.seasonType,
+      week: ev.week,
+      venue: ev.venue ?? null,
+      state: "PUBLIC_EXPERIMENTAL",
+      model: {
+        id: rsCard.modelId, version: rsCard.version, launchState: rsCard.launchState, inputHash, simulations: RUNS,
+        derivedFrom: rsCard.derivedFrom.map((d0) => `${d0.modelId}@v${d0.version}`),
+      },
+      teamSignal: {
+        state: "APPLIED",
+        note: `Team strength moves this forecast: the Elo-logistic win head over a ${strength.gamesFolded}-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market.`,
+      },
+      generatedAt: NOW,
+      evidence: {
+        schedule: schedule.generatedAt,
+        strengthCutoff: strength.cutoffIso,
+        strengthGamesFolded: strength.gamesFolded,
+        regressedToSeason: strength.regressedToSeason,
+      },
+      forecastSummary: {
+        projectedScore: { home: sim.scores.home.quantiles.p50, away: sim.scores.away.quantiles.p50 },
+        winProbability: {
+          home: sim.winProbability.home,
+          away: sim.winProbability.away,
+          tieMass: sim.winProbability.tie,
+          homeUnrounded: sim.winProbability.homeUnrounded,
+          calibration: "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to beat the market is made.",
+        },
+        margin: { median: sim.marginQuantiles.p50, p10: sim.marginQuantiles.p10, p90: sim.marginQuantiles.p90 },
+        total: { median: sim.totalQuantiles.p50, p10: sim.totalQuantiles.p10, p90: sim.totalQuantiles.p90 },
+        scoreRange: { homeP10: sim.scores.home.quantiles.p10, homeP90: sim.scores.home.quantiles.p90, awayP10: sim.scores.away.quantiles.p10, awayP90: sim.scores.away.quantiles.p90 },
+      },
+      marketComparison: marketFresh
+        ? { ...marketComparison, modelVsMarketTotal: Number((sim.totalQuantiles.p50 - (market.consensus.total ?? 0)).toFixed(1)) }
+        : marketComparison,
+      settlementKey: { canonicalEventId: `nfl-${ev.providerEventId}`, settlesAgainst: "official final score", ledger: "experimental-forecast" },
+      disclaimer: "Experimental regular-season model. Educational and paper-only — not betting advice, and not shown to beat the market.",
+    };
+  } else {
   const strength = strengthStateAt({ rows: finals.filter((r) => r.dateUtc < ev.dateUtc), cutoffIso: NOW });
   const nameOf = new Map([[ev.home.abbr, ev.home.name], [ev.away.abbr, ev.away.name]]);
   const d = strength.ratingFor(nameOf.get(ev.home.abbr)) - strength.ratingFor(nameOf.get(ev.away.abbr));
@@ -135,10 +319,7 @@ for (const ev of events) {
     continue;
   }
 
-  const market = marketByEvent.get(ev.providerEventId) ?? null;
-  const marketFresh = market && markets.capturedAt < ev.dateUtc;
-
-  const forecast = {
+  forecast = {
     providerEventId: ev.providerEventId,
     canonicalEventId: `nfl-${ev.providerEventId}`,
     matchup: `${ev.away.abbr} @ ${ev.home.abbr}`,
@@ -198,12 +379,13 @@ for (const ev of events) {
     settlementKey: { canonicalEventId: `nfl-${ev.providerEventId}`, settlesAgainst: "official final score", ledger: "experimental-forecast" },
     disclaimer: "Experimental preseason model. Educational and paper-only — not betting advice, and not shown to beat the market.",
   };
+  }
 
   // immutable receipt: refuse to rewrite one that already exists for this event+date
   const receiptPath = path.join(ROOT, "data/internal/nfl/forecast-receipts", DATE, `${ev.providerEventId}.json`);
   if (fs.existsSync(receiptPath)) {
     const existing = read(receiptPath);
-    if (existing?.model?.inputHash === inputHash) {
+    if (existing?.model?.inputHash === forecast.model.inputHash) {
       published.push(forecast);
       continue; // identical inputs → identical forecast; nothing to rewrite
     }
@@ -222,18 +404,25 @@ for (const ev of events) {
   published.push(forecast);
 }
 
+// One window, one phase (refused above otherwise), one card. An EMPTY window keeps the phase of
+// the upcoming schedule so the artifact's self-description matches what the reader is waiting for.
+const publishPreseason = windowSeasonTypes.size > 0 ? windowIsPreseason : !scheduleHasRegularAhead;
 const publicArtifact = {
   schemaVersion: 1,
   artifact: "nfl-public-forecasts",
   dataClass: "PUBLIC_DERIVED",
   generatedAt: NOW,
   date: DATE,
-  model: { id: MODEL_ID, version: card.version, launchState: "PUBLIC_EXPERIMENTAL" },
-  modelCard: card.plainEnglish,
+  model: publishPreseason
+    ? { id: MODEL_ID, version: card.version, launchState: "PUBLIC_EXPERIMENTAL" }
+    : { id: rsCard.modelId, version: rsCard.version, launchState: rsCard.launchState },
+  modelCard: publishPreseason ? card.plainEnglish : rsCard.plainEnglish,
   eventCount: published.length,
   forecasts: published,
   refused,
-  disclaimer: "Experimental preseason forecasts. Educational and paper-only. This model has not been shown to beat the sportsbook market.",
+  disclaimer: publishPreseason
+    ? "Experimental preseason forecasts. Educational and paper-only. This model has not been shown to beat the sportsbook market."
+    : "Experimental regular-season forecasts. Educational and paper-only. This model has not been shown to beat the sportsbook market.",
 };
 const payload = JSON.stringify(publicArtifact, null, 1);
 for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey", "p171-ledger"]) {

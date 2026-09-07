@@ -85,7 +85,7 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   if (!f) return { title: "NFL game · GameTime Picks" };
   return {
     title: `${f.matchup} — experimental simulation · GameTime Picks`,
-    description: `A 10,000-run simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. Experimental preseason model; educational and paper-only.`,
+    description: `A 10,000-run simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. Experimental model; educational and paper-only.`,
     alternates: { canonical: `/nfl/game/${f.providerEventId}` },
   };
 }
@@ -202,7 +202,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             engine that produced the distribution. */}
         <SectionHeader
           eyebrow={f.teamSignal?.state === "APPLIED" ? "Simulation" : "Simulation · BASELINE ONLY"}
-          title={f.teamSignal?.state === "APPLIED" ? "What our model expects" : "What a league-average preseason game looks like"}
+          title={f.teamSignal?.state === "APPLIED" ? "What our model expects" : f.seasonType === 1 ? "What a league-average preseason game looks like" : "What a league-average game looks like"}
           sub={`${f.model.simulations.toLocaleString()} simulated games · model ${f.model.id}`}
         />
         {f.teamSignal && f.teamSignal.state !== "APPLIED" ? (

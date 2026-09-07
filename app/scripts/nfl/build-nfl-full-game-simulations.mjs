@@ -37,9 +37,24 @@ const participation = read("participation/latest.json");
 const markets = read("markets/latest.json");
 const sims = read("game-simulations/latest.json");
 
-const upcoming = (index.events ?? []).filter((e) => e.lifecycle === "UPCOMING");
+/*
+ * P240 · THIS ENGINE IS PRESEASON-SCOPED. nfl-full-game-v1-scoring-events runs on the measured
+ * preseason team mean (19.27 points, no home advantage) — numbers that are simply wrong for a
+ * regular-season game, where the evaluated elo-analytic engine with home advantage publishes
+ * through the public forecasts instead. The index does not carry seasonType, so the committed
+ * schedule capture answers the phase question; an event whose phase cannot be resolved is
+ * excluded the same way — a preseason baseline is never guessed onto it.
+ */
+const scheduleCap = read("schedule/latest.json");
+const phaseById = new Map((scheduleCap?.rows ?? []).map((r) => [r.providerEventId, r.seasonType ?? null]));
+const allUpcoming = (index.events ?? []).filter((e) => e.lifecycle === "UPCOMING");
+const upcoming = allUpcoming.filter((e) => phaseById.get(e.providerEventId) === 1);
+const phaseExcluded = allUpcoming.length - upcoming.length;
+if (phaseExcluded > 0) {
+  console.log(`nfl full-game: ${phaseExcluded} non-preseason game(s) excluded — the preseason scoring baseline carries no claim into the regular season`);
+}
 if (!upcoming.length) {
-  console.log("nfl full-game: no upcoming games — nothing to simulate");
+  console.log("nfl full-game: no upcoming preseason games — nothing to simulate");
   process.exit(0);
 }
 /**

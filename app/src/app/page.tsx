@@ -199,7 +199,7 @@ export default function HomePage() {
         label: "NFL Simulations",
         blurb: "Projected score, win probability and a full player board from 10,000 simulated games.",
         status: (nflDay?.events ?? 0) > 0 ? `${nflDay?.events} games · ${nflPicks.toLocaleString()} player markets` : (nflDay?.note ?? stateLabel(nflState)),
-        statusSub: "experimental preseason",
+        statusSub: "experimental simulations",
         cta: "Open NFL hub",
         accent: "var(--vault-gold)",
       },

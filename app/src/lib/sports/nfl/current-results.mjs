@@ -72,6 +72,12 @@ export function loadCurrentNflResults({ nowIso, artifact: artifactOverride, sche
       week: scheduled.week ?? r.week ?? null,
       home: scheduled.home?.abbr ?? null,
       away: scheduled.away?.abbr ?? null,
+      // Full names travel with the row (P240): the Elo strength fold is keyed by full team name
+      // (the corpus rows are name strings), so a consumer merging these finals into a strength
+      // fold needs the name — folding the abbr would silently fork one franchise into two keys.
+      homeName: scheduled.home?.name ?? null,
+      awayName: scheduled.away?.name ?? null,
+      dateUtc: scheduled.dateUtc ?? r.dateUtc ?? null,
       ftHome: r.ftHome,
       ftAway: r.ftAway,
       settlementResult,

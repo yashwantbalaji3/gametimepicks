@@ -123,7 +123,7 @@ export const BUILD_INVENTORY_SPORTS: ReadonlySet<string> = new Set(["nba", "mlb"
  * surfaces cannot drift into giving a reader different answers to the same question.
  */
 export const BUILD_INVENTORY_EXCLUSIONS: Readonly<Record<string, string>> = Object.freeze({
-  nfl: "the NFL model is an explicitly experimental preseason beta; only a validated model version may become a selectable leg, so no NFL forecast enters the builder today",
+  nfl: "the NFL model is explicitly experimental; only a validated model version may become a selectable leg, so no NFL forecast enters the builder today",
   ufc: "the UFC surface is a settled archive — there is no current fight output to build from",
   world_cup: "the World Cup is closed as a destination; its legs remain in the archive, not the builder",
 });

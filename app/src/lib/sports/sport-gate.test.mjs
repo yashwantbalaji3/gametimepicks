@@ -105,9 +105,11 @@ test("THE COMMITTED ASSESSMENTS · maturity derives to the honest current pictur
     } else if (!NFL_PROVEN.has(name)) assert.equal(st.status, "PARTIAL", `${name} stays PARTIAL with its reason stated`);
     else assert.equal(st.status, "PROVEN", `${name} is one of the reviewed PROVEN stages`);
   }
-  // The live window is PRESEASON: every P171 model receipt is regular-season evidence, and the
-  // model stage must say so rather than let a preseason slate imply promotion.
-  assert.match(SPORT_ASSESSMENTS.nfl.stages.model.evidence, /the live window is preseason/i);
+  // P240 RS cutover: the model stage must still keep the phases' evidence apart — preseason
+  // evidence promotes nothing, and Week 1 publication is PUBLIC_EXPERIMENTAL under the frozen
+  // contract's accumulating walk-forward, not a promotion.
+  assert.match(SPORT_ASSESSMENTS.nfl.stages.model.evidence, /Nothing is promoted on preseason evidence/i);
+  assert.match(SPORT_ASSESSMENTS.nfl.stages.model.evidence, /publishes as PUBLIC_EXPERIMENTAL while the frozen contract accumulates/i);
   assert.equal(SPORT_ASSESSMENTS.nfl.inSeason, true, "the 2026 preseason window is live and captured daily");
   assert.equal(m.nba, "SCAFFOLDED");
   assert.equal(m.epl, "SCAFFOLDED");

@@ -208,8 +208,8 @@ export default function SimulateLobby() {
       // previous `simReady: true` said "a file exists", which is not the same claim.
       simReady: e.simulationReady,
       // "script" is the coherent model read (renders as "Model read"), which is exactly what an NFL
-      // forecast is: one joint distribution, not a top prop. Confidence is LOW and always will be
-      // while the model is an experimental preseason beta held near a coin flip.
+      // forecast is: one joint distribution, not a top prop. Confidence stays LOW while the model
+      // is experimental — no phase's identity has cleared a validated-pick bar.
       // Lead with the RANGE, not the rounded scoreline. A single "19-18" reads as a specific
       // prediction; the interval is what this model actually produces, and it is wide.
       signal: {
@@ -428,7 +428,7 @@ export default function SimulateLobby() {
           simReadyCountFor("nfl") > 0 ? "active" : "conditional",
           simReadyCountFor("nfl") > 0 ? "active" : "baseline only",
           nflRows.length, simReadyCountFor("nfl"),
-          "Experimental preseason simulations — every NFL game here carries a deterministic team distribution. The model has not been shown to beat the sportsbook market.")
+          "Experimental simulations — every NFL game here carries a deterministic team distribution. The model has not been shown to beat the sportsbook market.")
       : nflEligibility.state === "ARTIFACT_UNAVAILABLE"
         ? mk("nfl", nflId.label, nflId.icon, "provider_pending", "data unavailable", 0, 0, nflEligibility.note)
         : mk("nfl", nflId.label, nflId.icon, "conditional", "no current slate", 0, 0, nflEligibility.note),

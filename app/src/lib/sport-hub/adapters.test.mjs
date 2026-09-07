@@ -32,13 +32,17 @@ test("LIVE · an MLB read is the model's own line, labelled as a model forecast"
   }
 });
 
-test("LIVE · NFL does not call a preseason archive 'this week'", () => {
+test("LIVE · NFL does not call a settled archive 'this week'", () => {
+  // P240: the label was "Preseason archive" — a phase inferred from staleness, which becomes a
+  // false phase claim the moment a settled REGULAR-season window goes stale. The invariant this
+  // guard protects is unchanged: an all-started window with no reads is an archive, never a
+  // current week. The label just stopped guessing the phase.
   const n = nflHub(NOW);
   if (!n.rows.length) return;
   const allStarted = n.rows.every((r) => r.started);
   const anyRead = n.rows.some((r) => r.read !== null);
   if (allStarted && !anyRead) {
-    assert.equal(n.periodLabel, "Preseason archive", "an archive with no forecasts must not be labelled a current week");
+    assert.equal(n.periodLabel, "Settled window", "an archive with no forecasts must not be labelled a current week");
     assert.ok(!/this week/i.test(n.periodLabel), "an archive must not be labelled a current week");
   }
 });

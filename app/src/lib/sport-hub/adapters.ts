@@ -150,7 +150,7 @@ export function nflHub(nowIso: string): SportHubModel {
   const anyRead = rows.some((r) => r.read !== null);
   return {
     sport: "nfl", sportLabel: "NFL", labels: { ...DEFAULT_LABELS, games: "Games" },
-    periodLabel: allStarted && !anyRead ? "Preseason archive" : "Current window",
+    periodLabel: allStarted && !anyRead ? "Settled window" : "Current window",
     periodRange: rangeOf(rows),
     freshness: null,
     rows,
