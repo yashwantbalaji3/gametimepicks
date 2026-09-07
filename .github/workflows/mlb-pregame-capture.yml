@@ -38,6 +38,11 @@ concurrency:
 # Read is enough for capture + artifact upload. Write is used ONLY by the gated, opt-in commit step below.
 permissions:
   contents: write
+  # P243 · A-7: the embedded publication-slo recovery step detected the 2026-09-07 incident at
+  # 16:17Z — 25 minutes before the watchdog — and its dispatch died on HTTP 403 because this
+  # workflow's token could not write to Actions. Detection without the power to act is not a
+  # recovery path.
+  actions: write
 
 jobs:
   capture:

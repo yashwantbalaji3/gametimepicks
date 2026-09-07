@@ -18,7 +18,7 @@ import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import { ufcHub } from "@/lib/sport-hub/adapters";
 import Explain from "@/components/ui/explain";
 import TopReadsPanel from "@/components/top-reads-panel";
-import { loadTopReads, topForSport } from "@/lib/top-reads";
+import { loadTopReads, sportPanelReads } from "@/lib/top-reads";
 import UfcCard, { type UfcCardArtifact } from "@/components/sports/ufc-card";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
@@ -341,12 +341,16 @@ export default function UfcArchivePage() {
       {/* The five reads this sport's model is most confident about today — team markets and player
           markets both, interleaved rather than sorted together, because a match favourite always
           outranks any single player and a plain sort would make the list all-team. */}
-      {topReads ? (
+      {/* P243 · A-1: timeframe-pure panel — a "today" title only over today's ET events; a
+          future slate gets the honest "next event" heading instead. Never a mixed population. */}
+      {topReads && sportPanelReads(topReads, "ufc", 5).timeframe ? (
         <TopReadsPanel
           set={topReads}
-          reads={topForSport(topReads, "ufc", 5)}
+          reads={sportPanelReads(topReads, "ufc", 5).reads}
           eyebrow="UFC · model reads"
-          title="What the model is most confident about today"
+          title={sportPanelReads(topReads, "ufc", 5).timeframe === "today"
+            ? "What the model is most confident about today"
+            : "What the model is most confident about — next event"}
         />
       ) : null}
 

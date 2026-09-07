@@ -44,7 +44,10 @@ test("the derivation lives ONCE in the component, not duplicated into the page",
   // simulate-route.test.mjs guards that page files carry no data logic; the explorer follows the same
   // pattern as SimulateLobby — the component reads the canonical details itself.
   assert.match(explorer, /buildAllGameDetails\(\)/, "the component reads the canonical details");
-  assert.match(explorer, /\.filter\(\(d\) => d\.sport === "mlb" && d\.fullGameSim\)/, "only games with a real full-game artifact");
+  // P243 · A-3: the population excludes "unavailable" rows — the artifact carries one for every
+  // scheduled game, and counting missed-coverage rows produced "Showing 11 of 11 simulated games".
+  assert.match(explorer, /d\.sport === "mlb" && d\.fullGameSim && d\.fullGameSim\.status !== "unavailable"/,
+    "only games with a USABLE full-game artifact");
   assert.ok(!/buildAllGameDetails/.test(page), "the page duplicates no data logic");
 
   /*

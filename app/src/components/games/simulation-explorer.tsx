@@ -19,7 +19,16 @@ import { formatEtTime } from "@/lib/mlb/public-provenance";
  * appear; ordering is chronological by first pitch.
  */
 function explorerCards(): { cards: SimulationCardInput[]; slateDate: string | null } {
-  const details = buildAllGameDetails().filter((d) => d.sport === "mlb" && d.fullGameSim);
+  /*
+   * P243 · A-3: the population is games with a USABLE simulation, not games with an artifact row.
+   * The day artifact carries a row for every scheduled game — including status "unavailable"
+   * (started before generation, no pregame forecast). Filtering on the row alone made the
+   * explorer say "Showing 11 of 11 simulated games" on a day when six were missed coverage.
+   * "degraded" stays in: it is a published report with degraded inputs, and the card says so.
+   */
+  const details = buildAllGameDetails().filter(
+    (d) => d.sport === "mlb" && d.fullGameSim && d.fullGameSim.status !== "unavailable",
+  );
   /*
    * THE SLATE THESE CARDS BELONG TO (P232 · C).
    *

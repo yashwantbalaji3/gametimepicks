@@ -27,7 +27,7 @@ import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { sportStateFromProductDay, stateLabel, partitionSports } from "@/lib/home/simulation-hub.mjs";
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import TopReadsPanel from "@/components/top-reads-panel";
-import { loadTopReads, topOverall } from "@/lib/top-reads";
+import { loadTopReads, topToday, topUpcoming } from "@/lib/top-reads";
 import { buildDailyBrief } from "@/lib/today/daily-brief";
 import { buildProductDays, type ProductDay } from "@/lib/product-day/product-day";
 import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
@@ -321,17 +321,25 @@ export default function HomePage() {
         the market is wrong and no model here has established that. Each sport's proven state renders
         with its reads, and a sport excluded for having no event-specific signal is named.
       */}
-      {topReads ? (
+      {/* P243 · A-1: the "today" ranking holds ONLY today's ET events; future reads get their own
+          explicitly-upcoming section. A date chip on a future row never made it belong to today. */}
+      {topReads && topToday(topReads, 10).length > 0 ? (
         <TopReadsPanel
           set={topReads}
-          reads={topOverall(topReads, 10)}
+          reads={topToday(topReads, 10)}
           eyebrow="Across every sport"
-          /* The title is judged against event dates (P241 · A01): the panel's rows carry their own
-             timeframe, so a day with nothing playing gets the honest heading instead of "today"
-             over next week's card. */
-          title={topOverall(topReads, 10).some((r) => r.timeframe === "today")
-            ? "The model's strongest reads today"
-            : "The model's next reads — upcoming"}
+          title="The model's strongest reads today"
+        />
+      ) : null}
+      {topReads && topUpcoming(topReads, 10).length > 0 ? (
+        <TopReadsPanel
+          set={topReads}
+          reads={topUpcoming(topReads, 10)}
+          eyebrow="Dated ahead"
+          title="The model's next reads — upcoming"
+          sub="Future-dated reads, ranked by the model's own probability. Each row wears its event date."
+          /* Compact when today's panel already carried the provenance + paper-only block. */
+          compact={topToday(topReads, 10).length > 0}
         />
       ) : null}
 

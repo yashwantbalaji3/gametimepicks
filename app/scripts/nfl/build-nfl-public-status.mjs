@@ -95,8 +95,18 @@ if (!preseason || !regular) {
 }
 
 // ---------------------------------------------------------------- market prices
+/*
+ * P243 · A-4: "LIVE" requires a FUTURE kickoff, not just a pregame capture. The old test —
+ * capturedAt < kickoffUtc — is true of every archived row forever (an August capture made before
+ * an August kickoff never stops passing it), so the hub said "prices LIVE" over a finished
+ * preseason under an expired acquisition authorization. A capture whose every kickoff has passed
+ * is an ARCHIVED capture, stated as one.
+ */
 const marketFresh = markets && markets.rows?.length
-  ? markets.rows.filter((r) => markets.capturedAt < r.kickoffUtc).length
+  ? markets.rows.filter((r) => markets.capturedAt < r.kickoffUtc && Date.parse(r.kickoffUtc) > nowMs).length
+  : 0;
+const marketArchived = markets && markets.rows?.length
+  ? markets.rows.filter((r) => markets.capturedAt < r.kickoffUtc && Date.parse(r.kickoffUtc) <= nowMs).length
   : 0;
 const market = marketFresh
   ? {
@@ -106,7 +116,16 @@ const market = marketFresh
     capturedAt: markets.capturedAt,
     events: marketFresh,
   }
-  : { state: "NO_MARKET", headline: "No current sportsbook prices", detail: "No authorized price capture covers this window. No substitute prices are shown and none are invented.", nextGate: "The next authorized market capture." };
+  : marketArchived
+    ? {
+      state: "ARCHIVED_CAPTURE",
+      headline: "No current sportsbook prices — the last capture covered games now played",
+      detail: `The most recent authorized capture (${String(markets.capturedAt).slice(0, 10)}) priced ${marketArchived} game(s) whose kickoffs have all passed. Those prices live with their games in the archive; no current price is shown and none is invented.`,
+      capturedAt: markets.capturedAt,
+      events: 0,
+      nextGate: "The next authorized market capture.",
+    }
+    : { state: "NO_MARKET", headline: "No current sportsbook prices", detail: "No authorized price capture covers this window. No substitute prices are shown and none are invented.", nextGate: "The next authorized market capture." };
 
 // ---------------------------------------------------------------- player families
 const probeFoundNothing = markets?.propMarkets?.state === "PROBED" && (markets.propMarkets.offeredMarkets ?? []).length === 0;

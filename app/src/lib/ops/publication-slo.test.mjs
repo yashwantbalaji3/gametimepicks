@@ -231,3 +231,37 @@ test("THE NFL PROBE JOINS ON providerEventId, not a composite fallback", () => {
   assert.doesNotMatch(nfl, /\$\{r\.away\?\.abbr\}/, "no composite fallback key may remain");
   assert.match(nfl, /nflReceiptEventIds\(\)/, "the durable receipt record is consulted");
 });
+
+/*
+ * ── P243 · A-7: the recovery path acts BEFORE the miss and completes its own chain ─────────────
+ *
+ * 2026-09-07 live trace: (1) the pregame-capture carrier detected the incident at 16:17Z and its
+ * dispatch died on HTTP 403 — swallowed by a quiet echo; (2) recovery only armed AFTER the publish
+ * deadline had passed, guaranteeing a ~75-minute pipeline lands post-first-pitch; (3) the token
+ * dispatch's completion emitted no workflow_run, so downstream production never chained. These pin
+ * the action text — the contract is in the workflow layer, so the guard reads the same file the
+ * runner does.
+ */
+test("P243 A-7 · the slo action dispatches pre-deadline, is loud on 403, and completes a stalled chain", () => {
+  const action = fs.readFileSync(path.join(process.cwd(), "..", ".github", "actions", "publication-slo", "action.yml"), "utf8");
+  // Pre-deadline overdue dispatch: PUBLISHING is in the gate and the margin reads the artifact's deadline.
+  assert.match(action, /steps\.check\.outputs\.state == 'INCIDENT' \|\| steps\.check\.outputs\.state == 'PUBLISHING'/,
+    "recovery also arms pre-deadline");
+  assert.match(action, /publishDeadlineUtc/, "the overdue check reads the artifact's own deadline");
+  assert.match(action, /75 \* 60_000/, "the measured pipeline margin gates the pre-deadline dispatch");
+  // A failed dispatch is a ::warning, never a quiet echo.
+  assert.match(action, /::warning::recovery dispatch FAILED/, "a failed recovery dispatch is loud");
+  // The chain-completion step exists and dispatches the next link, guarded.
+  assert.match(action, /Complete a stalled recovery chain/, "chain-completion step exists");
+  assert.match(action, /gh workflow run mlb-daily-production\.yml/, "it dispatches the suppressed next link");
+  assert.match(action, /10 \* 60_000/, "it waits for the natural chain before intervening");
+});
+
+test("P243 A-7 · every dispatch-recovery carrier grants actions:write (the 403 class)", () => {
+  const carriers = ["mlb-pregame-capture", "nightly-settle", "mlb-lineup-refresh", "auto-refresh", "publication-watchdog"];
+  for (const w of carriers) {
+    const y = fs.readFileSync(path.join(process.cwd(), "..", ".github", "workflows", `${w}.yml`), "utf8");
+    if (!/dispatch-recovery:\s*["']?true/.test(y) && !/dispatch_recovery/.test(y)) continue;
+    assert.match(y, /actions:\s*write/, `${w} carries the recovery step but cannot dispatch (HTTP 403 class)`);
+  }
+});

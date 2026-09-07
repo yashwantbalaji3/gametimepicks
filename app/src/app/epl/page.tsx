@@ -29,7 +29,7 @@ import Link from "next/link";
 
 import SportOverviewHero from "@/components/sport-overview-hero";
 import TopReadsPanel from "@/components/top-reads-panel";
-import { loadTopReads, topForSport } from "@/lib/top-reads";
+import { loadTopReads, sportPanelReads } from "@/lib/top-reads";
 import SectionHeader from "@/components/section-header";
 import SportHubNav from "@/components/sports/sport-hub-nav";
 import TeamLogo from "@/components/team-logo";
@@ -563,12 +563,16 @@ export default function EplPage() {
       {/* The five reads this sport's model is most confident about today — team markets and player
           markets both, interleaved rather than sorted together, because a match favourite always
           outranks any single player and a plain sort would make the list all-team. */}
-      {topReads ? (
+      {/* P243 · A-1: timeframe-pure panel — a "today" title only over today's ET events; a
+          future slate gets the honest "next event" heading instead. Never a mixed population. */}
+      {topReads && sportPanelReads(topReads, "epl", 5).timeframe ? (
         <TopReadsPanel
           set={topReads}
-          reads={topForSport(topReads, "epl", 5)}
+          reads={sportPanelReads(topReads, "epl", 5).reads}
           eyebrow="Premier League · model reads"
-          title="What the model is most confident about today"
+          title={sportPanelReads(topReads, "epl", 5).timeframe === "today"
+            ? "What the model is most confident about today"
+            : "What the model is most confident about — next event"}
         />
       ) : null}
 

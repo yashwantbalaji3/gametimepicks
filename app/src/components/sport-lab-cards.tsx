@@ -14,7 +14,7 @@
  * the page the honest and dishonest versions look identical. So `selection` arrives from the
  * artifact, and a ladder that does not state one is never loaded at all.
  */
-import { deriveBandSubstitutes } from "@/lib/parlays/sport-lab-cards";
+import { deriveBandSubstitutes, ladderDayLabel } from "@/lib/parlays/sport-lab-cards";
 import type { SportLabLadder } from "@/lib/parlays/sport-lab-cards";
 import { fmtAmerican, legLabel } from "@/lib/parlays/sport-lab-cards";
 import Link from "next/link";
@@ -47,7 +47,9 @@ export default function SportLabCards({
     <section className="mt-8" id="cards">
       <SectionHeader
         eyebrow={eyebrow}
-        title={`${nameEvent && ladder.eventName ? ladder.eventName : "Today's ladder"} · ${ladder.cards.length} of 4 price bands`}
+        /* P243 · A-5: the fallback said "Today's ladder" over a future-dated card (an EPL Sep-12
+           ladder rendered days early). ladderDayLabel names the ladder's OWN day instead. */
+        title={`${nameEvent && ladder.eventName ? ladder.eventName : ladderDayLabel(ladder.date)} · ${ladder.cards.length} of 4 price bands`}
         sub={`Each leg takes ${ladder.selection}. Paper-only and educational — no stake is filled in, and nothing here has been settled yet.`}
       />
       {/* THE LADDER'S OWN STAMP, not a build time and not another artifact's. A reader cannot judge

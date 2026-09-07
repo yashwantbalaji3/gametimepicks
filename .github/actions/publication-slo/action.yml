@@ -123,14 +123,35 @@ runs:
           --date "${{ steps.check.outputs.date }}" --message "$REASON" || true
 
     - name: Dispatch one guarded recovery
-      if: inputs.dispatch-recovery == 'true' && steps.check.outputs.state == 'INCIDENT'
+      # P243 · A-7: also runs pre-deadline (PUBLISHING). Waiting for the publish deadline to PASS
+      # before recovering guaranteed a miss: the pipeline needs ~75 minutes end to end, so a
+      # dispatch at deadline+1 lands after the first pitch (2026-09-07: 6 of 11 games missed).
+      # The step itself decides whether the generator is overdue against the artifact's deadline.
+      if: inputs.dispatch-recovery == 'true' && (steps.check.outputs.state == 'INCIDENT' || steps.check.outputs.state == 'PUBLISHING')
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.gh-token }}
       run: |
         set -uo pipefail
         DATE="${{ steps.check.outputs.date }}"
+        STATE="${{ steps.check.outputs.state }}"
         if [ -z "${GH_TOKEN:-}" ]; then echo "no token — recovery dispatch skipped (honest no-op)"; exit 0; fi
+        # Pre-deadline (PUBLISHING): dispatch ONLY once the remaining time to the artifact's own
+        # publish deadline is smaller than the pipeline needs (75 min measured: projections ~12m +
+        # production ~15m + products ~3m + build/deploy ~15m + margin). Before that point a
+        # normally-drifting cron still has room to arrive on time, and this step stays quiet.
+        if [ "$STATE" = "PUBLISHING" ]; then
+          OVERDUE="$(node -e '
+            const a = JSON.parse(require("fs").readFileSync("app/public/data/ops/publication-slo.json","utf8"));
+            const dl = Date.parse(a.publishDeadlineUtc ?? "");
+            if (!Number.isFinite(dl)) { console.log("no-deadline"); process.exit(0); }
+            console.log(Date.now() >= dl - 75 * 60_000 ? "yes" : "no");
+          ')"
+          if [ "$OVERDUE" != "yes" ]; then
+            echo "generator not yet overdue against the publish deadline — no pre-deadline dispatch"
+            exit 0
+          fi
+        fi
         # IDEMPOTENCY. Every workflow carrying this action will reach this step on the same incident.
         # At most ONE automatic attempt per ET day: a second dispatch would re-run the paid odds
         # ingest against the same slate, which is the "spend twice on one recovery" failure the
@@ -141,6 +162,40 @@ runs:
           echo "morning-projections already has ${ALREADY} run(s) on or after $DATE — not dispatching again"
           exit 0
         fi
-        echo "no generation run exists for $DATE and the deadline has passed — dispatching recovery"
-        gh workflow run morning-projections.yml --ref main \
-          -f projections_date="$DATE" -f skip_nba=true || echo "dispatch failed — the alert above still stands"
+        echo "no generation run exists for $DATE — dispatching recovery ($STATE)"
+        if ! gh workflow run morning-projections.yml --ref main \
+          -f projections_date="$DATE" -f skip_nba=true; then
+          # 2026-09-07: this failed with HTTP 403 (token lacked actions:write) and the quiet echo
+          # buried the one fact that mattered. A failed recovery dispatch is loud now.
+          echo "::warning::recovery dispatch FAILED — likely a missing 'actions: write' permission on the carrier workflow"
+        fi
+
+    - name: Complete a stalled recovery chain
+      # P243 · A-7 (second half): GitHub suppresses workflow_run events from GITHUB_TOKEN
+      # dispatches, so a recovered morning-projections run finishes and NOTHING downstream fires
+      # (proven live on 2026-09-07: the chain needed a manual dispatch). Every carrier of this
+      # action re-checks: a successful projections run for today with no production run after it,
+      # 10+ minutes on, means the chain is stalled — dispatch the next link, once per day.
+      if: inputs.dispatch-recovery == 'true' && steps.check.outputs.state != 'NO_EVENT' && steps.check.outputs.state != 'UNKNOWN'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.gh-token }}
+      run: |
+        set -uo pipefail
+        DATE="${{ steps.check.outputs.date }}"
+        if [ -z "${GH_TOKEN:-}" ]; then echo "no token — chain check skipped (honest no-op)"; exit 0; fi
+        VERDICT="$(gh run list --workflow=morning-projections.yml --limit 20 \
+          --json createdAt,updatedAt,status,conclusion \
+          --jq "[.[] | select((.createdAt | fromdateiso8601 | strftime(\"%Y-%m-%d\")) >= \"$DATE\")
+                     | select(.status == \"completed\" and .conclusion == \"success\")
+                     | .updatedAt] | sort | last // \"\"" 2>/dev/null || echo "")"
+        if [ -z "$VERDICT" ]; then echo "no successful projections run for $DATE yet — nothing to chain"; exit 0; fi
+        AGE_OK="$(node -e 'console.log(Date.now() - Date.parse(process.argv[1]) >= 10 * 60_000 ? "yes" : "no")' "$VERDICT")"
+        if [ "$AGE_OK" != "yes" ]; then echo "projections finished under 10 minutes ago — the natural chain still has time"; exit 0; fi
+        PROD="$(gh run list --workflow=mlb-daily-production.yml --limit 20 \
+          --json createdAt --jq "[.[] | select(.createdAt >= \"$VERDICT\")] | length" 2>/dev/null || echo 0)"
+        if [ "${PROD:-0}" -gt 0 ]; then echo "production already ran after projections — chain is intact"; exit 0; fi
+        echo "projections succeeded at $VERDICT with no production run since — chaining was suppressed; dispatching mlb-daily-production"
+        if ! gh workflow run mlb-daily-production.yml --ref main; then
+          echo "::warning::chain-completion dispatch FAILED — likely a missing 'actions: write' permission on the carrier workflow"
+        fi

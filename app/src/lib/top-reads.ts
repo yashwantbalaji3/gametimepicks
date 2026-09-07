@@ -286,6 +286,23 @@ export function loadTopReads(): TopReadsSet | null {
 /** The strongest N overall. */
 export const topOverall = (set: TopReadsSet | null, n = 10) => (set?.reads ?? []).slice(0, n);
 
+/*
+ * P243 · A-1 — A "TODAY" RANKING MUST CONTAIN ONLY TODAY.
+ *
+ * The P241 fix put a date chip on future rows and flipped the title only when NOTHING played
+ * today. A mixed day defeated it: two MLB reads today kept the "today" title over eight Sep-12
+ * UFC bouts. A chip does not change what population the heading claims — so the split happens
+ * here, in the ranking owner, and every "today" panel consumes ONLY the today slice. Future
+ * reads render in their own explicitly "upcoming" section.
+ */
+/** The strongest N that PLAY TODAY (ET event date). The only population a "today" title may show. */
+export const topToday = (set: TopReadsSet | null, n = 10) =>
+  (set?.reads ?? []).filter((r) => r.timeframe === "today").slice(0, n);
+
+/** The strongest N future-dated reads — for a section that says "upcoming", never "today". */
+export const topUpcoming = (set: TopReadsSet | null, n = 10) =>
+  (set?.reads ?? []).filter((r) => r.timeframe === "upcoming").slice(0, n);
+
 /**
  * One sport's top reads, from the SAME ranked set — never a clone or a hand-kept slice (P201 · C).
  * The caller renders the honest count: fewer than n means fewer existed, and zero means the sport's
@@ -298,9 +315,32 @@ export const topBySport = (set: TopReadsSet | null, sport: TopRead["sport"], n =
 export const sportsInSet = (set: TopReadsSet | null): TopRead["sport"][] =>
   [...new Set((set?.reads ?? []).map((r) => r.sport))];
 
+/**
+ * One sport's panel, timeframe-pure (P243 · A-1): if the sport has reads that play TODAY, the
+ * panel is those and only those; otherwise it is the sport's upcoming reads under an "upcoming"
+ * title. Never a mixed population — the returned timeframe tells the caller which heading is
+ * honest. Null timeframe means the sport has no reads at all.
+ */
+export function sportPanelReads(
+  set: TopReadsSet | null,
+  sport: string,
+  n = 5,
+): { reads: TopRead[]; timeframe: "today" | "upcoming" | null } {
+  const all = (set?.reads ?? []).filter((r) => r.sport === sport);
+  const today = all.filter((r) => r.timeframe === "today");
+  const pool = today.length > 0 ? today : all.filter((r) => r.timeframe === "upcoming");
+  const reads = interleaveKinds(pool, n);
+  return { reads, timeframe: reads.length === 0 ? null : today.length > 0 ? "today" : "upcoming" };
+}
+
 /** The strongest N for one sport, keeping both team and player markets represented. */
 export function topForSport(set: TopReadsSet | null, sport: string, n = 5): TopRead[] {
   const all = (set?.reads ?? []).filter((r) => r.sport === sport);
+  return interleaveKinds(all, n);
+}
+
+/** Interleave team and player reads so neither scale monopolises the list. */
+function interleaveKinds(all: TopRead[], n: number): TopRead[] {
   /*
    * Interleave the two kinds rather than taking the top N outright. Player probabilities and team
    * probabilities are not on the same scale — a favourite to win a match sits far above any single

@@ -57,7 +57,7 @@ function ReadRow({ r }: { r: TopRead }) {
 }
 
 export default function TopReadsPanel({
-  set, reads, eyebrow, title, sub, groupBySport = false,
+  set, reads, eyebrow, title, sub, groupBySport = false, compact = false,
 }: {
   set: TopReadsSet;
   reads: TopRead[];
@@ -70,6 +70,12 @@ export default function TopReadsPanel({
    * grouping is presentation, never a second ranking.
    */
   groupBySport?: boolean;
+  /**
+   * P243 · A-1: when a page renders TWO panels (today + upcoming), the second omits the
+   * provenance/excluded/paper-only boilerplate — it repeats the first panel's verbatim and blew
+   * the homepage's frozen word budget. Compact is presentation only; the ranking is unchanged.
+   */
+  compact?: boolean;
 }) {
   if (reads.length === 0) return null;
   const sports = [...new Set(reads.map((r) => r.sport))];
@@ -100,6 +106,7 @@ export default function TopReadsPanel({
       </div>
 
       {/* WHAT EACH MODEL HAS ACTUALLY PROVEN — beside the numbers, not beneath a fold. */}
+      {compact ? null : (
       <div className="mt-3" style={{ display: "grid", gap: 6 }}>
         {set.provenance.filter((p) => sports.includes(p.sport as TopRead["sport"])).map((p) => (
           <p key={p.sport} style={{ margin: 0, fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
@@ -113,11 +120,14 @@ export default function TopReadsPanel({
           </p>
         ))}
       </div>
+      )}
 
+      {compact ? null : (
       <p className="mt-2" style={{ fontSize: 11, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
         Paper-only and educational. Nothing here is a pick or a recommendation to wager, and no stake is
         filled in anywhere on this site.
       </p>
+      )}
     </section>
   );
 }

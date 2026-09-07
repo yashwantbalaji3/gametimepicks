@@ -60,6 +60,7 @@ concurrency:
 
 permissions:
   contents: write   # required for committing public-data changes
+  actions: write    # P243 · A-7: the embedded publication-slo recovery dispatch needs it (2026-09-07 403)
 
 env:
   # FREE-tier defaults. Setting ENABLE_ODDS_REFRESH=true (manual or via

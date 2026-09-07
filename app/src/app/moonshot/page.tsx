@@ -17,9 +17,7 @@ import Link from "next/link";
 
 import { loadMoonshotLane } from "@/lib/moonshot/moonshot-lane";
 import MoonshotLaneTracker from "@/components/moonshot/moonshot-lane-tracker";
-import { buildStructuredMoonshot } from "@/lib/world-cup/structured-moonshot";
 import MoonshotLadderV2 from "@/components/moonshot/ladder-v2";
-import StructuredMoonshotSection from "@/components/world-cup/structured-moonshot-section";
 import PicksSurfaceHeader, { type PicksSurfaceStatus } from "@/components/picks-surface-header";
 import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
@@ -105,10 +103,6 @@ export default function MoonshotPage() {
   // artifact is the SETTLED-money authority and correctly reports 0 settled exposure. Reading it here
   // made the tracker say "$0.00 exposure" on the same page whose header said "$50.00 placed".
   const exposure = dailyPortfolio?.exposure?.moonshot ?? 0;
-  /* Liveness needs LEGS. The daily portfolio synthesizes two empty Moonshot placeholders for every
-     date, so the previous `filter(product === "moonshot")` was true on every day the site has ever
-     rendered — which is what lit "Day 1 · LIVE" and promised overnight settlement here. */
-  const structured = buildStructuredMoonshot(path.join(process.cwd(), "public", "data"), today);
 
   /* The Moonshot card frozen on 2026-08-17 sat unsettled for nineteen days because no job read this
      lane. The ledger now carries its graded outcome and the ladder position that followed. */
@@ -206,15 +200,31 @@ export default function MoonshotPage() {
           : "No next transition is scheduled: no job generates a Moonshot card, and no settlement job reaches the cards already published."}
       </p>
 
-      {/* Today's STRUCTURED Moonshot — result + total per game, grouped by game (team markets only). */}
+      {/*
+        TODAY'S CARD — the PUBLISHED lanes themselves (P243 · A-2).
+        This section used to be "Today's structured Moonshot", assembled from the RETIRED World Cup
+        round-of-32 board — which on an MLB day always found no usable pair and rendered
+        "No qualified Moonshot today" on the same page whose header said today's card is published.
+        Two derivations of "today" cannot share a page: this one now renders the very cards the
+        header is talking about, and its empty state quotes the SAME derived sentence the header
+        uses, so the two surfaces cannot disagree again.
+      */}
       <section className="flex flex-col gap-3 overflow-x-hidden">
-        <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>Today&rsquo;s structured Moonshot · {structured.date}</h2>
-        <StructuredMoonshotSection data={structured} />
+        <h2 className="font-semibold" style={{ color: "var(--vault-text)", fontSize: 17 }}>Today&rsquo;s Moonshot · {today}</h2>
         {moonshotLanes.length ? (
-          <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
-            Paper exposure {money(dailyPortfolio.exposure.moonshot)} placed · active bankroll {money(dailyPortfolio.activeBankroll)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (historical, unchanged)
-          </p>
-        ) : null}
+          <>
+            <ProductLanesLadder productLabel="Moonshot" product="moonshot" lanes={moonshotLanes} accent="gold" />
+            <p className="font-mono leading-relaxed" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>
+              Paper exposure {money(dailyPortfolio.exposure.moonshot)} placed · active bankroll {money(dailyPortfolio.activeBankroll)} · available {money(dailyPortfolio.availableBankroll)} · crown {money(dailyPortfolio.crownBankroll)} (historical, unchanged)
+            </p>
+          </>
+        ) : (
+          <div className="rounded-[12px] px-5 py-6 text-center" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)", border: "1px dashed var(--vault-rule)" }}>
+            <span aria-hidden style={{ fontSize: 22 }}>🌙</span>
+            <p className="mt-1.5" style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>No published Moonshot card for {today}</p>
+            <p className="mt-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{moonshot.publicNote}</p>
+          </div>
+        )}
       </section>
 
       <LifecycleRecord

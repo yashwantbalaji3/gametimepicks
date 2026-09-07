@@ -206,3 +206,23 @@ test("Bank Builder + Moonshot both render the shared ladder; Moonshot has a step
   assert.match(bank, /<ClimbHero/, "bank-builder uses the single ClimbHero ladder");
   assert.match(moon, /buildDailyPortfolio/, "moonshot reads the daily portfolio");
 });
+
+/*
+ * ── P243 · A-2: ONE derivation of "today" on /moonshot ─────────────────────────────────────────
+ *
+ * The page's header said "Today's Moonshot card is published" while a sibling section — assembled
+ * from the RETIRED World Cup round-of-32 board — said "No qualified Moonshot today" on the same
+ * render. Two independent derivations of one day's product cannot share a page.
+ */
+test("P243 A-2 · /moonshot renders the PUBLISHED lanes as today's section; empty state quotes the one derived sentence", () => {
+  const moon = read("src/app/moonshot/page.tsx");
+  // The published cards themselves render (the header's claim is shown, not just asserted).
+  assert.match(moon, /<ProductLanesLadder productLabel="Moonshot" product="moonshot" lanes=\{moonshotLanes\}/,
+    "today's section renders the published lanes");
+  // The empty state quotes the SAME sentence the header uses — the two surfaces cannot disagree.
+  assert.match(moon, /\{moonshot\.publicNote\}/, "empty state quotes deriveMoonshotState's publicNote");
+  assert.match(moon, /note=\{moonshot\.publicNote\}/, "header note is the same derived sentence");
+  // The retired WC-board derivation is gone from this page.
+  assert.doesNotMatch(moon, /buildStructuredMoonshot|StructuredMoonshotSection/,
+    "no second, WC-board-derived 'today' population on /moonshot");
+});

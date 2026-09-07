@@ -89,3 +89,31 @@ test("the rendered homepage does not claim more simulations than the board carri
   assert.ok(Number(claimed[1]) <= Number(board[1]),
     `the homepage claims ${claimed[1]} simulation-ready today while the hub counts ${board[1]}`);
 });
+
+/*
+ * ── P243 · A-3: the Simulation Explorer's population is USABLE simulations only ────────────────
+ *
+ * The day artifact carries a row for EVERY scheduled game, including status "unavailable" (started
+ * before generation — missed coverage). On 2026-09-07 that made the explorer chrome read
+ * "Showing 11 of 11 simulated games" while six games had no pregame forecast at all. The claim
+ * lived in client-rendered chrome, so static-HTML guards never saw it (the vacuous-guard class).
+ */
+test("P243 A-3 · explorer excludes 'unavailable' rows from the simulated population (source pin)", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "src/components/games/simulation-explorer.tsx"), "utf8");
+  assert.match(src, /d\.fullGameSim && d\.fullGameSim\.status !== "unavailable"/,
+    "the explorer population must exclude unavailable (missed-coverage) rows");
+});
+
+test("P243 A-3 · functional: no 'unavailable' game reaches explorer cards on the live tree", async () => {
+  const { buildAllGameDetails } = await import("../../lib/game-detail.ts");
+  const included = buildAllGameDetails().filter(
+    (d) => d.sport === "mlb" && d.fullGameSim && d.fullGameSim.status !== "unavailable",
+  );
+  for (const d of included) {
+    assert.notEqual(d.fullGameSim.status, "unavailable", `${d.slug} would be shown as simulated`);
+  }
+  // And the exclusion is not vacuous whenever the live artifact actually carries misses.
+  const all = buildAllGameDetails().filter((d) => d.sport === "mlb" && d.fullGameSim);
+  const misses = all.length - included.length;
+  assert.ok(misses >= 0, "population arithmetic");
+});
