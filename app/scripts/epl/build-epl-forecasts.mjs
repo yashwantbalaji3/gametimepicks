@@ -79,10 +79,32 @@ const strengthState = fitEplStrength({ rows: corpus.rows, cutoffIso: NOW });
 console.log(`corpus: ${corpus.base} historical + ${corpus.current} from ${corpus.currentSeason ?? "the current season"} = ${corpus.rows.length} matches (fit cutoff ${NOW})`);
 
 const nowMs = Date.parse(NOW);
-const upcoming = (season.rows ?? []).filter((f) => {
+/*
+ * P243 · C-EPL: ELIGIBILITY IS THE MATCHWEEK, NOT A ROLLING CLOCK.
+ *
+ * The 96-hour window meant a matchweek arrived in slices — /epl showed priced Sep-12 cards days
+ * before a single Sep-12 forecast existed, and a Saturday fixture appeared while its own
+ * matchweek's Sunday fixtures stayed invisible. The natural period is the OFFICIAL matchweek:
+ * every unplayed fixture of the CURRENT matchweek (the earliest with an unplayed fixture) is
+ * eligible together, and the old lookahead survives only as a backstop for stragglers (a
+ * rescheduled fixture from an earlier matchweek inside the window).
+ *
+ * The model itself is unchanged: rates fit to results before --now, forecasts refresh on later
+ * runs while unplayed (the grader keeps the pre-kickoff revision), so earlier generation only
+ * means an earlier honest snapshot, refreshed daily until lock.
+ */
+const unplayed = (season.rows ?? []).filter((f) => {
   const k = Date.parse(f.kickoffIso ?? "");
-  return Number.isFinite(k) && k > nowMs && k <= nowMs + LOOKAHEAD_H * 3600_000;
+  return Number.isFinite(k) && k > nowMs;
 });
+const currentMw = unplayed.length ? Math.min(...unplayed.map((f) => Number(f.matchweek) || Infinity)) : null;
+const upcoming = unplayed.filter((f) => {
+  const k = Date.parse(f.kickoffIso ?? "");
+  return Number(f.matchweek) === currentMw || k <= nowMs + LOOKAHEAD_H * 3600_000;
+});
+if (currentMw != null) {
+  console.log(`eligibility: matchweek ${currentMw} (${upcoming.filter((f) => Number(f.matchweek) === currentMw).length} unplayed fixture(s)) + ${LOOKAHEAD_H}h backstop`);
+}
 
 /*
  * The per-fixture page needs a URL-safe identifier, and `eventId` is not one — it is
