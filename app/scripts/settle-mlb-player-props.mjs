@@ -135,7 +135,70 @@ if (dp.date !== DATE) {
    * An alert that fires every night is one nobody reads, which costs more than the alert was worth.
    */
   if (dp.date > DATE) {
-    console.log(`daily-portfolio has already advanced to ${dp.date}; ${DATE} was settled by an earlier run — nothing to do.`);
+    /*
+     * ROLLED IS NOT SETTLED (P240). This branch used to say "${DATE} was settled by an earlier
+     * run — nothing to do", and on 2026-09-07 that sentence was false: the first production run
+     * graded every Sep-6 leg PENDING (its linescore cache had not been fetched yet — the fetch
+     * step sat AFTER this settle step in the same workflow), the morning regeneration then rolled
+     * the portfolio, and the blind exit-0 would have left the day pending for ever while reporting
+     * success. The dated receipt is the durable record of that day; it answers whether the day is
+     * actually settled, and — now that it embeds each leg's identity — it is also the store a
+     * catch-up run can GRADE, from the same committed linescore cache, under the one transition
+     * settlement permits: pending → decided. A decided lane is never re-graded.
+     */
+    const receiptPath = path.join(RECEIPTS, `${DATE}.json`);
+    let prior = null;
+    try { prior = JSON.parse(fs.readFileSync(receiptPath, "utf8")); } catch { /* no receipt */ }
+    if (!prior) {
+      console.log(`daily-portfolio has advanced to ${dp.date} and no receipt exists for ${DATE} — nothing this run can grade.`);
+      process.exit(0);
+    }
+    const pendingLanes = (prior.lanes ?? []).filter((l) => (l.result ?? "pending") === "pending");
+    if (!pendingLanes.length) {
+      console.log(`daily-portfolio has advanced to ${dp.date}; the ${DATE} receipt is decisive on every lane — settled by an earlier run, nothing to do.`);
+      process.exit(0);
+    }
+    console.log(`daily-portfolio has advanced to ${dp.date} but the ${DATE} receipt holds ${pendingLanes.length} pending lane(s) — catch-up grading from the committed linescore cache.`);
+    let caughtUp = 0;
+    for (const lane of pendingLanes) {
+      const results = [];
+      for (const leg of lane.legs ?? []) {
+        if ((leg.result ?? "pending") !== "pending") { results.push(leg.result); continue; }
+        const marketKey = teamMarketKeyOf(leg) ?? (isTeamMarket(leg.market) ? leg.market : null);
+        if (!marketKey || !leg.matchup) {
+          // An old-format receipt row (no identity) or a player leg: catch-up grades only what it
+          // can verify. The leg holds with its reason instead of guessing.
+          results.push("pending");
+          console.log(`  ${lane.product} ${lane.lane}: leg holds — ${!leg.matchup ? "receipt row carries no matchup identity (pre-P240 format)" : "catch-up grades team markets only"}`);
+          continue;
+        }
+        const found = findLinescore(leg, LINESCORES_FOR_DATE, DATE);
+        const g = gradeTeamLeg({ marketKey, selection: leg.selection, matchup: leg.matchup, line: found.ok ? found.line : null });
+        if (!found.ok) g.note = found.reason;
+        leg.result = g.result;
+        leg.official = g.actual;
+        if (g.note) leg.note = g.note;
+        results.push(g.result);
+        console.log(`  ${lane.product} ${lane.lane}: ${leg.selection} (${marketKey}) → ${g.actual ?? "—"} ${String(g.result).toUpperCase()}${g.note ? ` (${g.note})` : ""}`);
+      }
+      const decisive = results.filter((r) => r !== "push");
+      lane.result = decisive.includes("lost") ? "lost"
+        : decisive.length && decisive.every((r) => r === "won") ? "won"
+        : results.length && results.every((r) => r === "push") ? "push"
+        : "pending";
+      if (lane.result !== "pending") { lane.settledAt = new Date().toISOString().replace(/\.\d{3}Z$/, "Z"); caughtUp += 1; }
+      console.log(`  → ${lane.product} Lane ${lane.lane}: ${String(lane.result).toUpperCase()}`);
+    }
+    prior.record = {
+      wins: (prior.lanes ?? []).filter((l) => l.result === "won").length,
+      losses: (prior.lanes ?? []).filter((l) => l.result === "lost").length,
+      pending: (prior.lanes ?? []).filter((l) => (l.result ?? "pending") === "pending").length,
+    };
+    if (!caughtUp) { console.log("nothing became decisive — the receipt is unchanged."); process.exit(0); }
+    if (!apply) { console.log(`dry-run — ${caughtUp} lane(s) would settle. Re-run with --apply.`); process.exit(0); }
+    prior.catchUpSettledAt = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+    fs.writeFileSync(receiptPath, JSON.stringify(prior, null, 1) + "\n");
+    console.log(`caught up ${caughtUp} lane(s); rewrote mr-dub/settled/${DATE}.json (pending → decided is the one permitted rewrite)`);
     process.exit(0);
   }
   console.error(`daily-portfolio is dated ${dp.date}, BEHIND the requested ${DATE} — refusing to settle the wrong slate`);
@@ -249,6 +312,12 @@ const receipt = {
     product: l.product, lane: l.lane, step: l.step, stake: l.stake,
     result: l.result ?? "pending", potentialReturn: l.potentialReturn,
     legs: (l.legs ?? []).map((g) => ({
+      // Identity travels with the receipt (P240): id, matchup and selection are what a CATCH-UP
+      // run needs to grade a leg after the portfolio has rolled — a receipt that only summarised
+      // outcomes could report a held day but never complete it.
+      id: g.id ?? g.legId ?? null,
+      matchup: g.matchup ?? null,
+      selection: g.selection ?? null,
       player: g.participantName ?? g.participant ?? null,
       market: g.marketType ?? g.market, side: g.side, line: g.line,
       official: g.settlement?.official ?? null, result: g.settlement?.result ?? "pending",

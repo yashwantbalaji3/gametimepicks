@@ -178,3 +178,67 @@ calibration file is 2026-09-05; the window's first rows land with tonight's sett
 Pending acceptance events: tonight's nightly-settle (~09:30–11:45Z, drifted crons) settles the
 four Sep-6 daily cards AND applies moonshot lane B; the daily-products workflow_run trigger's
 first natural exercise follows the next mlb-daily-production completion (~14:15Z+).
+
+## Release D — the first production settlement, observed and repaired (Sep 7, 10:33–11:30Z)
+
+**Observed**: nightly-settle 34112073923 (10:33:37Z, success). Two results:
+
+1. **The dual-lane fix ran naturally and worked.** Exactly one new settlement applied:
+   `moonshot:b:c1:s1:2026-08-17` → LOST (Bregman 3 ✓, Lowe 2 ✓, Marsee 0 ✗) → restart cycle 2.
+   All three prior settlements HELD under unchanged identities, and the cumulative-positions merge
+   carried all four lane positions forward (the pre-fix behavior would have erased three).
+
+2. **The four Sep-6 daily cards graded PENDING — a real green-but-held defect, root-caused.**
+   Every leg held with its true typed reason: "no linescore for <matchup> on 2026-09-06". Cause:
+   the paper-lane settle step (workflow line ~196) runs BEFORE the linescore fetch (~line 389) in
+   the same run — the cache it needs is always one run behind. Worse, the settler's rolled-branch
+   said "settled by an earlier run — nothing to do" whenever dp.date > target, so once the morning
+   regeneration rolled the portfolio, the held day would have stayed pending FOREVER while every
+   night reported success. (The run's own honest per-leg reasons are what made this diagnosable —
+   the P239 typed-reason work paying for itself.)
+
+**Repaired (executable cause, not just visibility)**:
+- Workflow: linescores fetched for the settle date BEFORE grading (free StatsAPI, idempotent);
+  bounded catch-up invocations for D-2/D-3 after the apply.
+- Settler: the rolled branch now consults the dated receipt — decisive receipt → true no-op;
+  pending receipt → catch-up grading from the receipt's own embedded identities under the one
+  permitted transition (pending → decided); pre-P240 receipts with no identity hold honestly.
+  Receipts now embed id/matchup/selection per leg so a held day can always be completed later.
+- 4 new child-process scenarios on the real settler (13/13 green).
+- **One-time Sep-6 remediation**: re-graded through the SAME settler against the pre-roll
+  portfolio (commit b94a4eacd) and the linescore cache the run itself committed (0055c5099):
+  **Bank Builder A WON · Bank Builder B LOST (Toronto 1–6) · Moonshot A LOST · Moonshot B LOST**
+  — 16/16 legs decisive, matching P239's manual StatsAPI verification. Receipt installed with a
+  full provenance note; the live rolled portfolio untouched.
+
+The Sep-6 trace the charter asked for, complete: published card ids → official outcomes
+(StatsAPI linescores, committed) → production settlement receipt (settled/2026-09-06.json,
+1W–3L) → exposure (the day's $250 lived only in the day's portfolio view; today's regeneration
+computed fresh state; no double counting) → next generation (Sep-7 lanes generated 10:35Z,
+awaiting activation).
+
+## Two more intra-run ordering findings (Sep 7, 11:30–12:00Z)
+
+While gating the settlement repair, the suite surfaced two more members of the same defect family
+(a consumer running before its producer inside one scheduled run):
+
+1. **UFC identity audit noise on every card roll — FIXED.** The card rolls to the next event on
+   Sunday; the odds capture replaces the snapshot on Tuesday's cron. Inside that window every
+   odds row is absent from the NEW card by construction, and the cross-join painted ten
+   UNJOINED_DERIVED findings (first occurrence: this morning's audit; yesterday's ran before the
+   card rolled). The audit now cross-joins exactly when both artifacts describe the SAME event
+   (keyed on their own providerEventIds — never a clock); a superseded prior-event snapshot is
+   audited for internal identity only. Every consumer already refused the stale snapshot at its
+   own gate (tier-grid NOT_ELIGIBLE · pricedGames 0; ladder snapshot-mismatch). Guard pins both
+   directions: the exemption keys on event identities AND the same-event join must keep existing
+   (always-null would silence the real defect). Audit regenerated: UFC OK, MLB's 8 findings are
+   the frozen pre-fix slug dates.
+
+2. **model-results index one second stale — TRANSIENT, named, not patched this session.** Tonight's
+   run wrote model-index.json at 10:35:30Z and updated graded-picks.json at 10:35:31Z with the 549
+   rows it had just settled — the committed pair disagrees by exactly those 549 rows until the
+   second cron rebuilds the index against the settled aggregate (nothing new to settle then, so
+   the pair converges). The suite's exact-reconciliation guard is right to be strict; the window
+   is real but self-healing within ~2h every night. The durable fix is reordering inside the
+   orchestrator (index build after the aggregate export) — queued as a named finding rather than
+   patching the pipeline spine at the end of this session.

@@ -204,10 +204,27 @@ jobs:
           TARGET="${SETTLE_DATE:-$(TZ=America/New_York date -d 'yesterday' +%F)}"
           DATE_ARG="--date ${TARGET}"
           cd app
+          # THE CACHE MUST EXIST BEFORE THE GRADE (P240). The team-market grader reads the
+          # committed linescore cache, and the workflow's linescore fetch sat in a LATER step —
+          # so the first production settlement (2026-09-07) held all sixteen legs with "no
+          # linescore", the morning regeneration rolled the portfolio, and the day would have
+          # stayed pending for ever. The fetch is free StatsAPI, idempotent, and the later fetch
+          # step remains for the artifacts it serves.
+          npx --yes tsx scripts/fetch-mlb-linescores.mjs --dates "$TARGET" --write \
+            || echo "::warning::linescore fetch failed for $TARGET — team legs will hold with their reason"
           if [ "${DRY_RUN_SETTLE}" = "1" ]; then
             npx tsx scripts/settle-mlb-player-props.mjs $DATE_ARG
           else
             npx tsx scripts/settle-mlb-player-props.mjs $DATE_ARG --apply
+            # Bounded catch-up: a day the portfolio has rolled past but whose receipt still holds
+            # pending lanes (the exact 2026-09-06 state) is graded from the receipt's own embedded
+            # identities under the one permitted transition, pending → decided. Decisive receipts
+            # no-op. Two days is the window the drifted crons can actually leave behind.
+            for BACK in 2 3; do
+              D="$(TZ=America/New_York date -d "${TARGET} -$((BACK - 1)) day" +%F)"
+              npx tsx scripts/settle-mlb-player-props.mjs --date "$D" --apply \
+                || echo "::warning::catch-up settlement failed for $D — receipt left as it was"
+            done
           fi
 
       # ---- Bank Builder ladder + Moonshot lane settlement (Program 236) ----
@@ -230,24 +247,6 @@ jobs:
           npx tsx scripts/products/settle-ladder-cards.mjs \
             --apply --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             || echo "::warning::ladder settlement failed — prior ledger retained, cards stay pending"
-
-      # ---- Public model-results index (Program 235, scheduled by Program 238) ----
-      #
-      # `build-model-results-index.mjs` partitions every settled model pick for /results/model-audit.
-      # It was built with a hard reconciliation guard — it refuses to write unless its detail matches
-      # graded-picks.json exactly — and then scheduled by nothing. Grading ran nightly and moved the
-      # aggregate; the index did not, so the guard began failing on a stale artifact. A producer with
-      # a strict contract and no caller does not stay correct, it just fails later.
-      #
-      # It runs here, after grading, for the same reason the ladder settler does: this is the job
-      # that changes the numbers it derives from.
-      - name: Rebuild the public model-results index
-        if: ${{ github.event.inputs.dry_run != 'true' }}
-        run: |
-          set -euo pipefail
-          cd app
-          npx tsx scripts/results/build-model-results-index.mjs --apply \
-            || echo "::warning::model-results index refused to write — prior index retained"
 
       # ---- Roll the daily portfolio forward to TODAY (ET) ----
       #
@@ -281,6 +280,22 @@ jobs:
           set -euo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           (cd app && node scripts/sports/build-graded-picks.mjs --now "$NOW" --write)
+
+      # ---- Public model-results index (Program 235, scheduled by P238, reordered by P240) ----
+      #
+      # `build-model-results-index.mjs` partitions every settled model pick for /results/model-audit,
+      # with a hard reconciliation guard: its coverage must match graded-picks.json EXACTLY. Until
+      # P240 it ran BEFORE the step above rewrote graded-picks — so on any night that settled rows,
+      # the committed pair disagreed by exactly those rows (2026-09-07: 549) until the next cron
+      # rebuilt it against a quiet aggregate. A consumer with an exact-match contract runs AFTER the
+      # producer it reconciles with — the same rule this run applies to linescores-before-grading.
+      - name: Rebuild the public model-results index
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          cd app
+          npx tsx scripts/results/build-model-results-index.mjs --apply \
+            || echo "::warning::model-results index refused to write — prior index retained"
 
       - name: Rebuild the risk-ladder record
         if: always()

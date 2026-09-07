@@ -115,10 +115,28 @@ function ufcPopulations() {
   const odds = read("ufc", "odds-latest.json");
   const priced = odds?.bouts ?? [];
   if (priced.length) {
+    /*
+     * A SUPERSEDED SNAPSHOT IS NOT AN IDENTITY DEFECT (P240). Both artifacts carry their event's
+     * own provider id, and the capture cadence GUARANTEES a window where they disagree: the card
+     * rolls to the next event on Sunday, the odds capture replaces the snapshot on fight week's
+     * Tuesday cron. Inside that window every odds row is absent from the NEW card by construction
+     * — cross-joining them produced ten UNJOINED_DERIVED findings the morning after every card
+     * (first: 2026-09-07), a red the readers would learn to ignore (the P233 rule: never assert a
+     * state the producer legitimately never emits). The rows still join their OWN event, and every
+     * consumer already refuses the stale snapshot at its own gate (the tier-grid graded it
+     * NOT_ELIGIBLE · pricedGames 0; the ladder refuses a snapshot for a different event).
+     *
+     * So the cross-join runs exactly when it means something: the two artifacts describe the SAME
+     * event. A row absent upstream THEN is the real defect this finding exists for. When they
+     * describe different events, the snapshot is audited for its internal identity invariants
+     * only, and the supersession is a fact the artifact states about itself, not a finding.
+     */
+    const sameEvent = String(odds?.event?.providerEventId ?? "") !== "" &&
+      String(odds?.event?.providerEventId ?? "") === String(card?.event?.providerEventId ?? "");
     pops.push(auditPopulation({
       sport: "ufc", scope: "odds-latest", rows: priced,
       identityOf: (b) => b.boutId,
-      upstream: new Set(bouts.map((b) => String(b.boutId)).filter(Boolean)),
+      upstream: sameEvent ? new Set(bouts.map((b) => String(b.boutId)).filter(Boolean)) : null,
     }));
   }
   return pops;

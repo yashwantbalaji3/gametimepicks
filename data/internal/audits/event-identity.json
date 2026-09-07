@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "event-identity-audit",
   "dataClass": "INTERNAL_DERIVED",
-  "generatedAt": "2026-09-07T10:36:08Z",
+  "generatedAt": "2026-09-07T10:49:08Z",
   "state": "FINDINGS",
   "note": "Identity and slug reconciliation across every sport's committed artifacts. NO_EVENTS means the checks were vacuous for that sport, which is a statement about the window rather than a pass.",
   "sports": [
@@ -1143,7 +1143,7 @@
     },
     {
       "sport": "ufc",
-      "verdict": "FINDINGS",
+      "verdict": "OK",
       "rows": 23,
       "populations": [
         {
@@ -1156,71 +1156,10 @@
           "scope": "odds-latest",
           "rows": 10,
           "identified": 10,
-          "findings": 10
+          "findings": 0
         }
       ],
-      "findings": [
-        {
-          "kind": "UNJOINED_DERIVED",
-          "sport": "ufc",
-          "scope": "odds-latest",
-          "detail": "row 0 (id 401911286) is absent upstream"
-        },
-        {
-          "kind": "UNJOINED_DERIVED",
-          "sport": "ufc",
-          "scope": "odds-latest",
-          "detail": "row 1 (id 401914473) is absent upstream"
-        },
-        {
-          "kind": "UNJOINED_DERIVED",
-          "sport": "ufc",
-          "scope": "odds-latest",
-          "detail": "row 2 (id 401898007) is absent upstream"
-        },
-        {
-          "kind": "UNJOINED_DERIVED",
-          "sport": "ufc",
-          "scope": "odds-latest",
-          "detail": "row 3 (id 401902947) is absent upstream"
-        },
-        {
-          "kind": "UNJOINED_DERIVED",
-          "sport": "ufc",
-          "scope": "odds-latest",
-          "detail": "row 4 (id 401875227) is absent upstream"
-        },
-        {
-          "kind": "UNJOINED_DERIVED",
-          "sport": "ufc",
-          "scope": "odds-latest",
-          "detail": "row 5 (id 401911288) is absent upstream"
-        },
-        {
-          "kind": "UNJOINED_DERIVED",
-          "sport": "ufc",
-          "scope": "odds-latest",
-          "detail": "row 6 (id 401916275) is absent upstream"
-        },
-        {
-          "kind": "UNJOINED_DERIVED",
-          "sport": "ufc",
-          "scope": "odds-latest",
-          "detail": "row 7 (id 401914474) is absent upstream"
-        },
-        {
-          "kind": "UNJOINED_DERIVED",
-          "sport": "ufc",
-          "scope": "odds-latest",
-          "detail": "row 8 (id 401911287) is absent upstream"
-        },
-        {
-          "kind": "UNJOINED_DERIVED",
-          "sport": "ufc",
-          "scope": "odds-latest",
-          "detail": "row 9 (id 401913130) is absent upstream"
-        }
-      ],
+      "findings": [],
       "note": null
     },
     {
@@ -1241,6 +1180,6 @@
   ],
   "totals": {
     "rows": 2451,
-    "findings": 18
+    "findings": 8
   }
 }

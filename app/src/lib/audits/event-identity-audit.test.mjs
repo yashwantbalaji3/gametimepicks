@@ -116,3 +116,18 @@ test("LIVE · the audit actually looked at something — a vacuous pass is not a
     assert.ok(SPORT_VERDICTS.includes(byName.get(sport).verdict), `${sport}: verdict outside the vocabulary`);
   }
 });
+
+test("the UFC odds cross-join runs exactly when both artifacts describe the same event (P240)", () => {
+  /*
+   * The card rolls on Sunday; the odds capture replaces the snapshot on Tuesday. Inside that
+   * window every odds row is absent from the NEW card by construction, and cross-joining them
+   * painted ten UNJOINED_DERIVED findings the morning after every card. The exemption keys on the
+   * artifacts' OWN event identities — and the join must still exist for the same-event case,
+   * because an always-null upstream would silence the real defect this finding exists for.
+   */
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts", "audits", "build-event-identity-audit.mjs"), "utf8");
+  assert.match(src, /sameEvent\s*\?\s*new Set\(bouts\.map/,
+    "the same-event case must keep its upstream join — always-null silences the real defect");
+  assert.match(src, /odds\?\.event\?\.providerEventId[\s\S]{0,200}card\?\.event\?\.providerEventId/,
+    "the exemption keys on the artifacts' own event identities, never on a clock");
+});

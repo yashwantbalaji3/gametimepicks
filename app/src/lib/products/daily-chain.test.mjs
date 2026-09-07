@@ -177,3 +177,81 @@ test("the fixture root is honoured — production is untouched", () => {
   run(app, ["--apply"]);
   assert.ok(before.equals(fs.readFileSync(real)), "the real portfolio must be byte-identical after a fixture run");
 });
+
+/*
+ * ── P240 · ROLLED IS NOT SETTLED — the catch-up path ───────────────────────────────────────────
+ *
+ * The first production settlement (2026-09-07) held all sixteen legs because the workflow fetched
+ * the linescore cache AFTER the settle step; the morning regeneration then rolled the portfolio,
+ * and the old "already settled by an earlier run" exit would have left the day pending for ever
+ * while reporting success. These drive THE settler through the rolled state: a receipt that is
+ * still pending is graded from its own embedded identities under the one permitted transition
+ * (pending → decided); a decisive receipt is a byte-identical no-op; a pre-P240 receipt with no
+ * identities holds honestly instead of guessing.
+ */
+const receiptPathOf = (app) => path.join(app, "public", "data", "mr-dub", "settled", `${DATE}.json`);
+const pendingReceipt = (app, { withIdentity = true } = {}) => {
+  fs.mkdirSync(path.dirname(receiptPathOf(app)), { recursive: true });
+  fs.writeFileSync(receiptPathOf(app), JSON.stringify({
+    date: DATE, settledAt: "2026-09-07T10:35:27Z", source: "test",
+    lanes: [{
+      product: "bank-builder", lane: "A", step: 1, stake: 100, result: "pending", potentialReturn: 224,
+      legs: [{
+        ...(withIdentity ? { id: "MLB:g1:mlb_moneyline:Seattle_Mariners_to_win", matchup: "Athletics @ Seattle Mariners", selection: "Seattle Mariners to win" } : {}),
+        player: null, market: "Moneyline", side: null, line: null, official: null, result: "pending",
+      }],
+    }],
+    record: { wins: 0, losses: 0, pending: 1 },
+  }, null, 1));
+};
+const rollPortfolio = (app) => {
+  const dp = portfolio(app);
+  dp.date = "2026-09-07";
+  fs.writeFileSync(path.join(app, "public", "data", "mr-dub", "daily-portfolio.json"), JSON.stringify(dp, null, 2));
+};
+
+test("CATCH-UP: a rolled portfolio with a pending receipt settles the receipt from its own identities", () => {
+  const { app } = store({ lanes: [lane("bb-a", [leg("mlb_moneyline", "Seattle Mariners to win", "Athletics @ Seattle Mariners", "g1")])],
+    linescores: [final("Seattle Mariners", "Athletics", 6, 3)] });
+  pendingReceipt(app);
+  rollPortfolio(app);
+  run(app, ["--apply"]);
+  const receipt = JSON.parse(fs.readFileSync(receiptPathOf(app), "utf8"));
+  assert.equal(receipt.lanes[0].result, "won");
+  assert.equal(receipt.lanes[0].legs[0].result, "won");
+  assert.equal(receipt.record.wins, 1);
+  assert.ok(receipt.catchUpSettledAt, "the catch-up stamps itself");
+  assert.equal(portfolio(app).date, "2026-09-07", "the live rolled portfolio is never touched");
+});
+
+test("CATCH-UP: a decisive receipt is a no-op — never re-graded, bytes untouched", () => {
+  const { app } = store({ lanes: [lane("bb-a", [leg("mlb_moneyline", "Seattle Mariners to win", "Athletics @ Seattle Mariners", "g1")])],
+    linescores: [final("Seattle Mariners", "Athletics", 6, 3)] });
+  pendingReceipt(app);
+  rollPortfolio(app);
+  run(app, ["--apply"]);
+  const before = fs.readFileSync(receiptPathOf(app), "utf8");
+  run(app, ["--apply"]);
+  assert.equal(fs.readFileSync(receiptPathOf(app), "utf8"), before, "a second catch-up run changes nothing");
+});
+
+test("CATCH-UP: a pre-P240 receipt with no leg identity holds honestly instead of guessing", () => {
+  const { app } = store({ lanes: [lane("bb-a", [leg("mlb_moneyline", "Seattle Mariners to win", "Athletics @ Seattle Mariners", "g1")])],
+    linescores: [final("Seattle Mariners", "Athletics", 6, 3)] });
+  pendingReceipt(app, { withIdentity: false });
+  rollPortfolio(app);
+  const before = fs.readFileSync(receiptPathOf(app), "utf8");
+  run(app, ["--apply"]);
+  assert.equal(fs.readFileSync(receiptPathOf(app), "utf8"), before, "no identity → no grade, receipt unchanged");
+});
+
+test("the receipt now embeds each leg's identity, so a future catch-up can always grade it", () => {
+  const { app } = store({ lanes: [lane("bb-a", [leg("mlb_moneyline", "Seattle Mariners to win", "Athletics @ Seattle Mariners", "g1")])],
+    linescores: [] });   // nothing final: the day settles pending, exactly the held state
+  run(app, ["--apply"]);
+  const receipt = JSON.parse(fs.readFileSync(receiptPathOf(app), "utf8"));
+  assert.equal(receipt.lanes[0].result, "pending");
+  assert.equal(receipt.lanes[0].legs[0].matchup, "Athletics @ Seattle Mariners");
+  assert.equal(receipt.lanes[0].legs[0].selection, "Seattle Mariners to win");
+  assert.match(receipt.lanes[0].legs[0].id, /mlb_moneyline/);
+});
