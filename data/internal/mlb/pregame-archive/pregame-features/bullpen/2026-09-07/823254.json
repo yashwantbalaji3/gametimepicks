@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823254,
   "date": "2026-09-07",
-  "capturedAt": "2026-09-07T00:31:09.423Z",
-  "availableAt": "2026-09-07T00:31:09.423Z",
+  "capturedAt": "2026-09-07T05:41:08.690Z",
+  "availableAt": "2026-09-07T05:41:08.690Z",
   "eventStartTime": "2026-09-07T21:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -150,13 +150,34 @@
     "teamId": 120,
     "teamName": "Washington Nationals",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 2,
+      "pitches": 79,
+      "relievers": [
+        {
+          "id": 702021,
+          "name": "Will Dion",
+          "appearances": 1,
+          "pitches": 40,
+          "outs": 6,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 695418,
+          "name": "Brad Lord",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 5,
+          "dates": [
+            "2026-09-06"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 5,
-      "pitches": 106,
+      "appearances": 7,
+      "pitches": 185,
       "relievers": [
         {
           "id": 695378,
@@ -167,6 +188,26 @@
           "dates": [
             "2026-09-04",
             "2026-09-05"
+          ]
+        },
+        {
+          "id": 702021,
+          "name": "Will Dion",
+          "appearances": 1,
+          "pitches": 40,
+          "outs": 6,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 695418,
+          "name": "Brad Lord",
+          "appearances": 1,
+          "pitches": 39,
+          "outs": 5,
+          "dates": [
+            "2026-09-06"
           ]
         },
         {
@@ -201,12 +242,23 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 702021,
+        "name": "Will Dion",
+        "reason": "40 pitches yesterday"
+      },
+      {
+        "id": 695418,
+        "name": "Brad Lord",
+        "reason": "39 pitches yesterday"
+      }
+    ]
   },
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-04,2026-09-05,2026-09-06) + feed/live box scores",
-    "capturedAt": "2026-09-07T00:31:09.423Z"
+    "capturedAt": "2026-09-07T05:41:08.690Z"
   },
-  "recordHash": "68deadf82f06216573c8a2870a7d4505376081d3a51dfb442c5e3ace9061b4f3"
+  "recordHash": "1426a0b177e74b7f9ce65380df427ae517a342daa308ae89f54b37aaa3524bf1"
 }

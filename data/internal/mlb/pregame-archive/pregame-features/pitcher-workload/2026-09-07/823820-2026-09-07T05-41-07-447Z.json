@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823820,
+  "date": "2026-09-07",
+  "capturedAt": "2026-09-07T05:41:07.447Z",
+  "availableAt": "2026-09-07T05:41:07.447Z",
+  "eventStartTime": "2026-09-07T17:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 691587,
+      "name": "Eury Pérez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 25,
+      "restDays": 5,
+      "lastStartDate": "2026-09-02",
+      "last5": {
+        "starts": 5,
+        "ipSum": 25.67,
+        "ipAvg": 5.13,
+        "kAvg": 4.8,
+        "bbAvg": 3.4,
+        "erAvg": 2.4,
+        "hrAvg": 0.8,
+        "kPer9": 8.42,
+        "workloadIpLast5": 25.67
+      },
+      "seasonToDate": {
+        "starts": 25,
+        "ip": 135.33,
+        "k": 145,
+        "bb": 59,
+        "er": 56,
+        "hr": 17
+      }
+    },
+    "away": {
+      "id": 804636,
+      "name": "Jonah Tong",
+      "hasHistory": false,
+      "seasonStarts": 0,
+      "restDays": null,
+      "lastStartDate": null,
+      "last5": null,
+      "seasonToDate": null
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-07T05:41:07.447Z"
+  },
+  "recordHash": "b10320ba8da298288f534c913d82e16d347cbdd4d4a94b194b9e8e426b507f2f"
+}

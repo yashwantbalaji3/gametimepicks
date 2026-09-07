@@ -6,8 +6,8 @@
   "family": "bullpen_availability",
   "gamePk": 823902,
   "date": "2026-09-07",
-  "capturedAt": "2026-09-07T00:31:09.423Z",
-  "availableAt": "2026-09-07T00:31:09.423Z",
+  "capturedAt": "2026-09-07T05:41:08.690Z",
+  "availableAt": "2026-09-07T05:41:08.690Z",
   "eventStartTime": "2026-09-08T01:10:00Z",
   "researchEligible": true,
   "eligibilityReason": "captured pregame; source games Final + strictly earlier",
@@ -20,14 +20,76 @@
     "teamId": 119,
     "teamName": "Los Angeles Dodgers",
     "last1Day": {
-      "appearances": 0,
-      "pitches": 0,
-      "relievers": []
+      "appearances": 4,
+      "pitches": 97,
+      "relievers": [
+        {
+          "id": 676272,
+          "name": "Bobby Miller",
+          "appearances": 1,
+          "pitches": 53,
+          "outs": 9,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 683618,
+          "name": "Edgardo Henriquez",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 595014,
+          "name": "Blake Treinen",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 592779,
+          "name": "Brock Stewart",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 3,
+          "dates": [
+            "2026-09-06"
+          ]
+        }
+      ]
     },
     "last3Days": {
-      "appearances": 8,
-      "pitches": 94,
+      "appearances": 12,
+      "pitches": 191,
       "relievers": [
+        {
+          "id": 676272,
+          "name": "Bobby Miller",
+          "appearances": 1,
+          "pitches": 53,
+          "outs": 9,
+          "dates": [
+            "2026-09-06"
+          ]
+        },
+        {
+          "id": 683618,
+          "name": "Edgardo Henriquez",
+          "appearances": 2,
+          "pitches": 27,
+          "outs": 6,
+          "dates": [
+            "2026-09-04",
+            "2026-09-06"
+          ]
+        },
         {
           "id": 656945,
           "name": "Tanner Scott",
@@ -37,6 +99,16 @@
           "dates": [
             "2026-09-04",
             "2026-09-05"
+          ]
+        },
+        {
+          "id": 595014,
+          "name": "Blake Treinen",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-09-06"
           ]
         },
         {
@@ -70,13 +142,13 @@
           ]
         },
         {
-          "id": 683618,
-          "name": "Edgardo Henriquez",
+          "id": 592779,
+          "name": "Brock Stewart",
           "appearances": 1,
-          "pitches": 10,
+          "pitches": 11,
           "outs": 3,
           "dates": [
-            "2026-09-04"
+            "2026-09-06"
           ]
         },
         {
@@ -101,7 +173,13 @@
         }
       ]
     },
-    "likelyUnavailable": []
+    "likelyUnavailable": [
+      {
+        "id": 676272,
+        "name": "Bobby Miller",
+        "reason": "53 pitches yesterday"
+      }
+    ]
   },
   "away": {
     "teamId": 113,
@@ -269,7 +347,7 @@
   "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
   "provenance": {
     "source": "https://statsapi.mlb.com schedule(2026-09-04,2026-09-05,2026-09-06) + feed/live box scores",
-    "capturedAt": "2026-09-07T00:31:09.423Z"
+    "capturedAt": "2026-09-07T05:41:08.690Z"
   },
-  "recordHash": "6a098cd590231e45d0934854cc18131d87d2f91f44cebe607d04629429c5727b"
+  "recordHash": "77b5b539a113b5e9d21b192268ede257b2fb2cb52abb32401cbad0ce57b8f6d0"
 }

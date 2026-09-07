@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 823254,
+  "date": "2026-09-07",
+  "capturedAt": "2026-09-07T05:41:07.447Z",
+  "availableAt": "2026-09-07T05:41:07.447Z",
+  "eventStartTime": "2026-09-07T21:10:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 601713,
+      "name": "Nick Pivetta",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 4,
+      "restDays": 148,
+      "lastStartDate": "2026-04-12",
+      "last5": {
+        "starts": 4,
+        "ipSum": 16,
+        "ipAvg": 4,
+        "kAvg": 6,
+        "bbAvg": 1.5,
+        "erAvg": 2,
+        "hrAvg": 0,
+        "kPer9": 13.5,
+        "workloadIpLast5": 16
+      },
+      "seasonToDate": {
+        "starts": 4,
+        "ip": 16,
+        "k": 24,
+        "bb": 6,
+        "er": 8,
+        "hr": 0
+      }
+    },
+    "away": {
+      "id": 663623,
+      "name": "Jake Irvin",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 6,
+      "lastStartDate": "2026-09-01",
+      "last5": {
+        "starts": 5,
+        "ipSum": 23.67,
+        "ipAvg": 4.73,
+        "kAvg": 5,
+        "bbAvg": 2.8,
+        "erAvg": 3.2,
+        "hrAvg": 1,
+        "kPer9": 9.51,
+        "workloadIpLast5": 23.67
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 85.67,
+        "k": 87,
+        "bb": 40,
+        "er": 53,
+        "hr": 15
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-07T05:41:07.447Z"
+  },
+  "recordHash": "3230c33d700febb62f55bfd47907eaa9631ca5ad5e10813917bf89b8356bbdbb"
+}
