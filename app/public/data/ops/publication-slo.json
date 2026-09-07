@@ -1,18 +1,50 @@
 {
   "kind": "publication-slo",
   "date": "2026-09-07",
-  "platformState": "PUBLISHING",
+  "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
-      "state": "PUBLISHED",
-      "reason": "all 11 event(s) in the horizon carry a forecast",
+      "state": "MISSED_COVERAGE",
+      "reason": "6 of 11 event(s) started with no pre-event forecast; nothing is still pending",
       "deadlineUtc": null,
       "counts": {
         "scheduled": 11,
-        "published": 11,
-        "missedCoverage": 0,
+        "published": 5,
+        "missedCoverage": 6,
         "awaiting": 0
-      }
+      },
+      "missed": [
+        {
+          "id": "823415",
+          "label": "Atlanta Braves @ Philadelphia Phillies",
+          "startUtc": "2026-09-07T17:05:00Z"
+        },
+        {
+          "id": "823820",
+          "label": "New York Mets @ Miami Marlins",
+          "startUtc": "2026-09-07T17:10:00Z"
+        },
+        {
+          "id": "824715",
+          "label": "Los Angeles Angels @ Boston Red Sox",
+          "startUtc": "2026-09-07T17:35:00Z"
+        },
+        {
+          "id": "824793",
+          "label": "Cleveland Guardians @ Baltimore Orioles",
+          "startUtc": "2026-09-07T17:35:00Z"
+        },
+        {
+          "id": "824062",
+          "label": "Arizona Diamondbacks @ Kansas City Royals",
+          "startUtc": "2026-09-07T18:10:00Z"
+        },
+        {
+          "id": "823742",
+          "label": "Chicago Cubs @ Milwaukee Brewers",
+          "startUtc": "2026-09-07T18:10:00Z"
+        }
+      ]
     },
     "nfl": {
       "state": "PUBLISHING",
@@ -51,22 +83,22 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-09-07T18:06:26.592Z",
+  "checkedAt": "2026-09-07T18:30:11.548Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
-  "reason": "board published with 489 rows",
+  "reason": "board published with 220 rows",
   "publishDeadlineUtc": null,
   "scheduledGames": 11,
-  "pregameRemaining": 7,
-  "alreadyStarted": 4,
+  "pregameRemaining": 5,
+  "alreadyStarted": 6,
   "board": {
     "present": true,
-    "leans": 489,
+    "leans": 220,
     "pendingReason": null,
-    "generatedAt": "2026-09-07T16:43:44.055919+00:00",
+    "generatedAt": "2026-09-07T18:23:50.762295+00:00",
     "scheduledGames": 11,
-    "startedBeforeGeneration": 0
+    "startedBeforeGeneration": 6
   },
   "games": [
     {
@@ -106,16 +138,16 @@
       "startUtc": "2026-09-07T18:10:00Z",
       "away": "Arizona Diamondbacks",
       "home": "Kansas City Royals",
-      "detailedState": "Warmup",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 823742,
       "startUtc": "2026-09-07T18:10:00Z",
       "away": "Chicago Cubs",
       "home": "Milwaukee Brewers",
-      "detailedState": "Warmup",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 824229,
