@@ -155,3 +155,27 @@ This file is THE single backlog (charter §2). Historical unresolved items are m
 - DEVICE: REAL_DEVICE_CHECK_PENDING (checklist above).
 
 Broad public launch remains a separate decision while the external approvals stand.
+
+# Program 244 continuation (same register — no competing backlog)
+
+## Baseline (2026-09-07 22:01Z / 18:01 ET)
+HEAD b08dd6892+bots → pulled; prod ⊇ P243 final; protected md5s canonical; no owned processes.
+
+## P244 Release A/B — NFL Week 1 delivered TONIGHT (the charter's milestone)
+- Bottleneck named: the T-18h outer gate + 30/48h builder lookaheads. Removed at BOTH owners:
+  build-nfl-public-forecasts populates the CURRENT (seasonType, week) period (hour lookahead =
+  backstop for weekless schedules); nfl-event-window's gate asks "any pre-start event in the
+  current week". Model semantics untouched (pre-now fit, immutable receipts + pre-kickoff
+  revisions, settle-latest-pre-kickoff).
+- Coherence rule made sampling-noise-aware (3σ of a 10k-run rate): BAL@IND p=.500/median+1 is one
+  distribution rounded twice, not a contradiction. 16/16 publish.
+- First natural run (34165498035): 16 regular-season forecasts committed; expired P171 odds
+  receipt exited 0 by design (unpriced reports, never a fatal gate); role evidence honestly empty
+  (actives source absent this far out) → game-level player sims refused with the named reason;
+  TEAM reports complete.
+- PROD, verified rendered ~22:50Z: /nfl/game/401872656/ = full report (NE 19–26 SEA · 61.7/35.7/
+  tie 2.6 · total 45 [28–62]); hub "16 scheduled · 16 with a report", 16 SIMULATED rows.
+- Guard corpus taught the regular regime (regime-scoped, direction-aware inversion, tie mass,
+  regime-aware differentiation audit whose public prose no longer says "preseason" over Week 1).
+- Hub cards repointed to /nfl/game/<id>/ (the 16 /games/nfl sim links 404'd — participation-gated
+  route); fix pushed d30c15300, deploy in flight.
