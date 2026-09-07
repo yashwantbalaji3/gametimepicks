@@ -242,3 +242,22 @@ While gating the settlement repair, the suite surfaced two more members of the s
    is real but self-healing within ~2h every night. The durable fix is reordering inside the
    orchestrator (index build after the aggregate export) — queued as a named finding rather than
    patching the pipeline spine at the end of this session.
+
+## The repaired workflow, exercised end-to-end in production (run 34128380515, 13:36Z, success)
+
+Tonight's second cron checked out the repaired workflow and every new path ran exactly as
+designed, unattended:
+- `[linescores] WROTE 2026-09-06 · 15 games (15 final)` — fetch-before-grade.
+- "the 2026-09-06 receipt is decisive on every lane — settled by an earlier run, nothing to do"
+  — the rolled-branch consulted the remediated receipt and truly no-opped.
+- The D-2/D-3 catch-up probed the Sep-5 and Sep-4 receipts (zero-leg placeholder era, pre-P240
+  format), held every lane honestly ("nothing became decisive — the receipt is unchanged"), wrote
+  nothing, guessed nothing.
+- The reordered index left a CONSISTENT committed pair (19,551 wins / 41,228 rows on both sides).
+- A clean idempotent night: the run pushed no commits.
+
+Forward-evaluation window: first 492/2,000 decisive rows landed (calibration/2026-09-06.jsonl) —
+on pace for eligibility ≈ Sep 10. Correctly not evaluated.
+
+CI quality-gate: success on `aeaca6e9e`. Production serving `1a6ab87c9`, verify:deployment OK.
+Remaining observation: the daily-products workflow_run first natural firing (watcher armed).
