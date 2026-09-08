@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "artifact": "pass-baseline-verdict",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "248",
+  "candidate": "pass-yds-baseline-v1",
+  "preregistration": "data/internal/research/nfl/reports/pass-baseline-candidate-preregistration.json",
+  "evaluation": "data/internal/research/nfl/reports/pass-baseline-evaluation.json",
+  "evaluatedAt": "2026-09-08T22:45:00Z",
+  "verdict": "REJECTED",
+  "bars": {
+    "beatsRolling4": { "pass": true, "observed": "70.91 vs 72.022" },
+    "beatsChampionChain": { "pass": true, "observed": "70.91 vs 80.736 on identical points" },
+    "coverage80": { "pass": true, "observed": 0.8086 },
+    "ece": { "pass": false, "observed": 0.1131, "bar": 0.05 },
+    "minN": { "pass": true, "observed": 580 }
+  },
+  "whatWasLearned": {
+    "headline": "The simple baseline given a train-residual distribution fixes the POINT forecast (beats the simulation chain by 10 yds MAE on identical points) and the INTERVALS (coverage 0.809, first pass-yds candidate ever inside the band) — but its THRESHOLD probabilities stay badly calibrated (0.113; the champion chain's on the same population is worse, 0.163).",
+    "structure": "Two pooled residual buckets are too coarse for probability claims: starter pool n=939 with an asymmetric band (p10 -91 / p90 +120), contested pool only n=209, and the share gate empties the reserve bucket. A single pooled CDF cannot price lines that sit at each player's own recent mean.",
+    "namedNextDependency": "A share-continuous predictive spread — residual scale modeled as a train-fit function of walk-forward share and recent volatility (or a per-player conditional sigma) — replacing the pooled-bucket CDF. Requires its own preregistration; nothing here may be tuned against 2025 again.",
+    "familyStanding": "player_pass_yds stays WITHHELD. No engine — simulation chain or baseline — currently clears calibration on the honest population; the boards keep saying so with the exact bar."
+  }
+}

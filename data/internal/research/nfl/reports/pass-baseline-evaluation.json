@@ -1,0 +1,100 @@
+{
+ "schemaVersion": 1,
+ "artifact": "pass-baseline-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-09-08T22:45:00Z",
+ "candidate": "pass-yds-baseline-v1",
+ "preregistration": "data/internal/research/nfl/reports/pass-baseline-candidate-preregistration.json",
+ "populationContractVersion": 2,
+ "populationAccounting": {
+  "contractVersion": 2,
+  "scoredWithRow": 1650,
+  "scoredPlayedNoRow": 78,
+  "voidDidNotDress": 1051,
+  "excludedAmbiguous": 6,
+  "excludedSourceMissing": 0
+ },
+ "inputs": {
+  "volume": {
+   "a0": 33.1877,
+   "a1": -0.13645,
+   "sigma": 7.4689,
+   "n": 1140
+  },
+  "league": {
+   "compRate": 0.64923,
+   "ypcmp": 10.93
+  },
+  "marginSlope": 0.069322,
+  "shareParams": {
+   "halfLifeGames": 4,
+   "shrinkK": 0.5,
+   "boundaryDecay": 0.25
+  },
+  "qbShareGate": 0.3
+ },
+ "heldOut2025": {
+  "n": 580,
+  "joinedOfCandidatePoints": "580/580",
+  "unjoinedSample": [],
+  "mae": 70.91,
+  "championMaeIdenticalPoints": 80.736,
+  "rolling4MaeIdenticalPoints": 72.022,
+  "pinball": 24.227,
+  "coverage80": 0.8086,
+  "ece": 0.1131,
+  "calPairs": 515,
+  "binsUsed": 6,
+  "trainResiduals": {
+   "starter": 939,
+   "contested": 209,
+   "reserve": 0
+  },
+  "bucketQuantiles": {
+   "starter": {
+    "0.1": -90.76114944831184,
+    "0.25": -29.388884557449444,
+    "0.5": 25.903970203207166,
+    "0.75": 74.38848203463704,
+    "0.9": 120.2811808272831
+   },
+   "contested": {
+    "0.1": -136.72127145327084,
+    "0.25": -46.61653334201017,
+    "0.5": 56.51645799059193,
+    "0.75": 114.47793846059065,
+    "0.9": 166.11489121517087
+   },
+   "reserve": {
+    "0.1": 0,
+    "0.25": 0,
+    "0.5": 0,
+    "0.75": 0,
+    "0.9": 0
+   }
+  }
+ },
+ "bars": {
+  "beatsRolling4": {
+   "pass": true,
+   "observed": "70.91 vs 72.022"
+  },
+  "beatsChampionChain": {
+   "pass": true,
+   "observed": "70.91 vs 80.736"
+  },
+  "coverage80": {
+   "pass": true,
+   "observed": 0.8086
+  },
+  "ece": {
+   "pass": false,
+   "observed": 0.1131
+  },
+  "minN": {
+   "pass": true,
+   "observed": 580
+  }
+ },
+ "verdict": "REJECTED"
+}
