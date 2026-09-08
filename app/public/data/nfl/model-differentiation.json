@@ -2,22 +2,22 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation-public",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-09-08T03:45:22Z",
+  "generatedAt": "2026-09-08T04:05:26Z",
   "slateDate": "2026-09-08",
-  "headline": "Part of this model reacts to the specific teams playing, and part of it does not.",
+  "headline": "Every part of this model reacts to the specific teams playing.",
   "heads": [
     {
       "head": "Who wins, and by how much",
       "state": "EVENT_SPECIFIC",
-      "plainEnglish": "This part uses each team's own strength, so it differs from game to game — across this slate our win percentages range from 46.2% to 68.0%."
+      "plainEnglish": "This part uses each team's own strength, so it differs from game to game — across this slate our win percentages range from 46.3% to 68.0%."
     },
     {
       "head": "How many points are scored",
-      "state": "LIMITED_INPUTS",
-      "plainEnglish": "This part does NOT look at the two teams. Every game draws its point total from the same league scoring average, so if two games show a similar total that is not a claim about those teams — it is the same starting number in both."
+      "state": "EVENT_SPECIFIC",
+      "plainEnglish": "This part now reads the two teams: each game's total comes from that matchup's own scoring ratings, and across this slate the published totals span 44 to 52 points. The head earned this by beating the old league-average prior on a season it had never seen, under bars that were frozen first."
     }
   ],
-  "whyGamesLookAlike": "Game totals on this slate look similar because the total head draws every game from one league scoring average — that part of the model does not read the teams. Win probabilities DO differ by team: they come from an evaluated strength rating. Similar totals are the honest output of a shared prior, not a coincidence and not a bug.",
+  "whyGamesLookAlike": "Both parts of this model now read the teams: win probabilities come from an evaluated strength rating, and each game's total comes from that matchup's own scoring ratings. Where two games still print similar numbers, the distributions behind them differ — the audit checks exactly that.",
   "whatWeFoundAndFixed": "An earlier version of this page applied the team-strength input anyway. Because the measured effect pointed slightly the wrong way, it was quietly favouring the WEAKER side in every game. We caught it, tested the input properly, and switched it off.",
   "whatWouldChangeIt": "A per-team scoring adapter built from the preseason corpus, which would have to beat a preregistered bar on a season it had never seen before it is allowed to move a published total."
 }
