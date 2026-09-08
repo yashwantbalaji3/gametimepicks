@@ -557,7 +557,12 @@ for (const g of test) {
           m.rmse += err * err;
           const qs = [[0.10, dist.p10], [0.25, dist.p25], [0.50, dist.median], [0.75, dist.p75], [0.90, dist.p90]];
           m.pinball += qs.reduce((s, [q, v]) => s + (actual >= v ? q * (actual - v) : (1 - q) * (v - actual)), 0) / qs.length;
-          m.cover80 += actual >= dist.p10 && actual <= dist.p90 ? 1 : 0;
+          /* Contract v2.1 (preregistered): COUNT families score coverage MID-P — an indivisible
+             endpoint mass counts half, making nominal 80% attainable on small integers. Continuous
+             families are unchanged. */
+          const isCount = mkt === "player_receptions";
+          if (isCount && (actual === dist.p10 || actual === dist.p90)) m.cover80 += 0.5;
+          else m.cover80 += actual >= dist.p10 && actual <= dist.p90 ? 1 : 0;
           if (DIAGNOSE_DIR) {
             const famD = MARKET_FAMILY[mkt];
             const shareD = famD === "passAttempts" ? cand.qbShare : famD === "rushAttempts" ? cand.carryShare : cand.targetShare;
@@ -666,6 +671,7 @@ const receipt = {
   gamesimTotals: USE_MATCHUP_TOTALS ? "matchup-totals-v1-decayed-points (integrated)" : "constant (model-v1 shared prior)",
   conditioning: PARTICIPATION_TRUE ? "participation-true (DNP=void via participation-truth-v1)" : "absent-as-zero (legacy)",
   populationContractVersion: PARTICIPATION_TRUE ? POPULATION_CONTRACT_VERSION : null,
+  coverageMeasurement: "v2.1: mid-p for count families (player_receptions); inclusive for continuous families",
   populationAccounting: PARTICIPATION_TRUE ? popAccounting : null,
   dataClass: "PRIVATE_RESEARCH",
   generatedAt: NOW,

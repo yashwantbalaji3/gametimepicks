@@ -4,6 +4,7 @@
  "gamesimTotals": "matchup-totals-v1-decayed-points (integrated)",
  "conditioning": "participation-true (DNP=void via participation-truth-v1)",
  "populationContractVersion": 2,
+ "coverageMeasurement": "v2.1: mid-p for count families (player_receptions); inclusive for continuous families",
  "populationAccounting": {
   "contractVersion": 2,
   "scoredWithRow": 8883,
@@ -13,7 +14,7 @@
   "excludedSourceMissing": 0
  },
  "dataClass": "PRIVATE_RESEARCH",
- "generatedAt": "2026-09-08T21:40:00Z",
+ "generatedAt": "2026-09-08T23:05:00Z",
  "engine": {
   "id": "nfl-player-props-v1-opportunity-efficiency",
   "version": 1
@@ -179,7 +180,7 @@
     "mae": 1.513,
     "rmse": 1.986,
     "pinball": 0.517,
-    "interval80Coverage": 0.8845,
+    "interval80Coverage": 0.7571,
     "thresholdCalibration": {
      "pairs": 3326,
      "binsUsed": 8,
@@ -234,11 +235,11 @@
    }
   },
   "player_receptions": {
-   "state": "SHADOW_ELIGIBLE",
+   "state": "PUBLIC_ELIGIBLE",
    "evidence": {
     "beatsRolling": true,
     "beatsShareVol": true,
-    "coverOk": false,
+    "coverOk": true,
     "calOk": true,
     "n": 3575
    }
