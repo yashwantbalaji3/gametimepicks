@@ -29,6 +29,28 @@ const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -
 const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(1); }
 const RUNS = Number(arg("--runs", "1000"));
+/*
+ * P246 §4.2 challenger lane. `--challenger pass-gamesigma-pooled-mean-v1` changes EXACTLY ONE
+ * parameter's estimator (fit.dispersion.gameSigma.player_pass_yds: games-weighted MEAN of the
+ * excess ratio instead of the unweighted median of sigma) and redirects the receipt to
+ * pass-yds-repair-evaluation.json. The champion receipt is NEVER overwritten by a challenger
+ * run, and the default (no flag) path is byte-identical to the champion protocol.
+ * Preregistered (bars frozen before implementation):
+ * data/internal/research/nfl/reports/pass-yds-coverage-repair-preregistration.json
+ */
+const CHALLENGER = arg("--challenger", null);
+/* P246 §4.3 diagnostics: --diagnose <dir> reruns the champion protocol but writes the receipt
+   AND the per-family threshold-calibration bins into <dir> instead of any committed path —
+   measurement only, no receipt is touched. */
+const DIAGNOSE_DIR = arg("--diagnose", null);
+/* --diagnose-season <year>: score that season instead of 2025 — ONLY with --diagnose (a
+   receipt can never be written from a non-held-out scoring population). For 2024 the league
+   fits are in-sample; usable for BIAS DIRECTION diagnosis, never for a promotion claim. */
+const DIAGNOSE_SEASON = Number(arg("--diagnose-season", "2025"));
+if (DIAGNOSE_SEASON !== 2025 && !DIAGNOSE_DIR) { console.error("REFUSED: --diagnose-season requires --diagnose"); process.exit(1); }
+if (CHALLENGER && CHALLENGER !== "pass-gamesigma-pooled-mean-v1") {
+  console.error(`REFUSED: unknown challenger ${CHALLENGER}`); process.exit(1);
+}
 
 const read = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 
@@ -54,7 +76,7 @@ const finals = read(path.join(ROOT, "data/internal/research/nfl/corpus-v1.json")
 
 // ------------------------------------------------------------------ 1. fit on 2023–24
 const train = games.filter((g) => g.season <= 2024);
-const test = games.filter((g) => g.season === 2025);
+const test = games.filter((g) => g.season === DIAGNOSE_SEASON);
 
 // 1a. game-script volume model: OLS attempts = a0 + a1·ownMargin
 function fitVolume(rowsOf) {
@@ -174,6 +196,39 @@ function fitGameSigma(oppOf, ydsOf, shape) {
   return Number(Math.min(0.8, Math.max(0, median)).toFixed(4));
 }
 
+/*
+ * P246 §4.2 candidate estimator: same qualification and per-player excessRatio as the champion,
+ * pooled by a GAMES-WEIGHTED MEAN of excessRatio (weight = qualifying games) instead of the
+ * unweighted median of per-player sigma. The median deleted the game-level efficiency term for
+ * every family (all three gameSigma = 0); passing yards is where that term dominates.
+ */
+function fitGameSigmaPooledMean(oppOf, ydsOf, shape) {
+  const perPlayer = new Map();
+  for (const g of train) for (const p of g.players ?? []) {
+    const n = oppOf(p);
+    if (!(n >= 3)) continue;
+    const acc = perPlayer.get(p.playerId) ?? [];
+    acc.push({ n, y: ydsOf(p) ?? 0 });
+    perPlayer.set(p.playerId, acc);
+  }
+  let wSum = 0;
+  let wTot = 0;
+  for (const gamesArr of perPlayer.values()) {
+    if (gamesArr.length < 8) continue;
+    const totOpp = gamesArr.reduce((s, o) => s + o.n, 0);
+    const ypo = gamesArr.reduce((s, o) => s + o.y, 0) / totOpp;
+    if (!(ypo > 0)) continue;
+    const ypoG = gamesArr.map((o) => o.y / o.n);
+    const varObs = ypoG.reduce((s, v) => s + (v - ypo) ** 2, 0) / (gamesArr.length - 1);
+    const gammaVar = gamesArr.reduce((s, o) => s + (ypo * ypo) / (shape * o.n), 0) / gamesArr.length;
+    const excessRatio = Math.max(0, varObs - gammaVar) / (ypo * ypo);
+    wSum += excessRatio * gamesArr.length;
+    wTot += gamesArr.length;
+  }
+  const pooled = wTot ? wSum / wTot : 0;
+  return Number(Math.min(0.8, Math.max(0, Math.sqrt(Math.log(1 + pooled)))).toFixed(4));
+}
+
 const recShape = fitShape((p) => p.rec ?? 0, (p) => p.recYds ?? 0);
 const rushShape = fitShape((p) => p.rushAtt ?? 0, (p) => p.rushYds ?? 0);
 const passShape = fitShape((p) => p.passCmp ?? 0, (p) => p.passYds ?? 0);
@@ -185,7 +240,9 @@ const dispersion = {
     targets: fitAllocKappa("targets"),
   },
   gameSigma: {
-    player_pass_yds: fitGameSigma((p) => p.passCmp ?? 0, (p) => p.passYds, passShape),
+    player_pass_yds: CHALLENGER === "pass-gamesigma-pooled-mean-v1"
+      ? fitGameSigmaPooledMean((p) => p.passCmp ?? 0, (p) => p.passYds, passShape)
+      : fitGameSigma((p) => p.passCmp ?? 0, (p) => p.passYds, passShape),
     player_rush_yds: fitGameSigma((p) => p.rushAtt ?? 0, (p) => p.rushYds, rushShape),
     player_reception_yds: fitGameSigma((p) => p.rec ?? 0, (p) => p.recYds, recShape),
   },
@@ -393,6 +450,7 @@ for (const g of test) {
 }
 
 // finalize metrics + ECE + promotion
+const diagnosticsBins = {};
 const table = {};
 for (const mkt of PROP_MARKETS) {
   const m = metrics[mkt];
@@ -402,6 +460,14 @@ for (const mkt of PROP_MARKETS) {
   const usable = bins.filter((b) => b.n >= 50);
   const usableN = usable.reduce((s, b) => s + b.n, 0);
   const ece = usableN ? Number(usable.reduce((s, b) => s + (b.n / usableN) * Math.abs(b.p / b.n - b.hit / b.n), 0).toFixed(4)) : null;
+  if (DIAGNOSE_DIR) {
+    diagnosticsBins[mkt] = bins.map((b, i) => ({
+      bin: `${(i / 10).toFixed(1)}–${((i + 1) / 10).toFixed(1)}`,
+      n: b.n,
+      meanPredicted: b.n ? Number((b.p / b.n).toFixed(4)) : null,
+      observedHitRate: b.n ? Number((b.hit / b.n).toFixed(4)) : null,
+    }));
+  }
   table[mkt] = {
     n: m.n,
     mae: Number((m.mae / n).toFixed(3)),
@@ -466,6 +532,26 @@ const receipt = {
     "rush yards are Gamma (non-negative): true negative rushing games exist and are outside v1 support — a stated limitation",
   ],
 };
-fs.writeFileSync(path.join(ROOT, "data/internal/research/nfl/reports/player-props-v1-evaluation.json"), JSON.stringify(receipt, null, 1));
+const OUT = DIAGNOSE_DIR
+  ? null
+  : CHALLENGER
+    ? "data/internal/research/nfl/reports/pass-yds-repair-evaluation.json"
+    : "data/internal/research/nfl/reports/player-props-v1-evaluation.json";
+if (CHALLENGER) {
+  receipt.artifact = "nfl-pass-yds-repair-evaluation";
+  receipt.challenger = {
+    id: CHALLENGER,
+    preregistration: "data/internal/research/nfl/reports/pass-yds-coverage-repair-preregistration.json",
+    champion: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+    scope: "gameSigma.player_pass_yds estimator only",
+  };
+}
+if (DIAGNOSE_DIR) {
+  fs.mkdirSync(DIAGNOSE_DIR, { recursive: true });
+  fs.writeFileSync(path.join(DIAGNOSE_DIR, "receipt.json"), JSON.stringify(receipt, null, 1));
+  fs.writeFileSync(path.join(DIAGNOSE_DIR, "calibration-bins.json"), JSON.stringify(diagnosticsBins, null, 1));
+} else {
+  fs.writeFileSync(path.join(ROOT, OUT), JSON.stringify(receipt, null, 1));
+}
 console.log(`player-props eval: ${evaluated} player-market points; rate m=${RATE_M}`);
 for (const mkt of PROP_MARKETS) console.log(`${mkt}: n=${table[mkt].n} mae=${table[mkt].mae} (r4 ${table[mkt].baselines.rolling4Mae}, sv ${table[mkt].baselines.shareVolMae}, tier ${table[mkt].baselines.roleTierMae}) pin=${table[mkt].pinball} (t8 ${table[mkt].baselines.trailing8Pinball}) cov80=${table[mkt].interval80Coverage} ece=${table[mkt].thresholdCalibration.ece} → ${promotion[mkt].state}`);

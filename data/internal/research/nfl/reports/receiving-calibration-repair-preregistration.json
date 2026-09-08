@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "artifact": "receiving-calibration-repair-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "246",
+  "charterSection": "4.3",
+  "registeredAt": "2026-09-08T06:05:00Z",
+  "champion": {
+    "receipt": "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+    "player_reception_yds": { "state": "SHADOW_ELIGIBLE", "ece": 0.0761, "interval80Coverage": 0.8219, "mae": 20.808, "pinball": 6.559, "n": 4789, "failedBar": "calOk (ece <= 0.05)" },
+    "player_receptions": { "state": "SHADOW_ELIGIBLE", "ece": 0.057, "interval80Coverage": 0.8597, "mae": 1.639, "pinball": 0.531, "n": 4789, "failedBar": "calOk (ece <= 0.05)" }
+  },
+  "reproducedFailure": {
+    "finding": "Threshold-probability claims for BOTH receiving families are one-sidedly optimistic on held-out 2025: at every calibration bin above ~0.2, the observed over-rate is below the predicted probability (gaps to -0.27 for receptions in the 0.6-0.7 bin).",
+    "trainVisible": "The same one-sided direction holds inside the fit period (2024 walk-forward diagnostic, --diagnose-season lane, measurement only): observed < predicted in every meaningful bin for both families. The bias is structural, not 2025 drift, so a train-fit correction is admissible.",
+    "mechanismHypothesis": "Listed role-share receivers are allocated too large a slice of team targets — the unlisted OTHER share is underestimated — so simulated receptions and receiving yards sit right of reality for modeled players."
+  },
+  "candidate": {
+    "id": "receiving-target-deflation-v1",
+    "scope": "ONE new fitted parameter: fit.dispersion.targetShareDeflation (gamma), applied multiplicatively to each modeled player's effective target share before allocation (the freed mass goes to OTHER by construction). Nothing else changes: volumes, shapes, kappas, rates, game-sim heads, and the pass/rush paths are untouched.",
+    "selection": "gamma chosen from the frozen grid [1.00, 0.98, 0.96, 0.94, 0.92, 0.90] INSIDE the fit period: the value minimizing the SUM of the two receiving families' walk-forward threshold ECE on season-2024 scoring (the same inside-train selection style as the champion's rate-shrink m). Ties break toward 1.00 (least intervention).",
+    "whatIsNotAllowed": "No selection on 2025; no per-player or per-bin corrections; no post-hoc probability relabelling that leaves the distribution unchanged; no touching pass or rush families."
+  },
+  "protocol": {
+    "fit": "2023-24 REG+POST only, identical to champion, plus the gamma grid selection above",
+    "test": "held-out 2025 scored ONCE with the selected gamma, --runs 1000, identical scoring points",
+    "output": "data/internal/research/nfl/reports/receiving-repair-evaluation.json (new file; champion receipt never overwritten)"
+  },
+  "frozenBars": {
+    "perFamily": "Each family judged SEPARATELY; one may clear while the other does not.",
+    "player_reception_yds": { "eceMax": 0.05, "coverage": "[0.72, 0.88]", "maeBeats": "rolling4 AND shareVol on identical points", "pinballMax": 6.69 },
+    "player_receptions": { "eceMax": 0.05, "coverage": "[0.72, 0.88]", "maeBeats": "rolling4 AND shareVol on identical points", "pinballMax": 0.542 },
+    "pinballWhy": "champion * 1.02 — calibration may not be bought with sharpness beyond 2%"
+  },
+  "decisionRule": "A family clearing ALL its bars has its promotion recomputed by the evaluator's standard gates with the selected gamma; a family failing any bar stays exactly at its champion state. gamma == 1.00 selected in train means the candidate is vacuous and is recorded as REJECTED without touching 2025.",
+  "notes": "Registered BEFORE implementation. Ordering proof: this file's commit precedes any commit containing receiving-repair-evaluation.json."
+}

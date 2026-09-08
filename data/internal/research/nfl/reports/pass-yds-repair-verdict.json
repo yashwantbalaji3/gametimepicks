@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "artifact": "pass-yds-repair-verdict",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "246",
+  "candidate": "pass-gamesigma-pooled-mean-v1",
+  "preregistration": "data/internal/research/nfl/reports/pass-yds-coverage-repair-preregistration.json",
+  "evaluation": "data/internal/research/nfl/reports/pass-yds-repair-evaluation.json",
+  "evaluatedAt": "2026-09-08T05:30:00Z",
+  "verdict": "REJECTED",
+  "bars": {
+    "interval80Coverage": { "required": "[0.72, 0.88]", "observed": 0.5707, "pass": false },
+    "pinballMax": { "required": 27.56, "observed": 27.012, "pass": true },
+    "maeMax": { "required": 83.06, "observed": 81.415, "pass": true },
+    "eceMax": { "required": 0.06, "observed": 0.042, "pass": true },
+    "beatsBaselines": { "required": true, "observed": true, "pass": true }
+  },
+  "whatWasLearned": {
+    "estimatorFinding": "The games-weighted mean DID recover a nonzero game-level efficiency sigma (0.1027 vs the champion median's 0) — the term is real, and the median estimator was deleting it.",
+    "whyItStillFails": "Coverage moved only 0.5686 -> 0.5707. A ~10% lognormal on per-completion efficiency is small beside the actual gap: the model's own CENTER error (MAE 81.4 yds) is comparable to the interval half-width (~90 yds at 80% nominal), so realized values fall outside the interval because the point prediction is off for that player-game, not because aleatoric spread was underfit. Passing-yards under-coverage is a PREDICTIVE-uncertainty problem (role/rate/center estimation error), not an aleatoric-dispersion problem.",
+    "namedNextCandidate": "Add a predictive-uncertainty term for player_pass_yds fit STRICTLY inside 2023-24: the walk-forward residual variance of the engine's own center predictions over the fit period, carried as an additional independent spread component. Requires its own preregistration with fresh bars before any evaluation; NOT run in this program slice.",
+    "disallowedShortcut": "Post-hoc interval scaling chosen on 2025 would hit the coverage bar by construction and prove nothing — the preregistration bans it and that ban held."
+  },
+  "championStanding": "player-props-v1-evaluation.json untouched; player_pass_yds remains RESEARCH_ONLY (coverOk false). Publication gates unchanged."
+}
