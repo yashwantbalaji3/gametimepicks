@@ -220,3 +220,43 @@ founder-gated multi-lane exposure accounting; surfaces migrate when it resolves.
 MLB: ladder (products) renders after sims/report cards — one section swap owed. NFL: no
 methodology anchor; picks=markets naming. EPL: cards section unanchored in nav. UFC: bespoke
 shell. Reorder deferred with these coordinates; nothing hides.
+
+# Program 245 continuation (same register)
+
+## §3 audits — before/after with the arithmetic
+
+**Constant total 45.** Verdict: DECLARED SHARED PRIOR, exactly as the public differentiation
+summary states. The regular-season fit carries ONE total parameter (muTotal 44.9088, sigmaTotal
+13.49; no team term), so every game draws N(44.91, 13.49²) → median 45, p10/p90 ≈ 28/62 after
+integer snapping (3 distinct tuples across 16 games = snap-level variation only). No jitter, no
+hashing, no sportsbook injection — an event-specific totals head is a CANDIDATE requiring its own
+frozen chronological protocol (named, not launched tonight).
+
+**Coherence rule.** BEFORE (P244): sign(median) vs pHome≷0.5 with a 3σ "sampling" tolerance —
+wrongly justified, because the published probability is ANALYTIC (Elo-logistic × (1−tieMass));
+only the margin median is sampled. AFTER (P245): (1) the favourite is pHome vs pAway — the
+tie-mass scaling printed a clear favourite (d≈+11 Elo, logistic 0.516) at pHome 0.4997 and the
+old rule read contradiction where both heads agreed; (2) both heads cross at d=0, so a genuine
+direction conflict is reachable only inside the sampled median's width (≈0.17pt sampling + ±0.5
+integer snap ⇒ band ±1); |median| ≥ 2 with the favourite reversed refuses. One rule
+(coherence.mjs) + corruption fixtures (+7 vs away-favoured refuses both directions).
+
+**Stale 18h copy.** The header clause rendered its window sentence even at 16/16 published; the
+clause is now conditional AND no longer names an hour window at all.
+
+## Release A — the family matrix (implementation decision)
+
+| family | owner/engine | evaluation | decision |
+|---|---|---|---|
+| player_rush_yds | props-v1 opportunity-efficiency | PUBLIC_ELIGIBLE (n=3273; beats both baselines; coverage+calibration pass) | PUBLISH now |
+| anytime TD | td-engine + anytime-td-v1 calibration | held-out 2025 n=3570, logLoss 0.5492 < both baselines; DNP=void conditioning | PUBLISH now |
+| player_pass_yds | props-v1 | RESEARCH_ONLY — interval coverage bar failed (n=969) | WITHHELD, bar named |
+| player_reception_yds / receptions | props-v1 | SHADOW_ELIGIBLE — calibration bar failed (n=4789) | WITHHELD, bar named |
+| pass INT / pass TDs | simulated component | never separately evaluated | WITHHELD |
+| first/last/2+ TD | none | explicitly DISABLED, no ordering model | WITHHELD, never derived from anytime |
+| team total | rs fit | shared league prior (muTotal only) | candidate protocol named; champion intact |
+
+Inputs: role-shares-v1-decayed-stint (walk-forward 2023–24, held-out 2025 beats last-game
+baseline; predictSeason 2026, 32 teams) + current rosters + injuries feed. Participation states
+pre-actives: AVAILABLE_ROLE_UNCERTAIN / ACTIVE_PROJECTED / QUESTIONABLE / INACTIVE — every
+published row wears one; volume markets withheld for INACTIVE (TD stays, void-conditioned).
