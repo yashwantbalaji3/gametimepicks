@@ -49,6 +49,12 @@ test("no odds → READY_EXCEPT_ODDS with MODEL-ONLY numbers and ZERO market cont
   assert.equal(noOdds.state, "READY_EXCEPT_ODDS");
   assert.ok(noOdds.modelOnly?.probs?.home > 0, "the model's own grid emits pre-odds");
   assert.match(noOdds.modelOnly.note, /no market comparison/, "the block names its limit");
+  // P246: the modelOnly rung must carry EVERYTHING the matrix computed — cleanSheet,
+  // doubleChance, margin and topScorelinesMass were computed and dropped here while the
+  // sibling `model` block's comment recorded that exact defect as fixed. Field-parity, live.
+  for (const k of ["cleanSheet", "doubleChance", "margin", "topScorelinesMass"]) {
+    assert.ok(noOdds.modelOnly[k] != null, `modelOnly drops ${k} — the four-field live-loss defect`);
+  }
   // CORRUPTION FIXTURE — what the old guard was really for: no market content of any kind.
   const raw = JSON.stringify(noOdds);
   assert.ok(!raw.includes('"market"'), "no market block pre-authorization");

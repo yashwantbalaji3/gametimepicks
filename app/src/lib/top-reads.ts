@@ -78,7 +78,7 @@ const PROVENANCE: Record<string, string> = {
    * from the ledger, and an unreadable ledger yields no clause rather than a claim in either
    * direction.
    */
-  ufc: "The one model here that cleared its preregistered bar, on a 3,557-fight held-out sample.",
+  ufc: "A fitted fight model that cleared its preregistered bar on a held-out sample — the exact counts live in its committed evaluation receipt.",
 };
 
 /**

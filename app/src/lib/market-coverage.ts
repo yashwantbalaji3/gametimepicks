@@ -217,24 +217,31 @@ export const MARKET_COVERAGE: readonly MarketCoverage[] = [
   },
 
   // ── UFC ──────────────────────────────────────────────────────────────────────
+  /*
+   * P246 (UFC labeling audit): these three rows described the RETIRED de-vigged-market read
+   * (moneyline "market_implied", round "none"), while the live /ufc card has published a
+   * fitted fight model since 2026-08-22 — winner, method AND round heads, each on its own
+   * PASS verdict, price-free by construction. A model number publicly registered as
+   * market-implied is the exact mislabel class this registry exists to prevent.
+   */
   {
     sport: "ufc", market: "moneyline", publicLabel: "Moneyline (winner)",
-    status: "experimental", predictionSource: "market_implied", requiredData: ["Odds API MMA moneyline"],
+    status: "experimental", predictionSource: "experimental_model", requiredData: ["fight corpus (results, tale-of-the-tape)"],
     settlementSupport: "pending",
-    publicExplanation: "Market-implied winner read where odds exist. EXPERIMENTAL — excluded from Bank Builder / Moonshot until the model clears its validation threshold.",
+    publicExplanation: "The fight model's own win probability — a fitted, Platt-calibrated read, NOT a market price. EXPERIMENTAL: graded publicly beside the de-vigged line, which the cumulative comparison currently favours.",
   },
   {
     sport: "ufc", market: "method_of_victory", publicLabel: "Method of victory",
-    status: "experimental", predictionSource: "experimental_model", requiredData: ["Method odds feed", "fighter finish/decision data"],
+    status: "experimental", predictionSource: "experimental_model", requiredData: ["fighter finish/decision corpus"],
     settlementSupport: "unsupported",
-    publicExplanation: "An experimental fighter-data read, NOT odds-backed. Shown for education only; not a priced market and never in a product card.",
+    publicExplanation: "The fight model's method read (KO / submission / decision, among fights that end with a winner). Model-only — no method odds feed exists here; never a priced market and never in a product card.",
   },
   {
     sport: "ufc", market: "round_distance", publicLabel: "Round / goes the distance",
-    status: "provider_needed", predictionSource: "none",
+    status: "experimental", predictionSource: "experimental_model",
     requiredData: ["Round & distance odds feed", "round-level settlement"],
     settlementSupport: "unsupported",
-    publicExplanation: "Not offered — needs a round/distance odds feed. Never faked.",
+    publicExplanation: "The fight model's ending-round read (R1 / R2 / R3+, where R3+ includes every decision). Model-only and unpriced — a round/distance odds feed would be needed before any product use. Never faked.",
   },
   ...NFL_COVERAGE,
 ];
@@ -250,5 +257,5 @@ export const COVERAGE_SPORTS: { key: MarketSport; label: string; note: string }[
   // P175-C: NFL joins the SHARED coverage registry rather than getting a forked matrix.
   { key: "nfl", label: "NFL", note: "experimental 10k score simulation — not product-eligible" },
   { key: "soccer", label: "Soccer", note: "market-implied 90' read — no live tournament right now" },
-  { key: "ufc", label: "UFC", note: "experimental — market-implied, not product-eligible" },
+  { key: "ufc", label: "UFC", note: "experimental fight model — model-only, not product-eligible" },
 ];

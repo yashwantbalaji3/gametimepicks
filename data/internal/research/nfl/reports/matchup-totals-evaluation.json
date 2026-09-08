@@ -1,0 +1,79 @@
+{
+ "schemaVersion": 1,
+ "artifact": "matchup-totals-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-09-08T07:30:00Z",
+ "candidate": "matchup-totals-v1-decayed-points",
+ "preregistration": "data/internal/research/nfl/reports/matchup-totals-preregistration.json",
+ "population": {
+  "trainGames": 570,
+  "testGames": 285,
+  "phaseFilter": "REG+POST (phase != 1)"
+ },
+ "halfLifeSelection": {
+  "grid": [
+   4,
+   8,
+   16
+  ],
+  "trace": [
+   {
+    "hl": 8,
+    "mean24Nll": 3.98031
+   },
+   {
+    "hl": 4,
+    "mean24Nll": 3.98358
+   },
+   {
+    "hl": 16,
+    "mean24Nll": 3.98433
+   }
+  ],
+  "selected": 8
+ },
+ "fit": {
+  "a0": 44.9088,
+  "a1": 0.78364,
+  "sigma": 13.2625,
+  "a1StdErr": 0.17176,
+  "meanRatingTrain": 42.3251
+ },
+ "heldOut2025": {
+  "n": 285,
+  "candidate": {
+   "meanNll": 4.02898,
+   "mae": 10.814,
+   "coverage80": 0.786
+  },
+  "sharedPriorRefit": {
+   "mu": 44.9088,
+   "sigma": 13.4915,
+   "meanNll": 4.04898,
+   "mae": 10.997
+  }
+ },
+ "diagnostics": {
+  "predictedMeanSd2025": 2.068,
+  "note": "sd of predicted medians across 2025 — how much the head actually differentiates games; a diagnostic, never a bar"
+ },
+ "bars": {
+  "meanNll": {
+   "pass": true,
+   "required": "< 4.04898",
+   "observed": 4.02898
+  },
+  "coverage80": {
+   "pass": true,
+   "required": "[0.72, 0.88]",
+   "observed": 0.786
+  },
+  "mae": {
+   "pass": true,
+   "required": "<= 11.217",
+   "observed": 10.814
+  }
+ },
+ "verdict": "ELIGIBLE",
+ "consequence": "Adoption into the public forecast builder is its OWN reviewed step (coherence guards, regime stamps, workflow regeneration); nothing publishes from this receipt alone."
+}

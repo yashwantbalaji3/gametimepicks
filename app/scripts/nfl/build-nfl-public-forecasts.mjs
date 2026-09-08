@@ -24,6 +24,7 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 import { mulberry32, snapScore, simulateNflGame } from "../../src/lib/sports/nfl/game-sim.mjs";
+import { totalsStateAt, NFL_TOTALS_HEAD_ID } from "../../src/lib/sports/nfl/totals-rating.mjs";
 import { fnv1a } from "../../src/lib/sports/research/replay-runner.mjs";
 import { strengthStateAt, ELO_PARAMS } from "../../src/lib/sports/nfl/strength-state.mjs";
 import { coherentDirection } from "../../src/lib/sports/nfl/coherence.mjs";
@@ -158,6 +159,18 @@ console.log(
  * belongs to that contract alone; nothing in this file can satisfy it.
  */
 const rsEval = read(path.join(ROOT, "data/internal/research/nfl/reports/model-v1-evaluation.json"));
+/*
+ * P246 §4B-NFL: the matchup totals head — adopted ONLY on an ELIGIBLE receipt (preregistered
+ * bars, held-out 2025: NLL 4.029 < prior 4.049, cov80 0.786, MAE under cap). An absent or
+ * rejected receipt leaves the declared shared prior in place, byte-identically. The margin
+ * head is untouched either way. NOTE: the per-game PLAYER simulation chain still runs on the
+ * evaluated constant-total head its own receipt measured (re-evaluation under this head is a
+ * named follow-up) — a typed divergence, recorded here rather than hidden.
+ */
+const totalsReceipt = (() => {
+  const p0 = path.join(ROOT, "data/internal/research/nfl/reports/matchup-totals-evaluation.json");
+  return fs.existsSync(p0) ? read(p0) : null;
+})();
 const rsCard = read(path.join(ROOT, "data/internal/research/nfl/regular-season-public-card-v1.json"));
 // Only RESOLVED phases join the window question: a row with no seasonType is refused per-event
 // below (PHASE_UNRESOLVED), and letting its absence into this set would turn one broken row into
@@ -258,7 +271,14 @@ for (const ev of events) {
     });
     // The ratings map is keyed by full team name (the corpus rows); the schedule row speaks abbr.
     const wrapped = { ...strength, ratingFor: (t) => strength.ratingFor(nameOf.get(t) ?? t) };
-    const rsFit = { params: rsEval.fitParams };
+    /* Matchup totals: ratings fold only finals strictly before THIS kickoff (walk-forward). */
+    const totalsState = totalsReceipt
+      ? totalsStateAt({ rows: mergedFinals, cutoffIso: ev.dateUtc, receipt: totalsReceipt })
+      : { state: "REFUSED", reason: "no totals receipt on file" };
+    const matchupTotals = totalsState.state === "READY"
+      ? { muTotal: totalsState.muFor(ev.home.name, ev.away.name), sigmaTotal: totalsState.sigma }
+      : null;
+    const rsFit = { params: matchupTotals ? { ...rsEval.fitParams, ...matchupTotals } : rsEval.fitParams };
     const sim = simulateNflGame({ fit: rsFit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS });
     if (sim.state !== "SIMULATED") {
       refused.push({ providerEventId: ev.providerEventId, state: "SIM_ABSTAINED", reason: sim.reason ?? "the simulation abstained" });
@@ -312,6 +332,11 @@ for (const ev of events) {
       model: {
         id: rsCard.modelId, version: rsCard.version, launchState: rsCard.launchState, inputHash, simulations: RUNS,
         derivedFrom: rsCard.derivedFrom.map((d0) => `${d0.modelId}@v${d0.version}`),
+        /* Provenance by receipt NAME + stamp — a public artifact never carries an internal
+           path (the boundary scan below refuses "data/internal", and it caught exactly that). */
+        totalsHead: matchupTotals
+          ? { id: NFL_TOTALS_HEAD_ID, receipt: `${totalsReceipt.artifact}@${totalsReceipt.generatedAt}`, gamesFolded: totalsState.gamesFolded, sigma: totalsState.sigma }
+          : { id: "shared-prior", reason: totalsState.reason },
       },
       teamSignal: {
         state: "APPLIED",
@@ -334,7 +359,7 @@ for (const ev of events) {
           calibration: "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to beat the market is made.",
         },
         margin: { median: sim.marginQuantiles.p50, p10: sim.marginQuantiles.p10, p90: sim.marginQuantiles.p90 },
-        total: { median: sim.totalQuantiles.p50, p10: sim.totalQuantiles.p10, p90: sim.totalQuantiles.p90 },
+        total: { median: sim.totalQuantiles.p50, p10: sim.totalQuantiles.p10, p90: sim.totalQuantiles.p90, head: matchupTotals ? NFL_TOTALS_HEAD_ID : "shared-prior" },
         scoreRange: { homeP10: sim.scores.home.quantiles.p10, homeP90: sim.scores.home.quantiles.p90, awayP10: sim.scores.away.quantiles.p10, awayP90: sim.scores.away.quantiles.p90 },
       },
       marketComparison: marketFresh

@@ -89,6 +89,16 @@ export function runEplShadow({ fixture, nowIso, strengthState, oddsSnapshot = nu
         topScorelines: matrix.topScorelines,
         lambdas: matrix.lambdas,
         coldStart: matrix.coldStart,
+        /* P246 (EPL feature-use ledger): the comment at the `model` block below records this
+           exact defect — "everything the matrix computed, published" — and it was fixed there
+           and NOT here when modelOnly was added later. On a slate where every row is
+           READY_EXCEPT_ODDS (all 10 today), these four blocks were computed and then dropped,
+           so the match pages rendered nothing for clean sheet / double chance / margin /
+           scoreline mass. Same matrix, same read, now copied on BOTH rungs. */
+        cleanSheet: matrix.cleanSheet,
+        doubleChance: matrix.doubleChance,
+        margin: matrix.margin,
+        topScorelinesMass: matrix.topScorelinesMass,
         note: "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation",
       },
       publicActivation: "OFF",

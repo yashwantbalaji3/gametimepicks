@@ -13,8 +13,11 @@
  * it out of scope so a regression toward it trips the ceiling instead of quietly costing 20x.
  *
  * ── What it will not do ─────────────────────────────────────────────────────────────────────────
- * It buys h2h and nothing else. Our method and round heads were REJECTED on their preregistered
- * bars, so buying those markets would be paying for prices no validated read can stand beside.
+ * It buys h2h and nothing else — a BUDGET scope, not a verdict. (P246: this line previously
+ * claimed the method and round heads were REJECTED, contradicted by the committed receipts —
+ * fight-model-evaluation.json records PASS for winner, method AND round. They are model-only
+ * because no method/round market is in the authorized purchase, and prices are never bought
+ * for markets no product prices.)
  *
  * Writes public   public/data/ufc/odds-latest.json         (joined to the card; no raw payload)
  *        private  data/internal/research/odds/ufc/authorization-ledger.json

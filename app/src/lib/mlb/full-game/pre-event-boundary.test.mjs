@@ -161,3 +161,17 @@ test("DETERMINISM · the full-game engine reads no wall clock", () => {
     );
   }
 });
+
+test("P246 · the boundary holds against THIS RUN's clock, and frozen pregame entries are carried, never regenerated", () => {
+  // The board's own stamp said "pregame" at 18:23Z while the 01:21Z lineup-refresh rerun
+  // republished three games hours under way. The driver re-derives the flag from firstPitch
+  // vs its own --now on an input COPY (sourceBoardHash still hashes the committed board), and
+  // a started game keeps its last PREGAME entry byte-for-byte — a prior generated after first
+  // pitch (the very bug) is refused, not preserved.
+  const driver = fs.readFileSync(path.join(process.cwd(), "scripts/generate-mlb-full-game-simulations.mjs"), "utf8");
+  assert.match(driver, /Date\.parse\(g\.gameDate\) <= Date\.parse\(nowIso\)/, "the started set derives from the run's own clock");
+  assert.match(driver, /boundedBoard/, "inputs come from the bounded copy");
+  assert.match(driver, /sourceBoardHash: stableHash\(board\)/, "the source hash stays the committed board's");
+  assert.match(driver, /Date\.parse\(priorArtifact\.generatedAt\) <= Date\.parse\(g\.firstPitch\)/, "only a genuinely pregame prior is carried forward");
+  assert.match(driver, /never regenerated, never destroyed/, "the carry-forward rule is stated where it acts");
+});

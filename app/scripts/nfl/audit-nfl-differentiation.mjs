@@ -79,6 +79,7 @@ const events = pub.forecasts.map((f) => {
       marginMean: s.margin.mean ?? s.margin.median,
       marginMedian: s.margin.median,
       totalMedian: s.total.median,
+      totalHead: s.total.head ?? null,
       winProbHome: s.winProbability.homeUnrounded ?? s.winProbability.home,
       winProbIsRounded: s.winProbability.homeUnrounded == null,
       projected: s.projectedScore,
@@ -138,26 +139,46 @@ const heads = [
       ? `win probability spans ${(Math.min(...winProbs) * 100).toFixed(2)}%-${(Math.max(...winProbs) * 100).toFixed(2)}% across ${events.length} events, so the engine is consuming team-specific evidence`
       : `the team-strength term is switched off because its coefficient is indistinguishable from zero, so the remaining ${(spread(winProbs) * 100).toFixed(2)}pp spread across ${events.length} events is simulation noise around one common mean, not a read on these teams`,
   },
-  {
-    head: "total",
-    driver: "base.muTotal — a single preseason scoring climatology constant, identical for every event",
-    // FALSE even though the published integers vary: a declared shared prior produces variation
-    // from SIMULATION NOISE and integer rounding, never from evidence about these two teams.
-    // Reading that noise as differentiation is precisely the mistake this audit exists to prevent,
-    // and an earlier draft of this script made it — reporting FULLY_EVENT_SPECIFIC over a head it
-    // had itself classified LIMITED_INPUTS.
-    eventSpecific: false,
-    observedVariationIsNoise: true,
-    distinctValues: distinct(totals),
-    spread: spread(totals),
-    // A shared prior is DECLARED here, not discovered by a reader from repeated numbers.
-    classification: "LIMITED_INPUTS",
-    declaredSharedPrior: true,
-    missingAdapter:
-      "no per-team offensive/defensive scoring-rate adapter exists. The preseason corpus carries final scores, so one is buildable — but it must clear a preregistered bar on held-out preseason before it is allowed to move a published total.",
-    reading:
-      "the model has NO game-specific view of scoring. Every event draws its total from the same league prior, so any variation a reader sees between published totals is simulation noise and integer rounding, not a claim about these two teams.",
-  },
+  (() => {
+    /*
+     * P246: the total head is REGIME-AWARE on the artifact's own stamp. When forecasts carry
+     * total.head = matchup-totals-v1-decayed-points (adopted on an ELIGIBLE preregistered
+     * receipt), published totals ARE a per-matchup claim; a shared-prior stamp keeps the old
+     * declared-prior classification verbatim. The audit reads the stamp, never guesses from
+     * the numbers — the earlier draft's mistake, in both directions.
+     */
+    const matchupHead = events.length > 0 && events.every((e) => e.expected.totalHead === "matchup-totals-v1-decayed-points");
+    if (matchupHead) {
+      return {
+        head: "total",
+        driver: "matchup-totals-v1-decayed-points — decayed per-team combined-points ratings, adopted on an ELIGIBLE preregistered receipt (held-out 2025: NLL beat the shared prior, coverage in band)",
+        eventSpecific: true,
+        observedVariationIsNoise: false,
+        distinctValues: distinct(totals),
+        spread: spread(totals),
+        classification: "EVENT_SPECIFIC",
+        declaredSharedPrior: false,
+        reading: `published totals span ${Math.min(...totals)}-${Math.max(...totals)} across ${events.length} events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number.`,
+      };
+    }
+    return {
+      head: "total",
+      driver: "base.muTotal — a single scoring climatology constant, identical for every event",
+      // FALSE even though the published integers vary: a declared shared prior produces variation
+      // from SIMULATION NOISE and integer rounding, never from evidence about these two teams.
+      eventSpecific: false,
+      observedVariationIsNoise: true,
+      distinctValues: distinct(totals),
+      spread: spread(totals),
+      // A shared prior is DECLARED here, not discovered by a reader from repeated numbers.
+      classification: "LIMITED_INPUTS",
+      declaredSharedPrior: true,
+      missingAdapter:
+        "the matchup-totals candidate must clear (or keep) its preregistered bars before it is allowed to move a published total; on a non-ELIGIBLE receipt the shared prior stands.",
+      reading:
+        "the model has NO game-specific view of scoring. Every event draws its total from the same league prior, so any variation a reader sees between published totals is simulation noise and integer rounding, not a claim about these two teams.",
+    };
+  })(),
 ];
 
 // ── ROUNDED TIES: legitimate only when the underlying distributions differ ─────────────────────
@@ -237,6 +258,7 @@ fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(path.join(outDir, `differentiation-${pub.date}.json`), JSON.stringify(report, null, 2) + "\n");
 
 // ── PUBLIC summary: the limitation in words, no research payload ───────────────────────────────
+const totalIsMatchup = heads.find((x) => x.head === "total")?.classification === "EVENT_SPECIFIC";
 const publicSummary = {
   schemaVersion: 1,
   artifact: "nfl-model-differentiation-public",
@@ -255,12 +277,16 @@ const publicSummary = {
       ? (teamSignalApplied
           ? `This part uses each team's own strength, so it differs from game to game — across this slate our win percentages range from ${(Math.min(...winProbs) * 100).toFixed(1)}% to ${(Math.max(...winProbs) * 100).toFixed(1)}%.`
           : "We tested whether this model can tell which of two preseason teams is better, and it cannot — the measurement is indistinguishable from no effect at all. So we switched that part off rather than publish a favourite we cannot justify. The small differences you see between games are the simulation's own randomness, not a view on the teams.")
-      : `This part does NOT look at the two teams. Every game draws its point total from the same league ${publishedRegular ? "scoring" : "preseason"} average, so if two games show a similar total that is not a claim about those teams — it is the same starting number in both.`,
+      : totalIsMatchup
+        ? `This part now reads the two teams: each game's total comes from that matchup's own scoring ratings, and across this slate the published totals span ${Math.min(...totals)} to ${Math.max(...totals)} points. The head earned this by beating the old league-average prior on a season it had never seen, under bars that were frozen first.`
+        : `This part does NOT look at the two teams. Every game draws its point total from the same league ${publishedRegular ? "scoring" : "preseason"} average, so if two games show a similar total that is not a claim about those teams — it is the same starting number in both.`,
   })),
   /* P244: the sentence names the regime it describes — "preseason" over a regular slate was a
      stale claim the moment the regular identity published. */
   whyGamesLookAlike: publishedRegular
-    ? "Game totals on this slate look similar because the total head draws every game from one league scoring average — that part of the model does not read the teams. Win probabilities DO differ by team: they come from an evaluated strength rating. Similar totals are the honest output of a shared prior, not a coincidence and not a bug."
+    ? (totalIsMatchup
+        ? "Both parts of this model now read the teams: win probabilities come from an evaluated strength rating, and each game's total comes from that matchup's own scoring ratings. Where two games still print similar numbers, the distributions behind them differ — the audit checks exactly that."
+        : "Game totals on this slate look similar because the total head draws every game from one league scoring average — that part of the model does not read the teams. Win probabilities DO differ by team: they come from an evaluated strength rating. Similar totals are the honest output of a shared prior, not a coincidence and not a bug.")
     : "Preseason games on this slate look similar to each other because, right now, this model genuinely cannot tell them apart. Scoring comes from one league-wide preseason average, and the team-strength input was measured and found to carry no usable signal, so it is switched off. Similar-looking numbers are the honest output of a model that knows very little — not a coincidence, and not a bug.",
   whatWeFoundAndFixed:
     "An earlier version of this page applied the team-strength input anyway. Because the measured effect pointed slightly the wrong way, it was quietly favouring the WEAKER side in every game. We caught it, tested the input properly, and switched it off.",

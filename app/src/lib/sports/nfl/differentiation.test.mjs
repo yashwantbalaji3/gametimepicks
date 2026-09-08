@@ -180,14 +180,29 @@ test("COHERENCE · the win side agrees with the margin sign, in every published 
   }
 });
 
-test("THE TOTAL HEAD IS A DECLARED SHARED PRIOR — and the audit refuses to read its noise as signal", () => {
+test("THE TOTAL HEAD follows the artifact's own stamp — shared prior declared, or matchup head earned", () => {
+  /*
+   * REBASED P246: the total head is regime-scoped on the forecasts' total.head stamp. A
+   * shared-prior artifact keeps every original assertion verbatim; a matchup-totals artifact
+   * (adopted only on an ELIGIBLE preregistered receipt — matchup-totals-evaluation.json) must
+   * classify EVENT_SPECIFIC and cite that receipt in its driver. The audit still never reads
+   * classification off the numbers' variation in either direction.
+   */
   const h = report.heads.find((x) => x.head === "total");
-  assert.equal(h.classification, "LIMITED_INPUTS");
-  assert.equal(h.declaredSharedPrior, true);
-  assert.equal(h.eventSpecific, false,
-    "published totals DO vary by a point or two; that variation is simulation noise over one constant prior, and calling it differentiation is the exact mistake this audit exists to catch");
-  assert.equal(h.observedVariationIsNoise, true);
-  assert.match(h.missingAdapter, /preregistered bar/, "the repair is named and gated, not promised vaguely");
+  const matchup = pub.forecasts.every((f) => f.forecastSummary.total.head === "matchup-totals-v1-decayed-points");
+  if (matchup) {
+    assert.equal(h.classification, "EVENT_SPECIFIC");
+    assert.equal(h.declaredSharedPrior, false);
+    assert.equal(h.eventSpecific, true);
+    assert.match(h.driver, /preregistered receipt/, "adoption cites its evidence, never taste");
+  } else {
+    assert.equal(h.classification, "LIMITED_INPUTS");
+    assert.equal(h.declaredSharedPrior, true);
+    assert.equal(h.eventSpecific, false,
+      "published totals DO vary by a point or two; that variation is simulation noise over one constant prior, and calling it differentiation is the exact mistake this audit exists to catch");
+    assert.equal(h.observedVariationIsNoise, true);
+    assert.match(h.missingAdapter, /preregistered bar/, "the repair is named and gated, not promised vaguely");
+  }
 });
 
 test("the VERDICT is derived from the classifications and cannot contradict them", () => {
@@ -200,9 +215,11 @@ test("the VERDICT is derived from the classifications and cannot contradict them
     : cls.some((c) => c === "EVENT_SPECIFIC") ? "PARTIALLY_EVENT_SPECIFIC"
     : "NO_EVENT_SPECIFIC_SIGNAL";
   assert.equal(report.verdict, expected);
-  // P244: the honest answer is regime-dependent — preseason reads neither head (zeroed term +
-  // league prior); the regular Elo head reads teams while the total stays a shared prior.
-  assert.equal(report.verdict, REGULAR ? "PARTIALLY_EVENT_SPECIFIC" : "NO_EVENT_SPECIFIC_SIGNAL");
+  // P244/P246: the honest answer is regime-dependent — preseason reads neither head; the
+  // regular Elo head reads teams; and once the matchup totals head is stamped on every
+  // forecast, BOTH heads read teams (FULLY). The stamp, not the calendar, decides.
+  const totalMatchup = pub.forecasts.every((f) => f.forecastSummary.total.head === "matchup-totals-v1-decayed-points");
+  assert.equal(report.verdict, REGULAR ? (totalMatchup ? "FULLY_EVENT_SPECIFIC" : "PARTIALLY_EVENT_SPECIFIC") : "NO_EVENT_SPECIFIC_SIGNAL");
 });
 
 test("ROUNDED TIES are justified numerically, never waved through", () => {
@@ -267,10 +284,13 @@ test("PUBLIC · the limitation is stated to readers in plain words, with no rese
   assert.match(totals.plainEnglish, /does NOT look at the two teams/);
   const winner = publicSummary.heads.find((h) => /who wins/i.test(h.head));
   if (REGULAR) {
-    assert.match(publicSummary.headline, /Part of this model reacts to the specific teams/);
+    const totalMatchup2 = pub.forecasts.every((f) => f.forecastSummary.total.head === "matchup-totals-v1-decayed-points");
+    assert.match(publicSummary.headline, totalMatchup2 ? /Every part of this model reacts/ : /Part of this model reacts to the specific teams/);
     assert.equal(winner.state, "EVENT_SPECIFIC");
     assert.match(winner.plainEnglish, /each team's own strength/);
-    assert.match(publicSummary.whyGamesLookAlike, /shared prior/);
+    // REBASED P246: under the adopted matchup head the prose must claim BOTH heads read teams;
+    // under the shared prior the original declaration stands verbatim.
+    assert.match(publicSummary.whyGamesLookAlike, totalMatchup2 ? /matchup's own scoring ratings/ : /shared prior/);
     assert.doesNotMatch(publicSummary.whyGamesLookAlike, /[Pp]reseason/, "no preseason claim over a regular slate");
   } else {
     assert.match(publicSummary.headline, /does not currently tell these teams apart/);

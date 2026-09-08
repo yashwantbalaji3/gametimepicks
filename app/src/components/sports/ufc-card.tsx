@@ -1,11 +1,14 @@
 /**
- * The UFC fight card — bouts, fighter portraits, records, and the one modelled prop.
+ * The UFC fight card — bouts, fighter portraits, records, and the fight model's three reads.
  *
- * The only probability shown is "goes the distance", and only because it cleared a walk-forward
- * backtest (log loss 0.673 against a 0.693 base-rate baseline over 909 held-out bouts, every
- * adequately-sized calibration bin within 1.4 standard errors). Method of victory and moneyline are
- * named as NOT modelled with the reason, so their absence reads as a decision rather than an
- * oversight — the model block below renders those refusals from the artifact itself.
+ * P246 REBASE: the paragraph that stood here described the RETIRED distance-only page ("the only
+ * probability shown is goes-the-distance; method and moneyline are named as NOT modelled") while
+ * the component below it rendered winner, a full method distribution and a round histogram. What
+ * actually renders: each head publishes only on its own PASS verdict from the committed
+ * evaluation, and the semantics are stated where the numbers are —
+ *   · method bars are P(method | the fight ends with a winner): draws/NCs are outside the sample;
+ *   · the R3+ round bar includes EVERY decision, not only round-3+ finishes;
+ *   · "goes the distance" is the method head's decision probability, not a separate model.
  */
 import HeadToHead from "@/components/ui/head-to-head";
 import { Histogram, ProbabilityBar } from "@/components/distribution-chart";
@@ -171,6 +174,9 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
                     <div className="font-mono uppercase tracking-[0.1em] mb-1.5" style={{ fontSize: 9, color: "var(--vault-text-faint)" }}>
                       How it ends
                     </div>
+                    <div style={{ fontSize: 10, color: "var(--vault-text-faint)", margin: "0 0 6px" }}>
+                      among fights that end with a winner
+                    </div>
                     <div className="grid gap-1.5">
                       <ProbabilityBar label="KO / TKO" p={b.prediction.method.probabilities.ko} color="var(--sport-ufc)" />
                       <ProbabilityBar label="Submission" p={b.prediction.method.probabilities.submission} color="var(--sport-ufc)" />
@@ -180,6 +186,9 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
                   <div>
                     <div className="font-mono uppercase tracking-[0.1em] mb-1.5" style={{ fontSize: 9, color: "var(--vault-text-faint)" }}>
                       Which round
+                    </div>
+                    <div style={{ fontSize: 10, color: "var(--vault-text-faint)", margin: "0 0 6px" }}>
+                      R3+ includes every decision
                     </div>
                     <Histogram
                       accent="var(--sport-ufc)"

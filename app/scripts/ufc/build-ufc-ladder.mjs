@@ -11,9 +11,9 @@
  * defensible in a way it is not for MLB, and the difference is recorded here so nobody copies the
  * wrong precedent between sports.
  *
- * What that does NOT mean: that the model beats the price. No comparison against a no-vig UFC line
- * has ever been run — the prices to run it against arrived today. The Lab's claim is unchanged and
- * unglamorous: it quotes real posted prices and grades them.
+ * What that does NOT mean: that the model beats the price. The public model-vs-market grading
+ * (running since 2026-08-22) currently favours the MARKET on cumulative log loss. The Lab's
+ * claim is unchanged and unglamorous: it quotes real posted prices and grades them.
  *
  * ── Bands are PRICE ranges ──────────────────────────────────────────────────────────────────────
  * Assigned through the canonical bucket function, the same one the MLB ladder and the grader use.
@@ -161,7 +161,7 @@ write({
    * a page reading a shared component must not be able to render a sport's cards under another
    * sport's sentence. So the sentence lives on the artifact rather than in any page.
    */
-  selection: "the model's own read — the one model here that passed its preregistered bar. It has never been compared against a no-vig UFC line",
+  selection: "the model's own read — a fitted fight model that passed its preregistered bar. Since 2026-08-22 it is graded publicly beside the de-vigged line, and the cumulative comparison currently favours the market",
   note: "Prices are real and posted; the side is the model's own read — the one model here that passed its preregistered bar. No comparison against a no-vig UFC line has been run. Paper-only.",
 });
 console.log(`ufc ladder ${DATE}: ${legs.length} eligible legs -> ${cards.length}/4 bands carded${skipped.length ? ` (skipped ${skipped.map((s) => s.tier).join(", ")})` : ""}`);

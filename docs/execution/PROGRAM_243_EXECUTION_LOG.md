@@ -386,3 +386,66 @@ Gates: typecheck ✓ · suite 5498/0 · build ✓ · built 464/0 (after the two 
 
 Final gates this commit: suite 5498/0 · built 464/0 · e2e (p242+p243 journeys+viewport) 18/18 ·
 a11y structural 0 serious.
+
+## P246 §4 model work — three preregistered candidates, three verdicts
+- **§4.2 pass yds (coverage)**: REPRODUCED (80% interval covers 56.86%; mechanism = pooled-MEDIAN
+  gameSigma zeroed the game-level term). Candidate `pass-gamesigma-pooled-mean-v1` preregistered,
+  evaluated once, **REJECTED** on its coverage bar (0.5707) — the recovered sigma (0.1027) is real
+  but small beside the true gap: CENTER error (MAE 81.4 ≈ interval half-width). Next candidate
+  named (train-fit predictive-uncertainty term), not run. Champion untouched.
+- **§4.3 receptions + receiving (calibration, judged separately)**: one-sided over-optimism
+  REPRODUCED on held-out 2025 AND inside the fit period (--diagnose-season lane, measurement
+  only). Candidate `receiving-target-deflation-v1` (ONE fitted gamma on modeled target shares,
+  frozen grid, in-train selection — monotone to the grid edge, gamma=0.90, boundary NOTED):
+  **player_receptions ACCEPTED** (ece 0.0352 · cov 0.8643 · beats both baselines · pinball under
+  cap) → PUBLIC_ELIGIBLE via the standard gates → receptions PUBLISHED on per-game boards + Top 10
+  Receptions weekly board (natural workflow run, zero board-builder edits — the receipt IS the
+  gate). **player_reception_yds REJECTED** (ece 0.0761→0.0556, still over 0.05) → stays SHADOW.
+  ⚠️ found + fixed: champion-adoption read swallowed a TDZ ReferenceError in a try/catch and
+  silently no-opped the first regeneration (the silent-catch class).
+- **§4B-NFL matchup totals**: candidate `matchup-totals-v1-decayed-points` preregistered →
+  **ELIGIBLE** (held-out 2025: NLL 4.029 < refit-prior 4.049 · cov80 0.786 · MAE 10.81 < cap;
+  a1 = 0.784 ± 0.172). ADOPTED receipt-gated in the public forecast builder (per-game mu from
+  walk-forward decayed combined-points ratings cut at each kickoff; margin head untouched;
+  `total.head` + `model.totalsHead` stamps; audit + guards regime-scoped on the stamp in BOTH
+  directions; hub totals footnote derives from the stamp). Typed divergence RECORDED: the player-
+  sim chain still runs on the evaluated constant-total head its own receipt measured — re-eval
+  under the matchup head is the named follow-up. Boundary scan caught an internal path in the
+  first stamp (receipt cited by name@stamp instead).
+- **§4.4 rush/TD receipts**: VERIFIED — engine id `nfl-player-props-v1-opportunity-efficiency` v1
+  identical across receipt /protocol, producer constant, and live artifact stamps; TD gate
+  numbers re-checked (0.5492 < 0.5525/0.5657).
+
+## P246 §4B — four-sport engine traces (3 parallel read-only agents) + highest-value fixes
+- **EPL**: unified match-sim confirmed structurally coherent (ONE grid; totals/BTTS matchup-
+  specific — no shared prior; odds enter NOTHING). FIXED: (1) modelOnly LIVE LOSS — cleanSheet /
+  doubleChance / margin / topScorelinesMass computed then dropped on every READY_EXCEPT_ODDS row
+  (all 10 current) → copied on the modelOnly rung + row fallbacks + field-parity guard; (2)
+  player-projection allocation fit on the STALE base corpus (bypassed loadEplCorpus; 1520 vs
+  1550 matches — scorer shares allocated from a distribution disagreeing with the published team
+  card) → the one corpus owner. v2 provenance note confirmed present; public copy makes no
+  preregistration claim. Ledger extras recorded for later: dead epl-poisson duplicate impl,
+  book[1..n] de-vig dropped, threeWay dead branch, teamContext inert.
+- **UFC**: fighter probabilities CONFIRMED a fitted model (logistic + nested Platt, source-hash
+  publication gate), price-free by construction. FIXED five labeling defects: /simulate registry
+  called the model winner "market_implied" and the model round head "none" → experimental_model
+  with honest notes; method bars now say "among fights that end with a winner"; R3+ bar says
+  "includes every decision"; capture-ufc-odds header falsely claimed method/round REJECTED (both
+  PASS) → budget-scope truth; ladder "never been compared against a no-vig line" → cites the
+  live comparison (market ahead); graded-picks caveat promised a market column that never
+  rendered → column renders when rows carry it; typed 3557-count + typed z 0.876 (live 1.3747)
+  softened to receipt-pointing claims. PRESERVED both governed gaps (collision-audit artifact,
+  graduation decision) — no reclassification.
+- **MLB**: input audit delivered (three separate engines confirmed; frozen daily-path inventory;
+  eleven captured pregame feature families feed no engine; line movement captured then
+  overwritten). FIXED the CRITICAL: the pre-event boundary was the BOARD's clock, so lineup-
+  refresh reruns republished "pregame" 10k sims for games under way (Sep 7: 3 games, one ~6h
+  after first pitch). The driver now re-derives the started set from its OWN --now on an input
+  copy (sourceBoardHash unchanged, repro probe unaffected), REFUSES fresh sims for started
+  games, and carries forward only a genuinely PREGAME prior byte-for-byte (a post-start prior —
+  the bug's own output — refuses rather than being preserved). Guard added. Remaining audit
+  items (team-markets staleness stamp, researchEligible ignored, batter_total_bases at the
+  artifact layer) recorded for follow-up, NOT changed — smallest sufficient fix on the frozen
+  daily path.
+
+Gates: suite 5499/0 · build ✓ · built 464/0.

@@ -28,6 +28,11 @@ function Outcome({ hit }: { hit: boolean | null }) {
 
 export default function GradedPicksSection({ record, rows = 6, href }: { record: GradedRecord; rows?: number; href: string }) {
   const c = record.counts;
+  /* P246 (UFC labeling audit): the UFC caveat said the market's de-vigged probability "is shown
+     alongside" while no column rendered it — a rendered caveat asserting an unrendered number.
+     The column now exists whenever the rows actually carry the field (UFC does; other sports
+     don't record it, and their tables stay four data columns wide). */
+  const hasMarketCol = record.picks.slice(0, rows).some((p) => p.marketProbabilityOfActual != null);
   return (
     <section className="mt-8">
       <SectionHeader
@@ -60,6 +65,7 @@ export default function GradedPicksSection({ record, rows = 6, href }: { record:
               <th className="font-mono py-1 pr-3" style={{ fontWeight: 500, fontSize: 10.5 }}>Event</th>
               <th className="font-mono py-1 pr-3" style={{ fontWeight: 500, fontSize: 10.5 }}>Model said</th>
               <th className="font-mono py-1 pr-3" style={{ fontWeight: 500, fontSize: 10.5 }}>What happened</th>
+              {hasMarketCol ? <th className="font-mono py-1 pr-3" style={{ fontWeight: 500, fontSize: 10.5 }}>Market priced it</th> : null}
               <th className="font-mono py-1" style={{ fontWeight: 500, fontSize: 10.5 }}>Result</th>
             </tr>
           </thead>
@@ -73,6 +79,11 @@ export default function GradedPicksSection({ record, rows = 6, href }: { record:
                   {p.modelProbability != null ? <span className="font-mono" style={{ color: "var(--vault-text-faint)" }}> · {pct(p.modelProbability)}</span> : null}
                 </td>
                 <td className="py-2 pr-3" style={{ color: "var(--vault-text-mute)" }}>{p.actual ?? "—"}</td>
+                {hasMarketCol ? (
+                  <td className="font-mono py-2 pr-3" style={{ color: "var(--vault-text-faint)" }}>
+                    {p.marketProbabilityOfActual != null ? pct(p.marketProbabilityOfActual) : "—"}
+                  </td>
+                ) : null}
                 <td className="py-2"><Outcome hit={p.hit} /></td>
               </tr>
             ))}

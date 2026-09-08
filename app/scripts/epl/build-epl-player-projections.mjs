@@ -105,8 +105,18 @@ if (!simAccepted) console.log("match simulation: recorded verdict is not ACCEPTE
 const SIM_K = simBacktest?.locked?.k ?? K;
 const SIM_FLOOR = simBacktest?.locked?.weightFloor ?? 0;
 
-/* The team strength fit the score matrix comes from — the SAME cutoff rule the team forecasts use. */
-const matchCorpus = readJson(path.join(REPO, "data/internal/research/epl/corpus-v1.json"));
+/*
+ * The team strength fit the score matrix comes from — the SAME CORPUS AND cutoff rule the team
+ * forecasts use. P246 (feature-use ledger): this read went straight to the BASE corpus and
+ * skipped the current-season file, so the allocation matrix was fit on 1520 matches ending
+ * 2026-05-24 while the team card on the same fixture folded 1550 — the scorer probabilities
+ * were allocated from a distribution that disagreed with the published team goals. The comment
+ * here claimed "the SAME cutoff rule"; true of the cutoff, false of the corpus. loadEplCorpus
+ * is the one owner of that concatenation (base + current season, deduplicated) — the exact
+ * defect its own header documents as fixed on the team path.
+ */
+const { loadEplCorpus } = await import("../../src/lib/sports/epl/corpus.mjs");
+const matchCorpus = loadEplCorpus(REPO);
 const { fitEplStrength, scoreMatrix } = await import("../../src/lib/sports/epl/strength-state.mjs");
 const strengthState = fitEplStrength({ rows: matchCorpus.rows, cutoffIso: NOW });
 

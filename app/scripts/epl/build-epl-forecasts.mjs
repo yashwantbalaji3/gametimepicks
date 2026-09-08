@@ -264,11 +264,13 @@ const publicRows = rows.map((r) => ({
   totals: r.model?.totals ?? r.modelOnly?.totals ?? null,
   teamGoals: r.model?.teamGoals ?? r.modelOnly?.teamGoals ?? null,
   btts: r.model?.btts ?? r.modelOnly?.btts ?? null,
-  cleanSheet: r.model?.cleanSheet ?? null,
-  doubleChance: r.model?.doubleChance ?? null,
-  margin: r.model?.margin ?? null,
+  /* P246: these four fell through to null on every READY_EXCEPT_ODDS row — the modelOnly
+     rung now carries them (shadow-run.mjs), and the fallback reads it like its siblings. */
+  cleanSheet: r.model?.cleanSheet ?? r.modelOnly?.cleanSheet ?? null,
+  doubleChance: r.model?.doubleChance ?? r.modelOnly?.doubleChance ?? null,
+  margin: r.model?.margin ?? r.modelOnly?.margin ?? null,
   topScorelines: r.model?.topScorelines ?? r.modelOnly?.topScorelines ?? null,
-  topScorelinesMass: r.model?.topScorelinesMass ?? null,
+  topScorelinesMass: r.model?.topScorelinesMass ?? r.modelOnly?.topScorelinesMass ?? null,
   modelId: r.model?.modelId ?? r.modelOnly?.modelId ?? null,
 }));
 

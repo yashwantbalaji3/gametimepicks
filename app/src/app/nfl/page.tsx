@@ -453,9 +453,12 @@ export default function NflHubPage() {
         </div>
         <p style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
           The two projected scores are derived from the median total and median margin, so they always
-          add up to the printed total. This season&apos;s total is a league-wide prior shared by every
-          game — it stays the same number across the slate until a matchup-specific totals model clears
-          its preregistered bars, and the range beside it is that prior&apos;s own spread.
+          add up to the printed total.{" "}
+          {/* The totals sentence follows the ARTIFACT's own head stamp — prose about the model
+              derives from what the model actually did this build, never from what it used to do. */}
+          {(forecastArtifact?.forecasts?.[0]?.forecastSummary?.total as { head?: string } | undefined)?.head === "matchup-totals-v1-decayed-points"
+            ? "Each game's total comes from that matchup's own scoring ratings — a head that first had to beat the league-wide prior on a held-out season under preregistered bars."
+            : "This season's total is a league-wide prior shared by every game — it stays the same number across the slate until a matchup-specific totals model clears its preregistered bars, and the range beside it is that prior's own spread."}
         </p>
         {forecastArtifact?.generatedAt ? (
           <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>

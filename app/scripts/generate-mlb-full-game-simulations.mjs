@@ -47,6 +47,29 @@ if (!board || !Array.isArray(board.games)) {
   process.exit(0);
 }
 
+/*
+ * ── THE PRE-EVENT BOUNDARY HOLDS AGAINST THIS RUN'S OWN CLOCK (P246 MLB input audit) ──────────
+ *
+ * `startedBeforeGeneration` was stamped against the BOARD's generatedAt. The board said
+ * "pregame" at 18:23Z; the lineup-refresh rerun at 01:21Z then republished fresh 10k "pregame"
+ * forecasts for games hours under way (2026-09-07: min-vs-det simulated ~6h after first pitch).
+ * The flag is re-derived here ONCE from each game's own firstPitch vs nowIso, on a copy used
+ * for INPUTS — before both build() calls, so the reproducibility probe (which replays with a
+ * fake clock) still sees identical inputs. `sourceBoardHash` keeps hashing the board as
+ * committed. A game that already has a published pregame simulation is CARRIED FORWARD
+ * verbatim below, never regenerated and never destroyed.
+ */
+const startedByNow = new Set(
+  board.games
+    .filter((g) => g.gameDate && Number.isFinite(Date.parse(g.gameDate)) && Date.parse(g.gameDate) <= Date.parse(nowIso))
+    .map((g) => g.gamePk),
+);
+const boundedBoard = {
+  ...board,
+  games: board.games.map((g) => (startedByNow.has(g.gamePk) ? { ...g, startedBeforeGeneration: true } : g)),
+};
+const priorArtifact = readJson(`mlb/full-game-simulations/${date}.json`);
+
 // Market comparison map (display-only): gamePk → de-vigged team markets, joined via the board's odds gameId.
 const teamMarkets = readJson(`mlb/team-markets/${date}.json`);
 
@@ -107,7 +130,7 @@ if (teamMarkets && teamMarkets.games && typeof teamMarkets.games === "object") {
 const opts = { runCount: RUN_COUNT, modelVersion: MODEL_VERSION, simulationVersion: SIMULATION_VERSION, generatedAt: nowIso };
 
 function build(generatedAt) {
-  const inputs = gameInputsFromBoard(board, marketByGamePk, confirmedByGamePk);
+  const inputs = gameInputsFromBoard(boundedBoard, marketByGamePk, confirmedByGamePk);
   const games = inputs.map((input) => simulateFullGame(input, { ...opts, generatedAt }));
   return {
     sport: "mlb",
@@ -130,6 +153,36 @@ if (mismatch) {
   console.error(`[full-game-sim] NON-REPRODUCIBLE: ${mismatch.slug} hash changed with the clock — aborting.`);
   process.exit(1);
 }
+
+/*
+ * CARRY-FORWARD: a game that started since the last run keeps its LAST PREGAME simulation,
+ * byte-for-byte. Frozen means frozen — the alternative was this rerun replacing a legitimate
+ * morning forecast with an "unavailable" refusal (destroying the record) or, before this fix,
+ * with a fresh simulation stamped pregame after first pitch (backfilling). Runs after the
+ * probe, deterministically: the started set and the prior bytes are both fixed inputs.
+ */
+let carriedForward = 0;
+if (priorArtifact?.games?.length) {
+  const priorByPk = new Map(priorArtifact.games.map((g) => [g.gamePk, g]));
+  artifact.games = artifact.games.map((g) => {
+    if (!startedByNow.has(g.gamePk)) return g;
+    const prior = priorByPk.get(g.gamePk);
+    // Carry ONLY a genuinely pregame prior: the prior FILE must predate this game's first
+    // pitch. The 2026-09-07 01:21Z artifact held three post-start simulations (the very bug
+    // this boundary fixes) — those may not be preserved as pregame either; the game refuses.
+    const priorIsPregame = prior
+      && prior.completeness?.level !== "unavailable"
+      && priorArtifact.generatedAt
+      && g.firstPitch
+      && Date.parse(priorArtifact.generatedAt) <= Date.parse(g.firstPitch);
+    if (priorIsPregame) {
+      carriedForward += 1;
+      return prior;
+    }
+    return g;
+  });
+}
+if (carriedForward) console.log(`[full-game-sim] ${carriedForward} started game(s) kept their frozen pregame simulation (never regenerated, never destroyed).`);
 
 // Reconciliation matrix.
 console.log(`\n=== FULL-GAME SIM ${date} · ${MODEL_VERSION} · ${RUN_COUNT} complete games/matchup ===`);
