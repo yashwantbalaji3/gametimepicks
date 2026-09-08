@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "artifact": "participation-true-verdict",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "247",
+  "candidate": "participation-true-conditioning-v1",
+  "preregistration": "data/internal/research/nfl/reports/participation-true-preregistration.json",
+  "evaluation": "data/internal/research/nfl/reports/participation-true-evaluation.json",
+  "evaluatedAt": "2026-09-08T23:05:00Z",
+  "verdict": "ACCEPTED",
+  "adopted": {
+    "conditioning": "participation-true (absent+played settles 0; absent+did-not-dress voids; ground truth participation-truth-v1 @ 99.96% join validation)",
+    "targetShareDeflation": 1.0,
+    "gammaReselectionTrace": { "criterion": "min summed receiving-family ECE, 2024 walk-forward under participation-true", "grid": { "1.00": 0.0619, "0.98": 0.0721, "0.96": 0.0706, "0.94": 0.0791, "0.92": 0.0875, "0.90": 0.0975 }, "selected": 1.0, "reading": "monotone AWAY from deflation — the P246 gamma was fit against the absent-as-zero artifact, not against reality; at 1.00 the parameter is identity and is dropped from the fit" }
+  },
+  "promotionUnderTheReceipt": {
+    "player_reception_yds": { "state": "PUBLIC_ELIGIBLE", "mae": 20.292, "vsRolling4": 22.489, "vsShareVol": 20.775, "cov80": 0.835, "ece": 0.016, "n": 3575 },
+    "player_receptions": { "state": "SHADOW_ELIGIBLE", "mae": 1.513, "cov80": 0.8845, "ece": 0.0438, "n": 3575, "failedBar": "coverage 0.8845 outside [0.72, 0.88] — intervals slightly wide; misses by 0.0045 and the bar is the bar" },
+    "player_rush_yds": { "state": "SHADOW_ELIGIBLE", "mae": 18.917, "cov80": 0.7466, "ece": 0.1112, "n": 1851, "failedBar": "threshold calibration 0.1112 > 0.05" },
+    "player_pass_yds": { "state": "RESEARCH_ONLY", "mae": 80.669, "cov80": 0.6741, "ece": 0.1628, "n": 580 }
+  },
+  "publicationConsequence": "Boards regenerate through the production pipeline: receiving yards PUBLISHES; rushing yards and receptions move to WITHHELD naming their exact bars; anytime TD unaffected (its own receipt already evaluates DNP=void). The register records the change before first kickoff.",
+  "evidentiaryStatus": "2025 reused (and measured once under this conditioning before registration — disclosed in the preregistration); the 2026 forward record is the deciding evidence for every family."
+}

@@ -1,10 +1,9 @@
 {
  "schemaVersion": 1,
- "artifact": "nfl-player-props-v1-evaluation",
+ "artifact": "nfl-pass-yds-repair-evaluation",
  "gamesimTotals": "matchup-totals-v1-decayed-points (integrated)",
- "conditioning": "participation-true (DNP=void via participation-truth-v1)",
  "dataClass": "PRIVATE_RESEARCH",
- "generatedAt": "2026-09-08T23:15:00Z",
+ "generatedAt": "2026-09-08T23:05:00Z",
  "engine": {
   "id": "nfl-player-props-v1-opportunity-efficiency",
   "version": 1
@@ -246,5 +245,11 @@
   "multinomial allocation reconciles player opportunities to team volumes per iteration by construction",
   "threshold calibration uses the rolling-4 mean as the line proxy (no historical sportsbook lines exist in this repo); P(over) is read off the true sampled distribution as a post-sampling read-out",
   "rush yards are Gamma (non-negative): true negative rushing games exist and are outside v1 support — a stated limitation"
- ]
+ ],
+ "challenger": {
+  "id": "participation-true-conditioning-v1",
+  "preregistration": "data/internal/research/nfl/reports/participation-true-preregistration.json",
+  "champion": "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+  "scope": "evaluation POPULATION only — market-true void conditioning via snap-count ground truth; every model parameter identical to the integrated champion"
+ }
 }

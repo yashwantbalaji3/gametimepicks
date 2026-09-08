@@ -41,9 +41,12 @@ test("the homepage total rendered copy only shrinks (frozen at the R-A measureme
   if (!hasBuild) return;
   // Measured 2026-08-27: 1,432 pregame → 1,501 with games in progress (started-state chips add
   // real words) — a ceiling tighter than live variance flakes on a healthy slate (the P210
-  // measurement trap). 1,600 holds: the banished-strings test above is the regrowth guard; this
-  // ceiling catches gross creep. Shrink-only, evidence-updated.
-  const CEILING = 1600;
+  // measurement trap). EVIDENCE UPDATE 2026-09-08: a full 15-game evening slate in progress
+  // measured 1,603 — and PRODUCTION measured the identical 1,603 at the same moment, proving
+  // live-state variance rather than copy creep (word-level diff vs prod: empty). 1,650 holds
+  // that headroom; the banished-strings test above remains the regrowth guard, and this
+  // ceiling still catches gross creep. Shrink-only between evidence updates.
+  const CEILING = 1650;
   const w = words(rendered("index.html"));
   assert.ok(w <= CEILING, `homepage rendered words ${w} > frozen ceiling ${CEILING} — copy crept back`);
 });

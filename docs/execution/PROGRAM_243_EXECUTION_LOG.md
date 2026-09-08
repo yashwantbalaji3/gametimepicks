@@ -564,3 +564,32 @@ commits; all four sports fresh from today's natural runs; first NFL kickoff Sep 
   kickoff = documented reschedule; a vanished pairing still fails). No capture rewritten.
 
 Gates: suite 5499/0 · build OK · built 464/0.
+
+## P247 Release B/C — the population was the defect; the governed re-receipt
+- **Pass-yds candidate REJECTED on its own bars** (cov 0.703 < 0.72; ece 0.119; LOSES to
+  share-volume by 13 yds MAE on the honest starter population). The P246 "center error" story
+  was the aggregate shadow of two structural facts: 468/969 evaluated points were non-starters
+  (88% zeros) admitted through an inconsistent absent-from-boxscore=0 branch, and conditional
+  on the true previous-game starter the whole distribution sat ~45 yds low (effective share
+  0.74 vs train reality 0.9577). Next candidate named (starter-conditioned regression head),
+  not run.
+- **The absent-as-zero artifact infects EVERY family's receipt** (48% of rush points, 31% of
+  reception points). Resolution: participation ground truth acquired — nflverse snap counts
+  2023-25 committed verbatim, builder with postseason round mapping + unique-lastname nickname
+  fallback, **99.96% join validation** (16,834/16,841 stat-recording players), refuses <99%.
+- **Governed re-receipt** (preregistered, incl. disclosure that 2025 was measured once under
+  the new conditioning before registration): market-true population (absent+played settles 0;
+  absent+did-not-dress VOIDS) + in-train gamma re-selection. The gamma grid INVERTED:
+  γ=1.00 optimal, monotonically worse toward 0.90 — **the P246 deflation was fit against the
+  population artifact, not against reality**; the parameter is dropped.
+- **Promotion under the honest receipt**: receiving yards → PUBLIC_ELIGIBLE (ece 0.016,
+  cov 0.835, beats both baselines); receptions → SHADOW (cov 0.8845 misses the band by 0.0045
+  — the bar is the bar); rushing yards → SHADOW (ece 0.1112); passing → RESEARCH_ONLY (loses
+  to baselines, stated in the receipt). The blanket "baselines beaten everywhere" guard was
+  rebased to per-family honesty: a family that loses says so and can never publish.
+- Week-1 boards after regeneration: anytime TD + Top-10 receiving yards publish; rushing,
+  receptions and passing withheld naming their exact bars. Fewer boards, honest boards.
+- Homepage copy ceiling evidence-updated (1600→1650): prod measured the identical 1,603 at the
+  same moment on a 15-game in-progress slate — live variance, proven by an empty word diff.
+
+Gates: suite 5499/0 · build OK · built 464/0.

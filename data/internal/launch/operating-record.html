@@ -50,12 +50,12 @@
     .wrap { max-width: none; padding: 12px 8px; }
   }
 </style>
-<div class="wrap" data-expected-releases="176" data-first-release="141-143-—" data-last-release="222-R-B">
+<div class="wrap" data-expected-releases="179" data-first-release="141-143-—" data-last-release="247-R-A2">
 <header class="doc">
-  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-09-08T21:25:00Z</span><span>P247 Phase 0 + Release A</span></p>
+  <p class="stamp"><span>GameTimePicks · Operating record</span><span>Generated 2026-09-08T23:30:00Z</span><span>P247 R-B/R-C</span></p>
   <h1>The operating record, generated from the committed register</h1>
   <p class="stamp">
-    <span>main @ 39298ccc8</span>
+    <span>main @ 9c693e788</span>
     <span>Suite: 5500·5499·0·1</span>
     <span>e2e: 385/0/6 named</span>
     <span>Queues: 0 engineering · 7 reality · 5 founder · 0 incident</span>
@@ -80,7 +80,7 @@
 
 <section>
   <h2>The release register — every production release, oldest first</h2>
-  <p class="stamp"><span>176 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 222-R-B (2026-08-28)</span></p>
+  <p class="stamp"><span>179 releases</span><span>first 141-143-— (2026-08-07)</span><span>last 247-R-A2 (2026-09-08)</span></p>
   <div class="scroll">
     <table>
       <thead><tr><th>Release</th><th>Commit</th><th>Date</th><th>What shipped</th></tr></thead>
@@ -261,13 +261,16 @@
         <tr><td class="num">221-R-A</td><td class="num">23073b145</td><td class="num">2026-08-28</td><td>both P0 public contradictions traced and recovered: MLB's chain (board present, markets/props/sims all stopped a day behind) self-recovered to 9 covered pre-start games with 6 named MISSED_COVERAGE, and EPL went to 8 of 9 CURRENT_PRE_EVENT about twelve hours before the next lock, for two credits <em>Defects caught: the EPL odds step had skipped at 05:10 with 'no kickoff within 30h (next is 32.8h away)' — that time was the FABRICATED slot, and the real next kickoff was 13.8h away, so the stale capture suppressed the purchase rather than merely mis-displaying times. Plus: coveredEventCount had read 1 since P215 (keyed on a field leans never carry); epl-identity-live.test.mjs still used readdir().find(); correcting the kickoffs orphaned four historical odds captures, named and dated rather than rewritten; and the NFL taxonomy guard asserted every event was SCHEDULED, a property of when the capture was taken</em></td></tr>
         <tr><td class="num">222-R-A</td><td class="num">05651baee</td><td class="num">2026-08-28</td><td>the expected-work graph: six daily owners, each declaring the RECEIPT that proves it ran and how its deadline is derived (from the day's first event where one exists, from the clock only where the day is already over). The evaluator consults no run list, no conclusion and no heartbeat — a guard pins that — which is why it sees a cron that produced no run object at all. All four dropped-cron incidents since 2026-08-27 replay as caught, the Aug-27 one at 16:06Z, an hour before first pitch; in reality nobody noticed until 17:48Z. Rides the publication-slo composite action, inheriting detection across a dozen schedules <em>Defects caught: its first local run opened an incident on the risk ladder thirty seconds before the run that wrote it landed — a receipt-based answer read from a stale checkout is a statement about the checkout, so the artifact now records treeHead. And the NFL inversion guard's |r| &lt; 0.6 bar was calibrated for a 12-16 game slate: at seven forecasts r came out -0.6529 with a 1.63pp published spread, which pure noise clears about one time in nine. Now tested for significance, which catches the original -0.9726, an inversion at n=7, AND a genuine -0.65 lean on a full slate that the old bar would have passed</em></td></tr>
         <tr><td class="num">222-R-B</td><td class="num">8f35d52b5</td><td class="num">2026-08-28</td><td>register maintenance: recorded R-A, P221 R-A and P220 R-B, bringing the operating record to 175 rows</td></tr>
+        <tr><td class="num">247-Phase 0</td><td class="num">26515762d</td><td class="num">2026-09-08</td><td>daily-products recovery no longer goes red on legitimate hold days: completed-evaluation skip guard plus the documented max-age tolerance on the produced-artifacts assert, verified against the day's real NO_PLAY receipt</td></tr>
+        <tr><td class="num">247-R-A</td><td class="num">2c410613f</td><td class="num">2026-09-08</td><td>integrated matchup totals adopted into the player chain (bridge-derived invariance confirmed, per-family bars); register conservation restored; three pre-existing data-state guard classes repaired at their owners (frozen era fixture, mandatory limits rows, principled reschedule exemption) <em>Defects caught: the record register had gone stale since P222 behind the in-flight exemption; the vault replay suite pinned the rolling results capture; the MLB limits chapter sliced off its own degraded verdict</em></td></tr>
+        <tr><td class="num">247-R-A2</td><td class="num">0954bc291</td><td class="num">2026-09-08</td><td>operating-record artifacts regenerated and verified (176 rows, PDF receipt chain) after the P222 R-B register restoration</td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
 <footer class="doc">
-  <p>Register complete: 176 releases · 141-143-— → 222-R-B · generated 2026-09-08T21:25:00Z at 39298ccc8.</p>
+  <p>Register complete: 179 releases · 141-143-— → 247-R-A2 · generated 2026-09-08T23:30:00Z at 9c693e788.</p>
 </footer>
 </div>
-<!-- OPERATING-RECORD-END expected=176 first=141-143-— last=222-R-B -->
+<!-- OPERATING-RECORD-END expected=179 first=141-143-— last=247-R-A2 -->

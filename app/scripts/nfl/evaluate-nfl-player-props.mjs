@@ -63,7 +63,12 @@ if (PRESENT_ONLY && !DIAGNOSE_DIR) { console.error("REFUSED: --present-only requ
  * dress, the prop VOIDS and the point is excluded. Present players are scored exactly as
  * before. Measurement via --diagnose, or the governed re-receipt via the named challenger.
  */
-const PARTICIPATION_TRUE = process.argv.includes("--participation-true") || CHALLENGER === "participation-true-conditioning-v1";
+/* CHAMPION ADOPTION (P247): the participation-true verdict supersedes the P246 gamma verdict —
+   population conditioning AND the deflation parameter both come from it. Fails loudly. */
+const ptVerdictPath = path.join(ROOT, "data/internal/research/nfl/reports/participation-true-verdict.json");
+const ptVerdict = fs.existsSync(ptVerdictPath) ? JSON.parse(fs.readFileSync(ptVerdictPath, "utf8")) : null;
+const PT_ADOPTED = ptVerdict?.verdict === "ACCEPTED";
+const PARTICIPATION_TRUE = process.argv.includes("--participation-true") || CHALLENGER === "participation-true-conditioning-v1" || (!CHALLENGER && !DIAGNOSE_DIR && PT_ADOPTED);
 let participationBySeason = null;
 if (PARTICIPATION_TRUE) {
   participationBySeason = new Map();
@@ -93,7 +98,7 @@ const acceptedVerdict = (() => {
 const ACCEPTED_GAMMA = acceptedVerdict?.perFamilyVerdicts?.player_receptions?.verdict === "ACCEPTED"
   ? Number(acceptedVerdict.accepted.gamma)
   : null;
-const GAMMA = arg("--gamma", null) != null ? Number(arg("--gamma")) : ACCEPTED_GAMMA;
+const GAMMA = arg("--gamma", null) != null ? Number(arg("--gamma")) : (PT_ADOPTED ? Number(ptVerdict.adopted.targetShareDeflation) : ACCEPTED_GAMMA);
 /*
  * P247 Release A — INTEGRATED TOTALS (props-gamesim-matchup-totals-v1): the player chain draws
  * its game total from the SAME matchup head the team artifact publishes (per-game walk-forward
@@ -126,8 +131,8 @@ if (USE_MATCHUP_TOTALS && totalsReceipt?.verdict !== "ELIGIBLE") {
   console.error("REFUSED: matchup totals lane needs an ELIGIBLE totals receipt"); process.exit(1);
 }
 if (GAMMA != null && !(GAMMA > 0.8 && GAMMA <= 1)) { console.error("REFUSED: --gamma outside (0.8, 1]"); process.exit(1); }
-if (arg("--gamma", null) != null && !DIAGNOSE_DIR && CHALLENGER !== "receiving-target-deflation-v1") {
-  console.error("REFUSED: --gamma requires --diagnose (selection) or the receiving challenger (test)"); process.exit(1);
+if (arg("--gamma", null) != null && !DIAGNOSE_DIR && !["receiving-target-deflation-v1", "participation-true-conditioning-v1"].includes(CHALLENGER)) {
+  console.error("REFUSED: --gamma requires --diagnose (selection) or a challenger whose protocol selects it"); process.exit(1);
 }
 if (CHALLENGER === "receiving-target-deflation-v1" && GAMMA == null) {
   console.error("REFUSED: the receiving challenger needs the selected --gamma"); process.exit(1);
@@ -641,6 +646,7 @@ const receipt = {
   schemaVersion: 1,
   artifact: "nfl-player-props-v1-evaluation",
   gamesimTotals: USE_MATCHUP_TOTALS ? "matchup-totals-v1-decayed-points (integrated)" : "constant (model-v1 shared prior)",
+  conditioning: PARTICIPATION_TRUE ? "participation-true (DNP=void via participation-truth-v1)" : "absent-as-zero (legacy)",
   dataClass: "PRIVATE_RESEARCH",
   generatedAt: NOW,
   engine: { id: NFL_PLAYER_PROPS_ID, version: 1 },
