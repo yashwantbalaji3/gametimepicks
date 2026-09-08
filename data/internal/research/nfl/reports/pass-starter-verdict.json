@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "artifact": "pass-starter-verdict",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "247",
+  "candidate": "pass-starter-conditioning-v1",
+  "preregistration": "data/internal/research/nfl/reports/pass-starter-conditioning-preregistration.json",
+  "evaluation": "data/internal/research/nfl/reports/pass-starter-evaluation.json",
+  "evaluatedAt": "2026-09-08T21:40:00Z",
+  "verdict": "REJECTED",
+  "bars": {
+    "coverage80": { "required": "[0.72, 0.88]", "observed": 0.7026, "pass": false },
+    "eceMax": { "required": 0.05, "observed": 0.1186, "pass": false },
+    "beatsBaselines": { "required": "MAE < rolling4 AND < shareVol on identical points", "observed": "74.738 vs rolling4 66.689 and shareVol 61.788 — LOSES TO BOTH", "pass": false },
+    "minN": { "required": 300, "observed": 501, "pass": true }
+  },
+  "whatWasLearned": {
+    "headline": "On the honest starter-conditioned population the simulation chain is NOT competitive: a trivial share x volume x league-rate baseline centers starters better by 13 yards of MAE, and the chain's threshold calibration collapses (0.119).",
+    "mechanism": "The candidate's share floor fixed the level (coverage 0.57 -> 0.70) but the chain's remaining spread and shape are wrong for a conditioned starter: its variance still carries allocation/committee uncertainty a designated starter does not have, and its center still trails simple recency.",
+    "implication": "The productive next candidate for passing yards is NOT more simulation repair — it is a direct starter-conditioned regression head (attempts recency x efficiency shrinkage with train-fitted predictive uncertainty), evaluated under participation-true conditioning once the ground-truth corpus lands (see population-sensitivity-annex.json). Preregistration required before any evaluation.",
+    "populationFinding": "This candidate's honest population also exposed the absent-as-zero artifact in EVERY family's committed evaluation — recorded in population-sensitivity-annex.json, with resolution steps."
+  },
+  "championStanding": "player_pass_yds stays RESEARCH_ONLY / withheld. No published family changes from this verdict."
+}

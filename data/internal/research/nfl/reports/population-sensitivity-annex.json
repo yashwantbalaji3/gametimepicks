@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "artifact": "population-sensitivity-annex",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "247",
+  "charterSection": "Release B/C — baseline conditioning comparability",
+  "notedAt": "2026-09-08T22:05:00Z",
+  "finding": "Every props-v1 family's evaluation scores an absent-from-boxscore candidate as ACTUAL=0, while a candidate who appears with zero family opportunities is excluded (void). Prop markets void a DNP, so the two branches are inconsistent — and the absent branch is large: 48% of rush-yds points, 31% of receptions/receiving points, 42% of pass-yds points.",
+  "sensitivity": {
+    "committedReceipts_absentAsZero": {
+      "player_rush_yds": { "state": "PUBLIC_ELIGIBLE", "mae": 16.089, "cov80": 0.7409, "ece": 0.0283, "n": 3273 },
+      "player_receptions": { "state": "PUBLIC_ELIGIBLE", "mae": 1.611, "cov80": 0.8655, "ece": 0.0357, "n": 4789 },
+      "player_reception_yds": { "state": "SHADOW_ELIGIBLE", "mae": 20.37, "cov80": 0.8296, "ece": 0.0536, "n": 4789 },
+      "player_pass_yds": { "state": "RESEARCH_ONLY", "mae": 81.406, "cov80": 0.5748, "ece": 0.0482, "n": 969 }
+    },
+    "measurementLane_presentOnly": {
+      "note": "--present-only diagnose lane, 2025, identical code and baselines on identical points; treats EVERY absence as void — an OVERSHOOT (an active player with zero touches settles 0, not void), so this is the pessimistic bound, not the truth.",
+      "player_rush_yds": { "impliedState": "SHADOW_ELIGIBLE", "mae": 19.767, "vsShareVol": 19.521, "cov80": 0.7294, "ece": 0.1386, "n": 1689, "reading": "LOSES to the share-volume baseline and fails calibration on the present-only bound" },
+      "player_receptions": { "impliedState": "SHADOW_ELIGIBLE", "mae": 1.488, "vsShareVol": 1.518, "cov80": 0.8818, "ece": 0.0896, "n": 3317, "reading": "still beats baselines but breaches the 0.88 coverage edge and the calibration bar on this bound" },
+      "player_reception_yds": { "impliedState": "SHADOW_ELIGIBLE", "mae": 20.129, "cov80": 0.826, "ece": 0.0598, "n": 3317 },
+      "player_pass_yds": { "impliedState": "RESEARCH_ONLY", "mae": 79.445, "cov80": 0.6911, "ece": 0.182, "n": 560 }
+    }
+  },
+  "interpretation": [
+    "The published families' bar-clearing evidence depends materially on the absent-as-zero branch. The market-matching population lies BETWEEN the two bounds: absent candidates split into inactive (void) and active-without-touches (settles 0), indistinguishable in the current corpus.",
+    "This is an evaluation-population question, not proof the models are bad — but it caps what the receipts may claim until resolved.",
+    "The anytime-TD family is unaffected: its own receipt evaluates under explicit DNP=void conditioning."
+  ],
+  "resolution": {
+    "step": "Acquire historical participation ground truth (free public snap-count/roster data), join to the player-events corpus, and re-evaluate every family under participation-true conditioning: absent+played -> 0, absent+did-not-play -> void. That re-receipt is a GOVERNED family-conditioning change: promotion states re-derive from it and publication follows the receipts, wherever they land.",
+    "interim": "Published boards stay as receipted (their stated conditioning was applied consistently and the pessimistic bound does not prove failure — it proves sensitivity); this annex and the register record the caveat immediately."
+  }
+}

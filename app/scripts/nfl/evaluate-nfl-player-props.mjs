@@ -48,8 +48,15 @@ const DIAGNOSE_DIR = arg("--diagnose", null);
    receipt can never be written from a non-held-out scoring population). For 2024 the league
    fits are in-sample; usable for BIAS DIRECTION diagnosis, never for a promotion claim. */
 const DIAGNOSE_SEASON = Number(arg("--diagnose-season", "2025"));
+/* --present-only: MEASUREMENT lane (requires --diagnose) — scores only players present in the
+   boxscore, i.e. treats absent-from-boxscore as void for every family. The committed receipts
+   score absent candidates as 0; the truth sits between (absent mixes inactive=void with
+   active-no-touch=settles-0, indistinguishable without historical actives). This lane measures
+   how much of each family's evidence rests on that branch. */
+const PRESENT_ONLY = process.argv.includes("--present-only");
+if (PRESENT_ONLY && !DIAGNOSE_DIR) { console.error("REFUSED: --present-only requires --diagnose"); process.exit(1); }
 if (DIAGNOSE_SEASON !== 2025 && !DIAGNOSE_DIR) { console.error("REFUSED: --diagnose-season requires --diagnose"); process.exit(1); }
-if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1", "props-gamesim-matchup-totals-v1"].includes(CHALLENGER)) {
+if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1", "props-gamesim-matchup-totals-v1", "pass-starter-conditioning-v1"].includes(CHALLENGER)) {
   console.error(`REFUSED: unknown challenger ${CHALLENGER}`); process.exit(1);
 }
 /* P246 §4.3: gamma for receiving-target-deflation-v1 — a preregistered grid value, threaded
@@ -84,7 +91,19 @@ const integrationVerdictPath = path.join(ROOT, "data/internal/research/nfl/repor
 const INTEGRATED_ADOPTED = fs.existsSync(integrationVerdictPath)
   ? JSON.parse(fs.readFileSync(integrationVerdictPath, "utf8")).verdict === "ACCEPTED"
   : false;
-const USE_MATCHUP_TOTALS = CHALLENGER === "props-gamesim-matchup-totals-v1" || (!CHALLENGER && !DIAGNOSE_DIR && INTEGRATED_ADOPTED);
+const USE_MATCHUP_TOTALS = CHALLENGER === "props-gamesim-matchup-totals-v1" || CHALLENGER === "pass-starter-conditioning-v1" || (!CHALLENGER && !DIAGNOSE_DIR && INTEGRATED_ADOPTED);
+/*
+ * P247 Release B (pass-starter-conditioning-v1): pass yards becomes a STARTER-CONDITIONED
+ * family — evaluated only for the team's projected starter (previous game's leading passer,
+ * walk-forward; season opener falls back to the highest decayed share), with absent-from-
+ * boxscore treated as VOID exactly like the existing zero-attempt exclusion, and the starter's
+ * effective share floored at the TRAIN mean attempt share of playing starters. All three
+ * elements preregistered: pass-starter-conditioning-preregistration.json. The 2023-24 constant
+ * is COMPUTED evidence (993/1108 starter-games, mean share 0.9577), not a tuned knob.
+ */
+const STARTER_CONDITIONED = CHALLENGER === "pass-starter-conditioning-v1";
+const TRAIN_STARTER_SHARE = 0.9577;
+const lastLeadingPasser = new Map(); // teamAbbr → playerId (walk-forward, updated as games fold)
 const totalsReceipt = USE_MATCHUP_TOTALS ? JSON.parse(fs.readFileSync(totalsReceiptPath, "utf8")) : null;
 if (USE_MATCHUP_TOTALS && totalsReceipt?.verdict !== "ELIGIBLE") {
   console.error("REFUSED: matchup totals lane needs an ELIGIBLE totals receipt"); process.exit(1);
@@ -320,6 +339,8 @@ function newState() { return new Map(); } // playerId → {team, shares:{fam:[{s
 function foldGame(state, g) {
   for (const abbr of new Set((g.players ?? []).map((p) => p.teamAbbr))) {
     const { totals, rows } = teamGameTotals(g, abbr);
+    const lead = rows.reduce((best, r) => ((r.passAtt ?? 0) > ((best?.passAtt ?? 0)) ? r : best), null);
+    if (lead && (lead.passAtt ?? 0) > 0) lastLeadingPasser.set(abbr, lead.playerId);
     for (const r of rows) {
       let st = state.get(r.playerId);
       if (!st || st.team !== r.teamAbbr) { st = { team: r.teamAbbr, shares: {}, rates: {}, recent: {} }; state.set(r.playerId, st); }
@@ -441,6 +462,17 @@ for (const g of test) {
     for (const abbr of [homeAbbr, awayAbbr]) {
       const cands = candidatesFor(state, abbr, g.season);
       if (!cands.length) continue;
+      /* Projected starter: last game's leading passer if he is a candidate; else top qbShare. */
+      const starterId = STARTER_CONDITIONED
+        ? (cands.some((c) => c.playerId === lastLeadingPasser.get(abbr))
+            ? lastLeadingPasser.get(abbr)
+            : cands.filter((c) => (c.qbShare ?? 0) > 0).sort((a, b) => (b.qbShare ?? 0) - (a.qbShare ?? 0))[0]?.playerId ?? null)
+        : null;
+      if (STARTER_CONDITIONED && starterId != null) {
+        for (const c of cands) {
+          if (c.playerId === starterId) c.qbShare = Math.max(c.qbShare ?? 0, TRAIN_STARTER_SHARE);
+        }
+      }
       const linesProxy = {};
       for (const c of cands) {
         for (const mkt of PROP_MARKETS) {
@@ -463,6 +495,11 @@ for (const g of test) {
         const actualRow = rowsByPlayer.get(simP.playerId);
         for (const [mkt, dist] of Object.entries(simP.markets)) {
           if (!PROP_MARKETS.includes(mkt)) continue;
+          if (STARTER_CONDITIONED && mkt === "player_pass_yds") {
+            if (simP.playerId !== starterId) continue; // starter-conditioned family: one row per team
+            if (!actualRow) continue; // absent from the boxscore = VOID, same as the zero-attempt rule
+          }
+          if (PRESENT_ONLY && !actualRow) continue;
           const actual = actualRow ? MARKET_ACTUAL[mkt](actualRow) : (cand.families.has(MARKET_FAMILY[mkt]) ? 0 : null);
           if (actual == null) continue; // DNP without evidence either way — participation's job, not the head's
           const m = metrics[mkt];
@@ -485,6 +522,7 @@ for (const g of test) {
               actual,
               actualOpp: famD === "passAttempts" ? (actualRow?.passAtt ?? 0) : famD === "rushAttempts" ? (actualRow?.rushAtt ?? 0) : (actualRow?.targets ?? 0),
               actualSecondary: mkt === "player_pass_yds" ? (actualRow?.passCmp ?? 0) : null,
+              absent: !actualRow,
             });
           }
           const recent = (cand.recent[mkt] ?? []);
@@ -609,6 +647,8 @@ const OUT = DIAGNOSE_DIR
   ? null
   : CHALLENGER === "receiving-target-deflation-v1"
     ? "data/internal/research/nfl/reports/receiving-repair-evaluation.json"
+    : CHALLENGER === "pass-starter-conditioning-v1"
+    ? "data/internal/research/nfl/reports/pass-starter-evaluation.json"
     : CHALLENGER === "props-gamesim-matchup-totals-v1"
       ? "data/internal/research/nfl/reports/props-integration-evaluation.json"
       : CHALLENGER
@@ -616,7 +656,14 @@ const OUT = DIAGNOSE_DIR
         : "data/internal/research/nfl/reports/player-props-v1-evaluation.json";
 if (CHALLENGER) {
   receipt.artifact = "nfl-pass-yds-repair-evaluation";
-  receipt.challenger = CHALLENGER === "props-gamesim-matchup-totals-v1"
+  receipt.challenger = CHALLENGER === "pass-starter-conditioning-v1"
+    ? {
+        id: CHALLENGER,
+        preregistration: "data/internal/research/nfl/reports/pass-starter-conditioning-preregistration.json",
+        champion: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+        scope: "player_pass_yds only: starter-conditioned eligibility, absent=void, train share floor 0.9577; integrated totals as adopted",
+      }
+    : CHALLENGER === "props-gamesim-matchup-totals-v1"
     ? {
         id: CHALLENGER,
         preregistration: "data/internal/research/nfl/reports/nfl-integration-preregistration.json",
