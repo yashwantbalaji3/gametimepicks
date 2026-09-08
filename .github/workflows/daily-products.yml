@@ -134,6 +134,12 @@ jobs:
       # generated for this date, a recovery must not run again and write a second card: it checks
       # the dated receipt the previous run left behind. A workflow_run trigger skips this — being
       # invoked BY the producer is the signal that there is something new to consume.
+      #
+      # P247: "already generated" means the day's EVALUATION COMPLETED, not that a card resulted.
+      # The check was `includes("ACTIVE")`, so every legitimate NO_PLAY day (2026-09-08: four
+      # candidates evaluated, none met policy — a hold, the product's honest answer) re-ran the
+      # recovery, re-derived the same hold, rewrote nothing, and went red on its own assert.
+      # A receipt with any definitive product state IS the completed generation.
       - name: Skip a recovery that is not needed
         id: recovery
         if: github.event_name == 'schedule'
@@ -143,11 +149,12 @@ jobs:
           R="data/internal/products/receipts/${DATE}.json"
           if [ -f "$R" ] && node -e "
             const r = require('./$R');
-            const active = JSON.stringify(r.products ?? {}).includes('\"ACTIVE\"');
-            process.exit(active ? 0 : 1);
+            const products = Array.isArray(r.products) ? r.products : Object.values(r.products ?? {});
+            const evaluated = products.length > 0 && products.every((p) => typeof p?.state === 'string' && p.state.length > 0);
+            process.exit(evaluated ? 0 : 1);
           "; then
             echo "already-generated=true" >> "$GITHUB_OUTPUT"
-            echo "::notice::products for $DATE already carry an ACTIVE card — recovery not needed"
+            echo "::notice::products for $DATE already carry a completed evaluation (ACTIVE or a definitive hold) — recovery not needed"
           else
             echo "already-generated=false" >> "$GITHUB_OUTPUT"
           fi
@@ -262,7 +269,16 @@ jobs:
 
           set -euo pipefail
 
-          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --allow-missing \
+          # P247: this job fires twice on a normal day — workflow_run (the real producer chain)
+          # and the 15:30 UTC cron, which exists as bounded RECOVERY for a producer run that
+          # never happened. When the chain already produced, the cron backstop finds today's
+          # ladder on disk and correctly rewrites nothing — and this assert then went red on a
+          # non-event (observed 2026-09-08 18:54Z: ladder 81 min "old", written by the earlier
+          # successful run). That is the exact alarm-fatigue case --max-age-min documents:
+          # "not rewritten by this run" is the backstop's correct behaviour; "not written for
+          # six hours" is still a real failure. 360 min covers cron drift (2-3h observed here)
+          # plus the producer chain's own spread, and stays inside one product day.
+          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --allow-missing --max-age-min 360 \
             app/public/data/parlays/risk-ladder/latest.json
 
 
