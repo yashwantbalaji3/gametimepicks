@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "artifact": "matchup-totals-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "246",
+  "charterSection": "4B-NFL",
+  "registeredAt": "2026-09-08T07:15:00Z",
+  "champion": {
+    "receipt": "data/internal/research/nfl/reports/model-v1-evaluation.json",
+    "totalsHead": "SHARED PRIOR: total ~ Normal(muTotal=44.9088, sigmaTotal=13.4915), fit 2023-24, no team term — every game on a slate prints the same median total (declared on /nfl since P245)."
+  },
+  "candidate": {
+    "id": "matchup-totals-v1-decayed-points",
+    "form": "total ~ Normal(a0 + a1 * s, sigmaC). s = (R_home + R_away)/2 - meanR_train, where R_team is the exponentially decayed walk-forward mean of (points scored + points allowed) per game for that team (initialized at the league mean, REG+POST games only, chronological — strictly pre-game).",
+    "fitProtocol": {
+      "population": "corpus-v1.json REG+POST finals (phase != 1), 2023-24 train / 2025 held-out",
+      "halfLifeGrid": [4, 8, 16],
+      "halfLifeSelection": "fit a0, a1, sigmaC on 2023 only; score 2024 one-step walk-forward mean NLL; the half-life minimizing it is selected (tie -> longest). Then a0, a1, sigmaC refit once on all 2023-24 with the selected half-life.",
+      "priorForComparison": "Normal(muTrain, sigmaTrain) refit on the IDENTICAL 2023-24 REG+POST population — never the committed all-phase numbers — so the comparison is apples to apples."
+    },
+    "whatIsNotAllowed": "No selection on 2025; no odds or market totals as inputs; no per-game post-hoc adjustments; the margin head is untouched."
+  },
+  "frozenBars": {
+    "meanNll": "candidate mean NLL on held-out 2025 strictly below the refit shared prior's mean NLL on the same games",
+    "coverage80": "held-out 80% interval coverage in [0.72, 0.88]",
+    "mae": "candidate |total - mean| MAE no worse than the shared prior's MAE * 1.02"
+  },
+  "reportedDiagnostics": "sd of predicted means across 2025 (does the head actually differentiate games), a1 with its train standard error, per-half-life selection trace. Diagnostics are REPORTED, never bars.",
+  "decisionRule": "ALL bars pass -> the candidate is ELIGIBLE and adoption into the public forecast builder happens as its own reviewed step (coherence guards, regime stamps, artifact regeneration through the workflow). ANY bar fails -> REJECTED; the declared shared prior stands and the /nfl shared-prior disclosure remains exactly as published.",
+  "output": "data/internal/research/nfl/reports/matchup-totals-evaluation.json (new file)",
+  "notes": "Registered BEFORE implementation; ordering proof is the commit sequence."
+}
