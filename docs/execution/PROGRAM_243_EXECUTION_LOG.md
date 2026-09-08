@@ -260,3 +260,41 @@ Inputs: role-shares-v1-decayed-stint (walk-forward 2023–24, held-out 2025 beat
 baseline; predictSeason 2026, 32 teams) + current rosters + injuries feed. Participation states
 pre-actives: AVAILABLE_ROLE_UNCERTAIN / ACTIVE_PROJECTED / QUESTIONABLE / INACTIVE — every
 published row wears one; volume markets withheld for INACTIVE (TD stays, void-conditioned).
+
+## P245 FINAL (2026-09-08 ~02:15Z / 22:15 ET Sep 7)
+
+### Delivered
+- The vertical slice is LIVE end to end through the NATURAL workflow run (34176152332):
+  16 public player boards (nfl/player-board/<eventId>.json) → /nfl/game/<id> renders "The player
+  board" with family tabs (Rushing yards · Anytime touchdown), team chips, name search, availability
+  states on every row, and the withheld-families disclosure naming each failed bar. Verified
+  rendered on prod (NE@SEA: 20 modelled players).
+- Publication is promotion-gated FROM RECEIPTS: rush yds (props-v1 PUBLIC_ELIGIBLE, n=3273) and
+  anytime TD (calibration beats both baselines, n=3570, DNP=void conditioning) publish; pass yds
+  (coverage bar), receiving/receptions (calibration bar), INT/pass-TD (never evaluated),
+  ordered TD (disabled) are WITHHELD on the artifact with their reasons.
+- Confirmed absence conditions output: an INACTIVE player's volume markets are withheld on the
+  row (void-conditioned TD stays, explained); availability reconciles to the strongest evidence.
+- §3 all closed with math (above): shared-prior total named; coherence re-derived (favourite =
+  pHome vs pAway; ±1 snap band; one rule + corruption fixtures); 18h copy gone.
+- Weekly population through the whole input chain; injuries-fed role evidence (212 role-ready TD
+  candidates; the Vault still rightly publishes no card without a priced market).
+
+### Verdicts (separate, as required)
+- Team model quality: AUDITED — margin/win event-specific under the evaluated Elo head; total =
+  declared shared prior; an event-specific totals head is a NAMED candidate (frozen protocol
+  required), champion intact.
+- Player projection coverage: 2 families PUBLISHED per their receipts across all 16 games;
+  4 families WITHHELD with exact bars; per-game matrix ON the artifact.
+- Priced selections: NONE (P171 receipt expired — unpriced projections are labelled projections;
+  renewal remains a founder decision; no self-authorization).
+- Public game-report usability: board filterable, mobile-scrolling table, reduced-motion-safe,
+  no ceremony; e2e 514/0 (30 typed skips) · suite 5493/0 · built 463/0 on the final tree.
+- Settlement/replay: unchanged owners; TD void semantics stated at publication.
+- Mobile/laptop interaction: the 6-viewport × 3-engine matrix passes on the final tree; board
+  controls covered by the journeys spec + p206 control crawl (shared-template disclosure stands).
+- Physical devices: REAL_DEVICE_CHECK_PENDING (unchanged checklist).
+
+### Carried forward (named)
+BB step/cycle founder gate · hub-order coordinates · per-instance interaction records · EPL/UFC/
+MLB unchanged and green (EPL settle ran naturally 01:0xZ; boards untouched by NFL schema).
