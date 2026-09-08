@@ -463,3 +463,60 @@ Gates: suite 5499/0 · build ✓ · built 464/0.
 - **§8 certification on the final tree**: full e2e matrix (chromium + firefox-a11y +
   webkit-a11y, includes the 6-viewport × 3-engine matrix + charter journeys):
   **511 passed · 0 failed · 33 typed skips**. suite 5499/0 · built 464/0 · a11y structural 0.
+
+---
+
+# PROGRAM 246 — §10 CLOSEOUT
+
+## Per-game NFL matrix (Week 1 · regular season, live artifacts at close)
+All 16 games: simulation PUBLISHED · total.head = matchup-totals-v1-decayed-points · projected
+scores sum EXACTLY to the printed total (derived convention) · 3 player families published
+(rush yds, receptions, anytime TD) · player boards 12–24 modeled rows each.
+Totals now span 44 (DEN@KC, MIA@LV) to 52 (DAL@NYG) — a real per-matchup read where every game
+printed 45. Weekly boards: FULL_WEEK over 16 · top_td + top_receptions + top_rush_yds PUBLISHED ·
+receiving yds / passing yds WITHHELD with their exact receipt bars.
+
+## Four-sport engine comparison (from the §4B traces, all claims file-cited in the log above)
+- **NFL**: evaluated Elo-logistic win head + adopted matchup totals head + promotion-gated player
+  families; every published number traces to a committed receipt; the player-sim chain's
+  constant-total basis is a TYPED divergence with a named re-evaluation follow-up.
+- **EPL**: ONE Poisson score matrix per fixture (totals/BTTS matchup-specific by construction);
+  unified goal allocation when the XI is posted; no odds in any model input (structural + guarded).
+  Gaps: BTTS carries no goal-correlation term (Dixon–Coles null on live path); conditional
+  no-lineup scorer rows bypass the matrix (labelled); v2 provenance caveat stands unpropagated.
+- **UFC**: fitted logistic + nested-Platt fight model (winner/method/round all PASS), price-free
+  by construction, publicly graded vs the de-vigged line (market currently ahead — stated).
+  Labeling debt cleared this program; both governed gap artifacts preserved untouched.
+- **MLB**: three separate engines confirmed; all four modeled player markets remain demoted to
+  market-context (no team market has any calibration record — recorded); the pre-event boundary
+  now holds against each run's own clock with pregame-only carry-forward. Eleven captured
+  pregame feature families still feed no engine (contract gates unmet — recorded, not wired).
+
+## Verdicts (separate, as required)
+- Founder copy removals: DONE at owners across sports; lineage lives in artifacts + optional
+  disclosures; guard rebases recorded with old→new notes.
+- Score/total display: DONE — derived convention live on all 16 (sum==total exactly).
+- Confirmed-out players: DONE — excluded from default per-game view (labelled toggle) and never
+  ranked weekly.
+- §5 ranking owner: DONE — one builder, week-scoped, promotion-gated, maximums, declared scope,
+  NOT_AUTHORIZED pricing state, workflow-owned regeneration.
+- §4 model quality: receptions ACCEPTED→PUBLIC; matchup totals ELIGIBLE→ADOPTED; pass-yds
+  candidate REJECTED honestly with the next candidate named; reception-yds improved but held to
+  its bar. Nothing shipped without a receipt.
+- §6/§8: structural a11y 0 findings; full matrix 511/0/33; suite 5499/0 · built 464/0.
+
+## The new-visitor question
+Can a new visitor, landing on /nfl, understand what this site claims and does not claim?
+The page now leads with one game table (kickoff, matchup, the model's winner, a derived score
+pair that adds up, a per-matchup total), then the weekly top boards with portraits, each withheld
+family naming the exact bar it failed, no price column pretending authorization exists, and a
+one-line "Updated … · frozen pre-kickoff · Model details" instead of a provenance paragraph.
+The honest-limit sentence stays in the lead. YES — with the standing caveat that the model has
+not been shown to beat the market, and says so in its own lead.
+
+## Named follow-ups (carried)
+Player-sim chain re-evaluation under the matchup totals head · pass-yds predictive-uncertainty
+candidate (preregistration required) · wider gamma grid (boundary selection) · MLB team-markets
+staleness stamp + researchEligible consumption + batter_total_bases at the artifact layer ·
+EPL dead-code ledger items (epl-poisson duplicate, dropped multi-book de-vig, inert teamContext)
+· BB founder gate + other standing founder gates unchanged.
