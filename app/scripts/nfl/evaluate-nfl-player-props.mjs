@@ -23,7 +23,7 @@ import { SHARE_FAMILIES, familyNumerator, teamGameTotals, decayedShare } from ".
 import { shrunkRate, simulatePlayerProps, PROP_MARKETS, NFL_PLAYER_PROPS_ID } from "../../src/lib/sports/nfl/player-props-v1.mjs";
 import { strengthStateAt } from "../../src/lib/sports/nfl/model-v1.mjs";
 import { totalsStateAt } from "../../src/lib/sports/nfl/totals-rating.mjs";
-import { participationLookup } from "../../src/lib/sports/nfl/participation-truth.mjs";
+import { classifyParticipation, outcomeForAbsentCandidate, newPopulationAccounting, POPULATION_CONTRACT_VERSION } from "../../src/lib/sports/nfl/participation-truth.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -453,6 +453,7 @@ const MARKET_FAMILY = { player_pass_yds: "passAttempts", player_rush_yds: "rushA
    quantiles and role rank, so the pass-yds failure can be DECOMPOSED instead of inferred from
    aggregate MAE. Never written outside --diagnose. */
 const diagnosticsPoints = [];
+const popAccounting = newPopulationAccounting();
 const metrics = {};
 for (const mkt of PROP_MARKETS) metrics[mkt] = { n: 0, mae: 0, rmse: 0, pinball: 0, cover80: 0, base: { rolling4: 0, shareVol: 0, trailing8Pinball: 0, trailing8Cover: 0, trailing8N: 0, tierMae: 0 }, cal: [] };
 const tierMeans = (() => { // train league means by within-team share rank (naive role-tier baseline)
@@ -523,14 +524,31 @@ for (const g of test) {
             if (!actualRow) continue; // absent from the boxscore = VOID, same as the zero-attempt rule
           }
           if (PRESENT_ONLY && !actualRow) continue;
+          /*
+           * P248 A1: the POPULATION CONTRACT owns every absent-candidate decision. The previous
+           * inline rule collapsed DID_NOT_DRESS, AMBIGUOUS_IDENTITY and SOURCE_MISSING into one
+           * "no snaps -> void" branch; the contract types them, scores dressed-no-row players
+           * as real zeros, voids only genuine DNPs, EXCLUDES (and counts) the rest.
+           */
+          let absentActual = null;
           if (PARTICIPATION_TRUE && !actualRow) {
             const part = participationBySeason.get(g.season);
-            const snaps = part ? participationLookup(part, g, abbr, cand.name ?? simP.name ?? "") : null;
-            if (snaps == null || snaps === 0) continue; // did not dress -> the market voids; so does the evaluation
-            // played with zero touches: the prop settles 0 — fall through with actual = 0
+            const cls = classifyParticipation({ part, game: g, teamAbbr: abbr, playerName: cand.name ?? "" });
+            const out = outcomeForAbsentCandidate(cls);
+            if (out.kind === "VOID") { popAccounting.voidDidNotDress += 1; continue; }
+            if (out.kind === "EXCLUDED") {
+              if (cls.state === "AMBIGUOUS_IDENTITY") popAccounting.excludedAmbiguous += 1;
+              else popAccounting.excludedSourceMissing += 1;
+              continue;
+            }
+            popAccounting.scoredPlayedNoRow += 1;
+            absentActual = out.actual;
           }
-          const actual = actualRow ? MARKET_ACTUAL[mkt](actualRow) : (cand.families.has(MARKET_FAMILY[mkt]) ? 0 : null);
-          if (actual == null) continue; // DNP without evidence either way — participation's job, not the head's
+          const actual = actualRow
+            ? MARKET_ACTUAL[mkt](actualRow)
+            : (PARTICIPATION_TRUE ? absentActual : (cand.families.has(MARKET_FAMILY[mkt]) ? 0 : null));
+          if (actual == null) continue; // zero-opportunity appearance — the family's own row rule voids it
+          if (actualRow) popAccounting.scoredWithRow += 1;
           const m = metrics[mkt];
           m.n += 1;
           evaluated += 1;
@@ -647,6 +665,8 @@ const receipt = {
   artifact: "nfl-player-props-v1-evaluation",
   gamesimTotals: USE_MATCHUP_TOTALS ? "matchup-totals-v1-decayed-points (integrated)" : "constant (model-v1 shared prior)",
   conditioning: PARTICIPATION_TRUE ? "participation-true (DNP=void via participation-truth-v1)" : "absent-as-zero (legacy)",
+  populationContractVersion: PARTICIPATION_TRUE ? POPULATION_CONTRACT_VERSION : null,
+  populationAccounting: PARTICIPATION_TRUE ? popAccounting : null,
   dataClass: "PRIVATE_RESEARCH",
   generatedAt: NOW,
   engine: { id: NFL_PLAYER_PROPS_ID, version: 1 },

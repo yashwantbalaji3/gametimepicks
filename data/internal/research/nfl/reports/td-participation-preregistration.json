@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "artifact": "td-participation-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "248",
+  "charterSection": "Release A3 — TD disposition",
+  "registeredAt": "2026-09-08T21:50:00Z",
+  "finding": "The anytime-TD evaluator's population rule (`if (!row) continue`) treated ABSENT-FROM-BOXSCORE as DNP=void. Stat-row corpora omit active zero-touch players, so TRUE NEGATIVES — dressed players who scored nothing and whose market bets SETTLE as losses — were excluded from the calibration and both baselines. This is the mirror image of the props evaluator's absent-as-zero defect (P247), on the family that stayed public. TD was NOT independent of the defective class: same corpus, same absent-branch collapse, opposite default.",
+  "change": {
+    "id": "td-participation-true-v1",
+    "scope": "Population conditioning ONLY, via the population contract v2 (classifyParticipation + outcomeForAbsentCandidate): absent+PLAYED_* scores outcome 0; DID_NOT_DRESS voids; AMBIGUOUS_IDENTITY / SOURCE_MISSING excluded and counted. The share gate (>=0.02 at fixed k=0.5), engine chain, mapping receipt and grids are unchanged.",
+    "reselection": "The shrink/flatten selection (frozen grids k in [0.5, 2, 4], flatten in [0, 0.25, 0.5, 0.75], 2024 walk-forward logLoss, 2023 burn-in) is population-sensitive and is RE-RUN under the corrected conditioning — the gamma precedent: a parameter fit against a population artifact does not survive the artifact."
+  },
+  "bars": "Unchanged publication gate, applied to the corrected receipt: held-out 2025 model logLoss strictly below BOTH baselines (constant-lambda-same-shares and train base rate), computed on the identical corrected population. The board builder re-derives this gate from the receipt, so publication follows automatically.",
+  "decisionRule": "The corrected receipt SUPERSEDES the 2026-08-13 receipt append-only (the old file is renamed with a superseded marker, never edited). If the gate holds, TD stays published under the corrected evidence; if it fails, TD is withdrawn from boards with the exact numbers named. No state is pinned in advance.",
+  "evidentiaryStatus": "2025 is a reused evaluation season (P247 annex); this correction re-scores it under honest conditioning. The 2026 forward record decides.",
+  "notes": "Registered before the corrected evaluation ran; commit order is the proof."
+}

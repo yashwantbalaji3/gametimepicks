@@ -75,24 +75,30 @@ for (const season of seasons) {
   for (const need of ["season", "game_type", "week", "player", "team", "offense_snaps", "defense_snaps", "st_snaps"]) {
     if (!(need in col)) { console.error(`REFUSED: ${rawPath} lacks column ${need}`); process.exit(2); }
   }
-  const players = {}; // "<gameType>|<week>|<team>|<normName>" -> totalSnaps (max across dup rows)
-  const byLast = {};  // "<gameType>|<week>|<team>|<lastName>" -> Set of normNames (+ max snaps)
+  /* P248 A1: snap COMPONENTS are retained — offense vs defense vs special teams — because the
+     population contract distinguishes "played on offense", "played special-teams/defense only"
+     and "did not dress". A single total collapses states the charter requires separated. */
+  const players = {}; // "<gameType>|<week>|<team>|<normName>" -> [off, def, st] (max per component)
+  const byLast = {};  // "<gameType>|<week>|<team>|<lastName>" -> { normName: [off, def, st] }
+  const teamWeeks = new Set(); // "<gameType>|<week>|<team>" — source coverage, so absence can mean something
   let rows = 0;
   for (const line of lines.slice(1)) {
     const f = parseCsvLine(line);
     if (Number(f[col.season]) !== season) { console.error(`REFUSED: season mismatch in ${rawPath}`); process.exit(2); }
     const team = TEAM_ALIAS[f[col.team]] ?? f[col.team];
     const nm = normName(f[col.player]);
-    const snaps = ["offense_snaps", "defense_snaps", "st_snaps"].reduce((s, k) => s + (Number(f[col[k]]) || 0), 0);
+    const comp = ["offense_snaps", "defense_snaps", "st_snaps"].map((k) => Number(f[col[k]]) || 0);
     const key = `${f[col.game_type]}|${Number(f[col.week])}|${team}|${nm}`;
-    players[key] = Math.max(players[key] ?? 0, snaps);
+    players[key] = players[key] ? players[key].map((v, i) => Math.max(v, comp[i])) : comp;
     const last = nm.split(" ").at(-1) ?? nm;
     const lk = `${f[col.game_type]}|${Number(f[col.week])}|${team}|${last}`;
-    (byLast[lk] ??= {})[nm] = Math.max(byLast[lk][nm] ?? 0, snaps);
+    (byLast[lk] ??= {});
+    byLast[lk][nm] = byLast[lk][nm] ? byLast[lk][nm].map((v, i) => Math.max(v, comp[i])) : comp;
+    teamWeeks.add(`${f[col.game_type]}|${Number(f[col.week])}|${team}`);
     rows += 1;
   }
   const contentHash = crypto.createHash("sha256").update(raw).digest("hex").slice(0, 16);
-  const doc = { schemaVersion: 1, artifact: "nfl-participation-truth-v1", dataClass: "PRIVATE_RESEARCH", generatedAt: NOW, season, rawFile: path.basename(rawPath), contentHash, rows, players, byLast };
+  const doc = { schemaVersion: 2, artifact: "nfl-participation-truth-v1", dataClass: "PRIVATE_RESEARCH", generatedAt: NOW, season, rawFile: path.basename(rawPath), contentHash, rows, players, byLast, teamWeeks: [...teamWeeks] };
   fs.writeFileSync(path.join(OUT, `${season}.json`), JSON.stringify(doc));
   index.seasons.push({ season, rows, contentHash });
   console.log(`${season}: ${rows} snap rows · hash ${contentHash}`);
