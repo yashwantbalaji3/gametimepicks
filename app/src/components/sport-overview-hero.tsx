@@ -33,6 +33,13 @@ export interface CtaSpec {
 }
 
 interface Props {
+  /**
+   * P246 (a11y): which heading element carries the sport name. The hero defaults to <h1> —
+   * pages where it IS the page title (methodology, research) keep that. The four sport hubs
+   * also mount HubTitle, whose <h1> is the page title; mounting both produced two identical
+   * <h1>s on /mlb /nfl /epl (heading-one-unique, structural audit) — those pages pass "h2".
+   */
+  headingLevel?: "h1" | "h2";
   /** Top eyebrow line, e.g. "NBA · model board". */
   eyebrow: string;
   /** Display headline, e.g. "NBA" / "MLB" / "NHL" / "IPL". */
@@ -93,6 +100,7 @@ export default function SportOverviewHero({
   eyebrow,
   sport,
   tagline,
+  headingLevel = "h1",
   statusKind,
   statusLabel,
   statusCaption,
@@ -107,6 +115,7 @@ export default function SportOverviewHero({
   badge,
   compact = false,
 }: Props) {
+  const Heading = headingLevel;
   const accentColor = ACCENT[accent];
   // "wc" is the World Cup accent and shares the EPL pitch. An accent with no motif (gold, ipl)
   // resolves to undefined and renders nothing — absent, never a stand-in.
@@ -143,9 +152,9 @@ export default function SportOverviewHero({
             pressing "1" landed nowhere on three of the busiest pages on the site. It carries the page
             title in both variants, so it should be the same element in both; only the styling differs.
           */}
-          <h1 className="font-display tracking-tight" style={{ margin: 0, color: "var(--vault-text)", fontSize: 21, fontWeight: 800, lineHeight: 1 }}>
+          <Heading className="font-display tracking-tight" style={{ margin: 0, color: "var(--vault-text)", fontSize: 21, fontWeight: 800, lineHeight: 1 }}>
             {sport}
-          </h1>
+          </Heading>
           <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--sport-theme-ink)", fontSize: 9.5 }}>
             {eyebrow}
           </span>
@@ -260,7 +269,7 @@ export default function SportOverviewHero({
               {icon}
             </span>
           ) : null}
-          <h1
+          <Heading
             className="font-display tracking-tight"
             style={{
               color: "var(--vault-text)",
@@ -270,7 +279,7 @@ export default function SportOverviewHero({
             }}
           >
             {sport}
-          </h1>
+          </Heading>
           {tagline && (
             <span
               className="font-mono uppercase tracking-[0.20em]"

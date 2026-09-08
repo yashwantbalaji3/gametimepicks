@@ -449,3 +449,17 @@ a11y structural 0 serious.
   daily path.
 
 Gates: suite 5499/0 · build ✓ · built 464/0.
+
+## P246 §6/§8 — cleanup, evidence, certification
+- **A11y**: heading-one-unique closed at the OWNERS — SportOverviewHero gains `headingLevel`
+  (hubs that mount HubTitle pass "h2"; pages where the hero IS the title keep h1); /ufc's local
+  duplicate demoted. Structural audit: **0 findings** (was 4 moderate + the toggle's serious).
+- **Weekly boards polish**: yardage quantiles rounded AT THE RANKING OWNER (ranking still uses
+  the precise value) — "64.06 yards" beside integer per-game boards was false precision.
+- **After-evidence committed**: docs/execution/screenshots/p246/ — weekly game table, weekly top
+  boards (3 published + 2 withheld with bars), game-report Model-details disclosure, UFC
+  method/round semantics, /simulate coverage registry, EPL compact stamp. Before-state =
+  prod at 9564524a1 (git history; founder's own §3 screenshots are the charter's record).
+- **§8 certification on the final tree**: full e2e matrix (chromium + firefox-a11y +
+  webkit-a11y, includes the 6-viewport × 3-engine matrix + charter journeys):
+  **511 passed · 0 failed · 33 typed skips**. suite 5499/0 · built 464/0 · a11y structural 0.

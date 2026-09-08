@@ -100,8 +100,11 @@ function rankRows(family, metric, topN) {
         kickoffUtc: b.kickoffUtc,
         participation: p.participation,
         value: m[metric],
-        // Distribution context rides along where the family has one.
-        ...(m.p10 != null ? { p10: m.p10, median: m.median, p90: m.p90 } : {}),
+        // Distribution context rides along where the family has one. Yardage quantiles are
+        // ROUNDED for display here (ranking still uses the precise value) — the per-game
+        // boards print integers and a top board printing "64.06 yards" beside them reads as
+        // false precision, not accuracy.
+        ...(m.p10 != null ? { p10: Math.round(m.p10), median: Math.round(m.median), p90: Math.round(m.p90) } : {}),
         ...(m.probability != null ? { probability: m.probability } : {}),
         pricingState: "NOT_AUTHORIZED",
       });

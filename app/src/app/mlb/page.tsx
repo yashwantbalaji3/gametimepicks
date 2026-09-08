@@ -434,6 +434,7 @@ export default function MlbLandingPage() {
           down to the methodology panel, where someone who wants it goes looking. */}
       <section id="mlb-overview" className="scroll-mt-24">
       <SportOverviewHero
+        headingLevel="h2"
         compact
         badge={<CompetitionBadge sport="mlb" size="sm" />}
         icon={getSportIdentity("mlb").icon}

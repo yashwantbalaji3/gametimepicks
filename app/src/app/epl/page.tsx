@@ -225,6 +225,7 @@ export default function EplPage() {
       <section id="epl-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
       <section id="epl-overview" className="scroll-mt-24">
       <SportOverviewHero
+        headingLevel="h2"
         compact
         icon="⚽"
         eyebrow={next ? `Simulation Center · ${next.label}` : "Simulation Center"}

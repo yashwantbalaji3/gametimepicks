@@ -311,6 +311,7 @@ export default function NflHubPage() {
           re-derives the REAL browser ET date after mount, so a slate page left open overnight
           stops claiming to be today's. */}
       <SportOverviewHero
+        headingLevel="h2"
         eyebrow="NFL · public beta"
         sport="NFL"
         tagline={`Experimental ${index?.model?.phaseLabel ? `${index.model.phaseLabel} ` : ""}simulations`}

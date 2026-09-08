@@ -142,9 +142,11 @@ export default function UfcArchivePage() {
       <section id="ufc-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
       <header id="ufc-overview" className="flex flex-col gap-2 scroll-mt-24">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 24, fontWeight: 700 }}>
+          {/* P246 a11y: HubTitle above already carries the page's one <h1>; this local title was a
+              second identical <h1> (heading-one-unique). Same text, subordinate level. */}
+          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 24, fontWeight: 700, margin: 0 }}>
             UFC
-          </h1>
+          </h2>
           <span
             className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
             style={{ color: "var(--sport-ufc)", border: "1px solid var(--sport-ufc)", background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)" }}
