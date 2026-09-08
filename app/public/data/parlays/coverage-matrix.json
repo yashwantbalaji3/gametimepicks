@@ -2,18 +2,18 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-09-07T18:31:27Z",
+ "generatedAt": "2026-09-08T17:33:39Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
   "PUBLISHED": 6,
-  "NO_PLAY": 6,
-  "LANE_CLOSED": 8,
+  "NO_PLAY": 2,
+  "LANE_CLOSED": 12,
   "MISSING": 0
  },
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-09-07",
+   "date": "2026-09-08",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
@@ -23,15 +23,15 @@
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-07_public_low_mlb_b2b4ddf5a3d8"
+     "slipId": "opt_2026-09-08_public_low_mlb_7f9d59489cd5"
     },
     "high": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-07_public_medium_mlb_9d19b954f6e5"
+     "slipId": "opt_2026-09-08_public_medium_mlb_b587acc7e52c"
     },
     "longshot": {
      "state": "PUBLISHED",
-     "slipId": "opt_2026-09-07_public_high_mlb_d43f6c37354c"
+     "slipId": "opt_2026-09-08_public_high_mlb_6cc94c002627"
     }
    }
   },
@@ -63,23 +63,23 @@
    "lane": "ufc",
    "date": "2026-09-12",
    "laneState": "CLOSED",
-   "laneReason": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "laneReason": "the last price capture is 3.2 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 3.2 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 3.2 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 3.2 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 3.2 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     }
    }
   },
@@ -87,47 +87,47 @@
    "lane": "nfl",
    "date": "2026-08-24",
    "laneState": "CLOSED",
-   "laneReason": "the last price capture is 9.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
+   "laneReason": "the last price capture is 10.0 days old; official NFL final scores; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 9.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 10.0 days old; official NFL final scores; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 9.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 10.0 days old; official NFL final scores; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 9.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 10.0 days old; official NFL final scores; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 9.0 days old; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
+     "reason": "the last price capture is 10.0 days old; official NFL final scores; only 0 priced games — a four-tier ladder needs at least 4 to build cards that never reuse one"
     }
    }
   },
   {
    "lane": "multi",
-   "date": "2026-09-07",
+   "date": "2026-09-08",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
     "low": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-08T14:56:22Z; the next scheduled run re-evaluates under current eligibility"
     },
     "medium": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-08T14:56:22Z; the next scheduled run re-evaluates under current eligibility"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-08T14:56:22Z; the next scheduled run re-evaluates under current eligibility"
     },
     "longshot": {
-     "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
+     "state": "LANE_CLOSED",
+     "reason": "lane evaluation of record refused (NOT_ELIGIBLE) at 2026-09-08T14:56:22Z; the next scheduled run re-evaluates under current eligibility"
     }
    }
   }
