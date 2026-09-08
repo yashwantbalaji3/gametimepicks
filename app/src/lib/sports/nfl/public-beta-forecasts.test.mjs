@@ -50,10 +50,13 @@ test("EVERY published forecast is internally coherent — one distribution, no c
   for (const f of pub.forecasts) {
     const s = f.forecastSummary;
     const pHome = s.winProbability.home;
-    // win side must agree with the median margin's sign — within the builder's own 3σ coin-flip
-    // tolerance (P244): a ±1 median beside a ~50.0% rate is one distribution rounded two ways.
-    if (s.margin.median > 0) assert.ok(pHome > 0.5 - 0.015, `${f.matchup}: +${s.margin.median} margin but ${pHome} home win`);
-    if (s.margin.median < 0) assert.ok(pHome < 0.5 + 0.015, `${f.matchup}: ${s.margin.median} margin but ${pHome} home win`);
+    // P245: the favourite is pHome vs pAway (tie mass scales both), and only a |median| ≥ 2
+    // direction conflict contradicts — the one rule in coherence.mjs, fixtures beside it.
+    const pAway = s.winProbability.away;
+    if (Math.abs(s.margin.median) > 1) {
+      if (s.margin.median > 0) assert.ok(pHome >= pAway, `${f.matchup}: +${s.margin.median} margin but away favoured`);
+      if (s.margin.median < 0) assert.ok(pAway >= pHome, `${f.matchup}: ${s.margin.median} margin but home favoured`);
+    }
     // probabilities are a distribution — the regular head carries an explicit tie mass (P244)
     const tie = s.winProbability.tieMass ?? 0;
     assert.ok(Math.abs(pHome + s.winProbability.away + tie - 1) < 1e-3, `${f.matchup}: outcomes must sum to 1`);
@@ -186,7 +189,8 @@ test("P244 · the builder populates the whole current week, including events day
   const week = pre.filter((r) => r.seasonType === best.seasonType && r.week === best.week);
   const beyond48h = week.filter((r) => Date.parse(r.dateUtc) > nowMs + 48 * 3.6e6);
   assert.ok(beyond48h.length > 0, "the live week extends past the old 48h window — otherwise this test is vacuous today");
-  // The coherence rule is noise-aware: a coin-flip rate beside a ±1 median is not a contradiction.
-  assert.match(src, /COIN_FLIP_EPS = 0\.015/, "the 3σ coin-flip tolerance exists");
-  assert.match(src, /pHome < 0\.5 - COIN_FLIP_EPS/, "material sign conflicts still refuse");
+  // P245: the coherence rule lives ONCE in coherence.mjs (favourite = pHome vs pAway; ±1 snap
+  // band), and the builder consumes it — corruption fixtures live beside the rule.
+  assert.match(src, /coherentDirection\(\{ medMargin, pHome, pAway \}\)/, "the builder consumes the one rule");
+  assert.doesNotMatch(src, /COIN_FLIP_EPS/, "the mis-justified 3σ patch is gone");
 });

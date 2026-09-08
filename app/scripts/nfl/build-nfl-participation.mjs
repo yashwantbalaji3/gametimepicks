@@ -106,7 +106,15 @@ const activesSource = read(path.join(ROOT, "data/internal/research/nfl/actives/c
 
 const nowMs = Date.parse(NOW);
 const events = schedule.rows
-  .filter((r) => r.statusRaw === "STATUS_SCHEDULED" && Date.parse(r.dateUtc) > nowMs && Date.parse(r.dateUtc) <= nowMs + LOOKAHEAD_H * 3.6e6)
+    .filter((r) => {
+    /* P245: current-week population (see build-nfl-public-forecasts) — hour lookahead is the
+       weekless-schedule backstop only. */
+    if (r.statusRaw !== "STATUS_SCHEDULED" || Date.parse(r.dateUtc) <= nowMs) return false;
+    const withWeek = (schedule?.rows ?? []).filter((x) => x.statusRaw === "STATUS_SCHEDULED" && Date.parse(x.dateUtc) > nowMs && x.seasonType != null && x.week != null);
+    if (!withWeek.length) return Date.parse(r.dateUtc) <= nowMs + LOOKAHEAD_H * 3.6e6;
+    const best = withWeek.reduce((b, x) => (!b || x.seasonType < b.seasonType || (x.seasonType === b.seasonType && x.week < b.week) ? x : b), null);
+    return (r.seasonType === best.seasonType && r.week === best.week) || Date.parse(r.dateUtc) <= nowMs + LOOKAHEAD_H * 3.6e6;
+  })
   .sort((a, b) => a.dateUtc.localeCompare(b.dateUtc));
 
 const MARKETS = ["passAttempts", "rushAttempts", "targets"];

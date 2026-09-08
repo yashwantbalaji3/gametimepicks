@@ -77,11 +77,25 @@ const fit = { modelId: modelReceipt.modelId, version: modelReceipt.modelVersion,
 const registry = buildPlayerRegistry([rosters]);
 
 const nowMs = Date.parse(NOW);
-const events = schedule.rows.filter((r) => {
-  const t = Date.parse(r.dateUtc);
-  return t > nowMs && t <= nowMs + LOOKAHEAD_H * 3.6e6 && r.statusRaw === "STATUS_SCHEDULED";
-}).sort((a, b) => (a.dateUtc < b.dateUtc ? -1 : 1));
-console.log(`window: ${events.length} pre-start events within ${LOOKAHEAD_H}h of ${NOW}`);
+/*
+ * P245: the population is the CURRENT WEEK (the same natural-period rule the forecast builder
+ * adopted in P244) — participation, props, TD boards and the Vault all cover the week the reader
+ * is looking at, not an 18-hour slice of it. The hour lookahead survives as the backstop for
+ * schedule rows carrying no week metadata.
+ */
+const preStart = schedule.rows.filter((r) => Date.parse(r.dateUtc) > nowMs && r.statusRaw === "STATUS_SCHEDULED");
+const withWeek = preStart.filter((r) => r.seasonType != null && r.week != null);
+const currentPeriod = withWeek.length
+  ? withWeek.reduce((b, r) => (!b || r.seasonType < b.seasonType || (r.seasonType === b.seasonType && r.week < b.week) ? r : b), null)
+  : null;
+const events = preStart.filter((r) =>
+  currentPeriod
+    ? (r.seasonType === currentPeriod.seasonType && r.week === currentPeriod.week) || Date.parse(r.dateUtc) <= nowMs + LOOKAHEAD_H * 3.6e6
+    : Date.parse(r.dateUtc) <= nowMs + LOOKAHEAD_H * 3.6e6,
+).sort((a, b) => (a.dateUtc < b.dateUtc ? -1 : 1));
+console.log(currentPeriod
+  ? `population: ${events.length} pre-start event(s) of seasonType ${currentPeriod.seasonType} week ${currentPeriod.week} (+${LOOKAHEAD_H}h backstop) at ${NOW}`
+  : `window: ${events.length} pre-start events within ${LOOKAHEAD_H}h of ${NOW} (no week metadata)`);
 if (!events.length) { console.log("NO_EVENTS: the correct unavailable state — nothing is generated, nothing is faked"); process.exit(0); }
 
 // market rows keyed by providerEventId (public capture is the display + settlement-target source)

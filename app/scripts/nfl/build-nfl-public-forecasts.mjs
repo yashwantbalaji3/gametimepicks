@@ -26,6 +26,7 @@ import { fileURLToPath } from "node:url";
 import { mulberry32, snapScore, simulateNflGame } from "../../src/lib/sports/nfl/game-sim.mjs";
 import { fnv1a } from "../../src/lib/sports/research/replay-runner.mjs";
 import { strengthStateAt, ELO_PARAMS } from "../../src/lib/sports/nfl/strength-state.mjs";
+import { coherentDirection } from "../../src/lib/sports/nfl/coherence.mjs";
 
 /* A narrow root seam so tests can run THIS builder — not a copy of its rules — against a
  * disposable repo-shaped store. Production default is unchanged: the app directory above this
@@ -257,18 +258,25 @@ for (const ev of events) {
     })).digest("hex").slice(0, 16);
 
     /*
-     * P244: coherence, WITHIN SAMPLING NOISE. A dead-even game legitimately prints a ±1 median
-     * margin beside a ~50.0% win rate — one distribution read two ways, not a contradiction
-     * (BAL @ IND, p=0.500, median +1, refused on the strict sign rule). The binomial noise of a
-     * 10,000-run rate is σ≈0.005, so a probability within 3σ of a coin flip cannot contradict a
-     * one-point median. A MATERIAL sign conflict — a clear favourite on one number and the other
-     * side on the other — still refuses.
+     * P245 · COHERENCE, DERIVED CORRECTLY (superseding P244's 3σ patch).
+     *
+     * The published win probability is ANALYTIC — logistic(d)·(1−tieMass) — while the margin
+     * median is SAMPLED, so "Monte Carlo noise on the probability" was the wrong justification.
+     * The actual arithmetic: BOTH heads are monotone in the same Elo difference d and cross at
+     * d = 0 (marginMean = slope·d; logistic(d) = ½ at d = 0). What made BAL @ IND look
+     * incoherent was the THRESHOLD: pHome is P(home WIN) excluding ties, so with ~3% tie mass a
+     * clear home favourite (d ≈ +11 Elo → logistic 0.516) prints pHome 0.4997 — under 0.5 while
+     * pAway is 0.468. The favourite test is pHome vs pAway, never pHome vs 0.5.
+     *
+     * With that fixed, a genuine DIRECTION conflict between the heads is only reachable inside
+     * the sampled median's own width around the shared crossover: median error ≈ 1.253·σ/√n ≈
+     * 0.17 pts plus ±0.5 integer snap → |median| ≤ 1 can straddle zero honestly; |median| ≥ 2
+     * with the favourite on the other side is a real contradiction and refuses.
      */
-    const COIN_FLIP_EPS = 0.015; // 3σ of a 10k-run win rate at p≈0.5
-    // coherence: the published median margin and the published win side must agree in sign
     const medMargin = sim.marginQuantiles.p50;
     const pHome = sim.winProbability.home;
-    if ((medMargin > 0 && pHome < 0.5 - COIN_FLIP_EPS) || (medMargin < 0 && pHome > 0.5 + COIN_FLIP_EPS)) {
+    const pAway = sim.winProbability.away;
+    if (!coherentDirection({ medMargin, pHome, pAway })) {
       refused.push({ providerEventId: ev.providerEventId, state: "INCOHERENT", reason: `median margin ${medMargin} disagrees with win probability ${pHome.toFixed(3)} — refusing rather than publishing two contradictory numbers` });
       continue;
     }
@@ -352,10 +360,12 @@ for (const ev of events) {
   // the win probability IS the simulation's own home-win rate over the calibrated distribution —
   // not a second formula that could drift from the scoreline shown beside it
   const pHomeCalibrated = homeWins / RUNS;
-  // coherence check: material sign conflicts refuse; a coin-flip rate beside a ±1 median is one
-  // distribution rounded two ways (P244 — same 3σ tolerance as the regular-season path above).
+  // coherence check (P245): the favourite is pHome vs pAway (tie mass excluded from neither),
+  // and only a |median| ≥ 2 direction conflict is a contradiction — see the derivation in the
+  // regular-season block above. This preseason path's probability IS the sampled rate and its
+  // away share is (1 − pHome), so the favourite test reduces to the 0.5 comparison here.
   const medMargin = q(sortNum(margins), 0.5);
-  if ((medMargin > 0 && pHomeCalibrated < 0.5 - 0.015) || (medMargin < 0 && pHomeCalibrated > 0.5 + 0.015)) {
+  if (!coherentDirection({ medMargin, pHome: pHomeCalibrated, pAway: 1 - pHomeCalibrated })) {
     refused.push({ providerEventId: ev.providerEventId, state: "INCOHERENT", reason: `median margin ${medMargin} disagrees with win probability ${pHomeCalibrated.toFixed(3)} — refusing rather than publishing two contradictory numbers` });
     continue;
   }

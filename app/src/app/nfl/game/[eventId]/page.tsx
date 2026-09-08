@@ -21,6 +21,7 @@ import { notFound } from "next/navigation";
 
 import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
+import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/player-board";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -92,6 +93,11 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
   const artifact = forecastArtifact();
   const f: Forecast | undefined = (artifact?.forecasts ?? []).find((x: Forecast) => x.providerEventId === params.eventId);
   if (!f) notFound();
+  const playerBoard = ((): PlayerBoardArtifact | null => {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/player-board", `${params.eventId}.json`), "utf8"));
+    } catch { return null; }
+  })();
 
   const idx = indexArtifact();
   const idxEvent = (idx?.events ?? []).find((e: { providerEventId: string }) => e.providerEventId === params.eventId);
@@ -225,6 +231,20 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{mc.note}</p>
         )}
       </section>
+
+      {/* P245 · the promotion-gated player projection board (rush yards + calibrated anytime TD;
+          every withheld family named with its failed bar). Renders only when the public artifact
+          exists for this event — absence is the honest pre-generation state. */}
+      {playerBoard && Object.values(playerBoard.families).some((f) => f.state === "PUBLISHED") ? (
+        <section aria-labelledby="player-board-h">
+          <SectionHeader
+            eyebrow={`Player projections · ${playerBoard.players.length} modelled`}
+            title="The player board"
+            sub="Only families that cleared their own evaluation bars carry numbers; each row wears its availability state, and volume projections are withheld for players listed out."
+          />
+          <NflPlayerBoard board={playerBoard} teams={[f.away.abbr, f.home.abbr]} />
+        </section>
+      ) : null}
 
       {sim ? (
         <section aria-labelledby="sim-players">

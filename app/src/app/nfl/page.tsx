@@ -374,7 +374,7 @@ export default function NflHubPage() {
           sub={
             slateGames.length === 0
               ? "No scheduled games remain in the committed schedule capture. Nothing is invented to fill this space."
-              : `The full ${weekLabel ?? "slate"}: ${simulatedOnSlate} of ${slateGames.length} carry a published simulation${weekCounts.missedPreEvent ? `, ${weekCounts.missedPreEvent} missed pre-event coverage` : ""}; the rest publish inside each game's own event window (from 18 hours before kickoff) and say so on their card. ${forecastCard?.honestLimit ?? ""}`
+              : `The full ${weekLabel ?? "slate"}: ${simulatedOnSlate} of ${slateGames.length} carry a published simulation${weekCounts.missedPreEvent ? `, ${weekCounts.missedPreEvent} missed pre-event coverage` : ""}${simulatedOnSlate < slateGames.length - weekCounts.missedPreEvent ? "; the rest refresh inside each game's own event window and say so on their card" : ""}. ${forecastCard?.honestLimit ?? ""}`
           }
           rightSlot={experimentalChip}
         />

@@ -167,10 +167,12 @@ test("METAMORPHIC · the MACHINERY still responds to strength — the gate is wh
 test("COHERENCE · the win side agrees with the margin sign, in every published event", () => {
   for (const f of pub.forecasts) {
     const s = f.forecastSummary;
-    // Within the builder's 3σ coin-flip tolerance (P244): ±1 median beside ~50.0% is one
-    // distribution rounded two ways, not a contradiction.
-    if (s.margin.median > 0) assert.ok(s.winProbability.home > 0.5 - 0.015, `${f.matchup}`);
-    if (s.margin.median < 0) assert.ok(s.winProbability.home < 0.5 + 0.015, `${f.matchup}`);
+    // P245: favourite = pHome vs pAway; only a |median| ≥ 2 direction conflict contradicts
+    // (see coherence.mjs for the derivation — the probability is analytic, not sampled).
+    if (Math.abs(s.margin.median) > 1) {
+      if (s.margin.median > 0) assert.ok(s.winProbability.home >= s.winProbability.away, `${f.matchup}`);
+      if (s.margin.median < 0) assert.ok(s.winProbability.away >= s.winProbability.home, `${f.matchup}`);
+    }
     // The regular head carries an explicit tie mass — three outcomes sum to one; the preseason
     // two-outcome convention stands where tieMass is absent.
     const tie = s.winProbability.tieMass ?? 0;
