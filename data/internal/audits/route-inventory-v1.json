@@ -2,13 +2,13 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-08-26T21:49:49Z",
+ "generatedAt": "2026-09-08T23:30:00Z",
  "totals": {
-  "routes": 62,
-  "public": 38,
+  "routes": 63,
+  "public": 40,
   "internal": 4,
-  "redirects": 17,
-  "archive": 1,
+  "redirects": 15,
+  "archive": 2,
   "findings": 0,
   "p0": 0
  },
@@ -102,7 +102,7 @@
    "purpose": "Premier League per-fixture model report (P188): match-result probabilities with the two-of-three outcomes, the ten likeliest scorelines and the mass they account for, the total-goals distribution with an over/under ladder, each side's own goal curve, both-teams-to-score, clean sheets and the winning-margin distribution — every figure an exact sum over ONE Poisson score matrix, so no run count is quoted because nothing is sampled. Statically generated per priced fixture, dynamicParams=false. Carries the not-validated-out-of-sample statement ABOVE the first number; no pick, rating or price comparison anywhere",
    "dataOwner": "soccer/epl/forecasts/latest.json via lib/sports/epl/forecast-view (build-time read)",
    "freshness": "the artifact's own generatedAt, printed on the page",
-   "built": "FAMILY (8 generated page(s))"
+   "built": "FAMILY (36 generated page(s))"
   },
   {
    "route": "/events",
@@ -141,10 +141,11 @@
   },
   {
    "route": "/homer-nukes",
-   "classification": "redirect",
+   "classification": "public",
    "owner": "product",
-   "purpose": "retired product",
-   "redirectTo": "/results",
+   "purpose": "Homer Nukes (revived P214): five independent home-run probabilities per slate, each settling on its own — a list, not a parlay",
+   "dataOwner": "home-run board derived from free StatsAPI data",
+   "freshness": "board artifact generatedAt",
    "built": true
   },
   {
@@ -226,7 +227,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (90 generated page(s))"
+   "built": "FAMILY (109 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -313,6 +314,16 @@
    "purpose": "NFL per-game experimental simulation report (P177-A): projected score, win chance, total and margin distributions with percentiles, the market read side by side, a reading key and the full provenance receipt — statically generated from the committed forecast artifact, dynamicParams=false",
    "dataOwner": "nfl/forecasts/latest.json + nfl/index.json (build-time reads)",
    "freshness": "each report carries its own generatedAt, kickoff and lifecycle",
+   "built": "FAMILY (16 generated page(s))"
+  },
+  {
+   "route": "/nfl/week/[key]",
+   "classification": "public",
+   "owner": "product",
+   "family": true,
+   "purpose": "NFL shareable week route (P248 Release C): one page per official (seasonType, week) period that has committed data — frozen pre-kickoff game table plus the period's weekly top boards, prev/next only when the neighbor exists, never an invented future week; dynamicParams=false from the weekly-boards register",
+   "dataOwner": "nfl/weekly-boards/<key>.json + nfl/forecasts/latest.json (build-time reads)",
+   "freshness": "board stamp rendered on the page; forecasts carry their own generatedAt",
    "built": "FAMILY (1 generated page(s))"
   },
   {
@@ -417,7 +428,7 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "FAMILY (80 generated page(s))"
+   "built": "FAMILY (93 generated page(s))"
   },
   {
    "route": "/results/mlb",
@@ -500,7 +511,7 @@
    "purpose": "one static page per in-window date — same selector, date as the route (P209)",
    "dataOwner": "lib/simulate/day-view over per-sport owners",
    "freshness": "each owner's own stamp",
-   "built": "FAMILY (22 generated page(s))"
+   "built": "FAMILY (24 generated page(s))"
   },
   {
    "route": "/sports",
@@ -556,10 +567,11 @@
   },
   {
    "route": "/world-cup-specials",
-   "classification": "redirect",
+   "classification": "archive",
    "owner": "product",
-   "purpose": "closed WC product",
-   "redirectTo": "/results",
+   "purpose": "closed WC product — noindex archive page, proof retained",
+   "dataOwner": "frozen archive",
+   "freshness": "frozen — archive is dated by design",
    "built": true
   }
  ],

@@ -697,3 +697,60 @@ CI green, first kickoff Sep 9 20:20 ET.
   shareParams from the receipt, so the corrected k flows on the next natural run.
 
 Gates: suite 5505/0 · build OK · built 464/0.
+
+---
+
+# PROGRAM 248 — §11 CLOSEOUT
+
+## Verdicts (charter-required, separate)
+- **EVALUATION_FOUNDATION: ESTABLISHED.** Population contract v2 is the one versioned owner
+  (five typed states, adversarial fixtures, live fallback invariants, enumerated residue);
+  both evaluators consume it and stamp it; coverage measurement v2.1 (mid-p for counts)
+  preregistered before use. Future promotions reference the contract version.
+- **PLAYER_FAMILY anytime TD: PUBLISHED (corrected evidence).** Not independent of the defect
+  class — its !row→void excluded settled negatives. Corrected receipt: +395 negatives,
+  in-train re-selection (k 0.5→2), beats both baselines (0.5214 < 0.5243/0.5369, ECE 0.039);
+  2026-08-13 receipt superseded append-only.
+- **PLAYER_FAMILY receiving yards: PUBLISHED** (P247 receipt, unchanged: ece 0.016).
+- **PLAYER_FAMILY receptions: PUBLISHED** under contract v2.1 (mid-p 0.7571 — the inclusive
+  breach was a discreteness artifact: 25.4% endpoint ties on median-width-4.1 intervals; every
+  other bar already held). Live via the 21:34Z production regeneration.
+- **PLAYER_FAMILY passing yards: WITHHELD — completed experiment, incomplete family.**
+  pass-yds-baseline-v1 (preregistered) beat the champion chain by 10 yds MAE on identical
+  points and produced the first in-band coverage (0.809) but failed calibration (ece 0.113 >
+  0.05). Named dependency: share-continuous predictive spread. No engine clears calibration.
+- **PLAYER_FAMILY rushing yards: WITHHELD.** Structured diagnosis recorded: workhorse backs
+  (≥12 carries) cov 0.645 with +27.4-yd low centers (share dilution); low-opp in band. Named
+  candidate (train-fit share-conditional center), not run.
+- **TEAM_FORECASTS: PUBLISHED.** Coupling PROVEN empirically (gamesim-coupling.test): ±8-pt
+  total swing moves player volumes <2% (parameter handoff, margin-driven volumes, no pace
+  model — and no public copy claims otherwise); margin coupling live.
+- **PRICED_PICKS: NONE** (P171 expired; founder-gated; nothing implies prices).
+- **WEEKLY_UX: SHIPPED.** /nfl/week/[key] shareable routes from the weekly-boards register
+  (dynamicParams=false, prev/next only when the neighbor exists, honest single-week note),
+  hub Week permalink, route owned in the inventory table (regenerated, 63 routes, 0 findings).
+- **HISTORICAL_INTEGRITY (MLB): CLOSED for this window.** Consumer matrix: grading verified
+  empirically (60/60 graded rows pre-pitch) AND at the rule; predictions artifacts named as
+  equally affected (same rerun, same 186 game set); boards/parlays/products not affected
+  (different artifact lineage; predictions never settle into money). Register extended with
+  alsoAffects/notAffected; served-vs-viewed distinction stands (no viewership logs — claim is
+  "served", never "seen").
+- **PRODUCTS/RESULTS: unchanged this program** (P247 states stand; residuals below).
+- **OTHER_SPORTS: unchanged this program** (EPL four-field fix verified live in P247/248
+  baseline; UFC/EPL residuals carried).
+- **CERTIFICATION: suite 5507/0 · build OK · built 464/0** on the final merged tree; browser
+  matrix and physical-device checklist carried from P247 (524/0/18; REAL_DEVICE_CHECK_PENDING).
+
+## Week-1 coverage at close (production artifacts, 21:34Z regeneration)
+16/16 games: team report + matchup totals + **TD, receptions AND receiving-yards boards
+PUBLISHED**; rushing/passing withheld naming their bars; three weekly top boards live
+(TD top-5, receptions top-10, receiving top-10); shareable week route /nfl/week/2-01/.
+
+## Named residuals (exact owners)
+Pass share-continuous spread candidate (Modeling; prereg required) · rush share-conditional
+center candidate (Modeling; prereg required) · passing-TD family (blocked on the five core
+families rule — now 3/5 resolved + 2 blocked-with-candidates) · MLB team-market staleness
+stamp + researchEligible consumption + batter_total_bases artifact layer (Engineering) · EPL
+provenance propagation + dead-code consolidation (Engineering) · UFC governed gaps (founder) ·
+week-table/hub component consolidation (Product) · per-instance interaction register + physical
+devices (QA) · founder gates unchanged (odds renewal, BB accounting, legal, analytics).

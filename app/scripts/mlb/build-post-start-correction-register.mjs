@@ -60,7 +60,15 @@ fs.writeFileSync(path.join(OUT_DIR, "post-start-simulations.json"), JSON.stringi
   dataClass: "PUBLIC",
   generatedAt: NOW,
   window: { start: WINDOW_START, end: WINDOW_END, cause: "mlb-lineup-refresh re-ran the full-game simulation against the board's pre-event stamp instead of its own clock; fixed 2026-09-08 (boundary re-derived per run, genuinely pregame priors carried forward byte-for-byte)" },
-  gradingImpact: "NONE — the graded record's forecast-of-record rule selects the newest revision strictly BEFORE first pitch from immutable per-run snapshots; no post-start revision was ever graded.",
+  gradingImpact: "NONE — the graded record's forecast-of-record rule selects the newest revision strictly BEFORE first pitch from immutable per-run snapshots; no post-start revision was ever graded. Verified empirically (P248): every graded row's forecastGeneratedAt precedes its firstPitchUtc.",
+  alsoAffects: [
+    "public/data/mlb/predictions/<date>.json — Engine C reruns in the same lineup-refresh step, so its final committed revisions in this window are post-start for the SAME (date, gamePk) set enumerated below; a prediction exists only where a simulation does.",
+  ],
+  notAffected: [
+    "graded record / hit rates / model-audit aggregates (derive from pre-pitch snapshots — rule and data both verified)",
+    "MLB boards, player-prop picks (Engine A runs only in the pregame daily-production window)",
+    "parlay tier-grid, Bank Builder, Moonshot, portfolio (consume board/optimizer artifacts, never the full-game sim; predictions are never settled into money by contract)",
+  ],
   servedImpact: `${entries.length} archived game reports carry, as their final committed revision, a simulation generated after first pitch. Each renders a provenance disclosure; the pregame forecast of record for these games lives in the immutable snapshots and git history and is what the record was graded from.`,
   entries,
 }, null, 1) + "\n");

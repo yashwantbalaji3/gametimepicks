@@ -464,6 +464,7 @@ export default function NflHubPage() {
         {forecastArtifact?.generatedAt ? (
           <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 720 }}>
             Updated {etKickoff(forecastArtifact.generatedAt).replace(" ET", "")} ET · frozen pre-kickoff · <a href="#nfl-coverage" style={{ color: "var(--vault-gold-bright)" }}>Model details</a>
+            {slateGames[0] ? <> · <Link href={`/nfl/week/${slateGames[0].seasonType}-${String(slateGames[0].week).padStart(2, "0")}/`} style={{ color: "var(--vault-gold-bright)" }}>Week permalink</Link></> : null}
           </p>
         ) : null}
       </section>
