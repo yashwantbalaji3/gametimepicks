@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "artifact": "pass-yds-coverage-repair-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "246",
+  "charterSection": "4.2",
+  "registeredAt": "2026-09-08T05:20:00Z",
+  "champion": {
+    "receipt": "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+    "generatedAt": "2026-08-13T06:00:00Z",
+    "player_pass_yds": {
+      "state": "RESEARCH_ONLY",
+      "interval80Coverage": 0.5686,
+      "mae": 81.432,
+      "pinball": 27.019,
+      "ece": 0.0436,
+      "n": 969,
+      "failedBar": "coverOk"
+    }
+  },
+  "reproducedFailure": {
+    "finding": "The 80% interval for passing yards covers 56.86% of held-out 2025 outcomes — intervals are far too narrow.",
+    "mechanism": "fit.dispersion.gameSigma is a pooled MEDIAN of per-player excess game-to-game yards-per-opportunity variance beyond the Gamma-implied component. The median zeroed out for every family (all three gameSigma = 0). Rushing and receiving still cover near target because per-opportunity Gamma variance dominates at their small opportunity counts; passing yards aggregate ~30+ completions per game, the Gamma component shrinks by CLT, and the game-level efficiency variance (opponent, script, conditions) that actually drives QB yardage spread is the term the median estimator deleted."
+  },
+  "candidate": {
+    "id": "pass-gamesigma-pooled-mean-v1",
+    "scope": "EXACTLY ONE parameter's estimator: fit.dispersion.gameSigma.player_pass_yds. Every other fitted parameter, the walk-forward chain, thresholds, runs, corpus hashes and scoring code stay byte-identical to the champion protocol.",
+    "estimator": "Same qualification as the champion (players with >=3 opportunities per game and >=8 qualifying games in 2023-24 train). Per qualifying player compute excessRatio = max(0, varObs - gammaVar) / ypo^2 exactly as the champion does. Pool with a GAMES-WEIGHTED MEAN of excessRatio (weight = number of qualifying games for that player) instead of the unweighted median of sigma. sigma = sqrt(log(1 + pooledExcessRatio)), clamped to [0, 0.8] as before.",
+    "whatIsNotAllowed": "No constant additive interval widening; no per-market post-hoc scaling chosen on 2025; no change to any other family's gameSigma in this candidate; no refit of shapes, volumes, kappas, shrink m, or game-sim heads."
+  },
+  "protocol": {
+    "fit": "2023-24 REG+POST only, identical to champion",
+    "test": "held-out 2025, fully pre-game walk-forward chain, identical scoring points to the champion run (--runs 1000, same seeds policy as the evaluator's deterministic RNG)",
+    "output": "data/internal/research/nfl/reports/pass-yds-repair-evaluation.json — a NEW file; the champion receipt is never overwritten (P048 layers rule)"
+  },
+  "frozenBars": {
+    "interval80Coverage": { "min": 0.72, "max": 0.88, "why": "coverage must move to the nominal band; overshooting past 0.88 means the term overcorrects" },
+    "pinballMax": 27.56, "pinballWhy": "champion 27.019 * 1.02 — the interval may not buy coverage by giving up sharpness beyond 2%",
+    "maeMax": 83.06, "maeWhy": "champion 81.432 * 1.02 — central accuracy must hold; the candidate only touches spread",
+    "eceMax": 0.06, "eceWhy": "threshold calibration must not degrade past 0.06 (champion 0.0436)",
+    "beatsBaselines": "beatsRolling AND beatsShareVol must remain true on identical points"
+  },
+  "decisionRule": "ALL bars pass -> the candidate becomes the pass-yds dispersion parameter and player_pass_yds promotion is recomputed by the standard evaluator gates (coverOk under the same [0.72, 0.88]-style band the champion applies); publication then flows only through the existing receipt-driven gates. ANY bar fails -> candidate REJECTED, champion parameters and RESEARCH_ONLY state stand, and the rejection is recorded in the new report file.",
+  "notes": "Registered BEFORE the candidate was implemented or evaluated. Proof of ordering is this file's git commit preceding any commit containing pass-yds-repair-evaluation.json (the EPL v2 provenance lesson: a backtest generated before its preregistration forfeits the claim)."
+}
