@@ -1,13 +1,11 @@
 {
  "schemaVersion": 1,
- "artifact": "nfl-experimental-forecast-settlement",
+ "artifact": "nfl-current-settlement",
  "dataClass": "PRIVATE_PAPER_RECORD",
- "ledger": "experimental-forecast",
- "date": "2026-09-07",
+ "date": "2026-09-08",
  "generatedAt": "2026-09-08T01:18:09Z",
- "modelVersion": "nfl-regular-season-public-v1",
- "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
- "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
+ "scope": "NFL current-artifact settlement — a SEPARATE paper record. It never reads or writes MLB money, Bank Builder, Moonshot, or Mr. Dub.",
+ "whatIsGraded": "the PRE-START MARKET consensus pinned in each artifact (favourite / home spread / over total). The team model ABSTAINS in preseason, so this is a market-accuracy record and is never reported as model performance.",
  "events": [],
  "pending": [
   {
@@ -107,27 +105,17 @@
    "kickoffUtc": "2026-09-15T00:15Z"
   }
  ],
- "quarantined": [],
  "accounting": {
-  "receipts": 16,
+  "artifactsForDate": 16,
   "settled": 0,
   "pending": 16,
-  "quarantined": 0,
-  "reconciles": true
- },
- "metrics": {
-  "settledForecasts": 0,
+  "reconciles": true,
+  "legs": 0,
+  "wins": 0,
+  "losses": 0,
+  "pushes": 0,
+  "voids": 0,
   "decisive": 0,
-  "ties": 0,
-  "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
- },
- "marketBenchmark": null,
- "comparison": null
+  "note": "decisive = WIN + LOSS only; pushes and voids are reported separately and pending is never a loss"
+ }
 }
