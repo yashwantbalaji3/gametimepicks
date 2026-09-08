@@ -180,6 +180,14 @@ export function simulatePlayerProps({ event, teamAbbr, fit, strengthState, roleR
     return sigma > 0 ? Math.exp(sigma * z - (sigma * sigma) / 2) : 1;
   };
   const kap = fit.dispersion.allocKappa ?? {};
+  /*
+   * P246 §4.3 (receiving-target-deflation-v1): a committed FIT parameter, never a constant —
+   * each modeled receiver's target share is multiplied by gamma before allocation, and the
+   * freed mass flows to OTHER through the same Dirichlet remainder. gamma = 1 (or absent)
+   * reproduces the champion byte-for-byte; stream consumption is unchanged either way.
+   */
+  const tsd = fit.dispersion.targetShareDeflation ?? 1;
+  const targetReceivers = tsd === 1 ? receivers : receivers.map((p) => ({ ...p, targetShare: (p.targetShare ?? 0) * tsd }));
   const gs = fit.dispersion.gameSigma ?? {};
   const acc = new Map(); // playerId → {passYds:[], rushYds:[], recYds:[], receptions:[]}
   const bucket = (id) => { if (!acc.has(id)) acc.set(id, { passYds: [], rushYds: [], recYds: [], receptions: [] }); return acc.get(id); };
@@ -203,7 +211,7 @@ export function simulatePlayerProps({ event, teamAbbr, fit, strengthState, roleR
 
     const qbAlloc = allocateOpportunities(playerRng, passAtt, effShares(passers, "qbShare", kap.passAttempts));
     const carryAlloc = allocateOpportunities(playerRng, rushAtt, effShares(rushers, "carryShare", kap.rushAttempts));
-    const targetAlloc = allocateOpportunities(playerRng, passAtt, effShares(receivers, "targetShare", kap.targets));
+    const targetAlloc = allocateOpportunities(playerRng, passAtt, effShares(targetReceivers, "targetShare", kap.targets));
     let passSum = 0; let rushSum = 0;
 
     for (const p of passers) {

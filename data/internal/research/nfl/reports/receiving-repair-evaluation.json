@@ -1,8 +1,8 @@
 {
  "schemaVersion": 1,
- "artifact": "nfl-player-props-v1-evaluation",
+ "artifact": "nfl-pass-yds-repair-evaluation",
  "dataClass": "PRIVATE_RESEARCH",
- "generatedAt": "2026-09-08T06:55:00Z",
+ "generatedAt": "2026-09-08T06:40:00Z",
  "engine": {
   "id": "nfl-player-props-v1-opportunity-efficiency",
   "version": 1
@@ -245,5 +245,12 @@
   "multinomial allocation reconciles player opportunities to team volumes per iteration by construction",
   "threshold calibration uses the rolling-4 mean as the line proxy (no historical sportsbook lines exist in this repo); P(over) is read off the true sampled distribution as a post-sampling read-out",
   "rush yards are Gamma (non-negative): true negative rushing games exist and are outside v1 support — a stated limitation"
- ]
+ ],
+ "challenger": {
+  "id": "receiving-target-deflation-v1",
+  "gamma": 0.9,
+  "preregistration": "data/internal/research/nfl/reports/receiving-calibration-repair-preregistration.json",
+  "champion": "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+  "scope": "dispersion.targetShareDeflation only (modeled target shares scaled; freed mass to OTHER)"
+ }
 }

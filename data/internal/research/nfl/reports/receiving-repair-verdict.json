@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "artifact": "receiving-repair-verdict",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "246",
+  "candidate": "receiving-target-deflation-v1",
+  "preregistration": "data/internal/research/nfl/reports/receiving-calibration-repair-preregistration.json",
+  "evaluation": "data/internal/research/nfl/reports/receiving-repair-evaluation.json",
+  "evaluatedAt": "2026-09-08T06:40:00Z",
+  "selection": {
+    "grid": [1.00, 0.98, 0.96, 0.94, 0.92, 0.90],
+    "criterion": "min summed walk-forward threshold ECE of the two receiving families on season-2024 scoring",
+    "trace": { "1.00": 0.0925, "0.98": 0.0884, "0.96": 0.0822, "0.94": 0.0756, "0.92": 0.0694, "0.90": 0.0632 },
+    "selected": 0.90,
+    "boundaryNote": "The selected value sits at the FROZEN grid's edge — improvement was monotone through the grid, so the in-train optimum may lie below 0.90. The grid was frozen at preregistration and was not extended after seeing results; a wider grid is a possible FUTURE candidate requiring its own preregistration."
+  },
+  "perFamilyVerdicts": {
+    "player_receptions": {
+      "verdict": "ACCEPTED",
+      "bars": {
+        "eceMax": { "required": 0.05, "observed": 0.0352, "pass": true },
+        "coverage": { "required": "[0.72, 0.88]", "observed": 0.8643, "pass": true },
+        "maeBeatsRolling4": { "required": "< 1.901", "observed": 1.613, "pass": true },
+        "maeBeatsShareVol": { "required": "< 1.745", "observed": 1.613, "pass": true },
+        "pinballMax": { "required": 0.542, "observed": 0.524, "pass": true }
+      },
+      "consequence": "promotion recomputed under the accepted parameter -> PUBLIC_ELIGIBLE"
+    },
+    "player_reception_yds": {
+      "verdict": "REJECTED",
+      "bars": {
+        "eceMax": { "required": 0.05, "observed": 0.0556, "pass": false, "note": "improved from champion 0.0761 but misses the bar" },
+        "coverage": { "required": "[0.72, 0.88]", "observed": 0.8256, "pass": true },
+        "maeBeatsRolling4": { "required": "< 24.198", "observed": 20.413, "pass": true },
+        "maeBeatsShareVol": { "required": "< 21.862", "observed": 20.413, "pass": true },
+        "pinballMax": { "required": 6.69, "observed": 6.499, "pass": true }
+      },
+      "consequence": "stays at its champion state (SHADOW_ELIGIBLE) — the promotion computation under the one engine reaches the same state"
+    }
+  },
+  "accepted": {
+    "parameter": "dispersion.targetShareDeflation",
+    "gamma": 0.90,
+    "adoption": "The evaluator's DEFAULT (champion) path reads this block and carries the accepted gamma; the champion receipt is then regenerated under it. The pre-adoption champion receipt is preserved in git history (calibration-layers rule: raw evidence is superseded by commit, never edited in place).",
+    "engineNote": "One engine, one parameter: reception-yards distributions also shift under the accepted gamma (its metrics improve; its state does not change). Publication continues to flow ONLY through the receipt-driven gates."
+  }
+}

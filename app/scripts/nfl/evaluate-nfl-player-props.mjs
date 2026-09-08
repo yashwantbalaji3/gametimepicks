@@ -48,8 +48,33 @@ const DIAGNOSE_DIR = arg("--diagnose", null);
    fits are in-sample; usable for BIAS DIRECTION diagnosis, never for a promotion claim. */
 const DIAGNOSE_SEASON = Number(arg("--diagnose-season", "2025"));
 if (DIAGNOSE_SEASON !== 2025 && !DIAGNOSE_DIR) { console.error("REFUSED: --diagnose-season requires --diagnose"); process.exit(1); }
-if (CHALLENGER && CHALLENGER !== "pass-gamesigma-pooled-mean-v1") {
+if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1"].includes(CHALLENGER)) {
   console.error(`REFUSED: unknown challenger ${CHALLENGER}`); process.exit(1);
+}
+/* P246 §4.3: gamma for receiving-target-deflation-v1 — a preregistered grid value, threaded
+   into fit.dispersion so the ENGINE receives it as fit evidence. Valid only alongside the
+   receiving challenger or a --diagnose selection run; the champion path never carries it. */
+/* CHAMPION ADOPTION (P246 §4.3): an ACCEPTED deflation gamma is read from the committed
+   verdict receipt — parameters are fit evidence, never constants chosen by taste. The default
+   path carries it; an explicit --gamma still overrides only in diagnose/challenger lanes. */
+const acceptedVerdict = (() => {
+  // Direct fs read: the shared `read` helper is declared later in this file, and a try/catch
+  // around a TDZ ReferenceError silently disabled adoption on the first run — the parameter
+  // must fail LOUDLY if the verdict exists but cannot be parsed.
+  const vp = path.join(ROOT, "data/internal/research/nfl/reports/receiving-repair-verdict.json");
+  if (!fs.existsSync(vp)) return null;
+  return JSON.parse(fs.readFileSync(vp, "utf8"));
+})();
+const ACCEPTED_GAMMA = acceptedVerdict?.perFamilyVerdicts?.player_receptions?.verdict === "ACCEPTED"
+  ? Number(acceptedVerdict.accepted.gamma)
+  : null;
+const GAMMA = arg("--gamma", null) != null ? Number(arg("--gamma")) : ACCEPTED_GAMMA;
+if (GAMMA != null && !(GAMMA > 0.8 && GAMMA <= 1)) { console.error("REFUSED: --gamma outside (0.8, 1]"); process.exit(1); }
+if (arg("--gamma", null) != null && !DIAGNOSE_DIR && CHALLENGER !== "receiving-target-deflation-v1") {
+  console.error("REFUSED: --gamma requires --diagnose (selection) or the receiving challenger (test)"); process.exit(1);
+}
+if (CHALLENGER === "receiving-target-deflation-v1" && GAMMA == null) {
+  console.error("REFUSED: the receiving challenger needs the selected --gamma"); process.exit(1);
 }
 
 const read = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
@@ -239,6 +264,7 @@ const dispersion = {
     rushAttempts: fitAllocKappa("rushAttempts"),
     targets: fitAllocKappa("targets"),
   },
+  ...(GAMMA != null && GAMMA !== 1 ? { targetShareDeflation: GAMMA } : {}),
   gameSigma: {
     player_pass_yds: CHALLENGER === "pass-gamesigma-pooled-mean-v1"
       ? fitGameSigmaPooledMean((p) => p.passCmp ?? 0, (p) => p.passYds, passShape)
@@ -534,17 +560,27 @@ const receipt = {
 };
 const OUT = DIAGNOSE_DIR
   ? null
-  : CHALLENGER
-    ? "data/internal/research/nfl/reports/pass-yds-repair-evaluation.json"
-    : "data/internal/research/nfl/reports/player-props-v1-evaluation.json";
+  : CHALLENGER === "receiving-target-deflation-v1"
+    ? "data/internal/research/nfl/reports/receiving-repair-evaluation.json"
+    : CHALLENGER
+      ? "data/internal/research/nfl/reports/pass-yds-repair-evaluation.json"
+      : "data/internal/research/nfl/reports/player-props-v1-evaluation.json";
 if (CHALLENGER) {
   receipt.artifact = "nfl-pass-yds-repair-evaluation";
-  receipt.challenger = {
-    id: CHALLENGER,
-    preregistration: "data/internal/research/nfl/reports/pass-yds-coverage-repair-preregistration.json",
-    champion: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
-    scope: "gameSigma.player_pass_yds estimator only",
-  };
+  receipt.challenger = CHALLENGER === "receiving-target-deflation-v1"
+    ? {
+        id: CHALLENGER,
+        gamma: GAMMA,
+        preregistration: "data/internal/research/nfl/reports/receiving-calibration-repair-preregistration.json",
+        champion: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+        scope: "dispersion.targetShareDeflation only (modeled target shares scaled; freed mass to OTHER)",
+      }
+    : {
+        id: CHALLENGER,
+        preregistration: "data/internal/research/nfl/reports/pass-yds-coverage-repair-preregistration.json",
+        champion: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+        scope: "gameSigma.player_pass_yds estimator only",
+      };
 }
 if (DIAGNOSE_DIR) {
   fs.mkdirSync(DIAGNOSE_DIR, { recursive: true });
