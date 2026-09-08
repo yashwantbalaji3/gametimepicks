@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "artifact": "pass-baseline-candidate-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "248",
+  "charterSection": "Release B — passing yards, baseline first",
+  "registeredAt": "2026-09-08T22:30:00Z",
+  "why": "On the population-contract evaluation the share-volume baseline beats the simulation chain on passing MAE (70.35 vs 80.67 over played candidates; 61.8 vs 74.7 starter-conditioned in the P247 diagnosis). The charter's rule: a supported simple baseline is preferable to an unsupported complex model. The baseline is therefore THE candidate — promoted only if its own DISTRIBUTION clears the family bars; a lower point error alone earns nothing.",
+  "candidate": {
+    "id": "pass-yds-baseline-v1",
+    "population": "population contract v2; conditional-on-played (DID_NOT_DRESS voids; ambiguous/source-missing excluded and counted). Stated as model-only conditioning, never a sportsbook-settled record.",
+    "center": "mu = qbShare_wf x (volume.pass.a0 + volume.pass.a1 x E[ownMargin]) x league.compRate x league.ypcmp — every input forecast-time (walk-forward share, committed train constants, margin mean from the committed game-sim heads). No realized-boxscore starter inference.",
+    "distribution": "Nonparametric TRAIN residual quantiles, fitted on 2023-24 walk-forward residuals (actual - mu) POOLED WITHIN THREE SHARE BUCKETS frozen in advance: share >= 0.7 (clear starter), 0.2-0.7 (contested), < 0.2 (reserve). Predictive quantiles = mu + bucket residual quantile, floored at 0. Threshold probabilities from the bucket's empirical residual CDF. No parameter is fit on 2025.",
+    "whatIsNotAllowed": "No 2025 fitting or selection; no starter inference from the scored game's boxscore; no interval widening chosen after seeing 2025 coverage; no change to any other family."
+  },
+  "protocol": {
+    "fit": "2023-24 REG+POST walk-forward residual collection under the identical population contract",
+    "test": "held-out 2025 scored once beside the champion simulation chain and the rolling4 baseline on identical points",
+    "output": "data/internal/research/nfl/reports/pass-baseline-evaluation.json"
+  },
+  "frozenBars": {
+    "sameGatesAsEveryFamily": "beats rolling4 AND (for this candidate, the sim-chain champion) on MAE on identical points; coverage80 in [0.72, 0.88]; ece <= 0.05; n >= 300",
+    "note": "the shareVol point baseline is the candidate's own center, so 'beats shareVol' is replaced by 'beats the current champion chain' — the comparison that decides which engine backs the family"
+  },
+  "decisionRule": "ALL bars pass -> pass-yds-baseline-v1 becomes the family's engine: the runtime publishes its distribution for the projected starter with conditional-on-playing labeling, promotion recorded receipt-first, boards publish through the standard gates. ANY bar fails -> REJECTED with the numbers; the family stays withheld and the next dependency is named from the residual evidence.",
+  "evidentiaryStatus": "2025 reused (P247 annex; its residual structure motivated this candidate). 2026 forward record decides.",
+  "notes": "Registered before implementation; commit order is the proof."
+}

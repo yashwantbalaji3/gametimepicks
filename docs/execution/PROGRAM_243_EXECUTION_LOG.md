@@ -667,3 +667,33 @@ three families that say exactly why they are absent, no prices implied anywhere 
 results/model-audit page that discloses this week's own defects (186 post-start archived
 simulations) rather than hiding them. The product is smaller than yesterday's claims and more
 true than yesterday's claims.
+
+---
+
+# PROGRAM 248 — trustworthy evaluation, NFL completion, product closure
+
+Baseline 17:11 EDT Sep 8 (25 min after P247 close): no incidents, artifacts fresh, latest code
+CI green, first kickoff Sep 9 20:20 ET.
+
+## Release A — evaluation foundation (CLOSED)
+- **Population contract v2** is THE owner (participation-truth.mjs): five typed states that
+  never collapse (PLAYED_OFFENSE / PLAYED_NO_OFFENSE / DID_NOT_DRESS / AMBIGUOUS_IDENTITY /
+  SOURCE_MISSING), snap components retained, team-week coverage so absence is evidence only
+  where a sheet exists, v1 docs refuse loudly, matchMethod carried on every classification.
+- **Adversarial fixtures** for every charter state (incl. 0/0/0 sheet row, ST-only, nickname,
+  collision, traded, postseason wk→round, missing source) + **live correctness invariants**:
+  season-stable fallback mapping and one-claimant-per-snap-row, both clean over 2023-25. The
+  initial-mismatch audit was itself corrected — all flagged cases were nickname aliases
+  (Drew/Andrew, Hollywood/Marquise, Bam/Zonovan, Zeke/Ezekiel); join success ≠ correctness,
+  and the instrument has to measure the right failure.
+- **Props receipt re-emitted under the contract** (states unchanged; accounting on the receipt:
+  8,883 row-scored · 700 played-no-row zeros · 4,168 voids · 69 ambiguous typed — previously
+  silent voids · 0 source-missing).
+- **TD disposition: NOT independent** — `!row → void` excluded true negatives (mirror of
+  absent-as-zero). Preregistered correction with in-train grid re-selection: n 3,570 → 3,965
+  (+395 restored negatives), shrink k moved 0.5 → 2, and the family **beats both baselines
+  under honest conditioning** (LL 0.5214 vs 0.5243 / 0.5369, ECE 0.039). TD stays published on
+  corrected evidence; the 2026-08-13 receipt preserved append-only as superseded. Runtime reads
+  shareParams from the receipt, so the corrected k flows on the next natural run.
+
+Gates: suite 5505/0 · build OK · built 464/0.

@@ -25,6 +25,7 @@ import { SHARE_FAMILIES, familyNumerator, teamGameTotals, decayedShare } from ".
 import { teamTdDistribution, anytimeTdProbability, loadScoringBridgeMapping, NFL_TD_ENGINE_ID } from "../../src/lib/sports/nfl/td-engine.mjs";
 import { simulateNflGame } from "../../src/lib/sports/nfl/game-sim.mjs";
 import { strengthStateAt } from "../../src/lib/sports/nfl/model-v1.mjs";
+import { classifyParticipation, outcomeForAbsentCandidate, newPopulationAccounting, POPULATION_CONTRACT_VERSION } from "../../src/lib/sports/nfl/participation-truth.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -80,6 +81,7 @@ function foldGame(g) {
     for (const r of rows) {
       let st = state.get(r.playerId);
       if (!st || st.team !== r.teamAbbr) { st = { team: r.teamAbbr, obs: [] }; state.set(r.playerId, st); }
+      if (r.name) st.name = r.name; // the population-contract join key
       if (totals.scorerTd > 0) st.obs.push({ share: familyNumerator(r, "scorerTd") / totals.scorerTd, season: g.season });
     }
   }
@@ -90,6 +92,30 @@ const test = games.filter((g) => g.season === 2025);
 
 // One pass over train: fold state, collect the train base rate, and score every (k, β) on
 // 2024 walk-forward logLoss (each game predicted before it folds; pool assembled per team).
+/*
+ * P248 A3 (td-participation-true-v1, preregistered): absent-from-boxscore is resolved through
+ * the population contract — a dressed player who scored nothing is a TRUE NEGATIVE the market
+ * settles as a loss, not a void. Applies to grid selection (2024 walk-forward) AND held-out
+ * scoring identically; both baselines score the same corrected points.
+ */
+const participationBySeason = new Map();
+for (const season of [2023, 2024, 2025]) {
+  participationBySeason.set(season, JSON.parse(fs.readFileSync(path.join(ROOT, `data/internal/research/nfl/participation-truth-v1/${season}.json`), "utf8")));
+}
+const popAccounting = newPopulationAccounting();
+/** Absent-candidate outcome under the contract: 0 (played, no TD), "VOID", or "EXCLUDED". */
+function absentTdOutcome(g, abbr, st) {
+  const part = participationBySeason.get(g.season);
+  const cls = classifyParticipation({ part, game: g, teamAbbr: abbr, playerName: st.name ?? "" });
+  const out = outcomeForAbsentCandidate(cls);
+  if (out.kind === "VOID") { popAccounting.voidDidNotDress += 1; return "VOID"; }
+  if (out.kind === "EXCLUDED") {
+    if (cls.state === "AMBIGUOUS_IDENTITY") popAccounting.excludedAmbiguous += 1; else popAccounting.excludedSourceMissing += 1;
+    return "EXCLUDED";
+  }
+  popAccounting.scoredPlayedNoRow += 1;
+  return 0;
+}
 const gridLL = new Map();
 for (const k of TD_SHRINK_GRID) for (const b of TD_FLATTEN_GRID) gridLL.set(`${k}|${b}`, { ll: 0, n: 0 });
 let trainPos = 0;
@@ -115,10 +141,16 @@ for (const g of train) {
     for (const [playerId, st] of state) {
       if (st.team !== abbr || !st.obs.length) continue;
       const row = rowsByPlayer.get(playerId);
-      if (!row) continue; // DNP → void, excluded exactly as settlement excludes it
       const gateShare = decayedShare({ observations: st.obs, predictSeason: g.season, halfLifeGames: HL, shrinkK: 0.5, boundaryDecay: BOUNDARY }).share;
       if (gateShare < MIN_SHARE) continue;
-      pool.push({ playerId, obs: st.obs, outcome: ((row.rushTd ?? 0) + (row.recTd ?? 0)) >= 1 ? 1 : 0 });
+      let outcome;
+      if (row) { outcome = ((row.rushTd ?? 0) + (row.recTd ?? 0)) >= 1 ? 1 : 0; popAccounting.scoredWithRow += 1; }
+      else {
+        const o = absentTdOutcome(g, abbr, st);
+        if (o === "VOID" || o === "EXCLUDED") continue;
+        outcome = o; // played, scored nothing — a settled negative, not a void
+      }
+      pool.push({ playerId, obs: st.obs, outcome });
     }
     trainN += pool.length;
     trainPos += pool.reduce((s, c) => s + c.outcome, 0);
@@ -174,8 +206,14 @@ for (const g of test) {
           const gateShare = decayedShare({ observations: st.obs, predictSeason: g.season, halfLifeGames: HL, shrinkK: 0.5, boundaryDecay: BOUNDARY }).share;
           if (gateShare < MIN_SHARE) continue;
           const row = rowsByPlayer.get(playerId);
-          if (!row) continue;
-          pool.push({ obs: st.obs, outcome: ((row.rushTd ?? 0) + (row.recTd ?? 0)) >= 1 ? 1 : 0 });
+          let outcome;
+          if (row) { outcome = ((row.rushTd ?? 0) + (row.recTd ?? 0)) >= 1 ? 1 : 0; popAccounting.scoredWithRow += 1; }
+          else {
+            const o = absentTdOutcome(g, abbr, st);
+            if (o === "VOID" || o === "EXCLUDED") continue;
+            outcome = o;
+          }
+          pool.push({ obs: st.obs, outcome });
         }
         if (!pool.length) continue;
         const raw = pool.map((c) => decayedShare({ observations: c.obs, predictSeason: g.season, ...SHARE_PARAMS }).share);
@@ -240,5 +278,16 @@ const receipt = {
     "preseason boards remain MODELLED_NOT_PUBLISHABLE regardless of this receipt: participation and price gates are separate",
   ],
 };
-fs.writeFileSync(path.join(ROOT, "data/internal/research/nfl/reports/anytime-td-v1-calibration.json"), JSON.stringify(receipt, null, 1));
+/* P248: SUPERSESSION IS APPEND-ONLY — the pre-correction receipt is preserved under a
+   superseded name the first time the corrected one lands; never edited, never deleted. */
+const OUTP = path.join(ROOT, "data/internal/research/nfl/reports/anytime-td-v1-calibration.json");
+const SUPERSEDED = path.join(ROOT, "data/internal/research/nfl/reports/anytime-td-v1-calibration.superseded-2026-08-13.json");
+if (fs.existsSync(OUTP) && !fs.existsSync(SUPERSEDED)) {
+  const prior = JSON.parse(fs.readFileSync(OUTP, "utf8"));
+  if (prior.populationContractVersion == null) fs.writeFileSync(SUPERSEDED, JSON.stringify({ ...prior, supersededBy: "td-participation-true-v1", supersededAt: NOW }, null, 1));
+}
+receipt.populationContractVersion = POPULATION_CONTRACT_VERSION;
+receipt.populationAccounting = popAccounting;
+receipt.preregistration = "data/internal/research/nfl/reports/td-participation-preregistration.json";
+fs.writeFileSync(OUTP, JSON.stringify(receipt, null, 1));
 console.log(`anytime-TD calibration: n=${preds.length} (+${positives}) — model LL ${model.logLoss} / Brier ${model.brier} vs const-λ ${constant.logLoss}/${constant.brier} vs base ${base.logLoss}/${base.brier}; ECE ${ece}; bins ${usable.length}`);
