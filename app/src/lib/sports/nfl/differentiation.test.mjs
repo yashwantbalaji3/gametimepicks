@@ -280,8 +280,10 @@ test("ROUNDED TIES are justified numerically, never waved through", () => {
 test("PUBLIC · the limitation is stated to readers in plain words, with no research payload", () => {
   assert.equal(publicSummary.dataClass, "PUBLIC_DERIVED");
   const totals = publicSummary.heads.find((h) => /points are scored/i.test(h.head));
-  assert.equal(totals.state, "LIMITED_INPUTS");
-  assert.match(totals.plainEnglish, /does NOT look at the two teams/);
+  // REBASED P246: the public totals sentence follows the artifact stamp like the internal head.
+  const totalMatchupPub = pub.forecasts.every((f) => f.forecastSummary.total.head === "matchup-totals-v1-decayed-points");
+  assert.equal(totals.state, totalMatchupPub ? "EVENT_SPECIFIC" : "LIMITED_INPUTS");
+  assert.match(totals.plainEnglish, totalMatchupPub ? /reads the two teams/ : /does NOT look at the two teams/);
   const winner = publicSummary.heads.find((h) => /who wins/i.test(h.head));
   if (REGULAR) {
     const totalMatchup2 = pub.forecasts.every((f) => f.forecastSummary.total.head === "matchup-totals-v1-decayed-points");
