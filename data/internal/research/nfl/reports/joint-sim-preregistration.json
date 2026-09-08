@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "artifact": "joint-sim-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "249",
+  "registeredAt": "2026-09-08T23:00:00Z",
+  "candidate": {
+    "id": "nfl-joint-sim-v1",
+    "architecture": "opportunity-based joint generator (accurately named; not a drive simulator): shared (margin,total) draw -> script volumes -> Dirichlet-multinomial allocations with explicit other buckets -> catches/yards; QB gross passing := team receiving per draw; offensive TDs ~ truncated Poisson(committed bridge lambda(drawn score)) allocated by scorerTd shares, typed by each player's historical rush:rec mix; passing TDs := receiving TDs; score decomposes with a non-negative kicks/defense bucket. Invariants enforced per draw (joint-game-sim.test.mjs).",
+    "conventions": "player passing yards evaluated GROSS (= sum of completed pass yardage) — the standard individual passing-yards statistic in the corpus; sacks are a team-net concept and are not modeled."
+  },
+  "protocol": {
+    "population": "contract v2 (played; DNP void; ambiguous/source-missing excluded and counted), identical points to the champion receipts wherever both engines score a point",
+    "walkForward": "2023-24 fold -> held-out 2025 scored once; shares/rates/scorerTd/tdType mixes all walk-forward; committed heads and bridge only",
+    "runs": 1500
+  },
+  "frozenBars": {
+    "player_receptions": "NON-INFERIORITY vs champion on identical points: mae and pinball within 2%; midP coverage in [0.72, 0.88]; ece <= 0.05",
+    "player_reception_yds": "same non-inferiority contract",
+    "player_pass_yds_gross": "standard family gates on the joint candidate: beats rolling4 AND the champion chain on MAE on identical points; coverage80 in [0.72, 0.88]; ece <= 0.05; n >= 300",
+    "player_pass_tds": "FIRST evaluation: P(>=1 passing TD) logLoss beats BOTH baselines (league train base rate; player rolling-4 rate) on identical points; calibration bins reported; no publication without this bar regardless of internal coherence",
+    "anytime_td_joint": "NON-INFERIORITY vs the corrected TD-engine receipt: held-out logLoss within 0.005 of 0.5214 (the joint count mechanism must not degrade the published family)"
+  },
+  "decisionRule": "Families are judged SEPARATELY. A family whose joint marginal clears its bar may adopt the joint engine as its runtime basis (receipt-first, labeled); a family that fails keeps its current engine/state. The joint system is NEVER promoted wholesale on one family's strength. Receiving-yards/receptions approval does NOT transfer automatically — their non-inferiority bars here are exactly that check.",
+  "evidentiaryStatus": "2025 remains a reused evaluation season for every family (P247 annex). The 2026 forward record decides.",
+  "notes": "Registered before the evaluation runner existed; commit order is the proof."
+}

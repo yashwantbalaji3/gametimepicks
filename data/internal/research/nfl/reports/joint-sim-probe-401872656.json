@@ -1,0 +1,1001 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-joint-sim-probe",
+ "dataClass": "PRIVATE_RESEARCH",
+ "engineId": "nfl-joint-sim-v1",
+ "generatedAt": "2026-09-08T22:50:00Z",
+ "providerEventId": "401872656",
+ "matchup": "NE @ SEA",
+ "kickoffUtc": "2026-09-10T00:20Z",
+ "totalsHead": "matchup (integrated)",
+ "publishedForecastComparison": {
+  "published": {
+   "home": 27,
+   "away": 19,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "publishedTotalMedian": 46
+ },
+ "sides": {
+  "SEA": {
+   "engineId": "nfl-joint-sim-v1",
+   "version": 1,
+   "providerEventId": "401872656",
+   "teamAbbr": "SEA",
+   "state": "SIMULATED",
+   "runs": 8000,
+   "team": {
+    "score": {
+     "mean": 26.386,
+     "p10": 14,
+     "p25": 20,
+     "median": 26,
+     "p75": 33,
+     "p90": 38,
+     "samples": 8000
+    },
+    "oppScore": {
+     "mean": 19.727,
+     "p10": 7,
+     "p25": 13,
+     "median": 20,
+     "p75": 26,
+     "p90": 32,
+     "samples": 8000
+    },
+    "offensiveTd": {
+     "mean": 2.3171,
+     "dist": {
+      "0": 0.1309,
+      "1": 0.212,
+      "2": 0.2401,
+      "3": 0.1906,
+      "4": 0.1242,
+      "5": 0.0674,
+      "6": 0.0261,
+      "7": 0.007,
+      "8": 0.0013,
+      "9": 0.0004
+     }
+    },
+    "otherScoringPoints": {
+     "mean": 10.5623,
+     "note": "FGs, defensive scores, safeties and failed conversions — carried explicitly, never forced into offensive TDs"
+    },
+    "unallocated": {
+     "targetsMean": 5.0181,
+     "recYdsMean": 37.4991,
+     "tdCount": 2814
+    }
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-3912547",
+     "name": "Sam Darnold",
+     "markets": {
+      "player_pass_yds": {
+       "mean": 240.506,
+       "p10": 137.02,
+       "p25": 183.27,
+       "median": 237.5,
+       "p75": 294.61,
+       "p90": 350.71,
+       "samples": 8000,
+       "convention": "GROSS (= team receiving yards share); sacks not modeled"
+      },
+      "player_pass_tds": {
+       "mean": 1.1656,
+       "probOver05": 0.6739,
+       "probOver15": 0.328
+      },
+      "player_rush_yds": {
+       "mean": 6.997,
+       "p10": 0,
+       "p25": 0,
+       "median": 1.91,
+       "p75": 9.87,
+       "p90": 21.46,
+       "samples": 8000
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-3924327",
+     "name": "Drew Lock",
+     "markets": {
+      "player_pass_yds": {
+       "mean": 7.198,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 0,
+       "p90": 11.92,
+       "samples": 8000,
+       "convention": "GROSS (= team receiving yards share); sacks not modeled"
+      },
+      "player_pass_tds": {
+       "mean": 0.0356,
+       "probOver05": 0.0213,
+       "probOver15": 0.0046
+      },
+      "player_rush_yds": {
+       "mean": 3.576,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 3,
+       "p90": 12.22,
+       "samples": 8000
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4426385",
+     "name": "Zach Charbonnet",
+     "markets": {
+      "player_rush_yds": {
+       "mean": 32.832,
+       "p10": 5.73,
+       "p25": 14.53,
+       "median": 27.78,
+       "p75": 45.99,
+       "p90": 65.95,
+       "samples": 8000
+      },
+      "player_receptions": {
+       "mean": 1.065,
+       "p10": 0,
+       "p25": 0,
+       "median": 1,
+       "p75": 2,
+       "p90": 3,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 11.016,
+       "p10": 0,
+       "p25": 0,
+       "median": 4.53,
+       "p75": 17.02,
+       "p90": 31.93,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.49
+      },
+      "td_2plus": {
+       "probability": 0.1578,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4035693",
+     "name": "Velus Jones Jr.",
+     "markets": {
+      "player_rush_yds": {
+       "mean": 10,
+       "p10": 0,
+       "p25": 0,
+       "median": 4.62,
+       "p75": 14.91,
+       "p90": 28.12,
+       "samples": 8000
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4429835",
+     "name": "George Holani",
+     "markets": {
+      "player_rush_yds": {
+       "mean": 6.576,
+       "p10": 0,
+       "p25": 0,
+       "median": 1.34,
+       "p75": 9.04,
+       "p90": 20.64,
+       "samples": 8000
+      },
+      "player_receptions": {
+       "mean": 0.434,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 1,
+       "p90": 1,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 4.735,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 4.47,
+       "p90": 16.85,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.059
+      },
+      "td_2plus": {
+       "probability": 0.0024,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4428943",
+     "name": "Jacardia Wright",
+     "markets": {
+      "player_rush_yds": {
+       "mean": 6.422,
+       "p10": 0,
+       "p25": 0,
+       "median": 0.85,
+       "p75": 8.65,
+       "p90": 20.15,
+       "samples": 8000
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4432734",
+     "name": "Jalen Milroe",
+     "markets": {
+      "player_rush_yds": {
+       "mean": 2.915,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 1.51,
+       "p90": 10.05,
+       "samples": 8000
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4032473",
+     "name": "Rashid Shaheed",
+     "markets": {
+      "player_rush_yds": {
+       "mean": 3.067,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 1.39,
+       "p90": 10.78,
+       "samples": 8000
+      },
+      "player_receptions": {
+       "mean": 1.562,
+       "p10": 0,
+       "p25": 0,
+       "median": 1,
+       "p75": 2,
+       "p90": 3,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 17.914,
+       "p10": 0,
+       "p25": 0,
+       "median": 11.34,
+       "p75": 27.72,
+       "p90": 46.24,
+       "samples": 8000
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4576297",
+     "name": "AJ Barner",
+     "markets": {
+      "player_rush_yds": {
+       "mean": 1.08,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 0,
+       "p90": 1.55,
+       "samples": 8000
+      },
+      "player_receptions": {
+       "mean": 2.014,
+       "p10": 0,
+       "p25": 1,
+       "median": 2,
+       "p75": 3,
+       "p90": 4,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 21.737,
+       "p10": 0,
+       "p25": 3.59,
+       "median": 15.77,
+       "p75": 32.52,
+       "p90": 52.36,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.3347
+      },
+      "td_2plus": {
+       "probability": 0.0675,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4430878",
+     "name": "Jaxon Smith-Njigba",
+     "markets": {
+      "player_receptions": {
+       "mean": 5.555,
+       "p10": 2,
+       "p25": 4,
+       "median": 5,
+       "p75": 7,
+       "p90": 9,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 66.771,
+       "p10": 18.76,
+       "p25": 36.05,
+       "median": 60.88,
+       "p75": 90.81,
+       "p90": 122.74,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.2662
+      },
+      "td_2plus": {
+       "probability": 0.0411,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-2977187",
+     "name": "Cooper Kupp",
+     "markets": {
+      "player_receptions": {
+       "mean": 3.281,
+       "p10": 1,
+       "p25": 2,
+       "median": 3,
+       "p75": 5,
+       "p90": 6,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 36.65,
+       "p10": 4.41,
+       "p25": 14.37,
+       "median": 30.31,
+       "p75": 52.25,
+       "p90": 77.64,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.1054
+      },
+      "td_2plus": {
+       "probability": 0.0045,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4597703",
+     "name": "Tory Horton",
+     "markets": {
+      "player_receptions": {
+       "mean": 1.673,
+       "p10": 0,
+       "p25": 1,
+       "median": 1,
+       "p75": 2,
+       "p90": 4,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 18.598,
+       "p10": 0,
+       "p25": 1.03,
+       "median": 12.73,
+       "p75": 27.99,
+       "p90": 46.57,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.2209
+      },
+      "td_2plus": {
+       "probability": 0.0281,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4678006",
+     "name": "Elijah Arroyo",
+     "markets": {
+      "player_receptions": {
+       "mean": 1.115,
+       "p10": 0,
+       "p25": 0,
+       "median": 1,
+       "p75": 2,
+       "p90": 3,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 12.158,
+       "p10": 0,
+       "p25": 0,
+       "median": 5.51,
+       "p75": 18.79,
+       "p90": 35.01,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.0235
+      },
+      "td_2plus": {
+       "probability": 0.0008,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-2975863",
+     "name": "Eric Saubert",
+     "markets": {
+      "player_receptions": {
+       "mean": 0.555,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 1,
+       "p90": 2,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 6.224,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 7.99,
+       "p90": 21.52,
+       "samples": 8000
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4360405",
+     "name": "Jake Bobo",
+     "markets": {
+      "player_receptions": {
+       "mean": 0.443,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 1,
+       "p90": 1,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 4.956,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 4.97,
+       "p90": 18.27,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.0775
+      },
+      "td_2plus": {
+       "probability": 0.0027,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4691688",
+     "name": "Robbie Ouzts",
+     "markets": {
+      "player_receptions": {
+       "mean": 0.304,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 0,
+       "p90": 1,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 3.327,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 0,
+       "p90": 12.48,
+       "samples": 8000
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4241983",
+     "name": "Cody White",
+     "markets": {
+      "player_receptions": {
+       "mean": 0.31,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 0,
+       "p90": 1,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 3.569,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 0,
+       "p90": 13.51,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.0227
+      },
+      "td_2plus": {
+       "probability": 0.0001,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4569547",
+     "name": "Nick Kallerup",
+     "markets": {
+      "player_receptions": {
+       "mean": 0.279,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 0,
+       "p90": 1,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 3.191,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 0,
+       "p90": 11.9,
+       "samples": 8000
+      }
+     }
+    }
+   ],
+   "conventions": {
+    "passing": "gross = team receiving yards, split across passers by allocated attempts; passing TDs = team receiving TDs by construction (never the QB scoring)",
+    "firstLastScorer": "UNAVAILABLE — no ordering mechanism in this architecture"
+   }
+  },
+  "NE": {
+   "engineId": "nfl-joint-sim-v1",
+   "version": 1,
+   "providerEventId": "401872656",
+   "teamAbbr": "NE",
+   "state": "SIMULATED",
+   "runs": 8000,
+   "team": {
+    "score": {
+     "mean": 19.727,
+     "p10": 7,
+     "p25": 13,
+     "median": 20,
+     "p75": 26,
+     "p90": 32,
+     "samples": 8000
+    },
+    "oppScore": {
+     "mean": 26.386,
+     "p10": 14,
+     "p25": 20,
+     "median": 26,
+     "p75": 33,
+     "p90": 38,
+     "samples": 8000
+    },
+    "offensiveTd": {
+     "mean": 1.5989,
+     "dist": {
+      "0": 0.2675,
+      "1": 0.2654,
+      "2": 0.2172,
+      "3": 0.1459,
+      "4": 0.0693,
+      "5": 0.026,
+      "6": 0.0073,
+      "7": 0.0011,
+      "8": 0.0004
+     }
+    },
+    "otherScoringPoints": {
+     "mean": 8.8268,
+     "note": "FGs, defensive scores, safeties and failed conversions — carried explicitly, never forced into offensive TDs"
+    },
+    "unallocated": {
+     "targetsMean": 11.6449,
+     "recYdsMean": 86.3163,
+     "tdCount": 3097
+    }
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4431452",
+     "name": "Drake Maye",
+     "markets": {
+      "player_pass_yds": {
+       "mean": 256.868,
+       "p10": 155.64,
+       "p25": 200.31,
+       "median": 252.54,
+       "p75": 309.82,
+       "p90": 362.94,
+       "samples": 8000,
+       "convention": "GROSS (= team receiving yards share); sacks not modeled"
+      },
+      "player_pass_tds": {
+       "mean": 0.6432,
+       "probOver05": 0.4546,
+       "probOver15": 0.1464
+      },
+      "player_rush_yds": {
+       "mean": 20.195,
+       "p10": 0.4,
+       "p25": 4.92,
+       "median": 14.81,
+       "p75": 29.86,
+       "p90": 46.7,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.1821
+      },
+      "td_2plus": {
+       "probability": 0.0199,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4569173",
+     "name": "Rhamondre Stevenson",
+     "markets": {
+      "player_rush_yds": {
+       "mean": 32.728,
+       "p10": 5.9,
+       "p25": 14.33,
+       "median": 27.96,
+       "p75": 45.13,
+       "p90": 66.4,
+       "samples": 8000
+      },
+      "player_receptions": {
+       "mean": 2.139,
+       "p10": 0,
+       "p25": 1,
+       "median": 2,
+       "p75": 3,
+       "p90": 4,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 23.081,
+       "p10": 0,
+       "p25": 5,
+       "median": 17.01,
+       "p75": 34.67,
+       "p90": 53.78,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.2049
+      },
+      "td_2plus": {
+       "probability": 0.0286,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4432710",
+     "name": "TreVeyon Henderson",
+     "markets": {
+      "player_rush_yds": {
+       "mean": 28.25,
+       "p10": 4.03,
+       "p25": 11.03,
+       "median": 23.48,
+       "p75": 40.3,
+       "p90": 58.04,
+       "samples": 8000
+      },
+      "player_receptions": {
+       "mean": 1.028,
+       "p10": 0,
+       "p25": 0,
+       "median": 1,
+       "p75": 2,
+       "p90": 3,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 10.372,
+       "p10": 0,
+       "p25": 0,
+       "median": 4.09,
+       "p75": 16.25,
+       "p90": 29.67,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.1158
+      },
+      "td_2plus": {
+       "probability": 0.0066,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4427600",
+     "name": "Terrell Jennings",
+     "markets": {
+      "player_rush_yds": {
+       "mean": 7.25,
+       "p10": 0,
+       "p25": 0,
+       "median": 2.27,
+       "p75": 10.53,
+       "p90": 21.64,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.0506
+      },
+      "td_2plus": {
+       "probability": 0.0013,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-2991662",
+     "name": "Mack Hollins",
+     "markets": {
+      "player_receptions": {
+       "mean": 3.187,
+       "p10": 1,
+       "p25": 2,
+       "median": 3,
+       "p75": 4,
+       "p90": 6,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 36.812,
+       "p10": 3.58,
+       "p25": 13.94,
+       "median": 30.64,
+       "p75": 53.02,
+       "p90": 76.7,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.1067
+      },
+      "td_2plus": {
+       "probability": 0.0066,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4429022",
+     "name": "Kayshon Boutte",
+     "markets": {
+      "player_receptions": {
+       "mean": 2.578,
+       "p10": 0,
+       "p25": 1,
+       "median": 2,
+       "p75": 4,
+       "p90": 5,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 30.86,
+       "p10": 0,
+       "p25": 9.24,
+       "median": 24.41,
+       "p75": 45.43,
+       "p90": 68.6,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.1109
+      },
+      "td_2plus": {
+       "probability": 0.0067,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-3046439",
+     "name": "Hunter Henry",
+     "markets": {
+      "player_receptions": {
+       "mean": 2.742,
+       "p10": 1,
+       "p25": 1,
+       "median": 2,
+       "p75": 4,
+       "p90": 5,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 30.778,
+       "p10": 0.6,
+       "p25": 10.04,
+       "median": 24.53,
+       "p75": 45,
+       "p90": 67.67,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.1847
+      },
+      "td_2plus": {
+       "probability": 0.0196,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4427095",
+     "name": "DeMario Douglas",
+     "markets": {
+      "player_receptions": {
+       "mean": 1.665,
+       "p10": 0,
+       "p25": 1,
+       "median": 1,
+       "p75": 2,
+       "p90": 4,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 18.795,
+       "p10": 0,
+       "p25": 1,
+       "median": 13.21,
+       "p75": 28.73,
+       "p90": 46.64,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.0698
+      },
+      "td_2plus": {
+       "probability": 0.0024,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4613202",
+     "name": "Kyle Williams",
+     "markets": {
+      "player_receptions": {
+       "mean": 1.04,
+       "p10": 0,
+       "p25": 0,
+       "median": 1,
+       "p75": 2,
+       "p90": 3,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 11.731,
+       "p10": 0,
+       "p25": 0,
+       "median": 4.51,
+       "p75": 17.88,
+       "p90": 34.18,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.0619
+      },
+      "td_2plus": {
+       "probability": 0.0019,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4361100",
+     "name": "Jack Westover",
+     "markets": {
+      "player_receptions": {
+       "mean": 0.457,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 1,
+       "p90": 1,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 4.975,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 5.11,
+       "p90": 18.37,
+       "samples": 8000
+      }
+     }
+    },
+    {
+     "playerId": "nfl-athlete-4695193",
+     "name": "Efton Chism III",
+     "markets": {
+      "player_receptions": {
+       "mean": 0.37,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 1,
+       "p90": 1,
+       "samples": 8000
+      },
+      "player_reception_yds": {
+       "mean": 4.162,
+       "p10": 0,
+       "p25": 0,
+       "median": 0,
+       "p75": 2.27,
+       "p90": 15.71,
+       "samples": 8000
+      },
+      "anytime_td": {
+       "probability": 0.021
+      },
+      "td_2plus": {
+       "probability": 0.0006,
+       "basis": "COUNT draws from the joint simulation — never a transform of anytime probability"
+      }
+     }
+    }
+   ],
+   "conventions": {
+    "passing": "gross = team receiving yards, split across passers by allocated attempts; passing TDs = team receiving TDs by construction (never the QB scoring)",
+    "firstLastScorer": "UNAVAILABLE — no ordering mechanism in this architecture"
+   }
+  }
+ }
+}
