@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "artifact": "props-integration-verdict",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "247",
+  "candidate": "props-gamesim-matchup-totals-v1",
+  "preregistration": "data/internal/research/nfl/reports/nfl-integration-preregistration.json",
+  "evaluation": "data/internal/research/nfl/reports/props-integration-evaluation.json",
+  "evaluatedAt": "2026-09-08T20:00:00Z",
+  "verdict": "ACCEPTED",
+  "bars": {
+    "player_rush_yds": {
+      "retainsPublicEligible": true,
+      "mae": { "observed": 16.089, "championBaseline": 16.067, "capPlus2pct": 16.388, "pass": true },
+      "pinball": { "observed": 5.174, "championBaseline": 5.165, "capPlus2pct": 5.268, "pass": true },
+      "coverage": { "observed": 0.7409, "band": "[0.72, 0.88]", "pass": true },
+      "ece": { "observed": 0.0283, "max": 0.05, "pass": true }
+    },
+    "player_receptions": {
+      "retainsPublicEligible": true,
+      "mae": { "observed": 1.611, "championBaseline": 1.613, "capPlus2pct": 1.645, "pass": true },
+      "pinball": { "observed": 0.523, "championBaseline": 0.524, "capPlus2pct": 0.535, "pass": true },
+      "coverage": { "observed": 0.8655, "band": "[0.72, 0.88]", "pass": true },
+      "ece": { "observed": 0.0357, "max": 0.05, "pass": true }
+    }
+  },
+  "invarianceConfirmed": "The bridge derivation (ownMargin = margin exactly; total cancels up to score snapping) held empirically: every published-family metric moved by well under half a percent. Integration costs nothing in evaluated quality and makes the player chain's team-score context agree with the published team report.",
+  "consequence": "The evaluator's champion path and the production game-simulation callers consume matchup totals per game, receipt-gated on this verdict plus the ELIGIBLE totals receipt. The P246 typed divergence (player chain on constant totals) CLOSES.",
+  "evidentiaryStatus": "2025 is a reused evaluation season (see p246-evidentiary-status-annex.json); this run is a consistency check under frozen bars, not fresh evidence of skill."
+}

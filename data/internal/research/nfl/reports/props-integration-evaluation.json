@@ -1,9 +1,9 @@
 {
  "schemaVersion": 1,
- "artifact": "nfl-player-props-v1-evaluation",
+ "artifact": "nfl-pass-yds-repair-evaluation",
  "gamesimTotals": "matchup-totals-v1-decayed-points (integrated)",
  "dataClass": "PRIVATE_RESEARCH",
- "generatedAt": "2026-09-08T20:10:00Z",
+ "generatedAt": "2026-09-08T20:00:00Z",
  "engine": {
   "id": "nfl-player-props-v1-opportunity-efficiency",
   "version": 1
@@ -246,5 +246,12 @@
   "multinomial allocation reconciles player opportunities to team volumes per iteration by construction",
   "threshold calibration uses the rolling-4 mean as the line proxy (no historical sportsbook lines exist in this repo); P(over) is read off the true sampled distribution as a post-sampling read-out",
   "rush yards are Gamma (non-negative): true negative rushing games exist and are outside v1 support — a stated limitation"
- ]
+ ],
+ "challenger": {
+  "id": "props-gamesim-matchup-totals-v1",
+  "preregistration": "data/internal/research/nfl/reports/nfl-integration-preregistration.json",
+  "champion": "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+  "scope": "gamesim totals input only: per-game matchup mu + receipt sigma replace the constant; every player parameter and seed unchanged",
+  "totalsReceipt": "matchup-totals-evaluation@2026-09-08T07:30:00Z"
+ }
 }

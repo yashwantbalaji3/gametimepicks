@@ -240,21 +240,29 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
   }
 
   /* ── 7 · what this does not know ───────────────────────────────────────────────────────────── */
-  const limitRows: { label: string; detail: string }[] = [];
-  for (const note of fg.completeness?.notes ?? []) limitRows.push({ label: "Input", detail: String(note) });
+  /*
+   * P247: MANDATORY rows first, input noise last. The chapter caps at five rows, and the old
+   * order (inputs → not-modelled → status → validation) meant a game with four padded-lineup
+   * notes SLICED OFF its own degraded verdict — the disclosure vanished precisely when inputs
+   * were most degraded (tex-vs-sea 2026-09-08, caught by the manifest guard). The verdict,
+   * the validation sentence and the not-modelled list never yield to input detail.
+   */
+  const mandatoryRows: { label: string; detail: string }[] = [];
+  if (fg.status === "degraded") {
+    mandatoryRows.push({ label: "Status", detail: "The report calls this run degraded — some inputs it prefers were unavailable." });
+  }
   const missing = fg.completeness?.missingFamilies ?? [];
   if (missing.length) {
-    limitRows.push({ label: "Not modelled", detail: missing.map((m) => String(m).replaceAll("_", " ")).join(", ") });
-  }
-  if (fg.status === "degraded") {
-    limitRows.push({ label: "Status", detail: "The report calls this run degraded — some inputs it prefers were unavailable." });
+    mandatoryRows.push({ label: "Not modelled", detail: missing.map((m) => String(m).replaceAll("_", " ")).join(", ") });
   }
   const bk = pred.market?.bookmaker;
   if (bk && pred.market?.capturedAt) {
     const at = etStamp(pred.market.capturedAt);
-    limitRows.push({ label: "Book line", detail: at ? `${bk}, captured ${at}` : String(bk) });
+    mandatoryRows.push({ label: "Book line", detail: at ? `${bk}, captured ${at}` : String(bk) });
   }
-  limitRows.push({ label: "Validation", detail: "Educational and paper-only. This model is not validated out of sample, and no accuracy claim is made from it." });
+  mandatoryRows.push({ label: "Validation", detail: "Educational and paper-only. This model is not validated out of sample, and no accuracy claim is made from it." });
+  const inputRows = (fg.completeness?.notes ?? []).map((note) => ({ label: "Input", detail: String(note) }));
+  const limitRows = [...mandatoryRows, ...inputRows];
   chapters.push({
     id: "limits",
     kind: "limits",

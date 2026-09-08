@@ -57,6 +57,24 @@ const currentShares = read(path.join(ROOT, "data/internal/research/nfl/role-shar
 const mapping = loadScoringBridgeMapping({ fs, path, cwd: APP });
 const calibration = loadTdCalibrationReceipt({ fs, path, cwd: APP });
 const propsFit = loadPlayerPropsFit({ fs, path, cwd: APP });
+/*
+ * P247 Release A — INTEGRATED TOTALS, receipt-gated. When the committed integration verdict is
+ * ACCEPTED and the totals receipt ELIGIBLE, every simulation in this window (team gamesim AND
+ * player props) draws its game total from the matchup head, per event, cut strictly before
+ * that kickoff — the same rule the public forecast builder applies. One totals assumption
+ * everywhere, or the constant everywhere; never a silent mix. Reads FAIL LOUDLY (P246 TDZ
+ * silent-no-op lesson): an unreadable verdict file is an error, not the constant.
+ */
+const { totalsStateAt } = await import("../../src/lib/sports/nfl/totals-rating.mjs");
+const integrationVerdictPath = path.join(ROOT, "data/internal/research/nfl/reports/props-integration-verdict.json");
+const totalsReceiptPath = path.join(ROOT, "data/internal/research/nfl/reports/matchup-totals-evaluation.json");
+const integrationAdopted = fs.existsSync(integrationVerdictPath)
+  ? JSON.parse(fs.readFileSync(integrationVerdictPath, "utf8")).verdict === "ACCEPTED"
+  : false;
+const totalsReceipt = integrationAdopted && fs.existsSync(totalsReceiptPath)
+  ? JSON.parse(fs.readFileSync(totalsReceiptPath, "utf8"))
+  : null;
+const useMatchupTotals = integrationAdopted && totalsReceipt?.verdict === "ELIGIBLE";
 const publicMarkets = readMaybe(path.join(APP, "public/data/nfl/markets/latest.json"));
 const snapFiles = fs.existsSync(path.join(ROOT, "data/internal/research/odds/nfl"))
   ? fs.readdirSync(path.join(ROOT, "data/internal/research/odds/nfl")).filter((f) => f.startsWith("capture-")).sort()
@@ -156,14 +174,21 @@ for (const ev of events) {
   const strength = strengthStateAt({ rows: finals.filter((r) => r.dateUtc < ev.dateUtc), cutoffIso: NOW, regressToSeason: evSeason });
   const wrapped = { ...strength, ratingFor: (t) => strength.ratingFor(abbrToName.get(t) ?? t) };
 
-  const gamesim = simulateNflGame({ fit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS });
+  /* Per-event matchup totals: ratings fold only finals strictly before THIS kickoff. */
+  const evTotals = useMatchupTotals
+    ? totalsStateAt({ rows: finals, cutoffIso: ev.dateUtc, receipt: totalsReceipt })
+    : null;
+  const evMu = evTotals?.state === "READY" ? { muTotal: evTotals.muFor(ev.home.name, ev.away.name), sigmaTotal: evTotals.sigma } : null;
+  const evFit = evMu ? { ...fit, params: { ...fit.params, ...evMu } } : fit;
+  const evPropsFit = evMu && propsFit ? { ...propsFit, gamesim: { ...propsFit.gamesim, ...evMu } } : propsFit;
+  const gamesim = simulateNflGame({ fit: evFit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS });
 
   const perTeam = {};
   for (const side of ["home", "away"]) {
     const teamAbbr = ev[side].abbr;
     const roleRates = composeRoleRates(teamAbbr);
     const props = roleRates
-      ? simulatePlayerProps({ event: ev, teamAbbr, fit: propsFit, strengthState: wrapped, roleRates, artifactDate: DATE, runs: Math.min(RUNS, 5000) })
+      ? simulatePlayerProps({ event: ev, teamAbbr, fit: evPropsFit, strengthState: wrapped, roleRates, artifactDate: DATE, runs: Math.min(RUNS, 5000) })
       : { state: "ABSTAIN", reason: "no corpus-backed role/rate evidence for this roster — mass belongs to OTHER, not to a guess" };
     if (props.state === "SIMULATED" && (ev.seasonType ?? 0) === 1) {
       props.preseasonCaveat = "volumes are regular-season-shaped: preseason snap scripting is unmodeled — one more reason these distributions stay RESEARCH-only and unpublishable in this window";

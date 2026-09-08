@@ -31,7 +31,18 @@ const hasFixtures = fs.existsSync(path.join(REPO, "data/internal/nfl/forecast-re
 function seedVaultDay() {
   const store = makeRepoStore("gtp-replay-vault-", APP);
   copyInto(store, REPO, `data/internal/nfl/forecast-receipts/${DATE}`);
-  copyInto(store, REPO, "app/public/data/nfl/results/latest.json");
+  /*
+   * P247: the results source is a FROZEN fixture, extracted verbatim from git commit 205774b01
+   * (the 2026-08-30T17:02Z capture — the first with all seven Aug-29 finals). It used to seed
+   * the LIVE rolling results/latest.json, which by September no longer held any Aug-29 final:
+   * the settler then graded zero events and this suite failed while the product was healthy —
+   * the pinned-today's-data class this repository keeps re-finding. Fixture, never invented.
+   */
+  fs.mkdirSync(path.join(store, "app/public/data/nfl/results"), { recursive: true });
+  fs.copyFileSync(
+    path.join(APP, "src/lib/products/__fixtures__/nfl-results-2026-08-29-era.json"),
+    path.join(store, "app/public/data/nfl/results/latest.json"),
+  );
   return store;
 }
 
@@ -106,8 +117,14 @@ test("A MISSING RESULT LEAVES THE EVENT UNGRADED — never a wrong grade", (t) =
     const graded = (state?.events ?? []).filter((e) => e.grade != null);
     assert.equal(graded.length, 0, "an event was graded with no official result available");
 
-    /* And the same fixture WITH results does grade — so the assertion above is discriminating. */
-    copyInto(store, REPO, "app/public/data/nfl/results/latest.json");
+    /* And the same fixture WITH results does grade — so the assertion above is discriminating.
+       P247: same frozen-era fixture as seedVaultDay, for the same reason (the live rolling
+       capture no longer holds this date's finals). */
+    fs.mkdirSync(path.join(store, "app/public/data/nfl/results"), { recursive: true });
+    fs.copyFileSync(
+      path.join(APP, "src/lib/products/__fixtures__/nfl-results-2026-08-29-era.json"),
+      path.join(store, "app/public/data/nfl/results/latest.json"),
+    );
     runVaultSettler(store, { now: LATER, date: DATE, repoDir: REPO });
     const withResults = vaultState(store, DATE);
     assert.ok(

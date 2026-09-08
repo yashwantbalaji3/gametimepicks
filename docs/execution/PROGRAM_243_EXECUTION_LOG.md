@@ -520,3 +520,47 @@ candidate (preregistration required) · wider gamma grid (boundary selection) ·
 staleness stamp + researchEligible consumption + batter_total_bases at the artifact layer ·
 EPL dead-code ledger items (epl-poisson duplicate, dropped multi-book de-vig, inert teamContext)
 · BB founder gate + other standing founder gates unchanged.
+
+---
+
+# PROGRAM 247 — NFL Week 1 completion & four-sport product readiness
+
+Baseline 2026-09-08 15:24 EDT verified against the real clock; tree FF'd over 24 unattended
+commits; all four sports fresh from today's natural runs; first NFL kickoff Sep 9 20:20 ET.
+
+## Phase 0 — today's reality (timeboxed)
+- ONE red run diagnosed: the scheduled daily-products recovery goes red on every legitimate
+  hold day (skip guard recognized only ACTIVE cards; today = NO_PLAY over a real 4-candidate
+  pool). Fixed at both owners: completed-evaluation skip + the assert's documented
+  --max-age-min for a backstop that found today's ladder current. Verified against today's
+  actual receipt.
+- EPL matchweek dispatched once: the P246 four-field fix verified LIVE through its
+  production-owned path (all four fields non-null on every model-only row, 19:29Z artifact).
+
+## Release A — promotion verification + integration (CLOSED)
+- Evidentiary-status annex (p246-evidentiary-status-annex.json): 2025 is a REUSED evaluation
+  season for every P246 result; totals gain met its bar but paired ΔNLL = 0.020 ± 0.017
+  (t=1.18, 95% CI spans zero, better on 55% of games) — bar-clearing, NOT individually
+  significant; the in-train slope (4.6σ) carries the mechanism; 2026 forward record decides.
+- Bridge TRACED: ownMargin = margin exactly — the total CANCELS from player volumes up to
+  integer score snapping. Integration preregistered (per-family retention + 2% non-inferiority),
+  evaluated once: ALL BARS PASS with deltas under half a percent (invariance confirmed).
+  props-gamesim-matchup-totals-v1 ACCEPTED; champion receipt regenerated integrated; the
+  event-window runner applies the same per-game override receipt-gated (probe: research team
+  scores now span 43–52, agreeing with the public team reports). The P246 typed divergence
+  CLOSES.
+- ⚠️ The record register had gone stale since P222 (nothing appended; the in-flight exemption
+  hid it until a P247-conventioned subject became newest). P222 R-B registered; record + PDF
+  chain rebuilt and verified (176 rows).
+
+## Data-state guard repairs surfaced by the day's tree (all four pre-existing, none mine)
+- Vault replay suite seeded the LIVE rolling results capture, which no longer holds Aug-29
+  finals (pinned-today's-data class) → frozen era fixture extracted verbatim from git commit
+  205774b01, seeded at both sites.
+- MLB presentation sliced off its own DEGRADED verdict when input notes filled the 5-row cap
+  (tex-vs-sea today) → mandatory rows (status/not-modelled/validation) now precede input noise.
+- EPL odds-join guard: first live fixture RESCHEDULE (Palace–Leeds MW5, Sat 14:00 → Sun 13:00)
+  orphaned an immutable capture → exclusion made principled (same club pair at a different
+  kickoff = documented reschedule; a vanished pairing still fails). No capture rewritten.
+
+Gates: suite 5499/0 · build OK · built 464/0.

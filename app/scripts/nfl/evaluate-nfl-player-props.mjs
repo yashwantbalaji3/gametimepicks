@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 import { SHARE_FAMILIES, familyNumerator, teamGameTotals, decayedShare } from "../../src/lib/sports/nfl/role-shares.mjs";
 import { shrunkRate, simulatePlayerProps, PROP_MARKETS, NFL_PLAYER_PROPS_ID } from "../../src/lib/sports/nfl/player-props-v1.mjs";
 import { strengthStateAt } from "../../src/lib/sports/nfl/model-v1.mjs";
+import { totalsStateAt } from "../../src/lib/sports/nfl/totals-rating.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -48,7 +49,7 @@ const DIAGNOSE_DIR = arg("--diagnose", null);
    fits are in-sample; usable for BIAS DIRECTION diagnosis, never for a promotion claim. */
 const DIAGNOSE_SEASON = Number(arg("--diagnose-season", "2025"));
 if (DIAGNOSE_SEASON !== 2025 && !DIAGNOSE_DIR) { console.error("REFUSED: --diagnose-season requires --diagnose"); process.exit(1); }
-if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1"].includes(CHALLENGER)) {
+if (CHALLENGER && !["pass-gamesigma-pooled-mean-v1", "receiving-target-deflation-v1", "props-gamesim-matchup-totals-v1"].includes(CHALLENGER)) {
   console.error(`REFUSED: unknown challenger ${CHALLENGER}`); process.exit(1);
 }
 /* P246 §4.3: gamma for receiving-target-deflation-v1 — a preregistered grid value, threaded
@@ -69,6 +70,25 @@ const ACCEPTED_GAMMA = acceptedVerdict?.perFamilyVerdicts?.player_receptions?.ve
   ? Number(acceptedVerdict.accepted.gamma)
   : null;
 const GAMMA = arg("--gamma", null) != null ? Number(arg("--gamma")) : ACCEPTED_GAMMA;
+/*
+ * P247 Release A — INTEGRATED TOTALS (props-gamesim-matchup-totals-v1): the player chain draws
+ * its game total from the SAME matchup head the team artifact publishes (per-game walk-forward
+ * mu cut strictly before each game; sigma from the totals receipt) instead of the constant.
+ * The bridge derivation says player volumes are total-invariant up to score snapping — this
+ * lane exists to PROVE that under the frozen bars (nfl-integration-preregistration.json).
+ * Adoption is read from the committed integration verdict and FAILS LOUDLY on an unreadable
+ * file (the P246 TDZ silent-no-op lesson).
+ */
+const totalsReceiptPath = path.join(ROOT, "data/internal/research/nfl/reports/matchup-totals-evaluation.json");
+const integrationVerdictPath = path.join(ROOT, "data/internal/research/nfl/reports/props-integration-verdict.json");
+const INTEGRATED_ADOPTED = fs.existsSync(integrationVerdictPath)
+  ? JSON.parse(fs.readFileSync(integrationVerdictPath, "utf8")).verdict === "ACCEPTED"
+  : false;
+const USE_MATCHUP_TOTALS = CHALLENGER === "props-gamesim-matchup-totals-v1" || (!CHALLENGER && !DIAGNOSE_DIR && INTEGRATED_ADOPTED);
+const totalsReceipt = USE_MATCHUP_TOTALS ? JSON.parse(fs.readFileSync(totalsReceiptPath, "utf8")) : null;
+if (USE_MATCHUP_TOTALS && totalsReceipt?.verdict !== "ELIGIBLE") {
+  console.error("REFUSED: matchup totals lane needs an ELIGIBLE totals receipt"); process.exit(1);
+}
 if (GAMMA != null && !(GAMMA > 0.8 && GAMMA <= 1)) { console.error("REFUSED: --gamma outside (0.8, 1]"); process.exit(1); }
 if (arg("--gamma", null) != null && !DIAGNOSE_DIR && CHALLENGER !== "receiving-target-deflation-v1") {
   console.error("REFUSED: --gamma requires --diagnose (selection) or the receiving challenger (test)"); process.exit(1);
@@ -385,6 +405,10 @@ const MARKET_ACTUAL = {
 };
 const MARKET_FAMILY = { player_pass_yds: "passAttempts", player_rush_yds: "rushAttempts", player_reception_yds: "targets", player_receptions: "targets" };
 
+/* P247 Release B: per-point diagnostic rows (diagnose lane only) — signed residuals, workload,
+   quantiles and role rank, so the pass-yds failure can be DECOMPOSED instead of inferred from
+   aggregate MAE. Never written outside --diagnose. */
+const diagnosticsPoints = [];
 const metrics = {};
 for (const mkt of PROP_MARKETS) metrics[mkt] = { n: 0, mae: 0, rmse: 0, pinball: 0, cover80: 0, base: { rolling4: 0, shareVol: 0, trailing8Pinball: 0, trailing8Cover: 0, trailing8N: 0, tierMae: 0 }, cal: [] };
 const tierMeans = (() => { // train league means by within-team share rank (naive role-tier baseline)
@@ -399,6 +423,15 @@ let realizedVolumeCovered = { covered: 0, total: 0 };
 for (const g of test) {
   const homeAbbr = nameToAbbr.get(g.home);
   const awayAbbr = nameToAbbr.get(g.away);
+  /* Integrated totals: per-game mu from ratings folding ONLY finals strictly before this
+     kickoff (walk-forward, same recurrence and receipt the team builder uses). g.home/g.away
+     are full names — the corpus namespace the ratings are keyed by. */
+  const gameFit = (() => {
+    if (!USE_MATCHUP_TOTALS) return fit;
+    const ts = totalsStateAt({ rows: finals, cutoffIso: g.dateUtc, receipt: totalsReceipt });
+    if (ts.state !== "READY") { console.error(`REFUSED: totals state ${ts.reason} at ${g.dateUtc}`); process.exit(1); }
+    return { ...fit, gamesim: { ...fit.gamesim, muTotal: ts.muFor(g.home, g.away), sigmaTotal: ts.sigma } };
+  })();
   if (homeAbbr && awayAbbr) {
     const strength = strengthStateAt({ rows: finals.filter((r) => r.dateUtc < g.dateUtc), cutoffIso: g.dateUtc });
     // strength rows use full names — wrap ratingFor so abbr lookups resolve through the map
@@ -420,7 +453,7 @@ for (const g of test) {
       }
       const sim = simulatePlayerProps({
         event: { providerEventId: g.providerEventId, home: { abbr: homeAbbr }, away: { abbr: awayAbbr }, seasonType: g.seasonType },
-        teamAbbr: abbr, fit, strengthState: wrapped,
+        teamAbbr: abbr, fit: gameFit, strengthState: wrapped,
         roleRates: { players: cands }, artifactDate: g.dateUtc.slice(0, 10), runs: RUNS, lines: linesProxy,
       });
       if (sim.state !== "SIMULATED") continue;
@@ -441,6 +474,19 @@ for (const g of test) {
           const qs = [[0.10, dist.p10], [0.25, dist.p25], [0.50, dist.median], [0.75, dist.p75], [0.90, dist.p90]];
           m.pinball += qs.reduce((s, [q, v]) => s + (actual >= v ? q * (actual - v) : (1 - q) * (v - actual)), 0) / qs.length;
           m.cover80 += actual >= dist.p10 && actual <= dist.p90 ? 1 : 0;
+          if (DIAGNOSE_DIR) {
+            const famD = MARKET_FAMILY[mkt];
+            const shareD = famD === "passAttempts" ? cand.qbShare : famD === "rushAttempts" ? cand.carryShare : cand.targetShare;
+            const rankD = cands.filter((c) => c.families.has(famD)).sort((a, b) => b.share - a.share).findIndex((c) => c.playerId === simP.playerId);
+            diagnosticsPoints.push({
+              mkt, playerId: simP.playerId, gameId: g.providerEventId, date: g.dateUtc.slice(0, 10), team: abbr,
+              share: Number((shareD ?? 0).toFixed(4)), roleRank: rankD,
+              pred: { mean: Number(dist.mean.toFixed(2)), p10: dist.p10, p25: dist.p25, p50: dist.median, p75: dist.p75, p90: dist.p90 },
+              actual,
+              actualOpp: famD === "passAttempts" ? (actualRow?.passAtt ?? 0) : famD === "rushAttempts" ? (actualRow?.rushAtt ?? 0) : (actualRow?.targets ?? 0),
+              actualSecondary: mkt === "player_pass_yds" ? (actualRow?.passCmp ?? 0) : null,
+            });
+          }
           const recent = (cand.recent[mkt] ?? []);
           const r4 = recent.slice(-4);
           const rolling4 = r4.length ? r4.reduce((a, b) => a + b, 0) / r4.length : 0;
@@ -532,6 +578,7 @@ promotion.player_pass_int = { state: "RESEARCH_ONLY", evidence: { note: "simulat
 const receipt = {
   schemaVersion: 1,
   artifact: "nfl-player-props-v1-evaluation",
+  gamesimTotals: USE_MATCHUP_TOTALS ? "matchup-totals-v1-decayed-points (integrated)" : "constant (model-v1 shared prior)",
   dataClass: "PRIVATE_RESEARCH",
   generatedAt: NOW,
   engine: { id: NFL_PLAYER_PROPS_ID, version: 1 },
@@ -562,12 +609,22 @@ const OUT = DIAGNOSE_DIR
   ? null
   : CHALLENGER === "receiving-target-deflation-v1"
     ? "data/internal/research/nfl/reports/receiving-repair-evaluation.json"
-    : CHALLENGER
-      ? "data/internal/research/nfl/reports/pass-yds-repair-evaluation.json"
-      : "data/internal/research/nfl/reports/player-props-v1-evaluation.json";
+    : CHALLENGER === "props-gamesim-matchup-totals-v1"
+      ? "data/internal/research/nfl/reports/props-integration-evaluation.json"
+      : CHALLENGER
+        ? "data/internal/research/nfl/reports/pass-yds-repair-evaluation.json"
+        : "data/internal/research/nfl/reports/player-props-v1-evaluation.json";
 if (CHALLENGER) {
   receipt.artifact = "nfl-pass-yds-repair-evaluation";
-  receipt.challenger = CHALLENGER === "receiving-target-deflation-v1"
+  receipt.challenger = CHALLENGER === "props-gamesim-matchup-totals-v1"
+    ? {
+        id: CHALLENGER,
+        preregistration: "data/internal/research/nfl/reports/nfl-integration-preregistration.json",
+        champion: "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+        scope: "gamesim totals input only: per-game matchup mu + receipt sigma replace the constant; every player parameter and seed unchanged",
+        totalsReceipt: `${totalsReceipt.artifact}@${totalsReceipt.generatedAt}`,
+      }
+    : CHALLENGER === "receiving-target-deflation-v1"
     ? {
         id: CHALLENGER,
         gamma: GAMMA,
@@ -586,6 +643,7 @@ if (DIAGNOSE_DIR) {
   fs.mkdirSync(DIAGNOSE_DIR, { recursive: true });
   fs.writeFileSync(path.join(DIAGNOSE_DIR, "receipt.json"), JSON.stringify(receipt, null, 1));
   fs.writeFileSync(path.join(DIAGNOSE_DIR, "calibration-bins.json"), JSON.stringify(diagnosticsBins, null, 1));
+  fs.writeFileSync(path.join(DIAGNOSE_DIR, "points.jsonl"), diagnosticsPoints.map((r) => JSON.stringify(r)).join("\n") + "\n");
 } else {
   fs.writeFileSync(path.join(ROOT, OUT), JSON.stringify(receipt, null, 1));
 }
