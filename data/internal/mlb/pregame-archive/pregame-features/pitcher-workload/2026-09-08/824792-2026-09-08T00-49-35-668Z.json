@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 824792,
+  "date": "2026-09-08",
+  "capturedAt": "2026-09-08T00:49:35.668Z",
+  "availableAt": "2026-09-08T00:49:35.668Z",
+  "eventStartTime": "2026-09-08T22:35:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 687064,
+      "name": "Brandon Young",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 24,
+      "restDays": 5,
+      "lastStartDate": "2026-09-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29.33,
+        "ipAvg": 5.87,
+        "kAvg": 4.2,
+        "bbAvg": 2,
+        "erAvg": 2.2,
+        "hrAvg": 1.4,
+        "kPer9": 6.44,
+        "workloadIpLast5": 29.33
+      },
+      "seasonToDate": {
+        "starts": 24,
+        "ip": 137,
+        "k": 110,
+        "bb": 48,
+        "er": 52,
+        "hr": 19
+      }
+    },
+    "away": {
+      "id": 676440,
+      "name": "Tanner Bibee",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 29,
+      "restDays": 5,
+      "lastStartDate": "2026-09-03",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 4.4,
+        "bbAvg": 2.6,
+        "erAvg": 3.2,
+        "hrAvg": 0.6,
+        "kPer9": 6.99,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 29,
+        "ip": 166.33,
+        "k": 132,
+        "bb": 51,
+        "er": 75,
+        "hr": 26
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-09-08&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-09-08T00:49:35.668Z"
+  },
+  "recordHash": "f293cd77eaabeeb4cb7fddef593421e1a2480ea5dc7948287fdcc9e0fdd51690"
+}
