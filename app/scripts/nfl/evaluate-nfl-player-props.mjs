@@ -561,8 +561,10 @@ for (const g of test) {
              endpoint mass counts half, making nominal 80% attainable on small integers. Continuous
              families are unchanged. */
           const isCount = mkt === "player_receptions";
+          const insideInclusive = actual >= dist.p10 && actual <= dist.p90 ? 1 : 0;
+          m.cover80Inclusive = (m.cover80Inclusive ?? 0) + insideInclusive;
           if (isCount && (actual === dist.p10 || actual === dist.p90)) m.cover80 += 0.5;
-          else m.cover80 += actual >= dist.p10 && actual <= dist.p90 ? 1 : 0;
+          else m.cover80 += insideInclusive;
           if (DIAGNOSE_DIR) {
             const famD = MARKET_FAMILY[mkt];
             const shareD = famD === "passAttempts" ? cand.qbShare : famD === "rushAttempts" ? cand.carryShare : cand.targetShare;
@@ -636,6 +638,10 @@ for (const mkt of PROP_MARKETS) {
     rmse: Number(Math.sqrt(m.rmse / n).toFixed(3)),
     pinball: Number((m.pinball / n).toFixed(3)),
     interval80Coverage: Number((m.cover80 / n).toFixed(4)),
+    /* BOTH conventions on the receipt (P249): the gate uses mid-p for count families (contract
+       v2.1); the inclusive number is what the DISPLAYED [p10, p90] empirically contains — the
+       two are not interchangeable and neither may impersonate the other. */
+    interval80CoverageInclusive: Number(((m.cover80Inclusive ?? 0) / n).toFixed(4)),
     thresholdCalibration: { pairs: m.cal.length, binsUsed: usable.length, ece },
     baselines: {
       rolling4Mae: Number((m.base.rolling4 / n).toFixed(3)),

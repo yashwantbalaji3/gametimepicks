@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-output-contract-matrix",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "249",
+  "generatedAt": "2026-09-08T22:35:00Z",
+  "populationContract": "v2 (participation-truth.mjs) — five typed states; coverage measurement v2.1 (mid-p for counts, BOTH conventions on receipts). Snap absence is participation evidence bounded by source coverage (team-week sheet must exist), never universal settlement proof; market-settled claims still need book-specific void rules.",
+  "datasetIndependence": {
+    "training": "2023-24 REG+POST (all fits, grids, share params, residual pools)",
+    "tuningCalibration": "2024 walk-forward inside train (rate-shrink m, gamma grids, TD shrink/flatten, half-life selection)",
+    "previouslyInspectedEvaluation": "2025 season — REUSED across P245-P248; every current receipt scores it; diagnoses derived from it (annex: p246-evidentiary-status-annex.json). No new 2025 look can create independence.",
+    "untouchedFuture": "2026 forward record (weekly settlement of frozen pre-kickoff revisions) — the only deciding evidence going forward."
+  },
+  "outputs": {
+    "team_points_winner_ties": { "model": "nfl-regular-season-public-v1 (analytic Elo-logistic win head; sampled scores)", "inputs": "corpus finals -> walk-forward Elo (cutoff), committed fitParams", "distribution": "margin ~ N(slope*d, sigma); win = logistic analytic x (1-tieMass); ties sampled", "sharedDeps": "margin head is THE game-script driver for player volumes", "evaluation": "held-out 2025 (reused): logLoss 0.6478 vs coin 0.6931", "publicLabel": "experimental simulations; model winner; never value language", "settlement": "settle-nfl-experimental (official finals)" },
+    "team_total": { "model": "matchup-totals-v1-decayed-points (adopted P247)", "inputs": "walk-forward decayed combined-points ratings, receipt-fitted a0/a1/sigma", "distribution": "total ~ N(mu_game, sigma)", "sharedDeps": "handoff into player chain (proven volume-invariant: gamesim-coupling.test — totals do NOT model pace)", "evaluation": "2025 (reused): NLL 4.029 vs prior 4.049, ΔNLL t=1.18 (not individually significant)", "publicLabel": "matchup-specific totals; scores derived from total+margin so they add up", "settlement": "same" },
+    "player_pass_yds": { "state": "WITHHELD", "bestCandidate": "pass-yds-baseline-v1 (REJECTED: mae 70.9 beats champion 80.7, cov 0.809 in band, ece 0.113 FAILS)", "namedDependency": "share-continuous predictive spread (prereg required)", "conditioning": "contract v2, conditional-on-played", "publicLabel": "withheld, exact bar named on boards" },
+    "player_pass_tds": { "state": "NEVER_EVALUATED", "note": "internally derivable from a joint TD mechanism; a generated component is not an approved public probability; separate evaluation required. NOT the QB scoring a TD." },
+    "player_rush_yds": { "state": "WITHHELD (SHADOW: ece 0.111)", "diagnosis": "workhorse (>=12 realized carries — DIAGNOSTIC grouping only) center +27 yds low; pregame-predictor test required before any eligibility rule", "namedCandidate": "train-fit share-conditional center (prereg required)" },
+    "player_targets": { "state": "INTERNAL", "note": "allocated per-iteration (Dirichlet-multinomial over passAtt); never published; no market claim" },
+    "player_receptions": { "state": "PUBLISHED", "evaluation": "midP 0.7571 / inclusive 0.8845 · ece 0.0438 · beats both baselines", "distribution": "binomial catches over allocated targets", "publicLabel": "10th/90th percentile columns (quantile semantics — no 80%-band claim)" },
+    "player_reception_yds": { "state": "PUBLISHED", "evaluation": "ece 0.016 · cov 0.835 · beats both", "note": "approval does NOT auto-transfer across shared-architecture changes (charter rule; re-eval on any joint-engine adoption)" },
+    "player_rush_tds_rec_tds": { "state": "INTERNAL via anytime engine shares", "note": "no per-type public family" },
+    "anytime_td": { "state": "PUBLISHED (corrected P248)", "evaluation": "n 3965 (+395 restored negatives) · LL 0.5214 < 0.5243/0.5657-era baselines · ECE 0.039", "conditioning": "contract v2 (played; DNP void as settlement voids)", "settlement": "void-conditioned, official scorers" },
+    "td_2plus": { "state": "UNAVAILABLE — needs validated TD-count draws, never a transform of anytime probability" },
+    "first_last_scorer": { "state": "UNAVAILABLE — needs an evaluated ordering mechanism" },
+    "priced_lines": { "state": "NONE — P171 authorization expired; founder-gated; leaderboards are projections, never edges" }
+  },
+  "jointEngineGaps": [
+    "QB passing yards and the sum of teammate receiving yards are drawn INDEPENDENTLY per iteration (two Gamma draws) — gross passing = team receiving is not enforced; the published families never surfaced the contradiction because pass yds is withheld.",
+    "TD outcomes are not simulated inside the game draws at all (separate closed-form engine over team-TD distribution); player TDs cannot reconcile to team scores or to each other per draw.",
+    "Team score accounting has no kicks/defensive/return/conversion decomposition; offensive TDs are not forced to explain points (nothing decomposes at all).",
+    "Pace: volumes are margin-driven only (proven); no total->pace pathway exists."
+  ]
+}
