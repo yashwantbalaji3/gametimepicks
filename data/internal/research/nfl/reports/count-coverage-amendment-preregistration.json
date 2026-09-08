@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "artifact": "count-coverage-amendment-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "248",
+  "charterSection": "Release B — receptions; A4 metric appropriateness",
+  "registeredAt": "2026-09-08T23:00:00Z",
+  "finding": "player_receptions coverage 0.8845 breached the [0.72, 0.88] band by 0.0045. Diagnosis on the champion's per-point dump: 25.4% of actual outcomes land EXACTLY on an interval endpoint (median interval width 4.1 catches; strict coverage 0.630, inclusive 0.884). An inclusive interval over a small-integer count CANNOT hit nominal 80% — endpoint probability masses are indivisible — so the continuous-variable coverage contract is statistically inappropriate for count families. This is a measurement-definition defect, not a model defect and not a threshold to shave.",
+  "amendment": {
+    "id": "population-contract v2.1 — count-family coverage",
+    "rule": "For integer-count families (player_receptions is currently the only one), interval coverage is scored MID-P: an outcome strictly inside counts 1, an outcome equal to either endpoint counts 1/2. Continuous families are unchanged. Quantiles, pinball, MAE and ECE are unchanged everywhere.",
+    "whyMidP": "the standard discrete-coverage treatment: splits the indivisible endpoint mass instead of awarding or denying all of it, making the nominal level attainable in expectation.",
+    "prospective": "This amendment does NOT retroactively re-grade the existing receipt. It applies from the next receipt generated under it; that re-receipt is a fresh evaluation event whose outcome is not pinned here — receptions may land PUBLIC or stay SHADOW wherever the amended measurement puts it (all other bars unchanged: ece <= 0.05, beats both baselines, n >= 300)."
+  },
+  "alsoRecorded": {
+    "rushing": "coverage/calibration failure is structured: high-opportunity backs (>=12 carries) run cov 0.645 with a +27.4-yd under-predicted center (share-dilution, the QB mechanism on lead backs) while low-opportunity backs are in band (0.812). Named future candidate: train-fit share-conditional center correction. NOT run in this program; rushing stays withheld."
+  },
+  "notes": "Registered before the amended measurement was implemented or any re-receipt ran; commit order is the proof."
+}
